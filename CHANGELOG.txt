@@ -1,0 +1,29 @@
+CHANGELOG.txt
+
+Purpose
+This file records what changed, when it changed, and why, to support traceability across manuscripts, datasets, and competence mappings.
+
+Entry format
+Date in YYYY-MM-DD
+Change type add update fix remove rename
+Scope policy dataset draft manuscript governance scripts
+Files affected exact file names
+Summary one to three sentences
+Reason rationale for the change
+Impact what downstream tables figures or credentials are affected
+Provenance parent sources added or changed
+Quality checks performed and outcomes
+Reviewer if any
+
+Entries
+Unreleased
+Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
+
+2026-02-18
+Change type add
+Scope governance
+Files affected CITATION.txt DATA_GOVERNANCE.txt LLM_CONTEXT_INSTRUCTION.txt CHANGELOG.txt
+Summary Added repository governance and citation scaffolding to support reproducible competence mapping and micro-credential design.
+Reason Establish traceability rules and evidence discipline for Blue Sociology outputs.
+Impact Improves auditability of future derived datasets and manuscript revisions.
+Quality checks Manual review for internal consistency and alignment with repository sources referenced in the governance files.
