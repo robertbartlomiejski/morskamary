@@ -1,1 +1,143 @@
 # morskamary
+
+Repository: robertbartlomiejski/morskamary
+
+Purpose and scope (project logic)
+Quote: “Addressing these challenges requires more than technocratic management; it demands the development of Blue Sociology.” 
+
+Blue Sociology and the Triparti…
+
+
+Reasoning: This repository is an evidence base (policy, data, competence matrices, and draft manuscripts) for developing Blue Sociology as an applied extension of maritime sociology for the EU Sustainable Blue Economy and “one ocean” governance.
+
+Quote: “TMBD distinguishes Marine dynamics (M)… Maritime dynamics (T)… and Oceanic dynamics (O)…” 
+
+Blue Economy Maritime Sociology…
+
+
+Reasoning: The core analytical backbone here is the Tripartite Model of Blue Dynamics (TMBD): Marine (biophysical agency), Maritime (techno-economic and institutional mediation), Oceanic (planetary governance and hydrosocial subjectivity). Documents and datasets are curated to support operationalisation, not only conceptual debate.
+
+Quote: “Sustainable Blue Value is the equilibrium region where Re-marinisation… Re-maritimisation… and Re-oceanisation… co-occur…” 
+
+Article_BLUE_REVISED (2)
+
+
+Reasoning: The repository prioritises sources and matrices that allow the “equilibrium claim” to be tested and translated into skills, governance, and micro-credential design requirements across blue economy sectors.
+
+Core competence spine (starting point for micro-credentials)
+Quote: “Ocean literacy… Blue systems thinking… Blue economy regulations… Data & digital proficiency… Open science & data sharing…” 
+
+Blue Social Competences Univ Sz…
+
+
+Reasoning: “Blue Social Competences Univ Szczecin” is the local competence baseline. It is aligned to BlueComp-like dimensions (understanding, digital/data, sustainability/resilience, business/governance) and is used here as the minimum sociological “software” needed for blue transitions to be legitimate and implementable.
+
+Quote: “Without this software, the hardware fails.” 
+
+Blue Social Competences Univ Sz…
+
+
+Reasoning: The repository therefore treats legitimacy, ethics, participation, governance capacity, and ocean literacy as implementation conditions (not add-ons) for offshore energy, ports, transport, tourism, marine living resources, and other sectors.
+
+Ocean literacy, citizenship, and democratic embedding
+Quote: “Blue citizenship… ensures that people’s voices, values, and concerns regarding the ocean are heard and respected in… decision-making.” 
+
+Ocean Literacy Brief 3_0
+
+
+Reasoning: Several included briefs operationalise Oceanic (O) capacity as civic and institutional competence: inclusive participation, political agenda-setting, and democratic integration of source-to-sea concerns.
+
+Quote: “Develop and implement a comprehensive EU-wide ocean literacy strategy… connect ocean sciences with social sciences, economics, and policy studies…” 
+
+Ocean Literacy Brief 2_0
+
+
+Reasoning: This provides an EU-aligned rationale for micro-credentials that bridge marine science with sociology, governance, and economy—especially for workforce development, reskilling, and lifelong learning.
+
+Quote: “Giving more attention to inclusivity… provides an excellent opportunity and political momentum…” 
+
+Ocean Literacy Brief 4
+
+
+Reasoning: Inclusivity is treated as an operational requirement (who participates, who benefits, whose knowledge counts, what access barriers exist) rather than a rhetorical value claim.
+
+Open science, data governance, and citizen science
+Quote: “FAIR principles (Findable, Accessible, Interoperable, Reusable)… CARE principles…” 
+
+Ocean Decade Brief Unesco
+
+
+Reasoning: The repository includes normative and procedural references for data practices, especially where blue transitions rely on multi-stakeholder data ecosystems and citizen science contributions.
+
+Quote: “There is a profound need for inclusive and actionable ocean science that is co-designed…” 
+
+Unesco 2026 inclusive actionabl…
+
+
+Reasoning: Co-design, values, equity, and recognition of plural knowledge systems are treated as necessary conditions for actionable science-policy interfaces—directly relevant to micro-credential learning outcomes and assessment design.
+
+What is inside (high-level inventory, aligned to use cases)
+
+Competence and micro-credential design baselines
+Blue Social Competences Univ Szczecin (xlsx/pdf/csv variants)
+Blue economy skills survey and blue careers materials
+
+Sectoral activity and evidence datasets
+EMODnet human activities spreadsheets (multiple vintages)
+Taxonomy and classification spreadsheets (e.g., TAC/TEC tools; ILK resource database)
+
+Policy and strategy anchors
+European Ocean Pact text file
+EU Blue Economy Reports (2019–2025)
+Additional EU and UN policy references relevant to ocean governance, justice, and sustainability
+
+Research manuscripts and conceptual framework drafts
+Article_BLUE_REVISED (2).docx
+Blue Economy Maritime Sociology 12_02… (TMBD rewrite)
+Blue Sociology and TMBD (docx/pdf variants)
+From Marinization to Oceanization… (pdf)
+
+How to use this repository (typical workflows)
+Quote: “Connecting Science with Society… ocean literacy and societal transformation” 
+
+ocean-climate nexus-KI0722867EN…
+
+
+Reasoning: Recommended workflows include (a) linking sectoral change evidence to societal legitimacy risks and governance needs; (b) mapping competences to sectors and to TMBD axes (M/T/O); (c) producing Europass-style micro-credential records and stackable pathways grounded in EU policy frames and Ocean Decade co-design/data-sharing norms.
+
+Suggested citation and provenance practice (repository-level)
+Quote: “Reproduction is authorised provided the source is acknowledged.” 
+
+ocean-climate nexus-KI0722867EN…
+
+
+Reasoning: Each document retains its original provenance and licensing/rights statements. When reusing any content, cite the original source document first, then cite this repository as a curated compilation that supported competence mapping and micro-credential derivation.
+
+Suggested repository files to add (optional but recommended)
+
+CITATION.txt (how to cite the repository and each source)
+
+DATA_GOVERNANCE.txt (FAIR/CARE alignment + rules for derived datasets)
+
+LLM_CONTEXT_INSTRUCTION.txt (the instruction below, versioned)
+
+CHANGELOG.txt (what changed, when, and why, for traceability across drafts and datasets)
+
+LLM_CONTEXT_INSTRUCTION.txt text to paste (clean repository version)
+
+Instructional context for drafting and revising the scientific article and micro-credential outputs within this repository:
+
+You are writing a scientific article in sociology. Use EU blue economy reference reports, treaties, pacts, and related documents. Rethink the above through Ludwik Janiszewski’s marinisation theory (marine factor + human/maritime factor), maritime social reality, and the psychosocial exception of maritime coastal communities, including the unique marine work environment of the classic social category of the people of the sea (deep-sea fishermen, merchant seafarers, shipyard workers, port dockers). The aim is to rethink, update, and extend the theoretical background of maritime sociology developed by Ludwik Janiszewski, Robert Bernard Woźniak, Adam Sosnowski, Janusz Sztumski, and later Agnieszka Kołodziej-Durnaś, Arkadiusz Kołodziej, Włodzimierz Durka, Wioleta Bryniewicz, Robert Bartłomiejski, Maciej Kowalewski, and the British branch of maritime sociology (Michael Poole, Vilheim Aubert, Bird, Hoyle, Roseberg).
+
+Update these traditions to agential realism, wet ontologies, hydro-criticism, and posthumanist sociology of translation, while highlighting separate levels of analysis for marine (nature-biota perspective), maritime (human-social perspective), and oceanic level (posthumanistic, blue planetary, water bodies, agential materialism, Timothy Morton’s hyperobject, boundary object, and Bartłomiejski & Kowalewski’s World Ocean as superactor).
+
+Apply the triple-dimensional configuration of the model (de-, re-, ocean-to) to all sectors of the blue economy and to the competences in BlueComp (blue competence framework). Analyse and identify emerging and established blue competences, professions, occupations, competences, skills, and careers aligned with Blue Competence and Skills. Based on them, recommend micro-credential designs applied to the tripartite model.
+
+Definitions to apply:
+Marinization (Janiszewski): the process by which societies adapt to and are shaped by marine environments, producing distinctive maritime cultures, economies, and institutions.
+Maritimisation (T-axis extension): the techno-economic and institutional terraforming of the sea (ports, fleets, grids, MSP, property regimes) translating marine constraints into actionable infrastructures.
+Oceanisation (O-axis): planetary-scale reconnection and governance integration treating the ocean as a coupled socio-ecological system requiring hydrosocial literacy, cross-border cooperation, and transcorporeal responsibility.
+
+Ideate using proof-based EU blue economy policy documents and strategies and implement micro-credentials in the form of a scientific article. Start from Blue Social Competences Univ Szczecin (xlsx/pdf/csv). Be comprehensive, accurate, reliable, and relevant. Do not be over-optimistic or selectively optimising. Use Article_BLUE_REVISED and Blue Economy Maritime Sociology TMBD drafts as starting points, and keep the reasoning logic consistent with those texts.
+
+All introduced terms must be source-justified; do not hallucinate. If evidence is not available, leave a placeholder for citation rather than inventing. Always recommend next steps and double-check credibility.
