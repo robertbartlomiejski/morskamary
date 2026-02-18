@@ -1,0 +1,101 @@
+LLM_CONTEXT_INSTRUCTION.txt
+
+Version 1.0
+Date 2026-02-18
+Repository morskamary
+Scope Blue Sociology article drafting and micro-credential design grounded in repository sources
+
+Non-negotiable constraints
+
+Evidence discipline
+Use only sources present in this repository unless explicitly instructed otherwise. If no relevant source is available, state that you do not know and add a placeholder citation needed.
+
+Quote then reason protocol
+For every substantive claim that introduces a new term, definition, policy implication, competence requirement, or micro-credential design rule, begin with a short verbatim quote from a repository source, then provide reasoning that translates the quote into the claim.
+Every quote must include the source file name and a precise locator, such as page number, section title, or table identifier.
+Keep quotes short to respect copyright limits.
+
+No hallucination rule
+Do not invent author names, years, legal references, policy titles, or empirical findings. When metadata is missing, say missing in file and keep the statement provisional.
+
+Tripartite model logic
+Apply the Tripartite Model of Blue Dynamics as an analytic spine in every relevant section
+Marine dynamic M biophysical and ecological agency and constraints
+Maritime dynamic T techno-economic, infrastructural, labour, and institutional mediation
+Oceanic dynamic O planetary coupling, multi-level governance, hydrosocial subjectivity, and transboundary responsibility
+
+De re ocean-to configuration
+Operationalise de-marinisation, re-marinisation, and ocean-to dynamics across blue economy sectors when the source base supports it. Do not force the mapping if the evidence is absent.
+
+Core theoretical lineage to apply when supported by sources
+
+Marinization in the sense of Janiszewski
+
+Maritimisation as the techno-institutional terraforming axis
+
+Oceanisation as the planetary governance and hydrosocial literacy axis
+
+Maritime social reality and the psychosocial exception of maritime coastal communities and marine work environments
+
+People of the sea categories such as deep-sea fishermen, merchant seafarers, shipyard workers, port dockers
+
+Policy and competence anchoring rules
+
+Start competence mapping from Blue Social Competences Univ Szczecin matrices and then align outward to EU blue economy skill and competence frames, including BlueComp, only when you can quote the relevant competence language from the source files.
+
+When translating policy into learning outcomes, explicitly specify whether the outcome is M, T, or O dominant, and which blue economy sector or cluster it targets.
+
+For any policy claim, prefer direct institutional documents in the repository over secondary commentary.
+
+Micro-credential design outputs required
+When asked to design micro-credentials, produce at minimum
+
+Title
+
+Intended learner profile and entry requirements
+
+Workload and indicative ECTS equivalence if supported by the source base, otherwise provide workload hours only and mark ECTS as pending institutional decision
+
+EQF level proposal with justification from competences and assessment complexity
+
+Learning outcomes written as observable competences
+
+Assessment method and evidence required
+
+Stackability rules including prerequisites and pathways to other credentials
+
+Quality assurance notes including transparency and portability language, but only quote formal wording when the relevant legal text is in the repository
+
+Credibility checks before finalising any output
+
+Cross-source triangulation
+At least two independent sources in the repository should support any high-impact claim when possible.
+
+Terminology hygiene
+Every specialised term must have at least one source anchor quote. If not, mark citation needed.
+
+Non-selectivity
+Explicitly state limitations and countervailing considerations found in the sources. Do not present only optimistic implications.
+
+File handling and traceability
+
+When producing tables or mappings, include the source file and locator for each row or cluster definition.
+
+When revising drafts, record major conceptual changes in CHANGELOG.txt with date and reason.
+
+Suggested internal structure for article drafting
+
+Problem framing from EU blue economy policy plus maritime sociology gap
+
+Theoretical framework with TMBD and updated maritime sociology lineage
+
+Method for mapping sectors to competences and micro-credentials
+
+Results as competence sector mappings and credential specifications
+
+Discussion on legitimacy, justice, governance capacity, and implementability
+
+Limitations and next steps
+
+End-of-response requirement
+Always propose concrete next steps for strengthening the evidence base, such as which repository sources to quote next, which mappings need validation, or which datasets need replication checks.
