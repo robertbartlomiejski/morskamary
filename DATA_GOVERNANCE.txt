@@ -1,0 +1,112 @@
+DATA_GOVERNANCE.txt
+
+Scope
+This file defines how data and documents in this repository are stored, transformed, cited, and quality controlled to support traceable and reproducible Blue Sociology research and micro-credential design.
+
+Anchor excerpts that motivate these rules
+Quote: follow the FAIR and CARE principles which provide high-level guidance on designing efficient and interlinked data systems
+Source: Ocean Decade Brief Unesco.pdf page 10
+Reasoning: Repository governance must implement traceable, interoperable data practices and an ethics-aware layer for community, local, and Indigenous knowledge.
+
+Quote: FAIR principles aim to optimise the reuse of data by making it Findable Accessible Interoperable and Reusable
+Source: Ocean Decade Brief Unesco.pdf page 10
+Reasoning: Derived outputs must remain reusable through explicit provenance, open formats, and documented transformations.
+
+Quote: This initiative emphasises co-design by prioritising the perspectives and observations of local communities to plan monitoring and research priorities
+Source: Ocean Decade Brief Unesco.pdf page 9
+Reasoning: Social-science datasets and qualitative materials should be governed as co-produced knowledge, not extractive data.
+
+Repository data classes
+Class A Raw sources
+Definition: unmodified external publications and original datasets
+Examples: EU and UN PDFs, institutional briefs, official datasets
+Rule: never overwrite. Any correction must be stored as a new file in a derived or working area.
+
+Class B Working files
+Definition: interim analysis outputs, tables, cleaned copies used during active work
+Rule: must include a provenance note in a companion text file that names parent sources and transformations.
+
+Class C Derived datasets
+Definition: outputs created by transforming Class A or Class B into new structured datasets
+Examples: CSV matrices, merged spreadsheets, coded sector mappings
+Rule: must be reproducible from parent sources and documented.
+
+Class D Manuscripts and drafts
+Definition: article drafts, micro-credential drafts, interpretive notes
+Rule: treat as versioned working papers with change logs and explicit citation discipline.
+
+Minimum metadata required for every derived dataset
+a) Title of derived dataset
+b) Creation date
+c) Creator or maintainer
+d) Parent source list with file names and versions
+e) Transformation description sufficient to replicate
+f) Data dictionary describing variables, units, categories, and missingness codes
+g) Quality checks performed and outcomes
+h) License and reuse constraints
+i) Known limitations and intended use
+
+FAIR alignment rules implemented in this repository
+Findable
+a) Use consistent file naming with date or version where applicable
+b) Maintain an index file listing datasets and their purpose
+c) Require a companion metadata file for every derived dataset
+
+Accessible
+a) Prefer open formats for derived outputs, such as CSV, with UTF-8 encoding
+b) Ensure each dataset can be opened with common tools without proprietary dependencies when possible
+c) Store documentation alongside data, not in external chat logs
+
+Interoperable
+a) Use ISO 8601 dates
+b) Use consistent separators and decimal conventions per file
+c) Use controlled vocabularies for sectors and competences with a published mapping table
+d) Avoid ambiguous abbreviations unless defined in the data dictionary
+
+Reusable
+a) Preserve provenance chain from raw sources to derived outputs
+b) Keep transformations deterministic where possible
+c) Record assumptions and thresholds explicitly
+d) Provide validation checks and expected ranges for key variables
+
+CARE principles operationalisation in this repository
+This repository follows CARE principles as referenced in the Ocean Decade Citizen Science Data Sharing Guidelines.
+
+Rules for community, local, and Indigenous knowledge and qualitative social-science materials
+a) Authority and consent
+Do not publish sensitive qualitative data or community knowledge without documented consent and a clear sharing agreement.
+b) Benefit and reciprocity
+When compiling or analysing community-sourced materials, record the intended benefit and feedback pathway.
+c) Responsibility
+Document risks of harm, misrepresentation, or stigmatization for coastal and maritime communities.
+d) Ethics
+Store only what is necessary. Apply redaction and aggregation. If in doubt, do not publish the data.
+
+Personal data and GDPR handling
+a) Avoid storing directly identifying personal data in the public repository
+b) If personal data is unavoidable for a specific research step, store it outside the public repository and keep only anonymised or aggregated outputs here
+c) Maintain a de-identification note describing the method and residual re-identification risk
+d) Never store private contact details, signatures, or financial identifiers in the public repository
+
+Licensing and intellectual property
+a) Treat every PDF and dataset as licensed by its original owner unless the license explicitly states otherwise
+b) Do not redistribute restricted materials beyond what the license permits
+c) For derived datasets, state the license you apply and confirm it is compatible with parent licenses
+d) Do not copy large amounts of copyrighted text into derived datasets
+
+Quality assurance for derived datasets
+Required checks
+a) Schema check with variable list and types
+b) Missingness report
+c) Duplicate detection for key identifiers
+d) Range and domain checks for categorical variables
+e) Reproduction check that rebuilding from parent sources yields the same result
+
+Traceability rules
+a) Every derived dataset must be linked to a specific commit hash
+b) Every change must be recorded in CHANGELOG.txt
+c) If a dataset is used in a manuscript figure or table, record the dataset version and commit in the manuscript notes
+
+External contributions and review
+a) All contributions must preserve provenance and metadata rules
+b) Review focus is on reproducibility, citation integrity, and ethical compliance, not only on formatting
