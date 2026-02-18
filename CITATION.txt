@@ -1,0 +1,58 @@
+This repository is a curated evidence base and working research environment. Cite original sources first. Cite the repository as the access location and the specific version used.
+
+How to cite the repository itself
+Use this when the object you rely on is the repository structure, the curated selection, or derived datasets maintained here.
+
+Template
+Author or maintainer. Year. Repository title. Version tag or commit hash. GitHub repository. Access date. Path if relevant.
+
+Example with placeholders
+Bartłomiejski, Robert. 2026. morskamary. Evidence repository for Blue Sociology and One Ocean Economy. Version vX.Y.Z or commit abc1234. GitHub. Accessed YYYY-MM-DD.
+
+In-text template
+(Author, Year, repository name, commit hash)
+
+How to cite a single file from the repository
+Always cite the original publisher and publication first, then append repository location and version.
+
+Template
+Institution or author. Year. Document title. Publisher or series. Identifier if available. Repository name, file path, commit hash, access date.
+
+Example using a file with explicit institutional framing in the PDF text
+United Nations General Assembly. 2024. Resolution 79/1 The Pact for the Future. Repository morskamary, file UN Resolution 2024 Pact for the future.pdf, commit abc1234, accessed YYYY-MM-DD.
+
+Example using a file where the PDF begins as an institutional press release
+European Commission. 2025. Press release Commission adopts European Ocean Pact for a healthy ocean, a competitive blue economy and thriving coastal communities. Repository morskamary, file European Ocean Pact for a healthy ocean, a competitive blue economy.pdf, commit abc1234, accessed YYYY-MM-DD.
+
+How to cite datasets and spreadsheets
+If the spreadsheet is an original dataset, cite the dataset owner and version. If it is a derived dataset, cite the derivation and the parent sources.
+
+Original dataset template
+Owner. Year. Dataset title. Version. Format. Repository file name, commit hash, accessed date.
+
+Derived dataset template
+Maintainer. Year. Derived dataset title. Derived-from parent dataset(s) and documents. Method reference. Repository file name, commit hash, accessed date.
+
+Required minimum metadata for any dataset citation in this repo
+a) File name exactly as stored
+b) Commit hash or release tag
+c) Access date
+d) Provenance note stating whether it is raw or derived
+e) If derived, list the parent sources
+
+How to cite working manuscripts and drafts
+Drafts in this repository are working documents. Cite them as working papers unless and until they are published elsewhere.
+
+Template
+Author(s). Year. Working title. Working paper or draft. Repository file name, commit hash, accessed date.
+
+How to capture the version used
+Preferred: cite a release tag
+Fallback: cite the short commit hash
+If you cannot provide either, record the access date and the exact file checksum (SHA256) in your notes.
+
+How to build complete references without guessing
+Do not infer author, year, publisher, DOI, or series from file names. Use the document’s title page, colophon, or embedded bibliographic instruction. If not present, record “year not stated in file” and keep the citation minimal.
+
+Source priority statement for scholarly writing
+When the same claim appears in multiple places, cite the most authoritative source available, typically legal texts and official institutional documents before summaries, then peer-reviewed literature before drafts, then repository-derived notes last.
