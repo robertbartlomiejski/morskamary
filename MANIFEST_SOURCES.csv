@@ -1,0 +1,11 @@
+file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rights_note,summary_1_sentence,preferred_citation_key,text_available
+CHANGELOG.txt,governance,,,,,,CHANGELOG,yes
+CITATION.txt,governance,,,,,,CITATION,yes
+DATA_GOVERNANCE.txt,governance,,,,,,DATA_GOVERNANCE,yes
+LLM_CONTEXT_INSTRUCTION.txt,governance,,,,,,LLM_CONTEXT_INSTRUCTION,yes
+PROMPT_REQUEST_TEMPLATE.txt,governance,,,,,,PROMPT_REQUEST_TEMPLATE,yes
+readme,other,,,,,,readme,no
+README.md,governance,,,,,,README,yes
+requirements.txt,script,,,,,,requirements,yes
+scripts/generate_manifest.py,script,,,,,,generate_manifest,no
+scripts/README.txt,script,,,,,,README,yes

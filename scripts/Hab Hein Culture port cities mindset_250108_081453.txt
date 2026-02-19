@@ -1,0 +1,968 @@
+The European Journal of Creative Practices in Cities and Landscapes, Vol 4, no 1.
+
+Edited by Carola Hein, Sabine Luning, Paul van de Laar
+
+Many scholars agree that port cities are a particular type of cities. They point to their location at the border of land and sea, their global connections, their particular port related infrastructure, or their often cosmopolitan lifestyles. Yet, there is no clear understanding whether these port-cities also have a particular port city culture, how to define it, how to measure it or even how to attach names to it. Multiple words exist to identify this particular state of port city culture in different disciplines. The maritime archaeologist Christer Westerdahl introduced the notion of “maritime cultural landscape” (Westerdahl 1992). The historians Jerry Bentley, Renate Bridenthal, and Kären Wigen have coined the term seascapes (2007). The planning historian Carola Hein has proposed the concept of port cityscapes, arguing that the reach of the port into its neighboring city and region merits comprehensive investigation (2011; 2016). Other planners and landscape architects have explored issues of design, water, and heritage: the work on hydrobiographies stands as an example (maybe) (J.W. Bosch, C. Soree 2016). Beatrice Moretti employs the notion of “portuality” (Moretti 2019).
+
+The study of port city culture(s) or values invites researchers to reconceptualize concepts such as ‘culture’. Historically, culture has been associated with bounded communities and systems of thought. Social scientists have started to conceptualize the particular character and the selflogic of cities (Löw 2016), offering new approaches.
+
+Port cities provide a particularly challenging terrain for innovative approaches. As (scalar) localized hubs defined by their global connections, heterogeneous networks with shared interests in branding port-cities’ distinctiveness (Warsewa 2011), and superdiversity (van de Laar and van der Schoor 2019), port cities prompt questions concerning sense of community, tensions between processes of closure and opening up, as well as multiple value orientations and value realizations (Geschiere 2009; Tsing 2011; Graeber 2013). And, given the spatial and infrastructural characteristics of port cities, scholars opt to stretch the concept of ‘infrastructure’ to include social, regulatory and technological features and analyse their interrelations (Larkin 2013).
+
+These diverse terms reflect particular approaches and have yet to be put into conversation and developed for use in future planning. Port city actors have declared that culture is a key theme in for their work (AIVP Agenda 2030, https://www.aivpagen- da2030.com/). Many politicians and practitioners agree that to (re)anchor the port in its larger physical context, the port needs to engage again with local social and regional practices. There is a clear need not only to measure the economic or infrastructural impact of the port, but also its presence in the societal and cultural context of its larger region, including from the perspective of identities. Such engagement is important both to train the port workers of the future (human capital) and to engage with the business community as well as professional actors, but also to interact with the population at large and to create a maritime mindset, where the creativity of the larger population engages with maritime practices, and contributes to long-term port city resilience. Beyond short-term marketing efforts, what is needed is long-term engagement with local publics through education, spatial integration, social investment, cultural engagement and questions about how lifestyles and culture can contribute to (re)building shared values of port, city and region.
+
+To contribute both to historical and contemporary analysis and future design and planning this special issue invites contributions that conceptualize the particular state of port cities, propose methodologies to better understand them, and discuss concrete case studies that highlight both the historic dimension of port city culture and the contemporary importance. It also invites authors to provide insight into the scales and temporalities of the discussion on port city cultures. Contributions can address a wide range of topics from architecture and planning, to port city music, literature, or games.
+
+Contributions will combine conceptual analysis with concrete case studies. They will explore (but will not be limited to) the following topics.
+
+Terms and Concepts: How can we capture the particular characteristics of port cities focusing on their spatial, social and cultural particularities? What terms can we use to describe the palimpsest of space, society and practices in port cities? Which disciplinary approaches and concepts can be used to conceptualize them?
+
+Theories and Methodologies: What are the theories and methodologies that can be used to understand the particular interactions of sea and land, of global and local, of space, society and culture in port cities? How can novel approaches help us redevelop the sealand continuum in general and port cities in particular?
+
+Path dependencies and resilience: Do institutions in port cities follow particular development paths that make the port city as a system more resilient? Are there examples of historical transitions that can help us prepare for and address contemporary transition challenges (energy, data, migration)? The port function stays even as institutions evolve, raising the question: How have maritime spaces and practices supported port city development?
+
+Port city culture for economic development: Economic development has long used port city culture for branding, but also more profoundly, to build bridges among diverse port city actors. What are the traditional intersections between economy and culture? What are potential links between business culture and port city culture, notably through localizing the global? How can a maritime awareness increase economic opportunities for businesses and the general public?
+
+Port city heritage: Historic buildings and spaces, but also films, literature or paintings can make important contributions to the development of port city culture. What structures do we need to consider? How can we assess their impact through quantitative and qualitative measures?
+
+https://businessinsider.com.pl/technologie/nowe-technologie/chatbot-ai-bez-kodowania-mozemy-juz-tworzyc-wlasne-gpt/q1d1s66
+
+https://www.wnp.pl/budownictwo/inwestycja-za-470-mln-euro-podniesie-range-polski-powiekszy-tez-nasze-terytorium,841893.html
+
+https://wszczecinie.pl/miasto-aktualizuje-dokumentacje-projektowa-budowy-mostu-klodnego-i-przebudowy-okolicznych-ulic/48138
+
+https://www.rynekinfrastruktury.pl/wiadomosci/intermodal-i-logistyka/terminale-zbozowe-w-polskich-portach-morskich-fakty-i-mity-91488.html
+
+https://www.farmer.pl/biznes/zboze-mialo-zalewac-polskie-porty-jak-jest-naprawde,147227.html
+
+https://radioszczecin.pl/1,472634,tym-ktorzy-nie-powrocili-z-morza
+
+https://radioszczecin.pl/1,472573,tym-ktorzy-nie-powrocili-z-morzas-w-bogatej-obsa
+
+https://www.eswinoujscie.pl/2024/06/11/dni-morza-w-swinoujsciu-zobacz-program/
+
+https://wszczecinie.pl/szczecin-ma-sie-czym-pochwalic-czy-mieszkancy-w-koncu-docenia-architekture-modernistyczna/48202
+
+https://www.wnp.pl/gazownictwo/nowy-statek-zadebiutowal-w-naszym-terminalu-lng,845034.html
+
+https://24kurier.pl/akcje-kuriera/kurier-portowy/atrakcyjny-wolny-obszar-celny/
+
+https://www.gospodarkamorska.pl/federacja-zwiazkow-zawodowych-marynarzy-i-rybakow-c403
+
+https://wgospodarce.pl/informacje/142407-drastyczny-spadek-zeglugi-zaskakujacy-powod
+
+Rynek transportu morskiego Gdańsk 
+https://biznes.interia.pl/gospodarka/news-decyzja-swiatowego-giganta-uderzy-w-port-gdansk-przekieruje-,nId,7579655 
+
+Umowy spoleczne i Konflikt o plaże port
+https://www.eswinoujscie.pl/2024/06/11/swinoujscie-fort-gerharda-potwierdza-turystyka-na-prawobrzezu-nie-przetrwa/
+
+Kołobrzeskie Dni Morza
+https://e-kg.pl/artykul/kolobrzeskie-swieto/1251596 
+
+Wenecja Dni Morza Zaślubiny z morzem 
+https://www.google.com/amp/s/pl.italiani.it/Festa-della-Sensa-maria%25C5%25BC-Wenecji-z-morzem/amp/
+
+Święto Morza w Gdynii 10 dni od 2013 roku
+https://www.trojmiasto.pl/wiadomosci/Swieto-Morza-2024-w-Gdyni-program-parada-cudawianki-n190553.html
+https://wszczecinie.pl/otwarto-muzeum-statkow-na-wodzie-to-jedyne-takie-muzeum-w-polsce/48288
+
+Czeskie morze port 
+https://podroze.wprost.pl/turystyka/11729215/tak-wyglada-czeskie-morze-niewielu-wie-o-tym-miejscu.html
+
+https://www.planeta.pl/przyroda/rekin-w-baltyku-12-metrowy-zarlacz-olbrzymi
+
+https://wiadomosci.wp.pl/nowy-zakaz-nad-baltykiem-posypia-sie-mandaty-7040226644851456a
+
+https://www.rmf24.pl/regiony/trojmiasto/news-gdynia-sailing-days-zeglarskie-swieto-nad-baltykiem,nId,7588806#crp_state=1
+
+https://www.rmf24.pl/regiony/trojmiasto/news-trwaja-dni-morza-w-gdyni,nId,7592415#crp_state=1
+
+https://www.gospodarkamorska.pl/polskie-porty-w-2030-dokad-plyniemy-i-jaki-obrac-kurs-78759
+
+Parada plażowa 
+https://www.eswinoujscie.pl/2024/06/22/swinoujscie-startuje-sezon-plazowy-z-blekitna-flaga-na-maszcie-dzis-wielka-parada/
+
+https://islandstudiesjournal.org/article/118786-the-correlation-between-asian-port-cities-and-traditional-portuguese-urban-forms-based-on-map-and-machine-learning-analyses
+
+islandstudiesjournal.org
+
+The Correlation Between Asian Port Cities and Traditional Portuguese Urban Forms Based on Map and Machine Learning Analyses
+
+Yile Chen, Liang Zheng, Jianyi Zheng
+
+Island Studies Journal, 2024
+
+In the 16^th^ and 17^th^ centuries, under the influence of the Portuguese Empire's overseas expansion and cultural integration, the island city of Macau became an important international trading port in the Eastern Sea, with close ties to the Asian port cities governed by Portugal. This study introduces a new method for comparing urban morphological layouts using machine learning and investigates the potential benefits of combining urban morphological analysis with machine learning techniques. In addition, a combination of urban morphology theory and machine learning is used to excise samples of urban morphology from Portuguese urban geographical information maps. The morphological characteristics of port city areas are further extracted, and training labels for typical Portuguese urban textures are established. Using the YOLOv4 object detection algorithm, the results are compared with the urban textures of typical island and port cities of the Asian Silk Road---Goa in India, Malacca in Malaysia, Macau in China, and Dili in Timor-Leste---revealing the similarities and differences among the port cities in Asia influenced by traditional Portuguese urban practices. The results reveal the relationship between maritime trade and urban form.
+
+researchgate.net
+
+Putting Walkscapes on the Map: GIS-based Visualization for Mobile Methods in Landscape Research
+
+Daniel Münderlein
+
+Journal of Digital Landscape Architecture, 105-127, 2024
+
+The idea of exploring landscapes by walking is historically and socially deeply rooted and fundamental to our modern understanding of landscapes but is often methodologically underrepresented. This paper illustrates that walking can be considered and applied as a method in landscape research. After a brief explanation of walking as a source of knowledge, a selection of mobile methods from literature is explained and their potential in landscape research is outlined. Based on these explanations, a new and innovative mobile method called a Trigger Question Walk is presented. This aims at combing the advantages and potential of existing methods and serves the purpose of digitally processing data from walks in a structured way to visualize results from mobile methods by using GIS. Its application is illustrated by using data from a larger empirical study, which investigates into the interrelationships between landscape, health, and well-being in the study area of a Geo-Naturepark in Germany.
+
+Wyświetl na researchgate.net
+
+[PDF] researchgate.net
+
+Powiązane artykuły
+
+Wszystkie wersje 2
+
+sciencedirect.com
+
+Has the Maritime Silk Road Initiative promoted the development and expansion of port city clusters along its route?
+
+Chuoran Li, Lanjie Zhang, Shaoyang Chen, Ting Zhang, Jian Zhou, Jinshan He, Weiwang Xu, Tingting Wang
+
+Cities 151, 105127, 2024
+
+Over the past decade, rapid urbanization and significant regional population migration have led to profound changes in the urban geography along the Maritime Silk Road (MSR) route. However, current research still lacks quantitative investigations into urban development under the backdrop of the MSR initiative, as well as discussions on the mechanisms and policy effects of the MSR initiative on regional urban development as a whole. Drawing upon theories and methodologies from various disciplines such as urban geography, urban economics, and political geography, this study quantifies the development changes of MSR port city clusters (PCCs) at different research scales. From 2000 to 2020, PCCs along the MSR route have all exhibited positive expansion, with an average annual growth rate of 5.2 %, accompanied by a rapid increase in NTL values. Rapid urbanization exhibits significant regional disparities, with Southeast Asian PCCs gradually emerging as hotspots for urban expansion, and the NTL centroid rapidly shifting southeastward at a speed of 27 km/year. Spatial change analysis results effectively demonstrate the temporal and spatial alignment between urban development and the MSR initiative. Some newly established small cities are emerging along the MSR route and have the potential to become new locations for rapid urbanization. DID models were constructed to illustrate the positive role of the MSR in driving urban expansion and development, with population, port connectivity, and Chinese investment playing significant roles. Furthermore, this study emphasizes the importance of selecting the appropriate research scale for studying urban development under policy influences. The choice of urban scale must maximize the representation of policy or planning characteristics, with studies at the PCC scale being more representative of the MSR initiative compared to national-scale studies. This study provides new insights into the development changes of port cities at different scales along the MSR initiative and sheds light on the selection of research scales for urban issues under policy influences.
+
+https://ideas.repec.org/a/sos/sosjrn/240219.html
+
+knowledge.uchicago.edu
+
+Clash of Food Culture: Integration of Western Cuisine into Chinese Port Cities in Nineteenth and Twentieth Centuries
+
+Chenfei Li
+
+University of Chicago, 2024
+
+Since its introduction during the late imperial and early republican eras, Western cuisine has played a significant role in major Chinese port cities. Tracing back to their origin, Chinese-owned Western restaurants established by Cantonese entrepreneurs have allowed many Chinese to try Western food since 1880. However, due to their elevated prices, these Western restaurants were almost exclusively visited by those of higher socioeconomic status. By examining Western cuisine’s integration into Chinese port cities such as Shanghai and Guangzhou through specific case studies, this paper argues that Chinese-owned Western restaurants became an opportunity for Westernized Chinese elites to assert their status. Furthermore, analysis of local newspapers detailing the Chinese’s reaction to Western cuisine suggests the appearance of anxieties about globalization and non-adaptation to the West among the Chinese. This study includes visual sources, some depicting the dining experience within Western and Chinese restaurants, while others demonstrate the disparity between the rich and poor in early modern China.
+
+Wyświetl na knowledge.uchicago.edu
+
+[PDF] uchicago.edu
+
+Powiązane artykuły
+
+ideas.repec.org
+
+The Effects of Public Investments and Fiscal Incentives in Free Port Cities on Economic Growth Dynamics at Local Level in Türkiye
+
+Deniz Abukan, AKIN Cem, Esra Doğan
+
+Sosyoekonomi Journal, 2024
+
+In the study, from 2006 to 2019, in 11 cities with free zones and seaports in Türkiye, public investments and fiscal incentives were examined as economic growth dynamics at the local level. This is not only in a relational context; It is also put forward by considering the supportive and complementary context of investment expenditures to investments in the incentive system. A comparative empirical analysis is applied for 11 free port cities (Adana, Antalya, Bursa, İzmir, İstanbul, Kocaeli, Mersin, Rize, Samsun, Tekirdağ, Trabzon). Because port cities are at the centre of market relations (as functioning, processing, and mechanism) in the historical process, cities with free zones and seaports were specially selected for the study. Thus, in the empirical analysis applied through COPRAS, one of the multi-criteria decision-making methods, the current situation regarding the relationship between public investments and financial incentives and economic growth at the local level is determined in 11 free port cities. As a result of the findings, it was determined that while free port cities in Türkiye are expected to have a high growth potential, this is generally not valid at the local level.
+
+Wyświetl na ideas.repec.org
+
+Powiązane artykuły
+
+Wszystkie wersje 2
+
+Dowolny język Tylko język polski
+
+Polecane artykuły
+
+The Correlation Between Asian Port Cities and Traditional Portuguese Urban Forms Based on Map and Machine Learning Analyses
+
+Y Chen, L Zheng, J Zheng
+
+Island Studies Journal - 11 dni temu
+
+Actor-Network Theory and/as ‘Global Social Theory
+
+CB Jensen
+
+academia.edu - 13 dni temu
+
+Putting Walkscapes on the Map: GIS-based Visualization for Mobile Methods in Landscape Research
+
+D Münderlein
+
+Journal of Digital Landscape Architecture - 14 dni temu
+
+Has the Maritime Silk Road Initiative promoted the development and expansion of port city clusters along its route?
+
+C Li, L Zhang, S Chen, T Zhang, J Zhou, J He, W Xu, T Wang
+
+Cities - 29 dni temu
+
+Clash of Food Culture: Integration of Western Cuisine into Chinese Port Cities in Nineteenth and Twentieth Centuries
+
+C Li
+
+knowledge.uchicago.edu - 24 dni temu
+
+The Effects of Public Investments and Fiscal Incentives in Free Port Cities on Economic Growth Dynamics at Local Level in Türkiye
+
+D Abukan, A Cem, E Doğan
+
+Sosyoekonomi Journal - 25 dni temu
+
+Te rekomendacje bazują na ustawieniach Twojego profilu Scholar i alertów Scholar.
+
+Stań na ramionach olbrzymów
+
+PL
+
+PrywatnośćWarunkiPomoc
+
+https://okkolobrzeg.pl/nowa-atrakcja-na-plazy-przy-molo-w-kolobrzegu-bedzie-dostepna-za-darmo/
+
+https://www.trojmiasto.pl/wiadomosci/Baltic-dryfowal-na-krze-od-dzis-ma-rzezbe-w-Gdyni-n190651.html
+
+https://www.bankier.pl/wiadomosc/Transport-morski-znow-straszy-Ponad-400-proc-wiecej-za-wysylke-do-Europy-8770539.html
+
+https://www.wnp.pl/gazownictwo/lng-do-polskiego-gazoportu-przywiozla-nietypowa-jednostka,848212.html
+
+https://wszczecinie.pl/brakuje-klubow-sportowych-dyrektor-centrum-zeglarskiego-szczerze-o-rozwoju-dyscypliny-w-szczecinie/48310
+
+https://www.komputerswiat.pl/aktualnosci/militaria/ogromny-okret-usa-zawital-do-gdyni-zbudowano-go-ze-stali-world-trade-center/lt9nycs
+
+https://www.gospodarkamorska.pl/ceremonia-chrztu-statku-polskiej-zeglugi-morskiej-ms-polsteam-dabie-78826
+
+https://tvn24.pl/swiat/zawalil-sie-most-w-baltimore-ich-statek-spowodowal-katastrofe-co-sie-stalo-z-zaloga-st7977783
+
+https://www.trojmiasto.pl/wiadomosci/Deszczowa-parada-zaglowcow-z-Gdanska-do-Gdyni-n190613.html
+
+https://www.gospodarkamorska.pl/raport-polski-rynek-magazynowy-jednym-z-najszybciej-rozwijajacych-sie-w-europie-78849
+
+https://wiadomosci.radiozet.pl/polska/news-to-miejsce-mialo-zwracac-marynarzom-zdrowie-wyszedl-z-wnetrza-odmlodzony
+
+Stereotypy Dzień Marynarza 25 czerwca
+https://poranny.pl/25-czerwca-to-dzien-marynarza-oto-najlepsze-memy-o-marynarzach-i-zeglarskie-cytaty/ar/c1-18631423
+
+https://businessinsider.com.pl/gospodarka/ceny-transportu-z-chin-poszly-ostro-w-gore-analitycy-bija-na-alarm/ssqx6js
+
+Performer portu - 1945
+https://24kurier.pl/akcje-kuriera/kurier-morski/port-byl-kluczowy/
+
+https://www.trojmiasto.pl/wiadomosci/Port-nie-radzi-sobie-z-pylem-nad-Gdanskiem-n190865.html
+
+https://radioszczecin.pl/2,473650,pogon-szczecin-ma-nowego-kluczowego-partnera
+
+Zarząd Morskich Portów Szczecin i Świnoujście SA to jeden z liderów inwestycyjnych w regionie. Zarządza dwoma portami o podstawowym znaczeniu dla rodzimej gospodarki krajowej. Priorytetową misją naszego Partnera jest tworzenie dogodnych warunków rozwoju portów morskich w Szczecinie i Świnoujściu jako najbardziej uniwersalnego kompleksu portowego na południowym Bałtyku. Śmiało można uznać, że porty w Szczecinie i Świnoujściu nadają gospodarczy rytm w mieście i regionie. Wszakże dzięki doskonałej lokalizacji w samym sercu Europy, gdzie morze spotyka się z rzeką, porty w Szczecinie i Świnoujściu stały się trwałym elementem krajobrazu miejskiego i strefy gospodarczej miasta i regionu.
+
+W ramach społecznej odpowiedzialności biznesu ZMPSiŚ SA aktywnie wspiera dzieci i młodzież w realizacji ich pasji i marzeń. Wszystko to jest konsekwencją zaangażowania w codzienność mieszkańców naszego regionu. Port dzierży tytuł Mecenasa Grup Młodzieżowych Akademii Pogoni Szczecin, Przyjaciela Młodzieży Stowarzyszenia Akademii Pogoń Szczecin oraz Partnera Złotego Pogoni Szczecin.
+
+Dla nas nowy rozdział wzajemnej relacji to konsekwencja długoletniej przyjaźni, w której mogliśmy na siebie liczyć w każdej sytuacji. To dzięki tejże kooperacji udało nam się współtworzyć wielu przedsięwzięć, czyli m.in. rodzinnych pikników ze sportem organizowanych z okazji Dnia Dziecka, czy też Sportowego Pożegnania Lata. To właśnie w Porcie realizowaliśmy plany zdjęciowe do filmów promujących klubowe koszulki meczowe. Miało to miejsce ze względu na industrialny charakter portu i historię, która nas łączy od samych początków istnienia Dumy Pomorza. Pogoń Szczecin rok do roku aktywnie wspiera portowe zbiórki krwi. W ramach porozumienia logo Port Szczecin-Świnoujście jest umieszczane na koszulkach drużyn młodzieżowych klubowej szkółki, zaś reklama marki jest widoczna także m.in. w trakcie meczów pierwszego zespołu. Wkrótce również na trykotach meczowych jako Partner Kluczowy Pogoni Szczecin!
+
+https://pogonsportnet.pl/news/port-szczecin-swinoujscie-partnerem-kluczowym-klubu
+
+https://www.trojmiasto.pl/wiadomosci/Mieszkancy-protestuja-miasto-sie-niecierpliwi-Rosnie-presja-na-wladze-portu-n190943.html
+
+Konflikt ekologiczny w mieście portowymi 
+
+https://www.money.pl/gospodarka/wazna-inwestycja-w-swinoujsciu-na-finiszu-kiedy-otwarcie-7046489840393120a.html
+
+Firma aktywnie wspiera lokalną społeczność, realizując 50 projektów o wartości 600 tys. zł, w tym edukacyjne, ekologiczne i kulturalne programy oraz konkurs grantowy „Busole”. Przekazała defibrylator AED na Ukrainę i wspierała ukraińskie rodziny poprzez akcje świąteczne.
+
+W 2023 roku Baltic Hub zorganizował liczne wydarzenia integrujące lokalną społeczność, takie jak Kino Letnie, piknik „Morskie Zakończenie Lata” i inne atrakcje. Wspierał także organizacje charytatywne, przekazując środki na rzecz Pomorskiego Hospicjum dla Dzieci, Fundacji Hospicjum Pomorze Dzieciom oraz innych organizacji.
+
+Firma realizuje strategię zrównoważonego rozwoju zgodnie z celami ONZ 2030 i rozpoczęła prace nad strategią ESG na lata 2024-2026. Kontynuuje edukację pracowników w zakresie ESG, dążąc do tworzenia wartości dla pracowników, partnerów biznesowych i lokalnej społeczności.
+
+https://baltichub.com/storage/uploads/777231a2-668f-4595-919b-f8448f1b8fe7/05072024-Raport-Zrownowazonego-Rozwoju-2023.pdf
+
+https://www.gospodarkamorska.pl/baltic-hub-prezentuje-raport-zrownowazonego-rozwoju-2023-79072
+
+Konflikt ekologiczny 
+https://24kurier.pl/aktualnosci/wiadomosci/mieszkancy-powiedzieli-nie-terminalowi-kontenerowemu/
+
+• STRONA GŁÓWNA
+
+• PRZYRODA
+
+Wody gruntowe będą niezdatne do picia, fot. chanattanapol chanthida/Shuttersrtock
+
+PRZYRODA
+
+Wody gruntowe są coraz cieplejsze. Naukowcy podali datę, kiedy staną się niezdatne do picia
+
+10.07.2024
+
+ 
+
+MATEUSZ ŁYSIAK
+
+ 
+
+UDOSTĘPNIJ:  
+
+Wody gruntowe, kluczowe dla zaopatrzenia w wodę pitną, stają się coraz cieplejsze z powodu globalnego ocieplenia. Ten niepokojący trend zagraża nie tylko jakości wód, ale i stabilności ekosystemów oraz dostępności zasobów dla przyszłych pokoleń. Naukowcy podali niepokojące prognozy.
+
+W tym artykule:
+
+• Dlaczego potrzebujemy wód gruntowych?
+
+• Wody gruntowe będą coraz cieplejsze
+
+• Jak ratować wody gruntowe?
+
+Wody gruntowe znajdują się na różnych głębokościach pod powierzchnią ziemi. Od kilku do kilkuset metrów. Występują w szczelinach skalnych oraz w glebach i biorą udział w cyklu hydrologicznym. Obejmuje on parowanie wody z powierzchni ziemi, opady atmosferyczne, wsiąkanie wód w glebę oraz ich przemieszczanie się w głąb ziemi. Najbliższa powierzchni warstwa wód gruntowych nazywana jest strefą nasycenia.
+
+• 
+https://www.eea.europa.eu/pl/highlights/transport-morski-w-ue-pierwszy
+
+https://wiadomosci.wp.pl/zamknac-okna-nie-wychodzic-pilny-apel-strazakow-z-gdanska-7049134601796512a
+
+Performans morski szanty
+Zapraszamy serdecznie do wysłuchania reportażu o naszej społeczności 
+Reportaż Katarzyna Wolnik-Sayna  z Radio Szczecin 
+Radiowa Szkoła pod Żaglami 
+
+Szczecińskie Spotkania Szantowe 
+Szczecińskie Spotkania Szantowe - Grupa
+
+Imperium Romanum
+
+Strona Główna » Religia rzymska » Święta rzymskie » Neptunalia
+
+NEPTUNALIA
+
+(23 lipca)
+
+Ten wpis dostępny jest także w języku: angielski (English)
+
+Neptun na rzymskiej mozaice
+
+Neptunalia, według niektórych antycznych źródeł, starożytni Rzymianie obchodzili dnia 23 lipca1 z racji na wówczas występujące gorące lato. Było to dwudniowe święto ku czci Neptuna, boga mórz. Z bliżej nieokreślonych powodów niewiele się zachowało na ich temat, ale jest mowa o jakichś grach/igrzyskach i o budowaniu lepianek/namiotów/chatek, pod którymi lud świętował. Przyczyną tak nikłych wzmianek jest pewnie to, że tak Neptun jak i morza odgrywały relatywnie małą rolę w życiu Rzymian.
+
+Neptunalia należały do tzw. dies comitiales,  w czasie kiedy obywatele mogli głosować w sprawach cywilnych i wojskowych. Święto to nazywano Nept. ludi et feriae, lub Nept. ludi, co zakłada, że powiązane były z ich obchodami igrzyska (ludi). Ponoć ludzie świętujący ku czci Neptuna budowali wówczas domki z gałęzi i liści (zgodnie z Festusem nazywane umbrae), w których to pito, jedzono i zabawiano się.
+
+PRZYPISY
+
+• Warron, De lingua Latina VI.19
+
+ŹRÓDŁA WYKORZYSTANE
+
+•  Jaczynowska Maria, Religie świata rzymskiego, Warszawa 1987
+
+•  Smith William, Dictionary of Greek and Roman Biography and Mythology
+
+•  Zieliński Tadeusz, Religia Rzeczypospolitej Rzymskiej
+
+https://www.wprost.pl/kraj/11753094/terminal-kontenerowy-w-swinoujsciu-jak-cpk-prezydent-miasta-domaga-sie-audytu.html
+
+https://wszczecinie.pl/zapraszaja-na-niezwykly-koncert-na-terenie-szczecinskiej-stoczni/48520
+
+Szef kontynentalny do granica w jakiej ocean ma wpływ na kontynent. Część kontynentu zalana przez wody morza szelfowego (położone blisko brzegu do uchyłku stoku  kontynentalneho np morze Północne.
+https://rozrywka.trojmiasto.pl/Wodne-bogactwo-5-edycja-Polboat-Yachting-Festival-rozpoczyna-sie-w-Gdyni-n191416.html
+
+https://scholar.google.pl/scholar?start=10&q=%22Sea+Days%22&hl=pl&as_sdt=0,5#d=gs_qabs&t=1721348001178&u=%23p%3Dr6GNBtqCjKIJ
+Statek cuise jako omnitopia
+
+https://www.portalmorski.pl/zegluga/56074-ponad-900-mln-zl-straty-grupy-kapitalowej-pzm-w-2023-roku
+
+https://wgospodarce.pl/informacje/143615-polskie-porty-osiadaja-na-mieliznie
+
+Żeglarstwo, to synonim wolności! Na pokładzie jachtu znajdziesz przygodę, przyjaźń i uwierzysz we własne siły. Praca na jachcie pomoże Ci w życiu pokonywać trudności i rozwiązywać problemy dnia codziennego. Żagle dobre na wszystko!
+W centrum naszego zainteresowania jest żeglarstwo sportowe, jachting regatowy uprawiany zawodowo i amatorsko. Informujemy, komentujemy i analizujemy najważniejsze wydarzenia w kraju i na świecie. Od Igrzysk Olimpijskich, Polskiej Ekstraklasy Żeglarskiej po Puchar Ameryki, wyścigi oceaniczne - załogowe i samotnych żeglarzy, próby bicia rekordów oceanicznych z Jules Verne Trophy na czele.
+
+https://podroze.onet.pl/aktualnosci/to-unikalna-miejscowosc-w-polsce-jest-ostatnia-wioska-rybacka-nad-baltykiem/0ht2nzc
+
+https://www.money.pl/gospodarka/rzad-chce-wiecej-kontenerowcow-na-baltyku-gdansk-najwiekszym-wezlowym-portem-7052550569355904a.html
+
+Wypowiedzi takie powołują do istnienia nowy stan rzeczy. Wypowiedzenie tych słów zmienia zatem rzeczywistość: nie tylko stwierdzają one stan faktyczny, ale dokonują tej czynności, o której mówią. A jeśli oznaczają to, czego dopełniają, to znaczy, że są autoreferencyjne. Biorą zatem udział w tworzeniu rzeczywistości, gdyż powołują do istnienia ten społeczny świat, do którego odsyłają. Te dwie podstawowe cechy charakteryzują wypowiedzi performatywne. To, co użytkownicy języka wiedzieli i praktykowali od zawsze, stało się teraz przedmiotem rozważań filozofii języka: mówienie wyzwala siłę zmieniającą świat i w istotny sposób może przekształcać rzeczywistość.
+
+• Wypowiedzi performatywne nie podlegają kryterium prawdziwości, tylko kryterium fortunności. Aby wypowiedź była performatywna, musi je towarzyszyć spełnienie określonych warunków pozajęzykowych: musi istnieć uznana procedura konwencjonalna, posiadająca pewien konwencjonalny skutek; procedura ta musi obejmować wypowiadanie pewnych słów przez pewne osoby w pewnych okolicznościach, przy czym poszczególne osoby i okoliczności w danym przypadku muszą być odpowiednie do powołania konkretnej procedury, jaka została powołana; wszyscy uczestnicy muszą przeprowadzać daną procedurę zarówno poprawnie, jak też w zupełności; kiedy, co zdarza się często, dana procedura przeznaczona jest do użytku dla osób, mających pewne myśli i uczucia lub do wszczynania, jako następstwa, pewnego postępowania jakiegoś uczestnika, wtedy osoba uczestnicząca, a więc powołująca daną procedurę, musi faktycznie mieć owe myśli i żywić te uczucia, a intencją uczestników musi być postępowanie w dany sposób, a ponadto rzecznywiście muszą w następstwie postępować w ten sposób
+
+opracowane na podstawie Michał Głowiński, Teresa Kostkiewiczowa, Aleksandra Okopień-Sławińska, Janusz Sławiński, Słownik terminów literackich, Wydawnictwo OSSOLINEUM, 
+
+Erika Fischer-Lichte Estetyka performatywności
+
+https://turysci.pl/turysci-nad-baltykiem-oszaleli-na-ich-punkcie-reklamowki-wypelnione-sa-po-brzegi-ac-nk-050824
+
+https://tech.wp.pl/s/smoglab/niszczy-morza-i-oceany-tralowanie-zagrozeniem-dla-ekosystemow-dane,7060084535909152a
+
+Uwydatnienie mycia samochód- wyciągać naturalne piękno- pokazać coś takie jakie jest tylko wyraźniej.
+
+https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://czasopisma.uni.lodz.pl/tech/article/download/13282/12889&ved=2ahUKEwjz3O7Qtf-HAxV2DRAIHeO9KMQ4ChAWegQIFBAB&usg=AOvVaw2vC77RQKgVf8UYCXFnIzJf
+
+https://seanergyproject.eu/
+
+https://www.gospodarkamorska.pl/intermodal-w-swinoujsciu-nabiera-konkretnych-ksztaltow-79998
+
+https://www.portalmorski.pl/porty-logistyka/56263-transport-morski-anomalia-w-lancuchach-dostaw
+
+https://next.gazeta.pl/next/7,172392,31078526,wirujaca-spirala-niosaca-smierc-dla-organizmow-utworzyla-na.html
+Otchłań pustka morza
+
+https://forsal.pl/transport/artykuly/9582692,kraje-swiata-zajmujace-sie-handlem-morski-gdzie-przepustowosc-kontene.html
+
+https://geekweek.interia.pl/meteorologia/news-kwadratowe-fale-gdy-je-zobaczysz-trzymaj-sie-z-daleka-od-wod,nId,7755629
+
+https://www.portalmorski.pl/stocznie-statki/56356-niemiecki-rzad-ratuje-stocznie-meyer-werft-od-upadlosci
+
+https://kresy.pl/wydarzenia/chinczycy-od-20-lat-w-strategicznym-polskim-porcie-media-na-dlugo-i-za-niewielkie-pieniadze/
+
+https://www.farmer.pl/produkcja-roslinna/zboza/zaskakujaca-zmiana-w-przetargu-na-terminal-zbozowy-w-co-gra-zarzad-portu-gdynia,150464.html
+
+https://gs24.pl/ahoj-na-pokladzie-statku-z-nowego-warpna-do-swinoujscia-to-ma-byc-turystyczny-hit/ar/c1-18760021
+
+https://www.forbes.pl/life/travel/przeglad-polskich-portow-jachtowych-nad-baltykiem/kz9p2f9
+
+https://tvn24.pl/biznes/ze-swiata/kanada-statek-cargo-zablokowal-wazny-kanal-osiadl-na-mieliznie-st8055750
+
+https://www.sciencedirect.com/science/article/abs/pii/S136192091730384X?casa_token=9Hb0M9dNM2AAAAAA:AbiLGNAspSIXK9J0ZBO7vkuYwV_AbRUBvVIA8gzQixuBn8hm1joxr5e2nbHaiEyttOYgibnY2tI
+
+Often seaports are located in coastal ecosystems with high biodiversity. The relatively shallow depths of these systems result in high light availability for primary production (Vinagre et al., 2012). This creates favourable conditions with ample food availability and shelter for many species to utilize as nurseries and maturation during larval phases (Beck et al., 2001, Thrush and Dayton, 2002). Several biotopes exist in these coastal areas, which results in a large biodiversity with complex food web and multiple interactions between different trophic level of species. Insight into the impact of a port on the social welfare of a country can be used to identify which impacts need to be minimized and which need to be promoted. Many people move into cities for the associated economic opportunities, however, the urban environment also adversely affect the quality of life, which may cause social issues (UN, 2012a). Additionally, the social impact of maritime transport, via sources such as air pollution, has a role in human health and chronic diseases (Dawson and Alexeeff, 2001, Cropper and Khanna, 2014)
+
+The rising tide of political interest in combining ‘growth’ with ‘green' is an explicit item on the agenda of many countries, particularly in East Asia, Latin-America, Africa, and Europe. This particularly applies to ports, since they possess the ability to retain competitiveness while still taking into account the integrated (eco)system (Asgari et al., 2015, Laxe et al., 2016). Port developments following a growing (transport) market can significantly affect natural ecosystems (Gimenez et al., 2012), but also contribute positive to socio-economic aspects (Schipper et al., 2015, Carter and Rogers, 2008, Heaver, 2016). On the other hand, ports may use a sustainable approach as a selling point. Furthermore, particularly ports may adopt a ‘greener’ approach to streamline and speed up port developments, since such large infrastructural projects, if done in a traditional way, nowadays may meet large social resistance.
+
+infrastructures on the natural (coastal) system. Furthermore, increasing demand on space in delta areas and various external pressures – such as climate change, accelerated sea level rise, and subsidence – exacerbate the situation. This means that new multi-functional approaches for the design and operation of ports and waterway infrastructure are required (Van Wesenbeeck et al., 2016). This can be achieved through a new way of thinking that considers specific knowledge and expertise in the field of sustainable port development. Sustainable port development is defined in this paper as: new port or port extension plans that meet (or even exceed) typical operational requirements and that provide economic growth that is compatible with environmental and social needs, including ways to manage the transition to this new and balanced paradigm. Through an integrated and ecosystem-based approach, i.e. taking a broad range of requirements (operational, economic, environmental, and social) into account from the start, port development can be realised in an inclusive way, resulting in a vital and modern port that has a ‘societal licence to operate’.
+
+the Port of Rotterdam, located at the mouth of the River Rhine, needs to dredge about 17 million m3 per year (Stronkhorst et al., 2003, Schipper et al., 2010) for maintaining the design water depths in their port area.
+
+https://scholar.google.com/scholar?hl=pl&as_sdt=0,5&scioq=Bernard+Morgan+tall+ships&qsp=11&q=assessing+values+port+city&qst=br#d=gs_qabs&t=1724516696601&u=%23p%3D5jvONE81NfwJ
+
+link.springer.com
+
+Evaluating the sustainability of scenarios for port city development with Boussole21 method
+
+Amira Ghennaï, Said Madani, Carola Hein
+
+Environment Systems and Decisions 43 (1), 87-106, 2023
+
+This research aims to evaluate the sustainability of urban strategies in Skikda, a prehistoric, ancient, and Mediterranean port city of northeastern Algeria, known as by the Punic name Russicade. The port city of Skikda shows a diverse landscape of heritage sites and the industrial reality of a city, rich by its under-exploited cultural and tourist capacities. Nevertheless, the industrial port activities of the petrochemical refinery impose a state of urban vulnerability for the inhabitants and built, landscape, and natural heritage. The use of the open software Boussole21 of the "Smart" trend as a qualitative method allows assessment of decisions by the actors. The sustainability assessment (findings) shows that smart thinking contributes to the development of port performance and competitiveness in the international context.
+
+Wyświetl na link.springer.com
+
+[HTML] springer.com
+
+Cytowane przez 7
+
+Powiązane artykuły
+
+Wszystkie wersje 12
+
+Circular economy strategies in eight historic port cities: Criteria and indicators towards a circular city assessment framework
+
+Antonia Gravagnuolo, Mariarosaria Angrisano, Luigi Fusco Girard
+
+Sustainability 11 (13), 3512, 2019
+
+The circular city is emerging as new concept and form of practice in sustainable urban development. This is a response to the complex and pressing challenges of urbanization, as highlighted in the New Urban Agenda (NUA). The concept of a “circular city” or “circular city-region” derives from the circular economy model applied in the spatial territorial dimension. It can be associated with the concept of a “self-sustainable” regenerative city, as stated in paragraph n.71 of the NUA. This paper aims to develop an extensive form of “screening” of circular economy actions in emerging circular cities, focusing on eight European historic port cities self-defined as “circular”. The analysis is carried out as a review of circular economy actions in the selected cities, and specifically aims to identify the key areas of implementation in which the investments in the circular economy are more oriented, as well as to analyze the spatial implications of the reuse of buildings and sites, proposing a set of criteria and indicators for ex-ante and ex-post evaluations and monitoring of circular cities. Results show that the built environment (including cultural heritage), energy and mobility, waste management, water management, industrial production (including plastics, textiles, and industry 4.0 and circular design), agri-food, and citizens and communities can be adopted as strategic areas of implementation of the circular city model in historic cities, highlighting a lack of indicators in some sectors and identifying a possible framework for “closed” urban metabolism evaluation from a life-cycle perspective, focusing on evaluation criteria and indicators in the (historic) built environment.
+
+https://iswinoujscie.pl/artykuly/83050/
+
+https://szczecin.wyborcza.pl/szczecin/7,34939,31255258,ladowa-droga-przez-port-w-swinoujsciu-do-odcietej-od-turystow.html
+
+https://radioszczecin.pl/1,476209,co-powstanie-wokol-mariny-basenu-polnocnego-w-sw
+
+https://zielona.interia.pl/klimat/news-maja-dosc-luksusowych-jachtow-milionerzy-zasmiecaja-wybrzeze,nId,20012392
+
+https://gs24.pl/duze-problemy-mieszkancow-malych-domkow-w-swinoujsciu-mieszkancy-ulic-soltana-i-ludzi-morza-czekaja-na-konkrety/ar/c1-18767515
+
+https://tech.wp.pl/baltyk-sie-ociepla-rekordowe-temperatury-i-zagrozenia-dla-ekosystemu,7065259526195329a
+
+🌍 Zmieniajmy świat razem z AI i EKO-BOTami!🌱
+Twój głos ma moc! Pomóż nam zdobyć środki na nowy projekt – razem zmienimy świat! Zagłosuj na nasz projekt EKO-BOTY, który przeszedł do kolejnego etapu programu grantowego „E.ON łączy energię dla klimatu”!
+
+👉 LINK DO GŁOSOWANIA:
+https://eon.pl/eon-dla-klimatu/glosowanie 
+
+Nasze środowisko potrzebuje nowego głosu – głosu, który wykracza poza ludzką perspektywę, który potrafi spojrzeć na świat oczami natury. 
+W ramach naszego projektu „EKO-BOTy: kreatywna edukacja proekologiczna” chcemy, by uczniowie szkół podstawowych mogli nie tylko uczyć się, ale i doświadczyć czegoś więcej – odkryć, że technologia może być sprzymierzeńcem natury.
+
+Dzięki sztucznej inteligencji, stworzymy narzędzie edukacyjne, które otworzy nowe horyzonty i sposoby postrzegania splątań z naturą. 🌱🤖
+
+Nasze EKO-BOTy to jednak coś więcej niż tylko narzędzie – to most łączący ludzi z naturą i przede wszystkim ekosystemami morskimi.
+
+Potrzebujemy Waszego wsparcia!
+
+Głosowanie publiczności jest kluczowe. Każdy głos przybliża nas do realizacji tego ważnego celu 💙
+
+🔗 Gdzie można głosować?
+https://eon.pl/eon-dla-klimatu/glosowanie 
+Głosowanie trwa do 12 września, godz. 23:59.
+
+Głosując na nasz projekt, wspierasz przyszłość, w której technologia i natura idą ramię w ramię. Razem możemy inspirować młode pokolenia do zmiany świata🌍💚
+
+#EKO_BOTy #AI_dlaKlimatu #Głosowanie #FundacjaMARE #SztucznaInteligencja #OchronaŚrodowiska #EONdlaKlimatu #EdukacjaEkologiczna
+
+Fundacja La Fontaine
+
+Źródła Warszawy. Poznajemy i chronimy wody stolicy
+
+Nasz projekt to edukacyjna inicjatywa, której celem jest zwiększenie świadomości ekologicznej uczniów warszawskich szkół. Poprzez warsztaty, wycieczki edukacyjne i akcje ekologiczne uczniowie będą się dowiadywać więcej o wodzie w stolicy. Tej, która płynie z kranów oraz tej w rzekach. Głównym celem jest nauczenie ich, jak chronić ten cenny zasób. Dzięki realizacji programu chcemy wesprzeć przyszłość ekologiczną i edukować nowe pokolenie odpowiedzialnych mieszkańców.
+
+Fundacja La Fontaine
+ul. Wandy Rutkiewicz 2, 02-956
+
+CASE - Centrum Analiz Społeczno-Ekonomicznych
+
+Miasto-Gąbka
+
+Koncepcja „miasta-gąbki” to lokalne zatrzymywanie wody, dzięki czemu miasto jest bardziej odporne na susze, fale upałów oraz bezpieczniejsze w przypadku gwałtownych ulew i powodzi. Im więcej zmagazynowanej wody, tym skuteczniejszy proces parowania, a więc mniej dotkliwy efekt miejskiej wyspy ciepła. Celem projektu będzie przybliżenie tej koncepcji warszawskim spółdzielniom mieszkaniowym i zarządcom biurowców poprzez podzielenie się z nimi najlepszymi praktykami z innych tzw. „miast-gąbek".
+
+CASE - Centrum Analiz Społeczno-Ekonomicznych
+ul. L.Zamenhofa 5/1B, 00-165
+
+FUNDACJA ALTER EKO
+
+Hydrokultura
+
+Zbiornik bioretencyjny jest jednym z bardziej skutecznych narzędzi mitygacyjnych i adaptacyjnych do zmian klimatu. Nasz projekt zakłada społeczne tworzenie 3 zbiorników bioretencyjnych przy warszawskich instytucjach kultury oraz promocję tego rozwiązania, w postaci broszury DIY. Realizacja projektu przyczyni się zmniejszenia negatywnych skutków zmian klimatu, zwiększenia różnorodności biologicznej i odporności miasta na zmiany klimatu, a także podniesienia świadomości mieszkańców.
+
+FUNDACJA ALTER EKO
+ul. Nowowiejska 1/3 lok. 24, 00-643 Warszawa
+
+Zagłosuj na ten projekt
+
+Fundacja MARE
+
+EKO-BOTy: Kreatywna Edukacja Proekologiczna
+
+Nasz projekt ma na celu opracowanie zajęć dla uczniów szkół podstawowych, które będą kształtować postawy proekologiczne, kompetencje cyfrowe i kreatywność. W ramach projektu powstanie metodyka i scenariusze zajęć oraz środki dydaktyczne, w tym aplikacja webowa z wykorzystaniem sztucznej inteligencji AI. Efektem będą tzw. EKO-BOTy – programy do rozmów z użytkownikami, które promować będą zrównoważony styl życia, sposoby redukcji CO2, znaczenie recyklingu oraz ochrony ekosystemów morskich.
+
+Fundacja MARE
+
+Fundacja Czysta Rzeka
+
+Wodne opowieści
+
+„Wodne opowieści” to program dla dzieci i młodzieży ze szkół podstawowych, którego celem jest kształtowanie wrażliwości ekologicznej i uważności na przyrodę oraz budowanie postaw przyjaznych środowisku w czasach kryzysu klimatycznego. Chcemy uświadamiać i angażować, uczyć aktywnej postawy i brania spraw w swoje ręce, żeby w czasach zmian klimatu dać młodym ludziom poczucie sprawczości. Uczestnicy wezmą udział spacerze uważności połączonym ze sprzątaniem i warsztacie pt. Walizka cyrkularnych rozwiązań.
+
+Fundacja Czysta Rzeka
+ul. Rynek 12, 08-200 Łosice
+
+https://fundacjamare.pl/file/2024/05/09/MARE_INFOGRAFIKA_1_na_strone_mapka_1.jpg
+
+Korzyści dla społeczeństwa z takiego prewencyjnego programu oczyszczenia wraków zostały oszacowane przy wykorzystaniu ekonomicznej metody wyceny warunkowej. Wycena warunkowa to ekonomiczny sposób wyceny wartości dóbr i zasobów. Opiera się na ankietach i służy do szacowania w kwotach pieniężnych wartości dóbr/zasobów, które nie są sprzedawane na rynkach, a więc nie mają swojej ceny (tzw. dobra nierynkowe). Tą metodą można oszacować wartość takich zasobów/dóbr, jak czyste powietrze czy ochrona środowiska. W oparciu o ankiety przeprowadzone w styczniu 2024 r. na reprezentatywnej próbie Polaków liczącej 3457 respondentów z całej Polski oszacowano, że wartość korzyści prewencyjnego programu oczyszczenia wraków dla społeczeństwa Polski to ponad 30 mld zł.
+
+Na potrzeby analizy korzyści-kosztów oszacowano także koszty wdrożenia prewencyjnego programu badań i oczyszczania wraków. Całkowity koszt wstępnych badań 18 wraków wytypowanych jako te o potencjalnie najwyższym ryzyku wycieku substancji niebezpiecznych to około 8,7 mln zł.
+Natomiast kolejny etap realizacji programu, czyli oczyszczenie szczególnie niebezpiecznych wraków z paliw i innych substancji niebezpiecznych, to około 923 mln zł. Oszacowania kosztów zostały przygotowane przez firmę Profesea sp. z o.o.
+
+Oznacza to, że koszt planowanej interwencji to łącznie 931,7 mln zł, natomiast potencjalne korzyści to ponad 30 mld zł. Przeprowadzona analiza wykazała zatem, że suma korzyści z wdrożenia programu zarządzania wrakami i docelowego oczyszczania wraków potencjalnie niebezpiecznych 30-krotnie przekracza koszty oczyszczania.
+
+„Wraki statków to tykające ekologiczne bomby zegarowe” – stwierdziła dr Ewa Zwojska. „Nasze badanie nie tylko podkreśla wykonalność i konieczność takich programów oczyszczania, ale także podkreśla pilną potrzebę systemowych działań w celu ochrony naszych ekosystemów morskich”.
+
+ Wyniki ankiety wskazały również, że 81,20 proc. respondentów twierdzi, że słyszało wcześniej o wrakach statków zatopionych na dnie Bałtyku, a 56,44 proc. wiedziało wcześniej o problemach dla środowiska naturalnego Bałtyku powodowanych przez wraki. Ponadto 61,73 proc. respondentów powiedziało "Bałtyk jest dla mnie ważny".
+
+Fundacja MARE od lat aktywnie edukuje na temat działań, jakie każdy indywidualnie i wszyscy razem jako społeczeństwo możemy podejmować, aby chronić Bałtyk – dla wszystkich istot ludzkich i nie-ludzkich i dla dobra całego ekosystemu.
+
+„Temat potencjalnie niebezpiecznych wraków na dnie Bałtyku to jeden ze sztandarowych projektów MARE.” – podsumowuje Olga Sarna z Fundacji MARE. „Fundacja nawołuje do alokacji odpowiednich środków na rzecz ochrony Bałtyku oraz o podjęcie działań prewencyjnych na rzecz neutralizacji zagrożenia stwarzanego przez paliwa i inne substancje niebezpieczne dla środowiska, zalegających w zbiornikach wraków”.
+
+ Wyniki w bardzo streszczonej wersji popularnonaukowej, tzn. infografik, można zobaczyć poniżej. Wyniki w wersji naukowej, ze szczegółami metodologicznymi, będzie można usłyszeć w lipcu 2024 r. podczas warsztatu „REE/JEEM Workshop on Non-Market Valuation” odbywającego się na zakończenie najważniejszej europejskiej konferencji w dziedzinie ekonomii środowiska (29th Annual Conference of the European Association of Environmental and Resource Economists).
+
+Badanie sfinansowano z programu „Inicjatywa Doskonałości – Uczelnia Badawcza” na Uniwersytecie Warszawskim w ramach projektu “Wartość ochrony ekosystemów morskich dla społeczeństwa – Ekonomiczna wycena oczyszczenia wraków na dnie Morza Bałtyckiego” zrealizowanego
+
+https://fundacjamare.pl/wartosc-ochrony-ekosystemow-morskich-dla-spoleczenstwa/
+
+https://fundacjamare.pl/program-munimap-nowa-nadzieja-dla-baltyku/
+
+https://fundacjamare.pl/file/2024/06/20/mapa_bron_1.png
+
+https://fundacjamare.pl/file/2024/06/20/1_52_1.jpg
+
+https://fundacjamare.pl/file/2024/06/20/Bez_tytulu_4_1.png
+
+https://fundacjamare.pl/file/2024/06/20/10_1_1.png
+
+https://fundacjamare.pl/file/2024/06/20/6_10_1.png
+
+World Ocean Day 2023 - Planet Ocean: Tides Are Changing PLAYLIST
+
+ 8 czerwca to dzień szczególny, czyli Dzień Oceanów #WorldOceanDay
+Ocean pokrywa większą część planety, na której żyjemy. Pomimo to, oceany otrzymują tylko niewielki fragment naszej uwagi i nadal zbadano tylko niewielką część oceanicznych głębin.
+Ale tak jak głosi tegoroczne hasło na Dzień Oceanów ogłoszone przez ONZ - nadchodzi zmiana prądów! #TheTidesAreChanging
+
+Oceany nas żywią, regulują klimat i wytwarzają większość tlenu, którym oddychamy. Bez oceanów nie byłoby nas i powoli, jako ludzkość, zaczynamy zdawać sobie z tego sprawę.
+
+Dlatego dziś zachęcamy Was do świętowania Oceanów i oddania im hołdu, na który bez wątpienia zasługują. Z okazji Dnia Oceanów mamy dla Was prezent w sam raz na długi weekend i kontemplacje naszej relacji z Oceanem. Przygotowałyśmy dla Was ponad 2 godziny muzyki. Muzyki bardzo przekrojowej, inspirowanej głównie oceanem, wodą lub morzem. W niektórych przypadkach po prostu naturą lub naszą relacją z Ziemią.
+
+Playlistę znajdziecie na youtubie oraz na spotify.
+
+A poniżej trochę dodatkowych informacji i ciekawostek, o niektórych z wybranych przez nas kawałków - poczytajcie koniecznie. 
+
+ Zapraszamy Was na muzyczną oceaniczną podróż, w którą wprowadzi Was Björk i jej niesamowity kawałek „Oceania” (2004) napisany z punktu widzenia oceanu, z którego wyłoniło się całe życie. Warto wsłuchać się w tekst. Oprócz Björk, serwujemy Wam naprawdę szeroki przekrój muzyki – w pełnej wersji playlisty znajdziecie kawałki różnorodnego grona uwielbianych przez nas artystów m.in. Dead Can Dance, Morcheeba, Massive Attack, Jóhann Jóhannsson, Laurie Anderson, Fever Ray, Laboratorium Pieśni, Cymande, Ben Howard, Lisa Gerrard, czy mniej znany BLO (nigeryjski zespół z lat 70-tych grający psychodeliczny funk). A to wszystko przeplatane sporą dawką akustycznych klasyków surferskiego rocka, a także muzyką płynącą prosto z głębin - czyli oryginalnymi pieśniami wielorybów.
+
+Nie będziemy rozpisywać się o każdej piosence, ale część z nich zasługuje na rozwinięcie. Na początek najważniejsze - czyli wieloryby. Wybrane przez nas wielorybie pieśni pochodzą z albumu „Songs of the Humpback Whale” wyprodukowanego w 1970 roku przez dr Rogera Payne - amerykańskiego biologa i ekologa, który wraz ze Scottem McVayem w 1967 roku odkrył śpiew wielorybów wśród humbaków i był jednym z głównych aktywistów na rzecz ochrony wielorybów. Humbaki zmieniają swoje piosenki co roku. Rzadkie nagrania uwiecznione na albumie, o którym mowa, pochodzą z lat 60-tych z ery śpiewu wielorybów „Bel Canto”.
+
+ A jak już jesteśmy przy temacie bioakustyki to w naszym muzycznym wyborze nie mogło zabraknąć także norweskiej artystki Jany Winderen. Jana ma wykształcenie z zakresu matematyki, chemii i ekologii ryb. W swoich utworach artystycznych zwraca szczególną uwagę na środowiska dźwiękowe i stworzenia, do których człowiek ma trudny dostęp, ponieważ znajdują się głęboko pod wodą, pod lodem lub w zakresach częstotliwości niesłyszalnych dla ludzkiego ucha. Tych niezwykłych dźwięków możecie posłuchać w kawałku „Submerged”.
+
+Na playliscie znajdziecie także kilka kawałków w wykonaniu Cosmo Sheldrake'a z album "Wild Wet World" (albumu, który jest jak na razie zdecydowanie naszym ulubionym muzycznym wydaniem tego roku). Cały ten album to hołd dla oceanu. Jak pisze o nim sam Cosmo:
+
+„Składałem go powoli przez okres około dziesięciu lat. Zawiera odgłosy śpiewu humbaków, klikania kaszalotów, zalotów fok Weddella, plucia raf koralowych, chrupania papugi zębatej, chrząkania ropuchy ostrygowej, trzaskania krewetek pistoletowych, trąbienia długorogych sculpinów, lamentu płetwala błękitnego i bębnienia plamiaka oraz rzadkie nagranie głosów ostatniej żyjącej populacji orek w Wielkiej Brytanii, która wraz ze swoim unikalnym dialektem jest skazana na wyginięcie, ponieważ nie jest już płodna z powodu zanieczyszczeń chemicznych w wodach.” 
+
+Na swojej stronie internetowej Cosmo dodaje także, że skoro stworzona przez niego muzyka wykorzystuje nagrane odgłosy morskich stworzeń, należy się im za to godziwe wynagrodzenie. A tym samym 50% dochodów ze sprzedaży albumu przeznaczanych jest na wybrane organizacje zajmujące się ochroną oceanów. Nie musimy chyba dodawać, że zachęcamy Was do zakupu.
+
+A na sam koniec tej muzycznej podróży wrzucamy kilka kawałków, które, choć mniej skupiają się na oceanach, są dla nas szczególnie ważne, ponieważ pokazują ogromne zaangażowanie środowiska artystycznego w tematy dotyczące ochrony środowiska już w latach 70-tych XX wieku.
+
+Tutaj wyróżniają się dla nas trzy kawałki (choć jest ich ZNACZNIE więcej):
+
+W klimatach jazzowych - David Axelrod – The Warnings Part 1 – z albumu „Earth Rot” z 1970 roku, który cytując za Alexis Petridis, w tekście dla Guardiana: „zdobywa nagrodę za najbardziej idiosynkratyczny zapis protestu przeciwko degradacji środowiska, jaki kiedykolwiek powstał: 22-minutowa orkiestrowa suita jazzowo-rockowa z chórem śpiewającym teksty z Biblii i legendy Najavo.”
+
+Kolejny kawałek to „Don't Go Near the Water” w wykonaniu The Beach Boys z albumu Surf's Up z 1971 roku . Utwór, napisany przez Mike'a Love'a i Ala Jardine'a, jest zdecydowanym odejściem od tradycyjnych piosenek zespołu o życiu na plaży i surfingu. Kawałek ten ma niezwykle mocny ironiczny i ekologiczny przekaz. Zamiast cieszyć się surfowaniem i innymi przyjemnościami z życia, słuchaczowi radzi się unikać wody ze względu na duży stopień zanieczyszczenia środowiska.
+
+I na koniec jako wisienkę na torcie ser(f/w)ujemy Wam kawałek „Up from the Skies” w wykonaniu The Jimi Hendrix Experience (1967). Ten kawałek jest wyjątkowy ze względów, o których pewnie nigdy byście nie pomyśleli. Kawałek napisany jest z perspektywy kosmity, który po tysiącleciach nieobecności wraca na naszą planetę:
+
+I have lived here before, the days of ice / Mieszkałem tu wcześniej, w czasach lodu
+And of course this is why I'm so concerned / Właśnie dlatego jestem tak mocno zaniepokojony
+And I come back to find the stars misplaced / I wracam, by znaleźć zagubione gwiazdy
+And the smell of a world that has burned / I zapach spalonego świata
+A smell of the world that has burned / Zapach spalonego świata
+Yeah well, maybe / Yeah, cóż, może
+Maybe it's just a change of climate / Może to tylko zmiany klimatu
+
+To jest kawałek z 1967 roku. Jest w nim coś niepokojąco proroczego i jest to prawdopodobnie pierwszy utwór artystyczny wspominający o zmianach klimatu. A Hendrix, jak to Hendrix, swoją twórczością zdecydowanie wyprzedzał czasy, w których przyszło mu żyć.
+
+Życzymy przyjemnej kontemplacji oceanu przy tych spokojno-czasem-niepokojących nutkach i długim weekendzie! I na koniec przypominam, że skoro o oceanach mowa to pamiętajcie - wszystkie wody są połączone, więc pozwólcie Bałykowi być swoim Oceanem! 
+
+#LetTheBalticBeYourOcean
+
+ https://fundacjamare.pl/world-oceans-day-2023-planet-oceans-tides-are-changing/
+
+https://fundacjamare.pl/hydrologia-baltyku/
+
+https://fundacjamare.pl/
+
+https://fundacjamare.pl/file/2021/10/05/Zatoka_Botnicka_1.png
+
+https://fundacjamare.pl/file/2021/10/05/1_4_1.png
+https://fundacjamare.pl/file/2021/10/05/2_5_1.png
+
+https://fundacjamare.pl/file/2021/10/05/3_2_1.png
+
+http://fanipay.pl/
+
+Potwierdzenie przekazania darowizny otrzymasz e-mailem.
+
+Podmiotem świadczącym obsługę płatności online jest Blue Media S.A. | Regulamin wpłacającego
+FaniPay dostępne również w PITax.pl
+
+We live on planet ocean
+
+Viewed from space, we clearly live on “Planet Ocean”. Seas and oceans cover 70% of the surface of our world.
+
+The ocean shapes our weather
+
+Ocean currents help move heat around the world, making the climate less extreme and our planet more habitable.
+
+The ocean slows climate change
+
+By absorbing a large part of our CO2 emissions and most of the excess heat generated by emissions, and by storing carbon from marine life, the ocean provides vital climate mitigation.
+
+The ocean is home to a myriad of life
+
+The world's seas and oceans contain millions of different kinds of life, many of them unknown to science.
+
+The ocean is the lungs of the world
+
+Life in our seas and oceans produces half of the oxygen we breathe.
+
+The ocean heals us
+
+Our seas and oceans provide life-saving drugs, and ocean life could be the key to tackling the diseases of the future.
+
+The ocean feeds us
+
+More than 3.5 billion people depend on our seas and oceans for their primary source of food.
+
+The ocean makes us whole
+
+It is where we came from and where we always return, to rest, swim, dive, sail, and to nurture our physical and mental health.
+
+The problem
+
+The Baltic Sea is one of the most crowded shipping areas in the world. Hazardous substances from shipping get into the environment through atmospheric emissions from combustion, leaking from anti-fouling paints and intentional or accidental spills of oil, hazardous substances and fertilizers.
+
+Intensified human activities and pressures are also affecting the coastal area. Such pressures primarily include coastal erosion, partly as a climate change effect, growing number of visitors to the coastline and associated impacts e.g. disturbance/destruction of natural habitats, larger amounts of litter generated in coastal areas, import of invasive plant species. Those pressures also include growing industrial development of the coastal and marine areas with ports, harbours and other large infrastructure (e.g. Nord Stream II and Vistula Canal).
+
+The goal
+
+The aim is to achieve a substantial reduction of discharges of harmful substances to the Baltic Sea from sources both on land (municipal sewage, atmospheric deposition) and from point sources (ships and harbours).
+
+Citizens in the Baltic Sea region, as well as politicians and officials should be concerned about the constantly ongoing threats to the Baltic Sea Coastal environmental values and search for possible solutions to safeguard the coastal environment and guarantee goals of biodiversity protection and recreational values. Adequate and detailed spatial planning and management plans are needed for all Baltic Coastal areas.
+
+How is CCB working with this issue?
+
+• Advocacy
+
+• Provide inputs and continue the cooperation to/with HELCOM Maritime Working Group;
+
+• Support the objectives of the revised HELCOM Baltic Sea Action Plan (BSAP);
+
+• Support the review and update of the Hot Spot List as well as contribute to creation of the new HELCOM Hot Spots List as agreed in the revised HELCOM BSAP;
+
+• Keep track of development on large infrastructure projects such as the port development, plans to create a navigation channel through the Vistula spit or between the Baltic Sea and the Black Sea (E40).
+
+Cities: Description of the group: Most of the population in all Baltic region countries live in cities, although the level of urbanization varies between the counties. In 2022 the highest level of urbanization was in Sweden (88,49%), Finland (85,68%), and Denmark (88,37%); less urbanized were Germany (77,6%), Estonia (68%) [34], Lithuania (68,47%) and Latvia (68,54%); and the lowest level of urbanization was in Poland (60,1%) [35], [36]. With a high concentration of population and infrastructure, climate change impacts and risks in the cities are likely to be higher and more concentrated. The majority of cities and urban populations in the Baltic are situated along the coasts, which makes pressures and risks even higher. temperature rise; Impacts and climate risks: the cities in the region have to deal with several climate-related impacts:-    -    -    -    -    prolonged periods of extremely high temperature (“heat waves”); precipitation increase; short-term rainfall; sea-level rise (depending on location and topography). Each sector of the city's economy may be affected in different ways, so city managers need to assess and address different risks and opportunities. For example, higher temperatures reduce the need for winter preparation and salting in the transport sector. However, temperature fluctuations around 0 °C cause freeze-thaw cycles that damage asphalt surfaces. High average temperatures and mild winters will reduce winter energy demand
+
+Warmer summers will also require more cooling, but the impact on energy consumption will be minor compared to milder winters. Heat waves can lead to dehydration and heat stroke, which can be life-threatening, especially for the most vulnerable groups. Population ageing exacerbates the negative impacts of heat waves, as the elderly are particularly vulnerable to climatic conditions. It is important to ventilate buildings and lower indoor temperatures during prolonged heat waves to minimise the risk of heat-related illness and death. Temperature and rainfall conditions also affect air quality, which has a significant impact on public health. Water supplies may come under pressure during prolonged droughts. Rising temperatures and increased risks of extreme weather events will increase the risk of food- and waterborne diseases. Precipitation increases pressure on wastewater systems. Increased frequency of extreme rainfall events can lead to overflows and subsequent flooding of buildings and roads, as well as damaWarmer summers will also require more cooling, but the impact on energy consumption will be minor compared to milder winters. Heat waves can lead to dehydration and heat stroke, which can be life-threatening, especially for the most vulnerable groups. Population ageing exacerbates the negative impacts of heat waves, as the elderly are particularly vulnerable to climatic conditions. It is important to ventilate buildings and lower indoor temperatures during prolonged heat waves to minimise the risk of heat-related illness and death. Temperature and rainfall conditions also affect air quality, which has a significant impact on public health. Water supplies may come under pressure during prolonged droughts. Rising temperatures and increased risks of extreme weather events will increase the risk of food- and waterborne diseases. Precipitation increases pressure on wastewater systems. Increased frequency of extreme rainfall events can lead to overflows and subsequent flooding of buildings and roads, as well as damage to infrastructure and human health.ge to infrastructure and human health.
+
+Coastal Communities: Climate change poses specific challenges and creates opportunities for coastal communities in the Baltic Sea Region. Active adaptation measures and a successful green transition are needed to ensure the profitability of the tourism business and its social acceptability. Some organizations of the region have joined the Glasgow Declaration for Climate Action in Tourism [45]. By signing it, the organizations commit to halve emissions by 2030 and reach Net Zero as soon as possible before 2050. The use of renewable energy sources such as solar stations and wind farms reduces carbon dioxide emissions and therefore contributes to climate change mitigation. Transport is one of the main sources of greenhouse emissions in the tourism sector, therefore promotion of public transport, electric vehicles and charging infrastructure, as well as smart mobility solutions, are on the list of climate mitigation measures. Ecolabelling in the tourism industry is one of the opportunities to reduce environmental impact (Blue Flag, Green Key, Nordic Swan Ecolabel, EU Ecolabel, Green Destinations). Adaptation measures are also important for the coastal communities. The actions could include: establishing effective monitoring systems and early warning mechanisms, including plans and strategies, institutions, infrastructure in order to prepare for and respond to impending coastal hazards. All countries of the Baltic Sea Region have adopted the Sendai Framework on Disaster Risk Reduction. Climate and security go hand-in-hand, so experts from both fields need to work together on future challenges and risks. utilisation of coastal zones for purposes other than fishing helps reduce reliance on climate-sensitive occupations and promotes multifunctional use; design infrastructure (buildings, roads, etc.) having future climate scenarios in mind; to better understand how climate change will affect coastal communities and areas, research should continue. For example, in 2021 the Coastal Future Project was launched. The Project creates a virtual test lab for integrated review and development of sustainable management strategies and evaluation of future use and management options for marine resources and coastal areas under changing climate conditions [46]. education about climate change and its impacts. Continuity and consistency are important for educational activities; investments in coastal protection infrastructure to protect coastal communities; development of adaptation strategies with involvement of Local communities with their knowledge and better understanding of the local conditions; promoting natural solutions, like restoring wetlands and creating buffer zones that provide erosion protection and help sustain biodiversity; planning and implementing financial risk assessments for any coastal actions, including collecting data on disaster related damages. A positive example here is the establishment of information and data exchange with insurance company to gain a better understanding of disaster losses in Norway, where the Norwegian Directorate for Civil Protection (DSB) and Finance Norway have partnered to share data, information and analyses that can be used for risk assessment (2018) [47]. ensure funding is available for local action to implement disaster risk reduction measures. 
+
+Cities: Cities in the Baltic Sea Region represent one of the main drivers of the climate policy. Most of the cities have joined one or several international initiatives, for example: https://carbonneutralcities.org/); (1) Helsinki and Stockholm are members of the Carbon neutral cities alliance ( https://www.c40.org/) and, (2) Copenhagen, Olso, Stockholm and Warsaw are members of global network C40 ( (3) regional largest network of cities in the Baltic Sea Region - the Union of the Baltic Cities (UBC, https://ubc.net/) within the work of the “Sustainable Cities” Commission's support and promote cooperation in the area of climate change and one more international network Global Covenant of Mayors for Climate & Energy (https://www.globalcovenantofmayors.org/our-cities/) and ICLEI ( https://iclei-europe.org/). Compared to national levels, cities make more ambitious commitments related to greenhouse gas emissions reductions. For example, the objective of Helsinki City is to make Helsinki carbon-neutral by 2030 [48].  This goal will be achieved by reducing the greenhouse gas emissions in Helsinki by 80 per cent. Cities in the Baltic Sea Region take a number of actions to reduce greenhouse gas emissions (mitigation actions). These actions focus on investment in renewable energy sources such as solar, wind, biomass, geothermal, etc.; energy efficiency measures; sustainable transport, waste management, etc.
+
+The most widely used energy efficiency actions include: renovating existing and constructing new buildings with energy efficient technologies, installing smart building management systems, conducting energy audits, Installing smart meters and developing intelligent grid systems to monitor and manage energy distribution more efficiently, arrangement of public campaigns to educate citizens about energy saving and to encourage behavioural change, etc. Liepaja, Latvia has introduced energy management systems in municipal buildings, utilizing technology to monitor and optimize energy consumption, resulting in significant energy savings [50] Sustainable transportation and mobility is promoted through the implementation of the following activities: developing an efficient and extensive public transportation network, integrating various modes of transport, promoting pedestrian zones and walkways, building dedicated bike lanes and cycle paths, electrifying transport, implementing mobility as a service (MaaS) platforms, encouraging car-sharing programs and carpooling initiatives, promoting smart traffic management systems, integrating transportation planning with urban development, prioritizing mixed-use areas and reducing travel distances, and promoting public understanding of the benefits of sustainable transport through campaigns, education programs, and community engagement initiatives.
+
+Figure 11 - Public transport in Helsinki [52] Efficient public transport systems, including electric buses, trams and trains, have been introduced in Helsinki, Finland. The city's aim is to make public transport easily accessible and more attractive in order to reduce car dependency. The general principle of Helsinki's transport and traffic planning is to address the needs of pedestrians first. After that, the needs of cyclists, public transport, commercial traffic and passenger cars are considered [51] Efforts to reduce waste generation, increase recycling rates, and minimize environmental damage are part of sustainable waste management projects. The waste sector’s contribution to reduction of greenhouse gas emissions consists mainly in: reducing landfilling of organic waste, utilizing gas from discontinued/existing landfill sites and the waste as an energy source.
+
+The cities in the Baltic Sea Region have been implementing numerous adaptation measures to deal with climate change to increase resilience, protect infrastructure, integrate naturebased solutions, and engage communities by raising awareness and supporting vulnerable groups. These activities include: building coastal protective infrastructure, such as seawalls, and barriers to mitigate coastal erosion and protect against storm surges and sea-level rise; conducting a flood risk assessment to identify vulnerable areas and groups and to provide proactive actions preventing negative impacts (Local municipalities, environmental agencies, or regional organizations often include flood risk assessments as part of comprehensive climate adaptation plans or studies. Flood risk maps are created by analyzing factors like sea level rise, topography, storm surge data, and urban infrastructure vulnerability).
+
+ncouraging compact and resilient urban development planning to integrate climate risk adaptation into city planning; upgrading the existing infrastructure to improve the infrastructure resilience against climate-related disruptions; providing stormwater management to increase resilience against extreme precipitation events by implementing nature-based solutions like green roofs, rain gardens, constructed wetlands, etc. Stockholm Royal Seaport has developed a comprehensive and integrated stormwater system that slows and purifies storm water and meltwater before it is released into the sea. The system combines green roofs, rooftop gardens, open storm drains, and surface water drains with urban greenery [54]. extending and creating green areas in cities can help to cool cities, reduce the effects of heat waves, absorb rainwater, and reduce flooding.
+
+Riga, Latvia is expanding its green spaces and urban forests, which help mitigate the urban heat island effect, improve air quality, and provide recreational opportunities for residents. developing climate change education and citizen science initiatives to educate residents about the impacts of climate change and to encourage participation in adaptation efforts; increasing local capacity for responding to emergency situations through information sharing, training etc.
+
+https://turysci.pl/polskie-miasto-lezy-na-44-wyspach-ludzie-odzyskuja-tam-sily-i-energie-nk-nk-010924
+
+https://gs24.pl/swinoujscie-nie-sklada-broni-w-sprawie-terminalu-kontenerowego-bedzie-zespol-ekspertow-a-dolaczyc-chca-miedzyzdroje/ar/c1-18780205
+
+https://wgospodarce.pl/informacje/144890-jak-to-sie-robi-w-niemczech-panstwo-ratuje-stocznie
+
+https://wszczecinie.pl/prokuratura-wszczyna-sledztwo-w-sprawie-niegospodarnosci-w-stoczni-szczecinskiej-wulkan-mowa-o-gigantycznych-stratach/48946
+
+https://ug.edu.pl/news/pl/7387/mozna-powiedziec-wkladamy-kij-w-mrowisko-dr-maurycy-zarczynski-wspolautorem-publikacji-w-nature
+
+https://next.gazeta.pl/next/7,172392,31278428,otwarte-nadmorskie-kapieliska-mozna-policzyc-na-palcach-jednej.html
+
+https://next.gazeta.pl/next/7,172392,31278428,otwarte-nadmorskie-kapieliska-mozna-policzyc-na-palcach-jednej.html
+
+https://www.smartage.pl/zurawie-kone-symbol-gdanska/
+
+https://www.smartage.pl/zurawie-kone-symbol-gdanska/
+
+02.09.2024 r. - wycieczka do Portu w Szczecinie z Przyjaciółmi zorganizowana przez Monika Zaboklicka . Bardzo dziękujemy!!!
+Pogoda dopisała, a spacer odbył się w miejscach które odwiedziliśmy ponownie (powyzej16 piętra Elewatora Ewa) z przepięknymi widokami Miasta, Portu i Stoczni (zdjęcia specjalnie dedykuję Wiesław Prokopowicz ) oraz po terenie Portu i po raz pierwszy po Ostrowie Grabowskim.
+
+https://www.facebook.com/share/p/TgeReC2NMEJ6aNq8/
+
+https://szczecin.wyborcza.pl/szczecin/7,34939,31286371,dlaczego-port-szczecin-swinoujscie-reklamuje-sie-na-koszulkach.html
+
+Konflikt ekologiczny w mieście portowymi krajobraz
+https://iswinoujscie.pl/artykuly/83236/
+
+https://radioszczecin.pl/1,476937,prezes-zarzadu-portow-lokalizacja-terminalu-kont
+
+https://next.gazeta.pl/next/7,151003,31318013,chinski-port-w-gdyni-pod-okiem-sluzb-specjalnych-wpisano-go.html
+
+https://wiadomosci.onet.pl/kraj/nieograniczona-przestrzen-i-wolnosc-odkryj-magiczna-gdynie-bez-tlumow-w-swoim-rytmie/d963xey
+
+https://dziennikbaltycki.pl/inauguracja-roku-akademickiego-uniwersytetu-morskiego-w-gdyni-tradycyjna-uroczystosc-przy-darze-mlodziezy/ar/c5-18857059
+
+https://wiadomosci.onet.pl/swiat/nieprzyjemna-niespodzianka-na-pokladzie-polskiego-statku-w-brazylii-nocny-abordaz/3p9j7hj
+
+https://gs24.pl/politechnika-morska-rozpoczyna-nowy-rok-akademicki-inauguracja-na-walach-chrobrego-zdjecia-wideo/ar/c1-18856639
+
+Kilka dni temu pierwszego października wraz z władzami innych szczecińskich uczelni brałem udział w akademickim przemarszu ulicami naszego miasta. Towarzyszyło mi wielu z was, wielu wykładowców, pracowników administracji i studentów. Pokazaliśmy, że Szczecin rośnie w siłę, staje się coraz większym ośrodkiem akademickim, miastem z perspektywami, do którego warto przyjechać warto w nim żyć, studiować i związać z nim przyszłe życie zawodowe - mówił prof. Wojciech Ślączka, rektor uczelni.
+
+- To podniosła chwila o waszym życiu dlatego, dbamy o jej odpowiednią oprawę rangę, by pozostała w waszej pamięci na długo. Dziś rozpoczynacie zupełnie nowy etap w waszym życiu. Wybierając Politechnikę Morską, wybierając Szczecin, dokonaliście dobrego wyboru. Przekonacie się, że nasza uczelnia jedna z dwóch morskich uczelni w Polsce cieszy się renomą i uznaniem wyróżniając się w kraju i za granicą. Tym wyznacznikiem jest nasza morskość i tradycja z nią związana. Tradycje, którym hołdujemy i o których nie zapominamy
+
+https://www.gospodarkamorska.pl/forum-gospodarki-morskiej-2024-czy-polskie-porty-sa-autonomiczne-81177
+
+https://podroze.onet.pl/aktualnosci/morze-baltyckie-wyrzucilo-skarby-niezwykle-odkrycie-w-katach-rybackich/ft5sjdh
+
+https://tvn24.pl/trojmiasto/gdansk-oceania-z-dofinansowaniem-na-najblizsze-trzy-lata-jest-decyzja-ministerstwa-st8146258
+
+https://www.gospodarkamorska.pl/jakub-dlugoszek-budimex-to-dobry-czas-dla-hydrotechniki-81216
+
+https://www.gospodarkamorska.pl/ocean-network-express-trafia-do-ksiegi-rekordow-guinessa-81374
+
+https://www.onet.pl/turystyka/onetpodroze/setki-rosyjskich-turystow-uwiezionych-na-statku-w-japonii-nie-mamy-paszportow/16xt8wr,07640b54
+
+https://www.portalsamorzadowy.pl/inwestycje/pierwsza-w-polsce-autostrada-dla-pociagow-gotowa-efektowna-konstrukcja-spina-39-torow,581506.html
+
+https://wydarzenia.interia.pl/kraj/news-jak-gen-haller-zaslubil-polske-z-morzem-bylo-skute-lodem,nId,7853180
+
+https://wszczecinie.pl/waly-chrobrego-i-filharmonia-musialy-ustapic-bardziej-imprezowym-lokalizacjom-wiemy-ilu-turystow-odwiedzilo-szczecin/49669
+
+https://wiadomosci.radiozet.pl/szczecin/to-najwieksza-atrakcja-szczecina-przyciaga-miliony-turystow-malownicze-miejsce
+
+https://twojeradio.fm/zagle-2025-szczecin-szykuje-sie-na-kolejne-wielkie-wydarzenie-na-wodzie-znamy-termin.html
+
+✕
+
+Social media
+
+Filtrowanie
+
+Wszystkie
+
+Polecane
+
+Telewizja
+
+Kategorie
+
+The Tall Ships Races 2024
+
+Komunikacja
+
+Inwestycje
+
+Mieszkalnictwo
+
+Biznes
+
+Edukacja
+
+Sport
+
+Szczecin kibicuje
+
+Kultura
+
+Mieszkańcy
+
+Nad wodą
+
+Ekologia
+
+Archiwum
+
+Koronawirus
+
+The Tall Ships Races 2017
+
+Spis powszechny
+
+:
+
+Wyszukiwarka
+
+✕
+
+Zamknij
+
+✕
+
+Powiadomienia
+
+Brak wyników
+
+Zamknij
+
+Ustawienia dostępności
+
+Tryb wysokiego kontrastu
+
+141618
+
+Zamknij
+
+Ważne
+
+Miasto Szczecin szuka architekta
+
+Szczeciński Budżet Obywatelski: Czas na konsultacje nowych rozwiązań
+
+Rewitalizacja. Wnętrze Kwartału 36 pięknieje w oczach
+
+Umowa na 14 elektryków podpisana
+
+Weź udział w badaniu klimatu rowerowego
+
+Mieszkańcy
+
+Nie tylko Wały i Filharmonia, czyli co przyciąga turystów do Szczecina?
+
+Nie tylko Wały i Filharmonia, czyli co przyciąga turystów do Szczecina?
+
+Natalia Mróz
+
+Mieszkańcy
+
+11:5408.11.2024
+
+Udostępnij
+
+Mamy już pierwsze podsumowania sezonu turystycznego w Szczecinie. Liczby pokazują, że nasze miasto staje się coraz częściej wybieraną destynacją przez turystów krajowych i zagranicznych.
+
+Co ich do nas przyciąga? Przede wszystkim wiele możliwości i bogata oferta turystyczna, która z każdym sezonem się poszerza. W tym roku magnesami były przede wszystkim żaglowce, ale zainteresowaniem cieszyły się także nowe aquapark i teatr.
+
+Statystyki mówią same za siebie. Od stycznia do końca października Centrum Informacji Turystycznej odwiedziły ponad 22,5 tys. turystów, to o 2,5 tys. więcej odwiedzających niż w ubiegłym roku o tej samej porze.
+
+- Najliczniejszą grupą byli turyści z Polski, to oni stanowili ponad 62% wszystkich odwiedzających, na drugim miejscu znaleźli się przyjezdni z Niemiec – 26%, a pozostałe grupy to turyści z językiem angielskim i Skandynawowie - informuje Celina Wołosz, rzecznik prasowy spółki Żegluga Szczecińska Turystyka Wydarzenia.
+
+Dzięki badaniom zleconym firmie Selectivv możemy sprecyzować jak wyglądały same wizyty. I tu mamy się czym pochwalić, bo od początku roku Szczecin odwiedziły ponad 2,2 mln turystów, którzy skorzystali ze szczecińskiej bazy noclegowej. Najwięcej krajowych turystów przybyło z województw: dolnośląskiego (117, 5 tys.), śląskiego (91, 4 tys.), wielkopolskiego (74, 9 tys.), łódzkiego (57 026) i małopolskiego (56, 6 tys.). Nie brakowało również u nas turystów regionalnych, największy ruch odbywał się z powiatów: kamieńskiego (163, 4 tys.), polickiego (73, 4 tys.), kołobrzeskiego (58,8 tys.), gryfińskiego (46,2 tys.) i koszalińskiego (30,5 tys.). Jeśli chodzi o turystów zagranicznych, to w minionym sezonie było ich najwięcej z Niemiec – to ponad 900 tys. odwiedzających. Co ciekawe, badania wykazały, że sporą liczbę odwiedzających odnotowaliśmy także z Czech (30 tys.) oraz Wielkiej Brytanii (43,5 tys.). Na potrzeby badań zdefiniowano turystę krajowego/zagranicznego, jako użytkownika urządzenia mobilnego, który spędził minimum dwa dni z noclegiem w Szczecinie i nie mieszka na terenie województwa zachodniopomorskiego, a w przypadku turysty zagranicznego na terenie Polski. Za turystów krajowych uznano użytkownika urządzenia mobilnego, który nie jest mieszkańcem Szczecina, a jego przemieszczanie następowało między różnymi powiatami województwa zachodniopomorskiego.
+
+- Nie będzie niespodzianką, że to sierpień, na początku którego odbywał się finał regat The Tall Ships Races, okazał się miesiącem, w którym odnotowaliśmy najwięcej odwiedzin - dodaje Wołosz. - Tylko w tym miesiącu do Szczecina przyjechało ponad pół miliona turystów jednodniowych oraz blisko 470 tys. turystów, którzy zostali w Szczecinie na noc.
+
+Jeszcze kilka lat temu największymi atrakcjami turystycznymi, które jak magnes przyciągały turystów do Szczecina były Wały Chrobrego i Filharmonia. Tegoroczne badania wykazały, że owszem, te architektoniczne ikony w dalszym ciągu znajdują się na liście top 5 najczęściej odwiedzanych przez turystów miejsc, ale ścisła czołówka należy do Deptaku Bogusława (ponad 1,9 mln odwiedzających), Bulwarów (1,2 mln) oraz Łasztowni (867, 3 tys.).  Wśród najczęściej odwiedzanych lokalizacji znalazł się także Ratusz Staromiejski i Stare Miasto. Na mapie nie zabrakło także nowych atrakcji, czyli Fabryki Wody, Morskiego Centrum Nauki, Teatru Polskiego czy Teatru Letniego w Parku Kasprowicza.
+
+Zmiany w profilu odwiedzających zauważają także przewodnicy miejscy oraz przedstawiciele branży hotelarskiej, którzy jasno mówią o tym, że Szczecin cieszy się coraz większą popularnością jako miasto dobre na city break lub jednodniowy wypad.
+
+- Jako pracownicy informacji turystycznej widzimy, że Szczecin jako destynacja turystyczna jest bardzo atrakcyjny. Sezon w Szczecinie z roku na roku zaczyna się szybciej i kończy się coraz później – mówi Kamil Birecki, koordynator Centrum Informacji Turystycznej w Szczecinie.
+
+Bądź na bieżąco!
+
+Kliknij w przycisk „Obserwuj”, aby być bieżąco z wiadomościami ze Szczecina. Najbardziej interesujące wpisy znajdziesz w Google News!
+
+Obserwuj
+
+Powrót
+
+Tagi
+
+zegluga szczecinska
+
+centrum informacji turystycznej
+
+turystyka
+
+wały chrobrego
+
+Zobacz również
+
+Mieszkańcy
+
+Trwa sprzedaż kalendarza Visit Szczecin na 2025
+
+Przypominamy, że w Centrum Informacji Turystycznej można kupić kalendarz ścienny Visit Szczecin na 2025 rok.
+
+13/11/2024
+
+Mieszkańcy
+
+Śródmieście. Spacer szlakiem map stworzonych przez szczecinian
+
+Co jest w Śródmieściu niezwykłego? Spacer szlakiem map stworzonych przez szczecinian
+
+13/11/2024
+
+Mieszkańcy
+
+Weź udział w badaniu klimatu rowerowego
+
+Trwają ogólnopolskie Badania Klimatu Rowerowego 2024 (#BKR2024). Mieszkańcy miast i gmin zrzeszonych w Stowarzyszeniu Polska Unia Mobilności Aktywnej mają możliwość wypowiedzenia się na temat warunków korzystania z rowerów. UMP jest patronem badania.
+
+12/11/2024
+
+Informacje prawne
+
+Polityka prywatności
+
+Deklaracja dostępności
+
+Dla odwiedzających
+
+Wydarzenia Szczecin
+
+Wszelkie prawa zastrzeżone © 2024 Wiadomości Szczecin
+
+https://wiadomosci.szczecin.eu/artykul/mieszkancy/nie-tylko-waly-i-filharmonia-czyli-co-przyciaga-turystow-do-szczecina
+
+https://wszczecinie.pl/szczecin-chce-po-raz-piaty-zorganizowac-final-the-tall-ships-races-jestesmy-stworzeni-aby-robic-takie-imprezy/49713
+
+https://wiadomosci.wp.pl/co-sie-dzieje-w-baltyku-tajemnicze-zgony-fok-7093690698378208a
+
+Performer miasta portowego
+https://gs24.pl/niesamowity-projekt-w-szczecinie-mozaiki-i-zmysly-ktorymi-mozemy-poczuc-miasto-zdjecia/ar/c1-18945943
+
+https://szczecin.wyborcza.pl/szczecin/7,34939,31477576,czy-szczecin-stracil-swoja-szanse-na-nowa-jakosc-na-miedzyodrzu.html
+
+https://www.whitemad.pl/architektoniczna-perla-dawnego-kolobrzegu-strandschlos-byl-wizytowka-kurortu/
+
+https://www.trojmiasto.pl/wiadomosci/Srodmiescie-Gdyni-Waterfront-dostepny-dla-wszystkich-n196104.html
+
+https://businessinsider.com.pl/wiadomosci/aktywisci-klimatyczni-zablokowali-wazny-port-statek-musial-zawrocic/tc6qfkd
+
+Ludmiła Kopycinska performerka
+https://24kurier.pl/aktualnosci/wiadomosci/prelekcja-w-starej-rzezni-najslynniejsze-polskie-zaglowce/
+
+https://architektura.muratorplus.pl/realizacje/waterfont-aa-qhwS-2e2i-SKvd.html
+
+Bajau, znani również jako "ludzie morza", to niezwykłe plemię zamieszkujące wybrzeża i wody Indonezji, Malezji i Filipin. Od ponad 1000 lat żyją w harmonii z oceanem, spędzając większość życia na wodzie w domach na palach lub łodziach lepa-lepa. Ich przetrwanie zależy całkowicie od morza – zdobywają pożywienie, nurkując po krewetki, kraby, ryby czy kałamarnice.
+To, co wyróżnia Bajau, to ich niezwykłe przystosowanie biologiczne. Badania wykazały, że mają większe śledziony niż większość ludzi – ich objętość jest większa o ponad 50%. Śledziona pełni funkcję biologicznego "zbiornika tlenu", pozwalając im przetrwać pod wodą nawet do 13 minut i nurkować na głębokość do 60 metrów bez sprzętu nurkowego. Co ciekawe, to przystosowanie genetyczne występuje u wszystkich członków plemienia, nawet u dzieci, które nigdy nie nurkowały.
+Aby zminimalizować ból związany z ciśnieniem podczas głębokiego nurkowania, Bajau celowo przekłuwają sobie błony bębenkowe. Choć pomaga to w przystosowaniu do nurkowania, naraża ich na problemy ze słuchem i infekcje. To jednak cena, jaką płacą za życie w zgodzie z oceanem.
+Są oni przykładem niesamowitej adaptacji człowieka do ekstremalnych warunków. Ich życie pokazuje, jak silnie natura może wpłynąć na ewolucję człowieka.
+
+https://trojmiasto.wyborcza.pl/trojmiasto/7,35612,31588603,czy-regaty-the-tall-ships-races-powroca-do-trojmiasta-do-organizacji.html

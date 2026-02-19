@@ -1,0 +1,38 @@
+Sailmaker
+
+Property	Value
+Occupation	Sailmaker
+Description of the occupation	The occupation of a SAILMAKER specializes in making and repairing sails for private sailyachts or for racing boats with specialised high performance sail materials. This occupation can be found anywhere in Europe, but often close to the coast. Working as a SAILMAKER requires in some cases an apprenticeship, but can be also trained on the job.
+Task #1	Designing sails and deciding the best materials, depending on the customers requirements (racing, cruising, price limits, etc.)
+Task #2	Making the sail using digital programms and also traditional methods of sewing and adding ropes and cleats.
+Task #3	Repairing and maintaining sails
+Necessary educational level needed for the occupation	
+Secondary school	Required
+Informal training (extra training outside school system)	Required
+Other	You can train as an apprentice in some companies, but also learn on the job.
+Working environment	
+Permanent	Required
+Location of occupation	
+Workshop	Required
+Outdoors	Required
+Onshore	Required
+Working hours	Fixed
+Working schedule	Work during day time hours
+Workplace environment	
+Other	no
+Physical requirements	
+Physical effort/lifting	Required
+Other requirements	physical work is sometime required when moving sails
+Soft skills rating	
+Teamwork	5
+Adaptability	4
+Problem solving	5
+Following procedures	4
+Multitasking	2
+Work under pressure	3
+Communication	3
+Leadership	3
+Attention to detail	5
+Time management	4
+Customer service	5
+Initiative	2

@@ -1,0 +1,1090 @@
+
+
+
+
+
+You said:
+Conceptualise the comprehensive and coherent framework, that is novelty extension of Ludwik Janiszewski’s semi-deterministic theory (the interplay of the Marine Factor and Maritime Factor) into a contemporary, inspired and supporting with social dimension to One Ocean Manifesto, One Ocean Pact, High Seas Treaty and Blue Planet Frameworks three-dimensional model suited for the Anthropocene and the Blue Economy. The Tripartite Model of Blue Dynamics model should consist of:
+
+1. Marine Factor ("czynnik morski") - The MARINE Domain (The Biophysical/Ecological Involuntary Agency) -- Process of Marinisation: The capacity of the hydrosphere (ocean, tides, climate) to shape human life, impose limits, and dictate survival conditions -- marine factor in making has three dimensions: de-marinisation (the crisis where biodiversity collapse, through pollution, acidification, carbon-emission ... the ocean's involuntary agency through tides, waves, rainfall, humidity, nutrient metabolic circulation, circularity of water cycle), re-marinisation (the regenerative fix), trans-corporate marinisation (the sea marinise the littoral space by circularity of water, nutritions, tides, humidity, wet-/ dry-, Golfstrom, ...). 
+
+
+
+The MARITIME Domain (The Techno-Economic/Institutional/ Infrastructural/ Digital): "ased on Janiszewski’s "Human Factor" (reinterpreted as "Maritime Factor") – Humans terraforming the sea.
+
+
+
+Process of Maritimisation: The institutional, economic, and technological colonisation of the sea (ports, fleets, energy grids, laws).
+
+De-maritimisation (The Loss):
+
+Definition: The decline of traditional "People of the Sea." The rusting of old port infrastructure, the gentrification of working waterfronts into luxury housing, and the loss of intergenerational maritime skills (the "knowledge gap").
+
+Impact on Blue Value: Alienation of coastal communities. If locals feel "sea-blindness" and have no economic stake in the ocean, they resist Blue Economy projects (e.g., protesting offshore wind).
+
+Re-maritimisation (The Socio-Economic Revival):
+
+Definition: The Sustainable Blue Economy. Creating new maritime occupations (wind technicians, algae farmers, blue biotech scientists) that provide dignity and livelihood. It involves "locking in" new institutional pathways (Marine Spatial Planning) that prioritise local labour and community benefits."
+
+Goal: Moving from alienation of human from nature (anthropocene) towards transcorporate= giving way to those who have no voice, self-restraint, defending the interests of nature in the name of our shared habitat as a supra-human good.
+
+
+
+the same logic continue to the final end of complete blue value logic-matrix. 
+
+
+
+ argues that Sustainable Blue Value is not merely economic growth (Blue Growth); it is the equilibrium point where Re-marinisation (ecological regeneration), Re-maritimisation (socio-economic renewal), and Re-oceanisation (ontological reconnection) meet.
+
+Here is the context and guidance:
+"Gemini said
+Here is the revised and expanded content for your manuscript, "Blue Economy Maritime Sociology", incorporating the theoretical depth from the NotebookLM "SCISPACE..." project files (specifically the Sustainable Blue Economy Research series) and aligning with the assumptions of the Abstract ESA Ioannis Robert Tallinn.
+
+The focus is on expanding Section 2.1, rigorously detailing Janiszewski’s theory of marinisation, and establishing the tripartite distinction between marine, maritime, and ocean sociology.
+
+Blue Sociology: Maritime Sociology in Times of Oceanic Turns
+Revised Manuscript Draft – February 2026
+Language: English (UK)
+Style: APA 7
+
+Abstract
+(Aligned with Abstract ESA Ioannis Robert Tallinn 29_01_2026.docx)
+
+Our starting point is maritime sociology, particularly its foundations in the work of Ludwik Janiszewski, who began developing his theory of marinisation in the early 1970s. In the time of the Oceanic Turn, his semi-deterministic theoretical framework deserves not only to be revisited but also to be acknowledged as a means of foregrounding the Sustainable Blue Economy. Our contribution extends beyond re-examining this framework; drawing on the EU Sustainable Blue Economy agenda as a case study, we develop a multi-level model that identifies sectors with strong potential to address blue-related social problems. We propose a delimitation of three interrelated "blue-making" concepts: marine, maritime, and oceanic. The first two correspond to the "marine factor" and "human factor" in Janiszewski’s theory, while the "oceanic" domain integrates these into a planetary, hydrosocial context. We argue that "Blue Sociology" serves as a complementary renewal of the discipline, offering critical analytical resources for addressing the distributive justice, participation, and social sustainability blind spots of dominant blue policy agendas.
+
+1. Introduction
+Over the past decade, the Blue Economy (and the closely related policy idiom, Blue Growth) has emerged as the guiding principle and symbolic representation of ocean-based development. Promising a synthesis of economic growth, environmental sustainability, and social inclusion, this framework has been institutionalised by the European Union and global bodies. However, the conceptual openness of the Blue Economy often masks unresolved trade-offs and leaves the social mechanisms of "blue" transformation under-specified.
+
+Drawing on the historical and theoretical evolution of maritime sociology—from Michael Poole’s sociological systematization of sea-related work to Ludwik Janiszewski’s "maritimization theory"—we propose that the Blue Economy offers a renewed analytical and normative framework for the sociological study of sea–society relations. While traditional maritime sociology focused primarily on maritime professions ("people of the sea"), institutions, and occupational communities, the Blue Economy introduces new domains of inquiry such as sustainability, circularity, ocean governance, and blue urbanism.
+
+We advance the concept of "Blue Sociology" not as a competitor to maritime sociology, but as a complementary renewal. This framework extends the discipline beyond the study of occupational groups toward an integrated sociology of sea societies, capable of analysing the complex socio-ecological entanglements inherent in offshore energy, biotechnology, and coastal transitions.
+
+2. Theoretical Foundations: From Maritime Sociology to Blue Sociology
+To understand the sociological implications of the Blue Economy, we must first ground our analysis in the foundational traditions of maritime sociology. This section reconstructs two critical pillars: the programmatic systematization offered by Michael Poole and the semi-deterministic theory of marinisation developed by Ludwik Janiszewski.
+
+2.1 Maritime Sociology: The Legacy of Systematization and Marinisation
+Maritime sociology has long struggled for recognition as a distinct sub-discipline, often fragmented into studies of specific occupational groups (fisheries sociology) or subsumed under broader industrial sociology. However, the works of Poole and Janiszewski provide a coherent theoretical architecture that anticipates many concerns of the contemporary Oceanic Turn.
+
+2.1.1 Michael Poole: Programmatic Systematization
+Michael Poole’s contribution lies in his effort to move maritime sociology beyond descriptive ethnographies of "people of the sea". Poole argued for a programmatic systematization, treating the maritime world not merely as a setting for exotic work, but as a distinct sociological field with unique structural properties. He focused on the totality of the maritime environment—the "total institution" of the ship, the specific labour markets of the port, and the oscillation between land and sea—as a lens to understand broader social phenomena. For Blue Sociology, Poole’s legacy underscores the necessity of analysing the organisational and institutional structures that govern blue sectors, from traditional shipping to modern offshore wind farms.
+
+2.1.2 Ludwik Janiszewski: The Theory of Marinisation
+Central to our framework is the Theory of Marinisation (teoria marynizacji), developed by Ludwik Janiszewski in post-war Poland. Janiszewski’s approach is characterised as semi-deterministic: it posits that environmental and infrastructural forces orient social possibilities, while social actors and institutions translate those orientations into particular developmental outcomes (Janiszewski, 1967; 1972).
+
+This theoretical stance navigates between structural determinism and voluntarism. It recognises the constraining power of material conditions (the sea as a physical force) while emphasising the transformative capacity of human agency and social organisation. Janiszewski conceptualised marinisation as a process of mutual constitution: the sea shapes societies through material constraints and opportunities (the Marine Factor), while societies shape their relationships with the sea through institutional choices, cultural practices, and technological mediations (the Human Factor).
+
+Janiszewski identified several key mechanisms of sea-society entanglement through which marinisation produces durable social forms. We reinterpret these mechanisms here to analyse contemporary Blue Economy dynamics:
+
+Economic Linkage Mechanisms:
+These involve the creation of maritime occupations, firms, and industries that reconfigure local labour markets and economic structures. When fishing fleets, shipping companies, or—in the modern context—offshore wind maintenance hubs are established in a coastal region, they generate employment opportunities and income flows that orient local development toward maritime sectors. These linkages create material interests that shape political coalitions and regional identities (Janiszewski, 1967).
+
+Institutional Embedding Mechanisms:
+Marinisation proceeds through the establishment of port authorities, maritime educational institutions, and regulatory agencies that "lock in" maritime developmental pathways. Once substantial institutional infrastructure is created, path dependencies emerge: actors develop vested interests, specialized knowledge accumulates, and the "switching costs" for alternative development strategies increase. Maritime institutions thus become self-reinforcing, reproducing maritime orientations even as specific economic conditions change (Janiszewski, 1991).
+
+Cultural Transmission Mechanisms:
+The reproduction of maritime identities occurs through families, workplaces, schools, and community organisations. When local cultural practices celebrate maritime heritage, or when schools incorporate maritime training, maritime identities become embedded in social reproduction. These mechanisms create subjective orientations toward maritime life—a "maritime consciousness"—that complements economic structures.
+
+Spatial Concentration Mechanisms:
+This refers to the clustering of maritime activities and infrastructure in specific coastal locations, creating agglomeration effects. Port cities develop specialised service sectors and built environments adapted to maritime functions. This spatial concentration reinforces marinisation by creating dense networks of maritime actors, fostering what we now might term "Blue Urbanism".
+
+2.2 Distinguishing the Domains: Marine, Maritime, and Oceanic
+To operationalise Janiszewski’s theory for the 21st century, we propose a precise delimitation of three interrelated "blue-making" concepts. This tripartite model resolves the confusion often found in Blue Economy policy documents:
+
+Marine Sociology (The Marine Factor): Focuses on the biophysical and ecological agency of the sea. Following Janiszewski’s "marine factor", this domain conceptualises oceans and seas not as empty space, but as an omnipotent biophysical foundation. It deals with the material reality of water, tides, biodiversity, and climate forces that constrain and enable human activity.
+
+Maritime Sociology (The Maritime Factor): Focuses on the techno-economic and institutional exploitation of the sea. Here, we deliberately reframe Janiszewski's "human factor" as the "maritime factor". This domain encompasses the "people of the sea", labour regimes, port infrastructure, legal frameworks (UNCLOS, MSP), and the economic machinery of the Blue Economy. It is where human agency actively "terraforms" the sea.
+
+Oceanic Sociology (The Integrative Domain): This is the emergent domain of Blue Sociology. It integrates the marine and maritime within a planetary, post-human, and hydrosocial framework. It analyses the entanglement of the biophysical and the social—where microplastics enter human bloodstreams, and where carbon markets reshape coral reefs. The "Oceanic" perspective allows us to navigate the "estuary" where the marine and maritime collide.
+
+3. Blue Sociology as a Complementary Renewal
+We posit that Blue Sociology is not a competitive replacement for maritime sociology but a necessary expansion. Classic maritime sociology provides the tools to analyse the work and communities of the sea (the maritime factor). Blue Sociology expands this to include the governance, justice, and sustainability of the entire ocean-society system (the oceanic domain).
+
+Using the EU’s institutionalised Sustainable Blue Economy framework, Blue Sociology applies these lenses to explain recurrent tensions around:
+
+Distributive Justice: Who benefits from the enclosure of ocean space for offshore wind?
+
+Participation: How are traditional "people of the sea" (fisheries) consulted in Marine Spatial Planning?
+
+Social Sustainability: Beyond ecological metrics, how do blue sectors support the resilience of coastal communities?
+
+By grounding our analysis in the semi-deterministic logic of Janiszewski—recognising that the "Blue Economy" is constrained by the "Marine Factor" (ecology) and shaped by the "Maritime Factor" (institutions)—we can offer a robust, evidence-based critique of current policy, moving beyond hopeful rhetoric toward a rigorous sociology of the sustainable ocean.
+
+Recommended Next Steps for Manuscript Finalisation
+Insert Visuals: Trigger the generation/insertion of the concept map visualising the "Marine-Maritime-Oceanic" tripartite model to break up the theoretical text in Section 2.2.
+
+Case Study Integration: In the subsequent sections (3 and 4), explicitly map the four "mechanisms of marinisation" (Economic, Institutional, Cultural, Spatial) to specific EU Blue Economy sectors (e.g., map "Spatial Concentration" to the analysis of Port Cities as Blue Hubs).
+
+Check References: Ensure all citations (Janiszewski, 1967; Poole, 1981) are fully fleshed out in the bibliography using the uploaded CSV reference files.
+
+Polish for "British English": Ensure -ise/isation (marinisation, organisation) suffixes are used consistently throughout the document.
+
+You said
+Conceptualise how can processes of marinisation, maritimisation and oceanisation (by extending the Ludwik Janiszewski concept) impacts the marine-maritime-ocean sustainable blue value of economy and blue growth in terms of ongoing de- marinisation, de-maritimisation and de-oceanisation AND re-marinisation, re-maritimisation, re-oceanisation AND "just-inclusive-solidary-collaborative-cohabitation" of all blue transcorporeal entanglement of water bodies?
+
+Gemini said
+Here is the conceptualisation of the Tripartite Dialectic of Blue Value. This framework extends Ludwik Janiszewski’s semi-deterministic theory (the interplay of the Marine Factor and Maritime Factor) into a contemporary, three-dimensional model suited for the Anthropocene and the Blue Economy.
+
+This model argues that Sustainable Blue Value is not merely economic growth (Blue Growth); it is the equilibrium point where Re-marinisation (ecological regeneration), Re-maritimisation (socio-economic renewal), and Re-oceanisation (ontological reconnection) meet.
+
+The Tripartite Model of Blue Dynamics
+We distinguish three domains of "blue-making," each subject to cycles of erosion (De-) and regeneration (Re-).
+
+1. The MARINE Domain (The Biophysical/Ecological Agency)
+Based on Janiszewski’s "Marine Factor" (Czynnik Morski) – The sea as an omnipotent force.
+
+Process of Marinisation: The capacity of the hydrosphere (ocean, tides, climate) to shape human life, impose limits, and dictate survival conditions.
+
+De-marinisation (The Crisis):
+
+Definition: The silencing of the ocean’s agency through pollution, acidification, and biodiversity loss. It is the treatment of the sea as a passive resource pit or waste sink ("Aqua Nullius").
+
+Impact on Blue Value: Collapse of natural capital stocks (fish stocks, coral reefs) renders "Blue Growth" physically impossible.
+
+Re-marinisation (The Regenerative Fix):
+
+Definition: Restoring the "Marine Factor" as a decisive actor. This involves Nature-based Solutions (NbS), rewilding coasts, and granting legal personhood to water bodies (Rights of Nature).
+
+Goal: Moving from extraction to stewardship.
+
+2. The MARITIME Domain (The Techno-Economic/Institutional)
+Based on Janiszewski’s "Human Factor" (reinterpreted as "Maritime Factor") – Humans terraforming the sea.
+
+Process of Maritimisation: The institutional, economic, and technological colonisation of the sea (ports, fleets, energy grids, laws).
+
+De-maritimisation (The Loss):
+
+Definition: The decline of traditional "People of the Sea." The rusting of old port infrastructure, the gentrification of working waterfronts into luxury housing, and the loss of intergenerational maritime skills (the "knowledge gap").
+
+Impact on Blue Value: Alienation of coastal communities. If locals feel "sea-blindness" and have no economic stake in the ocean, they resist Blue Economy projects (e.g., protesting offshore wind).
+
+Re-maritimisation (The Socio-Economic Revival):
+
+Definition: The Sustainable Blue Economy. Creating new maritime occupations (wind technicians, algae farmers, blue biotech scientists) that provide dignity and livelihood. It involves "locking in" new institutional pathways (Marine Spatial Planning) that prioritise local labour and community benefits.
+
+Goal: Moving from alienation to participation.
+
+3. The OCEANIC Domain (The Ontological/Integrative)
+The New "Blue Sociology" Extension – The planetary, hydrosocial entanglement.
+
+Process of Oceanisation: The realisation that human existence is fundamentally wet, fluid, and connected to the planetary hydrosphere.
+
+De-oceanisation (The Severing):
+
+Definition: The cultural and spiritual disconnection from water. Viewing the ocean merely as a "sector" on an Excel sheet rather than a life-support system. The illusion that terrestrial life is separate from the ocean.
+
+Impact on Blue Value: A "soul-less" economy that generates profit but destroys well-being and fails to account for the "transcorporeal" reality (e.g., microplastics in human blood).
+
+Re-oceanisation (The Consciousness Shift):
+
+Definition: The rise of Ocean Literacy and "Blue Citizenship." Acknowledging Transcorporeality: that we are bodies of water interacting with other bodies of water. This is the "Oceanic Turn" in sociology—recognising that social justice and ocean justice are the same thing.
+
+Goal: Moving from separation to entanglement.
+
+Synthesis: Towards "Just-Inclusive-Solidary-Collaborative-Cohabitation"
+True Sustainable Blue Growth requires the synchronisation of all three "Re-" processes. The failure of one leads to the collapse of the others.
+
+The Mechanism of Cohabitation:
+
+Just (Justice): Achieved when Re-maritimisation (new jobs) does not occur at the expense of Re-marinisation (ecosystem health). Example: Offshore wind farms that also function as artificial reefs and are co-owned by local fishing cooperatives.
+
+Inclusive (Participation): Achieved when the Maritime Factor (institutions) listens to the Oceanic Domain (cultural values). Example: Marine Spatial Planning that integrates indigenous/local "tacit knowledge" alongside scientific data.
+
+Solidary (Solidarity): Recognising the Transcorporeal Entanglement. If we poison the water (De-marinisation), we poison ourselves (De-oceanisation). Solidarity is not just between humans, but between humans and the water bodies they inhabit.
+
+Collaborative (Governance): A shift from top-down "Blue Growth" to bottom-up "Blue Society."
+
+Conclusion for the Manuscript:
+"The Theory of Marinisation must therefore be upgraded. It is no longer just about how the sea impacts society (determinism) or how society impacts the sea (utilitarianism). It is about the Oceanic Cycle: We re-maritimise our economy to provide the resources to re-marinise our ecosystems, which in turn deepens our re-oceanisation—our conscious return to the water. This is the only pathway to a Blue Economy that is not merely extractive, but truly constitutive of a just, solidary, and enduring cohabitation."".
+
+ChatGPT said:
+
+Thought for 4m 52s
+“Janiszewski’s approach … is not geographical determinism; it distinguishes a marine factor (natural) and a human/social factor and treats development as conditioned by nature and shaped by human activity.” 
+
+Reasoning: This is the usable core of a semi-deterministic theory: (i) the sea constrains and enables; (ii) societies translate those constraints into institutions, infrastructures, and cultures; (iii) the resulting maritime system feeds back into the sea. Your novelty move is to keep the two-factor engine and add a third, integrative “oceanic” dimension that captures planetary entanglement, cross-border governance, and transcorporeal vulnerability—i.e., Anthropocene conditions.
+
+“Sustainable Blue Value … is the equilibrium point where Re-marinisation, Re-maritimisation, and Re-oceanisation meet.” (your framing)
+Reasoning: Treat this as the defining proposition of the Tripartite Model of Blue Dynamics: Blue Value is not a sectoral output (GDP, tonnage, MW), but a three-way stabilization across (1) biophysical integrity, (2) socio-economic/institutional renewal, and (3) ontological–hydrosocial reconnection.
+
+Tripartite Model of Blue Dynamics (TMBD): a 3D extension of Janiszewski
+“The Ocean Pact … is built around six priorities: (1) protecting and restoring ocean health; (2) boosting competitiveness of the EU sustainable blue economy; (3) supporting coastal communities; (4) advancing research/skills/innovation; (5) maritime security; (6) diplomacy and governance.” 
+
+Reasoning: This policy architecture already implies three coupled domains (ecology ↔ economy/institutions ↔ knowledge/citizenship/governance). TMBD formalizes that coupling sociologically and makes “Blue Value” a measurable equilibrium rather than aspirational rhetoric.
+
+Axes (the “three dimensions”)
+“Two key factors … the marine factor (natural) and the activity of people connected with the sea (social factor).” 
+
+Reasoning: Keep Janiszewski’s two axes, but reinterpret the second as explicitly maritime (techno-economic + institutional). Then add a third axis—oceanic—that integrates the first two at planetary scale (governance, knowledge regimes, and hydrosocial subjectivity).
+
+Axis 1 — MARINE Factor (M): biophysical / ecological involuntary agency
+
+Ocean as force-field: tides, circulation, climate coupling, biodiversity metabolism, material limits.
+
+Axis 2 — MARITIME Factor (T): techno-economic / institutional / infrastructural / digital agency
+
+“Humans terraforming the sea”: ports, fleets, energy grids, MSP, logistics, data infrastructures, property regimes.
+
+Axis 3 — OCEANIC Factor (O): integrative hydrosocial / ontological / planetary governance dimension
+
+The “one ocean” condition: cross-border interdependence, ABNJ governance, ocean literacy, transcorporeal vulnerability, moral–legal recognition.
+
+“Ocean literacy is the understanding of how the ocean affects us — and how we affect the ocean.” 
+
+Reasoning: This is the minimal operational definition of the O-axis (Oceanic): it is the reflexive capacity of societies to perceive and govern the coupled ocean–society system.
+
+The semi-deterministic engine (how the model moves)
+“There’s no nature that we just act upon. Instead, it’s also acting back upon us…” 
+
+Reasoning: This sentence is the Anthropocene upgrade of semi-determinism. In TMBD, M constrains T, T transforms M, and O frames what counts as acceptable transformation (justice, legitimacy, responsibility), while also expanding the scale of feedback (from local coasts to ABNJ and planetary cycles).
+
+A usable causal loop (compatible with your sensing–action logic) is:
+
+Marine trigger (M): biophysical signal/pressure (warming, hypoxia, storm surge, stock decline).
+
+Maritime translation (T): institutional/technical response (ports strategy, offshore build-out, MSP zoning, regulation, investment).
+
+Oceanic framing (O): legitimacy/justice/knowledge settlement (whose risk? whose benefit? what evidence counts? what rights exist?).
+
+Performance: enacted infrastructure/governance/behavior.
+
+Resonance: the performance reshapes subsequent triggers (M), incentives (T), and meaning (O).
+
+Domain cycles: De– / Re– / Trans– in each axis
+“Leaders … undertook to work together … to put a stop to the degradation of the Oceans … preserve biodiversity, stop overexploitation, fight pollution and mitigate climate change.” 
+
+Reasoning: This is the normative backbone of the De→Re transitions below. “Trans-” adds your requirement: just-inclusive-solidary collaborative cohabitation as the governance form that prevents “Re-” from becoming a new enclosure.
+
+1) MARINE domain (M): Marinisation
+De-marinisation (crisis): biodiversity collapse, acidification, pollution—i.e., the ocean’s life-support functions degrade, raising constraints on all blue sectors.
+
+Re-marinisation (regeneration): restoration of habitats, blue carbon, protected areas, reduced pressures.
+
+Transcorporeal marinisation (entanglement intensifies): marine processes materially traverse bodies and territories (water cycle, humidity, toxins, microplastics), turning “externalities” into internal social facts.
+
+2) MARITIME domain (T): Maritimisation
+De-maritimisation (loss): decline of maritime occupational communities, waterfront displacement, skill erosion, rusting infrastructures, legitimacy crises around new projects.
+
+Re-maritimisation (renewal): sustainable blue jobs, fair transitions, institutional lock-in that prioritizes community benefit and low-impact sectors.
+
+Trans-corporate maritimisation (restraint + representation): institutions that “give voice” to non-humans and future generations (procedural justice, rights-of-nature-like logics, enforceable benefit-sharing), so the maritime system self-limits.
+
+3) OCEANIC domain (O): Oceanisation
+De-oceanisation (severing): treating the ocean as a spreadsheet sector; cultural sea-blindness; governance fragmentation across jurisdictions.
+
+Re-oceanisation (reconnection): ocean literacy, “blue citizenship,” and governance that recognizes coupled ocean–society risk. 
+
+Trans-oceanisation (planetary cohabitation): ABNJ stewardship, polycentric governance, and data-to-decision infrastructures that make “one ocean” governable.
+
+“The treaty … enters into force on 17 January 2026 … [and] addresses: marine genetic resources… area-based management tools including MPAs… environmental impact assessments… capacity-building and technology transfer.” 
+
+Reasoning: The High Seas Treaty is a concrete Trans-oceanisation instrument: it operationalizes O at the ABNJ scale and forces T (shipping, biotech, extractive interests) to be constrained by M (biodiversity) through enforceable procedures (EIAs, MPAs, benefit-sharing).
+
+The complete Blue Value logic-matrix (9-cell equilibrium map)
+“GEO Blue Planet … focuses on leveraging ocean and coastal data to inform policy and decision-making … ensure that observation and prediction are translated into actionable knowledge.” 
+
+Reasoning: Treat each cell below as requiring (a) a biophysical signal (M), (b) an institutional response capacity (T), and (c) an oceanic knowledge/legitimacy settlement (O). That is what makes “value” sustainable rather than extractive.
+
+Blue Value Logic-Matrix (Domains × Trajectories)
+Domain (Factor)	DE- (erosion / loss)	RE- (regeneration / renewal)	TRANS- (just cohabitation / entanglement-governance)
+MARINE (M)	Blue value loss: collapsing natural capital; rising hazards; metabolic breakdowns. Governance risk: “Aqua nullius” treatment of ocean as sink.	Blue value gain: restored ecosystem functions (resilience, blue carbon, nursery habitats). Policy hook: “protecting and restoring ocean health.” 
+Blue value stabilization: internalize transcorporeal exposure (health, toxicity, water-cycle coupling) into policy/markets; enforceable safeguards. Knowledge hook: ocean literacy as societal competence. 
+MARITIME (T)	Blue value loss: deindustrialized ports; displaced working waterfronts; legitimacy collapse for “new blue” projects; skill deserts.	Blue value gain: dignified sustainable jobs + institutional pathways (MSP, ports strategy, industrial maritime strategy). 
+Blue value justice: benefit-sharing, procedural inclusion, and self-restraint mechanisms that prevent “green” enclosure; institutional voice for the unrepresented (non-humans/future). (Analytical extension grounded in transcorporeality logic.) 
+OCEANIC (O)	Blue value loss: sea-blindness; fragmented governance; “sectoral ocean.”	Blue value gain: ocean literacy + coordinated policy (“one ocean, one strategy” logic). 
+Blue value legitimacy at scale: ABNJ governance (MPAs/EIAs/benefit-sharing/capacity-building) + ocean diplomacy. 
+Key rule (the equilibrium condition): Sustainable Blue Value exists only when Re-M + Re-T + Re-O are simultaneously high and “Trans-” prevents any one axis from externalizing costs onto the others. (This is your core theoretical claim, now formalized.)
+
+How TMBD explicitly supports One Ocean / Ocean Pact / High Seas Treaty / Blue Planet
+“AWARE – CARE – SHARE … let us oceanize our minds.” 
+
+Reasoning: This is a direct program for Re-oceanisation (O-axis): moral attention (aware), stewardship (care), and distributive/procedural justice (share). TMBD makes that manifesto operational by specifying what “share” must mean across M and T (benefits, risks, voice).
+
+1) European Ocean Pact (EU):
+
+Provides the policy scaffold that already spans all three axes (health ↔ economy ↔ communities ↔ knowledge ↔ security ↔ diplomacy). TMBD turns the six priorities into a coherence test: any blue initiative must demonstrate net-positive movement on M, T, and O simultaneously. 
+
+2) High Seas Treaty (BBNJ):
+
+Institutionalizes Trans-oceanisation: MPAs/ABMTs and EIAs constrain maritime expansion by marine thresholds; benefit-sharing and capacity-building address justice and global asymmetries. 
+
+3) “One Ocean” commitments (Brest / related manifestos):
+
+Provide the normative impetus (“stop degradation,” “protect biodiversity,” “fight pollution,” “mitigate climate change”) and the techno-epistemic horizon (e.g., digital-twin imaginaries) that align with O and with evidence-based governance. 
+
+4) Blue Planet frameworks (GEO Blue Planet):
+
+Supplies the ocean intelligence layer necessary for the model to function empirically: translating observation/prediction into actionable knowledge is the enabling infrastructure of O (and, practically, of MSP, EIAs, and monitoring). 
+
+A precise definition to insert into your manuscript
+“It is built around six priorities…” 
+
+Reasoning (definition):
+Tripartite Model of Blue Dynamics (TMBD) is a semi-deterministic, three-axis framework in which Marine dynamics (M) impose biophysical constraints, Maritime dynamics (T) translate those constraints into techno-economic and institutional forms, and Oceanic dynamics (O) integrate M and T through planetary-scale knowledge, legitimacy, and governance. Sustainable Blue Value is the equilibrium region where Re-marinisation, Re-maritimisation, and Re-oceanisation co-occur under transcorporeal/trans-corporate cohabitation conditions that prevent cost-shifting and enforce justice.
+
+If you want, I can convert this into: (a) a publishable figure caption + diagram specification for a 3D cube/phase-space graphic, and (b) a compact set of operational indicators per cell (EU-aligned: MSP, MPAs, EIAs, skills, benefit-sharing) using only the same retrieved policy sources above.
+
+
+You said:
+
+> “Janiszewski’s approach … is **not** geographical determinism; it distinguishes a _marine factor_ (natural) and a _human/social factor_ and treats development as conditioned by nature **and** shaped by human activity.” [ResearchGate+1](https://www.researchgate.net/publication/307798816_Zarys_koncepcji_marynizacji) > **Reasoning:** This is the usable core of a _semi-deterministic_ theory: (i) the sea constrains and enables; (ii) societies translate those constraints into institutions, infrastructures, and cultures; (iii) the resulting maritime system feeds back into the sea. Your novelty move is to keep the two-factor engine **and** add a third, integrative “oceanic” dimension that captures planetary entanglement, cross-border governance, and transcorporeal vulnerability—i.e., _Anthropocene conditions_. > “Sustainable Blue Value … is the equilibrium point where **Re-marinisation**, **Re-maritimisation**, and **Re-oceanisation** meet.” (your framing) > **Reasoning:** Treat this as the _defining proposition_ of the Tripartite Model of Blue Dynamics: Blue Value is not a sectoral output (GDP, tonnage, MW), but a **three-way stabilization** across (1) biophysical integrity, (2) socio-economic/institutional renewal, and (3) ontological–hydrosocial reconnection. * * * Tripartite Model of Blue Dynamics (TMBD): a 3D extension of Janiszewski ----------------------------------------------------------------------- > “The Ocean Pact … is built around six priorities: **(1)** protecting and restoring ocean health; **(2)** boosting competitiveness of the EU sustainable blue economy; **(3)** supporting coastal communities; **(4)** advancing research/skills/innovation; **(5)** maritime security; **(6)** diplomacy and governance.” [Oceans and fisheries](https://oceans-and-fisheries.ec.europa.eu/european-ocean-pact_en) > **Reasoning:** This policy architecture already implies _three coupled domains_ (ecology ↔ economy/institutions ↔ knowledge/citizenship/governance). TMBD formalizes that coupling sociologically and makes “Blue Value” a measurable equilibrium rather than aspirational rhetoric. ### Axes (the “three dimensions”) > “Two key factors … the **marine factor** (natural) and the **activity of people connected with the sea** (social factor).” [ResearchGate](https://www.researchgate.net/publication/307798816_Zarys_koncepcji_marynizacji) > **Reasoning:** Keep Janiszewski’s two axes, but reinterpret the second as explicitly _maritime_ (techno-economic + institutional). Then add a third axis—_oceanic_—that integrates the first two at planetary scale (governance, knowledge regimes, and hydrosocial subjectivity). **Axis 1 — MARINE Factor (M): biophysical / ecological involuntary agency** * Ocean as force-field: tides, circulation, climate coupling, biodiversity metabolism, material limits. **Axis 2 — MARITIME Factor (T): techno-economic / institutional / infrastructural / digital agency** * “Humans terraforming the sea”: ports, fleets, energy grids, MSP, logistics, data infrastructures, property regimes. **Axis 3 — OCEANIC Factor (O): integrative hydrosocial / ontological / planetary governance dimension** * The “one ocean” condition: cross-border interdependence, ABNJ governance, ocean literacy, transcorporeal vulnerability, moral–legal recognition. > “Ocean literacy is the understanding of how the ocean affects us — and how we affect the ocean.” [oceanliteracy.unesco.org](https://oceanliteracy.unesco.org/about) > **Reasoning:** This is the minimal operational definition of the O-axis (Oceanic): it is the _reflexive_ capacity of societies to perceive and govern the coupled ocean–society system. * * * The semi-deterministic engine (how the model _moves_) ----------------------------------------------------- > “There’s no nature that we just act upon. Instead, it’s also acting back upon us…” [ecozona.eu](https://ecozona.eu/article/download/3478/4471/17224) > **Reasoning:** This sentence is the Anthropocene upgrade of semi-determinism. In TMBD, **M constrains T**, **T transforms M**, and **O frames what counts as acceptable transformation** (justice, legitimacy, responsibility), while also expanding the scale of feedback (from local coasts to ABNJ and planetary cycles). A usable causal loop (compatible with your sensing–action logic) is: 1. **Marine trigger (M):** biophysical signal/pressure (warming, hypoxia, storm surge, stock decline). 2. **Maritime translation (T):** institutional/technical response (ports strategy, offshore build-out, MSP zoning, regulation, investment). 3. **Oceanic framing (O):** legitimacy/justice/knowledge settlement (whose risk? whose benefit? what evidence counts? what rights exist?). 4. **Performance:** enacted infrastructure/governance/behavior. 5. **Resonance:** the performance reshapes subsequent triggers (M), incentives (T), and meaning (O). * * * Domain cycles: De– / Re– / Trans– in each axis ---------------------------------------------- > “Leaders … undertook to work together … to put a stop to the degradation of the Oceans … preserve biodiversity, stop overexploitation, fight pollution and mitigate climate change.” [Ministères Écologiques](https://www.ecologie.gouv.fr/sites/default/files/documents/2022.02.11.Brest_commitments_for_the_Oceans.pdf) > **Reasoning:** This is the normative backbone of the **De→Re** transitions below. “Trans-” adds your requirement: _just-inclusive-solidary collaborative cohabitation_ as the governance form that prevents “Re-” from becoming a new enclosure. ### 1) MARINE domain (M): Marinisation * **De-marinisation (crisis):** biodiversity collapse, acidification, pollution—i.e., the ocean’s life-support functions degrade, raising constraints on all blue sectors. * **Re-marinisation (regeneration):** restoration of habitats, blue carbon, protected areas, reduced pressures. * **Transcorporeal marinisation (entanglement intensifies):** marine processes materially traverse bodies and territories (water cycle, humidity, toxins, microplastics), turning “externalities” into **internal** social facts. ### 2) MARITIME domain (T): Maritimisation * **De-maritimisation (loss):** decline of maritime occupational communities, waterfront displacement, skill erosion, rusting infrastructures, legitimacy crises around new projects. * **Re-maritimisation (renewal):** sustainable blue jobs, fair transitions, institutional lock-in that prioritizes community benefit and low-impact sectors. * **Trans-corporate maritimisation (restraint + representation):** institutions that “give voice” to non-humans and future generations (procedural justice, rights-of-nature-like logics, enforceable benefit-sharing), so the maritime system self-limits. ### 3) OCEANIC domain (O): Oceanisation * **De-oceanisation (severing):** treating the ocean as a spreadsheet sector; cultural sea-blindness; governance fragmentation across jurisdictions. * **Re-oceanisation (reconnection):** ocean literacy, “blue citizenship,” and governance that recognizes coupled ocean–society risk. [oceanliteracy.unesco.org+1](https://oceanliteracy.unesco.org/about) * **Trans-oceanisation (planetary cohabitation):** ABNJ stewardship, polycentric governance, and data-to-decision infrastructures that make “one ocean” governable. > “The treaty … enters into force on 17 January 2026 … \[and\] addresses: marine genetic resources… area-based management tools including MPAs… environmental impact assessments… capacity-building and technology transfer.” [International Maritime Organization+1](https://www.imo.org/en/MediaCentre/PressBriefings/pages/IMO-welcomes-entry-into-force-BBNJ.aspx) > **Reasoning:** The High Seas Treaty is a concrete **Trans-oceanisation** instrument: it operationalizes O at the ABNJ scale and forces T (shipping, biotech, extractive interests) to be constrained by M (biodiversity) through enforceable procedures (EIAs, MPAs, benefit-sharing). * * * The complete Blue Value logic-matrix (9-cell equilibrium map) ------------------------------------------------------------- > “GEO Blue Planet … focuses on leveraging ocean and coastal data to inform policy and decision-making … ensure that observation and prediction are translated into actionable knowledge.” [geoblueplanet.org](https://geoblueplanet.org/) > **Reasoning:** Treat each cell below as requiring **(a)** a biophysical signal (M), **(b)** an institutional response capacity (T), and **(c)** an oceanic knowledge/legitimacy settlement (O). That is what makes “value” sustainable rather than extractive. ### Blue Value Logic-Matrix (Domains × Trajectories) | Domain (Factor) | **DE-** (erosion / loss) | **RE-** (regeneration / renewal) | **TRANS-** (just cohabitation / entanglement-governance) | | --- | --- | --- | --- | | **MARINE (M)** | **Blue value loss:** collapsing natural capital; rising hazards; metabolic breakdowns. **Governance risk:** “Aqua nullius” treatment of ocean as sink. | **Blue value gain:** restored ecosystem functions (resilience, blue carbon, nursery habitats). **Policy hook:** “protecting and restoring ocean health.” [Oceans and fisheries+1](https://oceans-and-fisheries.ec.europa.eu/european-ocean-pact_en) | **Blue value stabilization:** internalize transcorporeal exposure (health, toxicity, water-cycle coupling) into policy/markets; enforceable safeguards. **Knowledge hook:** ocean literacy as societal competence. [oceanliteracy.unesco.org+1](https://oceanliteracy.unesco.org/about) | | **MARITIME (T)** | **Blue value loss:** deindustrialized ports; displaced working waterfronts; legitimacy collapse for “new blue” projects; skill deserts. | **Blue value gain:** dignified sustainable jobs + institutional pathways (MSP, ports strategy, industrial maritime strategy). [Oceans and fisheries](https://oceans-and-fisheries.ec.europa.eu/european-ocean-pact_en) | **Blue value justice:** benefit-sharing, procedural inclusion, and self-restraint mechanisms that prevent “green” enclosure; institutional voice for the unrepresented (non-humans/future). (Analytical extension grounded in transcorporeality logic.) [ecozona.eu](https://ecozona.eu/article/download/3478/4471/17224) | | **OCEANIC (O)** | **Blue value loss:** sea-blindness; fragmented governance; “sectoral ocean.” | **Blue value gain:** ocean literacy + coordinated policy (“one ocean, one strategy” logic). [Oceans and fisheries+1](https://oceans-and-fisheries.ec.europa.eu/european-ocean-pact_en) | **Blue value legitimacy at scale:** ABNJ governance (MPAs/EIAs/benefit-sharing/capacity-building) + ocean diplomacy. [International Maritime Organization+2Oceans and fisheries+2](https://www.imo.org/en/MediaCentre/PressBriefings/pages/IMO-welcomes-entry-into-force-BBNJ.aspx) | **Key rule (the equilibrium condition):** Sustainable Blue Value exists only when **Re-M + Re-T + Re-O** are simultaneously high _and_ “Trans-” prevents any one axis from externalizing costs onto the others. (This is your core theoretical claim, now formalized.) * * * How TMBD explicitly supports One Ocean / Ocean Pact / High Seas Treaty / Blue Planet ------------------------------------------------------------------------------------ > “AWARE – CARE – SHARE … let us **oceanize our minds**.” [icmm-maritime.org](https://icmm-maritime.org/wp-content/uploads/2022/04/manifesto_maritime_cultural_patrimony_oos_eng_fr.pdf) > **Reasoning:** This is a direct program for **Re-oceanisation** (O-axis): moral attention (aware), stewardship (care), and distributive/procedural justice (share). TMBD makes that manifesto operational by specifying what “share” must mean across M and T (benefits, risks, voice). **1) European Ocean Pact (EU):** * Provides the _policy scaffold_ that already spans all three axes (health ↔ economy ↔ communities ↔ knowledge ↔ security ↔ diplomacy). TMBD turns the six priorities into a **coherence test**: any blue initiative must demonstrate net-positive movement on M, T, and O simultaneously. [Oceans and fisheries](https://oceans-and-fisheries.ec.europa.eu/european-ocean-pact_en) **2) High Seas Treaty (BBNJ):** * Institutionalizes Trans-oceanisation: MPAs/ABMTs and EIAs constrain maritime expansion by marine thresholds; benefit-sharing and capacity-building address justice and global asymmetries. [International Maritime Organization+1](https://www.imo.org/en/MediaCentre/PressBriefings/pages/IMO-welcomes-entry-into-force-BBNJ.aspx) **3) “One Ocean” commitments (Brest / related manifestos):** * Provide the normative impetus (“stop degradation,” “protect biodiversity,” “fight pollution,” “mitigate climate change”) and the techno-epistemic horizon (e.g., digital-twin imaginaries) that align with O and with evidence-based governance. [Ministères Écologiques](https://www.ecologie.gouv.fr/sites/default/files/documents/2022.02.11.Brest_commitments_for_the_Oceans.pdf) **4) Blue Planet frameworks (GEO Blue Planet):** * Supplies the _ocean intelligence layer_ necessary for the model to function empirically: translating observation/prediction into actionable knowledge is the enabling infrastructure of O (and, practically, of MSP, EIAs, and monitoring). [geoblueplanet.org](https://geoblueplanet.org/) * * * A precise definition to insert into your manuscript --------------------------------------------------- > “It is built around six priorities…” [Oceans and fisheries](https://oceans-and-fisheries.ec.europa.eu/european-ocean-pact_en) > **Reasoning (definition):** > **Tripartite Model of Blue Dynamics (TMBD)** is a semi-deterministic, three-axis framework in which **Marine dynamics (M)** impose biophysical constraints, **Maritime dynamics (T)** translate those constraints into techno-economic and institutional forms, and **Oceanic dynamics (O)** integrate M and T through planetary-scale knowledge, legitimacy, and governance. **Sustainable Blue Value** is the equilibrium region where **Re-marinisation**, **Re-maritimisation**, and **Re-oceanisation** co-occur under **transcorporeal/trans-corporate cohabitation** conditions that prevent cost-shifting and enforce justice. If you want, I can convert this into: (a) a publishable figure caption + diagram specification for a 3D cube/phase-space graphic, and (b) a compact set of operational indicators per cell (EU-aligned: MSP, MPAs, EIAs, skills, benefit-sharing) using only the same retrieved policy sources above.
+
+
+
+
+
+
+
+Please read with attention to details draft paper "Blue Economy Maritime Sociology 12_02 18_08" and SUPRISE ME  the article in order to implement The Tripartitle Model (TMBD with Sustainable Blue Value where Re-marinisation, Re-maritimisation, and Re-oceanisation meet. Underline in the text that TMBD formalizes that coupling sociologically and makes “Blue Value” a measurable equilibrium rather than aspirational rhetoric. Do not alter the quotated concept – it is sufficiently coherent. Be sure to use all the complete components: Re-marinisation, Re-maritimisation, and Re-oceanisation co-occur under trans-corporate cohabitation {transcorporeal), Marine dynamic (M), Maritime dynamic (I), Oceanic dynamic (O), "Blue Value System: Just-Inclusive-Solidary-Collaborative-Cohabitation of all blue transcorporeal entanglement of waterbodies towards institutionalisation of novel term: Trans-oceanisation ", 
+
+Include: "The final output of this matrix is a state of
+Trans-corporeal Entanglement
+, defined as:
+"Just-Inclusive-Solidary-Collaborative-Cohabitation of all blue transcorporeal entanglement of waterbodies."
+Just:
+Correcting the power asymmetries of De-maritimisation (giving power back to coastal communities).
+Inclusive:
+Bringing the "Human Factor" back into decision-making via Re-maritimisation.
+Solidary:
+Acknowledging that the health of the human body is tied to the health of the water body (Re-marinisation).
+Collaborative:
+Governance that moves beyond the "Sector" to the "System" (One Ocean).
+Cohabitation:
+The final realization that we do not
+use
+the ocean; we
+live with
+and
+as
+the ocean."".
+
+Very important is to perform scientific semi-policy brief and recommendations: "1. Blue Values: Frame vs. Practice
+Value Frame (Conceptual Rhetoric) Practice (Material Reality/Deficits)
+Growth
+"Blue Growth": A harmonious synthesis of economic expansion and
+environmental preservation [2, 5].
+Treating growth as value-neutral, which sidelines distributive justice and
+enables dispossession of traditional users [6, 7].
+Justice Rhetoric of "inclusion and solidarity" [8, 9].
+"Ocean grabbing": Powerful actors appropriate marine space, concentrating benefits while
+locals bear the costs [10, 11].
+Inclusivity "Stakeholder consultation" involving all users [8, 12].
+Tokenistic consultation: Prioritizing "innovators" and "investors" over marginalized groups like
+small-scale fishers [8, 13].
+Solidarity Alliances across sectors and regions for ocean health [14, 15].
+Governance fragmentation: Scale mismatches where top-down policies override local rights
+and capacities [16, 17].
+Finance
+Blue Capital: Tapping financial value for innovation and conservation
+finance [18, 19].
+Private financialization: Capital-intensive projects "locking in" developmental pathways that
+exclude small-scale actors [20, 21].
+Urbanism
+Blue Urbanism: Integrating conservation and community well-being into
+coastal cities [22, 23].
+Demaritimisation: Locals feel "sea-blindness" as port-city interfaces become industrial
+fortresses rather than civic partners [24, 25].
+--------------------------------------------------------------------------------
+2. The Performance of Justice: Distributive vs. Procedural
+A critical extension of the theory of maritimisation is the delimitation of justice into two primary operational features, which are essential to securing a "Social License to Operate"
+(SLO) [26-28].
+Feature Distributive Justice Procedural Justice
+Central Question How are the results of ocean development shared? [29, 30] How are decisions about ocean development made? [29, 30]
+Typical Problem
+"Ocean grabbing": Capital-rich actors capture benefits while locals bear
+environmental risks and spatial displacement [10, 31].
+Technocratic bias: Expert authority and Western natural science marginalize
+community/experiential knowledge [32, 33].
+治理 (Governance)
+Deficit
+Lack of frameworks to assess impact of resource allocation on different social
+groups [34, 35].
+Priority given to "innovators" and "investors" over traditional users in
+consultations [8, 12].
+Requirement for
+SLO
+Establishing transparent benefit-sharing mechanisms for local residents [36,
+37].
+Engaging communities early in the planning phase to build trust through
+genuine power-sharing [36-38].
+--------------------------------------------------------------------------------
+3. Inclusivity and Epistemic Fairness as Practice
+The sources emphasize that for inclusivity to move from frame to practice, it must address "Epistemic Narrowness"—the systematic exclusion of non-Western knowledge systems [33,
+39].
+• Knowledge Integration: Inclusivity requires elevating Local Ecological Knowledge (LEK) and Indigenous wisdom to the same level of authority as natural science [40, 41].
+• Collaborative Partnerships: True partnerships must involve genuine co-management and power-sharing, such as participatory budgeting for ocean-related investments and community
+representation with voting power in decision-making bodies [42, 43].
+4. Urbanism and the "Hydro-Social" Fix
+In terms of urban practice, Blue Sociology proposes "Hydro-Social Urban Planning" as a fix for the Port-City Disconnect [24, 44].
+• Rebranding "People of the Sea": Using Ludwik Janiszewski’s sociological categories to re-value maritime culture, framing workers (e.g., wind techs, sustainable fishers) as "Climate
+Guardians" [24, 44].
+• Spatial Justice: Protecting "working waterfronts" legally and ensuring affordable housing for maritime workers to combat Blue Displacement caused by gentrified tourism [24, 44].
+5. Intersection in Blue Sociology". 
+"Axis 1 — MARINE Factor (M): biophysical / ecological involuntary agency
+
+Ocean as force-field: tides, circulation, climate coupling, biodiversity metabolism, material limits.
+
+Axis 2 — MARITIME Factor (T): techno-economic / institutional / infrastructural / digital agency
+
+“Humans terraforming the sea”: ports, fleets, energy grids, MSP, logistics, data infrastructures, property regimes.
+
+Axis 3 — OCEANIC Factor (O): integrative hydrosocial / ontological / planetary governance dimension
+
+The “one ocean” condition: cross-border interdependence, ABNJ governance, ocean literacy, transcorporeal vulnerability, moral–legal recognition.
+
+“Ocean literacy is the understanding of how the ocean affects us — and how we affect the ocean.”
+Reasoning: This is the minimal operational definition of the O-axis (Oceanic): it is the reflexive capacity of societies to perceive and govern the coupled ocean–society system.". Explain and justify: "Reasoning: This is the minimal operational definition of the O-axis (Oceanic): it is the reflexive capacity of societies to perceive and govern the coupled ocean–society system.".
+
+Justify the urgent need for this article and its time-accurate relevance. Anchor the blue economy gaps, biases, needs through MARINE - M/ MARITIME - T/  OCEANIC - O domains with de-, re- , -trans-corporate prefixes to maritimisation process with simple definitions of each in the article content continuous text (no bullet points): crisis, regeneration, entanglement, interest-loss, value-renewal, restraint + mediation-representation, "De-oceanisation (severing): treating the ocean as a spreadsheet sector; cultural sea-blindness; governance fragmentation across jurisdictions.
+
+Re-oceanisation (reconnection): ocean literacy, “blue citizenship,” and governance that recognizes coupled ocean–society risk.
+
+Trans-oceanisation (planetary cohabitation): ABNJ stewardship, polycentric governance, and data-to-decision infrastructures that make “one ocean” governable.".
+
+MANDATORY COPY ALL: "Blue Value Logic-Matrix (Domains × Trajectories)
+Domain (Factor)	DE- (erosion / loss)	RE- (regeneration / renewal)	TRANS- (just cohabitation / entanglement-governance)" and "“AWARE – CARE – SHARE … let us oceanize our minds." and "rovides the policy scaffold that already spans all three axes (health ↔ economy ↔ communities ↔ knowledge ↔ security ↔ diplomacy). TMBD turns the six priorities into a coherence test: any blue initiative must demonstrate net-positive movement on M, T, and O simultaneously.". 
+
+Do not forget about "blue skills", "blue careers", "High Seas Treaty (BBNJ):
+
+Institutionalizes Trans-oceanisation: MPAs/ABMTs and EIAs constrain maritime expansion by marine thresholds; benefit-sharing and capacity-building address justice and global asymmetries.". "European Ocean Pact (EU):
+
+Provides the policy scaffold that already spans all three axes (health ↔ economy ↔ communities ↔ knowledge ↔ security ↔ diplomacy). T".
+
+Surprise me with how meticulously you overwrite all the indicated factors and conditions of Blue Sociology in the file named ‘Blue Economy Maritime Sociology 12_02 18_08’. 
+
+RULES AND PRINCIPLES OF YOUR WORK:
+- create a new document in an editable format using only simple tables without formatting (each table must have a title).
+- Write in British English using scientific language, references and a bibliography in APA 7 standard in the text and at the end of the article.
+- Do not use emoticons or punctuation characteristic of AI.
+- use headings only up to level 1 (I expect an academic-style scientific article, i.e. written without unnecessary filler text, but also without taking shortcuts, cutting corners, generalising, or being imprecise when copying and pasting mandatory content;
+- Please ensure that the text and content are free of hidden editorial marks and remain in plain Times New Roman 12 pt.
+- Copy all tables and ensure that they are legible, logical and consistent.
+- Each table must be discussed in the text.
+- Do not invent bibliographic sources (refer only to the literature in the entire ‘BLUE SOCIOLOGY ONE OCEAN ECONOMY’ project and the shared NotebookLLM.
+
+ChatGPT said:
+
+Thought for 8m 32s
+
+Analyzed
+Always show details
+
+from docx import Document
+from docx.shared import Pt, Inches
+from docx.oxml.ns import qn
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.table import WD_TABLE_ALIGNMENT, WD_CELL_VERTICAL_ALIGNMENT
+from docx.enum.text import WD_LINE_SPACING
+from docx.shared import RGBColor
+
+output_path="/mnt/data/Blue Economy Maritime Sociology_TMDB Revised_2026-02-13.docx"
+
+doc_new=Document()
+
+# Set default font: Times New Roman 12
+style=doc_new.styles['Normal']
+style.font.name='Times New Roman'
+style._element.rPr.rFonts.set(qn('w:eastAsia'), 'Times New Roman')
+style.font.size=Pt(12)
+
+# Set page margins to standard 1 inch
+section=doc_new.sections[0]
+section.top_margin=Inches(1)
+section.bottom_margin=Inches(1)
+section.left_margin=Inches(1)
+section.right_margin=Inches(1)
+
+def add_titled_table(title, ncols, rows):
+    """
+    Create a simple table with first row as a merged title across all columns.
+    Then add remaining rows (list of lists length ncols).
+    """
+    table = doc_new.add_table(rows=1, cols=ncols)
+    table.alignment = WD_TABLE_ALIGNMENT.LEFT
+    # Title row
+    title_cell = table.rows[0].cells[0]
+    if ncols>1:
+        for c in table.rows[0].cells[1:]:
+            title_cell.merge(c)
+    title_cell.text = title
+    title_cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
+    # Add content rows
+    for r in rows:
+        row_cells = table.add_row().cells
+        for j in range(ncols):
+            row_cells[j].text = r[j] if j < len(r) else ""
+            row_cells[j].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
+    # Add a blank paragraph after each table for separation (still plain text, but needed for spacing)
+    doc_new.add_paragraph("")
+    return table
+
+def set_cell_paragraph(cell, text_runs):
+    """
+    Replace cell content with rich runs.
+    text_runs: list of tuples (text, underline_bool)
+    """
+    cell.text=""
+    p = cell.paragraphs[0]
+    p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+    for (txt, ul) in text_runs:
+        run = p.add_run(txt)
+        run.font.name='Times New Roman'
+        run._element.rPr.rFonts.set(qn('w:eastAsia'), 'Times New Roman')
+        run.font.size=Pt(12)
+        run.underline = ul
+
+# --- Table 1: Title, Abstract, Keywords ---
+title_rows=[
+["Title: Blue Economy Maritime Sociology in the Anthropocene: Extending Janiszewski’s Semi-Deterministic Theory into the Tripartite Model of Blue Dynamics (TMBD) and Sustainable Blue Value"],
+["Abstract: The source manuscript revisits maritime sociology in light of the Blue Economy and re-anchors Ludwik Janiszewski’s semi-deterministic theory of marinisation as a contemporary analytical engine. This revision implements the Tripartite Model of Blue Dynamics (TMBD) as a three-axis extension that couples Marine dynamics (M), Maritime dynamics (T), and Oceanic dynamics (O) into an integrated framework suited to ‘one ocean’ governance. The central claim is that Sustainable Blue Value is not reducible to sectoral output, but is an equilibrium region where Re-marinisation, Re-maritimisation, and Re-oceanisation co-occur under trans-corporate cohabitation and transcorporeal entanglement. The paper operationalises this claim via the Blue Value Logic-Matrix (Domains × Trajectories) and translates it into a semi-policy brief aligned with the European Ocean Pact, the High Seas Treaty (BBNJ), and One Ocean agendas, including implications for blue skills, blue careers, and hydro-social urban planning."],
+["Keywords: maritime sociology; marinisation; maritimisation; oceanisation; Blue Economy; Sustainable Blue Value; Blue Justice; Ocean Pact; High Seas Treaty; blue skills; blue careers; port-city interface"]
+]
+add_titled_table("Table 1. Manuscript metadata", 1, title_rows)
+
+# --- Table 2: Introduction ---
+intro_text = (
+"“This paper revisits the field of maritime sociology in light of the conceptual and policy framework of the blue economy.” "
+"The source manuscript frames the Blue Economy as an institutionalised policy idiom whose apparent consensus masks unresolved trade-offs and under-specified social mechanisms. "
+"“2025 (European Ocean Pact): We are now at a critical juncture. The Communication on The European Ocean Pact (COM(2025)281) explicitly calls for addressing ‘social dimensions,’ ‘generational renewal,’ and ‘workforce development.’” "
+"This is the time-accurate hinge for the present paper: the Blue Economy has entered a governance phase where the social dimensions are no longer optional add-ons but conditions of feasibility. "
+"“We have successfully built the hardware of the Blue Economy (tech, ships, turbines) but neglected the software (culture, identity, skills, and social license).” "
+"Treating blue transitions as exclusively technical accelerations produces predictable resistance and legitimacy deficits. "
+"“The European Union stands at a historic crossroads for ocean regeneration. With the recent ratification of the High Seas Treaty and the ambitious commitments surrounding the 2025 UN Ocean Conference in Nice, maritime policy has moved to the center of…” "
+"In such conjunctures, sociological theory is not a commentary but an enabling infrastructure: it specifies the mechanisms by which policies either stabilise or destabilise coupled ocean–society systems.\n\n"
+"The contribution of this paper is therefore twofold. First, it strengthens the conceptual delimitation of three blue-making domains—Marine, Maritime, and Oceanic—by upgrading Janiszewski’s semi-deterministic engine. "
+"Second, it provides a formal coupling mechanism: TMBD constitutes a coherence test and measurement logic for Sustainable Blue Value, making the concept operational rather than aspirational.\n\n"
+"Table 4 introduces the core TMBD proposition and its definitional target state of Trans-corporeal Entanglement. "
+"Table 5 then formalises this as the mandatory Blue Value Logic-Matrix (Domains × Trajectories). "
+"Tables 6 and 7 translate the logic into a semi-policy brief focused on value frames versus practices, and on distributive versus procedural justice as the two operational features of securing a Social License to Operate (SLO)."
+)
+add_titled_table("Table 2. 1. Introduction", 1, [[intro_text]])
+
+# --- Table 3: Theoretical framework ---
+theory_text = (
+"“Logika pół-deterministyczna: Janiszewski odrzucił skrajny determinizm geograficzny na rzecz podejścia, w którym siły środowiskowe (czynnik morski) orientują możliwości…” "
+"This is the usable core of a semi-deterministic theory for blue sociology: the sea constrains and enables, while societies translate those constraints into institutions, infrastructures, and cultures whose performances feed back into marine conditions.\n\n"
+"Axis 1 — MARINE Factor (M): biophysical / ecological involuntary agency. This is the ocean as force-field, including tides, circulation, climate coupling, biodiversity metabolism, and material limits. "
+"Axis 2 — MARITIME Factor (T): techno-economic / institutional / infrastructural / digital agency, where “Humans terraforming the sea” through ports, fleets, energy grids, Marine Spatial Planning (MSP), logistics, data infrastructures, and property regimes. "
+"Axis 3 — OCEANIC Factor (O): integrative hydrosocial / ontological / planetary governance dimension, corresponding to the ‘one ocean’ condition of cross-border interdependence, ABNJ governance, ocean literacy, transcorporeal vulnerability, and moral–legal recognition.\n\n"
+"“Ocean literacy is the understanding of how the ocean affects us — and how we affect the ocean.” "
+"Reasoning: This is the minimal operational definition of the O-axis (Oceanic): it is the reflexive capacity of societies to perceive and govern the coupled ocean–society system. "
+"Justification follows directly from the semi-deterministic engine: without a reflexive, legitimacy-producing and knowledge-integrating capacity, societies cannot stabilise feedback loops, and the Marine and Maritime axes remain coupled only by crisis.\n\n"
+"In TMBD, each axis is analytically expressed through three trajectories that must be defined continuously (without reducing them to slogans). "
+"In the MARINE domain, de-marinisation denotes crisis where ecosystem functions are degraded; re-marinisation denotes regeneration and restoration; and trans-corporate marinisation denotes intensified material entanglement (water cycle, humidity, toxins, microplastics) that makes externalities internal social facts. "
+"In the MARITIME domain, de-maritimisation denotes interest-loss, knowledge erosion, and alienation; re-maritimisation denotes socio-economic value-renewal through sustainable blue careers and institutional pathways; and trans-corporate maritimisation denotes restraint plus mediation-representation, where institutions operationalise voice for the unrepresented (non-humans, future generations, marginalised coastal communities). "
+"In the OCEANIC domain, de-oceanisation denotes severing, cultural sea-blindness, and governance fragmentation; re-oceanisation denotes reconnection through ocean literacy and blue citizenship; and trans-oceanisation denotes planetary cohabitation through ABNJ stewardship, polycentric governance, and data-to-decision infrastructures that make ‘one ocean’ governable.\n\n"
+"Table 4 specifies the target state of TMBD as a measurable equilibrium. Table 5 operationalises it as the Blue Value Logic-Matrix."
+)
+add_titled_table("Table 3. 2. Theoretical framework: from semi-determinism to TMBD", 1, [[theory_text]])
+
+# --- Table 4: TMBD proposition and Trans-corporeal Entanglement definition ---
+table4 = add_titled_table("Table 4. 3. Tripartite Model of Blue Dynamics (TMBD) and Sustainable Blue Value", 1, [[""]])
+cell = table4.rows[1].cells[0]
+
+# Content with an underlined key sentence
+t4_runs = [
+("“Sustainable Blue Value … is the equilibrium point where Re-marinisation (ecological regeneration), Re-maritimisation (socio-economic renewal), and Re-oceanisation (ontological reconnection) meet.”\n\n", False),
+("TMBD formalizes that coupling sociologically and makes “Blue Value” a measurable equilibrium rather than aspirational rhetoric.\n\n", True),
+("Be sure to use all the complete components: Re-marinisation, Re-maritimisation, and Re-oceanisation co-occur under trans-corporate cohabitation {transcorporeal), Marine dynamic (M), Maritime dynamic (I), Oceanic dynamic (O), \"Blue Value System: Just-Inclusive-Solidary-Collaborative-Cohabitation of all blue transcorporeal entanglement of waterbodies towards institutionalisation of novel term: Trans-oceanisation \",\n\n", False),
+("The final output of this matrix is a state of\nTrans-corporeal Entanglement\n, defined as:\n\"Just-Inclusive-Solidary-Collaborative-Cohabitation of all blue transcorporeal entanglement of waterbodies.\"\n", False),
+("Just:\nCorrecting the power asymmetries of De-maritimisation (giving power back to coastal communities).\n", False),
+("Inclusive:\nBringing the \"Human Factor\" back into decision-making via Re-maritimisation.\n", False),
+("Solidary:\nAcknowledging that the health of the human body is tied to the health of the water body (Re-marinisation).\n", False),
+("Collaborative:\nGovernance that moves beyond the \"Sector\" to the \"System\" (One Ocean).\n", False),
+("Cohabitation:\nThe final realization that we do not\nuse\nthe ocean; we\nlive with\nand\nas\nthe ocean.\n\n", False),
+("This definition functions as the dependent variable of the TMBD: Sustainable Blue Value is the empirically testable condition under which the three ‘Re-’ trajectories stabilise simultaneously and are institutionally protected against cost-shifting. "
+"Operational measurement is introduced through the Domain × Trajectory matrix in Table 5, and through justice-performance conditions in Tables 6–7.", False)
+]
+set_cell_paragraph(cell, t4_runs)
+
+# --- Table 5: Mandatory Blue Value Logic-Matrix ---
+matrix_header = "Domain (Factor)\tDE- (erosion / loss)\tRE- (regeneration / renewal)\tTRANS- (just cohabitation / entanglement-governance)"
+matrix_rows = [
+["MARINE (M)", 
+ "De-marinisation (crisis): biodiversity collapse, acidification, pollution, metabolic breakdown of the ocean’s life-support functions; rising hazards that tighten biophysical constraints on all sectors.",
+ "Re-marinisation (regeneration): restoration of ecosystem functions and resilience thresholds; reduction of pressures and repair of ecological integrity as a precondition for durable blue activity.",
+ "TRANS- (entanglement-governance): trans-corporate marinisation where transcorporeal exposure is internalised as a governance fact (health, toxicity, hydrological coupling), enforcing safeguards that prevent externalisation."],
+["MARITIME (T)", 
+ "De-maritimisation (interest-loss): decline of ‘people of the sea’, skill erosion, working waterfront displacement, rusting infrastructures, and legitimacy deficits around new blue projects.",
+ "Re-maritimisation (value-renewal): dignified blue careers, blue skills renewal, and institutional pathways that prioritise local labour, community benefit and low-impact sectors; rebuilding the socio-economic stake in the sea.",
+ "TRANS- (restraint + representation): trans-corporate maritimisation where institutions create enforceable benefit-sharing, procedural inclusion, and representation of the unrepresented (non-humans, future generations) to self-limit expansion."],
+["OCEANIC (O)", 
+ "De-oceanisation (severing): treating the ocean as a spreadsheet sector; cultural sea-blindness; governance fragmentation across jurisdictions.",
+ "Re-oceanisation (reconnection): ocean literacy, “blue citizenship,” and governance that recognizes coupled ocean–society risk.",
+ "Trans-oceanisation (planetary cohabitation): ABNJ stewardship, polycentric governance, and data-to-decision infrastructures that make “one ocean” governable."]
+]
+table5 = add_titled_table("Table 5. Blue Value Logic-Matrix (Domains × Trajectories)", 4, [[""]])
+# Put header row as second row with required string in first cell? To satisfy "MANDATORY COPY ALL" we include the exact header string as a dedicated row.
+table5.add_row().cells[0].merge(table5.rows[-1].cells[1]).merge(table5.rows[-1].cells[2]).merge(table5.rows[-1].cells[3])
+table5.rows[-1].cells[0].text = matrix_header
+
+# Now add the actual matrix table header and rows
+hdr = table5.add_row().cells
+hdr[0].text="Domain (Factor)"
+hdr[1].text="DE- (erosion / loss)"
+hdr[2].text="RE- (regeneration / renewal)"
+hdr[3].text="TRANS- (just cohabitation / entanglement-governance)"
+for r in matrix_rows:
+    row = table5.add_row().cells
+    for j in range(4):
+        row[j].text = r[j]
+doc_new.add_paragraph("")
+
+# --- Table 6: Blue Values Frame vs Practice ---
+frame_rows=[
+["Value Frame (Conceptual Rhetoric)", "Practice (Material Reality/Deficits)"],
+["Growth: “Blue Growth”: A harmonious synthesis of economic expansion and environmental preservation.", "Treating growth as value-neutral, which sidelines distributive justice and enables dispossession of traditional users; enclosure dynamics and legitimacy deficits emerge when costs are localised and benefits externalised."],
+["Justice: Rhetoric of “inclusion and solidarity”.", "“Ocean grabbing”: Powerful actors appropriate marine space, concentrating benefits while locals bear the costs."],
+["Inclusivity: “Stakeholder consultation” involving all users.", "Tokenistic consultation: prioritising “innovators” and “investors” over marginalised groups such as small-scale fishers; epistemic narrowing of what counts as evidence."],
+["Solidarity: Alliances across sectors and regions for ocean health.", "Governance fragmentation: scale mismatches where top-down policies override local rights and capacities."],
+["Finance: Blue Capital: tapping financial value for innovation and conservation finance.", "Private financialisation: capital-intensive projects ‘lock in’ pathways that exclude small-scale actors and deepen asymmetries."],
+["Urbanism: Blue Urbanism: integrating conservation and community well-being into coastal cities.", "Demaritimisation: port-city interfaces become industrial fortresses rather than civic partners, producing sea-blindness and resistance to blue projects."]
+]
+add_titled_table("Table 6. 4. Blue Values: Frame vs. Practice (semi-policy brief)", 2, frame_rows)
+
+# --- Table 7: Distributive vs Procedural justice ---
+justice_rows=[
+["Feature", "Distributive Justice", "Procedural Justice"],
+["Central question", "How are the results of ocean development shared?", "How are decisions about ocean development made?"],
+["Typical problem", "“Ocean grabbing”: capital-rich actors capture benefits while locals bear environmental risks and spatial displacement.", "Technocratic bias: expert authority marginalises community and experiential knowledge."],
+["Governance deficit", "Lack of frameworks to assess impact of resource allocation on different social groups.", "Priority given to ‘innovators’ and ‘investors’ over traditional users in consultations."],
+["Requirement for SLO", "Establishing transparent benefit-sharing mechanisms for local residents.", "Engaging communities early in planning to build trust through genuine power-sharing."]
+]
+add_titled_table("Table 7. 5. The performance of justice: distributive vs procedural (SLO conditions)", 3, justice_rows)
+
+# --- Table 8: Practice implications (continuous text) ---
+imp_text=(
+"Table 6 specifies the core diagnostic: the Blue Economy frequently operates as a value frame whose performance in practice diverges through enclosure, fragmentation, and legitimacy deficits. "
+"Within TMBD, these divergences can be read as domain-specific ‘DE-’ trajectories: de-marinisation in the Marine domain, de-maritimisation in the Maritime domain, and de-oceanisation in the Oceanic domain. "
+"The empirical and policy task is therefore not to add ‘social’ as a side pillar, but to re-couple domains through measurable coherence.\n\n"
+"Table 7 then specifies the minimal sociological mechanism of securing a Social License to Operate (SLO): distributive justice must be demonstrable in benefit-sharing and burden allocation, while procedural justice must be demonstrable in early, genuine power-sharing that treats local and experiential knowledge as authoritative. "
+"These are not generic governance virtues; within TMBD they are required to prevent re-maritimisation from becoming a new enclosure that accelerates de-marinisation.\n\n"
+"“The Problem: The ‘Blue Skills’ shortage is treated as a logistical issue (lack of training centres).” "
+"TMBD redefines blue skills as a coupled capability: technical competence must be complemented by sociological competence to navigate hydro-social conflict, epistemic pluralism, and transcorporeal risk. "
+"This implies that blue careers policy must be designed as re-maritimisation infrastructure and as a legitimacy mechanism, not only as human capital supply.\n\n"
+"In urban and port-city terms, TMBD specifies the ‘hydro-social fix’ as an institutional design requirement: working waterfronts and civic access to maritime space must be protected as the spatial condition of re-maritimisation, otherwise blue displacement and sea-blindness reproduce de-oceanisation. "
+"Re-oceanisation becomes measurable when ocean literacy and blue citizenship are built into planning processes, public-facing infrastructures, and local governance capacity.\n\n"
+"These practice implications prepare the international alignment in Table 9, where One Ocean agendas, the European Ocean Pact, and the High Seas Treaty function as scaffolds for trans-oceanisation."
+)
+add_titled_table("Table 8. 6. From matrix to practice: blue skills, blue careers, urbanism and legitimacy", 1, [[imp_text]])
+
+# --- Table 9: Policy scaffolds and coherence test ---
+policy_text=(
+"“AWARE – CARE – SHARE … let us oceanize our minds.” "
+"This motto functions as the normative compression of re-oceanisation: awareness corresponds to reflexive perception of coupled risk, care corresponds to stewardship constrained by marine thresholds, and share corresponds to justice conditions that stabilise legitimacy.\n\n"
+"European Ocean Pact (EU):\n"
+"rovides the policy scaffold that already spans all three axes (health ↔ economy ↔ communities ↔ knowledge ↔ security ↔ diplomacy). TMBD turns the six priorities into a coherence test: any blue initiative must demonstrate net-positive movement on M, T, and O simultaneously.\n\n"
+"High Seas Treaty (BBNJ):\n"
+"Institutionalizes Trans-oceanisation: MPAs/ABMTs and EIAs constrain maritime expansion by marine thresholds; benefit-sharing and capacity-building address justice and global asymmetries.\n\n"
+"One Ocean agendas:\n"
+"The project corpus treats ‘One Ocean’ not as metaphor but as a governance condition: the Oceanic axis is the scale at which fragmentation becomes visible, and at which legitimacy must be negotiated across jurisdictions and generations.\n\n"
+"Blue Planet frameworks:\n"
+"The provided project corpus does not contain citable passages specifying Blue Planet frameworks. Accordingly, this paper uses the term only in its minimal TMBD sense as the data-to-decision capability required for trans-oceanisation, without asserting additional framework-specific claims."
+)
+add_titled_table("Table 9. 7. International alignment: One Ocean, European Ocean Pact, High Seas Treaty, and trans-oceanisation", 1, [[policy_text]])
+
+# --- Table 10: Recommendations (continuous, semi-policy brief) ---
+rec_text=(
+"TMBD implies a specific recommendation logic: interventions must be appraised as coupled performances across M, T, and O, rather than as sectoral outputs. "
+"An initiative qualifies as Sustainable Blue Value only when it produces net-positive movement on re-marinisation, re-maritimisation, and re-oceanisation simultaneously, and when trans-corporate cohabitation conditions prevent cost-shifting.\n\n"
+"First, policy appraisal should be redesigned as a Blue Value coherence assessment built around Table 5, requiring every initiative to document its Marine thresholds (ecological integrity and resilience), its Maritime distributional design (jobs, blue careers pathways, benefit-sharing), and its Oceanic legitimacy design (ocean literacy, participation, epistemic fairness, and governance interoperability). "
+"Second, ocean governance should treat distributive and procedural justice as hard requirements for SLO, with auditable benefit-sharing mechanisms and documented early-stage power-sharing.\n\n"
+"Third, blue skills and blue careers policy should be institutionalised as re-maritimisation infrastructure. Training programmes should include modules that build sociological capability for hydro-social negotiation, conflict mediation, and transcorporeal risk communication, aligning workforce development with legitimacy production. "
+"Fourth, port-city and coastal planning should legally protect working waterfronts and civic maritime access as the spatial precondition of re-maritimisation, and integrate ocean literacy infrastructures that make re-oceanisation durable.\n\n"
+"Finally, trans-oceanisation must be treated as a governance design objective. In practice, this means that ABNJ instruments, cross-border coordination, and decision-support infrastructures must be coupled to local distributive and procedural justice, so that planetary stewardship does not reproduce coastal dispossession."
+)
+add_titled_table("Table 10. 8. Recommendations: TMBD as a coherence test and measurement logic", 1, [[rec_text]])
+
+# --- Table 11: References (project corpus only, APA-like) ---
+refs=[
+["BLUE SOCIOLOGY ONE OCEAN ECONOMY Project. (2026, February 12). Blue Economy Maritime Sociology 12_02 18_08 [Unpublished manuscript]."],
+["BLUE SOCIOLOGY ONE OCEAN ECONOMY Project. (2026, February 13). Blue Economy_ Social Soul Revival Blue Skills Diplomat [Working paper]."],
+["BLUE SOCIOLOGY ONE OCEAN ECONOMY Project. (2026). Strategic Integration of Social Sciences into the EU Ocean Act [Working paper]."],
+["BLUE SOCIOLOGY ONE OCEAN ECONOMY Project. (2026). JANISZEWSKI meet ONE BLUE OCEAN ECONOMY - NotebookLM [Project synthesis]."],
+["BLUE SOCIOLOGY ONE OCEAN ECONOMY Project. (2026, February 13). Google Gemini Canva Tripartite Model Blue Dynamic Janiszewski 13_02_2026 ver1 [Project note]."],
+["European Commission. (2025). Communication on the European Ocean Pact (COM(2025)281). (As quoted in the project corpus; full bibliographic metadata not supplied in the provided files.)"],
+["High Seas Treaty (BBNJ). (n.d.). (As quoted in the project corpus; full bibliographic metadata not supplied in the provided files.)"]
+]
+add_titled_table("Table 11. References (limited to the provided project corpus)", 1, refs)
+
+doc_new.save(output_path)
+
+output_path
+Result
+'/mnt/data/Blue Economy Maritime Sociology_TMDB Revised_2026-02-13.docx'
+
+Thought for 1m 18s
+
+Analyzed
+Always show details
+
+from docx import Document
+from docx.shared import Pt, Inches
+from docx.oxml.ns import qn
+from docx.enum.table import WD_TABLE_ALIGNMENT, WD_CELL_VERTICAL_ALIGNMENT
+from docx.enum.text import WD_LINE_SPACING
+
+output_path="/mnt/data/Blue Economy Maritime Sociology 12_02 18_08_TMDB SURPRISE rewrite_2026-02-13.docx"
+
+doc_new=Document()
+# Base style
+style=doc_new.styles['Normal']
+style.font.name='Times New Roman'
+style._element.rPr.rFonts.set(qn('w:eastAsia'), 'Times New Roman')
+style.font.size=Pt(12)
+
+# Margins
+section=doc_new.sections[0]
+for m in ["top_margin","bottom_margin","left_margin","right_margin"]:
+    setattr(section, m, Inches(1))
+
+def add_table(title, ncols, body_rows):
+    """
+    Creates a table where the first row is a merged title row across all columns.
+    All content is contained inside tables (no standalone paragraphs).
+    """
+    table = doc_new.add_table(rows=1, cols=ncols)
+    table.alignment = WD_TABLE_ALIGNMENT.LEFT
+    # title row merge
+    title_cell = table.rows[0].cells[0]
+    if ncols>1:
+        for c in table.rows[0].cells[1:]:
+            title_cell.merge(c)
+    title_cell.text = title
+    title_cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
+    
+    # add body rows
+    for r in body_rows:
+        row_cells = table.add_row().cells
+        for j in range(ncols):
+            row_cells[j].text = r[j] if j < len(r) else ""
+            row_cells[j].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
+            # ensure font in all paragraphs
+            for p in row_cells[j].paragraphs:
+                p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+                for run in p.runs:
+                    run.font.name='Times New Roman'
+                    run._element.rPr.rFonts.set(qn('w:eastAsia'), 'Times New Roman')
+                    run.font.size=Pt(12)
+    return table
+
+def set_rich(cell, runs):
+    """
+    runs: list of (text, underline_bool)
+    """
+    cell.text=""
+    p = cell.paragraphs[0]
+    p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+    for text, ul in runs:
+        r = p.add_run(text)
+        r.font.name='Times New Roman'
+        r._element.rPr.rFonts.set(qn('w:eastAsia'), 'Times New Roman')
+        r.font.size=Pt(12)
+        r.underline = ul
+
+# Table 1: Metadata
+abstract = (
+"Abstract: The source manuscript positions maritime sociology as a historically grounded yet currently under-utilised analytical resource for understanding Blue Economy transformations. "
+"Building on Ludwik Janiszewski’s semi-deterministic theory—where the marine factor constrains and enables while the human/social factor translates constraints into institutions and practices—this revised paper implements a three-dimensional extension suited to Anthropocene conditions: the Tripartite Model of Blue Dynamics (TMBD). "
+"TMBD distinguishes Marine dynamics (M) as biophysical/ecological involuntary agency, Maritime dynamics (T) as techno-economic and institutional agency (‘humans terraforming the sea’), and Oceanic dynamics (O) as the integrative hydrosocial and planetary governance dimension required by ‘one ocean’ interdependence. "
+"The core proposition is that Sustainable Blue Value is not a sectoral output but an equilibrium region where Re-marinisation, Re-maritimisation, and Re-oceanisation co-occur under trans-corporate cohabitation. "
+"The paper operationalises this claim through a mandatory Blue Value Logic-Matrix (Domains × Trajectories) and translates it into semi-policy recommendations focused on distributive and procedural justice, blue skills and careers, and the institutionalisation of Trans-oceanisation."
+)
+
+t1 = add_table("Table 1. Manuscript metadata", 1, [
+["Title: Blue Economy Maritime Sociology in the Anthropocene: Implementing the Tripartite Model of Blue Dynamics (TMBD) and Sustainable Blue Value"],
+[abstract],
+["Keywords: maritime sociology; Ludwik Janiszewski; marinisation; maritimisation; oceanisation; Sustainable Blue Value; Blue Justice; Social License to Operate; blue skills; blue careers; port-city interface; trans-oceanisation"]
+])
+
+# Table 2: Introduction (quote-then-reason)
+intro = (
+"“This paper revisits the field of maritime sociology in light of the conceptual and policy framework of the blue economy.” "
+"From the start, the manuscript is organised around a diagnosis: Blue Economy agendas promise sustainability, inclusion and solidarity, but in practice they are frequently implemented as technocratic sector programmes that treat the social as secondary. "
+"The manuscript therefore insists that blue transitions cannot be stabilised by hardware alone. "
+"“We have successfully built the hardware of the Blue Economy (tech, ships, turbines) but neglected the software (culture, identity, skills, and social license).” "
+"This sentence is treated here as an empirical mechanism claim: without the ‘software’ of legitimacy, identity and capability, maritime infrastructures become conflict generators rather than transition enablers.\n\n"
+"“2025 (European Ocean Pact): We are now at a critical juncture. The Communication on The European Ocean Pact (COM(2025)281) explicitly calls for addressing ‘social dimensions,’ ‘generational renewal,’ and ‘workforce development.’” "
+"On this basis, the present revision makes urgency explicit. "
+"“The European Union stands at a historic crossroads for ocean regeneration. With the recent ratification of the High Seas Treaty and the ambitious commitments surrounding the 2025 UN Ocean Conference in Nice, maritime policy has moved to the center of…” "
+"Together, these passages support a time-accurate relevance claim: blue policy has entered a phase where social dimensions (skills, acceptance, justice) are conditions of implementation rather than post-hoc corrections.\n\n"
+"The paper’s contribution is the formalisation of the coupling problem. The manuscript already separates ‘marine’ and ‘maritime’ logics. This revision adds the Oceanic dimension and supplies a measurement grammar. "
+"Tables 4–5 implement TMBD and define Sustainable Blue Value as an operational equilibrium rather than aspirational rhetoric. Tables 6–11 translate the model into a semi-policy brief and recommendations."
+)
+add_table("Table 2. 1. Introduction and time-accurate relevance", 1, [[intro]])
+
+# Table 3: Janiszewski and the semi-deterministic engine
+semi_det = (
+"“Janiszewski odrzucił skrajny determinizm geograficzny… Logika pół-deterministyczna… czynnik morski… oraz działalność człowieka…” "
+"This passage provides the conceptual engine for the entire paper: development is conditioned by marine forces and shaped by social activity, with feedback effects. "
+"The revision retains this two-factor engine but reinterprets the ‘human factor’ as a specifically Maritime factor to make institutional and infrastructural mediation explicit.\n\n"
+"The Marine factor (czynnik morski) is treated as biophysical/ecological involuntary agency: currents, tides, precipitation regimes, storm events, nutrient circulation and biodiversity metabolism impose survival conditions and material limits. "
+"The Maritime factor is treated as techno-economic and institutional agency: ports, fleets, grids, Marine Spatial Planning, property regimes and digital infrastructures translate marine constraints into development pathways. "
+"In the Anthropocene, however, these two factors are insufficient because the scale of feedback and governance fragmentation exceeds the coastal or national frame. "
+"The revision therefore introduces an Oceanic factor as the integrative dimension that renders ‘one ocean’ governable through reflexivity, legitimacy, and cross-border settlement.\n\n"
+"“Ocean literacy is the understanding of how the ocean affects us — and how we affect the ocean.” "
+"Reasoning: This is the minimal operational definition of the O-axis (Oceanic): it is the reflexive capacity of societies to perceive and govern the coupled ocean–society system. "
+"Without this reflexive capacity, M and T couple primarily through crisis (constraint failures) rather than through planned stabilisation.\n\n"
+"The section prepares the model implementation: Table 4 states the TMBD equilibrium proposition; Table 5 expresses it as the mandatory logic-matrix."
+)
+add_table("Table 3. 2. Janiszewski’s semi-deterministic engine and the Oceanic upgrade", 1, [[semi_det]])
+
+# Table 4: TMBD proposition + mandatory definition block + underlined sentence
+t4 = add_table("Table 4. 3. Tripartite Model of Blue Dynamics (TMBD): the equilibrium claim", 1, [[""]])
+c = t4.rows[1].cells[0]
+runs = [
+("“Sustainable Blue Value … is the equilibrium point where Re-marinisation (ecological regeneration), Re-maritimisation (socio-economic renewal), and Re-oceanisation (ontological reconnection) meet.”\n\n", False),
+("TMBD formalizes that coupling sociologically and makes “Blue Value” a measurable equilibrium rather than aspirational rhetoric.\n\n", True),
+("TMBD is a three-dimensional model in which Marine dynamic (M), Maritime dynamic (T), and Oceanic dynamic (O) are analytically coupled. "
+"In this coupling, Re-marinisation, Re-maritimisation, and Re-oceanisation co-occur under trans-corporate cohabitation (transcorporeal) as a single Blue Value System. "
+"This move supports the institutionalisation of the novel term Trans-oceanisation as the governance form that stabilises ‘one ocean’ interdependence.\n\n", False),
+("The final output of this matrix is a state of\nTrans-corporeal Entanglement\n, defined as:\n"
+"\"Just-Inclusive-Solidary-Collaborative-Cohabitation of all blue transcorporeal entanglement of waterbodies.\"\n"
+"Just:\nCorrecting the power asymmetries of De-maritimisation (giving power back to coastal communities).\n"
+"Inclusive:\nBringing the \"Human Factor\" back into decision-making via Re-maritimisation.\n"
+"Solidary:\nAcknowledging that the health of the human body is tied to the health of the water body (Re-marinisation).\n"
+"Collaborative:\nGovernance that moves beyond the \"Sector\" to the \"System\" (One Ocean).\n"
+"Cohabitation:\nThe final realization that we do not\nuse\nthe ocean; we\nlive with\nand\nas\nthe ocean.\n\n", False),
+("This definitional target state is operationalised through the Domain × Trajectory logic-matrix (Table 5) and translated into performance requirements for policy (Tables 6–11).", False)
+]
+set_rich(c, runs)
+
+# Table 5: Mandatory Blue Value Logic-Matrix
+table5 = add_table("Table 5. Blue Value Logic-Matrix (Domains × Trajectories)", 4, [["", "", "", ""]])
+# mandatory copy line
+mandatory_header = "Blue Value Logic-Matrix (Domains × Trajectories)\nDomain (Factor)\tDE- (erosion / loss)\tRE- (regeneration / renewal)\tTRANS- (just cohabitation / entanglement-governance)"
+set_rich(table5.rows[1].cells[0], [(mandatory_header, False)])
+# merge across row
+for j in range(1,4):
+    table5.rows[1].cells[0].merge(table5.rows[1].cells[j])
+
+# add proper header row
+hdr = table5.add_row().cells
+hdr[0].text="Domain (Factor)"
+hdr[1].text="DE- (erosion / loss)"
+hdr[2].text="RE- (regeneration / renewal)"
+hdr[3].text="TRANS- (just cohabitation / entanglement-governance)"
+
+matrix = [
+["MARINE (M)",
+ "De-marinisation (crisis): biodiversity collapse, acidification, pollution, and metabolic breakdown of ocean life-support functions, tightening constraints on all blue activity.",
+ "Re-marinisation (regeneration): restoration of ecosystem functions and resilience thresholds as preconditions for durable blue value.",
+ "TRANS- (entanglement-governance): trans-corporate marinisation where transcorporeal exposure (toxicity, hydrological coupling, microplastics) is internalised as a governance fact, enforcing safeguards that prevent externalisation."],
+["MARITIME (T)",
+ "De-maritimisation (interest-loss): decline of maritime occupational communities, rusting infrastructures, waterfront displacement, skill erosion and legitimacy loss.",
+ "Re-maritimisation (value-renewal): sustainable blue careers, blue skills renewal, and institutional pathways that prioritise community benefit and low-impact sectors, rebuilding the socio-economic stake in the sea.",
+ "TRANS- (restraint + mediation-representation): institutions that operationalise benefit-sharing, procedural inclusion, and representation for the unrepresented (non-humans, future generations), preventing ‘green’ enclosure."],
+["OCEANIC (O)",
+ "De-oceanisation (severing): treating the ocean as a spreadsheet sector; cultural sea-blindness; governance fragmentation across jurisdictions.",
+ "Re-oceanisation (reconnection): ocean literacy, “blue citizenship,” and governance that recognizes coupled ocean–society risk.",
+ "Trans-oceanisation (planetary cohabitation): ABNJ stewardship, polycentric governance, and data-to-decision infrastructures that make “one ocean” governable."]
+]
+for r in matrix:
+    row = table5.add_row().cells
+    for j in range(4):
+        row[j].text = r[j]
+
+# Table 6: Comparative Analysis: EU as case study laboratory (from original draft, rewritten)
+comp = (
+"The manuscript selects the European Union as a policy laboratory because it represents one of the most institutionalised Blue Economy frameworks, and because its governance architecture makes the coupling of health, economy and community outcomes explicit. "
+"The revision strengthens this by explicitly treating European blue policy as a coherence test for TMBD. "
+"Where policy documents speak in sectoral priorities, TMBD requires simultaneous net-positive movement across Marine thresholds, Maritime distributional design, and Oceanic legitimacy and interoperability.\n\n"
+"The comparative move is therefore not a superficial contrast between ‘academic theory’ and ‘policy framework’. "
+"It is an analytical translation: Janiszewski’s semi-deterministic engine is upgraded into a three-axis model that can diagnose why Blue Economy initiatives become conflictual even when they are environmentally branded. "
+"Tables 6–8 provide the diagnostic brief for value rhetoric versus material deficits and for the operational features of justice required for a Social License to Operate.\n\n"
+"This section therefore positions the subsequent semi-policy brief as integral to the sociological argument rather than as an appendix."
+)
+add_table("Table 6. 4. Comparative analysis: the EU Blue Economy as a TMBD laboratory", 1, [[comp]])
+
+# Table 7: Blue Values frame vs practice (mandatory brief content implemented as table)
+frame_rows=[
+["Value Frame (Conceptual Rhetoric)", "Practice (Material Reality/Deficits)"],
+["Growth: “Blue Growth”: A harmonious synthesis of economic expansion and environmental preservation.", "Treating growth as value-neutral, which sidelines distributive justice and enables dispossession of traditional users."],
+["Justice: Rhetoric of “inclusion and solidarity”.", "“Ocean grabbing”: Powerful actors appropriate marine space, concentrating benefits while locals bear the costs."],
+["Inclusivity: “Stakeholder consultation” involving all users.", "Tokenistic consultation: prioritising “innovators” and “investors” over marginalised groups like small-scale fishers."],
+["Solidarity: Alliances across sectors and regions for ocean health.", "Governance fragmentation: scale mismatches where top-down policies override local rights and capacities."],
+["Finance: Blue Capital: tapping financial value for innovation and conservation finance.", "Private financialisation: capital-intensive projects ‘locking in’ pathways that exclude small-scale actors."],
+["Urbanism: Blue Urbanism: integrating conservation and community well-being into coastal cities.", "Demaritimisation: port-city interfaces become industrial fortresses rather than civic partners; locals experience ‘sea-blindness’."]
+]
+add_table("Table 7. 5. Blue Values: Frame vs. Practice", 2, frame_rows)
+
+# Table 8: Performance of justice (mandatory)
+justice_rows=[
+["Feature", "Distributive Justice", "Procedural Justice"],
+["Central Question", "How are the results of ocean development shared?", "How are decisions about ocean development made?"],
+["Typical Problem", "“Ocean grabbing”: Capital-rich actors capture benefits while locals bear environmental risks and spatial displacement.", "Technocratic bias: Expert authority marginalises community/experiential knowledge."],
+["Governance Deficit", "Lack of frameworks to assess impact of resource allocation on different social groups.", "Priority given to “innovators” and “investors” over traditional users in consultations."],
+["Requirement for SLO", "Establishing transparent benefit-sharing mechanisms for local residents.", "Engaging communities early in the planning phase to build trust through genuine power-sharing."]
+]
+add_table("Table 8. 6. The performance of justice: Distributive vs. Procedural", 3, justice_rows)
+
+# Table 9: Inclusivity, epistemic fairness, blue skills and blue careers (continuous)
+incl = (
+"The manuscript’s emphasis on ‘social dimensions’ becomes operational at the point where inclusivity is treated as practice rather than rhetoric. "
+"The present revision therefore makes epistemic fairness explicit as a condition of procedural justice: consultation is not inclusive if it merely aggregates ‘stakeholders’ while excluding local, experiential or non-Western knowledge from authoritative status.\n\n"
+"“The Problem: The ‘Blue Skills’ shortage is treated as a logistical issue (lack of training centres).” "
+"TMBD interprets this as a mis-specification of the Maritime axis: blue careers are not only labour-market outputs but also legitimacy infrastructures for re-maritimisation. "
+"“Re-maritimisation therefore requires an ‘identity renewal’ (re-valuing ocean-based professions as climate guardians) and a ‘skills renewal’ (embedding sustainability and digital competence into maritime work).” "
+"Blue skills become, under TMBD, a coupled capability linking technical competence to social competence for negotiation, mediation, and transcorporeal risk communication.\n\n"
+"Tables 7–8 establish why this is necessary: without distributive justice in job benefits and without procedural justice in planning, blue infrastructure projects produce resistance and de-oceanisation. "
+"Consequently, blue skills policy must be co-designed with benefit-sharing and power-sharing mechanisms, not appended after conflict emerges."
+)
+add_table("Table 9. 7. Inclusivity and epistemic fairness as practice: blue skills and blue careers", 1, [[incl]])
+
+# Table 10: Urbanism and hydro-social fix (continuous)
+urban = (
+"In the manuscript, port-city interfaces are treated as crucial sites where Blue Economy promises are either translated into social well-being or experienced as enclosure. "
+"TMBD strengthens this by treating urbanism as a coupling mechanism between Maritime infrastructures and Oceanic legitimacy: where working waterfronts are displaced or turned into fortresses, de-maritimisation and de-oceanisation co-produce ‘sea-blindness’ and resistance.\n\n"
+"The hydro-social fix is therefore institutional rather than cosmetic. It requires legally protecting working waterfronts, maintaining civic access and visibility, and designing urban transition infrastructures (education, public engagement, skill pathways) that make re-oceanisation durable. "
+"Within TMBD, this is not an optional cultural programme: it is a measurable precondition of Sustainable Blue Value because it sustains the social stake that stabilises re-maritimisation without accelerating de-marinisation."
+)
+add_table("Table 10. 8. Urbanism and the hydro-social fix: port-city interface under TMBD", 1, [[urban]])
+
+# Table 11: International alignment (mandatory phrases)
+policy = (
+"“AWARE – CARE – SHARE … let us oceanize our minds.” "
+"This motto is treated as the Oceanic ethical script that aligns awareness (reflexivity) with care (stewardship) and share (justice), thereby converting re-oceanisation into a practice requirement.\n\n"
+"European Ocean Pact (EU):\n"
+"rovides the policy scaffold that already spans all three axes (health ↔ economy ↔ communities ↔ knowledge ↔ security ↔ diplomacy). TMBD turns the six priorities into a coherence test: any blue initiative must demonstrate net-positive movement on M, T, and O simultaneously.\n\n"
+"High Seas Treaty (BBNJ):\n"
+"Institutionalizes Trans-oceanisation: MPAs/ABMTs and EIAs constrain maritime expansion by marine thresholds; benefit-sharing and capacity-building address justice and global asymmetries.\n\n"
+"De-oceanisation (severing): treating the ocean as a spreadsheet sector; cultural sea-blindness; governance fragmentation across jurisdictions.\n\n"
+"Re-oceanisation (reconnection): ocean literacy, “blue citizenship,” and governance that recognizes coupled ocean–society risk.\n\n"
+"Trans-oceanisation (planetary cohabitation): ABNJ stewardship, polycentric governance, and data-to-decision infrastructures that make “one ocean” governable."
+)
+add_table("Table 11. 9. International alignment and Trans-oceanisation under TMBD", 1, [[policy]])
+
+# Table 12: Conclusion (continuous)
+concl = (
+"The manuscript’s central insight is preserved and sharpened: blue transitions cannot be evaluated as sectoral growth problems because they are coupled Marine–Maritime–Oceanic stabilisation problems. "
+"TMBD provides the missing formalism: it specifies how the semi-deterministic engine operates under Anthropocene conditions, and it supplies a measurable equilibrium logic for Sustainable Blue Value.\n\n"
+"Under TMBD, Blue Value is achieved only when the three regenerative trajectories co-occur: re-marinisation restores ecological thresholds, re-maritimisation renews livelihoods and institutional capacity, and re-oceanisation rebuilds reflexive ocean literacy and legitimacy. "
+"Trans-oceanisation is the governance term that names the institutional form of this co-occurrence at planetary scale. "
+"Consequently, the paper repositions blue skills, blue careers, justice performance and port-city hydro-social fixes as core components of blue value creation rather than as supplementary social programmes."
+)
+add_table("Table 12. 10. Conclusion", 1, [[concl]])
+
+# Table 13: References (project corpus only)
+refs=[
+["BLUE SOCIOLOGY ONE OCEAN ECONOMY Project. (2026, February 12). Blue Economy Maritime Sociology 12_02 18_08 [Unpublished manuscript]."],
+["BLUE SOCIOLOGY ONE OCEAN ECONOMY Project. (2026, February 13). Blue Economy_ Social Soul Revival Blue Skills Diplomat [Working paper]."],
+["BLUE SOCIOLOGY ONE OCEAN ECONOMY Project. (2026). Strategic Integration of Social Sciences into the EU Ocean Act [Working paper]."],
+["BLUE SOCIOLOGY ONE OCEAN ECONOMY Project. (2026). JANISZEWSKI meet ONE BLUE OCEAN ECONOMY - NotebookLM [Project synthesis]."],
+["BLUE SOCIOLOGY ONE OCEAN ECONOMY Project. (2026, February 13). Google Gemini Canva Tripartite Model Blue Dynamic Janiszewski 13_02_2026 ver1 [Project note]."],
+["European Commission. (2025). Communication on the European Ocean Pact (COM(2025)281). (Cited in the project corpus; full bibliographic metadata not supplied in the provided files.)"]
+]
+add_table("Table 13. References (limited to the provided project corpus)", 1, refs)
+
+doc_new.save(output_path)
+output_path
+Result
+'/mnt/data/Blue Economy Maritime Sociology 12_02 18_08_TMDB SURPRISE rewrite_2026-02-13.docx'
+
+Thought for 27s
+
+Analyzing
+Always show details
+
+from docx import Document
+from docx.shared import Pt, Inches
+from docx.oxml.ns import qn
+from docx.enum.table import WD_TABLE_ALIGNMENT, WD_CELL_VERTICAL_ALIGNMENT
+from docx.enum.text import WD_LINE_SPACING
+
+output_path="/mnt/data/Blue Economy Maritime Sociology 12_02 18_08_TMDB SURPRISE rewrite_2026-02-13.docx"
+
+doc_new=Document()
+style=doc_new.styles['Normal']
+style.font.name='Times New Roman'
+style._element.rPr.rFonts.set(qn('w:eastAsia'), 'Times New Roman')
+style.font.size=Pt(12)
+
+sec=doc_new.sections[0]
+for m in ["top_margin","bottom_margin","left_margin","right_margin"]:
+    setattr(sec, m, Inches(1))
+
+def add_table(title, ncols, rows):
+    table=doc_new.add_table(rows=1, cols=ncols)
+    table.alignment=WD_TABLE_ALIGNMENT.LEFT
+    # title row merge
+    tc=table.rows[0].cells[0]
+    if ncols>1:
+        for c in table.rows[0].cells[1:]:
+            tc.merge(c)
+    tc.text=title
+    tc.vertical_alignment=WD_CELL_VERTICAL_ALIGNMENT.TOP
+    for r in rows:
+        cells=table.add_row().cells
+        for j in range(ncols):
+            cells[j].text = r[j] if j < len(r) else ""
+            cells[j].vertical_alignment=WD_CELL_VERTICAL_ALIGNMENT.TOP
+            for p in cells[j].paragraphs:
+                p.paragraph_format.line_spacing_rule=WD_LINE_SPACING.SINGLE
+                for run in p.runs:
+                    run.font.name='Times New Roman'
+                    run._element.rPr.rFonts.set(qn('w:eastAsia'), 'Times New Roman')
+                    run.font.size=Pt(12)
+    return table
+
+def set_rich(cell, runs):
+    cell.text=""
+    p=cell.paragraphs[0]
+    p.paragraph_format.line_spacing_rule=WD_LINE_SPACING.SINGLE
+    for text, ul in runs:
+        r=p.add_run(text)
+        r.font.name='Times New Roman'
+        r._element.rPr.rFonts.set(qn('w:eastAsia'), 'Times New Roman')
+        r.font.size=Pt(12)
+        r.underline = ul
+
+# --- Table 1 ---
+abstract=(
+"Abstract: The source manuscript positions maritime sociology as a historically grounded yet currently under-utilised analytical resource for understanding Blue Economy transformations (BLUE SOCIOLOGY ONE OCEAN ECONOMY Project, 2026a). "
+"Building on Ludwik Janiszewski’s semi-deterministic theory—where the marine factor constrains and enables while the human/social factor translates constraints into institutions and practices—this revised paper implements a three-dimensional extension suited to Anthropocene conditions: the Tripartite Model of Blue Dynamics (TMBD). "
+"TMBD distinguishes Marine dynamics (M) as biophysical/ecological involuntary agency, Maritime dynamics (T) as techno-economic and institutional agency (‘humans terraforming the sea’), and Oceanic dynamics (O) as the integrative hydrosocial and planetary governance dimension required by ‘one ocean’ interdependence. "
+"The core proposition is that Sustainable Blue Value is not a sectoral output but an equilibrium region where Re-marinisation, Re-maritimisation, and Re-oceanisation co-occur under trans-corporate cohabitation. "
+"The paper operationalises this claim through a mandatory Blue Value Logic-Matrix (Domains × Trajectories) and translates it into semi-policy recommendations focused on distributive and procedural justice, blue skills and careers, and the institutionalisation of Trans-oceanisation."
+)
+add_table("Table 1. Manuscript metadata", 1, [
+["Title: Blue Economy Maritime Sociology in the Anthropocene: Implementing the Tripartite Model of Blue Dynamics (TMBD) and Sustainable Blue Value"],
+[abstract],
+["Keywords: maritime sociology; Ludwik Janiszewski; marinisation; maritimisation; oceanisation; Sustainable Blue Value; Blue Justice; Social License to Operate; blue skills; blue careers; port-city interface; trans-oceanisation"]
+])
+
+# --- Table 2 ---
+intro=(
+"“This paper revisits the field of maritime sociology in light of the conceptual and policy framework of the blue economy” (BLUE SOCIOLOGY ONE OCEAN ECONOMY Project, 2026a). "
+"From the start, the manuscript is organised around a diagnosis: Blue Economy agendas promise sustainability, inclusion and solidarity, but in practice they are frequently implemented as technocratic sector programmes that treat the social as secondary (BLUE SOCIOLOGY ONE OCEAN ECONOMY Project, 2026a). "
+"The manuscript therefore insists that blue transitions cannot be stabilised by hardware alone. "
+"“We have successfully built the hardware of the Blue Economy (tech, ships, turbines) but neglected the software (culture, identity, skills, and social license)” (BLUE SOCIOLOGY ONE OCEAN ECONOMY Project, 2026b). "
+"This sentence is treated here as an empirical mechanism claim: without the ‘software’ of legitimacy, identity and capability, maritime infrastructures become conflict generators rather than transition enablers.\n\n"
+"“2025 (European Ocean Pact): We are now at a critical juncture. The Communication on The European Ocean Pact (COM(2025)281) explicitly calls for addressing ‘social dimensions,’ ‘generational renewal,’ and ‘workforce development’” (European Commission, 2025, as quoted in BLUE SOCIOLOGY ONE OCEAN ECONOMY Project, 2026b). "
+"On this basis, the present revision makes urgency explicit. "
+"“The European Union stands at a historic crossroads for ocean regeneration. With the recent ratification of the High Seas Treaty and the ambitious commitments surrounding the 2025 UN Ocean Conference in Nice, maritime policy has moved to the center of…” (BLUE SOCIOLOGY ONE OCEAN ECONOMY Project, 2026c). "
+"Together, these passages support a time-accurate relevance claim: blue policy has entered a phase where social dimensions (skills, acceptance, justice) are conditions of implementation rather than post-hoc corrections.\n\n"
+"The paper’s contribution is the formalisation of the coupling problem. The manuscript already separates ‘marine’ and ‘maritime’ logics; this revision adds the Oceanic dimension and supplies a measurement grammar (BLUE SOCIOLOGY ONE OCEAN ECONOMY Project, 2026a). "
+"Tables 4–5 implement TMBD and define Sustainable Blue Value as an operational equilibrium rather than aspirational rhetoric. Tables 6–11 translate the model into a semi-policy brief and recommendations."
+)
+add_table("Table 2. 1. Introduction and time-accurate relevance", 1, [[intro]])
+
+# --- Table 3 ---
+semi_det=(
+"“Janiszewski odrzucił skrajny determinizm geograficzny… Logika pół-deterministyczna… czynnik morski… oraz działalność człowieka…” (BLUE SOCIOLOGY ONE OCEAN ECONOMY Project, 2026d). "
+"This passage provides the conceptual engine for the paper: development is conditioned by marine forces and shaped by social activity, with feedback effects. "
+"The revision retains this two-factor engine but reinterprets the ‘human factor’ as a specifically Maritime factor to make institutional and infrastructural mediation explicit.\n\n"
+"The Marine factor (czynnik morski) is treated as biophysical/ecological involuntary agency: currents, tides, precipitation regimes, storm events, nutrient circulation and biodiversity metabolism impose survival conditions and material limits. "
+"The Maritime factor is treated as techno-economic and institutional agency: ports, fleets, grids, Marine Spatial Planning, property regimes and digital infrastructures translate marine constraints into development pathways. "
+"In the Anthropocene, however, these two factors are insufficient because the scale of feedback and governance fragmentation exceeds the coastal or national frame (BLUE SOCIOLOGY ONE OCEAN ECONOMY Project, 2026c). "
+"The revision therefore introduces an Oceanic factor as the integrative dimension that renders ‘one ocean’ governable through reflexivity, legitimacy, and cross-border settlement.\n\n"
+"“Ocean literacy is the understanding of how the ocean affects us — and how we affect the ocean.” "
+"Reasoning: This is the minimal operational definition of the O-axis (Oceanic): it is the reflexive capacity of societies to perceive and govern the coupled ocean–society system. "
+"Justification follows the semi-deterministic engine: without reflexive capacity, M and T couple primarily through crisis rather than through planned stabilisation.\n\n"
+"The section prepares the model implementation: Table 4 states the TMBD equilibrium proposition; Table 5 expresses it as the mandatory logic-matrix."
+)
+add_table("Table 3. 2. Janiszewski’s semi-deterministic engine
+
+
+
+
+ChatGPT is still generating a response...
+Launch Paperpal
+Grip Vertical

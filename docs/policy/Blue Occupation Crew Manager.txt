@@ -1,0 +1,39 @@
+Crew trainer
+
+Property	Value
+Occupation	Crew trainer
+Description of the occupation	The occupation of a CREW TRAINER is to train young people to work on yachts as crew to the captain or skipper. This occupation can be mostly found near Marinas or Ports. Working as a CREW TRAINER requires a formal qualification in line with STCW requirements in the country and of the flag state of the boat. It offers mobiity options to other sectors of Maritime Tansport, working for example as a trainer of deck hands on ships.
+Task #1	Teaching theory lessons for crews including First Aid and Personal Safetyx and Social responsibilities.
+Task #2	Teaching Practical lessons including Fire Fighting and Personal Survival techniques.
+Task #3	Preparation and training for nautical certificates.
+Necessary educational level needed for the occupation	
+Secondary vocational school	Required
+Higher level vocational school/ education	Required
+Additional mandatory courses (non-formal education)	Required
+Informal training (extra training outside school system)	Required
+Working environment	
+Occasional	Required
+Several months on/off	Required
+Location of occupation	
+Outdoors	Required
+Onshore	Required
+Offshore	Required
+Working hours	Flexible
+Working schedule	Work during day time hours
+Workplace environment	
+Exposure to weather (extreme heat/cold)	Required
+Physical requirements	
+Physical effort/lifting	Required
+Soft skills rating	
+Teamwork	5
+Adaptability	4
+Problem solving	5
+Following procedures	5
+Multitasking	5
+Work under pressure	4
+Communication	5
+Leadership	5
+Attention to detail	4
+Time management	4
+Customer service	4
+Initiative	5

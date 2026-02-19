@@ -1,0 +1,50 @@
+W NotebookLM "SCISPACE...: znajdują się opracowania częściowe w dokumentach, wersje finalne, pliki robocze i pełne przeglądy literatury przedmiotu do artykułu naukowego. Wśród 80 plików znajdują się dwa pliki z tą samą treścią (w dwóch formatach: docx i PDF) - wybierz jeden, który pozwoli Ci uzyskać najlepszą jakość udzielanych odpowiedzi. 
+
+
+
+1. Założenia artykułu są w abstrakcie: "Abstract ESA Ioannis Robert Tallinn 29_01_2026.docx".
+
+2. Wersja bazowa artykułu, którą należy uzupełnić i zastosować w niej "NotebookLM "SCISPACE...": Blue Economy Maritime Sociology 12_02 18_08.docx.
+
+3. Add relevant content in lacking chapters in "Blue Economy Maritime Sociology 12_02 18_08.docx": "2.1 Maritime Sociology", 
+
+4. Improve and extend for policy relevance and theoretical strong fundamentals taken from "NotebookLM "SCISPACE...". 
+
+5. The project of SciSpace AI with outputs in "NotebookLM "SCISPACE..." is on my SciSpace account under open link: https://scispace.com/share/48b96b10-29fd-4221-a10a-72eb80cbe4a7 . Make use of it for best reasoning, logic argumentation, scientific accuracy and up to date insights where classic maritime sociology and contemporary theories in broad oceanic turn have a strong evidence-based or high-potential to overcome biases, accelerate growth, ... of sustainable blue economy in general and in all blue economy sectors in asoects taken from "NotebookLM "SCISPACE..." and "https://scispace.com/share/48b96b10-29fd-4221-a10a-72eb80cbe4a7". 
+
+
+
+Using the EU’s institutionalised Sustainable Blue Economy framework we aim to explain how a maritime-sociological lenses helps explain recurrent tensions around distributive justice, participation, and social sustainability in fisheries, ports, shipping, tourism, and offshore energy and more defined in SciSpace and Notebook. We propose “Blue Sociology” as a complementary (not competitive) renewal: extending maritime sociology beyond “people of the sea” toward an integrated sociology of sea societies suited to current socio-ecological change.
+
+
+
+Files with first letters in label "Sustainable ... " are the mandatory reference and guidelines to upgrade and elaborate on the argument with specifics and refer to the details of the theory of marinisation (be precise always in Janiszewski: theory of marinisation), distinguish between ‘marine’, “maritime” and ‘ocean’ sociology; "people of the sea" social category, maritime local communities, human factor, marine factor, Janiszewski's approach is characterized as **semi-deterministic**: environmental and infrastructural forces orient social possibilities while social actors and institutions translate those orientations into particular developmental outcomes [1]. This theoretical stance navigates between structural determinism and voluntarism, recognizing both the constraining power of material conditions and the transformative capacity of human agency and social organization.
+
+
+
+The theory maps several key **mechanisms of sea-society entanglement** through which maritimization produces durable social forms:
+
+
+
+**Economic linkage mechanisms** involve the creation of maritime occupations, firms, and industries that reconfigure local labor markets and economic structures. When fishing fleets, shipping companies, port operations, or shipbuilding facilities are established in a coastal region, they generate employment opportunities, income flows, and economic dependencies that orient local development toward maritime sectors [1]. These economic linkages create material interests in maritime activity that shape political coalitions, investment priorities, and regional identities.
+
+
+
+**Institutional embedding mechanisms** involve the establishment of port authorities, maritime educational institutions, fleet management organizations, and regulatory agencies that lock in maritime developmental pathways [1]. Once substantial institutional infrastructure is created to support maritime activity, path dependencies emerge: institutional actors develop vested interests, specialized knowledge accumulates, and switching costs for alternative development strategies increase. Maritime institutions thus become self-reinforcing, reproducing maritime orientations even as specific economic conditions change.
+
+
+
+**Cultural transmission mechanisms** involve the reproduction of maritime identities, practices, and orientations through families, workplaces, schools, and community organizations [1], [5]. When children grow up in households where parents work at sea, when schools incorporate maritime education and training, when local cultural practices celebrate maritime heritage, maritime identities become embedded in social reproduction. These cultural mechanisms create subjective orientations toward maritime life that complement economic and institutional structures.
+
+
+
+**Spatial concentration mechanisms** involve the clustering of maritime activities, populations, and infrastructure in specific coastal locations, creating agglomeration effects and distinctive maritime urban forms [1]. Port cities develop specialized labor markets, service sectors, and built environments adapted to maritime functions. This spatial concentration reinforces maritimization by creating dense networks of maritime actors and institutions in specific places.
+
+
+
+Janiszewski's framework thus conceptualizes maritimization as a **process of mutual constitution**: the sea shapes societies through material constraints and opportunities, while societies shape their relationships with the sea through institutional choices, cultural practices, and technological mediations. This dialectical understanding anticipates contemporary relational ontologies in oceanic turn scholarship while remaining grounded in empirical analysis of specific maritime communities and sectors.
+
+
+
+Re-view critically and re-write whole content (if needed, if not do just light edit for coherent style or improving logical narration) , upgrade, delete duplicate content and fragments of text, maintain rigour to quote and reference in APA 7 style. Use always English (UK) - never English US. 
+

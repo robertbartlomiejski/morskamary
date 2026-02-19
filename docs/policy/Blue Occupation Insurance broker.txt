@@ -1,0 +1,34 @@
+Insurance broker
+
+Property	Value
+Occupation	Insurance broker
+Description of the occupation	The occupation of a MARINE INSURANCE BROKER specializes in marine insurances, including public liability for nautical companies, 3rd party and fully comprehensive damage cover for yachts and passenger cover for charter companies. This occupation can be found anywhere.Working as a MARINE INSURANCE BROKER may require an apprenticeship or specialized training, language can be of advantage.
+Task #1	Explain to the customer the correct insurance needed, according to their use of the boat.
+Task #2	Provide de clients with estimates, make the contracts and assist them when there is a claim
+Task #3	Be able to communicate with the clients minimum in English
+Necessary educational level needed for the occupation	
+Higher level vocational school/ education	Required
+Working environment	
+Permanent	Required
+Location of occupation	
+Office	Required
+Onshore	Required
+Working hours	Both possible
+Working schedule	Work during day time hours
+Workplace environment	
+Other	Office and visiting companies and clients
+Physical requirements	
+Desk-bound occupation	Required
+Soft skills rating	
+Teamwork	5
+Adaptability	5
+Problem solving	5
+Following procedures	4
+Multitasking	4
+Work under pressure	4
+Communication	5
+Leadership	4
+Attention to detail	5
+Time management	3
+Customer service	5
+Initiative	5

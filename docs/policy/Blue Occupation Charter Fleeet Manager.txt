@@ -1,0 +1,35 @@
+Charter Fleet manager
+
+Property	Value
+Occupation	Charter Fleet manager
+Description of the occupation	The occupation of a CHARTER FLEET MANAGER is to sell charters to customers, manage the boats and the staff.This occupation is mostly found in Marinas and Ports along the coast, oalong rivers or at lakes. Working as a CHARTER FLEET MANAGER requires no qualification, but a skipper qualification, mechanical skills and languages would be of advantage.
+Task #1	Taking bookings for boat charters
+Task #2	Managing charter licences, boat maintenance and repairs
+Task #3	Organising staff: skippers, cleaners, maintenance
+Necessary educational level needed for the occupation	
+Mandatory minimum school education	Required
+Working environment	
+Seasonal	Required
+Location of occupation	
+Office	Required
+Outdoors	Required
+Onshore	Required
+Working hours	Both possible
+Working schedule	Work during day time hours
+Workplace environment	
+Exposure to weather (extreme heat/cold)	Required
+Physical requirements	
+Other requirements	flexible, being on and off boats
+Soft skills rating	
+Teamwork	4
+Adaptability	5
+Problem solving	5
+Following procedures	4
+Multitasking	4
+Work under pressure	5
+Communication	5
+Leadership	5
+Attention to detail	3
+Time management	4
+Customer service	5
+Initiative	3

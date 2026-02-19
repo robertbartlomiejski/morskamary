@@ -1,0 +1,23 @@
+W NotebookLM "SCISPACE...: znajdują się opracowania częściowe w dokumentach, wersje finalne, pliki robocze i pełne przeglądy literatury przedmiotu do artykułu naukowego. Wśród 80 plików znajdują się dwa pliki z tą samą treścią (w dwóch formatach: docx i PDF) - wybierz jeden, który pozwoli Ci uzyskać najlepszą jakość udzielanych odpowiedzi. 
+
+
+
+1. Założenia artykułu są w abstrakcie: "Abstract ESA Ioannis Robert Tallinn 29_01_2026.docx".
+
+2. Wersja bazowa artykułu, którą należy uzupełnić i zastosować w niej "NotebookLM "SCISPACE...": Blue Economy Maritime Sociology 12_02 18_08.docx.
+
+3. Add relevant content in lacking chapters in "Blue Economy Maritime Sociology 12_02 18_08.docx": "2.1 Maritime Sociology", 
+
+4. Improve and extend for policy relevance and theoretical strong fundamentals taken from "NotebookLM "SCISPACE...". 
+
+5. The project of SciSpace AI with outputs in "NotebookLM "SCISPACE..." is on my SciSpace account under open link: https://scispace.com/share/48b96b10-29fd-4221-a10a-72eb80cbe4a7 . Make use of it for best reasoning, logic argumentation, scientific accuracy and up to date insights where classic maritime sociology and contemporary theories in broad oceanic turn have a strong evidence-based or high-potential to overcome biases, accelerate growth, ... of sustainable blue economy in general and in all blue economy sectors in asoects taken from "NotebookLM "SCISPACE..." and "https://scispace.com/share/48b96b10-29fd-4221-a10a-72eb80cbe4a7". 
+
+
+
+Add and rewrite the final version of the article by deep reasoning and relevance to our analysis of the semi-deterministic logic of Janiszewski's theory of marinisation that in fact we contribute novelty in his theory interpretation —recognising that the "Blue Economy" is constrained by the "Marine Factor" (ecology) and shaped by "Human Factor", that is fact can be today reinterpret as the "Maritime Factor"  (domain of human). Apart from that, we offer in this text a robust critique of current "blue economy" and support by this One Ocean Manifesto (appendix) and https://seas-at-risk.org/blue-manifesto/ ,    Blue sociology adds extension moving beyond hopeful rhetoric toward a rigorous sociology of the sustainable ocean (One Ocean, Omni-ocean, World Ocean).
+
+Case Study Integration: In the subsequent sections (3 and 4), explicitly map the four "mechanisms of marinisation" (Economic, Institutional, Cultural, Spatial) to specific EU Blue Economy sectors (e.g., map "Spatial Concentration" to the analysis of Port Cities as Blue Hubs) - find accurate citations.
+
+Check References: Ensure all citations (Janiszewski, 1967; Poole, 1981) are fully fleshed out in the bibliography using the uploaded CSV reference files.
+
+Polish for "British English": Ensure -ise/isation (marinisation, organisation) suffixes are used consistently throughout the document.

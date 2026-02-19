@@ -1,0 +1,67 @@
+﻿Instruction for the Analysis of Glossary Term Proposals: 
+Integrating PACT WG3 Protocols and Pilot Contexts
+
+
+1. Epistemological Foundations and Strategic Objectives
+
+
+W idei glosariusza nie chodzi nam tu o wypracowanie jednolitych definicji pojęć, ale do ujawniania niezgodności, starcia uprzedzeń i lęków, światopoglądów, ideologii politycznych, napięć i nieporozumień jakie ich używanie w kontekście transformacji energetycznej wywołują między interesariuszami miasta portowego, jego przedpola i zaplecza. 
+
+
+Terminy w glosariuszu zostały wyselekcjonowane kierując się następującymi kryteriami:
+1. Są używane w przez większość interesariuszy w projektach, które odzwierciedlają długofalową politykę carbon lock-in,
+2. Ujawniają punkty zapalne z tytułu braku przejrzystości, niezrozumienia, braku zaufania, różnych systemów znaczeniowych, sprzyjające wykluczeniu społecznemu, dyskryminacji, faworyzowaniu, selektywnej dystrybucji korzyści i obciążeń, generuje oszczędności ekonomiczne ale przy zwiększeniu kosztów środowiskowych, społecznych, kulturowych, biologicznych, klimatycznych obecnych i przyszłych pokoleń, zagraża ochronie praw pracowniczych, stanowi ingerencję w krajobraz miasta itp.
+3. Uwidaczniają konflikty między różnymi skalami decyzyjnymi (nanoskala - teren portu i jego operatorzy, zarząd portu itp.; mikroskala - tereny portowe wraz z sąsiedztwem przemysłów morskich, off-shore, biogazowni, terminali statków pasażerskich; mezoskala - miejska, interfejs port-miasto; makroskala - państwowa polityka morska i transformacja energetyczna w myśl blue economy i sustainable blue growth, międzynarodową (IMO/ UE), gdzie standardy, definicje prawne, zakres znaczeniowy, normy techniczne czy regulacje sieciowe często nie są zsynchronizowane;
+4. Zidentyfikowane pojęcia muszą mieć głębię posthumanistyczną, gdzie ludzie i nie-ludzie poprzez wszystkie procesy obiegu wody, materii, regulacji klimatu, metabolizacji, cyrkulacji, bioróżnorodności są ze sobą sprzężone i powodują splątanie ludzkich i nie-ludzkich aktorów i więcej niż ludzkich aktantów. 
+5. Chcemy w glosariuszu otwarcie wykazać sporny charakter terminów - kluczowe jest, zachować maksymalnie włączającą perspektywę na dziedzictwo, tradycję, wartości, interesy, bodźce, sygnały, odczucia, wyobrażenia, sieci wpływu i opinie, które zazwyczaj nie mają głosu lub ich głos jest marginalizowany lub pomijany. Chcemy uniknąć, aby glosariusz był słowniczkiem pojęć czysto normatywnych. Nie boimy się przyznać do tego, że świat nauki, biznesu, polityki, technologii, prawa, wiedzy ludowej, wiedzy potocznej jest pełen niejednoznacznych interpretacji, i nie chcemy aby jakikolwiek głos był pominięty.
+6. The ultimate goal is to move beyond static, legal definitions toward a dynamic understanding of terms and processes; how energy transition is sensually experienced, framed with evoking emotions into schemes of judgement,  interpreted, and contested in specific territories.   
+7. Podsumowując, Błękitna Sprawiedliwość wymaga krytycznego spojrzenia na to, czy technologiczno-ekonomiczny model transformacji nie pogłębia istniejących nierówności i czy w wystarczającym stopniu uwzględnia on relacyjną i asemblażową naturę ekosystemów wodnych.
+8. In the context of the energy transition in port city territories, terminological performatives are not merely definitions; they are active agents that shape policies, reveal power imbalances, and trigger specific socio-technological actions.
+9. Performatives are concepts used in statements made by or on behalf of stakeholders that are neither true nor false – they simply perform actions. They shape market behaviour, promote specific technologies and change the way we coexist, co-experience, co-feel and co-interpret reality. Performatives are mirrors of reality. 
+10. Earch term needs to be identified in terms of layers:
+11. Performative Pentard of Energy Transition Glossary: 
+   1. Act (Akt): Co się dzieje? → Powiąż pojęcie z RSAM_Performance na polach:
+      1. Handlu 
+      2. Transportu i logistyki
+      3. Technologiczne
+      4. Infrastruktury
+      5. Polityki
+      6. Kultury - Dziedzictwa kulturalnego i tradycji ludzi
+      7. Kultury - Stylu życia ludzi
+      8. Środowiska - Biotycznego
+      9. Środowiska - Ekomaterializm (nie-ludzccy aktorzy, więcej niż ludccy aktorzy). 
+      10. jeśli potrzeba dodaj inne…
+   2. Scene (Scena): Gdzie i w jakiej skali od nano do mega skali? → wewnątrz portu, przy porcie (tereny przemysłu morskiego), na terenach miasta sąsiadujących z portem, na terenach o funkcjach mieszkalnych, usługowych, turystycznych przy porcie (np waterfront, bulwary), miasto portowe (interfejs port-miasto), port i przedpole, port i region, państwo, europejska sieć transportowa, wspólny rynek, organizacja międzynarodowa, cywilizacja, planeta.
+   3. Agent (Aktor): Czyja to perspektywa? Jak wyobraża, doświadcza, odczuwa, myśli i działa ten agent?  → Wybierz rolę (Mieszkaniec, Pracownik portu, NGO, Decydent) 24, 25.
+   4. Agency (Środki): Jakimi narzędziami? Czy występuje samodzielnie w swoim imieniu, poszukuje koalicji czy potrzebuje mediatorów? → Określ Subsystem (Technologiczny, Ekonomiczny, Polityczny, Kulturowy) 10, 24
+   5. Purpose (Cel): Dlaczego? → Wydestyluj z RSAM_Judgement (interpretacja: „sygnał postępu” vs „uciążliwość”) 10, 24. (identyfikuj interes (przydatność dla ludzkich, nie-ludzkich, więcej-niż-ludzkich aktorów), wartości (bioróżnorodność, zastępowalność pokoleń), tradycja (zgodny z naturą - stan bez interwencji lub ingerencji człowieka), emocje materii ożywionej i nieożywionej (współ-odczuwanie katastrof ekologicznych, traum, epidemii, itp… wywołanych przez tylko naturę, tylko ludzi, lub nie tylko przez ludzi i pośrednio przez ludzi i naturę). np protesty mieszkańców bojących się o uciążliwość i obniżenie ich dobrostanu przyjmuje postać translacji z wykorzystaniem jako argumentu mediatora (chroniony gatunek bioty obecny na tym samym terenie - współ-zamieszkiwanie i współ-użytkowanie tej samej przestrzeni). 
+   6. 
+
+12. Wymiary:
+   1. Blue justice meet/ clash Social Disputes and Conflicts - Terminy z tej grupy wykraczają poza opis techniczny, dotykając nierównomiernego rozkładu kosztów i korzyści transformacji na różnych poziomach struktury społecznej i poza-społecznej i więcej-niż-społecznej. 
+   2. 13. 2. 
+14. “Drawing from the sources, here are the types of terminological performatives distinguished by their ability to reveal tensions, barriers, and risks:
+15. 1. Enabling Concepts (Enablers)
+16. These terms describe the mechanisms or infrastructures required to initiate the transition. They reveal tensions when the "agency" (the means) lacks a clear or inclusive "purpose".
+17. • Examples: Shore Power / Cold Ironing, Multi-Energy Systems, and Hydrogen Readiness.
+18. • Revealed Tensions: These often expose a "technological bias." For instance, while Cold Ironing is a technical solution for air pollution, it reveals systemic barriers like Grid Congestion (insufficient network capacity) and the need for massive capital investment.
+19. 2. Transition Outcomes (Performative Goals)
+20. These terms represent the intended end-states of the transition. They are frequently "red flags" because their definitions are often contested by different stakeholders.
+21. • Examples: Green Port, Net-Zero Port, and Sustainable Blue Economy.
+22. • Revealed Tensions: A "Green Port" may be seen as a success by an engineer focusing on emission metrics, but as greenwashing by a resident experiencing the "nuisance" of industrial noise or vibration.
+23. 3. Systemic Barrier Performatives
+24. These terms explicitly name the frictions and failures within the current socio-technical systems that prevent progress.
+25. • Examples: Carbon Lock-in, Stranded Assets, and Regulatory Inertia.
+26. • Revealed Barriers: Carbon Lock-in reveals how long-lived high-emission assets (like refineries or pipelines) commit a territory to unsustainable pathways because they are too costly to replace. Stranded Assets highlight the economic risk of energy investments losing value due to rapid decarbonization.
+27. 4. Human Risk & Justice Performatives
+28. These terms shift the focus from technology to the uneven distribution of costs and benefits among human actors.
+29. • Examples: Energy Justice, Social License to Operate (SLO), and Labour Transitions.
+30. • Revealed Tensions: Energy Justice reveals "environmental segregation," highlighting who bears the burden of port-industrial zones (e.g., marginalized neighborhoods) and who gains from clean energy access. SLO exposes the informal acceptance required from communities, without which even legally permitted projects may stall.
+31. 5. Non-Human Actor & Ecological Risk Performatives
+32. These performatives acknowledge the agency and vulnerability of ecosystems and other-than-human organisms in the transition process.
+33. • Examples: Underwater Radiated Noise (URN), Invasive Alien Species (IAS), and Physical Disturbance of the Seabed.
+34. • Revealed Risks: URN reveals a direct conflict between shipping efficiency and the biological needs of marine fauna (communication, navigation). IAS transported in ballast water reveal "disruptions to sustainable governance" as they degrade local biodiversity and impact the blue economy.
+35. 6. Sensorial Triggers (Micro-Narrative Performatives)
+36. In the WG3 "method chain," these are the concrete cues that perform a "snap interpretation" in the field.
+37. • Process: Trigger (e.g., "low hum from OPS unit") → Translation ("manageable noise signature") → Performance (the action implied, e.g., "add acoustic screen").
+38. • Revealed Tensions: These performatives capture asymmetries of perception. For example, port workers may perceive a vibration as a signal of "progress," while residents perceive it as a "threat" or "nuisance" to their quality of life.”.
