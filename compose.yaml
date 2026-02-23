@@ -1,0 +1,6 @@
+services:
+  morskamary:
+    image: morskamary
+    build:
+      context: .
+      dockerfile: ./Dockerfile
