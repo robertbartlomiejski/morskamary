@@ -1,11 +1,966 @@
 file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rights_note,summary_1_sentence,preferred_citation_key,text_available
+.dockerignore,other,,,,,,dockerignore,no
+.github/workflows/blank.yml,other,,,,,,blank,no
+.github/workflows/CI,other,,,,,,CI,no
+.vscode/## Chat Customization Diagnostics.md,text,,,,,,Chat_Customization_Diagnostics,yes
+.vscode/launch.json,other,,,,,,launch,no
+.vscode/settings.json,other,,,,,,settings,no
+.vscode/tasks.json,other,,,,,,tasks,no
+.vscode/test_launch.json,other,,,,,,test_launch,no
 CHANGELOG.txt,governance,,,,,,CHANGELOG,yes
 CITATION.txt,governance,,,,,,CITATION,yes
+compose.debug.yaml,other,,,,,,compose_debug,no
+compose.yaml,other,,,,,,compose,no
+data/derived/20250303_emodnethumanactivities_final_2025.xlsx,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+data/derived/20250701_emodnethumanactivities_q22025_lf.xlsx,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+data/derived/A systematic literature assessment on the effects of human-altered soundscapes on marine life_dataset.xlsx,dataset_derived,,,,,,A_systematic_literature_assessment_on_th,yes
+data/derived/abstract_converted.md,dataset_derived,,,,,,abstract_converted,yes
+data/derived/Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+data/derived/Blue Social Competences Univ Szczecin - Blue competences x blue economy sector.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+data/derived/Blue Social Competences Univ Szczecin matrix — kopia.xlsx,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,yes
+data/derived/Blue Social Competences Univ Szczecin matrix.pdf,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,no
+data/derived/Blue Social Competences Univ Szczecin matrix.xlsx,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,yes
+data/derived/Blue Social Competences Univ Szczecin.xlsx,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin,yes
+data/derived/blue_economy_gaps_analysis.md,dataset_derived,,,,,,blue_economy_gaps_analysis,yes
+data/derived/Blue_Sociology_Executive_Summary.md,dataset_derived,,,,,,Blue_Sociology_Executive_Summary,yes
+data/derived/Blue_Sociology_Framework_Complete — kopia.md,dataset_derived,,,,,,Blue_Sociology_Framework_Complete___kopi,yes
+data/derived/Blue_Sociology_Framework_Complete.md,dataset_derived,,,,,,Blue_Sociology_Framework_Complete,yes
+data/derived/Blue_Sociology_Framework_Concept_Map (1).png,dataset_derived,,,,,,Blue_Sociology_Framework_Concept_Map__1,no
+data/derived/Blue_Sociology_Framework_Concept_Map.png,dataset_derived,,,,,,Blue_Sociology_Framework_Concept_Map,no
+data/derived/Blue_Sociology_Framework_Synthesis.md,dataset_derived,,,,,,Blue_Sociology_Framework_Synthesis,yes
+data/derived/CaseStudies.xlsx,dataset_derived,,,,,,CaseStudies,yes
+data/derived/combined_blue_economy_labor_justice.csv,dataset_derived,,,,,,combined_blue_economy_labor_justice,yes
+data/derived/combined_blue_economy_research_gaps.csv,dataset_derived,,,,,,combined_blue_economy_research_gaps,yes
+data/derived/combined_blue_sociology_results.csv,dataset_derived,,,,,,combined_blue_sociology_results,yes
+data/derived/combined_eu_blue_economy_results.csv,dataset_derived,,,,,,combined_eu_blue_economy_results,yes
+data/derived/combined_janiszewski_maritime_sociology.csv,dataset_derived,,,,,,combined_janiszewski_maritime_sociology,yes
+data/derived/combined_maritime_sociology_results.csv,dataset_derived,,,,,,combined_maritime_sociology_results,yes
+data/derived/combined_maritimization_results.csv,dataset_derived,,,,,,combined_maritimization_results,yes
+data/derived/combined_poole_maritime_sociology_results.csv,dataset_derived,,,,,,combined_poole_maritime_sociology_result,yes
+data/derived/DOCUMENT_GUIDE.md,dataset_derived,,,,,,DOCUMENT_GUIDE,yes
+data/derived/European ports list 2024.xlsx,dataset_derived,,,,,,European_ports_list_2024,yes
+data/derived/EXPANSION_COMPLETE_SUMMARY.md,dataset_derived,,,,,,EXPANSION_COMPLETE_SUMMARY,yes
+data/derived/final_comprehensive_analysis.md,dataset_derived,,,,,,final_comprehensive_analysis,yes
+data/derived/janiszewski_detailed_analysis.md,dataset_derived,,,,,,janiszewski_detailed_analysis,yes
+data/derived/Janiszewski_Poole_Comparison.png,dataset_derived,,,,,,Janiszewski_Poole_Comparison,no
+data/derived/JRC135889_02 TAC TEC tool EC taxonomy.xlsx,dataset_derived,,,,,,JRC135889_02_TAC_TEC_tool_EC_taxonomy,yes
+data/derived/Key_References_by_Theme.md,dataset_derived,,,,,,Key_References_by_Theme,yes
+data/derived/LeHavre_SensoryLab_Matrix v5.xlsx,dataset_derived,,,,,,LeHavre_SensoryLab_Matrix_v5,yes
+data/derived/mar_esms_an_2.xlsx,dataset_derived,,,,,,mar_esms_an_2,yes
+data/derived/maritime_sociology_framework_synthesis.md,dataset_derived,,,,,,maritime_sociology_framework_synthesis,yes
+data/derived/Modulo senza titolo (Risposte).xlsx,dataset_derived,,,,,,Modulo_senza_titolo__Risposte,yes
+data/derived/ocean_pact_main_analysis.md,dataset_derived,,,,,,ocean_pact_main_analysis,yes
+data/derived/PACT_WG3_Contested_Glossary_Template_v1 (1).xlsx,dataset_derived,,,,,,PACT_WG3_Contested_Glossary_Template_v1_,yes
+data/derived/PACT_WG3_Contested_Glossary_Template_v1.xlsx,dataset_derived,,,,,,PACT_WG3_Contested_Glossary_Template_v1,yes
+data/derived/paper-table-2026-02-12 (2).csv,dataset_derived,,,,,,paper_table_2026_02_12__2,yes
+data/derived/paper-table-2026-02-12.csv,dataset_derived,,,,,,paper_table_2026_02_12,yes
+data/derived/poole_article_search.csv,dataset_derived,,,,,,poole_article_search,yes
+data/derived/poole_detailed_analysis.md,dataset_derived,,,,,,poole_detailed_analysis,yes
+data/derived/Port Sensory Fieldwork Planning.xlsx,dataset_derived,,,,,,Port_Sensory_Fieldwork_Planning,yes
+data/derived/port_energy_transition_glossary.xlsx,dataset_derived,,,,,,port_energy_transition_glossary,yes
+data/derived/Project_search_results_keep_eu.xlsx,dataset_derived,,,,,,Project_search_results_keep_eu,yes
+data/derived/QueryResult RBHAB1AZURE.xlsx,dataset_derived,,,,,,QueryResult_RBHAB1AZURE,yes
+data/derived/refine (1).xlsx,dataset_derived,,,,,,refine__1,yes
+data/derived/refine.xlsx,dataset_derived,,,,,,refine,yes
+data/derived/savedrecs.xls,dataset_derived,,,,,,savedrecs,yes
+data/derived/scholar_blue_economy_2.csv,dataset_derived,,,,,,scholar_blue_economy_2,yes
+data/derived/scholar_blue_economy_3.csv,dataset_derived,,,,,,scholar_blue_economy_3,yes
+data/derived/scholar_blue_economy_equity.csv,dataset_derived,,,,,,scholar_blue_economy_equity,yes
+data/derived/scholar_blue_economy_labor.csv,dataset_derived,,,,,,scholar_blue_economy_labor,yes
+data/derived/scholar_blue_economy_social_science.csv,dataset_derived,,,,,,scholar_blue_economy_social_science,yes
+data/derived/scholar_blue_sociology_1.csv,dataset_derived,,,,,,scholar_blue_sociology_1,yes
+data/derived/scholar_blue_sociology_2.csv,dataset_derived,,,,,,scholar_blue_sociology_2,yes
+data/derived/scholar_blue_sociology_3.csv,dataset_derived,,,,,,scholar_blue_sociology_3,yes
+data/derived/scholar_janiszewski_maritime.csv,dataset_derived,,,,,,scholar_janiszewski_maritime,yes
+data/derived/scholar_janiszewski_marynizacja.csv,dataset_derived,,,,,,scholar_janiszewski_marynizacja,yes
+data/derived/scholar_maritime_governance.csv,dataset_derived,,,,,,scholar_maritime_governance,yes
+data/derived/scholar_maritime_poole.csv,dataset_derived,,,,,,scholar_maritime_poole,yes
+data/derived/scholar_maritime_sectors_equity.csv,dataset_derived,,,,,,scholar_maritime_sectors_equity,yes
+data/derived/scholar_maritimization.csv,dataset_derived,,,,,,scholar_maritimization,yes
+data/derived/scholar_ocean_governance_gaps.csv,dataset_derived,,,,,,scholar_ocean_governance_gaps,yes
+data/derived/scholar_poole_maritime_1.csv,dataset_derived,,,,,,scholar_poole_maritime_1,yes
+data/derived/scholar_poole_maritime_3.csv,dataset_derived,,,,,,scholar_poole_maritime_3,yes
+data/derived/scispace_blue_economy_governance.csv,dataset_derived,,,,,,scispace_blue_economy_governance,yes
+data/derived/scispace_blue_economy_labor.csv,dataset_derived,,,,,,scispace_blue_economy_labor,yes
+data/derived/scispace_blue_economy_research_gaps.csv,dataset_derived,,,,,,scispace_blue_economy_research_gaps,yes
+data/derived/scispace_blue_economy_social_dimensions.csv,dataset_derived,,,,,,scispace_blue_economy_social_dimensions,yes
+data/derived/scispace_blue_sociology_1.csv,dataset_derived,,,,,,scispace_blue_sociology_1,yes
+data/derived/scispace_blue_sociology_2.csv,dataset_derived,,,,,,scispace_blue_sociology_2,yes
+data/derived/scispace_blue_sociology_3.csv,dataset_derived,,,,,,scispace_blue_sociology_3,yes
+data/derived/scispace_coastal_communities_blue_economy.csv,dataset_derived,,,,,,scispace_coastal_communities_blue_econom,yes
+data/derived/scispace_eu_blue_economy_1.csv,dataset_derived,,,,,,scispace_eu_blue_economy_1,yes
+data/derived/scispace_eu_blue_economy_2.csv,dataset_derived,,,,,,scispace_eu_blue_economy_2,yes
+data/derived/scispace_eu_blue_economy_3.csv,dataset_derived,,,,,,scispace_eu_blue_economy_3,yes
+data/derived/scispace_fulltext_blue_economy_1.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_1,yes
+data/derived/scispace_fulltext_blue_economy_2.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_2,yes
+data/derived/scispace_fulltext_blue_economy_3.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_3,yes
+data/derived/scispace_fulltext_blue_economy_gaps.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_gaps,yes
+data/derived/scispace_fulltext_blue_economy_limitations.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_limitatio,yes
+data/derived/scispace_fulltext_blue_sociology_1.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_1,yes
+data/derived/scispace_fulltext_blue_sociology_2.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_2,yes
+data/derived/scispace_fulltext_labor_maritime.csv,dataset_derived,,,,,,scispace_fulltext_labor_maritime,yes
+data/derived/scispace_fulltext_maritime_sociology.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology,yes
+data/derived/scispace_fulltext_maritime_sociology_poland.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology_pol,yes
+data/derived/scispace_fulltext_marynizacja.csv,dataset_derived,,,,,,scispace_fulltext_marynizacja,yes
+data/derived/scispace_fulltext_poole_maritime_1.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_1,yes
+data/derived/scispace_fulltext_poole_maritime_2.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_2,yes
+data/derived/scispace_fulltext_social_justice.csv,dataset_derived,,,,,,scispace_fulltext_social_justice,yes
+data/derived/scispace_janiszewski_maritime_sociology.csv,dataset_derived,,,,,,scispace_janiszewski_maritime_sociology,yes
+data/derived/scispace_maritime_sociology.csv,dataset_derived,,,,,,scispace_maritime_sociology,yes
+data/derived/scispace_maritimization_theory.csv,dataset_derived,,,,,,scispace_maritimization_theory,yes
+data/derived/scispace_poole_maritime_sociology_1.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_1,yes
+data/derived/scispace_poole_maritime_sociology_2.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_2,yes
+data/derived/scispace_poole_maritime_sociology_3.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_3,yes
+data/derived/scispace_social_justice_maritime.csv,dataset_derived,,,,,,scispace_social_justice_maritime,yes
+data/derived/Theoretical_Foundations_Expansion.md,dataset_derived,,,,,,Theoretical_Foundations_Expansion,yes
+data/derived/UN_Ocean_Decade_ILK_Resource_Database_V1_02-2026.xlsx,dataset_derived,,,,,,UN_Ocean_Decade_ILK_Resource_Database_V1,yes
+data/derived/web_search_poole_article_search.json,dataset_derived,,,,,,web_search_poole_article_search,no
+data/derived/WG3_Glossary_FULL_100pct_DROP_KEEP_REWRITE_bySector_withAnchors.xlsx,dataset_derived,,,,,,WG3_Glossary_FULL_100pct_DROP_KEEP_REWRI,yes
+data/derived/WG_applications_export_05-01-2026.xlsx,dataset_derived,,,,,,WG_applications_export_05_01_2026,yes
+data/raw/Abstract ESA Ioannis Robert Tallinn 29_01_2026.docx,dataset_raw,,,,,,Abstract_ESA_Ioannis_Robert_Tallinn_29_0,yes
+data/raw/abstract_converted.md,dataset_raw,,,,,,abstract_converted,yes
+data/raw/blue economy gapspaper-table-2026-02-12 (1).csv,dataset_raw,,,,,,blue_economy_gapspaper_table_2026_02_12_,yes
+data/raw/blue economy gapspaper-table-2026-02-12.csv,dataset_raw,,,,,,blue_economy_gapspaper_table_2026_02_12,yes
+data/raw/Blue Economy Maritime Sociology 12_02 18_08.docx,dataset_raw,,,,,,Blue_Economy_Maritime_Sociology_12_02_18,yes
+data/raw/Blue Economy Maritime Sociology 12_02 18_08.pdf,dataset_raw,,,,,,Blue_Economy_Maritime_Sociology_12_02_18,no
+data/raw/Blue Economy_ Sociological Revival - Blue Economy_ Sociological Revival (1).csv,dataset_raw,,,,,,Blue_Economy__Sociological_Revival___Blu,yes
+data/raw/Blue Economy_ Sociological Revival - Blue Economy_ Sociological Revival.csv,dataset_raw,,,,,,Blue_Economy__Sociological_Revival___Blu,yes
+data/raw/Blue growth and sustainable blue economy new approach for sustainable future.xml,dataset_raw,,,,,,Blue_growth_and_sustainable_blue_economy,no
+data/raw/Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials.csv,dataset_raw,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+data/raw/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv,dataset_raw,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+data/raw/Blue Social Competences Univ Szczecin.xlsx,dataset_raw,,,,,,Blue_Social_Competences_Univ_Szczecin,yes
+data/raw/blue_economy_gaps_analysis.md,dataset_raw,,,,,,blue_economy_gaps_analysis,yes
+data/raw/Blue_Sociology_Executive_Summary.md,dataset_raw,,,,,,Blue_Sociology_Executive_Summary,yes
+data/raw/Blue_Sociology_Framework_Complete.md,dataset_raw,,,,,,Blue_Sociology_Framework_Complete,yes
+data/raw/Blue_Sociology_Framework_Concept_Map (1).png,dataset_raw,,,,,,Blue_Sociology_Framework_Concept_Map__1,no
+data/raw/Blue_Sociology_Framework_Concept_Map.png,dataset_raw,,,,,,Blue_Sociology_Framework_Concept_Map,no
+data/raw/Blue_Sociology_Framework_Synthesis.md,dataset_raw,,,,,,Blue_Sociology_Framework_Synthesis,yes
+data/raw/combined_blue_economy_labor_justice.csv,dataset_raw,,,,,,combined_blue_economy_labor_justice,yes
+data/raw/combined_blue_economy_research_gaps.csv,dataset_raw,,,,,,combined_blue_economy_research_gaps,yes
+data/raw/combined_blue_sociology_results.csv,dataset_raw,,,,,,combined_blue_sociology_results,yes
+data/raw/combined_eu_blue_economy_results.csv,dataset_raw,,,,,,combined_eu_blue_economy_results,yes
+data/raw/combined_janiszewski_maritime_sociology.csv,dataset_raw,,,,,,combined_janiszewski_maritime_sociology,yes
+data/raw/combined_maritime_sociology_results.csv,dataset_raw,,,,,,combined_maritime_sociology_results,yes
+data/raw/combined_maritimization_results.csv,dataset_raw,,,,,,combined_maritimization_results,yes
+data/raw/combined_poole_maritime_sociology_results.csv,dataset_raw,,,,,,combined_poole_maritime_sociology_result,yes
+data/raw/DOCUMENT_GUIDE.md,dataset_raw,,,,,,DOCUMENT_GUIDE,yes
+data/raw/EU blue economy lex.xml,dataset_raw,,,,,,EU_blue_economy_lex,no
+data/raw/EU Ocean Pact Response_ “Tentative steps forward but critical gaps must be addressed to protect our ocean” - Seas At Risk.pdf,dataset_raw,,,,,,EU_Ocean_Pact_Response___Tentative_steps,no
+data/raw/EXPANSION_COMPLETE_SUMMARY.md,dataset_raw,,,,,,EXPANSION_COMPLETE_SUMMARY,yes
+data/raw/final_comprehensive_analysis.md,dataset_raw,,,,,,final_comprehensive_analysis,yes
+data/raw/Glossary Term Proposal.csv,dataset_raw,,,,,,Glossary_Term_Proposal,yes
+data/raw/Here is the comprehensive scientific content for the article draft.docx,dataset_raw,,,,,,Here_is_the_comprehensive_scientific_con,yes
+data/raw/Janiszewski.docx,dataset_raw,,,,,,Janiszewski,yes
+data/raw/janiszewski_detailed_analysis.md,dataset_raw,,,,,,janiszewski_detailed_analysis,yes
+data/raw/Janiszewski_Poole_Comparison.png,dataset_raw,,,,,,Janiszewski_Poole_Comparison,no
+data/raw/Key_References_by_Theme.md,dataset_raw,,,,,,Key_References_by_Theme,yes
+data/raw/maritime_sociology_framework_synthesis.md,dataset_raw,,,,,,maritime_sociology_framework_synthesis,yes
+data/raw/ocean_pact_main_analysis.md,dataset_raw,,,,,,ocean_pact_main_analysis,yes
+data/raw/PACT_WG3_Stakeholder_Matrix_with_Category (version 2).csv,dataset_raw,,,,,,PACT_WG3_Stakeholder_Matrix_with_Categor,yes
+data/raw/Pakt na rzecz wszechoceanu.pdf,dataset_raw,,,,,,Pakt_na_rzecz_wszechoceanu,no
+data/raw/paper-table-2026-02-12 (1).csv,dataset_raw,,,,,,paper_table_2026_02_12__1,yes
+data/raw/paper-table-2026-02-12 (2).csv,dataset_raw,,,,,,paper_table_2026_02_12__2,yes
+data/raw/paper-table-2026-02-12.csv,dataset_raw,,,,,,paper_table_2026_02_12,yes
+data/raw/poole_article_search.csv,dataset_raw,,,,,,poole_article_search,yes
+data/raw/poole_detailed_analysis.md,dataset_raw,,,,,,poole_detailed_analysis,yes
+data/raw/Port Sensory Research Fieldwork Protocol - Port Sensory Research Fieldwork Protocol (1).csv,dataset_raw,,,,,,Port_Sensory_Research_Fieldwork_Protocol,yes
+data/raw/Port Sensory Research Fieldwork Protocol - Port Sensory Research Fieldwork Protocol.csv,dataset_raw,,,,,,Port_Sensory_Research_Fieldwork_Protocol,yes
+data/raw/scholar.enw,dataset_raw,,,,,,scholar,no
+data/raw/scholar_blue_economy_2.csv,dataset_raw,,,,,,scholar_blue_economy_2,yes
+data/raw/scholar_blue_economy_3.csv,dataset_raw,,,,,,scholar_blue_economy_3,yes
+data/raw/scholar_blue_economy_equity.csv,dataset_raw,,,,,,scholar_blue_economy_equity,yes
+data/raw/scholar_blue_economy_labor.csv,dataset_raw,,,,,,scholar_blue_economy_labor,yes
+data/raw/scholar_blue_economy_social_science.csv,dataset_raw,,,,,,scholar_blue_economy_social_science,yes
+data/raw/scholar_blue_sociology_1.csv,dataset_raw,,,,,,scholar_blue_sociology_1,yes
+data/raw/scholar_blue_sociology_2.csv,dataset_raw,,,,,,scholar_blue_sociology_2,yes
+data/raw/scholar_blue_sociology_3.csv,dataset_raw,,,,,,scholar_blue_sociology_3,yes
+data/raw/scholar_janiszewski_maritime.csv,dataset_raw,,,,,,scholar_janiszewski_maritime,yes
+data/raw/scholar_janiszewski_marynizacja.csv,dataset_raw,,,,,,scholar_janiszewski_marynizacja,yes
+data/raw/scholar_maritime_governance.csv,dataset_raw,,,,,,scholar_maritime_governance,yes
+data/raw/scholar_maritime_poole.csv,dataset_raw,,,,,,scholar_maritime_poole,yes
+data/raw/scholar_maritime_sectors_equity.csv,dataset_raw,,,,,,scholar_maritime_sectors_equity,yes
+data/raw/scholar_maritimization.csv,dataset_raw,,,,,,scholar_maritimization,yes
+data/raw/scholar_ocean_governance_gaps.csv,dataset_raw,,,,,,scholar_ocean_governance_gaps,yes
+data/raw/scholar_poole_maritime_1.csv,dataset_raw,,,,,,scholar_poole_maritime_1,yes
+data/raw/scholar_poole_maritime_3.csv,dataset_raw,,,,,,scholar_poole_maritime_3,yes
+data/raw/scispace_blue_economy_governance.csv,dataset_raw,,,,,,scispace_blue_economy_governance,yes
+data/raw/scispace_blue_economy_labor.csv,dataset_raw,,,,,,scispace_blue_economy_labor,yes
+data/raw/scispace_blue_economy_research_gaps.csv,dataset_raw,,,,,,scispace_blue_economy_research_gaps,yes
+data/raw/scispace_blue_economy_social_dimensions.csv,dataset_raw,,,,,,scispace_blue_economy_social_dimensions,yes
+data/raw/scispace_blue_sociology_1.csv,dataset_raw,,,,,,scispace_blue_sociology_1,yes
+data/raw/scispace_blue_sociology_2.csv,dataset_raw,,,,,,scispace_blue_sociology_2,yes
+data/raw/scispace_blue_sociology_3.csv,dataset_raw,,,,,,scispace_blue_sociology_3,yes
+data/raw/scispace_coastal_communities_blue_economy.csv,dataset_raw,,,,,,scispace_coastal_communities_blue_econom,yes
+data/raw/scispace_eu_blue_economy_1.csv,dataset_raw,,,,,,scispace_eu_blue_economy_1,yes
+data/raw/scispace_eu_blue_economy_2.csv,dataset_raw,,,,,,scispace_eu_blue_economy_2,yes
+data/raw/scispace_eu_blue_economy_3.csv,dataset_raw,,,,,,scispace_eu_blue_economy_3,yes
+data/raw/scispace_fulltext_blue_economy_1.csv,dataset_raw,,,,,,scispace_fulltext_blue_economy_1,yes
+data/raw/scispace_fulltext_blue_economy_2.csv,dataset_raw,,,,,,scispace_fulltext_blue_economy_2,yes
+data/raw/scispace_fulltext_blue_economy_3.csv,dataset_raw,,,,,,scispace_fulltext_blue_economy_3,yes
+data/raw/scispace_fulltext_blue_economy_gaps.csv,dataset_raw,,,,,,scispace_fulltext_blue_economy_gaps,yes
+data/raw/scispace_fulltext_blue_economy_limitations.csv,dataset_raw,,,,,,scispace_fulltext_blue_economy_limitatio,yes
+data/raw/scispace_fulltext_blue_sociology_1.csv,dataset_raw,,,,,,scispace_fulltext_blue_sociology_1,yes
+data/raw/scispace_fulltext_blue_sociology_2.csv,dataset_raw,,,,,,scispace_fulltext_blue_sociology_2,yes
+data/raw/scispace_fulltext_labor_maritime.csv,dataset_raw,,,,,,scispace_fulltext_labor_maritime,yes
+data/raw/scispace_fulltext_maritime_sociology.csv,dataset_raw,,,,,,scispace_fulltext_maritime_sociology,yes
+data/raw/scispace_fulltext_maritime_sociology_poland.csv,dataset_raw,,,,,,scispace_fulltext_maritime_sociology_pol,yes
+data/raw/scispace_fulltext_marynizacja.csv,dataset_raw,,,,,,scispace_fulltext_marynizacja,yes
+data/raw/scispace_fulltext_poole_maritime_1.csv,dataset_raw,,,,,,scispace_fulltext_poole_maritime_1,yes
+data/raw/scispace_fulltext_poole_maritime_2.csv,dataset_raw,,,,,,scispace_fulltext_poole_maritime_2,yes
+data/raw/scispace_fulltext_social_justice.csv,dataset_raw,,,,,,scispace_fulltext_social_justice,yes
+data/raw/scispace_janiszewski_maritime_sociology.csv,dataset_raw,,,,,,scispace_janiszewski_maritime_sociology,yes
+data/raw/scispace_maritime_sociology.csv,dataset_raw,,,,,,scispace_maritime_sociology,yes
+data/raw/scispace_maritimization_theory.csv,dataset_raw,,,,,,scispace_maritimization_theory,yes
+data/raw/scispace_poole_maritime_sociology_1.csv,dataset_raw,,,,,,scispace_poole_maritime_sociology_1,yes
+data/raw/scispace_poole_maritime_sociology_2.csv,dataset_raw,,,,,,scispace_poole_maritime_sociology_2,yes
+data/raw/scispace_poole_maritime_sociology_3.csv,dataset_raw,,,,,,scispace_poole_maritime_sociology_3,yes
+data/raw/scispace_social_justice_maritime.csv,dataset_raw,,,,,,scispace_social_justice_maritime,yes
+data/raw/The Theoretical Lineage of Maritime Sociology.docx,dataset_raw,,,,,,The_Theoretical_Lineage_of_Maritime_Soci,yes
+data/raw/Theoretical_Foundations_Expansion Visiual Studio Edit 12_02.md,dataset_raw,,,,,,Theoretical_Foundations_Expansion_Visiua,yes
+data/raw/Theoretical_Foundations_Expansion.md,dataset_raw,,,,,,Theoretical_Foundations_Expansion,yes
+data/raw/web_search_poole_article_search.json,dataset_raw,,,,,,web_search_poole_article_search,no
 DATA_GOVERNANCE.txt,governance,,,,,,DATA_GOVERNANCE,yes
+Dockerfile,other,,,,,,Dockerfile,no
+docs/literature/(Anamnesis) Graham Harman - Prince of Networks_ Bruno Latour and Metaphysics (Anamnesis)-re.press (2009).pdf,literature,,,,,,Anamnesis__Graham_Harman___Prince_of_Net,no
+"docs/literature/(Critical Food Studies) Peter Atkins - Liquid Materialities_ A History of Milk, Science and the Law-Routledge (2010).pdf",literature,,,,,,Critical_Food_Studies__Peter_Atkins___Li,no
+docs/literature/(Maritime Literature and Culture) Mabel Moraña - Hydrocriticism and Colonialism in Latin America underline.pdf,literature,,,,,,Maritime_Literature_and_Culture__Mabel_M,no
+docs/literature/(Posthumanities) Timothy Morton - Hyperobjects_ Philosophy and Ecology after the End of the World-University of Minnesota Press (2013).txt,literature,,,,,,Posthumanities__Timothy_Morton___Hyperob,yes
+docs/literature/(ROUTL~1.PDF,literature,,,,,,ROUTL_1,no
+docs/literature/02-Heller-Pezzani-drifting-images-liquid-traces-disrupting-the-aesthetic-regime-of-the-EU-s-maritime-frontier.pdf,literature,,,,,,02_Heller_Pezzani_drifting_images_liquid,no
+docs/literature/100 years of Marine Science Journal ICES.pdf,literature,,,,,,100_years_of_Marine_Science_Journal_ICES,no
+docs/literature/17th Conference of the ESA Abstract Bartomiejski Cocco.pdf,literature,,,,,,17th_Conference_of_the_ESA_Abstract_Bart,no
+docs/literature/2014FisherHandbookChapterc55-ManagingEnvironmentalConflict.pdf,literature,,,,,,2014FisherHandbookChapterc55_ManagingEnv,no
+docs/literature/2020_Blackmore-Gomez_Beyond_the_Blue_Notes_on_the_Liquid_Turn (1).pdf,literature,,,,,,2020_Blackmore_Gomez_Beyond_the_Blue_Not,no
+docs/literature/2020_Lubchenco_FivePrioritiesforaSustainableOceEconomy_Nature58830-32.pdf,literature,,,,,,2020_Lubchenco_FivePrioritiesforaSustain,no
+docs/literature/2021_TolochkoVadrot_SelectiveWorldBuilding.pdf,literature,,,,,,2021_TolochkoVadrot_SelectiveWorldBuildi,no
+docs/literature/2025 Kimberley Vadrot Editorial_Social_science_perspectives_on_marine_bi.pdf,literature,,,,,,2025_Kimberley_Vadrot_Editorial_Social_s,no
+docs/literature/24_HLP_Ocean-Human-Health Wellbeing Human Planet.pdf,literature,,,,,,24_HLP_Ocean_Human_Health_Wellbeing_Huma,no
+docs/literature/24_HLP_Ocean-Human-Health_DOI.pdf,literature,,,,,,24_HLP_Ocean_Human_Health_DOI,no
+docs/literature/25_HLP_Handbook_v10.pdf,literature,,,,,,25_HLP_Handbook_v10,no
+docs/literature/25_HLP_Ocean-Finance_v4.pdf,literature,,,,,,25_HLP_Ocean_Finance_v4,no
+docs/literature/40152_2021_Article_238.PDF,literature,,,,,,40152_2021_Article_238,no
+docs/literature/401_20050927_transport_sea_en.pdf,literature,,,,,,401_20050927_transport_sea_en,no
+docs/literature/6_Jarosz_Hydro-sztuka_Przeglad-Kulturoznawczy_2(48)_2021.pdf,literature,,,,,,6_Jarosz_Hydro_sztuka_Przeglad_Kulturozn,no
+"docs/literature/8+Kołodziej,+Kołodziej-Durnaś,+Królikowska.pdf",literature,,,,,,8_Kołodziej__Kołodziej_Durnaś__Królikows,no
+docs/literature/9789004711167_ISMS 3_01_Nick Osbaldiston_proof-01.pdf,literature,,,,,,9789004711167_ISMS_3_01_Nick_Osbaldiston,no
+docs/literature/A new way forward for ocean-climate policy as reflected in the UNFCCC Ocean and Climate Change Dialogue submissions.pdf,literature,,,,,,A_new_way_forward_for_ocean_climate_poli,no
+docs/literature/A Sensorial Walk for Le Havre.docx,literature,,,,,,A_Sensorial_Walk_for_Le_Havre,yes
+docs/literature/A study of oean energy technology.pdf,literature,,,,,,A_study_of_oean_energy_technology,no
+docs/literature/A_Centennial_Celebration_Benchmarks_for.pdf,literature,,,,,,A_Centennial_Celebration_Benchmarks_for,no
+docs/literature/A_State_of_Knowledge_Report_Scientific_t.pdf,literature,,,,,,A_State_of_Knowledge_Report_Scientific_t,no
+docs/literature/Aaa Hab 4_250621_114734.txt,literature,,,,,,Aaa_Hab_4_250621_114734,yes
+docs/literature/Advancing_critico_relational_inquiry_Is.pdf,literature,,,,,,Advancing_critico_relational_inquiry_Is,no
+docs/literature/Agenda Core Group Meeting 251208.docx,literature,,,,,,Agenda_Core_Group_Meeting_251208,yes
+docs/literature/Ahmed Salem Mohamed hydrogéologue engagé.pdf,literature,,,,,,Ahmed_Salem_Mohamed_hydrogéologue_engagé,no
+docs/literature/Akwakultura_Miejska_model_integracji_kap-1.pdf,literature,,,,,,Akwakultura_Miejska_model_integracji_kap,no
+docs/literature/alexandra_popartan.pdf,literature,,,,,,alexandra_popartan,no
+docs/literature/Alice Vadrot UN Decade of Ocean Science for Sustainable Development.txt,literature,,,,,,Alice_Vadrot_UN_Decade_of_Ocean_Science_,yes
+docs/literature/American Anthropologist - 2011 - Helmreich - Nature Culture Seawater.pdf,literature,,,,,,American_Anthropologist___2011___Helmrei,no
+docs/literature/Amstrong Another ocean is possible   thinking ocean justice beyond mastery (2).pdf,literature,,,,,,Amstrong_Another_ocean_is_possible___thi,no
+docs/literature/Amstrong The common heritage of Animalkind.pdf,literature,,,,,,Amstrong_The_common_heritage_of_Animalki,no
+docs/literature/An introduction to the  Oceans and Society  Blue Planet  initiative.pdf,literature,,,,,,An_introduction_to_the__Oceans_and_Socie,no
+docs/literature/AN_INTRODUCTION_TO_TOURISM_POSTDISCIPLIN.pdf,literature,,,,,,AN_INTRODUCTION_TO_TOURISM_POSTDISCIPLIN,no
+"docs/literature/Andrew D. Lambert - Seapower states _ maritime culture, continental empires and the conflict that made the modern world-Yale University Press (2018).pdf",literature,,,,,,Andrew_D__Lambert___Seapower_states___ma,no
+docs/literature/Andrzej Marzec kosmogonie katastrofa antropocenu.pdf,literature,,,,,,Andrzej_Marzec_kosmogonie_katastrofa_ant,no
+docs/literature/Another ocean is possible   thinking ocean justice beyond mastery (1).pdf,literature,,,,,,Another_ocean_is_possible___thinking_oce,no
+docs/literature/ASLO-2019-Program-Book-with-addendum.pdf,literature,,,,,,ASLO_2019_Program_Book_with_addendum,no
+docs/literature/Assembly United Nation Environment Programm and IMO ocean manifest.pdf,literature,,,,,,Assembly_United_Nation_Environment_Progr,no
+docs/literature/baptist_vincent_2022_pleasure_near_the_port_spaces_and_legacies_of_notoriou_63fc7517c7450.pdf,literature,,,,,,baptist_vincent_2022_pleasure_near_the_p,no
+docs/literature/Barnes et al2013 NatureClimateChange AnthropologyField.pdf,literature,,,,,,Barnes_et_al2013_NatureClimateChange_Ant,no
+docs/literature/Barnes Strategies for changing intelectual climate 2015.pdf,literature,,,,,,Barnes_Strategies_for_changing_intelectu,no
+docs/literature/BarnesandAlatout--SocialStudiesofScience-WaterWorlds.pdf,literature,,,,,,BarnesandAlatout__SocialStudiesofScience,no
+docs/literature/Bartlomiejski and Kowalewski_Urban_Assemblage.pdf,literature,,,,,,Bartlomiejski_and_Kowalewski_Urban_Assem,no
+docs/literature/Bartłomiejski Cocco Performatywność wody morza oceanu.txt,literature,,,,,,Bartłomiejski_Cocco_Performatywność_wody,yes
+docs/literature/Bartłomiejskie Cocco krytyka oceanocentryzmu.txt,literature,,,,,,Bartłomiejskie_Cocco_krytyka_oceanocentr,yes
+docs/literature/Bax 2022 Ocean resource use building the coastal blue economy.pdf,literature,,,,,,Bax_2022_Ocean_resource_use_building_the,no
+docs/literature/Beneath_the_surface_of_global_change_Imp.pdf,literature,,,,,,Beneath_the_surface_of_global_change_Imp,no
+docs/literature/Bennet 2018 towards sustainable oceans.pdf,literature,,,,,,Bennet_2018_towards_sustainable_oceans,no
+docs/literature/Bennet 2021 blue growth and blue justice risks and solutions.pdf,literature,,,,,,Bennet_2021_blue_growth_and_blue_justice,no
+docs/literature/Bennet 2023 environmental injustice in the antropocene ocean.pdf,literature,,,,,,Bennet_2023_environmental_injustice_in_t,no
+docs/literature/Bennett 2016 Mainstreaming the social sciences in conservation.pdf,literature,,,,,,Bennett_2016_Mainstreaming_the_social_sc,no
+docs/literature/Beyond the antropocene ecocentric to climate justice.pdf,literature,,,,,,Beyond_the_antropocene_ecocentric_to_cli,no
+docs/literature/Beyond_the_Blue_Notes_on_the_Liquid_Turn.pdf,literature,,,,,,Beyond_the_Blue_Notes_on_the_Liquid_Turn,no
+docs/literature/Blachford 2022 Ocean_flows_and_chains_sea_power_and_maritime_empires_within_IR_theory.pdf,literature,,,,,,Blachford_2022_Ocean_flows_and_chains_se,no
+docs/literature/Blue Bolt Rotterdam _250106_112646.txt,literature,,,,,,Blue_Bolt_Rotterdam__250106_112646,yes
+docs/literature/Blue city water managemen in Jakarta.pdf,literature,,,,,,Blue_city_water_managemen_in_Jakarta,no
+docs/literature/Blue Humaniy transdisciplinary planetary waters 9 page.pdf,literature,,,,,,Blue_Humaniy_transdisciplinary_planetary,no
+docs/literature/Blue justice coproduction susainable ocean.pdf,literature,,,,,,Blue_justice_coproduction_susainable_oce,no
+docs/literature/Blue Mind Surfing.pdf,literature,,,,,,Blue_Mind_Surfing,no
+docs/literature/Blue Mind_250421_094727.txt,literature,,,,,,Blue_Mind_250421_094727,yes
+docs/literature/Blue Papers Water and Heritage for Sustianable Development.pdf,literature,,,,,,Blue_Papers_Water_and_Heritage_for_Susti,no
+docs/literature/Blue Social Competences Univ Szczecin matrix.pdf,literature,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,no
+docs/literature/Blue Sociology and the Tripartite Model of Blue Dynamics_ A Conceptual Framework for Sustainable Ocean Governance and the Blue Economy (1).pdf,literature,,,,,,Blue_Sociology_and_the_Tripartite_Model_,no
+docs/literature/Blue space as caring space   water and the cultivation of care in social and environmental practice.pdf,literature,,,,,,Blue_space_as_caring_space___water_and_t,no
+docs/literature/Blue_Humanities_Oceans_as_History_Matter.pdf,literature,,,,,,Blue_Humanities_Oceans_as_History_Matter,no
+docs/literature/BlueHumanitiesinEnvironmentalHumanitiesGlossaryOnline.Copenhagen.pdf,literature,,,,,,BlueHumanitiesinEnvironmentalHumanitiesG,no
+docs/literature/Bodies of water feminist phenomenologyh posthuman.pdf,literature,,,,,,Bodies_of_water_feminist_phenomenologyh_,no
+docs/literature/Boonstra 2018 A sea of many colours blue growth fish resource.pdf,literature,,,,,,Boonstra_2018_A_sea_of_many_colours_blue,no
+docs/literature/Boonstra 2023 Casuality of conflicts over marine environments.pdf,literature,,,,,,Boonstra_2023_Casuality_of_conflicts_ove,no
+docs/literature/Boonstra understanding and analysing conflict marine.pdf,literature,,,,,,Boonstra_understanding_and_analysing_con,no
+docs/literature/Bottled Ocean 2120  George Nuku  the Ocean  plastic and the role of artists in discussing climate change (1).pdf,literature,,,,,,Bottled_Ocean_2120__George_Nuku__the_Oce,no
+docs/literature/Boundaries of sustainaible socio-develioment.pdf,literature,,,,,,Boundaries_of_sustainaible_socio_develio,no
+docs/literature/Bradshaw Penelope romantic landscape imagination literacy.pdf,literature,,,,,,Bradshaw_Penelope_romantic_landscape_ima,no
+docs/literature/Breguła Weird Szczecin_250412_101024.txt,literature,,,,,,Breguła_Weird_Szczecin_250412_101024,yes
+docs/literature/Building a maritime community Chinas new ocean vision underline.pdf,literature,,,,,,Building_a_maritime_community_Chinas_new,no
+"docs/literature/Carola Hein - Adaptive Strategies for Water Heritage_ Past, Present and Future-Springer International Publishing (2020).pdf",literature,,,,,,Carola_Hein___Adaptive_Strategies_for_Wa,no
+"docs/literature/Cecilia Chen, Janine MacLeod, Astrida Neimanis - Thinking with Water-McGill-Queen_s University Press (2013).pdf",literature,,,,,,Cecilia_Chen__Janine_MacLeod__Astrida_Ne,no
+docs/literature/China Maritime Report No. 24_ Incubators of Sea Power_ Vessel Tra.pdf,literature,,,,,,China_Maritime_Report_No__24__Incubators,no
+docs/literature/Cieślik Urban waste urban nature.pdf,literature,,,,,,Cieślik_Urban_waste_urban_nature,no
+docs/literature/Cisneros Montemayour 2019 Social equity and benefits Marine Policy.pdf,literature,,,,,,Cisneros_Montemayour_2019_Social_equity_,no
+docs/literature/Classification System pf Sciences the UCSD map 2012.pdf,literature,,,,,,Classification_System_pf_Sciences_the_UC,no
+docs/literature/Clausen_Clark_OE metabolic rift ocean aquaculture.pdf,literature,,,,,,Clausen_Clark_OE_metabolic_rift_ocean_aq,no
+docs/literature/Clausen_Clark_OE metabolic rift ocean crisis.pdf,literature,,,,,,Clausen_Clark_OE_metabolic_rift_ocean_cr,no
+docs/literature/Climate_hydrology_energy_water_recognizi.pdf,literature,,,,,,Climate_hydrology_energy_water_recognizi,no
+docs/literature/Coastal and marginal seas.pdf,literature,,,,,,Coastal_and_marginal_seas,no
+docs/literature/Coastal Sustainability Impact.pdf,literature,,,,,,Coastal_Sustainability_Impact,no
+docs/literature/Cocco 2010 Performing_Maritime_Imperial_Legacies_To.pdf,literature,,,,,,Cocco_2010_Performing_Maritime_Imperial_,no
+docs/literature/Cocco Theoretical_Implications_of_Maritime_Soc.pdf,literature,,,,,,Cocco_Theoretical_Implications_of_Mariti,no
+docs/literature/Collective_irrigation_the_state_and_soci.pdf,literature,,,,,,Collective_irrigation_the_state_and_soci,no
+docs/literature/Complexity_Chaos_and_Emergence.pdf,literature,,,,,,Complexity_Chaos_and_Emergence,no
+docs/literature/Conflicts_in_some_of_the_World_harbours.pdf,literature,,,,,,Conflicts_in_some_of_the_World_harbours,no
+docs/literature/Considering_the_Hydrologic_Cycle_Eighty.pdf,literature,,,,,,Considering_the_Hydrologic_Cycle_Eighty,no
+docs/literature/Constantino Villarroel Rios Maritime Sociology for Sustainable Science.pdf,literature,,,,,,Constantino_Villarroel_Rios_Maritime_Soc,no
+docs/literature/Consumer_scholarship_and_transdisciplina.pdf,literature,,,,,,Consumer_scholarship_and_transdisciplina,no
+docs/literature/Creating_impact_in_citizenship_education.pdf,literature,,,,,,Creating_impact_in_citizenship_education,no
+docs/literature/Croix Moving_metaphors_we_live_by_water_and_fl.pdf,literature,,,,,,Croix_Moving_metaphors_we_live_by_water_,no
+docs/literature/Cultural Heriatage Maritime Spatial Plnning Blue growth.pdf,literature,,,,,,Cultural_Heriatage_Maritime_Spatial_Plnn,no
+docs/literature/cultural studies of collaborative science and technology.pdf,literature,,,,,,cultural_studies_of_collaborative_scienc,no
+docs/literature/Deep image Ocean_241231_091047.txt,literature,,,,,,Deep_image_Ocean_241231_091047,yes
+docs/literature/Dekker 2023 Maritime_Culture_A_Sociological_Perspect.pdf,literature,,,,,,Dekker_2023_Maritime_Culture_A_Sociologi,no
+docs/literature/Delft wyjazd_241017_170643.txt,literature,,,,,,Delft_wyjazd_241017_170643,yes
+docs/literature/Developing a Collaborative Agenda Humanities and Social Scientific Research on Laboratory Animal Science and Welfare.pdf,literature,,,,,,Developing_a_Collaborative_Agenda_Humani,no
+docs/literature/Developing the Blue Economy.pdf,literature,,,,,,Developing_the_Blue_Economy,no
+docs/literature/div-class-title-rivers-oceans-and-spirits-water-cosmologies-gender-and-religious-ch.pdf,literature,,,,,,div_class_title_rivers_oceans_and_spirit,no
+docs/literature/div-class-title-seas-oceans-and-cosmologies-in-southeast-asia-div.pdf,literature,,,,,,div_class_title_seas_oceans_and_cosmolog,no
+docs/literature/Do hab_250403_204509.txt,literature,,,,,,Do_hab_250403_204509,yes
+docs/literature/drive-download-20260109T083132Z-1-001.zip,literature,,,,,,drive_download_20260109T083132Z_1_001,no
+docs/literature/drive-download-20260109T083255Z-1-001.zip,literature,,,,,,drive_download_20260109T083255Z_1_001,no
+docs/literature/Ducruet_RETE_multidisciplinary.pdf,literature,,,,,,Ducruet_RETE_multidisciplinary,no
+docs/literature/Early Foundations of Maritime Sociology (Pre-1981) (1).docx,literature,,,,,,Early_Foundations_of_Maritime_Sociology_,yes
+docs/literature/Early Foundations of Maritime Sociology (Pre-1981) (1).pdf,literature,,,,,,Early_Foundations_of_Maritime_Sociology_,no
+docs/literature/Early Foundations of Maritime Sociology (Pre-1981).docx,literature,,,,,,Early_Foundations_of_Maritime_Sociology_,yes
+docs/literature/Earth stewardship water resilience antropocene.pdf,literature,,,,,,Earth_stewardship_water_resilience_antro,no
+docs/literature/Eastern Mediterranean Port Cities-Springer International Publishing (2019).pdf,literature,,,,,,Eastern_Mediterranean_Port_Cities_Spring,no
+docs/literature/Eating the Ocean.pdf,literature,,,,,,Eating_the_Ocean,no
+docs/literature/Eau_Canada_The_Future_of_Canadas_Water_e.pdf,literature,,,,,,Eau_Canada_The_Future_of_Canadas_Water_e,no
+docs/literature/Ecological_and_economic_analysis_of_natu.pdf,literature,,,,,,Ecological_and_economic_analysis_of_natu,no
+docs/literature/Eikeset What is blue growth semantics of sustainability.pdf,literature,,,,,,Eikeset_What_is_blue_growth_semantics_of,no
+docs/literature/Emilio Cocco People of the Sea.pdf,literature,,,,,,Emilio_Cocco_People_of_the_Sea,no
+docs/literature/Emilio Cocco The_fate_of_marginalized_maritime_commun.pdf,literature,,,,,,Emilio_Cocco_The_fate_of_marginalized_ma,no
+docs/literature/Emilio Cocco Theoretical_Implications_of_Maritim.pdf,literature,,,,,,Emilio_Cocco_Theoretical_Implications_of,no
+docs/literature/Emilio_Cocco_Borders_In_The_Ocean_Identi.pdf,literature,,,,,,Emilio_Cocco_Borders_In_The_Ocean_Identi,no
+docs/literature/Emilo Cocco Looking_for_a_Relationship_with_the_Sea.pdf,literature,,,,,,Emilo_Cocco_Looking_for_a_Relationship_w,no
+docs/literature/Emiloo Cocco Performing_Maritime_Imperial_Legacies_To.pdf,literature,,,,,,Emiloo_Cocco_Performing_Maritime_Imperia,no
+docs/literature/Emma McKinley 2020 Marine_social_sciences_Looking_towards_a_sustainab.pdf,literature,,,,,,Emma_McKinley_2020_Marine_social_science,no
+docs/literature/Enclosing the sea remaking work and leisure spaces waterfront.pdf,literature,,,,,,Enclosing_the_sea_remaking_work_and_leis,no
+docs/literature/Energy_systems_in_the_context_of_sustainable_development.pdf,literature,,,,,,Energy_systems_in_the_context_of_sustain,no
+docs/literature/Entretenir_la_memoire_des_inondations_vi.pdf,literature,,,,,,Entretenir_la_memoire_des_inondations_vi,no
+docs/literature/Environmental flows in rio grande.pdf,literature,,,,,,Environmental_flows_in_rio_grande,no
+docs/literature/Epeli Hau'ofa Ocean in Us Culture and Sustainability in the Pacific.pdf,literature,,,,,,Epeli_Hau_ofa_Ocean_in_Us_Culture_and_Su,no
+docs/literature/Ertor2021-We are the oceans we are the people fisherpeoplesstrugglesforbluejustice.pdf,literature,,,,,,Ertor2021_We_are_the_oceans_we_are_the_p,no
+docs/literature/ESA_2021_CFP_Barcelona.pdf,literature,,,,,,ESA_2021_CFP_Barcelona,no
+docs/literature/EU maritime career paths in maritime industry.pdf,literature,,,,,,EU_maritime_career_paths_in_maritime_ind,no
+docs/literature/Evers 2017 The Pluralistic Water Research Concept New HumanWater System (1).pdf,literature,,,,,,Evers_2017_The_Pluralistic_Water_Researc,no
+docs/literature/Expected impact of climate change on the ocean economy.pdf,literature,,,,,,Expected_impact_of_climate_change_on_the,no
+docs/literature/Felicity Picken Tourism and blue economy 2023.pdf,literature,,,,,,Felicity_Picken_Tourism_and_blue_economy,no
+docs/literature/Feminist_posthumanities_in_the_anthropoc.pdf,literature,,,,,,Feminist_posthumanities_in_the_anthropoc,no
+docs/literature/Feng Interactions Between Sociology as A Discipline and Maritime Industries.pdf,literature,,,,,,Feng_Interactions_Between_Sociology_as_A,no
+docs/literature/Feng Ocean Soiology China 2024.pdf,literature,,,,,,Feng_Ocean_Soiology_China_2024,no
+docs/literature/Fifty_years_of_Water_Resources_Research.pdf,literature,,,,,,Fifty_years_of_Water_Resources_Research,no
+docs/literature/Final_Indigenous-Knowledge_BP.pdf,literature,,,,,,Final_Indigenous_Knowledge_BP,no
+docs/literature/flaminio-et-al-2022-waterscapes-and-hydrosocial-territories-thinking-space-in-political-ecologies-of-water (1).pdf,literature,,,,,,flaminio_et_al_2022_waterscapes_and_hydr,no
+docs/literature/flaminio-et-al-2022-waterscapes-and-hydrosocial-territories-thinking-space-in-political-ecologies-of-water.pdf,literature,,,,,,flaminio_et_al_2022_waterscapes_and_hydr,no
+docs/literature/Fluid India Hydrosociality.pdf,literature,,,,,,Fluid_India_Hydrosociality,no
+docs/literature/fmars-10-1210133.pdf,literature,,,,,,fmars_10_1210133,no
+docs/literature/Four_Problems_Four_Directions_for_Enviro.pdf,literature,,,,,,Four_Problems_Four_Directions_for_Enviro,no
+docs/literature/Free flow of waters.pdf,literature,,,,,,Free_flow_of_waters,no
+docs/literature/From_Disciplinarity_to_Postdisciplinarit.pdf,literature,,,,,,From_Disciplinarity_to_Postdisciplinarit,no
+docs/literature/Geographiesandcounter-geographiesofglobalcirculationinportcitiesthecaseofPiraeus.pdf,literature,,,,,,Geographiesandcounter_geographiesofgloba,no
+docs/literature/Gert Oostindie Colonialism and Slavery Port City of Rotterdam.pdf,literature,,,,,,Gert_Oostindie_Colonialism_and_Slavery_P,no
+docs/literature/Globalizaton and Naval Operations and Maritime Alliances.pdf,literature,,,,,,Globalizaton_and_Naval_Operations_and_Ma,no
+docs/literature/Gomez sea gentrification Zadar 2024.txt,literature,,,,,,Gomez_sea_gentrification_Zadar_2024,yes
+docs/literature/Goncalves_Pinho_2022.pdf,literature,,,,,,Goncalves_Pinho_2022,no
+docs/literature/Grasmeier Kolodziej MaritimeSpacesandSociety_PreliminaryMaterial.pdf,literature,,,,,,Grasmeier_Kolodziej_MaritimeSpacesandSoc,no
+docs/literature/Green out blue in Social Conflict Oceans.pdf,literature,,,,,,Green_out_blue_in_Social_Conflict_Oceans,no
+docs/literature/Hab - okazuje_241013_210006.txt,literature,,,,,,Hab___okazuje_241013_210006,yes
+docs/literature/Hab Hein Culture port cities mindset_250108_081453.txt,literature,,,,,,Hab_Hein_Culture_port_cities_mindset_250,yes
+docs/literature/Hadjimichael 2018 blue degrowth in fishery policy.pdf,literature,,,,,,Hadjimichael_2018_blue_degrowth_in_fishe,no
+docs/literature/Hanbook on Ocean Plans Sustainability.pdf,literature,,,,,,Hanbook_on_Ocean_Plans_Sustainability,no
+docs/literature/Handbook_European_Blue_Schools_2022_EMSA Portugal 2022.pdf,literature,,,,,,Handbook_European_Blue_Schools_2022_EMSA,no
+docs/literature/HESS_Opinions.pdf,literature,,,,,,HESS_Opinions,no
+docs/literature/HESS_Opinions_Climate_hydrology_energy_w.pdf,literature,,,,,,HESS_Opinions_Climate_hydrology_energy_w,no
+docs/literature/Hey 2021 Antropocenr Five Frontier Spacr.pdf,literature,,,,,,Hey_2021_Antropocenr_Five_Frontier_Spacr,no
+docs/literature/HOHR_1P_OE.pdf,literature,,,,,,HOHR_1P_OE,no
+docs/literature/Holm New challenges for the Human Oceans Past agenda.pdf,literature,,,,,,Holm_New_challenges_for_the_Human_Oceans,no
+docs/literature/Holman Shifting_seas_understanding_deep-time_human_impact.pdf,literature,,,,,,Holman_Shifting_seas_understanding_deep_,no
+docs/literature/Hoover et al Social Science Collaboration with Enviro Health.pdf,literature,,,,,,Hoover_et_al_Social_Science_Collaboratio,no
+docs/literature/How_interdisciplinarity_helps_knowledge.pdf,literature,,,,,,How_interdisciplinarity_helps_knowledge,no
+docs/literature/Hughes_Vadrot_Introduction_2023 Gobal negotiations.pdf,literature,,,,,,Hughes_Vadrot_Introduction_2023_Gobal_ne,no
+docs/literature/Hull_s_fishing_heritage_and_the_clashing_mindsets_of_21st_century_port_city_identity.pdf,literature,,,,,,Hull_s_fishing_heritage_and_the_clashing,no
+docs/literature/Hustle and Bustle Book Hein Kowalewski Bartłomiejski.pdf,literature,,,,,,Hustle_and_Bustle_Book_Hein_Kowalewski_B,no
+docs/literature/Hydroecology_and_ecohydrology_past_prese.pdf,literature,,,,,,Hydroecology_and_ecohydrology_past_prese,no
+docs/literature/Hydrology_and_limnology_another_boundary.pdf,literature,,,,,,Hydrology_and_limnology_another_boundary,no
+docs/literature/Hydrology_The_interdisciplinary_science.pdf,literature,,,,,,Hydrology_The_interdisciplinary_science,no
+docs/literature/Hydrology_Water_covers_70_of_the.docx,literature,,,,,,Hydrology_Water_covers_70_of_the,yes
+docs/literature/Hydrosociology bibliometric.pdf,literature,,,,,,Hydrosociology_bibliometric,no
+docs/literature/i_HESS_Opinions_i_Climate_hydrology_ene.pdf,literature,,,,,,i_HESS_Opinions_i_Climate_hydrology_ene,no
+docs/literature/Identifying significant for spatial planning RS_PlyMSEA.pdf,literature,,,,,,Identifying_significant_for_spatial_plan,no
+docs/literature/Identifying20significant20for20spatial%20planning_RS_PlyMSEA.pdf,literature,,,,,,Identifying20significant20for20spatial_2,no
+docs/literature/Imagining the Anthropocene with the Wadden Sea.pdf,literature,,,,,,Imagining_the_Anthropocene_with_the_Wadd,no
+docs/literature/Indiginous Holders of Knowledge Traition Sustainable Ocean Plan.pdf,literature,,,,,,Indiginous_Holders_of_Knowledge_Traition,no
+docs/literature/Innovatinganewknowledgebaseforwaterjusticestudies-hydrosocialsociohydrologyandbeyond.pdf,literature,,,,,,Innovatinganewknowledgebaseforwaterjusti,no
+docs/literature/Innovatinganewknowledgebaseforwaterjusticestudies-hydrosocialsociohydrologyandbeyond.prn,literature,,,,,,Innovatinganewknowledgebaseforwaterjusti,no
+docs/literature/Integratog Culturl Heritage to Maritime Spatial Plannning.pdf,literature,,,,,,Integratog_Culturl_Heritage_to_Maritime_,no
+docs/literature/International_Collaborations_and_Incorpo.pdf,literature,,,,,,International_Collaborations_and_Incorpo,no
+docs/literature/Introduction to maritime sociology Janiszewski Poole.docx.pdf,literature,,,,,,Introduction_to_maritime_sociology_Janis,no
+docs/literature/Iscot_240905_142040.txt,literature,,,,,,Iscot_240905_142040,yes
+docs/literature/izdebska-kozlowska-2022-the-cultural-landscape-and-maritime-identity-of-szczecin-the-past-and-present-of-a-port-city.pdf,literature,,,,,,izdebska_kozlowska_2022_the_cultural_lan,no
+docs/literature/Jaffe Social and Natural Science Reserch Strategies.pdf,literature,,,,,,Jaffe_Social_and_Natural_Science_Reserch,no
+docs/literature/Jaffe Social and Natural Sciences Differ in Their Research Strategies.pdf,literature,,,,,,Jaffe_Social_and_Natural_Sciences_Differ,no
+docs/literature/Janiszewski 1989 Marynizacja jako kategoria teoretyczna.pdf,literature,,,,,,Janiszewski_1989_Marynizacja_jako_katego,no
+docs/literature/Janiszewski CORE2.txt,literature,,,,,,Janiszewski_CORE2,yes
+docs/literature/JANISZEWSKI meet ONE BLUE OCEAN ECONOMY - NotebookLM.pdf,literature,,,,,,JANISZEWSKI_meet_ONE_BLUE_OCEAN_ECONOMY_,no
+docs/literature/Jeffrey C. Alexander - The Meanings of Social Life_ A Cultural Sociology-Oxford University Press (2003).pdf,literature,,,,,,Jeffrey_C__Alexander___The_Meanings_of_S,no
+"docs/literature/Jeffrey Jerome Cohen, Lowell Duckert - Elemental Ecocriticism_ Thinking with Earth, Air, Water, and Fire-University of Minnesota Press (2015).pdf",literature,,,,,,Jeffrey_Jerome_Cohen__Lowell_Duckert___E,no
+docs/literature/John Hannigan Environmental Sociology 2022.pdf,literature,,,,,,John_Hannigan_Environmental_Sociology_20,no
+docs/literature/John Hannigan Towards sociology of oceans.pdf,literature,,,,,,John_Hannigan_Towards_sociology_of_ocean,no
+docs/literature/John Law Monsters machines and sociotechnical.pdf,literature,,,,,,John_Law_Monsters_machines_and_sociotech,no
+docs/literature/John Law monsters machines sociotechnic ANT.pdf,literature,,,,,,John_Law_monsters_machines_sociotechnic_,no
+docs/literature/John Law vessel route to India.pdf,literature,,,,,,John_Law_vessel_route_to_India,no
+docs/literature/Journal of Agrarian Change - 2025 - Barbesgaard - The Class Dynamics of Ocean Grabbing  Who Are the  Fisher Peoples.pdf,literature,,,,,,Journal_of_Agrarian_Change___2025___Barb,no
+"docs/literature/Jules David Law - The Social Life of Fluids_ Blood, Milk, and Water in the Victorian Novel-Cornell University Press (2018).pdf",literature,,,,,,Jules_David_Law___The_Social_Life_of_Flu,no
+docs/literature/Kelly Evans Connecting to the oceans sustainable use ocean literacy 2022.pdf,literature,,,,,,Kelly_Evans_Connecting_to_the_oceans_sus,no
+docs/literature/Kelly Ocean Literacy for Ocean Sustainability.pdf,literature,,,,,,Kelly_Ocean_Literacy_for_Ocean_Sustainab,no
+docs/literature/Kim 2004 Blue ocean strategy.doc,literature,,,,,,Kim_2004_Blue_ocean_strategy,yes
+docs/literature/Kirby Competence Perception of Natural and Social Science.pdf,literature,,,,,,Kirby_Competence_Perception_of_Natural_a,no
+docs/literature/KNIERBEIN_2011_Urban_Culture_A_Plea_for.pdf,literature,,,,,,KNIERBEIN_2011_Urban_Culture_A_Plea_for,no
+docs/literature/Kolodziej Bryniewicz Stasieniuk The Origins of Maritime Sociology.pdf,literature,,,,,,Kolodziej_Bryniewicz_Stasieniuk_The_Orig,no
+docs/literature/Kolodziej Durnas Maritime sociology Review.pdf,literature,,,,,,Kolodziej_Durnas_Maritime_sociology_Revi,no
+docs/literature/Kolodziej Kolodziej Maritime Sociology in Making.pdf,literature,,,,,,Kolodziej_Kolodziej_Maritime_Sociology_i,no
+docs/literature/Kolodziej_Durnas_Agnieszka_Sowa_Frank_Gr.pdf,literature,,,,,,Kolodziej_Durnas_Agnieszka_Sowa_Frank_Gr,no
+docs/literature/Konflikty_interesow_w_relacjach_czlowiek_-_srodowisko.pdf,literature,,,,,,Konflikty_interesow_w_relacjach_czlowiek,no
+docs/literature/Kopia Marine Maritime Sociology 09_01_2026.docx,literature,,,,,,Kopia_Marine_Maritime_Sociology_09_01_20,yes
+docs/literature/Kołodziej 2015 Zarys koncepcji marynizacji.pdf,literature,,,,,,Kołodziej_2015_Zarys_koncepcji_marynizac,no
+docs/literature/Kołodziej Kołodziej Maritime sociology in making.pdf,literature,,,,,,Kołodziej_Kołodziej_Maritime_sociology_i,no
+docs/literature/Kołodziej Maritime socology 50 years.pdf,literature,,,,,,Kołodziej_Maritime_socology_50_years,no
+docs/literature/Kołodziej Thinking maritime sociology ISMS v1.pdf,literature,,,,,,Kołodziej_Thinking_maritime_sociology_IS,no
+docs/literature/Kołodziej To understand maritime sociology Janiszewski.pdf,literature,,,,,,Kołodziej_To_understand_maritime_sociolo,no
+docs/literature/L_eau_et_les_Eaux.pdf,literature,,,,,,L_eau_et_les_Eaux,no
+docs/literature/Laura Winkiel Hydro-criticism.pdf,literature,,,,,,Laura_Winkiel_Hydro_criticism,no
+docs/literature/Laura Winkier Oceanic turn.pdf,literature,,,,,,Laura_Winkier_Oceanic_turn,no
+docs/literature/Lee Noh 2021 Blue economy and the total environment Mapping the interface.pdf,literature,,,,,,Lee_Noh_2021_Blue_economy_and_the_total_,no
+docs/literature/Les_barrages_qui_cachent_l_eau_loubli_de.pdf,literature,,,,,,Les_barrages_qui_cachent_l_eau_loubli_de,no
+docs/literature/Lets_Be_Nice_To_The_Ocean_V21-Spreads-1-1.pdf,literature,,,,,,Lets_Be_Nice_To_The_Ocean_V21_Spreads_1_,no
+docs/literature/Levin 2017 Interdisciplnary Science in support of nature and people.pdf,literature,,,,,,Levin_2017_Interdisciplnary_Science_in_s,no
+docs/literature/Liao 2019 atmosphere dimensional.pdf,literature,,,,,,Liao_2019_atmosphere_dimensional,no
+docs/literature/liao-schmidt-2023-hydrosocial-geographies-cycles-spaces-and-spheres-of-concern (1).pdf,literature,,,,,,liao_schmidt_2023_hydrosocial_geographie,no
+docs/literature/liao-schmidt-2023-hydrosocial-geographies-cycles-spaces-and-spheres-of-concern.pdf,literature,,,,,,liao_schmidt_2023_hydrosocial_geographie,no
+docs/literature/Like a bridge over troubled water--Opening pathways for integrating social sciences and humanities into nuclear research.pdf,literature,,,,,,Like_a_bridge_over_troubled_water__Openi,no
+docs/literature/Lillebo 2017 Marine ecosystem services blue growth agency.pdf,literature,,,,,,Lillebo_2017_Marine_ecosystem_services_b,no
+docs/literature/Limnology   Oceanography - January 1956 - REDFIELD - Announcement.pdf,literature,,,,,,Limnology___Oceanography___January_1956_,no
+docs/literature/Linton sociohydrology.pdf,literature,,,,,,Linton_sociohydrology,no
+docs/literature/Linton What_is_water_The_history_and_crisis_of.pdf,literature,,,,,,Linton_What_is_water_The_history_and_cri,no
+docs/literature/Linton-2019-Therighttobringwatersintobeing (1).pdf,literature,,,,,,Linton_2019_Therighttobringwatersintobei,no
+docs/literature/Linton-WHATISWATER-Proof09-09.pdf,literature,,,,,,Linton_WHATISWATER_Proof09_09,no
+docs/literature/Longo oceans of troubles.pdf,literature,,,,,,Longo_oceans_of_troubles,no
+docs/literature/Longo-OceanTroubles-2016.pdf,literature,,,,,,Longo_OceanTroubles_2016,no
+docs/literature/Lubchenco 2024 Correction_to_The_Blue Knowledge to Sustainable Ocean Econony.pdf,literature,,,,,,Lubchenco_2024_Correction_to_The_Blue_Kn,no
+docs/literature/Lubchenco The Expected Impacts of Climate Change on the Ocean Economy.pdf,literature,,,,,,Lubchenco_The_Expected_Impacts_of_Climat,no
+docs/literature/Mabon 2020 What natural and social scientists need from each other.pdf,literature,,,,,,Mabon_2020_What_natural_and_social_scien,no
+docs/literature/MABON 2020 What natural.pdf,literature,,,,,,MABON_2020_What_natural,no
+docs/literature/Madalaine Moore Water flows hydro social cycle.pdf,literature,,,,,,Madalaine_Moore_Water_flows_hydro_social,no
+docs/literature/Manifesto for the marine social sciences.pdf,literature,,,,,,Manifesto_for_the_marine_social_sciences,no
+docs/literature/Marine biodiversity loss in social wtaer managemen.pdf,literature,,,,,,Marine_biodiversity_loss_in_social_wtaer,no
+docs/literature/Marine economic activity in China trend 2025 Water.pdf,literature,,,,,,Marine_economic_activity_in_China_trend_,no
+docs/literature/Marine Socioal Sciences for the Ocean we want.pdf,literature,,,,,,Marine_Socioal_Sciences_for_the_Ocean_we,no
+docs/literature/maritime gossips at ship queer theory underline.pdf,literature,,,,,,maritime_gossips_at_ship_queer_theory_un,no
+docs/literature/Maritime Justice Socio Legal Perspectives on Order Making at Sea.pdf,literature,,,,,,Maritime_Justice_Socio_Legal_Perspective,no
+docs/literature/Maritime sociology Michael Poole.pdf,literature,,,,,,Maritime_sociology_Michael_Poole,no
+docs/literature/Maritime_Sociology_Cocco.pdf,literature,,,,,,Maritime_Sociology_Cocco,no
+docs/literature/Material ecocriticism narrativity.pdf,literature,,,,,,Material_ecocriticism_narrativity,no
+docs/literature/Materialnosc w morzu_241217_113623.txt,literature,,,,,,Materialnosc_w_morzu_241217_113623,yes
+docs/literature/Matthews 2023 Waves  Floods  Currents  The Politics and Poetics of Water in Social Movement Analysis.pdf,literature,,,,,,Matthews_2023_Waves__Floods__Currents__T,no
+docs/literature/Matthews 2023 Waves floods currents politics and poetics of water.xlsx,literature,,,,,,Matthews_2023_Waves_floods_currents_poli,yes
+docs/literature/Maurice Jensen Paul van der Laar note.txt,literature,,,,,,Maurice_Jensen_Paul_van_der_Laar_note,yes
+docs/literature/MC Budget plans WG3 _2.JPG,literature,,,,,,MC_Budget_plans_WG3__2,no
+docs/literature/MC Budget plans WG3 _3.JPG,literature,,,,,,MC_Budget_plans_WG3__3,no
+docs/literature/MC Budget plans WG3.JPG,literature,,,,,,MC_Budget_plans_WG3,no
+docs/literature/MC Budget plans.JPG,literature,,,,,,MC_Budget_plans,no
+docs/literature/McDonald 2025 Antropocene Climate Change and Security.pdf,literature,,,,,,McDonald_2025_Antropocene_Climate_Change,no
+docs/literature/McKinley Cvitanovic marine social science insights and development.pdf,literature,,,,,,McKinley_Cvitanovic_marine_social_scienc,no
+docs/literature/McKinley development and expanion in the marine social sciences future ingsight.pdf,literature,,,,,,McKinley_development_and_expanion_in_the,no
+docs/literature/McKinsley Antropocene Ocean.pdf,literature,,,,,,McKinsley_Antropocene_Ocean,no
+docs/literature/Mervyn_Hartwig_ed_Dictionary_of_Critica.docx,literature,,,,,,Mervyn_Hartwig_ed_Dictionary_of_Critica,yes
+docs/literature/Metamodernism_and_Social_Sciences_Scopin.pdf,literature,,,,,,Metamodernism_and_Social_Sciences_Scopin,no
+docs/literature/Mianowski 2023 Blind people sensory see the sea.pdf,literature,,,,,,Mianowski_2023_Blind_people_sensory_see_,no
+docs/literature/Michel Callon scallops and the fishermen.pdf,literature,,,,,,Michel_Callon_scallops_and_the_fishermen,no
+"docs/literature/Migrants and the Making of the Urban-Maritime World_ Agency and Mobility in Port Cities, c. 1570–1940-Routledge (2020).pdf",literature,,,,,,Migrants_and_the_Making_of_the_Urban_Mar,no
+docs/literature/Miller.1993.TheRiseofCoastalandMarineTourism.pdf,literature,,,,,,Miller_1993_TheRiseofCoastalandMarineTou,no
+docs/literature/Mobilizing_relational_ontology_Meeting_t.pdf,literature,,,,,,Mobilizing_relational_ontology_Meeting_t,no
+docs/literature/Molino 2020 Stakeholder defined sci needs for coastal resilience.pdf,literature,,,,,,Molino_2020_Stakeholder_defined_sci_need,no
+"docs/literature/More-than water, more-than-human2.pdf",literature,,,,,,More_than_water__more_than_human2,no
+docs/literature/NATIONAL_OPEN_UNIVERSITY_OF_NIGERIA_SCHO.pdf,literature,,,,,,NATIONAL_OPEN_UNIVERSITY_OF_NIGERIA_SCHO,no
+docs/literature/NDCs-Action-Plan.pdf,literature,,,,,,NDCs_Action_Plan,no
+docs/literature/New_Environmental_Controversies_Towards.pdf,literature,,,,,,New_Environmental_Controversies_Towards,no
+docs/literature/New_worlds_of_logistical_labour_Spaces_places_tech.pdf,literature,,,,,,New_worlds_of_logistical_labour_Spaces_p,no
+docs/literature/Niazi The_Tragedy_of_the_Commodity_Oceans_Fish.pdf,literature,,,,,,Niazi_The_Tragedy_of_the_Commodity_Ocean,no
+docs/literature/O interesach Pobierowo 09_01_2026.docx,literature,,,,,,O_interesach_Pobierowo_09_01_2026,yes
+docs/literature/OaS 2 - A Heuristic for Integrating Sense of Place Into Ocean Governance (1).pdf,literature,,,,,,OaS_2___A_Heuristic_for_Integrating_Sens,no
+docs/literature/OaS 2 - A Heuristic for Integrating Sense of Place Into Ocean Governance.pdf,literature,,,,,,OaS_2___A_Heuristic_for_Integrating_Sens,no
+docs/literature/OaS 2 - The Multifaceted Seafarer_ An Explorative Discourse Analysis of Seafarers' Portrayals in Swedish Maritime Magazines.pdf,literature,,,,,,OaS_2___The_Multifaceted_Seafarer__An_Ex,no
+docs/literature/Ocean activism  understanding political acts in extra-national terrain.pdf,literature,,,,,,Ocean_activism__understanding_political_,no
+docs/literature/Ocean Decade Manual for NGO.pdf,literature,,,,,,Ocean_Decade_Manual_for_NGO,no
+docs/literature/Ocean Finance for Ocean Economy.pdf,literature,,,,,,Ocean_Finance_for_Ocean_Economy,no
+docs/literature/Ocean Sustainability Blue Economy Pauksztat.pdf,literature,,,,,,Ocean_Sustainability_Blue_Economy_Pauksz,no
+docs/literature/Ocean-human_relations_in_the_A(1).pdf,literature,,,,,,Ocean_human_relations_in_the_A_1,no
+docs/literature/Ocean-human_relations_in_the_A.pdf,literature,,,,,,Ocean_human_relations_in_the_A,no
+docs/literature/Oceania - 2024 - Strang - Making Waves  The Role of Indigenous Water Beings in Debates about Human and Non‐Human Rights (1).pdf,literature,,,,,,Oceania___2024___Strang___Making_Waves__,no
+docs/literature/On capturing human agency and methodological interdisciplinarity in socio-hydrology research.pdf,literature,,,,,,On_capturing_human_agency_and_methodolog,no
+docs/literature/One Ocean Hub Code of Practice.pdf,literature,,,,,,One_Ocean_Hub_Code_of_Practice,no
+docs/literature/OneDrive_1_9.01.2026.zip,literature,,,,,,OneDrive_1_9_01_2026,no
+docs/literature/OneDrive_2_1-9-2026.zip,literature,,,,,,OneDrive_2_1_9_2026,no
+docs/literature/OneDrive_3_1-9-2026.zip,literature,,,,,,OneDrive_3_1_9_2026,no
+docs/literature/OneDrive_4_1-9-2026.zip,literature,,,,,,OneDrive_4_1_9_2026,no
+docs/literature/oosc-outcomes_from_sessions_and_town_halls.pdf,literature,,,,,,oosc_outcomes_from_sessions_and_town_hal,no
+docs/literature/OOSC_InfographicRecommendations_EN_DIGITAL.pdf,literature,,,,,,OOSC_InfographicRecommendations_EN_DIGIT,no
+docs/literature/OP_Blue_Paper_Future_Ocean_Workforce.pdf,literature,,,,,,OP_Blue_Paper_Future_Ocean_Workforce,no
+docs/literature/Oppermann BlueHumanities CoverPage.pdf,literature,,,,,,Oppermann_BlueHumanities_CoverPage,no
+docs/literature/OppermannandIovino-Introduction-EnvironmentalHumanities_PDF.pdf,literature,,,,,,OppermannandIovino_Introduction_Environm,no
+docs/literature/P17151806a00df0e0ad3e0b69bc15d6b19.docx,literature,,,,,,P17151806a00df0e0ad3e0b69bc15d6b19,yes
+docs/literature/Pandev Marine Sociology Sustainable Future.pdf,literature,,,,,,Pandev_Marine_Sociology_Sustainable_Futu,no
+docs/literature/Pattern_process_and_function_elements_of.pdf,literature,,,,,,Pattern_process_and_function_elements_of,no
+docs/literature/Pelke Ocean-human relations in the Anthropocene marine social science.pdf,literature,,,,,,Pelke_Ocean_human_relations_in_the_Anthr,no
+docs/literature/Perez 2023 Critica of Social Sciences in Marine Science.pdf,literature,,,,,,Perez_2023_Critica_of_Social_Sciences_in,no
+docs/literature/Perez 2023 Sociales en estudios.pdf,literature,,,,,,Perez_2023_Sociales_en_estudios,no
+docs/literature/Performatywność Literatury Marynistycznej Władysła (1).pdf,literature,,,,,,Performatywność_Literatury_Marynistyczne,no
+docs/literature/Perneky 2024 Postdisciplinarity_chapter_in_Elgar_Ency.pdf,literature,,,,,,Perneky_2024_Postdisciplinarity_chapter_,no
+docs/literature/Peters 2020 Territories of governance and marine biodiverse managment.pdf,literature,,,,,,Peters_2020_Territories_of_governance_an,no
+docs/literature/Philip E. Steinberg - The Social Construction of the Ocean-Cambridge University Press (2001).pdf,literature,,,,,,Philip_E__Steinberg___The_Social_Constru,no
+docs/literature/Philosophy_of_Communicology_Discourse_Wh.pdf,literature,,,,,,Philosophy_of_Communicology_Discourse_Wh,no
+docs/literature/Picken Oceans_Space_and_Society_Towards_a_Blue Sociology.pdf,literature,,,,,,Picken_Oceans_Space_and_Society_Towards_,no
+docs/literature/Picturing the coast perception of sea.pdf,literature,,,,,,Picturing_the_coast_perception_of_sea,no
+docs/literature/PIIS2589004222010070.pdf,literature,,,,,,PIIS2589004222010070,no
+docs/literature/PM105--Morska-wspolnota-kulturowa--Ozdzynski marynizacja.pdf,literature,,,,,,PM105__Morska_wspolnota_kulturowa__Ozdzy,no
+docs/literature/POMESA_2023 Marine Strategy Framework.pdf,literature,,,,,,POMESA_2023_Marine_Strategy_Framework,no
+docs/literature/POMESA_29_2023-03_social study Marine Strategy Framework.pdf,literature,,,,,,POMESA_29_2023_03_social_study_Marine_St,no
+docs/literature/Port Animal-Human Relation_241026_074847.txt,literature,,,,,,Port_Animal_Human_Relation_241026_074847,yes
+docs/literature/Port Sensory Research Fieldwork Protocol - Port Sensory Research Fieldwork Protocol.pdf,literature,,,,,,Port_Sensory_Research_Fieldwork_Protocol,no
+docs/literature/Portner 2022 The-Ocean-and-Cryosphere-in-a-Changing-Climate.pdf,literature,,,,,,Portner_2022_The_Ocean_and_Cryosphere_in,no
+docs/literature/Postdisciplinarity_chapter_in_Elgar_Ency.pdf,literature,,,,,,Postdisciplinarity_chapter_in_Elgar_Ency,no
+docs/literature/Proceedings_2nd_Tourism_Postdisciplinari.pdf,literature,,,,,,Proceedings_2nd_Tourism_Postdisciplinari,no
+docs/literature/PROFTI~1.PDF,literature,,,,,,PROFTI_1,no
+docs/literature/Projet_Rivieres_Vivantes_developper_un_i.pdf,literature,,,,,,Projet_Rivieres_Vivantes_developper_un_i,no
+docs/literature/Prolegomena_to_Arts_Transciplinarity.docx,literature,,,,,,Prolegomena_to_Arts_Transciplinarity,yes
+docs/literature/Prompt Ioanis and Cocco.txt,literature,,,,,,Prompt_Ioanis_and_Cocco,yes
+docs/literature/Przechwytywanie.JPG,literature,,,,,,Przechwytywanie,no
+docs/literature/Przechwytywanie2.JPG,literature,,,,,,Przechwytywanie2,no
+docs/literature/Przechwytywanie3.JPG,literature,,,,,,Przechwytywanie3,no
+docs/literature/Rachel Carson Challenging Author Karen Stein 2012.pdf,literature,,,,,,Rachel_Carson_Challenging_Author_Karen_S,no
+docs/literature/Rachel Carson The Sea Around Us 1962 (1).pdf,literature,,,,,,Rachel_Carson_The_Sea_Around_Us_1962__1,no
+docs/literature/Rachel Carson The Sea Around Us 1962.pdf,literature,,,,,,Rachel_Carson_The_Sea_Around_Us_1962,no
+docs/literature/Rachel_Carson_The_Sea_Trilogy (1).pdf,literature,,,,,,Rachel_Carson_The_Sea_Trilogy__1,no
+docs/literature/Rachel_Carson_The_Sea_Trilogy (2).pdf,literature,,,,,,Rachel_Carson_The_Sea_Trilogy__2,no
+docs/literature/Rbrt 2017 The Pluralistic Water Research Concept New HumanWater System.pdf,literature,,,,,,Rbrt_2017_The_Pluralistic_Water_Research,no
+docs/literature/Reconciling_hydrology_with_engineering.pdf,literature,,,,,,Reconciling_hydrology_with_engineering,no
+docs/literature/Research_methods_are_made_by_questioning.pdf,literature,,,,,,Research_methods_are_made_by_questioning,no
+docs/literature/Resolved_ Port Cities_ edited_27 June 2024 RBMK sent 22_50.docx,literature,,,,,,Resolved__Port_Cities__edited_27_June_20,yes
+docs/literature/RETE publication 23-11-22 new cover.pdf,literature,,,,,,RETE_publication_23_11_22_new_cover,no
+docs/literature/Rethinking_tourism_scholarship_beyond_di.pdf,literature,,,,,,Rethinking_tourism_scholarship_beyond_di,no
+docs/literature/role displacement seafaring families.pdf,literature,,,,,,role_displacement_seafaring_families,no
+docs/literature/Role of Water and Heritage in Sustainable Development.pdf,literature,,,,,,Role_of_Water_and_Heritage_in_Sustainabl,no
+docs/literature/Ronald Barthel Collaboration of sciences social natual.pdf,literature,,,,,,Ronald_Barthel_Collaboration_of_sciences,no
+docs/literature/Roy 2025 Socio_Hydrological Model Water Sustainable.pdf,literature,,,,,,Roy_2025_Socio_Hydrological_Model_Water_,no
+docs/literature/Roy 2026 The blue nexus unveiled ocean sustianability.pdf,literature,,,,,,Roy_2026_The_blue_nexus_unveiled_ocean_s,no
+docs/literature/RPP-Jan-4-1971-Sociological-Aspects-of-Water-Development.pdf,literature,,,,,,RPP_Jan_4_1971_Sociological_Aspects_of_W,no
+docs/literature/RTSA_1_2024_Cocco1.pdf,literature,,,,,,RTSA_1_2024_Cocco1,no
+docs/literature/Rusca 2025 Pluralising the materiality of water more lively agency hydro sociala assemblages (1).pdf,literature,,,,,,Rusca_2025_Pluralising_the_materiality_o,no
+docs/literature/s40888-023-00306-x.pdf,literature,,,,,,s40888_023_00306_x,no
+"docs/literature/Sara Ahmed - Queer Phenomenology_ Orientations, Objects, Others-Duke University Press (2006) (1).pdf",literature,,,,,,Sara_Ahmed___Queer_Phenomenology__Orient,no
+docs/literature/Satizabal 2020 Blue economy discourses and reconfig ocean spaces — kopia.pdf,literature,,,,,,Satizabal_2020_Blue_economy_discourses_a,no
+docs/literature/Satizabal 2020 Blue economy discourses and reconfig ocean spaces.pdf,literature,,,,,,Satizabal_2020_Blue_economy_discourses_a,no
+docs/literature/Scharenberg Ocean activim political acts.xlsx,literature,,,,,,Scharenberg_Ocean_activim_political_acts,yes
+docs/literature/Schmidt 2023 Hydrosocial.pdf,literature,,,,,,Schmidt_2023_Hydrosocial,no
+docs/literature/Sea Fever.pdf,literature,,,,,,Sea_Fever,no
+docs/literature/sea_power_the_history_and_geopolitics_of_the_worlds_oceans.pdf,literature,,,,,,sea_power_the_history_and_geopolitics_of,no
+docs/literature/sea_power_the_history_and_geopolitics_of_the_worlds_oceans_pdfdrive_.pdf,literature,,,,,,sea_power_the_history_and_geopolitics_of,no
+docs/literature/Seascape Littorial Concept.PDF,literature,,,,,,Seascape_Littorial_Concept,no
+docs/literature/Shaping_an_Image_of_Science_in_the_21st.pdf,literature,,,,,,Shaping_an_Image_of_Science_in_the_21st,no
+docs/literature/Sivapalan Savenije Sociohydrology 2012.pdf,literature,,,,,,Sivapalan_Savenije_Sociohydrology_2012,no
+docs/literature/Sivapalan_M_H_H_G_Savenije_G_Bloschl_201.pdf,literature,,,,,,Sivapalan_M_H_H_G_Savenije_G_Bloschl_201,no
+docs/literature/SocialSciencesinContemporaryMarineStudies_2023.pdf,literature,,,,,,SocialSciencesinContemporaryMarineStudie,no
+docs/literature/Socio-hydrology with hydrosocial theory  two sides of the same coin  (1).pdf,literature,,,,,,Socio_hydrology_with_hydrosocial_theory_,no
+docs/literature/Socio-hydrology with hydrosocial theory  two sides of the same coin .pdf,literature,,,,,,Socio_hydrology_with_hydrosocial_theory_,no
+docs/literature/Socio-oceanography an opportunity to integrate marine social and natural sciences.pdf,literature,,,,,,Socio_oceanography_an_opportunity_to_int,no
+docs/literature/Socio_hydrology_A_new_science_of_people.pdf,literature,,,,,,Socio_hydrology_A_new_science_of_people,no
+docs/literature/Socio_hydrology_and_hydrosocial_analysis.pdf,literature,,,,,,Socio_hydrology_and_hydrosocial_analysis,no
+docs/literature/Socjologia morska 1984 summary Poole Janiszewski.txt,literature,,,,,,Socjologia_morska_1984_summary_Poole_Jan,yes
+"docs/literature/Spadling The State of Marine Social Science Yesterday, Today, and into the Future.pdf",literature,,,,,,Spadling_The_State_of_Marine_Social_Scie,no
+docs/literature/State of Green DENMARK From biodiversity commitments to concrete action.pdf,literature,,,,,,State_of_Green_DENMARK_From_biodiversity,no
+docs/literature/Statement-of-Collaboration-UNOC-2025-DCCsDCOs.pdf,literature,,,,,,Statement_of_Collaboration_UNOC_2025_DCC,no
+docs/literature/Stavridis sea_power_the_history_and_geopolitics_of_the_worlds_oceans_pdfdrive_ (1).pdf,literature,,,,,,Stavridis_sea_power_the_history_and_geop,no
+docs/literature/Steinberg 2013 Of other seas  metaphors and materialities in maritime regions.pdf,literature,,,,,,Steinberg_2013_Of_other_seas__metaphors_,no
+docs/literature/Steinberg 2013Of other seas  metaphors and materialities in maritime regions.pdf,literature,,,,,,Steinberg_2013Of_other_seas__metaphors_a,no
+docs/literature/Steinberg Wet ontologies fluid spaces oceanic thinig Society.pdf,literature,,,,,,Steinberg_Wet_ontologies_fluid_spaces_oc,no
+"docs/literature/Steinberg, P. and Peters, K. (2015) Wet ontologies underline.pdf",literature,,,,,,Steinberg__P__and_Peters__K___2015__Wet_,no
+"docs/literature/Steinberg, P. and Peters, K. (2019) The ocean in excess  towards a more-than-wet ontology.pdf",literature,,,,,,Steinberg__P__and_Peters__K___2019__The_,no
+docs/literature/Steven Mentz The idea of OCEAN blue cultural studies 2009.pdf,literature,,,,,,Steven_Mentz_The_idea_of_OCEAN_blue_cult,no
+docs/literature/Stokolos 2006 Toward20a20Science20of20TD20Action20Research_Stokols.pdf,literature,,,,,,Stokolos_2006_Toward20a20Science20of20TD,no
+docs/literature/Sultana 2015 The-Human-Right-to-Water-Critiques-and-Condition-of-Possibility-2015.pdf,literature,,,,,,Sultana_2015_The_Human_Right_to_Water_Cr,no
+docs/literature/Sultana 2019 WaterPolitics.pdf,literature,,,,,,Sultana_2019_WaterPolitics,no
+docs/literature/Sultana the right to water prospects.pdf,literature,,,,,,Sultana_the_right_to_water_prospects,no
+docs/literature/Sultana WaterPolitics Governance right to the water justice.pdf,literature,,,,,,Sultana_WaterPolitics_Governance_right_t,no
+docs/literature/Sultana-The-Human-Right-to-Water-Critiques-and-Condition-of-Possibility-2015 (1).pdf,literature,,,,,,Sultana_The_Human_Right_to_Water_Critiqu,no
+docs/literature/Sultana-The-Human-Right-to-Water-Critiques-and-Condition-of-Possibility-2015.pdf,literature,,,,,,Sultana_The_Human_Right_to_Water_Critiqu,no
+docs/literature/Sultana-The-Right-to-Water-Prospects-and-Possibilities-2012 (1).pdf,literature,,,,,,Sultana_The_Right_to_Water_Prospects_and,no
+docs/literature/Sultana-The-Right-to-Water-Prospects-and-Possibilities-2012.pdf,literature,,,,,,Sultana_The_Right_to_Water_Prospects_and,no
+docs/literature/Susanne Urban 2025 The social perspectives of energy communities in EU policy and research.pdf,literature,,,,,,Susanne_Urban_2025_The_social_perspectiv,no
+docs/literature/sustainability-15-09722.pdf,literature,,,,,,sustainability_15_09722,no
+docs/literature/Sustainable Blue Economy Research END FRAME.pdf,literature,,,,,,Sustainable_Blue_Economy_Research_END_FR,no
+docs/literature/Sustainable Blue Economy Research EXPANDED SYNTESIS.pdf,literature,,,,,,Sustainable_Blue_Economy_Research_EXPAND,no
+docs/literature/Sustainable Blue Economy Research SCIVAL.pdf,literature,,,,,,Sustainable_Blue_Economy_Research_SCIVAL,no
+docs/literature/Sustainable Blue Economy Research SYNTHESIS FULL.pdf,literature,,,,,,Sustainable_Blue_Economy_Research_SYNTHE,no
+docs/literature/Sustainable Blue Economy Research THEORY FOUND SYSTEM ALL.pdf,literature,,,,,,Sustainable_Blue_Economy_Research_THEORY,no
+docs/literature/Sustainable Blue Economy Research Theory SciVal Ext1.pdf,literature,,,,,,Sustainable_Blue_Economy_Research_Theory,no
+docs/literature/Sustainable Blue Economy Research THEORY.pdf,literature,,,,,,Sustainable_Blue_Economy_Research_THEORY,no
+docs/literature/Sustainable Blue Economy Research Visiual Studio 12_02 SciVal.pdf,literature,,,,,,Sustainable_Blue_Economy_Research_Visiua,no
+docs/literature/sustainable port city.pdf,literature,,,,,,sustainable_port_city,no
+docs/literature/SustainableDevelopmentofPortCitiesfromthePerspectiveofTransitionManagement (1).pdf,literature,,,,,,SustainableDevelopmentofPortCitiesfromth,no
+docs/literature/Sutton Kemp Integrate Social Science and Design Community Problem Solving.pdf,literature,,,,,,Sutton_Kemp_Integrate_Social_Science_and,no
+docs/literature/Technonatures_Environments_technologies.pdf,literature,,,,,,Technonatures_Environments_technologies,no
+"docs/literature/thalion,+CPCL_Harteveld_FD.pdf",literature,,,,,,thalion__CPCL_Harteveld_FD,no
+docs/literature/The climate of literature a sea change 1998.pdf,literature,,,,,,The_climate_of_literature_a_sea_change_1,no
+docs/literature/the concept of marinisation of Ludwik Janiszewski.pdf,literature,,,,,,the_concept_of_marinisation_of_Ludwik_Ja,no
+docs/literature/the environemntal law of the sea Douglas Johnston.pdf,literature,,,,,,the_environemntal_law_of_the_sea_Douglas,no
+docs/literature/the eu blue economy report 2024-DOC_1.pdf,literature,,,,,,the_eu_blue_economy_report_2024_DOC_1,no
+docs/literature/The Ocean 100 Transnational corporation economy blue economy.pdf,literature,,,,,,The_Ocean_100_Transnational_corporation_,no
+docs/literature/The Role of Green Shipping Corridors in Making Sustainable Port‐City.pdf,literature,,,,,,The_Role_of_Green_Shipping_Corridors_in_,no
+docs/literature/The urban hydrosocial cycle why should engineers care.pdf,literature,,,,,,The_urban_hydrosocial_cycle_why_should_e,no
+docs/literature/the-posthuman-in-the-anthropocene-a-look-through-the-aesthetic-field.pdf,literature,,,,,,the_posthuman_in_the_anthropocene_a_look,no
+docs/literature/The_AAG_Review_of_Books_Land_of_Stranger.pdf,literature,,,,,,The_AAG_Review_of_Books_Land_of_Stranger,no
+docs/literature/The_Creative_Praxis_of_Philosophy_of_Com.pdf,literature,,,,,,The_Creative_Praxis_of_Philosophy_of_Com,no
+docs/literature/The_End_of_Objective_Leisure.pdf,literature,,,,,,The_End_of_Objective_Leisure,no
+docs/literature/The_hydrosocial_cycle.pdf,literature,,,,,,The_hydrosocial_cycle,no
+docs/literature/The_Ontological_Fallacy_of_the_Water_Fra.pdf,literature,,,,,,The_Ontological_Fallacy_of_the_Water_Fra,no
+docs/literature/The_Paradoxes_and_Possibilities_of_Urban.pdf,literature,,,,,,The_Paradoxes_and_Possibilities_of_Urban,no
+docs/literature/The_power_of_storytelling_in_social_medi.pdf,literature,,,,,,The_power_of_storytelling_in_social_medi,no
+docs/literature/Theatre as a tool for analysis and knowledge transfer Stage Data Performance.pdf,literature,,,,,,Theatre_as_a_tool_for_analysis_and_knowl,no
+"docs/literature/Theo Notteboom, Athanasios Pallis, Jean-Paul Rodrigue - Port Economics, Management and Policy-Routledge (2022).pdf.crdownload",literature,,,,,,Theo_Notteboom__Athanasios_Pallis__Jean_,no
+"docs/literature/Theodor Schwenk, Jacques-Yves Cousteau - Sensitive Chaos_ The Creation of Flowing Forms in Water and Air-Rudolf Steiner Press (2014).epub",literature,,,,,,Theodor_Schwenk__Jacques_Yves_Cousteau__,no
+docs/literature/Thompson_S_E_M_Sivapalan_C_J_Harman_V_Sr.pdf,literature,,,,,,Thompson_S_E_M_Sivapalan_C_J_Harman_V_Sr,no
+docs/literature/tidal waves the new coastal history.pdf,literature,,,,,,tidal_waves_the_new_coastal_history,no
+docs/literature/Tides of knowledge ocean-science-society-policy ecotone.pdf,literature,,,,,,Tides_of_knowledge_ocean_science_society,no
+docs/literature/Tommarchi Symbolic port city links.pdf,literature,,,,,,Tommarchi_Symbolic_port_city_links,no
+docs/literature/Touristification_European_Port_Cities.pdf,literature,,,,,,Touristification_European_Port_Cities,no
+docs/literature/Toward a Sociology of Water Reconstructing the Missing “Big Picture” of Social Water Research.pdf,literature,,,,,,Toward_a_Sociology_of_Water_Reconstructi,no
+docs/literature/Toward_an_integrative_theory_of_higher_e.pdf,literature,,,,,,Toward_an_integrative_theory_of_higher_e,no
+docs/literature/Towards water sociology Schmidt.pdf,literature,,,,,,Towards_water_sociology_Schmidt,no
+docs/literature/Towards_understanding_the_dynamic_behavi.pdf,literature,,,,,,Towards_understanding_the_dynamic_behavi,no
+docs/literature/Transdisciplinarity_from_Marginal_Spaces.pdf,literature,,,,,,Transdisciplinarity_from_Marginal_Spaces,no
+docs/literature/Transdisciplinary_Generalism_Naming_the.pdf,literature,,,,,,Transdisciplinary_Generalism_Naming_the,no
+docs/literature/Transdisciplinary_methodology_in_home_ec.pdf,literature,,,,,,Transdisciplinary_methodology_in_home_ec,no
+docs/literature/Transversity_Transdisciplinarity_in_High.pdf,literature,,,,,,Transversity_Transdisciplinarity_in_High,no
+docs/literature/Travelling_down_the_road_to_postdiscipli.pdf,literature,,,,,,Travelling_down_the_road_to_postdiscipli,no
+docs/literature/Treyer_etal_2025_Natures Sciences Societes.pdf,literature,,,,,,Treyer_etal_2025_Natures_Sciences_Societ,no
+docs/literature/UN AGR2024.pdf,literature,,,,,,UN_AGR2024,no
+docs/literature/UN COP30 State-Climate-2025-Update-COP30_en.pdf,literature,,,,,,UN_COP30_State_Climate_2025_Update_COP30,no
+docs/literature/UN energy-transition-report_2025.pdf,literature,,,,,,UN_energy_transition_report_2025,no
+docs/literature/UN Environment Programme AGR2024.pdf,literature,,,,,,UN_Environment_Programme_AGR2024,no
+docs/literature/UN What is Climate Change.pdf,literature,,,,,,UN_What_is_Climate_Change,no
+docs/literature/UN WMO_GADCU_2025-2029_Final.pdf,literature,,,,,,UN_WMO_GADCU_2025_2029_Final,no
+docs/literature/Underwater heritage Oceania.pdf,literature,,,,,,Underwater_heritage_Oceania,no
+docs/literature/University_of_Illinois_at_Urbana_Champai.pdf,literature,,,,,,University_of_Illinois_at_Urbana_Champai,no
+docs/literature/UNIZD Sociology at Sea Zadar.pdf,literature,,,,,,UNIZD_Sociology_at_Sea_Zadar,no
+docs/literature/UNOC 3 Ocean 2030 ONZ nss250052.pdf,literature,,,,,,UNOC_3_Ocean_2030_ONZ_nss250052,no
+docs/literature/Vadrot 2021 who owns marine bioiversiy humankind common heritage.pdf,literature,,,,,,Vadrot_2021_who_owns_marine_bioiversiy_h,no
+docs/literature/Vadrot 2022 Governing_a_Divided_Ocean_The_Transformative_Power.pdf,literature,,,,,,Vadrot_2022_Governing_a_Divided_Ocean_Th,no
+docs/literature/Vadrot 2024 Identifying_Major_Factors_for_Success_and_Failure_.pdf,literature,,,,,,Vadrot_2024_Identifying_Major_Factors_fo,no
+docs/literature/Vadrot 2025 Marine protected areas across knowledge systems.pdf,literature,,,,,,Vadrot_2025_Marine_protected_areas_acros,no
+docs/literature/Vadrot 2025 Rethink science policy interface for waste and pollution.pdf,literature,,,,,,Vadrot_2025_Rethink_science_policy_inter,no
+docs/literature/Vadrot et al 2022 Towards reflexive policy engaged ocean science for theUNdecade.pdf,literature,,,,,,Vadrot_et_al_2022_Towards_reflexive_poli,no
+docs/literature/Vadrot Rodriguez 2022 Digital_Multilateralism_in_Practice_Extending_Crit.pdf,literature,,,,,,Vadrot_Rodriguez_2022_Digital_Multilater,no
+docs/literature/Valences_of_Interdisciplinarity_Theory_P.pdf,literature,,,,,,Valences_of_Interdisciplinarity_Theory_P,no
+docs/literature/Vardot Wanneau 2024 The social science side of marine biodiversity monitoring.pdf,literature,,,,,,Vardot_Wanneau_2024_The_social_science_s,no
+docs/literature/Virginie Mamadouh_ Anne Wageningen_ Gioia Marini - Urban Europe_ port city hub city.pdf,literature,,,,,,Virginie_Mamadouh__Anne_Wageningen__Gioi,no
+docs/literature/VIS_thesis_DuncanI_2021.pdf,literature,,,,,,VIS_thesis_DuncanI_2021,no
+docs/literature/Water centric architectural design.pdf,literature,,,,,,Water_centric_architectural_design,no
+docs/literature/Water management values governance.pdf,literature,,,,,,Water_management_values_governance,no
+docs/literature/Water_ethics_on_a_human_dominated_planet.pdf,literature,,,,,,Water_ethics_on_a_human_dominated_planet,no
+docs/literature/WaterTradition Religion Metaphor Value Performance.pdf,literature,,,,,,WaterTradition_Religion_Metaphor_Value_P,no
+docs/literature/WG3 Meeting  - 2025_12_12 10_57 GMT - Notes by Gemini.docx,literature,,,,,,WG3_Meeting____2025_12_12_10_57_GMT___No,yes
+docs/literature/WG3_PACT_WG3_Sensory_Walk_Methodology_Slides_EN-UK rob.pptx,literature,,,,,,WG3_PACT_WG3_Sensory_Walk_Methodology_Sl,no
+docs/literature/WG_applications_export_05-01-2026 (1).xlsx,literature,,,,,,WG_applications_export_05_01_2026__1,yes
+docs/literature/What_are_Paradigms_for.pdf,literature,,,,,,What_are_Paradigms_for,no
+docs/literature/What_is_water_The_history_and_crisis_of.pdf,literature,,,,,,What_is_water_The_history_and_crisis_of,no
+docs/literature/Whither_Trans_Studies_On_Fields_Post_Dis.pdf,literature,,,,,,Whither_Trans_Studies_On_Fields_Post_Dis,no
+docs/literature/Whose_Ocean_Exploring_multidisciplinary_perspectiv.pdf,literature,,,,,,Whose_Ocean_Exploring_multidisciplinary_,no
+docs/literature/Workforce for Ocean Economy.pdf,literature,,,,,,Workforce_for_Ocean_Economy,no
+docs/literature/Wychowanie morskie i edukacja morska Kołodziej Kołodziej.pdf,literature,,,,,,Wychowanie_morskie_i_edukacja_morska_Koł,no
+docs/literature/Wyrzucone przez morze_250521_002507.txt,literature,,,,,,Wyrzucone_przez_morze_250521_002507,yes
+docs/literature/Yang Compass on the Ocean Chinese Maritime Theoy 2024.pdf,literature,,,,,,Yang_Compass_on_the_Ocean_Chinese_Mariti,no
+docs/literature/Źródło naukowe nr 2 Kołodziej-Durnaś Kołodziej 2024 Fifthy years of maritime sociology in PL.pdf,literature,,,,,,Źródło_naukowe_nr_2_Kołodziej_Durnaś_Koł,no
+docs/literature/źródło nr 5 osiągnięcie Rethinking Blue Eco Social Science for Sustainabilitty.pdf,literature,,,,,,źródło_nr_5_osiągnięcie_Rethinking_Blue_,no
+docs/literature/Źródło wpływu nr 4 port cities env conflict Bartłomiejski.pdf,literature,,,,,,Źródło_wpływu_nr_4_port_cities_env_confl,no
+docs/policy/1._sea_of_experience_cinea-emff_blue_skills_workshop_case_study (1).pdf,policy,,,,,,1__sea_of_experience_cinea_emff_blue_ski,no
+docs/policy/20250701_emodnethumanactivities_q22025.pdf,policy,,,,,,20250701_emodnethumanactivities_q22025,no
+docs/policy/2035-KJNA27376ENN.pdf,policy,,,,,,2035_KJNA27376ENN,no
+docs/policy/a decade of maritime spatial planning-HZ0125040ENN (1).pdf,policy,,,,,,a_decade_of_maritime_spatial_planning_HZ,no
+docs/policy/Accepted_Manuscript_SDG_IJSHE_repository2.pdf,policy,,,,,,Accepted_Manuscript_SDG_IJSHE_repository,no
+docs/policy/all aboard for better marine stewardship through research-ZZ0417762ENN.pdf,policy,,,,,,all_aboard_for_better_marine_stewardship,no
+docs/policy/analysis of blue growth needs and potential per country-KL0115028ENN.pdf,policy,,,,,,analysis_of_blue_growth_needs_and_potent,no
+docs/policy/analysis of blue growth needs and potential per country-KL0115029ENN.pdf,policy,,,,,,analysis_of_blue_growth_needs_and_potent,no
+docs/policy/analysis to support the elaboration of the adriatic-KL0115031ENN.pdf,policy,,,,,,analysis_to_support_the_elaboration_of_t,no
+docs/policy/analysis to support the elaboration of the adriatic-KL0115032ENN.pdf,policy,,,,,,analysis_to_support_the_elaboration_of_t,no
+docs/policy/assessment of sea-floor integrity under the eu marine-KJ0125340ENN.pdf,policy,,,,,,assessment_of_sea_floor_integrity_under_,no
+docs/policy/assessment of the impact of business development improvements-KL0417353ENN.pdf,policy,,,,,,assessment_of_the_impact_of_business_dev,no
+docs/policy/assessment of the relevance and effect of the maritime-HZ0722809ENN.pdf,policy,,,,,,assessment_of_the_relevance_and_effect_o,no
+docs/policy/baseline study for the implementation of the lighthouse-KI0322250ENN.pdf,policy,,,,,,baseline_study_for_the_implementation_of,no
+docs/policy/biosams for the eu member states-KJNA29235ENN.pdf,policy,,,,,,biosams_for_the_eu_member_states_KJNA292,no
+docs/policy/blue bioeconomy forum newsletter 06 july 2018-KLAS18001ENN.pdf,policy,,,,,,blue_bioeconomy_forum_newsletter_06_july,no
+docs/policy/blue bioeconomy forum-EA0219920ENN.pdf,policy,,,,,,blue_bioeconomy_forum_EA0219920ENN,no
+docs/policy/blue bioeconomy report-KL0422267ENN.pdf,policy,,,,,,blue_bioeconomy_report_KL0422267ENN,no
+docs/policy/blue economy in the eu-EA0217518ENN.pdf,policy,,,,,,blue_economy_in_the_eu_EA0217518ENN,no
+docs/policy/Blue economy skills survey.pdf,policy,,,,,,Blue_economy_skills_survey,no
+docs/policy/Blue Economy_ Social Soul Revival Blue Skills Diplomat.docx,policy,,,,,,Blue_Economy__Social_Soul_Revival_Blue_S,yes
+docs/policy/blue growth and smart specialisation-KJNA28696ENN.pdf,policy,,,,,,blue_growth_and_smart_specialisation_KJN,no
+docs/policy/blue growth Eu policy.pdf,policy,,,,,,blue_growth_Eu_policy,no
+docs/policy/Blue Occupation Boatbuilder.txt,policy,,,,,,Blue_Occupation_Boatbuilder,yes
+docs/policy/Blue Occupation Boutyard manager.txt,policy,,,,,,Blue_Occupation_Boutyard_manager,yes
+docs/policy/Blue Occupation Charter Fleeet Manager.txt,policy,,,,,,Blue_Occupation_Charter_Fleeet_Manager,yes
+docs/policy/Blue Occupation Crew Manager.txt,policy,,,,,,Blue_Occupation_Crew_Manager,yes
+docs/policy/Blue Occupation Insurance broker.txt,policy,,,,,,Blue_Occupation_Insurance_broker,yes
+docs/policy/Blue Occupation Sailmaker.txt,policy,,,,,,Blue_Occupation_Sailmaker,yes
+docs/policy/blue_skills_workshop_report.pdf,policy,,,,,,blue_skills_workshop_report,no
+docs/policy/Blue_Sociology_Framework_Complete.md,policy,,,,,,Blue_Sociology_Framework_Complete,yes
+docs/policy/bluecomp the competence framework to navigate the-HZ0125119ENN (1) blue competence.pdf,policy,,,,,,bluecomp_the_competence_framework_to_nav,no
+docs/policy/bluecomp the competence framework to navigate the-HZ0125119ENN.pdf,policy,,,,,,bluecomp_the_competence_framework_to_nav,no
+docs/policy/BlueLightS-D2.2-September2025-blue education framework.pdf,policy,,,,,,BlueLightS_D2_2_September2025_blue_educa,no
+docs/policy/BlueLightS_WP3_D3.1_to_resubmit.pdf,policy,,,,,,BlueLightS_WP3_D3_1_to_resubmit,no
+docs/policy/Boriello 2025 Remuneration and attractiveness of EU blue economy sectors JRC.pdf,policy,,,,,,Boriello_2025_Remuneration_and_attractiv,no
+docs/policy/bridging education and business in the blue economy-KL0218464ENN.pdf,policy,,,,,,bridging_education_and_business_in_the_b,no
+docs/policy/Commission_presents_guide_for_a_fair_transition_towards_climate_neutrality.pdf,policy,,,,,,Commission_presents_guide_for_a_fair_tra,no
+docs/policy/Communication_30June_v2 fairness competitiveness resilience agenda.pdf,policy,,,,,,Communication_30June_v2_fairness_competi,no
+docs/policy/Communication_Skills_Agenda fairness  resilience competitiveness.pdf,policy,,,,,,Communication_Skills_Agenda_fairness__re,no
+docs/policy/community-led local development and the blue economy-KL0422264ENN.pdf,policy,,,,,,community_led_local_development_and_the_,no
+docs/policy/D19_D5.3-Final-MOOC-for-teachers_M26.pdf,policy,,,,,,D19_D5_3_Final_MOOC_for_teachers_M26,no
+docs/policy/D23_D6.4-Mentoring-Handbook_M28.pdf,policy,,,,,,D23_D6_4_Mentoring_Handbook_M28,no
+docs/policy/developing blue economy through better methodology-QG0616013ENN.pdf,policy,,,,,,developing_blue_economy_through_better_m,no
+docs/policy/ec ocean observation-KL0921353ENN.pdf,policy,,,,,,ec_ocean_observation_KL0921353ENN,no
+docs/policy/eca sustainability report 2021-QJ0922552ENN.pdf,policy,,,,,,eca_sustainability_report_2021_QJ0922552,no
+docs/policy/El-Enfoque-de-la-Agenda-2030-en-planes-y-programas-pblicos-Una-propuesta-metodolgica-de-implementacin-centrada-en-la-Gestin-por-Resultados-para-el-Desarrollo.pdf,policy,,,,,,El_Enfoque_de_la_Agenda_2030_en_planes_y,no
+docs/policy/EMFAF-2022 blue skills.pdf,policy,,,,,,EMFAF_2022_blue_skills,no
+docs/policy/emodnet_ngo_workshop_report_0.pdf,policy,,,,,,emodnet_ngo_workshop_report_0,no
+docs/policy/EMODnetPortsMarinasBoating_FinalForWeb.pdf,policy,,,,,,EMODnetPortsMarinasBoating_FinalForWeb,no
+docs/policy/Emotional currents that shape our collectives.pdf,policy,,,,,,Emotional_currents_that_shape_our_collec,no
+docs/policy/enabling maritime spatial planning-HZ0125156ENN (1).pdf,policy,,,,,,enabling_maritime_spatial_planning_HZ012,no
+docs/policy/energy sectors and the implementation of the maritime-3d44c21d-94d1-11e5-983e-01aa75ed71a1.0001.pdf,policy,,,,,,energy_sectors_and_the_implementation_of,no
+docs/policy/environmental potential of the collaborative economy-KH0218319ENN.pdf,policy,,,,,,environmental_potential_of_the_collabora,no
+docs/policy/EU Blue Economy  for Sustainable Future COM_2021 new approach.pdf,policy,,,,,,EU_Blue_Economy__for_Sustainable_Future_,no
+docs/policy/EU Blue Economy Sectors - EU Blue Economy Observatory - European Commission.pdf,policy,,,,,,EU_Blue_Economy_Sectors___EU_Blue_Econom,no
+docs/policy/eu missions assessment report-KI0423782ENN restore ocean and waters.pdf,policy,,,,,,eu_missions_assessment_report_KI0423782E,no
+docs/policy/eu missions-KI0524046ENN.pdf,policy,,,,,,eu_missions_KI0524046ENN,no
+docs/policy/EU Ocean Pact Response_ “Tentative steps forward but critical gaps must be addressed to protect our ocean” - Seas At Risk.pdf,policy,,,,,,EU_Ocean_Pact_Response___Tentative_steps,no
+docs/policy/EU4Ocean Ocean Literacy Brief 1.pdf,policy,,,,,,EU4Ocean_Ocean_Literacy_Brief_1,no
+docs/policy/european marine observation and data network and eu-HZ0524600ENN.pdf,policy,,,,,,european_marine_observation_and_data_net,no
+"docs/policy/European Ocean Pact for a healthy ocean, a competitive blue economy.pdf",policy,,,,,,European_Ocean_Pact_for_a_healthy_ocean_,no
+docs/policy/europes budget-KL0125062ENN fisheries aquaculture ocean.pdf,policy,,,,,,europes_budget_KL0125062ENN_fisheries_aq,no
+docs/policy/Factsheet_Union_of_Skills.pdf.pdf,policy,,,,,,Factsheet_Union_of_Skills_pdf,no
+docs/policy/feasibility study on an observatory for the blue economy-HZ0521339ENN.pdf,policy,,,,,,feasibility_study_on_an_observatory_for_,no
+docs/policy/future transitions for the bioeconomy towards sustainable-KJ0120542ENN.pdf,policy,,,,,,future_transitions_for_the_bioeconomy_to,no
+docs/policy/future transitions for the bioeconomy towards sustainable-KJ0121001ENN.pdf,policy,,,,,,future_transitions_for_the_bioeconomy_to,no
+docs/policy/Goal-16-The-Indicators-We-Want-.pdf,policy,,,,,,Goal_16_The_Indicators_We_Want,no
+docs/policy/good practices for sustainable cruise tourism-KL0322272ENN.pdf,policy,,,,,,good_practices_for_sustainable_cruise_to,no
+docs/policy/guide on financing the green energy transition of-KL0323424ENN.pdf,policy,,,,,,guide_on_financing_the_green_energy_tran,no
+docs/policy/Handbook_English Blue Economy Teachers.pdf,policy,,,,,,Handbook_English_Blue_Economy_Teachers,no
+docs/policy/Handbook_English.pdf,policy,,,,,,Handbook_English,no
+docs/policy/Healing the future Horizon emerging technologies.pdf,policy,,,,,,Healing_the_future_Horizon_emerging_tech,no
+docs/policy/how to incorporate underwater cultural heritage into-HZ0622216ENN.pdf,policy,,,,,,how_to_incorporate_underwater_cultural_h,no
+docs/policy/identification of energy-efficient technologies i fishery EP EC Regulation.pdf,policy,,,,,,identification_of_energy_efficient_techn,no
+docs/policy/international oceans governance-EA0118723ENN.pdf,policy,,,,,,international_oceans_governance_EA011872,no
+docs/policy/jobs and growth from our seas blue economy-DOC_1.zip,policy,,,,,,jobs_and_growth_from_our_seas_blue_econo,no
+docs/policy/join the eu mission-HZ0124016ENN.pdf,policy,,,,,,join_the_eu_mission_HZ0124016ENN,no
+docs/policy/jrc marine modelling framework in support of the marine-KJNA29452ENN.pdf,policy,,,,,,jrc_marine_modelling_framework_in_suppor,no
+docs/policy/JRC135612_01 Renewable Energy production and potential EU rural.pdf,policy,,,,,,JRC135612_01_Renewable_Energy_production,no
+docs/policy/JRC135612_01 renewable energy production in EU rural.pdf,policy,,,,,,JRC135612_01_renewable_energy_production,no
+docs/policy/JRC135889_01 Taxonomy alignment and transition risk level.pdf,policy,,,,,,JRC135889_01_Taxonomy_alignment_and_tran,no
+docs/policy/JRC136498_01 Demography and Economy Land use.pdf,policy,,,,,,JRC136498_01_Demography_and_Economy_Land,no
+docs/policy/JRC145387_01 technological and creative performances in numbers across urban and rural regions.pdf,policy,,,,,,JRC145387_01_technological_and_creative_,no
+docs/policy/lifelong learning mobility and new training programs-KL0418332ENN.pdf,policy,,,,,,lifelong_learning_mobility_and_new_train,no
+docs/policy/linking accounts for ecosystem services and benefits-KJ0125391ENN.pdf,policy,,,,,,linking_accounts_for_ecosystem_services_,no
+docs/policy/Literature Compass - 2009 - Mentz - Toward a Blue Cultural Studies  The Sea  Maritime Culture  and Early Modern English.pdf,policy,,,,,,Literature_Compass___2009___Mentz___Towa,no
+docs/policy/Manifesto social infrastructure Innovation Foresight Community.pdf,policy,,,,,,Manifesto_social_infrastructure_Innovati,no
+docs/policy/marine protected areas in europes seas-THAL15003ENN.pdf,policy,,,,,,marine_protected_areas_in_europes_seas_T,no
+docs/policy/marine strategy framework directive-KJNA30716ENN.pdf,policy,,,,,,marine_strategy_framework_directive_KJNA,no
+docs/policy/MarineEdu Nautical Tourism Profession Subsector.pdf,policy,,,,,,MarineEdu_Nautical_Tourism_Profession_Su,no
+docs/policy/MarineEdu Occupations Blue Sector Nautical Tourism.pdf,policy,,,,,,MarineEdu_Occupations_Blue_Sector_Nautic,no
+docs/policy/MarineEdu Sailmaker Profession.pdf,policy,,,,,,MarineEdu_Sailmaker_Profession,no
+docs/policy/maritime spatial planning in the eu-HZ0224312ENN (1).pdf,policy,,,,,,maritime_spatial_planning_in_the_eu_HZ02,no
+docs/policy/maritime spatial planning msp for blue growth-EA0118377ENN.pdf,policy,,,,,,maritime_spatial_planning_msp_for_blue_g,no
+docs/policy/mediterranean sea - identification of elements and-KL0415033ENN.pdf,policy,,,,,,mediterranean_sea___identification_of_el,no
+docs/policy/methodological assistance for the outermost regions-KL0120559ENN.pdf,policy,,,,,,methodological_assistance_for_the_outerm,no
+docs/policy/monitoring the sdgs at regional level in eu-KJ0923520ENN.pdf,policy,,,,,,monitoring_the_sdgs_at_regional_level_in,no
+docs/policy/Multilevel governane UN 2022 mlg_for_sdg_localization_final_report.pdf,policy,,,,,,Multilevel_governane_UN_2022_mlg_for_sdg,no
+docs/policy/Ocean Decade Brief Unesco.pdf,policy,,,,,,Ocean_Decade_Brief_Unesco,no
+docs/policy/ocean governance and blue economy-HZ0223228ENN.pdf,policy,,,,,,ocean_governance_and_blue_economy_HZ0223,no
+docs/policy/Ocean Literacy Brief  4.pdf,policy,,,,,,Ocean_Literacy_Brief__4,no
+docs/policy/Ocean Literacy Brief 2_0.pdf,policy,,,,,,Ocean_Literacy_Brief_2_0,no
+docs/policy/Ocean Literacy Brief 3_0.pdf,policy,,,,,,Ocean_Literacy_Brief_3_0,no
+docs/policy/ocean research in horizon 2020-QA0215067ENN.pdf,policy,,,,,,ocean_research_in_horizon_2020_QA0215067,no
+docs/policy/ocean-climate nexus-KI0722867ENN (1).pdf,policy,,,,,,ocean_climate_nexus_KI0722867ENN__1,no
+docs/policy/overview of the effects of offshore wind farms on-3f2134f9-b84f-11eb-8aca-01aa75ed71a1.0001.pdf,policy,,,,,,overview_of_the_effects_of_offshore_wind,no
+docs/policy/P4S_ORE_VISION_v1.pdf,policy,,,,,,P4S_ORE_VISION_v1,no
+docs/policy/Pact-for-Skills-Infosheet-EN - May 2025_.pdf,policy,,,,,,Pact_for_Skills_Infosheet_EN___May_2025,no
+docs/policy/Pakt na rzecz wszechoceanu.pdf,policy,,,,,,Pakt_na_rzecz_wszechoceanu,no
+docs/policy/partnership evaluation report-KI0124051ENN.pdf,policy,,,,,,partnership_evaluation_report_KI0124051E,no
+docs/policy/prevention of waste in the circular economy-KJNA28422ENN.pdf,policy,,,,,,prevention_of_waste_in_the_circular_econ,no
+docs/policy/realising the potential of the outermost regions for-EA0417826ENN.pdf,policy,,,,,,realising_the_potential_of_the_outermost,no
+docs/policy/realising the potential of the outermost regions for-EA0417827ENN.pdf,policy,,,,,,realising_the_potential_of_the_outermost,no
+docs/policy/report of the 6th meeting of the of the network of-KJ0524535ENN.pdf,policy,,,,,,report_of_the_6th_meeting_of_the_of_the_,no
+docs/policy/report of the workshop marine genetic resources in-KL0319546ENN.pdf,policy,,,,,,report_of_the_workshop_marine_genetic_re,no
+docs/policy/report on the blue economy for local and regional-QG0125035ENN.pdf,policy,,,,,,report_on_the_blue_economy_for_local_and,no
+docs/policy/Resilience - The future of Europe as seen by EU citizens.pdf,policy,,,,,,Resilience___The_future_of_Europe_as_see,no
+docs/policy/Resilience 2_0 Global Key areas empowering.pdf,policy,,,,,,Resilience_2_0_Global_Key_areas_empoweri,no
+docs/policy/resilient coastal communities-KLAL21003ENN.pdf,policy,,,,,,resilient_coastal_communities_KLAL21003E,no
+docs/policy/restore our ocean and waters blue parks com eu missions-HZ0126052ENN.pdf,policy,,,,,,restore_our_ocean_and_waters_blue_parks_,no
+docs/policy/review on how to preserve space for the future uses-HZ0322307ENN.pdf,policy,,,,,,review_on_how_to_preserve_space_for_the_,no
+docs/policy/roadmap towards 2030-HZ0124007ENN.pdf,policy,,,,,,roadmap_towards_2030_HZ0124007ENN,no
+docs/policy/science for environmental sustainability-KJNA27498ENN.pdf,policy,,,,,,science_for_environmental_sustainability,no
+docs/policy/scientific report-KJ0124211ENN.pdf,policy,,,,,,scientific_report_KJ0124211ENN,no
+docs/policy/seas of opportunity-QMBA24025ENN (1).pdf,policy,,,,,,seas_of_opportunity_QMBA24025ENN__1,no
+docs/policy/setting the course for a sustainable blue planet-KL0822201ENN.pdf,policy,,,,,,setting_the_course_for_a_sustainable_blu,no
+docs/policy/smart specialisation and blue biotechnology in europe-KJNA30521ENN.pdf,policy,,,,,,smart_specialisation_and_blue_biotechnol,no
+docs/policy/smart specialisation in the context of blue economy-KJNA30768ENN.pdf,policy,,,,,,smart_specialisation_in_the_context_of_b,no
+docs/policy/spa_tia____a_diffusion-oriented_method_of_territorial_impact_assessment.pdf,policy,,,,,,spa_tia____a_diffusion_oriented_method_o,no
+docs/policy/STEM_Education_Strategic_Plan_COM_2025_89_1_EN_0.pdf,policy,,,,,,STEM_Education_Strategic_Plan_COM_2025_8,no
+docs/policy/study on the relevance of the proposed future eit-NC0224004ENN (1).pdf,policy,,,,,,study_on_the_relevance_of_the_proposed_f,no
+docs/policy/study to support and design skills development in-HZ01251202AN.pdf,policy,,,,,,study_to_support_and_design_skills_devel,no
+docs/policy/support and expert services on maritime spatial planning-HZ0924619ENN.pdf,policy,,,,,,support_and_expert_services_on_maritime_,no
+docs/policy/sustainability criteria for the blue economy-EA0221398ENN.pdf,policy,,,,,,sustainability_criteria_for_the_blue_eco,no
+docs/policy/sustainability criteria for the blue economy-EA0221399ENN.pdf,policy,,,,,,sustainability_criteria_for_the_blue_eco,no
+docs/policy/sustainability criteria for the blue economy-EA0221400ENN.pdf,policy,,,,,,sustainability_criteria_for_the_blue_eco,no
+docs/policy/sustainability criteria for the blue economy-HZ0121206ENN.pdf,policy,,,,,,sustainability_criteria_for_the_blue_eco,no
+docs/policy/sustainable blue economy-KI0217481ENN.pdf,policy,,,,,,sustainable_blue_economy_KI0217481ENN,no
+docs/policy/Sustainable-Development-Goals--What-local-Government-need-to-know.pdf,policy,,,,,,Sustainable_Development_Goals__What_loca,no
+docs/policy/the blue economy-QA0120083ENN.pdf,policy,,,,,,the_blue_economy_QA0120083ENN,no
+docs/policy/the eu blue economy report 2019-KLAR19001ENN (2).pdf,policy,,,,,,the_eu_blue_economy_report_2019_KLAR1900,no
+docs/policy/the eu blue economy report 2020-KLAR20001ENN (1).pdf,policy,,,,,,the_eu_blue_economy_report_2020_KLAR2000,no
+docs/policy/the eu blue economy report 2021-KLAR21001ENN (1).pdf,policy,,,,,,the_eu_blue_economy_report_2021_KLAR2100,no
+docs/policy/the eu blue economy report 2021-KLAR21001ENN.pdf,policy,,,,,,the_eu_blue_economy_report_2021_KLAR2100,no
+docs/policy/the eu blue economy report 2022-KLAR22001ENN (2).pdf,policy,,,,,,the_eu_blue_economy_report_2022_KLAR2200,no
+docs/policy/the eu blue economy report 2022-KLAR22002ENN (1).pdf,policy,,,,,,the_eu_blue_economy_report_2022_KLAR2200,no
+docs/policy/the eu blue economy report 2022-KLAR22002ENN.pdf,policy,,,,,,the_eu_blue_economy_report_2022_KLAR2200,no
+docs/policy/the eu blue economy report 2023-KLAR23001ENN (2).pdf,policy,,,,,,the_eu_blue_economy_report_2023_KLAR2300,no
+docs/policy/the eu blue economy report 2024-KLAR24001ENN (3).pdf,policy,,,,,,the_eu_blue_economy_report_2024_KLAR2400,no
+docs/policy/the eu blue economy report 2025-KL0124002ENN (2).pdf,policy,,,,,,the_eu_blue_economy_report_2025_KL012400,no
+docs/policy/the eu blue economy report 2025-KL0124002ENN (3).pdf,policy,,,,,,the_eu_blue_economy_report_2025_KL012400,no
+docs/policy/the maritime spatial planning directive-14d91dc4-4b1c-4284-b2fe-6446e407e938.0001.pdf,policy,,,,,,the_maritime_spatial_planning_directive_,no
+docs/policy/the msp community of practice in the mediterranean-HZ0125032ENN.pdf,policy,,,,,,the_msp_community_of_practice_in_the_med,no
+docs/policy/towards an ecosystem-based approach in marine ecosystem-KJNA31527ENN.pdf,policy,,,,,,towards_an_ecosystem_based_approach_in_m,no
+docs/policy/towards an implementation strategy for the sustainable-KL0117550ENN.pdf,policy,,,,,,towards_an_implementation_strategy_for_t,no
+docs/policy/towards an implementation strategy for the sustainable-KL0417541ENN.pdf,policy,,,,,,towards_an_implementation_strategy_for_t,no
+docs/policy/UN Art Initaive 00048173ART_Prodoc.pdf,policy,,,,,,UN_Art_Initaive_00048173ART_Prodoc,no
+docs/policy/UN Resolution 2024 Pact for the future.pdf,policy,,,,,,UN_Resolution_2024_Pact_for_the_future,no
+docs/policy/UNESCO 2026 Biopiracy.pdf,policy,,,,,,UNESCO_2026_Biopiracy,no
+docs/policy/Unesco 2026 inclusive actionable ocean science.pdf,policy,,,,,,Unesco_2026_inclusive_actionable_ocean_s,no
+docs/policy/Unesco 2026 knowledge indigenous people.pdf,policy,,,,,,Unesco_2026_knowledge_indigenous_people,no
+docs/policy/Unesco 2026 Methodology of research.pdf,policy,,,,,,Unesco_2026_Methodology_of_research,no
+docs/policy/UNESCO 2026 Ocean Literacy for All.pdf,policy,,,,,,UNESCO_2026_Ocean_Literacy_for_All,no
+docs/policy/Unesco 2026 Ocean-in-the-Boardroom.pdf,policy,,,,,,Unesco_2026_Ocean_in_the_Boardroom,no
+docs/policy/UNESCO 2026 social science primary schoold in climate change.pdf,policy,,,,,,UNESCO_2026_social_science_primary_schoo,no
+docs/policy/UNESCO An ocean of life how the UN Decade of Ocean Science.pdf,policy,,,,,,UNESCO_An_ocean_of_life_how_the_UN_Decad,no
+docs/policy/UNESCO annex_a_theory_of_change.pdf,policy,,,,,,UNESCO_annex_a_theory_of_change,no
+"docs/policy/UNESCO Climate Risk, Vulnerability and Resilience Building Science Decision Making.pdf",policy,,,,,,UNESCO_Climate_Risk__Vulnerability_and_R,no
+docs/policy/UNESCO DecadeAdvisoryBoard Meeting 2025.pdf,policy,,,,,,UNESCO_DecadeAdvisoryBoard_Meeting_2025,no
+docs/policy/UNESCO digital ocean representation performance.pdf,policy,,,,,,UNESCO_digital_ocean_representation_perf,no
+docs/policy/UNESCO Impact of theory of change effective engagement book 3.pdf,policy,,,,,,UNESCO_Impact_of_theory_of_change_effect,no
+docs/policy/UNESCO Indigeneus and local knowledge Ocean Decade.pdf,policy,,,,,,UNESCO_Indigeneus_and_local_knowledge_Oc,no
+docs/policy/UNESCO knowledge technology participatory decision maing Ocean Decade.pdf,policy,,,,,,UNESCO_knowledge_technology_participator,no
+docs/policy/UNESCO Maritime Spatial Planning vol 2 biodiversity inclusive.pdf,policy,,,,,,UNESCO_Maritime_Spatial_Planning_vol_2_b,no
+docs/policy/UNESCO Ocean Decade data information strategy.pdf,policy,,,,,,UNESCO_Ocean_Decade_data_information_str,no
+docs/policy/UNESCO Ocean Decade Manual for NGO.pdf,policy,,,,,,UNESCO_Ocean_Decade_Manual_for_NGO,no
+docs/policy/UNESCO Ocean Decade Report 202324.pdf,policy,,,,,,UNESCO_Ocean_Decade_Report_202324,no
+docs/policy/UNESCO Ocean Science for Sustainable Development Agenda 2030.pdf,policy,,,,,,UNESCO_Ocean_Science_for_Sustainable_Dev,no
+docs/policy/UNESCO Ocean Vision 2030.pdf,policy,,,,,,UNESCO_Ocean_Vision_2030,no
+docs/policy/Union of Skils ESCCR Communiction upskills and reskills.pdf,policy,,,,,,Union_of_Skils_ESCCR_Communiction_upskil,no
+docs/policy/unsustainable finance in the blue economy-EA0320724ENN.pdf,policy,,,,,,unsustainable_finance_in_the_blue_econom,no
+docs/policy/unsustainable finance in the blue economy-EA0420652ENN.pdf,policy,,,,,,unsustainable_finance_in_the_blue_econom,no
 LLM_CONTEXT_INSTRUCTION.txt,governance,,,,,,LLM_CONTEXT_INSTRUCTION,yes
+manuscripts/drafts/AAA Methodological Glossary Values WG3.txt,manuscript,,,,,,AAA_Methodological_Glossary_Values_WG3,yes
+manuscripts/drafts/Abstact ESA Performativity of the Ocean Reframe Marinization.docx,manuscript,,,,,,Abstact_ESA_Performativity_of_the_Ocean_,yes
+manuscripts/drafts/Abstract ESA Ioannis Robert Tallinn 29_01_2026.docx,manuscript,,,,,,Abstract_ESA_Ioannis_Robert_Tallinn_29_0,yes
+manuscripts/drafts/abstract with Ioanis ESA 2026.docx,manuscript,,,,,,abstract_with_Ioanis_ESA_2026,yes
+manuscripts/drafts/Article_BLUE_REVISED (2).docx,manuscript,,,,,,Article_BLUE_REVISED__2,yes
+manuscripts/drafts/Article_BLUE_REVISED end.docx,manuscript,,,,,,Article_BLUE_REVISED_end,yes
+manuscripts/drafts/artykuł kocowy.docx,manuscript,,,,,,artykuł_kocowy,yes
+manuscripts/drafts/Blue Economy Gaps SCISPACE.docx,manuscript,,,,,,Blue_Economy_Gaps_SCISPACE,yes
+manuscripts/drafts/Blue Economy Maritime Sociology 12_02 18_08_TMDB SURPRISE rewrite_2026-02-13 (1).docx,manuscript,,,,,,Blue_Economy_Maritime_Sociology_12_02_18,yes
+manuscripts/drafts/Blue Economy Maritime Sociology 12_02 18_08_TMDB SURPRISE rewrite_2026-02-13 edit.docx,manuscript,,,,,,Blue_Economy_Maritime_Sociology_12_02_18,yes
+manuscripts/drafts/Blue Social Competences Univ Szczecin matrix.pdf,manuscript,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,no
+manuscripts/drafts/Blue Sociology and the Tripartite Model of Blue Dynamics_ A Conceptual Framework for Sustainable Ocean Governance and the Blue Economy (1).docx,manuscript,,,,,,Blue_Sociology_and_the_Tripartite_Model_,yes
+manuscripts/drafts/Blue Sociology and the Tripartite Model of Blue Dynamics_ A Conceptual Framework for Sustainable Ocean Governance and the Blue Economy (1).pdf,manuscript,,,,,,Blue_Sociology_and_the_Tripartite_Model_,no
+manuscripts/drafts/Blue Sociology Manuscript Review New.docx,manuscript,,,,,,Blue_Sociology_Manuscript_Review_New,yes
+manuscripts/drafts/Blue Sociology Maritime Sociology Article BASE 19_32.docx,manuscript,,,,,,Blue_Sociology_Maritime_Sociology_Articl,yes
+manuscripts/drafts/Blue Sociology Maritime Sociology Article PUBLI note.docx,manuscript,,,,,,Blue_Sociology_Maritime_Sociology_Articl,yes
+manuscripts/drafts/Blue sociology ocean maritime social hydro.docx,manuscript,,,,,,Blue_sociology_ocean_maritime_social_hyd,yes
+manuscripts/drafts/Blue Sociology One Ocean 14_02 (1).docx,manuscript,,,,,,Blue_Sociology_One_Ocean_14_02__1,yes
+manuscripts/drafts/Blue Sociology One Ocean 14_02.docx,manuscript,,,,,,Blue_Sociology_One_Ocean_14_02,yes
+manuscripts/drafts/Comparative Analysis of Ocean-Related Sociological Frameworks.docx,manuscript,,,,,,Comparative_Analysis_of_Ocean_Related_So,yes
+manuscripts/drafts/COMPLETE SCISPACE ARTICLE BLUE SOCIOLOGY.docx,manuscript,,,,,,COMPLETE_SCISPACE_ARTICLE_BLUE_SOCIOLOGY,yes
+manuscripts/drafts/Developing Blue Sociology Framework Blue Economy 2 FULL ARTICLE SCISPACE.docx,manuscript,,,,,,Developing_Blue_Sociology_Framework_Blue,yes
+manuscripts/drafts/Developing Blue Sociology Framework Blue Economy FULL ARTICLE SCISPACE.docx,manuscript,,,,,,Developing_Blue_Sociology_Framework_Blue,yes
+manuscripts/drafts/Early Foundations of Maritime Sociology (Pre-1981) (1).docx,manuscript,,,,,,Early_Foundations_of_Maritime_Sociology_,yes
+manuscripts/drafts/exploring_research_gaps_in_the_sustainable_blue_economy_demaritimisation.docx,manuscript,,,,,,exploring_research_gaps_in_the_sustainab,yes
+manuscripts/drafts/exploring_research_gaps_in_the_sustainable_blue_economy_through_oceanic_and_maritime_social_sciences__a_literature_review.docx,manuscript,,,,,,exploring_research_gaps_in_the_sustainab,yes
+"manuscripts/drafts/For each combination, I will include a plausible Perplexity.docx",manuscript,,,,,,For_each_combination__I_will_include_a_p,yes
+manuscripts/drafts/From Marinization to Oceanization Sustanable Blue Economy Threshold and Solutions.pdf,manuscript,,,,,,From_Marinization_to_Oceanization_Sustan,no
+manuscripts/drafts/Google Gemini Canva Tripartite Model Blue Dynamic Janiszewski 13_02_2026 ver1.pdf,manuscript,,,,,,Google_Gemini_Canva_Tripartite_Model_Blu,no
+manuscripts/drafts/Guidelines for Subgroup Leaders.docx,manuscript,,,,,,Guidelines_for_Subgroup_Leaders,yes
+manuscripts/drafts/hydrologia oceanografia Perpleixity.docx,manuscript,,,,,,hydrologia_oceanografia_Perpleixity,yes
+manuscripts/drafts/Instruction for the Analysis of Glossary Term Proposals.docx,manuscript,,,,,,Instruction_for_the_Analysis_of_Glossary,yes
+manuscripts/drafts/JANISZEWSKI meet ONE BLUE OCEAN ECONOMY - NotebookLM.pdf,manuscript,,,,,,JANISZEWSKI_meet_ONE_BLUE_OCEAN_ECONOMY_,no
+manuscripts/drafts/Kopia Marine Maritime Sociology 25_01_2026.docx,manuscript,,,,,,Kopia_Marine_Maritime_Sociology_25_01_20,yes
+manuscripts/drafts/Maritime Sociology and Oceanic Turn.docx,manuscript,,,,,,Maritime_Sociology_and_Oceanic_Turn,yes
+manuscripts/drafts/Maritime Sociology and the Blue Economy Blue Sociology.pdf,manuscript,,,,,,Maritime_Sociology_and_the_Blue_Economy_,no
+manuscripts/drafts/maritime_sociology_and_the_blue_economy__developing_a_blue_sociology_framework.docx,manuscript,,,,,,maritime_sociology_and_the_blue_economy_,yes
+manuscripts/drafts/Oceanic turn Blue Growth Maritime Sociology  note container.docx,manuscript,,,,,,Oceanic_turn_Blue_Growth_Maritime_Sociol,yes
+manuscripts/drafts/Pas nadmorski woda rzeka własność water river sea.docx,manuscript,,,,,,Pas_nadmorski_woda_rzeka_własność_water_,yes
+manuscripts/drafts/Route MC Stop 1 to 12 Lisbon.docx,manuscript,,,,,,Route_MC_Stop_1_to_12_Lisbon,yes
+manuscripts/drafts/Rozmowa z Gemini ReMARITIMISATION THE OCEAN PACT Blue economy.docx,manuscript,,,,,,Rozmowa_z_Gemini_ReMARITIMISATION_THE_OC,yes
+manuscripts/drafts/Socjologia morska 1984 summary field of study.docx,manuscript,,,,,,Socjologia_morska_1984_summary_field_of_,yes
+manuscripts/drafts/Socjologia morska i koncepcja marynizacji Ludwika Janiszewskiego.docx,manuscript,,,,,,Socjologia_morska_i_koncepcja_marynizacj,yes
+manuscripts/drafts/Strategic Integration of Social Sciences into the EU Ocean Act.docx,manuscript,,,,,,Strategic_Integration_of_Social_Sciences,yes
+manuscripts/drafts/Subgroup Discussion Summary Template – Book Chapter Input.docx,manuscript,,,,,,Subgroup_Discussion_Summary_Template___B,yes
+manuscripts/drafts/Sustainable Blue Economy Maritime Sociology SCISPACE.docx,manuscript,,,,,,Sustainable_Blue_Economy_Maritime_Sociol,yes
+manuscripts/drafts/Sustainable Blue Economy Research SCIVAL.pdf,manuscript,,,,,,Sustainable_Blue_Economy_Research_SCIVAL,no
+manuscripts/drafts/Theoretical Framework Janiszsewski Maritime Sociology SCISPACE.docx,manuscript,,,,,,Theoretical_Framework_Janiszsewski_Marit,yes
+manuscripts/drafts/World Café Facilitation Guide – Energy Transition Glossary.docx,manuscript,,,,,,World_Cafe__Facilitation_Guide___Energy_,yes
 PROMPT_REQUEST_TEMPLATE.txt,governance,,,,,,PROMPT_REQUEST_TEMPLATE,yes
 readme,other,,,,,,readme,no
 README.md,governance,,,,,,README,yes
 requirements.txt,script,,,,,,requirements,yes
+scripts/40152_2021_Article_238.PDF,script,,,,,,40152_2021_Article_238,no
+scripts/Aaa Hab 4_250621_114734.txt,script,,,,,,Aaa_Hab_4_250621_114734,yes
+scripts/Blue Bolt Rotterdam _250106_112646.txt,script,,,,,,Blue_Bolt_Rotterdam__250106_112646,yes
+scripts/Blue Mind_250421_094727.txt,script,,,,,,Blue_Mind_250421_094727,yes
+scripts/Breguła Weird Szczecin_250412_101024.txt,script,,,,,,Breguła_Weird_Szczecin_250412_101024,yes
+scripts/build_derived.py,script,,,,,,build_derived,no
+scripts/convert_pdfs_to_txt.py,script,,,,,,convert_pdfs_to_txt,no
+scripts/Deep image Ocean_241231_091047.txt,script,,,,,,Deep_image_Ocean_241231_091047,yes
+scripts/Delft wyjazd_241017_170643.txt,script,,,,,,Delft_wyjazd_241017_170643,yes
+scripts/Do hab_250403_204509.txt,script,,,,,,Do_hab_250403_204509,yes
 scripts/generate_manifest.py,script,,,,,,generate_manifest,no
+scripts/GPT Blue Sociology Prompt 13_02 BIG.txt,script,,,,,,GPT_Blue_Sociology_Prompt_13_02_BIG,yes
+scripts/GPT Visual Studio Code Blue Economy last article.txt,script,,,,,,GPT_Visual_Studio_Code_Blue_Economy_last,yes
+scripts/Hab - okazuje_241013_210006.txt,script,,,,,,Hab___okazuje_241013_210006,yes
+scripts/Hab Hein Culture port cities mindset_250108_081453.txt,script,,,,,,Hab_Hein_Culture_port_cities_mindset_250,yes
+scripts/Iscot_240905_142040.txt,script,,,,,,Iscot_240905_142040,yes
+scripts/Materialnosc w morzu_241217_113623.txt,script,,,,,,Materialnosc_w_morzu_241217_113623,yes
+scripts/Port Animal-Human Relation_241026_074847.txt,script,,,,,,Port_Animal_Human_Relation_241026_074847,yes
+scripts/prompt ioanis 12_02 18_37.txt,script,,,,,,prompt_ioanis_12_02_18_37,yes
+scripts/prompt ioanis 12_02 18_56.txt,script,,,,,,prompt_ioanis_12_02_18_56,yes
+scripts/prompt ioanis 12_02 18_58 Gemini.txt,script,,,,,,prompt_ioanis_12_02_18_58_Gemini,yes
+scripts/Prompt Ioanis and Cocco.txt,script,,,,,,Prompt_Ioanis_and_Cocco,yes
 scripts/README.txt,script,,,,,,README,yes
+scripts/README_WHATTODO IN LIZBONA 2026 NEW.txt,script,,,,,,README_WHATTODO_IN_LIZBONA_2026_NEW,yes
+scripts/Tripatle Blue Value Model WOW.txt,script,,,,,,Tripatle_Blue_Value_Model_WOW,yes
+scripts/Wyrzucone przez morze_250521_002507.txt,script,,,,,,Wyrzucone_przez_morze_250521_002507,yes
