@@ -26,4 +26,6 @@ Files affected CITATION.txt DATA_GOVERNANCE.txt LLM_CONTEXT_INSTRUCTION.txt CHAN
 Summary Added repository governance and citation scaffolding to support reproducible competence mapping and micro-credential design.
 Reason Establish traceability rules and evidence discipline for Blue Sociology outputs.
 Impact Improves auditability of future derived datasets and manuscript revisions.
+Provenance None (new files created from scratch).
 Quality checks Manual review for internal consistency and alignment with repository sources referenced in the governance files.
+Reviewer Robert Bartłomiejski
