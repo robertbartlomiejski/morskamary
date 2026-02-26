@@ -89,13 +89,6 @@ class CompetenceMapper:
         Returns:
             List of credentials ordered by progression
         """
-        level_order = [
-            CompetenceLevel.FOUNDATIONAL,
-            CompetenceLevel.INTERMEDIATE,
-            CompetenceLevel.ADVANCED,
-            CompetenceLevel.EXPERT,
-        ]
-
         # Group credentials by average competence level
         credential_levels: List[Tuple[MicroCredential, float]] = []
 
