@@ -2,7 +2,8 @@
 Core utilities and data structures for Blue Sociology analysis
 """
 
-from typing import Dict, List, Any
+from pathlib import Path
+from typing import Dict, List, Any, Union
 from dataclasses import dataclass
 from enum import Enum
 
@@ -83,12 +84,12 @@ class MicroCredential:
         }
 
 
-def load_competence_matrix(file_path: str) -> List[Competence]:
+def load_competence_matrix(file_path: Union[str, Path]) -> List[Competence]:
     """
     Load competence matrix from file (CSV or Excel)
 
     Args:
-        file_path: Path to competence file
+        file_path: Path to competence file (str or pathlib.Path)
 
     Returns:
         List of Competence objects
@@ -96,10 +97,11 @@ def load_competence_matrix(file_path: str) -> List[Competence]:
     try:
         import pandas as pd
 
-        if file_path.endswith('.csv'):
-            df = pd.read_csv(file_path)
-        elif file_path.endswith(('.xlsx', '.xls')):
-            df = pd.read_excel(file_path)
+        path = Path(file_path)
+        if path.suffix.lower() == '.csv':
+            df = pd.read_csv(path)
+        elif path.suffix.lower() in ('.xlsx', '.xls'):
+            df = pd.read_excel(path)
         else:
             raise ValueError(f"Unsupported file format: {file_path}")
 
