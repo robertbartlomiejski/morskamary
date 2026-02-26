@@ -103,7 +103,7 @@ def load_competence_matrix(file_path: Union[str, Path]) -> List[Competence]:
         elif path.suffix.lower() in ('.xlsx', '.xls'):
             df = pd.read_excel(path)
         else:
-            raise ValueError(f"Unsupported file format: {file_path}")
+            raise ValueError(f"Unsupported file format: {path}")
 
         competences = []
         for _, row in df.iterrows():
