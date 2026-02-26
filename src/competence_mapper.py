@@ -2,7 +2,7 @@
 Competence mapping and analysis module for Blue Sociology
 """
 
-from typing import Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 from src.core import Competence, MicroCredential, BlueDynamicsAxis, CompetenceLevel
 
 
@@ -89,13 +89,6 @@ class CompetenceMapper:
         Returns:
             List of credentials ordered by progression
         """
-        level_order = [
-            CompetenceLevel.FOUNDATIONAL,
-            CompetenceLevel.INTERMEDIATE,
-            CompetenceLevel.ADVANCED,
-            CompetenceLevel.EXPERT,
-        ]
-
         # Group credentials by average competence level
         credential_levels: List[Tuple[MicroCredential, float]] = []
 
@@ -112,17 +105,14 @@ class CompetenceMapper:
 
         return [cred for cred, _ in credential_levels]
 
-    def get_summary(self) -> Dict[str, any]:
+    def get_summary(self) -> Dict[str, Any]:
         """Get a summary of all mapped competences and credentials"""
-        axis_counts = {
-            axis: len(self.get_competences_by_axis(axis))
-            for axis in BlueDynamicsAxis
-        }
+        axis_counts = {axis: 0 for axis in BlueDynamicsAxis}
+        level_counts = {level.name: 0 for level in CompetenceLevel}
 
-        level_counts = {
-            level.name: len(self.get_competences_by_level(level))
-            for level in CompetenceLevel
-        }
+        for comp in self.competences.values():
+            axis_counts[comp.axis] += 1
+            level_counts[comp.level.name] += 1
 
         sectors = set(cred.sector for cred in self.credentials.values())
 

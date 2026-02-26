@@ -104,7 +104,7 @@ def load_competence_matrix(file_path: str) -> List[Competence]:
             raise ValueError(f"Unsupported file format: {file_path}")
 
         competences = []
-        for _, row in df.iterrows():
+        for row in df.to_dict('records'):
             competence = Competence(
                 id=str(row.get('id', '')),
                 name=row.get('name', ''),
