@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  governance-and-repro:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verify required governance files exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            "CITATION.txt"
+            "DATA_GOVERNANCE.txt"
+            "LLM_CONTEXT_INSTRUCTION.txt"
+            "CHANGELOG.txt"
+            "README.md"
+          )
+          for f in "${required[@]}"; do
+            if [[ ! -f "$f" ]]; then
+              echo "Missing required file: $f"
+              exit 1
+            fi
+          done
+          echo "Governance scaffolding present."
+
+      - name: Verify manifest generation is deterministic (if script exists)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f "scripts/generate_manifest.py" ]]; then
+            python3 --version
+            python3 scripts/generate_manifest.py
+
+            candidates=("manifest.json" "MANIFEST.json" "manifest.txt" "MANIFEST.txt")
+            found=""
+            for c in "${candidates[@]}"; do
+              if [[ -f "$c" ]]; then found="$c"; break; fi
+            done
+
+            if [[ -z "$found" ]]; then
+              echo "generate_manifest.py ran, but no manifest file found among: ${candidates[*]}"
+              echo "Edit CI to match your actual manifest output filename."
+              exit 1
+            fi
+
+            if ! git diff --exit-code -- "$found"; then
+              echo "Manifest is not reproducible or not committed. Regenerate and commit $found."
+              git diff -- "$found" || true
+              exit 1
+            fi
+            echo "Manifest reproducibility check passed for: $found"
+          else
+            echo "No scripts/generate_manifest.py found; skipping manifest determinism check."
+          fi
+
+      - name: Enforce CHANGELOG update on PRs that change tracked artifacts (lightweight rule)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          base_ref="${{ github.base_ref }}"
+          git fetch origin "$base_ref" --depth=1 || true
+
+          changed="$(git diff --name-only "origin/$base_ref"...HEAD || true)"
+
+          needs_changelog=0
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            [[ "$f" == "CHANGELOG.txt" ]] && continue
+
+            if [[ "$f" == "scripts/"* ]] || [[ "$f" == "prompts/"* ]] || [[ "$f" == "templates/"* ]] || \
+               [[ "$f" == "data/"* ]] || [[ "$f" == *.csv ]] || [[ "$f" == *.xlsx ]] || [[ "$f" == *.pdf ]] || \
+               [[ "$f" == "CITATION.txt" ]] || [[ "$f" == "DATA_GOVERNANCE.txt" ]] || [[ "$f" == "LLM_CONTEXT_INSTRUCTION.txt" ]]; then
+              needs_changelog=1
+            fi
+          done <<< "$changed"
+
+          if [[ "$needs_changelog" -eq 1 ]]; then
+            if ! echo "$changed" | grep -qx "CHANGELOG.txt"; then
+              echo "PR changes substantive artifacts but does not update CHANGELOG.txt."
+              echo "Changed files:"
+              echo "$changed"
+              exit 1
+            fi
+          fi
+
+          echo "CHANGELOG enforcement passed."
