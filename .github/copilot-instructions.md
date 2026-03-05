@@ -72,3 +72,35 @@ mypy src/               # type-check
 - When producing mappings or tables, include the source file and locator for each row/cluster
 - When revising drafts or data structures, record changes in `CHANGELOG.txt` with date and reason
 - Follow FAIR principles (Findable, Accessible, Interoperable, Reusable) for any derived datasets
+
+## Competence Mapping Workflow
+
+When working on competence mapping, adhere to these task-specific practices:
+
+### Axis Validation
+- **Always validate TMBD axis assignment** (Marine/Maritime/Oceanic) against the framework definition
+- Each competence must map to exactly one primary axis, though cross-axis relationships may be noted
+- Justify axis choice with reference to the biophysical, techno-economic, or planetary dimensions it primarily serves
+
+### Evidence and Citations
+- **Block unverified claims**: Never add competences or learning outcomes without evidence from source documents
+- Use `[citation needed]` placeholder when source is pending, then resolve before finalizing
+- For every competence description, cite the source file and specific section (e.g., "Blue Social Competences Univ Szczecin — Overall Blue Competences Dimension.csv, row 24")
+- Cross-reference competence keywords against the Blue Social Competences dataset (`data/derived/Blue Social Competences Univ Szczecin*`)
+
+### Source Management
+- When adding **new source documents**, update `MANIFEST_SOURCES.csv` with:
+  - File path or URL
+  - Document type (e.g., policy, literature, dataset)
+  - Aggregation date
+  - Key topics or competence areas covered
+- Link competences to the **University of Szczecin baseline** where applicable (auto-mapping candidates in `data/derived/`)
+
+### Micro-credential Completeness
+- Ensure every `MicroCredential` object includes all required fields (see `LLM_CONTEXT_INSTRUCTION.txt`):
+  - Title, learner profile, workload/ECTS, EQF level, learning outcomes, assessment method, stackability rules
+- Validate using the `CompetenceMapper` class methods before committing changes
+
+### Cross-sector Suggestions
+- When adding competences to one sector (e.g., Maritime Transport), suggest related mappings to adjacent sectors (e.g., Ports, Offshore Energy)
+- Document rationale for each sector association in competence metadata
