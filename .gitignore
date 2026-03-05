@@ -48,6 +48,21 @@ coverage.xml
 # Virtual environments
 venv/
 ENV/
+
+# Large binary files (GitHub limit: 100MB per file)
+*.pdf
+*.PDF
+*.docx
+*.DOCX
+*.xlsx
+*.XLSX
+docs/literature/
+docs/policy/
+manuscripts/
+
+# Node modules
+node_modules/
+package-lock.json
 env/
 .venv
 
