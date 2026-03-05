@@ -14,14 +14,14 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
-import pypdf
+from pypdf import PdfReader
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 IGNORED_DIRS = {".git", "__pycache__", ".pytest_cache"}
 
 
 def extract_with_pypdf(pdf_path: Path) -> str:
-    reader = pypdf.PdfReader(str(pdf_path))
+    reader = PdfReader(str(pdf_path))
     parts = []
     for page in reader.pages:
         try:
