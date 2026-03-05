@@ -1,0 +1,42 @@
+{
+  "type": "web_search_results",
+  "tool": "firecrawl",
+  "query": "Michael Poole \"Maritime sociology: towards a delimitation of themes and analytical frameworks\" 1981 Maritime Policy Management",
+  "results": [
+    {
+      "title": "Chapter 1 Maritime Sociology in the Making in - Brill",
+      "url": "https://brill.com/display/book/9789004503410/BP000010.xml?language=en&srsltid=AfmBOorcEsLo8xjQ_JURAk11KCrDvv94MmiT48nHeEqRp3Hi_1LPDDDe",
+      "domain": "brill.com",
+      "description": "Poole, M. (1981). Maritime sociology: towards a delimitation of themes and analytical frameworks\u201d, Maritime Policy and Management 4(8), 207\u2013222.",
+      "favicon_url": ""
+    },
+    {
+      "title": "(PDF) Critical Review of Literature on the Interaction of Social Sciences in Contemporary Marine Studies",
+      "url": "https://www.researchgate.net/publication/380851838_Critical_Review_of_Literature_on_the_Interaction_of_Social_Sciences_in_Contemporary_Marine_Studies",
+      "domain": "www.researchgate.net",
+      "description": "PDF | This critical literature review accounts for an academic discussion that has been grouped under the labels of Marine Social Sciences, Maritime... | Find, read and cite all the research you need on ResearchGate",
+      "favicon_url": "https://c5.rgstatic.net/m/42199702882742/images/favicon/favicon-32x32.png"
+    },
+    {
+      "title": "(PDF) Theoretical Implications of Maritime Sociology",
+      "url": "https://www.academia.edu/89551976/Theoretical_Implications_of_Maritime_Sociology",
+      "domain": "www.academia.edu",
+      "description": "The sea is certainly not one of the favourite research topics of sociology and despite a recent and new popularity among historians and geographers, the sea remains generally a stranger to contemporary sociologists. Conversely, I think that to frame",
+      "favicon_url": null
+    },
+    {
+      "title": "Toward a sociology of oceans - Document - Gale Academic OneFile",
+      "url": "https://go.gale.com/ps/i.do?id=GALE%7CA487281291&sid=googleScholar&v=2.1&it=r&linkaccess=abs&issn=17556171&p=AONE&sw=w&userGroupName=anon%7E55b11cef&aty=open-web-entry",
+      "domain": "go.gale.com",
+      "description": "<em>Gale</em> Academic OneFile includes Toward a sociology of oceans by John Hannigan. Read the beginning or sign in for the full text.",
+      "favicon_url": "https://go.gale.com/ps/images/favicon.ico"
+    },
+    {
+      "title": "Management of Shipping Companies\n 1138190098, 9781138190092 - DOKUMEN.PUB",
+      "url": "https://dokumen.pub/management-of-shipping-companies-1138190098-9781138190092.html",
+      "domain": "dokumen.pub",
+      "description": "The maritime sector is dynamic and volatile, creating the need for continuous monitoring of the latest developments and...",
+      "favicon_url": "https://dokumen.pub/dokumenpub/assets/img/android-icon-192x192.png"
+    }
+  ]
+}
