@@ -8,11 +8,27 @@ Repository: robertbartlomiejski/morskamary
 # One-click setup (recommended)
 docker compose up --build
 
+# One-click setup (local Windows, no Docker)
+powershell -ExecutionPolicy Bypass -File .\setup_one_click.ps1
+
 # Or run demonstration
 python demo_workspace_instructions.py
 
 # Or load real data
 python main_real_data.py
+```
+
+## One-Click Setup Graph
+
+```mermaid
+flowchart TD
+  A[setup_one_click.ps1] --> B[scripts/generate_manifest.py]
+  B --> C[pytest tests]
+  C --> D[main_real_data.py]
+  D --> E[demo_workspace_instructions.py]
+  E --> F[demo_additional_tasks.py]
+  F --> G[mypy src]
+  G --> H[Ready for manual review]
 ```
 
 ## Purpose and Scope

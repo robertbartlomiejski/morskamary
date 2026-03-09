@@ -4,6 +4,34 @@
 **Repository:** robertbartlomiejski/morskamary  
 **Branch:** copilot/start-new-work-session
 
+## Manual Review Links (One-Click)
+
+- [setup_one_click.ps1](setup_one_click.ps1)
+- [main_real_data.py](main_real_data.py)
+- [scripts/generate_manifest.py](scripts/generate_manifest.py)
+- [MANIFEST_SOURCES.csv](MANIFEST_SOURCES.csv)
+- [demo_workspace_instructions.py](demo_workspace_instructions.py)
+- [demo_additional_tasks.py](demo_additional_tasks.py)
+- [src/core.py](src/core.py)
+- [src/competence_mapper.py](src/competence_mapper.py)
+- [.github/copilot-instructions.md](.github/copilot-instructions.md)
+- [.github/competence-domain.instructions.md](.github/competence-domain.instructions.md)
+- [.github/add-competence.prompt.md](.github/add-competence.prompt.md)
+- [.github/integrate-literature.skill.md](.github/integrate-literature.skill.md)
+
+## One-Click Graph
+
+```mermaid
+flowchart TD
+  A[setup_one_click.ps1] --> B[generate_manifest.py]
+  B --> C[pytest tests]
+  C --> D[main_real_data.py]
+  D --> E[demo_workspace_instructions.py]
+  E --> F[demo_additional_tasks.py]
+  F --> G[mypy src]
+  G --> H[Manual review and merge]
+```
+
 ## Objectives Completed
 
 ### ✅ 1. Enhanced Workspace Instructions

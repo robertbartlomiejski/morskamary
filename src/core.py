@@ -95,7 +95,7 @@ def load_competence_matrix(file_path: Union[str, Path]) -> List[Competence]:
         List of Competence objects
     """
     try:
-        import pandas as pd
+        import pandas as pd  # type: ignore[import-untyped]
 
         path = Path(file_path)
         if path.suffix.lower() == '.csv':
