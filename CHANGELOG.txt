@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-03-09
+Change type fix add
+Scope scripts governance
+Files affected requirements.txt Dockerfile CONTRIBUTING.md
+Summary Fixed openpyxl version constraint in requirements.txt (changed >=3.8.0 to >=3.0.0; version 3.8.0 does not exist). Fixed Windows-style path in Dockerfile CMD (backslash → forward slash). Added CONTRIBUTING.md with step-by-step getting-started guide for new contributors.
+Reason requirements.txt blocked pip install entirely; Dockerfile CMD would fail on Linux containers; no onboarding guide existed for new contributors.
+Impact pip install -r requirements.txt now succeeds; Docker build runs correctly; new contributors can set up and verify the environment in minutes.
+Provenance None (bug fixes and new documentation only).
+Quality checks pip install verified; pytest tests/ passes (8/8); CONTRIBUTING.md reviewed for accuracy against pyproject.toml and existing tooling.
+Reviewer GitHub Copilot Agent
+
 2026-02-18
 Change type add
 Scope governance
