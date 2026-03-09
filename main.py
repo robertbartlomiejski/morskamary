@@ -7,10 +7,7 @@ and micro-credential design based on TMBD principles.
 
 import sys
 from src.core import (
-    Competence,
     MicroCredential,
-    BlueDynamicsAxis,
-    CompetenceLevel,
     create_sample_competences,
 )
 from src.competence_mapper import CompetenceMapper
@@ -63,10 +60,10 @@ def main():
     summary = mapper.get_summary()
     print(f"    Total competences: {summary['total_competences']}")
     print(f"    Total credentials: {summary['total_credentials']}")
-    print(f"    Competences by TMBD axis:")
+    print("    Competences by TMBD axis:")
     for axis, count in summary['competences_by_axis'].items():
         print(f"      - {axis}: {count}")
-    print(f"    Competences by level:")
+    print("    Competences by level:")
     for level, count in summary['competences_by_level'].items():
         print(f"      - {level}: {count}")
     print()
@@ -79,7 +76,7 @@ def main():
         available=["comp_marine_001"],
         required_sector="offshore-energy",
     )
-    print(f"    Missing competences:")
+    print("    Missing competences:")
     for missing in gaps['missing']:
         if missing in mapper.competences:
             comp = mapper.competences[missing]
