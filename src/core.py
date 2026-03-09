@@ -106,14 +106,22 @@ def load_competence_matrix(file_path: Union[str, Path]) -> List[Competence]:
             raise ValueError(f"Unsupported file format: {path}")
 
         competences = []
-        for _, row in df.iterrows():
+        ids = (df["id"].astype(str) if "id" in df.columns else pd.Series("", index=df.index)).tolist()
+        names = (df["name"].fillna("") if "name" in df.columns else pd.Series("", index=df.index)).tolist()
+        descriptions = (df["description"].fillna("") if "description" in df.columns else pd.Series("", index=df.index)).tolist()
+        axes = (df["axis"].fillna("MARINE") if "axis" in df.columns else pd.Series("MARINE", index=df.index)).tolist()
+        levels = (df["level"].fillna("FOUNDATIONAL") if "level" in df.columns else pd.Series("FOUNDATIONAL", index=df.index)).tolist()
+        keywords_col = (df["keywords"].fillna("").astype(str) if "keywords" in df.columns else pd.Series("", index=df.index)).tolist()
+        for id_val, name, desc, axis, level, kw in zip(
+            ids, names, descriptions, axes, levels, keywords_col
+        ):
             competence = Competence(
-                id=str(row.get('id', '')),
-                name=row.get('name', ''),
-                description=row.get('description', ''),
-                axis=BlueDynamicsAxis[row.get('axis', 'MARINE')],
-                level=CompetenceLevel[row.get('level', 'FOUNDATIONAL')],
-                keywords=str(row.get('keywords', '')).split(';'),
+                id=id_val,
+                name=name,
+                description=desc,
+                axis=BlueDynamicsAxis[str(axis)],
+                level=CompetenceLevel[str(level)],
+                keywords=kw.split(";"),
             )
             competences.append(competence)
 

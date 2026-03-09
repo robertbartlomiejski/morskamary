@@ -61,10 +61,10 @@ def export_sheet(df: pd.DataFrame, out_csv: Path) -> None:
 def write_datadict(df: pd.DataFrame, out_dd: Path) -> None:
     dd = pd.DataFrame(
         {
-            "column": list(df.columns),
-            "dtype": [str(df[c].dtype) for c in df.columns],
-            "non_null": [int(df[c].notna().sum()) for c in df.columns],
-            "null": [int(df[c].isna().sum()) for c in df.columns],
+            "column": df.columns,
+            "dtype": df.dtypes.astype(str).values,
+            "non_null": df.notna().sum().values,
+            "null": df.isna().sum().values,
         }
     )
     dd.to_csv(out_dd, index=False, encoding="utf-8")
