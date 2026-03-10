@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-03-10
+Change type fix add
+Scope governance scripts
+Files affected .github/workflows/blank.yml .github/workflows/ci.yml .vscode/settings.json .vscode/launch.json .vscode/tasks.json src/core.py src/competence_mapper.py
+Summary Added black --check and mypy to blank.yml CI workflow so formatting and type safety are verified automatically on every push. Fixed ci.yml manifest determinism check to use the correct output filename MANIFEST_SOURCES.csv instead of non-existent manifest.json/txt candidates. Auto-reformatted src/core.py and src/competence_mapper.py with black (line-length=88). Fixed VS Code settings: enabled pytest, disabled misconfigured unittest, configured black as the default formatter with format-on-save. Resolved unresolved git merge conflict in launch.json, keeping the Python debugpy configuration. Fixed Windows-style backslash path in tasks.json to use forward slash.
+Reason CI lacked formatting and type-safety checks; manifest check was always failing because it searched for wrong file names; VS Code was using wrong test runner and had no auto-formatter configured; launch.json contained raw merge conflict markers making it invalid JSON.
+Impact CI now reliably enforces code quality (formatting + linting + type safety + tests); manifest reproducibility check will pass; developers get format-on-save in VS Code; debugger works correctly.
+Provenance None (CI/tooling fixes and auto-formatting only).
+Quality checks black --check passes; flake8 passes; mypy passes; pytest tests/ passes (8/8).
+Reviewer GitHub Copilot Agent
+
 2026-03-09
 Change type fix add
 Scope scripts governance

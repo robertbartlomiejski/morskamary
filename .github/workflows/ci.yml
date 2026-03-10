@@ -48,15 +48,10 @@ jobs:
             python3 --version
             python3 scripts/generate_manifest.py
 
-            candidates=("manifest.json" "MANIFEST.json" "manifest.txt" "MANIFEST.txt")
-            found=""
-            for c in "${candidates[@]}"; do
-              if [[ -f "$c" ]]; then found="$c"; break; fi
-            done
+            found="MANIFEST_SOURCES.csv"
 
-            if [[ -z "$found" ]]; then
-              echo "generate_manifest.py ran, but no manifest file found among: ${candidates[*]}"
-              echo "Edit CI to match your actual manifest output filename."
+            if [[ ! -f "$found" ]]; then
+              echo "generate_manifest.py ran, but $found was not found."
               exit 1
             fi
 

@@ -18,10 +18,16 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt flake8
+        run: pip install -r requirements.txt flake8 black mypy
+
+      - name: Check formatting with black
+        run: black --check src/ tests/
 
       - name: Lint with flake8
         run: flake8 src/ tests/
+
+      - name: Type-check with mypy
+        run: mypy src/
 
       - name: Run tests
         run: pytest tests/
