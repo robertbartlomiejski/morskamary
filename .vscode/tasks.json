@@ -19,7 +19,7 @@
 				"docker-build"
 			],
 			"python": {
-				"file": "scripts\\generate_manifest.py"
+				"file": "scripts/generate_manifest.py"
 			}
 		}
 	]

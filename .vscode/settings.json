@@ -1,12 +1,12 @@
 {
-    "python.testing.unittestArgs": [
-        "-v",
-        "-s",
-        "./data",
-        "-p",
-        "*test.py"
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestArgs": [
+        "tests"
     ],
-    "python.testing.pytestEnabled": false,
-    "python.testing.unittestEnabled": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true
+    },
     "githubPullRequests.pullRequestDescription": "Copilot"
 }
