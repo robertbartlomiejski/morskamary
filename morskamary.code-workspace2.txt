@@ -1,0 +1,3 @@
+data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv
+data/derived/Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials.csv
+data/derived/Blue Social Competences Univ Szczecin - Blue competences x blue economy sector.csv

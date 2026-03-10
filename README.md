@@ -2,13 +2,45 @@
 
 Repository: robertbartlomiejski/morskamary
 
-Purpose and scope (project logic)
-Quote: “Addressing these challenges requires more than technocratic management; it demands the development of Blue Sociology.” 
+## Quick Start
 
-Blue Sociology and the Triparti…
+```bash
+# One-click setup (recommended)
+docker compose up --build
 
+# One-click setup (local Windows, no Docker)
+powershell -ExecutionPolicy Bypass -File .\setup_one_click.ps1
 
-Reasoning: This repository is an evidence base (policy, data, competence matrices, and draft manuscripts) for developing Blue Sociology as an applied extension of maritime sociology for the EU Sustainable Blue Economy and “one ocean” governance.
+# Or run demonstration
+python demo_workspace_instructions.py
+
+# Or load real data
+python main_real_data.py
+```
+
+## One-Click Setup Graph
+
+The one-click local flow intentionally includes `demo_additional_tasks.py` as a
+mandatory comprehensive validation step for AI workspace instructions, TMBD
+mapping logic, and advanced micro-credential workflows.
+
+```mermaid
+flowchart TD
+  A[setup_one_click.ps1] --> B[scripts/generate_manifest.py]
+  B --> C[pytest tests]
+  C --> D[main_real_data.py]
+  D --> E[demo_workspace_instructions.py]
+  E --> F[demo_additional_tasks.py]
+  F --> G[mypy src]
+  G --> H[Ready for manual review]
+```
+
+## Purpose and Scope
+
+Quote: "Addressing these challenges requires more than technocratic management; it demands the development of Blue Sociology." 
+[Blue Sociology and the Tripartite Model]
+
+**Reasoning:** This repository is an evidence base (policy, data, competence matrices, and draft manuscripts) for developing Blue Sociology as an applied extension of maritime sociology for the EU Sustainable Blue Economy and "one ocean" governance.
 
 Quote: “TMBD distinguishes Marine dynamics (M)… Maritime dynamics (T)… and Oceanic dynamics (O)…” 
 
@@ -98,6 +130,51 @@ Blue Sociology and TMBD (docx/pdf variants)
 From Marinization to Oceanization… (pdf)
 
 How to use this repository (typical workflows)
+
+## AI Assistant Customizations
+
+This repository includes specialized instructions for AI coding assistants:
+
+### Core Instructions
+- [.github/copilot-instructions.md](.github/copilot-instructions.md) — Main workspace instructions for GitHub Copilot
+  - Project overview and TMBD framework
+  - Coding conventions (Python ≥3.9, black, flake8, mypy)
+  - Evidence discipline and citation requirements
+  - Architecture patterns and data workflows
+
+### Domain-Specific Instructions
+- [.github/competence-domain.instructions.md](.github/competence-domain.instructions.md) — For competence loading scripts
+  - CSV validation rules
+  - Dimension → TMBD axis mapping
+  - Source management and provenance tracking
+  - Testing requirements
+
+### Workflow Prompts
+- [.github/add-competence.prompt.md](.github/add-competence.prompt.md) — Step-by-step workflow for adding new competences
+  - Evidence gathering from repository sources
+  - TMBD axis assignment with justification
+  - Competence level determination
+  - Testing and documentation requirements
+
+### Skills
+- [.github/integrate-literature.skill.md](.github/integrate-literature.skill.md) — Extract competences from literature
+  - Search repository literature sources
+  - Map paper themes to TMBD axes
+  - Create competences with full citations
+  - Update provenance records
+
+## Demonstration Scripts
+
+### [demo_workspace_instructions.py](demo_workspace_instructions.py)
+Complete demonstration of workspace instructions in action:
+1. **Add coastal resilience competence** with TMBD axis and evidence
+2. **Create port sustainability micro-credential** with all required fields (ECTS, EQF, assessment)
+3. **Analyze competence gaps** for offshore renewable energy sector
+4. **Validate type safety** (Python ≥3.9, mypy conventions)
+
+Run: `python demo_workspace_instructions.py`
+
+## Data Workflows
 Quote: “Connecting Science with Society… ocean literacy and societal transformation” 
 
 ocean-climate nexus-KI0722867EN…

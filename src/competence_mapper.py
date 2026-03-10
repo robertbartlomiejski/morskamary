@@ -2,8 +2,11 @@
 Competence mapping and analysis module for Blue Sociology
 """
 
-from typing import Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple, Union, cast
 from src.core import Competence, MicroCredential, BlueDynamicsAxis, CompetenceLevel
+
+
+GapAnalysisResult = Dict[str, Union[List[str], Dict[str, List[str]]]]
 
 
 class CompetenceMapper:
@@ -44,7 +47,7 @@ class CompetenceMapper:
 
     def analyze_competence_gaps(self,
                                available: List[str],
-                               required_sector: str) -> Dict[str, List[str]]:
+                               required_sector: str) -> GapAnalysisResult:
         """
         Analyze gaps between available and required competences for a sector
 
@@ -60,11 +63,12 @@ class CompetenceMapper:
 
         missing = required - available_set
 
-        result = {
+        result: GapAnalysisResult = {
             "available": list(available_set & required),
             "missing": list(missing),
             "by_level": {}
         }
+        by_level = cast(Dict[str, List[str]], result["by_level"])
 
         for level in CompetenceLevel:
             level_missing = [
@@ -73,7 +77,7 @@ class CompetenceMapper:
                 and self.competences[cid].level == level
             ]
             if level_missing:
-                result["by_level"][level.name] = level_missing
+                by_level[level.name] = level_missing
 
         return result
 
@@ -105,7 +109,7 @@ class CompetenceMapper:
 
         return [cred for cred, _ in credential_levels]
 
-    def get_summary(self) -> Dict[str, any]:
+    def get_summary(self) -> Dict[str, Any]:
         """Get a summary of all mapped competences and credentials"""
         axis_counts = {
             axis: len(self.get_competences_by_axis(axis))
