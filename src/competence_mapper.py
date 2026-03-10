@@ -2,11 +2,14 @@
 Competence mapping and analysis module for Blue Sociology
 """
 
-from typing import Any, Dict, List, Set, Tuple, Union, cast
+from typing import Any, Dict, List, Set, Tuple, TypedDict
 from src.core import Competence, MicroCredential, BlueDynamicsAxis, CompetenceLevel
 
 
-GapAnalysisResult = Dict[str, Union[List[str], Dict[str, List[str]]]]
+class GapAnalysisResult(TypedDict):
+    available: List[str]
+    missing: List[str]
+    by_level: Dict[str, List[str]]
 
 
 class CompetenceMapper:
@@ -68,7 +71,6 @@ class CompetenceMapper:
             "missing": list(missing),
             "by_level": {}
         }
-        by_level = cast(Dict[str, List[str]], result["by_level"])
 
         for level in CompetenceLevel:
             level_missing = [
@@ -77,7 +79,7 @@ class CompetenceMapper:
                 and self.competences[cid].level == level
             ]
             if level_missing:
-                by_level[level.name] = level_missing
+                result["by_level"][level.name] = level_missing
 
         return result
 
