@@ -20,6 +20,10 @@ python main_real_data.py
 
 ## One-Click Setup Graph
 
+The one-click local flow intentionally includes `demo_additional_tasks.py` as a
+mandatory comprehensive validation step for AI workspace instructions, TMBD
+mapping logic, and advanced micro-credential workflows.
+
 ```mermaid
 flowchart TD
   A[setup_one_click.ps1] --> B[scripts/generate_manifest.py]

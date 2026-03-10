@@ -274,7 +274,7 @@ def task_3_extract_from_literature(mapper: CompetenceMapper) -> list:
         extracted_competences = []
         
         try:
-            with open(lit_file, 'r', encoding='utf-8') as f:
+            with lit_file.open('r', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 papers = list(reader)
             
