@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-03-10
+Change type fix
+Scope governance scripts
+Files affected .github/workflows/ci.yml MANIFEST_SOURCES.csv
+Summary Fixed manifest determinism check in CI workflow: updated the step to look for MANIFEST_SOURCES.csv (the actual output of scripts/generate_manifest.py) instead of the wrong generic filenames (manifest.json, MANIFEST.json, manifest.txt, MANIFEST.txt). Also regenerated MANIFEST_SOURCES.csv to match current repository state.
+Reason The governance-and-repro CI job was failing with exit code 1 because it searched for manifest file names that do not exist; the actual manifest file is MANIFEST_SOURCES.csv.
+Impact CI governance-and-repro job now passes; manifest reproducibility check correctly validates MANIFEST_SOURCES.csv.
+Provenance None (bug fix only).
+Quality checks pytest tests/ passes (8/8); manifest verified reproducible between consecutive runs; flake8 src/ tests/ passes.
+Reviewer robertbartlomiejski
+
 2026-03-09
 Change type fix add
 Scope scripts governance

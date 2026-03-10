@@ -46,26 +46,22 @@ jobs:
           set -euo pipefail
           if [[ -f "scripts/generate_manifest.py" ]]; then
             python3 --version
+            pip install -r requirements.txt --progress-bar off
             python3 scripts/generate_manifest.py
 
-            candidates=("manifest.json" "MANIFEST.json" "manifest.txt" "MANIFEST.txt")
-            found=""
-            for c in "${candidates[@]}"; do
-              if [[ -f "$c" ]]; then found="$c"; break; fi
-            done
+            manifest_file="MANIFEST_SOURCES.csv"
 
-            if [[ -z "$found" ]]; then
-              echo "generate_manifest.py ran, but no manifest file found among: ${candidates[*]}"
-              echo "Edit CI to match your actual manifest output filename."
+            if [[ ! -f "$manifest_file" ]]; then
+              echo "generate_manifest.py ran, but $manifest_file was not found."
               exit 1
             fi
 
-            if ! git diff --exit-code -- "$found"; then
-              echo "Manifest is not reproducible or not committed. Regenerate and commit $found."
-              git diff -- "$found" || true
+            if ! git diff --exit-code -- "$manifest_file"; then
+              echo "Manifest is not reproducible or not committed. Regenerate and commit $manifest_file."
+              git diff -- "$manifest_file" || true
               exit 1
             fi
-            echo "Manifest reproducibility check passed for: $found"
+            echo "Manifest reproducibility check passed for: $manifest_file"
           else
             echo "No scripts/generate_manifest.py found; skipping manifest determinism check."
           fi
