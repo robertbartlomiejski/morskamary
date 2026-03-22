@@ -12,6 +12,30 @@ permissions:
   pull-requests: read
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run tests
+        run: |
+          python -m pytest tests/ -v --tb=short --cov=src --cov-report=term-missing
+
   governance-and-repro:
     runs-on: ubuntu-latest
     steps:
