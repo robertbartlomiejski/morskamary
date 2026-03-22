@@ -49,7 +49,10 @@ SECTOR_TO_CSV_COL: Dict[str, str] = {
     "Ship Repair & Shipbuilding": "Ship Repair",
 }
 
-# Valid baseline competence IDs
+# Valid baseline competence IDs per the TMBD specification.
+# Note: A.4 is defined in the spec but is absent from the current baseline CSV;
+# the list below acts as an allow-list and any ID missing from the CSV is simply
+# not matched, so the effective baseline count from the CSV is 15, not 16.
 BASELINE_IDS = [
     "A.1", "A.2", "A.3", "A.4",
     "B.1", "B.2", "B.3", "B.4",

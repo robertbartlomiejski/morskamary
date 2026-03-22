@@ -186,7 +186,7 @@ def generate_gaps_html(
         axis_html = " ".join(
             f"{_axis_badge(ax[0])} {len(ids)}"
             for ax, ids in [("Marine", axis_bk.get("MARINE", [])),
-                            ("Maritim", axis_bk.get("MARITIME", [])),
+                            ("Maritime", axis_bk.get("MARITIME", [])),
                             ("Oceanic", axis_bk.get("OCEANIC", []))]
             if ids
         )

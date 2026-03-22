@@ -170,7 +170,8 @@ class TestGapAnalyzer:
         """All competence IDs in the CSV should be required for any sector (all X)."""
         df = load_sector_matrix(BASELINE_CSV)
         ids = get_sector_required_competence_ids("Blue Biotech", df)
-        # The actual CSV contains 15 competence rows (A.1–A.3, B.1–B.4, C.1–C.4, D.1–D.4)
+        # The actual CSV contains 15 competence rows (A.1-A.3, B.1-B.4, C.1-C.4, D.1-D.4);
+        # A.4 is defined in the TMBD spec but absent from the current CSV.
         assert len(ids) >= 15
         assert "A.1" in ids
 
@@ -290,7 +291,8 @@ class TestFullPipeline:
         sys.path.insert(0, str(REPO_ROOT))
         import run_full_analysis
         baseline = run_full_analysis.load_baseline_competences()
-        # The actual CSV contains 15 rows with valid IDs (no A.4)
+        # The actual CSV yields 15 competences (A.1-A.3, B.1-B.4, C.1-C.4, D.1-D.4);
+        # A.4 is in the TMBD spec but absent from the current CSV, so exactly 15 rows load.
         assert len(baseline) >= 15
         ids = {c.id for c in baseline}
         assert "baseline_a_1" in ids

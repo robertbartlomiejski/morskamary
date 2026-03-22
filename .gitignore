@@ -80,3 +80,9 @@ Thumbs.db
 # Data (local, not in repo)
 data/local/
 *.csv.bak
+
+# Generated analysis outputs (produced by run_full_analysis.py and full-analysis.yml)
+outputs/*.html
+outputs/*.json
+outputs/*.csv
+outputs/execution_log.txt

@@ -42,14 +42,13 @@ Quality checks Manual review for internal consistency and alignment with reposit
 Reviewer Robert Bartłomiejski
 text
 
-[2026-03-22] run_full_analysis.py executed
-  - Total competences: 444
-  - Total credentials: 24
-  - Sectors analysed: 12
-  - Reports written to: outputs/
-
-[2026-03-22] run_full_analysis.py executed
-  - Total competences: 444
-  - Total credentials: 24
-  - Sectors analysed: 12
-  - Reports written to: outputs/
+2026-03-22
+Change type fix add
+Scope scripts governance workflows
+Files affected .github/workflows/CI (deleted) .github/workflows/full-analysis.yml (added) src/core.py src/literature_extractor.py src/gap_analyzer.py src/credential_designer.py src/report_generator.py run_full_analysis.py tests/test_full_analysis.py outputs/README.md
+Summary Deleted broken CI workflow file  (missing .yml extension and missing top-level name/on/jobs wrapper — steps were listed at top level). Implemented full Blue Sociology analysis pipeline: literature extractor (429 competences from 8 combined CSV sources), sector gap analyzer (12 sectors × TMBD axis breakdown), micro-credential designer (24 credentials with ECTS/EQF/assessment/stackability), HTML/JSON/CSV report generator, and main orchestrator run_full_analysis.py. Added source_metadata to Competence and ects, eqf_level, assessment_method, prerequisites, stackability_rules, sources to MicroCredential (all backward-compatible). Added GitHub Actions workflow full-analysis.yml to run analysis on push to main and upload outputs as artifacts.
+Reason CI workflow file was structurally invalid (YAML schema error): steps listed at top level without name/on/jobs context; file also lacked .yml extension. Full analysis pipeline was required to produce evidence-based competence databases, sector gap maps, and stackable micro-credentials for the EU Sustainable Blue Economy framework.
+Impact CI now correctly validates governance scaffolding and CHANGELOG enforcement. Full analysis produces: 444 competences (15 baseline + 429 literature), 24 micro-credentials, 12-sector gap analysis, HTML/JSON/CSV reports in outputs/. All 31 pytest tests pass.
+Provenance Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv; data/raw/combined_blue_economy_labor_justice.csv; data/raw/combined_blue_economy_research_gaps.csv; data/raw/combined_blue_sociology_results.csv and 5 additional combined_*.csv files.
+Quality checks pytest tests/ — 31/31 pass; python run_full_analysis.py — all 9 output files generated; existing 8 tests unmodified and passing.
+Reviewer GitHub Copilot Coding Agent

@@ -372,9 +372,6 @@ def main() -> None:
     # Flush log
     _flush_log()
 
-    # Update changelog
-    _update_changelog(len(all_competences), len(all_credentials_flat), len(gap_results))
-
     # Final summary
     print("\n" + "=" * 60)
     print("🌊  BLUE SOCIOLOGY ANALYSIS COMPLETE")
