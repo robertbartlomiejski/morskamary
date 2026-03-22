@@ -124,7 +124,7 @@ def extract_competences_from_literature(
             title = str(row.get("Paper Title", "") or "").strip()
             abstract = str(row.get("Abstract", "") or "").strip()
 
-            if not title or title.lower() in ("nan", "") or not abstract or abstract.lower() in ("nan", ""):
+            if pd.isna(row.get("Paper Title")) or pd.isna(row.get("Abstract")) or not title or not abstract:
                 continue
 
             # --- metadata fields ---

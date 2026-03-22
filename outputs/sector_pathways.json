@@ -1,0 +1,222 @@
+{
+  "nodes": [
+    {
+      "id": "microcred_blue_biotech_foundation",
+      "title": "Blue Economy Blue Biotech - Foundation Micro-Credential",
+      "sector": "Blue Biotech",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_blue_biotech_advanced",
+      "title": "Blue Economy Blue Biotech - Advanced Micro-Credential",
+      "sector": "Blue Biotech",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_coastal_tourism_foundation",
+      "title": "Blue Economy Coastal Tourism - Foundation Micro-Credential",
+      "sector": "Coastal Tourism",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_coastal_tourism_advanced",
+      "title": "Blue Economy Coastal Tourism - Advanced Micro-Credential",
+      "sector": "Coastal Tourism",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_desalination_foundation",
+      "title": "Blue Economy Desalination - Foundation Micro-Credential",
+      "sector": "Desalination",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_desalination_advanced",
+      "title": "Blue Economy Desalination - Advanced Micro-Credential",
+      "sector": "Desalination",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_infrastructure_and_robotics_foundation",
+      "title": "Blue Economy Infrastructure & Robotics - Foundation Micro-Credential",
+      "sector": "Infrastructure & Robotics",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_infrastructure_and_robotics_advanced",
+      "title": "Blue Economy Infrastructure & Robotics - Advanced Micro-Credential",
+      "sector": "Infrastructure & Robotics",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_living_resources_foundation",
+      "title": "Blue Economy Living Resources - Foundation Micro-Credential",
+      "sector": "Living Resources",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_living_resources_advanced",
+      "title": "Blue Economy Living Resources - Advanced Micro-Credential",
+      "sector": "Living Resources",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_non_living_resources_foundation",
+      "title": "Blue Economy Non-living Resources - Foundation Micro-Credential",
+      "sector": "Non-living Resources",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_non_living_resources_advanced",
+      "title": "Blue Economy Non-living Resources - Advanced Micro-Credential",
+      "sector": "Non-living Resources",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_renewable_energy_foundation",
+      "title": "Blue Economy Renewable Energy - Foundation Micro-Credential",
+      "sector": "Renewable Energy",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_renewable_energy_advanced",
+      "title": "Blue Economy Renewable Energy - Advanced Micro-Credential",
+      "sector": "Renewable Energy",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_maritime_defence_foundation",
+      "title": "Blue Economy Maritime Defence - Foundation Micro-Credential",
+      "sector": "Maritime Defence",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_maritime_defence_advanced",
+      "title": "Blue Economy Maritime Defence - Advanced Micro-Credential",
+      "sector": "Maritime Defence",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_maritime_transport_foundation",
+      "title": "Blue Economy Maritime Transport - Foundation Micro-Credential",
+      "sector": "Maritime Transport",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_maritime_transport_advanced",
+      "title": "Blue Economy Maritime Transport - Advanced Micro-Credential",
+      "sector": "Maritime Transport",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_port_activities_foundation",
+      "title": "Blue Economy Port Activities - Foundation Micro-Credential",
+      "sector": "Port Activities",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_port_activities_advanced",
+      "title": "Blue Economy Port Activities - Advanced Micro-Credential",
+      "sector": "Port Activities",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_research_and_innovation_foundation",
+      "title": "Blue Economy Research & Innovation - Foundation Micro-Credential",
+      "sector": "Research & Innovation",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_research_and_innovation_advanced",
+      "title": "Blue Economy Research & Innovation - Advanced Micro-Credential",
+      "sector": "Research & Innovation",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_ship_repair_and_shipbuilding_foundation",
+      "title": "Blue Economy Ship Repair & Shipbuilding - Foundation Micro-Credential",
+      "sector": "Ship Repair & Shipbuilding",
+      "eqf": 6,
+      "ects": 13
+    },
+    {
+      "id": "microcred_ship_repair_and_shipbuilding_advanced",
+      "title": "Blue Economy Ship Repair & Shipbuilding - Advanced Micro-Credential",
+      "sector": "Ship Repair & Shipbuilding",
+      "eqf": 6,
+      "ects": 13
+    }
+  ],
+  "edges": [
+    {
+      "from": "microcred_blue_biotech_foundation",
+      "to": "microcred_blue_biotech_advanced"
+    },
+    {
+      "from": "microcred_coastal_tourism_foundation",
+      "to": "microcred_coastal_tourism_advanced"
+    },
+    {
+      "from": "microcred_desalination_foundation",
+      "to": "microcred_desalination_advanced"
+    },
+    {
+      "from": "microcred_infrastructure_and_robotics_foundation",
+      "to": "microcred_infrastructure_and_robotics_advanced"
+    },
+    {
+      "from": "microcred_living_resources_foundation",
+      "to": "microcred_living_resources_advanced"
+    },
+    {
+      "from": "microcred_non_living_resources_foundation",
+      "to": "microcred_non_living_resources_advanced"
+    },
+    {
+      "from": "microcred_renewable_energy_foundation",
+      "to": "microcred_renewable_energy_advanced"
+    },
+    {
+      "from": "microcred_maritime_defence_foundation",
+      "to": "microcred_maritime_defence_advanced"
+    },
+    {
+      "from": "microcred_maritime_transport_foundation",
+      "to": "microcred_maritime_transport_advanced"
+    },
+    {
+      "from": "microcred_port_activities_foundation",
+      "to": "microcred_port_activities_advanced"
+    },
+    {
+      "from": "microcred_research_and_innovation_foundation",
+      "to": "microcred_research_and_innovation_advanced"
+    },
+    {
+      "from": "microcred_ship_repair_and_shipbuilding_foundation",
+      "to": "microcred_ship_repair_and_shipbuilding_advanced"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+🌊  Blue Sociology Full Analysis — starting
+📋  Step 1: Loading 16 baseline competences …
+✅  Loaded 15 baseline competences
+📚  Step 2: Extracting literature competences …
+✅  Extracted 429 literature competences
+🔀  Step 3: Merging and deduplicating …
+✅  Merged total: 444 competences
+🔍  Step 4: Analyzing gaps for all 12 sectors …
+✅  Gap analysis complete for 12 sectors
+🎓  Step 5: Designing micro-credentials …
+✅  Designed 24 credentials across 12 sectors
+🗺️  Step 6: Calculating pathways …
+✅  Pathway graph: 24 nodes, 12 edges
+📊  Step 7+8: Generating reports and exporting databases …
+✅  Index HTML → /home/runner/work/morskamary/morskamary/outputs/report_index.html
+✅  Gaps HTML → /home/runner/work/morskamary/morskamary/outputs/gaps_by_sector.html
+✅  Credentials HTML → /home/runner/work/morskamary/morskamary/outputs/credentials_matrix.html
+✅  Literature HTML → /home/runner/work/morskamary/morskamary/outputs/literature_integration.html
+✅  JSON DB → /home/runner/work/morskamary/morskamary/outputs/competences_full_database.json
+✅  JSON DB → /home/runner/work/morskamary/morskamary/outputs/credentials_database.json
+✅  JSON DB → /home/runner/work/morskamary/morskamary/outputs/sector_pathways.json
+✅  Gaps CSV → /home/runner/work/morskamary/morskamary/outputs/gaps_summary.csv
+✅  Outputs README → /home/runner/work/morskamary/morskamary/outputs/README.md

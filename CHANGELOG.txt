@@ -41,3 +41,15 @@ Provenance None (new files created from scratch).
 Quality checks Manual review for internal consistency and alignment with repository sources referenced in the governance files.
 Reviewer Robert Bartłomiejski
 text
+
+[2026-03-22] run_full_analysis.py executed
+  - Total competences: 444
+  - Total credentials: 24
+  - Sectors analysed: 12
+  - Reports written to: outputs/
+
+[2026-03-22] run_full_analysis.py executed
+  - Total competences: 444
+  - Total credentials: 24
+  - Sectors analysed: 12
+  - Reports written to: outputs/

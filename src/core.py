@@ -3,8 +3,8 @@ Core utilities and data structures for Blue Sociology analysis
 """
 
 from pathlib import Path
-from typing import Dict, List, Any, Union
-from dataclasses import dataclass
+from typing import Dict, List, Any, Optional, Union
+from dataclasses import dataclass, field
 from enum import Enum
 
 
@@ -35,6 +35,7 @@ class Competence:
         axis: TMBD axis (Marine, Maritime, or Oceanic)
         level: Proficiency level
         keywords: Associated keywords for discovery
+        source_metadata: Provenance metadata (file, row, authors, year, doi)
     """
     id: str
     name: str
@@ -42,10 +43,11 @@ class Competence:
     axis: BlueDynamicsAxis
     level: CompetenceLevel
     keywords: List[str]
+    source_metadata: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert competence to dictionary"""
-        return {
+        result: Dict[str, Any] = {
             "id": self.id,
             "name": self.name,
             "description": self.description,
@@ -53,6 +55,9 @@ class Competence:
             "level": self.level.name,
             "keywords": self.keywords,
         }
+        if self.source_metadata is not None:
+            result["source_metadata"] = self.source_metadata
+        return result
 
 
 @dataclass
@@ -66,12 +71,24 @@ class MicroCredential:
         competences: List of competence IDs
         description: Credential description
         sector: Blue economy sector (e.g., offshore energy, ports, tourism)
+        ects: European Credit Transfer System credits (default 10)
+        eqf_level: European Qualifications Framework level 3-8 (default 5)
+        assessment_method: Observable assessment description
+        prerequisites: List of prerequisite credential IDs
+        stackability_rules: Text describing stackability with other credentials
+        sources: List of source provenance dicts
     """
     id: str
     title: str
     competences: List[str]
     description: str
     sector: str
+    ects: int = 10
+    eqf_level: int = 5
+    assessment_method: str = ""
+    prerequisites: List[str] = field(default_factory=list)
+    stackability_rules: str = ""
+    sources: List[Dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert credential to dictionary"""
@@ -81,6 +98,12 @@ class MicroCredential:
             "competences": self.competences,
             "description": self.description,
             "sector": self.sector,
+            "ects": self.ects,
+            "eqf_level": self.eqf_level,
+            "assessment_method": self.assessment_method,
+            "prerequisites": self.prerequisites,
+            "stackability_rules": self.stackability_rules,
+            "sources": self.sources,
         }
 
 

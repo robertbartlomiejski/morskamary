@@ -85,6 +85,9 @@ _DIM_TO_LEVEL: Dict[str, CompetenceLevel] = {
     "D": CompetenceLevel.ADVANCED,
 }
 
+# Note: A.4 is listed per the TMBD spec but is absent from the current baseline
+# CSV (which has 15 competence rows).  The set acts as an allow-list; any ID
+# not present in the CSV simply matches no rows and is harmlessly ignored.
 _VALID_IDS = {
     "A.1", "A.2", "A.3", "A.4",
     "B.1", "B.2", "B.3", "B.4",

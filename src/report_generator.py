@@ -388,11 +388,15 @@ def generate_csv_exports(
         writer.writeheader()
         for sector, data in gap_results.items():
             axis_bk = data.get("axis_breakdown", {})
-            dominant = max(
-                axis_bk,
-                key=lambda k: len(axis_bk.get(k, [])),
-                default="",
-            )
+            # Dominant axis: the axis with the most *missing* competences, or
+            # the axis with the most *required* competences when gap is 0.
+            missing_counts = {ax: len(ids) for ax, ids in axis_bk.items()}
+            total_missing = sum(missing_counts.values())
+            if total_missing > 0:
+                dominant = max(missing_counts, key=lambda k: missing_counts[k])
+            else:
+                # No gap → report as empty (gap analysis not axis-specific here)
+                dominant = ""
             writer.writerow(
                 {
                     "sector": sector,
