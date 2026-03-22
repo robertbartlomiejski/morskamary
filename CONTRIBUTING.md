@@ -42,10 +42,16 @@ Run the test suite to confirm everything works:
 pytest tests/
 ```
 
-All 8 tests should pass. Then run the demo entry point:
+All tests should pass (currently 31). Then run the demo entry point:
 
 ```bash
 python main.py
+```
+
+To run the full analysis pipeline:
+
+```bash
+python run_full_analysis.py
 ```
 
 ---
@@ -82,14 +88,21 @@ pytest tests/ -v
 
 ```
 src/
-  core.py               # Data structures: Competence, MicroCredential, BlueDynamicsAxis, CompetenceLevel
-  competence_mapper.py  # CompetenceMapper: add/query competences and credentials
+  core.py                   # Data structures: Competence, MicroCredential, BlueDynamicsAxis, CompetenceLevel
+  competence_mapper.py      # CompetenceMapper: add/query competences and credentials
+  literature_extractor.py   # Parse combined_*.csv files → Competence objects with TMBD axis mapping
+  gap_analyzer.py           # Competence gap analysis across 12 Blue Economy sectors
+  credential_designer.py    # Auto-design micro-credentials per sector (ECTS, EQF, assessment)
+  report_generator.py       # Emit outputs/ HTML/JSON/CSV with GitHub blob hyperlinks
 tests/
-  test_core.py          # Pytest unit tests
-main.py                 # Demonstration entry point
-data/                   # Source datasets (CSV, XLSX)
-docs/                   # Policy and literature references
-manuscripts/            # Research drafts
+  test_core.py              # Pytest unit tests for core data structures
+  test_full_analysis.py     # Integration tests for the full analysis pipeline
+run_full_analysis.py        # Orchestrator: 8-step pipeline → 444 competences, 24 micro-credentials
+main.py                     # Demonstration entry point (synthetic data)
+data/                       # Source datasets (CSV, XLSX)
+docs/                       # Policy and literature references
+manuscripts/                # Research drafts
+outputs/                    # Generated reports (HTML/JSON/CSV) — created by run_full_analysis.py
 ```
 
 ---
