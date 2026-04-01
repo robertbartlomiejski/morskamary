@@ -2,13 +2,62 @@
 
 Repository: robertbartlomiejski/morskamary
 
-Purpose and scope (project logic)
-Quote: “Addressing these challenges requires more than technocratic management; it demands the development of Blue Sociology.” 
+## Quick Start
 
-Blue Sociology and the Triparti…
+```bash
+# One-click setup (recommended)
+docker compose up --build
 
+# One-click setup (local Windows, no Docker)
+powershell -ExecutionPolicy Bypass -File .\setup_one_click.ps1
 
-Reasoning: This repository is an evidence base (policy, data, competence matrices, and draft manuscripts) for developing Blue Sociology as an applied extension of maritime sociology for the EU Sustainable Blue Economy and “one ocean” governance.
+# Or load real data (primary substantive results script)
+python main_real_data.py
+
+# Or run demonstration (validation/workflow-check only)
+python demo_workspace_instructions.py
+```
+
+### GitHub Copilot MCP Integration (Optional Advanced Feature)
+
+**Note:** This is optional, local, workstation-specific tooling. Not required for core development.
+
+For optional full-context GitHub Copilot integration with local repositories, SharePoint, Google Drive, and scientific databases:
+
+```powershell
+# Windows PowerShell (run as Administrator)
+.\Deploy-CopilotSynergy.ps1
+```
+
+See [COPILOT_MCP_SETUP.md](COPILOT_MCP_SETUP.md) for complete setup guide, including:
+- Node.js and Python prerequisites verification
+- MCP server configuration for filesystem, cloud storage, and scientific APIs
+- Privacy governance and data protection settings
+- Advanced usage with verified DOI citations
+
+## One-Click Setup Graph
+
+The one-click local flow intentionally includes `demo_additional_tasks.py` as a
+mandatory comprehensive validation step for AI workspace instructions, TMBD
+mapping logic, and advanced micro-credential workflows.
+
+```mermaid
+flowchart TD
+  A[setup_one_click.ps1] --> B[scripts/generate_manifest.py]
+  B --> C[pytest tests]
+  C --> D[main_real_data.py]
+  D --> E[demo_workspace_instructions.py]
+  E --> F[demo_additional_tasks.py]
+  F --> G[mypy src]
+  G --> H[Ready for manual review]
+```
+
+## Purpose and Scope
+
+Quote: "Addressing these challenges requires more than technocratic management; it demands the development of Blue Sociology." 
+[Blue Sociology and the Tripartite Model]
+
+**Reasoning:** This repository is an evidence base (policy, data, competence matrices, and draft manuscripts) for developing Blue Sociology as an applied extension of maritime sociology for the EU Sustainable Blue Economy and "one ocean" governance.
 
 Quote: “TMBD distinguishes Marine dynamics (M)… Maritime dynamics (T)… and Oceanic dynamics (O)…” 
 
@@ -98,6 +147,97 @@ Blue Sociology and TMBD (docx/pdf variants)
 From Marinization to Oceanization… (pdf)
 
 How to use this repository (typical workflows)
+
+## AI Assistant Customizations
+
+This repository includes specialized instructions for AI coding assistants:
+
+### Core Instructions
+- [.github/copilot-instructions.md](.github/copilot-instructions.md) — Main workspace instructions for GitHub Copilot
+  - Project overview and TMBD framework
+  - Coding conventions (Python ≥3.9, black, flake8, mypy)
+  - Evidence discipline and citation requirements
+  - Architecture patterns and data workflows
+
+- [.github/repository-guardrails.instructions.md](.github/repository-guardrails.instructions.md) — Hard guardrails for coding agents
+  - Prioritizes real-data execution (`main_real_data.py` over `demo_workspace_instructions.py`)
+  - Enforces Python-first architecture (Node.js as optional MCP tooling only)
+  - Maintains separation of repository and workstation-specific configurations
+  - Establishes priority order: derived-data value, provenance/governance, then assistant-access
+
+### Domain-Specific Instructions
+- [.github/competence-domain.instructions.md](.github/competence-domain.instructions.md) — For competence loading scripts
+  - CSV validation rules
+  - Dimension → TMBD axis mapping
+  - Source management and provenance tracking
+  - Testing requirements
+
+### Workflow Prompts
+- [.github/add-competence.prompt.md](.github/add-competence.prompt.md) — Step-by-step workflow for adding new competences
+  - Evidence gathering from repository sources
+  - TMBD axis assignment with justification
+  - Competence level determination
+  - Testing and documentation requirements
+
+### Skills
+- [.github/integrate-literature.skill.md](.github/integrate-literature.skill.md) — Extract competences from literature
+  - Search repository literature sources
+  - Map paper themes to TMBD axes
+  - Create competences with full citations
+  - Update provenance records
+
+## Demonstration Scripts
+
+### [demo_workspace_instructions.py](demo_workspace_instructions.py)
+Complete demonstration of workspace instructions in action:
+1. **Add coastal resilience competence** with TMBD axis and evidence
+2. **Create port sustainability micro-credential** with all required fields (ECTS, EQF, assessment)
+3. **Analyze competence gaps** for offshore renewable energy sector
+4. **Validate type safety** (Python ≥3.9, mypy conventions)
+
+Run: `python demo_workspace_instructions.py`
+
+## CI and Dependency Graph
+
+### Dependency Submission
+
+This repository uses a **repo-managed** GitHub Actions workflow
+(`.github/workflows/dependency-submission.yml`) to submit dependency snapshots
+to the GitHub Dependency Graph.
+
+**Why repo-managed instead of GitHub's automatic detector?**
+
+GitHub provides a platform-managed "Automatic Dependency Submission (Python)"
+workflow, but it can fail with transient API errors (e.g.
+`HttpError: An error occurred while processing your request`) and its Python
+project-layout detector may not recognise this repository's structure.
+The repo-managed workflow is deterministic: it pins Python 3.11, resolves
+dependencies from the repo's own `requirements.txt` / `pyproject.toml`, and
+submits the snapshot with an explicit `permissions: contents: write` token.
+
+**Behaviour (enforced priority order):**
+
+| Condition | Action |
+|---|---|
+| `requirements.txt` exists | Submit snapshot from `requirements.txt` (authoritative) |
+| `requirements.txt` absent, `pyproject.toml` exists | Submit snapshot from `pyproject.toml` (fallback) |
+| Neither file found | Emit a workflow warning, skip submission gracefully |
+
+`requirements.txt` is the authoritative dependency manifest for GitHub's
+Dependency Graph when it is present. `pyproject.toml` serves as a fallback
+and carries packaging/tooling metadata; **its runtime `dependencies` list must
+not drift from `requirements.txt`** unless `requirements.txt` is intentionally
+removed.
+
+**Running alongside GitHub's automatic detector:**
+
+Both workflows can run simultaneously without conflict — GitHub de-duplicates
+snapshots by detector name. You may optionally disable GitHub's automatic
+detector under *Settings → Code security and analysis → Automatic dependency
+submission* if you prefer a single, controlled submission path or if the
+managed workflow keeps producing failures or noise.
+
+## Data Workflows
 Quote: “Connecting Science with Society… ocean literacy and societal transformation” 
 
 ocean-climate nexus-KI0722867EN…

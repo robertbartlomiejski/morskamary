@@ -22,12 +22,21 @@ src/
   competence_mapper.py  # CompetenceMapper: add/query competences and credentials
   __init__.py
 tests/
-  test_core.py          # Pytest-based unit tests
-main.py                 # Demonstration entry point
+  test_core.py          # Pytest-based unit tests (8 tests expected to pass)
+main.py                 # Demonstration entry point (synthetic data)
+main_real_data.py       # Production demo with University of Szczecin baseline
+load_real_competences.py  # CSV loader with dimension→axis mapping
+scripts/
+  generate_manifest.py  # Auto-generates MANIFEST_SOURCES.csv
+  build_derived.py      # Excel→CSV export engine
+data/
+  raw/                  # Primary sources (literature CSVs, policy docs)
+  derived/              # Processed outputs (competence matrices, frameworks)
 LLM_CONTEXT_INSTRUCTION.txt  # Domain-specific LLM constraints and protocols
 DATA_GOVERNANCE.txt     # FAIR/CARE data governance rules
 CITATION.txt            # Citation and provenance guidance
 CHANGELOG.txt           # Versioned change log
+MANIFEST_SOURCES.csv    # Auto-generated source catalog for provenance
 ```
 
 ## Coding Conventions
@@ -41,15 +50,30 @@ CHANGELOG.txt           # Versioned change log
 - Use `Enum` for controlled vocabularies (axes, levels, sectors)
 - All public functions and classes must have docstrings
 
-## Running Tests and Tools
+## Development Quick Start
 
 ```bash
+# First-time setup
 pip install -r requirements.txt
-pytest tests/           # run tests
-black src/ tests/       # format code
-flake8 src/ tests/      # lint
-mypy src/               # type-check
+pip install black flake8 mypy  # dev tools (optional)
+pytest tests/ -v                # verify setup (expect 8 passing tests)
+
+# Run demos
+python main.py                  # synthetic data demo
+python main_real_data.py        # real data from University of Szczecin baseline
+python scripts/generate_manifest.py  # rebuild source catalog
+
+# Code quality
+black src/ tests/               # format code (line-length=88)
+flake8 src/ tests/              # lint
+mypy src/                       # type-check
+
+# Docker workflows
+docker compose up --build                      # production build
+docker compose -f compose.debug.yaml up --build  # debug mode (debugpy on port 5678)
 ```
+
+**Prerequisites**: Python ≥ 3.9, Git, (optional) Docker
 
 ## Domain Constraints (from `LLM_CONTEXT_INSTRUCTION.txt`)
 
@@ -104,3 +128,58 @@ When working on competence mapping, adhere to these task-specific practices:
 ### Cross-sector Suggestions
 - When adding competences to one sector (e.g., Maritime Transport), suggest related mappings to adjacent sectors (e.g., Ports, Offshore Energy)
 - Document rationale for each sector association in competence metadata
+
+## Architecture Patterns
+
+### Data Model Design
+- **Use `@dataclass` for all models** with full type hints on all fields
+- **Enums for controlled vocabularies**: `BlueDynamicsAxis`, `CompetenceLevel` prevent invalid values
+- **ID-based linking**: Store references as `List[str]` (IDs) rather than nested objects for flexible composition
+- **Serialization pattern**: Implement `to_dict()` methods that convert enums to `.value` (codes) or `.name` (strings)
+
+### Service Layer Patterns (CompetenceMapper)
+- **Registry pattern**: Objects stored in `Dict[str, EntityType]` keyed by ID for O(1) lookups
+- **Filtering**: Use list comprehensions for single-attribute filters: `[c for c in items if c.axis == target]`
+- **Set operations for analysis**: `available & required`, `required - available` for gap analysis
+- **Complex results**: Return `Dict[str, ...]` with structured nested data; document structure in docstring
+
+### Code Conventions
+- **Type hints everywhere**: Annotate all parameters and return types
+- **Accept `Union[str, Path]`** for file operations; convert immediately to `Path` object
+- **Avoid division by zero**: Use `max(1, len(collection))` when computing averages
+- **Sort with computed metrics**: Build `List[Tuple[item, metric]]`, sort by metric, then extract items
+- **Test organization**: Group tests by entity in classes (e.g., `TestCompetence`, `TestMicroCredential`)
+
+## Data Workflows
+
+### Key Datasets
+**Blue Social Competences** (University of Szczecin baseline):
+- **4 dimensions**: Understanding (A), Digital/Data (B), Sustainability/Resilience (C), Business/Governance (D)
+- **16 competences** total mapped across 12 blue economy sectors
+- **Location**: `data/derived/Blue Social Competences Univ Szczecin - *.csv`
+
+**Dimension → TMBD Axis Mapping** (in `load_real_competences.py`):
+- Dimension A (Understanding) → **OCEANIC** (planetary literacy, systems thinking)
+- Dimension B (Digital/Data) → **MARITIME** (infrastructure, technology tools)
+- Dimension C (Sustainability) → **MARINE** (ecological, biophysical systems)
+- Dimension D (Business/Governance) → **MARITIME** (institutional, economic mediation)
+
+### Data Processing Flow
+```
+data/raw/ (sources)
+  ↓
+scripts/build_derived.py (Excel → CSV export)
+  ↓
+data/derived/ (processed matrices)
+  ↓
+load_real_competences.py (CSV → Competence objects)
+  ↓
+CompetenceMapper (in-memory registry)
+  ↓
+main_real_data.py (analysis & micro-credential design)
+```
+
+### Path Expectations
+- **main_real_data.py** expects: `data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv`
+- Script validates path existence and exits gracefully if missing
+- **MANIFEST_SOURCES.csv** is auto-generated by `scripts/generate_manifest.py` for provenance tracking

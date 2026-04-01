@@ -19,6 +19,61 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-01
+Change type fix add update
+Scope infrastructure governance documentation
+Files affected pyproject.toml requirements.txt .github/workflows/dependency-submission.yml (new) README.md
+Summary Fixed Python dependency manifest drift: aligned openpyxl minimum version to >=3.0.0 in both pyproject.toml and requirements.txt (pyproject.toml previously had >=3.8.0 which is non-existent). Removed pytest from runtime dependencies in pyproject.toml (it belongs only under [project.optional-dependencies].dev). Created repo-managed dependency submission workflow (.github/workflows/dependency-submission.yml) with explicit priority order: requirements.txt authoritative when present; pyproject.toml as fallback; graceful skip with warning when neither exists. Updated README.md CI section with enforced priority order table and note that pyproject.toml runtime dependencies must not drift from requirements.txt.
+Reason requirements.txt and pyproject.toml disagreed on the openpyxl minimum version; GitHub's platform-managed Automatic Dependency Submission workflow was failing with transient API errors and mis-detecting the project layout; no authoritative source for dependency graph submission was defined.
+Impact Dependency manifests now agree; GitHub Dependency Graph submission is deterministic and uses requirements.txt as the authoritative source; developers have clear guidance that pyproject.toml runtime deps must stay in sync with requirements.txt.
+Provenance requirements.txt (authoritative runtime deps), pyproject.toml (packaging/tooling metadata), .github/workflows/dependency-submission.yml (new repo-managed workflow).
+Quality checks pytest tests/ passes (8/8); pip install -r requirements.txt succeeds; pyproject.toml and requirements.txt verified to agree on all shared runtime dependency versions; workflow YAML validated syntactically.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-01
+Change type add update
+Scope infrastructure documentation governance scripts
+Files affected .github/repository-guardrails.instructions.md (new) Deploy-CopilotSynergy.ps1 scientific_bridge.py COPILOT_MCP_SETUP.md README.md CHANGELOG.txt
+Summary Added repository guardrails policy file at .github/repository-guardrails.instructions.md establishing hard constraints for coding agents: real-data precedence (main_real_data.py over demo_workspace_instructions.py), Python-first architecture enforcement, separation of repository and workstation configurations, and priority order (derived-data value → provenance/governance → assistant-access). Updated all MCP-related files to clarify they are optional, local, workstation-specific tooling, NOT core repository dependencies. Updated README.md to reorder Quick Start prioritizing real-data workflow and add guardrails reference. Updated COPILOT_MCP_SETUP.md header with prominent warning about optional nature.
+Reason Strengthen repository governance by establishing clear execution hierarchy and preventing scope creep of optional tooling into core infrastructure. Respond to maintainer feedback requesting explicit guardrails that preserve Python-first architecture, enforce real-data precedence, and maintain portability by keeping workstation-specific configurations separate from repository core. Ensure Node.js and MCP infrastructure remain strictly optional second-phase tooling rather than default requirements.
+Impact Coding agents now have explicit instructions to prioritize main_real_data.py for substantive outputs, treat demo scripts as validation-only, avoid introducing Node.js as core dependency, and maintain separation between portable repository artifacts and local workstation configurations. MCP infrastructure clearly marked as optional advanced feature. Repository maintains Python-first identity while supporting optional advanced integration for users who need it.
+Provenance main_real_data.py (real-data primary script), demo_workspace_instructions.py (validation script), requirements.txt (Python-only core dependencies), README.md (Quick Start hierarchy), maintainer feedback via PR comments (comment_id 4170105857, 4044233213).
+Quality checks All updated files validated for consistency; README.md Quick Start section reordered with real-data first; all MCP files include "optional tooling" disclaimers; guardrails policy reviewed against repository structure and existing governance files (LLM_CONTEXT_INSTRUCTION.txt, DATA_GOVERNANCE.txt, .github/copilot-instructions.md).
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-01
+Change type add
+Scope infrastructure documentation scripts
+Files affected Deploy-CopilotSynergy.ps1 scientific_bridge.py COPILOT_MCP_SETUP.md .vscode/mcp_full_integration.json
+Summary Added comprehensive MCP (Model Context Protocol) infrastructure for GitHub Copilot integration, enabling full-context access to local repositories, SharePoint, Google Drive, and scientific databases. Created Deploy-CopilotSynergy.ps1 PowerShell deployment script with automatic Node.js/Python verification, MCP package installation, and configuration generation. Implemented scientific_bridge.py Python MCP server for querying Crossref, Scopus, and Web of Science APIs with DOI verification. Created COPILOT_MCP_SETUP.md with complete deployment guide, privacy governance, and troubleshooting documentation.
+Reason Enable "Full Data Use" architecture for GitHub Copilot Coding Agent, providing direct access to morskamary and maritimesociology repositories, University of Szczecin SharePoint synchronized folders, Google Drive research materials, and verified scientific citations without hallucination. Support Windows-based research workflow with privacy-first configuration (no telemetry/training on proprietary data).
+Impact Researchers can now use GitHub Copilot with full contextual awareness of TMBD framework, Blue Social Competences, literature sources, and institutional data. Scientific claims are automatically backed by verified DOI citations from Crossref API. MCP servers enable competence mapping and micro-credential design grounded in local evidence base while maintaining FAIR/CARE data governance principles.
+Provenance LLM_CONTEXT_INSTRUCTION.txt (TMBD definitions), DATA_GOVERNANCE.txt (FAIR/CARE principles), .github/copilot-instructions.md (coding conventions), README.md (project overview). Scientific bridge implements Crossref REST API v1 (https://api.crossref.org) for citation metadata.
+Quality checks Deploy-CopilotSynergy.ps1 syntax verified with PowerShell 7.x; scientific_bridge.py tested with Python 3.9+ and mypy type checking; COPILOT_MCP_SETUP.md reviewed for accuracy against MCP specification and GitHub Copilot documentation; all configuration files validated as valid JSON.
+Reviewer GitHub Copilot Coding Agent
+
+2026-03-22
+Change type fix add
+Scope scripts governance CI
+Files affected .github/workflows/CI (deleted) run_full_analysis.py (new) outputs/.gitkeep (new) .gitignore (updated) CHANGELOG.txt
+Summary Deleted the invalid .github/workflows/CI workflow file (no .yml extension, malformed YAML missing top-level name:/on:/jobs: keys) since the correct ci.yml already existed. Created run_full_analysis.py, a production-ready master script that loads 15 baseline competences from the University of Szczecin CSV plus 450+ literature-derived competences from 3 combined_*.csv files, runs full gap analysis across 12 blue economy sectors, generates 48 micro-credentials (EQF 4-7) with 9 required fields each, computes 132 sector transition pathways, and exports HTML reports and JSON/CSV databases to outputs/.
+Reason The CI workflow file had two independent defects: (1) no .yml/.yaml extension so GitHub Actions would not reliably recognise it; (2) the YAML was structurally invalid starting with a bare list item rather than top-level workflow keys. The master analysis script fulfils the enhanced gap analysis and micro-credential design requirements.
+Impact All outputs are now generated by run_full_analysis.py in outputs/ (excluded from git via .gitignore). CI is now handled exclusively by ci.yml.
+Provenance data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv; data/derived/combined_blue_economy_labor_justice.csv; data/derived/combined_blue_economy_research_gaps.csv; data/derived/combined_blue_sociology_results.csv
+Quality checks flake8 run_full_analysis.py passed; pytest tests/ 8/8 passed; run_full_analysis.py executed successfully generating all 8 output files.
+Reviewer GitHub Copilot Coding Agent
+
+2026-03-09
+Change type fix add
+Scope scripts governance
+Files affected requirements.txt Dockerfile CONTRIBUTING.md
+Summary Fixed openpyxl version constraint in requirements.txt (changed >=3.8.0 to >=3.0.0; version 3.8.0 does not exist). Fixed Windows-style path in Dockerfile CMD (backslash → forward slash). Added CONTRIBUTING.md with step-by-step getting-started guide for new contributors.
+Reason requirements.txt blocked pip install entirely; Dockerfile CMD would fail on Linux containers; no onboarding guide existed for new contributors.
+Impact pip install -r requirements.txt now succeeds; Docker build runs correctly; new contributors can set up and verify the environment in minutes.
+Provenance None (bug fixes and new documentation only).
+Quality checks pip install verified; pytest tests/ passes (8/8); CONTRIBUTING.md reviewed for accuracy against pyproject.toml and existing tooling.
+Reviewer GitHub Copilot Agent
+
 2026-02-18
 Change type add
 Scope governance
@@ -29,3 +84,4 @@ Impact Improves auditability of future derived datasets and manuscript revisions
 Provenance None (new files created from scratch).
 Quality checks Manual review for internal consistency and alignment with repository sources referenced in the governance files.
 Reviewer Robert Bartłomiejski
+text

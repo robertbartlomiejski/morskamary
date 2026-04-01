@@ -105,7 +105,7 @@ def scan_files() -> List[Path]:
             if p.resolve() == MANIFEST_PATH.resolve():
                 continue
             # ignore binary junk
-            if name in {".DS_Store"}:
+            if name in {".DS_Store"} or p.suffix.lower() in {".lnk"}:
                 continue
             files.append(p)
     files.sort(key=lambda p: p.relative_to(REPO_ROOT).as_posix().lower())

@@ -1,9 +1,21 @@
 file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rights_note,summary_1_sentence,preferred_citation_key,text_available
+# Changelog for `68efdd831ef476fb3cbdf16.md,text,,,,,,Changelog_for__68efdd831ef476fb3cbdf16,yes
+# Changelog for `c068036473875707f9d8054.litcoffee,other,,,,,,Changelog_for__c068036473875707f9d8054,no
+.allai/workspace.db,other,,,,,,workspace,no
 .dockerignore,other,,,,,,dockerignore,no
+.flake8,other,,,,,,flake8,no
+.github/add-competence.prompt.md,text,,,,,,add_competence_prompt,yes
+.github/competence-domain.instructions.md,text,,,,,,competence_domain_instructions,yes
+.github/copilot-instructions.md,text,,,,,,copilot_instructions,yes
+.github/copilot-instructions2.md,text,,,,,,copilot_instructions2,yes
+.github/integrate-literature.skill.md,text,,,,,,integrate_literature_skill,yes
 .github/workflows/blank.yml,other,,,,,,blank,no
 .github/workflows/CI,other,,,,,,CI,no
+.github/workflows/ci.yml,other,,,,,,ci,no
+.gitignore,other,,,,,,gitignore,no
 .vscode/## Chat Customization Diagnostics.md,text,,,,,,Chat_Customization_Diagnostics,yes
 .vscode/launch.json,other,,,,,,launch,no
+.vscode/mcp.json,other,,,,,,mcp,no
 .vscode/settings.json,other,,,,,,settings,no
 .vscode/tasks.json,other,,,,,,tasks,no
 .vscode/test_launch.json,other,,,,,,test_launch,no
@@ -11,112 +23,220 @@ CHANGELOG.txt,governance,,,,,,CHANGELOG,yes
 CITATION.txt,governance,,,,,,CITATION,yes
 compose.debug.yaml,other,,,,,,compose_debug,no
 compose.yaml,other,,,,,,compose,no
+CONTRIBUTING.md,text,,,,,,CONTRIBUTING,yes
+data/derived/20250303_emodnethumanactivities_final_2025 — kopia.xlsx,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
 data/derived/20250303_emodnethumanactivities_final_2025.xlsx,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+data/derived/20250701_emodnethumanactivities_q22025_lf — kopia.xlsx,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
 data/derived/20250701_emodnethumanactivities_q22025_lf.xlsx,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+data/derived/A systematic literature assessment on the effects of human-altered soundscapes on marine life_dataset — kopia.xlsx,dataset_derived,,,,,,A_systematic_literature_assessment_on_th,yes
 data/derived/A systematic literature assessment on the effects of human-altered soundscapes on marine life_dataset.xlsx,dataset_derived,,,,,,A_systematic_literature_assessment_on_th,yes
+data/derived/abstract_converted — kopia.md,dataset_derived,,,,,,abstract_converted___kopia,yes
 data/derived/abstract_converted.md,dataset_derived,,,,,,abstract_converted,yes
+data/derived/Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials — kopia.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
 data/derived/Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+data/derived/Blue Social Competences Univ Szczecin - Blue competences x blue economy sector — kopia.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
 data/derived/Blue Social Competences Univ Szczecin - Blue competences x blue economy sector.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension — kopia.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
 data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+data/derived/Blue Social Competences Univ Szczecin matrix — kopia (2).xlsx,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,yes
+data/derived/Blue Social Competences Univ Szczecin matrix — kopia — kopia.xlsx,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,yes
+data/derived/Blue Social Competences Univ Szczecin matrix — kopia.pdf,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,no
 data/derived/Blue Social Competences Univ Szczecin matrix — kopia.xlsx,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,yes
 data/derived/Blue Social Competences Univ Szczecin matrix.pdf,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,no
 data/derived/Blue Social Competences Univ Szczecin matrix.xlsx,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,yes
+data/derived/Blue Social Competences Univ Szczecin — kopia.xlsx,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
 data/derived/Blue Social Competences Univ Szczecin.xlsx,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin,yes
+data/derived/blue_economy_gaps_analysis — kopia.md,dataset_derived,,,,,,blue_economy_gaps_analysis___kopia,yes
 data/derived/blue_economy_gaps_analysis.md,dataset_derived,,,,,,blue_economy_gaps_analysis,yes
+data/derived/Blue_Sociology_Executive_Summary — kopia.md,dataset_derived,,,,,,Blue_Sociology_Executive_Summary___kopia,yes
 data/derived/Blue_Sociology_Executive_Summary.md,dataset_derived,,,,,,Blue_Sociology_Executive_Summary,yes
+data/derived/Blue_Sociology_Framework_Complete — kopia (2).md,dataset_derived,,,,,,Blue_Sociology_Framework_Complete___kopi,yes
+data/derived/Blue_Sociology_Framework_Complete — kopia — kopia.md,dataset_derived,,,,,,Blue_Sociology_Framework_Complete___kopi,yes
 data/derived/Blue_Sociology_Framework_Complete — kopia.md,dataset_derived,,,,,,Blue_Sociology_Framework_Complete___kopi,yes
 data/derived/Blue_Sociology_Framework_Complete.md,dataset_derived,,,,,,Blue_Sociology_Framework_Complete,yes
+data/derived/Blue_Sociology_Framework_Concept_Map (1) — kopia.png,dataset_derived,,,,,,Blue_Sociology_Framework_Concept_Map__1_,no
 data/derived/Blue_Sociology_Framework_Concept_Map (1).png,dataset_derived,,,,,,Blue_Sociology_Framework_Concept_Map__1,no
+data/derived/Blue_Sociology_Framework_Concept_Map — kopia.png,dataset_derived,,,,,,Blue_Sociology_Framework_Concept_Map___k,no
 data/derived/Blue_Sociology_Framework_Concept_Map.png,dataset_derived,,,,,,Blue_Sociology_Framework_Concept_Map,no
+data/derived/Blue_Sociology_Framework_Synthesis — kopia.md,dataset_derived,,,,,,Blue_Sociology_Framework_Synthesis___kop,yes
 data/derived/Blue_Sociology_Framework_Synthesis.md,dataset_derived,,,,,,Blue_Sociology_Framework_Synthesis,yes
+data/derived/CaseStudies — kopia.xlsx,dataset_derived,,,,,,CaseStudies___kopia,yes
 data/derived/CaseStudies.xlsx,dataset_derived,,,,,,CaseStudies,yes
+data/derived/combined_blue_economy_labor_justice — kopia.csv,dataset_derived,,,,,,combined_blue_economy_labor_justice___ko,yes
 data/derived/combined_blue_economy_labor_justice.csv,dataset_derived,,,,,,combined_blue_economy_labor_justice,yes
+data/derived/combined_blue_economy_research_gaps — kopia.csv,dataset_derived,,,,,,combined_blue_economy_research_gaps___ko,yes
 data/derived/combined_blue_economy_research_gaps.csv,dataset_derived,,,,,,combined_blue_economy_research_gaps,yes
+data/derived/combined_blue_sociology_results — kopia.csv,dataset_derived,,,,,,combined_blue_sociology_results___kopia,yes
 data/derived/combined_blue_sociology_results.csv,dataset_derived,,,,,,combined_blue_sociology_results,yes
+data/derived/combined_eu_blue_economy_results — kopia.csv,dataset_derived,,,,,,combined_eu_blue_economy_results___kopia,yes
 data/derived/combined_eu_blue_economy_results.csv,dataset_derived,,,,,,combined_eu_blue_economy_results,yes
+data/derived/combined_janiszewski_maritime_sociology — kopia.csv,dataset_derived,,,,,,combined_janiszewski_maritime_sociology_,yes
 data/derived/combined_janiszewski_maritime_sociology.csv,dataset_derived,,,,,,combined_janiszewski_maritime_sociology,yes
+data/derived/combined_maritime_sociology_results — kopia.csv,dataset_derived,,,,,,combined_maritime_sociology_results___ko,yes
 data/derived/combined_maritime_sociology_results.csv,dataset_derived,,,,,,combined_maritime_sociology_results,yes
+data/derived/combined_maritimization_results — kopia.csv,dataset_derived,,,,,,combined_maritimization_results___kopia,yes
 data/derived/combined_maritimization_results.csv,dataset_derived,,,,,,combined_maritimization_results,yes
+data/derived/combined_poole_maritime_sociology_results — kopia.csv,dataset_derived,,,,,,combined_poole_maritime_sociology_result,yes
 data/derived/combined_poole_maritime_sociology_results.csv,dataset_derived,,,,,,combined_poole_maritime_sociology_result,yes
+data/derived/DOCUMENT_GUIDE — kopia.md,dataset_derived,,,,,,DOCUMENT_GUIDE___kopia,yes
 data/derived/DOCUMENT_GUIDE.md,dataset_derived,,,,,,DOCUMENT_GUIDE,yes
+data/derived/European ports list 2024 — kopia.xlsx,dataset_derived,,,,,,European_ports_list_2024___kopia,yes
 data/derived/European ports list 2024.xlsx,dataset_derived,,,,,,European_ports_list_2024,yes
+data/derived/EXPANSION_COMPLETE_SUMMARY — kopia.md,dataset_derived,,,,,,EXPANSION_COMPLETE_SUMMARY___kopia,yes
 data/derived/EXPANSION_COMPLETE_SUMMARY.md,dataset_derived,,,,,,EXPANSION_COMPLETE_SUMMARY,yes
+data/derived/final_comprehensive_analysis — kopia.md,dataset_derived,,,,,,final_comprehensive_analysis___kopia,yes
 data/derived/final_comprehensive_analysis.md,dataset_derived,,,,,,final_comprehensive_analysis,yes
+data/derived/janiszewski_detailed_analysis — kopia.md,dataset_derived,,,,,,janiszewski_detailed_analysis___kopia,yes
 data/derived/janiszewski_detailed_analysis.md,dataset_derived,,,,,,janiszewski_detailed_analysis,yes
+data/derived/Janiszewski_Poole_Comparison — kopia.png,dataset_derived,,,,,,Janiszewski_Poole_Comparison___kopia,no
 data/derived/Janiszewski_Poole_Comparison.png,dataset_derived,,,,,,Janiszewski_Poole_Comparison,no
+data/derived/JRC135889_02 TAC TEC tool EC taxonomy — kopia.xlsx,dataset_derived,,,,,,JRC135889_02_TAC_TEC_tool_EC_taxonomy___,yes
 data/derived/JRC135889_02 TAC TEC tool EC taxonomy.xlsx,dataset_derived,,,,,,JRC135889_02_TAC_TEC_tool_EC_taxonomy,yes
+data/derived/Key_References_by_Theme — kopia.md,dataset_derived,,,,,,Key_References_by_Theme___kopia,yes
 data/derived/Key_References_by_Theme.md,dataset_derived,,,,,,Key_References_by_Theme,yes
+data/derived/LeHavre_SensoryLab_Matrix v5 — kopia.xlsx,dataset_derived,,,,,,LeHavre_SensoryLab_Matrix_v5___kopia,yes
 data/derived/LeHavre_SensoryLab_Matrix v5.xlsx,dataset_derived,,,,,,LeHavre_SensoryLab_Matrix_v5,yes
+data/derived/mar_esms_an_2 — kopia.xlsx,dataset_derived,,,,,,mar_esms_an_2___kopia,yes
 data/derived/mar_esms_an_2.xlsx,dataset_derived,,,,,,mar_esms_an_2,yes
+data/derived/maritime_sociology_framework_synthesis — kopia.md,dataset_derived,,,,,,maritime_sociology_framework_synthesis__,yes
 data/derived/maritime_sociology_framework_synthesis.md,dataset_derived,,,,,,maritime_sociology_framework_synthesis,yes
+data/derived/Modulo senza titolo (Risposte) — kopia.xlsx,dataset_derived,,,,,,Modulo_senza_titolo__Risposte____kopia,yes
 data/derived/Modulo senza titolo (Risposte).xlsx,dataset_derived,,,,,,Modulo_senza_titolo__Risposte,yes
+data/derived/ocean_pact_main_analysis — kopia.md,dataset_derived,,,,,,ocean_pact_main_analysis___kopia,yes
 data/derived/ocean_pact_main_analysis.md,dataset_derived,,,,,,ocean_pact_main_analysis,yes
+data/derived/PACT_WG3_Contested_Glossary_Template_v1 (1) — kopia.xlsx,dataset_derived,,,,,,PACT_WG3_Contested_Glossary_Template_v1_,yes
 data/derived/PACT_WG3_Contested_Glossary_Template_v1 (1).xlsx,dataset_derived,,,,,,PACT_WG3_Contested_Glossary_Template_v1_,yes
+data/derived/PACT_WG3_Contested_Glossary_Template_v1 — kopia.xlsx,dataset_derived,,,,,,PACT_WG3_Contested_Glossary_Template_v1_,yes
 data/derived/PACT_WG3_Contested_Glossary_Template_v1.xlsx,dataset_derived,,,,,,PACT_WG3_Contested_Glossary_Template_v1,yes
+data/derived/paper-table-2026-02-12 (2) — kopia.csv,dataset_derived,,,,,,paper_table_2026_02_12__2____kopia,yes
 data/derived/paper-table-2026-02-12 (2).csv,dataset_derived,,,,,,paper_table_2026_02_12__2,yes
+data/derived/paper-table-2026-02-12 — kopia.csv,dataset_derived,,,,,,paper_table_2026_02_12___kopia,yes
 data/derived/paper-table-2026-02-12.csv,dataset_derived,,,,,,paper_table_2026_02_12,yes
+data/derived/poole_article_search — kopia.csv,dataset_derived,,,,,,poole_article_search___kopia,yes
 data/derived/poole_article_search.csv,dataset_derived,,,,,,poole_article_search,yes
+data/derived/poole_detailed_analysis — kopia.md,dataset_derived,,,,,,poole_detailed_analysis___kopia,yes
 data/derived/poole_detailed_analysis.md,dataset_derived,,,,,,poole_detailed_analysis,yes
+data/derived/Port Sensory Fieldwork Planning — kopia.xlsx,dataset_derived,,,,,,Port_Sensory_Fieldwork_Planning___kopia,yes
 data/derived/Port Sensory Fieldwork Planning.xlsx,dataset_derived,,,,,,Port_Sensory_Fieldwork_Planning,yes
+data/derived/port_energy_transition_glossary — kopia.xlsx,dataset_derived,,,,,,port_energy_transition_glossary___kopia,yes
 data/derived/port_energy_transition_glossary.xlsx,dataset_derived,,,,,,port_energy_transition_glossary,yes
+data/derived/Project_search_results_keep_eu — kopia.xlsx,dataset_derived,,,,,,Project_search_results_keep_eu___kopia,yes
 data/derived/Project_search_results_keep_eu.xlsx,dataset_derived,,,,,,Project_search_results_keep_eu,yes
+data/derived/QueryResult RBHAB1AZURE — kopia.xlsx,dataset_derived,,,,,,QueryResult_RBHAB1AZURE___kopia,yes
 data/derived/QueryResult RBHAB1AZURE.xlsx,dataset_derived,,,,,,QueryResult_RBHAB1AZURE,yes
+data/derived/refine (1) — kopia.xlsx,dataset_derived,,,,,,refine__1____kopia,yes
 data/derived/refine (1).xlsx,dataset_derived,,,,,,refine__1,yes
+data/derived/refine — kopia.xlsx,dataset_derived,,,,,,refine___kopia,yes
 data/derived/refine.xlsx,dataset_derived,,,,,,refine,yes
+data/derived/savedrecs — kopia.xls,dataset_derived,,,,,,savedrecs___kopia,yes
 data/derived/savedrecs.xls,dataset_derived,,,,,,savedrecs,yes
+data/derived/scholar_blue_economy_2 — kopia.csv,dataset_derived,,,,,,scholar_blue_economy_2___kopia,yes
 data/derived/scholar_blue_economy_2.csv,dataset_derived,,,,,,scholar_blue_economy_2,yes
+data/derived/scholar_blue_economy_3 — kopia.csv,dataset_derived,,,,,,scholar_blue_economy_3___kopia,yes
 data/derived/scholar_blue_economy_3.csv,dataset_derived,,,,,,scholar_blue_economy_3,yes
+data/derived/scholar_blue_economy_equity — kopia.csv,dataset_derived,,,,,,scholar_blue_economy_equity___kopia,yes
 data/derived/scholar_blue_economy_equity.csv,dataset_derived,,,,,,scholar_blue_economy_equity,yes
+data/derived/scholar_blue_economy_labor — kopia.csv,dataset_derived,,,,,,scholar_blue_economy_labor___kopia,yes
 data/derived/scholar_blue_economy_labor.csv,dataset_derived,,,,,,scholar_blue_economy_labor,yes
+data/derived/scholar_blue_economy_social_science — kopia.csv,dataset_derived,,,,,,scholar_blue_economy_social_science___ko,yes
 data/derived/scholar_blue_economy_social_science.csv,dataset_derived,,,,,,scholar_blue_economy_social_science,yes
+data/derived/scholar_blue_sociology_1 — kopia.csv,dataset_derived,,,,,,scholar_blue_sociology_1___kopia,yes
 data/derived/scholar_blue_sociology_1.csv,dataset_derived,,,,,,scholar_blue_sociology_1,yes
+data/derived/scholar_blue_sociology_2 — kopia.csv,dataset_derived,,,,,,scholar_blue_sociology_2___kopia,yes
 data/derived/scholar_blue_sociology_2.csv,dataset_derived,,,,,,scholar_blue_sociology_2,yes
+data/derived/scholar_blue_sociology_3 — kopia.csv,dataset_derived,,,,,,scholar_blue_sociology_3___kopia,yes
 data/derived/scholar_blue_sociology_3.csv,dataset_derived,,,,,,scholar_blue_sociology_3,yes
+data/derived/scholar_janiszewski_maritime — kopia.csv,dataset_derived,,,,,,scholar_janiszewski_maritime___kopia,yes
 data/derived/scholar_janiszewski_maritime.csv,dataset_derived,,,,,,scholar_janiszewski_maritime,yes
+data/derived/scholar_janiszewski_marynizacja — kopia.csv,dataset_derived,,,,,,scholar_janiszewski_marynizacja___kopia,yes
 data/derived/scholar_janiszewski_marynizacja.csv,dataset_derived,,,,,,scholar_janiszewski_marynizacja,yes
+data/derived/scholar_maritime_governance — kopia.csv,dataset_derived,,,,,,scholar_maritime_governance___kopia,yes
 data/derived/scholar_maritime_governance.csv,dataset_derived,,,,,,scholar_maritime_governance,yes
+data/derived/scholar_maritime_poole — kopia.csv,dataset_derived,,,,,,scholar_maritime_poole___kopia,yes
 data/derived/scholar_maritime_poole.csv,dataset_derived,,,,,,scholar_maritime_poole,yes
+data/derived/scholar_maritime_sectors_equity — kopia.csv,dataset_derived,,,,,,scholar_maritime_sectors_equity___kopia,yes
 data/derived/scholar_maritime_sectors_equity.csv,dataset_derived,,,,,,scholar_maritime_sectors_equity,yes
+data/derived/scholar_maritimization — kopia.csv,dataset_derived,,,,,,scholar_maritimization___kopia,yes
 data/derived/scholar_maritimization.csv,dataset_derived,,,,,,scholar_maritimization,yes
+data/derived/scholar_ocean_governance_gaps — kopia.csv,dataset_derived,,,,,,scholar_ocean_governance_gaps___kopia,yes
 data/derived/scholar_ocean_governance_gaps.csv,dataset_derived,,,,,,scholar_ocean_governance_gaps,yes
+data/derived/scholar_poole_maritime_1 — kopia.csv,dataset_derived,,,,,,scholar_poole_maritime_1___kopia,yes
 data/derived/scholar_poole_maritime_1.csv,dataset_derived,,,,,,scholar_poole_maritime_1,yes
+data/derived/scholar_poole_maritime_3 — kopia.csv,dataset_derived,,,,,,scholar_poole_maritime_3___kopia,yes
 data/derived/scholar_poole_maritime_3.csv,dataset_derived,,,,,,scholar_poole_maritime_3,yes
+data/derived/scispace_blue_economy_governance — kopia.csv,dataset_derived,,,,,,scispace_blue_economy_governance___kopia,yes
 data/derived/scispace_blue_economy_governance.csv,dataset_derived,,,,,,scispace_blue_economy_governance,yes
+data/derived/scispace_blue_economy_labor — kopia.csv,dataset_derived,,,,,,scispace_blue_economy_labor___kopia,yes
 data/derived/scispace_blue_economy_labor.csv,dataset_derived,,,,,,scispace_blue_economy_labor,yes
+data/derived/scispace_blue_economy_research_gaps — kopia.csv,dataset_derived,,,,,,scispace_blue_economy_research_gaps___ko,yes
 data/derived/scispace_blue_economy_research_gaps.csv,dataset_derived,,,,,,scispace_blue_economy_research_gaps,yes
+data/derived/scispace_blue_economy_social_dimensions — kopia.csv,dataset_derived,,,,,,scispace_blue_economy_social_dimensions_,yes
 data/derived/scispace_blue_economy_social_dimensions.csv,dataset_derived,,,,,,scispace_blue_economy_social_dimensions,yes
+data/derived/scispace_blue_sociology_1 — kopia.csv,dataset_derived,,,,,,scispace_blue_sociology_1___kopia,yes
 data/derived/scispace_blue_sociology_1.csv,dataset_derived,,,,,,scispace_blue_sociology_1,yes
+data/derived/scispace_blue_sociology_2 — kopia.csv,dataset_derived,,,,,,scispace_blue_sociology_2___kopia,yes
 data/derived/scispace_blue_sociology_2.csv,dataset_derived,,,,,,scispace_blue_sociology_2,yes
+data/derived/scispace_blue_sociology_3 — kopia.csv,dataset_derived,,,,,,scispace_blue_sociology_3___kopia,yes
 data/derived/scispace_blue_sociology_3.csv,dataset_derived,,,,,,scispace_blue_sociology_3,yes
+data/derived/scispace_coastal_communities_blue_economy — kopia.csv,dataset_derived,,,,,,scispace_coastal_communities_blue_econom,yes
 data/derived/scispace_coastal_communities_blue_economy.csv,dataset_derived,,,,,,scispace_coastal_communities_blue_econom,yes
+data/derived/scispace_eu_blue_economy_1 — kopia.csv,dataset_derived,,,,,,scispace_eu_blue_economy_1___kopia,yes
 data/derived/scispace_eu_blue_economy_1.csv,dataset_derived,,,,,,scispace_eu_blue_economy_1,yes
+data/derived/scispace_eu_blue_economy_2 — kopia.csv,dataset_derived,,,,,,scispace_eu_blue_economy_2___kopia,yes
 data/derived/scispace_eu_blue_economy_2.csv,dataset_derived,,,,,,scispace_eu_blue_economy_2,yes
+data/derived/scispace_eu_blue_economy_3 — kopia.csv,dataset_derived,,,,,,scispace_eu_blue_economy_3___kopia,yes
 data/derived/scispace_eu_blue_economy_3.csv,dataset_derived,,,,,,scispace_eu_blue_economy_3,yes
+data/derived/scispace_fulltext_blue_economy_1 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_1___kopia,yes
 data/derived/scispace_fulltext_blue_economy_1.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_1,yes
+data/derived/scispace_fulltext_blue_economy_2 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_2___kopia,yes
 data/derived/scispace_fulltext_blue_economy_2.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_2,yes
+data/derived/scispace_fulltext_blue_economy_3 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_3___kopia,yes
 data/derived/scispace_fulltext_blue_economy_3.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_3,yes
+data/derived/scispace_fulltext_blue_economy_gaps — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_gaps___ko,yes
 data/derived/scispace_fulltext_blue_economy_gaps.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_gaps,yes
+data/derived/scispace_fulltext_blue_economy_limitations — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_limitatio,yes
 data/derived/scispace_fulltext_blue_economy_limitations.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_limitatio,yes
+data/derived/scispace_fulltext_blue_sociology_1 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_1___kop,yes
 data/derived/scispace_fulltext_blue_sociology_1.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_1,yes
+data/derived/scispace_fulltext_blue_sociology_2 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_2___kop,yes
 data/derived/scispace_fulltext_blue_sociology_2.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_2,yes
+data/derived/scispace_fulltext_labor_maritime — kopia.csv,dataset_derived,,,,,,scispace_fulltext_labor_maritime___kopia,yes
 data/derived/scispace_fulltext_labor_maritime.csv,dataset_derived,,,,,,scispace_fulltext_labor_maritime,yes
+data/derived/scispace_fulltext_maritime_sociology — kopia.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology___k,yes
 data/derived/scispace_fulltext_maritime_sociology.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology,yes
+data/derived/scispace_fulltext_maritime_sociology_poland — kopia.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology_pol,yes
 data/derived/scispace_fulltext_maritime_sociology_poland.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology_pol,yes
+data/derived/scispace_fulltext_marynizacja — kopia.csv,dataset_derived,,,,,,scispace_fulltext_marynizacja___kopia,yes
 data/derived/scispace_fulltext_marynizacja.csv,dataset_derived,,,,,,scispace_fulltext_marynizacja,yes
+data/derived/scispace_fulltext_poole_maritime_1 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_1___kop,yes
 data/derived/scispace_fulltext_poole_maritime_1.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_1,yes
+data/derived/scispace_fulltext_poole_maritime_2 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_2___kop,yes
 data/derived/scispace_fulltext_poole_maritime_2.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_2,yes
+data/derived/scispace_fulltext_social_justice — kopia.csv,dataset_derived,,,,,,scispace_fulltext_social_justice___kopia,yes
 data/derived/scispace_fulltext_social_justice.csv,dataset_derived,,,,,,scispace_fulltext_social_justice,yes
+data/derived/scispace_janiszewski_maritime_sociology — kopia.csv,dataset_derived,,,,,,scispace_janiszewski_maritime_sociology_,yes
 data/derived/scispace_janiszewski_maritime_sociology.csv,dataset_derived,,,,,,scispace_janiszewski_maritime_sociology,yes
+data/derived/scispace_maritime_sociology — kopia.csv,dataset_derived,,,,,,scispace_maritime_sociology___kopia,yes
 data/derived/scispace_maritime_sociology.csv,dataset_derived,,,,,,scispace_maritime_sociology,yes
+data/derived/scispace_maritimization_theory — kopia.csv,dataset_derived,,,,,,scispace_maritimization_theory___kopia,yes
 data/derived/scispace_maritimization_theory.csv,dataset_derived,,,,,,scispace_maritimization_theory,yes
+data/derived/scispace_poole_maritime_sociology_1 — kopia.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_1___ko,yes
 data/derived/scispace_poole_maritime_sociology_1.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_1,yes
+data/derived/scispace_poole_maritime_sociology_2 — kopia.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_2___ko,yes
 data/derived/scispace_poole_maritime_sociology_2.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_2,yes
+data/derived/scispace_poole_maritime_sociology_3 — kopia.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_3___ko,yes
 data/derived/scispace_poole_maritime_sociology_3.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_3,yes
+data/derived/scispace_social_justice_maritime — kopia.csv,dataset_derived,,,,,,scispace_social_justice_maritime___kopia,yes
 data/derived/scispace_social_justice_maritime.csv,dataset_derived,,,,,,scispace_social_justice_maritime,yes
+data/derived/Theoretical_Foundations_Expansion — kopia.md,dataset_derived,,,,,,Theoretical_Foundations_Expansion___kopi,yes
 data/derived/Theoretical_Foundations_Expansion.md,dataset_derived,,,,,,Theoretical_Foundations_Expansion,yes
+data/derived/UN_Ocean_Decade_ILK_Resource_Database_V1_02-2026 — kopia.xlsx,dataset_derived,,,,,,UN_Ocean_Decade_ILK_Resource_Database_V1,yes
 data/derived/UN_Ocean_Decade_ILK_Resource_Database_V1_02-2026.xlsx,dataset_derived,,,,,,UN_Ocean_Decade_ILK_Resource_Database_V1,yes
+data/derived/web_search_poole_article_search — kopia.json,dataset_derived,,,,,,web_search_poole_article_search___kopia,no
 data/derived/web_search_poole_article_search.json,dataset_derived,,,,,,web_search_poole_article_search,no
+data/derived/WG3_Glossary_FULL_100pct_DROP_KEEP_REWRITE_bySector_withAnchors — kopia.xlsx,dataset_derived,,,,,,WG3_Glossary_FULL_100pct_DROP_KEEP_REWRI,yes
 data/derived/WG3_Glossary_FULL_100pct_DROP_KEEP_REWRITE_bySector_withAnchors.xlsx,dataset_derived,,,,,,WG3_Glossary_FULL_100pct_DROP_KEEP_REWRI,yes
+data/derived/WG_applications_export_05-01-2026 — kopia.xlsx,dataset_derived,,,,,,WG_applications_export_05_01_2026___kopi,yes
 data/derived/WG_applications_export_05-01-2026.xlsx,dataset_derived,,,,,,WG_applications_export_05_01_2026,yes
 data/raw/Abstract ESA Ioannis Robert Tallinn 29_01_2026.docx,dataset_raw,,,,,,Abstract_ESA_Ioannis_Robert_Tallinn_29_0,yes
 data/raw/abstract_converted.md,dataset_raw,,,,,,abstract_converted,yes
@@ -221,12 +341,15 @@ data/raw/Theoretical_Foundations_Expansion Visiual Studio Edit 12_02.md,dataset_
 data/raw/Theoretical_Foundations_Expansion.md,dataset_raw,,,,,,Theoretical_Foundations_Expansion,yes
 data/raw/web_search_poole_article_search.json,dataset_raw,,,,,,web_search_poole_article_search,no
 DATA_GOVERNANCE.txt,governance,,,,,,DATA_GOVERNANCE,yes
+demo_additional_tasks.py,other,,,,,,demo_additional_tasks,no
+DEMO_COMPLETE_SUMMARY.md,text,,,,,,DEMO_COMPLETE_SUMMARY,yes
+demo_workspace_instructions.py,other,,,,,,demo_workspace_instructions,no
 Dockerfile,other,,,,,,Dockerfile,no
+Dockerfile.txt,text,,,,,,Dockerfile,yes
 docs/literature/(Anamnesis) Graham Harman - Prince of Networks_ Bruno Latour and Metaphysics (Anamnesis)-re.press (2009).pdf,literature,,,,,,Anamnesis__Graham_Harman___Prince_of_Net,no
 "docs/literature/(Critical Food Studies) Peter Atkins - Liquid Materialities_ A History of Milk, Science and the Law-Routledge (2010).pdf",literature,,,,,,Critical_Food_Studies__Peter_Atkins___Li,no
 docs/literature/(Maritime Literature and Culture) Mabel Moraña - Hydrocriticism and Colonialism in Latin America underline.pdf,literature,,,,,,Maritime_Literature_and_Culture__Mabel_M,no
 docs/literature/(Posthumanities) Timothy Morton - Hyperobjects_ Philosophy and Ecology after the End of the World-University of Minnesota Press (2013).txt,literature,,,,,,Posthumanities__Timothy_Morton___Hyperob,yes
-docs/literature/(ROUTL~1.PDF,literature,,,,,,ROUTL_1,no
 docs/literature/02-Heller-Pezzani-drifting-images-liquid-traces-disrupting-the-aesthetic-regime-of-the-EU-s-maritime-frontier.pdf,literature,,,,,,02_Heller_Pezzani_drifting_images_liquid,no
 docs/literature/100 years of Marine Science Journal ICES.pdf,literature,,,,,,100_years_of_Marine_Science_Journal_ICES,no
 docs/literature/17th Conference of the ESA Abstract Bartomiejski Cocco.pdf,literature,,,,,,17th_Conference_of_the_ESA_Abstract_Bart,no
@@ -236,9 +359,7 @@ docs/literature/2020_Lubchenco_FivePrioritiesforaSustainableOceEconomy_Nature588
 docs/literature/2021_TolochkoVadrot_SelectiveWorldBuilding.pdf,literature,,,,,,2021_TolochkoVadrot_SelectiveWorldBuildi,no
 docs/literature/2025 Kimberley Vadrot Editorial_Social_science_perspectives_on_marine_bi.pdf,literature,,,,,,2025_Kimberley_Vadrot_Editorial_Social_s,no
 docs/literature/24_HLP_Ocean-Human-Health Wellbeing Human Planet.pdf,literature,,,,,,24_HLP_Ocean_Human_Health_Wellbeing_Huma,no
-docs/literature/24_HLP_Ocean-Human-Health_DOI.pdf,literature,,,,,,24_HLP_Ocean_Human_Health_DOI,no
 docs/literature/25_HLP_Handbook_v10.pdf,literature,,,,,,25_HLP_Handbook_v10,no
-docs/literature/25_HLP_Ocean-Finance_v4.pdf,literature,,,,,,25_HLP_Ocean_Finance_v4,no
 docs/literature/40152_2021_Article_238.PDF,literature,,,,,,40152_2021_Article_238,no
 docs/literature/401_20050927_transport_sea_en.pdf,literature,,,,,,401_20050927_transport_sea_en,no
 docs/literature/6_Jarosz_Hydro-sztuka_Przeglad-Kulturoznawczy_2(48)_2021.pdf,literature,,,,,,6_Jarosz_Hydro_sztuka_Przeglad_Kulturozn,no
@@ -257,7 +378,6 @@ docs/literature/Akwakultura_Miejska_model_integracji_kap-1.pdf,literature,,,,,,A
 docs/literature/alexandra_popartan.pdf,literature,,,,,,alexandra_popartan,no
 docs/literature/Alice Vadrot UN Decade of Ocean Science for Sustainable Development.txt,literature,,,,,,Alice_Vadrot_UN_Decade_of_Ocean_Science_,yes
 docs/literature/American Anthropologist - 2011 - Helmreich - Nature Culture Seawater.pdf,literature,,,,,,American_Anthropologist___2011___Helmrei,no
-docs/literature/Amstrong Another ocean is possible   thinking ocean justice beyond mastery (2).pdf,literature,,,,,,Amstrong_Another_ocean_is_possible___thi,no
 docs/literature/Amstrong The common heritage of Animalkind.pdf,literature,,,,,,Amstrong_The_common_heritage_of_Animalki,no
 docs/literature/An introduction to the  Oceans and Society  Blue Planet  initiative.pdf,literature,,,,,,An_introduction_to_the__Oceans_and_Socie,no
 docs/literature/AN_INTRODUCTION_TO_TOURISM_POSTDISCIPLIN.pdf,literature,,,,,,AN_INTRODUCTION_TO_TOURISM_POSTDISCIPLIN,no
@@ -319,7 +439,6 @@ docs/literature/Cocco Theoretical_Implications_of_Maritime_Soc.pdf,literature,,,
 docs/literature/Collective_irrigation_the_state_and_soci.pdf,literature,,,,,,Collective_irrigation_the_state_and_soci,no
 docs/literature/Complexity_Chaos_and_Emergence.pdf,literature,,,,,,Complexity_Chaos_and_Emergence,no
 docs/literature/Conflicts_in_some_of_the_World_harbours.pdf,literature,,,,,,Conflicts_in_some_of_the_World_harbours,no
-docs/literature/Considering_the_Hydrologic_Cycle_Eighty.pdf,literature,,,,,,Considering_the_Hydrologic_Cycle_Eighty,no
 docs/literature/Constantino Villarroel Rios Maritime Sociology for Sustainable Science.pdf,literature,,,,,,Constantino_Villarroel_Rios_Maritime_Soc,no
 docs/literature/Consumer_scholarship_and_transdisciplina.pdf,literature,,,,,,Consumer_scholarship_and_transdisciplina,no
 docs/literature/Creating_impact_in_citizenship_education.pdf,literature,,,,,,Creating_impact_in_citizenship_education,no
@@ -334,8 +453,6 @@ docs/literature/Developing the Blue Economy.pdf,literature,,,,,,Developing_the_B
 docs/literature/div-class-title-rivers-oceans-and-spirits-water-cosmologies-gender-and-religious-ch.pdf,literature,,,,,,div_class_title_rivers_oceans_and_spirit,no
 docs/literature/div-class-title-seas-oceans-and-cosmologies-in-southeast-asia-div.pdf,literature,,,,,,div_class_title_seas_oceans_and_cosmolog,no
 docs/literature/Do hab_250403_204509.txt,literature,,,,,,Do_hab_250403_204509,yes
-docs/literature/drive-download-20260109T083132Z-1-001.zip,literature,,,,,,drive_download_20260109T083132Z_1_001,no
-docs/literature/drive-download-20260109T083255Z-1-001.zip,literature,,,,,,drive_download_20260109T083255Z_1_001,no
 docs/literature/Ducruet_RETE_multidisciplinary.pdf,literature,,,,,,Ducruet_RETE_multidisciplinary,no
 docs/literature/Early Foundations of Maritime Sociology (Pre-1981) (1).docx,literature,,,,,,Early_Foundations_of_Maritime_Sociology_,yes
 docs/literature/Early Foundations of Maritime Sociology (Pre-1981) (1).pdf,literature,,,,,,Early_Foundations_of_Maritime_Sociology_,no
@@ -372,7 +489,6 @@ docs/literature/Final_Indigenous-Knowledge_BP.pdf,literature,,,,,,Final_Indigeno
 docs/literature/flaminio-et-al-2022-waterscapes-and-hydrosocial-territories-thinking-space-in-political-ecologies-of-water (1).pdf,literature,,,,,,flaminio_et_al_2022_waterscapes_and_hydr,no
 docs/literature/flaminio-et-al-2022-waterscapes-and-hydrosocial-territories-thinking-space-in-political-ecologies-of-water.pdf,literature,,,,,,flaminio_et_al_2022_waterscapes_and_hydr,no
 docs/literature/Fluid India Hydrosociality.pdf,literature,,,,,,Fluid_India_Hydrosociality,no
-docs/literature/fmars-10-1210133.pdf,literature,,,,,,fmars_10_1210133,no
 docs/literature/Four_Problems_Four_Directions_for_Enviro.pdf,literature,,,,,,Four_Problems_Four_Directions_for_Enviro,no
 docs/literature/Free flow of waters.pdf,literature,,,,,,Free_flow_of_waters,no
 docs/literature/From_Disciplinarity_to_Postdisciplinarit.pdf,literature,,,,,,From_Disciplinarity_to_Postdisciplinarit,no
@@ -382,7 +498,6 @@ docs/literature/Globalizaton and Naval Operations and Maritime Alliances.pdf,lit
 docs/literature/Gomez sea gentrification Zadar 2024.txt,literature,,,,,,Gomez_sea_gentrification_Zadar_2024,yes
 docs/literature/Goncalves_Pinho_2022.pdf,literature,,,,,,Goncalves_Pinho_2022,no
 docs/literature/Grasmeier Kolodziej MaritimeSpacesandSociety_PreliminaryMaterial.pdf,literature,,,,,,Grasmeier_Kolodziej_MaritimeSpacesandSoc,no
-docs/literature/Green out blue in Social Conflict Oceans.pdf,literature,,,,,,Green_out_blue_in_Social_Conflict_Oceans,no
 docs/literature/Hab - okazuje_241013_210006.txt,literature,,,,,,Hab___okazuje_241013_210006,yes
 docs/literature/Hab Hein Culture port cities mindset_250108_081453.txt,literature,,,,,,Hab_Hein_Culture_port_cities_mindset_250,yes
 docs/literature/Hadjimichael 2018 blue degrowth in fishery policy.pdf,literature,,,,,,Hadjimichael_2018_blue_degrowth_in_fishe,no
@@ -410,7 +525,6 @@ docs/literature/Identifying20significant20for20spatial%20planning_RS_PlyMSEA.pdf
 docs/literature/Imagining the Anthropocene with the Wadden Sea.pdf,literature,,,,,,Imagining_the_Anthropocene_with_the_Wadd,no
 docs/literature/Indiginous Holders of Knowledge Traition Sustainable Ocean Plan.pdf,literature,,,,,,Indiginous_Holders_of_Knowledge_Traition,no
 docs/literature/Innovatinganewknowledgebaseforwaterjusticestudies-hydrosocialsociohydrologyandbeyond.pdf,literature,,,,,,Innovatinganewknowledgebaseforwaterjusti,no
-docs/literature/Innovatinganewknowledgebaseforwaterjusticestudies-hydrosocialsociohydrologyandbeyond.prn,literature,,,,,,Innovatinganewknowledgebaseforwaterjusti,no
 docs/literature/Integratog Culturl Heritage to Maritime Spatial Plannning.pdf,literature,,,,,,Integratog_Culturl_Heritage_to_Maritime_,no
 docs/literature/International_Collaborations_and_Incorpo.pdf,literature,,,,,,International_Collaborations_and_Incorpo,no
 docs/literature/Introduction to maritime sociology Janiszewski Poole.docx.pdf,literature,,,,,,Introduction_to_maritime_sociology_Janis,no
@@ -454,7 +568,6 @@ docs/literature/Les_barrages_qui_cachent_l_eau_loubli_de.pdf,literature,,,,,,Les
 docs/literature/Lets_Be_Nice_To_The_Ocean_V21-Spreads-1-1.pdf,literature,,,,,,Lets_Be_Nice_To_The_Ocean_V21_Spreads_1_,no
 docs/literature/Levin 2017 Interdisciplnary Science in support of nature and people.pdf,literature,,,,,,Levin_2017_Interdisciplnary_Science_in_s,no
 docs/literature/Liao 2019 atmosphere dimensional.pdf,literature,,,,,,Liao_2019_atmosphere_dimensional,no
-docs/literature/liao-schmidt-2023-hydrosocial-geographies-cycles-spaces-and-spheres-of-concern (1).pdf,literature,,,,,,liao_schmidt_2023_hydrosocial_geographie,no
 docs/literature/liao-schmidt-2023-hydrosocial-geographies-cycles-spaces-and-spheres-of-concern.pdf,literature,,,,,,liao_schmidt_2023_hydrosocial_geographie,no
 docs/literature/Like a bridge over troubled water--Opening pathways for integrating social sciences and humanities into nuclear research.pdf,literature,,,,,,Like_a_bridge_over_troubled_water__Openi,no
 docs/literature/Lillebo 2017 Marine ecosystem services blue growth agency.pdf,literature,,,,,,Lillebo_2017_Marine_ecosystem_services_b,no
@@ -466,7 +579,6 @@ docs/literature/Linton-WHATISWATER-Proof09-09.pdf,literature,,,,,,Linton_WHATISW
 docs/literature/Longo oceans of troubles.pdf,literature,,,,,,Longo_oceans_of_troubles,no
 docs/literature/Longo-OceanTroubles-2016.pdf,literature,,,,,,Longo_OceanTroubles_2016,no
 docs/literature/Lubchenco 2024 Correction_to_The_Blue Knowledge to Sustainable Ocean Econony.pdf,literature,,,,,,Lubchenco_2024_Correction_to_The_Blue_Kn,no
-docs/literature/Lubchenco The Expected Impacts of Climate Change on the Ocean Economy.pdf,literature,,,,,,Lubchenco_The_Expected_Impacts_of_Climat,no
 docs/literature/Mabon 2020 What natural and social scientists need from each other.pdf,literature,,,,,,Mabon_2020_What_natural_and_social_scien,no
 docs/literature/MABON 2020 What natural.pdf,literature,,,,,,MABON_2020_What_natural,no
 docs/literature/Madalaine Moore Water flows hydro social cycle.pdf,literature,,,,,,Madalaine_Moore_Water_flows_hydro_social,no
@@ -505,8 +617,6 @@ docs/literature/NDCs-Action-Plan.pdf,literature,,,,,,NDCs_Action_Plan,no
 docs/literature/New_Environmental_Controversies_Towards.pdf,literature,,,,,,New_Environmental_Controversies_Towards,no
 docs/literature/New_worlds_of_logistical_labour_Spaces_places_tech.pdf,literature,,,,,,New_worlds_of_logistical_labour_Spaces_p,no
 docs/literature/Niazi The_Tragedy_of_the_Commodity_Oceans_Fish.pdf,literature,,,,,,Niazi_The_Tragedy_of_the_Commodity_Ocean,no
-docs/literature/O interesach Pobierowo 09_01_2026.docx,literature,,,,,,O_interesach_Pobierowo_09_01_2026,yes
-docs/literature/OaS 2 - A Heuristic for Integrating Sense of Place Into Ocean Governance (1).pdf,literature,,,,,,OaS_2___A_Heuristic_for_Integrating_Sens,no
 docs/literature/OaS 2 - A Heuristic for Integrating Sense of Place Into Ocean Governance.pdf,literature,,,,,,OaS_2___A_Heuristic_for_Integrating_Sens,no
 docs/literature/OaS 2 - The Multifaceted Seafarer_ An Explorative Discourse Analysis of Seafarers' Portrayals in Swedish Maritime Magazines.pdf,literature,,,,,,OaS_2___The_Multifaceted_Seafarer__An_Ex,no
 docs/literature/Ocean activism  understanding political acts in extra-national terrain.pdf,literature,,,,,,Ocean_activism__understanding_political_,no
@@ -518,13 +628,8 @@ docs/literature/Ocean-human_relations_in_the_A.pdf,literature,,,,,,Ocean_human_r
 docs/literature/Oceania - 2024 - Strang - Making Waves  The Role of Indigenous Water Beings in Debates about Human and Non‐Human Rights (1).pdf,literature,,,,,,Oceania___2024___Strang___Making_Waves__,no
 docs/literature/On capturing human agency and methodological interdisciplinarity in socio-hydrology research.pdf,literature,,,,,,On_capturing_human_agency_and_methodolog,no
 docs/literature/One Ocean Hub Code of Practice.pdf,literature,,,,,,One_Ocean_Hub_Code_of_Practice,no
-docs/literature/OneDrive_1_9.01.2026.zip,literature,,,,,,OneDrive_1_9_01_2026,no
-docs/literature/OneDrive_2_1-9-2026.zip,literature,,,,,,OneDrive_2_1_9_2026,no
-docs/literature/OneDrive_3_1-9-2026.zip,literature,,,,,,OneDrive_3_1_9_2026,no
-docs/literature/OneDrive_4_1-9-2026.zip,literature,,,,,,OneDrive_4_1_9_2026,no
 docs/literature/oosc-outcomes_from_sessions_and_town_halls.pdf,literature,,,,,,oosc_outcomes_from_sessions_and_town_hal,no
 docs/literature/OOSC_InfographicRecommendations_EN_DIGITAL.pdf,literature,,,,,,OOSC_InfographicRecommendations_EN_DIGIT,no
-docs/literature/OP_Blue_Paper_Future_Ocean_Workforce.pdf,literature,,,,,,OP_Blue_Paper_Future_Ocean_Workforce,no
 docs/literature/Oppermann BlueHumanities CoverPage.pdf,literature,,,,,,Oppermann_BlueHumanities_CoverPage,no
 docs/literature/OppermannandIovino-Introduction-EnvironmentalHumanities_PDF.pdf,literature,,,,,,OppermannandIovino_Introduction_Environm,no
 docs/literature/P17151806a00df0e0ad3e0b69bc15d6b19.docx,literature,,,,,,P17151806a00df0e0ad3e0b69bc15d6b19,yes
@@ -546,10 +651,8 @@ docs/literature/POMESA_2023 Marine Strategy Framework.pdf,literature,,,,,,POMESA
 docs/literature/POMESA_29_2023-03_social study Marine Strategy Framework.pdf,literature,,,,,,POMESA_29_2023_03_social_study_Marine_St,no
 docs/literature/Port Animal-Human Relation_241026_074847.txt,literature,,,,,,Port_Animal_Human_Relation_241026_074847,yes
 docs/literature/Port Sensory Research Fieldwork Protocol - Port Sensory Research Fieldwork Protocol.pdf,literature,,,,,,Port_Sensory_Research_Fieldwork_Protocol,no
-docs/literature/Portner 2022 The-Ocean-and-Cryosphere-in-a-Changing-Climate.pdf,literature,,,,,,Portner_2022_The_Ocean_and_Cryosphere_in,no
 docs/literature/Postdisciplinarity_chapter_in_Elgar_Ency.pdf,literature,,,,,,Postdisciplinarity_chapter_in_Elgar_Ency,no
 docs/literature/Proceedings_2nd_Tourism_Postdisciplinari.pdf,literature,,,,,,Proceedings_2nd_Tourism_Postdisciplinari,no
-docs/literature/PROFTI~1.PDF,literature,,,,,,PROFTI_1,no
 docs/literature/Projet_Rivieres_Vivantes_developper_un_i.pdf,literature,,,,,,Projet_Rivieres_Vivantes_developper_un_i,no
 docs/literature/Prolegomena_to_Arts_Transciplinarity.docx,literature,,,,,,Prolegomena_to_Arts_Transciplinarity,yes
 docs/literature/Prompt Ioanis and Cocco.txt,literature,,,,,,Prompt_Ioanis_and_Cocco,yes
@@ -582,15 +685,12 @@ docs/literature/Satizabal 2020 Blue economy discourses and reconfig ocean spaces
 docs/literature/Scharenberg Ocean activim political acts.xlsx,literature,,,,,,Scharenberg_Ocean_activim_political_acts,yes
 docs/literature/Schmidt 2023 Hydrosocial.pdf,literature,,,,,,Schmidt_2023_Hydrosocial,no
 docs/literature/Sea Fever.pdf,literature,,,,,,Sea_Fever,no
-docs/literature/sea_power_the_history_and_geopolitics_of_the_worlds_oceans.pdf,literature,,,,,,sea_power_the_history_and_geopolitics_of,no
 docs/literature/sea_power_the_history_and_geopolitics_of_the_worlds_oceans_pdfdrive_.pdf,literature,,,,,,sea_power_the_history_and_geopolitics_of,no
-docs/literature/Seascape Littorial Concept.PDF,literature,,,,,,Seascape_Littorial_Concept,no
 docs/literature/Shaping_an_Image_of_Science_in_the_21st.pdf,literature,,,,,,Shaping_an_Image_of_Science_in_the_21st,no
 docs/literature/Sivapalan Savenije Sociohydrology 2012.pdf,literature,,,,,,Sivapalan_Savenije_Sociohydrology_2012,no
 docs/literature/Sivapalan_M_H_H_G_Savenije_G_Bloschl_201.pdf,literature,,,,,,Sivapalan_M_H_H_G_Savenije_G_Bloschl_201,no
 docs/literature/SocialSciencesinContemporaryMarineStudies_2023.pdf,literature,,,,,,SocialSciencesinContemporaryMarineStudie,no
 docs/literature/Socio-hydrology with hydrosocial theory  two sides of the same coin  (1).pdf,literature,,,,,,Socio_hydrology_with_hydrosocial_theory_,no
-docs/literature/Socio-hydrology with hydrosocial theory  two sides of the same coin .pdf,literature,,,,,,Socio_hydrology_with_hydrosocial_theory_,no
 docs/literature/Socio-oceanography an opportunity to integrate marine social and natural sciences.pdf,literature,,,,,,Socio_oceanography_an_opportunity_to_int,no
 docs/literature/Socio_hydrology_A_new_science_of_people.pdf,literature,,,,,,Socio_hydrology_A_new_science_of_people,no
 docs/literature/Socio_hydrology_and_hydrosocial_analysis.pdf,literature,,,,,,Socio_hydrology_and_hydrosocial_analysis,no
@@ -645,8 +745,6 @@ docs/literature/The_Ontological_Fallacy_of_the_Water_Fra.pdf,literature,,,,,,The
 docs/literature/The_Paradoxes_and_Possibilities_of_Urban.pdf,literature,,,,,,The_Paradoxes_and_Possibilities_of_Urban,no
 docs/literature/The_power_of_storytelling_in_social_medi.pdf,literature,,,,,,The_power_of_storytelling_in_social_medi,no
 docs/literature/Theatre as a tool for analysis and knowledge transfer Stage Data Performance.pdf,literature,,,,,,Theatre_as_a_tool_for_analysis_and_knowl,no
-"docs/literature/Theo Notteboom, Athanasios Pallis, Jean-Paul Rodrigue - Port Economics, Management and Policy-Routledge (2022).pdf.crdownload",literature,,,,,,Theo_Notteboom__Athanasios_Pallis__Jean_,no
-"docs/literature/Theodor Schwenk, Jacques-Yves Cousteau - Sensitive Chaos_ The Creation of Flowing Forms in Water and Air-Rudolf Steiner Press (2014).epub",literature,,,,,,Theodor_Schwenk__Jacques_Yves_Cousteau__,no
 docs/literature/Thompson_S_E_M_Sivapalan_C_J_Harman_V_Sr.pdf,literature,,,,,,Thompson_S_E_M_Sivapalan_C_J_Harman_V_Sr,no
 docs/literature/tidal waves the new coastal history.pdf,literature,,,,,,tidal_waves_the_new_coastal_history,no
 docs/literature/Tides of knowledge ocean-science-society-policy ecotone.pdf,literature,,,,,,Tides_of_knowledge_ocean_science_society,no
@@ -662,7 +760,6 @@ docs/literature/Transdisciplinary_methodology_in_home_ec.pdf,literature,,,,,,Tra
 docs/literature/Transversity_Transdisciplinarity_in_High.pdf,literature,,,,,,Transversity_Transdisciplinarity_in_High,no
 docs/literature/Travelling_down_the_road_to_postdiscipli.pdf,literature,,,,,,Travelling_down_the_road_to_postdiscipli,no
 docs/literature/Treyer_etal_2025_Natures Sciences Societes.pdf,literature,,,,,,Treyer_etal_2025_Natures_Sciences_Societ,no
-docs/literature/UN AGR2024.pdf,literature,,,,,,UN_AGR2024,no
 docs/literature/UN COP30 State-Climate-2025-Update-COP30_en.pdf,literature,,,,,,UN_COP30_State_Climate_2025_Update_COP30,no
 docs/literature/UN energy-transition-report_2025.pdf,literature,,,,,,UN_energy_transition_report_2025,no
 docs/literature/UN Environment Programme AGR2024.pdf,literature,,,,,,UN_Environment_Programme_AGR2024,no
@@ -672,7 +769,6 @@ docs/literature/Underwater heritage Oceania.pdf,literature,,,,,,Underwater_herit
 docs/literature/University_of_Illinois_at_Urbana_Champai.pdf,literature,,,,,,University_of_Illinois_at_Urbana_Champai,no
 docs/literature/UNIZD Sociology at Sea Zadar.pdf,literature,,,,,,UNIZD_Sociology_at_Sea_Zadar,no
 docs/literature/UNOC 3 Ocean 2030 ONZ nss250052.pdf,literature,,,,,,UNOC_3_Ocean_2030_ONZ_nss250052,no
-docs/literature/Vadrot 2021 who owns marine bioiversiy humankind common heritage.pdf,literature,,,,,,Vadrot_2021_who_owns_marine_bioiversiy_h,no
 docs/literature/Vadrot 2022 Governing_a_Divided_Ocean_The_Transformative_Power.pdf,literature,,,,,,Vadrot_2022_Governing_a_Divided_Ocean_Th,no
 docs/literature/Vadrot 2024 Identifying_Major_Factors_for_Success_and_Failure_.pdf,literature,,,,,,Vadrot_2024_Identifying_Major_Factors_fo,no
 docs/literature/Vadrot 2025 Marine protected areas across knowledge systems.pdf,literature,,,,,,Vadrot_2025_Marine_protected_areas_acros,no
@@ -698,7 +794,6 @@ docs/literature/Workforce for Ocean Economy.pdf,literature,,,,,,Workforce_for_Oc
 docs/literature/Wychowanie morskie i edukacja morska Kołodziej Kołodziej.pdf,literature,,,,,,Wychowanie_morskie_i_edukacja_morska_Koł,no
 docs/literature/Wyrzucone przez morze_250521_002507.txt,literature,,,,,,Wyrzucone_przez_morze_250521_002507,yes
 docs/literature/Yang Compass on the Ocean Chinese Maritime Theoy 2024.pdf,literature,,,,,,Yang_Compass_on_the_Ocean_Chinese_Mariti,no
-docs/literature/Źródło naukowe nr 2 Kołodziej-Durnaś Kołodziej 2024 Fifthy years of maritime sociology in PL.pdf,literature,,,,,,Źródło_naukowe_nr_2_Kołodziej_Durnaś_Koł,no
 docs/literature/źródło nr 5 osiągnięcie Rethinking Blue Eco Social Science for Sustainabilitty.pdf,literature,,,,,,źródło_nr_5_osiągnięcie_Rethinking_Blue_,no
 docs/literature/Źródło wpływu nr 4 port cities env conflict Bartłomiejski.pdf,literature,,,,,,Źródło_wpływu_nr_4_port_cities_env_confl,no
 docs/policy/1._sea_of_experience_cinea-emff_blue_skills_workshop_case_study (1).pdf,policy,,,,,,1__sea_of_experience_cinea_emff_blue_ski,no
@@ -777,10 +872,8 @@ docs/policy/Healing the future Horizon emerging technologies.pdf,policy,,,,,,Hea
 docs/policy/how to incorporate underwater cultural heritage into-HZ0622216ENN.pdf,policy,,,,,,how_to_incorporate_underwater_cultural_h,no
 docs/policy/identification of energy-efficient technologies i fishery EP EC Regulation.pdf,policy,,,,,,identification_of_energy_efficient_techn,no
 docs/policy/international oceans governance-EA0118723ENN.pdf,policy,,,,,,international_oceans_governance_EA011872,no
-docs/policy/jobs and growth from our seas blue economy-DOC_1.zip,policy,,,,,,jobs_and_growth_from_our_seas_blue_econo,no
 docs/policy/join the eu mission-HZ0124016ENN.pdf,policy,,,,,,join_the_eu_mission_HZ0124016ENN,no
 docs/policy/jrc marine modelling framework in support of the marine-KJNA29452ENN.pdf,policy,,,,,,jrc_marine_modelling_framework_in_suppor,no
-docs/policy/JRC135612_01 Renewable Energy production and potential EU rural.pdf,policy,,,,,,JRC135612_01_Renewable_Energy_production,no
 docs/policy/JRC135612_01 renewable energy production in EU rural.pdf,policy,,,,,,JRC135612_01_renewable_energy_production,no
 docs/policy/JRC135889_01 Taxonomy alignment and transition risk level.pdf,policy,,,,,,JRC135889_01_Taxonomy_alignment_and_tran,no
 docs/policy/JRC136498_01 Demography and Economy Land use.pdf,policy,,,,,,JRC136498_01_Demography_and_Economy_Land,no
@@ -793,7 +886,6 @@ docs/policy/marine protected areas in europes seas-THAL15003ENN.pdf,policy,,,,,,
 docs/policy/marine strategy framework directive-KJNA30716ENN.pdf,policy,,,,,,marine_strategy_framework_directive_KJNA,no
 docs/policy/MarineEdu Nautical Tourism Profession Subsector.pdf,policy,,,,,,MarineEdu_Nautical_Tourism_Profession_Su,no
 docs/policy/MarineEdu Occupations Blue Sector Nautical Tourism.pdf,policy,,,,,,MarineEdu_Occupations_Blue_Sector_Nautic,no
-docs/policy/MarineEdu Sailmaker Profession.pdf,policy,,,,,,MarineEdu_Sailmaker_Profession,no
 docs/policy/maritime spatial planning in the eu-HZ0224312ENN (1).pdf,policy,,,,,,maritime_spatial_planning_in_the_eu_HZ02,no
 docs/policy/maritime spatial planning msp for blue growth-EA0118377ENN.pdf,policy,,,,,,maritime_spatial_planning_msp_for_blue_g,no
 docs/policy/mediterranean sea - identification of elements and-KL0415033ENN.pdf,policy,,,,,,mediterranean_sea___identification_of_el,no
@@ -857,7 +949,6 @@ docs/policy/the maritime spatial planning directive-14d91dc4-4b1c-4284-b2fe-6446
 docs/policy/the msp community of practice in the mediterranean-HZ0125032ENN.pdf,policy,,,,,,the_msp_community_of_practice_in_the_med,no
 docs/policy/towards an ecosystem-based approach in marine ecosystem-KJNA31527ENN.pdf,policy,,,,,,towards_an_ecosystem_based_approach_in_m,no
 docs/policy/towards an implementation strategy for the sustainable-KL0117550ENN.pdf,policy,,,,,,towards_an_implementation_strategy_for_t,no
-docs/policy/towards an implementation strategy for the sustainable-KL0417541ENN.pdf,policy,,,,,,towards_an_implementation_strategy_for_t,no
 docs/policy/UN Art Initaive 00048173ART_Prodoc.pdf,policy,,,,,,UN_Art_Initaive_00048173ART_Prodoc,no
 docs/policy/UN Resolution 2024 Pact for the future.pdf,policy,,,,,,UN_Resolution_2024_Pact_for_the_future,no
 docs/policy/UNESCO 2026 Biopiracy.pdf,policy,,,,,,UNESCO_2026_Biopiracy,no
@@ -884,7 +975,15 @@ docs/policy/UNESCO Ocean Vision 2030.pdf,policy,,,,,,UNESCO_Ocean_Vision_2030,no
 docs/policy/Union of Skils ESCCR Communiction upskills and reskills.pdf,policy,,,,,,Union_of_Skils_ESCCR_Communiction_upskil,no
 docs/policy/unsustainable finance in the blue economy-EA0320724ENN.pdf,policy,,,,,,unsustainable_finance_in_the_blue_econom,no
 docs/policy/unsustainable finance in the blue economy-EA0420652ENN.pdf,policy,,,,,,unsustainable_finance_in_the_blue_econom,no
+examples/add_coastal_resilience_competence.py,other,,,,,,add_coastal_resilience_competence,no
+fix_all_md.py,other,,,,,,fix_all_md,no
+fix_markdown.py,other,,,,,,fix_markdown,no
+fix_markdown_bulk.py,other,,,,,,fix_markdown_bulk,no
 LLM_CONTEXT_INSTRUCTION.txt,governance,,,,,,LLM_CONTEXT_INSTRUCTION,yes
+load_real_competences.py,other,,,,,,load_real_competences,no
+LOAD_REAL_DATA.md,text,,,,,,LOAD_REAL_DATA,yes
+main.py,other,,,,,,main,no
+main_real_data.py,other,,,,,,main_real_data,no
 manuscripts/drafts/AAA Methodological Glossary Values WG3.txt,manuscript,,,,,,AAA_Methodological_Glossary_Values_WG3,yes
 manuscripts/drafts/Abstact ESA Performativity of the Ocean Reframe Marinization.docx,manuscript,,,,,,Abstact_ESA_Performativity_of_the_Ocean_,yes
 manuscripts/drafts/Abstract ESA Ioannis Robert Tallinn 29_01_2026.docx,manuscript,,,,,,Abstract_ESA_Ioannis_Robert_Tallinn_29_0,yes
@@ -934,7 +1033,11 @@ manuscripts/drafts/Sustainable Blue Economy Maritime Sociology SCISPACE.docx,man
 manuscripts/drafts/Sustainable Blue Economy Research SCIVAL.pdf,manuscript,,,,,,Sustainable_Blue_Economy_Research_SCIVAL,no
 manuscripts/drafts/Theoretical Framework Janiszsewski Maritime Sociology SCISPACE.docx,manuscript,,,,,,Theoretical_Framework_Janiszsewski_Marit,yes
 manuscripts/drafts/World Café Facilitation Guide – Energy Transition Glossary.docx,manuscript,,,,,,World_Cafe__Facilitation_Guide___Energy_,yes
+morskamary.code-workspace,other,,,,,,morskamary,no
+morskamary.code-workspace2.txt,text,,,,,,morskamary_code_workspace2,yes
 PROMPT_REQUEST_TEMPLATE.txt,governance,,,,,,PROMPT_REQUEST_TEMPLATE,yes
+push_output.txt,text,,,,,,push_output,yes
+pyproject.toml,other,,,,,,pyproject,no
 readme,other,,,,,,readme,no
 README.md,governance,,,,,,README,yes
 requirements.txt,script,,,,,,requirements,yes
@@ -945,7 +1048,6 @@ scripts/Blue Mind_250421_094727.txt,script,,,,,,Blue_Mind_250421_094727,yes
 scripts/Breguła Weird Szczecin_250412_101024.txt,script,,,,,,Breguła_Weird_Szczecin_250412_101024,yes
 scripts/build_derived.py,script,,,,,,build_derived,no
 scripts/convert_pdfs_to_txt.py,script,,,,,,convert_pdfs_to_txt,no
-scripts/Deep image Ocean_241231_091047.txt,script,,,,,,Deep_image_Ocean_241231_091047,yes
 scripts/Delft wyjazd_241017_170643.txt,script,,,,,,Delft_wyjazd_241017_170643,yes
 scripts/Do hab_250403_204509.txt,script,,,,,,Do_hab_250403_204509,yes
 scripts/generate_manifest.py,script,,,,,,generate_manifest,no
@@ -955,6 +1057,7 @@ scripts/Hab - okazuje_241013_210006.txt,script,,,,,,Hab___okazuje_241013_210006,
 scripts/Hab Hein Culture port cities mindset_250108_081453.txt,script,,,,,,Hab_Hein_Culture_port_cities_mindset_250,yes
 scripts/Iscot_240905_142040.txt,script,,,,,,Iscot_240905_142040,yes
 scripts/Materialnosc w morzu_241217_113623.txt,script,,,,,,Materialnosc_w_morzu_241217_113623,yes
+scripts/pip install pypdf.txt,script,,,,,,pip_install_pypdf,yes
 scripts/Port Animal-Human Relation_241026_074847.txt,script,,,,,,Port_Animal_Human_Relation_241026_074847,yes
 scripts/prompt ioanis 12_02 18_37.txt,script,,,,,,prompt_ioanis_12_02_18_37,yes
 scripts/prompt ioanis 12_02 18_56.txt,script,,,,,,prompt_ioanis_12_02_18_56,yes
@@ -964,3 +1067,11 @@ scripts/README.txt,script,,,,,,README,yes
 scripts/README_WHATTODO IN LIZBONA 2026 NEW.txt,script,,,,,,README_WHATTODO_IN_LIZBONA_2026_NEW,yes
 scripts/Tripatle Blue Value Model WOW.txt,script,,,,,,Tripatle_Blue_Value_Model_WOW,yes
 scripts/Wyrzucone przez morze_250521_002507.txt,script,,,,,,Wyrzucone_przez_morze_250521_002507,yes
+SESSION_SUMMARY.md,text,,,,,,SESSION_SUMMARY,yes
+setup_one_click.ps1,other,,,,,,setup_one_click,no
+src/__init__.py,other,,,,,,init,no
+src/competence_mapper.py,other,,,,,,competence_mapper,no
+src/core.py,other,,,,,,core,no
+src/Untitled-1.litcoffee,other,,,,,,Untitled_1,no
+tests/__init__.py,other,,,,,,init,no
+tests/test_core.py,other,,,,,,test_core,no
