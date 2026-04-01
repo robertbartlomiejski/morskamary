@@ -48,6 +48,7 @@ jobs:
           # Export flags consumed by later steps
           if [[ -f "requirements.txt" ]]; then
             echo "HAS_REQUIREMENTS_TXT=true" >> "$GITHUB_ENV"
+            echo "::notice::Authoritative manifest: requirements.txt – pyproject.toml will be ignored for dependency submission."
           else
             echo "HAS_REQUIREMENTS_TXT=false" >> "$GITHUB_ENV"
           fi
@@ -57,9 +58,16 @@ jobs:
             echo "HAS_PYPROJECT_TOML=false" >> "$GITHUB_ENV"
           fi
 
-      # Submit snapshot when at least one dependency file is present
-      - name: Submit dependency snapshot
-        if: env.HAS_REQUIREMENTS_TXT == 'true' || env.HAS_PYPROJECT_TOML == 'true'
+      # Priority 1: submit from requirements.txt when it exists (authoritative)
+      - name: Submit dependency snapshot (requirements.txt)
+        if: env.HAS_REQUIREMENTS_TXT == 'true'
+        uses: advanced-security/python-dependency-submission-action@v4
+        with:
+          python-location: "."
+          python-version: "3.11"
+      # Priority 2: fall back to pyproject.toml only when requirements.txt is absent
+      - name: Submit dependency snapshot (pyproject.toml fallback)
+        if: env.HAS_REQUIREMENTS_TXT == 'false' && env.HAS_PYPROJECT_TOML == 'true'
         uses: advanced-security/python-dependency-submission-action@v4
         with:
           python-location: "."

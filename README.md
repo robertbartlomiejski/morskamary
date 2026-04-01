@@ -215,13 +215,19 @@ The repo-managed workflow is deterministic: it pins Python 3.11, resolves
 dependencies from the repo's own `requirements.txt` / `pyproject.toml`, and
 submits the snapshot with an explicit `permissions: contents: write` token.
 
-**Behaviour:**
+**Behaviour (enforced priority order):**
 
 | Condition | Action |
 |---|---|
-| `requirements.txt` exists | Install and submit snapshot |
-| Only `pyproject.toml` exists | Install and submit snapshot |
+| `requirements.txt` exists | Submit snapshot from `requirements.txt` (authoritative) |
+| `requirements.txt` absent, `pyproject.toml` exists | Submit snapshot from `pyproject.toml` (fallback) |
 | Neither file found | Emit a workflow warning, skip submission gracefully |
+
+`requirements.txt` is the authoritative dependency manifest for GitHub's
+Dependency Graph when it is present. `pyproject.toml` serves as a fallback
+and carries packaging/tooling metadata; **its runtime `dependencies` list must
+not drift from `requirements.txt`** unless `requirements.txt` is intentionally
+removed.
 
 **Running alongside GitHub's automatic detector:**
 
