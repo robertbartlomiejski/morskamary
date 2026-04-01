@@ -11,12 +11,29 @@ docker compose up --build
 # One-click setup (local Windows, no Docker)
 powershell -ExecutionPolicy Bypass -File .\setup_one_click.ps1
 
-# Or run demonstration
-python demo_workspace_instructions.py
-
-# Or load real data
+# Or load real data (primary substantive results script)
 python main_real_data.py
+
+# Or run demonstration (validation/workflow-check only)
+python demo_workspace_instructions.py
 ```
+
+### GitHub Copilot MCP Integration (Optional Advanced Feature)
+
+**Note:** This is optional, local, workstation-specific tooling. Not required for core development.
+
+For optional full-context GitHub Copilot integration with local repositories, SharePoint, Google Drive, and scientific databases:
+
+```powershell
+# Windows PowerShell (run as Administrator)
+.\Deploy-CopilotSynergy.ps1
+```
+
+See [COPILOT_MCP_SETUP.md](COPILOT_MCP_SETUP.md) for complete setup guide, including:
+- Node.js and Python prerequisites verification
+- MCP server configuration for filesystem, cloud storage, and scientific APIs
+- Privacy governance and data protection settings
+- Advanced usage with verified DOI citations
 
 ## One-Click Setup Graph
 
@@ -141,6 +158,12 @@ This repository includes specialized instructions for AI coding assistants:
   - Coding conventions (Python ≥3.9, black, flake8, mypy)
   - Evidence discipline and citation requirements
   - Architecture patterns and data workflows
+
+- [.github/repository-guardrails.instructions.md](.github/repository-guardrails.instructions.md) — Hard guardrails for coding agents
+  - Prioritizes real-data execution (`main_real_data.py` over `demo_workspace_instructions.py`)
+  - Enforces Python-first architecture (Node.js as optional MCP tooling only)
+  - Maintains separation of repository and workstation-specific configurations
+  - Establishes priority order: derived-data value, provenance/governance, then assistant-access
 
 ### Domain-Specific Instructions
 - [.github/competence-domain.instructions.md](.github/competence-domain.instructions.md) — For competence loading scripts
