@@ -1,0 +1,83 @@
+name: Dependency Submission
+
+# Repo-managed dependency graph submission workflow.
+# Replaces reliance on GitHub's platform-managed "Automatic Dependency
+# Submission (Python)" which can fail with transient API errors or mis-detect
+# the project layout.  This workflow is deterministic: it pins Python 3.11,
+# resolves deps from the repo's own dependency files, and submits the snapshot
+# with an explicit `contents: write` token.
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dependency-submission:
+    name: Submit dependency snapshot
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Print Python version and locate dependency files
+        shell: bash
+        run: |
+          echo "=== Python version ==="
+          python --version
+
+          echo ""
+          echo "=== Dependency file discovery ==="
+          for f in requirements.txt pyproject.toml; do
+            if [[ -f "$f" ]]; then
+              echo "  FOUND: $f"
+            else
+              echo "  absent: $f"
+            fi
+          done
+
+          # Export flags consumed by later steps
+          if [[ -f "requirements.txt" ]]; then
+            echo "HAS_REQUIREMENTS_TXT=true" >> "$GITHUB_ENV"
+          else
+            echo "HAS_REQUIREMENTS_TXT=false" >> "$GITHUB_ENV"
+          fi
+          if [[ -f "pyproject.toml" ]]; then
+            echo "HAS_PYPROJECT_TOML=true" >> "$GITHUB_ENV"
+          else
+            echo "HAS_PYPROJECT_TOML=false" >> "$GITHUB_ENV"
+          fi
+
+      # Primary path – requirements.txt (fastest, most explicit)
+      - name: Submit snapshot via requirements.txt
+        if: env.HAS_REQUIREMENTS_TXT == 'true'
+        uses: advanced-security/python-dependency-submission-action@v4
+        with:
+          python-location: "."
+          python-version: "3.11"
+
+      # Fallback path – pyproject.toml (PEP 517/518 projects)
+      - name: Submit snapshot via pyproject.toml (fallback)
+        if: env.HAS_REQUIREMENTS_TXT == 'false' && env.HAS_PYPROJECT_TOML == 'true'
+        uses: advanced-security/python-dependency-submission-action@v4
+        with:
+          python-location: "."
+          python-version: "3.11"
+
+      # Graceful no-op when neither file is present
+      - name: No dependency files found – guidance
+        if: env.HAS_REQUIREMENTS_TXT == 'false' && env.HAS_PYPROJECT_TOML == 'false'
+        shell: bash
+        run: |
+          echo "::warning::No requirements.txt or pyproject.toml found in the repository root."
+          echo "Dependency snapshot submission was skipped."
+          echo "Add a requirements.txt or pyproject.toml to enable automatic dependency tracking."
