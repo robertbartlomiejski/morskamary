@@ -1,10 +1,17 @@
 <#
 .SYNOPSIS
-Automated Deployment for GitHub Copilot MCP Synergy Merge
+Automated Deployment for GitHub Copilot MCP Synergy Merge (OPTIONAL TOOLING)
 
 .DESCRIPTION
-Installs Node.js dependencies, scaffolds the MCP configuration, and links local/cloud repositories
+**IMPORTANT: This is optional, local, workstation-specific tooling.**
+
+This script installs Node.js dependencies, scaffolds the MCP configuration, and links local/cloud repositories
 for the morskamary Blue Sociology project with full data integration.
+
+This is NOT a core repository dependency. Python ≥3.9 is the only required dependency for morskamary development.
+Use this script only if you need advanced GitHub Copilot integration with local files and cloud storage.
+
+For standard Python-first development, see CONTRIBUTING.md and use main_real_data.py for real-data workflows.
 
 .PARAMETER MorskaMaryRepoPath
 Path to local morskamary repository

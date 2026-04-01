@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
 """
-Scientific Database Bridge for GitHub Copilot MCP Integration
+Scientific Database Bridge for GitHub Copilot MCP Integration (OPTIONAL TOOLING)
+
+**IMPORTANT: This is optional, local, workstation-specific tooling.**
 
 This script provides an MCP server that queries scientific databases
 (Crossref, Scopus API if configured) to fetch verified citations, DOIs,
 and direct links for the morskamary Blue Sociology research project.
+
+This is NOT a core repository dependency. Python ≥3.9 is the only required dependency
+for morskamary development. Use this script only if you need GitHub Copilot MCP
+integration with scientific database verification.
+
+For standard Python-first development, see CONTRIBUTING.md and use main_real_data.py
+for real-data workflows.
 
 Requirements:
     - Python ≥3.9

@@ -20,6 +20,17 @@ Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
 2026-04-01
+Change type add update
+Scope infrastructure documentation governance scripts
+Files affected .github/repository-guardrails.instructions.md (new) Deploy-CopilotSynergy.ps1 scientific_bridge.py COPILOT_MCP_SETUP.md README.md CHANGELOG.txt
+Summary Added repository guardrails policy file at .github/repository-guardrails.instructions.md establishing hard constraints for coding agents: real-data precedence (main_real_data.py over demo_workspace_instructions.py), Python-first architecture enforcement, separation of repository and workstation configurations, and priority order (derived-data value → provenance/governance → assistant-access). Updated all MCP-related files to clarify they are optional, local, workstation-specific tooling, NOT core repository dependencies. Updated README.md to reorder Quick Start prioritizing real-data workflow and add guardrails reference. Updated COPILOT_MCP_SETUP.md header with prominent warning about optional nature.
+Reason Strengthen repository governance by establishing clear execution hierarchy and preventing scope creep of optional tooling into core infrastructure. Respond to maintainer feedback requesting explicit guardrails that preserve Python-first architecture, enforce real-data precedence, and maintain portability by keeping workstation-specific configurations separate from repository core. Ensure Node.js and MCP infrastructure remain strictly optional second-phase tooling rather than default requirements.
+Impact Coding agents now have explicit instructions to prioritize main_real_data.py for substantive outputs, treat demo scripts as validation-only, avoid introducing Node.js as core dependency, and maintain separation between portable repository artifacts and local workstation configurations. MCP infrastructure clearly marked as optional advanced feature. Repository maintains Python-first identity while supporting optional advanced integration for users who need it.
+Provenance main_real_data.py (real-data primary script), demo_workspace_instructions.py (validation script), requirements.txt (Python-only core dependencies), README.md (Quick Start hierarchy), maintainer feedback via PR comments (comment_id 4170105857, 4044233213).
+Quality checks All updated files validated for consistency; README.md Quick Start section reordered with real-data first; all MCP files include "optional tooling" disclaimers; guardrails policy reviewed against repository structure and existing governance files (LLM_CONTEXT_INSTRUCTION.txt, DATA_GOVERNANCE.txt, .github/copilot-instructions.md).
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-01
 Change type add
 Scope infrastructure documentation scripts
 Files affected Deploy-CopilotSynergy.ps1 scientific_bridge.py COPILOT_MCP_SETUP.md .vscode/mcp_full_integration.json

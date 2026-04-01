@@ -1,6 +1,15 @@
 # GitHub Copilot MCP Setup Guide for morskamary
 
-Complete deployment guide for integrating GitHub Copilot with local repositories, cloud storage, and scientific databases for the **morskamary Blue Sociology** research project.
+**⚠️ IMPORTANT: This is Optional, Local, Workstation-Specific Tooling**
+
+This guide describes **optional advanced features** for integrating GitHub Copilot with local repositories and cloud storage through Model Context Protocol (MCP) servers. These features are:
+
+- **NOT required** for core morskamary development
+- **NOT a repository dependency** (Python ≥3.9 is the only core requirement)
+- **Local workstation configuration** that should not be committed to version control
+- **Second-phase tooling** to be considered only after real-data and provenance workflows are solid
+
+For standard Python-first development, see [CONTRIBUTING.md](CONTRIBUTING.md) and use `main_real_data.py` for real-data workflows.
 
 ---
 
