@@ -20,6 +20,17 @@ Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
 2026-04-01
+Change type fix add update
+Scope infrastructure governance documentation
+Files affected pyproject.toml requirements.txt .github/workflows/dependency-submission.yml (new) README.md
+Summary Fixed Python dependency manifest drift: aligned openpyxl minimum version to >=3.0.0 in both pyproject.toml and requirements.txt (pyproject.toml previously had >=3.8.0 which is non-existent). Removed pytest from runtime dependencies in pyproject.toml (it belongs only under [project.optional-dependencies].dev). Created repo-managed dependency submission workflow (.github/workflows/dependency-submission.yml) with explicit priority order: requirements.txt authoritative when present; pyproject.toml as fallback; graceful skip with warning when neither exists. Updated README.md CI section with enforced priority order table and note that pyproject.toml runtime dependencies must not drift from requirements.txt.
+Reason requirements.txt and pyproject.toml disagreed on the openpyxl minimum version; GitHub's platform-managed Automatic Dependency Submission workflow was failing with transient API errors and mis-detecting the project layout; no authoritative source for dependency graph submission was defined.
+Impact Dependency manifests now agree; GitHub Dependency Graph submission is deterministic and uses requirements.txt as the authoritative source; developers have clear guidance that pyproject.toml runtime deps must stay in sync with requirements.txt.
+Provenance requirements.txt (authoritative runtime deps), pyproject.toml (packaging/tooling metadata), .github/workflows/dependency-submission.yml (new repo-managed workflow).
+Quality checks pytest tests/ passes (8/8); pip install -r requirements.txt succeeds; pyproject.toml and requirements.txt verified to agree on all shared runtime dependency versions; workflow YAML validated syntactically.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-01
 Change type add update
 Scope infrastructure documentation governance scripts
 Files affected .github/repository-guardrails.instructions.md (new) Deploy-CopilotSynergy.ps1 scientific_bridge.py COPILOT_MCP_SETUP.md README.md CHANGELOG.txt
