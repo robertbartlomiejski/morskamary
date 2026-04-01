@@ -197,6 +197,40 @@ Complete demonstration of workspace instructions in action:
 
 Run: `python demo_workspace_instructions.py`
 
+## CI and Dependency Graph
+
+### Dependency Submission
+
+This repository uses a **repo-managed** GitHub Actions workflow
+(`.github/workflows/dependency-submission.yml`) to submit dependency snapshots
+to the GitHub Dependency Graph.
+
+**Why repo-managed instead of GitHub's automatic detector?**
+
+GitHub provides a platform-managed "Automatic Dependency Submission (Python)"
+workflow, but it can fail with transient API errors (e.g.
+`HttpError: An error occurred while processing your request`) and its Python
+project-layout detector may not recognise this repository's structure.
+The repo-managed workflow is deterministic: it pins Python 3.11, resolves
+dependencies from the repo's own `requirements.txt` / `pyproject.toml`, and
+submits the snapshot with an explicit `permissions: contents: write` token.
+
+**Behaviour:**
+
+| Condition | Action |
+|---|---|
+| `requirements.txt` exists | Install and submit snapshot |
+| Only `pyproject.toml` exists | Install and submit snapshot |
+| Neither file found | Emit a workflow warning, skip submission gracefully |
+
+**Running alongside GitHub's automatic detector:**
+
+Both workflows can run simultaneously without conflict — GitHub de-duplicates
+snapshots by detector name. You may optionally disable GitHub's automatic
+detector under *Settings → Code security and analysis → Automatic dependency
+submission* if you prefer a single, controlled submission path or if the
+managed workflow keeps producing failures or noise.
+
 ## Data Workflows
 Quote: “Connecting Science with Society… ocean literacy and societal transformation” 
 
