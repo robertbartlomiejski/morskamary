@@ -57,22 +57,13 @@ jobs:
             echo "HAS_PYPROJECT_TOML=false" >> "$GITHUB_ENV"
           fi
 
-      # Primary path – requirements.txt (fastest, most explicit)
-      - name: Submit snapshot via requirements.txt
-        if: env.HAS_REQUIREMENTS_TXT == 'true'
+      # Submit snapshot when at least one dependency file is present
+      - name: Submit dependency snapshot
+        if: env.HAS_REQUIREMENTS_TXT == 'true' || env.HAS_PYPROJECT_TOML == 'true'
         uses: advanced-security/python-dependency-submission-action@v4
         with:
           python-location: "."
           python-version: "3.11"
-
-      # Fallback path – pyproject.toml (PEP 517/518 projects)
-      - name: Submit snapshot via pyproject.toml (fallback)
-        if: env.HAS_REQUIREMENTS_TXT == 'false' && env.HAS_PYPROJECT_TOML == 'true'
-        uses: advanced-security/python-dependency-submission-action@v4
-        with:
-          python-location: "."
-          python-version: "3.11"
-
       # Graceful no-op when neither file is present
       - name: No dependency files found – guidance
         if: env.HAS_REQUIREMENTS_TXT == 'false' && env.HAS_PYPROJECT_TOML == 'false'
