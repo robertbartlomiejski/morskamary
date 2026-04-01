@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-01
+Change type add
+Scope infrastructure documentation scripts
+Files affected Deploy-CopilotSynergy.ps1 scientific_bridge.py COPILOT_MCP_SETUP.md .vscode/mcp_full_integration.json
+Summary Added comprehensive MCP (Model Context Protocol) infrastructure for GitHub Copilot integration, enabling full-context access to local repositories, SharePoint, Google Drive, and scientific databases. Created Deploy-CopilotSynergy.ps1 PowerShell deployment script with automatic Node.js/Python verification, MCP package installation, and configuration generation. Implemented scientific_bridge.py Python MCP server for querying Crossref, Scopus, and Web of Science APIs with DOI verification. Created COPILOT_MCP_SETUP.md with complete deployment guide, privacy governance, and troubleshooting documentation.
+Reason Enable "Full Data Use" architecture for GitHub Copilot Coding Agent, providing direct access to morskamary and maritimesociology repositories, University of Szczecin SharePoint synchronized folders, Google Drive research materials, and verified scientific citations without hallucination. Support Windows-based research workflow with privacy-first configuration (no telemetry/training on proprietary data).
+Impact Researchers can now use GitHub Copilot with full contextual awareness of TMBD framework, Blue Social Competences, literature sources, and institutional data. Scientific claims are automatically backed by verified DOI citations from Crossref API. MCP servers enable competence mapping and micro-credential design grounded in local evidence base while maintaining FAIR/CARE data governance principles.
+Provenance LLM_CONTEXT_INSTRUCTION.txt (TMBD definitions), DATA_GOVERNANCE.txt (FAIR/CARE principles), .github/copilot-instructions.md (coding conventions), README.md (project overview). Scientific bridge implements Crossref REST API v1 (https://api.crossref.org) for citation metadata.
+Quality checks Deploy-CopilotSynergy.ps1 syntax verified with PowerShell 7.x; scientific_bridge.py tested with Python 3.9+ and mypy type checking; COPILOT_MCP_SETUP.md reviewed for accuracy against MCP specification and GitHub Copilot documentation; all configuration files validated as valid JSON.
+Reviewer GitHub Copilot Coding Agent
+
 2026-03-22
 Change type fix add
 Scope scripts governance CI

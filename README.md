@@ -18,6 +18,21 @@ python demo_workspace_instructions.py
 python main_real_data.py
 ```
 
+### GitHub Copilot MCP Integration (Advanced)
+
+For full-context GitHub Copilot integration with local repositories, SharePoint, Google Drive, and scientific databases:
+
+```powershell
+# Windows PowerShell (run as Administrator)
+.\Deploy-CopilotSynergy.ps1
+```
+
+See [COPILOT_MCP_SETUP.md](COPILOT_MCP_SETUP.md) for complete setup guide, including:
+- Node.js and Python prerequisites verification
+- MCP server configuration for filesystem, cloud storage, and scientific APIs
+- Privacy governance and data protection settings
+- Advanced usage with verified DOI citations
+
 ## One-Click Setup Graph
 
 The one-click local flow intentionally includes `demo_additional_tasks.py` as a
