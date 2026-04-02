@@ -1,0 +1,68 @@
+Adjusted Deep Update Patch: Executive Plan
+
+Objective
+Consolidate morskamary into one authoritative real-data pipeline that:
+1. loads the shared baseline competence matrix,
+2. loads the sector-specific competence matrix,
+3. loads the cluster matrix,
+4. stores all three in the shared src/ model,
+5. derives sector requirements from real sector records rather than only from manually created credentials,
+6. generates one general report and 12 sector reports.
+
+Repository drift corrected by this patch
+1. src/core.py was too thin for the actual repository data model.
+2. src/competence_mapper.py inferred sector requirements only from credentials.
+3. load_real_competences.py loaded only the overall baseline CSV.
+4. main_real_data.py created manual credentials as a proxy for sector analysis.
+5. the real sector matrix and real cluster matrix were not authoritative in execution.
+6. offshore-energy versus renewable-energy naming drift caused semantic noise.
+7. the repository needed one plug-and-play reporting pipeline producing a general report and 12 sector reports.
+
+What to replace
+Copy these files into the repository root and overwrite the current versions:
+- src/core.py
+- src/competence_mapper.py
+- src/__init__.py
+- load_real_competences.py
+- main_real_data.py
+- run_full_analysis.py
+- tests/test_core.py
+
+Execution order after replacement
+1. python -m pytest tests/test_core.py -v
+2. python main_real_data.py
+3. python run_full_analysis.py
+
+Expected outputs
+- outputs/report_index.html
+- outputs/general_report.html
+- outputs/sector_requirements.json
+- outputs/credentials_database.json
+- outputs/gaps_summary.csv
+- outputs/sectors/blue-biotech.html
+- outputs/sectors/coastal-tourism.html
+- outputs/sectors/desalination.html
+- outputs/sectors/infra-robotics.html
+- outputs/sectors/living-resources.html
+- outputs/sectors/non-living-resources.html
+- outputs/sectors/renewable-energy.html
+- outputs/sectors/maritime-defence.html
+- outputs/sectors/maritime-transport.html
+- outputs/sectors/port-activities.html
+- outputs/sectors/research-innovation.html
+- outputs/sectors/ship-repair.html
+
+Model logic after patch
+1. The overall CSV remains the transversal baseline.
+2. The sector CSV becomes the authoritative source of sector-specific requirements.
+3. The cluster CSV becomes the authoritative source of sector grouping.
+4. Sector gap analysis is computed from real sector requirement records.
+5. Auto-generated sector credentials are downstream pedagogical wrappers, not the upstream evidence source.
+6. Sector normalization maps offshore-energy onto renewable-energy.
+
+Verification checklist
+1. The loader reports 12 sectors.
+2. Each sector profile contains at least 16 requirement rows from the model.
+3. Each sector report includes requirement kind, axis, baseline description, and sector-specific operationalization.
+4. The general report links to all 12 sector reports.
+5. The tests pass without requiring the old manual-credential-only logic.
