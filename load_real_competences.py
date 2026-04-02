@@ -47,10 +47,13 @@ def load_blue_competences(csv_path: Path) -> CompetenceMapper:
         ValueError: If csv_path is empty or None
         FileNotFoundError: If the CSV file does not exist
     """
-    if not csv_path or str(csv_path) == "." or not str(csv_path).strip():
+    if csv_path is None:
         raise ValueError("csv_path cannot be empty")
 
     csv_path = Path(csv_path)
+
+    if str(csv_path) == "." or not str(csv_path).strip():
+        raise ValueError("csv_path cannot be empty")
 
     if not csv_path.is_file():
         raise FileNotFoundError(f"CSV file not found: {csv_path}")

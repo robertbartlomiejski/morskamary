@@ -101,13 +101,17 @@ def load_competence_matrix(file_path: Union[str, Path]) -> List[Competence]:
     try:
         import pandas as pd  # type: ignore[import-untyped]
 
-        if not file_path or (isinstance(file_path, str) and not file_path.strip()):
+        if file_path is None:
             raise ValueError("file_path cannot be empty")
 
-        path = Path(file_path)
-
-        if str(path) == ".":
-            raise ValueError("file_path cannot be empty")
+        if isinstance(file_path, str):
+            if not file_path.strip():
+                raise ValueError("file_path cannot be empty")
+            path = Path(file_path)
+        else:
+            path = Path(file_path)
+            if str(path) == ".":
+                raise ValueError("file_path cannot be empty")
 
         if not path.is_file():
             raise FileNotFoundError(f"Competence file not found: {path}")
