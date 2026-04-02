@@ -14,11 +14,18 @@ from load_real_competences import load_blue_competences
 from src.core import BlueDynamicsAxis
 
 
-REPO_ROOT = Path(__file__).resolve().parent
+# This file lives inside deep_update_patch/; the repository root is one level up.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+BASELINE_CSV = (
+    REPO_ROOT
+    / "data"
+    / "derived"
+    / "Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv"
+)
 
 
 def main() -> int:
-    mapper = load_blue_competences(REPO_ROOT)
+    mapper = load_blue_competences(BASELINE_CSV)
     summary = mapper.get_summary()
 
     print("=" * 72)

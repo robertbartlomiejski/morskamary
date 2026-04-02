@@ -136,6 +136,21 @@ class SourceRef:
 
 @dataclass
 class Competence:
+    """
+    A single Blue Social Competence drawn from the University of Szczecin baseline.
+
+    Fields
+    ------
+    id          : Unique identifier (e.g. ``blue_comp_a_1``).
+    name        : Human-readable competence name.
+    description : Short description or key focus area.
+    axis        : TMBD axis (MARINE / MARITIME / OCEANIC).
+    level       : Proficiency level (FOUNDATIONAL … EXPERT).
+    keywords    : Discovery keywords for search and filtering.
+    dimension   : Single-letter dimension code (A / B / C / D).
+    requirement_kind : Whether this row is a SKILL or a COMPETENCE.
+    source      : Optional provenance record (CSV file, row, column).
+    """
     id: str
     name: str
     description: str
@@ -163,6 +178,24 @@ class Competence:
 
 @dataclass
 class SectorRequirement:
+    """
+    One sector-specific operationalisation of a baseline competence.
+
+    A SectorRequirement record links a ``Competence`` to a particular blue
+    economy sector and captures how that competence is expressed there.
+
+    Fields
+    ------
+    competence_id    : FK to ``Competence.id``.
+    sector           : Normalised sector slug (e.g. ``renewable-energy``).
+    sector_label     : Human-readable sector label (e.g. ``Renewable Energy``).
+    sector_text      : Sector-specific operationalisation text from the matrix.
+    requirement_kind : SKILL or COMPETENCE.
+    axis             : TMBD axis of the parent competence.
+    dimension        : Single-letter dimension code.
+    cluster_name     : Micro-credential cluster name, if applicable.
+    source           : Optional provenance record.
+    """
     competence_id: str
     sector: str
     sector_label: str
@@ -190,6 +223,25 @@ class SectorRequirement:
 
 @dataclass
 class MicroCredential:
+    """
+    A stackable micro-credential aligned to one or more Blue Social Competences.
+
+    Required fields
+    ---------------
+    id, title, competences, description, sector
+
+    Optional but recommended for completeness
+    -----------------------------------------
+    learner_profile   : Who this credential is designed for.
+    workload_hours    : Total learning hours.
+    ects              : ECTS credit value (e.g. 2.0).
+    eqf_level         : European Qualifications Framework level (1–8).
+    assessment_method : How learners are assessed.
+    prerequisites     : List of prerequisite credential IDs.
+    learning_outcomes : List of learning outcome statements.
+    stackability_rules: How this credential stacks with others.
+    source_cluster    : Name of the micro-credential cluster, if applicable.
+    """
     id: str
     title: str
     competences: List[str]

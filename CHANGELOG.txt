@@ -19,6 +19,18 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-02
+Change type add update fix
+Scope infrastructure pipeline data
+Files affected deep_update_patch/load_real_competences.py (new) deep_update_patch/main_real_data.py deep_update_patch/run_full_analysis.py deep_update_patch/src/competence_mapper.py deep_update_patch/src/core.py deep_update_patch/src/__init__.py deep_update_patch/EXECUTIVE_PLAN.txt deep_update_patch/tests/test_core.py .gitignore pyproject.toml src/__init__.py
+Summary Added missing deep_update_patch/load_real_competences.py providing a plug-and-play three-matrix loader (baseline, sector, cluster CSVs). Fixed both entrypoints to pass the correct CSV file path instead of a directory (was: IsADirectoryError). Fixed sector normalization on insert in add_sector_requirement so records created with non-normalized labels (e.g. 'Renewable Energy') are retrievable via normalized lookups. Added HTML escaping for sector labels and cluster names in run_full_analysis.py. Renamed add_credentials to add_credential (backward-compatible alias kept). Fixed redundant EQF filter in suggest_credential_pathway. Added class docstrings to Competence, SectorRequirement, MicroCredential. Removed stale report_index.html from git tracking; added deep_update_patch/outputs/ to .gitignore. Aligned EXECUTIVE_PLAN.txt with actual committed bundle and generated outputs. Bumped package version from 0.1.0 to 0.2.0 consistently in pyproject.toml and src/__init__.py.
+Reason Addresses all substantive and secondary review blockers raised in PR #37 review (https://github.com/robertbartlomiejski/morskamary/pull/37#pullrequestreview-4049795157). Primary blockers: loader API mismatch (IsADirectoryError on run), missing loader file, sector normalization logic bug, plan/output mismatch, stale generated artifact committed. Secondary fixes: HTML escaping, version consistency, API naming clarity, EQF filter redundancy, missing docstrings.
+Impact Entrypoints deep_update_patch/main_real_data.py and deep_update_patch/run_full_analysis.py now run without error and load all three CSV matrices. Sector gap analysis is correct for non-normalized sector labels. HTML reports are safe for labels containing & characters. EXECUTIVE_PLAN.txt is accurate and actionable.
+Provenance data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv, data/derived/Blue Social Competences Univ Szczecin - Blue competences x blue economy sector.csv, data/derived/Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials.csv, PR #37 review comments (review id 4049795157).
+Quality checks deep_update_patch/tests/test_core.py passes (7 tests + 2 new regression tests). Both entrypoints run smoke-tested successfully. HTML output validated for proper escaping of R&I and Infra & Robotics labels. Sector normalization regression confirmed.
+Reviewer GitHub Copilot Coding Agent
+
+
 2026-04-01
 Change type add update
 Scope infrastructure documentation governance scripts
