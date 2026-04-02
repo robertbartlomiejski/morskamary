@@ -36,9 +36,25 @@ def map_dimension_to_axis(dimension: str) -> BlueDynamicsAxis:
 def load_blue_competences(csv_path: Path) -> CompetenceMapper:
     """
     Load Blue Social Competences from CSV into CompetenceMapper.
-    
-    Returns mapper with all competences loaded.
+
+    Args:
+        csv_path: Path to the Blue Competences CSV file
+
+    Returns:
+        CompetenceMapper with all competences loaded
+
+    Raises:
+        ValueError: If csv_path is empty or None
+        FileNotFoundError: If the CSV file does not exist
     """
+    if not csv_path or str(csv_path) == "." or not str(csv_path).strip():
+        raise ValueError("csv_path cannot be empty")
+
+    csv_path = Path(csv_path)
+
+    if not csv_path.is_file():
+        raise FileNotFoundError(f"CSV file not found: {csv_path}")
+
     mapper = CompetenceMapper()
     
     print(f"\n📂 Loading competences from: {csv_path.name}")

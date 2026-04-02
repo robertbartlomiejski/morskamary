@@ -93,11 +93,25 @@ def load_competence_matrix(file_path: Union[str, Path]) -> List[Competence]:
 
     Returns:
         List of Competence objects
+
+    Raises:
+        ValueError: If file_path is empty or has unsupported format
+        FileNotFoundError: If the file does not exist
     """
     try:
         import pandas as pd  # type: ignore[import-untyped]
 
+        if not file_path or (isinstance(file_path, str) and not file_path.strip()):
+            raise ValueError("file_path cannot be empty")
+
         path = Path(file_path)
+
+        if str(path) == ".":
+            raise ValueError("file_path cannot be empty")
+
+        if not path.is_file():
+            raise FileNotFoundError(f"Competence file not found: {path}")
+
         if path.suffix.lower() == '.csv':
             df = pd.read_csv(path)
         elif path.suffix.lower() in ('.xlsx', '.xls'):
@@ -107,13 +121,22 @@ def load_competence_matrix(file_path: Union[str, Path]) -> List[Competence]:
 
         competences = []
         for _, row in df.iterrows():
+            comp_id = str(row.get('id', '')).strip()
+            comp_name = str(row.get('name', '')).strip()
+
+            if not comp_id or not comp_name:
+                continue
+
+            raw_keywords = str(row.get('keywords', ''))
+            keywords = [k.strip() for k in raw_keywords.split(';') if k.strip()]
+
             competence = Competence(
-                id=str(row.get('id', '')),
-                name=row.get('name', ''),
-                description=row.get('description', ''),
+                id=comp_id,
+                name=comp_name,
+                description=str(row.get('description', '')).strip(),
                 axis=BlueDynamicsAxis[row.get('axis', 'MARINE')],
                 level=CompetenceLevel[row.get('level', 'FOUNDATIONAL')],
-                keywords=str(row.get('keywords', '')).split(';'),
+                keywords=keywords,
             )
             competences.append(competence)
 

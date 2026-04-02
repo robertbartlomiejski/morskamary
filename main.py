@@ -7,10 +7,7 @@ and micro-credential design based on TMBD principles.
 
 import sys
 from src.core import (
-    Competence,
     MicroCredential,
-    BlueDynamicsAxis,
-    CompetenceLevel,
     create_sample_competences,
 )
 from src.competence_mapper import CompetenceMapper
