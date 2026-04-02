@@ -1,0 +1,3189 @@
+{
+  "metadata": {
+    "total_pathways": 132,
+    "sectors": [
+      "Blue Biotech",
+      "Coastal Tourism",
+      "Desalination",
+      "Infra & Robotics",
+      "Living Res.",
+      "Non-living Res.",
+      "Renewable Energy",
+      "Maritime Defence",
+      "Maritime Transport",
+      "Port Activities",
+      "R&I",
+      "Ship Repair"
+    ]
+  },
+  "pathways": [
+    {
+      "from_sector": "Blue Biotech",
+      "to_sector": "Coastal Tourism",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_blue-biotech_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Blue Biotech",
+      "to_sector": "Desalination",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_blue-biotech_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Blue Biotech",
+      "to_sector": "Infra & Robotics",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_blue-biotech_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Blue Biotech",
+      "to_sector": "Living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_blue-biotech_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Blue Biotech",
+      "to_sector": "Non-living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_blue-biotech_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Blue Biotech",
+      "to_sector": "Renewable Energy",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_blue-biotech_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Blue Biotech",
+      "to_sector": "Maritime Defence",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_blue-biotech_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Blue Biotech",
+      "to_sector": "Maritime Transport",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_blue-biotech_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Blue Biotech",
+      "to_sector": "Port Activities",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_blue-biotech_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Blue Biotech",
+      "to_sector": "R&I",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_blue-biotech_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Blue Biotech",
+      "to_sector": "Ship Repair",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_blue-biotech_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Coastal Tourism",
+      "to_sector": "Blue Biotech",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_coastal-tourism_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Coastal Tourism",
+      "to_sector": "Desalination",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_coastal-tourism_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Coastal Tourism",
+      "to_sector": "Infra & Robotics",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_coastal-tourism_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Coastal Tourism",
+      "to_sector": "Living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_coastal-tourism_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Coastal Tourism",
+      "to_sector": "Non-living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_coastal-tourism_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Coastal Tourism",
+      "to_sector": "Renewable Energy",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_coastal-tourism_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Coastal Tourism",
+      "to_sector": "Maritime Defence",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_coastal-tourism_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Coastal Tourism",
+      "to_sector": "Maritime Transport",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_coastal-tourism_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Coastal Tourism",
+      "to_sector": "Port Activities",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_coastal-tourism_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Coastal Tourism",
+      "to_sector": "R&I",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_coastal-tourism_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Coastal Tourism",
+      "to_sector": "Ship Repair",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_coastal-tourism_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Desalination",
+      "to_sector": "Blue Biotech",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_desalination_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Desalination",
+      "to_sector": "Coastal Tourism",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_desalination_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Desalination",
+      "to_sector": "Infra & Robotics",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_desalination_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Desalination",
+      "to_sector": "Living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_desalination_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Desalination",
+      "to_sector": "Non-living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_desalination_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Desalination",
+      "to_sector": "Renewable Energy",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_desalination_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Desalination",
+      "to_sector": "Maritime Defence",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_desalination_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Desalination",
+      "to_sector": "Maritime Transport",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_desalination_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Desalination",
+      "to_sector": "Port Activities",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_desalination_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Desalination",
+      "to_sector": "R&I",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_desalination_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Desalination",
+      "to_sector": "Ship Repair",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_desalination_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Infra & Robotics",
+      "to_sector": "Blue Biotech",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Infra & Robotics",
+      "to_sector": "Coastal Tourism",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Infra & Robotics",
+      "to_sector": "Desalination",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Infra & Robotics",
+      "to_sector": "Living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Infra & Robotics",
+      "to_sector": "Non-living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Infra & Robotics",
+      "to_sector": "Renewable Energy",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Infra & Robotics",
+      "to_sector": "Maritime Defence",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Infra & Robotics",
+      "to_sector": "Maritime Transport",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Infra & Robotics",
+      "to_sector": "Port Activities",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Infra & Robotics",
+      "to_sector": "R&I",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Infra & Robotics",
+      "to_sector": "Ship Repair",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Living Res.",
+      "to_sector": "Blue Biotech",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Living Res.",
+      "to_sector": "Coastal Tourism",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Living Res.",
+      "to_sector": "Desalination",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Living Res.",
+      "to_sector": "Infra & Robotics",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Living Res.",
+      "to_sector": "Non-living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Living Res.",
+      "to_sector": "Renewable Energy",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Living Res.",
+      "to_sector": "Maritime Defence",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Living Res.",
+      "to_sector": "Maritime Transport",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Living Res.",
+      "to_sector": "Port Activities",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Living Res.",
+      "to_sector": "R&I",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Living Res.",
+      "to_sector": "Ship Repair",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Non-living Res.",
+      "to_sector": "Blue Biotech",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_non-living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Non-living Res.",
+      "to_sector": "Coastal Tourism",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_non-living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Non-living Res.",
+      "to_sector": "Desalination",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_non-living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Non-living Res.",
+      "to_sector": "Infra & Robotics",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_non-living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Non-living Res.",
+      "to_sector": "Living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_non-living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Non-living Res.",
+      "to_sector": "Renewable Energy",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_non-living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Non-living Res.",
+      "to_sector": "Maritime Defence",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_non-living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Non-living Res.",
+      "to_sector": "Maritime Transport",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_non-living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Non-living Res.",
+      "to_sector": "Port Activities",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_non-living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Non-living Res.",
+      "to_sector": "R&I",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_non-living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Non-living Res.",
+      "to_sector": "Ship Repair",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_non-living-resources_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Renewable Energy",
+      "to_sector": "Blue Biotech",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_renewable-energy_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Renewable Energy",
+      "to_sector": "Coastal Tourism",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_renewable-energy_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Renewable Energy",
+      "to_sector": "Desalination",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_renewable-energy_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Renewable Energy",
+      "to_sector": "Infra & Robotics",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_renewable-energy_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Renewable Energy",
+      "to_sector": "Living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_renewable-energy_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Renewable Energy",
+      "to_sector": "Non-living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_renewable-energy_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Renewable Energy",
+      "to_sector": "Maritime Defence",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_renewable-energy_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Renewable Energy",
+      "to_sector": "Maritime Transport",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_renewable-energy_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Renewable Energy",
+      "to_sector": "Port Activities",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_renewable-energy_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Renewable Energy",
+      "to_sector": "R&I",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_renewable-energy_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Renewable Energy",
+      "to_sector": "Ship Repair",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_renewable-energy_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Defence",
+      "to_sector": "Blue Biotech",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Defence",
+      "to_sector": "Coastal Tourism",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Defence",
+      "to_sector": "Desalination",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Defence",
+      "to_sector": "Infra & Robotics",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Defence",
+      "to_sector": "Living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Defence",
+      "to_sector": "Non-living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Defence",
+      "to_sector": "Renewable Energy",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Defence",
+      "to_sector": "Maritime Transport",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Defence",
+      "to_sector": "Port Activities",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Defence",
+      "to_sector": "R&I",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Defence",
+      "to_sector": "Ship Repair",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Transport",
+      "to_sector": "Blue Biotech",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-transport_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Transport",
+      "to_sector": "Coastal Tourism",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-transport_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Transport",
+      "to_sector": "Desalination",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-transport_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Transport",
+      "to_sector": "Infra & Robotics",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-transport_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Transport",
+      "to_sector": "Living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-transport_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Transport",
+      "to_sector": "Non-living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-transport_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Transport",
+      "to_sector": "Renewable Energy",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-transport_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Transport",
+      "to_sector": "Maritime Defence",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-transport_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Transport",
+      "to_sector": "Port Activities",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-transport_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Transport",
+      "to_sector": "R&I",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-transport_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Maritime Transport",
+      "to_sector": "Ship Repair",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_maritime-transport_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Port Activities",
+      "to_sector": "Blue Biotech",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_port-activities_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Port Activities",
+      "to_sector": "Coastal Tourism",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_port-activities_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Port Activities",
+      "to_sector": "Desalination",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_port-activities_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Port Activities",
+      "to_sector": "Infra & Robotics",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_port-activities_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Port Activities",
+      "to_sector": "Living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_port-activities_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Port Activities",
+      "to_sector": "Non-living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_port-activities_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Port Activities",
+      "to_sector": "Renewable Energy",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_port-activities_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Port Activities",
+      "to_sector": "Maritime Defence",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_port-activities_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Port Activities",
+      "to_sector": "Maritime Transport",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_port-activities_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Port Activities",
+      "to_sector": "R&I",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_port-activities_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Port Activities",
+      "to_sector": "Ship Repair",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_port-activities_eqf5"
+      ]
+    },
+    {
+      "from_sector": "R&I",
+      "to_sector": "Blue Biotech",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
+    },
+    {
+      "from_sector": "R&I",
+      "to_sector": "Coastal Tourism",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
+    },
+    {
+      "from_sector": "R&I",
+      "to_sector": "Desalination",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
+    },
+    {
+      "from_sector": "R&I",
+      "to_sector": "Infra & Robotics",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
+    },
+    {
+      "from_sector": "R&I",
+      "to_sector": "Living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
+    },
+    {
+      "from_sector": "R&I",
+      "to_sector": "Non-living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
+    },
+    {
+      "from_sector": "R&I",
+      "to_sector": "Renewable Energy",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
+    },
+    {
+      "from_sector": "R&I",
+      "to_sector": "Maritime Defence",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
+    },
+    {
+      "from_sector": "R&I",
+      "to_sector": "Maritime Transport",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
+    },
+    {
+      "from_sector": "R&I",
+      "to_sector": "Port Activities",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
+    },
+    {
+      "from_sector": "R&I",
+      "to_sector": "Ship Repair",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Ship Repair",
+      "to_sector": "Blue Biotech",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_ship-repair_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Ship Repair",
+      "to_sector": "Coastal Tourism",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_ship-repair_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Ship Repair",
+      "to_sector": "Desalination",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_ship-repair_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Ship Repair",
+      "to_sector": "Infra & Robotics",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_ship-repair_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Ship Repair",
+      "to_sector": "Living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_ship-repair_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Ship Repair",
+      "to_sector": "Non-living Res.",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_ship-repair_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Ship Repair",
+      "to_sector": "Renewable Energy",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_ship-repair_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Ship Repair",
+      "to_sector": "Maritime Defence",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_ship-repair_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Ship Repair",
+      "to_sector": "Maritime Transport",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_ship-repair_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Ship Repair",
+      "to_sector": "Port Activities",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_ship-repair_eqf5"
+      ]
+    },
+    {
+      "from_sector": "Ship Repair",
+      "to_sector": "R&I",
+      "bridge_competences": [
+        "baseline_a_1",
+        "baseline_a_2",
+        "baseline_a_3",
+        "baseline_b_1",
+        "baseline_b_2",
+        "baseline_b_3",
+        "baseline_b_4",
+        "baseline_c_1",
+        "baseline_c_2",
+        "baseline_c_3",
+        "baseline_c_4",
+        "baseline_d_1",
+        "baseline_d_2",
+        "baseline_d_3",
+        "baseline_d_4"
+      ],
+      "bridge_credentials": [
+        "mc_ship-repair_eqf5"
+      ]
+    }
+  ]
+}
