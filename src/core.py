@@ -3,20 +3,22 @@ Core utilities and data structures for Blue Sociology analysis
 """
 
 from pathlib import Path
-from typing import Dict, List, Any, Union
-from dataclasses import dataclass
+from typing import Dict, List, Any, Optional, Union
+from dataclasses import dataclass, field
 from enum import Enum
 
 
 class BlueDynamicsAxis(Enum):
     """Tripartite Model of Blue Dynamics (TMBD) axes"""
-    MARINE = "M"       # Marine (biophysical agency)
-    MARITIME = "T"     # Maritime (techno-economic and institutional mediation)
-    OCEANIC = "O"      # Oceanic (planetary governance and hydrosocial subjectivity)
+
+    MARINE = "M"  # Marine (biophysical agency)
+    MARITIME = "T"  # Maritime (techno-economic and institutional mediation)
+    OCEANIC = "O"  # Oceanic (planetary governance and hydrosocial subjectivity)
 
 
 class CompetenceLevel(Enum):
     """Competence proficiency levels"""
+
     FOUNDATIONAL = 1
     INTERMEDIATE = 2
     ADVANCED = 3
@@ -35,17 +37,20 @@ class Competence:
         axis: TMBD axis (Marine, Maritime, or Oceanic)
         level: Proficiency level
         keywords: Associated keywords for discovery
+        source_metadata: Provenance metadata (file, row, authors, year, doi)
     """
+
     id: str
     name: str
     description: str
     axis: BlueDynamicsAxis
     level: CompetenceLevel
     keywords: List[str]
+    source_metadata: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert competence to dictionary"""
-        return {
+        result: Dict[str, Any] = {
             "id": self.id,
             "name": self.name,
             "description": self.description,
@@ -53,6 +58,9 @@ class Competence:
             "level": self.level.name,
             "keywords": self.keywords,
         }
+        if self.source_metadata is not None:
+            result["source_metadata"] = self.source_metadata
+        return result
 
 
 @dataclass
@@ -66,12 +74,25 @@ class MicroCredential:
         competences: List of competence IDs
         description: Credential description
         sector: Blue economy sector (e.g., offshore energy, ports, tourism)
+        ects: European Credit Transfer System credits (default 10)
+        eqf_level: European Qualifications Framework level 3-8 (default 5)
+        assessment_method: Observable assessment description
+        prerequisites: List of prerequisite credential IDs
+        stackability_rules: Text describing stackability with other credentials
+        sources: List of source provenance dicts
     """
+
     id: str
     title: str
     competences: List[str]
     description: str
     sector: str
+    ects: int = 10
+    eqf_level: int = 5
+    assessment_method: str = ""
+    prerequisites: List[str] = field(default_factory=list)
+    stackability_rules: str = ""
+    sources: List[Dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert credential to dictionary"""
@@ -81,6 +102,12 @@ class MicroCredential:
             "competences": self.competences,
             "description": self.description,
             "sector": self.sector,
+            "ects": self.ects,
+            "eqf_level": self.eqf_level,
+            "assessment_method": self.assessment_method,
+            "prerequisites": self.prerequisites,
+            "stackability_rules": self.stackability_rules,
+            "sources": self.sources,
         }
 
 
@@ -98,28 +125,63 @@ def load_competence_matrix(file_path: Union[str, Path]) -> List[Competence]:
         import pandas as pd  # type: ignore[import-untyped]
 
         path = Path(file_path)
-        if path.suffix.lower() == '.csv':
+        if path.suffix.lower() == ".csv":
             df = pd.read_csv(path)
-        elif path.suffix.lower() in ('.xlsx', '.xls'):
+        elif path.suffix.lower() in (".xlsx", ".xls"):
             df = pd.read_excel(path)
         else:
             raise ValueError(f"Unsupported file format: {path}")
 
         competences = []
-        for _, row in df.iterrows():
+        ids = (
+            df["id"].astype(str)
+            if "id" in df.columns
+            else pd.Series("", index=df.index)
+        ).tolist()
+        names = (
+            df["name"].fillna("")
+            if "name" in df.columns
+            else pd.Series("", index=df.index)
+        ).tolist()
+        descriptions = (
+            df["description"].fillna("")
+            if "description" in df.columns
+            else pd.Series("", index=df.index)
+        ).tolist()
+        axes = (
+            df["axis"].fillna("MARINE")
+            if "axis" in df.columns
+            else pd.Series("MARINE", index=df.index)
+        ).tolist()
+        levels = (
+            df["level"].fillna("FOUNDATIONAL")
+            if "level" in df.columns
+            else pd.Series("FOUNDATIONAL", index=df.index)
+        ).tolist()
+        keywords_col = (
+            df["keywords"].fillna("").astype(str)
+            if "keywords" in df.columns
+            else pd.Series("", index=df.index)
+        ).tolist()
+        for id_val, name, desc, axis, level, kw in zip(
+            ids, names, descriptions, axes, levels, keywords_col
+        ):
             competence = Competence(
-                id=str(row.get('id', '')),
-                name=row.get('name', ''),
-                description=row.get('description', ''),
-                axis=BlueDynamicsAxis[row.get('axis', 'MARINE')],
-                level=CompetenceLevel[row.get('level', 'FOUNDATIONAL')],
-                keywords=str(row.get('keywords', '')).split(';'),
+                id=id_val,
+                name=name,
+                description=desc,
+                axis=BlueDynamicsAxis[str(axis)],
+                level=CompetenceLevel[str(level)],
+                keywords=kw.split(";"),
             )
             competences.append(competence)
 
         return competences
     except ImportError:
-        raise ImportError("pandas is required to load competence matrices. Install with: pip install pandas openpyxl")
+        raise ImportError(
+            "pandas is required to load competence matrices. "
+            "Install with: pip install pandas openpyxl"
+        )
 
 
 def create_sample_competences() -> List[Competence]:
@@ -139,7 +201,12 @@ def create_sample_competences() -> List[Competence]:
             description="Management of ports, fleets, grids, and maritime spatial planning (MSP) infrastructure",
             axis=BlueDynamicsAxis.MARITIME,
             level=CompetenceLevel.ADVANCED,
-            keywords=["ports", "maritime spatial planning", "infrastructure", "fleet management"],
+            keywords=[
+                "ports",
+                "maritime spatial planning",
+                "infrastructure",
+                "fleet management",
+            ],
         ),
         Competence(
             id="comp_oceanic_001",
@@ -147,6 +214,11 @@ def create_sample_competences() -> List[Competence]:
             description="Cross-border ocean governance integration, hydrosocial literacy, and transcorporeal responsibility",
             axis=BlueDynamicsAxis.OCEANIC,
             level=CompetenceLevel.ADVANCED,
-            keywords=["governance", "international cooperation", "policy", "sustainability"],
+            keywords=[
+                "governance",
+                "international cooperation",
+                "policy",
+                "sustainability",
+            ],
         ),
     ]

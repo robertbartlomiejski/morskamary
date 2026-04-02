@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-02
+Change type fix add update
+Scope core infrastructure CI governance scripts tests
+Files affected pyproject.toml requirements.txt main.py src/core.py src/competence_mapper.py src/credential_designer.py (new) src/gap_analyzer.py (new) src/literature_extractor.py (new) src/report_generator.py (new) tests/__init__.py tests/test_full_analysis.py (new) run_full_analysis.py .github/workflows/ci.yml .github/workflows/blank.yml .github/workflows/full-analysis.yml (new) .vscode/launch.json .vscode/settings.json .vscode/tasks.json .gitignore .devcontainer/devcontainer.json (new) .pre-commit-config.yaml (new) Makefile (new) outputs/README.md (new) scripts/convert_pdfs_to_txt.py scripts/build_derived.py CHANGELOG.txt
+Summary Consolidated fixes from 13 open pull requests (#12, #14, #15, #16, #20, #21, #24, #25, #26, #27, #30, #37, #38) into a single coherent update. Fixed openpyxl version constraint (>=3.0.0), removed unused imports, fixed f-string literals. Applied black formatting across all source files. Added vectorized competence loading in core.py. Optimized single-pass summary in competence_mapper.py. Refactored pypdf import to modern style. Extended Competence model with source_metadata and MicroCredential with ects/eqf_level/assessment/prerequisites/stackability/sources fields. Added full analysis pipeline modules (gap_analyzer, credential_designer, literature_extractor, report_generator) with 23 new tests. Fixed CI manifest determinism check to use MANIFEST_SOURCES.csv. Added test matrix (Python 3.9/3.10/3.11) and full-analysis workflow. Resolved merge conflict in launch.json. Fixed VS Code settings for pytest and black. Added devcontainer, Makefile, and pre-commit configuration. Removed junk files (changelog litcoffee, Chat diagnostics, Untitled litcoffee). Added bluesociology.json to gitignore.
+Reason 13 open PRs accumulated overlapping fixes causing merge conflicts. Consolidating into one coherent commit ensures all improvements are applied without conflicts and all 31 tests pass.
+Impact All CI workflows pass. Test suite expanded from 8 to 31 tests. Full gap analysis pipeline operational. Code quality enforced via black/flake8/mypy. Developers get improved tooling (Makefile, devcontainer, pre-commit, format-on-save).
+Provenance PRs #12, #14, #15, #16, #20, #21, #24, #25, #26, #27, #30, #37, #38.
+Quality checks pytest tests/ 31/31 passed; flake8 src/ tests/ clean; mypy src/ clean; black --check passes; main.py runs successfully.
+Reviewer GitHub Copilot Coding Agent
+
 2026-04-01
 Change type add update
 Scope infrastructure documentation governance scripts

@@ -26,17 +26,19 @@ classifiers = [
 
 dependencies = [
     "pandas>=1.5.0",
-    "openpyxl>=3.8.0",
+    "openpyxl>=3.0.0",
     "pyyaml>=6.0",
-    "pytest>=7.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
+    "pytest-cov>=4.0",
     "black>=23.0",
     "flake8>=6.0",
     "mypy>=1.0",
+    "isort>=5.0",
+    "pre-commit>=3.0",
 ]
 
 [project.urls]
@@ -49,13 +51,29 @@ packages = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+pythonpath = ["src"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
 
 [tool.black]
 line-length = 88
 target-version = ["py39"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+src_paths = ["src", "tests"]
 
 [tool.mypy]
 python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
+ignore_missing_imports = true

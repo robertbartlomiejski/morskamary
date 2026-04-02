@@ -11,7 +11,34 @@ permissions:
   contents: read
   pull-requests: read
 
+env:
+  MANIFEST_FILE: MANIFEST_SOURCES.csv
+
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run tests
+        run: |
+          python -m pytest tests/ -v --tb=short
+
   governance-and-repro:
     runs-on: ubuntu-latest
     steps:
@@ -50,26 +77,23 @@ jobs:
           set -euo pipefail
           if [[ -f "scripts/generate_manifest.py" ]]; then
             python3 --version
+            pip install -r requirements.txt --progress-bar off
             python3 scripts/generate_manifest.py
 
-            candidates=("MANIFEST_SOURCES.csv" "manifest.json" "MANIFEST.json" "manifest.txt" "MANIFEST.txt")
-            found=""
-            for c in "${candidates[@]}"; do
-              if [[ -f "$c" ]]; then found="$c"; break; fi
-            done
+            manifest_file="${{ env.MANIFEST_FILE }}"
 
-            if [[ -z "$found" ]]; then
-              echo "generate_manifest.py ran, but no manifest file found among: ${candidates[*]}"
-              echo "Edit CI to match your actual manifest output filename."
+            if [[ ! -f "$manifest_file" ]]; then
+              echo "generate_manifest.py ran, but $manifest_file not found."
+              echo "Ensure the script writes to $manifest_file."
               exit 1
             fi
 
-            if ! git diff --exit-code -- "$found"; then
-              echo "Manifest is not reproducible or not committed. Regenerate and commit $found."
-              git diff -- "$found" || true
+            if ! git diff --exit-code -- "$manifest_file"; then
+              echo "Manifest is not reproducible or not committed. Regenerate and commit $manifest_file."
+              git diff -- "$manifest_file" || true
               exit 1
             fi
-            echo "Manifest reproducibility check passed for: $found"
+            echo "Manifest reproducibility check passed for: $manifest_file"
           else
             echo "No scripts/generate_manifest.py found; skipping manifest determinism check."
           fi

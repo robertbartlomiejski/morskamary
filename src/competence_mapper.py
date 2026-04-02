@@ -2,14 +2,8 @@
 Competence mapping and analysis module for Blue Sociology
 """
 
-from typing import Any, Dict, List, Set, Tuple, TypedDict
+from typing import Any, Dict, List, Set, Tuple
 from src.core import Competence, MicroCredential, BlueDynamicsAxis, CompetenceLevel
-
-
-class GapAnalysisResult(TypedDict):
-    available: List[str]
-    missing: List[str]
-    by_level: Dict[str, List[str]]
 
 
 class CompetenceMapper:
@@ -37,9 +31,11 @@ class CompetenceMapper:
 
     def get_sector_competences(self, sector: str) -> List[str]:
         """Get competence IDs required for a specific sector"""
+        sector_lower = sector.lower()
         sector_credentials = [
-            cred for cred in self.credentials.values()
-            if cred.sector.lower() == sector.lower()
+            cred
+            for cred in self.credentials.values()
+            if cred.sector.lower() == sector_lower
         ]
 
         all_competences: Set[str] = set()
@@ -48,9 +44,9 @@ class CompetenceMapper:
 
         return list(all_competences)
 
-    def analyze_competence_gaps(self,
-                               available: List[str],
-                               required_sector: str) -> GapAnalysisResult:
+    def analyze_competence_gaps(
+        self, available: List[str], required_sector: str
+    ) -> Dict[str, Any]:
         """
         Analyze gaps between available and required competences for a sector
 
@@ -66,26 +62,27 @@ class CompetenceMapper:
 
         missing = required - available_set
 
-        result: GapAnalysisResult = {
+        result: Dict[str, Any] = {
             "available": list(available_set & required),
             "missing": list(missing),
-            "by_level": {}
+            "by_level": {},
         }
 
         for level in CompetenceLevel:
             level_missing = [
-                cid for cid in missing
-                if cid in self.competences
-                and self.competences[cid].level == level
+                cid
+                for cid in missing
+                if cid in self.competences and self.competences[cid].level == level
             ]
             if level_missing:
                 result["by_level"][level.name] = level_missing
 
         return result
 
-    def suggest_credential_pathway(self,
-                                  starting_level: CompetenceLevel = CompetenceLevel.FOUNDATIONAL
-                                  ) -> List[MicroCredential]:
+    def suggest_credential_pathway(
+        self,
+        starting_level: CompetenceLevel = CompetenceLevel.FOUNDATIONAL,
+    ) -> List[MicroCredential]:
         """
         Suggest a logical progression of micro-credentials
 
@@ -113,22 +110,19 @@ class CompetenceMapper:
 
     def get_summary(self) -> Dict[str, Any]:
         """Get a summary of all mapped competences and credentials"""
-        axis_counts = {
-            axis: len(self.get_competences_by_axis(axis))
-            for axis in BlueDynamicsAxis
-        }
+        axis_counts: Dict[str, int] = {axis.name: 0 for axis in BlueDynamicsAxis}
+        level_counts: Dict[str, int] = {level.name: 0 for level in CompetenceLevel}
 
-        level_counts = {
-            level.name: len(self.get_competences_by_level(level))
-            for level in CompetenceLevel
-        }
+        for comp in self.competences.values():
+            axis_counts[comp.axis.name] += 1
+            level_counts[comp.level.name] += 1
 
         sectors = set(cred.sector for cred in self.credentials.values())
 
         return {
             "total_competences": len(self.competences),
             "total_credentials": len(self.credentials),
-            "competences_by_axis": {k.name: v for k, v in axis_counts.items()},
+            "competences_by_axis": axis_counts,
             "competences_by_level": level_counts,
             "sectors": list(sectors),
         }
