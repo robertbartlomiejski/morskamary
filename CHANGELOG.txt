@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-02
+Change type update fix
+Scope infrastructure outputs data scripts
+Files affected pyproject.toml .gitignore main.py main_real_data.py load_real_competences.py run_full_analysis.py src/core.py src/competence_mapper.py MANIFEST_SOURCES.csv outputs/
+Summary Fixed openpyxl dependency constraint (>=3.8.0 does not exist, corrected to >=3.0.0). Removed .gitignore exclusion of outputs/ so generated analysis files are committed and downloadable from GitHub. Applied black formatting and fixed all flake8 issues (unused imports, f-string placeholders) across all Python files. Ran full analysis pipeline generating 8 output files: report_index.html, gaps_by_sector.html, credentials_matrix.html, literature_integration.html, competences_full_database.json, credentials_database.json, sector_pathways.json, gaps_summary.csv. Regenerated MANIFEST_SOURCES.csv.
+Reason Full end-to-end validation and output generation for the Blue Sociology evidence base. Dependencies were uninstallable due to openpyxl version typo. Output files were excluded from git tracking, preventing download from GitHub. Code quality issues needed cleanup.
+Impact All 466 competences (15 baseline + 451 literature), 48 micro-credentials (12 sectors × 4 EQF levels), 132 sector transition pathways now available as downloadable files in outputs/. All 8 tests pass. All entry points (main.py, main_real_data.py, load_real_competences.py, run_full_analysis.py) run successfully. Code passes flake8, black, and mypy.
+Provenance University of Szczecin Blue Social Competences baseline (16 competences), 3 literature CSV files (451 papers), 12 EU Blue Economy sectors.
+Quality checks pytest 8/8 passed, flake8 clean, black formatted, mypy Success, all 4 entry points run with exit code 0, all 8 output files generated.
+Reviewer Copilot coding agent automated review.
+
 2026-04-01
 Change type add update
 Scope infrastructure documentation governance scripts

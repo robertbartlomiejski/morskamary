@@ -81,7 +81,5 @@ Thumbs.db
 data/local/
 *.csv.bak
 
-# Generated analysis outputs (run python run_full_analysis.py to regenerate)
-outputs/*.html
-outputs/*.json
-outputs/*.csv
+# Generated analysis outputs are now committed for download
+# Run python run_full_analysis.py to regenerate

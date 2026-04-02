@@ -464,6 +464,14 @@ manuscripts/drafts/World Café Facilitation Guide – Energy Transition Glossar
 morskamary.code-workspace,other,,,,,,morskamary,no
 morskamary.code-workspace2.txt,text,,,,,,morskamary_code_workspace2,yes
 outputs/.gitkeep,other,,,,,,gitkeep,no
+outputs/competences_full_database.json,other,,,,,,competences_full_database,no
+outputs/credentials_database.json,other,,,,,,credentials_database,no
+outputs/credentials_matrix.html,other,,,,,,credentials_matrix,no
+outputs/gaps_by_sector.html,other,,,,,,gaps_by_sector,no
+outputs/gaps_summary.csv,dataset_derived,,,,,,gaps_summary,yes
+outputs/literature_integration.html,other,,,,,,literature_integration,no
+outputs/report_index.html,other,,,,,,report_index,no
+outputs/sector_pathways.json,other,,,,,,sector_pathways,no
 PROMPT_REQUEST_TEMPLATE.txt,governance,,,,,,PROMPT_REQUEST_TEMPLATE,yes
 push_output.txt,text,,,,,,push_output,yes
 pyproject.toml,other,,,,,,pyproject,no
@@ -506,3 +514,4 @@ src/core.py,other,,,,,,core,no
 src/Untitled-1.litcoffee,other,,,,,,Untitled_1,no
 tests/__init__.py,other,,,,,,init,no
 tests/test_core.py,other,,,,,,test_core,no
+tests/test_full_analysis.py,other,,,,,,test_full_analysis,no

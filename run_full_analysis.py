@@ -44,9 +44,7 @@ REPO_ROOT = Path(__file__).resolve().parent
 DATA_DERIVED = REPO_ROOT / "data" / "derived"
 DATA_RAW = REPO_ROOT / "data" / "raw"
 OUTPUTS_DIR = REPO_ROOT / "outputs"
-REPO_GITHUB_BASE = (
-    "https://github.com/robertbartlomiejski/morskamary/blob/main"
-)
+REPO_GITHUB_BASE = "https://github.com/robertbartlomiejski/morskamary/blob/main"
 
 # 12 blue economy sectors (canonical names matching the CSV headers)
 SECTORS: List[str] = [
@@ -583,17 +581,13 @@ def extract_literature_competences() -> List[Competence]:
 
                 # Pick the closest theme cluster from the pool for this axis
                 candidate_themes = [
-                    (ax, nm)
-                    for ax, nm in axis_themes
-                    if ax == detected_axis.name
+                    (ax, nm) for ax, nm in axis_themes if ax == detected_axis.name
                 ]
                 if not candidate_themes:
                     candidate_themes = axis_themes  # fallback: any theme
 
                 # Assign theme deterministically using row index as cycle offset
-                ax_name, theme_name = candidate_themes[
-                    row_idx % len(candidate_themes)
-                ]
+                ax_name, theme_name = candidate_themes[row_idx % len(candidate_themes)]
                 axis = TMBDAxis[ax_name]
 
                 # Competence name: theme cluster + paper title excerpt (unique per paper)
@@ -624,7 +618,12 @@ def extract_literature_competences() -> List[Competence]:
                         axis=axis,
                         dimension="literature",
                         source=source,
-                        keywords=[theme_key, ax_name.lower(), "literature", theme_name[:30]],
+                        keywords=[
+                            theme_key,
+                            ax_name.lower(),
+                            "literature",
+                            theme_name[:30],
+                        ],
                         sectors=SECTORS,  # cross-sector by default
                     )
                 )
@@ -688,17 +687,11 @@ def run_gap_analysis(
             required_ids.append(c.id)
 
         # Available: baseline competences for this sector
-        available_ids = [
-            c.id for c in baseline if sector in c.sectors
-        ]
+        available_ids = [c.id for c in baseline if sector in c.sectors]
 
         missing_ids = [rid for rid in required_ids if rid not in set(available_ids)]
 
-        gap_pct = (
-            100.0 * len(missing_ids) / len(required_ids)
-            if required_ids
-            else 0.0
-        )
+        gap_pct = 100.0 * len(missing_ids) / len(required_ids) if required_ids else 0.0
 
         # Break down missing by TMBD axis
         by_axis: Dict[str, List[str]] = {ax.name: [] for ax in TMBDAxis}
@@ -714,7 +707,9 @@ def run_gap_analysis(
             gap_pct=gap_pct,
             by_axis=by_axis,
         )
-        sector_comps[sector] = [all_comps[rid] for rid in required_ids if rid in all_comps]
+        sector_comps[sector] = [
+            all_comps[rid] for rid in required_ids if rid in all_comps
+        ]
 
     log.info("  Gap analysis complete.")
     return gaps, sector_comps
@@ -832,7 +827,9 @@ def generate_micro_credentials(
         lit_ids = [c.id for c in literature[:5]]
         comp_ids = base_ids + lit_ids
 
-        learner_profile = _SECTOR_LEARNER_PROFILES.get(sector, "Blue economy practitioners")
+        learner_profile = _SECTOR_LEARNER_PROFILES.get(
+            sector, "Blue economy practitioners"
+        )
         assessment = _SECTOR_ASSESSMENT.get(sector, "Portfolio and oral examination")
 
         # --- EQF 4: Foundational credential ---
@@ -917,9 +914,7 @@ def generate_micro_credentials(
                 sector=sector,
                 ects=9.0,
                 eqf_level=EQFLevel.EQF6,
-                assessment_method=(
-                    f"Research project + policy brief + {assessment}"
-                ),
+                assessment_method=(f"Research project + policy brief + {assessment}"),
                 prerequisites=[eqf5_id],
                 learner_profile=(
                     f"Experienced {sector} professionals (≥3 years) seeking "
@@ -1006,9 +1001,7 @@ def compute_sector_pathways(
     # Map sector → set of competence IDs (from baseline)
     sector_comp_sets: Dict[str, Set[str]] = {}
     for sector in SECTORS:
-        sector_comp_sets[sector] = {
-            c.id for c in baseline if sector in c.sectors
-        }
+        sector_comp_sets[sector] = {c.id for c in baseline if sector in c.sectors}
 
     # Map sector → set of EQF5 credential IDs
     sector_cred_map: Dict[str, List[str]] = {s: [] for s in SECTORS}
@@ -1022,9 +1015,7 @@ def compute_sector_pathways(
         for j, to_sec in enumerate(SECTORS):
             if i == j:
                 continue
-            bridge_comps = sorted(
-                sector_comp_sets[from_sec] & sector_comp_sets[to_sec]
-            )
+            bridge_comps = sorted(sector_comp_sets[from_sec] & sector_comp_sets[to_sec])
             bridge_creds: List[str] = []
             # Include EQF5 credentials from the source sector as bridge
             for cid in sector_cred_map.get(from_sec, []):
@@ -1299,7 +1290,9 @@ def generate_report_index(
         )
     html += "</table>\n"
 
-    html += _HTML_FOOT.format(repo_url="https://github.com/robertbartlomiejski/morskamary")
+    html += _HTML_FOOT.format(
+        repo_url="https://github.com/robertbartlomiejski/morskamary"
+    )
 
     with open(output_path, "w", encoding="utf-8") as fh:
         fh.write(html)
@@ -1331,7 +1324,9 @@ def generate_gaps_html(
 
         html += "<h3>TMBD Axis Breakdown of Missing Competences</h3>\n"
         html += "<table>\n"
-        html += "<tr><th>Axis</th><th>Missing Count</th><th>Example Competences</th></tr>\n"
+        html += (
+            "<tr><th>Axis</th><th>Missing Count</th><th>Example Competences</th></tr>\n"
+        )
         for ax in TMBDAxis:
             ax_missing = g.by_axis.get(ax.name, [])
             examples = ", ".join(
@@ -1362,7 +1357,9 @@ def generate_gaps_html(
                 )
             html += "</table>\n"
 
-    html += _HTML_FOOT.format(repo_url="https://github.com/robertbartlomiejski/morskamary")
+    html += _HTML_FOOT.format(
+        repo_url="https://github.com/robertbartlomiejski/morskamary"
+    )
     with open(output_path, "w", encoding="utf-8") as fh:
         fh.write(html)
     log.info("  Generated: %s", output_path)
@@ -1382,15 +1379,15 @@ def generate_credentials_html(
         slug = SECTOR_SLUG[sector]
         sector_creds = [c for c in credentials if c.sector == sector]
         html += f'<h2 id="{slug}">{sector}</h2>\n'
-        html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem">\n'
+        html += (
+            '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem">\n'
+        )
 
         for cred in sector_creds:
-            prereq_links = ", ".join(
-                f"<code>{p}</code>" for p in cred.prerequisites
-            ) or "None"
-            outcomes_html = "".join(
-                f"<li>{lo}</li>" for lo in cred.learning_outcomes
+            prereq_links = (
+                ", ".join(f"<code>{p}</code>" for p in cred.prerequisites) or "None"
             )
+            outcomes_html = "".join(f"<li>{lo}</li>" for lo in cred.learning_outcomes)
             html += f"""<div class="card">
   <h3>🎓 {cred.title}</h3>
   <p><strong>ID:</strong> <code>{cred.id}</code> &nbsp;|&nbsp;
@@ -1406,7 +1403,9 @@ def generate_credentials_html(
 """
         html += "</div>\n"
 
-    html += _HTML_FOOT.format(repo_url="https://github.com/robertbartlomiejski/morskamary")
+    html += _HTML_FOOT.format(
+        repo_url="https://github.com/robertbartlomiejski/morskamary"
+    )
     with open(output_path, "w", encoding="utf-8") as fh:
         fh.write(html)
     log.info("  Generated: %s", output_path)
@@ -1450,7 +1449,9 @@ def generate_literature_html(
         if not theme_comps:
             continue
 
-        file_url = f"{REPO_GITHUB_BASE}/data/derived/{lit['filename'].replace(' ', '%20')}"
+        file_url = (
+            f"{REPO_GITHUB_BASE}/data/derived/{lit['filename'].replace(' ', '%20')}"
+        )
         html += f"<h2>{lit['description']}</h2>\n"
         html += f"<p>Source: <a href='{file_url}' target='_blank'>{lit['filename']}</a></p>\n"
         html += "<table>\n"
@@ -1470,7 +1471,9 @@ def generate_literature_html(
             )
         html += "</table>\n"
 
-    html += _HTML_FOOT.format(repo_url="https://github.com/robertbartlomiejski/morskamary")
+    html += _HTML_FOOT.format(
+        repo_url="https://github.com/robertbartlomiejski/morskamary"
+    )
     with open(output_path, "w", encoding="utf-8") as fh:
         fh.write(html)
     log.info("  Generated: %s", output_path)
@@ -1551,7 +1554,10 @@ def main() -> int:
     # --- Step 8: HTML reports ---
     log.info("Generating HTML reports…")
     generate_report_index(
-        baseline, literature, gaps, credentials,
+        baseline,
+        literature,
+        gaps,
+        credentials,
         OUTPUTS_DIR / "report_index.html",
     )
     generate_gaps_html(gaps, all_comps, OUTPUTS_DIR / "gaps_by_sector.html")
@@ -1563,10 +1569,15 @@ def main() -> int:
     log.info("ANALYSIS COMPLETE")
     log.info("=" * 65)
     log.info("")
-    log.info("  Competences:  %d total (%d baseline, %d literature)",
-             len(all_comps), len(baseline), len(literature))
-    log.info("  Credentials:  %d (%d sectors × 4 EQF levels)",
-             len(credentials), len(SECTORS))
+    log.info(
+        "  Competences:  %d total (%d baseline, %d literature)",
+        len(all_comps),
+        len(baseline),
+        len(literature),
+    )
+    log.info(
+        "  Credentials:  %d (%d sectors × 4 EQF levels)", len(credentials), len(SECTORS)
+    )
     log.info("  Pathways:     %d sector transitions", len(pathways))
     log.info("")
     log.info("Output files:")
