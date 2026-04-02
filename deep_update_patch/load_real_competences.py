@@ -25,7 +25,7 @@ the caller omits them.  Pass an explicit path to override.
 import csv
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional
 
 # Allow running from the deep_update_patch/ directory directly.
 _BUNDLE_ROOT = Path(__file__).resolve().parent
@@ -64,7 +64,7 @@ from src.competence_mapper import CompetenceMapper  # noqa: E402
 # Dimension → TMBD axis mapping
 # ---------------------------------------------------------------------------
 
-_DIMENSION_AXIS: dict = {
+_DIMENSION_AXIS: Dict[str, BlueDynamicsAxis] = {
     "A": BlueDynamicsAxis.OCEANIC,   # Understanding / planetary literacy
     "B": BlueDynamicsAxis.MARITIME,  # Digital & Data / infrastructure
     "C": BlueDynamicsAxis.MARINE,    # Sustainability / ecological
@@ -175,7 +175,7 @@ def _load_sector_requirements(csv_path: Path, mapper: CompetenceMapper) -> None:
     reader = csv.DictReader(data_lines)
 
     # Build a mapping from the short sector header name to the canonical slug.
-    sector_col_map: dict = {}
+    sector_col_map: Dict[str, str] = {}
     if reader.fieldnames:
         for col in reader.fieldnames[3:]:
             stripped = col.strip()
