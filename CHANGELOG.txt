@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-04
+Change type fix rename
+Scope scripts governance
+Files affected scripts/Tripartite Blue Value Model WOW.txt (renamed from Tripatle) pyproject.toml MANIFEST_SOURCES.csv CHANGELOG.txt
+Summary Fixed two typos in documentation files: corrected filename typo "Tripatle" → "Tripartite" in scripts/Tripartite Blue Value Model WOW.txt; corrected capitalisation "Github" → "GitHub" in pyproject.toml project URLs. Regenerated MANIFEST_SOURCES.csv to reflect the renamed file.
+Reason Both were spelling/capitalisation errors introduced earlier: the script filename misspelled "Tripartite" as "Tripatle"; the pyproject.toml project URL label used "Github" instead of the correct "GitHub". Manifest regenerated to maintain determinism.
+Impact MANIFEST_SOURCES.csv preferred_citation_key for the renamed file updated from Tripatle_Blue_Value_Model_WOW to Tripartite_Blue_Value_Model_WOW. No downstream code or analysis is affected.
+Provenance None (typo fixes only).
+Quality checks pytest tests/ 8/8 passed; scripts/generate_manifest.py produces no diff after regeneration; pyproject.toml updated with correct capitalisation.
+Reviewer GitHub Copilot Coding Agent
+
 2026-04-01
 Change type add update
 Scope infrastructure documentation governance scripts

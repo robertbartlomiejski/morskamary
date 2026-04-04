@@ -40,7 +40,7 @@ dev = [
 ]
 
 [project.urls]
-"Github" = "https://github.com/robertbartlomiejski/morskamary"
+"GitHub" = "https://github.com/robertbartlomiejski/morskamary"
 "Documentation" = "https://github.com/robertbartlomiejski/morskamary/blob/main/README.md"
 
 [tool.setuptools]
