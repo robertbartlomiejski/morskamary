@@ -478,14 +478,6 @@ morskamary.egg-info/requires.txt,text,,,,,,requires,yes
 morskamary.egg-info/SOURCES.txt,text,,,,,,SOURCES,yes
 morskamary.egg-info/top_level.txt,text,,,,,,top_level,yes
 outputs/.gitkeep,other,,,,,,gitkeep,no
-outputs/competences_full_database.json,other,,,,,,competences_full_database,no
-outputs/credentials_database.json,other,,,,,,credentials_database,no
-outputs/credentials_matrix.html,other,,,,,,credentials_matrix,no
-outputs/gaps_by_sector.html,other,,,,,,gaps_by_sector,no
-outputs/gaps_summary.csv,dataset_derived,,,,,,gaps_summary,yes
-outputs/literature_integration.html,other,,,,,,literature_integration,no
-outputs/report_index.html,other,,,,,,report_index,no
-outputs/sector_pathways.json,other,,,,,,sector_pathways,no
 PROMPT_REQUEST_TEMPLATE.txt,governance,,,,,,PROMPT_REQUEST_TEMPLATE,yes
 push_output.txt,text,,,,,,push_output,yes
 pyproject.toml,other,,,,,,pyproject,no
@@ -518,7 +510,7 @@ scripts/prompt ioanis 12_02 18_58 Gemini.txt,script,,,,,,prompt_ioanis_12_02_18_
 scripts/Prompt Ioanis and Cocco.txt,script,,,,,,Prompt_Ioanis_and_Cocco,yes
 scripts/README.txt,script,,,,,,README,yes
 scripts/README_WHATTODO IN LIZBONA 2026 NEW.txt,script,,,,,,README_WHATTODO_IN_LIZBONA_2026_NEW,yes
-scripts/Tripatle Blue Value Model WOW.txt,script,,,,,,Tripatle_Blue_Value_Model_WOW,yes
+scripts/Tripartite Blue Value Model WOW.txt,script,,,,,,Tripartite_Blue_Value_Model_WOW,yes
 scripts/Wyrzucone przez morze_250521_002507.txt,script,,,,,,Wyrzucone_przez_morze_250521_002507,yes
 SESSION_SUMMARY.md,text,,,,,,SESSION_SUMMARY,yes
 setup_one_click.ps1,other,,,,,,setup_one_click,no
