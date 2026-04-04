@@ -1,0 +1,58 @@
+name: Full Analysis
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run full analysis pipeline
+        run: python run_full_analysis.py
+
+      - name: Verify output artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected=(
+            "outputs/report_index.html"
+            "outputs/gaps_by_sector.html"
+            "outputs/credentials_matrix.html"
+            "outputs/literature_integration.html"
+            "outputs/competences_full_database.json"
+            "outputs/credentials_database.json"
+            "outputs/sector_pathways.json"
+            "outputs/gaps_summary.csv"
+          )
+          for f in "${expected[@]}"; do
+            if [[ ! -f "$f" ]]; then
+              echo "Missing expected output: $f"
+              exit 1
+            fi
+            echo "✓ $f"
+          done
+          echo "All 8 output artifacts verified."
+
+      - name: Upload analysis outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: blue-economy-analysis-outputs
+          path: outputs/
+          retention-days: 30
