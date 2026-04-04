@@ -84,7 +84,8 @@ bluesociology.json
 data/local/
 *.csv.bak
 
-# Generated analysis outputs (run python run_full_analysis.py to regenerate)
-outputs/*.html
-outputs/*.json
-outputs/*.csv
+# Generated analysis outputs are now tracked in git
+# (run python run_full_analysis.py to regenerate)
+# outputs/*.html
+# outputs/*.json
+# outputs/*.csv
