@@ -8,6 +8,33 @@ Welcome! This guide explains how to set up the development environment and start
 
 - **Python ≥ 3.9** (check with `python --version`)
 - **Git**
+- **Node.js ≥ 18** (optional, required only for GitHub Copilot MCP integration)
+
+### Verifying Python Installation
+
+```bash
+python --version
+# or on Windows
+py --version
+```
+
+If Python is not installed:
+1. Download from https://python.org (version 3.9 or higher)
+2. **Important**: Check "Add Python to PATH" during installation
+3. Restart your terminal/command prompt
+
+### Verifying Node.js Installation (Optional)
+
+Node.js is only required if you plan to use the GitHub Copilot MCP integration for full-context research workflows.
+
+```bash
+node -v
+```
+
+If Node.js is not installed and you need MCP features:
+1. Download from https://nodejs.org (LTS version recommended)
+2. Restart your terminal/command prompt
+3. See [COPILOT_MCP_SETUP.md](COPILOT_MCP_SETUP.md) for complete MCP setup
 
 ---
 

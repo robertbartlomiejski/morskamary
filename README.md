@@ -11,12 +11,29 @@ docker compose up --build
 # One-click setup (local Windows, no Docker)
 powershell -ExecutionPolicy Bypass -File .\setup_one_click.ps1
 
-# Or run demonstration
-python demo_workspace_instructions.py
-
-# Or load real data
+# Or load real data (primary substantive results script)
 python main_real_data.py
+
+# Or run demonstration (validation/workflow-check only)
+python demo_workspace_instructions.py
 ```
+
+### GitHub Copilot MCP Integration (Optional Advanced Feature)
+
+**Note:** This is optional, local, workstation-specific tooling. Not required for core development.
+
+For optional full-context GitHub Copilot integration with local repositories, SharePoint, Google Drive, and scientific databases:
+
+```powershell
+# Windows PowerShell (run as Administrator)
+.\Deploy-CopilotSynergy.ps1
+```
+
+See [COPILOT_MCP_SETUP.md](COPILOT_MCP_SETUP.md) for complete setup guide, including:
+- Node.js and Python prerequisites verification
+- MCP server configuration for filesystem, cloud storage, and scientific APIs
+- Privacy governance and data protection settings
+- Advanced usage with verified DOI citations
 
 ## One-Click Setup Graph
 
@@ -142,6 +159,12 @@ This repository includes specialized instructions for AI coding assistants:
   - Evidence discipline and citation requirements
   - Architecture patterns and data workflows
 
+- [.github/repository-guardrails.instructions.md](.github/repository-guardrails.instructions.md) — Hard guardrails for coding agents
+  - Prioritizes real-data execution (`main_real_data.py` over `demo_workspace_instructions.py`)
+  - Enforces Python-first architecture (Node.js as optional MCP tooling only)
+  - Maintains separation of repository and workstation-specific configurations
+  - Establishes priority order: derived-data value, provenance/governance, then assistant-access
+
 ### Domain-Specific Instructions
 - [.github/competence-domain.instructions.md](.github/competence-domain.instructions.md) — For competence loading scripts
   - CSV validation rules
@@ -173,6 +196,40 @@ Complete demonstration of workspace instructions in action:
 4. **Validate type safety** (Python ≥3.9, mypy conventions)
 
 Run: `python demo_workspace_instructions.py`
+
+## CI and Dependency Graph
+
+### Dependency Submission
+
+This repository uses a **repo-managed** GitHub Actions workflow
+(`.github/workflows/dependency-submission.yml`) to submit dependency snapshots
+to the GitHub Dependency Graph.
+
+**Why repo-managed instead of GitHub's automatic detector?**
+
+GitHub provides a platform-managed "Automatic Dependency Submission (Python)"
+workflow, but it can fail with transient API errors (e.g.
+`HttpError: An error occurred while processing your request`) and its Python
+project-layout detector may not recognise this repository's structure.
+The repo-managed workflow is deterministic: it pins Python 3.11, resolves
+dependencies from the repo's own `requirements.txt` / `pyproject.toml`, and
+submits the snapshot with an explicit `permissions: contents: write` token.
+
+**Behaviour:**
+
+| Condition | Action |
+|---|---|
+| `requirements.txt` exists | Install and submit snapshot |
+| Only `pyproject.toml` exists | Install and submit snapshot |
+| Neither file found | Emit a workflow warning, skip submission gracefully |
+
+**Running alongside GitHub's automatic detector:**
+
+Both workflows can run simultaneously without conflict — GitHub de-duplicates
+snapshots by detector name. You may optionally disable GitHub's automatic
+detector under *Settings → Code security and analysis → Automatic dependency
+submission* if you prefer a single, controlled submission path or if the
+managed workflow keeps producing failures or noise.
 
 ## Data Workflows
 Quote: “Connecting Science with Society… ocean literacy and societal transformation” 

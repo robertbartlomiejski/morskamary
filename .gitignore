@@ -83,3 +83,8 @@ bluesociology.json
 # Data (local, not in repo)
 data/local/
 *.csv.bak
+
+# Generated analysis outputs (run python run_full_analysis.py to regenerate)
+outputs/*.html
+outputs/*.json
+outputs/*.csv
