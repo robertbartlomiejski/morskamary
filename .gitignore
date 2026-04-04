@@ -77,6 +77,9 @@ env/
 .DS_Store
 Thumbs.db
 
+# GitHub configuration exports
+bluesociology.json
+
 # Data (local, not in repo)
 data/local/
 *.csv.bak
