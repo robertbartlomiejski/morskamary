@@ -56,7 +56,7 @@ class CompetenceMapper:
         self.credentials[credential.id] = MicroCredential(
             id=credential.id,
             title=credential.title,
-            competences=credential.competences,
+            competences=list(credential.competences),
             description=credential.description,
             sector=normalized,
             learner_profile=credential.learner_profile,
@@ -64,8 +64,8 @@ class CompetenceMapper:
             ects=credential.ects,
             eqf_level=credential.eqf_level,
             assessment_method=credential.assessment_method,
-            prerequisites=credential.prerequisites,
-            learning_outcomes=credential.learning_outcomes,
+            prerequisites=list(credential.prerequisites),
+            learning_outcomes=list(credential.learning_outcomes),
             stackability_rules=credential.stackability_rules,
             source_cluster=credential.source_cluster,
         )
