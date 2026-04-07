@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-04
+Change type fix update add
+Scope scripts infrastructure security
+Files affected load_real_competences.py run_full_analysis.py security/security-checklist.md (new) .github/workflows/full-analysis.yml (new) outputs/ (regenerated)
+Summary Fixed flake8 F541 warnings (bare f-strings without placeholders) and W293 whitespace-in-blank-lines in load_real_competences.py. Formatted both load_real_competences.py and run_full_analysis.py with black. Added html.escape() to all four HTML report generators in run_full_analysis.py to correctly escape ampersands and other HTML-special characters in sector names (e.g. "Infra & Robotics", "R&I") and CSV-derived competence names. Created security/security-checklist.md documenting input validation, output safety, dependency, readability, data governance, and CI/CD verification requirements as mandated by PR #43 review. Added .github/workflows/full-analysis.yml CI workflow that runs run_full_analysis.py on ubuntu-latest, verifies all 8 output artifacts exist, and uploads them as the "blue-economy-analysis-outputs" artifact bundle. Regenerated all 8 outputs/ artifacts with corrected HTML escaping.
+Reason Address PR #43 review feedback: (1) apply security checklist validation, (2) improve readability and eliminate bare f-strings, (3) ensure HTML reports escape user-derived content per the checklist Output Safety requirement, (4) provide the full-analysis.yml CI workflow referenced in the problem statement.
+Impact All four HTML reports now contain valid, well-escaped HTML. The full-analysis.yml CI workflow enables on-push and workflow_dispatch execution of the complete pipeline with artifact upload. The security checklist provides a permanent reference for future contributors.
+Provenance data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv; data/derived/combined_blue_economy_labor_justice.csv; data/derived/combined_blue_economy_research_gaps.csv; data/derived/combined_blue_sociology_results.csv
+Quality checks flake8 load_real_competences.py run_full_analysis.py: 0 findings; black --check: reformatted successfully; python run_full_analysis.py: generated all 8 outputs; pytest tests/ 8/8 passed; grep "Infra &amp;" outputs/gaps_by_sector.html confirmed escaping present.
+Reviewer GitHub Copilot Coding Agent
+
 2026-04-01
 Change type add update
 Scope infrastructure documentation governance scripts
