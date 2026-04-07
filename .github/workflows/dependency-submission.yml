@@ -57,13 +57,111 @@ jobs:
             echo "HAS_PYPROJECT_TOML=false" >> "$GITHUB_ENV"
           fi
 
+      # Install project dependencies so we can resolve the full package list
+      - name: Install project dependencies
+        if: env.HAS_REQUIREMENTS_TXT == 'true' || env.HAS_PYPROJECT_TOML == 'true'
+        shell: bash
+        run: |
+          if [[ "$HAS_REQUIREMENTS_TXT" == "true" ]]; then
+            pip install --quiet -r requirements.txt
+          else
+            if ! pip install --quiet -e "." 2>/dev/null; then
+              if ! pip install --quiet -e ".[dev]" 2>/dev/null; then
+                echo "::warning::Could not install project from pyproject.toml; snapshot may be incomplete."
+              fi
+            fi
+          fi
+
       # Submit snapshot when at least one dependency file is present
       - name: Submit dependency snapshot
         if: env.HAS_REQUIREMENTS_TXT == 'true' || env.HAS_PYPROJECT_TOML == 'true'
-        uses: advanced-security/python-dependency-submission-action@v4
-        with:
-          python-location: "."
-          python-version: "3.11"
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PYEOF'
+          import json, subprocess, datetime, os
+          from datetime import timezone
+
+          def run_pip(args):
+              return json.loads(
+                  subprocess.run(
+                      ["pip"] + args + ["--format=json"],
+                      capture_output=True, text=True
+                  ).stdout
+              )
+
+          all_packages = run_pip(["list"])
+          # pip list --not-required returns only top-level (direct) packages
+          direct_packages = {
+              pkg["name"].lower().replace("_", "-")
+              for pkg in run_pip(["list", "--not-required"])
+          }
+
+          if os.path.exists("requirements.txt"):
+              manifest_name = "requirements.txt"
+          elif os.path.exists("pyproject.toml"):
+              manifest_name = "pyproject.toml"
+          else:
+              print("No dependency file found; skipping snapshot generation.")
+              raise SystemExit(0)
+
+          resolved = {
+              pkg["name"].lower().replace("_", "-"): {
+                  "package_url": (
+                      "pkg:pypi/"
+                      + pkg["name"].lower().replace("_", "-")
+                      + "@" + pkg["version"]
+                  ),
+                  "relationship": (
+                      "direct"
+                      if pkg["name"].lower().replace("_", "-") in direct_packages
+                      else "indirect"
+                  ),
+                  "scope": "runtime",
+              }
+              for pkg in all_packages
+          }
+
+          snapshot = {
+              "version": 0,
+              "sha": os.environ["GITHUB_SHA"],
+              "ref": os.environ["GITHUB_REF"],
+              "job": {
+                  "correlator": "python-pip-submission",
+                  "id": os.environ["GITHUB_RUN_ID"],
+              },
+              "detector": {
+                  "name": "pip",
+                  "version": "1.0.0",
+                  "url": "https://pip.pypa.io",
+              },
+              "scanned": datetime.datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+              "manifests": {
+                  manifest_name: {
+                      "name": manifest_name,
+                      "resolved": resolved,
+                  }
+              },
+          }
+
+          with open("/tmp/dep-snapshot.json", "w") as f:
+              json.dump(snapshot, f)
+
+          direct_count = sum(1 for v in resolved.values() if v["relationship"] == "direct")
+          print(
+              f"Snapshot: {len(resolved)} packages ({direct_count} direct, "
+              f"{len(resolved) - direct_count} indirect) from {manifest_name}"
+          )
+          PYEOF
+
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${{ github.repository }}/dependency-graph/snapshots \
+            --input /tmp/dep-snapshot.json
+
       # Graceful no-op when neither file is present
       - name: No dependency files found – guidance
         if: env.HAS_REQUIREMENTS_TXT == 'false' && env.HAS_PYPROJECT_TOML == 'false'
