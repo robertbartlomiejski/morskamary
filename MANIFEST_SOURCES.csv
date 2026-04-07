@@ -13,6 +13,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/workflows/blank.yml,other,,,,,,blank,no
 .github/workflows/ci.yml,other,,,,,,ci,no
 .github/workflows/dependency-submission.yml,other,,,,,,dependency_submission,no
+.github/workflows/full-analysis.yml,other,,,,,,full_analysis,no
 .gitignore,other,,,,,,gitignore,no
 .vscode/## Chat Customization Diagnostics.md,text,,,,,,Chat_Customization_Diagnostics,yes
 .vscode/launch.json,other,,,,,,launch,no
@@ -344,6 +345,7 @@ data/raw/Theoretical_Foundations_Expansion.md,dataset_raw,,,,,,Theoretical_Found
 data/raw/web_search_poole_article_search.json,dataset_raw,,,,,,web_search_poole_article_search,no
 DATA_GOVERNANCE.txt,governance,,,,,,DATA_GOVERNANCE,yes
 deep_update_patch/EXECUTIVE_PLAN.txt,text,,,,,,EXECUTIVE_PLAN,yes
+deep_update_patch/load_real_competences.py,other,,,,,,load_real_competences,no
 deep_update_patch/main_real_data.py,other,,,,,,main_real_data,no
 deep_update_patch/outputs/report_index.html,other,,,,,,report_index,no
 deep_update_patch/run_full_analysis.py,other,,,,,,run_full_analysis,no
@@ -472,11 +474,6 @@ manuscripts/drafts/Theoretical Framework Janiszsewski Maritime Sociology SCISPAC
 manuscripts/drafts/World Café Facilitation Guide – Energy Transition Glossary.docx,manuscript,,,,,,World_Cafe__Facilitation_Guide___Energy_,yes
 morskamary.code-workspace,other,,,,,,morskamary,no
 morskamary.code-workspace2.txt,text,,,,,,morskamary_code_workspace2,yes
-morskamary.egg-info/dependency_links.txt,text,,,,,,dependency_links,yes
-morskamary.egg-info/PKG-INFO,other,,,,,,PKG_INFO,no
-morskamary.egg-info/requires.txt,text,,,,,,requires,yes
-morskamary.egg-info/SOURCES.txt,text,,,,,,SOURCES,yes
-morskamary.egg-info/top_level.txt,text,,,,,,top_level,yes
 outputs/.gitkeep,other,,,,,,gitkeep,no
 outputs/competences_full_database.json,other,,,,,,competences_full_database,no
 outputs/credentials_database.json,other,,,,,,credentials_database,no
@@ -520,6 +517,8 @@ scripts/README.txt,script,,,,,,README,yes
 scripts/README_WHATTODO IN LIZBONA 2026 NEW.txt,script,,,,,,README_WHATTODO_IN_LIZBONA_2026_NEW,yes
 scripts/Tripatle Blue Value Model WOW.txt,script,,,,,,Tripatle_Blue_Value_Model_WOW,yes
 scripts/Wyrzucone przez morze_250521_002507.txt,script,,,,,,Wyrzucone_przez_morze_250521_002507,yes
+SECURITY.md,text,,,,,,SECURITY,yes
+security/security-checklist.md,text,,,,,,security_checklist,yes
 SESSION_SUMMARY.md,text,,,,,,SESSION_SUMMARY,yes
 setup_one_click.ps1,other,,,,,,setup_one_click,no
 src/__init__.py,other,,,,,,init,no
