@@ -659,7 +659,7 @@ def run_gap_analysis(
       - missing: required − available
 
     Args:
-        baseline: 16 University of Szczecin baseline competences
+        baseline: 15 University of Szczecin baseline competences
         literature: literature-derived competences
 
     Returns:
@@ -1495,7 +1495,7 @@ def generate_literature_html(
 def main() -> int:
     """
     Execute the full analysis pipeline:
-      1. Load baseline competences (16 from University of Szczecin CSV)
+      1. Load baseline competences (15 from University of Szczecin CSV)
       2. Extract literature competences (from 3 combined_*.csv files)
       3. Merge and deduplicate
       4. Run gap analysis for all 12 sectors

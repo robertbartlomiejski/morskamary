@@ -1,6 +1,6 @@
 # GitHub Copilot MCP Setup Guide for morskamary
 
-**⚠️ IMPORTANT: This is Optional, Local, Workstation-Specific Tooling**
+**⚠️ IMPORTANT: This is Optional, Local, Workstation-Specific Tooling (Windows only)**
 
 This guide describes **optional advanced features** for integrating GitHub Copilot with local repositories and cloud storage through Model Context Protocol (MCP) servers. These features are:
 
@@ -8,6 +8,7 @@ This guide describes **optional advanced features** for integrating GitHub Copil
 - **NOT a repository dependency** (Python ≥3.9 is the only core requirement)
 - **Local workstation configuration** that should not be committed to version control
 - **Second-phase tooling** to be considered only after real-data and provenance workflows are solid
+- **Windows only** — the deployment script uses `%APPDATA%` for VS Code profile resolution
 
 For standard Python-first development, see [CONTRIBUTING.md](CONTRIBUTING.md) and use `main_real_data.py` for real-data workflows.
 
@@ -18,10 +19,13 @@ For standard Python-first development, see [CONTRIBUTING.md](CONTRIBUTING.md) an
 1. [Overview](#overview)
 2. [Prerequisites](#prerequisites)
 3. [Quick Start](#quick-start)
-4. [Detailed Configuration](#detailed-configuration)
-5. [Privacy & Data Governance](#privacy--data-governance)
-6. [Advanced Usage](#advanced-usage)
-7. [Troubleshooting](#troubleshooting)
+4. [Configuration Targets](#configuration-targets)
+5. [Manual MCP Configuration](#manual-mcp-configuration)
+6. [Google Drive OAuth Setup](#google-drive-oauth-setup)
+7. [Scientific Database Configuration](#scientific-database-configuration)
+8. [Privacy & Data Governance](#privacy--data-governance)
+9. [Advanced Usage](#advanced-usage)
+10. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -35,7 +39,10 @@ This setup enables GitHub Copilot to access your full research context through *
 - ✅ Scientific database bridge for verified citations (Crossref, Scopus, Web of Science)
 - ✅ Full data privacy with no telemetry/training on proprietary data
 
-**Architecture**: Local MCP servers run as background processes, bridging VS Code/GitHub Copilot with your research environment.
+**Architecture**: MCP servers are invoked on demand by VS Code via `npx` (no global npm installation required). Configuration is split between:
+
+- **Workspace** (`.vscode/mcp.json`) — repo-safe, shareable server definitions
+- **User profile** (`mcp.json` in your VS Code profile directory) — personal paths, credentials, local clones
 
 ---
 
@@ -45,14 +52,14 @@ This setup enables GitHub Copilot to access your full research context through *
 
 1. **Node.js ≥18.0** (LTS recommended)
    - Download: https://nodejs.org
-   - Verify: `node -v` in PowerShell/Command Prompt
+   - Verify: `node -v` in PowerShell (must report v18.x or higher)
 
 2. **Python ≥3.9**
    - Download: https://python.org
    - ⚠️ **Important**: Check "Add Python to PATH" during installation
    - Verify: `python --version` or `py --version`
 
-3. **Visual Studio Code**
+3. **Visual Studio Code** (Stable or Insiders)
    - Download: https://code.visualstudio.com
    - Install **GitHub Copilot** extension
 
@@ -74,9 +81,9 @@ This setup enables GitHub Copilot to access your full research context through *
 
 ## Quick Start
 
-### Windows Installation (Recommended)
+### Windows Installation
 
-1. **Open PowerShell as Administrator**
+1. **Open PowerShell** (no Administrator privileges required)
 
 2. **Navigate to your morskamary repository:**
    ```powershell
@@ -89,9 +96,9 @@ This setup enables GitHub Copilot to access your full research context through *
    ```
 
 4. **Follow the on-screen instructions**
-   - Script verifies Node.js and Python installation
-   - Installs MCP server packages via npm
-   - Generates configuration files
+   - Script verifies Node.js ≥18 and Python ≥3.9
+   - Generates `.vscode/mcp.json` (workspace) and user-profile `mcp.json`
+   - No global npm packages are installed; npx handles on-demand execution
    - Provides next steps
 
 5. **Restart VS Code**
@@ -110,46 +117,118 @@ To enable all features (SharePoint, Google Drive, scientific bridge):
   -MorskaMaryRepoPath "C:\GitHub\morskamary" `
   -MaritimeSociologyRepoPath "C:\GitHub\maritimesociology" `
   -SharePointSyncPath "C:\Users\YourName\OneDrive - Uniwersytet Szczecinski\PORT CITY HUB UPLOAD" `
-  -GoogleOAuthCredentialsPath "C:\Users\YourName\Documents\gcp-oauth.keys.json" `
-  -ScientificBridgeScriptPath "C:\GitHub\morskamary\scientific_bridge.py"
+  -GoogleOAuthCredentialsPath "C:\Users\YourName\Documents\gcp-oauth.keys.json"
 ```
+
+### Targeting VS Code Insiders
+
+By default the script targets VS Code Stable. To target Insiders explicitly:
+
+```powershell
+.\Deploy-CopilotSynergy.ps1 -VsCodeChannel Insiders
+```
+
+Or use `-VsCodeChannel Auto` to detect which installation exists (prefers Stable).
 
 ---
 
-## Detailed Configuration
+## Configuration Targets
 
-### Manual MCP Configuration
+VS Code reads MCP configuration from `mcp.json` files in two locations:
 
-If you prefer manual setup or need to customize, edit your VS Code MCP configuration:
+| Location | Path (Windows) | Purpose |
+|----------|----------------|---------|
+| **Workspace** | `.vscode/mcp.json` | Repo-safe servers that can be shared and committed |
+| **User profile** | `%APPDATA%\Code\User\mcp.json` | Personal paths, credentials, local clones |
 
-**Location:** `%APPDATA%\Code\User\globalStorage\github.copilot\mcp_settings.json`
+Both use the **same schema**: a top-level `"servers"` object and an optional `"inputs"` array.
 
-**Example Configuration:**
+> **Note**: The deployment script merges into existing files non-destructively. If an existing file has malformed JSON, the script creates a timestamped backup and aborts. Use `-Force` to overwrite instead.
+
+### What goes where
+
+| Server | Target | Reason |
+|--------|--------|--------|
+| `scientificCitationBridge` | Workspace | Uses `${workspaceFolder}`, no personal paths |
+| `morskamaryLocal` | User profile | Contains your personal clone path |
+| `maritimesociologyLocal` | User profile | Contains your personal clone path |
+| `sharepointUniversity` | User profile | Contains your OneDrive sync path |
+| `googleDriveResearch` | User profile | Contains your OAuth credential path |
+
+---
+
+## Manual MCP Configuration
+
+If you prefer manual setup, edit the relevant `mcp.json` files directly.
+
+### Workspace: `.vscode/mcp.json`
+
+This file is already present in the repository with a GitHub MCP server. You can add repo-safe servers here:
 
 ```json
 {
-  "mcpServers": {
-    "morskamary-local": {
-      "command": "npx",
+  "servers": {
+    "io.github.github/github-mcp-server": {
+      "type": "stdio",
+      "command": "docker",
       "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "C:\\GitHub\\morskamary"
+        "run", "-i", "--rm",
+        "-e", "GITHUB_PERSONAL_ACCESS_TOKEN=${input:token}",
+        "ghcr.io/github/github-mcp-server:0.31.0"
       ],
-      "description": "Local morskamary Blue Sociology repository"
+      "version": "0.31.0"
     },
-    "scientific-citation-bridge": {
+    "scientificCitationBridge": {
+      "type": "stdio",
       "command": "python",
-      "args": [
-        "C:\\GitHub\\morskamary\\scientific_bridge.py"
-      ],
-      "description": "Scientific database bridge for verified citations"
+      "args": ["${workspaceFolder}/scientific_bridge.py"]
+    }
+  },
+  "inputs": [
+    {
+      "id": "token",
+      "type": "promptString",
+      "description": "GitHub Personal Access Token",
+      "password": true
+    }
+  ]
+}
+```
+
+### User profile: `mcp.json`
+
+Open via: **Ctrl+Shift+P → MCP: Open User Configuration**
+
+```json
+{
+  "servers": {
+    "morskamaryLocal": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\GitHub\\morskamary"]
+    },
+    "sharepointUniversity": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\Users\\YourName\\OneDrive - Uniwersytet Szczecinski\\PORT CITY HUB UPLOAD"]
+    },
+    "googleDriveResearch": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@piotr-agier/google-drive-mcp"],
+      "env": {
+        "GOOGLE_DRIVE_OAUTH_CREDENTIALS": "C:\\Users\\YourName\\Documents\\gcp-oauth.keys.json"
+      }
     }
   }
 }
 ```
 
-### Google Drive OAuth Setup
+> You can also add servers interactively: **Ctrl+Shift+P → MCP: Add Server**
+
+---
+
+## Google Drive OAuth Setup
 
 To access your Google Drive research folder:
 
@@ -172,20 +251,22 @@ To access your Google Drive research folder:
 
 6. **Save credentials:**
    - Save as `gcp-oauth.keys.json` in a secure location
-   - Provide path to deployment script
+   - Provide path to deployment script or add manually to user-profile `mcp.json`
 
 7. **First Use:**
    - MCP server will open browser for OAuth authorization
    - Grant access to your Google Drive
    - Token is cached for future use
 
-### Scientific Database Configuration
+---
 
-#### Crossref (Free, No Authentication)
+## Scientific Database Configuration
+
+### Crossref (Free, No Authentication)
 
 The default `scientific_bridge.py` uses Crossref's public API. No configuration needed.
 
-#### Scopus API (Optional)
+### Scopus API (Optional)
 
 For enhanced search with Elsevier Scopus:
 
@@ -195,7 +276,7 @@ For enhanced search with Elsevier Scopus:
    $env:SCOPUS_API_KEY = "your_key_here"
    ```
 
-#### Web of Science API (Optional)
+### Web of Science API (Optional)
 
 For Web of Science integration:
 
@@ -211,16 +292,15 @@ For Web of Science integration:
 
 ### GitHub Copilot Data Privacy
 
-⚠️ **Critical**: By default, GitHub Copilot may use your code for model training.
+⚠️ **Critical**: Starting April 24, 2026, GitHub may use your interactions to train and improve AI models unless you opt out.
 
-**To disable (strongly recommended for proprietary research):**
+**To opt out (strongly recommended for proprietary research):**
 
 1. Go to https://github.com/settings/copilot
-2. Navigate to **Privacy** section
-3. **Disable**: "Allow GitHub to use my code snippets for product improvements"
-4. **Disable**: "Allow GitHub to use my code snippets from the code editor for product improvements"
+2. Under **Data handling**, select the **"Allow GitHub to use my data for AI model training"** dropdown
+3. Click **Disabled**
 
-**Policy Reference:** https://github.blog/news-insights/company-news/updates-to-github-copilot-interaction-data-usage-policy/
+**Policy Reference:** [Managing Copilot policies as an individual subscriber](https://docs.github.com/copilot/how-tos/manage-your-account/managing-copilot-policies-as-an-individual-subscriber)
 
 ### Data Residency
 
@@ -254,9 +334,9 @@ After deployment, use this prompt in VS Code Copilot Chat to initialize full con
 
 INSTRUCTIONS FOR ALL SUBSEQUENT TASKS:
 
-1. DATA PRIMACY: Do not rely on your base training data for domain-specific logic. You must proactively query the morskamary-local and sharepoint-university MCP tools to read the actual .md, .pdf, and code files in my environment.
+1. DATA PRIMACY: Do not rely on your base training data for domain-specific logic. You must proactively query the morskamaryLocal and sharepointUniversity MCP tools to read the actual .md, .pdf, and code files in my environment.
 
-2. SCIENTIFIC VERIFICATION: When generating documentation, comments, or theoretical logic, you must use the scientific-citation-bridge tool to fetch direct DOI links and verified scientific citations straight from the source. Include these direct links as inline comments or Markdown footnotes. Do not hallucinate citations.
+2. SCIENTIFIC VERIFICATION: When generating documentation, comments, or theoretical logic, you must use the scientificCitationBridge tool to fetch direct DOI links and verified scientific citations straight from the source. Include these direct links as inline comments or Markdown footnotes. Do not hallucinate citations.
 
 3. TMBD FRAMEWORK: All competence mappings and analysis must respect the Tripartite Model of Blue Dynamics (TMBD):
    - Marine (M): biophysical and ecological agency
@@ -274,13 +354,13 @@ Confirm you have connected to the MCP servers by listing the tools currently ava
 
 In Copilot Chat:
 ```
-Use the scientific-citation-bridge tool to fetch verified citations for "maritime sociology blue economy"
+Use the scientificCitationBridge tool to fetch verified citations for "maritime sociology blue economy"
 ```
 
 **Verify a specific DOI:**
 
 ```
-Use the scientific-citation-bridge tool to verify DOI: 10.1016/j.marpol.2021.104523
+Use the scientificCitationBridge tool to verify DOI: 10.1016/j.marpol.2021.104523
 ```
 
 ### Querying Local Files
@@ -297,37 +377,32 @@ Use the scientific-citation-bridge tool to verify DOI: 10.1016/j.marpol.2021.104
 @workspace Search all files in morskamary repository for references to "Janiszewski marinization theory"
 ```
 
-### Model Selection for Deep Reasoning
+### Model Selection
 
-For comprehensive analysis tasks, manually select advanced models in VS Code:
-
-1. Click model selector in Copilot Chat (top-right)
-2. Choose:
-   - **Claude 3.5 Sonnet** (recommended for TMBD analysis)
-   - **GPT-4o** (alternative for complex reasoning)
+Use the VS Code model picker in Copilot Chat (top-right of the chat panel). **Auto** is recommended — it selects from the current top-tier models (Claude Sonnet 4, GPT-5, GPT-5 mini, and others) automatically. You can also manually select a specific model if needed for a particular task.
 
 ---
 
 ## Troubleshooting
 
-### Node.js Not Found
+### Node.js Not Found or Too Old
 
-**Error:** `node : The term 'node' is not recognized`
+**Error:** `node : The term 'node' is not recognized` or `Node.js X.Y.Z detected, but >=18 is required.`
 
 **Solution:**
-1. Install Node.js from https://nodejs.org (LTS version)
+1. Install Node.js LTS (≥18) from https://nodejs.org
 2. Restart PowerShell
-3. Verify: `node -v`
+3. Verify: `node -v` (should show v18.x or higher)
 
-### Python Not Found
+### Python Not Found or Too Old
 
-**Error:** `python : The term 'python' is not recognized`
+**Error:** `python : The term 'python' is not recognized` or `Python X.Y.Z detected, but >=3.9 is required.`
 
 **Solution:**
 1. Install Python from https://python.org (3.9 or higher)
 2. **Important**: Check "Add Python to PATH" during installation
 3. Restart PowerShell
-4. Try: `python --version` or `py --version`
+4. Verify: `python --version` or `py --version`
 
 ### MCP Servers Not Appearing in VS Code
 
@@ -335,24 +410,23 @@ For comprehensive analysis tasks, manually select advanced models in VS Code:
 
 **Solutions:**
 1. **Restart VS Code completely** (File > Exit, then reopen)
-2. Verify configuration file exists:
-   - Windows: `%APPDATA%\Code\User\globalStorage\github.copilot\mcp_settings.json`
-3. Check VS Code Output panel (View > Output > select "GitHub Copilot")
-4. Ensure you clicked "Trust" when VS Code prompted about MCP servers
+2. Verify configuration files exist:
+   - Workspace: `.vscode/mcp.json` in the morskamary repository
+   - User profile: `%APPDATA%\Code\User\mcp.json` (Stable) or `%APPDATA%\Code - Insiders\User\mcp.json` (Insiders)
+3. Check via: **Ctrl+Shift+P → MCP: List Servers**
+4. Check VS Code Output panel (View > Output > select "GitHub Copilot")
+5. Ensure you clicked "Start" when VS Code prompted about MCP servers
 
-### NPM Package Installation Fails
+### JSON Parse Failure During Deployment
 
-**Error:** `npm install -g` fails with permission errors
+**Error:** `Existing <path> is malformed JSON. Aborting.`
 
 **Solution:**
-1. **Run PowerShell as Administrator**
-2. Re-run: `.\Deploy-CopilotSynergy.ps1`
-
-**Alternative (Windows):**
-```powershell
-npm config set prefix "%APPDATA%\npm"
-```
-Then retry installation.
+1. The script has created a timestamped backup of the malformed file
+2. Fix the JSON manually, or re-run with `-Force` to overwrite:
+   ```powershell
+   .\Deploy-CopilotSynergy.ps1 -Force
+   ```
 
 ### Google Drive Authentication Issues
 
@@ -367,7 +441,7 @@ Then retry installation.
 
 ### Scientific Bridge Not Working
 
-**Error:** `scientific-citation-bridge` tool not available
+**Error:** `scientificCitationBridge` tool not available
 
 **Solutions:**
 1. Verify `scientific_bridge.py` exists in morskamary repository
@@ -385,7 +459,7 @@ Then retry installation.
 1. Limit filesystem servers to necessary directories only
 2. Exclude large binary files (add to `.gitignore`)
 3. Use specific MCP tools instead of broad @workspace queries
-4. Close unused MCP servers in configuration
+4. Close unused MCP servers via **Ctrl+Shift+P → MCP: List Servers**
 
 ---
 
@@ -396,8 +470,9 @@ Then retry installation.
   - [CONTRIBUTING.md](CONTRIBUTING.md) — Development workflow
   - [LLM_CONTEXT_INSTRUCTION.txt](LLM_CONTEXT_INSTRUCTION.txt) — Domain-specific guidance
 
-- **GitHub Copilot Documentation:**
-  - [GitHub Copilot MCP Documentation](https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-mcp-servers)
+- **VS Code MCP Documentation:**
+  - [MCP configuration reference](https://code.visualstudio.com/docs/copilot/reference/mcp-configuration)
+  - [Add and manage MCP servers](https://code.visualstudio.com/docs/copilot/customization/mcp-servers)
   - [Model Context Protocol Specification](https://modelcontextprotocol.io)
 
 - **Scientific APIs:**
@@ -421,6 +496,17 @@ For general GitHub Copilot support:
 ---
 
 ## Version History
+
+- **2.0.0** (2026-04-09): Architecture rewrite for current VS Code MCP standard
+  - Targets `.vscode/mcp.json` (workspace) and user-profile `mcp.json` only
+  - Uses current `"servers"` + `"inputs"` schema (not legacy `"mcpServers"`)
+  - Removes global `npm install -g` and Administrator requirement
+  - Adds `-VsCodeChannel` parameter (Stable/Insiders/Auto)
+  - Adds `-Force` parameter with backup-on-failure safety
+  - Enforces Node.js ≥18 and Python ≥3.9 version checks
+  - Updates model guidance to "Auto" (current top-tier model picker)
+  - Updates privacy wording to current GitHub policy (effective Apr 24 2026)
+  - Splits repo-safe versus personal MCP server concerns
 
 - **1.0.0** (2026-04-01): Initial comprehensive MCP integration
   - PowerShell deployment script
