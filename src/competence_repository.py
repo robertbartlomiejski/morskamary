@@ -2,13 +2,47 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence
+import re
+from typing import Callable, Dict, Iterator, List, Optional, Protocol, Sequence
+
+ORIGIN_BASELINE = "baseline"
+ORIGIN_LITERATURE = "literature"
+ORIGIN_UNKNOWN = "unknown"
+
+
+class AxisLike(Protocol):
+    """Structural type for axis objects."""
+
+    name: str
+
+
+class CompetenceLike(Protocol):
+    """Structural type for competence objects exposed by repositories."""
+
+    id: str
+    axis: AxisLike
+    sectors: Sequence[str]
+
+
+def classify_competence_origin(competence_id: str) -> str:
+    """Classify competence provenance using stable ID prefixes."""
+    normalized = competence_id.lower().strip()
+    if normalized.startswith("baseline"):
+        return ORIGIN_BASELINE
+    if normalized.startswith("lit_"):
+        return ORIGIN_LITERATURE
+    return ORIGIN_UNKNOWN
+
+
+def normalize_sector_name(sector: str) -> str:
+    """Normalize sector labels for case-insensitive matching."""
+    return re.sub(r"[^a-z0-9]+", " ", sector.lower()).strip()
 
 
 class LiteratureCompetenceRepository:
     """Repository abstraction exposing semantic access to competences."""
 
-    def __init__(self, extractor: Callable[[], Sequence[Any]]) -> None:
+    def __init__(self, extractor: Callable[[], Sequence[CompetenceLike]]) -> None:
         """
         Initialize repository.
 
@@ -18,33 +52,58 @@ class LiteratureCompetenceRepository:
                 and `sectors`.
         """
         self._extractor = extractor
-        self._cache: Optional[List[Any]] = None
-        self._id_index: Optional[Dict[str, Any]] = None
+        self._cache: Optional[List[CompetenceLike]] = None
+        self._id_index: Optional[Dict[str, CompetenceLike]] = None
 
-    def _load(self) -> List[Any]:
+    def _load(self) -> List[CompetenceLike]:
         """Load once, cache for reuse, and return the cached competence list."""
         if self._cache is None:
             self._cache = list(self._extractor())
             self._id_index = {competence.id: competence for competence in self._cache}
         return self._cache
 
-    def iter_all_competences(self) -> Iterator[Any]:
+    def iter_all_competences(self) -> Iterator[CompetenceLike]:
         """Iterate all literature competences."""
         for competence in self._load():
             yield competence
 
-    def get_competence_by_id(self, competence_id: str) -> Optional[Any]:
+    def get_competence_by_id(self, competence_id: str) -> Optional[CompetenceLike]:
         """Get one competence by id, if present."""
         self._load()
         return (self._id_index or {}).get(competence_id)
 
-    def iter_competences_for_sector(self, sector: str) -> Iterator[Any]:
+    def iter_competences_for_sector(self, sector: str) -> Iterator[CompetenceLike]:
         """Iterate competences associated with a specific sector."""
+        normalized_sector = normalize_sector_name(sector)
         for competence in self._load():
-            if sector in competence.sectors:
+            normalized_competence_sectors = {
+                normalize_sector_name(current_sector)
+                for current_sector in competence.sectors
+            }
+            if normalized_sector in normalized_competence_sectors:
                 yield competence
 
-    def iter_competences_for_axis(self, axis: str) -> Iterator[Any]:
+    def iter_literature_competences(self) -> Iterator[CompetenceLike]:
+        """Iterate only literature-derived competences."""
+        for competence in self._load():
+            if classify_competence_origin(competence.id) == ORIGIN_LITERATURE:
+                yield competence
+
+    def iter_baseline_competences(self) -> Iterator[CompetenceLike]:
+        """Iterate only baseline competences."""
+        for competence in self._load():
+            if classify_competence_origin(competence.id) == ORIGIN_BASELINE:
+                yield competence
+
+    def iter_literature_competences_for_sector(
+        self, sector: str
+    ) -> Iterator[CompetenceLike]:
+        """Iterate only literature-derived competences for a specific sector."""
+        for competence in self.iter_competences_for_sector(sector):
+            if classify_competence_origin(competence.id) == ORIGIN_LITERATURE:
+                yield competence
+
+    def iter_competences_for_axis(self, axis: str) -> Iterator[CompetenceLike]:
         """Iterate competences associated with a specific TMBD axis."""
         for competence in self._load():
             if competence.axis.name == axis:

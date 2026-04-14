@@ -82,7 +82,7 @@ def test_build_sector_dictionary_groups_by_axis() -> None:
 def test_build_sector_dictionary_from_repository() -> None:
     competences = [
         _DummyCompetence(
-            id="c1",
+            id="baseline_a1",
             name="Marine",
             description="d1",
             axis=_DummyAxis("MARINE"),
@@ -90,20 +90,20 @@ def test_build_sector_dictionary_from_repository() -> None:
             sectors=["Blue Biotech"],
         ),
         _DummyCompetence(
-            id="c2",
+            id="lit_example_0001",
             name="Maritime",
             description="d2",
             axis=_DummyAxis("MARITIME"),
             source=_DummySource("f.csv", 3, "p2", "a2", "2021", ""),
-            sectors=["Ports"],
+            sectors=["Blue Biotech"],
         ),
     ]
     repository = LiteratureCompetenceRepository(lambda: competences)
 
     grouped = build_sector_dictionary_from_repository(repository, sector="Blue Biotech")
 
-    assert len(grouped["MARINE"]) == 1
-    assert len(grouped["MARITIME"]) == 0
+    assert len(grouped["MARINE"]) == 0
+    assert len(grouped["MARITIME"]) == 1
     assert len(grouped["OCEANIC"]) == 0
 
 

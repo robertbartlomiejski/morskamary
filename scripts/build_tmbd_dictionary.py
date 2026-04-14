@@ -64,7 +64,9 @@ def build_sector_dictionary_from_repository(
     repository: LiteratureCompetenceRepository, sector: str
 ) -> Dict[str, List[Dict[str, Any]]]:
     """Build TMBD dictionary for one sector via repository data access methods."""
-    return build_axis_dictionary(list(repository.iter_competences_for_sector(sector)))
+    return build_axis_dictionary(
+        list(repository.iter_literature_competences_for_sector(sector))
+    )
 
 
 def export_sector_dictionary(
