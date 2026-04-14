@@ -41,8 +41,11 @@ def _extractor() -> List[_StubCompetence]:
 
 def test_iter_all_competences() -> None:
     repository = LiteratureCompetenceRepository(_extractor)
-    ids = [competence.id for competence in repository.iter_all_competences()]
+    all_competences = list(repository.iter_all_competences())
+    ids = [competence.id for competence in all_competences]
     assert ids == ["c1", "c2", "c3"]
+    assert all_competences[0].axis.name == AXIS_MARINE
+    assert all_competences[1].sectors == [SECTOR_BLUE_BIOTECH, SECTOR_PORTS]
 
 
 def test_get_competence_by_id() -> None:
@@ -59,8 +62,12 @@ def test_iter_competences_for_sector_and_axis() -> None:
         c.id for c in repository.iter_competences_for_sector(SECTOR_BLUE_BIOTECH)
     ]
     axis_ids = [c.id for c in repository.iter_competences_for_axis(AXIS_MARITIME)]
+    empty_sector = list(repository.iter_competences_for_sector("Nonexistent Sector"))
+    empty_axis = list(repository.iter_competences_for_axis("NONEXISTENT"))
     assert sector_ids == ["c1", "c2"]
     assert axis_ids == ["c3"]
+    assert empty_sector == []
+    assert empty_axis == []
 
 
 def test_axis_names_align_with_canonical_enum() -> None:
