@@ -14,6 +14,8 @@ class LiteratureCompetenceRepository:
 
         Args:
             extractor: Callable that returns literature-derived competences.
+                Each competence object must expose at least: `id`, `axis.name`,
+                and `sectors`.
         """
         self._extractor = extractor
         self._cache: Optional[List[Any]] = None

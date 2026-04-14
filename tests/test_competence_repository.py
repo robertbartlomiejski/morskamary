@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from typing import List
 
+from src.core import BlueDynamicsAxis
 from src.competence_repository import LiteratureCompetenceRepository
 
 
@@ -48,3 +49,9 @@ def test_iter_competences_for_sector_and_axis() -> None:
     axis_ids = [c.id for c in repository.iter_competences_for_axis("MARITIME")]
     assert sector_ids == ["c1", "c2"]
     assert axis_ids == ["c3"]
+
+
+def test_axis_names_align_with_canonical_enum() -> None:
+    canonical_axis_names = {axis.name for axis in BlueDynamicsAxis}
+    stub_axis_names = {"MARINE", "MARITIME", "OCEANIC"}
+    assert stub_axis_names == canonical_axis_names
