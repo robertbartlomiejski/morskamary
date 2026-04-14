@@ -49,12 +49,13 @@ def test_export_sector_dictionaries_per_sector(tmp_path: Path) -> None:
         item["id"] for item in blue_biotech_payload["dictionary"]["MARITIME"]
     ]
     assert maritime_ids == ["lit_example_0001"]
+    assert blue_biotech_payload["dictionary"]["MARINE"] == []
     exported_ids = {
         item["id"]
         for axis_records in blue_biotech_payload["dictionary"].values()
         for item in axis_records
     }
-    assert "baseline_a1" not in exported_ids
+    assert exported_ids == {"lit_example_0001"}
 
     research_payload = json.loads(output_paths[1].read_text(encoding="utf-8"))
     assert research_payload["metadata"]["sector"] == "R&I"
