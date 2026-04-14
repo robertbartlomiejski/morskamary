@@ -10,6 +10,8 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List, Sequence
 
+from src.competence_repository import LiteratureCompetenceRepository
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "outputs" / "sector_dictionaries"
 AXES = ("MARINE", "MARITIME", "OCEANIC")
@@ -56,6 +58,13 @@ def build_sector_dictionary(
         competence for competence in competences if sector in competence.sectors
     ]
     return build_axis_dictionary(filtered)
+
+
+def build_sector_dictionary_from_repository(
+    repository: LiteratureCompetenceRepository, sector: str
+) -> Dict[str, List[Dict[str, Any]]]:
+    """Build TMBD dictionary for one sector via repository data access methods."""
+    return build_axis_dictionary(list(repository.iter_competences_for_sector(sector)))
 
 
 def export_sector_dictionary(
@@ -128,8 +137,8 @@ def main() -> int:
     """Run sector dictionary build from literature sources."""
     args = parse_args()
     extract_literature_competences = load_literature_competence_extractor()
-    competences = extract_literature_competences()
-    grouped = build_sector_dictionary(competences, sector=args.sector)
+    repository = LiteratureCompetenceRepository(extract_literature_competences)
+    grouped = build_sector_dictionary_from_repository(repository, sector=args.sector)
     output_path = export_sector_dictionary(
         sector=args.sector, grouped=grouped, output_dir=args.output_dir
     )

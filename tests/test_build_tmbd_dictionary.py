@@ -5,9 +5,11 @@ from pathlib import Path
 
 from scripts.build_tmbd_dictionary import (
     build_sector_dictionary,
+    build_sector_dictionary_from_repository,
     export_sector_dictionary,
     slugify,
 )
+from src.competence_repository import LiteratureCompetenceRepository
 
 
 @dataclass
@@ -75,6 +77,34 @@ def test_build_sector_dictionary_groups_by_axis() -> None:
     assert len(grouped["MARITIME"]) == 0
     maritime_ids = [record["id"] for record in grouped["MARITIME"]]
     assert "c3" not in maritime_ids
+
+
+def test_build_sector_dictionary_from_repository() -> None:
+    competences = [
+        _DummyCompetence(
+            id="c1",
+            name="Marine",
+            description="d1",
+            axis=_DummyAxis("MARINE"),
+            source=_DummySource("f.csv", 2, "p1", "a1", "2020", ""),
+            sectors=["Blue Biotech"],
+        ),
+        _DummyCompetence(
+            id="c2",
+            name="Maritime",
+            description="d2",
+            axis=_DummyAxis("MARITIME"),
+            source=_DummySource("f.csv", 3, "p2", "a2", "2021", ""),
+            sectors=["Ports"],
+        ),
+    ]
+    repository = LiteratureCompetenceRepository(lambda: competences)
+
+    grouped = build_sector_dictionary_from_repository(repository, sector="Blue Biotech")
+
+    assert len(grouped["MARINE"]) == 1
+    assert len(grouped["MARITIME"]) == 0
+    assert len(grouped["OCEANIC"]) == 0
 
 
 def test_export_sector_dictionary(tmp_path: Path) -> None:
