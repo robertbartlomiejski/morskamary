@@ -12,6 +12,7 @@ Deliverables (generated in outputs/ directory):
   credentials_database.json   — Auto-generated micro-credentials
   sector_pathways.json        — Sector transition graphs
   gaps_summary.csv            — Gap percentages by sector
+  sector_dictionaries/*.json  — Sector-specific TMBD competence dictionaries
 
 Usage:
     python run_full_analysis.py
@@ -30,6 +31,12 @@ from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
+
+from scripts.build_tmbd_dictionary import (
+    build_sector_dictionary_from_repository,
+    export_sector_dictionary,
+)
+from src.competence_repository import LiteratureCompetenceRepository
 
 logging.basicConfig(
     level=logging.INFO,
@@ -1139,6 +1146,33 @@ def export_pathways_json(
     log.info("  Exported: %s (%d pathways)", output_path, len(pathways))
 
 
+def export_sector_dictionaries(
+    competences: List[Competence], sectors: List[str], output_dir: Path
+) -> List[Path]:
+    """
+    Export one sector TMBD dictionary JSON per requested sector.
+
+    Input may include mixed provenance (baseline + literature);
+    ``LiteratureCompetenceRepository`` keeps only literature-origin competences,
+    then filters by sector and groups by TMBD axis (MARINE, MARITIME, OCEANIC).
+    This helper is intended for single-use pipeline export in ``main()``. Files follow the
+    ``<normalized_sector>_tmbd_dictionary.json`` naming convention, and returned
+    paths preserve the order of the input ``sectors`` list.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    repository = LiteratureCompetenceRepository(lambda: list(competences))
+    exported_paths: List[Path] = []
+
+    for sector in sectors:
+        grouped = build_sector_dictionary_from_repository(repository, sector=sector)
+        output_path = export_sector_dictionary(
+            sector=sector, grouped=grouped, output_dir=output_dir
+        )
+        exported_paths.append(output_path)
+
+    return exported_paths
+
+
 # ---------------------------------------------------------------------------
 # 7. HTML report generation
 # ---------------------------------------------------------------------------
@@ -1502,7 +1536,7 @@ def main() -> int:
       5. Generate micro-credentials for each sector (4 EQF levels each)
       6. Calculate learning pathways / sector transitions
       7. Generate HTML reports with hyperlinks
-      8. Export JSON/CSV databases
+      8. Export JSON/CSV databases (including sector TMBD dictionaries)
       9. Print summary
 
     Returns:
@@ -1558,6 +1592,12 @@ def main() -> int:
     export_credentials_json(credentials, OUTPUTS_DIR / "credentials_database.json")
     export_pathways_json(pathways, OUTPUTS_DIR / "sector_pathways.json")
     export_gaps_summary_csv(gaps, OUTPUTS_DIR / "gaps_summary.csv")
+    sector_dictionary_paths = export_sector_dictionaries(
+        competences=literature,
+        sectors=SECTORS,
+        output_dir=OUTPUTS_DIR / "sector_dictionaries",
+    )
+    log.info("  Exported: %d sector TMBD dictionaries", len(sector_dictionary_paths))
 
     # --- Step 8: HTML reports ---
     log.info("Generating HTML reports…")
@@ -1602,6 +1642,11 @@ def main() -> int:
         fpath = OUTPUTS_DIR / fname
         if fpath.exists():
             log.info("  ✓ %s", fpath)
+    sector_dictionary_dir = OUTPUTS_DIR / "sector_dictionaries"
+    if sector_dictionary_dir.exists():
+        log.info(
+            "  ✓ %s (%d files)", sector_dictionary_dir, len(sector_dictionary_paths)
+        )
     log.info("")
     log.info("GitHub repository: https://github.com/robertbartlomiejski/morskamary")
     return 0

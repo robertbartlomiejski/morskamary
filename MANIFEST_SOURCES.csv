@@ -13,6 +13,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/workflows/blank.yml,other,,,,,,blank,no
 .github/workflows/ci.yml,other,,,,,,ci,no
 .github/workflows/dependency-submission.yml,other,,,,,,dependency_submission,no
+.github/workflows/full-analysis.yml,other,,,,,,full_analysis,no
 .gitignore,other,,,,,,gitignore,no
 .vscode/## Chat Customization Diagnostics.md,text,,,,,,Chat_Customization_Diagnostics,yes
 .vscode/launch.json,other,,,,,,launch,no
@@ -344,6 +345,7 @@ data/raw/Theoretical_Foundations_Expansion.md,dataset_raw,,,,,,Theoretical_Found
 data/raw/web_search_poole_article_search.json,dataset_raw,,,,,,web_search_poole_article_search,no
 DATA_GOVERNANCE.txt,governance,,,,,,DATA_GOVERNANCE,yes
 deep_update_patch/EXECUTIVE_PLAN.txt,text,,,,,,EXECUTIVE_PLAN,yes
+deep_update_patch/load_real_competences.py,other,,,,,,load_real_competences,no
 deep_update_patch/main_real_data.py,other,,,,,,main_real_data,no
 deep_update_patch/outputs/report_index.html,other,,,,,,report_index,no
 deep_update_patch/run_full_analysis.py,other,,,,,,run_full_analysis,no
@@ -500,6 +502,7 @@ scripts/Blue Bolt Rotterdam _250106_112646.txt,script,,,,,,Blue_Bolt_Rotterdam__
 scripts/Blue Mind_250421_094727.txt,script,,,,,,Blue_Mind_250421_094727,yes
 scripts/Breguła Weird Szczecin_250412_101024.txt,script,,,,,,Breguła_Weird_Szczecin_250412_101024,yes
 scripts/build_derived.py,script,,,,,,build_derived,no
+scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,no
 scripts/convert_pdfs_to_txt.py,script,,,,,,convert_pdfs_to_txt,no
 scripts/Delft wyjazd_241017_170643.txt,script,,,,,,Delft_wyjazd_241017_170643,yes
 scripts/Do hab_250403_204509.txt,script,,,,,,Do_hab_250403_204509,yes
@@ -520,11 +523,17 @@ scripts/README.txt,script,,,,,,README,yes
 scripts/README_WHATTODO IN LIZBONA 2026 NEW.txt,script,,,,,,README_WHATTODO_IN_LIZBONA_2026_NEW,yes
 scripts/Tripatle Blue Value Model WOW.txt,script,,,,,,Tripatle_Blue_Value_Model_WOW,yes
 scripts/Wyrzucone przez morze_250521_002507.txt,script,,,,,,Wyrzucone_przez_morze_250521_002507,yes
+SECURITY.md,text,,,,,,SECURITY,yes
+security/security-checklist.md,text,,,,,,security_checklist,yes
 SESSION_SUMMARY.md,text,,,,,,SESSION_SUMMARY,yes
 setup_one_click.ps1,other,,,,,,setup_one_click,no
 src/__init__.py,other,,,,,,init,no
 src/competence_mapper.py,other,,,,,,competence_mapper,no
+src/competence_repository.py,other,,,,,,competence_repository,no
 src/core.py,other,,,,,,core,no
 src/Untitled-1.litcoffee,other,,,,,,Untitled_1,no
 tests/__init__.py,other,,,,,,init,no
+tests/test_build_tmbd_dictionary.py,other,,,,,,test_build_tmbd_dictionary,no
+tests/test_competence_repository.py,other,,,,,,test_competence_repository,no
 tests/test_core.py,other,,,,,,test_core,no
+tests/test_run_full_analysis.py,other,,,,,,test_run_full_analysis,no
