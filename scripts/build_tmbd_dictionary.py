@@ -104,16 +104,22 @@ def load_literature_competence_extractor() -> Any:
     module_path = REPO_ROOT / "run_full_analysis.py"
     spec = importlib.util.spec_from_file_location("run_full_analysis", module_path)
     if spec is None or spec.loader is None:
-        raise ImportError(f"Cannot load module spec from {module_path}")
+        exists = module_path.exists()
+        raise ImportError(
+            f"Cannot load module spec from {module_path} (exists={exists}). "
+            "Verify run_full_analysis.py is present in the repository root."
+        )
 
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
 
     extract_fn = getattr(module, "extract_literature_competences", None)
     if not callable(extract_fn):
+        found_type = type(extract_fn).__name__
         raise ImportError(
             "run_full_analysis.py must define a callable function named "
-            "extract_literature_competences()."
+            "extract_literature_competences(). "
+            f"Found type: {found_type}."
         )
     return extract_fn
 
