@@ -182,10 +182,10 @@ class TestCompetenceMapper:
         """Test sector competence retrieval ignores case and duplicates"""
         mapper_with_credentials.add_credentials(
             MicroCredential(
-                id="cred_ports_lower",
-                title="Ports Lowercase",
+                id="cred_ports_case",
+                title="Ports Case Coverage",
                 competences=["comp_a"],
-                description="Ports lowercase sector",
+                description="Ports case coverage",
                 sector="ports",
             )
         )
