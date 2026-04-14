@@ -31,12 +31,14 @@ def test_export_sector_dictionaries_per_sector(tmp_path: Path) -> None:
         sectors=["Blue Biotech"],
     )
 
+    sectors = ["Blue Biotech", "R&I"]
     output_paths = export_sector_dictionaries(
         literature=[literature_competence, baseline_competence],
-        sectors=["Blue Biotech", "R&I"],
+        sectors=sectors,
         output_dir=tmp_path,
     )
 
+    assert len(output_paths) == len(sectors)
     assert [path.name for path in output_paths] == [
         "blue_biotech_tmbd_dictionary.json",
         "r_i_tmbd_dictionary.json",
@@ -47,6 +49,12 @@ def test_export_sector_dictionaries_per_sector(tmp_path: Path) -> None:
         item["id"] for item in blue_biotech_payload["dictionary"]["MARITIME"]
     ]
     assert maritime_ids == ["lit_example_0001"]
+    exported_ids = {
+        item["id"]
+        for axis_records in blue_biotech_payload["dictionary"].values()
+        for item in axis_records
+    }
+    assert "baseline_a1" not in exported_ids
 
     research_payload = json.loads(output_paths[1].read_text(encoding="utf-8"))
     assert research_payload["metadata"]["sector"] == "R&I"

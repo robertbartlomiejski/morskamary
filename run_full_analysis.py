@@ -1149,7 +1149,14 @@ def export_pathways_json(
 def export_sector_dictionaries(
     literature: List[Competence], sectors: List[str], output_dir: Path
 ) -> List[Path]:
-    """Export one TMBD dictionary JSON per sector from literature competences."""
+    """
+    Export one sector TMBD dictionary JSON per requested sector.
+
+    Competences are filtered by sector through ``LiteratureCompetenceRepository``
+    and grouped by TMBD axis (MARINE, MARITIME, OCEANIC). Files follow the
+    ``<normalized_sector>_tmbd_dictionary.json`` naming convention and returned
+    paths preserve the order of the input ``sectors`` list.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     repository = LiteratureCompetenceRepository(lambda: list(literature))
     exported_paths: List[Path] = []
