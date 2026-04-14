@@ -1,0 +1,2453 @@
+{
+  "metadata": {
+    "source_file": "outputs/competences_full_database.json",
+    "part": 5,
+    "parts_total": 5,
+    "records_in_part": 66,
+    "chunk_size": 100
+  },
+  "competences": [
+    {
+      "id": "lit_blue_sociology_0091",
+      "name": "Hydrosocial literacy and ocean citizenship: To be, to do, to share: the triple-loop of water governance to improve",
+      "description": "Literature-derived competence (cluster: Hydrosocial literacy and ocean citizenship) from Blue sociology & maritime society papers. Source paper: To be, to do, to share: the triple-loop of water governance to improve urban water resilience—testing the Benidorm'exper (S Ricart\nAM Rico-Amorós, ).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Hydrosocial literacy and ocean"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 91,
+        "authors": "S Ricart\nAM Rico-Amorós",
+        "year": "",
+        "paper_title": "To be, to do, to share: the triple-loop of water governance to improve urban water resilience—testing the Benidorm'exper",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L91"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0093",
+      "name": "Cultural dimensions of seafaring: Toward a Sociology of Oceans",
+      "description": "Literature-derived competence (cluster: Cultural dimensions of seafaring) from Blue sociology & maritime society papers. Source paper: Toward a Sociology of Oceans. (John A. Hannigan, 2017).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Cultural dimensions of seafari"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 93,
+        "authors": "John A. Hannigan",
+        "year": "2017",
+        "paper_title": "Toward a Sociology of Oceans.",
+        "doi": "10.1111/CARS.12136",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L93"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0094",
+      "name": "Oceanic subjectivity and cultural identities: The State of Marine Social Science: Yesterday, Today, and into the Fut",
+      "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: The State of Marine Social Science: Yesterday, Today, and into the Future (Ana K. Spalding\nEmma McKinley, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Oceanic subjectivity and cultu"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 94,
+        "authors": "Ana K. Spalding\nEmma McKinley",
+        "year": "2024",
+        "paper_title": "The State of Marine Social Science: Yesterday, Today, and into the Future",
+        "doi": "10.1146/annurev-marine-121422-015345",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L94"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0095",
+      "name": "Cross-cultural maritime heritage management: Review: Eco-creative nature-based solutions to transform urban coastli",
+      "description": "Literature-derived competence (cluster: Cross-cultural maritime heritage management) from Blue sociology & maritime society papers. Source paper: Review: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance biodive (, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Cross-cultural maritime herita"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 95,
+        "authors": "",
+        "year": "2022",
+        "paper_title": "Review: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance biodive",
+        "doi": "10.1017/cft.2022.10.pr4",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L95"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0096",
+      "name": "Socio-technical transitions in shipping: Lake Ladoga. The Coastal History of the Greatest Lake in Europe",
+      "description": "Literature-derived competence (cluster: Socio-technical transitions in shipping) from Blue sociology & maritime society papers. Source paper: Lake Ladoga. The Coastal History of the Greatest Lake in Europe (, 2023).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Socio-technical transitions in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 96,
+        "authors": "",
+        "year": "2023",
+        "paper_title": "Lake Ladoga. The Coastal History of the Greatest Lake in Europe",
+        "doi": "10.21435/sfh.27",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L96"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0097",
+      "name": "Labour geography of maritime transport: 4 | 2 | 2024 Ecologies of Life and Death in the Anthropocene",
+      "description": "Literature-derived competence (cluster: Labour geography of maritime transport) from Blue sociology & maritime society papers. Source paper: 4 | 2 | 2024 Ecologies of Life and Death in the Anthropocene (, 2024).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Labour geography of maritime t"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 97,
+        "authors": "",
+        "year": "2024",
+        "paper_title": "4 | 2 | 2024 Ecologies of Life and Death in the Anthropocene",
+        "doi": "10.30687/lgsp/2785-2709/2024/02",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L97"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0098",
+      "name": "Hydrosocial literacy and ocean citizenship: \"… And not a single injustice remains”: Hydro-territorial colonization",
+      "description": "Literature-derived competence (cluster: Hydrosocial literacy and ocean citizenship) from Blue sociology & maritime society papers. Source paper: \"… And not a single injustice remains”: Hydro-territorial colonization and techno-political transformations in Spain (Erik Swyngedouw\nRutgerd Boelens, 2018).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Hydrosocial literacy and ocean"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 98,
+        "authors": "Erik Swyngedouw\nRutgerd Boelens",
+        "year": "2018",
+        "paper_title": "\"… And not a single injustice remains”: Hydro-territorial colonization and techno-political transformations in Spain",
+        "doi": "10.1017/9781316831847.008",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L98"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0099",
+      "name": "Planetary boundary thinking in ocean governance: Blue Legalities: The Life and Laws of the Sea",
+      "description": "Literature-derived competence (cluster: Planetary boundary thinking in ocean governance) from Blue sociology & maritime society papers. Source paper: Blue Legalities: The Life and Laws of the Sea (Irus Braverman\nElizabeth R. Johnson, 2019).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Planetary boundary thinking in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 99,
+        "authors": "Irus Braverman\nElizabeth R. Johnson",
+        "year": "2019",
+        "paper_title": "Blue Legalities: The Life and Laws of the Sea",
+        "doi": "10.1215/9781478007289",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L99"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0100",
+      "name": "Maritimisation processes and port-city relations: Maritime sociology: towards a delimation of themes and analytical fram",
+      "description": "Literature-derived competence (cluster: Maritimisation processes and port-city relations) from Blue sociology & maritime society papers. Source paper: Maritime sociology: towards a delimation of themes and analytical frameworks (Michael Poole, 1981).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Maritimisation processes and p"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 100,
+        "authors": "Michael Poole",
+        "year": "1981",
+        "paper_title": "Maritime sociology: towards a delimation of themes and analytical frameworks",
+        "doi": "10.1080/03088838100000046",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L100"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0101",
+      "name": "Oceanic subjectivity and cultural identities: Reflections on the past, present, and potential futures of knowledge h",
+      "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Reflections on the past, present, and potential futures of knowledge hierarchies in ocean biodiversity governance resear (Holly J. Niner\nDavid Wilson\nKelly Hoareau\nMia Strand\nJennife, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Oceanic subjectivity and cultu"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 101,
+        "authors": "Holly J. Niner\nDavid Wilson\nKelly Hoareau\nMia Strand\nJennifer Whittingham\nDylan McGarry\nBolanle Erinosho\nSulley Ibrahim\n",
+        "year": "2024",
+        "paper_title": "Reflections on the past, present, and potential futures of knowledge hierarchies in ocean biodiversity governance resear",
+        "doi": "10.3389/fmars.2024.1347494",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L101"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0102",
+      "name": "Labour geography of maritime transport: Maritime Culture Degradation of Indonesian Society in Social Practice",
+      "description": "Literature-derived competence (cluster: Labour geography of maritime transport) from Blue sociology & maritime society papers. Source paper: Maritime Culture Degradation of Indonesian Society in Social Practice of Seafaring (Aini Nahdlia Puspita\nWidodo Widodo\nAbdul Rivai Ras\nPujo Wido, 2023).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Labour geography of maritime t"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 102,
+        "authors": "Aini Nahdlia Puspita\nWidodo Widodo\nAbdul Rivai Ras\nPujo Widodo\nHerlina Juni Risma Saragih",
+        "year": "2023",
+        "paper_title": "Maritime Culture Degradation of Indonesian Society in Social Practice of Seafaring",
+        "doi": "10.57235/aurelia.v2i1.286",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L102"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0103",
+      "name": "Sustainability transitions in coastal societies: Ocean Governance for Sustainability Transformation",
+      "description": "Literature-derived competence (cluster: Sustainability transitions in coastal societies) from Blue sociology & maritime society papers. Source paper: Ocean Governance for Sustainability Transformation (Alper AY, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Sustainability transitions in "
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 103,
+        "authors": "Alper AY",
+        "year": "2023",
+        "paper_title": "Ocean Governance for Sustainability Transformation",
+        "doi": "10.1007/978-3-031-20740-2_1",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L103"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0107",
+      "name": "Labour geography of maritime transport: Blue growth and ocean governance—how to balance the use and the protec",
+      "description": "Literature-derived competence (cluster: Labour geography of maritime transport) from Blue sociology & maritime society papers. Source paper: Blue growth and ocean governance—how to balance the use and the protection of the seas (Peter Ehlers, 2016).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Labour geography of maritime t"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 107,
+        "authors": "Peter Ehlers",
+        "year": "2016",
+        "paper_title": "Blue growth and ocean governance—how to balance the use and the protection of the seas",
+        "doi": "10.1007/S13437-016-0104-X",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L107"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0109",
+      "name": "Cross-cultural maritime heritage management: The urban hydrosocial cycle: why should engineers care?",
+      "description": "Literature-derived competence (cluster: Cross-cultural maritime heritage management) from Blue sociology & maritime society papers. Source paper: The urban hydrosocial cycle: why should engineers care? (Lucia Alexandra Popartan\nManel Poch\nJosep Pueyo-Ros\nIgnasi R, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Cross-cultural maritime herita"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 109,
+        "authors": "Lucia Alexandra Popartan\nManel Poch\nJosep Pueyo-Ros\nIgnasi Rodríguez-Roda",
+        "year": "2023",
+        "paper_title": "The urban hydrosocial cycle: why should engineers care?",
+        "doi": "10.12688/openreseurope.16223.1",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L109"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0110",
+      "name": "Sustainability transitions in coastal societies: More than the sea: Review of different approaches to seascapes reveals",
+      "description": "Literature-derived competence (cluster: Sustainability transitions in coastal societies) from Blue sociology & maritime society papers. Source paper: More than the sea: Review of different approaches to seascapes reveals unique transdisciplinary conceptualizations and c (Ian J. McNiven, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Sustainability transitions in "
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 110,
+        "authors": "Ian J. McNiven",
+        "year": "2024",
+        "paper_title": "More than the sea: Review of different approaches to seascapes reveals unique transdisciplinary conceptualizations and c",
+        "doi": "10.1080/15564894.2024.2411686",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L110"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0112",
+      "name": "Labour geography of maritime transport: Lago Chad: qué se esconde tras la crisis de sus aguas",
+      "description": "Literature-derived competence (cluster: Labour geography of maritime transport) from Blue sociology & maritime society papers. Source paper: Lago Chad: qué se esconde tras la crisis de sus aguas (Silvia Alejandra Perazzo, 2020).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Labour geography of maritime t"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 112,
+        "authors": "Silvia Alejandra Perazzo",
+        "year": "2020",
+        "paper_title": "Lago Chad: qué se esconde tras la crisis de sus aguas",
+        "doi": "10.15366/RELACIONESINTERNACIONALES2020.45.012",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L112"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0113",
+      "name": "Traditional ecological knowledge in fisheries governance: What representations for the Ocean?",
+      "description": "Literature-derived competence (cluster: Traditional ecological knowledge in fisheries governance) from Blue sociology & maritime society papers. Source paper: What representations for the Ocean? (Alice Cuvelier, 2024).",
+      "axis": "MARINE",
+      "axis_name": "MARINE",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "marine",
+        "literature",
+        "Traditional ecological knowled"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 113,
+        "authors": "Alice Cuvelier",
+        "year": "2024",
+        "paper_title": "What representations for the Ocean?",
+        "doi": "10.4000/hybrid.3937",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L113"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0115",
+      "name": "Oceanic subjectivity and cultural identities: Uncanny waters",
+      "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Uncanny waters (Caroline Emily Rae, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Oceanic subjectivity and cultu"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 115,
+        "authors": "Caroline Emily Rae",
+        "year": "2022",
+        "paper_title": "Uncanny waters",
+        "doi": "10.1177/01417789211066012",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L115"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0116",
+      "name": "Socio-technical transitions in shipping: Marine Sociology: Towards a Sustainable Future",
+      "description": "Literature-derived competence (cluster: Socio-technical transitions in shipping) from Blue sociology & maritime society papers. Source paper: Marine Sociology: Towards a Sustainable Future (SHIVAM KUMAR PANDEY\nDandempally Vasantha, 2023).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Socio-technical transitions in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 116,
+        "authors": "SHIVAM KUMAR PANDEY\nDandempally Vasantha",
+        "year": "2023",
+        "paper_title": "Marine Sociology: Towards a Sustainable Future",
+        "doi": "10.5281/zenodo.8242209",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L116"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0117",
+      "name": "Labour geography of maritime transport: The hydro‐logic of genocide: Remaking land, water, and bodies in democ",
+      "description": "Literature-derived competence (cluster: Labour geography of maritime transport) from Blue sociology & maritime society papers. Source paper: The hydro‐logic of genocide: Remaking land, water, and bodies in democratic Kampuchea, 1975–1979 (Stian Rice\nStian Rice\nJames A. Tyner\nMandy J. Munro-Stasiuk\n, 2020).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Labour geography of maritime t"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 117,
+        "authors": "Stian Rice\nStian Rice\nJames A. Tyner\nMandy J. Munro-Stasiuk\nSokvisal Kimsroy\nCorrine Coakley",
+        "year": "2020",
+        "paper_title": "The hydro‐logic of genocide: Remaking land, water, and bodies in democratic Kampuchea, 1975–1979",
+        "doi": "10.1111/AREA.12582",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L117"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0118",
+      "name": "Social-ecological resilience of coastal communities: Toward a Critical Ocean Studies for the Anthropocene",
+      "description": "Literature-derived competence (cluster: Social-ecological resilience of coastal communities) from Blue sociology & maritime society papers. Source paper: Toward a Critical Ocean Studies for the Anthropocene (Elizabeth DeLoughrey, 2019).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Social-ecological resilience o"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 118,
+        "authors": "Elizabeth DeLoughrey",
+        "year": "2019",
+        "paper_title": "Toward a Critical Ocean Studies for the Anthropocene",
+        "doi": "10.1215/00138282-7309655",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L118"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0119",
+      "name": "Coastal tourism and blue economy value chains: Anthropology of and from the Ocean",
+      "description": "Literature-derived competence (cluster: Coastal tourism and blue economy value chains) from Blue sociology & maritime society papers. Source paper: Anthropology of and from the Ocean (Jatin Dua, 2024).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Coastal tourism and blue econo"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 119,
+        "authors": "Jatin Dua",
+        "year": "2024",
+        "paper_title": "Anthropology of and from the Ocean",
+        "doi": "10.1146/annurev-anthro-041422-012504",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L119"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0120",
+      "name": "Planetary boundary thinking in ocean governance: Author comment: Eco-creative nature-based solutions to transform urban",
+      "description": "Literature-derived competence (cluster: Planetary boundary thinking in ocean governance) from Blue sociology & maritime society papers. Source paper: Author comment: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance (Leila Glass, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Planetary boundary thinking in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 120,
+        "authors": "Leila Glass",
+        "year": "2022",
+        "paper_title": "Author comment: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance",
+        "doi": "10.1017/cft.2022.10.pr7",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L120"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0121",
+      "name": "Ethnographic approaches to fishing communities: Human Dimension Approaches to Marine Studies",
+      "description": "Literature-derived competence (cluster: Ethnographic approaches to fishing communities) from Blue sociology & maritime society papers. Source paper: Human Dimension Approaches to Marine Studies (, 2023).",
+      "axis": "MARINE",
+      "axis_name": "MARINE",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "marine",
+        "literature",
+        "Ethnographic approaches to fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 121,
+        "authors": "",
+        "year": "2023",
+        "paper_title": "Human Dimension Approaches to Marine Studies",
+        "doi": "10.4324/9781003058151-3",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L121"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0122",
+      "name": "Labour geography of maritime transport: Anchors of identity: Integrating maritime heritage into Singapore's ur",
+      "description": "Literature-derived competence (cluster: Labour geography of maritime transport) from Blue sociology & maritime society papers. Source paper: Anchors of identity: Integrating maritime heritage into Singapore's urban authenticity (Izzah Sarah Binte Omer Ali Saifudeen, 2025).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Labour geography of maritime t"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 122,
+        "authors": "Izzah Sarah Binte Omer Ali Saifudeen",
+        "year": "2025",
+        "paper_title": "Anchors of identity: Integrating maritime heritage into Singapore's urban authenticity",
+        "doi": "10.61511/jcbau.v2i2.2025.1425",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L122"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0124",
+      "name": "Sustainability transitions in coastal societies: Field Trip: The Indian Ocean Turn: New Perspectives and Approaches fro",
+      "description": "Literature-derived competence (cluster: Sustainability transitions in coastal societies) from Blue sociology & maritime society papers. Source paper: Field Trip: The Indian Ocean Turn: New Perspectives and Approaches from the Field (Neelima Jeychandran\nSmriti Srinivas\nPedro Machado\nBettina Ng, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Sustainability transitions in "
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 124,
+        "authors": "Neelima Jeychandran\nSmriti Srinivas\nPedro Machado\nBettina Ng’weno",
+        "year": "2022",
+        "paper_title": "Field Trip: The Indian Ocean Turn: New Perspectives and Approaches from the Field",
+        "doi": "10.1353/vrg.2022.0012",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L124"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0128",
+      "name": "Cultural dimensions of seafaring: Territoire hydrosocial et conflictualité : lecture croisée des arrange",
+      "description": "Literature-derived competence (cluster: Cultural dimensions of seafaring) from Blue sociology & maritime society papers. Source paper: Territoire hydrosocial et conflictualité : lecture croisée des arrangements et reconfigurations territoriales associés à (Gaële Rouillé-Kielo\nSelin Le Visage\nSilvia Flaminio, 2022).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Cultural dimensions of seafari"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 128,
+        "authors": "Gaële Rouillé-Kielo\nSelin Le Visage\nSilvia Flaminio",
+        "year": "2022",
+        "paper_title": "Territoire hydrosocial et conflictualité : lecture croisée des arrangements et reconfigurations territoriales associés à",
+        "doi": "10.4000/geocarrefour.20092",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L128"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0129",
+      "name": "Marinisation of societies and biophysical coupling: The Ethics of Blue Urbanism",
+      "description": "Literature-derived competence (cluster: Marinisation of societies and biophysical coupling) from Blue sociology & maritime society papers. Source paper: The Ethics of Blue Urbanism (Timothy Beatley, 2021).",
+      "axis": "MARINE",
+      "axis_name": "MARINE",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "marine",
+        "literature",
+        "Marinisation of societies and "
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 129,
+        "authors": "Timothy Beatley",
+        "year": "2021",
+        "paper_title": "The Ethics of Blue Urbanism",
+        "doi": "10.1007/978-3-030-49540-4_6",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L129"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0130",
+      "name": "Maritimisation processes and port-city relations: Exploring the urban hydrosocial cycle in tourist environments",
+      "description": "Literature-derived competence (cluster: Maritimisation processes and port-city relations) from Blue sociology & maritime society papers. Source paper: Exploring the urban hydrosocial cycle in tourist environments (Elena Ridolfi, 2014).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Maritimisation processes and p"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 130,
+        "authors": "Elena Ridolfi",
+        "year": "2014",
+        "paper_title": "Exploring the urban hydrosocial cycle in tourist environments",
+        "doi": "10.14198/INGEO2014.61.02",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L130"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0131",
+      "name": "Sustainability transitions in coastal societies: Editorial: New frontiers of marine governance in the ocean decade",
+      "description": "Literature-derived competence (cluster: Sustainability transitions in coastal societies) from Blue sociology & maritime society papers. Source paper: Editorial: New frontiers of marine governance in the ocean decade (José Guerreiro\nHelena Calado\nMarie Bonnin\nJ.P.M. van Tatenho, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Sustainability transitions in "
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 131,
+        "authors": "José Guerreiro\nHelena Calado\nMarie Bonnin\nJ.P.M. van Tatenhove\nCatarina Frazão Santos",
+        "year": "2023",
+        "paper_title": "Editorial: New frontiers of marine governance in the ocean decade",
+        "doi": "10.3389/fmars.2023.1223137",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L131"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0132",
+      "name": "Labour geography of maritime transport: Fatti e fabule: Geografie more-than-wet del Mediterraneo Nero",
+      "description": "Literature-derived competence (cluster: Labour geography of maritime transport) from Blue sociology & maritime society papers. Source paper: Fatti e fabule: Geografie more-than-wet del Mediterraneo Nero (G Palermo, ).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Labour geography of maritime t"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 132,
+        "authors": "G Palermo",
+        "year": "",
+        "paper_title": "Fatti e fabule: Geografie more-than-wet del Mediterraneo Nero",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L132"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0133",
+      "name": "Ethnographic approaches to fishing communities: A Sea Change in the Environmental Humanities",
+      "description": "Literature-derived competence (cluster: Ethnographic approaches to fishing communities) from Blue sociology & maritime society papers. Source paper: A Sea Change in the Environmental Humanities (Cecilia Åsberg, 2020).",
+      "axis": "MARINE",
+      "axis_name": "MARINE",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "marine",
+        "literature",
+        "Ethnographic approaches to fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 133,
+        "authors": "Cecilia Åsberg",
+        "year": "2020",
+        "paper_title": "A Sea Change in the Environmental Humanities",
+        "doi": "10.46863/ECOCENE.41",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L133"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0134",
+      "name": "Planetary boundary thinking in ocean governance: Beyond States: Ocean Governance in the Anthropocene",
+      "description": "Literature-derived competence (cluster: Planetary boundary thinking in ocean governance) from Blue sociology & maritime society papers. Source paper: Beyond States: Ocean Governance in the Anthropocene (Vonintsoa Rafaly, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Planetary boundary thinking in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 134,
+        "authors": "Vonintsoa Rafaly",
+        "year": "2024",
+        "paper_title": "Beyond States: Ocean Governance in the Anthropocene",
+        "doi": "10.1080/00908320.2024.2441877",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L134"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0135",
+      "name": "Post-colonial perspectives in maritime sociology: Assembling modern water: The hydrosocial politics of water and develop",
+      "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: Assembling modern water: The hydrosocial politics of water and development in the Mahaweli Development Project, Sri Lank (K Paranage, ).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Post-colonial perspectives in "
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 135,
+        "authors": "K Paranage",
+        "year": "",
+        "paper_title": "Assembling modern water: The hydrosocial politics of water and development in the Mahaweli Development Project, Sri Lank",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L135"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0136",
+      "name": "Socio-technical transitions in shipping: Blue Urbanism",
+      "description": "Literature-derived competence (cluster: Socio-technical transitions in shipping) from Blue sociology & maritime society papers. Source paper: Blue Urbanism (Gabriel Yit Vui Yong\nNoor Hasharina Hassan, 2024).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Socio-technical transitions in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 136,
+        "authors": "Gabriel Yit Vui Yong\nNoor Hasharina Hassan",
+        "year": "2024",
+        "paper_title": "Blue Urbanism",
+        "doi": "10.26418/ijeas.2024.4.01.23-36",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L136"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0137",
+      "name": "Cross-cultural maritime heritage management: When hydrosociality encounters sediments: Transformed lives and liveli",
+      "description": "Literature-derived competence (cluster: Cross-cultural maritime heritage management) from Blue sociology & maritime society papers. Source paper: When hydrosociality encounters sediments: Transformed lives and livelihoods in the lower basin of the Ganges River (Flore Lafaye de Micheaux\nFlore Lafaye de Micheaux\nJenia Mukh, 2018).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Cross-cultural maritime herita"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 137,
+        "authors": "Flore Lafaye de Micheaux\nFlore Lafaye de Micheaux\nJenia Mukherjee\nChristian A. Kull",
+        "year": "2018",
+        "paper_title": "When hydrosociality encounters sediments: Transformed lives and livelihoods in the lower basin of the Ganges River",
+        "doi": "10.1177/2514848618813768",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L137"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0138",
+      "name": "Cultural dimensions of seafaring: Exploring new approaches in urban water governance: case studies in me",
+      "description": "Literature-derived competence (cluster: Cultural dimensions of seafaring) from Blue sociology & maritime society papers. Source paper: Exploring new approaches in urban water governance: case studies in mediterranean areas (Elena Ridolfi, 2014).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Cultural dimensions of seafari"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 138,
+        "authors": "Elena Ridolfi",
+        "year": "2014",
+        "paper_title": "Exploring new approaches in urban water governance: case studies in mediterranean areas",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L138"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0139",
+      "name": "Social-ecological resilience of coastal communities: Transdisciplinary Perspectives on Ocean Governance",
+      "description": "Literature-derived competence (cluster: Social-ecological resilience of coastal communities) from Blue sociology & maritime society papers. Source paper: Transdisciplinary Perspectives on Ocean Governance (Ratana Chuenpagdee, ).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Social-ecological resilience o"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 139,
+        "authors": "Ratana Chuenpagdee",
+        "year": "",
+        "paper_title": "Transdisciplinary Perspectives on Ocean Governance",
+        "doi": "10.1163/9789004380271_006",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L139"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0140",
+      "name": "Maritimisation processes and port-city relations: (Un)seen Seas: Technological Mediation, Oceanic Imaginaries, and Futur",
+      "description": "Literature-derived competence (cluster: Maritimisation processes and port-city relations) from Blue sociology & maritime society papers. Source paper: (Un)seen Seas: Technological Mediation, Oceanic Imaginaries, and Future Depths (Stephanie Ratté, 2019).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Maritimisation processes and p"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 140,
+        "authors": "Stephanie Ratté",
+        "year": "2019",
+        "paper_title": "(Un)seen Seas: Technological Mediation, Oceanic Imaginaries, and Future Depths",
+        "doi": "10.3167/ARES.2019.100109",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L140"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0141",
+      "name": "Socio-technical transitions in shipping: Oceanic Travels: Future Voyages for Moving Deep and Wide within the ''",
+      "description": "Literature-derived competence (cluster: Socio-technical transitions in shipping) from Blue sociology & maritime society papers. Source paper: Oceanic Travels: Future Voyages for Moving Deep and Wide within the ''New Mobilities Paradigm'' (Kimberley Peters\nRachael Squire, 2019).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Socio-technical transitions in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 141,
+        "authors": "Kimberley Peters\nRachael Squire",
+        "year": "2019",
+        "paper_title": "Oceanic Travels: Future Voyages for Moving Deep and Wide within the ''New Mobilities Paradigm''",
+        "doi": "10.3167/TRANS.2019.090207",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L141"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0142",
+      "name": "Post-colonial perspectives in maritime sociology: Toward a Sociology of Water: Reconstructing the Missing “Big Picture”",
+      "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: Toward a Sociology of Water: Reconstructing the Missing “Big Picture” of Social Water Research (Peter Schulz\nAlexis Emanuel Gros, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Post-colonial perspectives in "
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 142,
+        "authors": "Peter Schulz\nAlexis Emanuel Gros",
+        "year": "2024",
+        "paper_title": "Toward a Sociology of Water: Reconstructing the Missing “Big Picture” of Social Water Research",
+        "doi": "10.3390/w16131792",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L142"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0143",
+      "name": "Oceanic subjectivity and cultural identities: Patterns of injustices in water allocation mechanisms in the Brazilian",
+      "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Patterns of injustices in water allocation mechanisms in the Brazilian Amazon: Palm oil expansion and the reshaping of h (Susane Cristini Gomes Ferreira\nDiana Córdoba\nDaniel Sombra, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Oceanic subjectivity and cultu"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 143,
+        "authors": "Susane Cristini Gomes Ferreira\nDiana Córdoba\nDaniel Sombra",
+        "year": "2023",
+        "paper_title": "Patterns of injustices in water allocation mechanisms in the Brazilian Amazon: Palm oil expansion and the reshaping of h",
+        "doi": "10.1016/j.envsci.2023.05.020",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L143"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0144",
+      "name": "Cross-cultural maritime heritage management: Book Review: Blue Urbanism: Exploring Connections between Cities and O",
+      "description": "Literature-derived competence (cluster: Cross-cultural maritime heritage management) from Blue sociology & maritime society papers. Source paper: Book Review: Blue Urbanism: Exploring Connections between Cities and Oceans (David Beach, 2016).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Cross-cultural maritime herita"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 144,
+        "authors": "David Beach",
+        "year": "2016",
+        "paper_title": "Book Review: Blue Urbanism: Exploring Connections between Cities and Oceans",
+        "doi": "10.1177/0739456X16644801",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L144"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0145",
+      "name": "Maritimisation processes and port-city relations: Introduction: Maritime Im/Mobilities",
+      "description": "Literature-derived competence (cluster: Maritimisation processes and port-city relations) from Blue sociology & maritime society papers. Source paper: Introduction: Maritime Im/Mobilities (Hilary Dugan, 2023).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Maritimisation processes and p"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 145,
+        "authors": "Hilary Dugan",
+        "year": "2023",
+        "paper_title": "Introduction: Maritime Im/Mobilities",
+        "doi": "10.1007/978-3-030-91275-8_1",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L145"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0146",
+      "name": "Socio-technical transitions in shipping: Some Key Ideas for Advancing the Vision of Blue Urbanism",
+      "description": "Literature-derived competence (cluster: Socio-technical transitions in shipping) from Blue sociology & maritime society papers. Source paper: Some Key Ideas for Advancing the Vision of Blue Urbanism (Timothy Beatley, 2022).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Socio-technical transitions in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 146,
+        "authors": "Timothy Beatley",
+        "year": "2022",
+        "paper_title": "Some Key Ideas for Advancing the Vision of Blue Urbanism",
+        "doi": "10.31720/jga.6.1.2",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L146"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0148",
+      "name": "Cultural dimensions of seafaring: L´anthropologie maritime: un domaine en évolution: hors cadre traditio",
+      "description": "Literature-derived competence (cluster: Cultural dimensions of seafaring) from Blue sociology & maritime society papers. Source paper: L´anthropologie maritime: un domaine en évolution: hors cadre traditionnel de l´anthropologie sociale (Aliette Geistdoerfer, 2007).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Cultural dimensions of seafari"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 148,
+        "authors": "Aliette Geistdoerfer",
+        "year": "2007",
+        "paper_title": "L´anthropologie maritime: un domaine en évolution: hors cadre traditionnel de l´anthropologie sociale",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L148"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0149",
+      "name": "Coastal tourism and blue economy value chains: Bluespace: a typological matrix for port cities",
+      "description": "Literature-derived competence (cluster: Coastal tourism and blue economy value chains) from Blue sociology & maritime society papers. Source paper: Bluespace: a typological matrix for port cities (Diane Brand, 2007).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Coastal tourism and blue econo"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 149,
+        "authors": "Diane Brand",
+        "year": "2007",
+        "paper_title": "Bluespace: a typological matrix for port cities",
+        "doi": "10.1057/PALGRAVE.UDI.9000195",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L149"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0150",
+      "name": "Oceanic subjectivity and cultural identities: What governance? The role of public and private stakeholders in water",
+      "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: What governance? The role of public and private stakeholders in water supply management in Mediterranean coastal tourist (David Pavón\nAriadna Gabarda-Mallorquí\nAnna Ribas, 2018).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Oceanic subjectivity and cultu"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 150,
+        "authors": "David Pavón\nAriadna Gabarda-Mallorquí\nAnna Ribas",
+        "year": "2018",
+        "paper_title": "What governance? The role of public and private stakeholders in water supply management in Mediterranean coastal tourist",
+        "doi": "10.3390/W10121758",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L150"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0151",
+      "name": "Socio-technical transitions in shipping: Water and power in the Peruvian Andes",
+      "description": "Literature-derived competence (cluster: Socio-technical transitions in shipping) from Blue sociology & maritime society papers. Source paper: Water and power in the Peruvian Andes (Barbara Deutsch Lynch, 2018).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Socio-technical transitions in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 151,
+        "authors": "Barbara Deutsch Lynch",
+        "year": "2018",
+        "paper_title": "Water and power in the Peruvian Andes",
+        "doi": "10.4324/9781315621715-4",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L151"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0152",
+      "name": "Sustainability transitions in coastal societies: The Vital Machine: Water Scarcity and Hydrosocial Assemblage in Punjab",
+      "description": "Literature-derived competence (cluster: Sustainability transitions in coastal societies) from Blue sociology & maritime society papers. Source paper: The Vital Machine: Water Scarcity and Hydrosocial Assemblage in Punjab (A Aijaz, ).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Sustainability transitions in "
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 152,
+        "authors": "A Aijaz",
+        "year": "",
+        "paper_title": "The Vital Machine: Water Scarcity and Hydrosocial Assemblage in Punjab",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L152"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0153",
+      "name": "Cultural dimensions of seafaring: Submarine futures of the Anthropocene",
+      "description": "Literature-derived competence (cluster: Cultural dimensions of seafaring) from Blue sociology & maritime society papers. Source paper: Submarine futures of the Anthropocene (Elizabeth DeLoughrey, 2017).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Cultural dimensions of seafari"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 153,
+        "authors": "Elizabeth DeLoughrey",
+        "year": "2017",
+        "paper_title": "Submarine futures of the Anthropocene",
+        "doi": "10.1215/00104124-3794589",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L153"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0154",
+      "name": "Coastal tourism and blue economy value chains: Anthropologie maritime ou anthropologie de la mer",
+      "description": "Literature-derived competence (cluster: Coastal tourism and blue economy value chains) from Blue sociology & maritime society papers. Source paper: Anthropologie maritime ou anthropologie de la mer (Hélène Artaud, 2018).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Coastal tourism and blue econo"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 154,
+        "authors": "Hélène Artaud",
+        "year": "2018",
+        "paper_title": "Anthropologie maritime ou anthropologie de la mer",
+        "doi": "10.4000/ETHNOECOLOGIE.3484",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L154"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0155",
+      "name": "Planetary boundary thinking in ocean governance: Relational Sociology: A New Paradigm for the Social Sciences",
+      "description": "Literature-derived competence (cluster: Planetary boundary thinking in ocean governance) from Blue sociology & maritime society papers. Source paper: Relational Sociology: A New Paradigm for the Social Sciences (Pierpaolo Donati, 2010).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Planetary boundary thinking in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 155,
+        "authors": "Pierpaolo Donati",
+        "year": "2010",
+        "paper_title": "Relational Sociology: A New Paradigm for the Social Sciences",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L155"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0156",
+      "name": "Socio-technical transitions in shipping: Part V Regional Perspectives on Global Ocean Governance, 11 The Africa",
+      "description": "Literature-derived competence (cluster: Socio-technical transitions in shipping) from Blue sociology & maritime society papers. Source paper: Part V Regional Perspectives on Global Ocean Governance, 11 The African Perspective on Global Ocean Governance (Vrancken Patrick, 2018).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Socio-technical transitions in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 156,
+        "authors": "Vrancken Patrick",
+        "year": "2018",
+        "paper_title": "Part V Regional Perspectives on Global Ocean Governance, 11 The African Perspective on Global Ocean Governance",
+        "doi": "10.1093/LAW/9780198824152.003.0011",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L156"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0157",
+      "name": "Oceanic subjectivity and cultural identities: Social Construction of the Ocean, Sea Power, and Maritime Transformati",
+      "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Social Construction of the Ocean, Sea Power, and Maritime Transformation (Kuang‐hao Hou, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Oceanic subjectivity and cultu"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 157,
+        "authors": "Kuang‐hao Hou",
+        "year": "2023",
+        "paper_title": "Social Construction of the Ocean, Sea Power, and Maritime Transformation",
+        "doi": "10.5744/jpms.2023.1002",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L157"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0158",
+      "name": "Cross-cultural maritime heritage management: Ocean-human relations in the Anthropocene: mapping trends in sustainab",
+      "description": "Literature-derived competence (cluster: Cross-cultural maritime heritage management) from Blue sociology & maritime society papers. Source paper: Ocean-human relations in the Anthropocene: mapping trends in sustainability-related marine social sciences articles (Nane Pelke\nFinn Christian Simonn, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Cross-cultural maritime herita"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 158,
+        "authors": "Nane Pelke\nFinn Christian Simonn",
+        "year": "2023",
+        "paper_title": "Ocean-human relations in the Anthropocene: mapping trends in sustainability-related marine social sciences articles",
+        "doi": "10.3389/fmars.2023.1210133",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L158"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0159",
+      "name": "Coastal tourism and blue economy value chains: Salty Urbanism: Towards an Adaptive Coastal Design Framework to Addres",
+      "description": "Literature-derived competence (cluster: Coastal tourism and blue economy value chains) from Blue sociology & maritime society papers. Source paper: Salty Urbanism: Towards an Adaptive Coastal Design Framework to Address Sea Level Rise (Jeffrey E. Huber\nKeith Van de Riet\nJohn Sandell\nLawrence Sca, 2017).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Coastal tourism and blue econo"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 159,
+        "authors": "Jeffrey E. Huber\nKeith Van de Riet\nJohn Sandell\nLawrence Scarpa",
+        "year": "2017",
+        "paper_title": "Salty Urbanism: Towards an Adaptive Coastal Design Framework to Address Sea Level Rise",
+        "doi": "10.15274/TPJ.2017.02.02.06",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L159"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0160",
+      "name": "Ethnographic approaches to fishing communities: Just coasting: the confluence of space, place and ecology",
+      "description": "Literature-derived competence (cluster: Ethnographic approaches to fishing communities) from Blue sociology & maritime society papers. Source paper: Just coasting: the confluence of space, place and ecology (Kim Satchell, 2018).",
+      "axis": "MARINE",
+      "axis_name": "MARINE",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "marine",
+        "literature",
+        "Ethnographic approaches to fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 160,
+        "authors": "Kim Satchell",
+        "year": "2018",
+        "paper_title": "Just coasting: the confluence of space, place and ecology",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L160"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0161",
+      "name": "Hydrosocial literacy and ocean citizenship: Mining the Seas",
+      "description": "Literature-derived competence (cluster: Hydrosocial literacy and ocean citizenship) from Blue sociology & maritime society papers. Source paper: Mining the Seas (R. Steven Pappas, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Hydrosocial literacy and ocean"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 161,
+        "authors": "R. Steven Pappas",
+        "year": "2022",
+        "paper_title": "Mining the Seas",
+        "doi": "10.4324/9781003205173-7",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L161"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0163",
+      "name": "Cultural dimensions of seafaring: Britain and the Sea: Since 1600",
+      "description": "Literature-derived competence (cluster: Cultural dimensions of seafaring) from Blue sociology & maritime society papers. Source paper: Britain and the Sea: Since 1600 (Glen O’Hara, 2010).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Cultural dimensions of seafari"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 163,
+        "authors": "Glen O’Hara",
+        "year": "2010",
+        "paper_title": "Britain and the Sea: Since 1600",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L163"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0164",
+      "name": "Oceanic subjectivity and cultural identities: Post-crisis risk management: water, community, and adaptation in a Sou",
+      "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Post-crisis risk management: water, community, and adaptation in a South Australian irrigation district (William Skinner\nDouglas Bardsley\nGeorgina Drew, ).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Oceanic subjectivity and cultu"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 164,
+        "authors": "William Skinner\nDouglas Bardsley\nGeorgina Drew",
+        "year": "",
+        "paper_title": "Post-crisis risk management: water, community, and adaptation in a South Australian irrigation district",
+        "doi": "10.5751/es-14789-290110",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L164"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0165",
+      "name": "Cross-cultural maritime heritage management: A poetic history of the oceans: Literature and maritime modernity",
+      "description": "Literature-derived competence (cluster: Cross-cultural maritime heritage management) from Blue sociology & maritime society papers. Source paper: A poetic history of the oceans: Literature and maritime modernity (Sara Rich, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Cross-cultural maritime herita"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 165,
+        "authors": "Sara Rich",
+        "year": "2023",
+        "paper_title": "A poetic history of the oceans: Literature and maritime modernity",
+        "doi": "10.1080/10572414.2023.2223062",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L165"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0166",
+      "name": "Sustainability transitions in coastal societies: Political ecological perspectives on an indicator-based urban water fr",
+      "description": "Literature-derived competence (cluster: Sustainability transitions in coastal societies) from Blue sociology & maritime society papers. Source paper: Political ecological perspectives on an indicator-based urban water framework (Christina Walter\nMatthias Schmidt, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Sustainability transitions in "
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 166,
+        "authors": "Christina Walter\nMatthias Schmidt",
+        "year": "2022",
+        "paper_title": "Political ecological perspectives on an indicator-based urban water framework",
+        "doi": "10.1080/02508060.2022.2131156",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L166"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0167",
+      "name": "Labour geography of maritime transport: 인류세의 글쓰기: 루스 오제키의 에 재현된 환경위기와 해양적 상상력",
+      "description": "Literature-derived competence (cluster: Labour geography of maritime transport) from Blue sociology & maritime society papers. Source paper: 인류세의 글쓰기: 루스 오제키의 에 재현된 환경위기와 해양적 상상력 (윤주옥, 2010).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "maritime",
+        "literature",
+        "Labour geography of maritime t"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 167,
+        "authors": "윤주옥",
+        "year": "2010",
+        "paper_title": "인류세의 글쓰기: 루스 오제키의 에 재현된 환경위기와 해양적 상상력",
+        "doi": "10.17009/SHAKES.2010.46.3.004",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L167"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0168",
+      "name": "Hydrosocial literacy and ocean citizenship: From the Shore to the Coast: Curating the Front Line of Climate Change",
+      "description": "Literature-derived competence (cluster: Hydrosocial literacy and ocean citizenship) from Blue sociology & maritime society papers. Source paper: From the Shore to the Coast: Curating the Front Line of Climate Change (Celina Jeffery, 2020).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Hydrosocial literacy and ocean"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 168,
+        "authors": "Celina Jeffery",
+        "year": "2020",
+        "paper_title": "From the Shore to the Coast: Curating the Front Line of Climate Change",
+        "doi": "10.1386/JCS_00022_1",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L168"
+      }
+    },
+    {
+      "id": "lit_blue_sociology_0170",
+      "name": "Post-colonial perspectives in maritime sociology: Reflections: Contested epistemologies on large dams and mega-hydraulic",
+      "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: Reflections: Contested epistemologies on large dams and mega-hydraulic development (Esha Shah\nRutgerd Boelens\nBert Bruins, 2019).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "blue_sociology",
+        "oceanic",
+        "literature",
+        "Post-colonial perspectives in "
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_sociology_results.csv",
+        "row": 170,
+        "authors": "Esha Shah\nRutgerd Boelens\nBert Bruins",
+        "year": "2019",
+        "paper_title": "Reflections: Contested epistemologies on large dams and mega-hydraulic development",
+        "doi": "10.3390/W11030417",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv#L170"
+      }
+    }
+  ]
+}

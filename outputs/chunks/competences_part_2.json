@@ -1,0 +1,3711 @@
+{
+  "metadata": {
+    "source_file": "outputs/competences_full_database.json",
+    "part": 2,
+    "parts_total": 5,
+    "records_in_part": 100,
+    "chunk_size": 100
+  },
+  "competences": [
+    {
+      "id": "lit_labor_justice_0087",
+      "name": "Community participation in marine spatial planning: Strengthening Blue Economy Policy to Achieve Sustainable Fisheries",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Strengthening Blue Economy Policy to Achieve Sustainable Fisheries (Sapriani Sapriani\nReza Octavia Kusumaningtyas\nKhalid Eltayeb, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 87,
+        "authors": "Sapriani Sapriani\nReza Octavia Kusumaningtyas\nKhalid Eltayeb Elfaki",
+        "year": "2024",
+        "paper_title": "Strengthening Blue Economy Policy to Achieve Sustainable Fisheries",
+        "doi": "10.53955/jsderi.v2i1.23",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L87"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0088",
+      "name": "Decent work standards for aquaculture workers: Development of sustainable ports through the Blue Economy and the use",
+      "description": "Literature-derived competence (cluster: Decent work standards for aquaculture workers) from Blue economy labour justice & social equity papers. Source paper: Development of sustainable ports through the Blue Economy and the use of emerging technology tool (Javier Vaca-Cabrero, 2025).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Decent work standards for aqua"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 88,
+        "authors": "Javier Vaca-Cabrero",
+        "year": "2025",
+        "paper_title": "Development of sustainable ports through the Blue Economy and the use of emerging technology tool",
+        "doi": "10.20868/upm.thesis.89961",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L88"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0089",
+      "name": "Social impact assessment for blue economy projects: A Blue Economy: equitable, sustainable, and viable development in the",
+      "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: A Blue Economy: equitable, sustainable, and viable development in the world’s oceans (Andrés M. Cisneros-Montemayor, 2019).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Social impact assessment for b"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 89,
+        "authors": "Andrés M. Cisneros-Montemayor",
+        "year": "2019",
+        "paper_title": "A Blue Economy: equitable, sustainable, and viable development in the world’s oceans",
+        "doi": "10.1016/B978-0-12-817945-1.00034-4",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L89"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0090",
+      "name": "Blue justice frameworks and social sustainability: Taking institutions seriously: using the IAD framework to analyze fish",
+      "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Taking institutions seriously: using the IAD framework to analyze fisheries policy (Mark T. Imperial\nTracy Yandle, 2005).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Blue justice frameworks and so"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 90,
+        "authors": "Mark T. Imperial\nTracy Yandle",
+        "year": "2005",
+        "paper_title": "Taking institutions seriously: using the IAD framework to analyze fisheries policy",
+        "doi": "10.1080/08941920590947922",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L90"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0091",
+      "name": "Equitable benefit-sharing in ocean resource governance: Navigating a just and inclusive path towards sustainable oceans",
+      "description": "Literature-derived competence (cluster: Equitable benefit-sharing in ocean resource governance) from Blue economy labour justice & social equity papers. Source paper: Navigating a just and inclusive path towards sustainable oceans (Nathan J. Bennett\nNathan J. Bennett\nNathan J. Bennett, 2018).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Equitable benefit-sharing in o"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 91,
+        "authors": "Nathan J. Bennett\nNathan J. Bennett\nNathan J. Bennett",
+        "year": "2018",
+        "paper_title": "Navigating a just and inclusive path towards sustainable oceans",
+        "doi": "10.1016/J.MARPOL.2018.06.001",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L91"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0092",
+      "name": "Gender equity and inclusion in blue workplaces: Blue Economy: Framework for Integrating Economic Growth with Marine Ec",
+      "description": "Literature-derived competence (cluster: Gender equity and inclusion in blue workplaces) from Blue economy labour justice & social equity papers. Source paper: Blue Economy: Framework for Integrating Economic Growth with Marine Ecosystem (Rajat Kumar Sahu\nRaviteja Doppalapudi, 2025).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Gender equity and inclusion in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 92,
+        "authors": "Rajat Kumar Sahu\nRaviteja Doppalapudi",
+        "year": "2025",
+        "paper_title": "Blue Economy: Framework for Integrating Economic Growth with Marine Ecosystem",
+        "doi": "10.12962/j25481479.v10i1.4758",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L92"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0093",
+      "name": "Racial equity and anti-discrimination in blue economy: Sustainable blue economy: Opportunities and challenges",
+      "description": "Literature-derived competence (cluster: Racial equity and anti-discrimination in blue economy) from Blue economy labour justice & social equity papers. Source paper: Sustainable blue economy: Opportunities and challenges (Sahil Narwal\nManpreet Kaur\nDigvijay Singh Yadav\nFelix Bast, 2024).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Racial equity and anti-discrim"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 93,
+        "authors": "Sahil Narwal\nManpreet Kaur\nDigvijay Singh Yadav\nFelix Bast",
+        "year": "2024",
+        "paper_title": "Sustainable blue economy: Opportunities and challenges",
+        "doi": "10.1007/s12038-023-00375-x",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L93"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0094",
+      "name": "Labour union organising and collective bargaining: Cooperation and the emergence of maritime clusters in the Atlantic: An",
+      "description": "Literature-derived competence (cluster: Labour union organising and collective bargaining) from Blue economy labour justice & social equity papers. Source paper: Cooperation and the emergence of maritime clusters in the Atlantic: Analysis and implications of innovation and human ca (Hugo Pinto\nHugo Pinto\nAna Rita Cruz\nColin Combe, 2015).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Labour union organising and co"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 94,
+        "authors": "Hugo Pinto\nHugo Pinto\nAna Rita Cruz\nColin Combe",
+        "year": "2015",
+        "paper_title": "Cooperation and the emergence of maritime clusters in the Atlantic: Analysis and implications of innovation and human ca",
+        "doi": "10.1016/J.MARPOL.2015.03.029",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L94"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0095",
+      "name": "Blue justice frameworks and social sustainability: The Blue Economy in the Arabian Gulf: Trends, Gaps, and Pathways for S",
+      "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: The Blue Economy in the Arabian Gulf: Trends, Gaps, and Pathways for Sustainable Coastal Development (Abdulkarim K. Alhowaish, 2025).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Blue justice frameworks and so"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 95,
+        "authors": "Abdulkarim K. Alhowaish",
+        "year": "2025",
+        "paper_title": "The Blue Economy in the Arabian Gulf: Trends, Gaps, and Pathways for Sustainable Coastal Development",
+        "doi": "10.20944/preprints202509.0411.v1",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L95"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0096",
+      "name": "Equitable benefit-sharing in ocean resource governance: Politics and power in marine spatial planning",
+      "description": "Literature-derived competence (cluster: Equitable benefit-sharing in ocean resource governance) from Blue economy labour justice & social equity papers. Source paper: Politics and power in marine spatial planning (Wesley Flannery\nJane Clarke\nBenedict McAteer, 2019).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Equitable benefit-sharing in o"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 96,
+        "authors": "Wesley Flannery\nJane Clarke\nBenedict McAteer",
+        "year": "2019",
+        "paper_title": "Politics and power in marine spatial planning",
+        "doi": "10.1007/978-3-319-98696-8_9",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L96"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0097",
+      "name": "Community participation in marine spatial planning: Enacting the blue economy in the Western Indian Ocean: A ‘collaborativ",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Enacting the blue economy in the Western Indian Ocean: A ‘collaborative blue economy governmentality’ (Alex Midlen, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 97,
+        "authors": "Alex Midlen",
+        "year": "2023",
+        "paper_title": "Enacting the blue economy in the Western Indian Ocean: A ‘collaborative blue economy governmentality’",
+        "doi": "10.1177/25148486231198010",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L97"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0098",
+      "name": "Indigenous and traditional fishing rights advocacy: ‘Social license to operate’ in the Blue Economy",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: ‘Social license to operate’ in the Blue Economy (Michelle Voyer\nJudith van Leeuwen, 2019).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 98,
+        "authors": "Michelle Voyer\nJudith van Leeuwen",
+        "year": "2019",
+        "paper_title": "‘Social license to operate’ in the Blue Economy",
+        "doi": "10.1016/J.RESOURPOL.2019.02.020",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L98"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0099",
+      "name": "Social impact assessment for blue economy projects: Drivers of Blue Economy in Asia and Pacific Island Countries: An Empir",
+      "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: Drivers of Blue Economy in Asia and Pacific Island Countries: An Empirical Investigation of Tourism and Fisheries Sector (Poulomi Bhattacharya\nAruna Kumar Dash, 2020).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Social impact assessment for b"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 99,
+        "authors": "Poulomi Bhattacharya\nAruna Kumar Dash",
+        "year": "2020",
+        "paper_title": "Drivers of Blue Economy in Asia and Pacific Island Countries: An Empirical Investigation of Tourism and Fisheries Sector",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L99"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0100",
+      "name": "Blue justice frameworks and social sustainability: The blue economy's retreat from equity: A decade under global negotiat",
+      "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: The blue economy's retreat from equity: A decade under global negotiation (Philippa Louey, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Blue justice frameworks and so"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 100,
+        "authors": "Philippa Louey",
+        "year": "2022",
+        "paper_title": "The blue economy's retreat from equity: A decade under global negotiation",
+        "doi": "10.3389/fpos.2022.999571",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L100"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0101",
+      "name": "Equitable benefit-sharing in ocean resource governance: Transforming the governance of small-scale fisheries",
+      "description": "Literature-derived competence (cluster: Equitable benefit-sharing in ocean resource governance) from Blue economy labour justice & social equity papers. Source paper: Transforming the governance of small-scale fisheries (Ratana Chuenpagdee\nSvein Jentoft, 2018).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Equitable benefit-sharing in o"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 101,
+        "authors": "Ratana Chuenpagdee\nSvein Jentoft",
+        "year": "2018",
+        "paper_title": "Transforming the governance of small-scale fisheries",
+        "doi": "10.1007/S40152-018-0087-7",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L101"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0102",
+      "name": "Community participation in marine spatial planning: Blind spots in visions of a “blue economy” could undermine the ocean's",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Blind spots in visions of a “blue economy” could undermine the ocean's contribution to eliminating hunger and malnutriti (Anna K Farmery\nEdward H. Allison\nNeil L. Andrew\nMax Troell\nM, 2021).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 102,
+        "authors": "Anna K Farmery\nEdward H. Allison\nNeil L. Andrew\nMax Troell\nMax Troell\nMichelle Voyer\nBrooke M Campbell\nHampus Eriksson\nH",
+        "year": "2021",
+        "paper_title": "Blind spots in visions of a “blue economy” could undermine the ocean's contribution to eliminating hunger and malnutriti",
+        "doi": "10.1016/J.ONEEAR.2020.12.002",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L102"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0103",
+      "name": "Indigenous and traditional fishing rights advocacy: Blue economy discourses and practices: reconfiguring ocean spaces in t",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: Blue economy discourses and practices: reconfiguring ocean spaces in the Philippines (Paula Satizábal\nWolfram Dressler\nMichael Fabinyi\nMichael D. , 2020).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 103,
+        "authors": "Paula Satizábal\nWolfram Dressler\nMichael Fabinyi\nMichael D. Pido",
+        "year": "2020",
+        "paper_title": "Blue economy discourses and practices: reconfiguring ocean spaces in the Philippines",
+        "doi": "10.1007/S40152-020-00168-0",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L103"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0104",
+      "name": "Labour union organising and collective bargaining: The Human Relationship with Our Ocean Planet",
+      "description": "Literature-derived competence (cluster: Labour union organising and collective bargaining) from Blue economy labour justice & social equity papers. Source paper: The Human Relationship with Our Ocean Planet (C_S4CAM_2202-Pdf-Dumps, 2023).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Labour union organising and co"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 104,
+        "authors": "C_S4CAM_2202-Pdf-Dumps",
+        "year": "2023",
+        "paper_title": "The Human Relationship with Our Ocean Planet",
+        "doi": "10.1007/978-3-031-16277-0_11",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L104"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0105",
+      "name": "Occupational health and safety at sea: Perspectives on the impact of the COVID-19 pandemic on the global and",
+      "description": "Literature-derived competence (cluster: Occupational health and safety at sea) from Blue economy labour justice & social equity papers. Source paper: Perspectives on the impact of the COVID-19 pandemic on the global and African maritime transport sectors, and the potent (Adekola Oyenuga, 2021).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Occupational health and safety"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 105,
+        "authors": "Adekola Oyenuga",
+        "year": "2021",
+        "paper_title": "Perspectives on the impact of the COVID-19 pandemic on the global and African maritime transport sectors, and the potent",
+        "doi": "10.1007/S13437-021-00233-3",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L105"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0106",
+      "name": "Small-scale fisheries sustainability and livelihoods: The Environmental Rule of Law for Oceans",
+      "description": "Literature-derived competence (cluster: Small-scale fisheries sustainability and livelihoods) from Blue economy labour justice & social equity papers. Source paper: The Environmental Rule of Law for Oceans (, 2023).",
+      "axis": "MARINE",
+      "axis_name": "MARINE",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "marine",
+        "literature",
+        "Small-scale fisheries sustaina"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 106,
+        "authors": "",
+        "year": "2023",
+        "paper_title": "The Environmental Rule of Law for Oceans",
+        "doi": "10.1017/9781009253741",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L106"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0107",
+      "name": "Community participation in marine spatial planning: Theorizing Social Sustainability and Justice in Marine Spatial Plannin",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Theorizing Social Sustainability and Justice in Marine Spatial Planning: Democracy, Diversity, and Equity (Fred Saunders\nMichael Gilek\nAnda Ikauniece\nRalph Voma Tafon\n, 2020).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 107,
+        "authors": "Fred Saunders\nMichael Gilek\nAnda Ikauniece\nRalph Voma Tafon\nKira Gee\nJacek Zaucha",
+        "year": "2020",
+        "paper_title": "Theorizing Social Sustainability and Justice in Marine Spatial Planning: Democracy, Diversity, and Equity",
+        "doi": "10.3390/SU12062560",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L107"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0108",
+      "name": "Indigenous and traditional fishing rights advocacy: Social Justice in Coastal Spaces",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: Social Justice in Coastal Spaces (, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 108,
+        "authors": "",
+        "year": "2023",
+        "paper_title": "Social Justice in Coastal Spaces",
+        "doi": "10.4324/9781003058151-15",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L108"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0109",
+      "name": "Social impact assessment for blue economy projects: Community-Centered Approach to Integrated Coastal Management Strategy",
+      "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: Community-Centered Approach to Integrated Coastal Management Strategy for Sustainable Development of the Blue Economy in (Emmanuel Sekile Mwasonya -\nStephen Handa -\nElijah Nyaga Muny, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Social impact assessment for b"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 109,
+        "authors": "Emmanuel Sekile Mwasonya -\nStephen Handa -\nElijah Nyaga Munyi",
+        "year": "2024",
+        "paper_title": "Community-Centered Approach to Integrated Coastal Management Strategy for Sustainable Development of the Blue Economy in",
+        "doi": "10.36948/ijfmr.2024.v06i04.24591",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L109"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0110",
+      "name": "Blue justice frameworks and social sustainability: The disaster resilience assessment of coastal areas: A method for impr",
+      "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: The disaster resilience assessment of coastal areas: A method for improving the stakeholders' participation (Arianna Morelli\nAndrea Taramelli\nFabio Bozzeda\nFabio Bozzeda, 2021).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Blue justice frameworks and so"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 110,
+        "authors": "Arianna Morelli\nAndrea Taramelli\nFabio Bozzeda\nFabio Bozzeda\nEmiliana Valentini\nMarina Antonia Colangelo\nYandy Rodríguez",
+        "year": "2021",
+        "paper_title": "The disaster resilience assessment of coastal areas: A method for improving the stakeholders' participation",
+        "doi": "10.1016/J.OCECOAMAN.2021.105867",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L110"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0111",
+      "name": "Equitable benefit-sharing in ocean resource governance: Ocean resource use: building the coastal blue economy",
+      "description": "Literature-derived competence (cluster: Equitable benefit-sharing in ocean resource governance) from Blue economy labour justice & social equity papers. Source paper: Ocean resource use: building the coastal blue economy (Narissa Bax\nCamilla Novaglio\nCamilla Novaglio\nKimberley H. M, 2021).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Equitable benefit-sharing in o"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 111,
+        "authors": "Narissa Bax\nCamilla Novaglio\nCamilla Novaglio\nKimberley H. Maxwell\nKoen Meyers\nJoy McCann\nSarah Jennings\nStewart Frusher",
+        "year": "2021",
+        "paper_title": "Ocean resource use: building the coastal blue economy",
+        "doi": "10.1007/S11160-021-09636-0",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L111"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0112",
+      "name": "Community participation in marine spatial planning: Towards sustainability of marine governance: Challenges and enablers f",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Towards sustainability of marine governance: Challenges and enablers for stakeholder integration in transboundary marine (Andrea Morf\nJohn Moodie\nKira Gee\nAlberto Giacometti\nMichael , 2019).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 112,
+        "authors": "Andrea Morf\nJohn Moodie\nKira Gee\nAlberto Giacometti\nMichael Kull\nJoanna Piwowarczyk\nKerstin S. Schiele\nJacek Zaucha\nIlha",
+        "year": "2019",
+        "paper_title": "Towards sustainability of marine governance: Challenges and enablers for stakeholder integration in transboundary marine",
+        "doi": "10.1016/J.OCECOAMAN.2019.04.009",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L112"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0113",
+      "name": "Indigenous and traditional fishing rights advocacy: Remaking oceans governance: Critical perspectives on marine spatial pl",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: Remaking oceans governance: Critical perspectives on marine spatial planning (L Fairbanks\nN Boucquey, ).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 113,
+        "authors": "L Fairbanks\nN Boucquey",
+        "year": "",
+        "paper_title": "Remaking oceans governance: Critical perspectives on marine spatial planning",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L113"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0114",
+      "name": "Social impact assessment for blue economy projects: Slaying the Toothless Tiger: Social Equity as the Legal Element of the",
+      "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: Slaying the Toothless Tiger: Social Equity as the Legal Element of the Blue Economy (Marcus J. Schweinberg\nAndreas Raspotnik, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Social impact assessment for b"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 114,
+        "authors": "Marcus J. Schweinberg\nAndreas Raspotnik",
+        "year": "2024",
+        "paper_title": "Slaying the Toothless Tiger: Social Equity as the Legal Element of the Blue Economy",
+        "doi": "10.1177/10704965241238290",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L114"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0115",
+      "name": "Blue justice frameworks and social sustainability: Marine and coastal places: Wellbeing in a blue economy",
+      "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Marine and coastal places: Wellbeing in a blue economy (Maree Fudge\nEmily Ogier\nKaren A. Alexander, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Blue justice frameworks and so"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 115,
+        "authors": "Maree Fudge\nEmily Ogier\nKaren A. Alexander",
+        "year": "2023",
+        "paper_title": "Marine and coastal places: Wellbeing in a blue economy",
+        "doi": "10.1016/j.envsci.2023.03.002",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L115"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0116",
+      "name": "Equitable benefit-sharing in ocean resource governance: The Blue Growth Smart Specialization Challenges Towards the Restorativ",
+      "description": "Literature-derived competence (cluster: Equitable benefit-sharing in ocean resource governance) from Blue economy labour justice & social equity papers. Source paper: The Blue Growth Smart Specialization Challenges Towards the Restorative Economy (Milen Baltov, 2021).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Equitable benefit-sharing in o"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 116,
+        "authors": "Milen Baltov",
+        "year": "2021",
+        "paper_title": "The Blue Growth Smart Specialization Challenges Towards the Restorative Economy",
+        "doi": "10.1007/978-3-030-71819-0_15",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L116"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0117",
+      "name": "Community participation in marine spatial planning: Driving Blue Economy for Sustainable Development: A case of stakeholde",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Driving Blue Economy for Sustainable Development: A case of stakeholder collaboration platform development (Nurhadi Siswanto\nSitta Rosdaniah, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 117,
+        "authors": "Nurhadi Siswanto\nSitta Rosdaniah",
+        "year": "2023",
+        "paper_title": "Driving Blue Economy for Sustainable Development: A case of stakeholder collaboration platform development",
+        "doi": "10.1088/1755-1315/1198/1/012013",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L117"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0118",
+      "name": "Indigenous and traditional fishing rights advocacy: (In)justice and the blue economy",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: (In)justice and the blue economy (Celine Germond-Duret\nC. Patrick Heidkamp\nJohn P. Morrissey, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 118,
+        "authors": "Celine Germond-Duret\nC. Patrick Heidkamp\nJohn P. Morrissey",
+        "year": "2022",
+        "paper_title": "(In)justice and the blue economy",
+        "doi": "10.1111/geoj.12483",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L118"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0119",
+      "name": "Social impact assessment for blue economy projects: A framework for assessing the blue equity of social-ocean systems in m",
+      "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: A framework for assessing the blue equity of social-ocean systems in marine governance transformation (NULL AUTHOR_ID\nNULL AUTHOR_ID\nNULL AUTHOR_ID, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Social impact assessment for b"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 119,
+        "authors": "NULL AUTHOR_ID\nNULL AUTHOR_ID\nNULL AUTHOR_ID",
+        "year": "2024",
+        "paper_title": "A framework for assessing the blue equity of social-ocean systems in marine governance transformation",
+        "doi": "10.3389/fmars.2024.1403194",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L119"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0120",
+      "name": "Blue justice frameworks and social sustainability: Institutionalizing the Blue Economy: an examination of variations and",
+      "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Institutionalizing the Blue Economy: an examination of variations and consistencies among Commonwealth countries (Michelle Voyer\nD. Benzaken\nConstance Rambourg, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Blue justice frameworks and so"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 120,
+        "authors": "Michelle Voyer\nD. Benzaken\nConstance Rambourg",
+        "year": "2022",
+        "paper_title": "Institutionalizing the Blue Economy: an examination of variations and consistencies among Commonwealth countries",
+        "doi": "10.1098/rstb.2021.0125",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L120"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0121",
+      "name": "Equitable benefit-sharing in ocean resource governance: Problematika ketidakadilan lingkungan dalam pengelolaan wilayah pesisi",
+      "description": "Literature-derived competence (cluster: Equitable benefit-sharing in ocean resource governance) from Blue economy labour justice & social equity papers. Source paper: Problematika ketidakadilan lingkungan dalam pengelolaan wilayah pesisir di indonesia (Muhamad Agil Aufa Afinnas, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Equitable benefit-sharing in o"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 121,
+        "authors": "Muhamad Agil Aufa Afinnas",
+        "year": "2023",
+        "paper_title": "Problematika ketidakadilan lingkungan dalam pengelolaan wilayah pesisir di indonesia",
+        "doi": "10.22146/mh.v35i1.6005",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L121"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0122",
+      "name": "Community participation in marine spatial planning: Harnessing the potentials of blue economy for sustainable development",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Harnessing the potentials of blue economy for sustainable development of Nigeria (Hammed Damilare Ibrahim, 2018).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 122,
+        "authors": "Hammed Damilare Ibrahim",
+        "year": "2018",
+        "paper_title": "Harnessing the potentials of blue economy for sustainable development of Nigeria",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L122"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0123",
+      "name": "Racial equity and anti-discrimination in blue economy: The nigerian blue economy: economic expansion issues and challenges",
+      "description": "Literature-derived competence (cluster: Racial equity and anti-discrimination in blue economy) from Blue economy labour justice & social equity papers. Source paper: The nigerian blue economy: economic expansion issues and challenges (Augustine Okon Jacob\nOkon Joseph Umoh, 2022).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Racial equity and anti-discrim"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 123,
+        "authors": "Augustine Okon Jacob\nOkon Joseph Umoh",
+        "year": "2022",
+        "paper_title": "The nigerian blue economy: economic expansion issues and challenges",
+        "doi": "10.26480/seps.01.2022.29.33",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L123"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0124",
+      "name": "Social impact assessment for blue economy projects: Chapter 25 Evaluating the governance of sustainable development: The q",
+      "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: Chapter 25 Evaluating the governance of sustainable development: The quality and legitimacy of the blue economy (, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Social impact assessment for b"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 124,
+        "authors": "",
+        "year": "2022",
+        "paper_title": "Chapter 25 Evaluating the governance of sustainable development: The quality and legitimacy of the blue economy",
+        "doi": "10.1515/9783110733488-025",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L124"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0125",
+      "name": "Blue justice frameworks and social sustainability: Blue economy, blue finance and ocean governance for achieving sustaina",
+      "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Blue economy, blue finance and ocean governance for achieving sustainable development goals (Unmana Sarangi, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Blue justice frameworks and so"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 125,
+        "authors": "Unmana Sarangi",
+        "year": "2022",
+        "paper_title": "Blue economy, blue finance and ocean governance for achieving sustainable development goals",
+        "doi": "10.1111/1477-8947.12267",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L125"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0126",
+      "name": "Precarious work and informality in coastal fisheries: Sharing the seas: a review and analysis of ocean sector interactions",
+      "description": "Literature-derived competence (cluster: Precarious work and informality in coastal fisheries) from Blue economy labour justice & social equity papers. Source paper: Sharing the seas: a review and analysis of ocean sector interactions (Beatrice Crona\nBeatrice Crona\nEmmy Wassénius\nEmmy Wassénius\n, 2021).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Precarious work and informalit"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 126,
+        "authors": "Beatrice Crona\nBeatrice Crona\nEmmy Wassénius\nEmmy Wassénius\nKate Lillepold\nReg Watson\nElizabeth R. Selig\nChristina C. Hi",
+        "year": "2021",
+        "paper_title": "Sharing the seas: a review and analysis of ocean sector interactions",
+        "doi": "10.1088/1748-9326/AC02ED",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L126"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0127",
+      "name": "Community participation in marine spatial planning: Institutional Arrangements for the Blue Economy: Marine Spatial Planni",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Institutional Arrangements for the Blue Economy: Marine Spatial Planning a Way Forward (Daud Hassan\nMd. Ashraful Alam Ashraf, 2019).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 127,
+        "authors": "Daud Hassan\nMd. Ashraful Alam Ashraf",
+        "year": "2019",
+        "paper_title": "Institutional Arrangements for the Blue Economy: Marine Spatial Planning a Way Forward",
+        "doi": "10.15351/2373-8456.1107",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L127"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0128",
+      "name": "Indigenous and traditional fishing rights advocacy: A study of Nigeria’s blue economy potential with particular reference",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: A study of Nigeria’s blue economy potential with particular reference to the oil and gas sector (Abubakar Hassan Hamisu, 2019).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 128,
+        "authors": "Abubakar Hassan Hamisu",
+        "year": "2019",
+        "paper_title": "A study of Nigeria’s blue economy potential with particular reference to the oil and gas sector",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L128"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0129",
+      "name": "Migration and mobile labour in maritime industries: Sustainable growth through value chain development in the blue economy",
+      "description": "Literature-derived competence (cluster: Migration and mobile labour in maritime industries) from Blue economy labour justice & social equity papers. Source paper: Sustainable growth through value chain development in the blue economy: a case study of the port of Walvis Bay (Tangeni Haimbala, 2019).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Migration and mobile labour in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 129,
+        "authors": "Tangeni Haimbala",
+        "year": "2019",
+        "paper_title": "Sustainable growth through value chain development in the blue economy: a case study of the port of Walvis Bay",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L129"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0130",
+      "name": "Fair wage and labour rights in maritime sectors: Blue Economy and Power Politics in the Indian Ocean: Challenges and Op",
+      "description": "Literature-derived competence (cluster: Fair wage and labour rights in maritime sectors) from Blue economy labour justice & social equity papers. Source paper: Blue Economy and Power Politics in the Indian Ocean: Challenges and Opportunities (Dr. Muhammad Asif, 2023).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Fair wage and labour rights in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 130,
+        "authors": "Dr. Muhammad Asif",
+        "year": "2023",
+        "paper_title": "Blue Economy and Power Politics in the Indian Ocean: Challenges and Opportunities",
+        "doi": "10.58932/mulg0003",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L130"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0131",
+      "name": "Seafarer welfare and social protection: Oceans economy, blue economy, and security: notes on the South African",
+      "description": "Literature-derived competence (cluster: Seafarer welfare and social protection) from Blue economy labour justice & social equity papers. Source paper: Oceans economy, blue economy, and security: notes on the South African potential and developments (Thean Potgieter, 2018).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Seafarer welfare and social pr"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 131,
+        "authors": "Thean Potgieter",
+        "year": "2018",
+        "paper_title": "Oceans economy, blue economy, and security: notes on the South African potential and developments",
+        "doi": "10.1080/19480881.2018.1410962",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L131"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0132",
+      "name": "Gender equity and inclusion in blue workplaces: Littoral States Maritme Security: Issues and Challenges",
+      "description": "Literature-derived competence (cluster: Gender equity and inclusion in blue workplaces) from Blue economy labour justice & social equity papers. Source paper: Littoral States Maritme Security: Issues and Challenges (Devakumar. j., 2017).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Gender equity and inclusion in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 132,
+        "authors": "Devakumar. j.",
+        "year": "2017",
+        "paper_title": "Littoral States Maritme Security: Issues and Challenges",
+        "doi": "10.9790/0837-2205014758",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L132"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0133",
+      "name": "Indigenous and traditional fishing rights advocacy: Impact of blue economy sectors using causality, correlation and panel",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: Impact of blue economy sectors using causality, correlation and panel data models (Rosa María Martínez-Vázquez\nJuan Milán-García\nJosé Ramos Pir, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 133,
+        "authors": "Rosa María Martínez-Vázquez\nJuan Milán-García\nJosé Ramos Pires Manso\nJaime de Pablo Valenciano",
+        "year": "2023",
+        "paper_title": "Impact of blue economy sectors using causality, correlation and panel data models",
+        "doi": "10.3389/fmars.2023.1034054",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L133"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0134",
+      "name": "Social impact assessment for blue economy projects: Current Status and Trends of Blue Economy Development in Indonesia: Po",
+      "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: Current Status and Trends of Blue Economy Development in Indonesia: Policy Direction, Practice-driven Approaches, and Re (Ziyuan Wang, 2025).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Social impact assessment for b"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 134,
+        "authors": "Ziyuan Wang",
+        "year": "2025",
+        "paper_title": "Current Status and Trends of Blue Economy Development in Indonesia: Policy Direction, Practice-driven Approaches, and Re",
+        "doi": "10.56028/aemr.14.1.282.2025",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L134"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0135",
+      "name": "Blue justice frameworks and social sustainability: The Implementation of Blue Economy Concept in Indonesia Marine and Fis",
+      "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: The Implementation of Blue Economy Concept in Indonesia Marine and Fisheries Governance 2017-2022 (Nibras Fadhlillah, 2025).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Blue justice frameworks and so"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 135,
+        "authors": "Nibras Fadhlillah",
+        "year": "2025",
+        "paper_title": "The Implementation of Blue Economy Concept in Indonesia Marine and Fisheries Governance 2017-2022",
+        "doi": "10.56672/drar9770",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L135"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0136",
+      "name": "Equitable benefit-sharing in ocean resource governance: EU Involvement in the Financing of the Blue Economy",
+      "description": "Literature-derived competence (cluster: Equitable benefit-sharing in ocean resource governance) from Blue economy labour justice & social equity papers. Source paper: EU Involvement in the Financing of the Blue Economy (Magdalena Proczek, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Equitable benefit-sharing in o"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 136,
+        "authors": "Magdalena Proczek",
+        "year": "2023",
+        "paper_title": "EU Involvement in the Financing of the Blue Economy",
+        "doi": "10.33067/se.1.2023.7",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L136"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0137",
+      "name": "Child labour and forced labour prevention in fisheries: Is the Blue Economy possible in Poland?",
+      "description": "Literature-derived competence (cluster: Child labour and forced labour prevention in fisheries) from Blue economy labour justice & social equity papers. Source paper: Is the Blue Economy possible in Poland? (Paulina Szyja\nDorota Michalak, 2022).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Child labour and forced labour"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 137,
+        "authors": "Paulina Szyja\nDorota Michalak",
+        "year": "2022",
+        "paper_title": "Is the Blue Economy possible in Poland?",
+        "doi": "10.34659/eis.2022.82.3.465",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L137"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0138",
+      "name": "Indigenous and traditional fishing rights advocacy: How can the blue economy contribute to inclusive growth and ecosystem",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: How can the blue economy contribute to inclusive growth and ecosystem resources in Asia? A comparative analysis (Biao Geng\nDaoning Wu\nChengshu Zhang\nWenbao Xie\nMuhammad Aami, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 138,
+        "authors": "Biao Geng\nDaoning Wu\nChengshu Zhang\nWenbao Xie\nMuhammad Aamir Mahmood\nQamar Ali",
+        "year": "2024",
+        "paper_title": "How can the blue economy contribute to inclusive growth and ecosystem resources in Asia? A comparative analysis",
+        "doi": "10.3390/su16010429",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L138"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0139",
+      "name": "Social impact assessment for blue economy projects: Global blue economy governance – A methodological approach to investig",
+      "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: Global blue economy governance – A methodological approach to investigating blue economy implementation (Lucky Wuwung\nFreya Croft\nD. Benzaken\nKamal Azmi\nCamille Good, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Social impact assessment for b"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 139,
+        "authors": "Lucky Wuwung\nFreya Croft\nD. Benzaken\nKamal Azmi\nCamille Goodman\nConstance Rambourg\nMichelle Voyer",
+        "year": "2022",
+        "paper_title": "Global blue economy governance – A methodological approach to investigating blue economy implementation",
+        "doi": "10.3389/fmars.2022.1043881",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L139"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0140",
+      "name": "Blue justice frameworks and social sustainability: Mainstreaming Equity and Justice in the Ocean",
+      "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Mainstreaming Equity and Justice in the Ocean (Nathan J. Bennett, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Blue justice frameworks and so"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 140,
+        "authors": "Nathan J. Bennett",
+        "year": "2022",
+        "paper_title": "Mainstreaming Equity and Justice in the Ocean",
+        "doi": "10.3389/fmars.2022.873572",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L140"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0141",
+      "name": "Equitable benefit-sharing in ocean resource governance: Journeys of change towards the blue economy: evaluating process in tra",
+      "description": "Literature-derived competence (cluster: Equitable benefit-sharing in ocean resource governance) from Blue economy labour justice & social equity papers. Source paper: Journeys of change towards the blue economy: evaluating process in transformational change (Tegan Evans\nStephen Fletcher\nPierre Failler\nAntaya March\nJon, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Equitable benefit-sharing in o"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 141,
+        "authors": "Tegan Evans\nStephen Fletcher\nPierre Failler\nAntaya March\nJonathan Potts",
+        "year": "2024",
+        "paper_title": "Journeys of change towards the blue economy: evaluating process in transformational change",
+        "doi": "10.1007/s10113-024-02336-y",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L141"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0142",
+      "name": "Community participation in marine spatial planning: The Blue Economy as governmentality and the making of new spatial rati",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: The Blue Economy as governmentality and the making of new spatial rationalities (Young Rae Choi, 2017).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 142,
+        "authors": "Young Rae Choi",
+        "year": "2017",
+        "paper_title": "The Blue Economy as governmentality and the making of new spatial rationalities",
+        "doi": "10.1177/2043820617691649",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L142"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0143",
+      "name": "Indigenous and traditional fishing rights advocacy: Towards a sustainable and equitable blue economy",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: Towards a sustainable and equitable blue economy (Nathan J. Bennett\nNathan J. Bennett\nAndrés M. Cisneros-Monte, 2019).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 143,
+        "authors": "Nathan J. Bennett\nNathan J. Bennett\nAndrés M. Cisneros-Montemayor\nAndrés M. Cisneros-Montemayor\nJessica Blythe\nJennifer ",
+        "year": "2019",
+        "paper_title": "Towards a sustainable and equitable blue economy",
+        "doi": "10.1038/S41893-019-0404-1",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L143"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0144",
+      "name": "Social impact assessment for blue economy projects: What is the Blue Economy? A spatialised governmentality perspective",
+      "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: What is the Blue Economy? A spatialised governmentality perspective (Alex Midlen, 2021).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Social impact assessment for b"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 144,
+        "authors": "Alex Midlen",
+        "year": "2021",
+        "paper_title": "What is the Blue Economy? A spatialised governmentality perspective",
+        "doi": "10.1007/S40152-021-00240-3",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L144"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0145",
+      "name": "Occupational health and safety at sea: Building an inclusive and equitable new blue economy",
+      "description": "Literature-derived competence (cluster: Occupational health and safety at sea) from Blue economy labour justice & social equity papers. Source paper: Building an inclusive and equitable new blue economy (Benjamin E. Cuker\nDeidre M. Gibson, 2021).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Occupational health and safety"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 145,
+        "authors": "Benjamin E. Cuker\nDeidre M. Gibson",
+        "year": "2021",
+        "paper_title": "Building an inclusive and equitable new blue economy",
+        "doi": "10.1016/B978-0-12-821431-2.00046-9",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L145"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0146",
+      "name": "Equitable benefit-sharing in ocean resource governance: Into the blue – The blue economy model in Operation Phakisa ‘Unlocking",
+      "description": "Literature-derived competence (cluster: Equitable benefit-sharing in ocean resource governance) from Blue economy labour justice & social equity papers. Source paper: Into the blue – The blue economy model in Operation Phakisa ‘Unlocking the Ocean Economy’ Programme (Tainã Gonçalves Loureiro\nNicole du Plessis\nK. P. Findlay, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Equitable benefit-sharing in o"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 146,
+        "authors": "Tainã Gonçalves Loureiro\nNicole du Plessis\nK. P. Findlay",
+        "year": "2022",
+        "paper_title": "Into the blue – The blue economy model in Operation Phakisa ‘Unlocking the Ocean Economy’ Programme",
+        "doi": "10.17159/sajs.2022/14664",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L146"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0147",
+      "name": "Community participation in marine spatial planning: Challenges, Opportunities, and the Future of the Blue Economy in Indon",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Challenges, Opportunities, and the Future of the Blue Economy in Indonesia (Poppy Wulandari\nPuja Afwanda Mayako\nMutiara Cahyaningrum, 2025).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 147,
+        "authors": "Poppy Wulandari\nPuja Afwanda Mayako\nMutiara Cahyaningrum",
+        "year": "2025",
+        "paper_title": "Challenges, Opportunities, and the Future of the Blue Economy in Indonesia",
+        "doi": "10.70895/jemba.v2i1.18",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L147"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0148",
+      "name": "Decent work standards for aquaculture workers: Opportunities, Challenges, and Solutions in Expanding The Blue Economy",
+      "description": "Literature-derived competence (cluster: Decent work standards for aquaculture workers) from Blue economy labour justice & social equity papers. Source paper: Opportunities, Challenges, and Solutions in Expanding The Blue Economy in Sri Lanka: Special Reference to The Fisheries  (E W M A Ekanayake\nB. S. Galdolage, 2024).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Decent work standards for aqua"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 148,
+        "authors": "E W M A Ekanayake\nB. S. Galdolage",
+        "year": "2024",
+        "paper_title": "Opportunities, Challenges, and Solutions in Expanding The Blue Economy in Sri Lanka: Special Reference to The Fisheries ",
+        "doi": "10.31357/ajmm.v3i01.7306",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L148"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0149",
+      "name": "Migration and mobile labour in maritime industries: Renewable Energies and Blue Economy: New Trends in Global Research",
+      "description": "Literature-derived competence (cluster: Migration and mobile labour in maritime industries) from Blue economy labour justice & social equity papers. Source paper: Renewable Energies and Blue Economy: New Trends in Global Research (José Ramos Pires Manso\nRosa Martínez Vázquez\nJuan Milán Garc, 2023).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Migration and mobile labour in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 149,
+        "authors": "José Ramos Pires Manso\nRosa Martínez Vázquez\nJuan Milán García\nJaime de Pablo Valenciano",
+        "year": "2023",
+        "paper_title": "Renewable Energies and Blue Economy: New Trends in Global Research",
+        "doi": "10.3390/en16104210",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L149"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0150",
+      "name": "Fair wage and labour rights in maritime sectors: Use of a Delphi Panel to Determine the Degree of Implementation of Blu",
+      "description": "Literature-derived competence (cluster: Fair wage and labour rights in maritime sectors) from Blue economy labour justice & social equity papers. Source paper: Use of a Delphi Panel to Determine the Degree of Implementation of Blue Economy in Spanish Ports (Alberto Camarero Orive\nNicoletta González-Cancelas\nJavier Va, 2022).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Fair wage and labour rights in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 150,
+        "authors": "Alberto Camarero Orive\nNicoletta González-Cancelas\nJavier Vaca Cabrero\nJosé Ignacio Parra Santiago",
+        "year": "2022",
+        "paper_title": "Use of a Delphi Panel to Determine the Degree of Implementation of Blue Economy in Spanish Ports",
+        "doi": "10.3390/jmse10111573",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L150"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0151",
+      "name": "Equitable benefit-sharing in ocean resource governance: The Role of the Blue Economy in National Development: A Case of Ghana",
+      "description": "Literature-derived competence (cluster: Equitable benefit-sharing in ocean resource governance) from Blue economy labour justice & social equity papers. Source paper: The Role of the Blue Economy in National Development: A Case of Ghana (Benjamin Ashitey Amarh, 2017).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Equitable benefit-sharing in o"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 151,
+        "authors": "Benjamin Ashitey Amarh",
+        "year": "2017",
+        "paper_title": "The Role of the Blue Economy in National Development: A Case of Ghana",
+        "doi": "10.21522/TIJMG.2015.03.01.ART003",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L151"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0152",
+      "name": "Gender equity and inclusion in blue workplaces: Ukraine's blue economy: potential and prospects for integration into t",
+      "description": "Literature-derived competence (cluster: Gender equity and inclusion in blue workplaces) from Blue economy labour justice & social equity papers. Source paper: Ukraine's blue economy: potential and prospects for integration into the european space (Volodymyr Parsyak\nOlena Yu. Zhukova, 2023).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Gender equity and inclusion in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 152,
+        "authors": "Volodymyr Parsyak\nOlena Yu. Zhukova",
+        "year": "2023",
+        "paper_title": "Ukraine's blue economy: potential and prospects for integration into the european space",
+        "doi": "10.30525/2661-5150/2023-1-7",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L152"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0153",
+      "name": "Indigenous and traditional fishing rights advocacy: Economic Assessment of Oceans for Sustainable Blue Economy Development",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: Economic Assessment of Oceans for Sustainable Blue Economy Development (Maria Corazon M Ebarvia, 2016).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 153,
+        "authors": "Maria Corazon M Ebarvia",
+        "year": "2016",
+        "paper_title": "Economic Assessment of Oceans for Sustainable Blue Economy Development",
+        "doi": "10.15351/2373-8456.1051",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L153"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0154",
+      "name": "Social impact assessment for blue economy projects: Rethinking sustainability towards a regenerative economy",
+      "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: Rethinking sustainability towards a regenerative economy (Qunhua Tang, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Social impact assessment for b"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 154,
+        "authors": "Qunhua Tang",
+        "year": "2022",
+        "paper_title": "Rethinking sustainability towards a regenerative economy",
+        "doi": "10.1080/17535069.2022.2072613",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L154"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0155",
+      "name": "Occupational health and safety at sea: The Economic Impact of the Blue Economy",
+      "description": "Literature-derived competence (cluster: Occupational health and safety at sea) from Blue economy labour justice & social equity papers. Source paper: The Economic Impact of the Blue Economy (Ana Olteanu\nViorela Stinga, 2019).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Occupational health and safety"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 155,
+        "authors": "Ana Olteanu\nViorela Stinga",
+        "year": "2019",
+        "paper_title": "The Economic Impact of the Blue Economy",
+        "doi": "10.18662/LUMPROC.111",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L155"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0156",
+      "name": "Precarious work and informality in coastal fisheries: Digital Twins of the Ocean can foster a sustainable blue economy in a",
+      "description": "Literature-derived competence (cluster: Precarious work and informality in coastal fisheries) from Blue economy labour justice & social equity papers. Source paper: Digital Twins of the Ocean can foster a sustainable blue economy in a protected marine environment (Ute Brönner\nMaike Sonnewald\nMartin Visbeck, 2023).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Precarious work and informalit"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 156,
+        "authors": "Ute Brönner\nMaike Sonnewald\nMartin Visbeck",
+        "year": "2023",
+        "paper_title": "Digital Twins of the Ocean can foster a sustainable blue economy in a protected marine environment",
+        "doi": "10.58440/ihr-29-a04",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L156"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0157",
+      "name": "Community participation in marine spatial planning: Blue Economy in Malaysia: An Endeavour of Achieving the Sustainable De",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Blue Economy in Malaysia: An Endeavour of Achieving the Sustainable Development Goals (SDGs) (Mohd Rozaimy Ridzuan\nSoonYew Ju\nNoorhazlinda Abd Rahman\nKong, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 157,
+        "authors": "Mohd Rozaimy Ridzuan\nSoonYew Ju\nNoorhazlinda Abd Rahman\nKong Lai Kuan\nNur Hidayahtul Nabihah Manas",
+        "year": "2022",
+        "paper_title": "Blue Economy in Malaysia: An Endeavour of Achieving the Sustainable Development Goals (SDGs)",
+        "doi": "10.6007/ijarems/v11-i3/14620",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L157"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0158",
+      "name": "Indigenous and traditional fishing rights advocacy: Defining the blue economy",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: Defining the blue economy (S. Smith-Godfrey, 2016).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 158,
+        "authors": "S. Smith-Godfrey",
+        "year": "2016",
+        "paper_title": "Defining the blue economy",
+        "doi": "10.1080/09733159.2016.1175131",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L158"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0159",
+      "name": "Migration and mobile labour in maritime industries: Shipping Operations Management",
+      "description": "Literature-derived competence (cluster: Migration and mobile labour in maritime industries) from Blue economy labour justice & social equity papers. Source paper: Shipping Operations Management (Ilias D. Visvikis\nPhotis M. Panayides, 2017).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Migration and mobile labour in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 159,
+        "authors": "Ilias D. Visvikis\nPhotis M. Panayides",
+        "year": "2017",
+        "paper_title": "Shipping Operations Management",
+        "doi": "10.1007/978-3-319-62365-8",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L159"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0160",
+      "name": "Fair wage and labour rights in maritime sectors: Harnessing the Blue Economy: India's Path to Sustainable Marine Resour",
+      "description": "Literature-derived competence (cluster: Fair wage and labour rights in maritime sectors) from Blue economy labour justice & social equity papers. Source paper: Harnessing the Blue Economy: India's Path to Sustainable Marine Resource Utilization and Economic Growth (Siddhant Naresh Pathak -\nV. S. Vyas, 2024).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Fair wage and labour rights in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 160,
+        "authors": "Siddhant Naresh Pathak -\nV. S. Vyas",
+        "year": "2024",
+        "paper_title": "Harnessing the Blue Economy: India's Path to Sustainable Marine Resource Utilization and Economic Growth",
+        "doi": "10.36948/ijfmr.2024.v06i06.32176",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L160"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0161",
+      "name": "Artisanal fishing knowledge and ecological literacy: Tourism centres efficiency as spatial unites for applying blue economy",
+      "description": "Literature-derived competence (cluster: Artisanal fishing knowledge and ecological literacy) from Blue economy labour justice & social equity papers. Source paper: Tourism centres efficiency as spatial unites for applying blue economy approach: A case study of the Southern Red Sea re (Moaaz Kabil\nEbtehal Ahmed AbdAlmoity\nK. Csoban\nL. David, 2022).",
+      "axis": "MARINE",
+      "axis_name": "MARINE",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "marine",
+        "literature",
+        "Artisanal fishing knowledge an"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 161,
+        "authors": "Moaaz Kabil\nEbtehal Ahmed AbdAlmoity\nK. Csoban\nL. David",
+        "year": "2022",
+        "paper_title": "Tourism centres efficiency as spatial unites for applying blue economy approach: A case study of the Southern Red Sea re",
+        "doi": "10.1371/journal.pone.0268047",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L161"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0162",
+      "name": "Community participation in marine spatial planning: The blue economy and the theory of paradigm shifts",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: The blue economy and the theory of paradigm shifts (Vishva Nath Attri, 2018).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 162,
+        "authors": "Vishva Nath Attri",
+        "year": "2018",
+        "paper_title": "The blue economy and the theory of paradigm shifts",
+        "doi": "10.2307/J.CTVGC60F0.8",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L162"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0163",
+      "name": "Artisanal fishing knowledge and ecological literacy: Blue Economy is the Economic Activities that Directly or Indirectly Ta",
+      "description": "Literature-derived competence (cluster: Artisanal fishing knowledge and ecological literacy) from Blue economy labour justice & social equity papers. Source paper: Blue Economy is the Economic Activities that Directly or Indirectly Take Place in the Ocean and Seas, Use Outputs, Goods (A S Ninawe, 2017).",
+      "axis": "MARINE",
+      "axis_name": "MARINE",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "marine",
+        "literature",
+        "Artisanal fishing knowledge an"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 163,
+        "authors": "A S Ninawe",
+        "year": "2017",
+        "paper_title": "Blue Economy is the Economic Activities that Directly or Indirectly Take Place in the Ocean and Seas, Use Outputs, Goods",
+        "doi": "10.31031/EIMBO.2017.01.000501",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L163"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0164",
+      "name": "Social impact assessment for blue economy projects: Ocean defenders and human rights",
+      "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: Ocean defenders and human rights (Nathan J. Bennett\nRocío López de la Lama\nPhilippe Le Billon\n, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Social impact assessment for b"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 164,
+        "authors": "Nathan J. Bennett\nRocío López de la Lama\nPhilippe Le Billon\nIrmak Ertör\nE. Morgera",
+        "year": "2023",
+        "paper_title": "Ocean defenders and human rights",
+        "doi": "10.3389/fmars.2022.1089049",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L164"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0165",
+      "name": "Occupational health and safety at sea: Oceans and Blue Economies",
+      "description": "Literature-derived competence (cluster: Occupational health and safety at sea) from Blue economy labour justice & social equity papers. Source paper: Oceans and Blue Economies (Ken P. Findlay, 2020).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Occupational health and safety"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 165,
+        "authors": "Ken P. Findlay",
+        "year": "2020",
+        "paper_title": "Oceans and Blue Economies",
+        "doi": "10.1007/978-3-030-34630-0_2",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L165"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0166",
+      "name": "Precarious work and informality in coastal fisheries: Maritime Justice: A Commentary",
+      "description": "Literature-derived competence (cluster: Precarious work and informality in coastal fisheries) from Blue economy labour justice & social equity papers. Source paper: Maritime Justice: A Commentary (Jennifer A. Martin, ).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Precarious work and informalit"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 166,
+        "authors": "Jennifer A. Martin",
+        "year": "",
+        "paper_title": "Maritime Justice: A Commentary",
+        "doi": "10.17645/oas.9500",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L166"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0167",
+      "name": "Community participation in marine spatial planning: Navigating the currents of coastal narratives in search of sustainable",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Navigating the currents of coastal narratives in search of sustainable futures (Shona Paterson\nIlan Chabay, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 167,
+        "authors": "Shona Paterson\nIlan Chabay",
+        "year": "2024",
+        "paper_title": "Navigating the currents of coastal narratives in search of sustainable futures",
+        "doi": "10.1007/s11027-024-10142-4",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L167"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0168",
+      "name": "Indigenous and traditional fishing rights advocacy: Urgensi Implementasi Konsep Ekonomi Biru dalam Tata Kelola Sektor Kela",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: Urgensi Implementasi Konsep Ekonomi Biru dalam Tata Kelola Sektor Kelautan Indonesia (Muhammad Rafi Darajati, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 168,
+        "authors": "Muhammad Rafi Darajati",
+        "year": "2024",
+        "paper_title": "Urgensi Implementasi Konsep Ekonomi Biru dalam Tata Kelola Sektor Kelautan Indonesia",
+        "doi": "10.15578/jksekp.v14i1.12972",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L168"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0169",
+      "name": "Migration and mobile labour in maritime industries: Deconstructing and resisting coastal displacement: A research agenda",
+      "description": "Literature-derived competence (cluster: Migration and mobile labour in maritime industries) from Blue economy labour justice & social equity papers. Source paper: Deconstructing and resisting coastal displacement: A research agenda (Kristen Ounanian\nMatthew Howells, 2024).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Migration and mobile labour in"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 169,
+        "authors": "Kristen Ounanian\nMatthew Howells",
+        "year": "2024",
+        "paper_title": "Deconstructing and resisting coastal displacement: A research agenda",
+        "doi": "10.1177/03091325241240581",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L169"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0170",
+      "name": "Blue justice frameworks and social sustainability: EFFECTIVE STAKEHOLDER ENGAGEMENT IN COASTAL TRANSITIONS",
+      "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: EFFECTIVE STAKEHOLDER ENGAGEMENT IN COASTAL TRANSITIONS (M Kelly\nS Axon, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Blue justice frameworks and so"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 170,
+        "authors": "M Kelly\nS Axon",
+        "year": "2022",
+        "paper_title": "EFFECTIVE STAKEHOLDER ENGAGEMENT IN COASTAL TRANSITIONS",
+        "doi": "10.4324/9781003280248-5",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L170"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0171",
+      "name": "Equitable benefit-sharing in ocean resource governance: Plastic pollution challenges in marine and coastal environments: from",
+      "description": "Literature-derived competence (cluster: Equitable benefit-sharing in ocean resource governance) from Blue economy labour justice & social equity papers. Source paper: Plastic pollution challenges in marine and coastal environments: from local to global governance (Joanna Vince\nBritta Denise Hardesty, 2017).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Equitable benefit-sharing in o"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 171,
+        "authors": "Joanna Vince\nBritta Denise Hardesty",
+        "year": "2017",
+        "paper_title": "Plastic pollution challenges in marine and coastal environments: from local to global governance",
+        "doi": "10.1111/REC.12388",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L171"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0172",
+      "name": "Community participation in marine spatial planning: Environmental justice and the expanding geography of wind power confli",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Environmental justice and the expanding geography of wind power conflicts (Sofia Avila, 2018).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 172,
+        "authors": "Sofia Avila",
+        "year": "2018",
+        "paper_title": "Environmental justice and the expanding geography of wind power conflicts",
+        "doi": "10.1007/S11625-018-0547-4",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L172"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0173",
+      "name": "Indigenous and traditional fishing rights advocacy: A Social Justice Legitimacy to Protect Coastal Residents",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: A Social Justice Legitimacy to Protect Coastal Residents (Aditia Syaprillah\nYahya Ahmad Zein\nTove H.Malloy, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 173,
+        "authors": "Aditia Syaprillah\nYahya Ahmad Zein\nTove H.Malloy",
+        "year": "2023",
+        "paper_title": "A Social Justice Legitimacy to Protect Coastal Residents",
+        "doi": "10.53955/jhcls.v3i3.159",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L173"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0174",
+      "name": "Social impact assessment for blue economy projects: Toward Sustainable Development in the Ocean: A Framework for Blue Econ",
+      "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: Toward Sustainable Development in the Ocean: A Framework for Blue Economy Marine Spatial Planning (Jen‐Han Yang\nJen‐Yu Yang\nYi Chang, 2025).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Social impact assessment for b"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 174,
+        "authors": "Jen‐Han Yang\nJen‐Yu Yang\nYi Chang",
+        "year": "2025",
+        "paper_title": "Toward Sustainable Development in the Ocean: A Framework for Blue Economy Marine Spatial Planning",
+        "doi": "10.1002/sd.70183",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L174"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0175",
+      "name": "Blue justice frameworks and social sustainability: Africa Integrated Maritime Policy, blue growth and a new ocean governa",
+      "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Africa Integrated Maritime Policy, blue growth and a new ocean governance: case studies from the Atlantic and the Indian (José Guerreiro, 2022).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Blue justice frameworks and so"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 175,
+        "authors": "José Guerreiro",
+        "year": "2022",
+        "paper_title": "Africa Integrated Maritime Policy, blue growth and a new ocean governance: case studies from the Atlantic and the Indian",
+        "doi": "10.4314/wiojms.si2022.1.2",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L175"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0176",
+      "name": "Precarious work and informality in coastal fisheries: How can maritime spatial planning contribute to sustainable Blue Growt",
+      "description": "Literature-derived competence (cluster: Precarious work and informality in coastal fisheries) from Blue economy labour justice & social equity papers. Source paper: How can maritime spatial planning contribute to sustainable Blue Growth in the Baltic Sea (Hanna Tarvainen\nHarri Tolvanen\nSari Repka, 2015).",
+      "axis": "MARITIME",
+      "axis_name": "MARITIME",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "maritime",
+        "literature",
+        "Precarious work and informalit"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 176,
+        "authors": "Hanna Tarvainen\nHarri Tolvanen\nSari Repka",
+        "year": "2015",
+        "paper_title": "How can maritime spatial planning contribute to sustainable Blue Growth in the Baltic Sea",
+        "doi": "10.5604/12307424.1178822",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L176"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0177",
+      "name": "Community participation in marine spatial planning: The Sea Unites Us but It Is Governed to Keep Us Apart: Restoring the C",
+      "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: The Sea Unites Us but It Is Governed to Keep Us Apart: Restoring the Creole Afro-Indigenous Sea Mobilities in the Southw (María Catalina García, 2024).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Community participation in mar"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 177,
+        "authors": "María Catalina García",
+        "year": "2024",
+        "paper_title": "The Sea Unites Us but It Is Governed to Keep Us Apart: Restoring the Creole Afro-Indigenous Sea Mobilities in the Southw",
+        "doi": "10.24043/001c.92749",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L177"
+      }
+    },
+    {
+      "id": "lit_labor_justice_0178",
+      "name": "Indigenous and traditional fishing rights advocacy: Governance and Community Participation in Marine and Coastal EbA in SA",
+      "description": "Literature-derived competence (cluster: Indigenous and traditional fishing rights advocacy) from Blue economy labour justice & social equity papers. Source paper: Governance and Community Participation in Marine and Coastal EbA in SADC. (C MACAMO, ).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "labor_justice",
+        "oceanic",
+        "literature",
+        "Indigenous and traditional fis"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_labor_justice.csv",
+        "row": 178,
+        "authors": "C MACAMO",
+        "year": "",
+        "paper_title": "Governance and Community Participation in Marine and Coastal EbA in SADC.",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv#L178"
+      }
+    },
+    {
+      "id": "lit_research_gaps_0002",
+      "name": "Integrated ocean observing and data governance: Integration of Sustainable Governance in Improving the Economy of Coas",
+      "description": "Literature-derived competence (cluster: Integrated ocean observing and data governance) from Blue economy research gaps & governance papers. Source paper: Integration of Sustainable Governance in Improving the Economy of Coastal Communities Based on Blue Economy in Southwest (Rahman Rahman\nMuh. Akmal Ibrahim\nMuhammad Musa'ad, 2025).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "research_gaps",
+        "oceanic",
+        "literature",
+        "Integrated ocean observing and"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_research_gaps.csv",
+        "row": 2,
+        "authors": "Rahman Rahman\nMuh. Akmal Ibrahim\nMuhammad Musa'ad",
+        "year": "2025",
+        "paper_title": "Integration of Sustainable Governance in Improving the Economy of Coastal Communities Based on Blue Economy in Southwest",
+        "doi": "10.18502/kss.v10i18.19550",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_research_gaps.csv#L2"
+      }
+    },
+    {
+      "id": "lit_research_gaps_0003",
+      "name": "Blue economy monitoring, evaluation and learning: Strategies for addressing conflicts arising from blue growth initiativ",
+      "description": "Literature-derived competence (cluster: Blue economy monitoring, evaluation and learning) from Blue economy research gaps & governance papers. Source paper: Strategies for addressing conflicts arising from blue growth initiatives: insights from three case studies in South Afri (Merle Sowman\nPhilile Mbatha\nJohanna von Holdt, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "research_gaps",
+        "oceanic",
+        "literature",
+        "Blue economy monitoring, evalu"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_research_gaps.csv",
+        "row": 3,
+        "authors": "Merle Sowman\nPhilile Mbatha\nJohanna von Holdt",
+        "year": "2023",
+        "paper_title": "Strategies for addressing conflicts arising from blue growth initiatives: insights from three case studies in South Afri",
+        "doi": "10.1007/s40152-023-00341-1",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_research_gaps.csv#L3"
+      }
+    },
+    {
+      "id": "lit_research_gaps_0007",
+      "name": "Open science and FAIR data in blue economy: Assessing knowledge gaps and management needs to cope with barriers fo",
+      "description": "Literature-derived competence (cluster: Open science and FAIR data in blue economy) from Blue economy research gaps & governance papers. Source paper: Assessing knowledge gaps and management needs to cope with barriers for environmental, economic, and social sustainabili (P Pita\nJ Alós\nM Antelo\nI Artetxe, ).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "research_gaps",
+        "oceanic",
+        "literature",
+        "Open science and FAIR data in "
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_research_gaps.csv",
+        "row": 7,
+        "authors": "P Pita\nJ Alós\nM Antelo\nI Artetxe",
+        "year": "",
+        "paper_title": "Assessing knowledge gaps and management needs to cope with barriers for environmental, economic, and social sustainabili",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_research_gaps.csv#L7"
+      }
+    },
+    {
+      "id": "lit_research_gaps_0008",
+      "name": "Transdisciplinary ocean research co-production: Inquiry into the Potential of Stakeholder-Driven Sustainable Blue Econ",
+      "description": "Literature-derived competence (cluster: Transdisciplinary ocean research co-production) from Blue economy research gaps & governance papers. Source paper: Inquiry into the Potential of Stakeholder-Driven Sustainable Blue Economy Strategies to Bolster Resilience in Marine and (Alice Guittard\nSusa Niiranen\nAnastasiya Laznya\nPhoebe Koundo, 2025).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "research_gaps",
+        "oceanic",
+        "literature",
+        "Transdisciplinary ocean resear"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_research_gaps.csv",
+        "row": 8,
+        "authors": "Alice Guittard\nSusa Niiranen\nAnastasiya Laznya\nPhoebe Koundouri",
+        "year": "2025",
+        "paper_title": "Inquiry into the Potential of Stakeholder-Driven Sustainable Blue Economy Strategies to Bolster Resilience in Marine and",
+        "doi": "10.5194/oos2025-319",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_research_gaps.csv#L8"
+      }
+    },
+    {
+      "id": "lit_research_gaps_0009",
+      "name": "Knowledge transfer between science and ocean policy: Challenging the blue economy: voices from artisanal fishing communitie",
+      "description": "Literature-derived competence (cluster: Knowledge transfer between science and ocean policy) from Blue economy research gaps & governance papers. Source paper: Challenging the blue economy: voices from artisanal fishing communities in Latin America and the Caribbean (Leopoldo Cavaleri Gerhardinger\nElyse Mills\nBeatriz Mesquita\n, 2023).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "research_gaps",
+        "oceanic",
+        "literature",
+        "Knowledge transfer between sci"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_research_gaps.csv",
+        "row": 9,
+        "authors": "Leopoldo Cavaleri Gerhardinger\nElyse Mills\nBeatriz Mesquita\nVivienne Solis Rivera\nHenrique Calori Kefalás\nAndré Carlo Co",
+        "year": "2023",
+        "paper_title": "Challenging the blue economy: voices from artisanal fishing communities in Latin America and the Caribbean",
+        "doi": "10.1057/s41301-023-00366-3",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_research_gaps.csv#L9"
+      }
+    },
+    {
+      "id": "lit_research_gaps_0010",
+      "name": "Marine protected area design and effectiveness: Fiscal reforms for sustainable marine fisheries governance: Delivering",
+      "description": "Literature-derived competence (cluster: Marine protected area design and effectiveness) from Blue economy research gaps & governance papers. Source paper: Fiscal reforms for sustainable marine fisheries governance: Delivering the SDGs and ensuring no one is left behind (Essam Yassin Mohammed\nDave Steinbach\nPaul Steele, 2017).",
+      "axis": "MARINE",
+      "axis_name": "MARINE",
+      "dimension": "literature",
+      "keywords": [
+        "research_gaps",
+        "marine",
+        "literature",
+        "Marine protected area design a"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_research_gaps.csv",
+        "row": 10,
+        "authors": "Essam Yassin Mohammed\nDave Steinbach\nPaul Steele",
+        "year": "2017",
+        "paper_title": "Fiscal reforms for sustainable marine fisheries governance: Delivering the SDGs and ensuring no one is left behind",
+        "doi": "10.1016/J.MARPOL.2017.05.017",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_research_gaps.csv#L10"
+      }
+    },
+    {
+      "id": "lit_research_gaps_0011",
+      "name": "Blue economy monitoring, evaluation and learning: A bibliometric analysis of the marine fishing landscape in Africa and",
+      "description": "Literature-derived competence (cluster: Blue economy monitoring, evaluation and learning) from Blue economy research gaps & governance papers. Source paper: A bibliometric analysis of the marine fishing landscape in Africa and its implications for sustainable coastal communiti (LA Etta\nB Matovu\nI Lukambagire, ).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "research_gaps",
+        "oceanic",
+        "literature",
+        "Blue economy monitoring, evalu"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_research_gaps.csv",
+        "row": 11,
+        "authors": "LA Etta\nB Matovu\nI Lukambagire",
+        "year": "",
+        "paper_title": "A bibliometric analysis of the marine fishing landscape in Africa and its implications for sustainable coastal communiti",
+        "doi": "",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_research_gaps.csv#L11"
+      }
+    },
+    {
+      "id": "lit_research_gaps_0013",
+      "name": "Science-policy interface in maritime governance: Stakeholder Perspectives on Opportunities and Challenges in Achieving",
+      "description": "Literature-derived competence (cluster: Science-policy interface in maritime governance) from Blue economy research gaps & governance papers. Source paper: Stakeholder Perspectives on Opportunities and Challenges in Achieving Sustainable Growth of the Blue Economy in a Changi (Christina Hoerterer\nMaximilian Felix Schupp\nMaximilian Felix, 2020).",
+      "axis": "OCEANIC",
+      "axis_name": "OCEANIC",
+      "dimension": "literature",
+      "keywords": [
+        "research_gaps",
+        "oceanic",
+        "literature",
+        "Science-policy interface in ma"
+      ],
+      "sectors": [
+        "Blue Biotech",
+        "Coastal Tourism",
+        "Desalination",
+        "Infra & Robotics",
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Maritime Defence",
+        "Maritime Transport",
+        "Port Activities",
+        "R&I",
+        "Ship Repair"
+      ],
+      "source": {
+        "file": "data/derived/combined_blue_economy_research_gaps.csv",
+        "row": 13,
+        "authors": "Christina Hoerterer\nMaximilian Felix Schupp\nMaximilian Felix Schupp\nAndreas Benkens\nDustina Nickiewicz\nGesche Krause\nBel",
+        "year": "2020",
+        "paper_title": "Stakeholder Perspectives on Opportunities and Challenges in Achieving Sustainable Growth of the Blue Economy in a Changi",
+        "doi": "10.3389/FMARS.2019.00795",
+        "github_url": "https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_research_gaps.csv#L13"
+      }
+    }
+  ]
+}
