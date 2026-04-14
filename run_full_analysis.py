@@ -1150,6 +1150,7 @@ def export_sector_dictionaries(
     literature: List[Competence], sectors: List[str], output_dir: Path
 ) -> List[Path]:
     """Export one TMBD dictionary JSON per sector from literature competences."""
+    output_dir.mkdir(parents=True, exist_ok=True)
     repository = LiteratureCompetenceRepository(lambda: literature)
     exported_paths: List[Path] = []
 

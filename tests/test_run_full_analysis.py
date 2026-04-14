@@ -47,3 +47,7 @@ def test_export_sector_dictionaries_writes_one_file_per_sector(tmp_path: Path) -
         item["id"] for item in blue_biotech_payload["dictionary"]["MARITIME"]
     ]
     assert maritime_ids == ["lit_example_0001"]
+
+    research_payload = json.loads(output_paths[1].read_text(encoding="utf-8"))
+    assert research_payload["metadata"]["sector"] == "R&I"
+    assert all(not records for records in research_payload["dictionary"].values())
