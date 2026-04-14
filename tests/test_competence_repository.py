@@ -72,10 +72,10 @@ def test_get_competence_by_id() -> None:
 
 def test_iter_competences_for_sector_and_axis() -> None:
     repository = LiteratureCompetenceRepository(_extractor)
-    sector_ids = [
+    sector_ids = list(
         c.id
         for c in repository.iter_competences_for_sector(SECTOR_BLUE_BIOTECH_LOWERCASE)
-    ]
+    )
     axis_ids = [c.id for c in repository.iter_competences_for_axis(AXIS_MARITIME)]
     empty_sector = list(repository.iter_competences_for_sector("Nonexistent Sector"))
     empty_axis = list(repository.iter_competences_for_axis("NONEXISTENT"))

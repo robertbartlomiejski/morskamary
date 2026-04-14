@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Callable, Dict, Iterator, List, Optional, Protocol, Sequence
+from typing import Callable, Dict, Iterator, List, Optional, Protocol, Sequence, Set
 
 ORIGIN_BASELINE = "baseline"
 ORIGIN_LITERATURE = "literature"
@@ -54,7 +54,7 @@ class LiteratureCompetenceRepository:
         self._extractor = extractor
         self._cache: Optional[List[CompetenceLike]] = None
         self._id_index: Optional[Dict[str, CompetenceLike]] = None
-        self._normalized_sector_index: Optional[Dict[str, set[str]]] = None
+        self._normalized_sector_index: Optional[Dict[str, Set[str]]] = None
 
     def _load(self) -> List[CompetenceLike]:
         """Load once, cache for reuse, and return the cached competence list."""
@@ -83,8 +83,10 @@ class LiteratureCompetenceRepository:
     def iter_competences_for_sector(self, sector: str) -> Iterator[CompetenceLike]:
         """Iterate competences associated with a specific sector."""
         normalized_sector = normalize_sector_name(sector)
-        for competence in self._load():
-            if normalized_sector in (self._normalized_sector_index or {}).get(
+        competences = self._load()
+        assert self._normalized_sector_index is not None
+        for competence in competences:
+            if normalized_sector in self._normalized_sector_index.get(
                 competence.id, set()
             ):
                 yield competence
