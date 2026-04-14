@@ -33,10 +33,10 @@ def classify_competence_origin(competence_id: str) -> str:
     - IDs starting with `lit_` -> `literature`
     - Any other prefix -> `unknown`
     """
-    normalized = competence_id.lower().strip()
-    if re.match(r"^baseline(?:_|$)", normalized):
+    id_lower = competence_id.lower().strip()
+    if re.match(r"^baseline(?:_|$)", id_lower):
         return ORIGIN_BASELINE
-    if re.match(r"^lit_", normalized):
+    if re.match(r"^lit_", id_lower):
         return ORIGIN_LITERATURE
     return ORIGIN_UNKNOWN
 
@@ -86,12 +86,14 @@ class LiteratureCompetenceRepository:
         self, competences: Sequence[CompetenceLike]
     ) -> Dict[str, Set[str]]:
         """Build normalized sector lookup index keyed by competence id."""
-        normalized_cache: Dict[str, str] = {}
+        sector_normalization_cache: Dict[str, str] = {}
 
         def _normalize_cached(raw_sector: str) -> str:
-            if raw_sector not in normalized_cache:
-                normalized_cache[raw_sector] = normalize_sector_name(raw_sector)
-            return normalized_cache[raw_sector]
+            if raw_sector not in sector_normalization_cache:
+                sector_normalization_cache[raw_sector] = normalize_sector_name(
+                    raw_sector
+                )
+            return sector_normalization_cache[raw_sector]
 
         return {
             competence.id: {
