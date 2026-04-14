@@ -11,7 +11,7 @@ from run_full_analysis import (
 )
 
 
-def test_export_sector_dictionaries_writes_one_file_per_sector(tmp_path: Path) -> None:
+def test_export_sector_dictionaries_per_sector(tmp_path: Path) -> None:
     literature_competence = Competence(
         id="lit_example_0001",
         name="Literature competence",
