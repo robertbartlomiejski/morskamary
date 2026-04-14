@@ -35,7 +35,7 @@ def classify_competence_origin(competence_id: str) -> str:
 
 
 def normalize_sector_name(sector: str) -> str:
-    """Normalize sector labels for case-insensitive matching."""
+    """Normalize sector labels: lowercase, collapse separators, and trim edges."""
     return re.sub(r"[^a-z0-9]+", " ", sector.lower()).strip()
 
 
@@ -54,12 +54,20 @@ class LiteratureCompetenceRepository:
         self._extractor = extractor
         self._cache: Optional[List[CompetenceLike]] = None
         self._id_index: Optional[Dict[str, CompetenceLike]] = None
+        self._normalized_sector_index: Optional[Dict[str, set[str]]] = None
 
     def _load(self) -> List[CompetenceLike]:
         """Load once, cache for reuse, and return the cached competence list."""
         if self._cache is None:
             self._cache = list(self._extractor())
             self._id_index = {competence.id: competence for competence in self._cache}
+            self._normalized_sector_index = {
+                competence.id: {
+                    normalize_sector_name(current_sector)
+                    for current_sector in competence.sectors
+                }
+                for competence in self._cache
+            }
         return self._cache
 
     def iter_all_competences(self) -> Iterator[CompetenceLike]:
@@ -76,11 +84,9 @@ class LiteratureCompetenceRepository:
         """Iterate competences associated with a specific sector."""
         normalized_sector = normalize_sector_name(sector)
         for competence in self._load():
-            normalized_competence_sectors = {
-                normalize_sector_name(current_sector)
-                for current_sector in competence.sectors
-            }
-            if normalized_sector in normalized_competence_sectors:
+            if normalized_sector in (self._normalized_sector_index or {}).get(
+                competence.id, set()
+            ):
                 yield competence
 
     def iter_literature_competences(self) -> Iterator[CompetenceLike]:

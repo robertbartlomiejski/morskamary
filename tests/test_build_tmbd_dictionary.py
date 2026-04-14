@@ -117,6 +117,7 @@ def test_build_sector_dictionary_from_repository() -> None:
         record["id"] for axis_records in grouped.values() for record in axis_records
     }
     assert "lit_example_0002" not in dictionary_ids
+    assert "baseline_a1" not in dictionary_ids
 
 
 def test_export_sector_dictionary(tmp_path: Path) -> None:
