@@ -42,7 +42,13 @@ def classify_competence_origin(competence_id: str) -> str:
 
 
 def normalize_sector_name(sector: str) -> str:
-    """Normalize sector labels (e.g., ``Blue-Biotech`` -> ``blue biotech``)."""
+    """
+    Normalize sector labels.
+
+    Examples:
+    - ``Blue-Biotech`` -> ``blue biotech``
+    - ``Blue--Biotech!!`` -> ``blue biotech``
+    """
     return re.sub(r"[^a-z0-9]+", " ", sector.lower()).strip()
 
 
@@ -68,14 +74,22 @@ class LiteratureCompetenceRepository:
         if self._cache is None:
             self._cache = list(self._extractor())
             self._id_index = {competence.id: competence for competence in self._cache}
-            self._normalized_sector_index = {
-                competence.id: {
-                    normalize_sector_name(current_sector)
-                    for current_sector in competence.sectors
-                }
-                for competence in self._cache
-            }
+            self._normalized_sector_index = self._build_normalized_sector_index(
+                self._cache
+            )
         return self._cache
+
+    def _build_normalized_sector_index(
+        self, competences: Sequence[CompetenceLike]
+    ) -> Dict[str, Set[str]]:
+        """Build normalized sector lookup index keyed by competence id."""
+        return {
+            competence.id: {
+                normalize_sector_name(current_sector)
+                for current_sector in competence.sectors
+            }
+            for competence in competences
+        }
 
     def iter_all_competences(self) -> Iterator[CompetenceLike]:
         """Iterate all literature competences."""
