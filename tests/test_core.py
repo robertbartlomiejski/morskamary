@@ -244,7 +244,6 @@ class TestLoadCompetenceMatrix:
 
         assert len(competences) == 2
         assert competences[0].id == "1"
-        assert isinstance(competences[0].id, str)
         assert competences[0].axis == BlueDynamicsAxis.MARINE
         assert competences[0].level == CompetenceLevel.INTERMEDIATE
         assert competences[0].keywords == ["a", "b", "c"]
