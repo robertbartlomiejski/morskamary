@@ -4,9 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
-import sys
 from pathlib import Path
 from typing import Any, Dict, List, Sequence
 
@@ -99,13 +99,28 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def load_extract_literature_competences() -> Any:
+    """Load extraction function from run_full_analysis.py with explicit checks."""
+    module_path = REPO_ROOT / "run_full_analysis.py"
+    spec = importlib.util.spec_from_file_location("run_full_analysis", module_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load module spec from {module_path}")
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    extract_fn = getattr(module, "extract_literature_competences", None)
+    if not callable(extract_fn):
+        raise ImportError(
+            "run_full_analysis.py does not expose extract_literature_competences()"
+        )
+    return extract_fn
+
+
 def main() -> int:
     """Run sector dictionary build from literature sources."""
     args = parse_args()
-    if str(REPO_ROOT) not in sys.path:
-        sys.path.insert(0, str(REPO_ROOT))
-    from run_full_analysis import extract_literature_competences
-
+    extract_literature_competences = load_extract_literature_competences()
     competences = extract_literature_competences()
     grouped = build_sector_dictionary(competences, sector=args.sector)
     output_path = export_sector_dictionary(
