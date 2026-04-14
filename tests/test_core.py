@@ -281,7 +281,7 @@ class TestLoadCompetenceMatrix:
             load_competence_matrix(bad_path)
 
     def test_load_competence_matrix_empty_csv_raises(self, tmp_path):
-        """Test empty CSV files surface pandas errors"""
+        """Test empty CSV files surface pandas errors for upstream handling"""
         empty_path = tmp_path / "empty.csv"
         empty_path.write_text("")
 
