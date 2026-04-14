@@ -36,8 +36,7 @@ class LiteratureCompetenceRepository:
     def get_competence_by_id(self, competence_id: str) -> Optional[Any]:
         """Get one competence by id, if present."""
         self._load()
-        if self._id_index is None:
-            return None
+        assert self._id_index is not None
         return self._id_index.get(competence_id)
 
     def iter_competences_for_sector(self, sector: str) -> Iterator[Any]:

@@ -6,6 +6,12 @@ from typing import List
 from src.core import BlueDynamicsAxis
 from src.competence_repository import LiteratureCompetenceRepository
 
+SECTOR_BLUE_BIOTECH = "Blue Biotech"
+SECTOR_PORTS = "Ports"
+AXIS_MARINE = "MARINE"
+AXIS_MARITIME = "MARITIME"
+AXIS_OCEANIC = "OCEANIC"
+
 
 @dataclass
 class _StubAxis:
@@ -21,11 +27,15 @@ class _StubCompetence:
 
 def _extractor() -> List[_StubCompetence]:
     return [
-        _StubCompetence(id="c1", axis=_StubAxis("MARINE"), sectors=["Blue Biotech"]),
         _StubCompetence(
-            id="c2", axis=_StubAxis("OCEANIC"), sectors=["Blue Biotech", "Ports"]
+            id="c1", axis=_StubAxis(AXIS_MARINE), sectors=[SECTOR_BLUE_BIOTECH]
         ),
-        _StubCompetence(id="c3", axis=_StubAxis("MARITIME"), sectors=["Ports"]),
+        _StubCompetence(
+            id="c2",
+            axis=_StubAxis(AXIS_OCEANIC),
+            sectors=[SECTOR_BLUE_BIOTECH, SECTOR_PORTS],
+        ),
+        _StubCompetence(id="c3", axis=_StubAxis(AXIS_MARITIME), sectors=[SECTOR_PORTS]),
     ]
 
 
@@ -45,15 +55,17 @@ def test_get_competence_by_id() -> None:
 
 def test_iter_competences_for_sector_and_axis() -> None:
     repository = LiteratureCompetenceRepository(_extractor)
-    sector_ids = [c.id for c in repository.iter_competences_for_sector("Blue Biotech")]
-    axis_ids = [c.id for c in repository.iter_competences_for_axis("MARITIME")]
+    sector_ids = [
+        c.id for c in repository.iter_competences_for_sector(SECTOR_BLUE_BIOTECH)
+    ]
+    axis_ids = [c.id for c in repository.iter_competences_for_axis(AXIS_MARITIME)]
     assert sector_ids == ["c1", "c2"]
     assert axis_ids == ["c3"]
 
 
 def test_axis_names_align_with_canonical_enum() -> None:
     canonical_axis_names = {axis.name for axis in BlueDynamicsAxis}
-    stub_axis_names = {"MARINE", "MARITIME", "OCEANIC"}
+    stub_axis_names = {AXIS_MARINE, AXIS_MARITIME, AXIS_OCEANIC}
     assert stub_axis_names == canonical_axis_names
 
 
@@ -67,6 +79,6 @@ def test_repository_caches_extractor_results() -> None:
     repository = LiteratureCompetenceRepository(counting_extractor)
     list(repository.iter_all_competences())
     repository.get_competence_by_id("c1")
-    list(repository.iter_competences_for_sector("Blue Biotech"))
+    list(repository.iter_competences_for_sector(SECTOR_BLUE_BIOTECH))
 
     assert calls["count"] == 1
