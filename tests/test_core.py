@@ -205,7 +205,11 @@ class TestCompetenceMapper:
     def test_suggest_credential_pathway_orders_by_level(self, mapper_with_credentials):
         """Test pathway suggestion orders credentials by average level"""
         pathway = mapper_with_credentials.suggest_credential_pathway()
-        assert [cred.id for cred in pathway][:2] == ["cred_tourism", "cred_ports_1"]
+        assert [cred.id for cred in pathway] == [
+            "cred_tourism",
+            "cred_ports_1",
+            "cred_ports_2",
+        ]
 
 
 class TestLoadCompetenceMatrix:
