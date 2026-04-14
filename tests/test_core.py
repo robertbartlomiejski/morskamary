@@ -137,7 +137,7 @@ class TestCompetenceMapper:
                 title="Ports Governance",
                 competences=["comp_c", "comp_b"],
                 description="Ports governance",
-                sector="ports",
+                sector="Ports",
             )
         )
         mapper.add_credentials(
@@ -180,6 +180,15 @@ class TestCompetenceMapper:
 
     def test_get_sector_competences_case_insensitive(self, mapper_with_credentials):
         """Test sector competence retrieval ignores case and duplicates"""
+        mapper_with_credentials.add_credentials(
+            MicroCredential(
+                id="cred_ports_lower",
+                title="Ports Lowercase",
+                competences=["comp_a"],
+                description="Ports lowercase sector",
+                sector="ports",
+            )
+        )
         competences = mapper_with_credentials.get_sector_competences("PORTS")
         assert set(competences) == {"comp_a", "comp_b", "comp_c"}
 
