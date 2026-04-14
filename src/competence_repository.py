@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Iterator, List, Optional, Sequence
+from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence
 
 
 class LiteratureCompetenceRepository:
@@ -19,11 +19,13 @@ class LiteratureCompetenceRepository:
         """
         self._extractor = extractor
         self._cache: Optional[List[Any]] = None
+        self._id_index: Optional[Dict[str, Any]] = None
 
     def _load(self) -> List[Any]:
         """Load once, cache for reuse, and return the cached competence list."""
         if self._cache is None:
             self._cache = list(self._extractor())
+            self._id_index = {competence.id: competence for competence in self._cache}
         return self._cache
 
     def iter_all_competences(self) -> Iterator[Any]:
@@ -33,10 +35,10 @@ class LiteratureCompetenceRepository:
 
     def get_competence_by_id(self, competence_id: str) -> Optional[Any]:
         """Get one competence by id, if present."""
-        for competence in self._load():
-            if competence.id == competence_id:
-                return competence
-        return None
+        self._load()
+        if self._id_index is None:
+            return None
+        return self._id_index.get(competence_id)
 
     def iter_competences_for_sector(self, sector: str) -> Iterator[Any]:
         """Iterate competences associated with a specific sector."""

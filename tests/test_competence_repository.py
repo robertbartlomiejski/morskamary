@@ -55,3 +55,18 @@ def test_axis_names_align_with_canonical_enum() -> None:
     canonical_axis_names = {axis.name for axis in BlueDynamicsAxis}
     stub_axis_names = {"MARINE", "MARITIME", "OCEANIC"}
     assert stub_axis_names == canonical_axis_names
+
+
+def test_repository_caches_extractor_results() -> None:
+    calls = {"count": 0}
+
+    def counting_extractor() -> List[_StubCompetence]:
+        calls["count"] += 1
+        return _extractor()
+
+    repository = LiteratureCompetenceRepository(counting_extractor)
+    list(repository.iter_all_competences())
+    repository.get_competence_by_id("c1")
+    list(repository.iter_competences_for_sector("Blue Biotech"))
+
+    assert calls["count"] == 1
