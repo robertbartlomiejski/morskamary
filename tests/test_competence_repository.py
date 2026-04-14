@@ -13,7 +13,7 @@ from src.competence_repository import (
 )
 
 SECTOR_BLUE_BIOTECH = "Blue Biotech"
-SECTOR_BLUE_BIOTECH_ALT = "blue biotech"
+SECTOR_BLUE_BIOTECH_LOWERCASE = "blue biotech"
 SECTOR_PORTS = "Ports"
 AXIS_MARINE = "MARINE"
 AXIS_MARITIME = "MARITIME"
@@ -73,7 +73,8 @@ def test_get_competence_by_id() -> None:
 def test_iter_competences_for_sector_and_axis() -> None:
     repository = LiteratureCompetenceRepository(_extractor)
     sector_ids = [
-        c.id for c in repository.iter_competences_for_sector(SECTOR_BLUE_BIOTECH_ALT)
+        c.id
+        for c in repository.iter_competences_for_sector(SECTOR_BLUE_BIOTECH_LOWERCASE)
     ]
     axis_ids = [c.id for c in repository.iter_competences_for_axis(AXIS_MARITIME)]
     empty_sector = list(repository.iter_competences_for_sector("Nonexistent Sector"))

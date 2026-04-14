@@ -97,6 +97,14 @@ def test_build_sector_dictionary_from_repository() -> None:
             source=_DummySource("f.csv", 3, "p2", "a2", "2021", ""),
             sectors=["Blue Biotech"],
         ),
+        _DummyCompetence(
+            id="lit_example_0002",
+            name="Ports only",
+            description="d3",
+            axis=_DummyAxis("OCEANIC"),
+            source=_DummySource("f.csv", 4, "p3", "a3", "2022", ""),
+            sectors=["Ports"],
+        ),
     ]
     repository = LiteratureCompetenceRepository(lambda: competences)
 
@@ -105,6 +113,10 @@ def test_build_sector_dictionary_from_repository() -> None:
     assert len(grouped["MARINE"]) == 0
     assert len(grouped["MARITIME"]) == 1
     assert len(grouped["OCEANIC"]) == 0
+    dictionary_ids = {
+        record["id"] for axis_records in grouped.values() for record in axis_records
+    }
+    assert "lit_example_0002" not in dictionary_ids
 
 
 def test_export_sector_dictionary(tmp_path: Path) -> None:
