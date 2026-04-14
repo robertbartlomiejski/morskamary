@@ -215,7 +215,7 @@ class TestCompetenceMapper:
 class TestLoadCompetenceMatrix:
     """Tests for load_competence_matrix"""
 
-    def test_load_competence_matrix_csv(self, tmp_path):
+    def test_load_competence_matrix_csv_casts_ids_and_splits_keywords(self, tmp_path):
         """Test loading competences from CSV"""
         df = pd.DataFrame(
             [
@@ -244,6 +244,7 @@ class TestLoadCompetenceMatrix:
 
         assert len(competences) == 2
         assert competences[0].id == "1"
+        assert isinstance(competences[0].id, str)
         assert competences[0].axis == BlueDynamicsAxis.MARINE
         assert competences[0].level == CompetenceLevel.INTERMEDIATE
         assert competences[0].keywords == ["a", "b", "c"]
@@ -278,6 +279,14 @@ class TestLoadCompetenceMatrix:
 
         with pytest.raises(ValueError, match="Unsupported file format"):
             load_competence_matrix(bad_path)
+
+    def test_load_competence_matrix_empty_csv_raises(self, tmp_path):
+        """Test empty CSV files surface pandas errors"""
+        empty_path = tmp_path / "empty.csv"
+        empty_path.write_text("")
+
+        with pytest.raises(pd.errors.EmptyDataError):
+            load_competence_matrix(empty_path)
 
 
 if __name__ == "__main__":
