@@ -107,10 +107,12 @@ def test_repository_caches_extractor_results() -> None:
 
 
 def test_classify_competence_origin() -> None:
-    assert classify_competence_origin("baselinea1") == ORIGIN_BASELINE
+    assert classify_competence_origin("baselinea1") == ORIGIN_UNKNOWN
     assert classify_competence_origin("baseline_a1") == ORIGIN_BASELINE
     assert classify_competence_origin("lit_labor_justice_0001") == ORIGIN_LITERATURE
     assert classify_competence_origin("other_0001") == ORIGIN_UNKNOWN
+    assert classify_competence_origin("my_baseline_data") == ORIGIN_UNKNOWN
+    assert classify_competence_origin("baseline2_test") == ORIGIN_UNKNOWN
 
 
 def test_origin_specific_iterators() -> None:

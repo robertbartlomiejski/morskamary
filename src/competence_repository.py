@@ -29,14 +29,14 @@ def classify_competence_origin(competence_id: str) -> str:
     Classify competence provenance using stable ID prefixes.
 
     Case-insensitive rules:
-    - IDs starting with `baseline` -> `baseline`
+    - IDs matching `^baseline(?:_|$)` -> `baseline`
     - IDs starting with `lit_` -> `literature`
     - Any other prefix -> `unknown`
     """
     normalized = competence_id.lower().strip()
-    if normalized.startswith("baseline"):
+    if re.match(r"^baseline(?:_|$)", normalized):
         return ORIGIN_BASELINE
-    if normalized.startswith("lit_"):
+    if re.match(r"^lit_", normalized):
         return ORIGIN_LITERATURE
     return ORIGIN_UNKNOWN
 
@@ -44,6 +44,9 @@ def classify_competence_origin(competence_id: str) -> str:
 def normalize_sector_name(sector: str) -> str:
     """
     Normalize sector labels.
+
+    This function keeps only alphanumeric content and spaces to maximize
+    lookup robustness across punctuation/style variants.
 
     Examples:
     - ``Blue-Biotech`` -> ``blue biotech``
@@ -83,9 +86,16 @@ class LiteratureCompetenceRepository:
         self, competences: Sequence[CompetenceLike]
     ) -> Dict[str, Set[str]]:
         """Build normalized sector lookup index keyed by competence id."""
+        normalized_cache: Dict[str, str] = {}
+
+        def _normalize_cached(raw_sector: str) -> str:
+            if raw_sector not in normalized_cache:
+                normalized_cache[raw_sector] = normalize_sector_name(raw_sector)
+            return normalized_cache[raw_sector]
+
         return {
             competence.id: {
-                normalize_sector_name(current_sector)
+                _normalize_cached(current_sector)
                 for current_sector in competence.sectors
             }
             for competence in competences
