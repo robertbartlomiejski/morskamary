@@ -25,7 +25,14 @@ class CompetenceLike(Protocol):
 
 
 def classify_competence_origin(competence_id: str) -> str:
-    """Classify competence provenance using stable ID prefixes."""
+    """
+    Classify competence provenance using stable ID prefixes.
+
+    Case-insensitive rules:
+    - IDs starting with `baseline` -> `baseline`
+    - IDs starting with `lit_` -> `literature`
+    - Any other prefix -> `unknown`
+    """
     normalized = competence_id.lower().strip()
     if normalized.startswith("baseline"):
         return ORIGIN_BASELINE
@@ -35,7 +42,7 @@ def classify_competence_origin(competence_id: str) -> str:
 
 
 def normalize_sector_name(sector: str) -> str:
-    """Normalize sector labels: lowercase, collapse separators, and trim edges."""
+    """Normalize sector labels (e.g., ``Blue-Biotech`` -> ``blue biotech``)."""
     return re.sub(r"[^a-z0-9]+", " ", sector.lower()).strip()
 
 
@@ -84,11 +91,9 @@ class LiteratureCompetenceRepository:
         """Iterate competences associated with a specific sector."""
         normalized_sector = normalize_sector_name(sector)
         competences = self._load()
-        assert self._normalized_sector_index is not None
+        sector_index = self._normalized_sector_index or {}
         for competence in competences:
-            if normalized_sector in self._normalized_sector_index.get(
-                competence.id, set()
-            ):
+            if normalized_sector in sector_index.get(competence.id, set()):
                 yield competence
 
     def iter_literature_competences(self) -> Iterator[CompetenceLike]:
