@@ -73,6 +73,8 @@ def test_build_sector_dictionary_groups_by_axis() -> None:
     assert len(grouped["MARINE"]) == 1
     assert len(grouped["OCEANIC"]) == 1
     assert len(grouped["MARITIME"]) == 0
+    maritime_ids = [record["id"] for record in grouped["MARITIME"]]
+    assert "c3" not in maritime_ids
 
 
 def test_export_sector_dictionary(tmp_path: Path) -> None:

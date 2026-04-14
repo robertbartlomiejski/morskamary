@@ -99,7 +99,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_extract_literature_competences() -> Any:
+def load_literature_competence_extractor() -> Any:
     """Load extraction function from run_full_analysis.py with explicit checks."""
     module_path = REPO_ROOT / "run_full_analysis.py"
     spec = importlib.util.spec_from_file_location("run_full_analysis", module_path)
@@ -112,7 +112,8 @@ def load_extract_literature_competences() -> Any:
     extract_fn = getattr(module, "extract_literature_competences", None)
     if not callable(extract_fn):
         raise ImportError(
-            "run_full_analysis.py does not expose extract_literature_competences()"
+            "run_full_analysis.py must define a callable function named "
+            "extract_literature_competences()."
         )
     return extract_fn
 
@@ -120,7 +121,7 @@ def load_extract_literature_competences() -> Any:
 def main() -> int:
     """Run sector dictionary build from literature sources."""
     args = parse_args()
-    extract_literature_competences = load_extract_literature_competences()
+    extract_literature_competences = load_literature_competence_extractor()
     competences = extract_literature_competences()
     grouped = build_sector_dictionary(competences, sector=args.sector)
     output_path = export_sector_dictionary(
