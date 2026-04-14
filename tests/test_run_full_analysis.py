@@ -24,7 +24,7 @@ def test_export_sector_dictionaries_per_sector(tmp_path: Path) -> None:
     baseline_competence = Competence(
         id="baseline_a1",
         name="Baseline competence",
-        description="Should be excluded",
+        description="Baseline row",
         axis=TMBDAxis.MARINE,
         dimension="A",
         source=CompetenceSource(file="data/derived/y.csv", row=3),
@@ -33,7 +33,7 @@ def test_export_sector_dictionaries_per_sector(tmp_path: Path) -> None:
 
     sectors = ["Blue Biotech", "R&I"]
     output_paths = export_sector_dictionaries(
-        literature=[literature_competence, baseline_competence],
+        competences=[literature_competence, baseline_competence],
         sectors=sectors,
         output_dir=tmp_path,
     )
