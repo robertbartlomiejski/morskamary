@@ -7,24 +7,24 @@ from src.competence_repository import LiteratureCompetenceRepository
 
 
 @dataclass
-class _DummyAxis:
+class _StubAxis:
     name: str
 
 
 @dataclass
-class _DummyCompetence:
+class _StubCompetence:
     id: str
-    axis: _DummyAxis
+    axis: _StubAxis
     sectors: List[str]
 
 
-def _extractor() -> List[_DummyCompetence]:
+def _extractor() -> List[_StubCompetence]:
     return [
-        _DummyCompetence(id="c1", axis=_DummyAxis("MARINE"), sectors=["Blue Biotech"]),
-        _DummyCompetence(
-            id="c2", axis=_DummyAxis("OCEANIC"), sectors=["Blue Biotech", "Ports"]
+        _StubCompetence(id="c1", axis=_StubAxis("MARINE"), sectors=["Blue Biotech"]),
+        _StubCompetence(
+            id="c2", axis=_StubAxis("OCEANIC"), sectors=["Blue Biotech", "Ports"]
         ),
-        _DummyCompetence(id="c3", axis=_DummyAxis("MARITIME"), sectors=["Ports"]),
+        _StubCompetence(id="c3", axis=_StubAxis("MARITIME"), sectors=["Ports"]),
     ]
 
 

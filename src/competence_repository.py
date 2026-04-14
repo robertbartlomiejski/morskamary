@@ -19,7 +19,7 @@ class LiteratureCompetenceRepository:
         self._cache: Optional[List[Any]] = None
 
     def _load(self) -> List[Any]:
-        """Load competences once and cache them for repeated semantic queries."""
+        """Load once, cache for reuse, and return the cached competence list."""
         if self._cache is None:
             self._cache = list(self._extractor())
         return self._cache
