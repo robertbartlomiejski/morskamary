@@ -79,6 +79,33 @@ def test_build_sector_dictionary_groups_by_axis() -> None:
     assert "c3" not in maritime_ids
 
 
+def test_build_sector_dictionary_normalizes_sector_labels() -> None:
+    competences = [
+        _DummyCompetence(
+            id="c1",
+            name="R&I competence",
+            description="d1",
+            axis=_DummyAxis("MARINE"),
+            source=_DummySource("f.csv", 2, "p1", "a1", "2020", ""),
+            sectors=[" R&I "],
+        ),
+        _DummyCompetence(
+            id="c2",
+            name="Different sector",
+            description="d2",
+            axis=_DummyAxis("OCEANIC"),
+            source=_DummySource("f.csv", 3, "p2", "a2", "2021", ""),
+            sectors=["Ports"],
+        ),
+    ]
+
+    grouped = build_sector_dictionary(competences, sector="r&i")
+
+    assert [record["id"] for record in grouped["MARINE"]] == ["c1"]
+    assert grouped["MARITIME"] == []
+    assert grouped["OCEANIC"] == []
+
+
 def test_build_sector_dictionary_from_repository() -> None:
     competences = [
         _DummyCompetence(

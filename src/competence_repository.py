@@ -1,4 +1,4 @@
-"""Data access repository for literature-derived competences."""
+"""Data access repository for TMBD competences with mixed provenance support."""
 
 from __future__ import annotations
 
@@ -56,14 +56,14 @@ def normalize_sector_name(sector: str) -> str:
 
 
 class LiteratureCompetenceRepository:
-    """Repository abstraction exposing semantic access to competences."""
+    """Repository abstraction exposing semantic access to mixed-provenance competences."""
 
     def __init__(self, extractor: Callable[[], Sequence[CompetenceLike]]) -> None:
         """
         Initialize repository.
 
         Args:
-            extractor: Callable that returns literature-derived competences.
+            extractor: Callable that returns competences (mixed provenance allowed).
                 Each competence object must expose at least: `id`, `axis.name`,
                 and `sectors`.
         """
@@ -104,7 +104,7 @@ class LiteratureCompetenceRepository:
         }
 
     def iter_all_competences(self) -> Iterator[CompetenceLike]:
-        """Iterate all literature competences."""
+        """Iterate all loaded competences, regardless of origin."""
         for competence in self._load():
             yield competence
 

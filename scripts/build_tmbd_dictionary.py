@@ -10,7 +10,10 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List, Sequence
 
-from src.competence_repository import LiteratureCompetenceRepository
+from src.competence_repository import (
+    LiteratureCompetenceRepository,
+    normalize_sector_name,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "outputs" / "sector_dictionaries"
@@ -54,8 +57,14 @@ def build_sector_dictionary(
     competences: Sequence[Any], sector: str
 ) -> Dict[str, List[Dict[str, Any]]]:
     """Build TMBD dictionary for one sector from literature-derived competences."""
+    normalized_sector = normalize_sector_name(sector)
     filtered = [
-        competence for competence in competences if sector in competence.sectors
+        competence
+        for competence in competences
+        if any(
+            normalize_sector_name(candidate_sector) == normalized_sector
+            for candidate_sector in competence.sectors
+        )
     ]
     return build_axis_dictionary(filtered)
 

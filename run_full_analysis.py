@@ -1152,10 +1152,11 @@ def export_sector_dictionaries(
     """
     Export one sector TMBD dictionary JSON per requested sector.
 
-    Input may include mixed provenance (baseline + literature);
-    ``LiteratureCompetenceRepository`` keeps only literature-origin competences,
-    then filters by sector and groups by TMBD axis (MARINE, MARITIME, OCEANIC).
-    This helper is intended for single-use pipeline export in ``main()``. Files follow the
+    Input may include mixed provenance (baseline + literature). In this helper,
+    ``LiteratureCompetenceRepository`` wraps the provided extractor output, while
+    literature-only selection is applied during sector-dictionary construction
+    before grouping by TMBD axis (MARINE, MARITIME, OCEANIC). This helper is
+    intended for single-use pipeline export in ``main()``. Files follow the
     ``<normalized_sector>_tmbd_dictionary.json`` naming convention, and returned
     paths preserve the order of the input ``sectors`` list.
     """
