@@ -127,6 +127,63 @@ def test_real_sector_requirements_override_credential_inference() -> None:
     assert "blue_skill_b" in gaps["missing"]
 
 
+def test_add_sector_requirement_normalizes_sector_on_insert() -> None:
+    """Regression: requirements inserted with non-normalized sector slugs must be
+    retrievable via normalized lookups (e.g. 'Renewable Energy' → 'renewable-energy')."""
+    mapper = CompetenceMapper()
+    mapper.add_competence(
+        Competence(
+            id="blue_comp_a_1",
+            name="Ocean literacy",
+            description="desc",
+            axis=BlueDynamicsAxis.OCEANIC,
+            level=CompetenceLevel.INTERMEDIATE,
+            keywords=["ocean"],
+            dimension="A",
+        )
+    )
+    # Insert with a non-normalized label — should still be retrievable.
+    mapper.add_sector_requirement(
+        SectorRequirement(
+            competence_id="blue_comp_a_1",
+            sector="Renewable Energy",          # non-normalized input
+            sector_label="Renewable Energy",
+            sector_text="Green energy advocacy",
+            requirement_kind=RequirementKind.COMPETENCE,
+            axis=BlueDynamicsAxis.OCEANIC,
+            dimension="A",
+        )
+    )
+    # Lookup with a different alias must resolve to the same record.
+    records = mapper.get_sector_requirement_records("offshore-energy")
+    assert len(records) == 1, (
+        "Sector requirement inserted as 'Renewable Energy' must be retrievable as "
+        "'offshore-energy' (both normalize to 'renewable-energy')."
+    )
+    assert records[0].sector == "renewable-energy"
+
+
+def test_add_credential_does_not_mutate_input() -> None:
+    """add_credential must not mutate the passed-in MicroCredential object."""
+    cred = MicroCredential(
+        id="cred_001",
+        title="Test",
+        competences=["blue_comp_a_1"],
+        description="desc",
+        sector="Renewable Energy",
+    )
+    original_sector = cred.sector
+    mapper = CompetenceMapper()
+    mapper.add_credential(cred)
+    assert cred.sector == original_sector, (
+        "add_credential must not mutate the caller's MicroCredential object."
+    )
+    stored = mapper.credentials["cred_001"]
+    assert stored.sector == "renewable-energy", (
+        "Stored credential must have a normalized sector slug."
+    )
+
+
 def test_mapper_summary_counts_sectors_and_requirements() -> None:
     mapper = CompetenceMapper()
     mapper.add_competence(

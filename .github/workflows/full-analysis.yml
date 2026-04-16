@@ -48,7 +48,18 @@ jobs:
             fi
             echo "✓ $f"
           done
-          echo "All 8 output artifacts verified."
+          sector_dir="outputs/sector_dictionaries"
+          if [[ ! -d "$sector_dir" ]]; then
+            echo "Missing expected output directory: $sector_dir"
+            exit 1
+          fi
+          sector_count="$(find "$sector_dir" -maxdepth 1 -type f -name '*_tmbd_dictionary.json' | wc -l | tr -d ' ')"
+          if [[ "$sector_count" -ne 12 ]]; then
+            echo "Expected 12 sector dictionary files, found: $sector_count"
+            exit 1
+          fi
+          echo "✓ $sector_dir ($sector_count files)"
+          echo "All output artifacts verified, including sector dictionaries."
 
       - name: Upload analysis outputs
         uses: actions/upload-artifact@v4
