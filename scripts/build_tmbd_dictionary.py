@@ -52,7 +52,7 @@ def build_axis_dictionary(
         # Keep duck-typed access to support lightweight test doubles and
         # repository extractor objects that expose the same attribute contract.
         axis_name = getattr(competence.axis, "name", None)
-        if axis_name not in grouped:
+        if axis_name is None or axis_name not in grouped:
             competence_id = getattr(competence, "id", "<unknown>")
             raise ValueError(
                 "Unsupported TMBD axis "

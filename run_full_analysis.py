@@ -1493,7 +1493,7 @@ def generate_literature_html(
         if not theme_comps:
             continue
 
-        file_url = f"{REPO_GITHUB_BASE}/data/derived/{quote(lit['filename'], safe='')}"
+        file_url = f"{REPO_GITHUB_BASE}/data/derived/{quote(lit['filename'], safe='/')}"
         safe_file_url = _html_module.escape(file_url, quote=False)
         safe_description = _html_module.escape(lit["description"])
         safe_filename = _html_module.escape(lit["filename"])
