@@ -42,16 +42,50 @@ class CompetenceMapper:
             self.add_competence(competence)
 
     def add_sector_requirement(self, requirement: SectorRequirement) -> None:
-        self.sector_requirements.append(requirement)
+        """Add a sector requirement, normalizing the sector slug on insert."""
+        normalized = normalize_sector_name(requirement.sector)
+        self.sector_requirements.append(
+            SectorRequirement(
+                competence_id=requirement.competence_id,
+                sector=normalized,
+                sector_label=requirement.sector_label,
+                sector_text=requirement.sector_text,
+                requirement_kind=requirement.requirement_kind,
+                axis=requirement.axis,
+                dimension=requirement.dimension,
+                cluster_name=requirement.cluster_name,
+                source=requirement.source,
+            )
+        )
 
     def add_sector_requirements(self, requirements: List[SectorRequirement]) -> None:
         for requirement in requirements:
             self.add_sector_requirement(requirement)
 
-    def add_credentials(self, credential: MicroCredential) -> None:
+    def add_credential(self, credential: MicroCredential) -> None:
+        """Add a micro-credential, normalizing its sector slug on insert."""
         normalized = normalize_sector_name(credential.sector)
-        credential.sector = normalized
-        self.credentials[credential.id] = credential
+        self.credentials[credential.id] = MicroCredential(
+            id=credential.id,
+            title=credential.title,
+            competences=list(credential.competences),
+            description=credential.description,
+            sector=normalized,
+            learner_profile=credential.learner_profile,
+            workload_hours=credential.workload_hours,
+            ects=credential.ects,
+            eqf_level=credential.eqf_level,
+            assessment_method=credential.assessment_method,
+            prerequisites=list(credential.prerequisites),
+            learning_outcomes=list(credential.learning_outcomes),
+            stackability_rules=credential.stackability_rules,
+            source_cluster=credential.source_cluster,
+        )
+
+    # Backward-compatible alias
+    def add_credentials(self, credential: MicroCredential) -> None:
+        """Deprecated alias for add_credential; accepts a single MicroCredential."""
+        self.add_credential(credential)
 
     def register_sector_cluster(self, sector: str, cluster_name: str) -> None:
         self.sector_clusters[normalize_sector_name(sector)] = cluster_name.strip()
@@ -151,11 +185,7 @@ class CompetenceMapper:
 
         return [
             cred for cred in ordered
-            if (
-                cred.eqf_level is None
-                or cred.eqf_level >= starting_level.value + 2
-                or cred.eqf_level >= starting_level.value
-            )
+            if cred.eqf_level is None or cred.eqf_level >= starting_level.value + 2
         ]
 
     def get_sector_profile(self, sector: str) -> Dict[str, Any]:

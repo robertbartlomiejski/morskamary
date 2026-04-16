@@ -347,7 +347,6 @@ DATA_GOVERNANCE.txt,governance,,,,,,DATA_GOVERNANCE,yes
 deep_update_patch/EXECUTIVE_PLAN.txt,text,,,,,,EXECUTIVE_PLAN,yes
 deep_update_patch/load_real_competences.py,other,,,,,,load_real_competences,no
 deep_update_patch/main_real_data.py,other,,,,,,main_real_data,no
-deep_update_patch/outputs/report_index.html,other,,,,,,report_index,no
 deep_update_patch/run_full_analysis.py,other,,,,,,run_full_analysis,no
 deep_update_patch/src/__init__.py,other,,,,,,init,no
 deep_update_patch/src/competence_mapper.py,other,,,,,,competence_mapper,no

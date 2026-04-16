@@ -85,26 +85,6 @@ def _dimension_letter(dim_str: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Sector header list as it appears in the sector CSV (column 3 onwards)
-# ---------------------------------------------------------------------------
-
-_SECTOR_HEADER_NAMES = [
-    "Blue Biotech",
-    "Coastal Tourism",
-    "Desalination",
-    "Infra & Robotics",
-    "Living Res.",
-    "Non-living Res.",
-    "Renewable Energy",
-    "Maritime Defence",
-    "Maritime Transport",
-    "Port Activities",
-    "R&I",
-    "Ship Repair",
-]
-
-
-# ---------------------------------------------------------------------------
 # Baseline CSV loader
 # ---------------------------------------------------------------------------
 
@@ -119,7 +99,13 @@ def _load_baseline(csv_path: Path, mapper: CompetenceMapper) -> None:
             if not comp_name:
                 continue
 
-            dim_cell = row.get("Dimension (Aspect)", "").strip()
+            # Handle both "Dimension (Aspect)" and the truncated "imension (Aspect)"
+            # header variant present in the Szczecin baseline CSV (missing leading D).
+            dim_cell = (
+                row.get("Dimension (Aspect)")
+                or row.get("imension (Aspect)")
+                or ""
+            ).strip()
             if dim_cell:
                 dim_current = dim_cell
 
@@ -127,9 +113,11 @@ def _load_baseline(csv_path: Path, mapper: CompetenceMapper) -> None:
             axis = _axis_for_dimension(dim_letter)
 
             # Skill rows use "—" as ID; competence rows use "A.1" style IDs.
+            # Use a deterministic ID per dimension letter so IDs stay consistent
+            # with any other loader that references the same skills.
             if not comp_id or comp_id == "—":
                 req_kind = RequirementKind.SKILL
-                safe_id = f"blue_skill_{dim_letter.lower()}_{row_num}"
+                safe_id = f"blue_skill_{dim_letter.lower()}"
                 comp_id = safe_id
             else:
                 req_kind = RequirementKind.COMPETENCE
@@ -189,16 +177,23 @@ def _load_sector_requirements(csv_path: Path, mapper: CompetenceMapper) -> None:
             continue
 
         comp_id_raw = row.get("ID", "").strip()
-        dim_cell = row.get("Dimension (Aspect)", "").strip()
+        # Handle both "Dimension (Aspect)" and truncated "imension (Aspect)"
+        dim_cell = (
+            row.get("Dimension (Aspect)")
+            or row.get("imension (Aspect)")
+            or ""
+        ).strip()
         if dim_cell:
             dim_current = dim_cell
 
         dim_letter = _dimension_letter(dim_current)
         axis = _axis_for_dimension(dim_letter)
 
+        # Use the same deterministic skill ID scheme as the baseline loader
+        # so SectorRequirement.competence_id references valid Competence IDs.
         if not comp_id_raw or comp_id_raw == "—":
             req_kind = RequirementKind.SKILL
-            safe_id = f"blue_skill_{dim_letter.lower()}_{row_num}"
+            safe_id = f"blue_skill_{dim_letter.lower()}"
         else:
             req_kind = RequirementKind.COMPETENCE
             safe_id = f"blue_comp_{comp_id_raw.replace('.', '_').lower()}"

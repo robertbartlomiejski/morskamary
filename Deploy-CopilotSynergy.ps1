@@ -94,7 +94,14 @@ function Read-McpJson {
     )
     if (-not (Test-Path $Path)) { return $null }
 
-    $raw = Get-Content -Path $Path -Raw
+    try {
+        $raw = Get-Content -Path $Path -Raw
+    } catch {
+        Write-Host "  Failed to read existing config at $Path. Aborting." -ForegroundColor Red
+        Write-Host "  $($_.Exception.Message)" -ForegroundColor Yellow
+        exit 1
+    }
+
     try {
         return ($raw | ConvertFrom-Json)
     } catch {
