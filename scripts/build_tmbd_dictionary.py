@@ -49,6 +49,8 @@ def build_axis_dictionary(
     """Group competences by TMBD axis."""
     grouped: Dict[str, List[Dict[str, Any]]] = {axis: [] for axis in AXES}
     for competence in competences:
+        # Keep duck-typed access to support lightweight test doubles and
+        # repository extractor objects that expose the same attribute contract.
         axis_name = getattr(competence.axis, "name", None)
         if axis_name not in grouped:
             competence_id = getattr(competence, "id", "<unknown>")
