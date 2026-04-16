@@ -53,7 +53,7 @@ def build_axis_dictionary(
         # repository extractor objects that expose the same attribute contract.
         axis_name = getattr(competence.axis, "name", None)
         if axis_name is None or axis_name not in grouped:
-            competence_id = getattr(competence, "id", "<unknown>")
+            competence_id = getattr(competence, "id", "(unknown)")
             raise ValueError(
                 "Unsupported TMBD axis "
                 f"{axis_name!r} for competence {competence_id!r}. "
