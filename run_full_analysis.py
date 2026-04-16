@@ -1158,7 +1158,8 @@ def export_sector_dictionaries(
     literature-only selection is applied during sector-dictionary construction
     before grouping by TMBD axis (MARINE, MARITIME, OCEANIC). This helper is
     intended for single-use pipeline export in ``main()``. Files follow the
-    ``<slugified_sector>_tmbd_dictionary.json`` naming convention, and returned
+    ``<lowercase_underscore_sector>_tmbd_dictionary.json`` naming convention,
+    and returned
     paths preserve the order of the input ``sectors`` list.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1494,7 +1495,7 @@ def generate_literature_html(
             continue
 
         file_url = f"{REPO_GITHUB_BASE}/data/derived/{quote(lit['filename'], safe='/')}"
-        safe_file_url = _html_module.escape(file_url, quote=False)
+        safe_file_url = _html_module.escape(file_url, quote=True)
         safe_description = _html_module.escape(lit["description"])
         safe_filename = _html_module.escape(lit["filename"])
         html += f"<h2>{safe_description}</h2>\n"
