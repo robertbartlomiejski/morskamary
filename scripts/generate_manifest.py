@@ -32,7 +32,22 @@ COLUMNS = [
     "text_available",
 ]
 
-IGNORED_DIRS = {".git", "__pycache__", ".pytest_cache", ".venv", "venv", "env", ".mypy_cache", ".ruff_cache", ".tox"}
+IGNORED_DIRS = {
+    ".git",
+    "__pycache__",
+    ".pytest_cache",
+    ".venv",
+    "venv",
+    "env",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".tox",
+    ".codex",
+}
+IGNORED_RELATIVE_DIRS = {
+    "outputs/sectors",
+    "outputs/sector_dictionaries",
+}
 
 
 def classify(path: Path) -> str:
@@ -97,12 +112,25 @@ def load_existing() -> Dict[str, Dict[str, str]]:
 def scan_files() -> List[Path]:
     files: List[Path] = []
     for root, dirs, filenames in os.walk(REPO_ROOT):
+        root_path = Path(root).relative_to(REPO_ROOT)
+
         # prune ignored dirs
-        dirs[:] = [d for d in dirs if d not in IGNORED_DIRS]
+        pruned_dirs = []
+        for d in dirs:
+            rel_dir = (root_path / d).as_posix()
+            if d in IGNORED_DIRS or d.endswith(".egg-info"):
+                continue
+            if rel_dir in IGNORED_RELATIVE_DIRS:
+                continue
+            pruned_dirs.append(d)
+        dirs[:] = pruned_dirs
+
         for name in filenames:
             p = Path(root) / name
             # ignore manifest while generating to avoid churn
             if p.resolve() == MANIFEST_PATH.resolve():
+                continue
+            if name == ".codex":
                 continue
             # ignore binary junk
             if name in {".DS_Store"} or p.suffix.lower() in {".lnk"}:
