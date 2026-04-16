@@ -2,14 +2,7 @@
 Updated test suite for the shared morskamary model.
 """
 
-import sys
-from pathlib import Path
-
-BUNDLE_ROOT = Path(__file__).resolve().parents[1]
-if str(BUNDLE_ROOT) not in sys.path:
-    sys.path.insert(0, str(BUNDLE_ROOT))
-
-from src.core import (
+from deep_update_patch.src.core import (
     Competence,
     MicroCredential,
     BlueDynamicsAxis,
@@ -20,7 +13,7 @@ from src.core import (
     create_sample_competences,
     normalize_sector_name,
 )
-from src.competence_mapper import CompetenceMapper
+from deep_update_patch.src.competence_mapper import CompetenceMapper
 
 
 def test_normalize_sector_name_aliases() -> None:

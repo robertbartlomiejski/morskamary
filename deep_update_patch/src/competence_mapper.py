@@ -4,7 +4,7 @@ Authoritative mapper that works from real sector requirements, not only from cre
 """
 
 from typing import Any, Dict, List, Set, Tuple, TypedDict, Optional
-from src.core import (
+from .core import (
     Competence,
     MicroCredential,
     BlueDynamicsAxis,
