@@ -10,13 +10,15 @@ from enum import Enum
 
 class BlueDynamicsAxis(Enum):
     """Tripartite Model of Blue Dynamics (TMBD) axes"""
-    MARINE = "M"       # Marine (biophysical agency)
-    MARITIME = "T"     # Maritime (techno-economic and institutional mediation)
-    OCEANIC = "O"      # Oceanic (planetary governance and hydrosocial subjectivity)
+
+    MARINE = "M"  # Marine (biophysical agency)
+    MARITIME = "T"  # Maritime (techno-economic and institutional mediation)
+    OCEANIC = "O"  # Oceanic (planetary governance and hydrosocial subjectivity)
 
 
 class CompetenceLevel(Enum):
     """Competence proficiency levels"""
+
     FOUNDATIONAL = 1
     INTERMEDIATE = 2
     ADVANCED = 3
@@ -36,6 +38,7 @@ class Competence:
         level: Proficiency level
         keywords: Associated keywords for discovery
     """
+
     id: str
     name: str
     description: str
@@ -67,6 +70,7 @@ class MicroCredential:
         description: Credential description
         sector: Blue economy sector (e.g., offshore energy, ports, tourism)
     """
+
     id: str
     title: str
     competences: List[str]
@@ -98,9 +102,9 @@ def load_competence_matrix(file_path: Union[str, Path]) -> List[Competence]:
         import pandas as pd  # type: ignore[import-untyped]
 
         path = Path(file_path)
-        if path.suffix.lower() == '.csv':
+        if path.suffix.lower() == ".csv":
             df = pd.read_csv(path)
-        elif path.suffix.lower() in ('.xlsx', '.xls'):
+        elif path.suffix.lower() in (".xlsx", ".xls"):
             df = pd.read_excel(path)
         else:
             raise ValueError(f"Unsupported file format: {path}")
@@ -108,18 +112,20 @@ def load_competence_matrix(file_path: Union[str, Path]) -> List[Competence]:
         competences = []
         for _, row in df.iterrows():
             competence = Competence(
-                id=str(row.get('id', '')),
-                name=row.get('name', ''),
-                description=row.get('description', ''),
-                axis=BlueDynamicsAxis[row.get('axis', 'MARINE')],
-                level=CompetenceLevel[row.get('level', 'FOUNDATIONAL')],
-                keywords=str(row.get('keywords', '')).split(';'),
+                id=str(row.get("id", "")),
+                name=row.get("name", ""),
+                description=row.get("description", ""),
+                axis=BlueDynamicsAxis[row.get("axis", "MARINE")],
+                level=CompetenceLevel[row.get("level", "FOUNDATIONAL")],
+                keywords=str(row.get("keywords", "")).split(";"),
             )
             competences.append(competence)
 
         return competences
     except ImportError:
-        raise ImportError("pandas is required to load competence matrices. Install with: pip install pandas openpyxl")
+        raise ImportError(
+            "pandas is required to load competence matrices. Install with: pip install pandas openpyxl"
+        )
 
 
 def create_sample_competences() -> List[Competence]:
@@ -139,7 +145,12 @@ def create_sample_competences() -> List[Competence]:
             description="Management of ports, fleets, grids, and maritime spatial planning (MSP) infrastructure",
             axis=BlueDynamicsAxis.MARITIME,
             level=CompetenceLevel.ADVANCED,
-            keywords=["ports", "maritime spatial planning", "infrastructure", "fleet management"],
+            keywords=[
+                "ports",
+                "maritime spatial planning",
+                "infrastructure",
+                "fleet management",
+            ],
         ),
         Competence(
             id="comp_oceanic_001",
@@ -147,6 +158,11 @@ def create_sample_competences() -> List[Competence]:
             description="Cross-border ocean governance integration, hydrosocial literacy, and transcorporeal responsibility",
             axis=BlueDynamicsAxis.OCEANIC,
             level=CompetenceLevel.ADVANCED,
-            keywords=["governance", "international cooperation", "policy", "sustainability"],
+            keywords=[
+                "governance",
+                "international cooperation",
+                "policy",
+                "sustainability",
+            ],
         ),
     ]

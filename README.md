@@ -20,18 +20,18 @@ python demo_workspace_instructions.py
 
 ### GitHub Copilot MCP Integration (Optional Advanced Feature)
 
-**Note:** This is optional, local, workstation-specific tooling. Not required for core development.
+**Note:** This is optional, local, Windows-only workstation tooling. Not required for core development.
 
 For optional full-context GitHub Copilot integration with local repositories, SharePoint, Google Drive, and scientific databases:
 
 ```powershell
-# Windows PowerShell (run as Administrator)
-.\Deploy-CopilotSynergy.ps1
+# Windows PowerShell — no Administrator required
+.\Deploy-CopilotSynergy.ps1 -VsCodeChannel Stable
 ```
 
 See [COPILOT_MCP_SETUP.md](COPILOT_MCP_SETUP.md) for complete setup guide, including:
-- Node.js and Python prerequisites verification
-- MCP server configuration for filesystem, cloud storage, and scientific APIs
+- Node.js >=18 and Python >=3.9 prerequisites verification
+- MCP server configuration (`.vscode/mcp.json` and user-profile `mcp.json`)
 - Privacy governance and data protection settings
 - Advanced usage with verified DOI citations
 

@@ -1,0 +1,69 @@
+name: Full Analysis
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run full analysis pipeline
+        run: python run_full_analysis.py
+
+      - name: Verify output artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected=(
+            "outputs/report_index.html"
+            "outputs/gaps_by_sector.html"
+            "outputs/credentials_matrix.html"
+            "outputs/literature_integration.html"
+            "outputs/competences_full_database.json"
+            "outputs/credentials_database.json"
+            "outputs/sector_pathways.json"
+            "outputs/gaps_summary.csv"
+          )
+          for f in "${expected[@]}"; do
+            if [[ ! -f "$f" ]]; then
+              echo "Missing expected output: $f"
+              exit 1
+            fi
+            echo "✓ $f"
+          done
+          sector_dir="outputs/sector_dictionaries"
+          if [[ ! -d "$sector_dir" ]]; then
+            echo "Missing expected output directory: $sector_dir"
+            exit 1
+          fi
+          sector_count="$(find "$sector_dir" -maxdepth 1 -type f -name '*_tmbd_dictionary.json' | wc -l | tr -d ' ')"
+          if [[ "$sector_count" -ne 12 ]]; then
+            echo "Expected 12 sector dictionary files, found: $sector_count"
+            exit 1
+          fi
+          echo "✓ $sector_dir ($sector_count files)"
+          echo "All output artifacts verified, including sector dictionaries."
+
+      - name: Upload analysis outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: blue-economy-analysis-outputs
+          path: outputs/
+          retention-days: 30
