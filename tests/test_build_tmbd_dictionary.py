@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+import pytest
 from scripts.build_tmbd_dictionary import (
     build_sector_dictionary,
     build_sector_dictionary_from_repository,
@@ -104,6 +105,22 @@ def test_build_sector_dictionary_normalizes_sector_labels() -> None:
     assert [record["id"] for record in grouped["MARINE"]] == ["c1"]
     assert grouped["MARITIME"] == []
     assert grouped["OCEANIC"] == []
+
+
+def test_build_sector_dictionary_rejects_unknown_axis() -> None:
+    competences = [
+        _DummyCompetence(
+            id="c1",
+            name="Invalid axis competence",
+            description="d1",
+            axis=_DummyAxis("UNKNOWN"),
+            source=_DummySource("f.csv", 2, "p1", "a1", "2020", ""),
+            sectors=["Blue Biotech"],
+        )
+    ]
+
+    with pytest.raises(ValueError, match="Unsupported TMBD axis"):
+        build_sector_dictionary(competences, sector="Blue Biotech")
 
 
 def test_build_sector_dictionary_from_repository() -> None:

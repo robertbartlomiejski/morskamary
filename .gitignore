@@ -89,3 +89,7 @@ data/local/
 # outputs/*.html
 # outputs/*.json
 # outputs/*.csv
+outputs/sectors/
+outputs/sector_dictionaries/
+# deep_update_patch bundle: generated outputs are regenerated at runtime
+deep_update_patch/outputs/

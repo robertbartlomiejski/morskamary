@@ -347,7 +347,6 @@ DATA_GOVERNANCE.txt,governance,,,,,,DATA_GOVERNANCE,yes
 deep_update_patch/EXECUTIVE_PLAN.txt,text,,,,,,EXECUTIVE_PLAN,yes
 deep_update_patch/load_real_competences.py,other,,,,,,load_real_competences,no
 deep_update_patch/main_real_data.py,other,,,,,,main_real_data,no
-deep_update_patch/outputs/report_index.html,other,,,,,,report_index,no
 deep_update_patch/run_full_analysis.py,other,,,,,,run_full_analysis,no
 deep_update_patch/src/__init__.py,other,,,,,,init,no
 deep_update_patch/src/competence_mapper.py,other,,,,,,competence_mapper,no
@@ -474,11 +473,6 @@ manuscripts/drafts/Theoretical Framework Janiszsewski Maritime Sociology SCISPAC
 manuscripts/drafts/World Café Facilitation Guide – Energy Transition Glossary.docx,manuscript,,,,,,World_Cafe__Facilitation_Guide___Energy_,yes
 morskamary.code-workspace,other,,,,,,morskamary,no
 morskamary.code-workspace2.txt,text,,,,,,morskamary_code_workspace2,yes
-morskamary.egg-info/dependency_links.txt,text,,,,,,dependency_links,yes
-morskamary.egg-info/PKG-INFO,other,,,,,,PKG_INFO,no
-morskamary.egg-info/requires.txt,text,,,,,,requires,yes
-morskamary.egg-info/SOURCES.txt,text,,,,,,SOURCES,yes
-morskamary.egg-info/top_level.txt,text,,,,,,top_level,yes
 outputs/.gitkeep,other,,,,,,gitkeep,no
 outputs/competences_full_database.json,other,,,,,,competences_full_database,no
 outputs/credentials_database.json,other,,,,,,credentials_database,no

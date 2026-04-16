@@ -60,10 +60,9 @@ jobs:
       # Submit snapshot when at least one dependency file is present
       - name: Submit dependency snapshot
         if: env.HAS_REQUIREMENTS_TXT == 'true' || env.HAS_PYPROJECT_TOML == 'true'
-        uses: advanced-security/python-dependency-submission-action@v4
+        uses: advanced-security/component-detection-dependency-submission-action@v0
         with:
-          python-location: "."
-          python-version: "3.11"
+          directoryExcluded: "docs/literature,docs/policy,manuscripts"
       # Graceful no-op when neither file is present
       - name: No dependency files found – guidance
         if: env.HAS_REQUIREMENTS_TXT == 'false' && env.HAS_PYPROJECT_TOML == 'false'

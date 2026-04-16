@@ -7,15 +7,19 @@ import argparse
 import importlib.util
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Any, Dict, List, Sequence
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from src.competence_repository import (
     LiteratureCompetenceRepository,
     normalize_sector_name,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "outputs" / "sector_dictionaries"
 AXES = ("MARINE", "MARITIME", "OCEANIC")
 
@@ -49,7 +53,17 @@ def build_axis_dictionary(
     """Group competences by TMBD axis."""
     grouped: Dict[str, List[Dict[str, Any]]] = {axis: [] for axis in AXES}
     for competence in competences:
-        grouped[competence.axis.name].append(_to_dictionary_record(competence))
+        # Keep duck-typed access to support lightweight test doubles and
+        # repository extractor objects that expose the same attribute contract.
+        axis_name = getattr(competence.axis, "name", None)
+        if axis_name is None or axis_name not in grouped:
+            competence_id = getattr(competence, "id", "(unknown)")
+            raise ValueError(
+                "Unsupported TMBD axis "
+                f"{axis_name!r} for competence {competence_id!r}. "
+                f"Expected one of: {', '.join(AXES)}."
+            )
+        grouped[axis_name].append(_to_dictionary_record(competence))
     return grouped
 
 
