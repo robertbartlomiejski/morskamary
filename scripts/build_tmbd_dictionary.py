@@ -49,7 +49,15 @@ def build_axis_dictionary(
     """Group competences by TMBD axis."""
     grouped: Dict[str, List[Dict[str, Any]]] = {axis: [] for axis in AXES}
     for competence in competences:
-        grouped[competence.axis.name].append(_to_dictionary_record(competence))
+        axis_name = getattr(competence.axis, "name", None)
+        if axis_name not in grouped:
+            competence_id = getattr(competence, "id", "<unknown>")
+            raise ValueError(
+                "Unsupported TMBD axis "
+                f"{axis_name!r} for competence {competence_id!r}. "
+                f"Expected one of: {', '.join(AXES)}."
+            )
+        grouped[axis_name].append(_to_dictionary_record(competence))
     return grouped
 
 

@@ -31,6 +31,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
+from urllib.parse import quote
 
 from scripts.build_tmbd_dictionary import (
     build_sector_dictionary_from_repository,
@@ -1157,7 +1158,7 @@ def export_sector_dictionaries(
     literature-only selection is applied during sector-dictionary construction
     before grouping by TMBD axis (MARINE, MARITIME, OCEANIC). This helper is
     intended for single-use pipeline export in ``main()``. Files follow the
-    ``<normalized_sector>_tmbd_dictionary.json`` naming convention, and returned
+    ``<slugified_sector>_tmbd_dictionary.json`` naming convention, and returned
     paths preserve the order of the input ``sectors`` list.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1492,11 +1493,15 @@ def generate_literature_html(
         if not theme_comps:
             continue
 
-        file_url = (
-            f"{REPO_GITHUB_BASE}/data/derived/{lit['filename'].replace(' ', '%20')}"
+        file_url = f"{REPO_GITHUB_BASE}/data/derived/{quote(lit['filename'], safe='')}"
+        safe_file_url = _html_module.escape(file_url, quote=True)
+        safe_description = _html_module.escape(lit["description"])
+        safe_filename = _html_module.escape(lit["filename"])
+        html += f"<h2>{safe_description}</h2>\n"
+        html += (
+            f"<p>Source: <a href='{safe_file_url}' target='_blank'>"
+            f"{safe_filename}</a></p>\n"
         )
-        html += f"<h2>{lit['description']}</h2>\n"
-        html += f"<p>Source: <a href='{file_url}' target='_blank'>{lit['filename']}</a></p>\n"
         html += "<table>\n"
         html += (
             "<tr><th>Competence Name</th><th>Axis</th><th>Source Row</th>"
