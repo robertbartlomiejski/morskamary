@@ -4,39 +4,63 @@ Automated Deployment for GitHub Copilot MCP Synergy Merge (OPTIONAL TOOLING)
 
 .DESCRIPTION
 **IMPORTANT: This is optional, local, workstation-specific tooling.**
+**Platform: Windows only.** Supports VS Code (Stable) and VS Code Insiders.
 
-This script installs Node.js dependencies, scaffolds the MCP configuration, and links local/cloud repositories
-for the morskamary Blue Sociology project with full data integration.
+This script scaffolds MCP configuration for the morskamary Blue Sociology project,
+writing only to the two officially supported VS Code MCP targets:
 
-This is NOT a core repository dependency. Python ≥3.9 is the only required dependency for morskamary development.
-Use this script only if you need advanced GitHub Copilot integration with local files and cloud storage.
+  Workspace:     .vscode/mcp.json  (repo-safe, shareable servers)
+  User profile:  <VS Code profile root>/mcp.json  (personal/credential servers)
 
-For standard Python-first development, see CONTRIBUTING.md and use main_real_data.py for real-data workflows.
+It uses the current VS Code MCP schema (top-level "servers" + "inputs"), merges
+non-destructively into any existing configuration, and does NOT install global npm
+packages or require Administrator privileges. All MCP packages are invoked via
+npx at runtime.
+
+On JSON parse failure of an existing config file, a timestamped backup is created
+and the script aborts. Use -Force to overwrite instead.
+
+This is NOT a core repository dependency. Python >=3.9 is the only required
+dependency for morskamary development.
+
+For standard Python-first development, see CONTRIBUTING.md and use
+main_real_data.py for real-data workflows.
 
 .PARAMETER MorskaMaryRepoPath
-Path to local morskamary repository
+Path to local morskamary repository.
 
 .PARAMETER MaritimeSociologyRepoPath
-Path to local maritimesociology repository
+Path to local maritimesociology repository.
 
 .PARAMETER SharePointSyncPath
-Path to synchronized SharePoint folder
+Path to synchronized SharePoint folder.
 
 .PARAMETER GoogleOAuthCredentialsPath
-Path to Google OAuth credentials JSON file
+Path to Google OAuth credentials JSON file.
 
-.PARAMETER ScientificBridgeScriptPath
-Path to scientific_bridge.py script
+.PARAMETER VsCodeChannel
+Which VS Code installation to target. Stable (default), Insiders, or Auto.
+Auto prefers Stable if its profile root exists, falls back to Insiders.
 
-.PARAMETER SkipNodeInstall
-Skip Node.js package installation
+.PARAMETER Force
+If set, overwrite a malformed existing mcp.json instead of aborting.
 
 .EXAMPLE
 .\Deploy-CopilotSynergy.ps1 -MorskaMaryRepoPath "C:\GitHub\morskamary"
 
+.EXAMPLE
+.\Deploy-CopilotSynergy.ps1 `
+  -MorskaMaryRepoPath "C:\GitHub\morskamary" `
+  -MaritimeSociologyRepoPath "C:\GitHub\maritimesociology" `
+  -SharePointSyncPath "C:\Users\You\OneDrive - Uniwersytet Szczecinski\PORT CITY HUB UPLOAD" `
+  -GoogleOAuthCredentialsPath "C:\Users\You\Documents\gcp-oauth.keys.json" `
+  -VsCodeChannel Insiders
+
 .NOTES
-Requirements: Node.js ≥18, Python ≥3.9
-Run as Administrator for global npm package installation
+Platform:  Windows only (uses %APPDATA% for VS Code profile root).
+Requirements: Node.js >=18 (for npx), Python >=3.9.
+No Administrator privileges required.
+No global npm packages are installed; npx handles on-demand execution.
 #>
 
 param(
@@ -53,213 +77,286 @@ param(
     [string]$GoogleOAuthCredentialsPath = "",
 
     [Parameter(Mandatory=$false)]
-    [string]$ScientificBridgeScriptPath = "$PSScriptRoot\scientific_bridge.py",
+    [ValidateSet("Stable","Insiders","Auto")]
+    [string]$VsCodeChannel = "Stable",
 
-    [switch]$SkipNodeInstall
+    [switch]$Force
 )
 
 $ErrorActionPreference = "Stop"
+
+# ── Helper: safe JSON reader with backup-on-failure ──────────────────────────
+
+function Read-McpJson {
+    param(
+        [string]$Path,
+        [switch]$ForceOverwrite
+    )
+    if (-not (Test-Path $Path)) { return $null }
+
+    $raw = Get-Content -Path $Path -Raw
+    try {
+        return ($raw | ConvertFrom-Json)
+    } catch {
+        $backupPath = "$Path.backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        Copy-Item -Path $Path -Destination $backupPath -Force
+        Write-Host "  Backup saved to: $backupPath" -ForegroundColor DarkYellow
+
+        if ($ForceOverwrite) {
+            Write-Host "  -Force specified: will overwrite malformed config." -ForegroundColor DarkYellow
+            return $null
+        } else {
+            Write-Host "  Existing $Path is malformed JSON. Aborting." -ForegroundColor Red
+            Write-Host "  Re-run with -Force to overwrite." -ForegroundColor Yellow
+            exit 1
+        }
+    }
+}
+
+# ── Banner ───────────────────────────────────────────────────────────────────
 
 Write-Host ""
 Write-Host "=====================================================================" -ForegroundColor Cyan
 Write-Host "  GitHub Copilot MCP Synergy Merge Deployment" -ForegroundColor Cyan
 Write-Host "  morskamary Blue Sociology Research Toolkit" -ForegroundColor Cyan
+Write-Host "  Windows only | VS Code MCP schema: servers + inputs" -ForegroundColor DarkCyan
 Write-Host "=====================================================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Verify Node.js Installation
-Write-Host "[PREREQUISITE] Verifying Node.js installation..." -ForegroundColor Yellow
+# ── Prerequisite: Node.js >=18 ───────────────────────────────────────────────
+
+Write-Host "[PREREQUISITE] Verifying Node.js >=18 (needed for npx)..." -ForegroundColor Yellow
 try {
-    $nodeVersion = node -v
-    Write-Host "  ✓ Node.js detected: $nodeVersion" -ForegroundColor Green
+    $nodeVersionRaw = node -v 2>&1
+    if ($LASTEXITCODE -ne 0) { throw "node exited with $LASTEXITCODE" }
+    $nodeMatch = [regex]::Match($nodeVersionRaw, '(\d+)\.(\d+)\.(\d+)')
+    if (-not $nodeMatch.Success) { throw "Could not parse version from: $nodeVersionRaw" }
+    $nodeMajor = [int]$nodeMatch.Groups[1].Value
+    if ($nodeMajor -lt 18) {
+        Write-Host "  Node.js $($nodeMatch.Value) detected, but >=18 is required." -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "  Node.js $($nodeMatch.Value)" -ForegroundColor Green
 } catch {
-    Write-Host "  ✗ Node.js not found!" -ForegroundColor Red
-    Write-Host "  Please install Node.js from https://nodejs.org (LTS version recommended)" -ForegroundColor Red
-    Write-Host "  After installation, restart PowerShell and run this script again." -ForegroundColor Yellow
+    Write-Host "  Node.js not found." -ForegroundColor Red
+    Write-Host "  Install Node.js LTS (>=18) from https://nodejs.org, then re-run." -ForegroundColor Yellow
     exit 1
 }
 
-# Verify Python Installation
-Write-Host "[PREREQUISITE] Verifying Python installation..." -ForegroundColor Yellow
+# ── Prerequisite: Python >=3.9 ───────────────────────────────────────────────
+
+Write-Host "[PREREQUISITE] Verifying Python >=3.9..." -ForegroundColor Yellow
 $pythonFound = $false
 $pythonCmd = ""
 
-try {
-    $pythonVersion = python --version 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        $pythonFound = $true
-        $pythonCmd = "python"
-        Write-Host "  ✓ Python detected: $pythonVersion" -ForegroundColor Green
-    }
-} catch {}
-
-if (-not $pythonFound) {
+foreach ($candidate in @("python", "py")) {
+    if ($pythonFound) { break }
     try {
-        $pythonVersion = py --version 2>&1
-        if ($LASTEXITCODE -eq 0) {
-            $pythonFound = $true
-            $pythonCmd = "py"
-            Write-Host "  ✓ Python detected (via py launcher): $pythonVersion" -ForegroundColor Green
+        $pyVersionText = & $candidate --version 2>&1
+        if ($LASTEXITCODE -ne 0) { continue }
+        $pyMatch = [regex]::Match($pyVersionText, '(\d+)\.(\d+)\.(\d+)')
+        if (-not $pyMatch.Success) { continue }
+        $pyMajor = [int]$pyMatch.Groups[1].Value
+        $pyMinor = [int]$pyMatch.Groups[2].Value
+        if (($pyMajor -lt 3) -or ($pyMajor -eq 3 -and $pyMinor -lt 9)) {
+            Write-Host "  Python $($pyMatch.Value) detected via '$candidate', but >=3.9 is required." -ForegroundColor Red
+            exit 1
         }
+        $pythonFound = $true
+        $pythonCmd = $candidate
+        Write-Host "  Python $($pyMatch.Value) (via $candidate)" -ForegroundColor Green
     } catch {}
 }
 
 if (-not $pythonFound) {
-    Write-Host "  ✗ Python not found!" -ForegroundColor Red
-    Write-Host "  Please install Python ≥3.9 from https://python.org" -ForegroundColor Red
-    Write-Host "  Ensure you check 'Add Python to PATH' during installation." -ForegroundColor Yellow
+    Write-Host "  Python not found." -ForegroundColor Red
+    Write-Host "  Install Python >=3.9 from https://python.org (check 'Add Python to PATH')." -ForegroundColor Yellow
     exit 1
 }
 
-# Define Configuration Paths
+# ── Step 1/4: Resolve VS Code profile root & validate paths ─────────────────
+
 Write-Host ""
-Write-Host "[STEP 1/5] Configuring paths..." -ForegroundColor Yellow
+Write-Host "[STEP 1/4] Resolving VS Code profile root (channel: $VsCodeChannel)..." -ForegroundColor Yellow
 
-$VsCodeUserDir = "$env:APPDATA\Code\User"
-$McpConfigDir = "$VsCodeUserDir\globalStorage\github.copilot"
-$McpConfigFile = "$McpConfigDir\mcp_settings.json"
+if (-not $env:APPDATA) {
+    Write-Host "  %APPDATA% is not set. This script requires Windows." -ForegroundColor Red
+    exit 1
+}
 
-# VS Code may use different paths for different extensions
-$AlternativeMcpPaths = @(
-    "$VsCodeUserDir\globalStorage\saoudrizwan.claude-dev\settings",
-    "$VsCodeUserDir\globalStorage\anthropics.claude-vscode\settings",
-    "$VsCodeUserDir"
-)
+$StableRoot  = "$env:APPDATA\Code\User"
+$InsidersRoot = "$env:APPDATA\Code - Insiders\User"
 
-Write-Host "  Primary MCP config target: $McpConfigFile" -ForegroundColor Gray
+switch ($VsCodeChannel) {
+    "Stable" {
+        $VsCodeProfileRoot = $StableRoot
+    }
+    "Insiders" {
+        $VsCodeProfileRoot = $InsidersRoot
+    }
+    "Auto" {
+        if (Test-Path $StableRoot) {
+            $VsCodeProfileRoot = $StableRoot
+            Write-Host "  Auto-detected: Stable" -ForegroundColor Gray
+        } elseif (Test-Path $InsidersRoot) {
+            $VsCodeProfileRoot = $InsidersRoot
+            Write-Host "  Auto-detected: Insiders" -ForegroundColor Gray
+        } else {
+            Write-Host "  No VS Code profile root found at:" -ForegroundColor Red
+            Write-Host "    $StableRoot" -ForegroundColor Red
+            Write-Host "    $InsidersRoot" -ForegroundColor Red
+            exit 1
+        }
+    }
+}
 
-# Validate Repository Paths
+$UserProfileMcpFile = "$VsCodeProfileRoot\mcp.json"
+Write-Host "  User-profile MCP config: $UserProfileMcpFile" -ForegroundColor Gray
+
 if (-not (Test-Path $MorskaMaryRepoPath)) {
-    Write-Host "  ✗ morskamary repository not found at: $MorskaMaryRepoPath" -ForegroundColor Red
+    Write-Host "  morskamary repository not found at: $MorskaMaryRepoPath" -ForegroundColor Red
     exit 1
 }
-Write-Host "  ✓ morskamary repository: $MorskaMaryRepoPath" -ForegroundColor Green
+Write-Host "  morskamary repository: $MorskaMaryRepoPath" -ForegroundColor Green
 
-# Install MCP Server Packages
-if (-not $SkipNodeInstall) {
-    Write-Host ""
-    Write-Host "[STEP 2/5] Installing MCP server packages..." -ForegroundColor Yellow
-    Write-Host "  This may take a few minutes..." -ForegroundColor Gray
+$ScientificBridgeScriptPath = Join-Path $MorskaMaryRepoPath "scientific_bridge.py"
+$WorkspaceMcpFile = Join-Path $MorskaMaryRepoPath ".vscode\mcp.json"
+Write-Host "  Workspace MCP config:    $WorkspaceMcpFile" -ForegroundColor Gray
 
-    try {
-        Write-Host "  Installing @modelcontextprotocol/server-filesystem..." -ForegroundColor Gray
-        npm install -g @modelcontextprotocol/server-filesystem
+# ── Step 2/4: Workspace .vscode/mcp.json (repo-safe servers only) ────────────
 
-        Write-Host "  Installing @piotr-agier/google-drive-mcp..." -ForegroundColor Gray
-        npm install -g @piotr-agier/google-drive-mcp
-
-        Write-Host "  ✓ MCP packages installed successfully" -ForegroundColor Green
-    } catch {
-        Write-Host "  ✗ Failed to install MCP packages" -ForegroundColor Red
-        Write-Host "  Error: $_" -ForegroundColor Red
-        Write-Host "  Try running PowerShell as Administrator" -ForegroundColor Yellow
-        exit 1
-    }
-} else {
-    Write-Host ""
-    Write-Host "[STEP 2/5] Skipping Node.js package installation (--SkipNodeInstall)" -ForegroundColor Yellow
-}
-
-# Create Configuration Directory
 Write-Host ""
-Write-Host "[STEP 3/5] Creating configuration directory..." -ForegroundColor Yellow
-if (-not (Test-Path -Path $McpConfigDir)) {
-    New-Item -ItemType Directory -Path $McpConfigDir -Force | Out-Null
-    Write-Host "  ✓ Created: $McpConfigDir" -ForegroundColor Green
+Write-Host "[STEP 2/4] Preparing workspace MCP config (.vscode/mcp.json)..." -ForegroundColor Yellow
+
+$WorkspaceConfig = Read-McpJson -Path $WorkspaceMcpFile -ForceOverwrite:$Force
+if (-not $WorkspaceConfig) {
+    $WorkspaceConfig = [PSCustomObject]@{ servers = [PSCustomObject]@{} }
+}
+if (-not $WorkspaceConfig.servers) {
+    $WorkspaceConfig | Add-Member -NotePropertyName "servers" -NotePropertyValue ([PSCustomObject]@{})
+}
+
+# scientificCitationBridge: repo-safe (uses ${workspaceFolder}, no personal paths)
+if (Test-Path $ScientificBridgeScriptPath) {
+    $WorkspaceConfig.servers | Add-Member -Force -NotePropertyName "scientificCitationBridge" -NotePropertyValue ([PSCustomObject]@{
+        type    = "stdio"
+        command = $pythonCmd
+        args    = @('${workspaceFolder}/scientific_bridge.py')
+    })
+    Write-Host "  + scientificCitationBridge (repo-safe, uses workspaceFolder)" -ForegroundColor Green
 } else {
-    Write-Host "  ✓ Directory exists: $McpConfigDir" -ForegroundColor Green
+    Write-Host "  - scientific_bridge.py not found; skipping scientificCitationBridge" -ForegroundColor DarkYellow
 }
 
-# Generate MCP Configuration
+# Ensure .vscode directory exists
+$VsCodeDir = Join-Path $MorskaMaryRepoPath ".vscode"
+if (-not (Test-Path $VsCodeDir)) {
+    New-Item -ItemType Directory -Path $VsCodeDir -Force | Out-Null
+}
+
+$WorkspaceConfig | ConvertTo-Json -Depth 10 | Set-Content -Path $WorkspaceMcpFile -Encoding UTF8
+Write-Host "  Saved: $WorkspaceMcpFile" -ForegroundColor Green
+
+# ── Step 3/4: User-profile mcp.json (personal/credential servers) ────────────
+
 Write-Host ""
-Write-Host "[STEP 4/5] Generating MCP configuration..." -ForegroundColor Yellow
+Write-Host "[STEP 3/4] Preparing user-profile MCP config ($UserProfileMcpFile)..." -ForegroundColor Yellow
 
-$McpServers = @{
-    "morskamary-local" = @{
-        command = "npx"
-        args = @("-y", "@modelcontextprotocol/server-filesystem", $MorskaMaryRepoPath)
-        description = "Local morskamary Blue Sociology repository"
-    }
+$UserConfig = Read-McpJson -Path $UserProfileMcpFile -ForceOverwrite:$Force
+if (-not $UserConfig) {
+    $UserConfig = [PSCustomObject]@{ servers = [PSCustomObject]@{} }
+}
+if (-not $UserConfig.servers) {
+    $UserConfig | Add-Member -NotePropertyName "servers" -NotePropertyValue ([PSCustomObject]@{})
 }
 
-# Add optional servers if paths are provided
+# morskamaryLocal: filesystem access to the local morskamary clone
+$UserConfig.servers | Add-Member -Force -NotePropertyName "morskamaryLocal" -NotePropertyValue ([PSCustomObject]@{
+    type    = "stdio"
+    command = "npx"
+    args    = @("-y", "@modelcontextprotocol/server-filesystem", $MorskaMaryRepoPath)
+})
+Write-Host "  + morskamaryLocal ($MorskaMaryRepoPath)" -ForegroundColor Green
+
+# maritimesociologyLocal: optional second repo
 if ($MaritimeSociologyRepoPath -and (Test-Path $MaritimeSociologyRepoPath)) {
-    $McpServers["maritimesociology-local"] = @{
+    $UserConfig.servers | Add-Member -Force -NotePropertyName "maritimesociologyLocal" -NotePropertyValue ([PSCustomObject]@{
+        type    = "stdio"
         command = "npx"
-        args = @("-y", "@modelcontextprotocol/server-filesystem", $MaritimeSociologyRepoPath)
-        description = "Local maritimesociology repository"
-    }
-    Write-Host "  ✓ Added maritimesociology repository" -ForegroundColor Green
+        args    = @("-y", "@modelcontextprotocol/server-filesystem", $MaritimeSociologyRepoPath)
+    })
+    Write-Host "  + maritimesociologyLocal ($MaritimeSociologyRepoPath)" -ForegroundColor Green
 }
 
+# sharepointUniversity: optional SharePoint sync folder
 if ($SharePointSyncPath -and (Test-Path $SharePointSyncPath)) {
-    $McpServers["sharepoint-university"] = @{
+    $UserConfig.servers | Add-Member -Force -NotePropertyName "sharepointUniversity" -NotePropertyValue ([PSCustomObject]@{
+        type    = "stdio"
         command = "npx"
-        args = @("-y", "@modelcontextprotocol/server-filesystem", $SharePointSyncPath)
-        description = "University of Szczecin SharePoint synchronized folder"
-    }
-    Write-Host "  ✓ Added SharePoint sync folder" -ForegroundColor Green
+        args    = @("-y", "@modelcontextprotocol/server-filesystem", $SharePointSyncPath)
+    })
+    Write-Host "  + sharepointUniversity ($SharePointSyncPath)" -ForegroundColor Green
 }
 
+# googleDriveResearch: optional Google Drive via OAuth
 if ($GoogleOAuthCredentialsPath -and (Test-Path $GoogleOAuthCredentialsPath)) {
-    $McpServers["google-drive-research"] = @{
+    $UserConfig.servers | Add-Member -Force -NotePropertyName "googleDriveResearch" -NotePropertyValue ([PSCustomObject]@{
+        type    = "stdio"
         command = "npx"
-        args = @("-y", "@piotr-agier/google-drive-mcp")
-        env = @{
+        args    = @("-y", "@piotr-agier/google-drive-mcp")
+        env     = [PSCustomObject]@{
             GOOGLE_DRIVE_OAUTH_CREDENTIALS = $GoogleOAuthCredentialsPath
         }
-        description = "Google Drive research folder"
-    }
-    Write-Host "  ✓ Added Google Drive access" -ForegroundColor Green
+    })
+    Write-Host "  + googleDriveResearch (OAuth via $GoogleOAuthCredentialsPath)" -ForegroundColor Green
 }
 
-if (Test-Path $ScientificBridgeScriptPath) {
-    $McpServers["scientific-citation-bridge"] = @{
-        command = $pythonCmd
-        args = @($ScientificBridgeScriptPath)
-        description = "Scientific database bridge for Crossref and academic sources"
-    }
-    Write-Host "  ✓ Added scientific citation bridge" -ForegroundColor Green
+# Ensure parent directory exists
+$UserProfileDir = Split-Path $UserProfileMcpFile -Parent
+if (-not (Test-Path $UserProfileDir)) {
+    New-Item -ItemType Directory -Path $UserProfileDir -Force | Out-Null
 }
 
-$McpConfig = @{
-    mcpServers = $McpServers
-}
+$UserConfig | ConvertTo-Json -Depth 10 | Set-Content -Path $UserProfileMcpFile -Encoding UTF8
+Write-Host "  Saved: $UserProfileMcpFile" -ForegroundColor Green
 
-# Save Configuration
-$McpConfig | ConvertTo-Json -Depth 10 | Set-Content -Path $McpConfigFile -Encoding UTF8
-Write-Host "  ✓ Configuration saved to: $McpConfigFile" -ForegroundColor Green
+# ── Step 4/4: Summary & next steps ──────────────────────────────────────────
 
-# Also save to project .vscode directory for version control
-$ProjectMcpConfig = "$MorskaMaryRepoPath\.vscode\mcp_local.json"
-$McpConfig | ConvertTo-Json -Depth 10 | Set-Content -Path $ProjectMcpConfig -Encoding UTF8
-Write-Host "  ✓ Project configuration saved to: $ProjectMcpConfig" -ForegroundColor Green
-
-# Final Instructions
 Write-Host ""
-Write-Host "[STEP 5/5] Deployment complete!" -ForegroundColor Green
+Write-Host "[STEP 4/4] Deployment complete!" -ForegroundColor Green
+Write-Host ""
+Write-Host "=====================================================================" -ForegroundColor Cyan
+Write-Host "  FILES WRITTEN" -ForegroundColor Cyan
+Write-Host "=====================================================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "  Workspace (repo-safe, shareable):" -ForegroundColor White
+Write-Host "    $WorkspaceMcpFile" -ForegroundColor Gray
+Write-Host ""
+Write-Host "  User profile (personal, credentials, local paths):" -ForegroundColor White
+Write-Host "    $UserProfileMcpFile" -ForegroundColor Gray
 Write-Host ""
 Write-Host "=====================================================================" -ForegroundColor Cyan
 Write-Host "  NEXT STEPS" -ForegroundColor Cyan
 Write-Host "=====================================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "1. Restart VS Code to initialize MCP servers" -ForegroundColor White
+Write-Host "1. Restart VS Code to pick up the new MCP configuration." -ForegroundColor White
 Write-Host ""
-Write-Host "2. When VS Code prompts to 'Trust' the MCP servers, click 'Yes'" -ForegroundColor White
+Write-Host "2. When VS Code prompts to 'Trust' an MCP server, click 'Start'." -ForegroundColor White
+Write-Host "   Manage servers via: Ctrl+Shift+P > MCP: List Servers" -ForegroundColor Gray
 Write-Host ""
-Write-Host "3. In GitHub Copilot Chat, select the model:" -ForegroundColor White
-Write-Host "   • Claude 3.5 Sonnet (recommended for deep reasoning)" -ForegroundColor Gray
-Write-Host "   • GPT-4o (alternative)" -ForegroundColor Gray
+Write-Host "3. Use the VS Code model picker (Auto is recommended)." -ForegroundColor White
+Write-Host "   Auto selects from current top-tier models automatically." -ForegroundColor Gray
 Write-Host ""
-Write-Host "4. Initialize the Copilot Agent with full context:" -ForegroundColor White
+Write-Host "4. Verify MCP access in Copilot Chat:" -ForegroundColor White
 Write-Host ""
-Write-Host "   @workspace You are now connected to MCP servers for the morskamary" -ForegroundColor Cyan
-Write-Host "   Blue Sociology project. List available MCP tools and read the" -ForegroundColor Cyan
-Write-Host "   README.md from the morskamary repository to verify access." -ForegroundColor Cyan
+Write-Host "   @workspace List available MCP tools and read README.md from the" -ForegroundColor Cyan
+Write-Host "   morskamary repository to verify access." -ForegroundColor Cyan
 Write-Host ""
-Write-Host "5. For privacy, verify GitHub Copilot settings:" -ForegroundColor White
-Write-Host "   • GitHub.com > Settings > Copilot > Privacy" -ForegroundColor Gray
-Write-Host "   • Disable 'Allow GitHub to use my code snippets for model training'" -ForegroundColor Gray
+Write-Host "5. Review your GitHub Copilot privacy settings:" -ForegroundColor White
+Write-Host "   https://github.com/settings/copilot" -ForegroundColor Gray
+Write-Host "   Under Data handling, disable:" -ForegroundColor Gray
+Write-Host "   'Allow GitHub to use my data for AI model training'" -ForegroundColor Gray
+Write-Host "   (Effective from Apr 24 2026; see GitHub Docs for current wording)" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "=====================================================================" -ForegroundColor Cyan
 Write-Host ""
