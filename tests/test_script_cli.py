@@ -156,7 +156,9 @@ class TestGenerateManifestCLI:
         # Get the actual column headers from COLUMNS constant
         # Create existing manifest with manual metadata using correct columns
         manifest_path.write_text(
-            "file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rights_note,summary_1_sentence,preferred_citation_key,text_available\n"
+            "file_name,file_type,publisher_or_owner,year,version_or_identifier,"
+            "licence_or_rights_note,summary_1_sentence,preferred_citation_key,"
+            "text_available\n"
             "test.py,script,TestPublisher,2026,v1.0,MIT,Test summary,test_citation,yes\n"
         )
 

@@ -3,6 +3,7 @@
 Note: These tests are skipped if pypdf is not installed (optional dependency).
 """
 
+import importlib.util
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
@@ -10,10 +11,9 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 
 # Mock pypdf before import if not available
-try:
-    import pypdf
+if importlib.util.find_spec("pypdf") is not None:
     PYPDF_AVAILABLE = True
-except ImportError:
+else:
     PYPDF_AVAILABLE = False
     # Create mock module
     sys.modules['pypdf'] = Mock()
