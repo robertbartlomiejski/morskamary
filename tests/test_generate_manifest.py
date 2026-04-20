@@ -1,8 +1,7 @@
-"""Tests for scripts/generate_manifest.py module."""
+"""Tests for scripts.generate_manifest module."""
 
-import pytest
-import tempfile
 import csv
+import pytest
 from pathlib import Path
 from scripts.generate_manifest import (
     classify,
@@ -10,134 +9,161 @@ from scripts.generate_manifest import (
     load_existing,
     scan_files,
     REPO_ROOT,
+    MANIFEST_PATH,
 )
 
 
 class TestClassify:
-    """Tests for file classification"""
+    """Tests for file classification function"""
 
-    def test_classify_governance_files(self):
-        """Test classification of governance files"""
+    def test_governance_files(self):
+        """Test classification of governance documentation"""
         assert classify(REPO_ROOT / "README.md") == "governance"
         assert classify(REPO_ROOT / "CITATION.txt") == "governance"
         assert classify(REPO_ROOT / "DATA_GOVERNANCE.txt") == "governance"
-        assert classify(REPO_ROOT / "MANIFEST_SOURCES.csv") == "governance"
+        assert classify(REPO_ROOT / "CHANGELOG.txt") == "governance"
 
-    def test_classify_scripts(self):
-        """Test classification of script files"""
-        assert classify(REPO_ROOT / "scripts" / "test.py") == "script"
+    def test_script_files(self):
+        """Test classification of scripts"""
+        assert classify(REPO_ROOT / "scripts" / "build_derived.py") == "script"
+        assert classify(REPO_ROOT / "scripts" / "generate_manifest.py") == "script"
         assert classify(REPO_ROOT / "requirements.txt") == "script"
 
-    def test_classify_raw_datasets(self):
+    def test_dataset_raw(self):
         """Test classification of raw datasets"""
-        assert classify(REPO_ROOT / "data" / "raw" / "test.csv") == "dataset_raw"
-        assert classify(REPO_ROOT / "data" / "raw" / "test.xlsx") == "dataset_raw"
+        assert classify(REPO_ROOT / "data" / "raw" / "sample.xlsx") == "dataset_raw"
+        assert classify(REPO_ROOT / "data" / "raw" / "data.xls") == "dataset_raw"
 
-    def test_classify_derived_datasets(self):
+    def test_dataset_derived(self):
         """Test classification of derived datasets"""
-        assert classify(REPO_ROOT / "data" / "derived" / "test.csv") == "dataset_derived"
+        assert classify(REPO_ROOT / "data" / "derived" / "output.csv") == "dataset_derived"
+        assert classify(REPO_ROOT / "data" / "derived" / "processed.csv") == "dataset_derived"
 
-    def test_classify_policy_documents(self):
+    def test_policy_documents(self):
         """Test classification of policy documents"""
-        assert classify(REPO_ROOT / "docs" / "policy" / "test.pdf") == "policy"
+        assert classify(REPO_ROOT / "docs" / "policy" / "eu_policy.pdf") == "policy"
 
-    def test_classify_literature(self):
-        """Test classification of literature"""
-        assert classify(REPO_ROOT / "docs" / "literature" / "test.pdf") == "literature"
+    def test_literature_documents(self):
+        """Test classification of literature documents"""
+        assert classify(REPO_ROOT / "docs" / "literature" / "paper.pdf") == "literature"
 
-    def test_classify_manuscripts(self):
-        """Test classification of manuscripts"""
-        assert classify(REPO_ROOT / "manuscripts" / "test.docx") == "manuscript"
+    def test_manuscripts(self):
+        """Test classification of manuscript files"""
+        assert classify(REPO_ROOT / "manuscripts" / "draft.docx") == "manuscript"
 
-    def test_classify_fallback_csv(self):
+    def test_fallback_by_extension_csv(self):
         """Test fallback classification for CSV files"""
-        assert classify(REPO_ROOT / "test.csv") == "dataset_derived"
+        assert classify(REPO_ROOT / "somewhere" / "data.csv") == "dataset_derived"
 
-    def test_classify_fallback_xlsx(self):
+    def test_fallback_by_extension_xlsx(self):
         """Test fallback classification for Excel files"""
-        assert classify(REPO_ROOT / "test.xlsx") == "dataset_raw"
+        assert classify(REPO_ROOT / "somewhere" / "data.xlsx") == "dataset_raw"
 
-    def test_classify_fallback_pdf(self):
+    def test_fallback_by_extension_pdf(self):
         """Test fallback classification for PDF files"""
-        assert classify(REPO_ROOT / "test.pdf") == "policy_or_literature"
+        assert classify(REPO_ROOT / "somewhere" / "document.pdf") == "policy_or_literature"
 
-    def test_classify_fallback_docx(self):
-        """Test fallback classification for Word documents"""
-        assert classify(REPO_ROOT / "test.docx") == "manuscript"
+    def test_fallback_by_extension_txt(self):
+        """Test fallback classification for text files"""
+        assert classify(REPO_ROOT / "somewhere" / "notes.txt") == "text"
+        assert classify(REPO_ROOT / "somewhere" / "readme.md") == "text"
 
-    def test_classify_fallback_other(self):
-        """Test fallback classification for unknown extensions"""
-        assert classify(REPO_ROOT / "test.xyz") == "other"
+    def test_fallback_other(self):
+        """Test fallback classification for unknown types"""
+        assert classify(REPO_ROOT / "somewhere" / "file.unknown") == "other"
 
 
 class TestTextAvailable:
-    """Tests for text_available function"""
+    """Tests for text availability check function"""
 
     def test_text_files_available(self):
-        """Test that text files are marked as available"""
-        assert text_available(Path("test.txt")) == "yes"
-        assert text_available(Path("test.md")) == "yes"
-        assert text_available(Path("test.csv")) == "yes"
+        """Text files should be marked as available"""
+        # Create temporary test files
+        txt_file = REPO_ROOT / "tests" / "fixtures" / "test.txt"
+        md_file = REPO_ROOT / "tests" / "fixtures" / "test.md"
+        csv_file = REPO_ROOT / "tests" / "fixtures" / "test.csv"
+
+        assert text_available(txt_file) == "yes"
+        assert text_available(md_file) == "yes"
+        assert text_available(csv_file) == "yes"
 
     def test_pdf_without_sidecar(self):
-        """Test PDF without sidecar text file"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            pdf_path = Path(tmpdir) / "test.pdf"
-            pdf_path.touch()
-            assert text_available(pdf_path) == "no"
+        """PDF without sidecar text should be marked as not available"""
+        pdf_file = REPO_ROOT / "tests" / "fixtures" / "nosidecar.pdf"
+        assert text_available(pdf_file) == "no"
 
-    def test_pdf_with_sidecar_pdf_txt(self):
-        """Test PDF with .pdf.txt sidecar"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            pdf_path = Path(tmpdir) / "test.pdf"
-            sidecar_path = Path(tmpdir) / "test.pdf.txt"
-            pdf_path.touch()
-            sidecar_path.touch()
-            assert text_available(pdf_path) == "yes"
+    def test_pdf_with_sidecar(self):
+        """PDF with sidecar text should be marked as available"""
+        # Create a temporary PDF and its sidecar
+        pdf_file = REPO_ROOT / "tests" / "fixtures" / "withsidecar.pdf"
+        sidecar_file = REPO_ROOT / "tests" / "fixtures" / "withsidecar.pdf.txt"
 
-    def test_pdf_with_sidecar_txt(self):
-        """Test PDF with .txt sidecar"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            pdf_path = Path(tmpdir) / "test.pdf"
-            sidecar_path = Path(tmpdir) / "test.txt"
-            pdf_path.touch()
-            sidecar_path.touch()
-            assert text_available(pdf_path) == "yes"
+        # Create the sidecar
+        sidecar_file.write_text("sidecar content")
 
-    def test_excel_files_available(self):
-        """Test that Excel files are marked as available"""
-        assert text_available(Path("test.xlsx")) == "yes"
-        assert text_available(Path("test.xls")) == "yes"
+        try:
+            assert text_available(pdf_file) == "yes"
+        finally:
+            # Clean up
+            if sidecar_file.exists():
+                sidecar_file.unlink()
 
-    def test_word_files_available(self):
-        """Test that Word files are marked as available"""
-        assert text_available(Path("test.docx")) == "yes"
-        assert text_available(Path("test.doc")) == "yes"
+    def test_pdf_with_alternate_sidecar(self):
+        """PDF with alternate sidecar (.txt instead of .pdf.txt)"""
+        pdf_file = REPO_ROOT / "tests" / "fixtures" / "alternate.pdf"
+        sidecar_file = REPO_ROOT / "tests" / "fixtures" / "alternate.txt"
+
+        # Create the sidecar
+        sidecar_file.write_text("sidecar content")
+
+        try:
+            assert text_available(pdf_file) == "yes"
+        finally:
+            # Clean up
+            if sidecar_file.exists():
+                sidecar_file.unlink()
+
+    def test_excel_available(self):
+        """Excel files should be marked as available (openable)"""
+        xlsx_file = REPO_ROOT / "tests" / "fixtures" / "test.xlsx"
+        xls_file = REPO_ROOT / "tests" / "fixtures" / "test.xls"
+
+        assert text_available(xlsx_file) == "yes"
+        assert text_available(xls_file) == "yes"
+
+    def test_word_available(self):
+        """Word files should be marked as available (openable)"""
+        docx_file = REPO_ROOT / "tests" / "fixtures" / "test.docx"
+        doc_file = REPO_ROOT / "tests" / "fixtures" / "test.doc"
+
+        assert text_available(docx_file) == "yes"
+        assert text_available(doc_file) == "yes"
 
     def test_unknown_format_not_available(self):
-        """Test that unknown formats are marked as not available"""
-        assert text_available(Path("test.xyz")) == "no"
+        """Unknown file formats should be marked as not available"""
+        unknown_file = REPO_ROOT / "tests" / "fixtures" / "test.bin"
+        assert text_available(unknown_file) == "no"
 
 
 class TestLoadExisting:
-    """Tests for load_existing function"""
+    """Tests for loading existing manifest data"""
 
-    def test_load_nonexistent_manifest(self):
+    def test_load_nonexistent_manifest(self, tmp_path, monkeypatch):
         """Test loading when manifest doesn't exist"""
-        # This should return empty dict without errors
-        with tempfile.TemporaryDirectory() as tmpdir:
-            old_path = REPO_ROOT.parent / "MANIFEST_SOURCES.csv"
-            # Temporarily move manifest if it exists
-            existing = {}
-            if old_path.exists():
-                # Function should handle non-existent file gracefully
-                pass
-            result = load_existing()
-            assert isinstance(result, dict)
+        # Point MANIFEST_PATH to a non-existent path in isolated temp directory
+        fake_manifest = tmp_path / "nonexistent_manifest.csv"
+        monkeypatch.setattr("scripts.generate_manifest.MANIFEST_PATH", fake_manifest)
+
+        result = load_existing()
+        assert result == {}
 
     def test_load_existing_manifest(self):
-        """Test loading existing manifest"""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, newline='') as f:
+        """Test loading data from existing manifest"""
+        # Create a temporary manifest
+        temp_manifest = REPO_ROOT / "tests" / "fixtures" / "temp_manifest.csv"
+        temp_manifest.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(temp_manifest, "w", encoding="utf-8", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=[
                 "file_name", "file_type", "publisher_or_owner", "year",
                 "version_or_identifier", "licence_or_rights_note",
@@ -147,59 +173,79 @@ class TestLoadExisting:
             writer.writerow({
                 "file_name": "test.csv",
                 "file_type": "dataset",
-                "publisher_or_owner": "Test Publisher",
+                "publisher_or_owner": "Test Org",
                 "year": "2024",
                 "version_or_identifier": "v1",
-                "licence_or_rights_note": "CC-BY",
-                "summary_1_sentence": "Test data",
-                "preferred_citation_key": "test2024",
+                "licence_or_rights_note": "CC-BY-4.0",
+                "summary_1_sentence": "Test file",
+                "preferred_citation_key": "test_2024",
                 "text_available": "yes"
             })
-            temp_path = Path(f.name)
 
-        # Note: This test is illustrative; actual load_existing() uses MANIFEST_PATH
-        # We're just testing the structure
-        temp_path.unlink()
+        try:
+            # Monkey-patch MANIFEST_PATH for this test
+            import scripts.generate_manifest as gm
+            original_path = gm.MANIFEST_PATH
+            gm.MANIFEST_PATH = temp_manifest
+
+            result = load_existing()
+
+            assert "test.csv" in result
+            assert result["test.csv"]["file_type"] == "dataset"
+            assert result["test.csv"]["year"] == "2024"
+
+            # Restore
+            gm.MANIFEST_PATH = original_path
+        finally:
+            if temp_manifest.exists():
+                temp_manifest.unlink()
 
 
 class TestScanFiles:
-    """Tests for scan_files function"""
+    """Tests for repository file scanning"""
 
     def test_scan_finds_files(self):
-        """Test that scan_files discovers files"""
+        """Test that scan_files finds repository files"""
         files = scan_files()
-        assert isinstance(files, list)
-        assert len(files) > 0
+
         # Should find at least some Python files
         py_files = [f for f in files if f.suffix == ".py"]
         assert len(py_files) > 0
 
+        # Should find some CSV files
+        csv_files = [f for f in files if f.suffix == ".csv"]
+        assert len(csv_files) > 0
+
     def test_scan_excludes_ignored_dirs(self):
         """Test that ignored directories are excluded"""
         files = scan_files()
-        # .github is not in IGNORED_DIRS, so it may be included
-        # Should not include __pycache__ files
-        pycache_files = [f for f in files if "__pycache__" in str(f)]
-        assert len(pycache_files) == 0
-        # Should not include .git directory files (note: .github is different)
-        dot_git_files = [f for f in files if "/.git/" in str(f)]
-        assert len(dot_git_files) == 0
+
+        # Should not include files from .git, __pycache__, etc.
+        for f in files:
+            rel_path = f.relative_to(REPO_ROOT)
+            assert ".git" not in rel_path.parts
+            assert "__pycache__" not in rel_path.parts
+            assert ".pytest_cache" not in rel_path.parts
 
     def test_scan_excludes_manifest_itself(self):
-        """Test that MANIFEST_SOURCES.csv is excluded"""
+        """Test that the manifest file itself is excluded"""
         files = scan_files()
-        manifest_files = [f for f in files if f.name == "MANIFEST_SOURCES.csv"]
-        # May or may not be present depending on implementation
-        # This is a design decision - typically it should be excluded
 
-    def test_scan_results_sorted(self):
-        """Test that results are sorted"""
+        # Manifest should not be in the list
+        manifest_in_list = any(
+            f.resolve() == MANIFEST_PATH.resolve() for f in files
+        )
+        assert not manifest_in_list
+
+    def test_scan_results_are_sorted(self):
+        """Test that scan results are sorted"""
         files = scan_files()
-        # Results should be sorted by relative path (case-insensitive)
-        sorted_files = sorted(files, key=lambda p: p.relative_to(REPO_ROOT).as_posix().lower())
-        files_sorted = sorted(files, key=lambda p: p.relative_to(REPO_ROOT).as_posix().lower())
-        # Check that the function returns sorted results
-        assert len(files) == len(sorted_files)
+
+        # Convert to relative paths for comparison
+        rel_paths = [f.relative_to(REPO_ROOT).as_posix().lower() for f in files]
+
+        # Check that it's sorted
+        assert rel_paths == sorted(rel_paths)
 
 
 if __name__ == "__main__":

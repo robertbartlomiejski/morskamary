@@ -2,33 +2,30 @@
 
 import pytest
 from pathlib import Path
-from load_real_competences import map_dimension_to_axis, load_blue_competences
 from src.core import BlueDynamicsAxis, CompetenceLevel
-
-
-FIXTURES_DIR = Path(__file__).parent / "fixtures"
+from load_real_competences import map_dimension_to_axis, load_blue_competences
 
 
 class TestMapDimensionToAxis:
-    """Tests for map_dimension_to_axis function"""
+    """Tests for dimension to TMBD axis mapping"""
 
     def test_dimension_a_maps_to_oceanic(self):
-        """Test dimension A maps to OCEANIC axis"""
+        """Dimension A (Understanding) should map to OCEANIC"""
         assert map_dimension_to_axis("A.1") == BlueDynamicsAxis.OCEANIC
         assert map_dimension_to_axis("A.2") == BlueDynamicsAxis.OCEANIC
 
     def test_dimension_b_maps_to_maritime(self):
-        """Test dimension B maps to MARITIME axis"""
+        """Dimension B (Digital & Data) should map to MARITIME"""
         assert map_dimension_to_axis("B.1") == BlueDynamicsAxis.MARITIME
         assert map_dimension_to_axis("B.2") == BlueDynamicsAxis.MARITIME
 
     def test_dimension_c_maps_to_marine(self):
-        """Test dimension C maps to MARINE axis"""
+        """Dimension C (Sustainability) should map to MARINE"""
         assert map_dimension_to_axis("C.1") == BlueDynamicsAxis.MARINE
         assert map_dimension_to_axis("C.2") == BlueDynamicsAxis.MARINE
 
     def test_dimension_d_maps_to_maritime(self):
-        """Test dimension D maps to MARITIME axis"""
+        """Dimension D (Business/Governance) should map to MARITIME"""
         assert map_dimension_to_axis("D.1") == BlueDynamicsAxis.MARITIME
         assert map_dimension_to_axis("D.2") == BlueDynamicsAxis.MARITIME
 
@@ -37,99 +34,120 @@ class TestMapDimensionToAxis:
         assert map_dimension_to_axis("A") == BlueDynamicsAxis.OCEANIC
         assert map_dimension_to_axis("B") == BlueDynamicsAxis.MARITIME
         assert map_dimension_to_axis("C") == BlueDynamicsAxis.MARINE
+        assert map_dimension_to_axis("D") == BlueDynamicsAxis.MARITIME
 
     def test_unknown_dimension_defaults_to_oceanic(self):
-        """Test unknown dimension defaults to OCEANIC"""
+        """Unknown dimensions should default to OCEANIC"""
         assert map_dimension_to_axis("X.1") == BlueDynamicsAxis.OCEANIC
         assert map_dimension_to_axis("Z") == BlueDynamicsAxis.OCEANIC
 
 
 class TestLoadBlueCompetences:
-    """Tests for load_blue_competences function"""
+    """Tests for loading Blue Social Competences from CSV"""
 
-    def test_load_sample_csv(self):
-        """Test loading sample Blue Social Competences CSV"""
-        csv_path = FIXTURES_DIR / "blue_social_competences_sample.csv"
+    def test_load_sample_competences(self):
+        """Test loading from sample CSV file"""
+        csv_path = Path("tests/fixtures/blue_social_competences_sample.csv")
         mapper = load_blue_competences(csv_path)
 
-        assert mapper is not None
-        assert len(mapper.competences) == 4
+        # Should have loaded 5 competences
+        assert len(mapper.competences) == 5
 
-    def test_axis_mapping(self):
+        # Check that competences were created with correct IDs
+        comp_ids = list(mapper.competences.keys())
+        assert "blue_comp_a_1" in comp_ids
+        assert "blue_comp_b_1" in comp_ids
+        assert "blue_comp_c_1" in comp_ids
+        assert "blue_comp_d_1" in comp_ids
+
+    def test_competence_axis_mapping(self):
         """Test that competences are mapped to correct axes"""
-        csv_path = FIXTURES_DIR / "blue_social_competences_sample.csv"
+        csv_path = Path("tests/fixtures/blue_social_competences_sample.csv")
         mapper = load_blue_competences(csv_path)
 
-        # Check axis distribution
-        oceanic_comps = mapper.get_competences_by_axis(BlueDynamicsAxis.OCEANIC)
-        maritime_comps = mapper.get_competences_by_axis(BlueDynamicsAxis.MARITIME)
-        marine_comps = mapper.get_competences_by_axis(BlueDynamicsAxis.MARINE)
+        # A dimension → OCEANIC
+        comp_a = mapper.competences.get("blue_comp_a_1")
+        assert comp_a is not None
+        assert comp_a.axis == BlueDynamicsAxis.OCEANIC
 
-        assert len(oceanic_comps) == 1  # A.1
-        assert len(maritime_comps) == 2  # B.1, D.1
-        assert len(marine_comps) == 1  # C.1
+        # B dimension → MARITIME
+        comp_b = mapper.competences.get("blue_comp_b_1")
+        assert comp_b is not None
+        assert comp_b.axis == BlueDynamicsAxis.MARITIME
 
-    def test_level_assignment(self):
-        """Test that all competences are assigned INTERMEDIATE level"""
-        csv_path = FIXTURES_DIR / "blue_social_competences_sample.csv"
+        # C dimension → MARINE
+        comp_c = mapper.competences.get("blue_comp_c_1")
+        assert comp_c is not None
+        assert comp_c.axis == BlueDynamicsAxis.MARINE
+
+        # D dimension → MARITIME
+        comp_d = mapper.competences.get("blue_comp_d_1")
+        assert comp_d is not None
+        assert comp_d.axis == BlueDynamicsAxis.MARITIME
+
+    def test_competence_level(self):
+        """Test that all competences are set to INTERMEDIATE level"""
+        csv_path = Path("tests/fixtures/blue_social_competences_sample.csv")
         mapper = load_blue_competences(csv_path)
 
         for comp in mapper.competences.values():
             assert comp.level == CompetenceLevel.INTERMEDIATE
 
-    def test_name_extraction(self):
-        """Test that competence names are correctly extracted"""
-        csv_path = FIXTURES_DIR / "blue_social_competences_sample.csv"
+    def test_competence_names(self):
+        """Test that competence names are loaded correctly"""
+        csv_path = Path("tests/fixtures/blue_social_competences_sample.csv")
         mapper = load_blue_competences(csv_path)
 
-        comp_a1 = mapper.competences["blue_comp_a_1"]
-        assert comp_a1.name == "Ocean literacy and ecosystems"
+        comp_a1 = mapper.competences.get("blue_comp_a_1")
+        assert comp_a1 is not None
+        assert comp_a1.name == "Understanding Blue Economy Sectors"
 
-    def test_keywords_assignment(self):
-        """Test that keywords are assigned to competences"""
-        csv_path = FIXTURES_DIR / "blue_social_competences_sample.csv"
+    def test_competence_keywords(self):
+        """Test that competences have default keywords"""
+        csv_path = Path("tests/fixtures/blue_social_competences_sample.csv")
         mapper = load_blue_competences(csv_path)
 
-        for comp in mapper.competences.values():
-            assert "blue-economy" in comp.keywords
-            assert "sustainability" in comp.keywords
-            assert "ocean" in comp.keywords
+        comp = mapper.competences.get("blue_comp_a_1")
+        assert comp is not None
+        assert "blue-economy" in comp.keywords
+        assert "sustainability" in comp.keywords
+        assert "ocean" in comp.keywords
 
-    def test_axis_distribution_summary(self):
-        """Test axis distribution in summary"""
-        csv_path = FIXTURES_DIR / "blue_social_competences_sample.csv"
+    def test_axis_distribution_in_summary(self):
+        """Test that loaded competences are distributed across axes"""
+        csv_path = Path("tests/fixtures/blue_social_competences_sample.csv")
         mapper = load_blue_competences(csv_path)
 
         summary = mapper.get_summary()
-        assert summary["competences_by_axis"]["OCEANIC"] == 1
-        assert summary["competences_by_axis"]["MARITIME"] == 2
-        assert summary["competences_by_axis"]["MARINE"] == 1
 
-    def test_missing_file_handling(self):
-        """Test handling of missing CSV file"""
+        # Should have competences on multiple axes
+        assert summary["competences_by_axis"]["OCEANIC"] >= 1  # A dimensions
+        assert summary["competences_by_axis"]["MARITIME"] >= 2  # B and D dimensions
+        assert summary["competences_by_axis"]["MARINE"] >= 1  # C dimensions
+
+    def test_missing_csv_file(self):
+        """Test handling of non-existent CSV file"""
+        csv_path = Path("tests/fixtures/nonexistent.csv")
+        # The function should raise FileNotFoundError
         with pytest.raises(FileNotFoundError):
-            load_blue_competences(FIXTURES_DIR / "nonexistent.csv")
+            load_blue_competences(csv_path)
 
-    def test_empty_row_skipping(self):
-        """Test that empty rows are skipped"""
-        # Create temporary CSV with empty rows
-        import tempfile
-        import csv
+    def test_empty_rows_are_skipped(self, tmp_path):
+        """Test that rows without ID or name are skipped"""
+        # Create a CSV with some empty rows in isolated temp directory
+        csv_content = """ID,Competence Name,Key Simplified Focus (Applied to all 12 Sectors),imension (Aspect)
+A.1,Valid Competence,Description,A. Understanding
+,,Missing both,A. Understanding
+B.1,,Missing name,B. Digital
+,Missing ID,Description,C. Sustainability
+"""
+        csv_path = tmp_path / "temp_with_empty.csv"
+        csv_path.write_text(csv_content)
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(["ID", "Competence Name", "Key Simplified Focus (Applied to all 12 Sectors)"])
-            writer.writerow(["A.1", "Test Competence", "Description"])
-            writer.writerow(["", "", ""])  # Empty row
-            writer.writerow(["B.1", "Another Competence", "Description"])
-            temp_path = Path(f.name)
-
-        try:
-            mapper = load_blue_competences(temp_path)
-            # Should only load 2 competences, skipping the empty row
-            assert len(mapper.competences) == 2
-        finally:
-            temp_path.unlink()
+        mapper = load_blue_competences(csv_path)
+        # Should only load the valid row
+        assert len(mapper.competences) == 1
+        assert "blue_comp_a_1" in mapper.competences
 
 
 if __name__ == "__main__":

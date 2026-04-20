@@ -1,4 +1,4 @@
 id,name,description,axis,level,keywords
-comp_001,Ocean Literacy,Understanding ocean systems,OCEANIC,FOUNDATIONAL,ocean;literacy;education
-comp_002,Marine Spatial Planning,Planning maritime activities,MARITIME,INTERMEDIATE,planning;spatial;maritime
-comp_003,Ecosystem Assessment,Assessing marine ecosystems,MARINE,ADVANCED,ecosystem;biodiversity;assessment
+comp_001,Marine Biology,Understanding of marine ecosystems,MARINE,FOUNDATIONAL,biology;ecology;marine
+comp_002,Port Management,Management of port infrastructure,MARITIME,ADVANCED,ports;infrastructure;management
+comp_003,Ocean Governance,International ocean policy,OCEANIC,EXPERT,governance;policy;international

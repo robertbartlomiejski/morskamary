@@ -84,42 +84,48 @@ class TestLoadCompetenceMatrix:
     """Tests for load_competence_matrix function"""
 
     def test_load_csv_success(self):
-        """Test loading competences from CSV file"""
+        """Test successful loading of CSV file"""
         csv_path = FIXTURES_DIR / "sample_competences.csv"
         competences = load_competence_matrix(csv_path)
+
         assert len(competences) == 3
         assert competences[0].id == "comp_001"
-        assert competences[0].axis == BlueDynamicsAxis.OCEANIC
+        assert competences[0].name == "Marine Biology"
+        assert competences[0].axis == BlueDynamicsAxis.MARINE
+        assert competences[0].level == CompetenceLevel.FOUNDATIONAL
+        assert "biology" in competences[0].keywords
 
     def test_load_excel_success(self):
-        """Test loading competences from Excel file"""
+        """Test successful loading of Excel file"""
         xlsx_path = FIXTURES_DIR / "sample_competences.xlsx"
         competences = load_competence_matrix(xlsx_path)
+
         assert len(competences) == 2
-        assert competences[0].id == "comp_001"
-        assert competences[1].axis == BlueDynamicsAxis.MARITIME
+        assert competences[0].id == "comp_xl_001"
+        assert competences[0].axis == BlueDynamicsAxis.MARINE
+        assert competences[1].level == CompetenceLevel.ADVANCED
 
     def test_load_empty_csv(self):
-        """Test loading empty CSV file"""
-        csv_path = FIXTURES_DIR / "empty_competences.csv"
-        competences = load_competence_matrix(csv_path)
+        """Test loading CSV with only headers"""
+        empty_path = FIXTURES_DIR / "empty_competences.csv"
+        competences = load_competence_matrix(empty_path)
         assert len(competences) == 0
 
-    def test_unsupported_file_format(self):
+    def test_load_unsupported_format(self):
         """Test error on unsupported file format"""
         with pytest.raises(ValueError, match="Unsupported file format"):
-            load_competence_matrix("test.txt")
+            load_competence_matrix(FIXTURES_DIR / "sample.txt")
 
-    def test_nonexistent_file(self):
+    def test_load_nonexistent_file(self):
         """Test error on non-existent file"""
         with pytest.raises(FileNotFoundError):
             load_competence_matrix(FIXTURES_DIR / "nonexistent.csv")
 
-    def test_invalid_enum_value(self):
-        """Test handling of invalid enum values in CSV"""
-        csv_path = FIXTURES_DIR / "invalid_competences.csv"
+    def test_load_invalid_axis(self):
+        """Test handling of invalid axis values"""
+        invalid_path = FIXTURES_DIR / "invalid_competences.csv"
         with pytest.raises(KeyError):
-            load_competence_matrix(csv_path)
+            load_competence_matrix(invalid_path)
 
 
 class TestCompetenceMapper:
@@ -132,6 +138,33 @@ class TestCompetenceMapper:
         competences = create_sample_competences()
         for comp in competences:
             mapper.add_competence(comp)
+        return mapper
+
+    @pytest.fixture
+    def mapper_with_credentials(self):
+        """Create a mapper with competences and credentials"""
+        mapper = CompetenceMapper()
+        competences = create_sample_competences()
+        for comp in competences:
+            mapper.add_competence(comp)
+
+        # Add some credentials
+        cred1 = MicroCredential(
+            id="cred_001",
+            title="Marine Specialist",
+            competences=["comp_marine_001"],
+            description="Basic marine competence",
+            sector="fisheries",
+        )
+        cred2 = MicroCredential(
+            id="cred_002",
+            title="Maritime Professional",
+            competences=["comp_maritime_001", "comp_oceanic_001"],
+            description="Advanced maritime and governance",
+            sector="fisheries",
+        )
+        mapper.add_credentials(cred1)
+        mapper.add_credentials(cred2)
         return mapper
 
     def test_add_competence(self, mapper):
@@ -157,174 +190,85 @@ class TestCompetenceMapper:
         assert summary["competences_by_axis"]["MARITIME"] == 1
         assert summary["competences_by_axis"]["OCEANIC"] == 1
 
-    def test_get_sector_competences(self, mapper):
-        """Test retrieving competences for a specific sector"""
-        from src.core import MicroCredential
-
-        cred = MicroCredential(
-            id="cred_test",
-            title="Test Credential",
-            competences=["comp_marine_001", "comp_maritime_001"],
-            description="Test",
-            sector="test-sector"
-        )
-        mapper.add_credentials(cred)
-
-        sector_comps = mapper.get_sector_competences("test-sector")
-        assert len(sector_comps) == 2
+    def test_get_sector_competences(self, mapper_with_credentials):
+        """Test getting competences for a sector"""
+        sector_comps = mapper_with_credentials.get_sector_competences("fisheries")
+        assert len(sector_comps) == 3
         assert "comp_marine_001" in sector_comps
+        assert "comp_maritime_001" in sector_comps
+        assert "comp_oceanic_001" in sector_comps
 
-    def test_get_sector_competences_case_insensitive(self, mapper):
+    def test_get_sector_competences_case_insensitive(self, mapper_with_credentials):
         """Test sector matching is case-insensitive"""
-        from src.core import MicroCredential
+        sector_comps = mapper_with_credentials.get_sector_competences("FISHERIES")
+        assert len(sector_comps) == 3
 
-        cred = MicroCredential(
-            id="cred_test",
-            title="Test Credential",
-            competences=["comp_marine_001"],
-            description="Test",
-            sector="Test-Sector"
-        )
-        mapper.add_credentials(cred)
-
-        sector_comps = mapper.get_sector_competences("test-sector")
-        assert len(sector_comps) == 1
-
-    def test_get_sector_competences_empty(self, mapper):
-        """Test retrieving competences for non-existent sector"""
-        sector_comps = mapper.get_sector_competences("nonexistent-sector")
+    def test_get_sector_competences_empty(self, mapper_with_credentials):
+        """Test getting competences for non-existent sector"""
+        sector_comps = mapper_with_credentials.get_sector_competences("nonexistent")
         assert len(sector_comps) == 0
 
-    def test_gap_analysis_basic(self, mapper):
+    def test_analyze_competence_gaps_basic(self, mapper_with_credentials):
         """Test basic gap analysis"""
-        from src.core import MicroCredential
-
-        cred = MicroCredential(
-            id="cred_test",
-            title="Test Credential",
-            competences=["comp_marine_001", "comp_maritime_001", "comp_oceanic_001"],
-            description="Test",
-            sector="test-sector"
-        )
-        mapper.add_credentials(cred)
-
-        gaps = mapper.analyze_competence_gaps(
+        gaps = mapper_with_credentials.analyze_competence_gaps(
             available=["comp_marine_001"],
-            required_sector="test-sector"
+            required_sector="fisheries"
         )
-
         assert len(gaps["available"]) == 1
         assert len(gaps["missing"]) == 2
+        assert "comp_marine_001" in gaps["available"]
         assert "comp_maritime_001" in gaps["missing"]
+        assert "comp_oceanic_001" in gaps["missing"]
 
-    def test_gap_analysis_all_available(self, mapper):
+    def test_analyze_competence_gaps_all_available(self, mapper_with_credentials):
         """Test gap analysis when all competences are available"""
-        from src.core import MicroCredential
-
-        cred = MicroCredential(
-            id="cred_test",
-            title="Test Credential",
-            competences=["comp_marine_001"],
-            description="Test",
-            sector="test-sector"
+        gaps = mapper_with_credentials.analyze_competence_gaps(
+            available=["comp_marine_001", "comp_maritime_001", "comp_oceanic_001"],
+            required_sector="fisheries"
         )
-        mapper.add_credentials(cred)
-
-        gaps = mapper.analyze_competence_gaps(
-            available=["comp_marine_001"],
-            required_sector="test-sector"
-        )
-
+        assert len(gaps["available"]) == 3
         assert len(gaps["missing"]) == 0
 
-    def test_gap_analysis_none_available(self, mapper):
+    def test_analyze_competence_gaps_none_available(self, mapper_with_credentials):
         """Test gap analysis when no competences are available"""
-        from src.core import MicroCredential
-
-        cred = MicroCredential(
-            id="cred_test",
-            title="Test Credential",
-            competences=["comp_marine_001", "comp_maritime_001"],
-            description="Test",
-            sector="test-sector"
-        )
-        mapper.add_credentials(cred)
-
-        gaps = mapper.analyze_competence_gaps(
+        gaps = mapper_with_credentials.analyze_competence_gaps(
             available=[],
-            required_sector="test-sector"
+            required_sector="fisheries"
         )
-
         assert len(gaps["available"]) == 0
-        assert len(gaps["missing"]) == 2
+        assert len(gaps["missing"]) == 3
 
-    def test_gap_analysis_by_level(self, mapper):
-        """Test gap analysis includes breakdown by level"""
-        from src.core import MicroCredential
-
-        cred = MicroCredential(
-            id="cred_test",
-            title="Test Credential",
-            competences=["comp_marine_001", "comp_maritime_001", "comp_oceanic_001"],
-            description="Test",
-            sector="test-sector"
+    def test_analyze_competence_gaps_by_level(self, mapper_with_credentials):
+        """Test gap analysis includes level breakdown"""
+        gaps = mapper_with_credentials.analyze_competence_gaps(
+            available=["comp_marine_001"],
+            required_sector="fisheries"
         )
-        mapper.add_credentials(cred)
-
-        gaps = mapper.analyze_competence_gaps(
-            available=[],
-            required_sector="test-sector"
-        )
-
-        assert "INTERMEDIATE" in gaps["by_level"]
+        assert "by_level" in gaps
         assert "ADVANCED" in gaps["by_level"]
+        assert len(gaps["by_level"]["ADVANCED"]) == 2
 
-    def test_suggest_credential_pathway_empty(self, mapper):
-        """Test credential pathway suggestion with no credentials"""
+    def test_suggest_credential_pathway_empty(self):
+        """Test pathway suggestion with no credentials"""
+        mapper = CompetenceMapper()
         pathway = mapper.suggest_credential_pathway()
         assert len(pathway) == 0
 
-    def test_suggest_credential_pathway_single(self, mapper):
-        """Test credential pathway suggestion with single credential"""
-        from src.core import MicroCredential
-
-        cred = MicroCredential(
-            id="cred_test",
-            title="Test Credential",
-            competences=["comp_marine_001"],
-            description="Test",
-            sector="test-sector"
-        )
-        mapper.add_credentials(cred)
-
-        pathway = mapper.suggest_credential_pathway()
-        assert len(pathway) == 1
-
-    def test_suggest_credential_pathway_with_starting_level(self, mapper):
-        """Test credential pathway suggestion with starting level"""
-        from src.core import MicroCredential
-
-        cred1 = MicroCredential(
-            id="cred_basic",
-            title="Basic Credential",
-            competences=["comp_marine_001"],
-            description="Basic",
-            sector="test-sector"
-        )
-        cred2 = MicroCredential(
-            id="cred_advanced",
-            title="Advanced Credential",
-            competences=["comp_maritime_001", "comp_oceanic_001"],
-            description="Advanced",
-            sector="test-sector"
-        )
-        mapper.add_credentials(cred1)
-        mapper.add_credentials(cred2)
-
-        pathway = mapper.suggest_credential_pathway(CompetenceLevel.FOUNDATIONAL)
+    def test_suggest_credential_pathway_single(self, mapper_with_credentials):
+        """Test pathway suggestion with credentials"""
+        pathway = mapper_with_credentials.suggest_credential_pathway()
         assert len(pathway) == 2
-        # Should be ordered by average level
-        assert pathway[0].id == "cred_basic"
+        # First credential should be lower level (Marine Specialist)
+        assert pathway[0].id == "cred_001"
+        # Second should be higher level (Maritime Professional with advanced comps)
+        assert pathway[1].id == "cred_002"
+
+    def test_suggest_credential_pathway_starting_level(self, mapper_with_credentials):
+        """Test pathway suggestion with custom starting level"""
+        pathway = mapper_with_credentials.suggest_credential_pathway(
+            starting_level=CompetenceLevel.ADVANCED
+        )
+        assert len(pathway) == 2
 
 
 if __name__ == "__main__":

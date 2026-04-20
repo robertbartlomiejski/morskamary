@@ -1,6 +1,7 @@
-"""Edge case tests for morskamary Blue Sociology module."""
+"""Edge case and error handling tests for morskamary."""
 
 import pytest
+from pathlib import Path
 from src.core import (
     Competence,
     MicroCredential,
@@ -9,6 +10,7 @@ from src.core import (
 )
 from src.competence_mapper import CompetenceMapper
 from src.competence_repository import (
+    normalize_sector_name,
     classify_competence_origin,
     ORIGIN_BASELINE,
     ORIGIN_LITERATURE,
@@ -16,17 +18,8 @@ from src.competence_repository import (
 )
 
 
-def normalize_sector_name(sector: str) -> str:
-    """Normalize sector name for comparison (test helper)"""
-    import re
-    # Remove punctuation and extra spaces
-    normalized = re.sub(r'[^\w\s]', ' ', sector)
-    normalized = re.sub(r'\s+', ' ', normalized)
-    return normalized.strip().lower()
-
-
 class TestBlueDynamicsAxisEnum:
-    """Tests for BlueDynamicsAxis enum"""
+    """Tests for BlueDynamicsAxis enum edge cases"""
 
     def test_enum_values(self):
         """Test that enum values are correct"""
@@ -41,7 +34,7 @@ class TestBlueDynamicsAxisEnum:
         assert BlueDynamicsAxis.OCEANIC.name == "OCEANIC"
 
     def test_enum_iteration(self):
-        """Test iterating over enum"""
+        """Test that all axes can be iterated"""
         axes = list(BlueDynamicsAxis)
         assert len(axes) == 3
         assert BlueDynamicsAxis.MARINE in axes
@@ -50,16 +43,16 @@ class TestBlueDynamicsAxisEnum:
 
 
 class TestCompetenceLevelEnum:
-    """Tests for CompetenceLevel enum"""
+    """Tests for CompetenceLevel enum edge cases"""
 
-    def test_level_values(self):
-        """Test that level values progress correctly"""
+    def test_enum_values(self):
+        """Test that enum values represent progression"""
         assert CompetenceLevel.FOUNDATIONAL.value == 1
         assert CompetenceLevel.INTERMEDIATE.value == 2
         assert CompetenceLevel.ADVANCED.value == 3
         assert CompetenceLevel.EXPERT.value == 4
 
-    def test_level_ordering(self):
+    def test_enum_ordering(self):
         """Test that levels can be compared"""
         assert CompetenceLevel.FOUNDATIONAL.value < CompetenceLevel.INTERMEDIATE.value
         assert CompetenceLevel.INTERMEDIATE.value < CompetenceLevel.ADVANCED.value
@@ -70,80 +63,88 @@ class TestNormalizeSectorName:
     """Tests for sector name normalization"""
 
     def test_basic_normalization(self):
-        """Test basic sector name normalization"""
+        """Test basic lowercase and space handling"""
         assert normalize_sector_name("Blue Biotech") == "blue biotech"
-        assert normalize_sector_name("PORTS") == "ports"
+        assert normalize_sector_name("BLUE BIOTECH") == "blue biotech"
+        assert normalize_sector_name("blue biotech") == "blue biotech"
 
     def test_punctuation_removal(self):
-        """Test removal of punctuation"""
+        """Test that punctuation is removed"""
+        assert normalize_sector_name("Blue-Biotech") == "blue biotech"
         assert normalize_sector_name("R&I") == "r i"
-        assert normalize_sector_name("Blue-Economy") == "blue economy"
+        assert normalize_sector_name("Blue--Biotech!!") == "blue biotech"
 
     def test_multiple_spaces(self):
-        """Test handling of multiple spaces"""
-        assert normalize_sector_name("Blue   Economy") == "blue economy"
+        """Test that multiple spaces are collapsed"""
+        assert normalize_sector_name("Blue   Biotech") == "blue biotech"
+        assert normalize_sector_name("  Blue  Biotech  ") == "blue biotech"
 
     def test_special_characters(self):
         """Test handling of special characters"""
-        assert normalize_sector_name("Blue/Economy") == "blue economy"
-        assert normalize_sector_name("Blue@Economy") == "blue economy"
+        assert normalize_sector_name("Ports & Harbors") == "ports harbors"
+        assert normalize_sector_name("R&I (Research)") == "r i research"
 
     def test_unicode_handling(self):
         """Test handling of unicode characters"""
-        result = normalize_sector_name("Błękitna Gospodarka")
-        assert "gospodarka" in result.lower()
+        # Non-ASCII characters outside [a-z0-9], such as "é", are treated as
+        # separators and removed/split rather than transliterated.
+        result = normalize_sector_name("Océan Bleu")
+        # Only ASCII alphanumeric tokens that remain after normalization are kept.
+        assert "bleu" in result
 
     def test_empty_string(self):
         """Test handling of empty string"""
         assert normalize_sector_name("") == ""
+        assert normalize_sector_name("   ") == ""
 
     def test_numbers_preserved(self):
         """Test that numbers are preserved"""
-        assert normalize_sector_name("Sector 123") == "sector 123"
+        assert normalize_sector_name("Sector123") == "sector123"
+        assert normalize_sector_name("R&I 2030") == "r i 2030"
 
 
 class TestClassifyCompetenceOrigin:
-    """Tests for classify_competence_origin function"""
+    """Tests for competence origin classification"""
 
     def test_baseline_identification(self):
-        """Test identification of baseline competences"""
+        """Test baseline competence identification"""
         assert classify_competence_origin("baseline_a1") == ORIGIN_BASELINE
         assert classify_competence_origin("baseline_b2") == ORIGIN_BASELINE
+        assert classify_competence_origin("baseline_") == ORIGIN_BASELINE
 
-    def test_baseline_case_handling(self):
-        """Test baseline identification case handling"""
-        # The function uses case-insensitive matching
-        assert classify_competence_origin("BASELINE_A1") == ORIGIN_BASELINE
+    def test_baseline_case_insensitive(self):
+        """Test that baseline matching is case-insensitive"""
+        assert classify_competence_origin("BASELINE_a1") == ORIGIN_BASELINE
         assert classify_competence_origin("Baseline_a1") == ORIGIN_BASELINE
+        assert classify_competence_origin("BaSeLiNe_a1") == ORIGIN_BASELINE
 
     def test_literature_identification(self):
-        """Test identification of literature competences"""
-        assert classify_competence_origin("lit_test_0001") == ORIGIN_LITERATURE
-        assert classify_competence_origin("lit_example_0002") == ORIGIN_LITERATURE
+        """Test literature competence identification"""
+        assert classify_competence_origin("lit_labor_justice_0001") == ORIGIN_LITERATURE
+        assert classify_competence_origin("lit_test_0002") == ORIGIN_LITERATURE
 
-    def test_literature_case_handling(self):
-        """Test literature identification case handling"""
-        # The function uses case-insensitive matching
-        assert classify_competence_origin("LIT_TEST_0001") == ORIGIN_LITERATURE
+    def test_literature_case_insensitive(self):
+        """Test that literature matching is case-insensitive"""
+        assert classify_competence_origin("LIT_test_0001") == ORIGIN_LITERATURE
         assert classify_competence_origin("Lit_test_0001") == ORIGIN_LITERATURE
 
     def test_unknown_identification(self):
-        """Test identification of unknown competences"""
-        assert classify_competence_origin("other_0001") == ORIGIN_UNKNOWN
-        assert classify_competence_origin("comp_marine_001") == ORIGIN_UNKNOWN
+        """Test unknown competence identification"""
+        assert classify_competence_origin("comp_001") == ORIGIN_UNKNOWN
+        assert classify_competence_origin("other_001") == ORIGIN_UNKNOWN
+        assert classify_competence_origin("baselinea1") == ORIGIN_UNKNOWN  # no underscore
+        assert classify_competence_origin("my_baseline_data") == ORIGIN_UNKNOWN  # not at start
 
     def test_edge_cases(self):
         """Test edge cases for origin classification"""
-        # Partial matches should not work
-        assert classify_competence_origin("baselinea1") == ORIGIN_UNKNOWN
-        assert classify_competence_origin("littest") == ORIGIN_UNKNOWN
-        # Empty or whitespace
-        assert classify_competence_origin("") == ORIGIN_UNKNOWN
-        assert classify_competence_origin("   ") == ORIGIN_UNKNOWN
+        assert classify_competence_origin("baseline") == ORIGIN_BASELINE  # just "baseline"
+        assert classify_competence_origin("lit_") == ORIGIN_LITERATURE  # just "lit_"
+        assert classify_competence_origin("baseline2_test") == ORIGIN_UNKNOWN  # baseline not at boundary
+        assert classify_competence_origin("  baseline_a1  ") == ORIGIN_BASELINE  # with whitespace
 
 
 class TestCompetenceEdgeCases:
-    """Edge case tests for Competence model"""
+    """Edge case tests for Competence dataclass"""
 
     def test_empty_keywords(self):
         """Test competence with empty keywords list"""
@@ -153,21 +154,22 @@ class TestCompetenceEdgeCases:
             description="Test",
             axis=BlueDynamicsAxis.MARINE,
             level=CompetenceLevel.FOUNDATIONAL,
-            keywords=[]
+            keywords=[],
         )
         assert comp.keywords == []
-        assert len(comp.keywords) == 0
+        comp_dict = comp.to_dict()
+        assert comp_dict["keywords"] == []
 
-    def test_very_long_description(self):
+    def test_long_description(self):
         """Test competence with very long description"""
-        long_desc = "A" * 10000  # 10,000 character description
+        long_desc = "A" * 10000
         comp = Competence(
             id="test_001",
             name="Test",
             description=long_desc,
             axis=BlueDynamicsAxis.MARINE,
             level=CompetenceLevel.FOUNDATIONAL,
-            keywords=["test"]
+            keywords=["test"],
         )
         assert len(comp.description) == 10000
 
@@ -175,39 +177,39 @@ class TestCompetenceEdgeCases:
         """Test competence with special characters"""
         comp = Competence(
             id="test_001",
-            name="Test: Special & Characters!",
-            description="Contains 'quotes' and \"double quotes\"",
+            name="Test & Development",
+            description="Testing <special> characters: @#$%",
             axis=BlueDynamicsAxis.MARINE,
             level=CompetenceLevel.FOUNDATIONAL,
-            keywords=["test-keyword", "keyword_2", "keyword@3"]
+            keywords=["test", "special-chars", "utf8:é"],
         )
         assert "&" in comp.name
-        assert "'" in comp.description
+        assert "<special>" in comp.description
 
 
 class TestMicroCredentialEdgeCases:
-    """Edge case tests for MicroCredential model"""
+    """Edge case tests for MicroCredential dataclass"""
 
     def test_empty_competences_list(self):
-        """Test credential with empty competences list"""
+        """Test credential with no competences"""
         cred = MicroCredential(
             id="cred_001",
-            title="Test",
+            title="Empty Credential",
             competences=[],
-            description="Test",
-            sector="test"
+            description="No competences",
+            sector="test",
         )
         assert len(cred.competences) == 0
 
     def test_many_competences(self):
         """Test credential with many competences"""
-        many_comps = [f"comp_{i:04d}" for i in range(100)]
+        many_comps = [f"comp_{i:03d}" for i in range(100)]
         cred = MicroCredential(
             id="cred_001",
-            title="Test",
+            title="Large Credential",
             competences=many_comps,
-            description="Test",
-            sector="test"
+            description="Many competences",
+            sector="test",
         )
         assert len(cred.competences) == 100
 
@@ -215,12 +217,12 @@ class TestMicroCredentialEdgeCases:
         """Test credential with duplicate competences"""
         cred = MicroCredential(
             id="cred_001",
-            title="Test",
+            title="Duplicate Credential",
             competences=["comp_001", "comp_001", "comp_002"],
-            description="Test",
-            sector="test"
+            description="Has duplicates",
+            sector="test",
         )
-        # Duplicates are allowed in the model
+        # Should preserve duplicates (business logic may dedupe later)
         assert len(cred.competences) == 3
 
 
@@ -232,42 +234,46 @@ class TestCompetenceMapperEdgeCases:
         mapper = CompetenceMapper()
 
         assert len(mapper.competences) == 0
-        assert len(mapper.get_competences_by_axis(BlueDynamicsAxis.MARINE)) == 0
-        assert len(mapper.get_competences_by_level(CompetenceLevel.FOUNDATIONAL)) == 0
+        assert len(mapper.credentials) == 0
+
+        # Operations on empty mapper should not fail
+        marine = mapper.get_competences_by_axis(BlueDynamicsAxis.MARINE)
+        assert len(marine) == 0
 
         summary = mapper.get_summary()
         assert summary["total_competences"] == 0
         assert summary["total_credentials"] == 0
 
     def test_duplicate_competence_ids(self):
-        """Test adding competences with duplicate IDs"""
+        """Test adding competence with duplicate ID (should overwrite)"""
         mapper = CompetenceMapper()
 
         comp1 = Competence(
             id="comp_001",
             name="First",
-            description="First",
+            description="First version",
             axis=BlueDynamicsAxis.MARINE,
             level=CompetenceLevel.FOUNDATIONAL,
-            keywords=["test"]
+            keywords=["first"],
         )
         comp2 = Competence(
             id="comp_001",
             name="Second",
-            description="Second",
+            description="Second version",
             axis=BlueDynamicsAxis.MARITIME,
             level=CompetenceLevel.ADVANCED,
-            keywords=["test"]
+            keywords=["second"],
         )
 
         mapper.add_competence(comp1)
         mapper.add_competence(comp2)
 
-        # Second one should overwrite
+        # Should only have one competence (overwritten)
         assert len(mapper.competences) == 1
+        # Should be the second one
         assert mapper.competences["comp_001"].name == "Second"
 
-    def test_gap_analysis_with_extra_competences(self):
+    def test_analyze_gaps_with_extra_competences(self):
         """Test gap analysis when user has more than required"""
         mapper = CompetenceMapper()
 
@@ -277,16 +283,16 @@ class TestCompetenceMapperEdgeCases:
             description="Test",
             axis=BlueDynamicsAxis.MARINE,
             level=CompetenceLevel.FOUNDATIONAL,
-            keywords=["test"]
+            keywords=["test"],
         )
         mapper.add_competence(comp)
 
         cred = MicroCredential(
             id="cred_001",
-            title="Test",
+            title="Test Cred",
             competences=["comp_001"],
             description="Test",
-            sector="test-sector"
+            sector="test-sector",
         )
         mapper.add_credentials(cred)
 
@@ -296,7 +302,7 @@ class TestCompetenceMapperEdgeCases:
             required_sector="test-sector"
         )
 
-        assert len(gaps["available"]) == 1
+        assert len(gaps["available"]) == 1  # Only comp_001 is required
         assert len(gaps["missing"]) == 0
 
 

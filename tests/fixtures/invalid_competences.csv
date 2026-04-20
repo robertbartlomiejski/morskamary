@@ -1,3 +1,2 @@
 id,name,description,axis,level,keywords
-comp_001,Test Competence,Invalid axis test,INVALID_AXIS,FOUNDATIONAL,test
-comp_002,Another Test,Invalid level test,MARINE,INVALID_LEVEL,test
+comp_bad_001,Invalid Axis,Test competence with bad axis,INVALID_AXIS,FOUNDATIONAL,test
