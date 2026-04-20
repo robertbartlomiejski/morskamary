@@ -9,6 +9,9 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/competence-domain.instructions.md,text,,,,,,competence_domain_instructions,yes
 .github/copilot-instructions.md,text,,,,,,copilot_instructions,yes
 .github/integrate-literature.skill.md,text,,,,,,integrate_literature_skill,yes
+.github/ISSUE_TEMPLATE/bug_report.md,text,,,,,,bug_report,yes
+.github/ISSUE_TEMPLATE/custom.md,text,,,,,,custom,yes
+.github/ISSUE_TEMPLATE/feature_request.md,text,,,,,,feature_request,yes
 .github/repository-guardrails.instructions.md,text,,,,,,repository_guardrails_instructions,yes
 .github/workflows/blank.yml,other,,,,,,blank,no
 .github/workflows/ci.yml,other,,,,,,ci,no
@@ -526,6 +529,7 @@ src/competence_mapper.py,other,,,,,,competence_mapper,no
 src/competence_repository.py,other,,,,,,competence_repository,no
 src/core.py,other,,,,,,core,no
 src/Untitled-1.litcoffee,other,,,,,,Untitled_1,no
+TEST_COVERAGE_REPORT.md,text,,,,,,TEST_COVERAGE_REPORT,yes
 tests/__init__.py,other,,,,,,init,no
 tests/fixtures/blue_social_competences_sample.csv,dataset_derived,,,,,,blue_social_competences_sample,yes
 tests/fixtures/empty_competences.csv,dataset_derived,,,,,,empty_competences,yes

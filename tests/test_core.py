@@ -15,6 +15,9 @@ from src.core import (
 from src.competence_mapper import CompetenceMapper
 
 
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
+
+
 class TestCompetence:
     """Tests for Competence model"""
 
@@ -82,7 +85,7 @@ class TestLoadCompetenceMatrix:
 
     def test_load_csv_success(self):
         """Test successful loading of CSV file"""
-        csv_path = Path("tests/fixtures/sample_competences.csv")
+        csv_path = FIXTURES_DIR / "sample_competences.csv"
         competences = load_competence_matrix(csv_path)
 
         assert len(competences) == 3
@@ -94,7 +97,7 @@ class TestLoadCompetenceMatrix:
 
     def test_load_excel_success(self):
         """Test successful loading of Excel file"""
-        xlsx_path = Path("tests/fixtures/sample_competences.xlsx")
+        xlsx_path = FIXTURES_DIR / "sample_competences.xlsx"
         competences = load_competence_matrix(xlsx_path)
 
         assert len(competences) == 2
@@ -104,23 +107,23 @@ class TestLoadCompetenceMatrix:
 
     def test_load_empty_csv(self):
         """Test loading CSV with only headers"""
-        empty_path = Path("tests/fixtures/empty_competences.csv")
+        empty_path = FIXTURES_DIR / "empty_competences.csv"
         competences = load_competence_matrix(empty_path)
         assert len(competences) == 0
 
     def test_load_unsupported_format(self):
         """Test error on unsupported file format"""
         with pytest.raises(ValueError, match="Unsupported file format"):
-            load_competence_matrix(Path("tests/fixtures/sample.txt"))
+            load_competence_matrix(FIXTURES_DIR / "sample.txt")
 
     def test_load_nonexistent_file(self):
         """Test error on non-existent file"""
         with pytest.raises(FileNotFoundError):
-            load_competence_matrix(Path("tests/fixtures/nonexistent.csv"))
+            load_competence_matrix(FIXTURES_DIR / "nonexistent.csv")
 
     def test_load_invalid_axis(self):
         """Test handling of invalid axis values"""
-        invalid_path = Path("tests/fixtures/invalid_competences.csv")
+        invalid_path = FIXTURES_DIR / "invalid_competences.csv"
         with pytest.raises(KeyError):
             load_competence_matrix(invalid_path)
 
