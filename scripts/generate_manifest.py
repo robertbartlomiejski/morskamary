@@ -34,6 +34,7 @@ COLUMNS = [
 
 IGNORED_DIRS = {
     ".git",
+    ".allai",
     "__pycache__",
     ".pytest_cache",
     ".venv",
@@ -48,6 +49,25 @@ IGNORED_RELATIVE_DIRS = {
     "outputs/sectors",
     "outputs/sector_dictionaries",
 }
+IGNORED_FILE_BASENAMES = {
+    ".coverage",
+    "coverage.json",
+}
+IGNORED_FILE_PREFIXES = {
+    ".coverage.",
+}
+
+
+def should_ignore_file(path: Path) -> bool:
+    """Return True when a file should be skipped from the manifest scan."""
+    name = path.name
+    if name in IGNORED_FILE_BASENAMES:
+        return True
+    if any(name.startswith(prefix) for prefix in IGNORED_FILE_PREFIXES):
+        return True
+    if ".allai" in path.parts:
+        return True
+    return False
 
 
 def classify(path: Path) -> str:
@@ -129,6 +149,8 @@ def scan_files() -> List[Path]:
             p = Path(root) / name
             # ignore manifest while generating to avoid churn
             if p.resolve() == MANIFEST_PATH.resolve():
+                continue
+            if should_ignore_file(p):
                 continue
             if name == ".codex":
                 continue
