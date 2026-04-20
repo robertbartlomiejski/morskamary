@@ -2,14 +2,12 @@
 
 import json
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 import pytest
 
 from run_full_analysis import (
     Competence,
     CompetenceSource,
-    GapAnalysis,
     MicroCredential,
     TMBDAxis,
     export_competences_json,
