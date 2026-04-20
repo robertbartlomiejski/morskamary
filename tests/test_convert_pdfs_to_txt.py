@@ -3,32 +3,18 @@
 Note: These tests are skipped if pypdf is not installed (optional dependency).
 """
 
-import importlib.util
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-# Mock pypdf before import if not available
-if importlib.util.find_spec("pypdf") is not None:
-    PYPDF_AVAILABLE = True
-else:
-    PYPDF_AVAILABLE = False
-    # Create mock module
-    sys.modules['pypdf'] = Mock()
-
-# Skip all tests if pypdf is not available
-pytestmark = pytest.mark.skipif(not PYPDF_AVAILABLE, reason="pypdf not installed (optional dependency)")
+pytest.importorskip("pypdf", reason="pypdf not installed (optional dependency)")
 
 # Add scripts directory to path for import
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-# Only import if pypdf is available, otherwise tests will be skipped anyway
-if PYPDF_AVAILABLE:
-    import convert_pdfs_to_txt
-else:
-    convert_pdfs_to_txt = None
+import convert_pdfs_to_txt  # noqa: E402
 
 
 class TestExtractWithPypdf:
