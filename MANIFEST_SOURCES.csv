@@ -531,6 +531,7 @@ tests/fixtures/blue_social_competences_sample.csv,dataset_derived,,,,,,blue_soci
 tests/fixtures/empty_competences.csv,dataset_derived,,,,,,empty_competences,yes
 tests/fixtures/invalid_competences.csv,dataset_derived,,,,,,invalid_competences,yes
 tests/fixtures/sample_competences.csv,dataset_derived,,,,,,sample_competences,yes
+tests/fixtures/sample_competences.xlsx,dataset_raw,,,,,,sample_competences,yes
 tests/test_build_tmbd_dictionary.py,other,,,,,,test_build_tmbd_dictionary,no
 tests/test_competence_repository.py,other,,,,,,test_competence_repository,no
 tests/test_core.py,other,,,,,,test_core,no
