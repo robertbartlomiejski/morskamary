@@ -2,8 +2,6 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 # Changelog for `2162d953c8d0c13b775dcf3.litcoffee,other,,,,,,Changelog_for__2162d953c8d0c13b775dcf3,no
 # Changelog for `68efdd831ef476fb3cbdf16.md,text,,,,,,Changelog_for__68efdd831ef476fb3cbdf16,yes
 # Changelog for `c068036473875707f9d8054.litcoffee,other,,,,,,Changelog_for__c068036473875707f9d8054,no
-.allai/workspace.db,other,,,,,,workspace,no
-.coverage,other,,,,,,coverage,no
 .dockerignore,other,,,,,,dockerignore,no
 .flake8,other,,,,,,flake8,no
 .github/add-competence.prompt.md,text,,,,,,add_competence_prompt,yes
@@ -31,7 +29,6 @@ compose.debug.yaml,other,,,,,,compose_debug,no
 compose.yaml,other,,,,,,compose,no
 CONTRIBUTING.md,text,,,,,,CONTRIBUTING,yes
 COPILOT_MCP_SETUP.md,text,,,,,,COPILOT_MCP_SETUP,yes
-coverage.json,other,,,,,,coverage,no
 data/derived/20250303_emodnethumanactivities_final_2025 — kopia.xlsx,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
 data/derived/20250303_emodnethumanactivities_final_2025.xlsx,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
 data/derived/20250701_emodnethumanactivities_q22025_lf — kopia.xlsx,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
@@ -553,5 +550,6 @@ tests/test_edge_cases.py,other,,,,,,test_edge_cases,no
 tests/test_generate_manifest.py,other,,,,,,test_generate_manifest,no
 tests/test_literature_extraction.py,other,,,,,,test_literature_extraction,no
 tests/test_load_real_competences.py,other,,,,,,test_load_real_competences,no
+tests/test_main_entrypoints.py,other,,,,,,test_main_entrypoints,no
 tests/test_run_full_analysis.py,other,,,,,,test_run_full_analysis,no
 tests/test_script_cli.py,other,,,,,,test_script_cli,no
