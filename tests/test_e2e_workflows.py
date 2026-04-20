@@ -6,25 +6,15 @@ These tests verify complete data flows through the system:
 - Evidence discipline and source attribution
 """
 
-import csv
-import json
 from pathlib import Path
-from unittest.mock import patch
 
-import pandas as pd
-import pytest
-
-from load_real_competences import load_blue_competences, map_dimension_to_axis
 from run_full_analysis import (
     Competence,
     CompetenceSource,
-    GapAnalysis,
     TMBDAxis,
-    export_sector_dictionaries,
     generate_micro_credentials,
     run_gap_analysis,
 )
-from src.core import BlueDynamicsAxis
 
 
 class TestE2EBaselineToLiteratureFlow:
