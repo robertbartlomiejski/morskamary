@@ -827,6 +827,13 @@ def generate_micro_credentials(
     eqf5_ids: Dict[str, str] = {}
     eqf6_ids: Dict[str, str] = {}
 
+    missing_gaps = [sector for sector in SECTORS if sector not in gaps]
+    if missing_gaps:
+        raise ValueError(
+            "Gap analysis missing sectors needed for credential generation: "
+            + ", ".join(sorted(missing_gaps))
+        )
+
     for sector in SECTORS:
         slug = SECTOR_SLUG[sector]
         gap = gaps[sector]
