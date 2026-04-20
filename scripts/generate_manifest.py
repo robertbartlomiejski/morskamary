@@ -34,6 +34,7 @@ COLUMNS = [
 
 IGNORED_DIRS = {
     ".git",
+    ".allai",
     "__pycache__",
     ".pytest_cache",
     ".venv",
@@ -50,6 +51,7 @@ IGNORED_RELATIVE_DIRS = {
 }
 IGNORED_FILE_BASENAMES = {
     ".coverage",
+    "coverage.json",
 }
 IGNORED_FILE_PREFIXES = {
     ".coverage.",
@@ -62,6 +64,8 @@ def should_ignore_file(path: Path) -> bool:
     if name in IGNORED_FILE_BASENAMES:
         return True
     if any(name.startswith(prefix) for prefix in IGNORED_FILE_PREFIXES):
+        return True
+    if ".allai" in path.parts:
         return True
     return False
 

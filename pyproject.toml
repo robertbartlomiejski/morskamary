@@ -50,6 +50,9 @@ packages = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+markers = [
+    "integration: integration tests for script entrypoints",
+]
 
 [tool.black]
 line-length = 88

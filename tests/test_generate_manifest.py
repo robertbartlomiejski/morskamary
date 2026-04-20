@@ -252,6 +252,8 @@ class TestScanFiles:
         """Transient coverage artefacts should be ignored during scanning."""
         assert should_ignore_file(REPO_ROOT / ".coverage")
         assert should_ignore_file(REPO_ROOT / ".coverage.local")
+        assert should_ignore_file(REPO_ROOT / "coverage.json")
+        assert should_ignore_file(REPO_ROOT / ".allai" / "workspace.db")
         assert not should_ignore_file(REPO_ROOT / "coverage.xml")
 
 
