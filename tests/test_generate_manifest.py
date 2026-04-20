@@ -8,6 +8,7 @@ from scripts.generate_manifest import (
     text_available,
     load_existing,
     scan_files,
+    should_ignore_file,
     REPO_ROOT,
     MANIFEST_PATH,
 )
@@ -246,6 +247,12 @@ class TestScanFiles:
 
         # Check that it's sorted
         assert rel_paths == sorted(rel_paths)
+
+    def test_coverage_files_are_ignored(self):
+        """Transient coverage artefacts should be ignored during scanning."""
+        assert should_ignore_file(REPO_ROOT / ".coverage")
+        assert should_ignore_file(REPO_ROOT / ".coverage.local")
+        assert not should_ignore_file(REPO_ROOT / "coverage.xml")
 
 
 if __name__ == "__main__":
