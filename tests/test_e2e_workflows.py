@@ -44,6 +44,15 @@ class TestE2EBaselineToLiteratureFlow:
                 source=CompetenceSource(file="baseline.csv", row=1),
                 sectors=["Blue Biotech"],
             ),
+            Competence(
+                id="baseline_2",
+                name="Research methods",
+                description="Applied blue economy R&I methods",
+                axis=TMBDAxis.MARITIME,
+                dimension="D",
+                source=CompetenceSource(file="baseline.csv", row=2),
+                sectors=["R&I"],
+            ),
         ]
 
         # Step 2: Create mock literature competences
@@ -82,12 +91,18 @@ class TestE2EBaselineToLiteratureFlow:
         # Step 5: Generate micro-credentials
         credentials = generate_micro_credentials(baseline, literature, gaps)
 
-        # Step 6: Verify credentials include all competences
+        # Step 6: Verify declared sectors get all EQF levels
+        declared_sectors = {
+            sector for comp in baseline + literature for sector in comp.sectors
+        }
+        for sector in declared_sectors:
+            sector_creds = [c for c in credentials if c.sector == sector]
+            assert len(sector_creds) == 4  # EQF 4-7
+            assert {c.eqf_level.value for c in sector_creds} == {4, 5, 6, 7}
+
+        # Step 7: Verify credentials include all competences for Blue Biotech
         blue_biotech_creds = [c for c in credentials if c.sector == "Blue Biotech"]
-        assert len(blue_biotech_creds) == 4  # 4 EQF levels
-        all_competence_ids = set()
-        for cred in blue_biotech_creds:
-            all_competence_ids.update(cred.competences)
+        all_competence_ids = {cid for cred in blue_biotech_creds for cid in cred.competences}
         assert "baseline_1" in all_competence_ids
         assert "lit_001" in all_competence_ids or "lit_002" in all_competence_ids
 
