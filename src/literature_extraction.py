@@ -40,7 +40,11 @@ class LiteratureExtractor:
             return []
 
         normalized = re.sub(r"\s+", " ", text.strip())
-        return [chunk.strip() for chunk in re.split(r"(?<=[.!?])\s+", normalized) if chunk.strip()]
+        return [
+            chunk.strip()
+            for chunk in re.split(r"(?<=[.!?])\s+", normalized)
+            if chunk.strip()
+        ]
 
     def detect_competence_phrases(self, text: str) -> List[ExtractionRecord]:
         """Detect competence phrases and return records with confidence metadata."""
