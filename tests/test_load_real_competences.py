@@ -132,27 +132,22 @@ class TestLoadBlueCompetences:
         with pytest.raises(FileNotFoundError):
             load_blue_competences(csv_path)
 
-    def test_empty_rows_are_skipped(self):
+    def test_empty_rows_are_skipped(self, tmp_path):
         """Test that rows without ID or name are skipped"""
-        # Create a CSV with some empty rows
+        # Create a CSV with some empty rows in isolated temp directory
         csv_content = """ID,Competence Name,Key Simplified Focus (Applied to all 12 Sectors),imension (Aspect)
 A.1,Valid Competence,Description,A. Understanding
 ,,Missing both,A. Understanding
 B.1,,Missing name,B. Digital
 ,Missing ID,Description,C. Sustainability
 """
-        csv_path = Path("tests/fixtures/temp_with_empty.csv")
+        csv_path = tmp_path / "temp_with_empty.csv"
         csv_path.write_text(csv_content)
 
-        try:
-            mapper = load_blue_competences(csv_path)
-            # Should only load the valid row
-            assert len(mapper.competences) == 1
-            assert "blue_comp_a_1" in mapper.competences
-        finally:
-            # Clean up
-            if csv_path.exists():
-                csv_path.unlink()
+        mapper = load_blue_competences(csv_path)
+        # Should only load the valid row
+        assert len(mapper.competences) == 1
+        assert "blue_comp_a_1" in mapper.competences
 
 
 if __name__ == "__main__":

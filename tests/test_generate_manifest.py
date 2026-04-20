@@ -148,21 +148,14 @@ class TestTextAvailable:
 class TestLoadExisting:
     """Tests for loading existing manifest data"""
 
-    def test_load_nonexistent_manifest(self):
+    def test_load_nonexistent_manifest(self, tmp_path, monkeypatch):
         """Test loading when manifest doesn't exist"""
-        # Temporarily rename manifest if it exists
-        manifest_backup = None
-        if MANIFEST_PATH.exists():
-            manifest_backup = MANIFEST_PATH.with_suffix(".bak")
-            MANIFEST_PATH.rename(manifest_backup)
+        # Point MANIFEST_PATH to a non-existent path in isolated temp directory
+        fake_manifest = tmp_path / "nonexistent_manifest.csv"
+        monkeypatch.setattr("scripts.generate_manifest.MANIFEST_PATH", fake_manifest)
 
-        try:
-            result = load_existing()
-            assert result == {}
-        finally:
-            # Restore manifest
-            if manifest_backup and manifest_backup.exists():
-                manifest_backup.rename(MANIFEST_PATH)
+        result = load_existing()
+        assert result == {}
 
     def test_load_existing_manifest(self):
         """Test loading data from existing manifest"""

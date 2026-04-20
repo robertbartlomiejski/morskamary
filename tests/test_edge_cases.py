@@ -86,9 +86,10 @@ class TestNormalizeSectorName:
 
     def test_unicode_handling(self):
         """Test handling of unicode characters"""
-        # Unicode characters are converted to their ASCII equivalents or removed
+        # Non-ASCII characters outside [a-z0-9], such as "é", are treated as
+        # separators and removed/split rather than transliterated.
         result = normalize_sector_name("Océan Bleu")
-        # The function keeps alphanumeric, so 'é' becomes 'c' in some normalizations
+        # Only ASCII alphanumeric tokens that remain after normalization are kept.
         assert "bleu" in result
 
     def test_empty_string(self):
