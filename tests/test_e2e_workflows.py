@@ -15,6 +15,8 @@ from src.core import BlueDynamicsAxis
 from run_full_analysis import (
     Competence,
     CompetenceSource,
+    EQFLevel,
+    SECTORS,
     TMBDAxis,
     generate_micro_credentials,
     run_gap_analysis,
@@ -32,8 +34,8 @@ class TestE2EBaselineToLiteratureFlow:
     #     pass
 
     def test_literature_extraction_to_gap_analysis_flow(self, tmp_path: Path) -> None:
-        """Test E2E: Literature CSV → gap analysis → micro-credentials."""
-        # Step 1: Create mock baseline
+        """Test E2E: Literature CSV → gap analysis → micro-credentials for all sectors."""
+        # Step 1: Create mock baseline with multiple sectors
         baseline = [
             Competence(
                 id="baseline_1",
@@ -42,11 +44,20 @@ class TestE2EBaselineToLiteratureFlow:
                 axis=TMBDAxis.OCEANIC,
                 dimension="A",
                 source=CompetenceSource(file="baseline.csv", row=1),
-                sectors=["Blue Biotech"],
+                sectors=["Blue Biotech", "R&I"],
+            ),
+            Competence(
+                id="baseline_2",
+                name="Maritime operations",
+                description="Understanding maritime transport",
+                axis=TMBDAxis.MARITIME,
+                dimension="B",
+                source=CompetenceSource(file="baseline.csv", row=2),
+                sectors=["R&I", "Maritime Transport"],
             ),
         ]
 
-        # Step 2: Create mock literature competences
+        # Step 2: Create mock literature competences for multiple sectors
         literature = [
             Competence(
                 id="lit_001",
@@ -64,32 +75,109 @@ class TestE2EBaselineToLiteratureFlow:
                 axis=TMBDAxis.MARITIME,
                 dimension="literature",
                 source=CompetenceSource(file="data/derived/literature.csv", row=28),
-                sectors=["Blue Biotech"],
+                sectors=["Blue Biotech", "R&I"],
+            ),
+            Competence(
+                id="lit_003",
+                name="Innovation networks",
+                description="R&I collaboration patterns",
+                axis=TMBDAxis.OCEANIC,
+                dimension="literature",
+                source=CompetenceSource(file="data/derived/literature.csv", row=42),
+                sectors=["R&I"],
             ),
         ]
 
         # Step 3: Run gap analysis
         gaps, gap_details = run_gap_analysis(baseline, literature)
 
-        # Step 4: Verify gap calculation
-        assert "Blue Biotech" in gaps
-        gap_analysis = gaps["Blue Biotech"]
-        assert len(gap_analysis.required_ids) >= 1
-        assert len(gap_analysis.available_ids) >= 1
-        # Gap percentage should be lower with literature competences
-        assert gap_analysis.gap_pct >= 0.0
+        # Step 4: Verify gap calculation for all sectors with competences
+        expected_sectors = {"Blue Biotech", "R&I", "Maritime Transport"}
+        for sector in expected_sectors:
+            assert sector in gaps, f"Gap analysis missing sector: {sector}"
+            gap_analysis = gaps[sector]
+            assert len(gap_analysis.required_ids) >= 1
+            assert len(gap_analysis.available_ids) >= 1
+            assert gap_analysis.gap_pct >= 0.0
 
         # Step 5: Generate micro-credentials
         credentials = generate_micro_credentials(baseline, literature, gaps)
 
-        # Step 6: Verify credentials include all competences
+        # Step 6: Verify credentials generated for all 4 EQF levels per sector
+        # Collect all sectors mentioned in test data
+        sectors_in_data = expected_sectors
+
+        for sector in sectors_in_data:
+            sector_creds = [c for c in credentials if c.sector == sector]
+            assert len(sector_creds) == 4, (
+                f"Expected 4 EQF credentials for {sector}, got {len(sector_creds)}"
+            )
+
+            # Verify all 4 EQF levels are present
+            eqf_levels = {c.eqf_level.value for c in sector_creds}
+            assert eqf_levels == {4, 5, 6, 7}, (
+                f"Expected EQF levels 4,5,6,7 for {sector}, got {eqf_levels}"
+            )
+
+        # Step 7: Verify credentials include competences from baseline and literature
         blue_biotech_creds = [c for c in credentials if c.sector == "Blue Biotech"]
-        assert len(blue_biotech_creds) == 4  # 4 EQF levels
         all_competence_ids = set()
         for cred in blue_biotech_creds:
             all_competence_ids.update(cred.competences)
         assert "baseline_1" in all_competence_ids
         assert "lit_001" in all_competence_ids or "lit_002" in all_competence_ids
+
+    def test_micro_credentials_generated_for_every_sector(self) -> None:
+        """Ensure every declared sector receives the full EQF stack."""
+        baseline = [
+            Competence(
+                id="baseline_biotech",
+                name="Baseline for biotech",
+                description="",
+                axis=TMBDAxis.MARINE,
+                dimension="A",
+                source=CompetenceSource(file="baseline.csv", row=1),
+                sectors=["Blue Biotech"],
+            ),
+            Competence(
+                id="baseline_research",
+                name="Baseline for research",
+                description="",
+                axis=TMBDAxis.MARITIME,
+                dimension="B",
+                source=CompetenceSource(file="baseline.csv", row=2),
+                sectors=["R&I"],
+            ),
+        ]
+        literature = [
+            Competence(
+                id="lit_cross",
+                name="Cross-cutting literature competence",
+                description="",
+                axis=TMBDAxis.OCEANIC,
+                dimension="literature",
+                source=CompetenceSource(file="data/derived/lit.csv", row=5),
+                sectors=["Blue Biotech"],
+            ),
+        ]
+
+        gaps, _ = run_gap_analysis(baseline, literature)
+        credentials = generate_micro_credentials(baseline, literature, gaps)
+
+        assert len(credentials) == len(SECTORS) * 4
+        sectors_with_credentials = {cred.sector for cred in credentials}
+        assert sectors_with_credentials == set(SECTORS)
+
+        for sector in SECTORS:
+            eqf_levels = {
+                cred.eqf_level for cred in credentials if cred.sector == sector
+            }
+            assert eqf_levels == {
+                EQFLevel.EQF4,
+                EQFLevel.EQF5,
+                EQFLevel.EQF6,
+                EQFLevel.EQF7,
+            }
 
 
 class TestE2ETMBDIntegrity:
