@@ -8,6 +8,10 @@ These tests verify complete data flows through the system:
 
 from pathlib import Path
 
+import pandas as pd
+
+from load_real_competences import map_dimension_to_axis
+from src.core import BlueDynamicsAxis
 from run_full_analysis import (
     Competence,
     CompetenceSource,

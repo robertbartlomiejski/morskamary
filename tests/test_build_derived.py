@@ -245,28 +245,34 @@ class TestMainIntegration:
 
     def test_main_handles_sheet_parsing_errors(self, tmp_path: Path, capsys) -> None:
         """Test that main() continues processing when a single sheet fails."""
-        # This test uses a mock to simulate a parsing error
         excel_file = tmp_path / "test_partial_fail.xlsx"
         with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
             df = pd.DataFrame({"A": [1, 2]})
             df.to_excel(writer, sheet_name="GoodSheet", index=False)
 
-        def mock_parse(sheet_name):
+        derived_dir = tmp_path / "derived"
+
+        def mock_parse(*args, **kwargs):
+            sheet_name = kwargs.get("sheet_name")
             if sheet_name == "GoodSheet":
                 return pd.DataFrame({"A": [1, 2]})
             raise ValueError("Simulated parse error")
 
         with patch("scripts.build_derived.REPO_ROOT", tmp_path):
-            with patch("scripts.build_derived.DERIVED_DIR", tmp_path / "derived"):
-                # Mock the ExcelFile to include a problematic sheet
+            with patch("scripts.build_derived.DERIVED_DIR", derived_dir):
                 with patch("pandas.ExcelFile") as mock_excel:
                     mock_instance = mock_excel.return_value
                     mock_instance.sheet_names = ["GoodSheet", "BadSheet"]
                     mock_instance.parse.side_effect = mock_parse
-                    # Don't run actual main since we need more complex mocking
-                    # Just verify the error handling logic exists
-                    pass
+                    main()
 
-        # The actual implementation catches exceptions, so this test verifies
-        # the error handling exists in the code
-        assert True  # Placeholder for structural validation
+        assert (derived_dir / "test_partial_fail__goodsheet.csv").exists()
+        assert (derived_dir / "test_partial_fail__goodsheet__datadict.csv").exists()
+        assert not (derived_dir / "test_partial_fail__badsheet.csv").exists()
+        assert not (derived_dir / "test_partial_fail__badsheet__datadict.csv").exists()
+
+        captured = capsys.readouterr()
+        assert "FAILED to parse:" in captured.out
+        assert "BadSheet" in captured.out
+        assert "Processed:" in captured.out
+        assert "exported_tables=1" in captured.out
