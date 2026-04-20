@@ -526,8 +526,17 @@ src/competence_mapper.py,other,,,,,,competence_mapper,no
 src/competence_repository.py,other,,,,,,competence_repository,no
 src/core.py,other,,,,,,core,no
 src/Untitled-1.litcoffee,other,,,,,,Untitled_1,no
+TEST_COVERAGE_REPORT.md,text,,,,,,TEST_COVERAGE_REPORT,yes
 tests/__init__.py,other,,,,,,init,no
+tests/fixtures/blue_social_competences_sample.csv,dataset_derived,,,,,,blue_social_competences_sample,yes
+tests/fixtures/empty_competences.csv,dataset_derived,,,,,,empty_competences,yes
+tests/fixtures/invalid_competences.csv,dataset_derived,,,,,,invalid_competences,yes
+tests/fixtures/sample_competences.csv,dataset_derived,,,,,,sample_competences,yes
+tests/fixtures/sample_competences.xlsx,dataset_raw,,,,,,sample_competences,yes
 tests/test_build_tmbd_dictionary.py,other,,,,,,test_build_tmbd_dictionary,no
 tests/test_competence_repository.py,other,,,,,,test_competence_repository,no
 tests/test_core.py,other,,,,,,test_core,no
+tests/test_edge_cases.py,other,,,,,,test_edge_cases,no
+tests/test_generate_manifest.py,other,,,,,,test_generate_manifest,no
+tests/test_load_real_competences.py,other,,,,,,test_load_real_competences,no
 tests/test_run_full_analysis.py,other,,,,,,test_run_full_analysis,no
