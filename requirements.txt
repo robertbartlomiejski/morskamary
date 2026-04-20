@@ -10,3 +10,7 @@ pytest>=7.0
 # flake8>=6.0
 # mypy>=1.0
  
+# NLP and baseline ML stack for literature extraction/classification
+spacy==3.7.5
+sentence-transformers==2.7.0
+scikit-learn==1.5.2
