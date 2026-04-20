@@ -1,4 +1,5 @@
 # Core dependencies for morskamary Blue Sociology project
+numpy>=1.23.5,<2.3.0
 pandas>=1.5.0
 openpyxl>=3.0.0
 pyyaml>=6.0
