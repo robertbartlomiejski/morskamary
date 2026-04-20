@@ -3,6 +3,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 # Changelog for `68efdd831ef476fb3cbdf16.md,text,,,,,,Changelog_for__68efdd831ef476fb3cbdf16,yes
 # Changelog for `c068036473875707f9d8054.litcoffee,other,,,,,,Changelog_for__c068036473875707f9d8054,no
 .allai/workspace.db,other,,,,,,workspace,no
+.coverage,other,,,,,,coverage,no
 .dockerignore,other,,,,,,dockerignore,no
 .flake8,other,,,,,,flake8,no
 .github/add-competence.prompt.md,text,,,,,,add_competence_prompt,yes
@@ -30,6 +31,7 @@ compose.debug.yaml,other,,,,,,compose_debug,no
 compose.yaml,other,,,,,,compose,no
 CONTRIBUTING.md,text,,,,,,CONTRIBUTING,yes
 COPILOT_MCP_SETUP.md,text,,,,,,COPILOT_MCP_SETUP,yes
+coverage.json,other,,,,,,coverage,no
 data/derived/20250303_emodnethumanactivities_final_2025 — kopia.xlsx,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
 data/derived/20250303_emodnethumanactivities_final_2025.xlsx,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
 data/derived/20250701_emodnethumanactivities_q22025_lf — kopia.xlsx,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
@@ -362,6 +364,7 @@ demo_workspace_instructions.py,other,,,,,,demo_workspace_instructions,no
 Deploy-CopilotSynergy.ps1,other,,,,,,Deploy_CopilotSynergy,no
 Dockerfile,other,,,,,,Dockerfile,no
 Dockerfile.txt,text,,,,,,Dockerfile,yes
+docs/BASELINE_VALIDATION.md,text,,,,,,BASELINE_VALIDATION,yes
 docs/literature/(Posthumanities) Timothy Morton - Hyperobjects_ Philosophy and Ecology after the End of the World-University of Minnesota Press (2013).txt,literature,,,,,,Posthumanities__Timothy_Morton___Hyperob,yes
 docs/literature/40152_2021_Article_238.PDF,literature,,,,,,40152_2021_Article_238,no
 docs/literature/A Sensorial Walk for Le Havre.docx,literature,,,,,,A_Sensorial_Walk_for_Le_Havre,yes
@@ -525,10 +528,13 @@ security/security-checklist.md,text,,,,,,security_checklist,yes
 SESSION_SUMMARY.md,text,,,,,,SESSION_SUMMARY,yes
 setup_one_click.ps1,other,,,,,,setup_one_click,no
 src/__init__.py,other,,,,,,init,no
+src/axis_classifier.py,other,,,,,,axis_classifier,no
 src/competence_mapper.py,other,,,,,,competence_mapper,no
 src/competence_repository.py,other,,,,,,competence_repository,no
 src/core.py,other,,,,,,core,no
+src/literature_extraction.py,other,,,,,,literature_extraction,no
 src/Untitled-1.litcoffee,other,,,,,,Untitled_1,no
+TEST_COVERAGE_IMPROVEMENTS.md,text,,,,,,TEST_COVERAGE_IMPROVEMENTS,yes
 TEST_COVERAGE_REPORT.md,text,,,,,,TEST_COVERAGE_REPORT,yes
 tests/__init__.py,other,,,,,,init,no
 tests/fixtures/blue_social_competences_sample.csv,dataset_derived,,,,,,blue_social_competences_sample,yes
@@ -536,10 +542,16 @@ tests/fixtures/empty_competences.csv,dataset_derived,,,,,,empty_competences,yes
 tests/fixtures/invalid_competences.csv,dataset_derived,,,,,,invalid_competences,yes
 tests/fixtures/sample_competences.csv,dataset_derived,,,,,,sample_competences,yes
 tests/fixtures/sample_competences.xlsx,dataset_raw,,,,,,sample_competences,yes
+tests/test_axis_classifier.py,other,,,,,,test_axis_classifier,no
+tests/test_build_derived.py,other,,,,,,test_build_derived,no
 tests/test_build_tmbd_dictionary.py,other,,,,,,test_build_tmbd_dictionary,no
 tests/test_competence_repository.py,other,,,,,,test_competence_repository,no
+tests/test_convert_pdfs_to_txt.py,other,,,,,,test_convert_pdfs_to_txt,no
 tests/test_core.py,other,,,,,,test_core,no
+tests/test_e2e_workflows.py,other,,,,,,test_e2e_workflows,no
 tests/test_edge_cases.py,other,,,,,,test_edge_cases,no
 tests/test_generate_manifest.py,other,,,,,,test_generate_manifest,no
+tests/test_literature_extraction.py,other,,,,,,test_literature_extraction,no
 tests/test_load_real_competences.py,other,,,,,,test_load_real_competences,no
 tests/test_run_full_analysis.py,other,,,,,,test_run_full_analysis,no
+tests/test_script_cli.py,other,,,,,,test_script_cli,no
