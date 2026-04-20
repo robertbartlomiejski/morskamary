@@ -1,4 +1,5 @@
 # Core dependencies for morskamary Blue Sociology project
+numpy>=1.23.5,<2.3.0
 pandas>=1.5.0
 numpy>=1.23.5,<2.3.0
 openpyxl>=3.0.0
@@ -10,3 +11,7 @@ pytest>=7.0
 # flake8>=6.0
 # mypy>=1.0
  
+# NLP and baseline ML stack for literature extraction/classification
+spacy==3.7.5
+sentence-transformers==2.7.0
+scikit-learn==1.5.2
