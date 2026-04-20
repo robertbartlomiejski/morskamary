@@ -15,6 +15,8 @@ from src.core import BlueDynamicsAxis
 from run_full_analysis import (
     Competence,
     CompetenceSource,
+    EQFLevel,
+    SECTORS,
     TMBDAxis,
     generate_micro_credentials,
     run_gap_analysis,
@@ -124,6 +126,58 @@ class TestE2EBaselineToLiteratureFlow:
             all_competence_ids.update(cred.competences)
         assert "baseline_1" in all_competence_ids
         assert "lit_001" in all_competence_ids or "lit_002" in all_competence_ids
+
+    def test_micro_credentials_generated_for_every_sector(self) -> None:
+        """Ensure every declared sector receives the full EQF stack."""
+        baseline = [
+            Competence(
+                id="baseline_biotech",
+                name="Baseline for biotech",
+                description="",
+                axis=TMBDAxis.MARINE,
+                dimension="A",
+                source=CompetenceSource(file="baseline.csv", row=1),
+                sectors=["Blue Biotech"],
+            ),
+            Competence(
+                id="baseline_research",
+                name="Baseline for research",
+                description="",
+                axis=TMBDAxis.MARITIME,
+                dimension="B",
+                source=CompetenceSource(file="baseline.csv", row=2),
+                sectors=["R&I"],
+            ),
+        ]
+        literature = [
+            Competence(
+                id="lit_cross",
+                name="Cross-cutting literature competence",
+                description="",
+                axis=TMBDAxis.OCEANIC,
+                dimension="literature",
+                source=CompetenceSource(file="data/derived/lit.csv", row=5),
+                sectors=["Blue Biotech"],
+            ),
+        ]
+
+        gaps, _ = run_gap_analysis(baseline, literature)
+        credentials = generate_micro_credentials(baseline, literature, gaps)
+
+        assert len(credentials) == len(SECTORS) * 4
+        sectors_with_credentials = {cred.sector for cred in credentials}
+        assert sectors_with_credentials == set(SECTORS)
+
+        for sector in SECTORS:
+            eqf_levels = {
+                cred.eqf_level for cred in credentials if cred.sector == sector
+            }
+            assert eqf_levels == {
+                EQFLevel.EQF4,
+                EQFLevel.EQF5,
+                EQFLevel.EQF6,
+                EQFLevel.EQF7,
+            }
 
 
 class TestE2ETMBDIntegrity:
