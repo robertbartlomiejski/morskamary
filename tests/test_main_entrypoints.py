@@ -5,6 +5,18 @@ from pathlib import Path
 import pytest
 
 
+def test_main_demo_outputs(capsys):
+    """main.main should render the demo summary without errors."""
+    import main
+
+    main.main()
+
+    captured = capsys.readouterr()
+    assert "MORSKAMARY: Blue Sociology Competence Mapping" in captured.out
+    assert "Competence Mapping Summary" in captured.out
+    assert "Competence Gap Analysis Example" in captured.out
+
+
 @pytest.mark.integration
 def test_run_full_analysis_main(tmp_path, monkeypatch):
     """run_full_analysis.main should complete and produce key outputs."""
@@ -57,5 +69,3 @@ class TestMainRealDataEdgeCases:
         result = main_real_data.main()
         assert isinstance(result, int)
         assert result in (0, 1)
-
-
