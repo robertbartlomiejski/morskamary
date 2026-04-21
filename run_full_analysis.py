@@ -22,6 +22,7 @@ references and GitHub hyperlinks.
 """
 
 import csv
+import argparse
 import html as _html_module
 import json
 import logging
@@ -1666,5 +1667,27 @@ def main() -> int:
     return 0
 
 
+def parse_cli_args() -> argparse.Namespace:
+    """
+    Parse command-line arguments for optional sector-scoped execution.
+
+    Returns:
+        argparse.Namespace with parsed CLI options.
+    """
+    parser = argparse.ArgumentParser(
+        description="Run full blue economy competence analysis."
+    )
+    parser.add_argument(
+        "--sector",
+        dest="sectors",
+        action="append",
+        default=[],
+        choices=SECTORS,
+        help="Limit execution scope to one or more sectors (repeatable).",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
+    parse_cli_args()
     sys.exit(main())
