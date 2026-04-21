@@ -29,7 +29,7 @@ for entry in sys.path:
     resolved = _safe_resolve_path(entry)
     if resolved:
         resolved_sys_paths.add(resolved)
-if str(REPO_ROOT.resolve()) not in resolved_sys_paths:
+if str(REPO_ROOT) not in resolved_sys_paths:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.competence_repository import (
