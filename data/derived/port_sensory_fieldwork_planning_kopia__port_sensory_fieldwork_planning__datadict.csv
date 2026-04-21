@@ -1,0 +1,7 @@
+column,dtype,non_null,null
+Sensory Group,str,5,0
+Sensor / Modality,str,5,0
+Grouping Justification,str,5,0
+Stop Trigger: Santa Apolónia (OPS),str,5,0
+Stop Trigger: Beato (BioBus/Lab),str,5,0
+Stop Trigger: Barreiro (HyChem),str,5,0

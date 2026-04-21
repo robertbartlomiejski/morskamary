@@ -1,0 +1,20 @@
+role_code,role_label
+MC_WG_member,MC/WG member
+Port_authority,Port authority
+Harbour_master_VTS,Harbour master & VTS
+Terminal_operator,Terminal operator
+Port_professional,Port professional
+Shipping_line_Owner,Shipping line / Shipowner
+City_Regional_planner,Policy maker / Planner
+Utility_TSO_DSO,Utility (TSO/DSO)
+Energy_developer,Energy developer
+Engineer_OEM,Engineer / Technologist (OEM)
+Labor_Union,Labor / Unions
+SME_Supplier,SME / Supplier
+NGO_Activist,NGO / Activist
+Resident,Local resident
+Researcher_Student,Researcher / Student
+Artist_Curator,Artist / Curator
+Journalist,Journalist
+Visitor_Tourist,Visitor / Tourist
+Financier_Insurer,Financier / Insurer
