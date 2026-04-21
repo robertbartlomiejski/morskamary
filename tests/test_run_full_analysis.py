@@ -97,7 +97,17 @@ def test_main_orchestration_success(tmp_path: Path) -> None:
             sectors=["Blue Biotech"],
         )
     ]
-    fake_gaps = {sector: MagicMock(spec=GapAnalysis) for sector in SECTORS}
+    fake_gaps = {
+        sector: GapAnalysis(
+            sector=sector,
+            required_ids=["baseline_a1", "lit_example_0001"],
+            available_ids=["baseline_a1"],
+            missing_ids=["lit_example_0001"],
+            gap_pct=50.0,
+            by_axis={"MARINE": [], "MARITIME": ["lit_example_0001"], "OCEANIC": []},
+        )
+        for sector in SECTORS
+    }
     fake_credentials = [MagicMock()]
     fake_pathways = [MagicMock()]
 
@@ -185,8 +195,9 @@ def test_generate_micro_credentials_missing_gaps_error() -> None:
     with pytest.raises(
         ValueError,
         match="Gap analysis missing sectors needed for credential generation",
-    ):
+    ) as exc_info:
         generate_micro_credentials(baseline, literature, incomplete_gaps)
+    assert "Coastal Tourism" in str(exc_info.value)
 
 
 def test_cli_argument_parsing() -> None:

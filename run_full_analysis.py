@@ -31,7 +31,7 @@ import sys
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 from urllib.parse import quote
 
 from scripts.build_tmbd_dictionary import (
@@ -1541,7 +1541,7 @@ def generate_literature_html(
 # ---------------------------------------------------------------------------
 
 
-def main() -> int:
+def main(selected_sectors: Optional[List[str]] = None) -> int:
     """
     Execute the full analysis pipeline:
       1. Load baseline competences (15 from University of Szczecin CSV)
@@ -1557,6 +1557,8 @@ def main() -> int:
     Returns:
         Exit code (0 = success, 1 = error)
     """
+    target_sectors = selected_sectors or SECTORS
+
     log.info("=" * 65)
     log.info("Blue Economy Full Analysis — morskamary")
     log.info("=" * 65)
@@ -1609,7 +1611,7 @@ def main() -> int:
     export_gaps_summary_csv(gaps, OUTPUTS_DIR / "gaps_summary.csv")
     sector_dictionary_paths = export_sector_dictionaries(
         competences=literature,
-        sectors=SECTORS,
+        sectors=target_sectors,
         output_dir=OUTPUTS_DIR / "sector_dictionaries",
     )
     log.info("  Exported: %d sector TMBD dictionaries", len(sector_dictionary_paths))
@@ -1689,5 +1691,5 @@ def parse_cli_args() -> argparse.Namespace:
 
 
 if __name__ == "__main__":
-    parse_cli_args()
-    sys.exit(main())
+    cli_args = parse_cli_args()
+    sys.exit(main(selected_sectors=cli_args.sectors))
