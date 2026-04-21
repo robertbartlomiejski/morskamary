@@ -1,3 +1,0 @@
-column,dtype,non_null,null
-Authors,str,16,0
-Count,int64,16,0

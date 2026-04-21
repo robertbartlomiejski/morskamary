@@ -1,4 +1,0 @@
-column,dtype,non_null,null
-Step,str,10,0
-Who,str,10,0
-Output,str,10,0

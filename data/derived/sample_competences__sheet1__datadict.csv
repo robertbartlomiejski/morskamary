@@ -1,7 +1,0 @@
-column,dtype,non_null,null
-id,str,2,0
-name,str,2,0
-description,str,2,0
-axis,str,2,0
-level,str,2,0
-keywords,str,2,0
