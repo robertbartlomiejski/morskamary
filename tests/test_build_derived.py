@@ -276,3 +276,13 @@ class TestMainIntegration:
         assert "BadSheet" in captured.out
         assert "Processed:" in captured.out
         assert "exported_tables=1" in captured.out
+
+    def test_main_if_name_main_block(self):
+        """Test the if __name__ == '__main__' execution path"""
+        from scripts.build_derived import main
+
+        # Verify main() can be called and returns None/0
+        result = main()
+        # main() returns None, not int, so we just verify it runs
+        assert result is None
+

@@ -1,0 +1,17 @@
+column,dtype,non_null,null
+DOI,str,43,0
+Title,str,40,3
+Abstract,str,30,13
+Open access,str,43,0
+Authors,str,39,4
+Publication date,datetime64[us],40,3
+Citations,int64,43,0
+Journal,str,29,14
+ISSNs,object,29,14
+Quartile by SCImago,float64,29,14
+Quartile by WOS,float64,29,14
+Impact factor,float64,26,17
+Publisher,str,29,14
+Volume,float64,29,14
+Issue,float64,26,17
+Pages,object,32,11
