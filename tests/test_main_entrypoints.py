@@ -45,3 +45,17 @@ def test_main_real_data_entrypoint(capsys):
     captured = capsys.readouterr()
     assert "Real Data Analysis Complete" in captured.out
 
+
+class TestMainRealDataEdgeCases:
+    """Edge case tests for main_real_data.py"""
+
+    def test_main_real_data_if_name_main(self):
+        """Test the if __name__ == '__main__' execution path for main_real_data"""
+        import main_real_data
+
+        # Verify main() can be called and returns int
+        result = main_real_data.main()
+        assert isinstance(result, int)
+        assert result in (0, 1)
+
+

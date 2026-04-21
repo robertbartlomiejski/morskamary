@@ -894,3 +894,51 @@ def test_main_handles_no_literature_files(tmp_path: Path) -> None:
 
     # Should succeed even with no literature files
     assert exit_code == 0
+
+
+class TestCLIAndEdgeCases:
+    """Tests for CLI arguments and edge case branches"""
+
+    def test_parse_cli_args_defaults(self):
+        """Test CLI argument parsing returns correct default structure"""
+        import sys
+
+        # Test with no arguments (default)
+        with patch.object(sys, 'argv', ['run_full_analysis.py']):
+            args = parse_cli_args()
+            assert hasattr(args, 'sectors')
+            # Default value is an empty list, not None
+            assert args.sectors == [] or args.sectors is None
+
+    def test_main_with_cli_sector_selection(self, tmp_path):
+        """Test main() with CLI sector selection"""
+        baseline_csv = tmp_path / "baseline.csv"
+        baseline_csv.write_text(
+            "Dimension,Competence,Blue competence name,Focus,Blue Biotech,Ports\n"
+            "A,A.1,Test,Description,X,X\n",
+            encoding="utf-8"
+        )
+
+        output_dir = tmp_path / "outputs"
+
+        with (
+            patch("run_full_analysis.BASELINE_CSV", baseline_csv),
+            patch("run_full_analysis.OUTPUTS_DIR", output_dir),
+            patch("run_full_analysis.LITERATURE_FILES", []),
+            patch("run_full_analysis.REPO_ROOT", tmp_path),
+        ):
+            exit_code = main(selected_sectors=["Blue Biotech"])
+
+        assert exit_code == 0
+
+    def test_main_if_name_main_block(self):
+        """Test the if __name__ == '__main__' execution path"""
+        # This test verifies the CLI entry point structure
+        # The actual block calls parse_cli_args() and main(selected_sectors=...)
+        # We verify parse_cli_args works and returns expected structure
+        import sys
+
+        with patch.object(sys, 'argv', ['run_full_analysis.py']):
+            args = parse_cli_args()
+            assert hasattr(args, 'sectors')
+

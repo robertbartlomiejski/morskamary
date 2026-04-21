@@ -271,5 +271,38 @@ class TestCompetenceMapper:
         assert len(pathway) == 2
 
 
+class TestLoadCompetenceMatrixImportError:
+    """Test ImportError handling in load_competence_matrix"""
+
+    def test_load_competence_matrix_without_pandas(self, monkeypatch, tmp_path):
+        """Test that load_competence_matrix raises helpful ImportError when pandas is missing"""
+        import sys
+        import builtins
+
+        # Create a simple CSV file
+        csv_content = """ID,Competence Name,Description
+A.1,Test Competence,Test description
+"""
+        csv_path = tmp_path / "test.csv"
+        csv_path.write_text(csv_content)
+
+        # Mock pandas import to fail
+        real_import = builtins.__import__
+
+        def mock_import(name, *args, **kwargs):
+            if name == "pandas" or name.startswith("pandas."):
+                raise ImportError("No module named 'pandas'")
+            return real_import(name, *args, **kwargs)
+
+        monkeypatch.setattr(builtins, "__import__", mock_import)
+
+        # Should raise ImportError with helpful message
+        with pytest.raises(ImportError) as exc_info:
+            load_competence_matrix(csv_path)
+
+        assert "pandas is required" in str(exc_info.value)
+        assert "pip install pandas openpyxl" in str(exc_info.value)
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
