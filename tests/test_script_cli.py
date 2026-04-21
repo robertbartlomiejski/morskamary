@@ -142,7 +142,9 @@ class TestGenerateManifestCLI:
         captured = capsys.readouterr()
         assert "Wrote" in captured.out
         assert str(manifest_path) in captured.out
-        last_line = [line for line in captured.out.splitlines() if line][-1]
+        lines = [line for line in captured.out.splitlines() if line]
+        assert lines
+        last_line = lines[-1]
         assert last_line == manifest_path.name
 
     def test_main_preserves_manual_metadata(self, tmp_path, monkeypatch):
