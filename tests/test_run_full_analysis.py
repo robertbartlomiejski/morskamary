@@ -200,6 +200,59 @@ def test_generate_micro_credentials_missing_gaps_error() -> None:
     assert "Coastal Tourism" in str(exc_info.value)
 
 
+def test_main_uses_selected_sectors_for_dictionary_export(tmp_path: Path) -> None:
+    baseline_csv = tmp_path / "baseline.csv"
+    baseline_csv.write_text("placeholder", encoding="utf-8")
+    output_dir = tmp_path / "outputs"
+    selected = ["Desalination"]
+    baseline = [
+        Competence(
+            id="baseline_a1",
+            name="Baseline competence",
+            description="Baseline row",
+            axis=TMBDAxis.MARINE,
+            dimension="A",
+            source=CompetenceSource(file="data/derived/y.csv", row=3),
+            sectors=["Blue Biotech"],
+        )
+    ]
+    literature = [
+        Competence(
+            id="lit_example_0001",
+            name="Literature competence",
+            description="Example",
+            axis=TMBDAxis.MARITIME,
+            dimension="literature",
+            source=CompetenceSource(file="data/derived/x.csv", row=2),
+            sectors=["Blue Biotech"],
+        )
+    ]
+
+    with (
+        patch("run_full_analysis.BASELINE_CSV", baseline_csv),
+        patch("run_full_analysis.OUTPUTS_DIR", output_dir),
+        patch("run_full_analysis.load_baseline_competences", return_value=baseline),
+        patch("run_full_analysis.extract_literature_competences", return_value=literature),
+        patch("run_full_analysis.run_gap_analysis", return_value=({}, {})),
+        patch("run_full_analysis.generate_micro_credentials", return_value=[]),
+        patch("run_full_analysis.compute_sector_pathways", return_value=[]),
+        patch("run_full_analysis.export_competences_json"),
+        patch("run_full_analysis.export_credentials_json"),
+        patch("run_full_analysis.export_pathways_json"),
+        patch("run_full_analysis.export_gaps_summary_csv"),
+        patch("run_full_analysis.generate_report_index"),
+        patch("run_full_analysis.generate_gaps_html"),
+        patch("run_full_analysis.generate_credentials_html"),
+        patch("run_full_analysis.generate_literature_html"),
+        patch("run_full_analysis.export_sector_dictionaries", return_value=[]) as m_export,
+    ):
+        exit_code = main(selected_sectors=selected)
+
+    assert exit_code == 0
+    m_export.assert_called_once()
+    assert m_export.call_args.kwargs["sectors"] == selected
+
+
 def test_cli_argument_parsing() -> None:
     with patch("sys.argv", ["run_full_analysis.py", "--sector", "Desalination"]):
         args = parse_cli_args()
