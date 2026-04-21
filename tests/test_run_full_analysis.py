@@ -273,3 +273,9 @@ def test_cli_argument_parsing() -> None:
     assert args.sectors == ["Desalination"]
     assert multi_args.sectors == ["Desalination", "Blue Biotech"]
     assert default_args.sectors == []
+
+
+def test_cli_argument_parsing_rejects_invalid_sector() -> None:
+    with patch("sys.argv", ["run_full_analysis.py", "--sector", "Invalid Sector"]):
+        with pytest.raises(SystemExit):
+            parse_cli_args()
