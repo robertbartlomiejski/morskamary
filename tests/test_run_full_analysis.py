@@ -177,7 +177,8 @@ def test_generate_micro_credentials_missing_gaps_error() -> None:
             required_ids=["baseline_a1", "lit_example_0001"],
             available_ids=["baseline_a1"],
             missing_ids=["lit_example_0001"],
-            gap_percent=50.0,
+            gap_pct=50.0,
+            by_axis={"MARINE": [], "MARITIME": ["lit_example_0001"], "OCEANIC": []},
         )
     }
 
