@@ -203,5 +203,20 @@ def test_generate_micro_credentials_missing_gaps_error() -> None:
 def test_cli_argument_parsing() -> None:
     with patch("sys.argv", ["run_full_analysis.py", "--sector", "Desalination"]):
         args = parse_cli_args()
+    with patch(
+        "sys.argv",
+        [
+            "run_full_analysis.py",
+            "--sector",
+            "Desalination",
+            "--sector",
+            "Blue Biotech",
+        ],
+    ):
+        multi_args = parse_cli_args()
+    with patch("sys.argv", ["run_full_analysis.py"]):
+        default_args = parse_cli_args()
 
     assert args.sectors == ["Desalination"]
+    assert multi_args.sectors == ["Desalination", "Blue Biotech"]
+    assert default_args.sectors == []
