@@ -12,7 +12,19 @@ from pathlib import Path
 from typing import Any, Dict, List, Sequence
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-resolved_sys_paths = {str(Path(entry).resolve()) for entry in sys.path if entry}
+
+
+def _safe_resolve_path(path_text: str) -> str | None:
+    """Resolve sys.path entries without failing on malformed values."""
+    try:
+        return str(Path(path_text).resolve())
+    except (OSError, RuntimeError, ValueError):
+        return None
+
+
+resolved_sys_paths = {
+    resolved for entry in sys.path if entry for resolved in [_safe_resolve_path(entry)] if resolved
+}
 if str(REPO_ROOT.resolve()) not in resolved_sys_paths:
     sys.path.insert(0, str(REPO_ROOT))
 

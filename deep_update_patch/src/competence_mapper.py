@@ -3,6 +3,7 @@ Competence mapping and analysis module for Blue Sociology.
 Authoritative mapper that works from real sector requirements, not only from credentials.
 """
 
+from dataclasses import replace
 from typing import Any, Dict, List, Set, Tuple, TypedDict, Optional
 from src.core import (
     Competence,
@@ -44,19 +45,7 @@ class CompetenceMapper:
     def add_sector_requirement(self, requirement: SectorRequirement) -> None:
         """Add a sector requirement, normalizing the sector slug on insert."""
         normalized = normalize_sector_name(requirement.sector)
-        self.sector_requirements.append(
-            SectorRequirement(
-                competence_id=requirement.competence_id,
-                sector=normalized,
-                sector_label=requirement.sector_label,
-                sector_text=requirement.sector_text,
-                requirement_kind=requirement.requirement_kind,
-                axis=requirement.axis,
-                dimension=requirement.dimension,
-                cluster_name=requirement.cluster_name,
-                source=requirement.source,
-            )
-        )
+        self.sector_requirements.append(replace(requirement, sector=normalized))
 
     def add_sector_requirements(self, requirements: List[SectorRequirement]) -> None:
         for requirement in requirements:
