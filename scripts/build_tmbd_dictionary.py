@@ -7,15 +7,19 @@ import argparse
 import importlib.util
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Any, Dict, List, Sequence
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from src.competence_repository import (
     LiteratureCompetenceRepository,
     normalize_sector_name,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "outputs" / "sector_dictionaries"
 AXES = ("MARINE", "MARITIME", "OCEANIC")
 
