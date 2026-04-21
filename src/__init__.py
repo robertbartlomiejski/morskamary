@@ -7,6 +7,8 @@ based on Blue Sociology principles and the Tripartite Model of Blue Dynamics (TM
 Core modules:
 - core: Base utilities and data structures
 - competence_mapper: Competence mapping and analysis
+- literature_extraction: Abstract parsing and competence phrase extraction
+- axis_classifier: TMBD axis classification utilities
 """
 
 __version__ = "0.2.0"

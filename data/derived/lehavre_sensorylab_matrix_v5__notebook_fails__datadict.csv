@@ -1,0 +1,5 @@
+column,dtype,non_null,null
+ListName,str,92,0
+Value,str,92,0
+Alias_PL,str,56,36
+Notes,str,30,62

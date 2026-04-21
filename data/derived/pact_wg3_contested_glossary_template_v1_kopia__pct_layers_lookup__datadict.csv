@@ -1,0 +1,3 @@
+column,dtype,non_null,null
+pct_layer,str,10,0
+notes,str,10,0

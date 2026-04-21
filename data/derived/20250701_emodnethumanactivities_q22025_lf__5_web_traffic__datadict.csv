@@ -1,0 +1,14 @@
+column,dtype,non_null,null
+Indicator 5: Quarterly web traffic statistics,str,17,21
+Unnamed: 1,object,8,30
+Unnamed: 2,object,2,36
+Unnamed: 3,object,2,36
+Unnamed: 4,object,2,36
+Unnamed: 5,object,2,36
+Unnamed: 6,object,2,36
+Unnamed: 7,object,2,36
+Unnamed: 8,object,3,35
+Unnamed: 9,object,2,36
+Unnamed: 10,object,2,36
+Unnamed: 11,object,2,36
+Unnamed: 12,object,2,36

@@ -8,7 +8,7 @@ based on Blue Sociology principles and the Tripartite Model of Blue Dynamics (TM
 __version__ = "0.2.0"
 __author__ = "Robert Bartłomiejski"
 
-from src.core import (  # noqa: F401
+from .core import (  # noqa: F401
     BlueDynamicsAxis,
     Competence,
     CompetenceLevel,
@@ -17,4 +17,4 @@ from src.core import (  # noqa: F401
     SectorRequirement,
     SourceRef,
 )
-from src.competence_mapper import CompetenceMapper  # noqa: F401
+from .competence_mapper import CompetenceMapper  # noqa: F401

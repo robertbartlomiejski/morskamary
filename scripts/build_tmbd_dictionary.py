@@ -9,27 +9,10 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Sequence
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-
-
-def _safe_resolve_path(path_text: str) -> Optional[str]:
-    """Resolve sys.path entries without failing on malformed values."""
-    try:
-        return str(Path(path_text).resolve())
-    except (OSError, RuntimeError, ValueError):
-        return None
-
-
-resolved_paths = set()
-for entry in sys.path:
-    if not entry:
-        continue
-    resolved = _safe_resolve_path(entry)
-    if resolved:
-        resolved_paths.add(resolved)
-if str(REPO_ROOT) not in resolved_paths:
+if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.competence_repository import (

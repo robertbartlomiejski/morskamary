@@ -2,7 +2,7 @@
 Updated test suite for the shared morskamary model.
 """
 
-from src.core import (
+from deep_update_patch.src.core import (
     Competence,
     MicroCredential,
     BlueDynamicsAxis,
@@ -13,7 +13,7 @@ from src.core import (
     create_sample_competences,
     normalize_sector_name,
 )
-from src.competence_mapper import CompetenceMapper
+from deep_update_patch.src.competence_mapper import CompetenceMapper
 
 
 def test_normalize_sector_name_aliases() -> None:
@@ -161,6 +161,29 @@ def test_add_sector_requirement_normalizes_sector_on_insert() -> None:
         "'offshore-energy' (both normalize to 'renewable-energy')."
     )
     assert records[0].sector == "renewable-energy"
+
+
+def test_add_sector_requirement_does_not_mutate_input() -> None:
+    """add_sector_requirement must not mutate the caller's SectorRequirement."""
+    requirement = SectorRequirement(
+        competence_id="blue_comp_a_1",
+        sector="Renewable Energy",
+        sector_label="Renewable Energy",
+        sector_text="Green energy advocacy",
+        requirement_kind=RequirementKind.COMPETENCE,
+        axis=BlueDynamicsAxis.OCEANIC,
+        dimension="A",
+    )
+    original_sector = requirement.sector
+    mapper = CompetenceMapper()
+    mapper.add_sector_requirement(requirement)
+    assert requirement.sector == original_sector, (
+        "add_sector_requirement must not mutate the caller's SectorRequirement."
+    )
+    stored = mapper.sector_requirements[0]
+    assert stored.sector == "renewable-energy", (
+        "Stored sector requirement must have a normalized sector slug."
+    )
 
 
 def test_add_credential_does_not_mutate_input() -> None:

@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
-
 from scripts.build_tmbd_dictionary import (
     build_sector_dictionary,
     build_sector_dictionary_from_repository,
@@ -175,3 +174,68 @@ def test_export_sector_dictionary(tmp_path: Path) -> None:
     assert output_path.name == "blue_biotech_tmbd_dictionary.json"
     content = output_path.read_text(encoding="utf-8")
     assert '"sector": "Blue Biotech"' in content
+
+
+class TestMainAndCLI:
+    """Tests for main() function and CLI execution path"""
+
+    def test_main_missing_module_spec(self, monkeypatch):
+        """Test main() handles missing module spec gracefully"""
+        import scripts.build_tmbd_dictionary as btd
+        import importlib.util
+
+        # Mock spec_from_file_location to return None
+        monkeypatch.setattr(
+            importlib.util,
+            "spec_from_file_location",
+            lambda name, path: None
+        )
+
+        # Should raise ImportError
+        with pytest.raises(ImportError) as exc_info:
+            btd.load_literature_competence_extractor()
+
+        assert "Cannot load module spec" in str(exc_info.value)
+
+    def test_main_missing_loader(self, monkeypatch):
+        """Test main() handles missing spec.loader gracefully"""
+        import scripts.build_tmbd_dictionary as btd
+        import importlib.util
+
+        # Create a mock spec without loader
+        @dataclass
+        class MockSpec:
+            loader = None
+
+        monkeypatch.setattr(
+            importlib.util,
+            "spec_from_file_location",
+            lambda name, path: MockSpec()
+        )
+
+        # Should raise ImportError
+        with pytest.raises(ImportError) as exc_info:
+            btd.load_literature_competence_extractor()
+
+        assert "Cannot load module spec" in str(exc_info.value)
+
+    def test_main_cli_execution(self, tmp_path):
+        """Test that __name__ == __main__ block can be tested"""
+        from scripts.build_tmbd_dictionary import main
+        from unittest.mock import patch
+        import sys
+
+        # Mock sys.argv to provide required arguments
+        with patch.object(sys, 'argv', [
+            'build_tmbd_dictionary.py',
+            '--sector', 'Blue Biotech',
+            '--output-dir', str(tmp_path)
+        ]):
+            # Test calling main() directly returns 0 on success
+            result = main()
+            assert result == 0
+
+            # Verify output directory has dictionary file
+            expected_file = tmp_path / "blue_biotech_tmbd_dictionary.json"
+            assert expected_file.exists()
+
