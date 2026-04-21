@@ -22,9 +22,13 @@ def _safe_resolve_path(path_text: str) -> str | None:
         return None
 
 
-resolved_sys_paths = {
-    resolved for entry in sys.path if entry for resolved in [_safe_resolve_path(entry)] if resolved
-}
+resolved_sys_paths = set()
+for entry in sys.path:
+    if not entry:
+        continue
+    resolved = _safe_resolve_path(entry)
+    if resolved:
+        resolved_sys_paths.add(resolved)
 if str(REPO_ROOT.resolve()) not in resolved_sys_paths:
     sys.path.insert(0, str(REPO_ROOT))
 
