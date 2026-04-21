@@ -12,7 +12,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Sequence
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
+resolved_sys_paths = {str(Path(entry).resolve()) for entry in sys.path if entry}
+if str(REPO_ROOT.resolve()) not in resolved_sys_paths:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.competence_repository import (
