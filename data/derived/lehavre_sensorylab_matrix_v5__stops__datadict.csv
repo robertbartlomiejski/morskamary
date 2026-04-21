@@ -1,0 +1,4 @@
+column,dtype,non_null,null
+StopID,str,13,0
+StopName,str,13,0
+Notes,str,13,0
