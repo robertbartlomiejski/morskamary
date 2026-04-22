@@ -194,6 +194,7 @@ def main() -> None:
         writer.writerows(rows)
 
     print(f"Wrote {MANIFEST_PATH} with {len(rows)} entries")
+    print(MANIFEST_PATH.name)
 
 
 if __name__ == "__main__":
