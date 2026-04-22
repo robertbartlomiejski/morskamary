@@ -886,6 +886,7 @@ src/axis_classifier.py,other,,,,,,axis_classifier,no
 src/competence_mapper.py,other,,,,,,competence_mapper,no
 src/competence_repository.py,other,,,,,,competence_repository,no
 src/core.py,other,,,,,,core,no
+src/dimension_mapping.py,other,,,,,,dimension_mapping,no
 src/literature_extraction.py,other,,,,,,literature_extraction,no
 src/Untitled-1.litcoffee,other,,,,,,Untitled_1,no
 TEST_COVERAGE_IMPROVEMENTS.md,text,,,,,,TEST_COVERAGE_IMPROVEMENTS,yes

@@ -8,29 +8,9 @@ data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Di
 
 import csv
 from pathlib import Path
-from src.core import Competence, BlueDynamicsAxis, CompetenceLevel
 from src.competence_mapper import CompetenceMapper
-
-
-def map_dimension_to_axis(dimension: str) -> BlueDynamicsAxis:
-    """
-    Map the competence dimension to TMBD axis.
-
-    A (Understanding) → OCEANIC (planetary perspective)
-    B (Digital & Data) → MARITIME (techno-economic infrastructure)
-    C (Sustainability) → MARINE (biophysical/ecological)
-    D (Business/Governance) → MARITIME (institutional/economic)
-    """
-    dimension_letter = dimension.split(".")[0] if "." in dimension else dimension[0]
-
-    mapping = {
-        "A": BlueDynamicsAxis.OCEANIC,  # Understanding/literacy → planetary
-        "B": BlueDynamicsAxis.MARITIME,  # Digital/technical → infrastructure
-        "C": BlueDynamicsAxis.MARINE,  # Sustainability → ecological
-        "D": BlueDynamicsAxis.MARITIME,  # Governance → institutional
-    }
-
-    return mapping.get(dimension_letter, BlueDynamicsAxis.OCEANIC)
+from src.core import BlueDynamicsAxis, Competence, CompetenceLevel
+from src.dimension_mapping import map_dimension_to_axis
 
 
 def load_blue_competences(csv_path: Path) -> CompetenceMapper:
