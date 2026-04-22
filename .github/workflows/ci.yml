@@ -26,7 +26,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rg_output=$(rg -n '^(<{7} .+|={7}|> {7} .+)$' . --glob '!.git/**' --glob '!outputs/**' || true)
+          rg_output=$(rg -n '^(<{7} .+|={7}|>{7} .+)$' . --glob '!.git/**' --glob '!outputs/**' || true)
           if [ -n "$rg_output" ]; then
             echo "Merge conflict markers found"
             echo "$rg_output"
