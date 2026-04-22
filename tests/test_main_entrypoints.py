@@ -1,7 +1,5 @@
 """Integration tests for main entrypoints of primary scripts."""
 
-from pathlib import Path
-
 import pytest
 
 
