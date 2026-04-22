@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.integration
 def test_main_demo_outputs(capsys):
     """main.main should render the demo summary without errors."""
     import main
