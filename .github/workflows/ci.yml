@@ -54,6 +54,7 @@ jobs:
             python3 --version
 
             python3 scripts/generate_manifest.py 2>&1 | tee /tmp/generate_manifest.out
+            # Capture the last non-empty output line as the filename candidate.
             out="$(awk 'NF{line=$0} END{print line}' /tmp/generate_manifest.out || true)"
 
             found=""
@@ -68,7 +69,7 @@ jobs:
             if [[ -z "$found" ]]; then
               candidates=("MANIFEST_SOURCES.csv" "manifest.json" "MANIFEST.json" "manifest.txt" "MANIFEST.txt")
               for c in "${candidates[@]}"; do
-                found="$(find . -type f -name "$c" -print -quit || true)"
+                found="$(find . -maxdepth 3 -type f -name "$c" -print -quit || true)"
                 if [[ -n "$found" ]]; then break; fi
               done
             fi
@@ -76,7 +77,8 @@ jobs:
             if [[ -z "$found" ]]; then
               echo "generate_manifest.py ran but no manifest file found among candidates."
               echo "--- generate_manifest.py output ---"
-              sed -n '1,200p' /tmp/generate_manifest.out || true
+              output_preview_lines=200
+              sed -n "1,${output_preview_lines}p" /tmp/generate_manifest.out || true
               echo "Edit CI to match your actual manifest output filename."
               exit 1
             fi

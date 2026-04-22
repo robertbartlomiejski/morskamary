@@ -14,6 +14,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/repository-guardrails.instructions.md,text,,,,,,repository_guardrails_instructions,yes
 .github/workflows/blank.yml,other,,,,,,blank,no
 .github/workflows/ci.yml,other,,,,,,ci,no
+.github/workflows/codeql.yml,other,,,,,,codeql,no
 .github/workflows/dependency-submission.yml,other,,,,,,dependency_submission,no
 .github/workflows/full-analysis.yml,other,,,,,,full_analysis,no
 .gitignore,other,,,,,,gitignore,no
@@ -552,4 +553,5 @@ tests/test_literature_extraction.py,other,,,,,,test_literature_extraction,no
 tests/test_load_real_competences.py,other,,,,,,test_load_real_competences,no
 tests/test_main_entrypoints.py,other,,,,,,test_main_entrypoints,no
 tests/test_run_full_analysis.py,other,,,,,,test_run_full_analysis,no
+tests/test_scientific_bridge.py,other,,,,,,test_scientific_bridge,no
 tests/test_script_cli.py,other,,,,,,test_script_cli,no
