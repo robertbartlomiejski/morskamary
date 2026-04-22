@@ -1,0 +1,14 @@
+column,dtype,non_null,null
+Dimension,str,37,12
+Blue Biotech,str,29,20
+Living Resources (Fisheries/Aqua),str,29,20
+R&I (Research & Innovation),str,29,20
+Renewable Energy (Wind/Ocean),str,5,44
+Non-Living Resources (Mining),str,5,44
+Desalination,str,5,44
+Maritime Transport,str,5,44
+Port Activities,str,5,44
+Ship Repair & Shipbuilding,str,5,44
+Coastal Tourism,str,5,44
+Maritime Defence,str,5,44
+Infrastructure & Robotics,str,5,44
