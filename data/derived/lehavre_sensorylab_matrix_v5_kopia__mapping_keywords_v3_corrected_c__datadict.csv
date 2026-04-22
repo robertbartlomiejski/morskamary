@@ -1,0 +1,7 @@
+column,dtype,non_null,null
+Keyword,str,230,0
+Modality,str,230,0
+EnergyTerm,str,35,195
+Performance,str,230,0
+BinaryDefault,str,230,0
+Notes,str,68,162
