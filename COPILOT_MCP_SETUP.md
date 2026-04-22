@@ -48,6 +48,16 @@ This setup enables GitHub Copilot to access your full research context through *
 
 ## Prerequisites
 
+For Windows users, a quick way to install the full workstation toolchain is:
+
+```powershell
+winget install --id Git.Git
+winget install --id OpenJS.NodeJS.LTS
+winget install --id Python.Python.3.14
+winget install --id Microsoft.DotNet.SDK.10
+winget install --id GitHub.cli
+```
+
 ### Required Software
 
 1. **Node.js ≥18.0** (LTS recommended)

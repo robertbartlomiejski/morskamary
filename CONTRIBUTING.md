@@ -10,6 +10,19 @@ Welcome! This guide explains how to set up the development environment and start
 - **Git**
 - **Node.js ≥ 18** (optional, required only for GitHub Copilot MCP integration)
 
+### Windows quick install (winget)
+
+If you are setting up a Windows workstation from scratch, you can install the
+recommended toolchain with:
+
+```powershell
+winget install --id Git.Git
+winget install --id OpenJS.NodeJS.LTS
+winget install --id Python.Python.3.14
+winget install --id Microsoft.DotNet.SDK.10
+winget install --id GitHub.cli
+```
+
 ### Verifying Python Installation
 
 ```bash
