@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 
 from src.core import BlueDynamicsAxis
-from load_real_competences import map_dimension_to_axis
+from src.dimension_mapping import map_dimension_to_axis
 
 
 class AxisClassifier:

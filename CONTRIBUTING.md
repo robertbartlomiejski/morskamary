@@ -36,6 +36,18 @@ If Node.js is not installed and you need MCP features:
 2. Restart your terminal/command prompt
 3. See [COPILOT_MCP_SETUP.md](COPILOT_MCP_SETUP.md) for complete MCP setup
 
+### Codex CLI shell completion (optional)
+
+If you use the Codex CLI, enable completions for your shell (choose one):
+
+```bash
+codex completion bash
+# OR
+codex completion zsh
+# OR
+codex completion fish
+```
+
 ---
 
 ## 2. Clone the repository
@@ -154,6 +166,6 @@ docker compose up --build
 
 ---
 
-## 10. Questions?
+## 11. Questions?
 
 Open an issue on GitHub or consult `LLM_CONTEXT_INSTRUCTION.txt` for domain-specific guidance on competence mapping and micro-credential design.

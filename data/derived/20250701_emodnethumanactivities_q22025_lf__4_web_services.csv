@@ -7,7 +7,7 @@ Reporting date,Portal name,,,,
 ,"Machine Interface 
 (Data accessed programmatically - Software that would receive data/data products/external data products through software)",,,,
 Sub-theme/ interface name,WMS,WFS,WCS,Add any other interfaces as required/available,Were there any changes compared to the previous quarter?
-,https://ows.emodnet-humanactivities.eu/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities,https://ows.emodnet-humanactivities.eu/wfs?SERVICE=WFS&VERSION=1.1.0&request=GetCapabilities,https://ows.emodnet-humanactivities.eu/wcs?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities,,
+,https://ows.emodnet-humanactivities.eu/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities,https://ows.emodnet-humanactivities.eu/wfs?SERVICE=WFS&VERSION=1.1.0&request=GetCapabilities,https://ows.emodnet-humanactivities.eu/wcs?SERVICE=WCS&VERSION=1.1.1&REQUEST=GetCapabilities,,
 ,,,,,
 ,,,,,
 Explanation of the trends and statistics,,,,,

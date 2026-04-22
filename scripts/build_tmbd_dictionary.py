@@ -6,27 +6,23 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
-import re
+import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Sequence
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.competence_repository import (
-    LiteratureCompetenceRepository,
+    MixedProvenanceCompetenceRepository,
     normalize_sector_name,
 )
+from src.utils import slugify
 
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "outputs" / "sector_dictionaries"
 AXES = ("MARINE", "MARITIME", "OCEANIC")
-
-
-def slugify(text: str) -> str:
-    """Convert a free-text label to a stable file-safe slug."""
-    return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
 
 
 def _to_dictionary_record(competence: Any) -> Dict[str, Any]:
@@ -84,7 +80,7 @@ def build_sector_dictionary(
 
 
 def build_sector_dictionary_from_repository(
-    repository: LiteratureCompetenceRepository, sector: str
+    repository: MixedProvenanceCompetenceRepository, sector: str
 ) -> Dict[str, List[Dict[str, Any]]]:
     """Build TMBD dictionary for one sector via repository data access methods."""
     return build_axis_dictionary(
@@ -97,7 +93,7 @@ def export_sector_dictionary(
 ) -> Path:
     """Export one sector dictionary as JSON."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / f"{slugify(sector)}_tmbd_dictionary.json"
+    output_path = output_dir / f"{slugify(sector, max_length=None)}_tmbd_dictionary.json"
     payload = {
         "metadata": {
             "sector": sector,
@@ -162,7 +158,7 @@ def main() -> int:
     """Run sector dictionary build from literature sources."""
     args = parse_args()
     extract_literature_competences = load_literature_competence_extractor()
-    repository = LiteratureCompetenceRepository(extract_literature_competences)
+    repository = MixedProvenanceCompetenceRepository(extract_literature_competences)
     grouped = build_sector_dictionary_from_repository(repository, sector=args.sector)
     output_path = export_sector_dictionary(
         sector=args.sector, grouped=grouped, output_dir=args.output_dir

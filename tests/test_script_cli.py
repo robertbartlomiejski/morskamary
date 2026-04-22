@@ -95,7 +95,7 @@ class TestBuildTmbdDictionaryCLI:
         output_dir.mkdir()
 
         with patch("build_tmbd_dictionary.load_literature_competence_extractor") as mock_loader, \
-             patch("build_tmbd_dictionary.LiteratureCompetenceRepository") as mock_repo_class, \
+             patch("build_tmbd_dictionary.MixedProvenanceCompetenceRepository") as mock_repo_class, \
              patch("build_tmbd_dictionary.build_sector_dictionary_from_repository") as mock_build, \
              patch("build_tmbd_dictionary.export_sector_dictionary") as mock_export, \
              patch("sys.argv", ["build_tmbd_dictionary.py", "--sector", "Test Sector", "--output-dir", str(output_dir)]):

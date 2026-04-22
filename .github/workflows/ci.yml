@@ -22,6 +22,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fail on merge conflict markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          rg_output=$(rg -n '^(<{7} .+|={7}|> {7} .+)$' . --glob '!.git/**' --glob '!outputs/**' || true)
+          if [ -n "$rg_output" ]; then
+            echo "Merge conflict markers found"
+            echo "$rg_output"
+            exit 1
+          else
+            echo "No markers"
+          fi
+
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
