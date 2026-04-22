@@ -319,10 +319,9 @@ def test_detect_axis_no_keywords_uses_default() -> None:
     """Test _detect_axis with no matching keywords uses default."""
     from run_full_analysis import _detect_axis
 
-    text = "Some random text with no blue economy keywords"
-    # When no keywords match, uses default which is OCEANIC unless specified
-    result = _detect_axis(text, default="OCEANIC")
-    assert result.name == "OCEANIC"
+    text = "General notes about scheduling, document review, and meeting agendas"
+    result = _detect_axis(text, default="MARINE")
+    assert result.name == "MARINE"
 
 
 def test_slugify_converts_text_to_slug() -> None:
