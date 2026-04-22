@@ -18,6 +18,16 @@ python main_real_data.py
 python demo_workspace_instructions.py
 ```
 
+Windows users can install the recommended local toolchain with:
+
+```powershell
+winget install --id Git.Git
+winget install --id OpenJS.NodeJS.LTS
+winget install --id Python.Python.3.14
+winget install --id Microsoft.DotNet.SDK.10
+winget install --id GitHub.cli
+```
+
 ### GitHub Copilot MCP Integration (Optional Advanced Feature)
 
 **Note:** This is optional, local, Windows-only workstation tooling. Not required for core development.
