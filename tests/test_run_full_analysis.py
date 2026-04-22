@@ -319,10 +319,9 @@ def test_detect_axis_no_keywords_uses_default() -> None:
     """Test _detect_axis with no matching keywords uses default."""
     from run_full_analysis import _detect_axis
 
-    text = "Some random text with no blue economy keywords"
-    # When no keywords match, uses default which is OCEANIC unless specified
-    result = _detect_axis(text, default="OCEANIC")
-    assert result.name == "OCEANIC"
+    text = "General notes about scheduling, document review, and meeting agendas"
+    result = _detect_axis(text, default="MARINE")
+    assert result.name == "MARINE"
 
 
 def test_slugify_converts_text_to_slug() -> None:
@@ -831,13 +830,15 @@ def test_generate_credentials_html_creates_file(tmp_path: Path) -> None:
 
 
 def test_generate_literature_html_creates_file(tmp_path: Path) -> None:
-    """Test generate_literature_html creates HTML file."""
+    """Test generate_literature_html creates HTML file with per-theme table rows."""
     from run_full_analysis import generate_literature_html
 
+    # Use an id containing the "labor_justice" theme so the theme-specific
+    # table is rendered with this competence's data.
     literature = [
         Competence(
-            id="lit_1",
-            name="Literature Competence",
+            id="labor_justice_0001",
+            name="Blue Labour Justice Competence",
             description="Test",
             axis=TMBDAxis.OCEANIC,
             dimension="literature",
@@ -854,9 +855,9 @@ def test_generate_literature_html_creates_file(tmp_path: Path) -> None:
 
     assert output_file.exists()
     content = output_file.read_text()
-    # The HTML might not contain the competence name in the body table
-    # but should contain metadata about it
-    assert "Smith, J." in content or "Test Paper" in content or "OCEANIC" in content
+    # The theme-specific table must include the competence name and authors
+    assert "Blue Labour Justice Competence" in content
+    assert "Smith, J." in content
 
 
 def test_main_handles_missing_baseline_csv(tmp_path: Path) -> None:
