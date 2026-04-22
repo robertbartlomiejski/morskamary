@@ -2,8 +2,6 @@
 
 import json
 
-import pytest
-
 import scientific_bridge as sb
 
 
