@@ -142,6 +142,10 @@ class TestGenerateManifestCLI:
         captured = capsys.readouterr()
         assert "Wrote" in captured.out
         assert str(manifest_path) in captured.out
+        lines = [line.strip() for line in captured.out.splitlines() if line.strip()]
+        assert lines
+        last_line = lines[-1]
+        assert last_line == manifest_path.name
 
     def test_main_preserves_manual_metadata(self, tmp_path, monkeypatch):
         """main should preserve manually added metadata from existing manifest."""
