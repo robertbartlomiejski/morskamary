@@ -108,6 +108,7 @@ jobs:
           while IFS= read -r f; do
             [[ -z "$f" ]] && continue
             [[ "$f" == "CHANGELOG.txt" ]] && continue
+            [[ "$f" == "MANIFEST_SOURCES.csv" ]] && continue
 
             if [[ "$f" == "scripts/"* ]] || [[ "$f" == "prompts/"* ]] || [[ "$f" == "templates/"* ]] || \
                [[ "$f" == "data/"* ]] || [[ "$f" == *.csv ]] || [[ "$f" == *.xlsx ]] || [[ "$f" == *.pdf ]] || \
