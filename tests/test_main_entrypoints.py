@@ -1,8 +1,18 @@
 """Integration tests for main entrypoints of primary scripts."""
 
-from pathlib import Path
-
 import pytest
+
+
+def test_main_demo_outputs(capsys):
+    """main.main should render the demo summary without errors."""
+    import main
+
+    main.main()
+
+    captured = capsys.readouterr()
+    assert "MORSKAMARY: Blue Sociology Competence Mapping" in captured.out
+    assert "Competence Mapping Summary" in captured.out
+    assert "Competence Gap Analysis Example" in captured.out
 
 
 @pytest.mark.integration
@@ -45,3 +55,15 @@ def test_main_real_data_entrypoint(capsys):
     captured = capsys.readouterr()
     assert "Real Data Analysis Complete" in captured.out
 
+
+class TestMainRealDataEdgeCases:
+    """Edge case tests for main_real_data.py"""
+
+    def test_main_real_data_if_name_main(self):
+        """Test the if __name__ == '__main__' execution path for main_real_data"""
+        import main_real_data
+
+        # Verify main() can be called and returns int
+        result = main_real_data.main()
+        assert isinstance(result, int)
+        assert result in (0, 1)

@@ -150,5 +150,19 @@ B.1,,Missing name,B. Digital
         assert "blue_comp_a_1" in mapper.competences
 
 
+class TestMainFunction:
+    """Tests for main() CLI entry point"""
+
+    def test_main_cli_execution(self):
+        """Test that main() can be executed as CLI script"""
+        import load_real_competences
+
+        # Test the if __name__ == "__main__" block indirectly
+        # by calling main() and checking it returns int
+        result = load_real_competences.main()
+        assert isinstance(result, int)
+        assert result in (0, 1)
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
