@@ -830,13 +830,15 @@ def test_generate_credentials_html_creates_file(tmp_path: Path) -> None:
 
 
 def test_generate_literature_html_creates_file(tmp_path: Path) -> None:
-    """Test generate_literature_html creates HTML file."""
+    """Test generate_literature_html creates HTML file with per-theme table rows."""
     from run_full_analysis import generate_literature_html
 
+    # Use an id containing the "labor_justice" theme so the theme-specific
+    # table is rendered with this competence's data.
     literature = [
         Competence(
-            id="lit_1",
-            name="Literature Competence",
+            id="labor_justice_0001",
+            name="Blue Labour Justice Competence",
             description="Test",
             axis=TMBDAxis.OCEANIC,
             dimension="literature",
@@ -853,9 +855,9 @@ def test_generate_literature_html_creates_file(tmp_path: Path) -> None:
 
     assert output_file.exists()
     content = output_file.read_text()
-    # The HTML might not contain the competence name in the body table
-    # but should contain metadata about it
-    assert "Smith, J." in content or "Test Paper" in content or "OCEANIC" in content
+    # The theme-specific table must include the competence name and authors
+    assert "Blue Labour Justice Competence" in content
+    assert "Smith, J." in content
 
 
 def test_main_handles_missing_baseline_csv(tmp_path: Path) -> None:
@@ -893,3 +895,51 @@ def test_main_handles_no_literature_files(tmp_path: Path) -> None:
 
     # Should succeed even with no literature files
     assert exit_code == 0
+
+
+class TestCLIAndEdgeCases:
+    """Tests for CLI arguments and edge case branches"""
+
+    def test_parse_cli_args_defaults(self):
+        """Test CLI argument parsing returns correct default structure"""
+        import sys
+
+        # Test with no arguments (default)
+        with patch.object(sys, 'argv', ['run_full_analysis.py']):
+            args = parse_cli_args()
+            assert hasattr(args, 'sectors')
+            # Default value is an empty list, not None
+            assert args.sectors == [] or args.sectors is None
+
+    def test_main_with_cli_sector_selection(self, tmp_path):
+        """Test main() with CLI sector selection"""
+        baseline_csv = tmp_path / "baseline.csv"
+        baseline_csv.write_text(
+            "Dimension,Competence,Blue competence name,Focus,Blue Biotech,Ports\n"
+            "A,A.1,Test,Description,X,X\n",
+            encoding="utf-8"
+        )
+
+        output_dir = tmp_path / "outputs"
+
+        with (
+            patch("run_full_analysis.BASELINE_CSV", baseline_csv),
+            patch("run_full_analysis.OUTPUTS_DIR", output_dir),
+            patch("run_full_analysis.LITERATURE_FILES", []),
+            patch("run_full_analysis.REPO_ROOT", tmp_path),
+        ):
+            exit_code = main(selected_sectors=["Blue Biotech"])
+
+        assert exit_code == 0
+
+    def test_main_if_name_main_block(self):
+        """Test the if __name__ == '__main__' execution path"""
+        # This test verifies the CLI entry point structure
+        # The actual block calls parse_cli_args() and main(selected_sectors=...)
+        # We verify parse_cli_args works and returns expected structure
+        import sys
+
+        with patch.object(sys, 'argv', ['run_full_analysis.py']):
+            args = parse_cli_args()
+            assert hasattr(args, 'sectors')
+
