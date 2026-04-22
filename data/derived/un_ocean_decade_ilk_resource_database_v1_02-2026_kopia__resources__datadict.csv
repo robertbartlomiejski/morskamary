@@ -1,9 +1,0 @@
-column,dtype,non_null,null
-Title,str,36,0
-Author/Organisation,str,36,0
-URL,str,36,0
-Publication Year,float64,33,3
-Description,str,36,0
-Type,str,36,0
-Region,str,36,0
-Language,str,36,0
