@@ -1,0 +1,67 @@
+Unnamed: 0,Unnamed: 1,Unnamed: 2,Unnamed: 3
+Sheet name,Sheet description,Column name,Description
+tool_TAC_TEC,The table provides the values of the TAC/TEC for each NACE code and each country,,
+,,Level,Depth level in the NACE classification tree
+,,NACE_full,NACE code (ranging across different levels)
+,,NACE,Description of the NACE code in the current row
+,,NACE_lett,Letter (main section) of the NACE code in the current row
+,,TAC_EU,Value of TAC for the NACE in the current row based on EU data
+,,TEC_EU,Value of TEC for the NACE in the current row based on EU data
+,,Country_code,"ISO code of country. Note that when the country level TAC/TEC is not available and the country is within EU, then the EU average level is used. "
+,,TAC,Value of TAC for the NACE in the current combination NACE and country.
+,,TEC,Value of TEC for the NACE in the current combination NACE and country.
+,,,
+Sheet name,Sheet description,Column name,Description
+Taxo-NACE,Table linking taxonomy activities codes to NACE codes,,This table has many-to-many structure. The same EU Taxonomy activity can correspond to several NACE codes and viceversa.
+,,From EU Taxonomy compass,"Indicator: 1 if the activity is present in the taxonomy compass. 0 else (e.g. activities with high transition risk are  not in the taxonomy, and yet relevant for TEC)."
+,,Activity code from Taxonomy,Code of the activity in the Taxonomy regulation
+,,Activity from Taxonomy,Name of the activity in the Taxonomy regulation
+,,Sector from Taxonomy,Name of the sector of the activity in the Taxonomy regulation
+,,NACE_code,NACE code of economic activity relevant (in various ways) to the Activity from Taxonomy in the current row
+,,NACE sector,NACE sector of economic activity relevant (in various ways) to the Activity from Taxonomy in the current row
+,,Substantial contribution criteria,Field from the EU Taxonomy Compass
+,,DNSH on Climate adaptation,Field from the EU Taxonomy Compass
+,,DNSH on Water,Field from the EU Taxonomy Compass
+,,DNSH on Circular economy,Field from the EU Taxonomy Compass
+,,DNSH on Pollution prevention,Field from the EU Taxonomy Compass
+,,DNSH on Biodiversity,Field from the EU Taxonomy Compass
+,,,
+Sheet name,Sheet description,Column name,Description
+TAC_TEC,Table providing rational for TAC TEC for each NACE code,,This table has one row per NACE code. 
+,,From EU Taxonomy compass,"Indicator: 1 if the activity is present in the taxonomy compass. 0 else (e.g. activities with high transition risk are  not in the taxonomy, and yet relevant for TEC)"
+,,NACE,NACE code of economic activity relevant (in various ways) to the Activity from Taxonomy in the current row
+,,NACE sector,NACE sector of economic activity relevant (in various ways) to the Activity from Taxonomy in the current row
+,,TAC NACE 2021,Value of TAC in the 2021 study (EU level)
+,,TAC rationale,Rational to justify the proxy used to estimate the TAC
+,,"TAC is country dependent (0 = no, 1 = yes)","Indicator: 1 if the coefficient can be assumed to vary with the country even with EU. Note that when the country level TAC/TEC is not available and the country is within EU, then the EU average level is used. "
+,,TEC NACE 2021,Value of TEC in the 2021 study (EU level)
+,,TEC rationale,Rational to justify the proxy used to estimate the TEC
+,,"TEC is country dependent (0 = no, 1 = yes)","Indicator: 1 if the coefficient can be assumed to vary with the country even with EU. Note that when the country level TAC/TEC is not available and the country is within EU, then the EU average level is used. "
+,,,
+Sheet name,Sheet description,Row name,Description
+nETS_TAC_EU,Table providing data and sources of TAC for non ETS sectors and EU countries + UK ,,
+,,NACE_code,NACE code of economic activity relevant (in various ways) to the Activity from Taxonomy in the current row
+,,NACE description,NACE sector of economic activity relevant (in various ways) to the Activity from Taxonomy in the current row
+,,TAC_proxy,"Definition of the proxy used to compute the coefficient, with pointers to data sources where relevant. Some specific limitations and caveats may apply to each proxy, see also more details in the reference Alessi and Battiston 2023."
+,,Country name,"Name of country. Note that when the country level TAC/TEC is not available and the country is within EU, then the EU average level is used. "
+,,,
+Sheet name,Sheet description,Row name,Description
+nETS_TEC_EU,Table providing data and sources of TEC for non ETS sectors and EU countries + UK ,,
+,,NACE_code,NACE code of economic activity relevant (in various ways) to the Activity from Taxonomy in the current row
+,,NACE description,NACE sector of economic activity relevant (in various ways) to the Activity from Taxonomy in the current row
+,,TEC_proxy,"Definition of the proxy used to compute the coefficient, with pointers to data sources where relevant. Some specific limitations and caveats may apply to each proxy, see also more details in the reference Alessi and Battiston 2023."
+,,Country name,"Name of country. Note that when the country level TAC/TEC is not available and the country is within EU, then the EU average level is used. "
+,,,
+Sheet name,Sheet description,Row name,Description
+nETS_TAC_nEU,Table providing data and sources of TAC for non ETS sectors and extra EU selected countries ,,
+,,NACE_code,NACE code of economic activity relevant (in various ways) to the Activity from Taxonomy in the current row
+,,NACE description,NACE sector of economic activity relevant (in various ways) to the Activity from Taxonomy in the current row
+,,TAC_proxy,"Definition of the proxy used to compute the coefficient, with pointers to data sources where relevant. Some specific limitations and caveats may apply to each proxy, see also more details in the reference Alessi and Battiston 2023."
+,,Country name,"Name of country. Note that when the country level TAC/TEC is not available and the country is within EU, then the EU average level is used. "
+,,,
+Sheet name,Sheet description,Row name,Description
+nETS_TEC_nEU,Table providing data and sources of TEC for non ETS sectors and extra EU selected countries ,,
+,,NACE_code,NACE code of economic activity relevant (in various ways) to the Activity from Taxonomy in the current row
+,,NACE description,NACE sector of economic activity relevant (in various ways) to the Activity from Taxonomy in the current row
+,,TEC_proxy,"Definition of the proxy used to compute the coefficient, with pointers to data sources where relevant. Some specific limitations and caveats may apply to each proxy, see also more details in the reference Alessi and Battiston 2023."
+,,Country name,"Name of country. Note that when the country level TAC/TEC is not available and the country is within EU, then the EU average level is used. "

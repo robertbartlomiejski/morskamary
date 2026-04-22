@@ -1,0 +1,11 @@
+Step,Who,Output
+Seed terms,WG3 editors,Seed list
+Ingest sources,Librarian + editors,Zotero/refs
+Extract definitions,Editors,Neutral def + quotes
+Map perspectives,Editors + domain leads,Perspective fields filled
+Attach metrics and instruments,Metrics lead,Indicator dictionary links
+Bind to PCT layers and roles,Spatial lead,Layer and actor tags
+Tag contestation,Editors + community liaison,Contestation note
+Quality review,Peer reviewers,Change log + approvals
+Publish v1.0,Editors,Excel/CSV + site
+Maintain and iterate,All,Quarterly updates

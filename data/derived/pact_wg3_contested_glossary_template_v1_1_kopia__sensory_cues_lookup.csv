@@ -1,0 +1,15 @@
+cue,measurement_hint
+Sound,"dB(A), tonal/impulsive"
+Vibration,"mm/s (PPV), Hz"
+Odor,"odor units, notes"
+Glare,"lux, luminance"
+Heat,°C
+Cold,°C
+Humidity,%RH
+Airflow,m/s
+Dust,µg/m³
+Taste,free text
+Tactile,texture/pressure notes
+Crowding,people/m²
+Safety_feel,Likert safety perception
+Other,free text

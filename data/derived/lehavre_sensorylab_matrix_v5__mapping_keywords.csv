@@ -1,0 +1,231 @@
+Keyword,Modality,EnergyTerm,Performance,Subsystem,BinaryDefault,Notes
+hum,Hearing,OPS,Technology (Infrastructure),Culture,heard/unheard,Auto-detected from transcript analysis
+buzz,Hearing,OPS,Technology (Infrastructure),Culture,heard/unheard,Auto-detected from transcript analysis
+buczenie,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+horn,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+syrena,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+beep,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+whirr,Hearing,H2,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+pulse,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+rhythm,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+transformer,Hearing,OPS,Technology (Infrastructure),Culture,heard/unheard,Auto-detected from transcript analysis
+electrolyser,Hearing,H2,Technology (Infrastructure),Culture,heard/unheard,Auto-detected from transcript analysis
+compressor,Hearing,LNG,Technology (Infrastructure),Culture,heard/unheard,Auto-detected from transcript analysis
+AGV,Hearing,smart grid/5G,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+RTG,Hearing,smart grid/5G,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+engine,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+motor,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+construction,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+drilling,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+pile,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+hammer,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+machinery,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+alarm,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+warning,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+seagull,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+wave,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+wind,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+silence,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+quiet,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+noise,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+hałas,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+sound,Hearing,,Culture,Culture,heard/unheard,Auto-detected from transcript analysis
+turbine,Vision,Offshore wind,Technology (Infrastructure),Culture,seen/unseen,Auto-detected from transcript analysis
+turbina,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+blade,Vision,Offshore wind,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+tower,Vision,Offshore wind,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+foundation,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+substation,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+cable,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+LED,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+strobe,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+light,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+flashing,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+5G,Vision,smart grid/5G,Technology (Infrastructure),Culture,seen/unseen,Auto-detected from transcript analysis
+LNG,Vision,LNG,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+FSRU,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+vessel,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+ship,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+crane,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+container,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+terminal,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+infrastructure,Vision,,Technology (Infrastructure),Culture,seen/unseen,Auto-detected from transcript analysis
+skyline,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+horizon,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+vapor,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+plume,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+steam,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+smoke,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+emissions,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+diesel,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+ozone,Smell,H2,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+ozon,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+methane,Smell,LNG,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+gas,Smell,LNG,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+exhaust,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+chemical,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+fuel,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+tar,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+smoła,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+fish,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+ryb,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+sea,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+salt,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+brine,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+fresh,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+clean,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+pollution,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+smell,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+odor,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+zapach,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+aromat,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+scent,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+aroma,Smell,,Culture,Culture,sniffed/unsmelled,Auto-detected from transcript analysis
+vibrat,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+wibr,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+shake,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+tremor,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+movement,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+sway,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+kołysa,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+rough,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+smooth,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+hard,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+soft,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+pressure,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+resistance,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+texture,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+warm,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+cold,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+hot,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+cool,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+zimno,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+ciepło,Touch,,Culture,Culture,tactile/non-tactile,Auto-detected from transcript analysis
+push,Kinesthesia,,Culture,Culture,active/inactive,Auto-detected from transcript analysis
+pull,Kinesthesia,,Culture,Culture,active/inactive,Auto-detected from transcript analysis
+ciągn,Kinesthesia,,Culture,Culture,active/inactive,Auto-detected from transcript analysis
+lift,Kinesthesia,,Culture,Culture,active/inactive,Auto-detected from transcript analysis
+carry,Kinesthesia,,Culture,Culture,active/inactive,Auto-detected from transcript analysis
+walk,Kinesthesia,,Culture,Culture,active/inactive,Auto-detected from transcript analysis
+climb,Kinesthesia,,Culture,Culture,active/inactive,Auto-detected from transcript analysis
+balance,Kinesthesia,,Culture,Culture,active/inactive,Auto-detected from transcript analysis
+safety,Nociception,,Health & Safety,Culture,safe/threat,Auto-detected from transcript analysis
+bezpie,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+danger,Nociception,,Health & Safety,Culture,safe/threat,Auto-detected from transcript analysis
+risk,Nociception,,Health & Safety,Culture,safe/threat,Auto-detected from transcript analysis
+threat,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+secure,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+hazard,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+electromagnetic,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+radiation,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+exposure,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+health,Nociception,,Health & Safety,Culture,safe/threat,Auto-detected from transcript analysis
+concern,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+worry,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+anxiety,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+fear,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+lęk,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+stress,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+comfort,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+discomfort,Nociception,,Culture,Culture,safe/threat,Auto-detected from transcript analysis
+OPS,Vision,OPS,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+shore power,Vision,OPS,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+cold ironing,Vision,OPS,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+H2,Vision,H2,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+hydrogen,Vision,H2,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+electrolyser,Vision,H2,Technology (Infrastructure),Culture,seen/unseen,Auto-detected from transcript analysis
+LNG,Vision,LNG,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+methanol,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+ammonia,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+offshore wind,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+renewable,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+clean energy,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+transition,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+decarbonization,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+emission,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+carbon,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+sustainability,Vision,,Culture,Culture,seen/unseen,Auto-detected from transcript analysis
+community,Interoception,,Culture,Culture,settled/unsettled,Auto-detected from transcript analysis
+resident,Interoception,,Culture,Culture,settled/unsettled,Auto-detected from transcript analysis
+worker,Interoception,,Culture,Culture,settled/unsettled,Auto-detected from transcript analysis
+union,Interoception,,Culture,Culture,settled/unsettled,Auto-detected from transcript analysis
+port authority,Interoception,,Culture,Culture,settled/unsettled,Auto-detected from transcript analysis
+government,Interoception,,Politics,Culture,settled/unsettled,Auto-detected from transcript analysis
+environmental,Interoception,,Culture,Culture,settled/unsettled,Auto-detected from transcript analysis
+tourism,Interoception,,Culture,Culture,settled/unsettled,Auto-detected from transcript analysis
+fishing,Interoception,,Culture,Culture,settled/unsettled,Auto-detected from transcript analysis
+shipping,Interoception,,Culture,Culture,settled/unsettled,Auto-detected from transcript analysis
+economic,Interoception,,Economy,Culture,settled/unsettled,Auto-detected from transcript analysis
+development,Interoception,,Economy,Culture,settled/unsettled,Auto-detected from transcript analysis
+consultation,Interoception,,Politics,Culture,settled/unsettled,Auto-detected from transcript analysis
+participation,Interoception,,Culture,Culture,settled/unsettled,Auto-detected from transcript analysis
+engagement,Interoception,,Culture,Culture,settled/unsettled,Auto-detected from transcript analysis
+opposition,Interoception,,Culture,Culture,settled/unsettled,Auto-detected from transcript analysis
+turbine,Vision,Offshore wind,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+blade,Vision,Offshore wind,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+tower,Vision,Offshore wind,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+foundation,Vision,,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+substation,Vision,,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+transformer,Vision,OPS,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+electrolyser,Vision,H2,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+compressor,Hearing,LNG,Technology (Infrastructure),Culture,heard/unheard,v3.0 corrected - Technology vs Culture fixed
+cable,Hearing,,Technology (Infrastructure),Culture,heard/unheard,v3.0 corrected - Technology vs Culture fixed
+infrastructure,Hearing,,Technology (Infrastructure),Culture,heard/unheard,v3.0 corrected - Technology vs Culture fixed
+machinery,Vision,,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+AGV,Vision,smart grid/5G,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+RTG,Vision,smart grid/5G,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+5G,Vision,smart grid/5G,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+hum,Vision,OPS,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+buzz,Vision,OPS,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+whirr,Vision,H2,Technology (Infrastructure),Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+environmental,Interoception,,Environment,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+marine,Interoception,,Environment,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+whales,Interoception,,Environment,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+emissions,Interoception,,Environment,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+pollution,Interoception,,Environment,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+climate,Interoception,,Environment,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+renewable,Interoception,,Environment,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+clean,Interoception,,Environment,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+sustainability,Interoception,,Environment,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+NEPA,Interoception,,Environment,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+mitigation,Interoception,,Environment,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+jobs,Interoception,,Economy,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+economic,Interoception,,Economy,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+development,Interoception,,Economy,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+investment,Interoception,,Economy,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+cost,Interoception,,Economy,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+benefits,Interoception,,Economy,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+revenue,Interoception,,Economy,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+business,Interoception,,Economy,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+financial,Interoception,,Economy,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+market,Interoception,,Economy,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+permits,Interoception,,Politics,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+DNREC,Interoception,,Politics,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+BOEM,Interoception,,Politics,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+government,Interoception,,Politics,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+consultation,Interoception,,Politics,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+policy,Interoception,,Politics,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+regulation,Interoception,,Politics,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+authority,Interoception,,Politics,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+participation,Interoception,,Politics,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+stakeholders,Interoception,,Politics,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+safety,Nociception,,Health & Safety,Culture,safe/threat,v3.0 corrected - Technology vs Culture fixed
+emergency,Nociception,,Health & Safety,Culture,safe/threat,v3.0 corrected - Technology vs Culture fixed
+risk,Nociception,,Health & Safety,Culture,safe/threat,v3.0 corrected - Technology vs Culture fixed
+health,Nociception,,Health & Safety,Culture,safe/threat,v3.0 corrected - Technology vs Culture fixed
+danger,Nociception,,Health & Safety,Culture,safe/threat,v3.0 corrected - Technology vs Culture fixed
+concern,Nociception,,Health & Safety,Culture,safe/threat,v3.0 corrected - Technology vs Culture fixed
+electromagnetic,Nociception,,Health & Safety,Culture,safe/threat,v3.0 corrected - Technology vs Culture fixed
+vibration,Nociception,,Health & Safety,Culture,safe/threat,v3.0 corrected - Technology vs Culture fixed
+noise,Nociception,,Health & Safety,Culture,safe/threat,v3.0 corrected - Technology vs Culture fixed
+hazard,Nociception,,Health & Safety,Culture,safe/threat,v3.0 corrected - Technology vs Culture fixed
+community,Vision,,Culture,Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+residents,Vision,,Culture,Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+tourism,Vision,,Culture,Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+heritage,Vision,,Culture,Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+visual,Vision,,Culture,Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+landscape,Interoception,,Culture,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+skyline,Interoception,,Culture,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+aesthetic,Interoception,,Culture,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+values,Interoception,,Culture,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+tradition,Interoception,,Culture,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
