@@ -1,0 +1,231 @@
+Keyword,Modality,EnergyTerm,Performance,BinaryDefault,Notes
+turbine,Vision,Offshore wind,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+blade,Vision,Offshore wind,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+tower,Vision,Offshore wind,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+foundation,Vision,,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+substation,Vision,,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+transformer,Vision,OPS,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+electrolyser,Vision,H2,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+compressor,Hearing,LNG,Technology (Infrastructure),heard/unheard,v3.0 corrected - Technology vs Culture fixed
+cable,Hearing,,Technology (Infrastructure),heard/unheard,v3.0 corrected - Technology vs Culture fixed
+infrastructure,Hearing,,Technology (Infrastructure),heard/unheard,v3.0 corrected - Technology vs Culture fixed
+machinery,Vision,,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+AGV,Vision,smart grid/5G,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+RTG,Vision,smart grid/5G,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+5G,Vision,smart grid/5G,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+hum,Vision,OPS,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+buzz,Vision,OPS,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+whirr,Vision,H2,Technology (Infrastructure),seen/unseen,v3.0 corrected - Technology vs Culture fixed
+environmental,Interoception,,Environment,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+marine,Interoception,,Environment,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+whales,Interoception,,Environment,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+emissions,Interoception,,Environment,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+pollution,Interoception,,Environment,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+climate,Interoception,,Environment,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+renewable,Interoception,,Environment,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+clean,Interoception,,Environment,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+sustainability,Interoception,,Environment,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+NEPA,Interoception,,Environment,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+mitigation,Interoception,,Environment,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+jobs,Interoception,,Economy,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+economic,Interoception,,Economy,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+development,Interoception,,Economy,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+investment,Interoception,,Economy,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+cost,Interoception,,Economy,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+benefits,Interoception,,Economy,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+revenue,Interoception,,Economy,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+business,Interoception,,Economy,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+financial,Interoception,,Economy,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+market,Interoception,,Economy,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+permits,Interoception,,Politics,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+DNREC,Interoception,,Politics,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+BOEM,Interoception,,Politics,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+government,Interoception,,Politics,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+consultation,Interoception,,Politics,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+policy,Interoception,,Politics,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+regulation,Interoception,,Politics,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+authority,Interoception,,Politics,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+participation,Interoception,,Politics,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+stakeholders,Interoception,,Politics,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+safety,Nociception,,Health & Safety,safe/threat,v3.0 corrected - Technology vs Culture fixed
+emergency,Nociception,,Health & Safety,safe/threat,v3.0 corrected - Technology vs Culture fixed
+risk,Nociception,,Health & Safety,safe/threat,v3.0 corrected - Technology vs Culture fixed
+health,Nociception,,Health & Safety,safe/threat,v3.0 corrected - Technology vs Culture fixed
+danger,Nociception,,Health & Safety,safe/threat,v3.0 corrected - Technology vs Culture fixed
+concern,Nociception,,Health & Safety,safe/threat,v3.0 corrected - Technology vs Culture fixed
+electromagnetic,Nociception,,Health & Safety,safe/threat,v3.0 corrected - Technology vs Culture fixed
+vibration,Nociception,,Health & Safety,safe/threat,v3.0 corrected - Technology vs Culture fixed
+noise,Nociception,,Health & Safety,safe/threat,v3.0 corrected - Technology vs Culture fixed
+hazard,Nociception,,Health & Safety,safe/threat,v3.0 corrected - Technology vs Culture fixed
+community,Vision,,Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+residents,Vision,,Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+tourism,Vision,,Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+heritage,Vision,,Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+visual,Vision,,Culture,seen/unseen,v3.0 corrected - Technology vs Culture fixed
+landscape,Interoception,,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+skyline,Interoception,,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+aesthetic,Interoception,,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+values,Interoception,,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+tradition,Interoception,,Culture,settled/unsettled,v3.0 corrected - Technology vs Culture fixed
+hum,Hearing,OPS,Technology (Infrastructure),heard/unheard,
+buzz,Hearing,OPS,Technology (Infrastructure),heard/unheard,
+buczenie,Hearing,,Culture,heard/unheard,
+horn,Hearing,,Culture,heard/unheard,
+syrena,Hearing,,Culture,heard/unheard,
+beep,Hearing,,Culture,heard/unheard,
+whirr,Hearing,H2,Culture,heard/unheard,
+pulse,Hearing,,Culture,heard/unheard,
+rhythm,Hearing,,Culture,heard/unheard,
+transformer,Hearing,OPS,Technology (Infrastructure),heard/unheard,
+electrolyser,Hearing,H2,Technology (Infrastructure),heard/unheard,
+compressor,Hearing,LNG,Technology (Infrastructure),heard/unheard,
+AGV,Hearing,smart grid/5G,Culture,heard/unheard,
+RTG,Hearing,smart grid/5G,Culture,heard/unheard,
+engine,Hearing,,Culture,heard/unheard,
+motor,Hearing,,Culture,heard/unheard,
+construction,Hearing,,Culture,heard/unheard,
+drilling,Hearing,,Culture,heard/unheard,
+pile,Hearing,,Culture,heard/unheard,
+hammer,Hearing,,Culture,heard/unheard,
+machinery,Hearing,,Culture,heard/unheard,
+alarm,Hearing,,Culture,heard/unheard,
+warning,Hearing,,Culture,heard/unheard,
+seagull,Hearing,,Culture,heard/unheard,
+wave,Hearing,,Culture,heard/unheard,
+wind,Hearing,,Culture,heard/unheard,
+silence,Hearing,,Culture,heard/unheard,
+quiet,Hearing,,Culture,heard/unheard,
+noise,Hearing,,Culture,heard/unheard,
+hałas,Hearing,,Culture,heard/unheard,
+sound,Hearing,,Culture,heard/unheard,
+turbine,Vision,Offshore wind,Technology (Infrastructure),seen/unseen,
+turbina,Vision,,Culture,seen/unseen,
+blade,Vision,Offshore wind,Culture,seen/unseen,
+tower,Vision,Offshore wind,Culture,seen/unseen,
+foundation,Vision,,Culture,seen/unseen,
+substation,Vision,,Culture,seen/unseen,
+cable,Vision,,Culture,seen/unseen,
+LED,Vision,,Culture,seen/unseen,
+strobe,Vision,,Culture,seen/unseen,
+light,Vision,,Culture,seen/unseen,
+flashing,Vision,,Culture,seen/unseen,
+5G,Vision,smart grid/5G,Technology (Infrastructure),seen/unseen,
+LNG,Vision,LNG,Culture,seen/unseen,
+FSRU,Vision,,Culture,seen/unseen,
+vessel,Vision,,Culture,seen/unseen,
+ship,Vision,,Culture,seen/unseen,
+crane,Vision,,Culture,seen/unseen,
+container,Vision,,Culture,seen/unseen,
+terminal,Vision,,Culture,seen/unseen,
+infrastructure,Vision,,Technology (Infrastructure),seen/unseen,
+skyline,Vision,,Culture,seen/unseen,
+horizon,Vision,,Culture,seen/unseen,
+vapor,Vision,,Culture,seen/unseen,
+plume,Vision,,Culture,seen/unseen,
+steam,Vision,,Culture,seen/unseen,
+smoke,Vision,,Culture,seen/unseen,
+emissions,Vision,,Culture,seen/unseen,
+diesel,Smell,,Culture,sniffed/unsmelled,
+ozone,Smell,H2,Culture,sniffed/unsmelled,
+ozon,Smell,,Culture,sniffed/unsmelled,
+methane,Smell,LNG,Culture,sniffed/unsmelled,
+gas,Smell,LNG,Culture,sniffed/unsmelled,
+exhaust,Smell,,Culture,sniffed/unsmelled,
+chemical,Smell,,Culture,sniffed/unsmelled,
+fuel,Smell,,Culture,sniffed/unsmelled,
+tar,Smell,,Culture,sniffed/unsmelled,
+smoła,Smell,,Culture,sniffed/unsmelled,
+fish,Smell,,Culture,sniffed/unsmelled,
+ryb,Smell,,Culture,sniffed/unsmelled,
+sea,Smell,,Culture,sniffed/unsmelled,
+salt,Smell,,Culture,sniffed/unsmelled,
+brine,Smell,,Culture,sniffed/unsmelled,
+fresh,Smell,,Culture,sniffed/unsmelled,
+clean,Smell,,Culture,sniffed/unsmelled,
+pollution,Smell,,Culture,sniffed/unsmelled,
+smell,Smell,,Culture,sniffed/unsmelled,
+odor,Smell,,Culture,sniffed/unsmelled,
+zapach,Smell,,Culture,sniffed/unsmelled,
+aromat,Smell,,Culture,sniffed/unsmelled,
+scent,Smell,,Culture,sniffed/unsmelled,
+aroma,Smell,,Culture,sniffed/unsmelled,
+vibrat,Touch,,Culture,tactile/non-tactile,
+wibr,Touch,,Culture,tactile/non-tactile,
+shake,Touch,,Culture,tactile/non-tactile,
+tremor,Touch,,Culture,tactile/non-tactile,
+movement,Touch,,Culture,tactile/non-tactile,
+sway,Touch,,Culture,tactile/non-tactile,
+kołysa,Touch,,Culture,tactile/non-tactile,
+rough,Touch,,Culture,tactile/non-tactile,
+smooth,Touch,,Culture,tactile/non-tactile,
+hard,Touch,,Culture,tactile/non-tactile,
+soft,Touch,,Culture,tactile/non-tactile,
+pressure,Touch,,Culture,tactile/non-tactile,
+resistance,Touch,,Culture,tactile/non-tactile,
+texture,Touch,,Culture,tactile/non-tactile,
+warm,Touch,,Culture,tactile/non-tactile,
+cold,Touch,,Culture,tactile/non-tactile,
+hot,Touch,,Culture,tactile/non-tactile,
+cool,Touch,,Culture,tactile/non-tactile,
+zimno,Touch,,Culture,tactile/non-tactile,
+ciepło,Touch,,Culture,tactile/non-tactile,
+push,Kinesthesia,,Culture,active/inactive,
+pull,Kinesthesia,,Culture,active/inactive,
+ciągn,Kinesthesia,,Culture,active/inactive,
+lift,Kinesthesia,,Culture,active/inactive,
+carry,Kinesthesia,,Culture,active/inactive,
+walk,Kinesthesia,,Culture,active/inactive,
+climb,Kinesthesia,,Culture,active/inactive,
+balance,Kinesthesia,,Culture,active/inactive,
+safety,Nociception,,Health & Safety,safe/threat,
+bezpie,Nociception,,Culture,safe/threat,
+danger,Nociception,,Health & Safety,safe/threat,
+risk,Nociception,,Health & Safety,safe/threat,
+threat,Nociception,,Culture,safe/threat,
+secure,Nociception,,Culture,safe/threat,
+hazard,Nociception,,Culture,safe/threat,
+electromagnetic,Nociception,,Culture,safe/threat,
+radiation,Nociception,,Culture,safe/threat,
+exposure,Nociception,,Culture,safe/threat,
+health,Nociception,,Health & Safety,safe/threat,
+concern,Nociception,,Culture,safe/threat,
+worry,Nociception,,Culture,safe/threat,
+anxiety,Nociception,,Culture,safe/threat,
+fear,Nociception,,Culture,safe/threat,
+lęk,Nociception,,Culture,safe/threat,
+stress,Nociception,,Culture,safe/threat,
+comfort,Nociception,,Culture,safe/threat,
+discomfort,Nociception,,Culture,safe/threat,
+OPS,Vision,OPS,Culture,seen/unseen,
+shore power,Vision,OPS,Culture,seen/unseen,
+cold ironing,Vision,OPS,Culture,seen/unseen,
+H2,Vision,H2,Culture,seen/unseen,
+hydrogen,Vision,H2,Culture,seen/unseen,
+electrolyser,Vision,H2,Technology (Infrastructure),seen/unseen,
+LNG,Vision,LNG,Culture,seen/unseen,
+methanol,Vision,,Culture,seen/unseen,
+ammonia,Vision,,Culture,seen/unseen,
+offshore wind,Vision,,Culture,seen/unseen,
+renewable,Vision,,Culture,seen/unseen,
+clean energy,Vision,,Culture,seen/unseen,
+transition,Vision,,Culture,seen/unseen,
+decarbonization,Vision,,Culture,seen/unseen,
+emission,Vision,,Culture,seen/unseen,
+carbon,Vision,,Culture,seen/unseen,
+sustainability,Vision,,Culture,seen/unseen,
+community,Interoception,,Culture,settled/unsettled,
+resident,Interoception,,Culture,settled/unsettled,
+worker,Interoception,,Culture,settled/unsettled,
+union,Interoception,,Culture,settled/unsettled,
+port authority,Interoception,,Culture,settled/unsettled,
+government,Interoception,,Politics,settled/unsettled,
+environmental,Interoception,,Culture,settled/unsettled,
+tourism,Interoception,,Culture,settled/unsettled,
+fishing,Interoception,,Culture,settled/unsettled,
+shipping,Interoception,,Culture,settled/unsettled,
+economic,Interoception,,Economy,settled/unsettled,
+development,Interoception,,Economy,settled/unsettled,
+consultation,Interoception,,Politics,settled/unsettled,
+participation,Interoception,,Culture,settled/unsettled,
+engagement,Interoception,,Culture,settled/unsettled,
+opposition,Interoception,,Culture,settled/unsettled,

@@ -1,0 +1,3 @@
+column,dtype,non_null,null
+cue,str,14,0
+measurement_hint,str,14,0

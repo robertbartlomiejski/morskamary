@@ -1,0 +1,2 @@
+column,dtype,non_null,null
+"Correlation id,""Operation name"",""Status"",""Event category"",""Level"",""Time"",""Subscription"",""Event initiated by"",""Resource type"",""Resource group"",""Resource""",str,156,0

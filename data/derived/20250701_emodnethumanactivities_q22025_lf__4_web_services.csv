@@ -1,0 +1,14 @@
+Indicator 4: Online 'Web' interfaces to access or view data,Unnamed: 1,Unnamed: 2,Unnamed: 3,Unnamed: 4,Unnamed: 5
+The purpose of this indicator is to provide detail on the status of the various interfaces to data & products on the portals,,,,,
+Express as a percentage data and products available in each service,,,,,
+"Please refer to ""Explanation of the trends and statistics"" below",,,,,
+Reporting date,Portal name,,,,
+2025-04-01 00:00:00,Human Activities,,,,
+,"Machine Interface 
+(Data accessed programmatically - Software that would receive data/data products/external data products through software)",,,,
+Sub-theme/ interface name,WMS,WFS,WCS,Add any other interfaces as required/available,Were there any changes compared to the previous quarter?
+,https://ows.emodnet-humanactivities.eu/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities,https://ows.emodnet-humanactivities.eu/wfs?SERVICE=WFS&VERSION=1.1.0&request=GetCapabilities,https://ows.emodnet-humanactivities.eu/wcs?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities,,
+,,,,,
+,,,,,
+Explanation of the trends and statistics,,,,,
+4) Online 'Web' interfaces to access or view data,Nothing to report,,,,

@@ -1,0 +1,10 @@
+column,dtype,non_null,null
+Case Study Id,int64,2,0
+Institution,str,2,0
+Unit of Assessment,str,2,0
+Title,str,2,0
+Summary of the impact,str,2,0
+Underpinning research,str,2,0
+References to the research,str,2,0
+Details of the impact,str,2,0
+Sources to corroborate the impact ,str,2,0

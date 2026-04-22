@@ -1,0 +1,23 @@
+column,dtype,non_null,null
+NACE_code,str,34,1
+C.20.16,object,34,1
+C.29.1,object,34,1
+C.30.2,object,34,1
+D.35.11,object,34,1
+D.35.21,object,34,1
+D.35.3,object,34,1
+E.38.11,object,34,1
+E.38.21,object,34,1
+F.42.13 ,object,34,1
+F.43.22,object,34,1
+H.49.10,object,34,1
+H.49.20,object,34,1
+H.49.31,object,34,1
+H.49.32,object,34,1
+H.49.39,object,34,1
+H.49.41,object,34,1
+H.52.21,object,34,1
+H.53.1,object,34,1
+H.53.2,object,34,1
+N.77.11,object,34,1
+N.77.12,object,34,1
