@@ -836,7 +836,7 @@ def test_generate_literature_html_creates_file(tmp_path: Path) -> None:
 
     literature = [
         Competence(
-            id="lit_1",
+            id="labor_justice_lit_1",
             name="Literature Competence",
             description="Test",
             axis=TMBDAxis.OCEANIC,
@@ -854,9 +854,8 @@ def test_generate_literature_html_creates_file(tmp_path: Path) -> None:
 
     assert output_file.exists()
     content = output_file.read_text()
-    # The HTML might not contain the competence name in the body table
-    # but should contain metadata about it
-    assert "Smith, J." in content or "Test Paper" in content or "OCEANIC" in content
+    assert "Literature Competence" in content
+    assert "Smith, J." in content
 
 
 def test_main_handles_missing_baseline_csv(tmp_path: Path) -> None:
