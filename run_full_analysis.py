@@ -637,6 +637,41 @@ _THEME_SECTORS: Dict[str, List[str]] = {
 }
 
 
+def _validate_theme_sectors() -> None:
+    """Validate _THEME_SECTORS keys and values at import time.
+
+    Raises:
+        ValueError: if a key in _THEME_SECTORS does not match any theme in
+            _LIT_THEMES, or if a sector value is not a canonical member of SECTORS.
+    """
+    all_themes: Set[str] = set()
+    for axis_groups in _LIT_THEMES.values():
+        for names in axis_groups.values():
+            all_themes.update(names)
+
+    bad_keys = [k for k in _THEME_SECTORS if k not in all_themes]
+    if bad_keys:
+        raise ValueError(
+            "_THEME_SECTORS contains keys that do not match any theme in _LIT_THEMES: "
+            + ", ".join(sorted(bad_keys))
+        )
+
+    sectors_set = set(SECTORS)
+    bad_values: List[str] = []
+    for theme, sector_list in _THEME_SECTORS.items():
+        for sec in sector_list:
+            if sec not in sectors_set:
+                bad_values.append(f"{theme!r} → {sec!r}")
+    if bad_values:
+        raise ValueError(
+            "_THEME_SECTORS contains sector names not in the canonical SECTORS list: "
+            + "; ".join(bad_values)
+        )
+
+
+_validate_theme_sectors()
+
+
 def _slugify(text: str) -> str:
     """Convert text to a safe identifier slug."""
     return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")[:60]
@@ -783,13 +818,14 @@ def run_gap_analysis(
     Run competence gap analysis for all 12 blue economy sectors.
 
     For each sector:
-      - required: all competences (baseline + literature) that list that sector
+      - required: baseline competences that list that sector + literature
+                  competences whose sectors field includes that sector
       - available: baseline competences for that sector
       - missing: required − available
 
     Args:
         baseline: 15 University of Szczecin baseline competences
-        literature: literature-derived competences
+        literature: literature-derived competences (sector-specific via _THEME_SECTORS)
 
     Returns:
         Tuple of:
@@ -807,14 +843,15 @@ def run_gap_analysis(
     sector_comps: Dict[str, List[Competence]] = {}
 
     for sector in SECTORS:
-        # Required: baseline comps that include this sector + all literature comps
+        # Required: baseline comps that include this sector + literature comps
+        # that explicitly list this sector in their sectors field.
         required_ids: List[str] = []
         for c in baseline:
             if sector in c.sectors:
                 required_ids.append(c.id)
-        # Literature competences are cross-sector
         for c in literature:
-            required_ids.append(c.id)
+            if sector in c.sectors:
+                required_ids.append(c.id)
 
         # Available: baseline competences for this sector
         available_ids = [c.id for c in baseline if sector in c.sectors]
