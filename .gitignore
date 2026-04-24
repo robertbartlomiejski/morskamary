@@ -90,6 +90,6 @@ data/local/
 # outputs/*.json
 # outputs/*.csv
 outputs/sectors/
-outputs/sector_dictionaries/
+# outputs/sector_dictionaries/ — tracked so CI artifacts are available for download
 # deep_update_patch bundle: generated outputs are regenerated at runtime
 deep_update_patch/outputs/
