@@ -783,13 +783,15 @@ def run_gap_analysis(
     Run competence gap analysis for all 12 blue economy sectors.
 
     For each sector:
-      - required: all competences (baseline + literature) that list that sector
+      - required: baseline competences + literature competences that list that
+        sector (sector-specific: literature is only included where it applies)
       - available: baseline competences for that sector
       - missing: required − available
 
     Args:
         baseline: 15 University of Szczecin baseline competences
-        literature: literature-derived competences
+        literature: literature-derived competences (sector-specific via
+            _THEME_SECTORS; cross-sector themes use all 12 sectors)
 
     Returns:
         Tuple of:
@@ -807,14 +809,16 @@ def run_gap_analysis(
     sector_comps: Dict[str, List[Competence]] = {}
 
     for sector in SECTORS:
-        # Required: baseline comps that include this sector + all literature comps
+        # Required: baseline comps that include this sector
+        # + literature comps whose sector list includes this sector
         required_ids: List[str] = []
         for c in baseline:
             if sector in c.sectors:
                 required_ids.append(c.id)
-        # Literature competences are cross-sector
+        # Literature competences are sector-specific: only include when matched
         for c in literature:
-            required_ids.append(c.id)
+            if sector in c.sectors:
+                required_ids.append(c.id)
 
         # Available: baseline competences for this sector
         available_ids = [c.id for c in baseline if sector in c.sectors]

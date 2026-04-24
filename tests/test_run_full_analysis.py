@@ -943,3 +943,144 @@ class TestCLIAndEdgeCases:
             args = parse_cli_args()
             assert hasattr(args, 'sectors')
 
+
+# ============================================================================
+# _THEME_SECTORS mapping integrity tests
+# ============================================================================
+
+
+def test_theme_sectors_keys_exist_in_lit_themes() -> None:
+    """All _THEME_SECTORS keys must exist in the _LIT_THEMES theme universe."""
+    from run_full_analysis import _THEME_SECTORS, _LIT_THEMES
+
+    # Flatten all theme names from _LIT_THEMES into a single set
+    all_themes: set = set()
+    for axis_dict in _LIT_THEMES.values():
+        for theme_list in axis_dict.values():
+            all_themes.update(theme_list)
+
+    unknown_keys = [k for k in _THEME_SECTORS if k not in all_themes]
+    assert unknown_keys == [], (
+        f"_THEME_SECTORS keys not found in _LIT_THEMES theme universe: {unknown_keys}"
+    )
+
+
+def test_theme_sectors_values_are_canonical_sectors() -> None:
+    """All _THEME_SECTORS values must be canonical members of SECTORS."""
+    from run_full_analysis import _THEME_SECTORS, SECTORS
+
+    sectors_set = set(SECTORS)
+    invalid: list = []
+    for theme, sectors in _THEME_SECTORS.items():
+        for s in sectors:
+            if s not in sectors_set:
+                invalid.append((theme, s))
+
+    assert invalid == [], (
+        f"_THEME_SECTORS contains sector names not in SECTORS: {invalid}"
+    )
+
+
+def test_theme_sectors_seafarer_welfare_restricted() -> None:
+    """'Seafarer welfare and social protection' must not be assigned to all sectors."""
+    from run_full_analysis import _THEME_SECTORS, SECTORS
+
+    seafarer_sectors = _THEME_SECTORS.get("Seafarer welfare and social protection")
+    assert seafarer_sectors is not None, (
+        "'Seafarer welfare and social protection' must be in _THEME_SECTORS"
+    )
+    assert len(seafarer_sectors) < len(SECTORS), (
+        "Expected 'Seafarer welfare and social protection' to cover fewer than all "
+        f"{len(SECTORS)} sectors, but got {len(seafarer_sectors)}: {seafarer_sectors}"
+    )
+
+
+def test_run_gap_analysis_respects_literature_sectors() -> None:
+    """Literature competences must only appear in sectors listed in their .sectors."""
+    from run_full_analysis import run_gap_analysis
+
+    baseline: list = []
+
+    literature = [
+        Competence(
+            id="lit_ri_only",
+            name="R&I Literature",
+            description="Research theme",
+            axis=TMBDAxis.OCEANIC,
+            dimension="literature",
+            source=CompetenceSource(file="lit.csv", row=1),
+            sectors=["R&I"],
+        ),
+        Competence(
+            id="lit_biotech_only",
+            name="Blue Biotech Literature",
+            description="Biotech theme",
+            axis=TMBDAxis.MARITIME,
+            dimension="literature",
+            source=CompetenceSource(file="lit.csv", row=2),
+            sectors=["Blue Biotech"],
+        ),
+    ]
+
+    gaps, _ = run_gap_analysis(baseline, literature)
+
+    # "R&I" sector must only receive its own literature competence
+    ri_required = set(gaps["R&I"].required_ids)
+    assert "lit_ri_only" in ri_required, "lit_ri_only must be required for R&I"
+    assert "lit_biotech_only" not in ri_required, (
+        "lit_biotech_only must NOT be required for R&I"
+    )
+
+    # "Blue Biotech" sector must only receive its own literature competence
+    bb_required = set(gaps["Blue Biotech"].required_ids)
+    assert "lit_biotech_only" in bb_required, (
+        "lit_biotech_only must be required for Blue Biotech"
+    )
+    assert "lit_ri_only" not in bb_required, (
+        "lit_ri_only must NOT be required for Blue Biotech"
+    )
+
+    # "Desalination" sector must have no required competences (neither lit matches)
+    assert gaps["Desalination"].required_ids == [], (
+        "Desalination must have no required competences when no literature targets it"
+    )
+    assert gaps["Desalination"].gap_pct == 0.0
+
+
+def test_gap_analysis_sector_dictionaries_differ() -> None:
+    """Sector dictionaries must differ when literature competences are sector-specific."""
+    from run_full_analysis import run_gap_analysis
+
+    literature = [
+        Competence(
+            id="lit_transport",
+            name="Maritime Transport Literature",
+            description="Seafarer welfare",
+            axis=TMBDAxis.MARITIME,
+            dimension="literature",
+            source=CompetenceSource(file="lit.csv", row=1),
+            sectors=["Maritime Transport", "Ship Repair"],
+        ),
+        Competence(
+            id="lit_biotech",
+            name="Blue Biotech Literature",
+            description="Marine biodiversity",
+            axis=TMBDAxis.MARINE,
+            dimension="literature",
+            source=CompetenceSource(file="lit.csv", row=2),
+            sectors=["Blue Biotech", "R&I"],
+        ),
+    ]
+
+    gaps, _ = run_gap_analysis([], literature)
+
+    # Maritime Transport and Blue Biotech must have different competence sets
+    transport_required = set(gaps["Maritime Transport"].required_ids)
+    biotech_required = set(gaps["Blue Biotech"].required_ids)
+    assert transport_required != biotech_required, (
+        "Sector dictionaries must differ when literature competences are sector-specific"
+    )
+
+    # Each should only contain its own literature competences
+    assert transport_required == {"lit_transport"}
+    assert biotech_required == {"lit_biotech"}
