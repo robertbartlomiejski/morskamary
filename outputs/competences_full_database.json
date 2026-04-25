@@ -678,18 +678,7 @@
         "Artisanal fishing knowledge an"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -715,18 +704,8 @@
         "Precarious work and informalit"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -789,18 +768,7 @@
         "Decent work standards for aqua"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -826,18 +794,7 @@
         "Artisanal fishing knowledge an"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -900,18 +857,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -974,18 +923,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -1048,18 +987,10 @@
         "Occupational health and safety"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence",
+        "Ship Repair",
+        "Renewable Energy"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -1085,18 +1016,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -1159,18 +1082,7 @@
         "Decent work standards for aqua"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -1270,18 +1182,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -1307,18 +1211,8 @@
         "Small-scale fisheries sustaina"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -1344,18 +1238,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -1418,18 +1302,7 @@
         "Artisanal fishing knowledge an"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -1455,18 +1328,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -1529,18 +1394,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -1640,18 +1495,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -1714,18 +1561,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -1825,18 +1662,8 @@
         "Precarious work and informalit"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -1899,18 +1726,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2010,18 +1827,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2084,18 +1893,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2195,18 +1994,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2269,18 +2060,7 @@
         "Decent work standards for aqua"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2306,17 +2086,8 @@
         "Migration and mobile labour in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -2380,18 +2151,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2454,18 +2217,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2565,18 +2318,8 @@
         "Precarious work and informalit"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2602,18 +2345,7 @@
         "Child labour and forced labour"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2639,18 +2371,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2750,18 +2472,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2824,18 +2538,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2861,17 +2565,8 @@
         "Labour union organising and co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -2898,18 +2593,10 @@
         "Occupational health and safety"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence",
+        "Ship Repair",
+        "Renewable Energy"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2935,18 +2622,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -2972,18 +2651,7 @@
         "Child labour and forced labour"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -3009,18 +2677,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -3046,17 +2704,8 @@
         "Migration and mobile labour in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -3120,18 +2769,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -3194,18 +2835,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -3231,17 +2862,8 @@
         "Labour union organising and co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -3305,18 +2927,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -3379,18 +2993,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -3490,18 +3094,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -3564,18 +3160,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -3675,18 +3261,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -3749,18 +3327,7 @@
         "Decent work standards for aqua"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -3860,18 +3427,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -3971,17 +3530,8 @@
         "Labour union organising and co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -4045,18 +3595,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -4119,18 +3661,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -4230,18 +3762,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -4304,18 +3828,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -4341,17 +3855,8 @@
         "Labour union organising and co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -4378,18 +3883,10 @@
         "Occupational health and safety"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence",
+        "Ship Repair",
+        "Renewable Energy"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -4415,18 +3912,8 @@
         "Small-scale fisheries sustaina"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -4489,18 +3976,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -4600,18 +4077,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -4674,18 +4143,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -4785,18 +4244,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -4859,18 +4310,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -4970,18 +4411,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -5155,18 +4588,8 @@
         "Precarious work and informalit"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -5229,18 +4652,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -5266,17 +4679,8 @@
         "Migration and mobile labour in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -5303,18 +4707,10 @@
         "Fair wage and labour rights in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Ship Repair",
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -5340,17 +4736,8 @@
         "Seafarer welfare and social pr"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
+        "Maritime Defence",
         "Ship Repair"
       ],
       "source": {
@@ -5414,18 +4801,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -5525,18 +4902,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -5562,18 +4931,7 @@
         "Child labour and forced labour"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -5599,18 +4957,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -5710,18 +5058,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -5784,18 +5124,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -5858,18 +5188,10 @@
         "Occupational health and safety"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence",
+        "Ship Repair",
+        "Renewable Energy"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -5895,18 +5217,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -5969,18 +5283,7 @@
         "Decent work standards for aqua"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6006,17 +5309,8 @@
         "Migration and mobile labour in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -6043,18 +5337,10 @@
         "Fair wage and labour rights in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Ship Repair",
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6080,18 +5366,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6154,18 +5432,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6228,18 +5496,10 @@
         "Occupational health and safety"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence",
+        "Ship Repair",
+        "Renewable Energy"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6265,18 +5525,8 @@
         "Precarious work and informalit"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6339,18 +5589,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6376,17 +5616,8 @@
         "Migration and mobile labour in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -6413,18 +5644,10 @@
         "Fair wage and labour rights in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Ship Repair",
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6450,18 +5673,7 @@
         "Artisanal fishing knowledge an"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6524,18 +5736,7 @@
         "Artisanal fishing knowledge an"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6598,18 +5799,10 @@
         "Occupational health and safety"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence",
+        "Ship Repair",
+        "Renewable Energy"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6635,18 +5828,8 @@
         "Precarious work and informalit"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6709,18 +5892,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6746,17 +5919,8 @@
         "Migration and mobile labour in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -6820,18 +5984,10 @@
         "Equitable benefit-sharing in o"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -6894,18 +6050,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -7005,18 +6151,8 @@
         "Precarious work and informalit"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -7079,18 +6215,8 @@
         "Indigenous and traditional fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_labor_justice.csv",
@@ -7116,18 +6242,9 @@
         "Integrated ocean observing and"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech",
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -7190,18 +6307,8 @@
         "Open science and FAIR data in "
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -7264,18 +6371,7 @@
         "Knowledge transfer between sci"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -7301,18 +6397,10 @@
         "Marine protected area design a"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -7412,18 +6500,7 @@
         "Cross-border ocean research co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -7449,18 +6526,8 @@
         "Open science and FAIR data in "
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -7486,18 +6553,10 @@
         "Digital transformation of mari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Ship Repair",
+        "Infra & Robotics"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -7523,18 +6582,9 @@
         "Integrated ocean observing and"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech",
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -7598,17 +6648,9 @@
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -7782,18 +6824,9 @@
         "Marine noise pollution and aco"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res.",
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -7819,18 +6852,8 @@
         "Open science and FAIR data in "
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -7894,17 +6917,10 @@
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Renewable Energy"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -7930,18 +6946,9 @@
         "Integrated ocean observing and"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech",
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8078,18 +7085,9 @@
         "Technology readiness for susta"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
         "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Desalination"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8153,17 +7151,10 @@
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Renewable Energy"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8189,18 +7180,9 @@
         "Integrated ocean observing and"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech",
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8263,18 +7245,7 @@
         "Cross-border ocean research co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8300,18 +7271,8 @@
         "Open science and FAIR data in "
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8485,18 +7446,9 @@
         "Marine noise pollution and aco"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res.",
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8522,18 +7474,8 @@
         "Open science and FAIR data in "
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8596,18 +7538,7 @@
         "Knowledge transfer between sci"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8633,18 +7564,9 @@
         "Integrated ocean observing and"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech",
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8708,17 +7630,8 @@
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
         "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8744,18 +7657,7 @@
         "Cross-border ocean research co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8855,18 +7757,9 @@
         "Technology readiness for susta"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
         "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Desalination"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8893,17 +7786,9 @@
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8929,18 +7814,10 @@
         "Digital transformation of mari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Ship Repair",
+        "Infra & Robotics"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -8966,18 +7843,7 @@
         "Cross-border ocean research co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9077,18 +7943,7 @@
         "Knowledge transfer between sci"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9114,18 +7969,9 @@
         "Integrated ocean observing and"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech",
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9226,17 +8072,8 @@
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
         "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9262,18 +8099,9 @@
         "Marine noise pollution and aco"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Living Res.",
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9299,18 +8127,8 @@
         "Open science and FAIR data in "
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9373,18 +8191,9 @@
         "Integrated ocean observing and"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech",
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9448,17 +8257,8 @@
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
         "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9484,18 +8284,7 @@
         "Cross-border ocean research co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9521,18 +8310,8 @@
         "Open science and FAIR data in "
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9595,18 +8374,9 @@
         "Integrated ocean observing and"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech",
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9743,18 +8513,7 @@
         "Cross-border ocean research co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9780,18 +8539,8 @@
         "Open science and FAIR data in "
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9854,18 +8603,7 @@
         "Knowledge transfer between sci"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -9891,18 +8629,9 @@
         "Technology readiness for susta"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
         "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Desalination"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10039,18 +8768,7 @@
         "Cross-border ocean research co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10113,18 +8831,7 @@
         "Knowledge transfer between sci"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10150,18 +8857,9 @@
         "Integrated ocean observing and"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech",
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10225,17 +8923,9 @@
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10298,18 +8988,7 @@
         "Cross-border ocean research co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10372,18 +9051,7 @@
         "Knowledge transfer between sci"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10409,18 +9077,9 @@
         "Integrated ocean observing and"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech",
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10557,18 +9216,9 @@
         "Technology readiness for susta"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
         "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Desalination"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10594,18 +9244,8 @@
         "Open science and FAIR data in "
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10668,18 +9308,7 @@
         "Knowledge transfer between sci"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10705,18 +9334,9 @@
         "Integrated ocean observing and"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech",
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10816,18 +9436,10 @@
         "Digital transformation of mari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Ship Repair",
+        "Infra & Robotics"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10853,18 +9465,7 @@
         "Cross-border ocean research co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10890,18 +9491,8 @@
         "Open science and FAIR data in "
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -10964,18 +9555,7 @@
         "Knowledge transfer between sci"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11001,18 +9581,9 @@
         "Technology readiness for susta"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
         "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
         "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Desalination"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11149,18 +9720,7 @@
         "Cross-border ocean research co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11223,18 +9783,10 @@
         "Digital transformation of mari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Ship Repair",
+        "Infra & Robotics"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11260,18 +9812,9 @@
         "Integrated ocean observing and"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech",
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11335,17 +9878,9 @@
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11371,18 +9906,10 @@
         "Digital transformation of mari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Ship Repair",
+        "Infra & Robotics"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11408,18 +9935,7 @@
         "Cross-border ocean research co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11446,17 +9962,9 @@
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11483,17 +9991,9 @@
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11519,18 +10019,7 @@
         "Knowledge transfer between sci"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11556,18 +10045,10 @@
         "Marine protected area design a"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11668,17 +10149,8 @@
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
         "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11704,18 +10176,7 @@
         "Cross-border ocean research co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11741,18 +10202,8 @@
         "Open science and FAIR data in "
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11815,18 +10266,9 @@
         "Integrated ocean observing and"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Blue Biotech",
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11853,17 +10295,9 @@
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
         "R&I",
-        "Ship Repair"
+        "Renewable Energy"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11889,18 +10323,10 @@
         "Digital transformation of mari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Ship Repair",
+        "Infra & Robotics"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -11926,18 +10352,7 @@
         "Cross-border ocean research co"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",
@@ -12037,18 +10452,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12074,18 +10478,9 @@
         "Social-ecological resilience o"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12148,18 +10543,8 @@
         "Cultural dimensions of seafari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12259,17 +10644,7 @@
         "Socio-technical transitions in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -12296,18 +10671,9 @@
         "Sustainability transitions in "
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12333,18 +10699,9 @@
         "Social-ecological resilience o"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12407,18 +10764,8 @@
         "Maritimisation processes and p"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Transport"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12481,18 +10828,8 @@
         "Labour geography of maritime t"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12518,18 +10855,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12555,18 +10881,8 @@
         "Ethnographic approaches to fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12592,18 +10908,9 @@
         "Social-ecological resilience o"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12629,18 +10936,8 @@
         "Labour geography of maritime t"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12703,18 +11000,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12740,18 +11026,8 @@
         "Labour geography of maritime t"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12777,18 +11053,8 @@
         "Cultural dimensions of seafari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12814,18 +11080,8 @@
         "Coastal tourism and blue econo"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12851,18 +11107,8 @@
         "Maritimisation processes and p"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Transport"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12888,18 +11134,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12925,18 +11160,8 @@
         "Cultural dimensions of seafari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12962,18 +11187,8 @@
         "Coastal tourism and blue econo"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -12999,18 +11214,8 @@
         "Maritimisation processes and p"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Transport"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13110,18 +11315,8 @@
         "Cultural dimensions of seafari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13147,18 +11342,8 @@
         "Coastal tourism and blue econo"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13184,18 +11369,8 @@
         "Maritimisation processes and p"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Transport"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13221,18 +11396,9 @@
         "Social-ecological resilience o"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13295,18 +11461,8 @@
         "Ethnographic approaches to fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13332,18 +11488,8 @@
         "Coastal tourism and blue econo"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13406,17 +11552,7 @@
         "Socio-technical transitions in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -13443,18 +11579,8 @@
         "Traditional ecological knowled"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13480,18 +11606,9 @@
         "Social-ecological resilience o"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13554,18 +11671,8 @@
         "Labour geography of maritime t"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13591,18 +11698,8 @@
         "Cultural dimensions of seafari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13628,18 +11725,9 @@
         "Sustainability transitions in "
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13665,18 +11753,9 @@
         "Social-ecological resilience o"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13850,18 +11929,8 @@
         "Maritimisation processes and p"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Transport"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13924,18 +11993,8 @@
         "Coastal tourism and blue econo"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13961,18 +12020,8 @@
         "Maritimisation processes and p"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Transport"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -13998,17 +12047,7 @@
         "Socio-technical transitions in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -14035,18 +12074,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14109,17 +12137,7 @@
         "Socio-technical transitions in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -14146,18 +12164,8 @@
         "Labour geography of maritime t"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14220,18 +12228,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14257,18 +12254,8 @@
         "Ethnographic approaches to fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14331,18 +12318,8 @@
         "Cultural dimensions of seafari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14442,18 +12419,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14479,18 +12445,8 @@
         "Ethnographic approaches to fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14516,18 +12472,8 @@
         "Cultural dimensions of seafari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14553,18 +12499,8 @@
         "Coastal tourism and blue econo"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14701,18 +12637,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14738,18 +12663,9 @@
         "Sustainability transitions in "
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14775,18 +12691,9 @@
         "Social-ecological resilience o"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14849,18 +12756,8 @@
         "Cultural dimensions of seafari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14923,18 +12820,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -14960,17 +12846,7 @@
         "Socio-technical transitions in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -14997,18 +12873,8 @@
         "Labour geography of maritime t"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15108,18 +12974,8 @@
         "Maritimisation processes and p"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Transport"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15182,18 +13038,8 @@
         "Labour geography of maritime t"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15219,18 +13065,9 @@
         "Sustainability transitions in "
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15256,18 +13093,8 @@
         "Labour geography of maritime t"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15293,18 +13120,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15330,18 +13146,9 @@
         "Sustainability transitions in "
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15367,18 +13174,8 @@
         "Labour geography of maritime t"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15404,18 +13201,8 @@
         "Traditional ecological knowled"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Non-living Res."
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15478,17 +13265,7 @@
         "Socio-technical transitions in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -15515,18 +13292,8 @@
         "Labour geography of maritime t"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15552,18 +13319,9 @@
         "Social-ecological resilience o"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15589,18 +13347,8 @@
         "Coastal tourism and blue econo"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15663,18 +13411,8 @@
         "Ethnographic approaches to fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15700,18 +13438,8 @@
         "Labour geography of maritime t"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15737,18 +13465,9 @@
         "Sustainability transitions in "
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15774,18 +13493,8 @@
         "Cultural dimensions of seafari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15848,18 +13557,8 @@
         "Maritimisation processes and p"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Transport"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15885,18 +13584,9 @@
         "Sustainability transitions in "
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15922,18 +13612,8 @@
         "Labour geography of maritime t"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -15959,18 +13639,8 @@
         "Ethnographic approaches to fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16070,17 +13740,7 @@
         "Socio-technical transitions in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -16107,18 +13767,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16144,18 +13793,8 @@
         "Cultural dimensions of seafari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16181,18 +13820,9 @@
         "Social-ecological resilience o"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16218,18 +13848,8 @@
         "Maritimisation processes and p"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Transport"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16255,17 +13875,7 @@
         "Socio-technical transitions in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -16366,18 +13976,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16403,18 +14002,8 @@
         "Maritimisation processes and p"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
         "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Transport"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16440,17 +14029,7 @@
         "Socio-technical transitions in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -16477,18 +14056,8 @@
         "Cultural dimensions of seafari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16514,18 +14083,8 @@
         "Coastal tourism and blue econo"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16588,17 +14147,7 @@
         "Socio-technical transitions in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -16625,18 +14174,9 @@
         "Sustainability transitions in "
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16662,18 +14202,8 @@
         "Cultural dimensions of seafari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16699,18 +14229,8 @@
         "Coastal tourism and blue econo"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16773,17 +14293,7 @@
         "Socio-technical transitions in"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
         "Ship Repair"
       ],
       "source": {
@@ -16847,18 +14357,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16884,18 +14383,8 @@
         "Coastal tourism and blue econo"
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16921,18 +14410,8 @@
         "Ethnographic approaches to fis"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -16995,18 +14474,8 @@
         "Cultural dimensions of seafari"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Maritime Defence"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -17069,18 +14538,7 @@
         "Cross-cultural maritime herita"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Coastal Tourism"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -17106,18 +14564,9 @@
         "Sustainability transitions in "
       ],
       "sectors": [
-        "Blue Biotech",
         "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
@@ -17143,18 +14592,8 @@
         "Labour geography of maritime t"
       ],
       "sectors": [
-        "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
-        "Living Res.",
-        "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
         "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "Port Activities"
       ],
       "source": {
         "file": "data/derived/combined_blue_sociology_results.csv",
