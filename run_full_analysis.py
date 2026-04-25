@@ -996,10 +996,18 @@ def generate_micro_credentials(
         slug = SECTOR_SLUG[sector]
         gap = gaps[sector]
 
-        # Select competences: available baseline comps + first 5 literature
+        # Select competences from the same sector-aware pool used by gap analysis:
+        # available baseline competences + first 5 literature competences
+        # required for this sector.
         base_ids = gap.available_ids[:8]
-        lit_ids = [c.id for c in literature[:5]]
-        comp_ids = base_ids + lit_ids
+        sector_lit_ids = [
+            cid
+            for cid in gap.required_ids
+            if cid in all_comps and all_comps[cid].dimension == "literature"
+        ]
+        lit_ids = sector_lit_ids[:5]
+        # dict.fromkeys preserves order while deduplicating IDs
+        comp_ids = list(dict.fromkeys(base_ids + lit_ids))
 
         learner_profile = _SECTOR_LEARNER_PROFILES.get(
             sector, "Blue economy practitioners"
