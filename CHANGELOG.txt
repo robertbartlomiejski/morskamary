@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-25
+Change type fix update add
+Scope scripts testing
+Files affected run_full_analysis.py tests/test_run_full_analysis.py
+Summary Fixed sector-specific literature competence mapping in run_full_analysis.py: added _THEME_SECTORS lookup (36 of 52 themes mapped to primary sectors), updated extract_literature_competences to use sectors=_THEME_SECTORS.get(theme_name, SECTORS), updated run_gap_analysis to include literature competences only when sector in c.sectors (removing the prior cross-sector assumption), and added _validate_theme_sectors() startup validation that raises ValueError on key or sector-name drift.
+Reason All 12 sector TMBD dictionary JSONs were identical because extract_literature_competences hardcoded sectors=SECTORS for every competence. run_gap_analysis also treated all literature competences as cross-sector, making gap analysis semantically inconsistent with sector dictionary export. Addresses PR review requirements: explicit sector-specific semantics everywhere in the pipeline, drift-proof validation, and regression test coverage for the new classification layer.
+Impact Sector dictionaries now differ per sector. Gap analysis, micro-credential generation, and sector pathways now apply sector-specific literature filtering, consistent with sector dictionary semantics.
+Provenance PR #95 and PR #96 review comments (robertbartlomiejski, copilot-pull-request-reviewer); _LIT_THEMES universe in run_full_analysis.py; canonical SECTORS list.
+Quality checks python -m pytest tests/test_run_full_analysis.py passed (6 new regression tests); python -m pytest tests/ passed (217 passed, 1 skipped); MANIFEST_SOURCES.csv regenerated and unchanged.
+Reviewer GitHub Copilot Coding Agent
+
 2026-04-20
 Change type add update fix
 Scope testing infrastructure governance

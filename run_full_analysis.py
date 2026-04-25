@@ -517,6 +517,161 @@ _LIT_THEMES: Dict[str, Dict[str, List[str]]] = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Theme → sector mapping for literature competences
+# ---------------------------------------------------------------------------
+# Maps each theme cluster name to the blue economy sectors it primarily
+# addresses. Themes absent from this dict fall back to SECTORS (cross-sector).
+_THEME_SECTORS: Dict[str, List[str]] = {
+    # labor_justice
+    "Fair wage and labour rights in maritime sectors": [
+        "Maritime Transport", "Port Activities", "Ship Repair", "Maritime Defence"
+    ],
+    "Seafarer welfare and social protection": [
+        "Maritime Transport", "Maritime Defence", "Ship Repair"
+    ],
+    "Labour union organising and collective bargaining": [
+        "Maritime Transport", "Port Activities", "Ship Repair"
+    ],
+    "Occupational health and safety at sea": [
+        "Maritime Transport", "Maritime Defence", "Ship Repair", "Renewable Energy"
+    ],
+    "Precarious work and informality in coastal fisheries": [
+        "Living Res.", "Coastal Tourism"
+    ],
+    "Child labour and forced labour prevention in fisheries": [
+        "Living Res."
+    ],
+    "Decent work standards for aquaculture workers": [
+        "Living Res."
+    ],
+    "Migration and mobile labour in maritime industries": [
+        "Maritime Transport", "Port Activities", "Ship Repair"
+    ],
+    "Equitable benefit-sharing in ocean resource governance": [
+        "Living Res.", "Non-living Res.", "Renewable Energy", "Blue Biotech"
+    ],
+    "Indigenous and traditional fishing rights advocacy": [
+        "Living Res.", "Coastal Tourism"
+    ],
+    "Small-scale fisheries sustainability and livelihoods": [
+        "Living Res.", "Coastal Tourism"
+    ],
+    "Artisanal fishing knowledge and ecological literacy": [
+        "Living Res."
+    ],
+    # research_gaps
+    "Knowledge transfer between science and ocean policy": [
+        "R&I"
+    ],
+    "Integrated ocean observing and data governance": [
+        "R&I", "Blue Biotech", "Non-living Res."
+    ],
+    "Cross-border ocean research collaboration": [
+        "R&I"
+    ],
+    "Open science and FAIR data in blue economy": [
+        "R&I", "Blue Biotech"
+    ],
+    "Digital transformation of maritime industries": [
+        "Maritime Transport", "Port Activities", "Ship Repair", "Infra & Robotics"
+    ],
+    "Technology readiness for sustainable blue economy": [
+        "Infra & Robotics", "Renewable Energy", "Desalination"
+    ],
+    "Marine biodiversity monitoring and assessment": [
+        "Blue Biotech", "Living Res.", "Non-living Res.", "R&I"
+    ],
+    "Cumulative impacts on marine ecosystems": [
+        "Blue Biotech", "Living Res.", "Non-living Res.", "R&I", "Renewable Energy"
+    ],
+    "Marine protected area design and effectiveness": [
+        "Living Res.", "Non-living Res.", "R&I", "Coastal Tourism"
+    ],
+    "Blue carbon accounting and ecosystem services": [
+        "Blue Biotech", "Living Res.", "R&I", "Renewable Energy"
+    ],
+    "Coral reef and seagrass restoration science": [
+        "Blue Biotech", "Living Res.", "R&I", "Coastal Tourism"
+    ],
+    "Deep-sea ecology and environmental safeguarding": [
+        "Blue Biotech", "Non-living Res.", "R&I"
+    ],
+    "Marine noise pollution and acoustic ecology": [
+        "Renewable Energy", "Living Res.", "R&I"
+    ],
+    "Plastic pollution monitoring in marine systems": [
+        "Blue Biotech", "Living Res.", "R&I", "Coastal Tourism"
+    ],
+    # blue_sociology
+    "Cross-cultural maritime heritage management": [
+        "Coastal Tourism"
+    ],
+    "Sustainability transitions in coastal societies": [
+        "Coastal Tourism", "Living Res.", "Port Activities"
+    ],
+    "Social-ecological resilience of coastal communities": [
+        "Coastal Tourism", "Living Res.", "Port Activities"
+    ],
+    "Maritimisation processes and port-city relations": [
+        "Port Activities", "Maritime Transport"
+    ],
+    "Socio-technical transitions in shipping": [
+        "Maritime Transport", "Ship Repair"
+    ],
+    "Labour geography of maritime transport": [
+        "Maritime Transport", "Port Activities"
+    ],
+    "Cultural dimensions of seafaring": [
+        "Maritime Transport", "Maritime Defence"
+    ],
+    "Coastal tourism and blue economy value chains": [
+        "Coastal Tourism", "Port Activities"
+    ],
+    "Ethnographic approaches to fishing communities": [
+        "Living Res.", "Coastal Tourism"
+    ],
+    "Traditional ecological knowledge in fisheries governance": [
+        "Living Res.", "Non-living Res."
+    ],
+}
+
+
+def _validate_theme_sectors() -> None:
+    """Validate _THEME_SECTORS keys and values at import time.
+
+    Raises:
+        ValueError: if a key in _THEME_SECTORS does not match any theme in
+            _LIT_THEMES, or if a sector value is not a canonical member of SECTORS.
+    """
+    all_themes: Set[str] = set()
+    for axis_groups in _LIT_THEMES.values():
+        for names in axis_groups.values():
+            all_themes.update(names)
+
+    bad_keys = [k for k in _THEME_SECTORS if k not in all_themes]
+    if bad_keys:
+        raise ValueError(
+            "_THEME_SECTORS contains keys that do not match any theme in _LIT_THEMES: "
+            + ", ".join(sorted(bad_keys))
+        )
+
+    sectors_set = set(SECTORS)
+    bad_values: List[str] = []
+    for theme, sector_list in _THEME_SECTORS.items():
+        for sec in sector_list:
+            if sec not in sectors_set:
+                bad_values.append(f"{theme!r} → {sec!r}")
+    if bad_values:
+        raise ValueError(
+            "_THEME_SECTORS contains sector names not in the canonical SECTORS list: "
+            + "; ".join(bad_values)
+        )
+
+
+_validate_theme_sectors()
+
+
 def _slugify(text: str) -> str:
     """Convert text to a safe identifier slug."""
     return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")[:60]
@@ -634,7 +789,7 @@ def extract_literature_competences() -> List[Competence]:
                             "literature",
                             theme_name[:30],
                         ],
-                        sectors=SECTORS,  # cross-sector by default
+                        sectors=_THEME_SECTORS.get(theme_name, SECTORS),
                     )
                 )
                 file_count += 1
@@ -663,13 +818,14 @@ def run_gap_analysis(
     Run competence gap analysis for all 12 blue economy sectors.
 
     For each sector:
-      - required: all competences (baseline + literature) that list that sector
+      - required: baseline competences that list that sector + literature
+                  competences whose sectors field includes that sector
       - available: baseline competences for that sector
       - missing: required − available
 
     Args:
         baseline: 15 University of Szczecin baseline competences
-        literature: literature-derived competences
+        literature: literature-derived competences (sector-specific via _THEME_SECTORS)
 
     Returns:
         Tuple of:
@@ -687,14 +843,15 @@ def run_gap_analysis(
     sector_comps: Dict[str, List[Competence]] = {}
 
     for sector in SECTORS:
-        # Required: baseline comps that include this sector + all literature comps
+        # Required: baseline comps that include this sector + literature comps
+        # that explicitly list this sector in their sectors field.
         required_ids: List[str] = []
         for c in baseline:
             if sector in c.sectors:
                 required_ids.append(c.id)
-        # Literature competences are cross-sector
         for c in literature:
-            required_ids.append(c.id)
+            if sector in c.sectors:
+                required_ids.append(c.id)
 
         # Available: baseline competences for this sector
         available_ids = [c.id for c in baseline if sector in c.sectors]

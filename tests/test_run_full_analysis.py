@@ -943,3 +943,254 @@ class TestCLIAndEdgeCases:
             args = parse_cli_args()
             assert hasattr(args, 'sectors')
 
+
+# ---------------------------------------------------------------------------
+# Tests for _THEME_SECTORS mapping and sector-specific gap analysis
+# ---------------------------------------------------------------------------
+
+
+def test_theme_sectors_keys_are_valid_lit_themes() -> None:
+    """All _THEME_SECTORS keys must exist in _LIT_THEMES theme universe."""
+    from run_full_analysis import _THEME_SECTORS, _LIT_THEMES, SECTORS
+
+    all_themes = set()
+    for axis_groups in _LIT_THEMES.values():
+        for names in axis_groups.values():
+            all_themes.update(names)
+
+    bad_keys = [k for k in _THEME_SECTORS if k not in all_themes]
+    assert bad_keys == [], (
+        f"_THEME_SECTORS keys not found in _LIT_THEMES: {bad_keys}"
+    )
+
+
+def test_theme_sectors_values_are_canonical_sectors() -> None:
+    """All sector names in _THEME_SECTORS values must be canonical SECTORS members."""
+    from run_full_analysis import _THEME_SECTORS, SECTORS
+
+    sectors_set = set(SECTORS)
+    bad = [
+        f"{theme!r} → {sec!r}"
+        for theme, sector_list in _THEME_SECTORS.items()
+        for sec in sector_list
+        if sec not in sectors_set
+    ]
+    assert bad == [], (
+        f"_THEME_SECTORS contains sector names not in SECTORS: {bad}"
+    )
+
+
+def test_extract_literature_competences_known_theme_uses_specific_sectors(
+    tmp_path: Path,
+) -> None:
+    """A real _THEME_SECTORS theme must produce only its mapped sector list.
+
+    Patches _LIT_THEMES so the only available theme is
+    'Seafarer welfare and social protection', guaranteeing the assignment
+    regardless of row_idx.
+    """
+    from run_full_analysis import (
+        extract_literature_competences,
+        _THEME_SECTORS,
+        SECTORS,
+    )
+
+    theme_name = "Seafarer welfare and social protection"
+    expected_sectors = _THEME_SECTORS[theme_name]
+
+    csv_content = (
+        '"Paper Title","Abstract","Author Names","Publication Year","DOI"\n'
+        '"Seafarer Welfare Study","Welfare and social protection for seafarers at sea",'
+        '"Smith, J.","2023","10.1234/sw1"\n'
+    )
+    csv_file = tmp_path / "labor.csv"
+    csv_file.write_text(csv_content, encoding="utf-8")
+
+    lit_files = [
+        {
+            "filename": csv_file.name,
+            "theme": "labor_justice",
+            "description": "Test labor papers",
+            "primary_axis": "MARITIME",
+        }
+    ]
+    # Force exactly one theme so row_idx % 1 == 0 always picks it
+    forced_themes = {
+        "labor_justice": {
+            "MARITIME": [theme_name],
+        }
+    }
+
+    with (
+        patch("run_full_analysis.LITERATURE_FILES", lit_files),
+        patch("run_full_analysis.DATA_DERIVED", tmp_path),
+        patch("run_full_analysis.DATA_RAW", tmp_path),
+        patch("run_full_analysis.REPO_ROOT", tmp_path),
+        patch("run_full_analysis._LIT_THEMES", forced_themes),
+    ):
+        competences = extract_literature_competences()
+
+    assert len(competences) == 1
+    comp = competences[0]
+    assert comp.dimension == "literature"
+    # Sector-specific theme must produce exactly the expected sector list, not SECTORS
+    assert comp.sectors == expected_sectors
+    assert comp.sectors != SECTORS
+
+
+def test_extract_literature_competences_seafarer_theme_not_cross_sector(
+    tmp_path: Path,
+) -> None:
+    """Seafarer welfare competence must not include unrelated sectors like Desalination.
+
+    Patches _LIT_THEMES to force the 'Seafarer welfare' theme assignment.
+    """
+    from run_full_analysis import (
+        extract_literature_competences,
+        _THEME_SECTORS,
+        SECTORS,
+    )
+
+    theme_name = "Seafarer welfare and social protection"
+    expected_sectors = _THEME_SECTORS[theme_name]
+    assert "Desalination" not in expected_sectors, (
+        "Test assumption violated: Desalination should not be in seafarer welfare sectors"
+    )
+
+    csv_content = (
+        '"Paper Title","Abstract","Author Names","Publication Year","DOI"\n'
+        '"Seafarer Social Protection Analysis",'
+        '"Welfare social protection seafarer maritime labour",'
+        '"Jones, A.","2022","10.1234/sw2"\n'
+    )
+    csv_file = tmp_path / "labor.csv"
+    csv_file.write_text(csv_content, encoding="utf-8")
+
+    lit_files = [
+        {
+            "filename": csv_file.name,
+            "theme": "labor_justice",
+            "description": "Test labor papers",
+            "primary_axis": "MARITIME",
+        }
+    ]
+    forced_themes = {
+        "labor_justice": {
+            "MARITIME": [theme_name],
+        }
+    }
+
+    with (
+        patch("run_full_analysis.LITERATURE_FILES", lit_files),
+        patch("run_full_analysis.DATA_DERIVED", tmp_path),
+        patch("run_full_analysis.DATA_RAW", tmp_path),
+        patch("run_full_analysis.REPO_ROOT", tmp_path),
+        patch("run_full_analysis._LIT_THEMES", forced_themes),
+    ):
+        competences = extract_literature_competences()
+
+    assert len(competences) == 1
+    comp = competences[0]
+    assert comp.sectors == expected_sectors
+    assert "Desalination" not in comp.sectors
+
+
+def test_run_gap_analysis_respects_literature_sector_field() -> None:
+    """Literature competences must only appear in gap required_ids for their own sectors."""
+    from run_full_analysis import run_gap_analysis
+
+    # A literature competence scoped to Maritime Transport only
+    maritime_lit = Competence(
+        id="lit_maritime_001",
+        name="Maritime literature competence",
+        description="Seafarer welfare",
+        axis=TMBDAxis.MARITIME,
+        dimension="literature",
+        source=CompetenceSource(file="lit.csv", row=1),
+        sectors=["Maritime Transport", "Ship Repair"],
+    )
+
+    baseline = [
+        Competence(
+            id="baseline_a1",
+            name="Baseline A1",
+            description="Cross-sector baseline",
+            axis=TMBDAxis.MARINE,
+            dimension="A",
+            source=CompetenceSource(file="test.csv", row=1),
+            sectors=["Maritime Transport", "Blue Biotech"],
+        ),
+    ]
+
+    gaps, _ = run_gap_analysis(baseline, [maritime_lit])
+
+    # "Maritime Transport" should include the literature competence in required_ids
+    maritime_gap = gaps["Maritime Transport"]
+    assert "lit_maritime_001" in maritime_gap.required_ids
+
+    # "Blue Biotech" should NOT include the literature competence
+    biotech_gap = gaps["Blue Biotech"]
+    assert "lit_maritime_001" not in biotech_gap.required_ids
+
+    # "Desalination" should NOT include the literature competence
+    desalination_gap = gaps["Desalination"]
+    assert "lit_maritime_001" not in desalination_gap.required_ids
+
+
+def test_two_sector_dictionaries_differ_with_sector_specific_literature(
+    tmp_path: Path,
+) -> None:
+    """Sector dictionaries for different sectors must differ when using sector-specific mapping."""
+    # Create two literature competences with non-overlapping sectors
+    maritime_comp = Competence(
+        id="lit_maritime_001",
+        name="Maritime competence",
+        description="Maritime",
+        axis=TMBDAxis.MARITIME,
+        dimension="literature",
+        source=CompetenceSource(file="lit.csv", row=1),
+        sectors=["Maritime Transport"],
+    )
+    biotech_comp = Competence(
+        id="lit_biotech_001",
+        name="Blue biotech competence",
+        description="Biotech",
+        axis=TMBDAxis.MARINE,
+        dimension="literature",
+        source=CompetenceSource(file="lit.csv", row=2),
+        sectors=["Blue Biotech"],
+    )
+
+    output_paths = export_sector_dictionaries(
+        competences=[maritime_comp, biotech_comp],
+        sectors=["Maritime Transport", "Blue Biotech", "Desalination"],
+        output_dir=tmp_path,
+    )
+
+    assert len(output_paths) == 3
+
+    maritime_payload = json.loads(output_paths[0].read_text(encoding="utf-8"))
+    biotech_payload = json.loads(output_paths[1].read_text(encoding="utf-8"))
+    desalination_payload = json.loads(output_paths[2].read_text(encoding="utf-8"))
+
+    maritime_ids = {
+        item["id"]
+        for records in maritime_payload["dictionary"].values()
+        for item in records
+    }
+    biotech_ids = {
+        item["id"]
+        for records in biotech_payload["dictionary"].values()
+        for item in records
+    }
+    desalination_ids = {
+        item["id"]
+        for records in desalination_payload["dictionary"].values()
+        for item in records
+    }
+
+    # Dictionaries must differ
+    assert maritime_ids != biotech_ids
+    assert maritime_ids == {"lit_maritime_001"}
+    assert biotech_ids == {"lit_biotech_001"}
+    assert desalination_ids == set()  # no competences for Desalination
