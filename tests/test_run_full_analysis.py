@@ -202,6 +202,74 @@ def test_generate_micro_credentials_missing_gaps_error() -> None:
     assert "Coastal Tourism" in str(exc_info.value)
 
 
+def test_generate_micro_credentials_uses_sector_filtered_literature() -> None:
+    baseline = [
+        Competence(
+            id="baseline_desalination",
+            name="Desalination baseline competence",
+            description="Baseline competence for desalination.",
+            axis=TMBDAxis.OCEANIC,
+            dimension="A",
+            source=CompetenceSource(file="test.csv", row=1),
+            keywords=["test"],
+            sectors=["Desalination"],
+        )
+    ]
+
+    literature = [
+        Competence(
+            id="lit_living",
+            name="Living resources literature competence",
+            description="Should not appear in desalination credentials.",
+            axis=TMBDAxis.MARINE,
+            dimension="literature",
+            source=CompetenceSource(file="test.csv", row=2),
+            keywords=["test"],
+            sectors=["Living Res."],
+        ),
+        Competence(
+            id="lit_desalination",
+            name="Desalination literature competence",
+            description="Should appear in desalination credentials.",
+            axis=TMBDAxis.OCEANIC,
+            dimension="literature",
+            source=CompetenceSource(file="test.csv", row=3),
+            keywords=["test"],
+            sectors=["Desalination"],
+        ),
+    ]
+
+    gaps = {}
+    for sector in SECTORS:
+        available_ids = ["baseline_desalination"] if sector == "Desalination" else []
+        required_ids = list(available_ids)
+
+        if sector == "Desalination":
+            required_ids.append("lit_desalination")
+        if sector == "Living Res.":
+            required_ids.append("lit_living")
+
+        gaps[sector] = GapAnalysis(
+            sector=sector,
+            required_ids=required_ids,
+            available_ids=available_ids,
+            missing_ids=[cid for cid in required_ids if cid not in available_ids],
+            gap_pct=0.0,
+            by_axis={axis.name: [] for axis in TMBDAxis},
+        )
+
+    credentials = generate_micro_credentials(baseline, literature, gaps)
+
+    desalination_eqf6 = next(
+        credential
+        for credential in credentials
+        if credential.id == "mc_desalination_eqf6"
+    )
+
+    assert "lit_desalination" in desalination_eqf6.competences
+    assert "lit_living" not in desalination_eqf6.competences
+
+
 def test_main_uses_selected_sectors_for_dictionary_export(tmp_path: Path) -> None:
     baseline_csv = tmp_path / "baseline.csv"
     baseline_csv.write_text("placeholder", encoding="utf-8")

@@ -23,6 +23,17 @@ Use this section for changes in progress that are not yet merged into the main b
 Change type fix update add
 Scope scripts testing
 Files affected run_full_analysis.py tests/test_run_full_analysis.py
+Summary Fixed generate_micro_credentials to use sector-aware literature selection: replaced global literature[:5] slice with sector_lit_ids derived from gap.required_ids filtered by dimension=="literature", ensuring only literature competences scoped to the current sector are included in each credential. Added regression test test_generate_micro_credentials_uses_sector_filtered_literature that verifies Desalination credentials include the Desalination literature competence and exclude the Living Res. literature competence placed first in the list.
+Reason generate_micro_credentials previously selected literature[:5] globally, bypassing the sector filter introduced by PR #95 in run_gap_analysis. This could insert out-of-sector literature competences into credentials. The fix reuses gap.required_ids (already sector-scoped by run_gap_analysis) as the authoritative literature source, making credentials, gaps, and sector dictionaries all obey the same sector-scoped competence model. Addresses post-PR #95 review finding.
+Impact Micro-credential competence lists now respect sector boundaries for literature-derived competences, consistent with gap analysis and sector dictionary semantics.
+Provenance PR #95 and post-merge review; problem statement for PR #97.
+Quality checks python -m pytest tests/test_run_full_analysis.py passed; python -m pytest tests/ passed.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-25
+Change type fix update add
+Scope scripts testing
+Files affected run_full_analysis.py tests/test_run_full_analysis.py
 Summary Fixed sector-specific literature competence mapping in run_full_analysis.py: added _THEME_SECTORS lookup (36 of 52 themes mapped to primary sectors), updated extract_literature_competences to use sectors=_THEME_SECTORS.get(theme_name, SECTORS), updated run_gap_analysis to include literature competences only when sector in c.sectors (removing the prior cross-sector assumption), and added _validate_theme_sectors() startup validation that raises ValueError on key or sector-name drift.
 Reason All 12 sector TMBD dictionary JSONs were identical because extract_literature_competences hardcoded sectors=SECTORS for every competence. run_gap_analysis also treated all literature competences as cross-sector, making gap analysis semantically inconsistent with sector dictionary export. Addresses PR review requirements: explicit sector-specific semantics everywhere in the pipeline, drift-proof validation, and regression test coverage for the new classification layer.
 Impact Sector dictionaries now differ per sector. Gap analysis, micro-credential generation, and sector pathways now apply sector-specific literature filtering, consistent with sector dictionary semantics.
