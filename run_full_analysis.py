@@ -1006,6 +1006,7 @@ def generate_micro_credentials(
             if cid in all_comps and all_comps[cid].dimension == "literature"
         ]
         lit_ids = sector_lit_ids[:5]
+        # dict.fromkeys preserves order while deduplicating IDs
         comp_ids = list(dict.fromkeys(base_ids + lit_ids))
 
         learner_profile = _SECTOR_LEARNER_PROFILES.get(
