@@ -20,6 +20,17 @@ Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
 2026-04-25
+Change type fix update add
+Scope scripts testing
+Files affected scripts/validate_generated_outputs.py tests/test_validate_generated_outputs.py
+Summary Post-review fixes to the semantic validator: (1) Added ERRORS.clear() and WARNINGS.clear() at start of main() so repeated in-process calls are independent. (2) Added loud schema validation in all loaders — load_competences fails if 'baseline' or 'literature' keys are absent or if any entry lacks 'id', 'dimension', or 'sectors'; load_credentials fails if 'credentials' key is absent or any entry lacks 'sector', 'eqf_level', or 'competences'; load_gaps_csv fails if required columns are absent; load_sector_dict_ids raises ValueError if 'dictionary' key or 'id' fields are missing. (3) Fixed for/else EQF-level OK message — replaced Python for/else with an explicit eqf_ok flag so the OK line only prints when no EQF-level failure occurred. Tests expanded from 10 to 20 covering state-reset regression, all schema validation paths, and the EQF-level flag fix.
+Reason Review comment 4175248362 identified: unsafe global state for repeated main() calls, silent schema failures via .get() defaults, and a misleading OK EQF-level message emitted even when a sector was missing EQF levels.
+Impact Validator is now safe for in-process repeated calls, fails loudly on malformed JSON/CSV, and does not mislead with spurious OK messages.
+Provenance PR#98 review comment 4175248362; scripts/validate_generated_outputs.py; tests/test_validate_generated_outputs.py.
+Quality checks python scripts/validate_generated_outputs.py passed; python -m pytest tests/test_validate_generated_outputs.py passed (20 tests); python -m pytest tests/ passed (238 passed, 1 skipped).
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-25
 Change type add update
 Scope scripts testing ci outputs
 Files affected outputs/ scripts/validate_generated_outputs.py tests/test_validate_generated_outputs.py .github/workflows/full-analysis.yml

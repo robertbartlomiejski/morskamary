@@ -36,6 +36,16 @@ CANONICAL_SECTORS = [
     "Ship Repair",
 ]
 
+REQUIRED_GAP_COLUMNS = [
+    "Sector",
+    "Required",
+    "Missing",
+    "Gap %",
+    "Missing MARINE",
+    "Missing MARITIME",
+    "Missing OCEANIC",
+]
+
 ERRORS: list[str] = []
 WARNINGS: list[str] = []
 
@@ -58,48 +68,163 @@ def require_file(path: Path) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# Load artifacts
+# Load artifacts — validate schema loudly on required fields
 # ---------------------------------------------------------------------------
 
 
-def load_competences(path: Path) -> dict:
-    """Load competences_full_database.json → flat dict id→competence."""
+def load_competences(path: Path) -> dict[str, dict]:
+    """Load competences_full_database.json → flat dict id→competence.
+
+    Fails loudly if required top-level keys or per-entry fields are absent.
+    """
     with path.open() as f:
         data = json.load(f)
+
+    if not isinstance(data, dict):
+        fail(
+            f"{path.name}: expected a JSON object at top level, "
+            f"got {type(data).__name__}"
+        )
+        return {}
+
+    for key in ("baseline", "literature"):
+        if key not in data:
+            fail(
+                f"{path.name}: required top-level key '{key}' is missing"
+            )
+
     comps: dict[str, dict] = {}
-    for c in data.get("baseline", []):
-        comps[c["id"]] = c
-    for c in data.get("literature", []):
-        comps[c["id"]] = c
+    required_comp_fields = ("id", "dimension", "sectors")
+    for section in ("baseline", "literature"):
+        entries = data.get(section, [])
+        if not isinstance(entries, list):
+            fail(
+                f"{path.name}: '{section}' must be a list, "
+                f"got {type(entries).__name__}"
+            )
+            continue
+        for i, c in enumerate(entries):
+            if not isinstance(c, dict):
+                fail(
+                    f"{path.name}: {section}[{i}] is not an object"
+                )
+                continue
+            for field in required_comp_fields:
+                if field not in c:
+                    fail(
+                        f"{path.name}: {section}[{i}] is missing required "
+                        f"field '{field}' (id={c.get('id', '<unknown>')})"
+                    )
+            if "id" in c:
+                comps[c["id"]] = c
+
     return comps
 
 
 def load_credentials(path: Path) -> list[dict]:
-    """Load credentials_database.json → list of credential dicts."""
+    """Load credentials_database.json → list of credential dicts.
+
+    Fails loudly if required top-level key or per-entry fields are absent.
+    """
     with path.open() as f:
         data = json.load(f)
-    return data.get("credentials", [])
+
+    if not isinstance(data, dict):
+        fail(
+            f"{path.name}: expected a JSON object at top level, "
+            f"got {type(data).__name__}"
+        )
+        return []
+
+    if "credentials" not in data:
+        fail(
+            f"{path.name}: required top-level key 'credentials' is missing"
+        )
+        return []
+
+    entries = data["credentials"]
+    if not isinstance(entries, list):
+        fail(
+            f"{path.name}: 'credentials' must be a list, "
+            f"got {type(entries).__name__}"
+        )
+        return []
+
+    required_cred_fields = ("sector", "eqf_level", "competences")
+    for i, c in enumerate(entries):
+        if not isinstance(c, dict):
+            fail(f"{path.name}: credentials[{i}] is not an object")
+            continue
+        for field in required_cred_fields:
+            if field not in c:
+                fail(
+                    f"{path.name}: credentials[{i}] is missing required "
+                    f"field '{field}' (id={c.get('id', '<unknown>')})"
+                )
+
+    return entries
 
 
 def load_gaps_csv(path: Path) -> list[dict]:
-    """Load gaps_summary.csv → list of row dicts."""
+    """Load gaps_summary.csv → list of row dicts.
+
+    Fails loudly if required columns are absent.
+    """
     with path.open(newline="") as f:
         reader = csv.DictReader(f)
-        return list(reader)
+        rows = list(reader)
+
+    if not rows:
+        fail(f"{path.name}: file is empty or has no data rows")
+        return []
+
+    present_cols = set(rows[0].keys())
+    for col in REQUIRED_GAP_COLUMNS:
+        if col not in present_cols:
+            fail(
+                f"{path.name}: required column '{col}' is missing "
+                f"(found: {sorted(present_cols)})"
+            )
+
+    return rows
 
 
 def load_sector_dict_ids(path: Path) -> set[str]:
-    """Load a sector TMBD dictionary and return all competence IDs."""
+    """Load a sector TMBD dictionary and return all competence IDs.
+
+    Raises ValueError with a clear message if the dictionary schema is
+    unreadable or yields no IDs.
+    """
     with path.open() as f:
         data = json.load(f)
+
+    if not isinstance(data, dict):
+        raise ValueError(
+            f"Expected a JSON object at top level, got {type(data).__name__}"
+        )
+
+    if "dictionary" not in data:
+        raise ValueError("Required key 'dictionary' is missing from sector dictionary")
+
+    dictionary = data["dictionary"]
+    if not isinstance(dictionary, dict):
+        raise ValueError(
+            f"'dictionary' must be a JSON object, got {type(dictionary).__name__}"
+        )
+
     ids: set[str] = set()
-    dictionary = data.get("dictionary", {})
-    if isinstance(dictionary, dict):
-        for entries in dictionary.values():
-            if isinstance(entries, list):
-                for entry in entries:
-                    if isinstance(entry, dict) and "id" in entry:
-                        ids.add(entry["id"])
+    for axis, entries in dictionary.items():
+        if not isinstance(entries, list):
+            continue
+        for j, entry in enumerate(entries):
+            if not isinstance(entry, dict):
+                continue
+            if "id" not in entry:
+                raise ValueError(
+                    f"Entry {j} under axis '{axis}' is missing required field 'id'"
+                )
+            ids.add(entry["id"])
+
     return ids
 
 
@@ -113,21 +238,28 @@ def check_gaps_csv(rows: list[dict]) -> None:
     print("\n[gaps_summary.csv]")
 
     # 1. All 12 canonical sectors present
-    found_sectors = {r["Sector"] for r in rows}
+    found_sectors = {r.get("Sector", "") for r in rows}
     missing = set(CANONICAL_SECTORS) - found_sectors
     if missing:
         fail(f"Missing sectors in gaps_summary.csv: {sorted(missing)}")
     else:
-        ok(f"All 12 canonical sectors present")
+        ok("All 12 canonical sectors present")
 
     # 2. Must NOT have identical values for all sectors
-    # Check the key numeric columns
-    numeric_cols = ["Required", "Missing", "Gap %", "Missing MARINE", "Missing MARITIME", "Missing OCEANIC"]
+    numeric_cols = [
+        "Required",
+        "Missing",
+        "Gap %",
+        "Missing MARINE",
+        "Missing MARITIME",
+        "Missing OCEANIC",
+    ]
     for col in numeric_cols:
         values = set()
         for row in rows:
-            if col in row:
-                values.add(row[col].strip())
+            val = row.get(col)
+            if val is not None:
+                values.add(val.strip())
         if len(values) <= 1 and len(rows) > 1:
             fail(
                 f"Column '{col}' has identical value ({next(iter(values))!r}) "
@@ -152,13 +284,14 @@ def check_credentials(
     else:
         ok("All 12 canonical sectors have credentials")
 
-    # 2. EQF levels 4–7 must be present per sector (or at minimum EQF 4 and 7)
+    # 2. EQF levels 4–7 must be present per sector
     eqf_levels_by_sector: dict[str, set] = {}
     for c in credentials:
         sector = c.get("sector", "")
         lvl = c.get("eqf_level")
         eqf_levels_by_sector.setdefault(sector, set()).add(lvl)
 
+    eqf_ok = True
     for sector in CANONICAL_SECTORS:
         levels = eqf_levels_by_sector.get(sector, set())
         expected = {4, 5, 6, 7}
@@ -167,7 +300,9 @@ def check_credentials(
                 f"Sector '{sector}' is missing EQF levels: "
                 f"{sorted(expected - levels)}"
             )
-    else:
+            eqf_ok = False
+
+    if eqf_ok:
         ok("EQF levels 4–7 present for all 12 sectors")
 
     # 3. For EQF6/EQF7: every literature competence in a credential must have
@@ -228,6 +363,7 @@ def check_desalination_integrity(
     """Desalination-specific integrity check."""
     print("\n[Desalination integrity]")
 
+    desal_ok = True
     for cred in credentials:
         if cred.get("sector") != "Desalination" or cred.get("eqf_level") not in [6, 7]:
             continue
@@ -242,14 +378,17 @@ def check_desalination_integrity(
                     f"literature competence '{cid}' whose sectors list does not "
                     f"include 'Desalination': {comp_sectors}"
                 )
+                desal_ok = False
             if "Living Res." in comp_sectors and "Desalination" not in comp_sectors:
                 fail(
                     f"Living Res. literature competence '{cid}' leaked into "
                     f"Desalination EQF{cred['eqf_level']} credential but "
                     f"Desalination is not in its sectors: {comp_sectors}"
                 )
+                desal_ok = False
 
-    ok("Desalination EQF6/EQF7 credentials contain only Desalination-valid literature")
+    if desal_ok:
+        ok("Desalination EQF6/EQF7 credentials contain only Desalination-valid literature")
 
 
 def check_sector_dictionaries(sector_dict_dir: Path) -> None:
@@ -269,7 +408,7 @@ def check_sector_dictionaries(sector_dict_dir: Path) -> None:
             f"{[f.name for f in dict_files]}"
         )
     else:
-        ok(f"Exactly 12 sector dictionary JSON files found")
+        ok("Exactly 12 sector dictionary JSON files found")
 
     # 2. Load ID sets
     id_sets: dict[str, frozenset] = {}
@@ -289,7 +428,10 @@ def check_sector_dictionaries(sector_dict_dir: Path) -> None:
                 "sector-scoping logic may not be applied correctly"
             )
         else:
-            ok(f"Sector dictionary competence ID sets differ ({len(unique_sets)} distinct sets)")
+            ok(
+                f"Sector dictionary competence ID sets differ "
+                f"({len(unique_sets)} distinct sets)"
+            )
 
     # 4. Spot-check: Desalination, Living Res., Maritime Transport differ
     key_map = {
@@ -322,6 +464,10 @@ def check_sector_dictionaries(sector_dict_dir: Path) -> None:
 
 
 def main() -> int:
+    # Reset global state so that repeated in-process calls are independent.
+    ERRORS.clear()
+    WARNINGS.clear()
+
     print("=" * 65)
     print("Semantic Output Validator — morskamary")
     print("=" * 65)
@@ -338,12 +484,12 @@ def main() -> int:
         print("\nAbort: one or more required files are missing.")
         return 1
 
-    # Load data
+    # Load data (schema errors are collected via fail() during loading)
     all_comps = load_competences(comps_path)
     credentials = load_credentials(creds_path)
     gaps_rows = load_gaps_csv(gaps_csv_path)
 
-    # Run checks
+    # Run semantic checks
     check_gaps_csv(gaps_rows)
     check_credentials(credentials, all_comps)
     check_desalination_integrity(credentials, all_comps)

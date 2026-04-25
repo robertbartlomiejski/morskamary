@@ -12,17 +12,6 @@ REPO_ROOT = Path(__file__).parent.parent
 VALIDATOR = REPO_ROOT / "scripts" / "validate_generated_outputs.py"
 
 
-def run_validator() -> int:
-    """Run the validator as a subprocess-equivalent and return exit code."""
-    import importlib.util
-    import importlib
-
-    spec = importlib.util.spec_from_file_location("validate_generated_outputs", VALIDATOR)
-    mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
-    spec.loader.exec_module(mod)  # type: ignore[union-attr]
-    return mod.main()
-
-
 # ---------------------------------------------------------------------------
 # Integration test: validator passes on real outputs
 # ---------------------------------------------------------------------------
@@ -44,12 +33,7 @@ def test_validator_passes_on_regenerated_outputs() -> None:
         if not f.exists():
             pytest.skip(f"Required output file missing: {f}")
 
-    # Import and run the validator
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location("validate_generated_outputs", VALIDATOR)
-    mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
-    spec.loader.exec_module(mod)  # type: ignore[union-attr]
+    mod = _load_validator_module()
     result = mod.main()
     assert result == 0, "Validator reported failures on regenerated outputs"
 
@@ -100,6 +84,139 @@ def _make_gaps_rows(required: str = "100") -> list[dict]:
         }
         for s in CANONICAL_SECTORS
     ]
+
+
+# ---------------------------------------------------------------------------
+# State-reset regression test
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.integration
+def test_main_state_reset_between_calls() -> None:
+    """main() must clear ERRORS at start so repeated in-process calls are independent.
+
+    Verify that pre-existing ERRORS (e.g., from a prior call or manual injection)
+    do not contaminate a subsequent successful run.
+    """
+    outputs_dir = REPO_ROOT / "outputs"
+    if not outputs_dir.exists():
+        pytest.skip("outputs/ directory does not exist — run run_full_analysis.py first")
+    required = [
+        outputs_dir / "gaps_summary.csv",
+        outputs_dir / "credentials_database.json",
+        outputs_dir / "competences_full_database.json",
+    ]
+    for f in required:
+        if not f.exists():
+            pytest.skip(f"Required output file missing: {f}")
+
+    mod = _load_validator_module()
+
+    # Manually inject a stale error before the first call.
+    mod.ERRORS.append("stale-sentinel-error-from-previous-run")
+    assert "stale-sentinel-error-from-previous-run" in mod.ERRORS
+
+    # Run main() — it should clear ERRORS first, then pass on real outputs.
+    result = mod.main()
+
+    # After a successful run, the sentinel must be gone and result must be 0.
+    assert result == 0, f"Validator failed after state reset; ERRORS: {mod.ERRORS}"
+    assert "stale-sentinel-error-from-previous-run" not in mod.ERRORS, (
+        "main() did not clear stale ERRORS from a prior run"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Schema validation tests (load_competences / load_credentials / load_gaps_csv)
+# ---------------------------------------------------------------------------
+
+
+class TestSchemaValidation:
+    def test_load_competences_fails_on_missing_baseline_key(self, tmp_path: Path) -> None:
+        """load_competences must fail loudly when 'baseline' key is absent."""
+        mod = _load_validator_module()
+        bad_file = tmp_path / "competences.json"
+        bad_file.write_text(json.dumps({"literature": []}))
+        mod.load_competences(bad_file)
+        assert any("baseline" in e for e in mod.ERRORS), (
+            f"Expected failure for missing 'baseline' key (errors: {mod.ERRORS})"
+        )
+
+    def test_load_competences_fails_on_missing_literature_key(self, tmp_path: Path) -> None:
+        """load_competences must fail loudly when 'literature' key is absent."""
+        mod = _load_validator_module()
+        bad_file = tmp_path / "competences.json"
+        bad_file.write_text(json.dumps({"baseline": []}))
+        mod.load_competences(bad_file)
+        assert any("literature" in e for e in mod.ERRORS), (
+            f"Expected failure for missing 'literature' key (errors: {mod.ERRORS})"
+        )
+
+    def test_load_competences_fails_on_entry_missing_required_field(self, tmp_path: Path) -> None:
+        """load_competences must fail when a competence entry is missing 'sectors'."""
+        mod = _load_validator_module()
+        bad_file = tmp_path / "competences.json"
+        bad_file.write_text(json.dumps({
+            "baseline": [{"id": "b1", "dimension": "A"}],  # missing 'sectors'
+            "literature": [],
+        }))
+        mod.load_competences(bad_file)
+        assert any("sectors" in e for e in mod.ERRORS), (
+            f"Expected failure for missing 'sectors' field (errors: {mod.ERRORS})"
+        )
+
+    def test_load_credentials_fails_on_missing_credentials_key(self, tmp_path: Path) -> None:
+        """load_credentials must fail loudly when 'credentials' key is absent."""
+        mod = _load_validator_module()
+        bad_file = tmp_path / "creds.json"
+        bad_file.write_text(json.dumps({"metadata": {}}))
+        mod.load_credentials(bad_file)
+        assert any("credentials" in e for e in mod.ERRORS), (
+            f"Expected failure for missing 'credentials' key (errors: {mod.ERRORS})"
+        )
+
+    def test_load_credentials_fails_on_entry_missing_required_field(self, tmp_path: Path) -> None:
+        """load_credentials must fail when a credential entry is missing 'eqf_level'."""
+        mod = _load_validator_module()
+        bad_file = tmp_path / "creds.json"
+        bad_file.write_text(json.dumps({
+            "credentials": [{"sector": "Blue Biotech", "competences": []}]  # missing eqf_level
+        }))
+        mod.load_credentials(bad_file)
+        assert any("eqf_level" in e for e in mod.ERRORS), (
+            f"Expected failure for missing 'eqf_level' field (errors: {mod.ERRORS})"
+        )
+
+    def test_load_gaps_csv_fails_on_missing_required_column(self, tmp_path: Path) -> None:
+        """load_gaps_csv must fail loudly when a required column is absent."""
+        mod = _load_validator_module()
+        bad_csv = tmp_path / "gaps.csv"
+        # Write a CSV missing 'Gap %'
+        bad_csv.write_text("Sector,Required,Available,Missing,Missing MARINE,Missing MARITIME,Missing OCEANIC\n"
+                           "Blue Biotech,100,15,85,10,20,55\n")
+        mod.load_gaps_csv(bad_csv)
+        assert any("Gap %" in e for e in mod.ERRORS), (
+            f"Expected failure for missing 'Gap %' column (errors: {mod.ERRORS})"
+        )
+
+    def test_load_sector_dict_ids_raises_on_missing_dictionary_key(self, tmp_path: Path) -> None:
+        """load_sector_dict_ids must raise ValueError when 'dictionary' key is missing."""
+        mod = _load_validator_module()
+        bad_file = tmp_path / "sector.json"
+        bad_file.write_text(json.dumps({"metadata": {}}))
+        with pytest.raises(ValueError, match="dictionary"):
+            mod.load_sector_dict_ids(bad_file)
+
+    def test_load_sector_dict_ids_raises_on_entry_missing_id(self, tmp_path: Path) -> None:
+        """load_sector_dict_ids must raise ValueError when an entry has no 'id' field."""
+        mod = _load_validator_module()
+        bad_file = tmp_path / "sector.json"
+        bad_file.write_text(json.dumps({
+            "metadata": {},
+            "dictionary": {"MARINE": [{"name": "no-id-here"}]}
+        }))
+        with pytest.raises(ValueError, match="'id'"):
+            mod.load_sector_dict_ids(bad_file)
 
 
 class TestCheckGapsCsv:
@@ -215,10 +332,25 @@ class TestCheckCredentials:
         eqf6["Maritime Transport"] = ["lit_002"]
         creds = self._make_credentials(eqf6_lit_ids=eqf6)
         mod.check_credentials(creds, comps)
-        leakage_errors = [e for e in mod.ERRORS if "literature" in e.lower() and "sector" not in e.lower()]
         # No cross-sector leakage errors expected
         assert not any("lit_" in e for e in mod.ERRORS), (
             f"Unexpected errors: {mod.ERRORS}"
+        )
+
+    def test_eqf_ok_message_suppressed_when_sector_missing_level(self) -> None:
+        """OK message for EQF levels must not appear when a sector is missing a level."""
+        mod = _load_validator_module()
+        comps = self._make_comps()
+        # Build credentials missing EQF7 for Desalination
+        creds = []
+        for sector in CANONICAL_SECTORS:
+            levels = [4, 5, 6, 7] if sector != "Desalination" else [4, 5, 6]
+            for level in levels:
+                creds.append({"sector": sector, "eqf_level": level, "competences": ["baseline_a_1"]})
+        mod.check_credentials(creds, comps)
+        # A failure for Desalination must be present
+        assert any("Desalination" in e and "7" in e for e in mod.ERRORS), (
+            f"Expected EQF-level failure for Desalination (errors: {mod.ERRORS})"
         )
 
 
