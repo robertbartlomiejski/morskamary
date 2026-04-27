@@ -1,5 +1,12 @@
 # One-Click Research API Runbook
 
+> **Implementation status** (April 2026)
+> - ✅ **Crossref** — fully implemented (open API, no key required)
+> - 🔧 **Elsevier / Scopus / Web of Science / SciVal** — provider stubs (Phase 2)
+>   These providers are capability-gated: the architecture and IAM are in place,
+>   but live proprietary API calls are not yet implemented. Stubs return structured
+>   "not configured" results without crashing.
+
 This document describes the complete workflow for setting up and running the
 morskamary research API integration from scratch — from credential bootstrap
 to full analysis with Cloud Build mirror.
@@ -40,21 +47,28 @@ python -m pytest tests/ -v   # verify: expect all tests to pass
 ### 2. Bootstrap research API secrets (local session)
 
 ```bash
-./scripts/bootstrap_research_secrets.sh --backend user-env
+./scripts/bootstrap_research_secrets.sh --backend dotenv
+source .env                  # load into current terminal session
 ```
 
 The script will prompt for each credential interactively (input is hidden).
 Press ENTER to skip any credential you do not have yet.
 
+The credentials are written to a `.env` file (gitignored) that you must
+**`source`** to load into your current terminal. Unlike `export` in a child
+shell, this approach persists the values in your current session.
+
+**Windows / PowerShell:**
+```powershell
+.\scripts\bootstrap_research_secrets.ps1 -Backend DotEnv
+. .\.env.ps1      # dot-source to load into current session
+```
+
 To make credentials persistent across sessions, add to your shell profile:
 
 ```bash
 # ~/.bashrc or ~/.zshrc
-export CROSSREF_MAILTO="researcher@university.edu"
-export ELSEVIER_API_KEY="..."
-export SCOPUS_API_KEY="..."
-export WOS_API_KEY="..."
-export SCIVAL_API_KEY="..."
+[ -f /path/to/morskamary/.env ] && source /path/to/morskamary/.env
 ```
 
 ### 3. Verify environment
@@ -132,19 +146,41 @@ gcloud secrets versions list crossref-mailto --project=YOUR_PROJECT_ID
 
 ## Everyday Cloud Build remote run
 
-### Offline (default, no secrets required)
+**Cloud Build comes in two config files:**
+
+| File | When to use |
+|---|---|
+| `cloudbuild.yaml` | Offline — no secrets required, no live API calls |
+| `cloudbuild.live.yaml` | Live — requires Secret Manager secrets populated |
+
+### Offline (no secrets required)
 
 ```bash
-gcloud builds submit --config cloudbuild.yaml \
-  --substitutions=_LIVE_RESEARCH_API_TESTS=false,_PROVIDER_STRICT_MODE=false
+# Bash
+./scripts/run_cloudbuild_research_full.sh --offline
+
+# PowerShell
+.\scripts\run_cloudbuild_research_full.ps1 -Offline
+
+# Or directly
+gcloud builds submit --config cloudbuild.yaml
 ```
 
-### Full live research run
+### Full live research run (Crossref live; proprietary providers are stubs pending Phase 2)
 
 ```bash
-gcloud builds submit --config cloudbuild.yaml \
-  --substitutions=_LIVE_RESEARCH_API_TESTS=true,_PROVIDER_STRICT_MODE=true
+# Bash
+./scripts/run_cloudbuild_research_full.sh --live
+
+# PowerShell
+.\scripts\run_cloudbuild_research_full.ps1 -Live
+
+# Or directly
+gcloud builds submit --config cloudbuild.live.yaml
 ```
+
+The wrapper scripts check gcloud authentication, project, Cloud Build API
+availability, and (for live mode) secret version presence before submitting.
 
 The Cloud Build run URL and log location are printed by `gcloud builds submit`.
 

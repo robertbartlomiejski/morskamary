@@ -97,6 +97,7 @@ deep_update_patch/outputs/
 # Secrets and credentials — NEVER commit these
 .env
 .env.*
+.env.ps1
 .secrets/
 *oauth*.json
 *credentials*.json

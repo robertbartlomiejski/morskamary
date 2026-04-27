@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-27 (hardening pass)
+Change type update fix add
+Scope scripts infra docs ci safety
+Files affected cloudbuild.yaml cloudbuild.live.yaml scripts/bootstrap_research_secrets.sh scripts/bootstrap_research_secrets.ps1 scripts/run_research_api_full.ps1 scripts/run_cloudbuild_research_full.sh scripts/run_cloudbuild_research_full.ps1 infra/gcp-mirror/variables.tf infra/gcp-mirror/main.tf docs/ONE_CLICK_RESEARCH_RUNBOOK.md .gitignore
+Summary Hardening pass (review comment 4181399408): (1) Split cloudbuild.yaml into offline-only file (no availableSecrets/secretEnv — safe to run without Secret Manager versions) and cloudbuild.live.yaml (with availableSecrets versionName, secretEnv, live smoke and capability-export steps). (2) Fixed bootstrap_research_secrets.sh user-env backend: now writes a gitignored .env file and instructs the user to source it, replacing the misleading export-to-child-shell pattern. Backward-compatible --backend user-env alias retained. (3) Removed || true around gcloud secret upload; script now fails with clear error output on gcloud errors. (4) Added PowerShell scripts: bootstrap_research_secrets.ps1 (DotEnv/Gcp/Github backends, Read-Host -AsSecureString, temp-file for GCP upload with secure erase), run_research_api_full.ps1 (step-by-step run matching Bash equivalent), run_cloudbuild_research_full.ps1 (auth/API/version checks, submits cloudbuild.yaml or cloudbuild.live.yaml). (5) Added Bash Cloud Build wrapper run_cloudbuild_research_full.sh (checks gcloud auth, project, Cloud Build API, secret versions before submitting). (6) Added cloudbuild_service_account_email Terraform variable with empty default; locals block falls back to derived legacy SA if empty. (7) Updated .gitignore to also exclude .env.ps1. (8) Updated ONE_CLICK_RESEARCH_RUNBOOK.md to reflect split Cloud Build configs, fixed bootstrap instructions, and added implementation-status note: Crossref fully implemented, Elsevier/Scopus/WoS/SciVal are capability-gated stubs pending Phase 2.
+Reason Review comment 4181399408 (robertbartlomiejski): offline Cloud Build must not require secrets, PowerShell equivalents needed for Windows workflow, user-env bootstrap was misleading, gcloud errors were suppressed, Terraform SA should be overridable, docs must clearly state stub vs. implemented providers.
+Impact cloudbuild.yaml is now safe to run without Secret Manager versions; bootstrap script no longer silently suppresses gcloud failures; Windows users have full PowerShell parity; Terraform supports custom Cloud Build SA; documentation is accurate about provider implementation status.
+Provenance Review comment 4181399408 on PR#101.
+Quality checks python -m pytest tests/ passed (291 tests); smoke_scientific_bridge.py --offline passed.
+Reviewer GitHub Copilot Coding Agent
+
 2026-04-27
 Change type add update
 Scope scripts infra docs testing ci governance

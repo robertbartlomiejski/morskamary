@@ -1,40 +1,19 @@
-# cloudbuild.yaml — Optional Google Cloud Build mirror for morskamary
+# cloudbuild.yaml — Offline Cloud Build mirror for morskamary
 #
 # This file is NOT the primary CI configuration.  GitHub Actions (.github/workflows/)
-# remains the primary CI.  This file provides an optional mirror that can be
-# triggered manually or via Cloud Build trigger.
+# remains the primary CI.  This file provides an optional offline mirror that runs
+# without any Secret Manager secrets or live API calls.
 #
-# Usage (offline/default — no live API calls):
-#   gcloud builds submit --config cloudbuild.yaml \
-#     --substitutions=_LIVE_RESEARCH_API_TESTS=false,_PROVIDER_STRICT_MODE=false
+# For live proprietary API calls, use cloudbuild.live.yaml instead.
 #
-# Usage (full research run — requires secrets in Secret Manager):
-#   gcloud builds submit --config cloudbuild.yaml \
-#     --substitutions=_LIVE_RESEARCH_API_TESTS=true,_PROVIDER_STRICT_MODE=true
+# Usage:
+#   gcloud builds submit --config cloudbuild.yaml
 #
-# See docs/GOOGLE_CLOUD_BUILD_OPTIONAL_SETUP.md for setup instructions.
+# One-command wrapper (recommended — checks auth/API before submitting):
+#   ./scripts/run_cloudbuild_research_full.sh --offline
+#
+# See docs/GOOGLE_CLOUD_BUILD_OPTIONAL_SETUP.md for full setup instructions.
 # See docs/ONE_CLICK_RESEARCH_RUNBOOK.md for the one-command workflow.
-
-substitutions:
-  _LIVE_RESEARCH_API_TESTS: "false"
-  _PROVIDER_STRICT_MODE: "false"
-
-# Secret versions — populated manually via bootstrap_research_secrets.sh.
-# Cloud Build will only mount these if the secret containers have at least
-# one version. If a version is absent, the build step will fail with a
-# clear error message from Secret Manager.
-availableSecrets:
-  secretManager:
-    - versionName: projects/$PROJECT_ID/secrets/crossref-mailto/versions/latest
-      env: CROSSREF_MAILTO
-    - versionName: projects/$PROJECT_ID/secrets/elsevier-api-key/versions/latest
-      env: ELSEVIER_API_KEY
-    - versionName: projects/$PROJECT_ID/secrets/scopus-api-key/versions/latest
-      env: SCOPUS_API_KEY
-    - versionName: projects/$PROJECT_ID/secrets/wos-api-key/versions/latest
-      env: WOS_API_KEY
-    - versionName: projects/$PROJECT_ID/secrets/scival-api-key/versions/latest
-      env: SCIVAL_API_KEY
 
 steps:
   # Step 1: Install dependencies (Python 3.11, matching CI matrix)
@@ -81,7 +60,7 @@ steps:
         echo "=== Full analysis and output validation passed ==="
     waitFor: ["test"]
 
-  # Step 4: Research API configuration audit (always offline)
+  # Step 4: Research API configuration audit (offline — Crossref only)
   - name: "python:3.11"
     id: audit-config
     entrypoint: bash
@@ -94,7 +73,7 @@ steps:
         echo "=== API config audit complete ==="
     waitFor: ["full-analysis"]
 
-  # Step 5: Offline smoke test (no live API calls)
+  # Step 5: Offline smoke test (no live API calls, no secrets required)
   - name: "python:3.11"
     id: smoke-offline
     entrypoint: bash
@@ -106,33 +85,6 @@ steps:
         python scripts/smoke_scientific_bridge.py --offline
         echo "=== Offline smoke test passed ==="
     waitFor: ["audit-config"]
-
-  # Step 6: Live research API smoke test (only if _LIVE_RESEARCH_API_TESTS=true)
-  # Secrets are injected from Secret Manager — values are NEVER printed.
-  - name: "python:3.11"
-    id: smoke-live
-    entrypoint: bash
-    secretEnv:
-      - CROSSREF_MAILTO
-      - ELSEVIER_API_KEY
-      - SCOPUS_API_KEY
-      - WOS_API_KEY
-      - SCIVAL_API_KEY
-    args:
-      - "-lc"
-      - |
-        set -euo pipefail
-        python -m pip install -e .[dev] --quiet
-        if [ "$_LIVE_RESEARCH_API_TESTS" = "true" ]; then
-          echo "Running live research API smoke test..."
-          LIVE_RESEARCH_API_TESTS=true \
-            python scripts/smoke_scientific_bridge.py --live-if-secrets-present
-        else
-          echo "Live API tests skipped (_LIVE_RESEARCH_API_TESTS=$_LIVE_RESEARCH_API_TESTS)."
-          echo "Pass --substitutions=_LIVE_RESEARCH_API_TESTS=true to enable."
-        fi
-        echo "=== Live smoke step complete ==="
-    waitFor: ["smoke-offline"]
 
 options:
   logging: CLOUD_LOGGING_ONLY

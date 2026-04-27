@@ -1,5 +1,22 @@
 # infra/gcp-mirror/variables.tf
 
+variable "cloudbuild_service_account_email" {
+  description = <<-EOT
+    Email address of the Cloud Build service account to grant Secret Manager
+    access and log-writing permissions.
+
+    Leave empty (default) to use the legacy Cloud Build service account derived
+    automatically from the project number:
+      <project_number>@cloudbuild.gserviceaccount.com
+
+    Set this variable if your project uses a custom Cloud Build service account
+    (common in newer GCP setups or when using Workload Identity Federation).
+    Example: "my-cb-sa@my-project.iam.gserviceaccount.com"
+  EOT
+  type    = string
+  default = ""
+}
+
 variable "project_id" {
   description = "Google Cloud project ID (e.g. intricate-shard-477117-f7)."
   type        = string

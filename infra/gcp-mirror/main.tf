@@ -47,7 +47,13 @@ data "google_project" "project" {
 }
 
 locals {
-  cloudbuild_sa = "${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
+  # Use the supplied SA email if provided, otherwise fall back to the legacy
+  # Cloud Build default SA derived from the project number.
+  cloudbuild_sa = (
+    var.cloudbuild_service_account_email != ""
+    ? var.cloudbuild_service_account_email
+    : "${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
+  )
 }
 
 # ---------------------------------------------------------------------------
