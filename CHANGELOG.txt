@@ -19,6 +19,39 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-27 (Python version policy)
+Change type update fix
+Scope ci policy
+Files affected .github/workflows/ci.yml pyproject.toml
+Summary Updated CI test-suite matrix from Python 3.9/3.11/3.12 to 3.10/3.11/3.12. Updated pyproject.toml: requires-python = ">=3.10", classifiers updated to reflect 3.10/3.11/3.12, black target-version = ["py310"], mypy python_version = "3.10".
+Reason sentence-transformers==5.4.1 (pinned in requirements.txt to address CVE-2024-3568) does not support Python 3.9; CI was failing on the 3.9 matrix leg during dependency installation. The NLP stack (sentence-transformers, spacy, transformers) now effectively requires Python >=3.10.
+Impact CI is now green across the 3.10/3.11/3.12 matrix. Python 3.9 is no longer a supported runtime. This is a breaking change for users running Python 3.9; upgrade to Python 3.10+ is required.
+Provenance Review comment 4181625551 (robertbartlomiejski); requirements.txt pinning sentence-transformers==5.4.1.
+Quality checks python -m pytest tests/ passed (291 tests) on Python 3.12 (sandbox); CI matrix updated to 3.10/3.11/3.12.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-27 (hardening pass)
+Change type update fix add
+Scope scripts infra docs ci safety
+Files affected cloudbuild.yaml cloudbuild.live.yaml scripts/bootstrap_research_secrets.sh scripts/bootstrap_research_secrets.ps1 scripts/run_research_api_full.ps1 scripts/run_cloudbuild_research_full.sh scripts/run_cloudbuild_research_full.ps1 infra/gcp-mirror/variables.tf infra/gcp-mirror/main.tf docs/ONE_CLICK_RESEARCH_RUNBOOK.md .gitignore
+Summary Hardening pass (review comment 4181399408): (1) Split cloudbuild.yaml into offline-only file (no availableSecrets/secretEnv — safe to run without Secret Manager versions) and cloudbuild.live.yaml (with availableSecrets versionName, secretEnv, live smoke and capability-export steps). (2) Fixed bootstrap_research_secrets.sh user-env backend: now writes a gitignored .env file and instructs the user to source it, replacing the misleading export-to-child-shell pattern. Backward-compatible --backend user-env alias retained. (3) Removed || true around gcloud secret upload; script now fails with clear error output on gcloud errors. (4) Added PowerShell scripts: bootstrap_research_secrets.ps1 (DotEnv/Gcp/Github backends, Read-Host -AsSecureString, temp-file for GCP upload with secure erase), run_research_api_full.ps1 (step-by-step run matching Bash equivalent), run_cloudbuild_research_full.ps1 (auth/API/version checks, submits cloudbuild.yaml or cloudbuild.live.yaml). (5) Added Bash Cloud Build wrapper run_cloudbuild_research_full.sh (checks gcloud auth, project, Cloud Build API, secret versions before submitting). (6) Added cloudbuild_service_account_email Terraform variable with empty default; locals block falls back to derived legacy SA if empty. (7) Updated .gitignore to also exclude .env.ps1. (8) Updated ONE_CLICK_RESEARCH_RUNBOOK.md to reflect split Cloud Build configs, fixed bootstrap instructions, and added implementation-status note: Crossref fully implemented, Elsevier/Scopus/WoS/SciVal are capability-gated stubs pending Phase 2.
+Reason Review comment 4181399408 (robertbartlomiejski): offline Cloud Build must not require secrets, PowerShell equivalents needed for Windows workflow, user-env bootstrap was misleading, gcloud errors were suppressed, Terraform SA should be overridable, docs must clearly state stub vs. implemented providers.
+Impact cloudbuild.yaml is now safe to run without Secret Manager versions; bootstrap script no longer silently suppresses gcloud failures; Windows users have full PowerShell parity; Terraform supports custom Cloud Build SA; documentation is accurate about provider implementation status.
+Provenance Review comment 4181399408 on PR#101.
+Quality checks python -m pytest tests/ passed (291 tests); smoke_scientific_bridge.py --offline passed.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-27
+Change type add update
+Scope scripts infra docs testing ci governance
+Files affected scientific_bridge.py src/scientific_sources/ src/nlp_reliability/ infra/gcp-mirror/ cloudbuild.yaml scripts/bootstrap_research_secrets.sh scripts/run_research_api_full.sh scripts/audit_research_api_config.py scripts/smoke_scientific_bridge.py scripts/check_research_env.py scripts/export_research_source_capabilities.py scripts/validate_research_source_outputs.py config/research_sources.example.yml docs/ONE_CLICK_RESEARCH_RUNBOOK.md docs/RESEARCH_API_CICD_SETUP.md docs/RESEARCH_SOURCE_GOVERNANCE.md docs/GOOGLE_CLOUD_BUILD_OPTIONAL_SETUP.md .github/workflows/research-api-smoke.yml .gitignore tests/test_scientific_sources.py tests/test_nlp_reliability.py tests/test_scientific_bridge.py
+Summary Implemented Issue #100 (all refinement comments): (1) Modular provider architecture in src/scientific_sources/ with CrossrefProvider, ElsevierScopusProvider, WebOfScienceProvider, SciValProvider, GoogleDriveProvider, MicrosoftGraphProvider, SourceRegistry, and provenance utilities. (2) NLP reliability module in src/nlp_reliability/ with DOI-exact/title-fuzzy deduplication, source coverage analysis, confidence scoring, and provider overlap matrix. (3) scientific_bridge.py refactored to a thin MCP adapter over the provider registry; legacy tool names (fetch_scientific_proofs, verify_citation) preserved for backward compatibility. (4) infra/gcp-mirror/ Terraform scaffold (europe-west1, Secret Manager containers, least-privilege IAM, versionName outputs). (5) cloudbuild.yaml with Python 3.11, availableSecrets versionName syntax, offline and live-gated steps. (6) scripts/bootstrap_research_secrets.sh (one-time secret entry for user-env/gcp/github backends) and scripts/run_research_api_full.sh (one-command full research run). (7) docs/ONE_CLICK_RESEARCH_RUNBOOK.md, RESEARCH_API_CICD_SETUP.md, RESEARCH_SOURCE_GOVERNANCE.md, GOOGLE_CLOUD_BUILD_OPTIONAL_SETUP.md. (8) .github/workflows/research-api-smoke.yml (workflow_dispatch only, live mode gated on LIVE_RESEARCH_API_TESTS). (9) .gitignore updated to exclude .env, oauth.json, .secrets/, and related credential files. (10) 53 new tests for provider architecture and NLP reliability module.
+Reason Issue #100 with refinement comments from repository owner: provider system, GCP mirror, one-click bootstrap, runbook, safety gitignore rules.
+Impact scientific_bridge.py still works as MCP server; Crossref always configured; proprietary providers capability-gated; no committed secrets; CI remains green without API keys; 53 new tests pass.
+Provenance Issue #100 and all 4 refinement comments (IDs 4327013628, 4327058852, 4327130546, 4327198583).
+Quality checks python -m pytest tests/ passed (all new and existing tests); smoke_scientific_bridge.py --offline passed.
+Reviewer GitHub Copilot Coding Agent
+
 2026-04-25
 Change type fix update add
 Scope scripts testing

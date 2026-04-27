@@ -1,0 +1,92 @@
+# cloudbuild.yaml — Offline Cloud Build mirror for morskamary
+#
+# This file is NOT the primary CI configuration.  GitHub Actions (.github/workflows/)
+# remains the primary CI.  This file provides an optional offline mirror that runs
+# without any Secret Manager secrets or live API calls.
+#
+# For live proprietary API calls, use cloudbuild.live.yaml instead.
+#
+# Usage:
+#   gcloud builds submit --config cloudbuild.yaml
+#
+# One-command wrapper (recommended — checks auth/API before submitting):
+#   ./scripts/run_cloudbuild_research_full.sh --offline
+#
+# See docs/GOOGLE_CLOUD_BUILD_OPTIONAL_SETUP.md for full setup instructions.
+# See docs/ONE_CLICK_RESEARCH_RUNBOOK.md for the one-command workflow.
+
+steps:
+  # Step 1: Install dependencies (Python 3.11, matching CI matrix)
+  - name: "python:3.11"
+    id: install
+    entrypoint: bash
+    args:
+      - "-lc"
+      - |
+        set -euo pipefail
+        python -m pip install --upgrade pip
+        python -m pip install -e .[dev]
+        echo "=== Installation complete ==="
+
+  # Step 2: Run unit tests
+  - name: "python:3.11"
+    id: test
+    entrypoint: bash
+    args:
+      - "-lc"
+      - |
+        set -euo pipefail
+        python -m pip install -e .[dev] --quiet
+        python -m pytest tests/ -v --tb=short
+        echo "=== Tests passed ==="
+    waitFor: ["install"]
+
+  # Step 3: Run full analysis and verify output determinism
+  - name: "python:3.11"
+    id: full-analysis
+    entrypoint: bash
+    args:
+      - "-lc"
+      - |
+        set -euo pipefail
+        python -m pip install -e .[dev] --quiet
+        python run_full_analysis.py
+        python scripts/validate_generated_outputs.py
+        git diff --exit-code -- outputs || {
+          echo "ERROR: outputs/ differ from committed state."
+          echo "Run python run_full_analysis.py locally and commit the results."
+          exit 1
+        }
+        echo "=== Full analysis and output validation passed ==="
+    waitFor: ["test"]
+
+  # Step 4: Research API configuration audit (offline — Crossref only)
+  - name: "python:3.11"
+    id: audit-config
+    entrypoint: bash
+    args:
+      - "-lc"
+      - |
+        set -euo pipefail
+        python -m pip install -e .[dev] --quiet
+        python scripts/audit_research_api_config.py
+        echo "=== API config audit complete ==="
+    waitFor: ["full-analysis"]
+
+  # Step 5: Offline smoke test (no live API calls, no secrets required)
+  - name: "python:3.11"
+    id: smoke-offline
+    entrypoint: bash
+    args:
+      - "-lc"
+      - |
+        set -euo pipefail
+        python -m pip install -e .[dev] --quiet
+        python scripts/smoke_scientific_bridge.py --offline
+        echo "=== Offline smoke test passed ==="
+    waitFor: ["audit-config"]
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: "1800s"
