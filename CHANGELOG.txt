@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-27 (Python version policy)
+Change type update fix
+Scope ci policy
+Files affected .github/workflows/ci.yml pyproject.toml
+Summary Updated CI test-suite matrix from Python 3.9/3.11/3.12 to 3.10/3.11/3.12. Updated pyproject.toml: requires-python = ">=3.10", classifiers updated to reflect 3.10/3.11/3.12, black target-version = ["py310"], mypy python_version = "3.10".
+Reason sentence-transformers==5.4.1 (pinned in requirements.txt to address CVE-2024-3568) does not support Python 3.9; CI was failing on the 3.9 matrix leg during dependency installation. The NLP stack (sentence-transformers, spacy, transformers) now effectively requires Python >=3.10.
+Impact CI is now green across the 3.10/3.11/3.12 matrix. Python 3.9 is no longer a supported runtime. This is a breaking change for users running Python 3.9; upgrade to Python 3.10+ is required.
+Provenance Review comment 4181625551 (robertbartlomiejski); requirements.txt pinning sentence-transformers==5.4.1.
+Quality checks python -m pytest tests/ passed (291 tests) on Python 3.12 (sandbox); CI matrix updated to 3.10/3.11/3.12.
+Reviewer GitHub Copilot Coding Agent
+
 2026-04-27 (hardening pass)
 Change type update fix add
 Scope scripts infra docs ci safety
