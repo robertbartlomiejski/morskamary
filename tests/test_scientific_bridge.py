@@ -54,6 +54,7 @@ def test_search_crossref_parses_results(monkeypatch):
             "year": "2024",
             "url": "https://example.org/paper",
             "doi": "10.1234/example",
+            "provider": "Crossref",
         }
     ]
 

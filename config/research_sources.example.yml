@@ -1,0 +1,64 @@
+# config/research_sources.example.yml
+#
+# Research source provider configuration template.
+# Copy this file to config/research_sources.local.yml and fill in values.
+# config/research_sources.local.yml is gitignored — never commit it.
+#
+# Preferred approach: use environment variables instead of this file.
+# See docs/ONE_CLICK_RESEARCH_RUNBOOK.md for full setup instructions.
+#
+# All values are optional. Crossref works without any configuration.
+
+providers:
+
+  crossref:
+    # Polite API usage: include your contact email in the User-Agent header.
+    # Crossref gives preferential rate-limit treatment to polite requests.
+    # Set via environment variable: CROSSREF_MAILTO
+    mailto: ""  # e.g. researcher@university.edu
+
+  elsevier:
+    # Elsevier platform API key (institutional access required).
+    # Set via environment variable: ELSEVIER_API_KEY
+    api_key: ""
+
+  scopus:
+    # Scopus-specific API key (may be same as Elsevier key).
+    # Set via environment variable: SCOPUS_API_KEY
+    api_key: ""
+
+  web_of_science:
+    # Clarivate Web of Science API key (institutional access required).
+    # Set via environment variable: WOS_API_KEY
+    api_key: ""
+
+  scival:
+    # Elsevier SciVal API key (institutional analytics access required).
+    # Set via environment variable: SCIVAL_API_KEY
+    api_key: ""
+
+  google_drive:
+    # Path to local Google Drive OAuth credentials JSON.
+    # NEVER commit this file to the repository.
+    # Set via environment variable: GOOGLE_DRIVE_OAUTH_CREDENTIALS
+    credentials_path: ""  # e.g. /home/user/.config/morskamary/gdrive_oauth.json
+
+  microsoft_graph:
+    # Azure AD app registration credentials for OneDrive/SharePoint access.
+    # NEVER commit these values.
+    # Set via environment variables: MICROSOFT_TENANT_ID, MICROSOFT_CLIENT_ID,
+    #                                MICROSOFT_CLIENT_SECRET
+    tenant_id: ""
+    client_id: ""
+    # client_secret must be set via environment variable only
+
+# Live API test flag (default: false — no live proprietary API calls in CI)
+# Set via environment variable: LIVE_RESEARCH_API_TESTS=true
+live_research_api_tests: false
+
+# Google Cloud configuration (for Cloud Build mirror)
+gcp:
+  # Set via environment variable: GCP_PROJECT_ID
+  project_id: ""
+  # Region for Secret Manager and Cloud Build
+  region: "europe-west1"

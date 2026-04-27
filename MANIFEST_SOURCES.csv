@@ -16,6 +16,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/workflows/ci.yml,other,,,,,,ci,no
 .github/workflows/dependency-submission.yml,other,,,,,,dependency_submission,no
 .github/workflows/full-analysis.yml,other,,,,,,full_analysis,no
+.github/workflows/research-api-smoke.yml,other,,,,,,research_api_smoke,no
 .gitignore,other,,,,,,gitignore,no
 .vscode/## Chat Customization Diagnostics.md,text,,,,,,Chat_Customization_Diagnostics,yes
 .vscode/launch.json,other,,,,,,launch,no
@@ -25,8 +26,10 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .vscode/test_launch.json,other,,,,,,test_launch,no
 CHANGELOG.txt,governance,,,,,,CHANGELOG,yes
 CITATION.txt,governance,,,,,,CITATION,yes
+cloudbuild.yaml,other,,,,,,cloudbuild,no
 compose.debug.yaml,other,,,,,,compose_debug,no
 compose.yaml,other,,,,,,compose,no
+config/research_sources.example.yml,other,,,,,,research_sources_example,no
 CONTRIBUTING.md,text,,,,,,CONTRIBUTING,yes
 COPILOT_MCP_SETUP.md,text,,,,,,COPILOT_MCP_SETUP,yes
 data/derived/20250303_emodnethumanactivities_final_2025 — kopia.xlsx,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
@@ -655,6 +658,7 @@ Deploy-CopilotSynergy.ps1,other,,,,,,Deploy_CopilotSynergy,no
 Dockerfile,other,,,,,,Dockerfile,no
 Dockerfile.txt,text,,,,,,Dockerfile,yes
 docs/BASELINE_VALIDATION.md,text,,,,,,BASELINE_VALIDATION,yes
+docs/GOOGLE_CLOUD_BUILD_OPTIONAL_SETUP.md,text,,,,,,GOOGLE_CLOUD_BUILD_OPTIONAL_SETUP,yes
 docs/literature/(Posthumanities) Timothy Morton - Hyperobjects_ Philosophy and Ecology after the End of the World-University of Minnesota Press (2013).txt,literature,,,,,,Posthumanities__Timothy_Morton___Hyperob,yes
 docs/literature/40152_2021_Article_238.PDF,literature,,,,,,40152_2021_Article_238,no
 docs/literature/A Sensorial Walk for Le Havre.docx,literature,,,,,,A_Sensorial_Walk_for_Le_Havre,yes
@@ -701,6 +705,7 @@ docs/literature/WG3 Meeting  - 2025_12_12 10_57 GMT - Notes by Gemini.docx,liter
 docs/literature/WG3_PACT_WG3_Sensory_Walk_Methodology_Slides_EN-UK rob.pptx,literature,,,,,,WG3_PACT_WG3_Sensory_Walk_Methodology_Sl,no
 docs/literature/WG_applications_export_05-01-2026 (1).xlsx,literature,,,,,,WG_applications_export_05_01_2026__1,yes
 docs/literature/Wyrzucone przez morze_250521_002507.txt,literature,,,,,,Wyrzucone_przez_morze_250521_002507,yes
+docs/ONE_CLICK_RESEARCH_RUNBOOK.md,text,,,,,,ONE_CLICK_RESEARCH_RUNBOOK,yes
 docs/policy/Blue Economy_ Social Soul Revival Blue Skills Diplomat.docx,policy,,,,,,Blue_Economy__Social_Soul_Revival_Blue_S,yes
 docs/policy/Blue Occupation Boatbuilder.txt,policy,,,,,,Blue_Occupation_Boatbuilder,yes
 docs/policy/Blue Occupation Boutyard manager.txt,policy,,,,,,Blue_Occupation_Boutyard_manager,yes
@@ -709,10 +714,16 @@ docs/policy/Blue Occupation Crew Manager.txt,policy,,,,,,Blue_Occupation_Crew_Ma
 docs/policy/Blue Occupation Insurance broker.txt,policy,,,,,,Blue_Occupation_Insurance_broker,yes
 docs/policy/Blue Occupation Sailmaker.txt,policy,,,,,,Blue_Occupation_Sailmaker,yes
 docs/policy/Blue_Sociology_Framework_Complete.md,policy,,,,,,Blue_Sociology_Framework_Complete,yes
+docs/RESEARCH_API_CICD_SETUP.md,text,,,,,,RESEARCH_API_CICD_SETUP,yes
+docs/RESEARCH_SOURCE_GOVERNANCE.md,text,,,,,,RESEARCH_SOURCE_GOVERNANCE,yes
 examples/add_coastal_resilience_competence.py,other,,,,,,add_coastal_resilience_competence,no
 fix_all_md.py,other,,,,,,fix_all_md,no
 fix_markdown.py,other,,,,,,fix_markdown,no
 fix_markdown_bulk.py,other,,,,,,fix_markdown_bulk,no
+infra/gcp-mirror/main.tf,other,,,,,,main,no
+infra/gcp-mirror/outputs.tf,other,,,,,,outputs,no
+infra/gcp-mirror/README.md,text,,,,,,README,yes
+infra/gcp-mirror/variables.tf,other,,,,,,variables,no
 LLM_CONTEXT_INSTRUCTION.txt,governance,,,,,,LLM_CONTEXT_INSTRUCTION,yes
 load_real_competences.py,other,,,,,,load_real_competences,no
 LOAD_REAL_DATA.md,text,,,,,,LOAD_REAL_DATA,yes
@@ -787,14 +798,18 @@ run_full_analysis.py,other,,,,,,run_full_analysis,no
 scientific_bridge.py,other,,,,,,scientific_bridge,no
 scripts/40152_2021_Article_238.PDF,script,,,,,,40152_2021_Article_238,no
 scripts/Aaa Hab 4_250621_114734.txt,script,,,,,,Aaa_Hab_4_250621_114734,yes
+scripts/audit_research_api_config.py,script,,,,,,audit_research_api_config,no
 scripts/Blue Bolt Rotterdam _250106_112646.txt,script,,,,,,Blue_Bolt_Rotterdam__250106_112646,yes
 scripts/Blue Mind_250421_094727.txt,script,,,,,,Blue_Mind_250421_094727,yes
+scripts/bootstrap_research_secrets.sh,script,,,,,,bootstrap_research_secrets,no
 scripts/Breguła Weird Szczecin_250412_101024.txt,script,,,,,,Breguła_Weird_Szczecin_250412_101024,yes
 scripts/build_derived.py,script,,,,,,build_derived,no
 scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,no
+scripts/check_research_env.py,script,,,,,,check_research_env,no
 scripts/convert_pdfs_to_txt.py,script,,,,,,convert_pdfs_to_txt,no
 scripts/Delft wyjazd_241017_170643.txt,script,,,,,,Delft_wyjazd_241017_170643,yes
 scripts/Do hab_250403_204509.txt,script,,,,,,Do_hab_250403_204509,yes
+scripts/export_research_source_capabilities.py,script,,,,,,export_research_source_capabilities,no
 scripts/generate_manifest.py,script,,,,,,generate_manifest,no
 scripts/GPT Blue Sociology Prompt 13_02 BIG.txt,script,,,,,,GPT_Blue_Sociology_Prompt_13_02_BIG,yes
 scripts/GPT Visual Studio Code Blue Economy last article.txt,script,,,,,,GPT_Visual_Studio_Code_Blue_Economy_last,yes
@@ -810,8 +825,11 @@ scripts/prompt ioanis 12_02 18_58 Gemini.txt,script,,,,,,prompt_ioanis_12_02_18_
 scripts/Prompt Ioanis and Cocco.txt,script,,,,,,Prompt_Ioanis_and_Cocco,yes
 scripts/README.txt,script,,,,,,README,yes
 scripts/README_WHATTODO IN LIZBONA 2026 NEW.txt,script,,,,,,README_WHATTODO_IN_LIZBONA_2026_NEW,yes
+scripts/run_research_api_full.sh,script,,,,,,run_research_api_full,no
+scripts/smoke_scientific_bridge.py,script,,,,,,smoke_scientific_bridge,no
 scripts/Tripatle Blue Value Model WOW.txt,script,,,,,,Tripatle_Blue_Value_Model_WOW,yes
 scripts/validate_generated_outputs.py,script,,,,,,validate_generated_outputs,no
+scripts/validate_research_source_outputs.py,script,,,,,,validate_research_source_outputs,no
 scripts/Wyrzucone przez morze_250521_002507.txt,script,,,,,,Wyrzucone_przez_morze_250521_002507,yes
 SECURITY.md,text,,,,,,SECURITY,yes
 security/security-checklist.md,text,,,,,,security_checklist,yes
@@ -824,6 +842,22 @@ src/competence_repository.py,other,,,,,,competence_repository,no
 src/core.py,other,,,,,,core,no
 src/dimension_mapping.py,other,,,,,,dimension_mapping,no
 src/literature_extraction.py,other,,,,,,literature_extraction,no
+src/nlp_reliability/__init__.py,other,,,,,,init,no
+src/nlp_reliability/confidence.py,other,,,,,,confidence,no
+src/nlp_reliability/deduplication.py,other,,,,,,deduplication,no
+src/nlp_reliability/source_coverage.py,other,,,,,,source_coverage,no
+src/nlp_reliability/triangulation.py,other,,,,,,triangulation,no
+src/scientific_sources/__init__.py,other,,,,,,init,no
+src/scientific_sources/base.py,other,,,,,,base,no
+src/scientific_sources/crossref.py,other,,,,,,crossref,no
+src/scientific_sources/elsevier_scopus.py,other,,,,,,elsevier_scopus,no
+src/scientific_sources/google_drive.py,other,,,,,,google_drive,no
+src/scientific_sources/microsoft_graph.py,other,,,,,,microsoft_graph,no
+src/scientific_sources/models.py,other,,,,,,models,no
+src/scientific_sources/provenance.py,other,,,,,,provenance,no
+src/scientific_sources/scival.py,other,,,,,,scival,no
+src/scientific_sources/source_registry.py,other,,,,,,source_registry,no
+src/scientific_sources/web_of_science.py,other,,,,,,web_of_science,no
 src/Untitled-1.litcoffee,other,,,,,,Untitled_1,no
 src/utils.py,other,,,,,,utils,no
 TEST_COVERAGE_IMPROVEMENTS.md,text,,,,,,TEST_COVERAGE_IMPROVEMENTS,yes
@@ -846,7 +880,9 @@ tests/test_generate_manifest.py,other,,,,,,test_generate_manifest,no
 tests/test_literature_extraction.py,other,,,,,,test_literature_extraction,no
 tests/test_load_real_competences.py,other,,,,,,test_load_real_competences,no
 tests/test_main_entrypoints.py,other,,,,,,test_main_entrypoints,no
+tests/test_nlp_reliability.py,other,,,,,,test_nlp_reliability,no
 tests/test_run_full_analysis.py,other,,,,,,test_run_full_analysis,no
 tests/test_scientific_bridge.py,other,,,,,,test_scientific_bridge,no
+tests/test_scientific_sources.py,other,,,,,,test_scientific_sources,no
 tests/test_script_cli.py,other,,,,,,test_script_cli,no
 tests/test_validate_generated_outputs.py,other,,,,,,test_validate_generated_outputs,no
