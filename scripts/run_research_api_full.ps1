@@ -93,7 +93,6 @@ try {
 
     # Step 4: Offline smoke test (always)
     Step "Step 4: Offline smoke test"
-    RunPy "scripts/smoke_scientific_bridge.py" @{} # passes --offline via script default
     python scripts/smoke_scientific_bridge.py --offline
     if ($LASTEXITCODE -ne 0) { throw "Offline smoke test failed." }
 

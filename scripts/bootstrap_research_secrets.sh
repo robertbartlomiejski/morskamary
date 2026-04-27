@@ -129,13 +129,20 @@ case "$BACKEND" in
         if [[ -n "$val" ]]; then
           # Use printf %q to safely quote the value for shell evaluation
           printf "export %s=%s\n" "$var" "$(printf '%q' "$val")"
-          echo "  export $var=<set>"
         else
           printf "# export %s=  # skipped — not provided\n" "$var"
-          echo "  # $var — skipped"
         fi
       done
     } > "$DOTENV_FILE"
+    # Report status to stdout (outside the redirection block)
+    for var in "${ENV_VARS[@]}"; do
+      val="${VALUES[$var]}"
+      if [[ -n "$val" ]]; then
+        echo "  export $var=<set>"
+      else
+        echo "  # $var — skipped"
+      fi
+    done
     echo ""
     echo "Written to: ${DOTENV_FILE}"
     echo ""
