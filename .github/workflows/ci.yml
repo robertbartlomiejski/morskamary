@@ -12,6 +12,41 @@ permissions:
   pull-requests: read
 
 jobs:
+  conflict-marker-check:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Detect unresolved merge conflict markers
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          matches="$(
+            rg -n '^(<{7} .+|={7}|>{7} .+)$' . \
+              --glob '!.git/**' \
+              --glob '!outputs/**' \
+              --glob '!data/raw/**' \
+              --glob '!data/derived/**' \
+            || true
+          )"
+
+          if [[ -n "$matches" ]]; then
+            echo "Found unresolved merge conflict markers."
+            echo
+            echo "Offending files:"
+            echo "$matches" | cut -d: -f1 | sort -u
+            echo
+            echo "Matching lines:"
+            echo "$matches"
+            exit 1
+          fi
+
+          echo "No merge conflict markers detected."
+
   governance-and-repro:
     runs-on: ubuntu-latest
     env:
@@ -141,6 +176,7 @@ jobs:
           echo "CHANGELOG enforcement passed."
 
   test-suite:
+    needs: [conflict-marker-check]
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

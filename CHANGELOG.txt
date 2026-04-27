@@ -19,6 +19,50 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-25
+Change type fix update add
+Scope scripts testing
+Files affected scripts/validate_generated_outputs.py tests/test_validate_generated_outputs.py
+Summary Post-review fixes to the semantic validator: (1) Added ERRORS.clear() and WARNINGS.clear() at start of main() so repeated in-process calls are independent. (2) Added loud schema validation in all loaders — load_competences fails if 'baseline' or 'literature' keys are absent or if any entry lacks 'id', 'dimension', or 'sectors'; load_credentials fails if 'credentials' key is absent or any entry lacks 'sector', 'eqf_level', or 'competences'; load_gaps_csv fails if required columns are absent; load_sector_dict_ids raises ValueError if 'dictionary' key or 'id' fields are missing. (3) Fixed for/else EQF-level OK message — replaced Python for/else with an explicit eqf_ok flag so the OK line only prints when no EQF-level failure occurred. Tests expanded from 10 to 20 covering state-reset regression, all schema validation paths, and the EQF-level flag fix.
+Reason Review comment 4175248362 identified: unsafe global state for repeated main() calls, silent schema failures via .get() defaults, and a misleading OK EQF-level message emitted even when a sector was missing EQF levels.
+Impact Validator is now safe for in-process repeated calls, fails loudly on malformed JSON/CSV, and does not mislead with spurious OK messages.
+Provenance PR#98 review comment 4175248362; scripts/validate_generated_outputs.py; tests/test_validate_generated_outputs.py.
+Quality checks python scripts/validate_generated_outputs.py passed; python -m pytest tests/test_validate_generated_outputs.py passed (20 tests); python -m pytest tests/ passed (238 passed, 1 skipped).
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-25
+Change type add update
+Scope scripts testing ci outputs
+Files affected outputs/ scripts/validate_generated_outputs.py tests/test_validate_generated_outputs.py .github/workflows/full-analysis.yml
+Summary Regenerated all committed outputs from post-PR#95/PR#97 sector-aware model: rm -rf outputs && python run_full_analysis.py. Added scripts/validate_generated_outputs.py, a semantic validator that checks gaps_summary.csv row differentiation, credential sector-literature integrity, Desalination-specific leakage prevention, and sector dictionary uniqueness. Added tests/test_validate_generated_outputs.py with 10 unit and integration tests. Updated full-analysis.yml to run the validator and git diff --exit-code -- outputs after generation to prevent future stale-output commits.
+Reason outputs/ was stale: gaps_summary.csv showed identical values for all 12 sectors and credentials_database.json reused the same global literature IDs across sectors, both inconsistent with the sector-scoping logic from PR#95 and PR#97. Regenerating and adding a CI guard prevents recurrence.
+Impact outputs/ now reflects sector-differentiated gap counts, sector-valid EQF6/EQF7 literature competences, and 12 distinct sector TMBD dictionaries. CI will block any future logic change that leaves outputs unsynchronized.
+Provenance PR#95 (sector-scoped extract_literature_competences / run_gap_analysis), PR#97 (sector-filtered generate_micro_credentials); issue #98.
+Quality checks python run_full_analysis.py succeeded; python scripts/validate_generated_outputs.py passed all checks; python -m pytest tests/ passed (228 passed, 1 skipped).
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-25
+Change type fix update add
+Scope scripts testing
+Files affected run_full_analysis.py tests/test_run_full_analysis.py
+Summary Fixed generate_micro_credentials to use sector-aware literature selection: replaced global literature[:5] slice with sector_lit_ids derived from gap.required_ids filtered by dimension=="literature", ensuring only literature competences scoped to the current sector are included in each credential. Added regression test test_generate_micro_credentials_uses_sector_filtered_literature that verifies Desalination credentials include the Desalination literature competence and exclude the Living Res. literature competence placed first in the list.
+Reason generate_micro_credentials previously selected literature[:5] globally, bypassing the sector filter introduced by PR #95 in run_gap_analysis. This could insert out-of-sector literature competences into credentials. The fix reuses gap.required_ids (already sector-scoped by run_gap_analysis) as the authoritative literature source, making credentials, gaps, and sector dictionaries all obey the same sector-scoped competence model. Addresses post-PR #95 review finding.
+Impact Micro-credential competence lists now respect sector boundaries for literature-derived competences, consistent with gap analysis and sector dictionary semantics.
+Provenance PR #95 and post-merge review; problem statement for PR #97.
+Quality checks python -m pytest tests/test_run_full_analysis.py passed; python -m pytest tests/ passed.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-25
+Change type fix update add
+Scope scripts testing
+Files affected run_full_analysis.py tests/test_run_full_analysis.py
+Summary Fixed sector-specific literature competence mapping in run_full_analysis.py: added _THEME_SECTORS lookup (36 of 52 themes mapped to primary sectors), updated extract_literature_competences to use sectors=_THEME_SECTORS.get(theme_name, SECTORS), updated run_gap_analysis to include literature competences only when sector in c.sectors (removing the prior cross-sector assumption), and added _validate_theme_sectors() startup validation that raises ValueError on key or sector-name drift.
+Reason All 12 sector TMBD dictionary JSONs were identical because extract_literature_competences hardcoded sectors=SECTORS for every competence. run_gap_analysis also treated all literature competences as cross-sector, making gap analysis semantically inconsistent with sector dictionary export. Addresses PR review requirements: explicit sector-specific semantics everywhere in the pipeline, drift-proof validation, and regression test coverage for the new classification layer.
+Impact Sector dictionaries now differ per sector. Gap analysis, micro-credential generation, and sector pathways now apply sector-specific literature filtering, consistent with sector dictionary semantics.
+Provenance PR #95 and PR #96 review comments (robertbartlomiejski, copilot-pull-request-reviewer); _LIT_THEMES universe in run_full_analysis.py; canonical SECTORS list.
+Quality checks python -m pytest tests/test_run_full_analysis.py passed (6 new regression tests); python -m pytest tests/ passed (217 passed, 1 skipped); MANIFEST_SOURCES.csv regenerated and unchanged.
+Reviewer GitHub Copilot Coding Agent
+
 2026-04-20
 Change type add update fix
 Scope testing infrastructure governance
