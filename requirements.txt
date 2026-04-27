@@ -12,5 +12,6 @@ pytest>=7.0
  
 # NLP and baseline ML stack for literature extraction/classification
 spacy==3.7.5
-sentence-transformers==2.7.0
+sentence-transformers==5.4.1
 scikit-learn==1.5.2
+transformers>=5.5.4

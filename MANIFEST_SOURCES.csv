@@ -105,11 +105,8 @@ data/derived/a_systematic_literature_assessment_on_the_effects_of_human-altered_
 data/derived/a_systematic_literature_assessment_on_the_effects_of_human-altered_soundscapes_on_marine_life_dataset_kopia__summary_stats__datadict.csv,dataset_derived,,,,,,a_systematic_literature_assessment_on_th,yes
 data/derived/abstract_converted — kopia.md,dataset_derived,,,,,,abstract_converted___kopia,yes
 data/derived/abstract_converted.md,dataset_derived,,,,,,abstract_converted,yes
-data/derived/Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials — kopia.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
 data/derived/Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
-data/derived/Blue Social Competences Univ Szczecin - Blue competences x blue economy sector — kopia.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
 data/derived/Blue Social Competences Univ Szczecin - Blue competences x blue economy sector.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
-data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension — kopia.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
 data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
 data/derived/Blue Social Competences Univ Szczecin matrix — kopia (2).xlsx,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,yes
 data/derived/Blue Social Competences Univ Szczecin matrix — kopia — kopia.xlsx,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,yes
@@ -191,21 +188,13 @@ data/derived/casestudies__casestudies.csv,dataset_derived,,,,,,casestudies__case
 data/derived/casestudies__casestudies__datadict.csv,dataset_derived,,,,,,casestudies__casestudies__datadict,yes
 data/derived/casestudies_kopia__casestudies.csv,dataset_derived,,,,,,casestudies_kopia__casestudies,yes
 data/derived/casestudies_kopia__casestudies__datadict.csv,dataset_derived,,,,,,casestudies_kopia__casestudies__datadict,yes
-data/derived/combined_blue_economy_labor_justice — kopia.csv,dataset_derived,,,,,,combined_blue_economy_labor_justice___ko,yes
 data/derived/combined_blue_economy_labor_justice.csv,dataset_derived,,,,,,combined_blue_economy_labor_justice,yes
-data/derived/combined_blue_economy_research_gaps — kopia.csv,dataset_derived,,,,,,combined_blue_economy_research_gaps___ko,yes
 data/derived/combined_blue_economy_research_gaps.csv,dataset_derived,,,,,,combined_blue_economy_research_gaps,yes
-data/derived/combined_blue_sociology_results — kopia.csv,dataset_derived,,,,,,combined_blue_sociology_results___kopia,yes
 data/derived/combined_blue_sociology_results.csv,dataset_derived,,,,,,combined_blue_sociology_results,yes
-data/derived/combined_eu_blue_economy_results — kopia.csv,dataset_derived,,,,,,combined_eu_blue_economy_results___kopia,yes
 data/derived/combined_eu_blue_economy_results.csv,dataset_derived,,,,,,combined_eu_blue_economy_results,yes
-data/derived/combined_janiszewski_maritime_sociology — kopia.csv,dataset_derived,,,,,,combined_janiszewski_maritime_sociology_,yes
 data/derived/combined_janiszewski_maritime_sociology.csv,dataset_derived,,,,,,combined_janiszewski_maritime_sociology,yes
-data/derived/combined_maritime_sociology_results — kopia.csv,dataset_derived,,,,,,combined_maritime_sociology_results___ko,yes
 data/derived/combined_maritime_sociology_results.csv,dataset_derived,,,,,,combined_maritime_sociology_results,yes
-data/derived/combined_maritimization_results — kopia.csv,dataset_derived,,,,,,combined_maritimization_results___kopia,yes
 data/derived/combined_maritimization_results.csv,dataset_derived,,,,,,combined_maritimization_results,yes
-data/derived/combined_poole_maritime_sociology_results — kopia.csv,dataset_derived,,,,,,combined_poole_maritime_sociology_result,yes
 data/derived/combined_poole_maritime_sociology_results.csv,dataset_derived,,,,,,combined_poole_maritime_sociology_result,yes
 data/derived/DOCUMENT_GUIDE — kopia.md,dataset_derived,,,,,,DOCUMENT_GUIDE___kopia,yes
 data/derived/DOCUMENT_GUIDE.md,dataset_derived,,,,,,DOCUMENT_GUIDE,yes
@@ -411,11 +400,8 @@ data/derived/pact_wg3_contested_glossary_template_v1_kopia__sensory_cues_lookup.
 data/derived/pact_wg3_contested_glossary_template_v1_kopia__sensory_cues_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
 data/derived/pact_wg3_contested_glossary_template_v1_kopia__workflow_checklist.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
 data/derived/pact_wg3_contested_glossary_template_v1_kopia__workflow_checklist__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
-data/derived/paper-table-2026-02-12 (2) — kopia.csv,dataset_derived,,,,,,paper_table_2026_02_12__2____kopia,yes
 data/derived/paper-table-2026-02-12 (2).csv,dataset_derived,,,,,,paper_table_2026_02_12__2,yes
-data/derived/paper-table-2026-02-12 — kopia.csv,dataset_derived,,,,,,paper_table_2026_02_12___kopia,yes
 data/derived/paper-table-2026-02-12.csv,dataset_derived,,,,,,paper_table_2026_02_12,yes
-data/derived/poole_article_search — kopia.csv,dataset_derived,,,,,,poole_article_search___kopia,yes
 data/derived/poole_article_search.csv,dataset_derived,,,,,,poole_article_search,yes
 data/derived/poole_detailed_analysis — kopia.md,dataset_derived,,,,,,poole_detailed_analysis___kopia,yes
 data/derived/poole_detailed_analysis.md,dataset_derived,,,,,,poole_detailed_analysis,yes
@@ -473,103 +459,54 @@ data/derived/savedrecs — kopia.xls,dataset_derived,,,,,,savedrecs___kopia,yes
 data/derived/savedrecs.xls,dataset_derived,,,,,,savedrecs,yes
 data/derived/scharenberg_ocean_activim_political_acts__sheet1.csv,dataset_derived,,,,,,scharenberg_ocean_activim_political_acts,yes
 data/derived/scharenberg_ocean_activim_political_acts__sheet1__datadict.csv,dataset_derived,,,,,,scharenberg_ocean_activim_political_acts,yes
-data/derived/scholar_blue_economy_2 — kopia.csv,dataset_derived,,,,,,scholar_blue_economy_2___kopia,yes
 data/derived/scholar_blue_economy_2.csv,dataset_derived,,,,,,scholar_blue_economy_2,yes
-data/derived/scholar_blue_economy_3 — kopia.csv,dataset_derived,,,,,,scholar_blue_economy_3___kopia,yes
 data/derived/scholar_blue_economy_3.csv,dataset_derived,,,,,,scholar_blue_economy_3,yes
-data/derived/scholar_blue_economy_equity — kopia.csv,dataset_derived,,,,,,scholar_blue_economy_equity___kopia,yes
 data/derived/scholar_blue_economy_equity.csv,dataset_derived,,,,,,scholar_blue_economy_equity,yes
-data/derived/scholar_blue_economy_labor — kopia.csv,dataset_derived,,,,,,scholar_blue_economy_labor___kopia,yes
 data/derived/scholar_blue_economy_labor.csv,dataset_derived,,,,,,scholar_blue_economy_labor,yes
-data/derived/scholar_blue_economy_social_science — kopia.csv,dataset_derived,,,,,,scholar_blue_economy_social_science___ko,yes
 data/derived/scholar_blue_economy_social_science.csv,dataset_derived,,,,,,scholar_blue_economy_social_science,yes
-data/derived/scholar_blue_sociology_1 — kopia.csv,dataset_derived,,,,,,scholar_blue_sociology_1___kopia,yes
 data/derived/scholar_blue_sociology_1.csv,dataset_derived,,,,,,scholar_blue_sociology_1,yes
-data/derived/scholar_blue_sociology_2 — kopia.csv,dataset_derived,,,,,,scholar_blue_sociology_2___kopia,yes
 data/derived/scholar_blue_sociology_2.csv,dataset_derived,,,,,,scholar_blue_sociology_2,yes
-data/derived/scholar_blue_sociology_3 — kopia.csv,dataset_derived,,,,,,scholar_blue_sociology_3___kopia,yes
 data/derived/scholar_blue_sociology_3.csv,dataset_derived,,,,,,scholar_blue_sociology_3,yes
-data/derived/scholar_janiszewski_maritime — kopia.csv,dataset_derived,,,,,,scholar_janiszewski_maritime___kopia,yes
 data/derived/scholar_janiszewski_maritime.csv,dataset_derived,,,,,,scholar_janiszewski_maritime,yes
-data/derived/scholar_janiszewski_marynizacja — kopia.csv,dataset_derived,,,,,,scholar_janiszewski_marynizacja___kopia,yes
 data/derived/scholar_janiszewski_marynizacja.csv,dataset_derived,,,,,,scholar_janiszewski_marynizacja,yes
-data/derived/scholar_maritime_governance — kopia.csv,dataset_derived,,,,,,scholar_maritime_governance___kopia,yes
 data/derived/scholar_maritime_governance.csv,dataset_derived,,,,,,scholar_maritime_governance,yes
-data/derived/scholar_maritime_poole — kopia.csv,dataset_derived,,,,,,scholar_maritime_poole___kopia,yes
 data/derived/scholar_maritime_poole.csv,dataset_derived,,,,,,scholar_maritime_poole,yes
-data/derived/scholar_maritime_sectors_equity — kopia.csv,dataset_derived,,,,,,scholar_maritime_sectors_equity___kopia,yes
 data/derived/scholar_maritime_sectors_equity.csv,dataset_derived,,,,,,scholar_maritime_sectors_equity,yes
-data/derived/scholar_maritimization — kopia.csv,dataset_derived,,,,,,scholar_maritimization___kopia,yes
 data/derived/scholar_maritimization.csv,dataset_derived,,,,,,scholar_maritimization,yes
-data/derived/scholar_ocean_governance_gaps — kopia.csv,dataset_derived,,,,,,scholar_ocean_governance_gaps___kopia,yes
 data/derived/scholar_ocean_governance_gaps.csv,dataset_derived,,,,,,scholar_ocean_governance_gaps,yes
-data/derived/scholar_poole_maritime_1 — kopia.csv,dataset_derived,,,,,,scholar_poole_maritime_1___kopia,yes
 data/derived/scholar_poole_maritime_1.csv,dataset_derived,,,,,,scholar_poole_maritime_1,yes
-data/derived/scholar_poole_maritime_3 — kopia.csv,dataset_derived,,,,,,scholar_poole_maritime_3___kopia,yes
 data/derived/scholar_poole_maritime_3.csv,dataset_derived,,,,,,scholar_poole_maritime_3,yes
-data/derived/scispace_blue_economy_governance — kopia.csv,dataset_derived,,,,,,scispace_blue_economy_governance___kopia,yes
 data/derived/scispace_blue_economy_governance.csv,dataset_derived,,,,,,scispace_blue_economy_governance,yes
-data/derived/scispace_blue_economy_labor — kopia.csv,dataset_derived,,,,,,scispace_blue_economy_labor___kopia,yes
 data/derived/scispace_blue_economy_labor.csv,dataset_derived,,,,,,scispace_blue_economy_labor,yes
-data/derived/scispace_blue_economy_research_gaps — kopia.csv,dataset_derived,,,,,,scispace_blue_economy_research_gaps___ko,yes
 data/derived/scispace_blue_economy_research_gaps.csv,dataset_derived,,,,,,scispace_blue_economy_research_gaps,yes
-data/derived/scispace_blue_economy_social_dimensions — kopia.csv,dataset_derived,,,,,,scispace_blue_economy_social_dimensions_,yes
 data/derived/scispace_blue_economy_social_dimensions.csv,dataset_derived,,,,,,scispace_blue_economy_social_dimensions,yes
-data/derived/scispace_blue_sociology_1 — kopia.csv,dataset_derived,,,,,,scispace_blue_sociology_1___kopia,yes
 data/derived/scispace_blue_sociology_1.csv,dataset_derived,,,,,,scispace_blue_sociology_1,yes
-data/derived/scispace_blue_sociology_2 — kopia.csv,dataset_derived,,,,,,scispace_blue_sociology_2___kopia,yes
 data/derived/scispace_blue_sociology_2.csv,dataset_derived,,,,,,scispace_blue_sociology_2,yes
-data/derived/scispace_blue_sociology_3 — kopia.csv,dataset_derived,,,,,,scispace_blue_sociology_3___kopia,yes
 data/derived/scispace_blue_sociology_3.csv,dataset_derived,,,,,,scispace_blue_sociology_3,yes
-data/derived/scispace_coastal_communities_blue_economy — kopia.csv,dataset_derived,,,,,,scispace_coastal_communities_blue_econom,yes
 data/derived/scispace_coastal_communities_blue_economy.csv,dataset_derived,,,,,,scispace_coastal_communities_blue_econom,yes
-data/derived/scispace_eu_blue_economy_1 — kopia.csv,dataset_derived,,,,,,scispace_eu_blue_economy_1___kopia,yes
 data/derived/scispace_eu_blue_economy_1.csv,dataset_derived,,,,,,scispace_eu_blue_economy_1,yes
-data/derived/scispace_eu_blue_economy_2 — kopia.csv,dataset_derived,,,,,,scispace_eu_blue_economy_2___kopia,yes
 data/derived/scispace_eu_blue_economy_2.csv,dataset_derived,,,,,,scispace_eu_blue_economy_2,yes
-data/derived/scispace_eu_blue_economy_3 — kopia.csv,dataset_derived,,,,,,scispace_eu_blue_economy_3___kopia,yes
 data/derived/scispace_eu_blue_economy_3.csv,dataset_derived,,,,,,scispace_eu_blue_economy_3,yes
-data/derived/scispace_fulltext_blue_economy_1 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_1___kopia,yes
 data/derived/scispace_fulltext_blue_economy_1.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_1,yes
-data/derived/scispace_fulltext_blue_economy_2 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_2___kopia,yes
 data/derived/scispace_fulltext_blue_economy_2.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_2,yes
-data/derived/scispace_fulltext_blue_economy_3 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_3___kopia,yes
 data/derived/scispace_fulltext_blue_economy_3.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_3,yes
-data/derived/scispace_fulltext_blue_economy_gaps — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_gaps___ko,yes
 data/derived/scispace_fulltext_blue_economy_gaps.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_gaps,yes
-data/derived/scispace_fulltext_blue_economy_limitations — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_limitatio,yes
 data/derived/scispace_fulltext_blue_economy_limitations.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_limitatio,yes
-data/derived/scispace_fulltext_blue_sociology_1 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_1___kop,yes
 data/derived/scispace_fulltext_blue_sociology_1.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_1,yes
-data/derived/scispace_fulltext_blue_sociology_2 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_2___kop,yes
 data/derived/scispace_fulltext_blue_sociology_2.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_2,yes
-data/derived/scispace_fulltext_labor_maritime — kopia.csv,dataset_derived,,,,,,scispace_fulltext_labor_maritime___kopia,yes
 data/derived/scispace_fulltext_labor_maritime.csv,dataset_derived,,,,,,scispace_fulltext_labor_maritime,yes
-data/derived/scispace_fulltext_maritime_sociology — kopia.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology___k,yes
 data/derived/scispace_fulltext_maritime_sociology.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology,yes
-data/derived/scispace_fulltext_maritime_sociology_poland — kopia.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology_pol,yes
 data/derived/scispace_fulltext_maritime_sociology_poland.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology_pol,yes
-data/derived/scispace_fulltext_marynizacja — kopia.csv,dataset_derived,,,,,,scispace_fulltext_marynizacja___kopia,yes
 data/derived/scispace_fulltext_marynizacja.csv,dataset_derived,,,,,,scispace_fulltext_marynizacja,yes
-data/derived/scispace_fulltext_poole_maritime_1 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_1___kop,yes
 data/derived/scispace_fulltext_poole_maritime_1.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_1,yes
-data/derived/scispace_fulltext_poole_maritime_2 — kopia.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_2___kop,yes
 data/derived/scispace_fulltext_poole_maritime_2.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_2,yes
-data/derived/scispace_fulltext_social_justice — kopia.csv,dataset_derived,,,,,,scispace_fulltext_social_justice___kopia,yes
 data/derived/scispace_fulltext_social_justice.csv,dataset_derived,,,,,,scispace_fulltext_social_justice,yes
-data/derived/scispace_janiszewski_maritime_sociology — kopia.csv,dataset_derived,,,,,,scispace_janiszewski_maritime_sociology_,yes
 data/derived/scispace_janiszewski_maritime_sociology.csv,dataset_derived,,,,,,scispace_janiszewski_maritime_sociology,yes
-data/derived/scispace_maritime_sociology — kopia.csv,dataset_derived,,,,,,scispace_maritime_sociology___kopia,yes
 data/derived/scispace_maritime_sociology.csv,dataset_derived,,,,,,scispace_maritime_sociology,yes
-data/derived/scispace_maritimization_theory — kopia.csv,dataset_derived,,,,,,scispace_maritimization_theory___kopia,yes
 data/derived/scispace_maritimization_theory.csv,dataset_derived,,,,,,scispace_maritimization_theory,yes
-data/derived/scispace_poole_maritime_sociology_1 — kopia.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_1___ko,yes
 data/derived/scispace_poole_maritime_sociology_1.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_1,yes
-data/derived/scispace_poole_maritime_sociology_2 — kopia.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_2___ko,yes
 data/derived/scispace_poole_maritime_sociology_2.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_2,yes
-data/derived/scispace_poole_maritime_sociology_3 — kopia.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_3___ko,yes
 data/derived/scispace_poole_maritime_sociology_3.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_3,yes
-data/derived/scispace_social_justice_maritime — kopia.csv,dataset_derived,,,,,,scispace_social_justice_maritime___kopia,yes
 data/derived/scispace_social_justice_maritime.csv,dataset_derived,,,,,,scispace_social_justice_maritime,yes
 data/derived/Theoretical_Foundations_Expansion — kopia.md,dataset_derived,,,,,,Theoretical_Foundations_Expansion___kopi,yes
 data/derived/Theoretical_Foundations_Expansion.md,dataset_derived,,,,,,Theoretical_Foundations_Expansion,yes
@@ -885,8 +822,10 @@ src/axis_classifier.py,other,,,,,,axis_classifier,no
 src/competence_mapper.py,other,,,,,,competence_mapper,no
 src/competence_repository.py,other,,,,,,competence_repository,no
 src/core.py,other,,,,,,core,no
+src/dimension_mapping.py,other,,,,,,dimension_mapping,no
 src/literature_extraction.py,other,,,,,,literature_extraction,no
 src/Untitled-1.litcoffee,other,,,,,,Untitled_1,no
+src/utils.py,other,,,,,,utils,no
 TEST_COVERAGE_IMPROVEMENTS.md,text,,,,,,TEST_COVERAGE_IMPROVEMENTS,yes
 TEST_COVERAGE_REPORT.md,text,,,,,,TEST_COVERAGE_REPORT,yes
 tests/__init__.py,other,,,,,,init,no

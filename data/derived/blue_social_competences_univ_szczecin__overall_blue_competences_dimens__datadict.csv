@@ -1,5 +1,5 @@
 column,dtype,non_null,null
-imension (Aspect),str,8,11
+Dimension (Aspect),str,8,11
 ID,str,19,0
 Competence Name,str,19,0
 Key Simplified Focus (Applied to all 12 Sectors),str,19,0

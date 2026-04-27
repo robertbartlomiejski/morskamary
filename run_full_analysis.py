@@ -38,7 +38,8 @@ from scripts.build_tmbd_dictionary import (
     build_sector_dictionary_from_repository,
     export_sector_dictionary,
 )
-from src.competence_repository import LiteratureCompetenceRepository
+from src.utils import slugify
+from src.competence_repository import MixedProvenanceCompetenceRepository
 
 logging.basicConfig(
     level=logging.INFO,
@@ -674,7 +675,7 @@ _validate_theme_sectors()
 
 def _slugify(text: str) -> str:
     """Convert text to a safe identifier slug."""
-    return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")[:60]
+    return slugify(text, max_length=60)
 
 
 def extract_literature_competences() -> List[Competence]:
@@ -1327,7 +1328,7 @@ def export_sector_dictionaries(
     Export one sector TMBD dictionary JSON per requested sector.
 
     Input may include mixed provenance (baseline + literature). In this helper,
-    ``LiteratureCompetenceRepository`` wraps the provided extractor output, while
+    ``MixedProvenanceCompetenceRepository`` wraps the provided extractor output, while
     literature-only selection is applied during sector-dictionary construction
     before grouping by TMBD axis (MARINE, MARITIME, OCEANIC). This helper is
     intended for single-use pipeline export in ``main()``. Files follow the
@@ -1336,7 +1337,7 @@ def export_sector_dictionaries(
     paths preserve the order of the input ``sectors`` list.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
-    repository = LiteratureCompetenceRepository(lambda: list(competences))
+    repository = MixedProvenanceCompetenceRepository(lambda: list(competences))
     exported_paths: List[Path] = []
 
     for sector in sectors:

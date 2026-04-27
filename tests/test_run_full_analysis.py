@@ -136,7 +136,7 @@ def test_main_orchestration_success(tmp_path: Path) -> None:
         patch("run_full_analysis.generate_gaps_html"),
         patch("run_full_analysis.generate_credentials_html"),
         patch("run_full_analysis.generate_literature_html"),
-        patch("run_full_analysis.LiteratureCompetenceRepository") as m_repo_cls,
+        patch("run_full_analysis.MixedProvenanceCompetenceRepository") as m_repo_cls,
         patch(
             "run_full_analysis.build_sector_dictionary_from_repository",
             return_value={"MARINE": [], "MARITIME": [], "OCEANIC": []},
@@ -1262,3 +1262,4 @@ def test_two_sector_dictionaries_differ_with_sector_specific_literature(
     assert maritime_ids == {"lit_maritime_001"}
     assert biotech_ids == {"lit_biotech_001"}
     assert desalination_ids == set()  # no competences for Desalination
+
