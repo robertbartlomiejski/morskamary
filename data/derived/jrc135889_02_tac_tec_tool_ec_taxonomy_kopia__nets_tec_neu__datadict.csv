@@ -1,0 +1,44 @@
+column,dtype,non_null,null
+NACE_code,str,17,0
+C.20.16,object,17,0
+Unnamed: 2,str,1,16
+C.29.1,object,17,0
+Unnamed: 4,str,1,16
+C.30.2,object,17,0
+Unnamed: 6,str,1,16
+D.35.11,object,17,0
+Unnamed: 8,str,16,1
+D.35.21,object,17,0
+Unnamed: 10,str,1,16
+D.35.3,object,17,0
+Unnamed: 12,str,1,16
+E.38.11,object,17,0
+Unnamed: 14,str,1,16
+E.38.21,object,17,0
+Unnamed: 16,str,1,16
+F.42.13,object,17,0
+Unnamed: 18,str,1,16
+F.43.22,str,17,0
+Unnamed: 20,str,1,16
+H.49.10,object,17,0
+Unnamed: 22,str,1,16
+H.49.20,object,17,0
+Unnamed: 24,str,1,16
+H.49.31,object,17,0
+Unnamed: 26,str,1,16
+H.49.32,object,17,0
+Unnamed: 28,str,1,16
+H.49.39,object,17,0
+Unnamed: 30,str,1,16
+H.49.41,object,17,0
+Unnamed: 32,str,1,16
+H.52.21,object,17,0
+Unnamed: 34,str,1,16
+H.53.1,object,17,0
+Unnamed: 36,str,1,16
+H.53.2,object,17,0
+Unnamed: 38,str,1,16
+N.77.11,object,17,0
+Unnamed: 40,str,1,16
+N.77.12,object,17,0
+Unnamed: 42,str,1,16
