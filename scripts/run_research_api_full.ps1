@@ -61,7 +61,7 @@ function RunPy([string]$Script, [hashtable]$Env = @{}) {
 
 Write-Host "=============================================" -ForegroundColor Green
 Write-Host "  morskamary — Full Research Run (PowerShell)" -ForegroundColor Green
-Write-Host "  Live API: $($LiveMode.ToString().ToUpper())" -ForegroundColor Green
+Write-Host "  Live API: $(if ($LiveMode) { 'ENABLED' } else { 'DISABLED' })" -ForegroundColor Green
 Write-Host "=============================================" -ForegroundColor Green
 
 Push-Location $RepoRoot

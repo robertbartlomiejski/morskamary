@@ -26,7 +26,7 @@ while [[ $# -gt 0 ]]; do
     --offline) LIVE="false"; shift ;;
     --no-source) NO_SOURCE="true"; shift ;;
     -h|--help)
-      head -25 "$0" | grep '^#' | sed 's/^# \?//'
+      head -35 "$0" | grep '^#' | sed 's/^# \?//'
       exit 0 ;;
     *)
       echo "Unknown argument: $1" >&2
