@@ -77,7 +77,7 @@ def load_competences(path: Path) -> dict[str, dict]:
 
     Fails loudly if required top-level keys or per-entry fields are absent.
     """
-    with path.open() as f:
+    with path.open(encoding="utf-8") as f:
         data = json.load(f)
 
     if not isinstance(data, dict):
@@ -126,7 +126,7 @@ def load_credentials(path: Path) -> list[dict]:
 
     Fails loudly if required top-level key or per-entry fields are absent.
     """
-    with path.open() as f:
+    with path.open(encoding="utf-8") as f:
         data = json.load(f)
 
     if not isinstance(data, dict):
@@ -170,7 +170,7 @@ def load_gaps_csv(path: Path) -> list[dict]:
 
     Fails loudly if required columns are absent.
     """
-    with path.open(newline="") as f:
+    with path.open(newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         rows = list(reader)
 
@@ -195,7 +195,7 @@ def load_sector_dict_ids(path: Path) -> set[str]:
     Raises ValueError with a clear message if the dictionary schema is
     unreadable or yields no IDs.
     """
-    with path.open() as f:
+    with path.open(encoding="utf-8") as f:
         data = json.load(f)
 
     if not isinstance(data, dict):
