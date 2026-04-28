@@ -788,6 +788,7 @@ outputs/gaps_by_sector.html,other,,,,,,gaps_by_sector,no
 outputs/gaps_summary.csv,dataset_derived,,,,,,gaps_summary,yes
 outputs/literature_integration.html,other,,,,,,literature_integration,no
 outputs/report_index.html,other,,,,,,report_index,no
+outputs/research_source_capabilities.json,other,,,,,,research_source_capabilities,no
 outputs/sector_pathways.json,other,,,,,,sector_pathways,no
 PROMPT_REQUEST_TEMPLATE.txt,governance,,,,,,PROMPT_REQUEST_TEMPLATE,yes
 push_output.txt,text,,,,,,push_output,yes

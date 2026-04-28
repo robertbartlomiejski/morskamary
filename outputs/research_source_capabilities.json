@@ -1,0 +1,121 @@
+{
+  "note": "Provider capability snapshot. Values reflect runtime environment. Re-run after configuring additional provider credentials.",
+  "providers": {
+    "crossref": {
+      "provider": "Crossref",
+      "requires_secret": false,
+      "configured": true,
+      "live_test_allowed": false,
+      "allowed_metadata_fields": [
+        "title",
+        "authors",
+        "year",
+        "doi",
+        "journal",
+        "url",
+        "source_id",
+        "provider",
+        "source_query",
+        "retrieval_timestamp"
+      ],
+      "licence_note": "Crossref metadata is freely redistributable. Do not store restricted publisher full-text."
+    },
+    "scopus": {
+      "provider": "Elsevier / Scopus",
+      "requires_secret": true,
+      "configured": false,
+      "live_test_allowed": false,
+      "allowed_metadata_fields": [
+        "title",
+        "authors",
+        "year",
+        "doi",
+        "journal",
+        "url",
+        "citation_count",
+        "subject_terms",
+        "source_id",
+        "provider",
+        "source_query",
+        "retrieval_timestamp"
+      ],
+      "licence_note": "Store only title, authors, year, DOI, journal, URL, citation count, and subject terms unless institutional licence permits additional fields."
+    },
+    "wos": {
+      "provider": "Web of Science (Clarivate)",
+      "requires_secret": true,
+      "configured": false,
+      "live_test_allowed": false,
+      "allowed_metadata_fields": [
+        "title",
+        "authors",
+        "year",
+        "doi",
+        "journal",
+        "url",
+        "citation_count",
+        "subject_terms",
+        "source_id",
+        "provider",
+        "source_query",
+        "retrieval_timestamp"
+      ],
+      "licence_note": "Store only permitted bibliographic fields; do not store full WoS database payloads."
+    },
+    "scival": {
+      "provider": "Elsevier SciVal",
+      "requires_secret": true,
+      "configured": false,
+      "live_test_allowed": false,
+      "allowed_metadata_fields": [
+        "title",
+        "authors",
+        "year",
+        "doi",
+        "journal",
+        "subject_terms",
+        "source_id",
+        "provider",
+        "source_query",
+        "retrieval_timestamp"
+      ],
+      "licence_note": "SciVal analytics data: store only permitted aggregated indicators, not restricted database payloads."
+    },
+    "google_drive": {
+      "provider": "Google Drive",
+      "requires_secret": true,
+      "configured": false,
+      "live_test_allowed": false,
+      "allowed_metadata_fields": [
+        "title",
+        "authors",
+        "year",
+        "doi",
+        "url",
+        "source_id",
+        "provider",
+        "source_query",
+        "retrieval_timestamp"
+      ],
+      "licence_note": "Store only sanitized metadata exported from Drive; never commit OAuth credentials to the repository."
+    },
+    "microsoft_graph": {
+      "provider": "Microsoft Graph (OneDrive/SharePoint)",
+      "requires_secret": true,
+      "configured": false,
+      "live_test_allowed": false,
+      "allowed_metadata_fields": [
+        "title",
+        "authors",
+        "year",
+        "doi",
+        "url",
+        "source_id",
+        "provider",
+        "source_query",
+        "retrieval_timestamp"
+      ],
+      "licence_note": "Store only sanitized metadata exported from OneDrive/SharePoint; never commit tenant IDs or app secrets to the repository."
+    }
+  }
+}
