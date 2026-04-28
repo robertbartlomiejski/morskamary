@@ -2,7 +2,7 @@
 .SYNOPSIS
 One-command full research run for morskamary.
 .DESCRIPTION
-ASCII-safe Windows PowerShell version.
+Windows PowerShell version.
 Requires Python 3.10 or newer.
 #>
 [CmdletBinding()]
