@@ -61,8 +61,7 @@ try {
         $oldLive = $env:LIVE_RESEARCH_API_TESTS
         try {
             $env:LIVE_RESEARCH_API_TESTS = 'true'
-            python scripts/smoke_scientific_bridge.py --live-if-secrets-present
-            if ($LASTEXITCODE -ne 0) { throw "Live smoke test failed." }
+            RunCmd "python" @("scripts/smoke_scientific_bridge.py", "--live-if-secrets-present")
         } finally {
             $env:LIVE_RESEARCH_API_TESTS = $oldLive
         }
