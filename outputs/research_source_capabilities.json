@@ -1,5 +1,4 @@
 {
-  "generated_at": "2026-04-28T16:11:36.162797+00:00",
   "note": "Provider capability snapshot. Values reflect runtime environment. Re-run after configuring additional provider credentials.",
   "providers": {
     "crossref": {
