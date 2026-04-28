@@ -37,8 +37,8 @@ try {
     Write-Host $pyVersion
     $match = [regex]::Match($pyVersion, "Python (\d+)\.(\d+)")
     if ($match.Success) {
-        $major = [int]$match.Groups[2].Value
-        $minor = [int]$match.Groups[3].Value
+        $major = [int]$match.Groups[1].Value
+        $minor = [int]$match.Groups[2].Value
         if ($major -lt 3 -or ($major -eq 3 -and $minor -lt 10)) {
             Write-Error "Python 3.10+ required. Found: $pyVersion"
             exit 1
@@ -55,6 +55,20 @@ try {
 
     Step "Step 4: Offline smoke test"
     RunCmd "python" @("scripts/smoke_scientific_bridge.py", "--offline")
+
+    Step "Step 5: Live API smoke test (requires Python 3.10+)"
+    if ($LiveMode) {
+        $oldLive = $env:LIVE_RESEARCH_API_TESTS
+        try {
+            $env:LIVE_RESEARCH_API_TESTS = 'true'
+            python scripts/smoke_scientific_bridge.py --live-if-secrets-present
+            if ($LASTEXITCODE -ne 0) { throw "Live smoke test failed." }
+        } finally {
+            $env:LIVE_RESEARCH_API_TESTS = $oldLive
+        }
+    } else {
+        Write-Host "SKIPPED (pass -Live to enable)"
+    }
 
     Step "Step 6: Full analysis"
     RunCmd "python" @("run_full_analysis.py")
