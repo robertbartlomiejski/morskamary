@@ -58,12 +58,17 @@ try {
 
     Step "Step 5: Live API smoke test (requires Python 3.10+)"
     if ($LiveMode) {
+        $hadOldLive = Test-Path Env:LIVE_RESEARCH_API_TESTS
         $oldLive = $env:LIVE_RESEARCH_API_TESTS
         try {
             $env:LIVE_RESEARCH_API_TESTS = 'true'
             RunCmd "python" @("scripts/smoke_scientific_bridge.py", "--live-if-secrets-present")
         } finally {
-            $env:LIVE_RESEARCH_API_TESTS = $oldLive
+            if ($hadOldLive) {
+                $env:LIVE_RESEARCH_API_TESTS = $oldLive
+            } else {
+                Remove-Item Env:LIVE_RESEARCH_API_TESTS -ErrorAction SilentlyContinue
+            }
         }
     } else {
         Write-Host "SKIPPED (pass -Live to enable)"
