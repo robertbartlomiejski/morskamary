@@ -301,8 +301,8 @@ For enhanced search with Elsevier Scopus:
 5. Set the environment variable manually if needed:
 
    ```powershell
-   $env:SCOPUS_API_KEY = "027ce3ae05377c9546a2f9e1b21f70be"
-   $env:ELSVIER_API_KEY = "4d3de67706dc9afec5975361fe0d374f"
+   $env:SCOPUS_API_KEY = "your_scopus_api_key_here"
+   $env:ELSEVIER_API_KEY = "your_elsevier_api_key_here"
    ```
 
 ### SciVal API (Optional)
