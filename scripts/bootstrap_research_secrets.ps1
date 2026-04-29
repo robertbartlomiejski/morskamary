@@ -103,6 +103,7 @@ function Write-Utf8TextFile {
         [string]$Path,
 
         [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
         [string[]]$Lines,
 
         [Parameter(Mandatory = $false)]

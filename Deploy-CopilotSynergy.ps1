@@ -36,7 +36,7 @@ Path to local maritimesociology repository.
 Path to synchronized SharePoint folder.
 
 .PARAMETER GoogleOAuthCredentialsPath
-Path to Google OAuth credentials JSON file.
+Secure path to Google OAuth credentials JSON file.
 
 .PARAMETER VsCodeChannel
 Which VS Code installation to target. Stable (default), Insiders, or Auto.
@@ -53,7 +53,7 @@ If set, overwrite a malformed existing mcp.json instead of aborting.
   -MorskaMaryRepoPath "C:\GitHub\morskamary" `
   -MaritimeSociologyRepoPath "C:\GitHub\maritimesociology" `
   -SharePointSyncPath "C:\Users\You\OneDrive - Uniwersytet Szczecinski\PORT CITY HUB UPLOAD" `
-  -GoogleOAuthCredentialsPath "C:\Users\You\Documents\gcp-oauth.keys.json" `
+  -GoogleOAuthCredentialsPath (Read-Host "Google OAuth credentials JSON path" -AsSecureString) `
   -VsCodeChannel Insiders
 
 .NOTES
@@ -74,7 +74,7 @@ param(
     [string]$SharePointSyncPath = "",
 
     [Parameter(Mandatory=$false)]
-    [string]$GoogleOAuthCredentialsPath = "",
+    [securestring]$GoogleOAuthCredentialsPath,
 
     [Parameter(Mandatory=$false)]
     [ValidateSet("Stable","Insiders","Auto")]
@@ -86,6 +86,20 @@ param(
 $ErrorActionPreference = "Stop"
 
 # ── Helper: safe JSON reader with backup-on-failure ──────────────────────────
+
+function ConvertFrom-SecureStringToPlainText {
+    param(
+        [Parameter(Mandatory=$true)]
+        [securestring]$SecureValue
+    )
+
+    $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureValue)
+    try {
+        return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
+    } finally {
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+    }
+}
 
 function Read-McpJson {
     param(
@@ -306,16 +320,21 @@ if ($SharePointSyncPath -and (Test-Path $SharePointSyncPath)) {
 }
 
 # googleDriveResearch: optional Google Drive via OAuth
-if ($GoogleOAuthCredentialsPath -and (Test-Path $GoogleOAuthCredentialsPath)) {
+$googleOAuthCredentialsPlainPath = $null
+if ($GoogleOAuthCredentialsPath) {
+    $googleOAuthCredentialsPlainPath = ConvertFrom-SecureStringToPlainText -SecureValue $GoogleOAuthCredentialsPath
+}
+
+if ($googleOAuthCredentialsPlainPath -and (Test-Path $googleOAuthCredentialsPlainPath)) {
     $UserConfig.servers | Add-Member -Force -NotePropertyName "googleDriveResearch" -NotePropertyValue ([PSCustomObject]@{
         type    = "stdio"
         command = "npx"
         args    = @("-y", "@piotr-agier/google-drive-mcp")
         env     = [PSCustomObject]@{
-            GOOGLE_DRIVE_OAUTH_CREDENTIALS = $GoogleOAuthCredentialsPath
+            GOOGLE_DRIVE_OAUTH_CREDENTIALS = $googleOAuthCredentialsPlainPath
         }
     })
-    Write-Host "  + googleDriveResearch (OAuth via $GoogleOAuthCredentialsPath)" -ForegroundColor Green
+    Write-Host "  + googleDriveResearch (OAuth credentials configured)" -ForegroundColor Green
 }
 
 # Ensure parent directory exists
