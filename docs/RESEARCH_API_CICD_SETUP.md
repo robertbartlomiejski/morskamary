@@ -56,7 +56,7 @@ python scripts/check_research_env.py
 python scripts/smoke_scientific_bridge.py --offline
 ```
 
-The legacy `user-env` alias still works, but `dotenv` is the canonical backend name in both Bash and PowerShell documentation.
+The legacy `user-env` alias still works, but `dotenv` is the canonical backend name for the supported `./scripts/bootstrap_research_secrets.sh` workflow.
 
 ## GitHub Actions setup
 
