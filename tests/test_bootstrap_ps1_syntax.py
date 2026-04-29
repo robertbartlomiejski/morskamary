@@ -38,10 +38,17 @@ def _pwsh_exe() -> str | None:
     return None
 
 
+@pytest.fixture(scope="class")
+def script_content():
+    """Read bootstrap_research_secrets.ps1 once and share across tests."""
+    return SCRIPT_PATH.read_text(encoding="utf-8")
+
+
 @pytest.mark.skipif(
     _pwsh_exe() is None,
     reason="pwsh / powershell not found on PATH; syntax check skipped",
 )
+@pytest.mark.usefixtures("script_content")
 class TestBootstrapPs1Syntax:
     """Ensure bootstrap_research_secrets.ps1 parses without errors."""
 
@@ -56,7 +63,7 @@ class TestBootstrapPs1Syntax:
         exe = _pwsh_exe()
         assert exe is not None
 
-        inline = PWSH_PARSE.format(path=str(SCRIPT_PATH).replace("\\", "/"))
+        inline = PWSH_PARSE.format(path=SCRIPT_PATH.as_posix())
         result = subprocess.run(
             [exe, "-NoProfile", "-NonInteractive", "-Command", inline],
             capture_output=True,
@@ -69,28 +76,25 @@ class TestBootstrapPs1Syntax:
             f"stderr: {result.stderr}"
         )
 
-    def test_script_contains_required_backends(self):
+    def test_script_contains_required_backends(self, script_content):
         """bootstrap_research_secrets.ps1 must declare all required backend aliases."""
-        content = SCRIPT_PATH.read_text(encoding="utf-8")
         required_aliases = ["DotEnv", "Gcp", "Github", "UserEnv", "user-env"]
         for alias in required_aliases:
-            assert alias in content, (
+            assert alias in script_content, (
                 f"Expected backend alias '{alias}' not found in bootstrap_research_secrets.ps1"
             )
 
-    def test_script_single_quote_escaping(self):
+    def test_script_single_quote_escaping(self, script_content):
         """Escape-PowerShellSingleQuoted must double single quotes."""
-        content = SCRIPT_PATH.read_text(encoding="utf-8")
-        assert "Replace(\"'\", \"''\")" in content, (
+        assert "Replace(\"'\", \"''\")" in script_content, (
             "Single-quote escaping ('→'') not found in bootstrap_research_secrets.ps1"
         )
 
-    def test_script_bstr_cleanup(self):
+    def test_script_bstr_cleanup(self, script_content):
         """SecureString BSTR cleanup must use ZeroFreeBSTR on the allocated pointer."""
-        content = SCRIPT_PATH.read_text(encoding="utf-8")
-        assert "ZeroFreeBSTR" in content, (
+        assert "ZeroFreeBSTR" in script_content, (
             "ZeroFreeBSTR cleanup not found in bootstrap_research_secrets.ps1"
         )
-        assert "SecureStringToBSTR" in content, (
+        assert "SecureStringToBSTR" in script_content, (
             "SecureStringToBSTR not found in bootstrap_research_secrets.ps1"
         )

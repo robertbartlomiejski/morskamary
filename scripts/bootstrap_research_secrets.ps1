@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     One-time secure setup for morskamary research API credentials.
 
