@@ -243,3 +243,71 @@ make live API calls.
 | `Secret Manager secret not found` | Run `terraform apply` first, then bootstrap |
 | `LIVE_RESEARCH_API_TESTS=true` but no live results | Check provider key is set and valid |
 | All providers show "not configured" except Crossref | Run bootstrap script |
+
+---
+
+## How to obtain provider credentials
+
+### Crossref
+
+No signup is required. Use an institutional email address as `CROSSREF_MAILTO`.
+This enables polite API use.
+
+Source:
+https://www.crossref.org/documentation/retrieve-metadata/rest-api/
+
+### Elsevier / Scopus
+
+Use the Elsevier Developer Portal. Create or sign in to an Elsevier Developer account, create an API key, and check whether your institutional subscription and IP entitlement allow Scopus access.
+
+Environment variables:
+- `ELSEVIER_API_KEY`
+- `SCOPUS_API_KEY`
+
+If one Elsevier key covers Scopus for your institution, set `ELSEVIER_API_KEY` first and skip `SCOPUS_API_KEY` unless a separate key is issued.
+
+Source:
+https://dev.elsevier.com/tecdoc_api_authentication.html
+
+### SciVal
+
+SciVal API access requires SciVal entitlement for academic or public-sector users. Use the Elsevier Developer Portal and confirm that your institution has SciVal access.
+
+Environment variable:
+- `SCIVAL_API_KEY`
+
+Source:
+https://dev.elsevier.com/scival_apis.html
+
+### Web of Science
+
+Use the Clarivate Developer Portal. Sign up, register an application, subscribe to the relevant Web of Science API, and wait for immediate or administrative approval where required.
+
+Environment variable:
+- `WOS_API_KEY`
+
+Source:
+https://developer.clarivate.com/
+
+### Google Drive
+
+The repository expects a local path to an OAuth client credentials JSON file, not a pasted API key.
+
+Environment variable:
+- `GOOGLE_DRIVE_OAUTH_CREDENTIALS`
+
+Example:
+`C:\Users\Pracownik\.secrets\google-drive-oauth.json`
+
+Do not commit the OAuth JSON file.
+
+### Microsoft Graph
+
+Use Microsoft Entra / Azure App Registration. Collect:
+
+- `MICROSOFT_TENANT_ID`
+- `MICROSOFT_CLIENT_ID`
+- `MICROSOFT_CLIENT_SECRET`
+
+Do not commit client secrets.
+
