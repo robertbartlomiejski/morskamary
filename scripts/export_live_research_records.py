@@ -68,26 +68,23 @@ def deduplicate_records(
     stats = {"doi_duplicates": 0, "title_duplicates": 0}
 
     for rec in records:
-        norm_title = normalize_title(rec.title)
-        doi_key = rec.doi.strip().lower() if rec.doi else ""
-
         # DOI dedup (if DOI is present)
-        if doi_key and doi_key in seen_dois:
-            stats["doi_duplicates"] += 1
-            continue
-
-        if doi_key:
+        if rec.doi:
+            doi_key = rec.doi.strip().lower()
+            if doi_key in seen_dois:
+                stats["doi_duplicates"] += 1
+                continue
             seen_dois.add(doi_key)
+            seen_titles.add(normalize_title(rec.title))
+            deduped.append(rec)
+        else:
+            # Title dedup (if no DOI)
+            norm_title = normalize_title(rec.title)
+            if norm_title in seen_titles:
+                stats["title_duplicates"] += 1
+                continue
             seen_titles.add(norm_title)
             deduped.append(rec)
-            continue
-
-        # Title dedup for records without DOI (including duplicates of DOI-backed records)
-        if norm_title in seen_titles:
-            stats["title_duplicates"] += 1
-            continue
-        seen_titles.add(norm_title)
-        deduped.append(rec)
 
     return deduped, stats
 
@@ -300,15 +297,25 @@ def main() -> int:
                     query, max_results=args.max_results_per_query, providers=provider_list
                 )
 
-                for result in results:
+                for i, result in enumerate(results):
+                    provider_name = (
+                        provider_list[i]
+                        if i < len(provider_list)
+                        else (
+                            result.records[0].provider
+                            if result.records
+                            else (
+                                result.provenance[0].source_provider
+                                if result.provenance
+                                else "unknown"
+                            )
+                        )
+                    )
                     if result.errors:
                         print(f"    Errors: {result.errors}", file=sys.stderr)
                     if result.warnings:
                         print(f"    Warnings: {result.warnings}")
 
-                    provider_name = (
-                        result.records[0].provider if result.records else result.provider
-                    )
                     all_coverage_items.append(
                         {
                             "sector": sector_label,
