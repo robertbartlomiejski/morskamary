@@ -32,7 +32,7 @@ from typing import Any, Dict, List, Set, Tuple
 
 import yaml
 
-from src.scientific_sources.models import LiteratureRecord, ProviderResult, SourceEvidence
+from src.scientific_sources.models import LiteratureRecord, SourceEvidence
 from src.scientific_sources.source_registry import SourceRegistry
 
 
@@ -68,21 +68,26 @@ def deduplicate_records(
     stats = {"doi_duplicates": 0, "title_duplicates": 0}
 
     for rec in records:
+        norm_title = normalize_title(rec.title)
+        doi_key = rec.doi.strip().lower() if rec.doi else ""
+
         # DOI dedup (if DOI is present)
-        if rec.doi:
-            if rec.doi in seen_dois:
-                stats["doi_duplicates"] += 1
-                continue
-            seen_dois.add(rec.doi)
-            deduped.append(rec)
-        else:
-            # Title dedup (if no DOI)
-            norm_title = normalize_title(rec.title)
-            if norm_title in seen_titles:
-                stats["title_duplicates"] += 1
-                continue
+        if doi_key and doi_key in seen_dois:
+            stats["doi_duplicates"] += 1
+            continue
+
+        if doi_key:
+            seen_dois.add(doi_key)
             seen_titles.add(norm_title)
             deduped.append(rec)
+            continue
+
+        # Title dedup for records without DOI (including duplicates of DOI-backed records)
+        if norm_title in seen_titles:
+            stats["title_duplicates"] += 1
+            continue
+        seen_titles.add(norm_title)
+        deduped.append(rec)
 
     return deduped, stats
 
@@ -302,7 +307,7 @@ def main() -> int:
                         print(f"    Warnings: {result.warnings}")
 
                     provider_name = (
-                        result.records[0].provider if result.records else "unknown"
+                        result.records[0].provider if result.records else result.provider
                     )
                     all_coverage_items.append(
                         {
@@ -331,10 +336,11 @@ def main() -> int:
     crossref_records = [r for r in deduped_records if r.provider == "Crossref"]
 
     # Filter low-confidence records
+    low_confidence_record_ids: Set[str] = {
+        p.record_id for p in all_provenance if p.confidence_score < 0.8
+    }
     low_confidence_records = [
-        r
-        for r in deduped_records
-        if any(p.record_id == r.source_id and p.confidence_score < 0.8 for p in all_provenance)
+        r for r in deduped_records if r.source_id in low_confidence_record_ids
     ]
 
     # Build coverage report

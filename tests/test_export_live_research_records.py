@@ -7,12 +7,9 @@ All tests use mocked Crossref responses — no network access required.
 from __future__ import annotations
 
 import json
-import tempfile
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-import yaml
 
 from scripts.export_live_research_records import (
     build_coverage_report,
