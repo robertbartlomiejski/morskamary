@@ -1,6 +1,7 @@
 # One-Click Research API Runbook
 
 > **Implementation status** (April 2026)
+>
 > - ✅ **Crossref** — fully implemented (open API, no key required)
 > - 🔧 **Elsevier / Scopus / Web of Science / SciVal** — provider stubs (Phase 2)
 >   These providers are capability-gated: the architecture and IAM are in place,
@@ -59,6 +60,7 @@ The credentials are written to a `.env` file (gitignored) that you must
 shell, this approach persists the values in your current session.
 
 **Windows / PowerShell:**
+
 ```powershell
 .\scripts\bootstrap_research_secrets.ps1 -Backend DotEnv
 . .\.env.ps1      # dot-source to load into current session
@@ -92,6 +94,7 @@ python scripts/smoke_scientific_bridge.py --offline
 ```
 
 This single command:
+
 1. Checks Python version
 2. Installs/updates the package
 3. Runs `check_research_env.py`
@@ -254,46 +257,50 @@ No signup is required. Use an institutional email address as `CROSSREF_MAILTO`.
 This enables polite API use.
 
 Source:
-https://www.crossref.org/documentation/retrieve-metadata/rest-api/
+<https://www.crossref.org/documentation/retrieve-metadata/rest-api/>
 
 ### Elsevier / Scopus
 
 Use the Elsevier Developer Portal. Create or sign in to an Elsevier Developer account, create an API key, and check whether your institutional subscription and IP entitlement allow Scopus access.
 
 Environment variables:
+
 - `ELSEVIER_API_KEY`
 - `SCOPUS_API_KEY`
 
 If one Elsevier key covers Scopus for your institution, set `ELSEVIER_API_KEY` first and skip `SCOPUS_API_KEY` unless a separate key is issued.
 
 Source:
-https://dev.elsevier.com/tecdoc_api_authentication.html
+<https://dev.elsevier.com/tecdoc_api_authentication.html>
 
 ### SciVal
 
 SciVal API access requires SciVal entitlement for academic or public-sector users. Use the Elsevier Developer Portal and confirm that your institution has SciVal access.
 
 Environment variable:
+
 - `SCIVAL_API_KEY`
 
 Source:
-https://dev.elsevier.com/scival_apis.html
+<https://dev.elsevier.com/scival_apis.html>
 
 ### Web of Science
 
 Use the Clarivate Developer Portal. Sign up, register an application, subscribe to the relevant Web of Science API, and wait for immediate or administrative approval where required.
 
 Environment variable:
+
 - `WOS_API_KEY`
 
 Source:
-https://developer.clarivate.com/
+<https://developer.clarivate.com/>
 
 ### Google Drive
 
 The repository expects a local path to an OAuth client credentials JSON file, not a pasted API key.
 
 Environment variable:
+
 - `GOOGLE_DRIVE_OAUTH_CREDENTIALS`
 
 Example:
@@ -310,4 +317,3 @@ Use Microsoft Entra / Azure App Registration. Collect:
 - `MICROSOFT_CLIENT_SECRET`
 
 Do not commit client secrets.
-
