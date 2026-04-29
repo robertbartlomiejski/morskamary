@@ -70,10 +70,12 @@ def deduplicate_records(
     for rec in records:
         # DOI dedup (if DOI is present)
         if rec.doi:
-            if rec.doi in seen_dois:
+            doi_key = rec.doi.strip().lower()
+            if doi_key in seen_dois:
                 stats["doi_duplicates"] += 1
                 continue
-            seen_dois.add(rec.doi)
+            seen_dois.add(doi_key)
+            seen_titles.add(normalize_title(rec.title))
             deduped.append(rec)
         else:
             # Title dedup (if no DOI)
@@ -295,15 +297,25 @@ def main() -> int:
                     query, max_results=args.max_results_per_query, providers=provider_list
                 )
 
-                for result in results:
+                for i, result in enumerate(results):
+                    provider_name = (
+                        provider_list[i]
+                        if i < len(provider_list)
+                        else (
+                            result.records[0].provider
+                            if result.records
+                            else (
+                                result.provenance[0].source_provider
+                                if result.provenance
+                                else "unknown"
+                            )
+                        )
+                    )
                     if result.errors:
                         print(f"    Errors: {result.errors}", file=sys.stderr)
                     if result.warnings:
                         print(f"    Warnings: {result.warnings}")
 
-                    provider_name = (
-                        result.records[0].provider if result.records else "unknown"
-                    )
                     all_coverage_items.append(
                         {
                             "sector": sector_label,
@@ -331,10 +343,11 @@ def main() -> int:
     crossref_records = [r for r in deduped_records if r.provider == "Crossref"]
 
     # Filter low-confidence records
+    low_confidence_record_ids: Set[str] = {
+        p.record_id for p in all_provenance if p.confidence_score < 0.8
+    }
     low_confidence_records = [
-        r
-        for r in deduped_records
-        if any(p.record_id == r.source_id and p.confidence_score < 0.8 for p in all_provenance)
+        r for r in deduped_records if r.source_id in low_confidence_record_ids
     ]
 
     # Build coverage report
