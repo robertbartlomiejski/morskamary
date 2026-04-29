@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-29 (test coverage improvements to 100%)
+Change type add
+Scope tests
+Files affected tests/test_axis_classifier.py tests/test_nlp_reliability.py tests/test_scientific_sources.py CHANGELOG.txt
+Summary Added 14 new test cases to cover the 17 previously uncovered lines across src/, bringing test coverage from 98% to 100%. New tests cover: map_dimension_to_axis with empty/whitespace input (dimension_mapping.py:23); _jaccard_similarity with both-empty and one-empty token sets (deduplication.py:53,55); compute_coverage with records carrying subject_terms (source_coverage.py:68); format_overlap_matrix_text pairwise-overlap branch (triangulation.py:100-102); CrossrefProvider.verify_doi network exception handler (crossref.py:187-188); and the configured-but-not-yet-implemented search/verify_doi paths for ElsevierScopus, GoogleDrive, MicrosoftGraph, SciVal, and WebOfScience providers.
+Reason Coverage analysis identified 17 uncovered lines in 10 source files, all reachable through legitimate production code paths.
+Impact All 686 executable statements in src/ are now exercised by the test suite (python -m pytest --cov=src reports TOTAL 686 0 100%).
+Provenance python -m pytest --cov=src --cov-report=term-missing output.
+Quality checks python -m pytest -q passes (332 passed 1 skipped); python -m pytest --cov=src shows 100% total coverage.
+Reviewer GitHub Copilot Task Agent
+
 2026-04-29 (export live research records feature)
 Change type add
 Scope scripts config docs governance tests

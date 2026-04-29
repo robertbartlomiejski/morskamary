@@ -452,3 +452,99 @@ class TestProvenance:
         parsed = json.loads(json_str)
         assert "total_records" in parsed
         assert parsed["total_records"] == 1
+
+
+# ---------------------------------------------------------------------------
+# Additional coverage for configured-but-unimplemented stub paths and
+# Crossref verify_doi network failure (crossref.py lines 187-188,
+# elsevier_scopus.py lines 77/89, google_drive.py line 74,
+# microsoft_graph.py line 74, scival.py lines 70/81,
+# web_of_science.py lines 71/82)
+# ---------------------------------------------------------------------------
+
+
+class TestCrossrefVerifyDoiNetworkFailure:
+    def test_verify_doi_returns_error_on_network_failure(self, monkeypatch):
+        def fake_urlopen(req, timeout=10):
+            raise OSError("network down")
+
+        import urllib.request
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        provider = CrossrefProvider()
+        result = provider.verify_doi("10.1234/x")
+        assert result.is_empty
+        assert result.errors
+        assert "Crossref DOI verification error" in result.errors[0]
+
+
+class TestElsevierScopusConfiguredPaths:
+    def test_search_with_key_returns_not_implemented_warning(self, monkeypatch):
+        monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
+        provider = ElsevierScopusProvider()
+        result = provider.search("blue economy")
+        assert result.warnings
+        assert "not yet implemented" in result.warnings[0].lower()
+
+    def test_verify_doi_with_key_returns_not_implemented_warning(self, monkeypatch):
+        monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
+        provider = ElsevierScopusProvider()
+        result = provider.verify_doi("10.1234/x")
+        assert result.warnings
+        assert "not yet implemented" in result.warnings[0].lower()
+
+
+class TestGoogleDriveConfiguredPath:
+    def test_search_with_credentials_returns_not_implemented_warning(
+        self, monkeypatch, tmp_path
+    ):
+        cred_file = tmp_path / "creds.json"
+        cred_file.write_text("{}")
+        monkeypatch.setenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", str(cred_file))
+        provider = GoogleDriveProvider()
+        result = provider.search("blue economy")
+        assert result.warnings
+        assert "not yet implemented" in result.warnings[0].lower()
+
+
+class TestMicrosoftGraphConfiguredPath:
+    def test_search_with_credentials_returns_not_implemented_warning(self, monkeypatch):
+        monkeypatch.setenv("MICROSOFT_TENANT_ID", "tid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_ID", "cid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_SECRET", "csecret")
+        provider = MicrosoftGraphProvider()
+        result = provider.search("ports")
+        assert result.warnings
+        assert "not yet implemented" in result.warnings[0].lower()
+
+
+class TestSciValConfiguredPaths:
+    def test_search_with_key_returns_not_implemented_warning(self, monkeypatch):
+        monkeypatch.setenv("SCIVAL_API_KEY", "scivalkey")
+        provider = SciValProvider()
+        result = provider.search("ocean governance")
+        assert result.warnings
+        assert "not yet implemented" in result.warnings[0].lower()
+
+    def test_verify_doi_with_key_returns_not_implemented_warning(self, monkeypatch):
+        monkeypatch.setenv("SCIVAL_API_KEY", "scivalkey")
+        provider = SciValProvider()
+        result = provider.verify_doi("10.1234/x")
+        assert result.warnings
+        assert "not yet implemented" in result.warnings[0].lower()
+
+
+class TestWebOfScienceConfiguredPaths:
+    def test_search_with_key_returns_not_implemented_warning(self, monkeypatch):
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+        result = provider.search("maritime transport")
+        assert result.warnings
+        assert "not yet implemented" in result.warnings[0].lower()
+
+    def test_verify_doi_with_key_returns_not_implemented_warning(self, monkeypatch):
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+        result = provider.verify_doi("10.1234/x")
+        assert result.warnings
+        assert "not yet implemented" in result.warnings[0].lower()
