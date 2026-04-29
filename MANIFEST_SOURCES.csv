@@ -15,6 +15,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/workflows/blank.yml,other,,,,,,blank,no
 .github/workflows/ci.yml,other,,,,,,ci,no
 .github/workflows/dependency-submission.yml,other,,,,,,dependency_submission,no
+.github/workflows/export-research-records.yml,other,,,,,,export_research_records,no
 .github/workflows/full-analysis.yml,other,,,,,,full_analysis,no
 .github/workflows/research-api-smoke.yml,other,,,,,,research_api_smoke,no
 .gitignore,other,,,,,,gitignore,no
@@ -30,6 +31,7 @@ cloudbuild.live.yaml,other,,,,,,cloudbuild_live,no
 cloudbuild.yaml,other,,,,,,cloudbuild,no
 compose.debug.yaml,other,,,,,,compose_debug,no
 compose.yaml,other,,,,,,compose,no
+config/research_queries.yml,other,,,,,,research_queries,no
 config/research_sources.example.yml,other,,,,,,research_sources_example,no
 CONTRIBUTING.md,text,,,,,,CONTRIBUTING,yes
 COPILOT_MCP_SETUP.md,text,,,,,,COPILOT_MCP_SETUP,yes
@@ -812,6 +814,7 @@ scripts/check_research_env.py,script,,,,,,check_research_env,no
 scripts/convert_pdfs_to_txt.py,script,,,,,,convert_pdfs_to_txt,no
 scripts/Delft wyjazd_241017_170643.txt,script,,,,,,Delft_wyjazd_241017_170643,yes
 scripts/Do hab_250403_204509.txt,script,,,,,,Do_hab_250403_204509,yes
+scripts/export_live_research_records.py,script,,,,,,export_live_research_records,no
 scripts/export_research_source_capabilities.py,script,,,,,,export_research_source_capabilities,no
 scripts/generate_manifest.py,script,,,,,,generate_manifest,no
 scripts/GPT Blue Sociology Prompt 13_02 BIG.txt,script,,,,,,GPT_Blue_Sociology_Prompt_13_02_BIG,yes
@@ -883,6 +886,7 @@ tests/test_convert_pdfs_to_txt.py,other,,,,,,test_convert_pdfs_to_txt,no
 tests/test_core.py,other,,,,,,test_core,no
 tests/test_e2e_workflows.py,other,,,,,,test_e2e_workflows,no
 tests/test_edge_cases.py,other,,,,,,test_edge_cases,no
+tests/test_export_live_research_records.py,other,,,,,,test_export_live_research_records,no
 tests/test_generate_manifest.py,other,,,,,,test_generate_manifest,no
 tests/test_literature_extraction.py,other,,,,,,test_literature_extraction,no
 tests/test_load_real_competences.py,other,,,,,,test_load_real_competences,no

@@ -210,6 +210,44 @@ make live API calls.
 
 ---
 
+## Exporting live research records
+
+Export structured literature metadata from Crossref and other configured providers:
+
+```bash
+# Offline test (no network calls)
+python scripts/export_live_research_records.py \
+  --providers crossref \
+  --query-file config/research_queries.yml \
+  --max-results-per-query 50 \
+  --output-dir outputs/research_sources \
+  --offline true
+
+# Live export (Crossref requires no API key; proprietary providers may require credentials)
+python scripts/export_live_research_records.py \
+  --providers crossref \
+  --query-file config/research_queries.yml \
+  --max-results-per-query 50 \
+  --output-dir outputs/research_sources \
+  --offline false
+```
+
+**What it does:**
+- Fetches records for 12 canonical blue economy sectors (defined in `config/research_queries.yml`)
+- Deduplicates by DOI first, then by normalized title
+- Tracks full provenance (provider, query, timestamp, endpoint, confidence)
+- Does NOT store abstracts or full text (licence compliance)
+
+**Generated outputs:**
+- `outputs/research_sources/live_records.json` — all deduplicated records
+- `outputs/research_sources/live_records.csv` — CSV export
+- `outputs/research_sources/crossref_records.json` — Crossref-only subset
+- `outputs/research_sources/live_provenance.json` — provenance metadata
+- `outputs/research_sources/live_source_coverage.csv` — coverage by sector/provider
+- `outputs/research_sources/low_confidence_live_records.json` — records with confidence < 0.8
+
+---
+
 ## Generated output files
 
 | File | Description |
@@ -219,6 +257,12 @@ make live API calls.
 | `outputs/literature_source_coverage.csv` | Literature coverage by provider |
 | `outputs/literature_provider_overlap.csv` | DOI overlap across providers |
 | `outputs/low_confidence_literature_review.json` | Records needing manual review |
+| `outputs/research_sources/live_records.json` | Live research records (all providers) |
+| `outputs/research_sources/live_records.csv` | Live research records (CSV) |
+| `outputs/research_sources/crossref_records.json` | Crossref-only records |
+| `outputs/research_sources/live_provenance.json` | Provenance metadata for live records |
+| `outputs/research_sources/live_source_coverage.csv` | Coverage by sector and provider |
+| `outputs/research_sources/low_confidence_live_records.json` | Low-confidence records for manual review |
 
 ---
 
@@ -310,4 +354,3 @@ Use Microsoft Entra / Azure App Registration. Collect:
 - `MICROSOFT_CLIENT_SECRET`
 
 Do not commit client secrets.
-

@@ -1,0 +1,83 @@
+name: Export Live Research Records
+
+on:
+  workflow_dispatch:
+    inputs:
+      providers:
+        description: 'Comma-separated list of providers (e.g., crossref,scopus)'
+        required: false
+        default: 'crossref'
+      max_results_per_query:
+        description: 'Maximum results per query'
+        required: false
+        default: '50'
+      offline:
+        description: 'Run in offline mode (true/false)'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: read
+
+jobs:
+  export-research-records:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
+      ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
+      SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
+      WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
+      SCIVAL_API_KEY: ${{ secrets.SCIVAL_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Export live research records
+        run: |
+          python scripts/export_live_research_records.py \
+            --providers "${{ github.event.inputs.providers }}" \
+            --query-file config/research_queries.yml \
+            --max-results-per-query "${{ github.event.inputs.max_results_per_query }}" \
+            --output-dir outputs/research_sources \
+            --offline "${{ github.event.inputs.offline }}"
+
+      - name: Upload research source outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-sources-${{ github.run_number }}
+          path: outputs/research_sources/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Display output summary
+        run: |
+          echo "## Export Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Providers:** ${{ github.event.inputs.providers }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Max results per query:** ${{ github.event.inputs.max_results_per_query }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Offline mode:** ${{ github.event.inputs.offline }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f outputs/research_sources/live_records.json ]; then
+            record_count=$(python -c "import json; print(len(json.load(open('outputs/research_sources/live_records.json'))))")
+            echo "**Total records exported:** $record_count" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Generated files:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -d outputs/research_sources ]; then
+            ls -lh outputs/research_sources/ | tail -n +2 | awk '{print "- " $9 " (" $5 ")"}' >> $GITHUB_STEP_SUMMARY
+          fi

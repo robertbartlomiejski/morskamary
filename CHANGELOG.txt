@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-29 (export live research records feature)
+Change type add
+Scope scripts config docs governance tests
+Files affected config/research_queries.yml scripts/export_live_research_records.py tests/test_export_live_research_records.py docs/ONE_CLICK_RESEARCH_RUNBOOK.md CHANGELOG.txt
+Summary Added scripts/export_live_research_records.py to export Crossref and other provider metadata based on 12 canonical blue economy sector queries defined in config/research_queries.yml. The script supports DOI-first deduplication followed by normalized title matching, produces six output files (live_records.json, live_records.csv, crossref_records.json, live_provenance.json, live_source_coverage.csv, low_confidence_live_records.json), and includes full provenance tracking (provider, query, timestamp, endpoint, DOI, confidence). Added 20 comprehensive tests with mocked Crossref responses ensuring no network access required. Updated ONE_CLICK_RESEARCH_RUNBOOK.md with export workflow documentation.
+Reason The Crossref provider is fully implemented; the next step is to export live metadata into outputs/research_sources without changing the core competence model yet. This enables evidence collection for Blue Sociology research while respecting Crossref open-access license (no abstracts or full text stored).
+Impact Researchers can now fetch structured literature metadata for 12 blue economy sectors (offshore energy, ports, maritime transport, fisheries, aquaculture, coastal tourism, marine biotechnology, ocean governance, marine conservation, climate-ocean, ocean observation, blue skills). The outputs are ready for integration with the competence repository in a future milestone. No live API calls are made during CI testing (all tests use mocked responses).
+Provenance Crossref REST API documentation https://www.crossref.org/documentation/retrieve-metadata/rest-api/, EU Sustainable Blue Economy framework sector definitions, University of Szczecin Blue Social Competences baseline.
+Quality checks python -m pytest tests/test_export_live_research_records.py passed (20 tests); offline mode smoke test successful; outputs/research_sources directory structure verified.
+Reviewer GitHub Copilot Task Agent
+
 2026-04-29 (research secrets setup documentation and audit output alignment)
 Change type fix update
 Scope scripts docs governance
