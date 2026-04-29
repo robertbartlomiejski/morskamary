@@ -24,12 +24,9 @@ from __future__ import annotations
 
 import argparse
 import csv
-import hashlib
 import json
-import os
 import re
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Set, Tuple
 
