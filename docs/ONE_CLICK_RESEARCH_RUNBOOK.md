@@ -223,7 +223,7 @@ python scripts/export_live_research_records.py \
   --output-dir outputs/research_sources \
   --offline true
 
-# Live export (requires provider credentials)
+# Live export (Crossref requires no API key; proprietary providers may require credentials)
 python scripts/export_live_research_records.py \
   --providers crossref \
   --query-file config/research_queries.yml \
@@ -354,4 +354,3 @@ Use Microsoft Entra / Azure App Registration. Collect:
 - `MICROSOFT_CLIENT_SECRET`
 
 Do not commit client secrets.
-
