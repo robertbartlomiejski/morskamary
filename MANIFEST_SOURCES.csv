@@ -803,7 +803,6 @@ scripts/Aaa Hab 4_250621_114734.txt,script,,,,,,Aaa_Hab_4_250621_114734,yes
 scripts/audit_research_api_config.py,script,,,,,,audit_research_api_config,no
 scripts/Blue Bolt Rotterdam _250106_112646.txt,script,,,,,,Blue_Bolt_Rotterdam__250106_112646,yes
 scripts/Blue Mind_250421_094727.txt,script,,,,,,Blue_Mind_250421_094727,yes
-scripts/bootstrap_research_secrets.ps1,script,,,,,,bootstrap_research_secrets,no
 scripts/bootstrap_research_secrets.sh,script,,,,,,bootstrap_research_secrets,no
 scripts/Breguła Weird Szczecin_250412_101024.txt,script,,,,,,Breguła_Weird_Szczecin_250412_101024,yes
 scripts/build_derived.py,script,,,,,,build_derived,no
