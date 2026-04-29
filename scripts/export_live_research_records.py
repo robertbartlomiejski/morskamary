@@ -32,7 +32,7 @@ from typing import Any, Dict, List, Set, Tuple
 
 import yaml
 
-from src.scientific_sources.models import LiteratureRecord, ProviderResult, SourceEvidence
+from src.scientific_sources.models import LiteratureRecord, SourceEvidence
 from src.scientific_sources.source_registry import SourceRegistry
 
 
