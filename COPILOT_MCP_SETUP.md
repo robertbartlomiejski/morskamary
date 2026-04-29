@@ -1,6 +1,6 @@
 # GitHub Copilot MCP Setup Guide for morskamary
 
-**⚠️ IMPORTANT: This is Optional, Local, Workstation-Specific Tooling (Windows only)**
+## ⚠️ Important: Optional local workstation tooling (Windows only)
 
 This guide describes **optional advanced features** for integrating GitHub Copilot with local repositories and cloud storage through Model Context Protocol (MCP) servers. These features are:
 
@@ -51,20 +51,20 @@ This setup enables GitHub Copilot to access your full research context through *
 ### Required Software
 
 1. **Node.js ≥18.0** (LTS recommended)
-   - Download: https://nodejs.org
+   - Download: <https://nodejs.org>
    - Verify: `node -v` in PowerShell (must report v18.x or higher)
 
 2. **Python ≥3.9**
-   - Download: https://python.org
+   - Download: <https://python.org>
    - ⚠️ **Important**: Check "Add Python to PATH" during installation
    - Verify: `python --version` or `py --version`
 
 3. **Visual Studio Code** (Stable or Insiders)
-   - Download: https://code.visualstudio.com
+   - Download: <https://code.visualstudio.com>
    - Install **GitHub Copilot** extension
 
 4. **Git**
-   - Download: https://git-scm.com
+   - Download: <https://git-scm.com>
    - Required for repository access
 
 ### Optional Components
@@ -86,11 +86,13 @@ This setup enables GitHub Copilot to access your full research context through *
 1. **Open PowerShell** (no Administrator privileges required)
 
 2. **Navigate to your morskamary repository:**
+
    ```powershell
    cd C:\Path\To\morskamary
    ```
 
 3. **Run the deployment script:**
+
    ```powershell
    .\Deploy-CopilotSynergy.ps1
    ```
@@ -104,7 +106,8 @@ This setup enables GitHub Copilot to access your full research context through *
 5. **Restart VS Code**
 
 6. **Verify in Copilot Chat:**
-   ```
+
+   ```text
    @workspace List available MCP tools and read the README.md from morskamary repository
    ```
 
@@ -113,11 +116,13 @@ This setup enables GitHub Copilot to access your full research context through *
 To enable all features (SharePoint, Google Drive, scientific bridge):
 
 ```powershell
+$googleOAuthCredentialsPath = Read-Host "Google OAuth credentials JSON path" -AsSecureString
+
 .\Deploy-CopilotSynergy.ps1 `
   -MorskaMaryRepoPath "C:\GitHub\morskamary" `
   -MaritimeSociologyRepoPath "C:\GitHub\maritimesociology" `
   -SharePointSyncPath "C:\Users\YourName\OneDrive - Uniwersytet Szczecinski\PORT CITY HUB UPLOAD" `
-  -GoogleOAuthCredentialsPath "C:\Users\YourName\Documents\gcp-oauth.keys.json"
+  -GoogleOAuthCredentialsPath $googleOAuthCredentialsPath
 ```
 
 ### Targeting VS Code Insiders
@@ -137,7 +142,7 @@ Or use `-VsCodeChannel Auto` to detect which installation exists (prefers Stable
 VS Code reads MCP configuration from `mcp.json` files in two locations:
 
 | Location | Path (Windows) | Purpose |
-|----------|----------------|---------|
+| -------- | -------------- | ------- |
 | **Workspace** | `.vscode/mcp.json` | Repo-safe servers that can be shared and committed |
 | **User profile** | `%APPDATA%\Code\User\mcp.json` | Personal paths, credentials, local clones |
 
@@ -148,7 +153,7 @@ Both use the **same schema**: a top-level `"servers"` object and an optional `"i
 ### What goes where
 
 | Server | Target | Reason |
-|--------|--------|--------|
+| ------ | ------ | ------ |
 | `scientificCitationBridge` | Workspace | Uses `${workspaceFolder}`, no personal paths |
 | `morskamaryLocal` | User profile | Contains your personal clone path |
 | `maritimesociologyLocal` | User profile | Contains your personal clone path |
@@ -262,26 +267,63 @@ To access your Google Drive research folder:
 
 ## Scientific Database Configuration
 
+### Windows bootstrap quick path
+
+If you are configuring credentials locally in PowerShell, use the DotEnv backend:
+
+```powershell
+.\scripts\bootstrap_research_secrets.ps1 -Backend DotEnv
+. .\.env.ps1
+python scripts/check_research_env.py
+```
+
+For Google Secret Manager:
+
+```powershell
+.\scripts\bootstrap_research_secrets.ps1 -Backend Gcp -ProjectId YOUR_PROJECT_ID
+```
+
 ### Crossref (Free, No Authentication)
 
-The default `scientific_bridge.py` uses Crossref's public API. No configuration needed.
+The default `scientific_bridge.py` uses Crossref's public REST API. No signup or API key is required.
+
+- `CROSSREF_MAILTO` is optional but recommended as a polite contact email when you use the public pool heavily.
+- If you do not set it, Crossref queries still work; you just lose the polite-pool contact hint.
 
 ### Scopus API (Optional)
 
 For enhanced search with Elsevier Scopus:
 
-1. Obtain API key from your university library or [Elsevier Developer Portal](https://dev.elsevier.com)
-2. Set environment variable:
+1. Create or sign in to your account at the [Elsevier Developer Portal](https://dev.elsevier.com).
+2. Register an application and generate an API key.
+3. Confirm with your university library or research office that your institution has the required Scopus entitlement or IP-based access, because API availability can depend on institutional subscription status.
+4. Store the key as `SCOPUS_API_KEY` (and, if your institutional setup uses a shared Elsevier platform key, also set `ELSEVIER_API_KEY`).
+5. Set the environment variable manually if needed:
+
    ```powershell
-   $env:SCOPUS_API_KEY = "your_key_here"
+   $env:SCOPUS_API_KEY = "your_scopus_api_key_here"
+   $env:ELSEVIER_API_KEY = "your_elsevier_api_key_here"
    ```
+
+### SciVal API (Optional)
+
+For SciVal metrics and analytics access:
+
+1. Confirm that your institution has an active SciVal subscription.
+2. Use the [Elsevier SciVal APIs information page](https://dev.elsevier.com/scival_apis.html) to identify the relevant API product and onboarding path.
+3. Request or enable SciVal API access through your Elsevier developer account and institutional contact, because entitlement is subscription-gated.
+4. Store the issued credential as `SCIVAL_API_KEY`.
 
 ### Web of Science API (Optional)
 
 For Web of Science integration:
 
-1. Obtain API key from your institution
-2. Set environment variable:
+1. Create a developer account at the [Clarivate Developer Portal](https://developer.clarivate.com/).
+2. Register an application for the Web of Science API product you need.
+3. Request the required API subscription or approval from Clarivate or your institution, because some products are gated and reviewed before activation.
+4. Store the issued credential as `WOS_API_KEY`.
+5. Set the environment variable manually if needed:
+
    ```powershell
    $env:WOS_API_KEY = "your_key_here"
    ```
@@ -296,7 +338,7 @@ For Web of Science integration:
 
 **To opt out (strongly recommended for proprietary research):**
 
-1. Go to https://github.com/settings/copilot
+1. Go to <https://github.com/settings/copilot>
 2. Under **Data handling**, select the **"Allow GitHub to use my data for AI model training"** dropdown
 3. Click **Disabled**
 
@@ -329,7 +371,7 @@ This configuration respects the project's [DATA_GOVERNANCE.txt](DATA_GOVERNANCE.
 
 After deployment, use this prompt in VS Code Copilot Chat to initialize full context awareness:
 
-```
+```text
 @workspace SYSTEM INITIALIZATION: You are now operating under "Full Data Use" architecture. Your context window is bridged via local MCP servers to my maritime sociology and morskamary repositories, my Google Drive, and my SharePoint sync folder.
 
 INSTRUCTIONS FOR ALL SUBSEQUENT TASKS:
@@ -353,13 +395,14 @@ Confirm you have connected to the MCP servers by listing the tools currently ava
 **Fetch citations for a topic:**
 
 In Copilot Chat:
-```
+
+```text
 Use the scientificCitationBridge tool to fetch verified citations for "maritime sociology blue economy"
 ```
 
 **Verify a specific DOI:**
 
-```
+```text
 Use the scientificCitationBridge tool to verify DOI: 10.1016/j.marpol.2021.104523
 ```
 
@@ -367,13 +410,13 @@ Use the scientificCitationBridge tool to verify DOI: 10.1016/j.marpol.2021.10452
 
 **Read a specific file:**
 
-```
+```text
 @workspace Read the file data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv and summarize the competence structure
 ```
 
 **Search across repositories:**
 
-```
+```text
 @workspace Search all files in morskamary repository for references to "Janiszewski marinization theory"
 ```
 
@@ -390,7 +433,8 @@ Use the VS Code model picker in Copilot Chat (top-right of the chat panel). **Au
 **Error:** `node : The term 'node' is not recognized` or `Node.js X.Y.Z detected, but >=18 is required.`
 
 **Solution:**
-1. Install Node.js LTS (≥18) from https://nodejs.org
+
+1. Install Node.js LTS (≥18) from <https://nodejs.org>
 2. Restart PowerShell
 3. Verify: `node -v` (should show v18.x or higher)
 
@@ -399,7 +443,8 @@ Use the VS Code model picker in Copilot Chat (top-right of the chat panel). **Au
 **Error:** `python : The term 'python' is not recognized` or `Python X.Y.Z detected, but >=3.9 is required.`
 
 **Solution:**
-1. Install Python from https://python.org (3.9 or higher)
+
+1. Install Python from <https://python.org> (3.9 or higher)
 2. **Important**: Check "Add Python to PATH" during installation
 3. Restart PowerShell
 4. Verify: `python --version` or `py --version`
@@ -409,6 +454,7 @@ Use the VS Code model picker in Copilot Chat (top-right of the chat panel). **Au
 **Symptoms:** Copilot doesn't list MCP tools
 
 **Solutions:**
+
 1. **Restart VS Code completely** (File > Exit, then reopen)
 2. Verify configuration files exist:
    - Workspace: `.vscode/mcp.json` in the morskamary repository
@@ -422,8 +468,10 @@ Use the VS Code model picker in Copilot Chat (top-right of the chat panel). **Au
 **Error:** `Existing <path> is malformed JSON. Aborting.`
 
 **Solution:**
+
 1. The script has created a timestamped backup of the malformed file
 2. Fix the JSON manually, or re-run with `-Force` to overwrite:
+
    ```powershell
    .\Deploy-CopilotSynergy.ps1 -Force
    ```
@@ -433,6 +481,7 @@ Use the VS Code model picker in Copilot Chat (top-right of the chat panel). **Au
 **Error:** Browser doesn't open or OAuth fails
 
 **Solutions:**
+
 1. Verify `gcp-oauth.keys.json` path is correct
 2. Ensure you added your email as a test user in Google Cloud Console
 3. Check Google Drive API is enabled in your project
@@ -444,11 +493,14 @@ Use the VS Code model picker in Copilot Chat (top-right of the chat panel). **Au
 **Error:** `scientificCitationBridge` tool not available
 
 **Solutions:**
+
 1. Verify `scientific_bridge.py` exists in morskamary repository
 2. Test Python script directly:
+
    ```powershell
    echo '{"method":"tools/list"}' | python scientific_bridge.py
    ```
+
 3. Check firewall isn't blocking Python's network access
 
 ### Performance Issues
@@ -456,6 +508,7 @@ Use the VS Code model picker in Copilot Chat (top-right of the chat panel). **Au
 **Symptom:** MCP queries are slow
 
 **Solutions:**
+
 1. Limit filesystem servers to necessary directories only
 2. Exclude large binary files (add to `.gitignore`)
 3. Use specific MCP tools instead of broad @workspace queries
@@ -488,10 +541,11 @@ For issues specific to this configuration:
 
 1. Check [Troubleshooting](#troubleshooting) section above
 2. Review VS Code Output panel (View > Output > GitHub Copilot)
-3. Open an issue on GitHub: https://github.com/robertbartlomiejski/morskamary/issues
+3. Open an issue on GitHub: <https://github.com/robertbartlomiejski/morskamary/issues>
 
 For general GitHub Copilot support:
-- https://support.github.com/
+
+- <https://support.github.com/>
 
 ---
 

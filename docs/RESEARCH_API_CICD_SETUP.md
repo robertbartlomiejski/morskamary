@@ -51,10 +51,12 @@ Quick start:
 
 ```bash
 pip install -e .[dev]
-./scripts/bootstrap_research_secrets.sh --backend user-env
+./scripts/bootstrap_research_secrets.sh --backend dotenv
 python scripts/check_research_env.py
 python scripts/smoke_scientific_bridge.py --offline
 ```
+
+The legacy `user-env` alias still works, but `dotenv` is the canonical backend name for the supported `./scripts/bootstrap_research_secrets.sh` workflow.
 
 ## GitHub Actions setup
 

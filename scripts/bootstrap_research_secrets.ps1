@@ -1,41 +1,40 @@
 <#
 .SYNOPSIS
-    One-time secure setup for research API credentials (PowerShell).
+    One-time secure setup for morskamary research API credentials.
 
 .DESCRIPTION
-    Reads API credentials interactively (no echo) and stores them in the
-    chosen backend:
+    Reads API credentials interactively and stores them in the selected backend.
 
-      -Backend DotEnv   Write to .env file in repo root (gitignored); dot-source to load.
-      -Backend Gcp      Upload to Google Secret Manager (persistent).
-      -Backend Github   Print gh CLI commands to set GitHub repository secrets.
+    Supported backends:
+      DotEnv   - write .env and .env.ps1 in repo root
+      Gcp      - upload secret versions to Google Secret Manager
+      Github   - print gh CLI commands for GitHub repository secrets
+      UserEnv  - alias for DotEnv
+      user-env - alias for DotEnv
 
-    The -Backend UserEnv alias is kept for backward compatibility and behaves
-    identically to -Backend DotEnv.
-
-    Values are NEVER echoed, logged, or committed. The .env file is gitignored.
+    Secret values are never printed. The .env and .env.ps1 files are gitignored.
 
 .PARAMETER Backend
-    Target backend: DotEnv, Gcp, or Github (case-insensitive).
+    DotEnv, Gcp, Github, UserEnv, or user-env.
 
 .PARAMETER ProjectId
-    Google Cloud project ID (required when Backend is Gcp).
+    Google Cloud project ID. Required when Backend is Gcp.
 
 .EXAMPLE
     .\scripts\bootstrap_research_secrets.ps1 -Backend DotEnv
-    . .\.env.ps1        # load into current session
+    . .\.env.ps1
 
-    .\scripts\bootstrap_research_secrets.ps1 -Backend Gcp -ProjectId my-project-id
+.EXAMPLE
+    .\scripts\bootstrap_research_secrets.ps1 -Backend Gcp -ProjectId intricate-shard-477117-f7
+
+.EXAMPLE
     .\scripts\bootstrap_research_secrets.ps1 -Backend Github
-
-.NOTES
-    See docs/ONE_CLICK_RESEARCH_RUNBOOK.md for the full setup workflow.
 #>
 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('DotEnv', 'Gcp', 'Github', 'UserEnv', IgnoreCase = $true)]
+    [ValidateSet('DotEnv', 'Gcp', 'Github', 'UserEnv', 'user-env', IgnoreCase = $true)]
     [string]$Backend,
 
     [Parameter(Mandatory = $false)]
@@ -43,41 +42,99 @@ param(
 )
 
 Set-StrictMode -Version Latest
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = "Stop"
 
-# Normalize UserEnv alias
-if ($Backend -ieq 'UserEnv') { $Backend = 'DotEnv' }
+$BackendNorm = $Backend.ToLowerInvariant()
+if ($BackendNorm -eq "userenv" -or $BackendNorm -eq "user-env") {
+    $BackendNorm = "dotenv"
+}
 
-if ($Backend -ieq 'Gcp' -and [string]::IsNullOrEmpty($ProjectId)) {
+if ($BackendNorm -eq "gcp" -and [string]::IsNullOrWhiteSpace($ProjectId)) {
     Write-Error "ERROR: -ProjectId is required when -Backend is Gcp."
     exit 1
 }
 
-$RepoRoot  = Split-Path -Parent $PSScriptRoot
-$DotEnvSh  = Join-Path $RepoRoot ".env"
+$RepoRoot = Split-Path -Parent $PSScriptRoot
+$DotEnvSh = Join-Path $RepoRoot ".env"
 $DotEnvPs1 = Join-Path $RepoRoot ".env.ps1"
 
-# ---------------------------------------------------------------------------
-# Secret definitions
-# ---------------------------------------------------------------------------
-
 $SecretMap = [ordered]@{
-    CROSSREF_MAILTO   = @{ GcpName = "crossref-mailto";  Label = "Crossref polite contact email (e.g. researcher@university.edu)" }
-    ELSEVIER_API_KEY  = @{ GcpName = "elsevier-api-key"; Label = "Elsevier platform API key" }
-    SCOPUS_API_KEY    = @{ GcpName = "scopus-api-key";   Label = "Scopus-specific API key (may be same as Elsevier key)" }
-    WOS_API_KEY       = @{ GcpName = "wos-api-key";      Label = "Web of Science API key" }
-    SCIVAL_API_KEY    = @{ GcpName = "scival-api-key";   Label = "SciVal API key" }
+    CROSSREF_MAILTO  = @{ GcpName = "crossref-mailto";  Label = "Crossref polite contact email" }
+    ELSEVIER_API_KEY = @{ GcpName = "elsevier-api-key"; Label = "Elsevier platform API key" }
+    SCOPUS_API_KEY   = @{ GcpName = "scopus-api-key";   Label = "Scopus API key" }
+    WOS_API_KEY      = @{ GcpName = "wos-api-key";      Label = "Web of Science API key" }
+    SCIVAL_API_KEY   = @{ GcpName = "scival-api-key";   Label = "SciVal API key" }
 }
 
-# ---------------------------------------------------------------------------
-# Interactive prompts
-# ---------------------------------------------------------------------------
+function Convert-SecureStringToPlainText {
+    param(
+        [Parameter(Mandatory = $true)]
+        [Security.SecureString]$SecureValue
+    )
+
+    $ptr = [IntPtr]::Zero
+    try {
+        $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureValue)
+        return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr)
+    } finally {
+        if ($ptr -ne [IntPtr]::Zero) {
+            [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+        }
+    }
+}
+
+function Escape-PowerShellSingleQuoted {
+    param([string]$Value)
+    return $Value.Replace("'", "''")
+}
+
+function Escape-BashDoubleQuoted {
+    param([string]$Value)
+    $escaped = $Value.Replace("\", "\\")
+    $escaped = $escaped.Replace('"', '\"')
+    $escaped = $escaped.Replace('$', '\$')
+    $escaped = $escaped.Replace('`', '\`')
+    return $escaped
+}
+
+function Write-Utf8TextFile {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string[]]$Lines,
+
+        [Parameter(Mandatory = $false)]
+        [bool]$EmitBom = $false
+    )
+
+    $newline = [Environment]::NewLine
+    $content = [string]::Join($newline, $Lines) + $newline
+    $encoding = New-Object System.Text.UTF8Encoding($EmitBom)
+    [System.IO.File]::WriteAllText($Path, $content, $encoding)
+}
+
+if ($BackendNorm -eq "github") {
+    Write-Host ""
+    Write-Host "GitHub Actions secrets. Run these commands with GitHub CLI:"
+    Write-Host ""
+    foreach ($varName in $SecretMap.Keys) {
+        Write-Host "  gh secret set $varName"
+    }
+    Write-Host ""
+    Write-Host "Verify:"
+    Write-Host "  gh secret list"
+    Write-Host ""
+    exit 0
+}
 
 Write-Host ""
 Write-Host "=== morskamary Research API Bootstrap (PowerShell) ===" -ForegroundColor Cyan
-Write-Host "Backend: $Backend"
+Write-Host "Backend: $BackendNorm"
 Write-Host ""
-Write-Host "Press ENTER to skip any credential you don't have yet."
+Write-Host "Press ENTER to skip any credential you do not have yet."
 Write-Host "Values are read securely and never displayed."
 Write-Host ""
 
@@ -85,38 +142,30 @@ $Values = @{}
 foreach ($varName in $SecretMap.Keys) {
     $label = $SecretMap[$varName].Label
     $secure = Read-Host -Prompt "Enter $label [ENTER to skip]" -AsSecureString
-    # Convert to plain text only for writing/uploading; never hold longer than needed
-    $plain = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
-        [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure))
+    $plain = Convert-SecureStringToPlainText -SecureValue $secure
     $Values[$varName] = $plain
-    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR(
-        [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure))
 }
 
 Write-Host ""
 
-# ---------------------------------------------------------------------------
-# Apply to chosen backend
-# ---------------------------------------------------------------------------
-
-switch ($Backend.ToLower()) {
-
-    'dotenv' {
-        Write-Host "Writing to $DotEnvSh (Bash) and $DotEnvPs1 (PowerShell) ..."
+switch ($BackendNorm) {
+    "dotenv" {
+        Write-Host "Writing local credential files:"
+        Write-Host "  $DotEnvSh"
+        Write-Host "  $DotEnvPs1"
         Write-Host ""
 
-        # Bash .env
         $bashLines = @(
             "# morskamary research API credentials",
             "# Generated by scripts/bootstrap_research_secrets.ps1",
-            "# DO NOT COMMIT THIS FILE — it is gitignored.",
+            "# DO NOT COMMIT THIS FILE. It is gitignored.",
             ""
         )
-        # PowerShell .env.ps1
+
         $ps1Lines = @(
             "# morskamary research API credentials",
             "# Generated by scripts/bootstrap_research_secrets.ps1",
-            "# DO NOT COMMIT THIS FILE — it is gitignored.",
+            "# DO NOT COMMIT THIS FILE. It is gitignored.",
             "# Dot-source to load: . .\.env.ps1",
             ""
         )
@@ -124,65 +173,62 @@ switch ($Backend.ToLower()) {
         foreach ($varName in $SecretMap.Keys) {
             $val = $Values[$varName]
             if (-not [string]::IsNullOrEmpty($val)) {
-                # Bash: use single quotes (escape embedded single quotes)
-                $escaped = $val -replace "'", "'\''"
-                $bashLines += "export $varName='$escaped'"
-                # PowerShell: use $env:
-                $ps1Lines  += "`$env:$varName = '$escaped'"
+                $bashVal = Escape-BashDoubleQuoted -Value $val
+                $psVal = Escape-PowerShellSingleQuoted -Value $val
+
+                $bashLines += "export $varName=""$bashVal"""
+                $ps1Lines += "`$env:$varName = '$psVal'"
+
                 Write-Host "  $varName = <set>"
             } else {
                 $bashLines += "# export $varName=  # skipped"
-                $ps1Lines  += "# `$env:$varName = ''  # skipped"
-                Write-Host "  $varName — skipped"
+                $ps1Lines += "# `$env:$varName = ''  # skipped"
+                Write-Host "  $varName = skipped"
             }
         }
 
-        $bashLines | Set-Content -Path $DotEnvSh  -Encoding UTF8
-        $ps1Lines  | Set-Content -Path $DotEnvPs1 -Encoding UTF8
+        Write-Utf8TextFile -Path $DotEnvSh -Lines $bashLines -EmitBom $false
+        Write-Utf8TextFile -Path $DotEnvPs1 -Lines $ps1Lines -EmitBom $true
 
         Write-Host ""
-        Write-Host "Written to:"
-        Write-Host "  $DotEnvSh    (Bash)"
-        Write-Host "  $DotEnvPs1  (PowerShell)"
-        Write-Host ""
-        Write-Host "IMPORTANT: To load into your CURRENT terminal session, run:" -ForegroundColor Yellow
-        Write-Host "  PowerShell:  . .\.env.ps1"
-        Write-Host "  Bash/WSL:    source .env"
-        Write-Host ""
-        Write-Host "These files are gitignored and will NOT be committed." -ForegroundColor Green
+        Write-Host "Done."
+        Write-Host "Load into the current PowerShell session with:"
+        Write-Host "  . .\.env.ps1"
     }
 
-    'gcp' {
-        Write-Host "Uploading to Google Secret Manager (project: $ProjectId) ..." -ForegroundColor Cyan
+    "gcp" {
+        Write-Host "Uploading to Google Secret Manager project: $ProjectId"
         Write-Host ""
 
         foreach ($varName in $SecretMap.Keys) {
-            $val       = $Values[$varName]
+            $val = $Values[$varName]
             $secretName = $SecretMap[$varName].GcpName
-            if (-not [string]::IsNullOrEmpty($val)) {
-                # Pipe value via stdin; do NOT pass as CLI argument
-                $tmpFile = [System.IO.Path]::GetTempFileName()
-                try {
-                    [System.IO.File]::WriteAllText($tmpFile, $val,
-                        [System.Text.Encoding]::UTF8)
-                    $result = gcloud secrets versions add $secretName `
-                        --project=$ProjectId `
-                        --data-file=$tmpFile 2>&1
-                    if ($LASTEXITCODE -ne 0) {
-                        Write-Error "  ERROR: Failed to add version for $secretName`n$result"
-                        exit 1
-                    }
-                    Write-Host "  [OK] $secretName — version added" -ForegroundColor Green
-                } finally {
-                    # Securely erase temp file
-                    if (Test-Path $tmpFile) {
-                        $bytes = New-Object byte[] ([System.IO.File]::ReadAllBytes($tmpFile).Length)
-                        [System.IO.File]::WriteAllBytes($tmpFile, $bytes)
-                        Remove-Item $tmpFile -Force
-                    }
+
+            if ([string]::IsNullOrEmpty($val)) {
+                Write-Host "  skip $secretName"
+                continue
+            }
+
+            $tmpFile = [System.IO.Path]::GetTempFileName()
+            try {
+                [System.IO.File]::WriteAllText($tmpFile, $val, [System.Text.Encoding]::UTF8)
+
+                $result = gcloud secrets versions add $secretName --project=$ProjectId --data-file=$tmpFile 2>&1
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Error "ERROR: Failed to add version for $secretName`n$result"
+                    exit 1
                 }
-            } else {
-                Write-Host "  [skip] $secretName — no value entered"
+
+                Write-Host "  OK $secretName"
+            } finally {
+                if (Test-Path $tmpFile) {
+                    $length = ([System.IO.FileInfo]$tmpFile).Length
+                    if ($length -gt 0) {
+                        $zeroBytes = New-Object byte[] $length
+                        [System.IO.File]::WriteAllBytes($tmpFile, $zeroBytes)
+                    }
+                    Remove-Item $tmpFile -Force
+                }
             }
         }
 
@@ -191,25 +237,16 @@ switch ($Backend.ToLower()) {
         Write-Host "  gcloud secrets list --project=$ProjectId"
     }
 
-    'github' {
-        Write-Host "GitHub Actions secrets — run the following gh CLI commands:"
-        Write-Host "(Values must be entered interactively when prompted by gh)"
-        Write-Host ""
-        foreach ($varName in $SecretMap.Keys) {
-            Write-Host "  gh secret set $varName"
-        }
-        Write-Host ""
-        Write-Host "Or pipe a value (never commit the value):"
-        Write-Host "  echo 'YOUR_KEY' | gh secret set ELSEVIER_API_KEY"
-        Write-Host ""
-        Write-Host "Verify secrets are set:"
-        Write-Host "  gh secret list"
+    default {
+        Write-Error "Unsupported backend: $Backend"
+        exit 1
     }
 }
 
-# Zero out in-memory values
-foreach ($varName in @($Values.Keys)) { $Values[$varName] = $null }
+foreach ($varName in @($Values.Keys)) {
+    $Values[$varName] = $null
+}
 
 Write-Host ""
-Write-Host "Next step: run scripts/check_research_env.py to verify:"
+Write-Host "Next verification command:"
 Write-Host "  python scripts/check_research_env.py"
