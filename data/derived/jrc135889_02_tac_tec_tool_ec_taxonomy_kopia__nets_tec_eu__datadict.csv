@@ -1,5 +1,5 @@
 column,dtype,non_null,null
-NACE_code,object,30,0
+NACE_code,str,30,0
 C.20.16,object,30,0
 C.29.1,object,30,0
 C.30.2,object,30,0

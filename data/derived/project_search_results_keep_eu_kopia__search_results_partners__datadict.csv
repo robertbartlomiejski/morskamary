@@ -1,33 +1,33 @@
 column,dtype,non_null,null
-Programme,object,1278,0
-Project ID (2021-2027 only),object,1278,0
-Project acronym,object,1278,0
-Organisation in English,object,1278,0
-Organisation in language 2,object,1120,158
-Organisation in language 3,object,209,1069
-Organisation in language 4,object,12,1266
-Lead partner,object,1278,0
-Type of Organisation,object,1278,0
+Programme,str,1278,0
+Project ID (2021-2027 only),str,1278,0
+Project acronym,str,1278,0
+Organisation in English,str,1278,0
+Organisation in language 2,str,1120,158
+Organisation in language 3,str,209,1069
+Organisation in language 4,str,12,1266
+Lead partner,str,1278,0
+Type of Organisation,str,1278,0
 Participant Identification Code,float64,944,334
-Partner’s ID if not PIC,object,1277,1
-Street,object,1278,0
-Postal code,object,1278,0
-Town,object,1278,0
-Country,object,1278,0
-Country code,object,1278,0
-NUTS1 code (or equivalent),object,1278,0
-NUTS1 (or equivalent),object,1278,0
-NUTS2 code (or equivalent),object,1278,0
-NUTS2 (or equivalent),object,1278,0
-NUTS3 code (or equivalent),object,1275,3
-NUTS3 (or equivalent),object,1275,3
+Partner’s ID if not PIC,str,1277,1
+Street,str,1278,0
+Postal code,str,1278,0
+Town,str,1278,0
+Country,str,1278,0
+Country code,str,1278,0
+NUTS1 code (or equivalent),str,1278,0
+NUTS1 (or equivalent),str,1278,0
+NUTS2 code (or equivalent),str,1278,0
+NUTS2 (or equivalent),str,1278,0
+NUTS3 code (or equivalent),str,1275,3
+NUTS3 (or equivalent),str,1275,3
 Latitude,float64,1278,0
 Longitude,float64,1278,0
-Department,object,812,466
-Website,object,1243,35
-Legal Status,object,1278,0
-Partner's programme co-financing (%) (2021-2027 only),object,1278,0
+Department,str,812,466
+Website,str,1243,35
+Legal Status,str,1278,0
+Partner's programme co-financing (%) (2021-2027 only),str,1278,0
 Partner's programme co-financing (EUR) (2021-2027 only),float64,1278,0
 Partner contribution to project budget (EUR) (2021-2027 only),float64,1278,0
 Partner's total eligible budget / expenditure,float64,1278,0
-GBER schemes / de minimis,object,726,552
+GBER schemes / de minimis,str,726,552

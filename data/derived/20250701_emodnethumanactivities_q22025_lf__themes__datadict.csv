@@ -1,9 +1,9 @@
 column,dtype,non_null,null
-Theme,object,7,3
-Sub-themes,object,7,3
+Theme,str,7,3
+Sub-themes,str,7,3
 Unnamed: 2,float64,0,10
 Unnamed: 3,float64,0,10
-Portal,object,9,1
-Measurement unit,object,8,2
-Redundancy,object,7,3
-Reported Volume unit,object,8,2
+Portal,str,9,1
+Measurement unit,str,8,2
+Redundancy,str,7,3
+Reported Volume unit,str,8,2

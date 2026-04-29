@@ -1,7 +1,7 @@
 column,dtype,non_null,null
-Figure panel,object,36,8
-Division category,object,44,0
-Group,object,44,0
+Figure panel,str,36,8
+Division category,str,44,0
+Group,str,44,0
 Non-significant,int64,44,0
 No statistical test,int64,44,0
 Significant,int64,44,0

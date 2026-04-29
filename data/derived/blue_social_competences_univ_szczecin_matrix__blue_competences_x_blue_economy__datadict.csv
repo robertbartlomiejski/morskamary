@@ -1,16 +1,16 @@
 column,dtype,non_null,null
-"Based on the sources, here is the filled Blue Competence Framework, identifying key technical abilities and competences across the 12 sectors of the EU Blue Economy.",object,10,12
-Kolumna nr 1,object,20,2
-Kolumna nr 2,object,20,2
-Kolumna nr 3,object,20,2
-Kolumna nr 4,object,20,2
-Kolumna nr 5,object,20,2
-Kolumna nr 6,object,20,2
-Kolumna nr 7,object,20,2
-Kolumna nr 8,object,20,2
-Kolumna nr 9,object,20,2
-Kolumna nr 10,object,20,2
-Kolumna nr 11,object,20,2
-Kolumna nr 12,object,20,2
-Kolumna nr 13,object,20,2
-Kolumna nr 14,object,20,2
+"Based on the sources, here is the filled Blue Competence Framework, identifying key technical abilities and competences across the 12 sectors of the EU Blue Economy.",str,10,12
+Kolumna nr 1,str,20,2
+Kolumna nr 2,str,20,2
+Kolumna nr 3,str,20,2
+Kolumna nr 4,str,20,2
+Kolumna nr 5,str,20,2
+Kolumna nr 6,str,20,2
+Kolumna nr 7,str,20,2
+Kolumna nr 8,str,20,2
+Kolumna nr 9,str,20,2
+Kolumna nr 10,str,20,2
+Kolumna nr 11,str,20,2
+Kolumna nr 12,str,20,2
+Kolumna nr 13,str,20,2
+Kolumna nr 14,str,20,2

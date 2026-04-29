@@ -1,5 +1,5 @@
 column,dtype,non_null,null
-ListName,object,107,0
-Value,object,107,0
-Alias_PL,object,107,0
-Notes,object,107,0
+ListName,str,107,0
+Value,str,107,0
+Alias_PL,str,107,0
+Notes,str,107,0

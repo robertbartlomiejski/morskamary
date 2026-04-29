@@ -1,14 +1,14 @@
 column,dtype,non_null,null
-Indicator 3: Internal and external organisations supplying/approached to supply data and data products since start of the project phase,object,233,3
-Unnamed: 1,object,220,16
-Unnamed: 2,object,218,18
-Unnamed: 3,object,216,20
+Indicator 3: Internal and external organisations supplying/approached to supply data and data products since start of the project phase,str,233,3
+Unnamed: 1,str,220,16
+Unnamed: 2,str,218,18
+Unnamed: 3,str,216,20
 Unnamed: 4,object,218,18
-Unnamed: 5,object,218,18
-Unnamed: 6,object,218,18
-Unnamed: 7,object,218,18
+Unnamed: 5,str,218,18
+Unnamed: 6,str,218,18
+Unnamed: 7,str,218,18
 Unnamed: 8,object,218,18
-Unnamed: 9,object,218,18
-Unnamed: 10,object,218,18
-Unnamed: 11,object,11,225
-Unnamed: 12,object,4,232
+Unnamed: 9,str,218,18
+Unnamed: 10,str,218,18
+Unnamed: 11,str,11,225
+Unnamed: 12,str,4,232

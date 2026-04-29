@@ -1,14 +1,14 @@
 column,dtype,non_null,null
-Informazioni cronologiche,datetime64[ns],32,0
-Full Name ,object,32,0
-Discipline / Sector,object,32,0
-Term 1 and description,object,32,0
-Term 2 and description,object,32,0
-Term 3 and description,object,32,0
-Term 4 and description,object,32,0
-Term 5 and description,object,32,0
-Add more terms and their descriptions,object,14,18
+Informazioni cronologiche,datetime64[us],32,0
+Full Name ,str,32,0
+Discipline / Sector,str,32,0
+Term 1 and description,str,32,0
+Term 2 and description,str,32,0
+Term 3 and description,str,32,0
+Term 4 and description,str,32,0
+Term 5 and description,str,32,0
+Add more terms and their descriptions,str,14,18
 "Would you be willing to volunteer as a subgroup leader for the next phase (world café
-discussion)?",object,32,0
+discussion)?",str,32,0
 "Any comments or suggestions regarding the glossary or the process?
-",object,12,20
+",str,12,20

@@ -1,10 +1,10 @@
 column,dtype,non_null,null
 Level,int64,42828,0
-NACE_full,object,42828,0
-NACE,object,42828,0
-NACE_lett,object,42828,0
+NACE_full,str,42828,0
+NACE,str,42828,0
+NACE_lett,str,42828,0
 TAC_EU,float64,41925,903
 TEC_EU,float64,41925,903
-Country_code,object,42828,0
+Country_code,str,42828,0
 TAC,float64,26767,16061
 TEC,float64,26767,16061

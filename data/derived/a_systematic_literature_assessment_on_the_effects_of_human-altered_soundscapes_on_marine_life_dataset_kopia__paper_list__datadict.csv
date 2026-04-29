@@ -1,20 +1,20 @@
 column,dtype,non_null,null
-Unnamed: 0,object,652,0
-Unnamed: 1,object,652,0
-Unnamed: 2,object,652,0
+Unnamed: 0,str,652,0
+Unnamed: 1,str,652,0
+Unnamed: 2,str,652,0
 Unnamed: 3,object,652,0
-Unnamed: 4,object,652,0
-Unnamed: 5,object,652,0
-Unnamed: 6,object,652,0
-Unnamed: 7,object,652,0
-For anthrophony studies,object,645,7
-Unnamed: 9,object,645,7
-Unnamed: 10,object,645,7
-Unnamed: 11,object,645,7
-Unnamed: 12,object,645,7
-Unnamed: 13,object,645,7
-Unnamed: 14,object,645,7
-Unnamed: 15,object,645,7
-For bio- or geo-phony studies,object,8,644
-Unnamed: 17,object,8,644
-Unnamed: 18,object,8,644
+Unnamed: 4,str,652,0
+Unnamed: 5,str,652,0
+Unnamed: 6,str,652,0
+Unnamed: 7,str,652,0
+For anthrophony studies,str,645,7
+Unnamed: 9,str,645,7
+Unnamed: 10,str,645,7
+Unnamed: 11,str,645,7
+Unnamed: 12,str,645,7
+Unnamed: 13,str,645,7
+Unnamed: 14,str,645,7
+Unnamed: 15,str,645,7
+For bio- or geo-phony studies,str,8,644
+Unnamed: 17,str,8,644
+Unnamed: 18,str,8,644

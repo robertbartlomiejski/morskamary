@@ -1,5 +1,5 @@
 column,dtype,non_null,null
-"This is the ""Sociological Spine"" that the University of Szczecin adds to the technical curriculum.",object,26,15
-Unnamed: 1,object,21,20
-Unnamed: 2,object,16,25
-Unnamed: 3,object,16,25
+"This is the ""Sociological Spine"" that the University of Szczecin adds to the technical curriculum.",str,26,15
+Unnamed: 1,str,21,20
+Unnamed: 2,str,16,25
+Unnamed: 3,str,16,25

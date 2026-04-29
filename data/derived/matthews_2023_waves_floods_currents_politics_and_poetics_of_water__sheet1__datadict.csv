@@ -1,17 +1,17 @@
 column,dtype,non_null,null
-DOI,object,32,0
-Title,object,32,0
-Abstract,object,21,11
-Open access,object,32,0
-Authors,object,31,1
-Publication date,datetime64[ns],32,0
+DOI,str,32,0
+Title,str,32,0
+Abstract,str,21,11
+Open access,str,32,0
+Authors,str,31,1
+Publication date,datetime64[us],32,0
 Citations,int64,32,0
-Journal,object,22,10
+Journal,str,22,10
 ISSNs,object,22,10
 Quartile by SCImago,float64,22,10
 Quartile by WOS,float64,22,10
 Impact factor,float64,20,12
-Publisher,object,23,9
+Publisher,str,23,9
 Volume,float64,22,10
 Issue,float64,22,10
 Pages,object,23,9

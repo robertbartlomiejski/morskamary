@@ -1,17 +1,17 @@
 column,dtype,non_null,null
-Interfacial Functional Layer,object,201,12
-Original Submitted Term,object,213,0
-Verdict (DROP / KEEP / REWRITE),object,213,0
-WG3-Rewritten / Accepted Term Label,object,201,12
-Why this term matters (simple),object,213,0
-RSAM Anchor (Trigger → Performance),object,201,12
-Contributor (original),object,213,0
-Contributor discipline/sector,object,213,0
-Contributor(s) of similar/anchor proposal,object,80,133
-Humanities & Social Sciences,object,201,12
-Technology & Engineering,object,35,178
-Port Management & Economics,object,11,202
-Planning & Transportation,object,32,181
-Source field,object,213,0
-Submitted definition (as provided),object,147,66
-Submission date/time,object,213,0
+Interfacial Functional Layer,str,201,12
+Original Submitted Term,str,213,0
+Verdict (DROP / KEEP / REWRITE),str,213,0
+WG3-Rewritten / Accepted Term Label,str,201,12
+Why this term matters (simple),str,213,0
+RSAM Anchor (Trigger → Performance),str,201,12
+Contributor (original),str,213,0
+Contributor discipline/sector,str,213,0
+Contributor(s) of similar/anchor proposal,str,80,133
+Humanities & Social Sciences,str,201,12
+Technology & Engineering,str,35,178
+Port Management & Economics,str,11,202
+Planning & Transportation,str,32,181
+Source field,str,213,0
+Submitted definition (as provided),str,147,66
+Submission date/time,str,213,0

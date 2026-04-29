@@ -1,10 +1,10 @@
 column,dtype,non_null,null
 From EU Taxonomy compass,float64,132,1
-NACE,object,132,1
-NACE sector,object,116,17
+NACE,str,132,1
+NACE sector,str,116,17
 TAC NACE 2021,float64,132,1
-TAC rationale,object,132,1
+TAC rationale,str,132,1
 "TAC is country dependent (0 = no, 1 = yes)",float64,132,1
 TEC NACE 2021,object,132,1
-TEC rationale,object,132,1
+TEC rationale,str,132,1
 "TEC is country dependent (0 = no, 1 = yes)",object,133,0

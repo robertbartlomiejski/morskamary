@@ -1,14 +1,14 @@
 column,dtype,non_null,null
-Dimension,object,37,12
-Blue Biotech,object,29,20
-Living Resources (Fisheries/Aqua),object,29,20
-R&I (Research & Innovation),object,29,20
-Renewable Energy (Wind/Ocean),object,5,44
-Non-Living Resources (Mining),object,5,44
-Desalination,object,5,44
-Maritime Transport,object,5,44
-Port Activities,object,5,44
-Ship Repair & Shipbuilding,object,5,44
-Coastal Tourism,object,5,44
-Maritime Defence,object,5,44
-Infrastructure & Robotics,object,5,44
+Dimension,str,37,12
+Blue Biotech,str,29,20
+Living Resources (Fisheries/Aqua),str,29,20
+R&I (Research & Innovation),str,29,20
+Renewable Energy (Wind/Ocean),str,5,44
+Non-Living Resources (Mining),str,5,44
+Desalination,str,5,44
+Maritime Transport,str,5,44
+Port Activities,str,5,44
+Ship Repair & Shipbuilding,str,5,44
+Coastal Tourism,str,5,44
+Maritime Defence,str,5,44
+Infrastructure & Robotics,str,5,44

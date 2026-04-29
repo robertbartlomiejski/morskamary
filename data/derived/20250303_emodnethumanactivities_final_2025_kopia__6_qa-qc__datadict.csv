@@ -1,6 +1,6 @@
 column,dtype,non_null,null
-Indicator 6: Quality Control and Quality Assurance steps,object,20,2
-Unnamed: 1,object,13,9
-Unnamed: 2,object,12,10
-Unnamed: 3,object,12,10
-Unnamed: 4,object,12,10
+Indicator 6: Quality Control and Quality Assurance steps,str,20,2
+Unnamed: 1,str,13,9
+Unnamed: 2,str,12,10
+Unnamed: 3,str,12,10
+Unnamed: 4,str,12,10

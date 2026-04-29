@@ -1,45 +1,45 @@
 column,dtype,non_null,null
-CTRY,object,2528,1
-MCA,object,2529,0
-UNLocode,object,2529,0
-Country/Port Name,object,2529,0
-Label using special characters,object,756,1773
-Nat. Stat. Group,object,909,1620
-Statistical Port,object,1274,1255
+CTRY,str,2528,1
+MCA,str,2529,0
+UNLocode,str,2529,0
+Country/Port Name,str,2529,0
+Label using special characters,str,756,1773
+Nat. Stat. Group,str,909,1620
+Statistical Port,str,1274,1255
 National Code,object,876,1653
-2024 list: modifications compared to 2023 list,object,45,2484
-TEN-T network,object,301,2228
-Port on an island (X: Island; O: Outer region),object,432,2097
-Sea ,object,2523,6
+2024 list: modifications compared to 2023 list,str,45,2484
+TEN-T network,str,301,2228
+Port on an island (X: Island; O: Outer region),str,432,2097
+Sea ,str,2523,6
 Sea code,object,2328,201
-NUTS 3 code,object,1886,643
-2023 list: modifications compared to 2022 list,object,26,2503
-2022 list: modifications compared to 2021 list,object,31,2498
-2021 list: modifications compared to 2020 list,object,8,2521
-2020 list: modifications compared to 2019 list,object,56,2473
-2019 list: modifications compared to 2018 list,object,367,2162
-2018 list: modifications compared to 2017 list,object,54,2475
-2017 list: modifications compared to 2016 list,object,168,2361
-2016 list: modifications compared to 2015 list,object,33,2496
-2015 list: modifications compared to 2014 list,object,287,2242
-2014 list: modifications compared to 2013 list,object,15,2514
-2013 list: modifications compared to 2012 list,object,48,2481
-2012 list: modifications compared to 2011 list,object,93,2436
-2011 list: modifications compared to 2010 list,object,284,2245
-2010 list: modifications compared to 2009 list,object,89,2440
-2009 list: modifications compared to 2008 list,object,92,2437
-2008 list: modifications compared to 2007 list,object,180,2349
-2007 list: modifications compared to 2006 list,object,94,2435
-2006 list: modifications compared to 2005 list,object,58,2471
-2005 list: modifications compared to 2004 Excel list,object,141,2388
-2004 Excel list: modifications compared to 2004 official list,object,481,2048
-2004 official list: modifications compared to 2000 official list,object,192,2337
-2000 official list: modifications compared to 1998 official list,object,437,2092
-previous changes (partial coverage) and other comments,object,310,2219
-Coordinates from 2009 list or provided by country,object,635,1894
-Coordinates UNECE,object,736,1793
-Coordinates Antwerpen (March 2009),object,1199,1330
+NUTS 3 code,str,1886,643
+2023 list: modifications compared to 2022 list,str,26,2503
+2022 list: modifications compared to 2021 list,str,31,2498
+2021 list: modifications compared to 2020 list,str,8,2521
+2020 list: modifications compared to 2019 list,str,56,2473
+2019 list: modifications compared to 2018 list,str,367,2162
+2018 list: modifications compared to 2017 list,str,54,2475
+2017 list: modifications compared to 2016 list,str,168,2361
+2016 list: modifications compared to 2015 list,str,33,2496
+2015 list: modifications compared to 2014 list,str,287,2242
+2014 list: modifications compared to 2013 list,str,15,2514
+2013 list: modifications compared to 2012 list,str,48,2481
+2012 list: modifications compared to 2011 list,str,93,2436
+2011 list: modifications compared to 2010 list,str,284,2245
+2010 list: modifications compared to 2009 list,str,89,2440
+2009 list: modifications compared to 2008 list,str,92,2437
+2008 list: modifications compared to 2007 list,str,180,2349
+2007 list: modifications compared to 2006 list,str,94,2435
+2006 list: modifications compared to 2005 list,str,58,2471
+2005 list: modifications compared to 2004 Excel list,str,141,2388
+2004 Excel list: modifications compared to 2004 official list,str,481,2048
+2004 official list: modifications compared to 2000 official list,str,192,2337
+2000 official list: modifications compared to 1998 official list,str,437,2092
+previous changes (partial coverage) and other comments,str,310,2219
+Coordinates from 2009 list or provided by country,str,635,1894
+Coordinates UNECE,str,736,1793
+Coordinates Antwerpen (March 2009),str,1199,1330
 Coordinates GISCO     Longitude    (SIF January 2009),object,1583,946
-Coordinates GISCO     Latitude    (SIF January 2009),object,1580,949
-Label in Comm Dec 2008/861,object,1022,1507
-Label in UNECE,object,1763,766
+Coordinates GISCO     Latitude    (SIF January 2009),str,1580,949
+Label in Comm Dec 2008/861,str,1022,1507
+Label in UNECE,str,1763,766
