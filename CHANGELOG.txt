@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-29 (research secrets Windows setup hardening)
+Change type fix update
+Scope scripts docs governance
+Files affected scripts/bootstrap_research_secrets.ps1 scripts/audit_research_api_config.py COPILOT_MCP_SETUP.md docs/RESEARCH_API_CICD_SETUP.md
+Summary Hardened the PowerShell bootstrap output so generated `.env.ps1` files are always written as UTF-8 with BOM for Windows PowerShell compatibility while keeping `.env` UTF-8 without BOM for shell use. Updated setup docs and helper output to prefer the canonical `dotenv`/`DotEnv` backend name and expanded the scientific API onboarding notes for Crossref, Scopus, SciVal, and Web of Science.
+Reason Windows manual setup needed a stable PowerShell loading path and the MCP setup runbook did not provide enough portal-level onboarding guidance for academic API access.
+Impact Windows users can reliably dot-source generated `.env.ps1` files across PowerShell versions, and the documented secret bootstrap flow now matches the supported backend names and current provider onboarding expectations.
+Provenance User findings on bootstrap_research_secrets.ps1 and COPILOT_MCP_SETUP.md; official provider setup references for Crossref, Elsevier Scopus, SciVal, and Clarivate.
+Quality checks pending targeted script syntax checks and repository pytest run.
+Reviewer GitHub Copilot CLI
+
 2026-04-28 (PowerShell research run fixes and UTF-8 validation hardening)
 Change type fix update add
 Scope scripts infra governance

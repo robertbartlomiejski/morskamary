@@ -1,6 +1,6 @@
 column,dtype,non_null,null
 Indicator 1: Current status and coverage of total available thematic data,object,86,129
-Unnamed: 1,str,178,37
+Unnamed: 1,object,178,37
 Unnamed: 2,object,142,73
 Unnamed: 3,object,112,103
 Unnamed: 4,object,77,138
@@ -8,14 +8,14 @@ Unnamed: 5,object,76,139
 Unnamed: 6,object,130,85
 Unnamed: 7,object,77,138
 Unnamed: 8,object,119,96
-Unnamed: 9,str,50,165
+Unnamed: 9,object,50,165
 Unnamed: 10,object,70,145
-Unnamed: 11,str,50,165
+Unnamed: 11,object,50,165
 Unnamed: 12,object,72,143
 Unnamed: 13,object,50,165
-Unnamed: 14,str,51,164
-Unnamed: 15,str,50,165
+Unnamed: 14,object,51,164
+Unnamed: 15,object,50,165
 Unnamed: 16,object,51,164
 Unnamed: 17,object,49,166
-Unnamed: 18,str,2,213
-Unnamed: 19,str,1,214
+Unnamed: 18,object,2,213
+Unnamed: 19,object,1,214

@@ -58,7 +58,8 @@ def main() -> int:
           f"(LIVE_RESEARCH_API_TESTS={live_flag})")
 
     print("\nTo run the bootstrap script:")
-    print("  ./scripts/bootstrap_research_secrets.sh --backend user-env")
+    print("  ./scripts/bootstrap_research_secrets.sh --backend dotenv")
+    print("  .\\scripts\\bootstrap_research_secrets.ps1 -Backend DotEnv")
     print("  ./scripts/bootstrap_research_secrets.sh --backend gcp "
           "--project-id YOUR_PROJECT_ID")
     print()

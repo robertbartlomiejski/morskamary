@@ -262,26 +262,60 @@ To access your Google Drive research folder:
 
 ## Scientific Database Configuration
 
+### Windows bootstrap quick path
+
+If you are configuring credentials locally in PowerShell, use the DotEnv backend:
+
+```powershell
+.\scripts\bootstrap_research_secrets.ps1 -Backend DotEnv
+. .\.env.ps1
+python scripts/check_research_env.py
+```
+
+For Google Secret Manager:
+
+```powershell
+.\scripts\bootstrap_research_secrets.ps1 -Backend Gcp -ProjectId YOUR_PROJECT_ID
+```
+
 ### Crossref (Free, No Authentication)
 
-The default `scientific_bridge.py` uses Crossref's public API. No configuration needed.
+The default `scientific_bridge.py` uses Crossref's public REST API. No signup or API key is required.
+
+- `CROSSREF_MAILTO` is optional but recommended as a polite contact email when you use the public pool heavily.
+- If you do not set it, Crossref queries still work; you just lose the polite-pool contact hint.
 
 ### Scopus API (Optional)
 
 For enhanced search with Elsevier Scopus:
 
-1. Obtain API key from your university library or [Elsevier Developer Portal](https://dev.elsevier.com)
-2. Set environment variable:
+1. Create or sign in to your account at the [Elsevier Developer Portal](https://dev.elsevier.com).
+2. Register an application and generate an API key.
+3. Confirm with your university library or research office that your institution has the required Scopus entitlement or IP-based access, because API availability can depend on institutional subscription status.
+4. Store the key as `SCOPUS_API_KEY` (and, if your institutional setup uses a shared Elsevier platform key, also set `ELSEVIER_API_KEY`).
+5. Set the environment variable manually if needed:
    ```powershell
    $env:SCOPUS_API_KEY = "your_key_here"
    ```
+
+### SciVal API (Optional)
+
+For SciVal metrics and analytics access:
+
+1. Confirm that your institution has an active SciVal subscription.
+2. Use the [Elsevier SciVal APIs information page](https://dev.elsevier.com/scival_apis.html) to identify the relevant API product and onboarding path.
+3. Request or enable SciVal API access through your Elsevier developer account and institutional contact, because entitlement is subscription-gated.
+4. Store the issued credential as `SCIVAL_API_KEY`.
 
 ### Web of Science API (Optional)
 
 For Web of Science integration:
 
-1. Obtain API key from your institution
-2. Set environment variable:
+1. Create a developer account at the [Clarivate Developer Portal](https://developer.clarivate.com/).
+2. Register an application for the Web of Science API product you need.
+3. Request the required API subscription or approval from Clarivate or your institution, because some products are gated and reviewed before activation.
+4. Store the issued credential as `WOS_API_KEY`.
+5. Set the environment variable manually if needed:
    ```powershell
    $env:WOS_API_KEY = "your_key_here"
    ```

@@ -97,6 +97,24 @@ function Escape-BashDoubleQuoted {
     return $escaped
 }
 
+function Write-Utf8TextFile {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+
+        [Parameter(Mandatory = $true)]
+        [string[]]$Lines,
+
+        [Parameter(Mandatory = $false)]
+        [bool]$EmitBom = $false
+    )
+
+    $newline = [Environment]::NewLine
+    $content = [string]::Join($newline, $Lines) + $newline
+    $encoding = New-Object System.Text.UTF8Encoding($EmitBom)
+    [System.IO.File]::WriteAllText($Path, $content, $encoding)
+}
+
 if ($BackendNorm -eq "github") {
     Write-Host ""
     Write-Host "GitHub Actions secrets. Run these commands with GitHub CLI:"
@@ -168,8 +186,8 @@ switch ($BackendNorm) {
             }
         }
 
-        $bashLines | Set-Content -Path $DotEnvSh -Encoding UTF8
-        $ps1Lines | Set-Content -Path $DotEnvPs1 -Encoding UTF8
+        Write-Utf8TextFile -Path $DotEnvSh -Lines $bashLines -EmitBom $false
+        Write-Utf8TextFile -Path $DotEnvPs1 -Lines $ps1Lines -EmitBom $true
 
         Write-Host ""
         Write-Host "Done."

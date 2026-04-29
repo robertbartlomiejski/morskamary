@@ -1,34 +1,34 @@
 column,dtype,non_null,null
-CTRY,str,543,2
-MCA,str,543,2
-UNLocode,str,543,2
-Country/Port Name,str,543,2
-Label using special characters,str,68,477
-Nat. Stat. Group,str,441,104
+CTRY,object,543,2
+MCA,object,543,2
+UNLocode,object,543,2
+Country/Port Name,object,543,2
+Label using special characters,object,68,477
+Nat. Stat. Group,object,441,104
 National Code,float64,13,532
-Port on Island,str,2,543
-2024 list: modifications compared to 2023 list,str,3,542
-2021 list: modifications compared to 2020 list,str,3,542
-2020 list: modifications compared to 2019 list,str,2,543
-2019 list: modifications compared to 2018 list,str,86,459
-2018 list: modifications compared to 2017 list,str,1,544
-2017 list: modifications compared to 2016 list,str,8,537
-2015 list: modifications compared to 2014 list,str,228,317
-2012 list: modifications compared to 2011 list,str,2,543
-2011 list: modifications compared to 2010 list,str,25,520
-2010 list: modifications compared to 2009 list,str,286,259
-previous changes (partial coverage) and other comments,str,162,383
-Unnamed: 19,str,150,395
-Unnamed: 20,str,117,428
-Unnamed: 21,str,89,456
+Port on Island,object,2,543
+2024 list: modifications compared to 2023 list,object,3,542
+2021 list: modifications compared to 2020 list,object,3,542
+2020 list: modifications compared to 2019 list,object,2,543
+2019 list: modifications compared to 2018 list,object,86,459
+2018 list: modifications compared to 2017 list,object,1,544
+2017 list: modifications compared to 2016 list,object,8,537
+2015 list: modifications compared to 2014 list,object,228,317
+2012 list: modifications compared to 2011 list,object,2,543
+2011 list: modifications compared to 2010 list,object,25,520
+2010 list: modifications compared to 2009 list,object,286,259
+previous changes (partial coverage) and other comments,object,162,383
+Unnamed: 19,object,150,395
+Unnamed: 20,object,117,428
+Unnamed: 21,object,89,456
 Unnamed: 22,float64,9,536
 Unnamed: 23,float64,0,545
 Unnamed: 24,float64,0,545
 Unnamed: 25,float64,0,545
 Unnamed: 26,float64,0,545
 Unnamed: 27,float64,0,545
-Unnamed: 28,str,1,544
+Unnamed: 28,object,1,544
 Unnamed: 29,float64,1,544
 Unnamed: 30,float64,0,545
 Unnamed: 31,float64,0,545
-Unnamed: 32,str,1,544
+Unnamed: 32,object,1,544

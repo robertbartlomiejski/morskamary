@@ -1,7 +1,7 @@
 column,dtype,non_null,null
-id,str,2,0
-name,str,2,0
-description,str,2,0
-axis,str,2,0
-level,str,2,0
-keywords,str,2,0
+id,object,2,0
+name,object,2,0
+description,object,2,0
+axis,object,2,0
+level,object,2,0
+keywords,object,2,0

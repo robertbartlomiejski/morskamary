@@ -1,5 +1,5 @@
 column,dtype,non_null,null
-Programme,str,7,0
-Call serial number,str,7,0
-Call start date,datetime64[us],7,0
-Call end date,datetime64[us],7,0
+Programme,object,7,0
+Call serial number,object,7,0
+Call start date,datetime64[ns],7,0
+Call end date,datetime64[ns],7,0

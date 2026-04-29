@@ -1,35 +1,35 @@
 column,dtype,non_null,null
-Period,str,115,0
-Programme,str,115,0
-Project ID (2021-2027 only),str,115,0
-Project acronym,str,115,0
-Project name,str,115,0
-Description,str,115,0
-Expected Achievements,str,115,0
-Project start,datetime64[us],115,0
-Project end,datetime64[us],115,0
-Relevant mentions and prizes,str,115,0
+Period,object,115,0
+Programme,object,115,0
+Project ID (2021-2027 only),object,115,0
+Project acronym,object,115,0
+Project name,object,115,0
+Description,object,115,0
+Expected Achievements,object,115,0
+Project start,datetime64[ns],115,0
+Project end,datetime64[ns],115,0
+Relevant mentions and prizes,object,115,0
 Project's total budget / expenditure,float64,115,0
 Project's EU funding,float64,115,0
-Union co-financing rate,str,115,0
-Contributing EU funds,str,115,0
-Programme specific objective (2021-2027 only),str,115,0
-Type of intervention (2021-2027 only),str,115,0
-Programme Priority (2021-2027 only),str,115,0
+Union co-financing rate,object,115,0
+Contributing EU funds,object,115,0
+Programme specific objective (2021-2027 only),object,115,0
+Type of intervention (2021-2027 only),object,115,0
+Programme Priority (2021-2027 only),object,115,0
 Operation of strategic importance (OSI) or project above EUR 5 million,bool,115,0
-Policy Objective (Interreg Specific Objective),str,115,0
-Theme 1,str,115,0
-Theme 2,str,102,13
-Theme 3,str,63,52
+Policy Objective (Interreg Specific Objective),object,115,0
+Theme 1,object,115,0
+Theme 2,object,102,13
+Theme 3,object,63,52
 Number of Partners,int64,115,0
 ERDF Contribution (amount),float64,115,0
-ERDF Contribution (co-financing rate),str,115,0
+ERDF Contribution (co-financing rate),object,115,0
 ERDF equivalent (amount ),float64,21,94
 ERDF equivalent (co-financing rate ),float64,21,94
-ERDF equivalent (source ),str,21,94
-Delivered output indicators (2021-2027 only),str,19,96
-Delivered result indicators (2021-2027 only),str,19,96
-European Union MRSs to which the project contributes,str,115,0
-Website,str,115,0
+ERDF equivalent (source ),object,21,94
+Delivered output indicators (2021-2027 only),object,19,96
+Delivered result indicators (2021-2027 only),object,19,96
+European Union MRSs to which the project contributes,object,115,0
+Website,object,115,0
 Project is Small Project (2021-2027 only),bool,115,0
-Call serial number,str,115,0
+Call serial number,object,115,0
