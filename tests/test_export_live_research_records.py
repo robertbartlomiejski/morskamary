@@ -109,6 +109,15 @@ class TestDeduplicateRecords:
         deduped, stats = deduplicate_records([rec1, rec2])
         assert len(deduped) == 2
 
+    def test_doi_normalization_case_and_whitespace(self):
+        """DOI dedup must be case- and whitespace-insensitive."""
+        rec1 = _make_record(doi="10.1234/X", title="Title A")
+        rec2 = _make_record(doi="10.1234/x", title="Title B")
+        rec3 = _make_record(doi=" 10.1234/x ", title="Title C")
+        deduped, stats = deduplicate_records([rec1, rec2, rec3])
+        assert len(deduped) == 1
+        assert stats["doi_duplicates"] == 2
+
 
 class TestBuildCoverageReport:
     def test_builds_coverage_rows(self):
@@ -501,3 +510,60 @@ query_groups:
             # Verify live_records.json contains both
             all_records = json.loads((output_dir / "live_records.json").read_text())
             assert len(all_records) == 2
+
+    def test_zero_record_provider_identity_in_coverage(self, tmp_path, monkeypatch):
+        """Zero-record provider results must preserve provider identity in coverage CSV."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test Sector"
+    queries:
+      - "blue economy"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+
+        # Provider returns an empty ProviderResult (zero records, zero provenance)
+        empty_result = ProviderResult(records=[], provenance=[])
+
+        def mock_search(query, max_results, providers):
+            return [empty_result]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search = mock_search
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                ],
+            )
+
+            result = main()
+            assert result == 0
+
+            # Verify that coverage CSV contains a row for the provider with zero records
+            import csv as csv_module
+
+            with open(output_dir / "live_source_coverage.csv", newline="") as f:
+                rows = list(csv_module.DictReader(f))
+
+            assert len(rows) == 1
+            assert rows[0]["provider"] == "crossref"
+            assert rows[0]["record_count"] == "0"
+            assert rows[0]["sector"] == "Test Sector"
