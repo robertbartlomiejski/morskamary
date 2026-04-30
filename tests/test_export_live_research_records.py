@@ -511,6 +511,75 @@ query_groups:
             all_records = json.loads((output_dir / "live_records.json").read_text())
             assert len(all_records) == 2
 
+    def test_empty_query_file_returns_error(self, tmp_path, monkeypatch, capsys):
+        """An empty YAML file must return error code 1 with a user-facing message."""
+        query_file = tmp_path / "empty.yml"
+        query_file.write_text("")
+
+        output_dir = tmp_path / "outputs"
+
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "export_live_research_records.py",
+                "--query-file",
+                str(query_file),
+                "--output-dir",
+                str(output_dir),
+            ],
+        )
+
+        result = main()
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "empty or not a valid YAML mapping" in captured.err
+
+    def test_comment_only_query_file_returns_error(self, tmp_path, monkeypatch, capsys):
+        """A comment-only YAML file (yaml.safe_load returns None) must return error code 1."""
+        query_file = tmp_path / "comments.yml"
+        query_file.write_text("# just a comment\n# no data here\n")
+
+        output_dir = tmp_path / "outputs"
+
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "export_live_research_records.py",
+                "--query-file",
+                str(query_file),
+                "--output-dir",
+                str(output_dir),
+            ],
+        )
+
+        result = main()
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "empty or not a valid YAML mapping" in captured.err
+
+    def test_scalar_query_file_returns_error(self, tmp_path, monkeypatch, capsys):
+        """A YAML file containing only a scalar (not a dict) must return error code 1."""
+        query_file = tmp_path / "scalar.yml"
+        query_file.write_text("just a string\n")
+
+        output_dir = tmp_path / "outputs"
+
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "export_live_research_records.py",
+                "--query-file",
+                str(query_file),
+                "--output-dir",
+                str(output_dir),
+            ],
+        )
+
+        result = main()
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "empty or not a valid YAML mapping" in captured.err
+
     def test_zero_record_provider_identity_in_coverage(self, tmp_path, monkeypatch):
         """Zero-record provider results must preserve provider identity in coverage CSV."""
         query_file = tmp_path / "queries.yml"
