@@ -2,6 +2,7 @@
 
 from src.axis_classifier import AxisClassifier
 from src.core import BlueDynamicsAxis
+from src.dimension_mapping import map_dimension_to_axis
 
 
 class TestAxisClassifier:
@@ -109,3 +110,15 @@ class TestAxisClassifier:
         classifier = AxisClassifier()
         result = classifier.classify_axis("port    operations   with    logistics")
         assert result == BlueDynamicsAxis.MARITIME
+
+
+class TestMapDimensionToAxis:
+    """Direct tests for map_dimension_to_axis edge cases."""
+
+    def test_empty_string_returns_oceanic(self):
+        """Empty dimension string defaults to OCEANIC."""
+        assert map_dimension_to_axis("") == BlueDynamicsAxis.OCEANIC
+
+    def test_whitespace_only_returns_oceanic(self):
+        """Whitespace-only dimension string defaults to OCEANIC."""
+        assert map_dimension_to_axis("   ") == BlueDynamicsAxis.OCEANIC
