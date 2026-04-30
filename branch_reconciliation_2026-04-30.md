@@ -2,7 +2,7 @@
 
 ## Remote and fetch status
 - Set `origin` to `https://github.com/robertbartlomiejski/morskamary.git`.
-- `git fetch --all --prune` failed in this environment due network restriction:
+- `git fetch --all --prune` failed in this environment due to network restrictions:
   - `fatal: unable to access 'https://github.com/robertbartlomiejski/morskamary.git/': CONNECT tunnel failed, response 403`
 - Optional PR ref fetch (`refs/pull/*/head`) therefore also could not run successfully.
 
@@ -11,7 +11,7 @@ Data source: local refs available in clone.
 
 | branch | author | latest_commit_date | commit | ahead_behind_vs_base |
 |---|---|---|---|---|
-| work | Copilot | 2026-04-30 10:29:47 +0200 | bc3d3eb | N/A (base branch refs unavailable due fetch failure) |
+| work | Copilot | 2026-04-30 10:29:47 +0200 | bc3d3eb | N/A (base branch refs unavailable due to fetch failure) |
 
 ## PR cross-check
 Could not query open PRs from GitHub in this environment because remote/network access to GitHub failed (HTTP 403 CONNECT tunnel).
