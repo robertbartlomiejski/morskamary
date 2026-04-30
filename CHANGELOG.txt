@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-30 (fix stale MANIFEST_SOURCES.csv)
+Change type fix
+Scope governance
+Files affected MANIFEST_SOURCES.csv CHANGELOG.txt
+Summary Regenerated MANIFEST_SOURCES.csv to remove 907 stale src/morskamary/ path entries that were no longer produced by generate_manifest.py, resolving the governance-and-repro manifest reproducibility CI check failure.
+Reason The first commit in this PR inadvertently committed an older MANIFEST_SOURCES.csv snapshot containing src/morskamary/ prefixed entries; the CI governance check runs generate_manifest.py fresh and diffs the result against the committed file, causing an exit-code-1 failure.
+Impact CI governance-and-repro manifest check passes. The test-suite Python 3.10 failure (pandas==3.0.2 unavailable) is a pre-existing issue on main and is not related to this PR.
+Provenance python scripts/generate_manifest.py output (898 entries).
+Quality checks git diff MANIFEST_SOURCES.csv shows 907 deletions and 0 additions after regeneration.
+Reviewer GitHub Copilot Coding Agent
+
 2026-04-29 (test coverage improvements to 100%)
 Change type add
 Scope tests
