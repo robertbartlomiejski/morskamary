@@ -251,7 +251,7 @@ def main() -> int:
     args = parser.parse_args()
 
     # Parse providers
-    provider_list = [p.strip() for p in args.providers.split(",")]
+    provider_list = [p.strip() for p in args.providers.split(",") if p.strip()]
 
     # Parse offline mode
     offline = args.offline.lower() in ("true", "1", "yes")
