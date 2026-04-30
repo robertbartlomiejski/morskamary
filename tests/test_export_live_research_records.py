@@ -118,6 +118,15 @@ class TestDeduplicateRecords:
         assert len(deduped) == 1
         assert stats["doi_duplicates"] == 2
 
+    def test_removes_title_duplicate_when_only_one_record_has_doi(self):
+        """Title dedup must still run when one variant has DOI and one does not."""
+        rec1 = _make_record(doi="10.1234/x", title="Blue Economy Governance")
+        rec2 = _make_record(doi="", title="BLUE ECONOMY: GOVERNANCE!")
+        deduped, stats = deduplicate_records([rec1, rec2])
+        assert len(deduped) == 1
+        assert stats["doi_duplicates"] == 0
+        assert stats["title_duplicates"] == 1
+
 
 class TestBuildCoverageReport:
     def test_builds_coverage_rows(self):
