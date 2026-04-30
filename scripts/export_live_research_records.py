@@ -273,6 +273,14 @@ def main() -> int:
     # Initialize registry
     registry = SourceRegistry()
 
+    # Provider names in the same order SourceRegistry.search() uses.
+    registry_provider_order = [cap.name for cap in registry.list_capabilities()]
+    queried_providers = (
+        [name for name in registry_provider_order if name in provider_list]
+        if provider_list
+        else registry_provider_order
+    )
+
     # Storage for all results
     all_records: List[LiteratureRecord] = []
     all_provenance: List[SourceEvidence] = []
@@ -299,8 +307,8 @@ def main() -> int:
 
                 for i, result in enumerate(results):
                     provider_name = (
-                        provider_list[i]
-                        if i < len(provider_list)
+                        queried_providers[i]
+                        if i < len(queried_providers)
                         else (
                             result.records[0].provider
                             if result.records
