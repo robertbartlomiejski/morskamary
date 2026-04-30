@@ -75,21 +75,39 @@ def deduplicate_records(
 
     for rec in records:
         norm_title = normalize_title(rec.title)
-        # DOI dedup (if DOI is present)
-        if rec.doi:
-            doi_key = rec.doi.strip().lower()
+        has_doi = bool(rec.doi and rec.doi.strip())
+        doi_key = rec.doi.strip().lower() if has_doi else ""
+
+        # DOI-bearing records are deduplicated by DOI only. A title collision
+        # should only replace an existing DOI-less record with the same title.
+        if has_doi:
             if doi_key in seen_dois:
                 stats["doi_duplicates"] += 1
                 continue
+
+            if norm_title in seen_titles:
+                existing_index = title_to_index[norm_title]
+                existing_rec = deduped[existing_index]
+                existing_has_doi = bool(existing_rec.doi and existing_rec.doi.strip())
+                if not existing_has_doi:
+                    # Prefer DOI-bearing record when title-equivalent records collide.
+                    deduped[existing_index] = rec
+                    seen_dois.add(doi_key)
+                    stats["title_duplicates"] += 1
+                    continue
+
             seen_dois.add(doi_key)
+            seen_titles.add(norm_title)
+            title_to_index[norm_title] = len(deduped)
+            deduped.append(rec)
+            continue
+
+        # DOI-less records fall back to title-based deduplication.
         if norm_title in seen_titles:
             existing_index = title_to_index[norm_title]
             existing_rec = deduped[existing_index]
-            incoming_has_doi = bool(rec.doi and rec.doi.strip())
             existing_has_doi = bool(existing_rec.doi and existing_rec.doi.strip())
-            if incoming_has_doi and not existing_has_doi:
-                # Prefer DOI-bearing record when title-equivalent records collide.
-                deduped[existing_index] = rec
+            if existing_has_doi:
                 stats["title_duplicates"] += 1
                 continue
             stats["title_duplicates"] += 1
