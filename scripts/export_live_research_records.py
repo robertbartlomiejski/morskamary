@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -32,8 +33,10 @@ from typing import Any, Dict, List, Set, Tuple
 
 import yaml
 
-from src.scientific_sources.models import LiteratureRecord, SourceEvidence
-from src.scientific_sources.source_registry import SourceRegistry
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+from src.scientific_sources.models import LiteratureRecord, SourceEvidence  # noqa: E402
+from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
 
 
 def normalize_title(title: str) -> str:
