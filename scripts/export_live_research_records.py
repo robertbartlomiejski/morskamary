@@ -275,11 +275,14 @@ def main() -> int:
 
     # Provider names in the same order SourceRegistry.search() uses.
     registry_provider_order = [cap.name for cap in registry.list_capabilities()]
-    queried_providers = (
-        [name for name in registry_provider_order if name in provider_list]
-        if provider_list
-        else registry_provider_order
-    )
+    if provider_list:
+        queried_providers = [
+            name for name in registry_provider_order if name in provider_list
+        ]
+        if not queried_providers:
+            queried_providers = list(provider_list)
+    else:
+        queried_providers = registry_provider_order
 
     # Storage for all results
     all_records: List[LiteratureRecord] = []
