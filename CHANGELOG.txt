@@ -52,6 +52,7 @@ Provenance python -m pytest --cov=src --cov-report=term-missing output.
 Quality checks python -m pytest -q passes (332 passed 1 skipped); python -m pytest --cov=src shows 100% total coverage.
 Reviewer GitHub Copilot Task Agent
 
+
 2026-04-29 (export live research records feature)
 Change type add
 Scope scripts config docs governance tests
