@@ -286,6 +286,12 @@ def main() -> int:
         print(
             f"Fetching records for {len(query_groups)} sectors with providers: {provider_list}"
         )
+        provider_set = set(provider_list)
+        queried_provider_names = [
+            cap.name
+            for cap in registry.list_capabilities()
+            if cap.name in provider_set
+        ]
         for sector_key, sector_data in query_groups.items():
             sector_label = sector_data.get("label", sector_key)
             queries = sector_data.get("queries", [])
@@ -296,12 +302,6 @@ def main() -> int:
                 results = registry.search(
                     query, max_results=args.max_results_per_query, providers=provider_list
                 )
-
-                queried_provider_names = [
-                    cap.name
-                    for cap in registry.list_capabilities()
-                    if cap.name in provider_list
-                ]
 
                 for i, result in enumerate(results):
                     mapped_provider = (
