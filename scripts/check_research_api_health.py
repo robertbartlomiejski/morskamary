@@ -22,6 +22,9 @@ import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 
+_REQUEST_TIMEOUT_SECONDS = 12
+_ERROR_BODY_MAX_BYTES = 512
+
 
 @dataclass
 class ProbeResult:
@@ -40,12 +43,12 @@ def _is_rate_limited(code: int, body: str) -> bool:
 def _request(url: str, headers: dict[str, str]) -> ProbeResult:
     req = urllib.request.Request(url, headers=headers)
     try:
-        with urllib.request.urlopen(req, timeout=12) as resp:
+        with urllib.request.urlopen(req, timeout=_REQUEST_TIMEOUT_SECONDS) as resp:
             return ProbeResult("", "ok", "request succeeded", resp.status)
     except urllib.error.HTTPError as exc:
         body = ""
         try:
-            body = exc.read(512).decode("utf-8", errors="ignore")
+            body = exc.read(_ERROR_BODY_MAX_BYTES).decode("utf-8", errors="ignore")
         except Exception:
             pass
         if _is_rate_limited(exc.code, body):
@@ -64,8 +67,13 @@ def probe_crossref() -> ProbeResult:
     return result
 
 
+def _get_elsevier_key() -> str:
+    """Return the Elsevier API key from either ELSEVIER_API_KEY or SCOPUS_API_KEY."""
+    return os.getenv("ELSEVIER_API_KEY", "") or os.getenv("SCOPUS_API_KEY", "")
+
+
 def probe_scopus() -> ProbeResult:
-    key = os.getenv("ELSEVIER_API_KEY", "") or os.getenv("SCOPUS_API_KEY", "")
+    key = _get_elsevier_key()
     if not key:
         return ProbeResult("scopus", "missing", "ELSEVIER_API_KEY/SCOPUS_API_KEY not set")
     query = urllib.parse.quote("TITLE(ocean)")
