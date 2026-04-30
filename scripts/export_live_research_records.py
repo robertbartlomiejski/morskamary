@@ -64,6 +64,7 @@ def deduplicate_records(
     """
     seen_dois: Set[str] = set()
     seen_titles: Set[str] = set()
+    title_to_index: Dict[str, int] = {}
     deduped: List[LiteratureRecord] = []
     stats = {"doi_duplicates": 0, "title_duplicates": 0}
 
@@ -77,9 +78,19 @@ def deduplicate_records(
                 continue
             seen_dois.add(doi_key)
         if norm_title in seen_titles:
+            existing_index = title_to_index[norm_title]
+            existing_rec = deduped[existing_index]
+            incoming_has_doi = bool(rec.doi and rec.doi.strip())
+            existing_has_doi = bool(existing_rec.doi and existing_rec.doi.strip())
+            if incoming_has_doi and not existing_has_doi:
+                # Prefer DOI-bearing record when title-equivalent records collide.
+                deduped[existing_index] = rec
+                stats["title_duplicates"] += 1
+                continue
             stats["title_duplicates"] += 1
             continue
         seen_titles.add(norm_title)
+        title_to_index[norm_title] = len(deduped)
         deduped.append(rec)
 
     return deduped, stats

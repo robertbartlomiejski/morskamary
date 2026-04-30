@@ -127,6 +127,21 @@ class TestDeduplicateRecords:
         assert stats["doi_duplicates"] == 0
         assert stats["title_duplicates"] == 1
 
+    def test_prefers_doi_record_when_no_doi_variant_comes_first(self):
+        """On title collision, DOI-bearing record should replace no-DOI record."""
+        rec1 = _make_record(doi="", title="Blue Economy Governance", source_id="no-doi")
+        rec2 = _make_record(
+            doi="10.1234/x",
+            title="BLUE ECONOMY: GOVERNANCE!",
+            source_id="with-doi",
+        )
+        deduped, stats = deduplicate_records([rec1, rec2])
+        assert len(deduped) == 1
+        assert deduped[0].doi == "10.1234/x"
+        assert deduped[0].source_id == "with-doi"
+        assert stats["doi_duplicates"] == 0
+        assert stats["title_duplicates"] == 1
+
 
 class TestBuildCoverageReport:
     def test_builds_coverage_rows(self):
