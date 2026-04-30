@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -32,8 +33,10 @@ from typing import Any, Dict, List, Set, Tuple
 
 import yaml
 
-from src.scientific_sources.models import LiteratureRecord, SourceEvidence
-from src.scientific_sources.source_registry import SourceRegistry
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+from src.scientific_sources.models import LiteratureRecord, SourceEvidence  # noqa: E402
+from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
 
 
 def normalize_title(title: str) -> str:
@@ -64,25 +67,41 @@ def deduplicate_records(
     """
     seen_dois: Set[str] = set()
     seen_titles: Set[str] = set()
+    # Maps norm_title → index in `deduped` for records accepted without a DOI.
+    # When a DOI-bearing record for the same title arrives later we upgrade the
+    # slot in-place so the DOI record wins (DOI-first policy).
+    nondoi_title_idx: Dict[str, int] = {}
     deduped: List[LiteratureRecord] = []
     stats = {"doi_duplicates": 0, "title_duplicates": 0}
 
     for rec in records:
-        # DOI dedup (if DOI is present)
+        norm_title = normalize_title(rec.title)
         if rec.doi:
             doi_key = rec.doi.strip().lower()
             if doi_key in seen_dois:
                 stats["doi_duplicates"] += 1
                 continue
+            # A no-DOI record with the same title was accepted earlier: upgrade
+            # it with this DOI-bearing record so the DOI version wins.
+            if norm_title in nondoi_title_idx:
+                deduped[nondoi_title_idx.pop(norm_title)] = rec
+                seen_dois.add(doi_key)
+                # Count as a title duplicate: the incoming record was matched
+                # by title (not DOI) against a previously accepted no-DOI slot.
+                stats["title_duplicates"] += 1
+                continue
+            # Distinct DOIs identify distinct papers even if titles happen to
+            # match, so keep the record regardless of seen_titles.
             seen_dois.add(doi_key)
-            seen_titles.add(normalize_title(rec.title))
+            seen_titles.add(norm_title)
             deduped.append(rec)
         else:
-            # Title dedup (if no DOI)
-            norm_title = normalize_title(rec.title)
+            # No DOI: skip if an accepted record (DOI or no-DOI) shares this title.
             if norm_title in seen_titles:
                 stats["title_duplicates"] += 1
                 continue
+            idx = len(deduped)
+            nondoi_title_idx[norm_title] = idx
             seen_titles.add(norm_title)
             deduped.append(rec)
 
