@@ -83,12 +83,12 @@ function Convert-SecureStringToPlainText {
     }
 }
 
-function Escape-PowerShellSingleQuoted {
+function ConvertTo-PowerShellSingleQuoted {
     param([string]$Value)
     return $Value.Replace("'", "''")
 }
 
-function Escape-BashDoubleQuoted {
+function ConvertTo-BashDoubleQuoted {
     param([string]$Value)
     $escaped = $Value.Replace("\", "\\")
     $escaped = $escaped.Replace('"', '\"')
