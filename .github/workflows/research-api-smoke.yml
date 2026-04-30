@@ -52,6 +52,9 @@ jobs:
           WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
           SCIVAL_API_KEY: ${{ secrets.SCIVAL_API_KEY }}
         run: |
+          python scripts/check_research_api_health.py \
+            --require-valid \
+            --output outputs/research_api_health.json
           LIVE_RESEARCH_API_TESTS=true \
             python scripts/smoke_scientific_bridge.py --live-if-secrets-present
 
@@ -68,6 +71,8 @@ jobs:
         if: always()
         with:
           name: research-source-capabilities
-          path: outputs/research_source_capabilities.json
+          path: |
+            outputs/research_source_capabilities.json
+            outputs/research_api_health.json
           if-no-files-found: warn
           retention-days: 7
