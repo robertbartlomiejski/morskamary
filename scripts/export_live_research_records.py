@@ -350,15 +350,32 @@ def main() -> int:
         f"{dedup_stats['title_duplicates']} title duplicates)"
     )
 
+    def record_dedup_key(record: LiteratureRecord) -> str:
+        """
+        Return the canonical deduplication key for a literature record.
+
+        Uses DOI when available, otherwise falls back to normalized title.
+        """
+        if record.doi:
+            return f"doi:{record.doi.lower().strip()}"
+        return f"title:{normalize_title(record.title)}"
+
     # Filter by provider for provider-specific exports
     crossref_records = [r for r in deduped_records if r.provider == "Crossref"]
 
-    # Filter low-confidence records
-    low_confidence_record_ids: Set[str] = {
-        p.record_id for p in all_provenance if p.confidence_score < 0.8
+    # Filter low-confidence records using the same identity as deduplication.
+    # Provenance record IDs are provider-specific, so translate them back to
+    # DOI/title-based keys before matching against deduplicated records.
+    record_key_by_source_id: Dict[str, str] = {
+        record.source_id: record_dedup_key(record) for record in all_records
+    }
+    low_confidence_record_keys: Set[str] = {
+        record_key_by_source_id[p.record_id]
+        for p in all_provenance
+        if p.confidence_score < 0.8 and p.record_id in record_key_by_source_id
     }
     low_confidence_records = [
-        r for r in deduped_records if r.source_id in low_confidence_record_ids
+        r for r in deduped_records if record_dedup_key(r) in low_confidence_record_keys
     ]
 
     # Build coverage report
