@@ -56,6 +56,10 @@ def deduplicate_records(
     """
     Deduplicate records by DOI first, then by normalized title.
 
+    When records share a normalized title, the DOI-bearing variant is preferred
+    regardless of input order. However, records with different DOIs are never
+    considered duplicates even if they share the same title.
+
     Args:
         records: List of LiteratureRecord objects.
 
@@ -63,11 +67,13 @@ def deduplicate_records(
         Tuple of (deduplicated_records, dedup_stats).
     """
     seen_dois: Set[str] = set()
-    seen_titles: Set[str] = set()
+    seen_titles: Dict[str, int] = {}  # Maps normalized title -> index in deduped
     deduped: List[LiteratureRecord] = []
     stats = {"doi_duplicates": 0, "title_duplicates": 0}
 
     for rec in records:
+        norm_title = normalize_title(rec.title)
+
         # DOI dedup (if DOI is present)
         if rec.doi:
             doi_key = rec.doi.strip().lower()
@@ -75,15 +81,27 @@ def deduplicate_records(
                 stats["doi_duplicates"] += 1
                 continue
             seen_dois.add(doi_key)
-            seen_titles.add(normalize_title(rec.title))
-            deduped.append(rec)
+
+            # Check if we've already seen this title (from a record without DOI)
+            if norm_title in seen_titles:
+                idx = seen_titles[norm_title]
+                # Only replace if the existing record has no DOI
+                if not deduped[idx].doi:
+                    deduped[idx] = rec
+                    stats["title_duplicates"] += 1
+                else:
+                    # Different DOIs with same title - keep both
+                    deduped.append(rec)
+            else:
+                # New title, add it
+                seen_titles[norm_title] = len(deduped)
+                deduped.append(rec)
         else:
             # Title dedup (if no DOI)
-            norm_title = normalize_title(rec.title)
             if norm_title in seen_titles:
                 stats["title_duplicates"] += 1
                 continue
-            seen_titles.add(norm_title)
+            seen_titles[norm_title] = len(deduped)
             deduped.append(rec)
 
     return deduped, stats
