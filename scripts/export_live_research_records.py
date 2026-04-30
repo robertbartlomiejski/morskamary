@@ -68,6 +68,7 @@ def deduplicate_records(
     stats = {"doi_duplicates": 0, "title_duplicates": 0}
 
     for rec in records:
+        norm_title = normalize_title(rec.title)
         # DOI dedup (if DOI is present)
         if rec.doi:
             doi_key = rec.doi.strip().lower()
@@ -75,16 +76,11 @@ def deduplicate_records(
                 stats["doi_duplicates"] += 1
                 continue
             seen_dois.add(doi_key)
-            seen_titles.add(normalize_title(rec.title))
-            deduped.append(rec)
-        else:
-            # Title dedup (if no DOI)
-            norm_title = normalize_title(rec.title)
-            if norm_title in seen_titles:
-                stats["title_duplicates"] += 1
-                continue
-            seen_titles.add(norm_title)
-            deduped.append(rec)
+        if norm_title in seen_titles:
+            stats["title_duplicates"] += 1
+            continue
+        seen_titles.add(norm_title)
+        deduped.append(rec)
 
     return deduped, stats
 
