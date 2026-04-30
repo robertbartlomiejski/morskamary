@@ -124,10 +124,19 @@ class TestDeduplicateRecords:
         rec2 = _make_record(doi="", title="BLUE ECONOMY: GOVERNANCE!")
         deduped, stats = deduplicate_records([rec1, rec2])
         assert len(deduped) == 1
+        assert deduped[0].doi == "10.1234/x"
         assert stats["doi_duplicates"] == 0
         assert stats["title_duplicates"] == 1
 
-
+    def test_prefers_doi_record_for_title_duplicate_regardless_of_order(self):
+        """Title dedup should prefer the DOI-bearing variant regardless of input order."""
+        rec1 = _make_record(doi="", title="BLUE ECONOMY: GOVERNANCE!")
+        rec2 = _make_record(doi="10.1234/x", title="Blue Economy Governance")
+        deduped, stats = deduplicate_records([rec1, rec2])
+        assert len(deduped) == 1
+        assert deduped[0].doi == "10.1234/x"
+        assert stats["doi_duplicates"] == 0
+        assert stats["title_duplicates"] == 1
 class TestBuildCoverageReport:
     def test_builds_coverage_rows(self):
         items = [
