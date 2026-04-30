@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-30 (guard against empty/invalid YAML query config)
+Change type fix
+Scope scripts tests
+Files affected scripts/export_live_research_records.py tests/test_export_live_research_records.py CHANGELOG.txt
+Summary Added an isinstance(query_config, dict) guard after yaml.safe_load in export_live_research_records.py (line 268 area) so that empty files, comment-only files, or non-dict scalars produce a clear user-facing error message (exit code 1) instead of raising AttributeError. Added three new integration tests covering the empty, comment-only, and scalar YAML scenarios.
+Reason yaml.safe_load returns None for empty/comment-only files and non-dict scalars for other malformed inputs; calling .get() on those values raised AttributeError and broke the export workflow with an opaque traceback.
+Impact Export script now exits cleanly with an actionable error message when the query YAML file is present but empty or malformed. No change to behaviour for valid query files.
+Provenance Code review comment on scripts/export_live_research_records.py line 268 (P2 badge).
+Quality checks python -m pytest tests/test_export_live_research_records.py -v passes (25 passed).
+Reviewer GitHub Copilot Coding Agent
+
 2026-04-30 (fix stale MANIFEST_SOURCES.csv)
 Change type fix
 Scope governance
