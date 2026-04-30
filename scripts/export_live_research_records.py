@@ -32,10 +32,15 @@ from typing import Any, Dict, List, Set, Tuple
 
 import yaml
 
-from src.scientific_sources.models import LiteratureRecord, SourceEvidence
-from src.scientific_sources.source_registry import SourceRegistry
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-
+from src.scientific_sources.models import (  # noqa: E402
+    LiteratureRecord,
+    SourceEvidence,
+)
+from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
 def normalize_title(title: str) -> str:
     """
     Normalize a title for deduplication.
