@@ -59,6 +59,16 @@ def _make_evidence(**kwargs) -> SourceEvidence:
     return SourceEvidence(**defaults)
 
 
+def _make_capability(*names: str) -> list:
+    """Return a list of mock SourceCapability objects for the given provider names."""
+    caps = []
+    for name in names:
+        cap = MagicMock()
+        cap.name = name
+        caps.append(cap)
+    return caps
+
+
 # ---------------------------------------------------------------------------
 # Unit tests for helper functions
 # ---------------------------------------------------------------------------
@@ -312,6 +322,7 @@ query_groups:
         ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
             monkeypatch.setattr(
@@ -374,6 +385,7 @@ query_groups:
         ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
             monkeypatch.setattr(
@@ -428,6 +440,7 @@ query_groups:
         ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
             monkeypatch.setattr(
@@ -505,6 +518,7 @@ query_groups:
         ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
             monkeypatch.setattr(
@@ -630,6 +644,7 @@ query_groups:
         ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
             monkeypatch.setattr(

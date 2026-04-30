@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-04-30 (fix provider ordering in coverage report and E305 blank-line lint)
+Change type fix
+Scope scripts tests
+Files affected scripts/export_live_research_records.py tests/test_export_live_research_records.py CHANGELOG.txt
+Summary Fixed provider_name attribution in coverage rows: instead of indexing into provider_list (which reflects user input order), derive ordered_provider_names from registry.list_capabilities() filtered by provider_list — matching the order SourceRegistry.search() actually returns results. Also added the PEP 8 E305 blank line between the SourceRegistry import and the first function definition.
+Reason SourceRegistry.search() preserves the registry's internal _providers order, not the caller's requested provider order. Indexing provider_list[i] therefore mislabelled coverage rows when the user-specified --providers order differed from the registry order.
+Impact Coverage CSV now correctly attributes provider names for all result positions, including zero-record providers.
+Provenance Code review comment on scripts/export_live_research_records.py lines 338-343.
+Quality checks python -m pytest tests/test_export_live_research_records.py -v passes (27 passed); flake8 scripts/export_live_research_records.py clean.
+Reviewer GitHub Copilot Coding Agent
+
 2026-04-30 (guard against empty/invalid YAML query config)
 Change type fix
 Scope scripts tests

@@ -41,6 +41,8 @@ from src.scientific_sources.models import (  # noqa: E402
     SourceEvidence,
 )
 from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
+
+
 def normalize_title(title: str) -> str:
     """
     Normalize a title for deduplication.
@@ -302,7 +304,6 @@ def main() -> int:
         )
         return 1
 
-
     query_groups = query_config.get("query_groups", {})
     if not query_groups:
         print("Error: No query_groups found in query file", file=sys.stderr)
@@ -310,6 +311,15 @@ def main() -> int:
 
     # Initialize registry
     registry = SourceRegistry()
+
+    # Derive the ordered list of provider names as the registry will return them.
+    # registry.search() filters _providers by name membership in provider_list but
+    # preserves the registry's internal order — NOT the order of provider_list itself.
+    ordered_provider_names: List[str] = [
+        cap.name
+        for cap in registry.list_capabilities()
+        if cap.name in provider_list
+    ]
 
     # Storage for all results
     all_records: List[LiteratureRecord] = []
@@ -322,7 +332,7 @@ def main() -> int:
     else:
         # Execute queries
         print(
-            f"Fetching records for {len(query_groups)} sectors with providers: {provider_list}"
+            f"Fetching records for {len(query_groups)} sectors with providers: {ordered_provider_names}"
         )
         for sector_key, sector_data in query_groups.items():
             sector_label = sector_data.get("label", sector_key)
@@ -337,8 +347,8 @@ def main() -> int:
 
                 for i, result in enumerate(results):
                     provider_name = (
-                        provider_list[i]
-                        if i < len(provider_list)
+                        ordered_provider_names[i]
+                        if i < len(ordered_provider_names)
                         else (
                             result.records[0].provider
                             if result.records
