@@ -206,3 +206,66 @@ class TestTriangulation:
         text = format_overlap_matrix_text(results)
         assert "Provider Overlap Matrix" in text
         assert "Total unique DOIs" in text
+
+
+# ---------------------------------------------------------------------------
+# Jaccard similarity edge cases (covers deduplication.py lines 53, 55)
+# ---------------------------------------------------------------------------
+
+
+class TestJaccardSimilarity:
+    def test_both_empty_strings_return_one(self):
+        from src.nlp_reliability.deduplication import _jaccard_similarity
+
+        assert _jaccard_similarity("", "") == 1.0
+
+    def test_one_empty_string_returns_zero(self):
+        from src.nlp_reliability.deduplication import _jaccard_similarity
+
+        assert _jaccard_similarity("", "blue economy") == 0.0
+        assert _jaccard_similarity("ocean governance", "") == 0.0
+
+
+# ---------------------------------------------------------------------------
+# Subject term frequency (covers source_coverage.py line 68)
+# ---------------------------------------------------------------------------
+
+
+class TestSourceCoverageSubjectTerms:
+    def test_subject_terms_are_counted(self):
+        records = [
+            _rec(
+                doi="10.1/a",
+                source_id="a",
+                subject_terms=["blue economy", "ocean"],
+            ),
+            _rec(
+                doi="10.1/b",
+                source_id="b",
+                subject_terms=["blue economy"],
+            ),
+        ]
+        cov = compute_coverage(records)
+        assert cov["subject_term_frequency"]["blue economy"] == 2
+        assert cov["subject_term_frequency"]["ocean"] == 1
+
+
+# ---------------------------------------------------------------------------
+# format_overlap_matrix_text with pairwise overlap (covers triangulation.py
+# lines 100-102)
+# ---------------------------------------------------------------------------
+
+
+class TestTriangulationPairwiseFormat:
+    def test_format_overlap_text_shows_pairwise_overlap_section(self):
+        results = [
+            ProviderResult(
+                records=[_rec(doi="10.1/a", source_id="a", provider="Crossref")]
+            ),
+            ProviderResult(
+                records=[_rec(doi="10.1/a", source_id="b", provider="Scopus")]
+            ),
+        ]
+        text = format_overlap_matrix_text(results)
+        assert "Pairwise overlap:" in text
+        assert "shared DOI" in text

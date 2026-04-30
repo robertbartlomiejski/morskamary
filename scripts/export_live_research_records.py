@@ -295,6 +295,14 @@ def main() -> int:
     with open(query_file_path, "r", encoding="utf-8") as f:
         query_config = yaml.safe_load(f)
 
+    if not isinstance(query_config, dict):
+        print(
+            f"Error: Query file is empty or not a valid YAML mapping: {query_file_path}",
+            file=sys.stderr,
+        )
+        return 1
+
+
     query_groups = query_config.get("query_groups", {})
     if not query_groups:
         print("Error: No query_groups found in query file", file=sys.stderr)
