@@ -83,12 +83,12 @@ function Convert-SecureStringToPlainText {
     }
 }
 
-function Escape-PowerShellSingleQuoted {
+function ConvertTo-PowerShellSingleQuoted {
     param([string]$Value)
     return $Value.Replace("'", "''")
 }
 
-function Escape-BashDoubleQuoted {
+function ConvertTo-BashDoubleQuoted {
     param([string]$Value)
     $escaped = $Value.Replace("\", "\\")
     $escaped = $escaped.Replace('"', '\"')
@@ -173,8 +173,8 @@ switch ($BackendNorm) {
         foreach ($varName in $SecretMap.Keys) {
             $val = $Values[$varName]
             if (-not [string]::IsNullOrEmpty($val)) {
-                $bashVal = Escape-BashDoubleQuoted -Value $val
-                $psVal = Escape-PowerShellSingleQuoted -Value $val
+                $bashVal = ConvertTo-BashDoubleQuoted -Value $val
+                $psVal = ConvertTo-PowerShellSingleQuoted -Value $val
 
                 $bashLines += "export $varName=""$bashVal"""
                 $ps1Lines += "`$env:$varName = '$psVal'"
