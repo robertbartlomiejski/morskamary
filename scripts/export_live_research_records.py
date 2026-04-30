@@ -288,7 +288,7 @@ def main() -> int:
         )
         provider_set = set(provider_list)
         queried_provider_names = [
-            cap.name
+            getattr(cap, "provider", cap.name)
             for cap in registry.list_capabilities()
             if cap.name in provider_set
         ]
