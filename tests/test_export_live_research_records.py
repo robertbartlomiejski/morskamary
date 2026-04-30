@@ -118,6 +118,20 @@ class TestDeduplicateRecords:
         assert len(deduped) == 1
         assert stats["doi_duplicates"] == 2
 
+
+    def test_doi_title_dedup_is_order_independent(self):
+        """The DOI-bearing variant must win regardless of input order."""
+        title_only = _make_record(doi="", title="Blue Economy Governance")
+        with_doi = _make_record(doi="10.1234/order", title="BLUE ECONOMY: GOVERNANCE!")
+
+        first_pass, _ = deduplicate_records([title_only, with_doi])
+        second_pass, _ = deduplicate_records([with_doi, title_only])
+
+        assert len(first_pass) == 1
+        assert len(second_pass) == 1
+        assert first_pass[0].doi == "10.1234/order"
+        assert second_pass[0].doi == "10.1234/order"
+
     def test_deduplicates_later_doi_record_against_earlier_title_only_match(self):
         """
         A later DOI-bearing record with the same normalized title must not leak
