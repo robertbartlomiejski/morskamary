@@ -75,6 +75,7 @@ To make credentials persistent across sessions, add to your shell profile:
 
 ```bash
 python scripts/check_research_env.py
+python scripts/check_research_api_health.py --output outputs/research_api_health.json
 ```
 
 ### 4. Run offline smoke test (no API keys required)
@@ -207,6 +208,27 @@ gh secret list
 The `.github/workflows/research-api-smoke.yml` workflow runs on
 `workflow_dispatch` only and requires `LIVE_RESEARCH_API_TESTS=true` to
 make live API calls.
+
+## Preflight credential health statuses
+
+`scripts/check_research_api_health.py` returns one of:
+
+- `missing` — credential not provided.
+- `present-but-invalid` — key present but rejected/unauthorized.
+- `rate-limited` — provider throttled request.
+- `ok` — authenticated probe succeeded.
+
+Use `--require-valid` in CI/live runs to fail fast on invalid or throttled
+credentials before long-running export workflows.
+
+### Troubleshooting revoked/cancelled credentials
+
+If status is `present-but-invalid`:
+
+1. Confirm the account/subscription is still active in provider admin.
+2. Regenerate or un-revoke API key/token.
+3. Update local `.env` / GitHub Actions secret / Secret Manager value.
+4. Re-run `python scripts/check_research_api_health.py --require-valid`.
 
 ---
 

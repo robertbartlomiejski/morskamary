@@ -44,6 +44,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .
 
+      - name: Research API preflight health check
+        if: github.event.inputs.offline != 'true'
+        run: |
+          python scripts/check_research_api_health.py \
+            --require-valid \
+            --output outputs/research_api_health.json
+
       - name: Export live research records
         run: |
           python scripts/export_live_research_records.py \
@@ -57,7 +64,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: research-sources-${{ github.run_number }}
-          path: outputs/research_sources/
+          path: |
+            outputs/research_sources/
+            outputs/research_api_health.json
           retention-days: 30
           if-no-files-found: warn
 
