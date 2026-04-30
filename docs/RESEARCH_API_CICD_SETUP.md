@@ -53,6 +53,7 @@ Quick start:
 pip install -e .[dev]
 ./scripts/bootstrap_research_secrets.sh --backend dotenv
 python scripts/check_research_env.py
+python scripts/check_research_api_health.py --output outputs/research_api_health.json
 python scripts/smoke_scientific_bridge.py --offline
 ```
 
@@ -93,3 +94,30 @@ After running `terraform apply` in `infra/gcp-mirror/`:
 4. Store only permitted bibliographic metadata, not restricted database payloads.
 5. Live API tests must be explicitly enabled (`LIVE_RESEARCH_API_TESTS=true`).
 6. GitHub Actions primary CI must pass without any external API keys.
+
+## Preflight API health gate (CI)
+
+Before live export workflows, CI now runs `scripts/check_research_api_health.py`
+to validate provider credentials with lightweight authenticated requests.
+
+- Statuses are explicit and machine-readable: `missing`, `present-but-invalid`,
+  `rate-limited`, `ok`.
+- The script does **not** print secret values and writes a sanitized artifact:
+  `outputs/research_api_health.json`.
+- In CI, `--require-valid` fails fast when any enabled provider is
+  `present-but-invalid` or `rate-limited`.
+
+### Troubleshooting revoked/cancelled API configs
+
+If a provider moves from `ok` to `present-but-invalid`, usually one of:
+
+1. API key revoked or rotated by provider admin.
+2. Subscription expired/cancelled (license removed).
+3. Key scope no longer includes requested endpoint.
+
+Recommended response:
+
+1. Re-issue key in provider portal.
+2. Update corresponding GitHub secret.
+3. Re-run the preflight health check.
+4. If only temporary throttling, retry later when status is `rate-limited`.
