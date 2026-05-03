@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-05-03 (validate and normalise --providers CLI argument)
+Change type fix
+Scope scripts tests
+Files affected scripts/export_live_research_records.py tests/test_export_live_research_records.py CHANGELOG.txt
+Summary Normalised provider names to lowercase on parse (preventing silent mismatches like "Crossref" vs "crossref"), rejected empty provider lists, and added validation of provider names against registry capabilities (unknown names now exit 1 with a clear error listing valid names). Added 3 new integration tests: test_unknown_provider_returns_error, test_mixed_case_provider_is_normalised, test_empty_providers_string_returns_error.
+Reason SourceCapability.name values are lowercase (crossref, scopus, etc.). Passing "Crossref" or a typo like "crossreff" previously silently resulted in zero providers being queried, producing empty outputs that could be misread as "no literature found".
+Impact Export script now rejects unrecognised provider names and normalises case; existing users passing lowercase names see no behaviour change.
+Provenance Review thread pullrequestreview-4207014085, comment at scripts/export_live_research_records.py:285.
+Quality checks python -m pytest -q passes (341 passed, 1 skipped); flake8 scripts/export_live_research_records.py clean.
+Reviewer GitHub Copilot Coding Agent
+
 2026-04-30 (fix provider ordering in coverage report and E305 blank-line lint)
 Change type fix
 Scope scripts tests

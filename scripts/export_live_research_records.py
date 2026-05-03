@@ -282,8 +282,17 @@ def main() -> int:
 
     args = parser.parse_args()
 
-    # Parse providers
-    provider_list = [p.strip() for p in args.providers.split(",")]
+    # Parse providers — normalize to lowercase and drop empty tokens so that
+    # case variants like "Crossref" match the registry's canonical names and
+    # an accidental empty string (e.g. --providers "") produces a clear error.
+    provider_list = [p.strip().lower() for p in args.providers.split(",") if p.strip()]
+    if not provider_list:
+        print(
+            "Error: --providers must not be empty. "
+            "Specify one or more provider names (e.g. crossref).",
+            file=sys.stderr,
+        )
+        return 1
 
     # Parse offline mode
     offline = args.offline.lower() in ("true", "1", "yes")
@@ -311,6 +320,17 @@ def main() -> int:
 
     # Initialize registry
     registry = SourceRegistry()
+
+    # Validate that every requested provider name is known to the registry.
+    known_names: Set[str] = {cap.name for cap in registry.list_capabilities()}
+    unknown = [p for p in provider_list if p not in known_names]
+    if unknown:
+        print(
+            f"Error: Unknown provider(s): {unknown}. "
+            f"Valid names are: {sorted(known_names)}",
+            file=sys.stderr,
+        )
+        return 1
 
     # Derive the ordered list of provider names as the registry will return them.
     # registry.search() filters _providers by name membership in provider_list but

@@ -675,3 +675,124 @@ query_groups:
             assert rows[0]["provider"] == "crossref"
             assert rows[0]["record_count"] == "0"
             assert rows[0]["sector"] == "Test Sector"
+
+    def test_unknown_provider_returns_error(self, tmp_path, monkeypatch, capsys):
+        """An unrecognised provider name must return error code 1 with a clear message."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test"
+    queries:
+      - "query1"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.list_capabilities.return_value = _make_capability(
+                "crossref", "scopus"
+            )
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--providers",
+                    "crossreff",
+                ],
+            )
+
+            result = main()
+            assert result == 1
+            captured = capsys.readouterr()
+            assert "Unknown provider" in captured.err
+            assert "crossreff" in captured.err
+
+    def test_mixed_case_provider_is_normalised(self, tmp_path, monkeypatch):
+        """Provider names like 'Crossref' should be normalised to lowercase and accepted."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test"
+    queries:
+      - "query1"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+        mock_result = ProviderResult(records=[], provenance=[])
+
+        def mock_search(query, max_results, providers):
+            return [mock_result]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "Crossref",
+                ],
+            )
+
+            result = main()
+            assert result == 0
+
+    def test_empty_providers_string_returns_error(self, tmp_path, monkeypatch, capsys):
+        """Passing an empty string for --providers must return error code 1."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test"
+    queries:
+      - "query1"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "export_live_research_records.py",
+                "--query-file",
+                str(query_file),
+                "--output-dir",
+                str(output_dir),
+                "--providers",
+                "",
+            ],
+        )
+
+        result = main()
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "--providers must not be empty" in captured.err
