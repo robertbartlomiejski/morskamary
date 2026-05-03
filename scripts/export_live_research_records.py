@@ -71,52 +71,43 @@ def deduplicate_records(
     """
     seen_dois: Set[str] = set()
     seen_titles: Set[str] = set()
-    title_to_index: Dict[str, int] = {}
+    # Maps norm_title → index in `deduped` for records accepted without a DOI.
+    # When a DOI-bearing record for the same title arrives later we upgrade the
+    # slot in-place so the DOI record wins (DOI-first policy).
+    nondoi_title_idx: Dict[str, int] = {}
     deduped: List[LiteratureRecord] = []
     stats = {"doi_duplicates": 0, "title_duplicates": 0}
 
     for rec in records:
         norm_title = normalize_title(rec.title)
-        has_doi = bool(rec.doi and rec.doi.strip())
-        doi_key = rec.doi.strip().lower() if has_doi else ""
-
-        # DOI-bearing records are deduplicated by DOI only. A title collision
-        # should only replace an existing DOI-less record with the same title.
-        if has_doi:
+        if rec.doi:
+            doi_key = rec.doi.strip().lower()
             if doi_key in seen_dois:
                 stats["doi_duplicates"] += 1
                 continue
-
-            if norm_title in seen_titles:
-                existing_index = title_to_index[norm_title]
-                existing_rec = deduped[existing_index]
-                existing_has_doi = bool(existing_rec.doi and existing_rec.doi.strip())
-                if not existing_has_doi:
-                    # Prefer DOI-bearing record when title-equivalent records collide.
-                    deduped[existing_index] = rec
-                    seen_dois.add(doi_key)
-                    stats["title_duplicates"] += 1
-                    continue
-
-            seen_dois.add(doi_key)
-            seen_titles.add(norm_title)
-            title_to_index[norm_title] = len(deduped)
-            deduped.append(rec)
-            continue
-
-        # DOI-less records fall back to title-based deduplication.
-        if norm_title in seen_titles:
-            existing_index = title_to_index[norm_title]
-            existing_rec = deduped[existing_index]
-            existing_has_doi = bool(existing_rec.doi and existing_rec.doi.strip())
-            if existing_has_doi:
+            # A no-DOI record with the same title was accepted earlier: upgrade
+            # it with this DOI-bearing record so the DOI version wins.
+            if norm_title in nondoi_title_idx:
+                deduped[nondoi_title_idx.pop(norm_title)] = rec
+                seen_dois.add(doi_key)
+                # Count as a title duplicate: the incoming record was matched
+                # by title (not DOI) against a previously accepted no-DOI slot.
                 stats["title_duplicates"] += 1
                 continue
-            stats["title_duplicates"] += 1
-            continue
-        seen_titles.add(norm_title)
-        title_to_index[norm_title] = len(deduped)
-        deduped.append(rec)
+            # Distinct DOIs identify distinct papers even if titles happen to
+            # match, so keep the record regardless of seen_titles.
+            seen_dois.add(doi_key)
+            seen_titles.add(norm_title)
+            deduped.append(rec)
+        else:
+            # No DOI: skip if an accepted record (DOI or no-DOI) shares this title.
+            if norm_title in seen_titles:
+                stats["title_duplicates"] += 1
+                continue
+            idx = len(deduped)
+            nondoi_title_idx[norm_title] = idx
+            seen_titles.add(norm_title)
+            deduped.append(rec)
 
     return deduped, stats
 

@@ -41,6 +41,17 @@ Provenance Code review comment on scripts/export_live_research_records.py lines 
 Quality checks python -m pytest tests/test_export_live_research_records.py -v passes (27 passed); flake8 scripts/export_live_research_records.py clean.
 Reviewer GitHub Copilot Coding Agent
 
+2026-04-30 (preflight API health check)
+Change type add
+Scope scripts workflows docs
+Files affected scripts/check_research_api_health.py .github/workflows/export-research-records.yml .github/workflows/research-api-smoke.yml docs/RESEARCH_API_CICD_SETUP.md docs/ONE_CLICK_RESEARCH_RUNBOOK.md CHANGELOG.txt
+Summary Added scripts/check_research_api_health.py, a lightweight preflight probe that verifies provider credentials before long-running live export workflows. Returns explicit machine-readable statuses (missing, present-but-invalid, rate-limited, ok) and writes a sanitized outputs/research_api_health.json artifact without printing secret values. Integrated into export-research-records and research-api-smoke workflows with --require-valid flag for CI gating.
+Reason Live export workflows would previously fail mid-run with opaque API errors when credentials were revoked or rate-limited; a fast preflight gate saves CI time and gives actionable diagnostics.
+Impact CI live-export workflows now fail fast with a clear error when credentials are invalid, rather than after full query execution. Sanitized health status artifact is retained per run.
+Provenance PR #120 (codex/extend-preflight-logic-for-api-health-checks).
+Quality checks python -m py_compile scripts/check_research_api_health.py passes; python -m pytest -q passes.
+Reviewer GitHub Copilot Task Agent
+
 2026-04-30 (guard against empty/invalid YAML query config)
 Change type fix
 Scope scripts tests

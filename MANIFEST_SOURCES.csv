@@ -811,6 +811,7 @@ scripts/bootstrap_research_secrets.sh,script,,,,,,bootstrap_research_secrets,no
 scripts/Breguła Weird Szczecin_250412_101024.txt,script,,,,,,Breguła_Weird_Szczecin_250412_101024,yes
 scripts/build_derived.py,script,,,,,,build_derived,no
 scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,no
+scripts/check_research_api_health.py,script,,,,,,check_research_api_health,no
 scripts/check_research_env.py,script,,,,,,check_research_env,no
 scripts/convert_pdfs_to_txt.py,script,,,,,,convert_pdfs_to_txt,no
 scripts/Delft wyjazd_241017_170643.txt,script,,,,,,Delft_wyjazd_241017_170643,yes
