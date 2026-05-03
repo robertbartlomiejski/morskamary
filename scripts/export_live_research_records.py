@@ -25,7 +25,6 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import os
 import re
 import sys
 from pathlib import Path
@@ -33,9 +32,14 @@ from typing import Any, Dict, List, Set, Tuple
 
 import yaml
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-from src.scientific_sources.models import LiteratureRecord, SourceEvidence  # noqa: E402
+from src.scientific_sources.models import (  # noqa: E402
+    LiteratureRecord,
+    SourceEvidence,
+)
 from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
 
 
@@ -269,8 +273,17 @@ def main() -> int:
 
     args = parser.parse_args()
 
-    # Parse providers
-    provider_list = [p.strip() for p in args.providers.split(",") if p.strip()]
+    # Parse providers — normalize to lowercase and drop empty tokens so that
+    # case variants like "Crossref" match the registry's canonical names and
+    # an accidental empty string (e.g. --providers "") produces a clear error.
+    provider_list = [p.strip().lower() for p in args.providers.split(",") if p.strip()]
+    if not provider_list:
+        print(
+            "Error: --providers must not be empty. "
+            "Specify one or more provider names (e.g. crossref).",
+            file=sys.stderr,
+        )
+        return 1
 
     # Parse offline mode
     offline = args.offline.lower() in ("true", "1", "yes")
@@ -299,16 +312,25 @@ def main() -> int:
     # Initialize registry
     registry = SourceRegistry()
 
-    # Provider names in the same order SourceRegistry.search() uses.
-    registry_provider_order = [cap.name for cap in registry.list_capabilities()]
-    if provider_list:
-        queried_providers = [
-            name for name in registry_provider_order if name in provider_list
-        ]
-        if not queried_providers:
-            queried_providers = list(provider_list)
-    else:
-        queried_providers = registry_provider_order
+    # Validate that every requested provider name is known to the registry.
+    known_names: Set[str] = {cap.name for cap in registry.list_capabilities()}
+    unknown = [p for p in provider_list if p not in known_names]
+    if unknown:
+        print(
+            f"Error: Unknown provider(s): {unknown}. "
+            f"Valid names are: {sorted(known_names)}",
+            file=sys.stderr,
+        )
+        return 1
+
+    # Derive the ordered list of provider names as the registry will return them.
+    # registry.search() filters _providers by name membership in provider_list but
+    # preserves the registry's internal order — NOT the order of provider_list itself.
+    ordered_provider_names: List[str] = [
+        cap.name
+        for cap in registry.list_capabilities()
+        if cap.name in provider_list
+    ]
 
     # Storage for all results
     all_records: List[LiteratureRecord] = []
@@ -321,7 +343,7 @@ def main() -> int:
     else:
         # Execute queries
         print(
-            f"Fetching records for {len(query_groups)} sectors with providers: {provider_list}"
+            f"Fetching records for {len(query_groups)} sectors with providers: {ordered_provider_names}"
         )
         for sector_key, sector_data in query_groups.items():
             sector_label = sector_data.get("label", sector_key)
@@ -336,8 +358,8 @@ def main() -> int:
 
                 for i, result in enumerate(results):
                     provider_name = (
-                        queried_providers[i]
-                        if i < len(queried_providers)
+                        ordered_provider_names[i]
+                        if i < len(ordered_provider_names)
                         else (
                             result.records[0].provider
                             if result.records

@@ -59,6 +59,16 @@ def _make_evidence(**kwargs) -> SourceEvidence:
     return SourceEvidence(**defaults)
 
 
+def _make_capability(*names: str) -> list:
+    """Return a list of mock SourceCapability objects for the given provider names."""
+    caps = []
+    for name in names:
+        cap = MagicMock()
+        cap.name = name
+        caps.append(cap)
+    return caps
+
+
 # ---------------------------------------------------------------------------
 # Unit tests for helper functions
 # ---------------------------------------------------------------------------
@@ -116,6 +126,29 @@ class TestDeduplicateRecords:
         assert len(deduped) == 1
         assert stats["doi_duplicates"] == 2
 
+    def test_removes_title_duplicate_when_only_one_record_has_doi(self):
+        """Title dedup must still run when one variant has DOI and one does not."""
+        rec1 = _make_record(doi="10.1234/x", title="Blue Economy Governance")
+        rec2 = _make_record(doi="", title="BLUE ECONOMY: GOVERNANCE!")
+        deduped, stats = deduplicate_records([rec1, rec2])
+        assert len(deduped) == 1
+        assert stats["doi_duplicates"] == 0
+        assert stats["title_duplicates"] == 1
+
+    def test_prefers_doi_record_when_no_doi_variant_comes_first(self):
+        """On title collision, DOI-bearing record should replace no-DOI record."""
+        rec1 = _make_record(doi="", title="Blue Economy Governance", source_id="no-doi")
+        rec2 = _make_record(
+            doi="10.1234/x",
+            title="BLUE ECONOMY: GOVERNANCE!",
+            source_id="with-doi",
+        )
+        deduped, stats = deduplicate_records([rec1, rec2])
+        assert len(deduped) == 1
+        assert deduped[0].doi == "10.1234/x"
+        assert deduped[0].source_id == "with-doi"
+        assert stats["doi_duplicates"] == 0
+        assert stats["title_duplicates"] == 1
 
     def test_doi_title_dedup_is_order_independent(self):
         """The DOI-bearing variant must win regardless of input order."""
@@ -313,6 +346,7 @@ query_groups:
         ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
             monkeypatch.setattr(
@@ -375,6 +409,7 @@ query_groups:
         ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
             monkeypatch.setattr(
@@ -429,6 +464,7 @@ query_groups:
         ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
             monkeypatch.setattr(
@@ -506,6 +542,7 @@ query_groups:
         ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
             monkeypatch.setattr(
@@ -630,6 +667,7 @@ query_groups:
         ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
             monkeypatch.setattr(
@@ -660,3 +698,194 @@ query_groups:
             assert rows[0]["provider"] == "crossref"
             assert rows[0]["record_count"] == "0"
             assert rows[0]["sector"] == "Test Sector"
+
+    def test_reversed_cli_provider_order_uses_registry_order_in_coverage(
+        self, tmp_path, monkeypatch
+    ):
+        """Coverage provider labels must follow registry order, not raw CLI order."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test Sector"
+    queries:
+      - "blue economy"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+        crossref_rec = _make_record(
+            provider="Crossref",
+            doi="10.1111/crossref",
+            source_id="crossref:10.1111/c",
+        )
+        scopus_rec = _make_record(
+            provider="Scopus",
+            doi="10.2222/scopus",
+            source_id="scopus:10.2222/s",
+        )
+        crossref_result = ProviderResult(records=[crossref_rec], provenance=[])
+        scopus_result = ProviderResult(records=[scopus_rec], provenance=[])
+
+        def mock_search(query, max_results, providers):
+            assert providers == ["scopus", "crossref"]
+            return [crossref_result, scopus_result]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability(
+                "crossref", "scopus"
+            )
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "scopus,crossref",
+                ],
+            )
+
+            result = main()
+            assert result == 0
+
+            import csv as csv_module
+
+            with open(output_dir / "live_source_coverage.csv", newline="") as f:
+                rows = list(csv_module.DictReader(f))
+
+            assert len(rows) == 2
+            assert rows[0]["provider"] == "crossref"
+            assert rows[1]["provider"] == "scopus"
+
+    def test_unknown_provider_returns_error(self, tmp_path, monkeypatch, capsys):
+        """An unrecognised provider name must return error code 1 with a clear message."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test"
+    queries:
+      - "query1"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.list_capabilities.return_value = _make_capability(
+                "crossref", "scopus"
+            )
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--providers",
+                    "crossreff",
+                ],
+            )
+
+            result = main()
+            assert result == 1
+            captured = capsys.readouterr()
+            assert "Unknown provider" in captured.err
+            assert "crossreff" in captured.err
+
+    def test_mixed_case_provider_is_normalised(self, tmp_path, monkeypatch):
+        """Provider names like 'Crossref' should be normalised to lowercase and accepted."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test"
+    queries:
+      - "query1"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+        mock_result = ProviderResult(records=[], provenance=[])
+
+        def mock_search(query, max_results, providers):
+            return [mock_result]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "Crossref",
+                ],
+            )
+
+            result = main()
+            assert result == 0
+
+    def test_empty_providers_string_returns_error(self, tmp_path, monkeypatch, capsys):
+        """Passing an empty string for --providers must return error code 1."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test"
+    queries:
+      - "query1"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "export_live_research_records.py",
+                "--query-file",
+                str(query_file),
+                "--output-dir",
+                str(output_dir),
+                "--providers",
+                "",
+            ],
+        )
+
+        result = main()
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "--providers must not be empty" in captured.err
