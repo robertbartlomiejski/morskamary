@@ -700,6 +700,76 @@ query_groups:
             assert rows[0]["record_count"] == "0"
             assert rows[0]["sector"] == "Test Sector"
 
+    def test_reversed_cli_provider_order_uses_registry_order_in_coverage(
+        self, tmp_path, monkeypatch
+    ):
+        """Coverage provider labels must follow registry order, not raw CLI order."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test Sector"
+    queries:
+      - "blue economy"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+        crossref_rec = _make_record(
+            provider="Crossref",
+            doi="10.1111/crossref",
+            source_id="crossref:10.1111/c",
+        )
+        scopus_rec = _make_record(
+            provider="Scopus",
+            doi="10.2222/scopus",
+            source_id="scopus:10.2222/s",
+        )
+        crossref_result = ProviderResult(records=[crossref_rec], provenance=[])
+        scopus_result = ProviderResult(records=[scopus_rec], provenance=[])
+
+        def mock_search(query, max_results, providers):
+            assert providers == ["scopus", "crossref"]
+            return [crossref_result, scopus_result]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability(
+                "crossref", "scopus"
+            )
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "scopus,crossref",
+                ],
+            )
+
+            result = main()
+            assert result == 0
+
+            import csv as csv_module
+
+            with open(output_dir / "live_source_coverage.csv", newline="") as f:
+                rows = list(csv_module.DictReader(f))
+
+            assert len(rows) == 2
+            assert rows[0]["provider"] == "crossref"
+            assert rows[1]["provider"] == "scopus"
+
     def test_unknown_provider_returns_error(self, tmp_path, monkeypatch, capsys):
         """An unrecognised provider name must return error code 1 with a clear message."""
         query_file = tmp_path / "queries.yml"
