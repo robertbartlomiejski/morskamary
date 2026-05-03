@@ -641,7 +641,6 @@ query_groups:
         captured = capsys.readouterr()
         assert "empty or not a valid YAML mapping" in captured.err
 
-
     def test_zero_record_provider_identity_in_coverage(self, tmp_path, monkeypatch):
         """Zero-record provider results must preserve provider identity in coverage CSV."""
         query_file = tmp_path / "queries.yml"
