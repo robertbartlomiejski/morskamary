@@ -9,7 +9,8 @@ For the technical rules about which metadata fields may be stored per provider,
 see `docs/RESEARCH_SOURCE_GOVERNANCE.md`.
 
 For the licence principles that govern all providers, see
-`docs/licensing_and_compliance.md`.
+`docs/licensing_and_compliance.md` — that document translates the authoritative
+rules in `DATA_GOVERNANCE.txt` into plain English for contributors.
 
 ---
 
