@@ -18,10 +18,36 @@ function Step {
 }
 
 function RunCmd {
-    param([string]$Exe, [string[]]$CmdArgs)
-    & $Exe @CmdArgs
-    if ($LASTEXITCODE -ne 0) {
-        throw "$Exe $($CmdArgs -join ' ') failed with exit code $LASTEXITCODE"
+    param(
+        [string]$Exe, 
+        [string[]]$CmdArgs,
+        [int]$MaxRetries = 3,
+        [int]$RetryDelaySeconds = 5
+    )
+    $attempt = 0
+    $success = $false
+    while (-not $success -and $attempt -lt $MaxRetries) {
+        $attempt++
+        try {
+            & $Exe @CmdArgs
+            if ($LASTEXITCODE -eq 0) {
+                $success = $true
+            } else {
+                if ($attempt -lt $MaxRetries) {
+                    Write-Host "  Attempt $attempt failed with exit code $LASTEXITCODE. Retrying in $RetryDelaySeconds seconds..." -ForegroundColor Yellow
+                    Start-Sleep -Seconds $RetryDelaySeconds
+                } else {
+                    throw "$Exe $($CmdArgs -join ' ') failed with exit code $LASTEXITCODE after $MaxRetries attempts."
+                }
+            }
+        } catch {
+            if ($attempt -lt $MaxRetries) {
+                Write-Host "  Attempt $attempt encountered an error: $($_.Exception.Message). Retrying in $RetryDelaySeconds seconds..." -ForegroundColor Yellow
+                Start-Sleep -Seconds $RetryDelaySeconds
+            } else {
+                throw
+            }
+        }
     }
 }
 

@@ -22,7 +22,7 @@ from src.competence_repository import (
 from src.utils import slugify
 
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "outputs" / "sector_dictionaries"
-AXES = ("MARINE", "MARITIME", "OCEANIC")
+AXES = ("MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION", "UNCLASSIFIED")
 
 
 def _to_dictionary_record(competence: Any) -> Dict[str, Any]:

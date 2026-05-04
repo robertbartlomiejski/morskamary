@@ -9,11 +9,13 @@ from enum import Enum
 
 
 class BlueDynamicsAxis(Enum):
-    """Tripartite Model of Blue Dynamics (TMBD) axes"""
+    """Quadripartite Model of Blue Dynamics (QMBD) axes"""
 
     MARINE = "M"  # Marine (biophysical agency)
     MARITIME = "T"  # Maritime (techno-economic and institutional mediation)
     OCEANIC = "O"  # Oceanic (planetary governance and hydrosocial subjectivity)
+    HYDRONIZATION = "H"  # Hydronization (posthuman wet agentism)
+    UNCLASSIFIED = "U"  # Unclassified (for deterministic penalty)
 
 
 class CompetenceLevel(Enum):
@@ -45,6 +47,7 @@ class Competence:
     axis: BlueDynamicsAxis
     level: CompetenceLevel
     keywords: List[str]
+    tier: int = 1  # Tier 1: Macro-categories, Tier 2: Micro-skills
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert competence to dictionary"""
@@ -55,6 +58,7 @@ class Competence:
             "axis": self.axis.value,
             "level": self.level.name,
             "keywords": self.keywords,
+            "tier": self.tier,
         }
 
 

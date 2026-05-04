@@ -5,51 +5,25 @@
     "axes": [
       "MARINE",
       "MARITIME",
-      "OCEANIC"
+      "OCEANIC",
+      "HYDRONIZATION",
+      "UNCLASSIFIED"
     ]
   },
   "dictionary": {
     "MARINE": [
       {
-        "id": "lit_research_gaps_0010",
-        "name": "Marine protected area design and effectiveness: Fiscal reforms for sustainable marine fisheries governance: Delivering",
-        "description": "Literature-derived competence (cluster: Marine protected area design and effectiveness) from Blue economy research gaps & governance papers. Source paper: Fiscal reforms for sustainable marine fisheries governance: Delivering the SDGs and ensuring no one is left behind (Essam Yassin Mohammed\nDave Steinbach\nPaul Steele, 2017).",
+        "id": "lit_research_gaps_0008",
+        "name": "Marine biodiversity monitoring and assessment: Inquiry into the Potential of Stakeholder-Driven Sustainable Blue Econ",
+        "description": "Literature-derived competence (cluster: Marine biodiversity monitoring and assessment) from Blue economy research gaps & governance papers. Source paper: Inquiry into the Potential of Stakeholder-Driven Sustainable Blue Economy Strategies to Bolster Resilience in Marine and (Alice Guittard\nSusa Niiranen\nAnastasiya Laznya\nPhoebe Koundo, 2025).",
         "axis": "MARINE",
         "source": {
           "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 10,
-          "paper_title": "Fiscal reforms for sustainable marine fisheries governance: Delivering the SDGs and ensuring no one is left behind",
-          "authors": "Essam Yassin Mohammed\nDave Steinbach\nPaul Steele",
-          "year": "2017",
-          "doi": "10.1016/J.MARPOL.2017.05.017"
-        }
-      },
-      {
-        "id": "lit_research_gaps_0020",
-        "name": "Coral reef and seagrass restoration science: Equity in a sea of debt: how better understanding of small-scale fishe",
-        "description": "Literature-derived competence (cluster: Coral reef and seagrass restoration science) from Blue economy research gaps & governance papers. Source paper: Equity in a sea of debt: how better understanding of small-scale fisheries can help reel in sustainable seafood (A Phelan\nH Ross\nDS Adhuri, ).",
-        "axis": "MARINE",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 20,
-          "paper_title": "Equity in a sea of debt: how better understanding of small-scale fisheries can help reel in sustainable seafood",
-          "authors": "A Phelan\nH Ross\nDS Adhuri",
-          "year": "",
-          "doi": ""
-        }
-      },
-      {
-        "id": "lit_research_gaps_0030",
-        "name": "Marine noise pollution and acoustic ecology: Governing large-scale marine commons: contextual challenges in the Cor",
-        "description": "Literature-derived competence (cluster: Marine noise pollution and acoustic ecology) from Blue economy research gaps & governance papers. Source paper: Governing large-scale marine commons: contextual challenges in the Coral Triangle (Pedro Fidelman\nLouisa Evans\nMichael Fabinyi\nSimon Foale\nJosh, 2012).",
-        "axis": "MARINE",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 30,
-          "paper_title": "Governing large-scale marine commons: contextual challenges in the Coral Triangle",
-          "authors": "Pedro Fidelman\nLouisa Evans\nMichael Fabinyi\nSimon Foale\nJosh E. Cinner\nFranciska Rosen",
-          "year": "2012",
-          "doi": "10.1016/J.MARPOL.2011.03.007"
+          "row": 8,
+          "paper_title": "Inquiry into the Potential of Stakeholder-Driven Sustainable Blue Economy Strategies to Bolster Resilience in Marine and",
+          "authors": "Alice Guittard\nSusa Niiranen\nAnastasiya Laznya\nPhoebe Koundouri",
+          "year": "2025",
+          "doi": "10.5194/oos2025-319"
         }
       },
       {
@@ -67,62 +41,6 @@
         }
       },
       {
-        "id": "lit_research_gaps_0041",
-        "name": "Cumulative impacts on marine ecosystems: Optimalisasi Blue Economy untuk Meningkatkan Kesejahteraan Masyarakat",
-        "description": "Literature-derived competence (cluster: Cumulative impacts on marine ecosystems) from Blue economy research gaps & governance papers. Source paper: Optimalisasi Blue Economy untuk Meningkatkan Kesejahteraan Masyarakat Pesisir: Studi Kasus di Kepulauan Sangkarrang (Nasir Nasir\nMusa Musa\nSalmah Harun, 2024).",
-        "axis": "MARINE",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 41,
-          "paper_title": "Optimalisasi Blue Economy untuk Meningkatkan Kesejahteraan Masyarakat Pesisir: Studi Kasus di Kepulauan Sangkarrang",
-          "authors": "Nasir Nasir\nMusa Musa\nSalmah Harun",
-          "year": "2024",
-          "doi": "10.47134/rei.v1i1.8"
-        }
-      },
-      {
-        "id": "lit_research_gaps_0054",
-        "name": "Marine noise pollution and acoustic ecology: Assessing the Brazilian federal fisheries law and policy in light of t",
-        "description": "Literature-derived competence (cluster: Marine noise pollution and acoustic ecology) from Blue economy research gaps & governance papers. Source paper: Assessing the Brazilian federal fisheries law and policy in light of the Voluntary Guidelines for Securing Sustainable S (Julia Nakamura\nFábio H. V. Hazin, 2020).",
-        "axis": "MARINE",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 54,
-          "paper_title": "Assessing the Brazilian federal fisheries law and policy in light of the Voluntary Guidelines for Securing Sustainable S",
-          "authors": "Julia Nakamura\nFábio H. V. Hazin",
-          "year": "2020",
-          "doi": "10.1016/J.MARPOL.2019.103798"
-        }
-      },
-      {
-        "id": "lit_research_gaps_0061",
-        "name": "Deep-sea ecology and environmental safeguarding: The blue economy in Ghana: Industrialisation, contestation and impacts",
-        "description": "Literature-derived competence (cluster: Deep-sea ecology and environmental safeguarding) from Blue economy research gaps & governance papers. Source paper: The blue economy in Ghana: Industrialisation, contestation and impacts on small-scale fisheries (RK Ayilu, ).",
-        "axis": "MARINE",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 61,
-          "paper_title": "The blue economy in Ghana: Industrialisation, contestation and impacts on small-scale fisheries",
-          "authors": "RK Ayilu",
-          "year": "",
-          "doi": ""
-        }
-      },
-      {
-        "id": "lit_research_gaps_0068",
-        "name": "Coral reef and seagrass restoration science: Blue economy dynamics: does women's participation in seaweed aquacultu",
-        "description": "Literature-derived competence (cluster: Coral reef and seagrass restoration science) from Blue economy research gaps & governance papers. Source paper: Blue economy dynamics: does women's participation in seaweed aquaculture influence their income levels? Empirical eviden (Finias Dogeje\nFlower E. Msuya\nDeus Ngaruko, 2024).",
-        "axis": "MARINE",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 68,
-          "paper_title": "Blue economy dynamics: does women's participation in seaweed aquaculture influence their income levels? Empirical eviden",
-          "authors": "Finias Dogeje\nFlower E. Msuya\nDeus Ngaruko",
-          "year": "2024",
-          "doi": "10.1007/s10499-024-01731-w"
-        }
-      },
-      {
         "id": "lit_research_gaps_0077",
         "name": "Deep-sea ecology and environmental safeguarding: S-BESE: Strategy for Improving the Quality of Life for Coastal Area Co",
         "description": "Literature-derived competence (cluster: Deep-sea ecology and environmental safeguarding) from Blue economy research gaps & governance papers. Source paper: S-BESE: Strategy for Improving the Quality of Life for Coastal Area Communities in West Kalimantan (Sri Sarjana\nSindy Allaam Claudia\nAssyifa Tasma Ramadhina\nLil, 2024).",
@@ -134,20 +52,6 @@
           "authors": "Sri Sarjana\nSindy Allaam Claudia\nAssyifa Tasma Ramadhina\nLilis Suyanti",
           "year": "2024",
           "doi": "10.55981/jtl.2024.5778"
-        }
-      },
-      {
-        "id": "lit_research_gaps_0078",
-        "name": "Marine noise pollution and acoustic ecology: Status, trends and challenges in the sustainability of small-scale fis",
-        "description": "Literature-derived competence (cluster: Marine noise pollution and acoustic ecology) from Blue economy research gaps & governance papers. Source paper: Status, trends and challenges in the sustainability of small-scale fisheries in the Philippines: Insights from FISHDA (F (RN Muallil\nSS Mamauag\nRB Cabral, ).",
-        "axis": "MARINE",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 78,
-          "paper_title": "Status, trends and challenges in the sustainability of small-scale fisheries in the Philippines: Insights from FISHDA (F",
-          "authors": "RN Muallil\nSS Mamauag\nRB Cabral",
-          "year": "",
-          "doi": ""
         }
       },
       {
@@ -221,45 +125,59 @@
         }
       },
       {
-        "id": "lit_research_gaps_0146",
-        "name": "Marine protected area design and effectiveness: Availability of educational materials and training courses on blue eco",
-        "description": "Literature-derived competence (cluster: Marine protected area design and effectiveness) from Blue economy research gaps & governance papers. Source paper: Availability of educational materials and training courses on blue economy and marine spatial planning (MSP): A global r (Grace Mumbi Mutia\nMaurine Kerubo Arori, 2024).",
+        "id": "lit_blue_sociology_0009",
+        "name": "Marinisation of societies and biophysical coupling: Creating Space for Community in Marine Conservation and Management: Ma",
+        "description": "Literature-derived competence (cluster: Marinisation of societies and biophysical coupling) from Blue sociology & maritime society papers. Source paper: Creating Space for Community in Marine Conservation and Management: Mapping “Communities-at-Sea” (Kevin St. Martin\nKevin St. Martin\nJulia Olson, 2017).",
         "axis": "MARINE",
         "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 146,
-          "paper_title": "Availability of educational materials and training courses on blue economy and marine spatial planning (MSP): A global r",
-          "authors": "Grace Mumbi Mutia\nMaurine Kerubo Arori",
-          "year": "2024",
-          "doi": "10.22271/fish.2024.v12.i3a.2934"
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 9,
+          "paper_title": "Creating Space for Community in Marine Conservation and Management: Mapping “Communities-at-Sea”",
+          "authors": "Kevin St. Martin\nKevin St. Martin\nJulia Olson",
+          "year": "2017",
+          "doi": "10.1016/B978-0-12-805375-1.00007-6"
         }
       },
       {
-        "id": "lit_research_gaps_0149",
-        "name": "Deep-sea ecology and environmental safeguarding: Human-ocean relationships: Exploring alignment and collaboration betwe",
-        "description": "Literature-derived competence (cluster: Deep-sea ecology and environmental safeguarding) from Blue economy research gaps & governance papers. Source paper: Human-ocean relationships: Exploring alignment and collaboration between ocean literacy research and marine conservation (Jen McRuer\nEmma McKinley\nDiz Glithero\nRonaldo Adriano Christ, 2024).",
+        "id": "lit_blue_sociology_0036",
+        "name": "Marinisation of societies and biophysical coupling: Living in relationship with the Ocean to transform governance in the U",
+        "description": "Literature-derived competence (cluster: Marinisation of societies and biophysical coupling) from Blue sociology & maritime society papers. Source paper: Living in relationship with the Ocean to transform governance in the UN Ocean Decade (Michelle Bender\nR. Suárez Bustamante\nKelsey Leonard, 2022).",
         "axis": "MARINE",
         "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 149,
-          "paper_title": "Human-ocean relationships: Exploring alignment and collaboration between ocean literacy research and marine conservation",
-          "authors": "Jen McRuer\nEmma McKinley\nDiz Glithero\nRonaldo Adriano Christofoletti\nDiana Payne",
-          "year": "2024",
-          "doi": "10.1016/j.marpol.2024.106418"
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 36,
+          "paper_title": "Living in relationship with the Ocean to transform governance in the UN Ocean Decade",
+          "authors": "Michelle Bender\nR. Suárez Bustamante\nKelsey Leonard",
+          "year": "2022",
+          "doi": "10.1371/journal.pbio.3001828"
         }
       },
       {
-        "id": "lit_research_gaps_0155",
-        "name": "Blue carbon accounting and ecosystem services: Estimating illegal catches in data-poor S-fisheries: Insights from mul",
-        "description": "Literature-derived competence (cluster: Blue carbon accounting and ecosystem services) from Blue economy research gaps & governance papers. Source paper: Estimating illegal catches in data-poor S-fisheries: Insights from multispecies shellfish poaching in galician small sca (Hugo M. Ballesteros\nEduardo Sánchez-Llamas\nGonzalo Rodríguez, 2024).",
+        "id": "lit_blue_sociology_0087",
+        "name": "Marinisation of societies and biophysical coupling: Indus River Delta: contested narratives in the climate of change",
+        "description": "Literature-derived competence (cluster: Marinisation of societies and biophysical coupling) from Blue sociology & maritime society papers. Source paper: Indus River Delta: contested narratives in the climate of change (Hameed Jamali\nMaryam Jamali\nShakeel Hayat\nJaved Iqbal, 2023).",
         "axis": "MARINE",
         "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 155,
-          "paper_title": "Estimating illegal catches in data-poor S-fisheries: Insights from multispecies shellfish poaching in galician small sca",
-          "authors": "Hugo M. Ballesteros\nEduardo Sánchez-Llamas\nGonzalo Rodríguez-Rodríguez",
-          "year": "2024",
-          "doi": "10.1016/j.marpol.2024.106084"
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 87,
+          "paper_title": "Indus River Delta: contested narratives in the climate of change",
+          "authors": "Hameed Jamali\nMaryam Jamali\nShakeel Hayat\nJaved Iqbal",
+          "year": "2023",
+          "doi": "10.1016/j.ajss.2023.06.001"
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0120",
+        "name": "Marinisation of societies and biophysical coupling: Author comment: Eco-creative nature-based solutions to transform urban",
+        "description": "Literature-derived competence (cluster: Marinisation of societies and biophysical coupling) from Blue sociology & maritime society papers. Source paper: Author comment: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance (Leila Glass, 2022).",
+        "axis": "MARINE",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 120,
+          "paper_title": "Author comment: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance",
+          "authors": "Leila Glass",
+          "year": "2022",
+          "doi": "10.1017/cft.2022.10.pr7"
         }
       },
       {
@@ -307,6 +225,20 @@
         }
       },
       {
+        "id": "lit_labor_justice_0013",
+        "name": "Racial equity and anti-discrimination in blue economy: Exploring social justice in marine spatial planning: planner and stake",
+        "description": "Literature-derived competence (cluster: Racial equity and anti-discrimination in blue economy) from Blue economy labour justice & social equity papers. Source paper: Exploring social justice in marine spatial planning: planner and stakeholder perspectives and experiences in the Baltic  (Ignė Stalmokaitė\nRalph Tafon\nFred Saunders\nKira Gee\nMichael , 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "data/derived/combined_blue_economy_labor_justice.csv",
+          "row": 13,
+          "paper_title": "Exploring social justice in marine spatial planning: planner and stakeholder perspectives and experiences in the Baltic ",
+          "authors": "Ignė Stalmokaitė\nRalph Tafon\nFred Saunders\nKira Gee\nMichael Gilek\nAurelija Armoškaitė\nAnda Ikauniece\nMaciej Matczak\nJaku",
+          "year": "2023",
+          "doi": "10.1080/09640568.2023.2279512"
+        }
+      },
+      {
         "id": "lit_labor_justice_0032",
         "name": "Gender equity and inclusion in blue workplaces: Women fish traders on the Kenyan coast: livelihoods, bargaining power",
         "description": "Literature-derived competence (cluster: Gender equity and inclusion in blue workplaces) from Blue economy labour justice & social equity papers. Source paper: Women fish traders on the Kenyan coast: livelihoods, bargaining power, and participation in management (Naomi Matsue\nTim M. Daw\nLucy Garrett, 2014).",
@@ -349,6 +281,20 @@
         }
       },
       {
+        "id": "lit_labor_justice_0082",
+        "name": "Gender equity and inclusion in blue workplaces: Deep aspirations: towards a sustainable offshore blue economy",
+        "description": "Literature-derived competence (cluster: Gender equity and inclusion in blue workplaces) from Blue economy labour justice & social equity papers. Source paper: Deep aspirations: towards a sustainable offshore blue economy (Camilla Novaglio\nCamilla Novaglio\nNarissa Bax\nNarissa Bax\nFa, 2021).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "data/derived/combined_blue_economy_labor_justice.csv",
+          "row": 82,
+          "paper_title": "Deep aspirations: towards a sustainable offshore blue economy",
+          "authors": "Camilla Novaglio\nCamilla Novaglio\nNarissa Bax\nNarissa Bax\nFabio Boschetti\nGholam Reza Emad\nStewart Frusher\nStewart Frush",
+          "year": "2021",
+          "doi": "10.1007/S11160-020-09628-6"
+        }
+      },
+      {
         "id": "lit_labor_justice_0092",
         "name": "Gender equity and inclusion in blue workplaces: Blue Economy: Framework for Integrating Economic Growth with Marine Ec",
         "description": "Literature-derived competence (cluster: Gender equity and inclusion in blue workplaces) from Blue economy labour justice & social equity papers. Source paper: Blue Economy: Framework for Integrating Economic Growth with Marine Ecosystem (Rajat Kumar Sahu\nRaviteja Doppalapudi, 2025).",
@@ -360,20 +306,6 @@
           "authors": "Rajat Kumar Sahu\nRaviteja Doppalapudi",
           "year": "2025",
           "doi": "10.12962/j25481479.v10i1.4758"
-        }
-      },
-      {
-        "id": "lit_labor_justice_0093",
-        "name": "Racial equity and anti-discrimination in blue economy: Sustainable blue economy: Opportunities and challenges",
-        "description": "Literature-derived competence (cluster: Racial equity and anti-discrimination in blue economy) from Blue economy labour justice & social equity papers. Source paper: Sustainable blue economy: Opportunities and challenges (Sahil Narwal\nManpreet Kaur\nDigvijay Singh Yadav\nFelix Bast, 2024).",
-        "axis": "MARITIME",
-        "source": {
-          "file": "data/derived/combined_blue_economy_labor_justice.csv",
-          "row": 93,
-          "paper_title": "Sustainable blue economy: Opportunities and challenges",
-          "authors": "Sahil Narwal\nManpreet Kaur\nDigvijay Singh Yadav\nFelix Bast",
-          "year": "2024",
-          "doi": "10.1007/s12038-023-00375-x"
         }
       },
       {
@@ -419,17 +351,45 @@
         }
       },
       {
-        "id": "lit_research_gaps_0035",
-        "name": "Maritime education and training gaps: Integrating community empowerment, ecotourism, and maritime resilience",
-        "description": "Literature-derived competence (cluster: Maritime education and training gaps) from Blue economy research gaps & governance papers. Source paper: Integrating community empowerment, ecotourism, and maritime resilience for a sustainable blue economy (Jean Richard Jokhu\nAgus Fernando\nDadang Amir Hamzah\nR. Steva, 2025).",
+        "id": "lit_research_gaps_0007",
+        "name": "Maritime education and training gaps: Assessing knowledge gaps and management needs to cope with barriers fo",
+        "description": "Literature-derived competence (cluster: Maritime education and training gaps) from Blue economy research gaps & governance papers. Source paper: Assessing knowledge gaps and management needs to cope with barriers for environmental, economic, and social sustainabili (P Pita\nJ Alós\nM Antelo\nI Artetxe, ).",
         "axis": "MARITIME",
         "source": {
           "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 35,
-          "paper_title": "Integrating community empowerment, ecotourism, and maritime resilience for a sustainable blue economy",
-          "authors": "Jean Richard Jokhu\nAgus Fernando\nDadang Amir Hamzah\nR. Stevanus Bayu Mangkurat",
-          "year": "2025",
-          "doi": "10.33175/mtr.2025.279344"
+          "row": 7,
+          "paper_title": "Assessing knowledge gaps and management needs to cope with barriers for environmental, economic, and social sustainabili",
+          "authors": "P Pita\nJ Alós\nM Antelo\nI Artetxe",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_research_gaps_0015",
+        "name": "Maritime education and training gaps: Shaping Blue Growth: Social Sciences at the Nexus Between Marine Renew",
+        "description": "Literature-derived competence (cluster: Maritime education and training gaps) from Blue economy research gaps & governance papers. Source paper: Shaping Blue Growth: Social Sciences at the Nexus Between Marine Renewables and Energy Policy (Sandy Kerr\nLaura Watts\nRuth Brennan\nRhys Howell\nMarcello Gra, 2018).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 15,
+          "paper_title": "Shaping Blue Growth: Social Sciences at the Nexus Between Marine Renewables and Energy Policy",
+          "authors": "Sandy Kerr\nLaura Watts\nRuth Brennan\nRhys Howell\nMarcello Graziano\nAnne Marie O’Hagan\nDan van der Horst\nStephanie Weir\nGl",
+          "year": "2018",
+          "doi": "10.1007/978-3-319-99097-2_3"
+        }
+      },
+      {
+        "id": "lit_research_gaps_0028",
+        "name": "Blue economy innovation ecosystems and incubators: Strengthening regional resilience through adaptive collaboration: A ca",
+        "description": "Literature-derived competence (cluster: Blue economy innovation ecosystems and incubators) from Blue economy research gaps & governance papers. Source paper: Strengthening regional resilience through adaptive collaboration: A case study on the fisheries co-management Northern B (E Cedergren\nD Huynh\nA Morf\nJ Moodie, ).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 28,
+          "paper_title": "Strengthening regional resilience through adaptive collaboration: A case study on the fisheries co-management Northern B",
+          "authors": "E Cedergren\nD Huynh\nA Morf\nJ Moodie",
+          "year": "",
+          "doi": ""
         }
       },
       {
@@ -458,20 +418,6 @@
           "authors": "Asmawi Noor Saarani\nAmran Alias\nAzlan Amran\nMunir A. Abbasi\nMorteza Ghobakhloo",
           "year": "2023",
           "doi": "10.24294/jipd.v8i2.3037"
-        }
-      },
-      {
-        "id": "lit_research_gaps_0052",
-        "name": "Blue economy innovation ecosystems and incubators: The Role of Blue Economy in Enhancing Economic Growth",
-        "description": "Literature-derived competence (cluster: Blue economy innovation ecosystems and incubators) from Blue economy research gaps & governance papers. Source paper: The Role of Blue Economy in Enhancing Economic Growth (Andre Danio\nEko Guntur Saputro\nSuwito Suwito, 2025).",
-        "axis": "MARITIME",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 52,
-          "paper_title": "The Role of Blue Economy in Enhancing Economic Growth",
-          "authors": "Andre Danio\nEko Guntur Saputro\nSuwito Suwito",
-          "year": "2025",
-          "doi": "10.59175/pijed.v4i1.366"
         }
       },
       {
@@ -528,6 +474,20 @@
           "authors": "Verenice Sánchez Castillo\nCarlos Alberto Gómez Cano\nAlfredo Javier Pérez Gamboa",
           "year": "2024",
           "doi": "10.15649/2346030x.4028"
+        }
+      },
+      {
+        "id": "lit_research_gaps_0091",
+        "name": "Maritime education and training gaps: Closing the Ocean Science Gap: Empowering Africa towards Ocean Innovat",
+        "description": "Literature-derived competence (cluster: Maritime education and training gaps) from Blue economy research gaps & governance papers. Source paper: Closing the Ocean Science Gap: Empowering Africa towards Ocean Innovation and Global Ocean-Based Solutions (Barkha Mossae\nJosheena Naggea, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 91,
+          "paper_title": "Closing the Ocean Science Gap: Empowering Africa towards Ocean Innovation and Global Ocean-Based Solutions",
+          "authors": "Barkha Mossae\nJosheena Naggea",
+          "year": "2025",
+          "doi": "10.5194/oos2025-1394"
         }
       },
       {
@@ -655,6 +615,20 @@
           "year": "2023",
           "doi": "10.1017/cft.2023.25.pr3"
         }
+      },
+      {
+        "id": "lit_research_gaps_0155",
+        "name": "Maritime education and training gaps: Estimating illegal catches in data-poor S-fisheries: Insights from mul",
+        "description": "Literature-derived competence (cluster: Maritime education and training gaps) from Blue economy research gaps & governance papers. Source paper: Estimating illegal catches in data-poor S-fisheries: Insights from multispecies shellfish poaching in galician small sca (Hugo M. Ballesteros\nEduardo Sánchez-Llamas\nGonzalo Rodríguez, 2024).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 155,
+          "paper_title": "Estimating illegal catches in data-poor S-fisheries: Insights from multispecies shellfish poaching in galician small sca",
+          "authors": "Hugo M. Ballesteros\nEduardo Sánchez-Llamas\nGonzalo Rodríguez-Rodríguez",
+          "year": "2024",
+          "doi": "10.1016/j.marpol.2024.106084"
+        }
       }
     ],
     "OCEANIC": [
@@ -729,31 +703,17 @@
         }
       },
       {
-        "id": "lit_labor_justice_0017",
-        "name": "Community participation in marine spatial planning: Ocean and Society, 2025, Volume 2 Into the (Gendered) Blue: New Perspe",
-        "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Ocean and Society, 2025, Volume 2 Into the (Gendered) Blue: New Perspectives on Gender Equality and Participation in Blu (D by Typografia\nK Svels\nM Schreiber\nK Ounanian, ).",
+        "id": "lit_labor_justice_0015",
+        "name": "Blue justice frameworks and social sustainability: Role of women in the Blue economy in Kenya: Study on Maritime Industry",
+        "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Role of women in the Blue economy in Kenya: Study on Maritime Industry in Mombasa County (QA Atieno, ).",
         "axis": "OCEANIC",
         "source": {
           "file": "data/derived/combined_blue_economy_labor_justice.csv",
-          "row": 17,
-          "paper_title": "Ocean and Society, 2025, Volume 2 Into the (Gendered) Blue: New Perspectives on Gender Equality and Participation in Blu",
-          "authors": "D by Typografia\nK Svels\nM Schreiber\nK Ounanian",
+          "row": 15,
+          "paper_title": "Role of women in the Blue economy in Kenya: Study on Maritime Industry in Mombasa County",
+          "authors": "QA Atieno",
           "year": "",
           "doi": ""
-        }
-      },
-      {
-        "id": "lit_labor_justice_0019",
-        "name": "Social impact assessment for blue economy projects: Equity and access to fishing rights: exploring the community quota pro",
-        "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: Equity and access to fishing rights: exploring the community quota program in the Gulf of Alaska (Courtney Carothers, 2011).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_labor_justice.csv",
-          "row": 19,
-          "paper_title": "Equity and access to fishing rights: exploring the community quota program in the Gulf of Alaska",
-          "authors": "Courtney Carothers",
-          "year": "2011",
-          "doi": "10.17730/HUMO.70.3.D686U2R7J2267055"
         }
       },
       {
@@ -782,6 +742,20 @@
           "authors": "Karen A. Alexander\nIngrid Kelling",
           "year": "2023",
           "doi": "10.1017/cft.2023.31"
+        }
+      },
+      {
+        "id": "lit_labor_justice_0025",
+        "name": "Blue justice frameworks and social sustainability: Blue justice: a review of emerging scholarship and resistance movement",
+        "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Blue justice: a review of emerging scholarship and resistance movements (Jessica Blythe\nDavid Gill\nJoachim Claudet\nNathan J. Bennett\n, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "data/derived/combined_blue_economy_labor_justice.csv",
+          "row": 25,
+          "paper_title": "Blue justice: a review of emerging scholarship and resistance movements",
+          "authors": "Jessica Blythe\nDavid Gill\nJoachim Claudet\nNathan J. Bennett\nGeorgina G. Gurney\nJacopo A. Baggio\nNatalie C. Ban\nMiranda L",
+          "year": "2023",
+          "doi": "10.1017/cft.2023.4"
         }
       },
       {
@@ -981,17 +955,17 @@
         }
       },
       {
-        "id": "lit_labor_justice_0055",
-        "name": "Blue justice frameworks and social sustainability: Small-scale fisheries within maritime spatial planning: knowledge inte",
-        "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Small-scale fisheries within maritime spatial planning: knowledge integration and power (Svein Jentoft, 2017).",
+        "id": "lit_labor_justice_0057",
+        "name": "Community participation in marine spatial planning: Pengembangan Tata Kelola Ekonomi Biru Untuk Memperkuat Blue Economy De",
+        "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Pengembangan Tata Kelola Ekonomi Biru Untuk Memperkuat Blue Economy Development Index di Indonesia (Aryo Sahid Sujiwo\nNurlaili Nurlaili, 2024).",
         "axis": "OCEANIC",
         "source": {
           "file": "data/derived/combined_blue_economy_labor_justice.csv",
-          "row": 55,
-          "paper_title": "Small-scale fisheries within maritime spatial planning: knowledge integration and power",
-          "authors": "Svein Jentoft",
-          "year": "2017",
-          "doi": "10.1080/1523908X.2017.1304210"
+          "row": 57,
+          "paper_title": "Pengembangan Tata Kelola Ekonomi Biru Untuk Memperkuat Blue Economy Development Index di Indonesia",
+          "authors": "Aryo Sahid Sujiwo\nNurlaili Nurlaili",
+          "year": "2024",
+          "doi": "10.33512/jpk.v13i1.23726"
         }
       },
       {
@@ -1051,20 +1025,6 @@
         }
       },
       {
-        "id": "lit_labor_justice_0075",
-        "name": "Blue justice frameworks and social sustainability: Environmental justice in coastal systems: Perspectives from communitie",
-        "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Environmental justice in coastal systems: Perspectives from communities confronting change (Jacqueline Lau\nJacqueline Lau\nGeorgina G. Gurney\nJoshua E. C, 2021).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_labor_justice.csv",
-          "row": 75,
-          "paper_title": "Environmental justice in coastal systems: Perspectives from communities confronting change",
-          "authors": "Jacqueline Lau\nJacqueline Lau\nGeorgina G. Gurney\nJoshua E. Cinner",
-          "year": "2021",
-          "doi": "10.1016/J.GLOENVCHA.2020.102208"
-        }
-      },
-      {
         "id": "lit_labor_justice_0077",
         "name": "Community participation in marine spatial planning: Good governance for sustainable blue economy in small islands: Lessons",
         "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Good governance for sustainable blue economy in small islands: Lessons learned from the Seychelles experience (D. Benzaken\nMichelle Voyer\nAngelique Pouponneau\nQuentin A Ha, 2022).",
@@ -1079,20 +1039,6 @@
         }
       },
       {
-        "id": "lit_labor_justice_0079",
-        "name": "Social impact assessment for blue economy projects: Oceans justice: Trade-offs between Sustainable Development Goals in th",
-        "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: Oceans justice: Trade-offs between Sustainable Development Goals in the Seychelles (Susan F. Baker\nNatasha Louise Constant\nPoppy Nicol, 2023).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_labor_justice.csv",
-          "row": 79,
-          "paper_title": "Oceans justice: Trade-offs between Sustainable Development Goals in the Seychelles",
-          "authors": "Susan F. Baker\nNatasha Louise Constant\nPoppy Nicol",
-          "year": "2023",
-          "doi": "10.1016/j.marpol.2022.105357"
-        }
-      },
-      {
         "id": "lit_labor_justice_0080",
         "name": "Blue justice frameworks and social sustainability: Social equity is key to sustainable ocean governance",
         "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Social equity is key to sustainable ocean governance (Katherine M. Crosman\nEdward H. Allison\nYoshi Ota\nAndrés M. C, 2022).",
@@ -1104,20 +1050,6 @@
           "authors": "Katherine M. Crosman\nEdward H. Allison\nYoshi Ota\nAndrés M. Cisneros-Montemayor\nGerald G. Singh\nWilf Swartz\nMegan Bailey\n",
           "year": "2022",
           "doi": "10.1038/s44183-022-00001-7"
-        }
-      },
-      {
-        "id": "lit_labor_justice_0082",
-        "name": "Community participation in marine spatial planning: Deep aspirations: towards a sustainable offshore blue economy",
-        "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Deep aspirations: towards a sustainable offshore blue economy (Camilla Novaglio\nCamilla Novaglio\nNarissa Bax\nNarissa Bax\nFa, 2021).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_labor_justice.csv",
-          "row": 82,
-          "paper_title": "Deep aspirations: towards a sustainable offshore blue economy",
-          "authors": "Camilla Novaglio\nCamilla Novaglio\nNarissa Bax\nNarissa Bax\nFabio Boschetti\nGholam Reza Emad\nStewart Frusher\nStewart Frush",
-          "year": "2021",
-          "doi": "10.1007/S11160-020-09628-6"
         }
       },
       {
@@ -1258,20 +1190,6 @@
           "authors": "Anna K Farmery\nEdward H. Allison\nNeil L. Andrew\nMax Troell\nMax Troell\nMichelle Voyer\nBrooke M Campbell\nHampus Eriksson\nH",
           "year": "2021",
           "doi": "10.1016/J.ONEEAR.2020.12.002"
-        }
-      },
-      {
-        "id": "lit_labor_justice_0107",
-        "name": "Community participation in marine spatial planning: Theorizing Social Sustainability and Justice in Marine Spatial Plannin",
-        "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Theorizing Social Sustainability and Justice in Marine Spatial Planning: Democracy, Diversity, and Equity (Fred Saunders\nMichael Gilek\nAnda Ikauniece\nRalph Voma Tafon\n, 2020).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_labor_justice.csv",
-          "row": 107,
-          "paper_title": "Theorizing Social Sustainability and Justice in Marine Spatial Planning: Democracy, Diversity, and Equity",
-          "authors": "Fred Saunders\nMichael Gilek\nAnda Ikauniece\nRalph Voma Tafon\nKira Gee\nJacek Zaucha",
-          "year": "2020",
-          "doi": "10.3390/SU12062560"
         }
       },
       {
@@ -1429,17 +1347,31 @@
         }
       },
       {
-        "id": "lit_labor_justice_0127",
-        "name": "Community participation in marine spatial planning: Institutional Arrangements for the Blue Economy: Marine Spatial Planni",
-        "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Institutional Arrangements for the Blue Economy: Marine Spatial Planning a Way Forward (Daud Hassan\nMd. Ashraful Alam Ashraf, 2019).",
+        "id": "lit_labor_justice_0129",
+        "name": "Social impact assessment for blue economy projects: Sustainable growth through value chain development in the blue economy",
+        "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: Sustainable growth through value chain development in the blue economy: a case study of the port of Walvis Bay (Tangeni Haimbala, 2019).",
         "axis": "OCEANIC",
         "source": {
           "file": "data/derived/combined_blue_economy_labor_justice.csv",
-          "row": 127,
-          "paper_title": "Institutional Arrangements for the Blue Economy: Marine Spatial Planning a Way Forward",
-          "authors": "Daud Hassan\nMd. Ashraful Alam Ashraf",
+          "row": 129,
+          "paper_title": "Sustainable growth through value chain development in the blue economy: a case study of the port of Walvis Bay",
+          "authors": "Tangeni Haimbala",
           "year": "2019",
-          "doi": "10.15351/2373-8456.1107"
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_labor_justice_0130",
+        "name": "Blue justice frameworks and social sustainability: Blue Economy and Power Politics in the Indian Ocean: Challenges and Op",
+        "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Blue Economy and Power Politics in the Indian Ocean: Challenges and Opportunities (Dr. Muhammad Asif, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "data/derived/combined_blue_economy_labor_justice.csv",
+          "row": 130,
+          "paper_title": "Blue Economy and Power Politics in the Indian Ocean: Challenges and Opportunities",
+          "authors": "Dr. Muhammad Asif",
+          "year": "2023",
+          "doi": "10.58932/mulg0003"
         }
       },
       {
@@ -1468,6 +1400,20 @@
           "authors": "Nibras Fadhlillah",
           "year": "2025",
           "doi": "10.56672/drar9770"
+        }
+      },
+      {
+        "id": "lit_labor_justice_0137",
+        "name": "Community participation in marine spatial planning: Is the Blue Economy possible in Poland?",
+        "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Is the Blue Economy possible in Poland? (Paulina Szyja\nDorota Michalak, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "data/derived/combined_blue_economy_labor_justice.csv",
+          "row": 137,
+          "paper_title": "Is the Blue Economy possible in Poland?",
+          "authors": "Paulina Szyja\nDorota Michalak",
+          "year": "2022",
+          "doi": "10.34659/eis.2022.82.3.465"
         }
       },
       {
@@ -1527,6 +1473,20 @@
         }
       },
       {
+        "id": "lit_labor_justice_0145",
+        "name": "Blue justice frameworks and social sustainability: Building an inclusive and equitable new blue economy",
+        "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Building an inclusive and equitable new blue economy (Benjamin E. Cuker\nDeidre M. Gibson, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "data/derived/combined_blue_economy_labor_justice.csv",
+          "row": 145,
+          "paper_title": "Building an inclusive and equitable new blue economy",
+          "authors": "Benjamin E. Cuker\nDeidre M. Gibson",
+          "year": "2021",
+          "doi": "10.1016/B978-0-12-821431-2.00046-9"
+        }
+      },
+      {
         "id": "lit_labor_justice_0147",
         "name": "Community participation in marine spatial planning: Challenges, Opportunities, and the Future of the Blue Economy in Indon",
         "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Challenges, Opportunities, and the Future of the Blue Economy in Indonesia (Poppy Wulandari\nPuja Afwanda Mayako\nMutiara Cahyaningrum, 2025).",
@@ -1552,6 +1512,20 @@
           "authors": "Qunhua Tang",
           "year": "2022",
           "doi": "10.1080/17535069.2022.2072613"
+        }
+      },
+      {
+        "id": "lit_labor_justice_0155",
+        "name": "Blue justice frameworks and social sustainability: The Economic Impact of the Blue Economy",
+        "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: The Economic Impact of the Blue Economy (Ana Olteanu\nViorela Stinga, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "data/derived/combined_blue_economy_labor_justice.csv",
+          "row": 155,
+          "paper_title": "The Economic Impact of the Blue Economy",
+          "authors": "Ana Olteanu\nViorela Stinga",
+          "year": "2019",
+          "doi": "10.18662/LUMPROC.111"
         }
       },
       {
@@ -1611,48 +1585,6 @@
         }
       },
       {
-        "id": "lit_labor_justice_0170",
-        "name": "Blue justice frameworks and social sustainability: EFFECTIVE STAKEHOLDER ENGAGEMENT IN COASTAL TRANSITIONS",
-        "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: EFFECTIVE STAKEHOLDER ENGAGEMENT IN COASTAL TRANSITIONS (M Kelly\nS Axon, 2022).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_labor_justice.csv",
-          "row": 170,
-          "paper_title": "EFFECTIVE STAKEHOLDER ENGAGEMENT IN COASTAL TRANSITIONS",
-          "authors": "M Kelly\nS Axon",
-          "year": "2022",
-          "doi": "10.4324/9781003280248-5"
-        }
-      },
-      {
-        "id": "lit_labor_justice_0172",
-        "name": "Community participation in marine spatial planning: Environmental justice and the expanding geography of wind power confli",
-        "description": "Literature-derived competence (cluster: Community participation in marine spatial planning) from Blue economy labour justice & social equity papers. Source paper: Environmental justice and the expanding geography of wind power conflicts (Sofia Avila, 2018).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_labor_justice.csv",
-          "row": 172,
-          "paper_title": "Environmental justice and the expanding geography of wind power conflicts",
-          "authors": "Sofia Avila",
-          "year": "2018",
-          "doi": "10.1007/S11625-018-0547-4"
-        }
-      },
-      {
-        "id": "lit_labor_justice_0174",
-        "name": "Social impact assessment for blue economy projects: Toward Sustainable Development in the Ocean: A Framework for Blue Econ",
-        "description": "Literature-derived competence (cluster: Social impact assessment for blue economy projects) from Blue economy labour justice & social equity papers. Source paper: Toward Sustainable Development in the Ocean: A Framework for Blue Economy Marine Spatial Planning (Jen‐Han Yang\nJen‐Yu Yang\nYi Chang, 2025).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_labor_justice.csv",
-          "row": 174,
-          "paper_title": "Toward Sustainable Development in the Ocean: A Framework for Blue Economy Marine Spatial Planning",
-          "authors": "Jen‐Han Yang\nJen‐Yu Yang\nYi Chang",
-          "year": "2025",
-          "doi": "10.1002/sd.70183"
-        }
-      },
-      {
         "id": "lit_labor_justice_0175",
         "name": "Blue justice frameworks and social sustainability: Africa Integrated Maritime Policy, blue growth and a new ocean governa",
         "description": "Literature-derived competence (cluster: Blue justice frameworks and social sustainability) from Blue economy labour justice & social equity papers. Source paper: Africa Integrated Maritime Policy, blue growth and a new ocean governance: case studies from the Atlantic and the Indian (José Guerreiro, 2022).",
@@ -1709,34 +1641,6 @@
         }
       },
       {
-        "id": "lit_research_gaps_0007",
-        "name": "Open science and FAIR data in blue economy: Assessing knowledge gaps and management needs to cope with barriers fo",
-        "description": "Literature-derived competence (cluster: Open science and FAIR data in blue economy) from Blue economy research gaps & governance papers. Source paper: Assessing knowledge gaps and management needs to cope with barriers for environmental, economic, and social sustainabili (P Pita\nJ Alós\nM Antelo\nI Artetxe, ).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 7,
-          "paper_title": "Assessing knowledge gaps and management needs to cope with barriers for environmental, economic, and social sustainabili",
-          "authors": "P Pita\nJ Alós\nM Antelo\nI Artetxe",
-          "year": "",
-          "doi": ""
-        }
-      },
-      {
-        "id": "lit_research_gaps_0008",
-        "name": "Transdisciplinary ocean research co-production: Inquiry into the Potential of Stakeholder-Driven Sustainable Blue Econ",
-        "description": "Literature-derived competence (cluster: Transdisciplinary ocean research co-production) from Blue economy research gaps & governance papers. Source paper: Inquiry into the Potential of Stakeholder-Driven Sustainable Blue Economy Strategies to Bolster Resilience in Marine and (Alice Guittard\nSusa Niiranen\nAnastasiya Laznya\nPhoebe Koundo, 2025).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 8,
-          "paper_title": "Inquiry into the Potential of Stakeholder-Driven Sustainable Blue Economy Strategies to Bolster Resilience in Marine and",
-          "authors": "Alice Guittard\nSusa Niiranen\nAnastasiya Laznya\nPhoebe Koundouri",
-          "year": "2025",
-          "doi": "10.5194/oos2025-319"
-        }
-      },
-      {
         "id": "lit_research_gaps_0009",
         "name": "Knowledge transfer between science and ocean policy: Challenging the blue economy: voices from artisanal fishing communitie",
         "description": "Literature-derived competence (cluster: Knowledge transfer between science and ocean policy) from Blue economy research gaps & governance papers. Source paper: Challenging the blue economy: voices from artisanal fishing communities in Latin America and the Caribbean (Leopoldo Cavaleri Gerhardinger\nElyse Mills\nBeatriz Mesquita\n, 2023).",
@@ -1748,6 +1652,20 @@
           "authors": "Leopoldo Cavaleri Gerhardinger\nElyse Mills\nBeatriz Mesquita\nVivienne Solis Rivera\nHenrique Calori Kefalás\nAndré Carlo Co",
           "year": "2023",
           "doi": "10.1057/s41301-023-00366-3"
+        }
+      },
+      {
+        "id": "lit_research_gaps_0010",
+        "name": "Integrated ocean observing and data governance: Fiscal reforms for sustainable marine fisheries governance: Delivering",
+        "description": "Literature-derived competence (cluster: Integrated ocean observing and data governance) from Blue economy research gaps & governance papers. Source paper: Fiscal reforms for sustainable marine fisheries governance: Delivering the SDGs and ensuring no one is left behind (Essam Yassin Mohammed\nDave Steinbach\nPaul Steele, 2017).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 10,
+          "paper_title": "Fiscal reforms for sustainable marine fisheries governance: Delivering the SDGs and ensuring no one is left behind",
+          "authors": "Essam Yassin Mohammed\nDave Steinbach\nPaul Steele",
+          "year": "2017",
+          "doi": "10.1016/J.MARPOL.2017.05.017"
         }
       },
       {
@@ -1793,20 +1711,6 @@
         }
       },
       {
-        "id": "lit_research_gaps_0015",
-        "name": "Open science and FAIR data in blue economy: Shaping Blue Growth: Social Sciences at the Nexus Between Marine Renew",
-        "description": "Literature-derived competence (cluster: Open science and FAIR data in blue economy) from Blue economy research gaps & governance papers. Source paper: Shaping Blue Growth: Social Sciences at the Nexus Between Marine Renewables and Energy Policy (Sandy Kerr\nLaura Watts\nRuth Brennan\nRhys Howell\nMarcello Gra, 2018).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 15,
-          "paper_title": "Shaping Blue Growth: Social Sciences at the Nexus Between Marine Renewables and Energy Policy",
-          "authors": "Sandy Kerr\nLaura Watts\nRuth Brennan\nRhys Howell\nMarcello Graziano\nAnne Marie O’Hagan\nDan van der Horst\nStephanie Weir\nGl",
-          "year": "2018",
-          "doi": "10.1007/978-3-319-99097-2_3"
-        }
-      },
-      {
         "id": "lit_research_gaps_0018",
         "name": "Integrated ocean observing and data governance: Social Capital and Blue Economy Policy: Answering the Paradox of Weakn",
         "description": "Literature-derived competence (cluster: Integrated ocean observing and data governance) from Blue economy research gaps & governance papers. Source paper: Social Capital and Blue Economy Policy: Answering the Paradox of Weakness and Opportunity of Fisherman (Alexsander\nHarmiati, 2023).",
@@ -1835,6 +1739,20 @@
         }
       },
       {
+        "id": "lit_research_gaps_0020",
+        "name": "Ocean literacy and public engagement: Equity in a sea of debt: how better understanding of small-scale fishe",
+        "description": "Literature-derived competence (cluster: Ocean literacy and public engagement) from Blue economy research gaps & governance papers. Source paper: Equity in a sea of debt: how better understanding of small-scale fisheries can help reel in sustainable seafood (A Phelan\nH Ross\nDS Adhuri, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 20,
+          "paper_title": "Equity in a sea of debt: how better understanding of small-scale fisheries can help reel in sustainable seafood",
+          "authors": "A Phelan\nH Ross\nDS Adhuri",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
         "id": "lit_research_gaps_0021",
         "name": "Science-policy interface in maritime governance: Blue Economy: Community Case Studies Addressing the Poverty–Environmen",
         "description": "Literature-derived competence (cluster: Science-policy interface in maritime governance) from Blue economy research gaps & governance papers. Source paper: Blue Economy: Community Case Studies Addressing the Poverty–Environment Nexus in Ocean and Coastal Management (Sulan Chen\nCharlotte De Bruyne\nManasa Bollempalli, 2020).",
@@ -1860,20 +1778,6 @@
           "authors": "Zainul Wasik\nSri Gunawan\nTanti Handriana",
           "year": "2024",
           "doi": "10.62754/joe.v3i8.4925"
-        }
-      },
-      {
-        "id": "lit_research_gaps_0028",
-        "name": "Ocean literacy and public engagement: Strengthening regional resilience through adaptive collaboration: A ca",
-        "description": "Literature-derived competence (cluster: Ocean literacy and public engagement) from Blue economy research gaps & governance papers. Source paper: Strengthening regional resilience through adaptive collaboration: A case study on the fisheries co-management Northern B (E Cedergren\nD Huynh\nA Morf\nJ Moodie, ).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 28,
-          "paper_title": "Strengthening regional resilience through adaptive collaboration: A case study on the fisheries co-management Northern B",
-          "authors": "E Cedergren\nD Huynh\nA Morf\nJ Moodie",
-          "year": "",
-          "doi": ""
         }
       },
       {
@@ -1933,17 +1837,31 @@
         }
       },
       {
-        "id": "lit_research_gaps_0037",
-        "name": "Science-policy interface in maritime governance: Coastal tourism, market segmentation and contested landscapes",
-        "description": "Literature-derived competence (cluster: Science-policy interface in maritime governance) from Blue economy research gaps & governance papers. Source paper: Coastal tourism, market segmentation and contested landscapes (Maria Pafi\nWesley Flannery\nBrendan Murtagh, 2020).",
+        "id": "lit_research_gaps_0035",
+        "name": "Blue economy monitoring, evaluation and learning: Integrating community empowerment, ecotourism, and maritime resilience",
+        "description": "Literature-derived competence (cluster: Blue economy monitoring, evaluation and learning) from Blue economy research gaps & governance papers. Source paper: Integrating community empowerment, ecotourism, and maritime resilience for a sustainable blue economy (Jean Richard Jokhu\nAgus Fernando\nDadang Amir Hamzah\nR. Steva, 2025).",
         "axis": "OCEANIC",
         "source": {
           "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 37,
-          "paper_title": "Coastal tourism, market segmentation and contested landscapes",
-          "authors": "Maria Pafi\nWesley Flannery\nBrendan Murtagh",
-          "year": "2020",
-          "doi": "10.1016/J.MARPOL.2020.104189"
+          "row": 35,
+          "paper_title": "Integrating community empowerment, ecotourism, and maritime resilience for a sustainable blue economy",
+          "authors": "Jean Richard Jokhu\nAgus Fernando\nDadang Amir Hamzah\nR. Stevanus Bayu Mangkurat",
+          "year": "2025",
+          "doi": "10.33175/mtr.2025.279344"
+        }
+      },
+      {
+        "id": "lit_research_gaps_0041",
+        "name": "Knowledge transfer between science and ocean policy: Optimalisasi Blue Economy untuk Meningkatkan Kesejahteraan Masyarakat",
+        "description": "Literature-derived competence (cluster: Knowledge transfer between science and ocean policy) from Blue economy research gaps & governance papers. Source paper: Optimalisasi Blue Economy untuk Meningkatkan Kesejahteraan Masyarakat Pesisir: Studi Kasus di Kepulauan Sangkarrang (Nasir Nasir\nMusa Musa\nSalmah Harun, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 41,
+          "paper_title": "Optimalisasi Blue Economy untuk Meningkatkan Kesejahteraan Masyarakat Pesisir: Studi Kasus di Kepulauan Sangkarrang",
+          "authors": "Nasir Nasir\nMusa Musa\nSalmah Harun",
+          "year": "2024",
+          "doi": "10.47134/rei.v1i1.8"
         }
       },
       {
@@ -2003,20 +1921,6 @@
         }
       },
       {
-        "id": "lit_research_gaps_0048",
-        "name": "Transdisciplinary ocean research co-production: Blue degrowth at the crossroads: contesting the oceanic sustainable de",
-        "description": "Literature-derived competence (cluster: Transdisciplinary ocean research co-production) from Blue economy research gaps & governance papers. Source paper: Blue degrowth at the crossroads: contesting the oceanic sustainable development paradigm (Borja Nogué-Algueró\nMaria Hadjimichael\nIrmak Ertör, 2025).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 48,
-          "paper_title": "Blue degrowth at the crossroads: contesting the oceanic sustainable development paradigm",
-          "authors": "Borja Nogué-Algueró\nMaria Hadjimichael\nIrmak Ertör",
-          "year": "2025",
-          "doi": "10.4337/9781035320776.00012"
-        }
-      },
-      {
         "id": "lit_research_gaps_0051",
         "name": "Blue economy monitoring, evaluation and learning: Diversity, equity, and inclusion in the Blue Economy: Why they matter",
         "description": "Literature-derived competence (cluster: Blue economy monitoring, evaluation and learning) from Blue economy research gaps & governance papers. Source paper: Diversity, equity, and inclusion in the Blue Economy: Why they matter and how do we achieve them? (Ibrahim Issifu\nIlyass Dahmouni\nEric Worlanyo Deffor\nU. Rashi, 2023).",
@@ -2031,6 +1935,20 @@
         }
       },
       {
+        "id": "lit_research_gaps_0052",
+        "name": "Ocean literacy and public engagement: The Role of Blue Economy in Enhancing Economic Growth",
+        "description": "Literature-derived competence (cluster: Ocean literacy and public engagement) from Blue economy research gaps & governance papers. Source paper: The Role of Blue Economy in Enhancing Economic Growth (Andre Danio\nEko Guntur Saputro\nSuwito Suwito, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 52,
+          "paper_title": "The Role of Blue Economy in Enhancing Economic Growth",
+          "authors": "Andre Danio\nEko Guntur Saputro\nSuwito Suwito",
+          "year": "2025",
+          "doi": "10.59175/pijed.v4i1.366"
+        }
+      },
+      {
         "id": "lit_research_gaps_0053",
         "name": "Science-policy interface in maritime governance: Problematic blue growth: a thematic synthesis of social sustainability",
         "description": "Literature-derived competence (cluster: Science-policy interface in maritime governance) from Blue economy research gaps & governance papers. Source paper: Problematic blue growth: a thematic synthesis of social sustainability problems related to growth in the marine and coas (Neva Lepoša, 2020).",
@@ -2042,6 +1960,20 @@
           "authors": "Neva Lepoša",
           "year": "2020",
           "doi": "10.1007/S11625-020-00796-9"
+        }
+      },
+      {
+        "id": "lit_research_gaps_0054",
+        "name": "Cross-border ocean research collaboration: Assessing the Brazilian federal fisheries law and policy in light of t",
+        "description": "Literature-derived competence (cluster: Cross-border ocean research collaboration) from Blue economy research gaps & governance papers. Source paper: Assessing the Brazilian federal fisheries law and policy in light of the Voluntary Guidelines for Securing Sustainable S (Julia Nakamura\nFábio H. V. Hazin, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 54,
+          "paper_title": "Assessing the Brazilian federal fisheries law and policy in light of the Voluntary Guidelines for Securing Sustainable S",
+          "authors": "Julia Nakamura\nFábio H. V. Hazin",
+          "year": "2020",
+          "doi": "10.1016/J.MARPOL.2019.103798"
         }
       },
       {
@@ -2073,20 +2005,6 @@
         }
       },
       {
-        "id": "lit_research_gaps_0058",
-        "name": "Integrated ocean observing and data governance: Maritimacies and Nature-Culture Collectives as Inputs for a Sustainabl",
-        "description": "Literature-derived competence (cluster: Integrated ocean observing and data governance) from Blue economy research gaps & governance papers. Source paper: Maritimacies and Nature-Culture Collectives as Inputs for a Sustainable Blue Economy on the East Coast of Uruguay (Leticia D’Ambrosio Camarero, 2024).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 58,
-          "paper_title": "Maritimacies and Nature-Culture Collectives as Inputs for a Sustainable Blue Economy on the East Coast of Uruguay",
-          "authors": "Leticia D’Ambrosio Camarero",
-          "year": "2024",
-          "doi": "10.1177/0094582x241284570"
-        }
-      },
-      {
         "id": "lit_research_gaps_0060",
         "name": "Ocean literacy and public engagement: Blue Growth and its discontents in the Faroe Islands: An island perspe",
         "description": "Literature-derived competence (cluster: Ocean literacy and public engagement) from Blue economy research gaps & governance papers. Source paper: Blue Growth and its discontents in the Faroe Islands: An island perspective on Blue (De) Growth, sustainability, and env (R Bogadóttir, ).",
@@ -2096,6 +2014,20 @@
           "row": 60,
           "paper_title": "Blue Growth and its discontents in the Faroe Islands: An island perspective on Blue (De) Growth, sustainability, and env",
           "authors": "R Bogadóttir",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_research_gaps_0061",
+        "name": "Science-policy interface in maritime governance: The blue economy in Ghana: Industrialisation, contestation and impacts",
+        "description": "Literature-derived competence (cluster: Science-policy interface in maritime governance) from Blue economy research gaps & governance papers. Source paper: The blue economy in Ghana: Industrialisation, contestation and impacts on small-scale fisheries (RK Ayilu, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 61,
+          "paper_title": "The blue economy in Ghana: Industrialisation, contestation and impacts on small-scale fisheries",
+          "authors": "RK Ayilu",
           "year": "",
           "doi": ""
         }
@@ -2126,6 +2058,20 @@
           "authors": "",
           "year": "2022",
           "doi": "10.1515/9783110733488-022"
+        }
+      },
+      {
+        "id": "lit_research_gaps_0068",
+        "name": "Ocean literacy and public engagement: Blue economy dynamics: does women's participation in seaweed aquacultu",
+        "description": "Literature-derived competence (cluster: Ocean literacy and public engagement) from Blue economy research gaps & governance papers. Source paper: Blue economy dynamics: does women's participation in seaweed aquaculture influence their income levels? Empirical eviden (Finias Dogeje\nFlower E. Msuya\nDeus Ngaruko, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 68,
+          "paper_title": "Blue economy dynamics: does women's participation in seaweed aquaculture influence their income levels? Empirical eviden",
+          "authors": "Finias Dogeje\nFlower E. Msuya\nDeus Ngaruko",
+          "year": "2024",
+          "doi": "10.1007/s10499-024-01731-w"
         }
       },
       {
@@ -2311,20 +2257,6 @@
         }
       },
       {
-        "id": "lit_research_gaps_0091",
-        "name": "Blue economy monitoring, evaluation and learning: Closing the Ocean Science Gap: Empowering Africa towards Ocean Innovat",
-        "description": "Literature-derived competence (cluster: Blue economy monitoring, evaluation and learning) from Blue economy research gaps & governance papers. Source paper: Closing the Ocean Science Gap: Empowering Africa towards Ocean Innovation and Global Ocean-Based Solutions (Barkha Mossae\nJosheena Naggea, 2025).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 91,
-          "paper_title": "Closing the Ocean Science Gap: Empowering Africa towards Ocean Innovation and Global Ocean-Based Solutions",
-          "authors": "Barkha Mossae\nJosheena Naggea",
-          "year": "2025",
-          "doi": "10.5194/oos2025-1394"
-        }
-      },
-      {
         "id": "lit_research_gaps_0092",
         "name": "Ocean literacy and public engagement: Blue paradigms: understanding the intellectual revolution in global oc",
         "description": "Literature-derived competence (cluster: Ocean literacy and public engagement) from Blue economy research gaps & governance papers. Source paper: Blue paradigms: understanding the intellectual revolution in global ocean politics (Christian Bueger\nFelix Mallin, 2023).",
@@ -2395,20 +2327,6 @@
         }
       },
       {
-        "id": "lit_research_gaps_0097",
-        "name": "Knowledge transfer between science and ocean policy: Mapping coastal and marine research in South Africa: A bibliometric an",
-        "description": "Literature-derived competence (cluster: Knowledge transfer between science and ocean policy) from Blue economy research gaps & governance papers. Source paper: Mapping coastal and marine research in South Africa: A bibliometric analysis highlighting trends and future directions (Olubunmi A. Afinowi\nGodwell Nhamo, 2024).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 97,
-          "paper_title": "Mapping coastal and marine research in South Africa: A bibliometric analysis highlighting trends and future directions",
-          "authors": "Olubunmi A. Afinowi\nGodwell Nhamo",
-          "year": "2024",
-          "doi": "10.1016/j.marpol.2024.106566"
-        }
-      },
-      {
         "id": "lit_research_gaps_0099",
         "name": "Blue economy monitoring, evaluation and learning: Can geosciences help inserting social justice notions into Blue Econom",
         "description": "Literature-derived competence (cluster: Blue economy monitoring, evaluation and learning) from Blue economy research gaps & governance papers. Source paper: Can geosciences help inserting social justice notions into Blue Economy narratives? (Cornelia E. Nauen, 2024).",
@@ -2420,20 +2338,6 @@
           "authors": "Cornelia E. Nauen",
           "year": "2024",
           "doi": "10.5194/egusphere-egu24-4054"
-        }
-      },
-      {
-        "id": "lit_research_gaps_0101",
-        "name": "Science-policy interface in maritime governance: Towards sustainable blue growth: Outline of the joint Baltic Sea and t",
-        "description": "Literature-derived competence (cluster: Science-policy interface in maritime governance) from Blue economy research gaps & governance papers. Source paper: Towards sustainable blue growth: Outline of the joint Baltic Sea and the North Sea research and innovation programme 201 (Andris Andrusaitis\nDavid Cox\nAntoine Dosdat\nKay Emeis\nJoachi, 2016).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 101,
-          "paper_title": "Towards sustainable blue growth: Outline of the joint Baltic Sea and the North Sea research and innovation programme 201",
-          "authors": "Andris Andrusaitis\nDavid Cox\nAntoine Dosdat\nKay Emeis\nJoachim Harms\nMaurice Heral\nPeter Herrmann\nFloor ten Hoopen\nSimon ",
-          "year": "2016",
-          "doi": ""
         }
       },
       {
@@ -2479,48 +2383,6 @@
         }
       },
       {
-        "id": "lit_research_gaps_0106",
-        "name": "Integrated ocean observing and data governance: Prioritizing the culture metric for transformative ocean management in",
-        "description": "Literature-derived competence (cluster: Integrated ocean observing and data governance) from Blue economy research gaps & governance papers. Source paper: Prioritizing the culture metric for transformative ocean management in South Africa (Rosabelle Boswell, 2023).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 106,
-          "paper_title": "Prioritizing the culture metric for transformative ocean management in South Africa",
-          "authors": "Rosabelle Boswell",
-          "year": "2023",
-          "doi": "10.1080/26395916.2023.2260492"
-        }
-      },
-      {
-        "id": "lit_research_gaps_0107",
-        "name": "Blue economy monitoring, evaluation and learning: Indicadores de sustentabilidade na economia do mar: Uma análise biblio",
-        "description": "Literature-derived competence (cluster: Blue economy monitoring, evaluation and learning) from Blue economy research gaps & governance papers. Source paper: Indicadores de sustentabilidade na economia do mar: Uma análise bibliométrica para o desenvolvimento sustentável marinho (Francisca Érica Cardoso Nobre\nNicole Stephanie Florentino de, 2023).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 107,
-          "paper_title": "Indicadores de sustentabilidade na economia do mar: Uma análise bibliométrica para o desenvolvimento sustentável marinho",
-          "authors": "Francisca Érica Cardoso Nobre\nNicole Stephanie Florentino de Sousa Carvalho\nRaimundo Eduardo Silveira Fontenele\nVládia P",
-          "year": "2023",
-          "doi": "10.21527/2237-6453.2023.59.14473"
-        }
-      },
-      {
-        "id": "lit_research_gaps_0109",
-        "name": "Science-policy interface in maritime governance: Blue Economy and Blue Finance: Toward Sustainable Development and Ocea",
-        "description": "Literature-derived competence (cluster: Science-policy interface in maritime governance) from Blue economy research gaps & governance papers. Source paper: Blue Economy and Blue Finance: Toward Sustainable Development and Ocean Governance (Michelle Voyer\nD. Benzaken\nAtsushi Watanabe, 2022).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 109,
-          "paper_title": "Blue Economy and Blue Finance: Toward Sustainable Development and Ocean Governance",
-          "authors": "Michelle Voyer\nD. Benzaken\nAtsushi Watanabe",
-          "year": "2022",
-          "doi": "10.56506/hdlz1912"
-        }
-      },
-      {
         "id": "lit_research_gaps_0110",
         "name": "Cross-border ocean research collaboration: Enabling conditions for an equitable and sustainable blue economy",
         "description": "Literature-derived competence (cluster: Cross-border ocean research collaboration) from Blue economy research gaps & governance papers. Source paper: Enabling conditions for an equitable and sustainable blue economy (Andrés M. Cisneros-Montemayor\nMarcia Moreno-Báez\nGabriel Rey, 2021).",
@@ -2563,20 +2425,6 @@
         }
       },
       {
-        "id": "lit_research_gaps_0114",
-        "name": "Integrated ocean observing and data governance: and Coastal Research",
-        "description": "Literature-derived competence (cluster: Integrated ocean observing and data governance) from Blue economy research gaps & governance papers. Source paper: and Coastal Research (A Acosta\nF Ali\nY DieiOuadi\nR Mahon\nW Michaels, ).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 114,
-          "paper_title": "and Coastal Research",
-          "authors": "A Acosta\nF Ali\nY DieiOuadi\nR Mahon\nW Michaels",
-          "year": "",
-          "doi": ""
-        }
-      },
-      {
         "id": "lit_research_gaps_0116",
         "name": "Ocean literacy and public engagement: Towards a reflexive, policy-relevant and engaged ocean science for the",
         "description": "Literature-derived competence (cluster: Ocean literacy and public engagement) from Blue economy research gaps & governance papers. Source paper: Towards a reflexive, policy-relevant and engaged ocean science for the UN decade: A social science research agenda (Alice B.M. Vadrot\nSilvia C Ruiz Rodríguez\nEmmanuelle Brogat\n, 2022).",
@@ -2588,20 +2436,6 @@
           "authors": "Alice B.M. Vadrot\nSilvia C Ruiz Rodríguez\nEmmanuelle Brogat\nPaul Dunshirn\nA. Langlet\nIna Tessnow-von Wysocki\nKrystel Wan",
           "year": "2022",
           "doi": "10.1016/j.esg.2022.100150"
-        }
-      },
-      {
-        "id": "lit_research_gaps_0117",
-        "name": "Science-policy interface in maritime governance: A review of how we study coastal and marine conflicts: is social scien",
-        "description": "Literature-derived competence (cluster: Science-policy interface in maritime governance) from Blue economy research gaps & governance papers. Source paper: A review of how we study coastal and marine conflicts: is social science taking a broad enough view? (Lol Iana Dahlet\nSamiya Ahmed Selim\nIngrid van Putten, 2023).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 117,
-          "paper_title": "A review of how we study coastal and marine conflicts: is social science taking a broad enough view?",
-          "authors": "Lol Iana Dahlet\nSamiya Ahmed Selim\nIngrid van Putten",
-          "year": "2023",
-          "doi": "10.1007/s40152-023-00319-z"
         }
       },
       {
@@ -2801,17 +2635,17 @@
         }
       },
       {
-        "id": "lit_research_gaps_0150",
-        "name": "Cross-border ocean research collaboration: An introduction to marine studies",
-        "description": "Literature-derived competence (cluster: Cross-border ocean research collaboration) from Blue economy research gaps & governance papers. Source paper: An introduction to marine studies (Luis Ignacio Acevedo Agudelo, 2023).",
+        "id": "lit_research_gaps_0149",
+        "name": "Science-policy interface in maritime governance: Human-ocean relationships: Exploring alignment and collaboration betwe",
+        "description": "Literature-derived competence (cluster: Science-policy interface in maritime governance) from Blue economy research gaps & governance papers. Source paper: Human-ocean relationships: Exploring alignment and collaboration between ocean literacy research and marine conservation (Jen McRuer\nEmma McKinley\nDiz Glithero\nRonaldo Adriano Christ, 2024).",
         "axis": "OCEANIC",
         "source": {
           "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 150,
-          "paper_title": "An introduction to marine studies",
-          "authors": "Luis Ignacio Acevedo Agudelo",
-          "year": "2023",
-          "doi": "10.4324/9781003058151-2"
+          "row": 149,
+          "paper_title": "Human-ocean relationships: Exploring alignment and collaboration between ocean literacy research and marine conservation",
+          "authors": "Jen McRuer\nEmma McKinley\nDiz Glithero\nRonaldo Adriano Christofoletti\nDiana Payne",
+          "year": "2024",
+          "doi": "10.1016/j.marpol.2024.106418"
         }
       },
       {
@@ -2857,6 +2691,20 @@
         }
       },
       {
+        "id": "lit_research_gaps_0157",
+        "name": "Science-policy interface in maritime governance: Corrigendum: Putting coastal communities at the center of a sustainabl",
+        "description": "Literature-derived competence (cluster: Science-policy interface in maritime governance) from Blue economy research gaps & governance papers. Source paper: Corrigendum: Putting coastal communities at the center of a sustainable blue economy: A review of risks, opportunities,  (Louisa Evans\nP.M. Buchan\nMatt Fortnam\nM B Honig\nLouise Heaps, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 157,
+          "paper_title": "Corrigendum: Putting coastal communities at the center of a sustainable blue economy: A review of risks, opportunities, ",
+          "authors": "Louisa Evans\nP.M. Buchan\nMatt Fortnam\nM B Honig\nLouise Heaps",
+          "year": "2023",
+          "doi": "10.3389/fpos.2023.1182415"
+        }
+      },
+      {
         "id": "lit_research_gaps_0158",
         "name": "Cross-border ocean research collaboration: Equity of our future oceans: practices and outcomes in marine science",
         "description": "Literature-derived competence (cluster: Cross-border ocean research collaboration) from Blue economy research gaps & governance papers. Source paper: Equity of our future oceans: practices and outcomes in marine science research (Karen A. Alexander\nAysha Fleming\nAysha Fleming\nNarissa Bax\nC, 2021).",
@@ -2896,34 +2744,6 @@
           "authors": "Karen Bareford",
           "year": "2014",
           "doi": "10.1080/01944363.2014.998133"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0007",
-        "name": "Hydrosocial literacy and ocean citizenship: Water Worlds: Human Geographies of the Ocean",
-        "description": "Literature-derived competence (cluster: Hydrosocial literacy and ocean citizenship) from Blue sociology & maritime society papers. Source paper: Water Worlds: Human Geographies of the Ocean (Jonathan Mark Anderson\nKimberley Peters, 2016).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 7,
-          "paper_title": "Water Worlds: Human Geographies of the Ocean",
-          "authors": "Jonathan Mark Anderson\nKimberley Peters",
-          "year": "2016",
-          "doi": ""
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0009",
-        "name": "Post-colonial perspectives in maritime sociology: Creating Space for Community in Marine Conservation and Management: Ma",
-        "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: Creating Space for Community in Marine Conservation and Management: Mapping “Communities-at-Sea” (Kevin St. Martin\nKevin St. Martin\nJulia Olson, 2017).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 9,
-          "paper_title": "Creating Space for Community in Marine Conservation and Management: Mapping “Communities-at-Sea”",
-          "authors": "Kevin St. Martin\nKevin St. Martin\nJulia Olson",
-          "year": "2017",
-          "doi": "10.1016/B978-0-12-805375-1.00007-6"
         }
       },
       {
@@ -2969,59 +2789,17 @@
         }
       },
       {
-        "id": "lit_blue_sociology_0023",
-        "name": "Post-colonial perspectives in maritime sociology: The territories of governance: unpacking the ontologies and geophiloso",
-        "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: The territories of governance: unpacking the ontologies and geophilosophies of fixed to flexible ocean management, and b (Kimberley Peters, 2020).",
+        "id": "lit_blue_sociology_0030",
+        "name": "Post-colonial perspectives in maritime sociology: Assembling ocean life: more-than-human entanglements in the Blue econo",
+        "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: Assembling ocean life: more-than-human entanglements in the Blue economy (Christopher Bear, 2017).",
         "axis": "OCEANIC",
         "source": {
           "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 23,
-          "paper_title": "The territories of governance: unpacking the ontologies and geophilosophies of fixed to flexible ocean management, and b",
-          "authors": "Kimberley Peters",
-          "year": "2020",
-          "doi": "10.1098/RSTB.2019.0458"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0036",
-        "name": "Planetary boundary thinking in ocean governance: Living in relationship with the Ocean to transform governance in the U",
-        "description": "Literature-derived competence (cluster: Planetary boundary thinking in ocean governance) from Blue sociology & maritime society papers. Source paper: Living in relationship with the Ocean to transform governance in the UN Ocean Decade (Michelle Bender\nR. Suárez Bustamante\nKelsey Leonard, 2022).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 36,
-          "paper_title": "Living in relationship with the Ocean to transform governance in the UN Ocean Decade",
-          "authors": "Michelle Bender\nR. Suárez Bustamante\nKelsey Leonard",
-          "year": "2022",
-          "doi": "10.1371/journal.pbio.3001828"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0037",
-        "name": "Post-colonial perspectives in maritime sociology: Commentary 3 to the manifesto for the marine social sciences: unfoldin",
-        "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: Commentary 3 to the manifesto for the marine social sciences: unfolding Blue Growth (Maaike Knol-Kauffman\nPeter Arbo, 2020).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 37,
-          "paper_title": "Commentary 3 to the manifesto for the marine social sciences: unfolding Blue Growth",
-          "authors": "Maaike Knol-Kauffman\nPeter Arbo",
-          "year": "2020",
-          "doi": "10.1007/S40152-020-00183-1"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0042",
-        "name": "Hydrosocial literacy and ocean citizenship: Marine Social Science for the Peopled Seas",
-        "description": "Literature-derived competence (cluster: Hydrosocial literacy and ocean citizenship) from Blue sociology & maritime society papers. Source paper: Marine Social Science for the Peopled Seas (Nathan J. Bennett, 2019).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 42,
-          "paper_title": "Marine Social Science for the Peopled Seas",
-          "authors": "Nathan J. Bennett",
-          "year": "2019",
-          "doi": "10.1080/08920753.2019.1564958"
+          "row": 30,
+          "paper_title": "Assembling ocean life: more-than-human entanglements in the Blue economy",
+          "authors": "Christopher Bear",
+          "year": "2017",
+          "doi": "10.1177/2043820617691635"
         }
       },
       {
@@ -3039,132 +2817,6 @@
         }
       },
       {
-        "id": "lit_blue_sociology_0051",
-        "name": "Post-colonial perspectives in maritime sociology: Promoting Blue Resilience: Knowledge Systems Integration, Maritime Her",
-        "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: Promoting Blue Resilience: Knowledge Systems Integration, Maritime Heritage, and Culture-based Climate Action in Coastal (Marisa O. Ensor, 2025).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 51,
-          "paper_title": "Promoting Blue Resilience: Knowledge Systems Integration, Maritime Heritage, and Culture-based Climate Action in Coastal",
-          "authors": "Marisa O. Ensor",
-          "year": "2025",
-          "doi": "10.5194/oos2025-16"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0056",
-        "name": "Hydrosocial literacy and ocean citizenship: Aligning the social sciences with the deep ocean: developments and def",
-        "description": "Literature-derived competence (cluster: Hydrosocial literacy and ocean citizenship) from Blue sociology & maritime society papers. Source paper: Aligning the social sciences with the deep ocean: developments and definitions for a new research agenda (Susanna Lidström\nNeil Craik, 2025).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 56,
-          "paper_title": "Aligning the social sciences with the deep ocean: developments and definitions for a new research agenda",
-          "authors": "Susanna Lidström\nNeil Craik",
-          "year": "2025",
-          "doi": "10.5194/oos2025-590"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0057",
-        "name": "Planetary boundary thinking in ocean governance: El CoLaboratorio de oceanografía social: espacio plural para la conser",
-        "description": "Literature-derived competence (cluster: Planetary boundary thinking in ocean governance) from Blue sociology & maritime society papers. Source paper: El CoLaboratorio de oceanografía social: espacio plural para la conservación integral de los mares y las sociedades cost (Nemer E. Narchi\nMicheline Cariño\nM. Azahara Mesa-Jurado\nAlej, 2018).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 57,
-          "paper_title": "El CoLaboratorio de oceanografía social: espacio plural para la conservación integral de los mares y las sociedades cost",
-          "authors": "Nemer E. Narchi\nMicheline Cariño\nM. Azahara Mesa-Jurado\nAlejandro Espinoza-Tenorio\nAramis Olivos-Ortiz\nMichelle María Ea",
-          "year": "2018",
-          "doi": "10.31840/SYA.V0I18.1888"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0058",
-        "name": "Post-colonial perspectives in maritime sociology: Introduction: Living with the sea: Knowledge, awareness and action",
-        "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: Introduction: Living with the sea: Knowledge, awareness and action (M Brown\nK Peters, ).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 58,
-          "paper_title": "Introduction: Living with the sea: Knowledge, awareness and action",
-          "authors": "M Brown\nK Peters",
-          "year": "",
-          "doi": ""
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0059",
-        "name": "Oceanic subjectivity and cultural identities: Recommendation: Eco-creative nature-based solutions to transform urban",
-        "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Recommendation: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance (, 2022).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 59,
-          "paper_title": "Recommendation: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance",
-          "authors": "",
-          "year": "2022",
-          "doi": "10.1017/cft.2022.10.pr5"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0063",
-        "name": "Hydrosocial literacy and ocean citizenship: La mer, un construit politique. La privatisation des territoires et de",
-        "description": "Literature-derived competence (cluster: Hydrosocial literacy and ocean citizenship) from Blue sociology & maritime society papers. Source paper: La mer, un construit politique. La privatisation des territoires et des ressources maritimes en acte (Tarik Dahou\nCamille Mazé, 2021).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 63,
-          "paper_title": "La mer, un construit politique. La privatisation des territoires et des ressources maritimes en acte",
-          "authors": "Tarik Dahou\nCamille Mazé",
-          "year": "2021",
-          "doi": "10.4000/VERTIGO.29593"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0070",
-        "name": "Hydrosocial literacy and ocean citizenship: Can agriculture and conservation be compatible in a coastal wetland? B",
-        "description": "Literature-derived competence (cluster: Hydrosocial literacy and ocean citizenship) from Blue sociology & maritime society papers. Source paper: Can agriculture and conservation be compatible in a coastal wetland? Balancing stakeholders' narratives and interactions (S Ricart\nAM Rico-Amorós, ).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 70,
-          "paper_title": "Can agriculture and conservation be compatible in a coastal wetland? Balancing stakeholders' narratives and interactions",
-          "authors": "S Ricart\nAM Rico-Amorós",
-          "year": "",
-          "doi": ""
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0073",
-        "name": "Oceanic subjectivity and cultural identities: Author comment: Eco-creative nature-based solutions to transform urban",
-        "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Author comment: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance (Renaud Lestrade, 2022).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 73,
-          "paper_title": "Author comment: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance",
-          "authors": "Renaud Lestrade",
-          "year": "2022",
-          "doi": "10.1017/cft.2022.10.pr1"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0077",
-        "name": "Hydrosocial literacy and ocean citizenship: The space between: how we understood, valued, and governed the ocean t",
-        "description": "Literature-derived competence (cluster: Hydrosocial literacy and ocean citizenship) from Blue sociology & maritime society papers. Source paper: The space between: how we understood, valued, and governed the ocean through the process of marine science and emerging  (S Newton, ).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 77,
-          "paper_title": "The space between: how we understood, valued, and governed the ocean through the process of marine science and emerging ",
-          "authors": "S Newton",
-          "year": "",
-          "doi": ""
-        }
-      },
-      {
         "id": "lit_blue_sociology_0079",
         "name": "Post-colonial perspectives in maritime sociology: The Cultural Politics of Fish and Humans: A More-Than-Human Habitus of",
         "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: The Cultural Politics of Fish and Humans: A More-Than-Human Habitus of Consumption (Elspeth Probyn, 2014).",
@@ -3176,62 +2828,6 @@
           "authors": "Elspeth Probyn",
           "year": "2014",
           "doi": "10.1215/17432197-2795681"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0080",
-        "name": "Oceanic subjectivity and cultural identities: Review: Eco-creative nature-based solutions to transform urban coastli",
-        "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Review: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance biodive (, 2022).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 80,
-          "paper_title": "Review: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance biodive",
-          "authors": "",
-          "year": "2022",
-          "doi": "10.1017/cft.2022.10.pr2"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0085",
-        "name": "Planetary boundary thinking in ocean governance: Blue Urbanism: Exploring Connections between Cities and Oceans",
-        "description": "Literature-derived competence (cluster: Planetary boundary thinking in ocean governance) from Blue sociology & maritime society papers. Source paper: Blue Urbanism: Exploring Connections between Cities and Oceans (Charlotte Martynoga, 2015).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 85,
-          "paper_title": "Blue Urbanism: Exploring Connections between Cities and Oceans",
-          "authors": "Charlotte Martynoga",
-          "year": "2015",
-          "doi": "10.1080/08111146.2015.1057912"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0086",
-        "name": "Post-colonial perspectives in maritime sociology: Post-Imperial Waters: Oceanic Form and Politics in 21st-Century Global",
-        "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: Post-Imperial Waters: Oceanic Form and Politics in 21st-Century Global South Novels (S Wang, ).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 86,
-          "paper_title": "Post-Imperial Waters: Oceanic Form and Politics in 21st-Century Global South Novels",
-          "authors": "S Wang",
-          "year": "",
-          "doi": ""
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0087",
-        "name": "Oceanic subjectivity and cultural identities: Indus River Delta: contested narratives in the climate of change",
-        "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Indus River Delta: contested narratives in the climate of change (Hameed Jamali\nMaryam Jamali\nShakeel Hayat\nJaved Iqbal, 2023).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 87,
-          "paper_title": "Indus River Delta: contested narratives in the climate of change",
-          "authors": "Hameed Jamali\nMaryam Jamali\nShakeel Hayat\nJaved Iqbal",
-          "year": "2023",
-          "doi": "10.1016/j.ajss.2023.06.001"
         }
       },
       {
@@ -3277,34 +2873,6 @@
         }
       },
       {
-        "id": "lit_blue_sociology_0099",
-        "name": "Planetary boundary thinking in ocean governance: Blue Legalities: The Life and Laws of the Sea",
-        "description": "Literature-derived competence (cluster: Planetary boundary thinking in ocean governance) from Blue sociology & maritime society papers. Source paper: Blue Legalities: The Life and Laws of the Sea (Irus Braverman\nElizabeth R. Johnson, 2019).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 99,
-          "paper_title": "Blue Legalities: The Life and Laws of the Sea",
-          "authors": "Irus Braverman\nElizabeth R. Johnson",
-          "year": "2019",
-          "doi": "10.1215/9781478007289"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0101",
-        "name": "Oceanic subjectivity and cultural identities: Reflections on the past, present, and potential futures of knowledge h",
-        "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Reflections on the past, present, and potential futures of knowledge hierarchies in ocean biodiversity governance resear (Holly J. Niner\nDavid Wilson\nKelly Hoareau\nMia Strand\nJennife, 2024).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 101,
-          "paper_title": "Reflections on the past, present, and potential futures of knowledge hierarchies in ocean biodiversity governance resear",
-          "authors": "Holly J. Niner\nDavid Wilson\nKelly Hoareau\nMia Strand\nJennifer Whittingham\nDylan McGarry\nBolanle Erinosho\nSulley Ibrahim\n",
-          "year": "2024",
-          "doi": "10.3389/fmars.2024.1347494"
-        }
-      },
-      {
         "id": "lit_blue_sociology_0115",
         "name": "Oceanic subjectivity and cultural identities: Uncanny waters",
         "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Uncanny waters (Caroline Emily Rae, 2022).",
@@ -3316,20 +2884,6 @@
           "authors": "Caroline Emily Rae",
           "year": "2022",
           "doi": "10.1177/01417789211066012"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0120",
-        "name": "Planetary boundary thinking in ocean governance: Author comment: Eco-creative nature-based solutions to transform urban",
-        "description": "Literature-derived competence (cluster: Planetary boundary thinking in ocean governance) from Blue sociology & maritime society papers. Source paper: Author comment: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance (Leila Glass, 2022).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 120,
-          "paper_title": "Author comment: Eco-creative nature-based solutions to transform urban coastlines, local coastal communities and enhance",
-          "authors": "Leila Glass",
-          "year": "2022",
-          "doi": "10.1017/cft.2022.10.pr7"
         }
       },
       {
@@ -3361,20 +2915,6 @@
         }
       },
       {
-        "id": "lit_blue_sociology_0142",
-        "name": "Post-colonial perspectives in maritime sociology: Toward a Sociology of Water: Reconstructing the Missing “Big Picture”",
-        "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: Toward a Sociology of Water: Reconstructing the Missing “Big Picture” of Social Water Research (Peter Schulz\nAlexis Emanuel Gros, 2024).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 142,
-          "paper_title": "Toward a Sociology of Water: Reconstructing the Missing “Big Picture” of Social Water Research",
-          "authors": "Peter Schulz\nAlexis Emanuel Gros",
-          "year": "2024",
-          "doi": "10.3390/w16131792"
-        }
-      },
-      {
         "id": "lit_blue_sociology_0143",
         "name": "Oceanic subjectivity and cultural identities: Patterns of injustices in water allocation mechanisms in the Brazilian",
         "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Patterns of injustices in water allocation mechanisms in the Brazilian Amazon: Palm oil expansion and the reshaping of h (Susane Cristini Gomes Ferreira\nDiana Córdoba\nDaniel Sombra, 2023).",
@@ -3400,34 +2940,6 @@
           "authors": "David Pavón\nAriadna Gabarda-Mallorquí\nAnna Ribas",
           "year": "2018",
           "doi": "10.3390/W10121758"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0155",
-        "name": "Planetary boundary thinking in ocean governance: Relational Sociology: A New Paradigm for the Social Sciences",
-        "description": "Literature-derived competence (cluster: Planetary boundary thinking in ocean governance) from Blue sociology & maritime society papers. Source paper: Relational Sociology: A New Paradigm for the Social Sciences (Pierpaolo Donati, 2010).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 155,
-          "paper_title": "Relational Sociology: A New Paradigm for the Social Sciences",
-          "authors": "Pierpaolo Donati",
-          "year": "2010",
-          "doi": ""
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0157",
-        "name": "Oceanic subjectivity and cultural identities: Social Construction of the Ocean, Sea Power, and Maritime Transformati",
-        "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Social Construction of the Ocean, Sea Power, and Maritime Transformation (Kuang‐hao Hou, 2023).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 157,
-          "paper_title": "Social Construction of the Ocean, Sea Power, and Maritime Transformation",
-          "authors": "Kuang‐hao Hou",
-          "year": "2023",
-          "doi": "10.5744/jpms.2023.1002"
         }
       },
       {
@@ -3457,12 +2969,323 @@
           "year": "",
           "doi": "10.5751/es-14789-290110"
         }
+      }
+    ],
+    "HYDRONIZATION": [],
+    "UNCLASSIFIED": [
+      {
+        "id": "lit_research_gaps_0037",
+        "name": "Deep-sea ecology and environmental safeguarding: Coastal tourism, market segmentation and contested landscapes",
+        "description": "Literature-derived competence (cluster: Deep-sea ecology and environmental safeguarding) from Blue economy research gaps & governance papers. Source paper: Coastal tourism, market segmentation and contested landscapes (Maria Pafi\nWesley Flannery\nBrendan Murtagh, 2020).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 37,
+          "paper_title": "Coastal tourism, market segmentation and contested landscapes",
+          "authors": "Maria Pafi\nWesley Flannery\nBrendan Murtagh",
+          "year": "2020",
+          "doi": "10.1016/J.MARPOL.2020.104189"
+        }
+      },
+      {
+        "id": "lit_research_gaps_0048",
+        "name": "Blue economy innovation ecosystems and incubators: Blue degrowth at the crossroads: contesting the oceanic sustainable de",
+        "description": "Literature-derived competence (cluster: Blue economy innovation ecosystems and incubators) from Blue economy research gaps & governance papers. Source paper: Blue degrowth at the crossroads: contesting the oceanic sustainable development paradigm (Borja Nogué-Algueró\nMaria Hadjimichael\nIrmak Ertör, 2025).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 48,
+          "paper_title": "Blue degrowth at the crossroads: contesting the oceanic sustainable development paradigm",
+          "authors": "Borja Nogué-Algueró\nMaria Hadjimichael\nIrmak Ertör",
+          "year": "2025",
+          "doi": "10.4337/9781035320776.00012"
+        }
+      },
+      {
+        "id": "lit_research_gaps_0097",
+        "name": "Deep-sea ecology and environmental safeguarding: Mapping coastal and marine research in South Africa: A bibliometric an",
+        "description": "Literature-derived competence (cluster: Deep-sea ecology and environmental safeguarding) from Blue economy research gaps & governance papers. Source paper: Mapping coastal and marine research in South Africa: A bibliometric analysis highlighting trends and future directions (Olubunmi A. Afinowi\nGodwell Nhamo, 2024).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 97,
+          "paper_title": "Mapping coastal and marine research in South Africa: A bibliometric analysis highlighting trends and future directions",
+          "authors": "Olubunmi A. Afinowi\nGodwell Nhamo",
+          "year": "2024",
+          "doi": "10.1016/j.marpol.2024.106566"
+        }
+      },
+      {
+        "id": "lit_research_gaps_0101",
+        "name": "Knowledge transfer between science and ocean policy: Towards sustainable blue growth: Outline of the joint Baltic Sea and t",
+        "description": "Literature-derived competence (cluster: Knowledge transfer between science and ocean policy) from Blue economy research gaps & governance papers. Source paper: Towards sustainable blue growth: Outline of the joint Baltic Sea and the North Sea research and innovation programme 201 (Andris Andrusaitis\nDavid Cox\nAntoine Dosdat\nKay Emeis\nJoachi, 2016).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 101,
+          "paper_title": "Towards sustainable blue growth: Outline of the joint Baltic Sea and the North Sea research and innovation programme 201",
+          "authors": "Andris Andrusaitis\nDavid Cox\nAntoine Dosdat\nKay Emeis\nJoachim Harms\nMaurice Heral\nPeter Herrmann\nFloor ten Hoopen\nSimon ",
+          "year": "2016",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_research_gaps_0107",
+        "name": "Open science and FAIR data in blue economy: Indicadores de sustentabilidade na economia do mar: Uma análise biblio",
+        "description": "Literature-derived competence (cluster: Open science and FAIR data in blue economy) from Blue economy research gaps & governance papers. Source paper: Indicadores de sustentabilidade na economia do mar: Uma análise bibliométrica para o desenvolvimento sustentável marinho (Francisca Érica Cardoso Nobre\nNicole Stephanie Florentino de, 2023).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 107,
+          "paper_title": "Indicadores de sustentabilidade na economia do mar: Uma análise bibliométrica para o desenvolvimento sustentável marinho",
+          "authors": "Francisca Érica Cardoso Nobre\nNicole Stephanie Florentino de Sousa Carvalho\nRaimundo Eduardo Silveira Fontenele\nVládia P",
+          "year": "2023",
+          "doi": "10.21527/2237-6453.2023.59.14473"
+        }
+      },
+      {
+        "id": "lit_research_gaps_0114",
+        "name": "Marine protected area design and effectiveness: and Coastal Research",
+        "description": "Literature-derived competence (cluster: Marine protected area design and effectiveness) from Blue economy research gaps & governance papers. Source paper: and Coastal Research (A Acosta\nF Ali\nY DieiOuadi\nR Mahon\nW Michaels, ).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 114,
+          "paper_title": "and Coastal Research",
+          "authors": "A Acosta\nF Ali\nY DieiOuadi\nR Mahon\nW Michaels",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_research_gaps_0117",
+        "name": "Deep-sea ecology and environmental safeguarding: A review of how we study coastal and marine conflicts: is social scien",
+        "description": "Literature-derived competence (cluster: Deep-sea ecology and environmental safeguarding) from Blue economy research gaps & governance papers. Source paper: A review of how we study coastal and marine conflicts: is social science taking a broad enough view? (Lol Iana Dahlet\nSamiya Ahmed Selim\nIngrid van Putten, 2023).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_economy_research_gaps.csv",
+          "row": 117,
+          "paper_title": "A review of how we study coastal and marine conflicts: is social science taking a broad enough view?",
+          "authors": "Lol Iana Dahlet\nSamiya Ahmed Selim\nIngrid van Putten",
+          "year": "2023",
+          "doi": "10.1007/s40152-023-00319-z"
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0015",
+        "name": "Hydrosocial literacy and ocean citizenship: Introduction. Life at Water’s Edge",
+        "description": "Literature-derived competence (cluster: Hydrosocial literacy and ocean citizenship) from Blue sociology & maritime society papers. Source paper: Introduction. Life at Water’s Edge (, 2022).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 15,
+          "paper_title": "Introduction. Life at Water’s Edge",
+          "authors": "",
+          "year": "2022",
+          "doi": "10.1515/9781800731257-003"
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0018",
+        "name": "Oceanic subjectivity and cultural identities: The Routledge handbook of ocean space",
+        "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: The Routledge handbook of ocean space (Kimberley Peters\nJohn F. Anderson\nAndrew Davies\nPhilip E. St, 2022).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 18,
+          "paper_title": "The Routledge handbook of ocean space",
+          "authors": "Kimberley Peters\nJohn F. Anderson\nAndrew Davies\nPhilip E. Steinberg",
+          "year": "2022",
+          "doi": "10.4324/9781315111643"
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0042",
+        "name": "Marinisation of societies and biophysical coupling: Marine Social Science for the Peopled Seas",
+        "description": "Literature-derived competence (cluster: Marinisation of societies and biophysical coupling) from Blue sociology & maritime society papers. Source paper: Marine Social Science for the Peopled Seas (Nathan J. Bennett, 2019).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 42,
+          "paper_title": "Marine Social Science for the Peopled Seas",
+          "authors": "Nathan J. Bennett",
+          "year": "2019",
+          "doi": "10.1080/08920753.2019.1564958"
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0046",
+        "name": "Planetary boundary thinking in ocean governance: Shores, Surfaces and Depths",
+        "description": "Literature-derived competence (cluster: Planetary boundary thinking in ocean governance) from Blue sociology & maritime society papers. Source paper: Shores, Surfaces and Depths (Felicity Picken\nEmma Waterton, 2024).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 46,
+          "paper_title": "Shores, Surfaces and Depths",
+          "authors": "Felicity Picken\nEmma Waterton",
+          "year": "2024",
+          "doi": "10.4324/9781003248231"
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0063",
+        "name": "Oceanic subjectivity and cultural identities: La mer, un construit politique. La privatisation des territoires et de",
+        "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: La mer, un construit politique. La privatisation des territoires et des ressources maritimes en acte (Tarik Dahou\nCamille Mazé, 2021).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 63,
+          "paper_title": "La mer, un construit politique. La privatisation des territoires et des ressources maritimes en acte",
+          "authors": "Tarik Dahou\nCamille Mazé",
+          "year": "2021",
+          "doi": "10.4000/VERTIGO.29593"
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0072",
+        "name": "Marinisation of societies and biophysical coupling: Performing Risk: Climate Anxiety and Everyday Adaptation in Mong Cai's",
+        "description": "Literature-derived competence (cluster: Marinisation of societies and biophysical coupling) from Blue sociology & maritime society papers. Source paper: Performing Risk: Climate Anxiety and Everyday Adaptation in Mong Cai's Coastal Communities (NT Minh\nTQ Viet, ).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 72,
+          "paper_title": "Performing Risk: Climate Anxiety and Everyday Adaptation in Mong Cai's Coastal Communities",
+          "authors": "NT Minh\nTQ Viet",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0077",
+        "name": "Post-colonial perspectives in maritime sociology: The space between: how we understood, valued, and governed the ocean t",
+        "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: The space between: how we understood, valued, and governed the ocean through the process of marine science and emerging  (S Newton, ).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 77,
+          "paper_title": "The space between: how we understood, valued, and governed the ocean through the process of marine science and emerging ",
+          "authors": "S Newton",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0078",
+        "name": "Oceanic subjectivity and cultural identities: Mining the seas: Speculative fictions and futures",
+        "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Mining the seas: Speculative fictions and futures (E DeLoughrey, ).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 78,
+          "paper_title": "Mining the seas: Speculative fictions and futures",
+          "authors": "E DeLoughrey",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0090",
+        "name": "Hydrosocial literacy and ocean citizenship: Development Studies: Across Disciplines, Knowledge Hierarchies and Oce",
+        "description": "Literature-derived competence (cluster: Hydrosocial literacy and ocean citizenship) from Blue sociology & maritime society papers. Source paper: Development Studies: Across Disciplines, Knowledge Hierarchies and Oceanic Spaces (H Alff\nAK Hornidge, ).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 90,
+          "paper_title": "Development Studies: Across Disciplines, Knowledge Hierarchies and Oceanic Spaces",
+          "authors": "H Alff\nAK Hornidge",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0093",
+        "name": "Oceanic subjectivity and cultural identities: Toward a Sociology of Oceans",
+        "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Toward a Sociology of Oceans. (John A. Hannigan, 2017).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 93,
+          "paper_title": "Toward a Sociology of Oceans.",
+          "authors": "John A. Hannigan",
+          "year": "2017",
+          "doi": "10.1111/CARS.12136"
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0117",
+        "name": "Marinisation of societies and biophysical coupling: The hydro‐logic of genocide: Remaking land, water, and bodies in democ",
+        "description": "Literature-derived competence (cluster: Marinisation of societies and biophysical coupling) from Blue sociology & maritime society papers. Source paper: The hydro‐logic of genocide: Remaking land, water, and bodies in democratic Kampuchea, 1975–1979 (Stian Rice\nStian Rice\nJames A. Tyner\nMandy J. Munro-Stasiuk\n, 2020).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 117,
+          "paper_title": "The hydro‐logic of genocide: Remaking land, water, and bodies in democratic Kampuchea, 1975–1979",
+          "authors": "Stian Rice\nStian Rice\nJames A. Tyner\nMandy J. Munro-Stasiuk\nSokvisal Kimsroy\nCorrine Coakley",
+          "year": "2020",
+          "doi": "10.1111/AREA.12582"
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0121",
+        "name": "Planetary boundary thinking in ocean governance: Human Dimension Approaches to Marine Studies",
+        "description": "Literature-derived competence (cluster: Planetary boundary thinking in ocean governance) from Blue sociology & maritime society papers. Source paper: Human Dimension Approaches to Marine Studies (, 2023).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 121,
+          "paper_title": "Human Dimension Approaches to Marine Studies",
+          "authors": "",
+          "year": "2023",
+          "doi": "10.4324/9781003058151-3"
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0132",
+        "name": "Marinisation of societies and biophysical coupling: Fatti e fabule: Geografie more-than-wet del Mediterraneo Nero",
+        "description": "Literature-derived competence (cluster: Marinisation of societies and biophysical coupling) from Blue sociology & maritime society papers. Source paper: Fatti e fabule: Geografie more-than-wet del Mediterraneo Nero (G Palermo, ).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 132,
+          "paper_title": "Fatti e fabule: Geografie more-than-wet del Mediterraneo Nero",
+          "authors": "G Palermo",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0151",
+        "name": "Planetary boundary thinking in ocean governance: Water and power in the Peruvian Andes",
+        "description": "Literature-derived competence (cluster: Planetary boundary thinking in ocean governance) from Blue sociology & maritime society papers. Source paper: Water and power in the Peruvian Andes (Barbara Deutsch Lynch, 2018).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 151,
+          "paper_title": "Water and power in the Peruvian Andes",
+          "authors": "Barbara Deutsch Lynch",
+          "year": "2018",
+          "doi": "10.4324/9781315621715-4"
+        }
+      },
+      {
+        "id": "lit_blue_sociology_0153",
+        "name": "Oceanic subjectivity and cultural identities: Submarine futures of the Anthropocene",
+        "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: Submarine futures of the Anthropocene (Elizabeth DeLoughrey, 2017).",
+        "axis": "UNCLASSIFIED",
+        "source": {
+          "file": "data/derived/combined_blue_sociology_results.csv",
+          "row": 153,
+          "paper_title": "Submarine futures of the Anthropocene",
+          "authors": "Elizabeth DeLoughrey",
+          "year": "2017",
+          "doi": "10.1215/00104124-3794589"
+        }
       },
       {
         "id": "lit_blue_sociology_0168",
-        "name": "Hydrosocial literacy and ocean citizenship: From the Shore to the Coast: Curating the Front Line of Climate Change",
-        "description": "Literature-derived competence (cluster: Hydrosocial literacy and ocean citizenship) from Blue sociology & maritime society papers. Source paper: From the Shore to the Coast: Curating the Front Line of Climate Change (Celina Jeffery, 2020).",
-        "axis": "OCEANIC",
+        "name": "Oceanic subjectivity and cultural identities: From the Shore to the Coast: Curating the Front Line of Climate Change",
+        "description": "Literature-derived competence (cluster: Oceanic subjectivity and cultural identities) from Blue sociology & maritime society papers. Source paper: From the Shore to the Coast: Curating the Front Line of Climate Change (Celina Jeffery, 2020).",
+        "axis": "UNCLASSIFIED",
         "source": {
           "file": "data/derived/combined_blue_sociology_results.csv",
           "row": 168,
@@ -3470,20 +3293,6 @@
           "authors": "Celina Jeffery",
           "year": "2020",
           "doi": "10.1386/JCS_00022_1"
-        }
-      },
-      {
-        "id": "lit_blue_sociology_0170",
-        "name": "Post-colonial perspectives in maritime sociology: Reflections: Contested epistemologies on large dams and mega-hydraulic",
-        "description": "Literature-derived competence (cluster: Post-colonial perspectives in maritime sociology) from Blue sociology & maritime society papers. Source paper: Reflections: Contested epistemologies on large dams and mega-hydraulic development (Esha Shah\nRutgerd Boelens\nBert Bruins, 2019).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_sociology_results.csv",
-          "row": 170,
-          "paper_title": "Reflections: Contested epistemologies on large dams and mega-hydraulic development",
-          "authors": "Esha Shah\nRutgerd Boelens\nBert Bruins",
-          "year": "2019",
-          "doi": "10.3390/W11030417"
         }
       }
     ]

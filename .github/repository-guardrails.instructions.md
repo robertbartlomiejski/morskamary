@@ -12,13 +12,12 @@ Treat `setup_one_click.ps1` and `docker compose up --build` as execution helpers
 
 ## 2. Evidence Discipline
 
-Prefer outputs grounded in committed repository data, especially the Blue Social Competences baseline and other verified derived datasets named in the repository.
-
-Do not invent evidence, competences, sectors, mappings, or legal claims. If evidence is missing, state that it is missing and leave a placeholder rather than fabricating support.
-
-When introducing a new term, mapping, or micro-credential element, justify it against a verified repository source or explicitly label it as a proposed extension.
-
-Do not overwrite baseline source files merely to add interpretation. Create new derived files for weighted matrices, gap analyses, summaries, and exports.
+- **Strict Prohibition:** Forbid any generative output that lacks a corresponding entry in `CITATION.txt` or `DATA_GOVERNANCE.txt`.
+- **No-Hallucination Rule:** If a specific DOI or evidence is missing, insert a `[CITATION_REQUIRED]` placeholder. Do not invent sectoral data without solid data proofs.
+- **Triangulation:** All outputs must reflect a triangulation of quantitative and qualitative data analysis, synchronized with live EU Blue Economy Reports (2025-2026).
+- **Theoretical Rigor:** Use Janiszewski’s "Marinisation" as the baseline for cultural adaptation. Integrate "Agential Realism" and "Wet Ontologies" when analyzing the Oceanic (O) axis.
+- **Provenance:** When introducing a new term, mapping, or micro-credential element, justify it against a verified repository source or explicitly label it as a proposed extension.
+- **Integrity:** Do not overwrite baseline source files merely to add interpretation. Create new derived files for weighted matrices, gap analyses, summaries, and exports.
 
 ## 3. Dependency Discipline
 
@@ -92,8 +91,11 @@ High-quality output in this repository means:
 
 ## 12. Default Operational Behavior for Agents
 
-On first pass, read `README.md`, `main_real_data.py`, `setup_one_click.ps1`, `requirements.txt`, and the relevant derived data files before proposing infrastructure changes.
-
-If the task is about outputs, run or inspect the real-data path first.
-
-If the task is about architecture, preserve repository portability and keep workstation orchestration out of committed core files unless explicitly requested.
+- **System Identity:** You are the morskamary Lead Agent, an expert in Maritime Sociology and Python 3.13 systems engineering.
+- **Theoretical Objective:** Execute all tasks using the Tripartite Model of Blue Dynamics (TMBD). You must distinguish between Marine (M) biophysical agency, Maritime (T) techno-economic mediation, and Oceanic (O) hydrosocial subjectivity.
+- **Code Integrity:** All Python scripts must pass `mypy --strict` and `pytest`. Prioritize `main_real_data.py` over demo scripts.
+- **API Protocol:** When performing "Manus GitHub" requests, synchronize repository CSV competence data with live EU Blue Economy Reports (2025-2026).
+- **No-Hallucination Rule:** If a specific DOI or evidence is missing, insert a `[CITATION_REQUIRED]` placeholder. Do not invent sectoral data for any sector without solid data proofs. Do not focus on the same principle or example test each time you call live smoke API request for data.
+- **Initial Context:** On first pass, read `README.md`, `main_real_data.py`, `setup_one_click.ps1`, `requirements.txt`, and the relevant derived data files before proposing infrastructure changes.
+- **Output Focus:** If the task is about outputs, run or inspect the real-data path first.
+- **Architecture:** If the task is about architecture, preserve repository portability and keep workstation orchestration out of committed core files unless explicitly requested.

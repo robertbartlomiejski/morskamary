@@ -1,13 +1,13 @@
-Sector,Required,Available,Missing,Gap %,Missing MARINE,Missing MARITIME,Missing OCEANIC
-Blue Biotech,261,15,246,94.3,14,27,205
-Coastal Tourism,291,15,276,94.8,17,44,215
-Desalination,204,15,189,92.6,1,32,156
-Infra & Robotics,210,15,195,92.9,1,38,156
-Living Res.,314,15,299,95.2,31,42,226
-Non-living Res.,248,15,233,94.0,12,27,194
-Renewable Energy,241,15,226,93.8,7,38,181
-Maritime Defence,222,15,207,93.2,1,50,156
-Maritime Transport,272,15,257,94.5,1,100,156
-Port Activities,269,15,254,94.4,1,79,174
-R&I,263,15,248,94.3,19,27,202
-Ship Repair,236,15,221,93.6,1,64,156
+Sector,Required,Available,Missing,Gap %,Missing MARINE,Missing MARITIME,Missing OCEANIC,Missing HYDRONIZATION,Missing UNCLASSIFIED
+Blue Biotech,246,15,231,93.9,13,31,166,0,21
+Coastal Tourism,281,15,266,94.7,22,48,164,0,32
+Desalination,204,15,189,92.6,5,41,125,0,18
+Infra & Robotics,210,15,195,92.9,5,47,125,0,18
+Living Res.,308,15,293,95.1,38,50,178,0,27
+Non-living Res.,247,15,232,93.9,22,31,157,0,22
+Renewable Energy,233,15,218,93.6,6,46,146,0,20
+Maritime Defence,215,15,200,93.0,5,49,125,0,21
+Maritime Transport,269,15,254,94.4,5,98,125,0,26
+Port Activities,265,15,250,94.3,5,83,132,0,30
+R&I,249,15,234,94.0,13,31,167,0,23
+Ship Repair,235,15,220,93.6,5,69,125,0,21
