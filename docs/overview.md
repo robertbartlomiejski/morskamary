@@ -25,6 +25,12 @@ or the axis classifier explicitly associates a record with one or more TMBD
 dimensions. Do not assume that a literature record in the repository has a
 pre-assigned axis.
 
+Clarification on literature axis assignment: TMBD axis assignment is a downstream,
+derived analytical step performed on extracted, deduplicated text fragments (not
+on raw ingested bibliographic metadata). Fragment-level provenance hashing ensures
+that the same DOI-linked sentence is counted only once in cumulative semantic
+analysis.
+
 The repository combines:
 
 - **Domain models** — `Competence`, `MicroCredential`, `BlueDynamicsAxis`

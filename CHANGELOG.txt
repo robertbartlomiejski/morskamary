@@ -30,6 +30,17 @@ Provenance src/scientific_sources/models.py (LiteratureRecord has no axis field)
 Quality checks No tests affected. Governance files only.
 Reviewer GitHub Copilot Coding Agent
 
+2026-05-08 (Cumulative fragment analysis workflow)
+Change type add
+Scope scripts tests governance
+Files affected scripts/cumulative_fragment_analysis.py tests/test_cumulative_fragment_analysis.py docs/overview.md CHANGELOG.txt
+Summary Added a cumulative, fragment-level semantic analysis workflow that deduplicates DOI-linked sentences across runs using a stable hash, then records both strict TMBD axis classification (via src/axis_classifier.py) and an open/emergent contextual signal pass (Economy/Technology/Politics/Culture). Updated docs/overview.md to clarify that axis assignment is performed downstream on extracted, deduplicated fragments rather than on raw LiteratureRecord metadata.
+Reason PR review requested implementing fragment-level provenance so semantic frequencies are not double-counted when the same source is processed multiple times, while keeping LiteratureRecord as raw metadata without an axis field.
+Impact Adds a new derived-state workflow for researchers; no changes to existing provider ingestion or core data models.
+Provenance src/axis_classifier.py (deterministic TMBD classifier); DATA_GOVERNANCE.txt (derived outputs are append-only and do not overwrite raw baselines).
+Quality checks python -m pytest -q passes locally; flake8/mypy remain non-clean due to pre-existing issues.
+Reviewer Codex CLI agent
+
 2026-05-04 (Stage 1 documentation layer — human contracts)
 Change type add
 Scope governance
