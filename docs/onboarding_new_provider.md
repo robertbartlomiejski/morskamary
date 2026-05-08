@@ -98,8 +98,14 @@ Required methods:
 
 Key rules:
 
-- The `configured` flag must check for the credential at import time using
-  `os.environ.get(...)`. Do not raise an exception if the credential is absent.
+- The `configured` flag must reflect credential availability at runtime without
+  raising an exception when absent. The established pattern is: read the env var
+  in `__init__` (e.g., `self._api_key = os.getenv("MY_API_KEY", "")`) and then
+  evaluate `bool(self._api_key)` inside the `capability` property. For
+  file-based credentials (e.g., Google Drive), also verify
+  `os.path.isfile(self._credentials_path)` in the `capability` property.
+  Never check credentials at module import time — that would break CI and
+  offline environments.
 - Normalise all records into `LiteratureRecord`. Do not pass provider-specific
   objects to callers.
 - Only populate `LiteratureRecord` fields that are in `allowed_metadata_fields`.

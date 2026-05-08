@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-05-08 (Stage 1 documentation — accuracy corrections)
+Change type fix
+Scope governance
+Files affected docs/overview.md docs/onboarding_new_provider.md CHANGELOG.txt
+Summary Corrected two inaccurate claims in the Stage 1 documentation layer. In docs/overview.md, removed the incorrect assertion that literature records automatically map to a TMBD axis (LiteratureRecord has no axis field; axis assignment is a downstream step during competence mapping). In docs/onboarding_new_provider.md, corrected the description of when providers check for credentials — the established pattern is to read env vars in __init__ and evaluate the boolean in the capability property at runtime, not at module import time.
+Reason Code review on PR identified a factual mismatch between the documentation and the actual LiteratureRecord data model and existing provider implementations (ElsevierScopusProvider, GoogleDriveProvider).
+Impact Documentation only. No code, CI, or schema changes.
+Provenance src/scientific_sources/models.py (LiteratureRecord has no axis field); src/scientific_sources/elsevier_scopus.py and google_drive.py (credential check pattern in __init__ + capability property).
+Quality checks No tests affected. Governance files only.
+Reviewer GitHub Copilot Coding Agent
+
 2026-05-04 (Stage 1 documentation layer — human contracts)
 Change type add
 Scope governance

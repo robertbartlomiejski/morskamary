@@ -14,9 +14,16 @@ grounded in the Tripartite Model of Blue Dynamics (TMBD):
 | Maritime | T | Techno-economic, infrastructural, labour, and institutional mediation |
 | Oceanic | O | Planetary coupling, multi-level governance, hydrosocial subjectivity |
 
-Every competence, literature record, and derived dataset in the repository maps to
-one of these three axes. This is not optional — it is the analytic spine of the
-entire project.
+Every **competence** and competence-derived analysis in the repository maps to
+exactly one of these three axes. This is not optional — the TMBD framework is the
+analytic spine of the entire project.
+
+Literature records retrieved from providers (`LiteratureRecord`) are **not**
+automatically classified by axis. Axis assignment for literature is applied
+downstream during competence mapping and manuscript analysis, where a researcher
+or the axis classifier explicitly associates a record with one or more TMBD
+dimensions. Do not assume that a literature record in the repository has a
+pre-assigned axis.
 
 The repository combines:
 
