@@ -19,6 +19,39 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-05-08 (Stage 1 documentation — accuracy corrections)
+Change type fix
+Scope governance
+Files affected docs/overview.md docs/onboarding_new_provider.md CHANGELOG.txt
+Summary Corrected two inaccurate claims in the Stage 1 documentation layer. In docs/overview.md, removed the incorrect assertion that literature records automatically map to a TMBD axis (LiteratureRecord has no axis field; axis assignment is a downstream step during competence mapping). In docs/onboarding_new_provider.md, corrected the description of when providers check for credentials — the established pattern is to read env vars in __init__ and evaluate the boolean in the capability property at runtime, not at module import time.
+Reason Code review on PR identified a factual mismatch between the documentation and the actual LiteratureRecord data model and existing provider implementations (ElsevierScopusProvider, GoogleDriveProvider).
+Impact Documentation only. No code, CI, or schema changes.
+Provenance src/scientific_sources/models.py (LiteratureRecord has no axis field); src/scientific_sources/elsevier_scopus.py and google_drive.py (credential check pattern in __init__ + capability property).
+Quality checks No tests affected. Governance files only.
+Reviewer GitHub Copilot Coding Agent
+
+2026-05-08 (Cumulative fragment analysis workflow)
+Change type add
+Scope scripts tests governance
+Files affected scripts/cumulative_fragment_analysis.py tests/test_cumulative_fragment_analysis.py docs/overview.md CHANGELOG.txt
+Summary Added a cumulative, fragment-level semantic analysis workflow that deduplicates DOI-linked sentences across runs using a stable hash, then records both strict TMBD axis classification (via src/axis_classifier.py) and an open/emergent contextual signal pass (Economy/Technology/Politics/Culture). Updated docs/overview.md to clarify that axis assignment is performed downstream on extracted, deduplicated fragments rather than on raw LiteratureRecord metadata.
+Reason PR review requested implementing fragment-level provenance so semantic frequencies are not double-counted when the same source is processed multiple times, while keeping LiteratureRecord as raw metadata without an axis field.
+Impact Adds a new derived-state workflow for researchers; no changes to existing provider ingestion or core data models.
+Provenance src/axis_classifier.py (deterministic TMBD classifier); DATA_GOVERNANCE.txt (derived outputs are append-only and do not overwrite raw baselines).
+Quality checks python -m pytest -q passes locally; flake8/mypy remain non-clean due to pre-existing issues.
+Reviewer Codex CLI agent
+
+2026-05-04 (Stage 1 documentation layer — human contracts)
+Change type add
+Scope governance
+Files affected docs/overview.md docs/providers.md docs/onboarding_new_provider.md docs/licensing_and_compliance.md CHANGELOG.txt
+Summary Added four plain-English contract documents forming the Stage 1 documentation layer of the repository upgrade plan. docs/overview.md describes what the repository is and is not, documents the existing CI enforcement baseline (Stage 0 note), and states the North Star. docs/providers.md describes all six registered scientific source providers, their open/institutional/personal classification, permitted metadata fields, and current implementation status. docs/onboarding_new_provider.md defines the human decision and implementation process for adding a new provider, including mandatory pre-implementation questions and explicit prohibitions. docs/licensing_and_compliance.md translates DATA_GOVERNANCE.txt licence rules into plain English for contributors, covering the three provider categories, GDPR constraints, and the remediation process for violations.
+Reason CI enforcement already existed before this documentation was written. Stage 1 documents intent and rules in human-readable form before any additional enforcement is layered on top, following the principle that intent must be written down before enforcement is permitted to harden.
+Impact No code changes. No CI changes. These documents are non-executable. Future enforcement stages (Stage 4 and beyond) may reference these documents as the written basis for rules that become machine-checked.
+Provenance Derived from DATA_GOVERNANCE.txt, CITATION.txt, LLM_CONTEXT_INSTRUCTION.txt, docs/RESEARCH_SOURCE_GOVERNANCE.md, docs/RESEARCH_API_CICD_SETUP.md, and src/scientific_sources/ module inspection.
+Quality checks No tests affected. Governance files only. CI conflict-marker check and governance-file-presence check unaffected.
+Reviewer GitHub Copilot Coding Agent
+
 2026-05-03 (validate and normalise --providers CLI argument)
 Change type fix
 Scope scripts tests

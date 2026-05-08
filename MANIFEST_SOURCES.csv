@@ -663,6 +663,7 @@ Dockerfile,other,,,,,,Dockerfile,no
 Dockerfile.txt,text,,,,,,Dockerfile,yes
 docs/BASELINE_VALIDATION.md,text,,,,,,BASELINE_VALIDATION,yes
 docs/GOOGLE_CLOUD_BUILD_OPTIONAL_SETUP.md,text,,,,,,GOOGLE_CLOUD_BUILD_OPTIONAL_SETUP,yes
+docs/licensing_and_compliance.md,text,,,,,,licensing_and_compliance,yes
 docs/literature/(Posthumanities) Timothy Morton - Hyperobjects_ Philosophy and Ecology after the End of the World-University of Minnesota Press (2013).txt,literature,,,,,,Posthumanities__Timothy_Morton___Hyperob,yes
 docs/literature/40152_2021_Article_238.PDF,literature,,,,,,40152_2021_Article_238,no
 docs/literature/A Sensorial Walk for Le Havre.docx,literature,,,,,,A_Sensorial_Walk_for_Le_Havre,yes
@@ -709,7 +710,9 @@ docs/literature/WG3 Meeting  - 2025_12_12 10_57 GMT - Notes by Gemini.docx,liter
 docs/literature/WG3_PACT_WG3_Sensory_Walk_Methodology_Slides_EN-UK rob.pptx,literature,,,,,,WG3_PACT_WG3_Sensory_Walk_Methodology_Sl,no
 docs/literature/WG_applications_export_05-01-2026 (1).xlsx,literature,,,,,,WG_applications_export_05_01_2026__1,yes
 docs/literature/Wyrzucone przez morze_250521_002507.txt,literature,,,,,,Wyrzucone_przez_morze_250521_002507,yes
+docs/onboarding_new_provider.md,text,,,,,,onboarding_new_provider,yes
 docs/ONE_CLICK_RESEARCH_RUNBOOK.md,text,,,,,,ONE_CLICK_RESEARCH_RUNBOOK,yes
+docs/overview.md,text,,,,,,overview,yes
 docs/policy/Blue Economy_ Social Soul Revival Blue Skills Diplomat.docx,policy,,,,,,Blue_Economy__Social_Soul_Revival_Blue_S,yes
 docs/policy/Blue Occupation Boatbuilder.txt,policy,,,,,,Blue_Occupation_Boatbuilder,yes
 docs/policy/Blue Occupation Boutyard manager.txt,policy,,,,,,Blue_Occupation_Boutyard_manager,yes
@@ -718,6 +721,7 @@ docs/policy/Blue Occupation Crew Manager.txt,policy,,,,,,Blue_Occupation_Crew_Ma
 docs/policy/Blue Occupation Insurance broker.txt,policy,,,,,,Blue_Occupation_Insurance_broker,yes
 docs/policy/Blue Occupation Sailmaker.txt,policy,,,,,,Blue_Occupation_Sailmaker,yes
 docs/policy/Blue_Sociology_Framework_Complete.md,policy,,,,,,Blue_Sociology_Framework_Complete,yes
+docs/providers.md,text,,,,,,providers,yes
 docs/RESEARCH_API_CICD_SETUP.md,text,,,,,,RESEARCH_API_CICD_SETUP,yes
 docs/RESEARCH_SOURCE_GOVERNANCE.md,text,,,,,,RESEARCH_SOURCE_GOVERNANCE,yes
 examples/add_coastal_resilience_competence.py,other,,,,,,add_coastal_resilience_competence,no
@@ -814,6 +818,7 @@ scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,no
 scripts/check_research_api_health.py,script,,,,,,check_research_api_health,no
 scripts/check_research_env.py,script,,,,,,check_research_env,no
 scripts/convert_pdfs_to_txt.py,script,,,,,,convert_pdfs_to_txt,no
+scripts/cumulative_fragment_analysis.py,script,,,,,,cumulative_fragment_analysis,no
 scripts/Delft wyjazd_241017_170643.txt,script,,,,,,Delft_wyjazd_241017_170643,yes
 scripts/Do hab_250403_204509.txt,script,,,,,,Do_hab_250403_204509,yes
 scripts/export_live_research_records.py,script,,,,,,export_live_research_records,no
@@ -886,6 +891,7 @@ tests/test_build_tmbd_dictionary.py,other,,,,,,test_build_tmbd_dictionary,no
 tests/test_competence_repository.py,other,,,,,,test_competence_repository,no
 tests/test_convert_pdfs_to_txt.py,other,,,,,,test_convert_pdfs_to_txt,no
 tests/test_core.py,other,,,,,,test_core,no
+tests/test_cumulative_fragment_analysis.py,other,,,,,,test_cumulative_fragment_analysis,no
 tests/test_e2e_workflows.py,other,,,,,,test_e2e_workflows,no
 tests/test_edge_cases.py,other,,,,,,test_edge_cases,no
 tests/test_export_live_research_records.py,other,,,,,,test_export_live_research_records,no
