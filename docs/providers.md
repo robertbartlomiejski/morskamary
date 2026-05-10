@@ -22,7 +22,7 @@ enforces the "bibliographic metadata only" rule regardless of provider category:
 
 | Field dropped | Reason |
 |---|---|
-| `citation_count` | Restricted redistribution under Category 2/3 provider terms |
+| `citation_count` | Restricted redistribution under Category 2/3 provider terms (see `docs/licensing_and_compliance.md` — Institutional and Personal/Enterprise provider categories) |
 | `abstract_available` | Internal flag — not a bibliographic fact; must not appear in outputs |
 | `abstract_stored` | Internal flag — same reason as above |
 
@@ -251,6 +251,10 @@ OAuth credentials or SharePoint file contents.
 | Microsoft Graph | Personal / Enterprise | Azure App | Stub | Any — institutional collections |
 
 The four QMBD axes are: Marine (M), Maritime (T), Oceanic (O), and Hydronization (H).
+The single-letter codes follow the established convention: 'M' for Marine, 'T' for
+Maritime (first letter of the root term *Terminologia*/*Techno-economic*, chosen to
+avoid collision with 'M'), 'O' for Oceanic, and 'H' for Hydronization. These codes
+are canonical in `src/core.py` (`BlueDynamicsAxis` enum).
 Records retrieved from any provider are classified against these axes by
 `src/axis_classifier.py` after passing through the Stage 1 compliance filter.
 
