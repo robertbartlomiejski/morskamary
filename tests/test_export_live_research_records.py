@@ -1032,3 +1032,19 @@ class TestStage1ComplianceFilter:
         assert len(rows) == 1
         assert rows[0]["licence_note"] == "Crossref open"
 
+    def test_stage1_csv_fields_excludes_restricted_columns(self):
+        """STAGE1_CSV_FIELDS must not include any restricted metadata fields."""
+        restricted = {"citation_count", "abstract_available", "abstract_stored"}
+        overlap = restricted & set(STAGE1_CSV_FIELDS)
+        assert not overlap, (
+            f"STAGE1_CSV_FIELDS contains restricted fields: {overlap}. "
+            "These must be dropped per docs/licensing_and_compliance.md."
+        )
+
+    def test_stage1_csv_fields_includes_licence_note(self):
+        """STAGE1_CSV_FIELDS must include licence_note (mandatory Stage 1 field)."""
+        assert "licence_note" in STAGE1_CSV_FIELDS, (
+            "licence_note must be in STAGE1_CSV_FIELDS — it is required by "
+            "docs/licensing_and_compliance.md Stage 1 export rules."
+        )
+

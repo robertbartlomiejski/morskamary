@@ -311,18 +311,32 @@ class CumulativeTriangulator:
 
             # --- DOI-exact upgrade ------------------------------------------
             if norm_doi and norm_doi in doi_to_idx:
+                idx = doi_to_idx[norm_doi]
+                old_rec = pool[idx]
+                # Remove stale title-index entry so a later dynamic record
+                # matching the old static title does not overwrite this slot.
+                old_norm_title = _normalize_title(old_rec.title)
+                if (
+                    old_norm_title
+                    and title_to_idx.get(old_norm_title) == idx
+                ):
+                    del title_to_idx[old_norm_title]
+                    seen_titles.discard(old_norm_title)
                 # Replace the static slot with the dynamic (DOI-authority) rec.
-                pool[doi_to_idx[norm_doi]] = dyn
-                # Update title index if title changed.
+                pool[idx] = dyn
+                # Register the new title so it is visible to subsequent records.
                 if norm_title and norm_title not in seen_titles:
+                    title_to_idx[norm_title] = idx
                     seen_titles.add(norm_title)
                 continue
 
             # --- Title-normalised upgrade ------------------------------------
             if norm_title and norm_title in title_to_idx:
+                idx = title_to_idx[norm_title]
                 # Replace static slot; dynamic variant is authoritative.
-                pool[title_to_idx[norm_title]] = dyn
+                pool[idx] = dyn
                 if norm_doi:
+                    doi_to_idx[norm_doi] = idx
                     seen_dois.add(norm_doi)
                 continue
 

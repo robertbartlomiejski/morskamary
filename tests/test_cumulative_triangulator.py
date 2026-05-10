@@ -323,3 +323,43 @@ class TestTriangulate:
     def test_empty_triangulator_returns_empty_list(self):
         t = CumulativeTriangulator()
         assert t.triangulate() == []
+
+    def test_doi_upgrade_does_not_leave_stale_title_index(self, tmp_path):
+        """A DOI-upgraded slot must not be overwritten by a later dynamic record
+        that matches the *old* static title.
+
+        Regression guard for the stale title_to_idx bug: after upgrading a
+        static record via DOI match, the old title must be removed from the
+        title index so a subsequent dynamic record with the same old title is
+        treated as a new (separate) record rather than silently replacing the
+        already-upgraded slot.
+        """
+        # Static record: doi="10.1/a", title="OldTitle"
+        csv_path = _csv_file(
+            tmp_path, [_static_row(doi="10.1/a", title="OldTitle")]
+        )
+        t = CumulativeTriangulator()
+        t.ingest_static_baseline(csv_path)
+        # First dynamic record upgrades via DOI; it has a different title.
+        dyn_upgraded = _lit_record(
+            doi="10.1/a", title="NewTitle", source_id="x1"
+        )
+        # Second dynamic record shares the *old* static title but no DOI —
+        # it must NOT overwrite the already-upgraded slot.
+        dyn_old_title = _lit_record(
+            doi="", title="OldTitle", source_id="x2"
+        )
+        t.ingest_dynamic_records([dyn_upgraded, dyn_old_title])
+        result = t.triangulate()
+        # Should have two records: the upgraded slot + the second dynamic record.
+        assert len(result) == 2, (
+            f"Expected 2 records (upgraded + separate old-title), got {len(result)}"
+        )
+        # The first slot must hold the DOI-upgraded record (dyn_upgraded).
+        doi_upgraded_result = next(
+            (r for r in result if r.doi == "10.1/a"), None
+        )
+        assert doi_upgraded_result is not None
+        assert doi_upgraded_result.title == "NewTitle"
+        assert doi_upgraded_result.source == ClaimOrigin.DYNAMIC_API_CROSSREF
+
