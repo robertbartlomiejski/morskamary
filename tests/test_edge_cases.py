@@ -36,7 +36,7 @@ class TestBlueDynamicsAxisEnum:
         assert BlueDynamicsAxis.HYDRONIZATION.name == "HYDRONIZATION"
 
     def test_enum_iteration(self):
-        """Test that all axes can be iterated"""
+        """Test that all axes can be iterated (QMBD — 4 axes)"""
         axes = list(BlueDynamicsAxis)
         assert len(axes) == 4
         assert BlueDynamicsAxis.MARINE in axes

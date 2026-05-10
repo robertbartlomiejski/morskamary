@@ -122,3 +122,112 @@ class TestMapDimensionToAxis:
     def test_whitespace_only_returns_oceanic(self):
         """Whitespace-only dimension string defaults to OCEANIC."""
         assert map_dimension_to_axis("   ") == BlueDynamicsAxis.OCEANIC
+
+
+# ---------------------------------------------------------------------------
+# QMBD 4D — Hydronization axis tests
+# ---------------------------------------------------------------------------
+
+
+class TestQMBDHydronizationAxis:
+    """Tests proving the additive QMBD 4th axis (Hydronization) is correctly
+    classified and does not break the legacy TMBD 3-axis logic.
+
+    Keyword basis:
+    - "hydronization": direct 4th-axis term (QMBD spec).
+    - "hydrosocial": Linton & Budds (2014) "The hydrosocial cycle", Geoforum 57
+      (docs/literature/Bartłomiejskie Cocco krytyka oceanocentryzmu.txt:912);
+      also in scripts/cumulative_fragment_analysis.py:qmbd_label_from_text.
+    - "wet ontology": Steinberg & Peters (2015) via Bartłomiejski Cocco
+      Performatywność wody morza oceanu.txt:2064-2066; also in
+      scripts/cumulative_fragment_analysis.py:qmbd_label_from_text.
+    """
+
+    def test_hydronization_keyword_maps_to_hydronization_axis(self):
+        """Text containing 'hydronization' must map to HYDRONIZATION."""
+        classifier = AxisClassifier()
+        result = classifier.classify_axis("The process of hydronization reshapes coastal society")
+        assert result == BlueDynamicsAxis.HYDRONIZATION
+
+    def test_hydrosocial_keyword_maps_to_hydronization_axis(self):
+        """Text containing 'hydrosocial' must map to HYDRONIZATION."""
+        classifier = AxisClassifier()
+        result = classifier.classify_axis("Hydrosocial relations in Baltic coastal communities")
+        assert result == BlueDynamicsAxis.HYDRONIZATION
+
+    def test_wet_ontology_maps_to_hydronization_axis(self):
+        """Text containing 'wet ontology' must map to HYDRONIZATION."""
+        classifier = AxisClassifier()
+        result = classifier.classify_axis("Wet ontology perspectives in maritime sociology")
+        assert result == BlueDynamicsAxis.HYDRONIZATION
+
+    def test_hydronization_does_not_supersede_marine_when_marine_appears_first(self):
+        """MARINE keywords appear before HYDRONIZATION in KEYWORD_AXIS_MAP.
+
+        When both MARINE and HYDRONIZATION keywords are present in the same
+        text, the first-match rule means MARINE wins.
+        """
+        classifier = AxisClassifier()
+        result = classifier.classify_axis(
+            "Ecosystem biodiversity and hydrosocial relations"
+        )
+        assert result == BlueDynamicsAxis.MARINE
+
+    def test_hydronization_takes_precedence_over_oceanic(self):
+        """HYDRONIZATION is checked before OCEANIC in the keyword scan order.
+
+        A text with both 'hydrosocial' and 'governance' should yield
+        HYDRONIZATION because HYDRONIZATION appears earlier in KEYWORD_AXIS_MAP.
+        """
+        classifier = AxisClassifier()
+        result = classifier.classify_axis(
+            "Hydrosocial governance and ocean policy frameworks"
+        )
+        assert result == BlueDynamicsAxis.HYDRONIZATION
+
+    def test_hydronization_axis_value(self):
+        """HYDRONIZATION axis value must be 'H' (QMBD 4th dimension code)."""
+        assert BlueDynamicsAxis.HYDRONIZATION.value == "H"
+
+    def test_four_axes_in_enum(self):
+        """BlueDynamicsAxis must now have exactly four members (QMBD model)."""
+        axes = list(BlueDynamicsAxis)
+        assert len(axes) == 4
+        names = {a.name for a in axes}
+        assert names == {"MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION"}
+
+    # --- Legacy TMBD axes unaffected ----------------------------------------
+
+    def test_legacy_marine_axis_still_works(self):
+        """TMBD MARINE axis must still classify correctly after QMBD extension."""
+        classifier = AxisClassifier()
+        assert classifier.classify_axis("Ecosystem and habitat conservation") == BlueDynamicsAxis.MARINE
+
+    def test_legacy_maritime_axis_still_works(self):
+        """TMBD MARITIME axis must still classify correctly after QMBD extension."""
+        classifier = AxisClassifier()
+        assert classifier.classify_axis("Port operations and shipping logistics") == BlueDynamicsAxis.MARITIME
+
+    def test_legacy_oceanic_axis_still_works(self):
+        """TMBD OCEANIC axis must still classify correctly after QMBD extension."""
+        classifier = AxisClassifier()
+        assert classifier.classify_axis("Governance and international policy cooperation") == BlueDynamicsAxis.OCEANIC
+
+    def test_legacy_oceanic_fallback_unchanged(self):
+        """Default fallback (no dimension, no keywords) must still be OCEANIC."""
+        classifier = AxisClassifier()
+        assert classifier.classify_axis("") == BlueDynamicsAxis.OCEANIC
+        assert classifier.classify_axis("Generic blue economy text") == BlueDynamicsAxis.OCEANIC
+
+    def test_dimension_path_does_not_route_to_hydronization(self):
+        """Dimension-based classification (A/B/C/D) must not produce HYDRONIZATION.
+
+        The dimension→axis mapping covers only the original TMBD axes.
+        Hydronization is reachable via the keyword path only.
+        """
+        classifier = AxisClassifier()
+        for dim in ("A", "B", "C", "D", "A.1", "B.2", "C.3", "D.4"):
+            result = classifier.classify_axis("hydronization hydrosocial wet ontology", dimension=dim)
+            assert result != BlueDynamicsAxis.HYDRONIZATION, (
+                f"Dimension '{dim}' must not route to HYDRONIZATION"
+            )

@@ -137,6 +137,18 @@ class TestDetectAllThemes:
         themes = _detect_all_themes(mixed_case)
         assert "hydrosocial" in themes[BlueDynamicsAxis.HYDRONIZATION]
 
+    def test_detect_all_themes_parses_pipe_delimited_subject_terms(self):
+        """Pipe-delimited subject_terms strings should be detected safely."""
+        record = self._record(
+            title="Generic title",
+            journal="",
+            source_query="",
+            subject_terms="reactive infrastructure|liquid materiality",
+        )
+        themes = _detect_all_themes(record)
+        assert "reactive infrastructure" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "liquid materiality" in themes[BlueDynamicsAxis.HYDRONIZATION]
+
 
 class TestLoadCompetenceMatrix:
     """Tests for load_competence_matrix function"""

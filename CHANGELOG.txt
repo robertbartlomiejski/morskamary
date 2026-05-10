@@ -30,6 +30,40 @@ Provenance src/core.py BlueDynamicsAxis and _detect_all_themes; tests/test_core.
 Quality checks python -m pytest tests/test_core.py -q passes; python -m pytest tests -q passes (350 passed, 1 skipped); flake8/mypy remain non-clean due to pre-existing unrelated issues.
 Reviewer GitHub Copilot Task Agent
 
+2026-05-10 (QMBD keyword governance fix — remove ungrounded blue subjectivity keyword)
+Change type fix
+Scope src tests governance
+Files affected src/axis_classifier.py tests/test_axis_classifier.py CHANGELOG.txt
+Summary Removed "blue subjectivity" from the HYDRONIZATION keyword set in AxisClassifier.KEYWORD_AXIS_MAP after failing to locate a source document citation in the repository. Per LLM_CONTEXT_INSTRUCTION.txt policy (block unverified claims), a [CITATION_REQUIRED] keyword must not remain in production code. The three remaining HYDRONIZATION keywords (hydronization, hydrosocial, wet ontology) are fully grounded: hydrosocial — Linton & Budds (2014) "The hydrosocial cycle" cited in docs/literature/Bartłomiejskie Cocco krytyka oceanocentryzmu.txt:912; wet ontology — Steinberg & Peters (2015) via Bartłomiejski Cocco Performatywność wody morza oceanu.txt:2064-2066 and scripts/cumulative_fragment_analysis.py:qmbd_label_from_text. Updated keyword provenance comments to include the specific source citations. Removed the test_blue_subjectivity_maps_to_hydronization_axis test that exercised the deleted keyword.
+Reason Review feedback identified the [CITATION_REQUIRED] placeholder as a compliance risk. Spelling of HYDRONIZATION is intentional and matches the established codebase usage in scripts/cumulative_fragment_analysis.py:185,192 (predating this PR).
+Impact src/axis_classifier.py: HYDRONIZATION keyword count reduced from 4 to 3. Texts containing only "blue subjectivity" now fall through to OCEANIC (governance-first default). No other behaviour changed.
+Provenance docs/literature/Bartłomiejskie Cocco krytyka oceanocentryzmu.txt:912 (hydrosocial); Bartłomiejski Cocco Performatywność wody morza oceanu.txt:2064-2066 (wet ontology); scripts/cumulative_fragment_analysis.py:185,192 (HYDRONIZATION spelling baseline).
+Quality checks pytest: all tests pass. No [CITATION_REQUIRED] placeholders remain in production code.
+Reviewer GitHub Copilot Coding Agent
+
+
+2026-05-10 (QMBD synthesis — Stage 1 compliance, triangulator, HYDRONIZATION axis)
+Change type add update
+Scope governance scripts src tests
+Files affected scripts/export_live_research_records.py src/core.py src/axis_classifier.py src/cumulative_analysis/__init__.py src/cumulative_analysis/triangulator.py tests/test_export_live_research_records.py tests/test_axis_classifier.py tests/test_cumulative_triangulator.py CHANGELOG.txt
+Summary Three coordinated changes: (1) Stage 1 governance audit — scripts/export_live_research_records.py now routes JSON and CSV exports through _to_stage1_compliant_dict(), explicitly dropping citation_count and abstract_* flag fields and adding inline comments referencing docs/licensing_and_compliance.md clauses; (2) Cumulative Triangulation Engine — new src/cumulative_analysis/triangulator.py provides ClaimOrigin provenance typing (STATIC_BASELINE / DYNAMIC_API_CROSSREF), static CSV ingestion, dynamic LiteratureRecord ingestion, and DOI-first deduplication for the QMBD matrix build; (3) QMBD 4th axis — BlueDynamicsAxis extended with HYDRONIZATION = "H" and AxisClassifier.KEYWORD_AXIS_MAP updated with sociologically grounded keywords (hydronization, hydrosocial, wet ontology); the 4th axis is inserted before OCEANIC in the scan order so it is reachable via keyword path while the TMBD 3-axis fallback logic is preserved unchanged.
+Reason Reconcile PR #125 (Stage 1 Human Contracts), PR #119 (Live API Export), and the Manus methodological review to establish a unified QMBD framework. The governance audit ensures no restricted fields (abstracts, citation counts) are committed from institutional providers. The triangulation engine bridges static baseline and dynamic API evidence under strict provenance typing. The 4th axis formalises the Hydronization dimension already informally present in scripts/cumulative_fragment_analysis.py.
+Impact scripts/export_live_research_records.py: JSON output no longer includes citation_count, abstract_available, or abstract_stored; CSV now includes licence_note column. src/core.py: BlueDynamicsAxis has 4 members — downstream code that iterates all axes will encounter HYDRONIZATION. src/axis_classifier.py: texts containing hydronization/hydrosocial/wet ontology now resolve to HYDRONIZATION instead of OCEANIC.
+Provenance docs/licensing_and_compliance.md (Stage 1 bibliographic-only rules); scripts/cumulative_fragment_analysis.py:qmbd_label_from_text (hydronization keyword basis); DATA_GOVERNANCE.txt (FAIR traceability).
+Quality checks pytest: all tests pass. Compliance filter verified by new TestStage1ComplianceFilter suite. Triangulator verified by new test_cumulative_triangulator.py. QMBD axis verified by new TestQMBDHydronizationAxis suite.
+Reviewer GitHub Copilot Coding Agent
+
+2026-05-10 (docs/providers.md — QMBD alignment and Stage 1 compliance section)
+Change type update
+Scope governance
+Files affected docs/providers.md CHANGELOG.txt
+Summary Updated docs/providers.md to reflect the QMBD (4-axis) model replacing TMBD references: renamed "TMBD relevance" column to "QMBD axis relevance" in the summary table, updated SciVal section to reference QMBD axes, and added two new sections — "Stage 1 compliance filter" (documenting _to_stage1_compliant_dict() and the fields it drops) and "Cumulative triangulation" (documenting ClaimOrigin provenance labels and DOI-first deduplication behaviour).
+Reason The existing docs/providers.md was drafted against the 3-axis TMBD model. The QMBD synthesis PR extended the axis model to 4 dimensions and introduced a compliance filter and triangulation engine not described in any Stage 1 document. This update keeps the human contracts consistent with the implemented pipeline.
+Impact Documentation only. No code, CI, or schema changes.
+Provenance scripts/export_live_research_records.py:_to_stage1_compliant_dict() (compliance filter); src/cumulative_analysis/triangulator.py (triangulation engine); src/core.py:BlueDynamicsAxis (4 QMBD axes).
+Quality checks No tests for documentation; prose reviewed for consistency with implementation.
+Reviewer GitHub Copilot Coding Agent
+
 2026-05-08 (Stage 1 documentation — accuracy corrections)
 Change type fix
 Scope governance
