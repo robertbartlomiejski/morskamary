@@ -133,8 +133,8 @@ def _record_from_csv_row(row: Dict[str, str]) -> Optional[TriangulatedRecord]:
     Convert a raw CSV row from the static baseline into a TriangulatedRecord.
 
     Expected columns (all optional except ``title``):
-    title, authors, year, doi, journal, url, subject_terms, source_query,
-    retrieval_timestamp, licence_note.
+    title, authors, year, doi, provider, journal, url, subject_terms,
+    source_query, retrieval_timestamp, licence_note.
 
     Returns ``None`` when the row lacks a usable title.
     """
