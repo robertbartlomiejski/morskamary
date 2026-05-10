@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-05-10 (HYDRONIZATION axis and structured theme mapping)
+Change type update add
+Scope core tests governance
+Files affected src/core.py tests/test_core.py tests/test_competence_repository.py tests/test_edge_cases.py CHANGELOG.txt
+Summary Added HYDRONIZATION ("H") to BlueDynamicsAxis and implemented _detect_all_themes(record) to return a structured per-axis keyword mapping with a fallback "[citation needed]" marker when no axis keywords are detected. Updated tests to align with four-axis behavior and added coverage for case-insensitive theme detection.
+Reason Recommended update required preventing an orphaned fourth dimension and enforcing structured theme output keyed by all axis values.
+Impact Core axis enum now has four members, downstream enum iterations include HYDRONIZATION, and theme detection consumers can rely on a consistent Dict[BlueDynamicsAxis, List[str]] shape.
+Provenance src/core.py BlueDynamicsAxis and _detect_all_themes; tests/test_core.py, tests/test_competence_repository.py, tests/test_edge_cases.py.
+Quality checks python -m pytest tests/test_core.py -q passes; python -m pytest tests -q passes (350 passed, 1 skipped); flake8/mypy remain non-clean due to pre-existing unrelated issues.
+Reviewer GitHub Copilot Task Agent
+
 2026-05-08 (Stage 1 documentation — accuracy corrections)
 Change type fix
 Scope governance

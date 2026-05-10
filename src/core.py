@@ -17,7 +17,7 @@ class BlueDynamicsAxis(Enum):
     MARINE = "M"  # Marine (biophysical agency)
     MARITIME = "T"  # Maritime (techno-economic and institutional mediation)
     OCEANIC = "O"  # Oceanic (planetary governance and hydrosocial subjectivity)
-    HYDRONIZATION = "H"  # Hydronization axis
+    HYDRONIZATION = "H"  # Hydronization (water-society coupling)
 
 
 class CompetenceLevel(Enum):
@@ -134,6 +134,12 @@ def _detect_all_themes(record: "LiteratureRecord") -> Dict[BlueDynamicsAxis, Lis
     If no axis keywords are found, a single ``[citation needed]`` marker is added
     under ``OCEANIC`` to keep downstream outputs explicit and non-empty.
     ``OCEANIC`` is used as fallback for unknown classifications in this project.
+
+    Args:
+        record: Normalized bibliographic record used for keyword theme detection.
+
+    Returns:
+        Mapping of each ``BlueDynamicsAxis`` to detected theme keywords.
     """
     themes: Dict[BlueDynamicsAxis, List[str]] = {axis: [] for axis in BlueDynamicsAxis}
     text = " ".join(
