@@ -43,9 +43,9 @@ query time. Each record carries a `ClaimOrigin` label:
 | `DYNAMIC_API_CROSSREF` | Live Crossref API call | Higher — upgrades static record on DOI match |
 | `STATIC_BASELINE` | CSV snapshot (e.g., University of Szczecin baseline) | Lower |
 
-Deduplication is DOI-first; title-based fallback uses Jaccard similarity
-(shared with `src/nlp_reliability/deduplication.py`). The triangulated output
-contains only Stage 1-compliant fields.
+Deduplication is DOI-first; title-based fallback uses exact matching on
+normalized titles (with punctuation stripped and whitespace collapsed). The
+triangulated output contains only Stage 1-compliant fields.
 
 ---
 
