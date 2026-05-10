@@ -41,6 +41,17 @@ Provenance docs/licensing_and_compliance.md (Stage 1 bibliographic-only rules); 
 Quality checks pytest: all tests pass. Compliance filter verified by new TestStage1ComplianceFilter suite. Triangulator verified by new test_cumulative_triangulator.py. QMBD axis verified by new TestQMBDHydronizationAxis suite.
 Reviewer GitHub Copilot Coding Agent
 
+2026-05-10 (docs/providers.md — QMBD alignment and Stage 1 compliance section)
+Change type update
+Scope governance
+Files affected docs/providers.md CHANGELOG.txt
+Summary Updated docs/providers.md to reflect the QMBD (4-axis) model replacing TMBD references: renamed "TMBD relevance" column to "QMBD axis relevance" in the summary table, updated SciVal section to reference QMBD axes, and added two new sections — "Stage 1 compliance filter" (documenting _to_stage1_compliant_dict() and the fields it drops) and "Cumulative triangulation" (documenting ClaimOrigin provenance labels and DOI-first deduplication behaviour).
+Reason The existing docs/providers.md was drafted against the 3-axis TMBD model. The QMBD synthesis PR extended the axis model to 4 dimensions and introduced a compliance filter and triangulation engine not described in any Stage 1 document. This update keeps the human contracts consistent with the implemented pipeline.
+Impact Documentation only. No code, CI, or schema changes.
+Provenance scripts/export_live_research_records.py:_to_stage1_compliant_dict() (compliance filter); src/cumulative_analysis/triangulator.py (triangulation engine); src/core.py:BlueDynamicsAxis (4 QMBD axes).
+Quality checks No tests for documentation; prose reviewed for consistency with implementation.
+Reviewer GitHub Copilot Coding Agent
+
 2026-05-08 (Stage 1 documentation — accuracy corrections)
 Change type fix
 Scope governance

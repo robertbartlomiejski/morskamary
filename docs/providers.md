@@ -14,6 +14,41 @@ rules in `DATA_GOVERNANCE.txt` into plain English for contributors.
 
 ---
 
+## Stage 1 compliance filter
+
+All exports from provider pipelines pass through `_to_stage1_compliant_dict()`
+in `scripts/export_live_research_records.py`. This whitelist-based filter
+enforces the "bibliographic metadata only" rule regardless of provider category:
+
+| Field dropped | Reason |
+|---|---|
+| `citation_count` | Restricted redistribution under Category 2/3 provider terms |
+| `abstract_available` | Internal flag — not a bibliographic fact; must not appear in outputs |
+| `abstract_stored` | Internal flag — same reason as above |
+
+`licence_note` is added to every CSV row to satisfy FAIR/CARE provenance
+requirements. The filter is the programmatic enforcement of the rules described
+in `docs/licensing_and_compliance.md` (Categories 1–3).
+
+---
+
+## Cumulative triangulation
+
+`src/cumulative_analysis/triangulator.py` merges static baseline data
+(CSV snapshots from `data/derived/`) with live provider records retrieved at
+query time. Each record carries a `ClaimOrigin` label:
+
+| Origin | Source | Priority |
+|---|---|---|
+| `DYNAMIC_API_CROSSREF` | Live Crossref API call | Higher — upgrades static record on DOI match |
+| `STATIC_BASELINE` | CSV snapshot (e.g., University of Szczecin baseline) | Lower |
+
+Deduplication is DOI-first; title-based fallback uses Jaccard similarity
+(shared with `src/nlp_reliability/deduplication.py`). The triangulated output
+contains only Stage 1-compliant fields.
+
+---
+
 ## How providers work in this repository
 
 All providers implement the same interface (`src/scientific_sources/base.py`):
@@ -134,7 +169,7 @@ permits redistribution.
 SciVal provides aggregated bibliometric indicators and topic cluster labels for
 institutions and research groups. It is relevant for mapping blue economy research
 productivity at the institutional level — for example, assessing how a university's
-maritime research portfolio maps to TMBD axes.
+maritime research portfolio maps to QMBD axes.
 
 **What it can return (when configured and licensed):**
 Aggregated bibliometric indicators, topic cluster labels, anonymised institutional
@@ -206,7 +241,7 @@ OAuth credentials or SharePoint file contents.
 
 ## Summary table
 
-| Provider | Open? | Credentials | Status | TMBD relevance |
+| Provider | Open? | Credentials | Status | QMBD axis relevance |
 |---|---|---|---|---|
 | Crossref | Yes | None required | Fully implemented | All axes — broadest coverage |
 | Elsevier / Scopus | No | Institutional | Stub (Phase 2) | Maritime (T), Oceanic (O) |
@@ -214,6 +249,10 @@ OAuth credentials or SharePoint file contents.
 | SciVal | No | Institutional | Stub (Phase 2) | All axes — institutional analytics |
 | Google Drive | Personal | OAuth JSON | Stub | Any — personal collections |
 | Microsoft Graph | Personal / Enterprise | Azure App | Stub | Any — institutional collections |
+
+The four QMBD axes are: Marine (M), Maritime (T), Oceanic (O), and Hydronization (H).
+Records retrieved from any provider are classified against these axes by
+`src/axis_classifier.py` after passing through the Stage 1 compliance filter.
 
 ---
 
