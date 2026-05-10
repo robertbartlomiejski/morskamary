@@ -856,6 +856,8 @@ src/axis_classifier.py,other,,,,,,axis_classifier,no
 src/competence_mapper.py,other,,,,,,competence_mapper,no
 src/competence_repository.py,other,,,,,,competence_repository,no
 src/core.py,other,,,,,,core,no
+src/cumulative_analysis/__init__.py,other,,,,,,init,no
+src/cumulative_analysis/triangulator.py,other,,,,,,triangulator,no
 src/dimension_mapping.py,other,,,,,,dimension_mapping,no
 src/literature_extraction.py,other,,,,,,literature_extraction,no
 src/nlp_reliability/__init__.py,other,,,,,,init,no
@@ -892,6 +894,7 @@ tests/test_competence_repository.py,other,,,,,,test_competence_repository,no
 tests/test_convert_pdfs_to_txt.py,other,,,,,,test_convert_pdfs_to_txt,no
 tests/test_core.py,other,,,,,,test_core,no
 tests/test_cumulative_fragment_analysis.py,other,,,,,,test_cumulative_fragment_analysis,no
+tests/test_cumulative_triangulator.py,other,,,,,,test_cumulative_triangulator,no
 tests/test_e2e_workflows.py,other,,,,,,test_e2e_workflows,no
 tests/test_edge_cases.py,other,,,,,,test_edge_cases,no
 tests/test_export_live_research_records.py,other,,,,,,test_export_live_research_records,no
