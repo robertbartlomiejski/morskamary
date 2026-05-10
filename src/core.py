@@ -129,8 +129,6 @@ _THEME_KEYWORDS: Dict[BlueDynamicsAxis, List[str]] = {
         "water-energy",
         "water society",
         "hydrological transition",
-        "reactive infrastructure",
-        "liquid materiality",
     ],
 }
 

@@ -143,11 +143,11 @@ class TestDetectAllThemes:
             title="Generic title",
             journal="",
             source_query="",
-            subject_terms="reactive infrastructure|liquid materiality",
+            subject_terms="hydrosocial|water-energy",
         )
         themes = _detect_all_themes(record)
-        assert "reactive infrastructure" in themes[BlueDynamicsAxis.HYDRONIZATION]
-        assert "liquid materiality" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "hydrosocial" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "water-energy" in themes[BlueDynamicsAxis.HYDRONIZATION]
 
 
 class TestLoadCompetenceMatrix:

@@ -185,7 +185,11 @@ def _to_stage1_compliant_dict(rec: LiteratureRecord) -> Dict[str, Any]:
 
 
 def _serialize_subject_terms_for_csv(subject_terms: Any) -> str:
-    """Serialize subject_terms to a pipe-delimited scalar for CSV export."""
+    """Serialize subject_terms to a pipe-delimited scalar for CSV export.
+
+    For string input we still split and re-join to normalize stray whitespace
+    around delimiters, so both ``"a|b"`` and ``"a | b"`` produce ``"a|b"``.
+    """
     if isinstance(subject_terms, str):
         terms = [t.strip() for t in subject_terms.split("|") if t.strip()]
         return "|".join(terms)
