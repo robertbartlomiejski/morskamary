@@ -3,13 +3,14 @@ Test suite for morskamary Blue Sociology module
 """
 
 import pytest
+import json
 from pathlib import Path
 from src.core import (
     Competence,
     MicroCredential,
     BlueDynamicsAxis,
     CompetenceLevel,
-    _detect_all_themes,
+    detect_all_themes,
     create_sample_competences,
     load_competence_matrix,
 )
@@ -111,12 +112,12 @@ class TestDetectAllThemes:
 
     def test_detect_all_themes_returns_axis_mapping(self):
         """Detection must return a mapping with all axes as keys."""
-        themes = _detect_all_themes(self._record())
-        assert set(themes.keys()) == set(BlueDynamicsAxis)
-        assert "ecosystem" in themes[BlueDynamicsAxis.MARINE]
-        assert "port" in themes[BlueDynamicsAxis.MARITIME]
-        assert "cooperation" in themes[BlueDynamicsAxis.OCEANIC]
-        assert "hydronization" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        themes = detect_all_themes(self._record())
+        assert set(themes.keys()) == {axis.name for axis in BlueDynamicsAxis}
+        assert "ecosystem" in themes["MARINE"]
+        assert "port" in themes["MARITIME"]
+        assert "cooperation" in themes["OCEANIC"]
+        assert "hydronization" in themes["HYDRONIZATION"]
 
     def test_detect_all_themes_uses_citation_required_when_empty(self):
         """Records with no matching keywords should mark citation requirement."""
@@ -126,16 +127,16 @@ class TestDetectAllThemes:
             source_query="",
             subject_terms=[],
         )
-        themes = _detect_all_themes(empty)
-        assert themes[BlueDynamicsAxis.OCEANIC] == ["[citation needed]"]
+        themes = detect_all_themes(empty)
+        assert themes["OCEANIC"] == ["[citation needed]"]
 
     def test_detect_all_themes_is_case_insensitive(self):
         """Keyword matching should remain case-insensitive."""
         mixed_case = self._record(
             title="HyDrOsOcIaL Transition for WATER-SOCIETY Governance"
         )
-        themes = _detect_all_themes(mixed_case)
-        assert "hydrosocial" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        themes = detect_all_themes(mixed_case)
+        assert "hydrosocial" in themes["HYDRONIZATION"]
 
     def test_detect_all_themes_parses_pipe_delimited_subject_terms(self):
         """Pipe-delimited subject_terms strings should be detected safely."""
@@ -145,9 +146,26 @@ class TestDetectAllThemes:
             source_query="",
             subject_terms="hydrosocial|water-energy",
         )
-        themes = _detect_all_themes(record)
-        assert "hydrosocial" in themes[BlueDynamicsAxis.HYDRONIZATION]
-        assert "water-energy" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        themes = detect_all_themes(record)
+        assert "hydrosocial" in themes["HYDRONIZATION"]
+        assert "water-energy" in themes["HYDRONIZATION"]
+
+    def test_detect_all_themes_uses_boundary_aware_matching(self):
+        """Single-word keywords should not match inside larger words."""
+        record = self._record(
+            title="Important transport systems",
+            journal="",
+            source_query="",
+            subject_terms=[],
+        )
+        themes = detect_all_themes(record)
+        assert "port" not in themes["MARITIME"]
+        assert themes["OCEANIC"] == ["[citation needed]"]
+
+    def test_detect_all_themes_output_is_json_serializable(self):
+        """Public contract should serialize without key-type errors."""
+        payload = detect_all_themes(self._record())
+        assert isinstance(json.dumps(payload), str)
 
 
 class TestLoadCompetenceMatrix:

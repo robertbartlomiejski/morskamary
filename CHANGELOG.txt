@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-05-10 (theme detection API hardening and keyword matching fixes)
+Change type fix update
+Scope core src tests governance
+Files affected src/core.py src/axis_classifier.py src/axis_keywords.py tests/test_core.py CHANGELOG.txt
+Summary Added a public detect_all_themes(record) API that returns JSON-serializable axis-name keys while retaining the internal enum-keyed helper. Replaced raw substring keyword detection with boundary-aware matching to prevent false positives (e.g., "port" inside "transport"), and centralized QMBD keyword literals in src/axis_keywords.py for reuse by both core theme detection and AxisClassifier.
+Reason PR review feedback requested API clarity for downstream consumers, safer keyword matching semantics, and reduced drift risk from duplicated keyword maps.
+Impact Downstream callers can now serialize theme output directly to JSON without key-type errors. Axis/theme keyword matching is stricter and less error-prone, and keyword maintenance now has a single shared source.
+Provenance PR #127 review thread pullrequestreview-4260055582 and discussion_r3215689602 / discussion_r3215690530.
+Quality checks python -m pytest tests/test_core.py tests/test_axis_classifier.py -q passes; python -m pytest -q passes.
+Reviewer GitHub Copilot Coding Agent
+
 2026-05-10 (HYDRONIZATION axis and structured theme mapping)
 Change type update add
 Scope core tests governance

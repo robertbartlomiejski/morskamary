@@ -7,6 +7,14 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
+from src.axis_keywords import (
+    THEME_HYDRONIZATION_KEYWORDS,
+    THEME_MARINE_KEYWORDS,
+    THEME_MARITIME_KEYWORDS,
+    THEME_OCEANIC_KEYWORDS,
+    keyword_in_text,
+)
+
 if TYPE_CHECKING:
     from src.scientific_sources.models import LiteratureRecord
 
@@ -99,43 +107,16 @@ class MicroCredential:
 
 
 _THEME_KEYWORDS: Dict[BlueDynamicsAxis, List[str]] = {
-    BlueDynamicsAxis.MARINE: [
-        "ecosystem",
-        "biodiversity",
-        "habitat",
-        "species",
-        "fisheries",
-        "aquaculture",
-    ],
-    BlueDynamicsAxis.MARITIME: [
-        "maritime",
-        "shipping",
-        "port",
-        "logistics",
-        "infrastructure",
-        "fleet",
-    ],
-    BlueDynamicsAxis.OCEANIC: [
-        "ocean governance",
-        "policy",
-        "cooperation",
-        "transboundary",
-        "justice",
-        "planetary",
-    ],
-    BlueDynamicsAxis.HYDRONIZATION: [
-        "hydronization",
-        "hydrosocial",
-        "water-energy",
-        "water society",
-        "hydrological transition",
-    ],
+    BlueDynamicsAxis.MARINE: list(THEME_MARINE_KEYWORDS),
+    BlueDynamicsAxis.MARITIME: list(THEME_MARITIME_KEYWORDS),
+    BlueDynamicsAxis.OCEANIC: list(THEME_OCEANIC_KEYWORDS),
+    BlueDynamicsAxis.HYDRONIZATION: list(THEME_HYDRONIZATION_KEYWORDS),
 }
 
 
 def _detect_all_themes(record: "LiteratureRecord") -> Dict[BlueDynamicsAxis, List[str]]:
     """
-    Detect axis themes from a literature record and return a structured mapping.
+    Internal detector that returns themes keyed by enum members.
 
     If no axis keywords are found, a single ``[citation needed]`` marker is added
     under ``OCEANIC`` to keep downstream outputs explicit and non-empty.
@@ -168,12 +149,26 @@ def _detect_all_themes(record: "LiteratureRecord") -> Dict[BlueDynamicsAxis, Lis
     ).lower()
 
     for axis, keywords in _THEME_KEYWORDS.items():
-        themes[axis] = [keyword for keyword in keywords if keyword in text]
+        themes[axis] = [keyword for keyword in keywords if keyword_in_text(text, keyword)]
 
     if not any(themes.values()):
         themes[BlueDynamicsAxis.OCEANIC].append("[citation needed]")
 
     return themes
+
+
+def detect_all_themes(record: "LiteratureRecord") -> Dict[str, List[str]]:
+    """
+    Detect axis themes and return a JSON-serializable mapping keyed by axis name.
+
+    Args:
+        record: Normalized bibliographic record used for keyword theme detection.
+
+    Returns:
+        Mapping of axis-name strings (e.g. ``"MARINE"``) to detected keywords.
+    """
+    themes = _detect_all_themes(record)
+    return {axis.name: keywords for axis, keywords in themes.items()}
 
 
 def load_competence_matrix(file_path: Union[str, Path]) -> List[Competence]:

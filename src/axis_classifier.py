@@ -4,6 +4,13 @@ from __future__ import annotations
 
 import re
 
+from src.axis_keywords import (
+    CLASSIFIER_HYDRONIZATION_KEYWORDS,
+    CLASSIFIER_MARINE_KEYWORDS,
+    CLASSIFIER_MARITIME_KEYWORDS,
+    CLASSIFIER_OCEANIC_KEYWORDS,
+    keyword_in_text,
+)
 from src.core import BlueDynamicsAxis
 from src.dimension_mapping import map_dimension_to_axis
 
@@ -25,8 +32,8 @@ class AxisClassifier:
     """
 
     KEYWORD_AXIS_MAP = {
-        BlueDynamicsAxis.MARINE: ("ecosystem", "biodiversity", "habitat", "species"),
-        BlueDynamicsAxis.MARITIME: ("port", "shipping", "infrastructure", "logistics"),
+        BlueDynamicsAxis.MARINE: CLASSIFIER_MARINE_KEYWORDS,
+        BlueDynamicsAxis.MARITIME: CLASSIFIER_MARITIME_KEYWORDS,
         # Hydronization keywords — water-society co-constitution (QMBD 4th
         # dimension, Manus methodological review).
         # "hydronization": direct term for the 4th axis.
@@ -37,12 +44,8 @@ class AxisClassifier:
         # "wet ontology": Steinberg & Peters (2015) via Bartłomiejski Cocco
         #   Performatywność wody morza oceanu.txt:2064-2066; also in use in
         #   scripts/cumulative_fragment_analysis.py:qmbd_label_from_text.
-        BlueDynamicsAxis.HYDRONIZATION: (
-            "hydronization",
-            "hydrosocial",
-            "wet ontology",
-        ),
-        BlueDynamicsAxis.OCEANIC: ("governance", "policy", "cooperation", "justice"),
+        BlueDynamicsAxis.HYDRONIZATION: CLASSIFIER_HYDRONIZATION_KEYWORDS,
+        BlueDynamicsAxis.OCEANIC: CLASSIFIER_OCEANIC_KEYWORDS,
     }
 
     def classify_axis(self, text: str, dimension: str | None = None) -> BlueDynamicsAxis:
@@ -67,7 +70,7 @@ class AxisClassifier:
         normalized = re.sub(r"\s+", " ", text.lower())
 
         for axis, keywords in self.KEYWORD_AXIS_MAP.items():
-            if any(keyword in normalized for keyword in keywords):
+            if any(keyword_in_text(normalized, keyword) for keyword in keywords):
                 return axis
 
         return BlueDynamicsAxis.OCEANIC
