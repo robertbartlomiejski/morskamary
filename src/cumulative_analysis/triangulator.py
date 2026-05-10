@@ -144,7 +144,7 @@ def _record_from_csv_row(row: Dict[str, str]) -> Optional[TriangulatedRecord]:
 
     subject_raw = row.get("subject_terms", "")
     subject_terms: List[str] = (
-        [s.strip() for s in subject_raw.split(";") if s.strip()]
+        [s.strip() for s in re.split(r"[;|]", subject_raw) if s.strip()]
         if subject_raw
         else []
     )

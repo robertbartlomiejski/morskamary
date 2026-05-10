@@ -200,6 +200,13 @@ class TestIngestStaticBaseline:
         records = t.triangulate()
         assert records[0].subject_terms == ["governance", "policy", "blue"]
 
+    def test_subject_terms_parsed_from_pipes(self, tmp_path):
+        csv_path = _csv_file(tmp_path, [_static_row(subject_terms="governance|policy|blue")])
+        t = CumulativeTriangulator()
+        t.ingest_static_baseline(csv_path)
+        records = t.triangulate()
+        assert records[0].subject_terms == ["governance", "policy", "blue"]
+
 
 class TestIngestDynamicRecords:
     def test_ingest_returns_count(self):
@@ -362,4 +369,3 @@ class TestTriangulate:
         assert doi_upgraded_result is not None
         assert doi_upgraded_result.title == "NewTitle"
         assert doi_upgraded_result.source == ClaimOrigin.DYNAMIC_API_CROSSREF
-

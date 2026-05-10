@@ -10,6 +10,7 @@ import json
 from unittest.mock import MagicMock, patch
 
 from scripts.export_live_research_records import (
+    SUBJECT_TERMS_CSV_DELIMITER,
     build_coverage_report,
     deduplicate_records,
     export_coverage_csv,
@@ -1044,7 +1045,9 @@ class TestStage1ComplianceFilter:
             rows = list(reader)
 
         assert len(rows) == 1
-        assert rows[0]["subject_terms"] == "reactive infrastructure|policy"
+        assert rows[0]["subject_terms"] == SUBJECT_TERMS_CSV_DELIMITER.join(
+            ["reactive infrastructure", "policy"]
+        )
 
     def test_stage1_csv_fields_excludes_restricted_columns(self):
         """STAGE1_CSV_FIELDS must not include any restricted metadata fields."""

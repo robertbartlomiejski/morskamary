@@ -42,6 +42,8 @@ from src.scientific_sources.models import (  # noqa: E402
 )
 from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
 
+SUBJECT_TERMS_CSV_DELIMITER = "|"
+
 
 def normalize_title(title: str) -> str:
     """
@@ -191,10 +193,14 @@ def _serialize_subject_terms_for_csv(subject_terms: Any) -> str:
     around delimiters, so both ``"a|b"`` and ``"a | b"`` produce ``"a|b"``.
     """
     if isinstance(subject_terms, str):
-        terms = [t.strip() for t in subject_terms.split("|") if t.strip()]
-        return "|".join(terms)
+        terms = [
+            t.strip() for t in subject_terms.split(SUBJECT_TERMS_CSV_DELIMITER) if t.strip()
+        ]
+        return SUBJECT_TERMS_CSV_DELIMITER.join(terms)
     if isinstance(subject_terms, list):
-        return "|".join(str(t).strip() for t in subject_terms if str(t).strip())
+        return SUBJECT_TERMS_CSV_DELIMITER.join(
+            str(t).strip() for t in subject_terms if str(t).strip()
+        )
     return ""
 
 
