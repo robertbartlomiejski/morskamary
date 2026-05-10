@@ -135,10 +135,12 @@ class TestQMBDHydronizationAxis:
 
     Keyword basis:
     - "hydronization": direct 4th-axis term (QMBD spec).
-    - "hydrosocial": established in blue-sociology literature
-      (cf. scripts/cumulative_fragment_analysis.py:qmbd_label_from_text).
-    - "wet ontology": in use within cumulative fragment analysis pipeline.
-    - "blue subjectivity": sociologically grounded; [CITATION_REQUIRED].
+    - "hydrosocial": Linton & Budds (2014) "The hydrosocial cycle", Geoforum 57
+      (docs/literature/Bartłomiejskie Cocco krytyka oceanocentryzmu.txt:912);
+      also in scripts/cumulative_fragment_analysis.py:qmbd_label_from_text.
+    - "wet ontology": Steinberg & Peters (2015) via Bartłomiejski Cocco
+      Performatywność wody morza oceanu.txt:2064-2066; also in
+      scripts/cumulative_fragment_analysis.py:qmbd_label_from_text.
     """
 
     def test_hydronization_keyword_maps_to_hydronization_axis(self):
@@ -157,17 +159,6 @@ class TestQMBDHydronizationAxis:
         """Text containing 'wet ontology' must map to HYDRONIZATION."""
         classifier = AxisClassifier()
         result = classifier.classify_axis("Wet ontology perspectives in maritime sociology")
-        assert result == BlueDynamicsAxis.HYDRONIZATION
-
-    def test_blue_subjectivity_maps_to_hydronization_axis(self):
-        """Text containing 'blue subjectivity' must map to HYDRONIZATION.
-
-        Note: this keyword is sociologically grounded [CITATION_REQUIRED].
-        """
-        classifier = AxisClassifier()
-        result = classifier.classify_axis(
-            "Blue subjectivity in ocean-facing communities"
-        )
         assert result == BlueDynamicsAxis.HYDRONIZATION
 
     def test_hydronization_does_not_supersede_marine_when_marine_appears_first(self):

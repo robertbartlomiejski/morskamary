@@ -19,7 +19,18 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
-2026-05-10 (QMBD synthesis — Stage 1 governance, triangulation engine, 4D axis)
+2026-05-10 (QMBD keyword governance fix — remove ungrounded blue subjectivity keyword)
+Change type fix
+Scope src tests governance
+Files affected src/axis_classifier.py tests/test_axis_classifier.py CHANGELOG.txt
+Summary Removed "blue subjectivity" from the HYDRONIZATION keyword set in AxisClassifier.KEYWORD_AXIS_MAP after failing to locate a source document citation in the repository. Per LLM_CONTEXT_INSTRUCTION.txt policy (block unverified claims), a [CITATION_REQUIRED] keyword must not remain in production code. The three remaining HYDRONIZATION keywords (hydronization, hydrosocial, wet ontology) are fully grounded: hydrosocial — Linton & Budds (2014) "The hydrosocial cycle" cited in docs/literature/Bartłomiejskie Cocco krytyka oceanocentryzmu.txt:912; wet ontology — Steinberg & Peters (2015) via Bartłomiejski Cocco Performatywność wody morza oceanu.txt:2064-2066 and scripts/cumulative_fragment_analysis.py:qmbd_label_from_text. Updated keyword provenance comments to include the specific source citations. Removed the test_blue_subjectivity_maps_to_hydronization_axis test that exercised the deleted keyword.
+Reason Review feedback identified the [CITATION_REQUIRED] placeholder as a compliance risk. Spelling of HYDRONIZATION is intentional and matches the established codebase usage in scripts/cumulative_fragment_analysis.py:185,192 (predating this PR).
+Impact src/axis_classifier.py: HYDRONIZATION keyword count reduced from 4 to 3. Texts containing only "blue subjectivity" now fall through to OCEANIC (governance-first default). No other behaviour changed.
+Provenance docs/literature/Bartłomiejskie Cocco krytyka oceanocentryzmu.txt:912 (hydrosocial); Bartłomiejski Cocco Performatywność wody morza oceanu.txt:2064-2066 (wet ontology); scripts/cumulative_fragment_analysis.py:185,192 (HYDRONIZATION spelling baseline).
+Quality checks pytest: all tests pass. No [CITATION_REQUIRED] placeholders remain in production code.
+Reviewer GitHub Copilot Coding Agent
+
+
 Change type add update
 Scope governance scripts src tests
 Files affected scripts/export_live_research_records.py src/core.py src/axis_classifier.py src/cumulative_analysis/__init__.py src/cumulative_analysis/triangulator.py tests/test_export_live_research_records.py tests/test_axis_classifier.py tests/test_cumulative_triangulator.py CHANGELOG.txt

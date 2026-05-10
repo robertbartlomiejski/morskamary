@@ -27,20 +27,20 @@ class AxisClassifier:
     KEYWORD_AXIS_MAP = {
         BlueDynamicsAxis.MARINE: ("ecosystem", "biodiversity", "habitat", "species"),
         BlueDynamicsAxis.MARITIME: ("port", "shipping", "infrastructure", "logistics"),
-        # Hydronization keywords — water-society co-constitution and blue
-        # subjectivity (QMBD 4th dimension, Manus methodological review).
+        # Hydronization keywords — water-society co-constitution (QMBD 4th
+        # dimension, Manus methodological review).
         # "hydronization": direct term for the 4th axis.
-        # "hydrosocial": established in blue-sociology literature
-        #   (cf. scripts/cumulative_fragment_analysis.py: qmbd_label_from_text).
-        # "wet ontology": in use within cumulative fragment analysis pipeline
-        #   (cf. scripts/cumulative_fragment_analysis.py).
-        # "blue subjectivity": sociologically grounded blue-sociology term
-        #   [CITATION_REQUIRED — pending peer-reviewed source in data/raw/].
+        # "hydrosocial": established in blue-sociology literature; cf. Linton &
+        #   Budds (2014) "The hydrosocial cycle", Geoforum 57, cited in
+        #   docs/literature/Bartłomiejskie Cocco krytyka oceanocentryzmu.txt:912
+        #   and scripts/cumulative_fragment_analysis.py:qmbd_label_from_text.
+        # "wet ontology": Steinberg & Peters (2015) via Bartłomiejski Cocco
+        #   Performatywność wody morza oceanu.txt:2064-2066; also in use in
+        #   scripts/cumulative_fragment_analysis.py:qmbd_label_from_text.
         BlueDynamicsAxis.HYDRONIZATION: (
             "hydronization",
             "hydrosocial",
             "wet ontology",
-            "blue subjectivity",
         ),
         BlueDynamicsAxis.OCEANIC: ("governance", "policy", "cooperation", "justice"),
     }
