@@ -903,6 +903,7 @@ tests/test_literature_extraction.py,other,,,,,,test_literature_extraction,no
 tests/test_load_real_competences.py,other,,,,,,test_load_real_competences,no
 tests/test_main_entrypoints.py,other,,,,,,test_main_entrypoints,no
 tests/test_nlp_reliability.py,other,,,,,,test_nlp_reliability,no
+tests/test_research_support_scripts.py,other,,,,,,test_research_support_scripts,no
 tests/test_run_full_analysis.py,other,,,,,,test_run_full_analysis,no
 tests/test_scientific_bridge.py,other,,,,,,test_scientific_bridge,no
 tests/test_scientific_sources.py,other,,,,,,test_scientific_sources,no

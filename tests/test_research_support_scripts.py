@@ -220,3 +220,89 @@ def test_script_main_blocks_are_present():
     assert callable(audit.main)
     assert callable(export.main)
     assert callable(env.main)
+
+
+class TestValidateResearchSourceOutputs:
+    """Coverage for scripts/validate_research_source_outputs.py."""
+
+    def test_main_warns_when_outputs_dir_missing(self, tmp_path, monkeypatch, capsys):
+        import validate_research_source_outputs as script
+
+        missing_dir = tmp_path / "missing-outputs"
+        monkeypatch.setattr(script, "OUTPUTS_DIR", str(missing_dir))
+
+        assert script.main() == 0
+        out = capsys.readouterr().out
+        assert "outputs/ directory not found" in out
+        assert "Warnings: 1" in out
+        assert "Errors:   0" in out
+
+    def test_validate_capabilities_json_happy_path(self, tmp_path, monkeypatch, capsys):
+        import validate_research_source_outputs as script
+
+        outputs_dir = tmp_path / "outputs"
+        outputs_dir.mkdir()
+        capabilities_path = outputs_dir / "research_source_capabilities.json"
+        capabilities_path.write_text(
+            json.dumps(
+                {
+                    "generated_at": "2026-01-01T00:00:00+00:00",
+                    "providers": {"crossref": {"configured": True}, "scopus": {}},
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        monkeypatch.setattr(script, "OUTPUTS_DIR", str(outputs_dir))
+        script.ERRORS.clear()
+        script.WARNINGS.clear()
+
+        script.validate_capabilities_json()
+        out = capsys.readouterr().out
+        assert "OK: research_source_capabilities.json (2 providers)" in out
+        assert script.ERRORS == []
+        assert script.WARNINGS == []
+
+    def test_validate_capabilities_json_reports_invalid_json(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        import validate_research_source_outputs as script
+
+        outputs_dir = tmp_path / "outputs"
+        outputs_dir.mkdir()
+        capabilities_path = outputs_dir / "research_source_capabilities.json"
+        capabilities_path.write_text("{ invalid json", encoding="utf-8")
+
+        monkeypatch.setattr(script, "OUTPUTS_DIR", str(outputs_dir))
+        script.ERRORS.clear()
+        script.WARNINGS.clear()
+
+        script.validate_capabilities_json()
+        out = capsys.readouterr().out
+        assert "not valid JSON" in out
+        assert len(script.ERRORS) == 1
+
+    def test_main_fails_when_crossref_missing(self, tmp_path, monkeypatch, capsys):
+        import validate_research_source_outputs as script
+
+        outputs_dir = tmp_path / "outputs"
+        outputs_dir.mkdir()
+        (outputs_dir / "research_source_capabilities.json").write_text(
+            json.dumps(
+                {
+                    "generated_at": "2026-01-01T00:00:00+00:00",
+                    "providers": {"scopus": {"configured": True}},
+                }
+            ),
+            encoding="utf-8",
+        )
+        (outputs_dir / "research_api_smoke_report.json").write_text(
+            json.dumps({"ok": True}),
+            encoding="utf-8",
+        )
+
+        monkeypatch.setattr(script, "OUTPUTS_DIR", str(outputs_dir))
+        assert script.main() == 1
+        out = capsys.readouterr().out
+        assert "crossref provider missing from capabilities export" in out
+        assert "Validation FAILED." in out
