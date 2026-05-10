@@ -6,11 +6,14 @@ All tests use mocked Crossref responses — no network access required.
 
 from __future__ import annotations
 
+import csv as _csv
 import json
 from unittest.mock import MagicMock, patch
 
 from scripts.export_live_research_records import (
+    STAGE1_CSV_FIELDS,
     SUBJECT_TERMS_CSV_DELIMITER,
+    _to_stage1_compliant_dict,
     build_coverage_report,
     deduplicate_records,
     export_coverage_csv,
@@ -897,12 +900,6 @@ query_groups:
 # ---------------------------------------------------------------------------
 
 
-from scripts.export_live_research_records import (  # noqa: E402
-    STAGE1_CSV_FIELDS,
-    _to_stage1_compliant_dict,
-)
-
-
 class TestStage1ComplianceFilter:
     """Verify that _to_stage1_compliant_dict enforces Stage 1 metadata rules.
 
@@ -1000,8 +997,7 @@ class TestStage1ComplianceFilter:
         rec = self._make_full_record(citation_count=10, abstract_available=True)
         output_path = tmp_path / "out.json"
         export_records_json([rec], output_path)
-        import json as _json
-        data = _json.loads(output_path.read_text())
+        data = json.loads(output_path.read_text())
         assert len(data) == 1
         row = data[0]
         assert "citation_count" not in row
@@ -1010,7 +1006,6 @@ class TestStage1ComplianceFilter:
 
     def test_csv_export_omits_restricted_fields(self, tmp_path):
         """CSV export must not contain citation_count or abstract field columns."""
-        import csv as _csv
         rec = self._make_full_record(citation_count=7, abstract_stored=True)
         output_path = tmp_path / "out.csv"
         export_records_csv([rec], output_path)
@@ -1023,7 +1018,6 @@ class TestStage1ComplianceFilter:
 
     def test_csv_export_includes_licence_note(self, tmp_path):
         """CSV export must include licence_note column (added by Stage 1 compliance)."""
-        import csv as _csv
         rec = self._make_full_record(licence_note="Crossref open")
         output_path = tmp_path / "out.csv"
         export_records_csv([rec], output_path)
@@ -1035,8 +1029,6 @@ class TestStage1ComplianceFilter:
 
     def test_csv_export_serializes_subject_terms(self, tmp_path):
         """CSV export should serialize list-based subject_terms as a pipe string."""
-        import csv as _csv
-
         rec = self._make_full_record(subject_terms=["reactive infrastructure", "policy"])
         output_path = tmp_path / "out.csv"
         export_records_csv([rec], output_path)
