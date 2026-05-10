@@ -18,6 +18,7 @@ SECTOR_PORTS = "Ports"
 AXIS_MARINE = "MARINE"
 AXIS_MARITIME = "MARITIME"
 AXIS_OCEANIC = "OCEANIC"
+AXIS_HYDRONIZATION = "HYDRONIZATION"
 
 
 @dataclass
@@ -87,7 +88,12 @@ def test_iter_competences_for_sector_and_axis() -> None:
 
 def test_axis_names_align_with_canonical_enum() -> None:
     canonical_axis_names = {axis.name for axis in BlueDynamicsAxis}
-    stub_axis_names = {AXIS_MARINE, AXIS_MARITIME, AXIS_OCEANIC}
+    stub_axis_names = {
+        AXIS_MARINE,
+        AXIS_MARITIME,
+        AXIS_OCEANIC,
+        AXIS_HYDRONIZATION,
+    }
     assert stub_axis_names == canonical_axis_names
 
 

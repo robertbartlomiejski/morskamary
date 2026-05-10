@@ -26,20 +26,23 @@ class TestBlueDynamicsAxisEnum:
         assert BlueDynamicsAxis.MARINE.value == "M"
         assert BlueDynamicsAxis.MARITIME.value == "T"
         assert BlueDynamicsAxis.OCEANIC.value == "O"
+        assert BlueDynamicsAxis.HYDRONIZATION.value == "H"
 
     def test_enum_names(self):
         """Test that enum names are correct"""
         assert BlueDynamicsAxis.MARINE.name == "MARINE"
         assert BlueDynamicsAxis.MARITIME.name == "MARITIME"
         assert BlueDynamicsAxis.OCEANIC.name == "OCEANIC"
+        assert BlueDynamicsAxis.HYDRONIZATION.name == "HYDRONIZATION"
 
     def test_enum_iteration(self):
         """Test that all axes can be iterated"""
         axes = list(BlueDynamicsAxis)
-        assert len(axes) == 3
+        assert len(axes) == 4
         assert BlueDynamicsAxis.MARINE in axes
         assert BlueDynamicsAxis.MARITIME in axes
         assert BlueDynamicsAxis.OCEANIC in axes
+        assert BlueDynamicsAxis.HYDRONIZATION in axes
 
 
 class TestCompetenceLevelEnum:
@@ -132,15 +135,25 @@ class TestClassifyCompetenceOrigin:
         """Test unknown competence identification"""
         assert classify_competence_origin("comp_001") == ORIGIN_UNKNOWN
         assert classify_competence_origin("other_001") == ORIGIN_UNKNOWN
-        assert classify_competence_origin("baselinea1") == ORIGIN_UNKNOWN  # no underscore
-        assert classify_competence_origin("my_baseline_data") == ORIGIN_UNKNOWN  # not at start
+        assert (
+            classify_competence_origin("baselinea1") == ORIGIN_UNKNOWN
+        )  # no underscore
+        assert (
+            classify_competence_origin("my_baseline_data") == ORIGIN_UNKNOWN
+        )  # not at start
 
     def test_edge_cases(self):
         """Test edge cases for origin classification"""
-        assert classify_competence_origin("baseline") == ORIGIN_BASELINE  # just "baseline"
+        assert (
+            classify_competence_origin("baseline") == ORIGIN_BASELINE
+        )  # just "baseline"
         assert classify_competence_origin("lit_") == ORIGIN_LITERATURE  # just "lit_"
-        assert classify_competence_origin("baseline2_test") == ORIGIN_UNKNOWN  # baseline not at boundary
-        assert classify_competence_origin("  baseline_a1  ") == ORIGIN_BASELINE  # with whitespace
+        assert (
+            classify_competence_origin("baseline2_test") == ORIGIN_UNKNOWN
+        )  # baseline not at boundary
+        assert (
+            classify_competence_origin("  baseline_a1  ") == ORIGIN_BASELINE
+        )  # with whitespace
 
 
 class TestCompetenceEdgeCases:
@@ -299,7 +312,7 @@ class TestCompetenceMapperEdgeCases:
         # User has more competences than required
         gaps = mapper.analyze_competence_gaps(
             available=["comp_001", "comp_002", "comp_003"],
-            required_sector="test-sector"
+            required_sector="test-sector",
         )
 
         assert len(gaps["available"]) == 1  # Only comp_001 is required

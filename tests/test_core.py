@@ -9,11 +9,12 @@ from src.core import (
     MicroCredential,
     BlueDynamicsAxis,
     CompetenceLevel,
+    _detect_all_themes,
     create_sample_competences,
     load_competence_matrix,
 )
 from src.competence_mapper import CompetenceMapper
-
+from src.scientific_sources.models import LiteratureRecord
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
@@ -78,6 +79,55 @@ class TestMicroCredential:
         cred_dict = cred.to_dict()
         assert cred_dict["title"] == "Test Credential"
         assert len(cred_dict["competences"]) == 2
+
+
+class TestBlueDynamicsAxis:
+    """Tests for TMBD/QMBD axis enum values."""
+
+    def test_hydronization_axis_exists(self):
+        """HYDRONIZATION must exist as the fourth axis."""
+        assert BlueDynamicsAxis.HYDRONIZATION.value == "H"
+        assert len(list(BlueDynamicsAxis)) == 4
+
+
+class TestDetectAllThemes:
+    """Tests for structured all-theme detection from literature records."""
+
+    @staticmethod
+    def _record(**overrides):
+        defaults = {
+            "title": "Hydrosocial justice and ocean governance in port logistics",
+            "authors": "A. Author",
+            "year": "2026",
+            "doi": "10.1234/example",
+            "source_id": "id-1",
+            "provider": "crossref",
+            "journal": "Marine policy and ecosystem studies",
+            "source_query": "shipping biodiversity cooperation hydronization",
+            "subject_terms": ["fisheries", "water-energy", "port"],
+        }
+        defaults.update(overrides)
+        return LiteratureRecord(**defaults)
+
+    def test_detect_all_themes_returns_axis_mapping(self):
+        """Detection must return a mapping with all axes as keys."""
+        themes = _detect_all_themes(self._record())
+        assert set(themes.keys()) == set(BlueDynamicsAxis)
+        assert "ecosystem" in themes[BlueDynamicsAxis.MARINE]
+        assert "port" in themes[BlueDynamicsAxis.MARITIME]
+        assert "cooperation" in themes[BlueDynamicsAxis.OCEANIC]
+        assert "hydronization" in themes[BlueDynamicsAxis.HYDRONIZATION]
+
+    def test_detect_all_themes_uses_citation_required_when_empty(self):
+        """Records with no matching keywords should mark citation requirement."""
+        empty = self._record(
+            title="Generic competence framing",
+            journal="",
+            source_query="",
+            subject_terms=[],
+        )
+        themes = _detect_all_themes(empty)
+        assert themes[BlueDynamicsAxis.OCEANIC] == ["[CITATION_REQUIRED]"]
 
 
 class TestLoadCompetenceMatrix:
@@ -211,8 +261,7 @@ class TestCompetenceMapper:
     def test_analyze_competence_gaps_basic(self, mapper_with_credentials):
         """Test basic gap analysis"""
         gaps = mapper_with_credentials.analyze_competence_gaps(
-            available=["comp_marine_001"],
-            required_sector="fisheries"
+            available=["comp_marine_001"], required_sector="fisheries"
         )
         assert len(gaps["available"]) == 1
         assert len(gaps["missing"]) == 2
@@ -224,7 +273,7 @@ class TestCompetenceMapper:
         """Test gap analysis when all competences are available"""
         gaps = mapper_with_credentials.analyze_competence_gaps(
             available=["comp_marine_001", "comp_maritime_001", "comp_oceanic_001"],
-            required_sector="fisheries"
+            required_sector="fisheries",
         )
         assert len(gaps["available"]) == 3
         assert len(gaps["missing"]) == 0
@@ -232,8 +281,7 @@ class TestCompetenceMapper:
     def test_analyze_competence_gaps_none_available(self, mapper_with_credentials):
         """Test gap analysis when no competences are available"""
         gaps = mapper_with_credentials.analyze_competence_gaps(
-            available=[],
-            required_sector="fisheries"
+            available=[], required_sector="fisheries"
         )
         assert len(gaps["available"]) == 0
         assert len(gaps["missing"]) == 3
@@ -241,8 +289,7 @@ class TestCompetenceMapper:
     def test_analyze_competence_gaps_by_level(self, mapper_with_credentials):
         """Test gap analysis includes level breakdown"""
         gaps = mapper_with_credentials.analyze_competence_gaps(
-            available=["comp_marine_001"],
-            required_sector="fisheries"
+            available=["comp_marine_001"], required_sector="fisheries"
         )
         assert "by_level" in gaps
         assert "ADVANCED" in gaps["by_level"]

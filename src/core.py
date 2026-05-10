@@ -3,9 +3,12 @@ Core utilities and data structures for Blue Sociology analysis
 """
 
 from pathlib import Path
-from typing import Dict, List, Any, Union
+from typing import Dict, List, Any, Union, TYPE_CHECKING
 from dataclasses import dataclass
 from enum import Enum
+
+if TYPE_CHECKING:
+    from src.scientific_sources.models import LiteratureRecord
 
 
 class BlueDynamicsAxis(Enum):
@@ -14,6 +17,7 @@ class BlueDynamicsAxis(Enum):
     MARINE = "M"  # Marine (biophysical agency)
     MARITIME = "T"  # Maritime (techno-economic and institutional mediation)
     OCEANIC = "O"  # Oceanic (planetary governance and hydrosocial subjectivity)
+    HYDRONIZATION = "H"  # Hydronization (water-society coupling and transitions)
 
 
 class CompetenceLevel(Enum):
@@ -34,7 +38,7 @@ class Competence:
         id: Unique identifier
         name: Competence name
         description: Detailed description
-        axis: TMBD axis (Marine, Maritime, or Oceanic)
+        axis: TMBD axis (Marine, Maritime, Oceanic, or Hydronization)
         level: Proficiency level
         keywords: Associated keywords for discovery
     """
@@ -86,6 +90,69 @@ class MicroCredential:
             "description": self.description,
             "sector": self.sector,
         }
+
+
+_THEME_KEYWORDS: Dict[BlueDynamicsAxis, List[str]] = {
+    BlueDynamicsAxis.MARINE: [
+        "ecosystem",
+        "biodiversity",
+        "habitat",
+        "species",
+        "fisheries",
+        "aquaculture",
+    ],
+    BlueDynamicsAxis.MARITIME: [
+        "maritime",
+        "shipping",
+        "port",
+        "logistics",
+        "infrastructure",
+        "fleet",
+    ],
+    BlueDynamicsAxis.OCEANIC: [
+        "ocean governance",
+        "policy",
+        "cooperation",
+        "transboundary",
+        "justice",
+        "planetary",
+    ],
+    BlueDynamicsAxis.HYDRONIZATION: [
+        "hydronization",
+        "hydrosocial",
+        "water-energy",
+        "water society",
+        "hydrological transition",
+    ],
+}
+
+
+def _detect_all_themes(record: "LiteratureRecord") -> Dict[BlueDynamicsAxis, List[str]]:
+    """
+    Detect axis themes from a literature record and return a structured mapping.
+
+    If no axis keywords are found, a single ``[CITATION_REQUIRED]`` marker is added
+    under ``OCEANIC`` to keep downstream outputs explicit and non-empty.
+    """
+    themes: Dict[BlueDynamicsAxis, List[str]] = {axis: [] for axis in BlueDynamicsAxis}
+    text = " ".join(
+        part
+        for part in [
+            record.title,
+            record.journal,
+            record.source_query,
+            " ".join(record.subject_terms),
+        ]
+        if part
+    ).lower()
+
+    for axis, keywords in _THEME_KEYWORDS.items():
+        themes[axis] = [keyword for keyword in keywords if keyword in text]
+
+    if not any(themes.values()):
+        themes[BlueDynamicsAxis.OCEANIC].append("[CITATION_REQUIRED]")
+
+    return themes
 
 
 def load_competence_matrix(file_path: Union[str, Path]) -> List[Competence]:
