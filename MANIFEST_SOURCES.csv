@@ -860,6 +860,913 @@ src/cumulative_analysis/__init__.py,other,,,,,,init,no
 src/cumulative_analysis/triangulator.py,other,,,,,,triangulator,no
 src/dimension_mapping.py,other,,,,,,dimension_mapping,no
 src/literature_extraction.py,other,,,,,,literature_extraction,no
+src/morskamary/# Changelog for `2162d953c8d0c13b775dcf3.litcoffee,other,,,,,,Changelog_for__2162d953c8d0c13b775dcf3,no
+src/morskamary/# Changelog for `68efdd831ef476fb3cbdf16.md,text,,,,,,Changelog_for__68efdd831ef476fb3cbdf16,yes
+src/morskamary/# Changelog for `c068036473875707f9d8054.litcoffee,other,,,,,,Changelog_for__c068036473875707f9d8054,no
+src/morskamary/.dockerignore,other,,,,,,dockerignore,no
+src/morskamary/.flake8,other,,,,,,flake8,no
+src/morskamary/.github/add-competence.prompt.md,text,,,,,,add_competence_prompt,yes
+src/morskamary/.github/competence-domain.instructions.md,text,,,,,,competence_domain_instructions,yes
+src/morskamary/.github/copilot-instructions.md,text,,,,,,copilot_instructions,yes
+src/morskamary/.github/integrate-literature.skill.md,text,,,,,,integrate_literature_skill,yes
+src/morskamary/.github/ISSUE_TEMPLATE/bug_report.md,text,,,,,,bug_report,yes
+src/morskamary/.github/ISSUE_TEMPLATE/custom.md,text,,,,,,custom,yes
+src/morskamary/.github/ISSUE_TEMPLATE/feature_request.md,text,,,,,,feature_request,yes
+src/morskamary/.github/repository-guardrails.instructions.md,text,,,,,,repository_guardrails_instructions,yes
+src/morskamary/.github/workflows/blank.yml,other,,,,,,blank,no
+src/morskamary/.github/workflows/ci.yml,other,,,,,,ci,no
+src/morskamary/.github/workflows/dependency-submission.yml,other,,,,,,dependency_submission,no
+src/morskamary/.github/workflows/full-analysis.yml,other,,,,,,full_analysis,no
+src/morskamary/.github/workflows/research-api-smoke.yml,other,,,,,,research_api_smoke,no
+src/morskamary/.gitignore,other,,,,,,gitignore,no
+src/morskamary/.vscode/## Chat Customization Diagnostics.md,text,,,,,,Chat_Customization_Diagnostics,yes
+src/morskamary/.vscode/launch.json,other,,,,,,launch,no
+src/morskamary/.vscode/mcp.json,other,,,,,,mcp,no
+src/morskamary/.vscode/settings.json,other,,,,,,settings,no
+src/morskamary/.vscode/tasks.json,other,,,,,,tasks,no
+src/morskamary/.vscode/test_launch.json,other,,,,,,test_launch,no
+src/morskamary/CHANGELOG.txt,text,,,,,,CHANGELOG,yes
+src/morskamary/CITATION.txt,text,,,,,,CITATION,yes
+src/morskamary/cloudbuild.live.yaml,other,,,,,,cloudbuild_live,no
+src/morskamary/cloudbuild.yaml,other,,,,,,cloudbuild,no
+src/morskamary/compose.debug.yaml,other,,,,,,compose_debug,no
+src/morskamary/compose.yaml,other,,,,,,compose,no
+src/morskamary/config/research_sources.example.yml,other,,,,,,research_sources_example,no
+src/morskamary/CONTRIBUTING.md,text,,,,,,CONTRIBUTING,yes
+src/morskamary/COPILOT_MCP_SETUP.md,text,,,,,,COPILOT_MCP_SETUP,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025 — kopia.xlsx,dataset_raw,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025.xlsx,dataset_raw,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__1_data.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__1_data__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__2_products.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__2_products__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__3_data_providers.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__3_data_providers__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__4_web_services.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__4_web_services__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__5_web_traffic.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__5_web_traffic__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__6_qa-qc.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__6_qa-qc__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__comments.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__comments__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__themes.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025__themes__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__1_data.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__1_data__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__2_products.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__2_products__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__3_data_providers.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__3_data_providers__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__4_web_services.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__4_web_services__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__5_web_traffic.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__5_web_traffic__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__6_qa-qc.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__6_qa-qc__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__comments.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__comments__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__themes.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250303_emodnethumanactivities_final_2025_kopia__themes__datadict.csv,dataset_derived,,,,,,20250303_emodnethumanactivities_final_20,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf — kopia.xlsx,dataset_raw,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf.xlsx,dataset_raw,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__1_data.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__1_data__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__2_products.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__2_products__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__3_data_providers.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__3_data_providers__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__4_web_services.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__4_web_services__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__5_web_traffic.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__5_web_traffic__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__comments.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__comments__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__themes.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf__themes__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__1_data.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__1_data__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__2_products.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__2_products__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__3_data_providers.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__3_data_providers__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__4_web_services.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__4_web_services__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__5_web_traffic.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__5_web_traffic__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__comments.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__comments__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__themes.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/20250701_emodnethumanactivities_q22025_lf_kopia__themes__datadict.csv,dataset_derived,,,,,,20250701_emodnethumanactivities_q22025_l,yes
+src/morskamary/data/derived/A systematic literature assessment on the effects of human-altered soundscapes on marine life_dataset — kopia.xlsx,dataset_raw,,,,,,A_systematic_literature_assessment_on_th,yes
+src/morskamary/data/derived/A systematic literature assessment on the effects of human-altered soundscapes on marine life_dataset.xlsx,dataset_raw,,,,,,A_systematic_literature_assessment_on_th,yes
+src/morskamary/data/derived/a_systematic_literature_assessment_on_the_effects_of_human-altered_soundscapes_on_marine_life_dataset__paper_list.csv,dataset_derived,,,,,,a_systematic_literature_assessment_on_th,yes
+src/morskamary/data/derived/a_systematic_literature_assessment_on_the_effects_of_human-altered_soundscapes_on_marine_life_dataset__paper_list__datadict.csv,dataset_derived,,,,,,a_systematic_literature_assessment_on_th,yes
+src/morskamary/data/derived/a_systematic_literature_assessment_on_the_effects_of_human-altered_soundscapes_on_marine_life_dataset__summary_stats.csv,dataset_derived,,,,,,a_systematic_literature_assessment_on_th,yes
+src/morskamary/data/derived/a_systematic_literature_assessment_on_the_effects_of_human-altered_soundscapes_on_marine_life_dataset__summary_stats__datadict.csv,dataset_derived,,,,,,a_systematic_literature_assessment_on_th,yes
+src/morskamary/data/derived/a_systematic_literature_assessment_on_the_effects_of_human-altered_soundscapes_on_marine_life_dataset_kopia__paper_list.csv,dataset_derived,,,,,,a_systematic_literature_assessment_on_th,yes
+src/morskamary/data/derived/a_systematic_literature_assessment_on_the_effects_of_human-altered_soundscapes_on_marine_life_dataset_kopia__paper_list__datadict.csv,dataset_derived,,,,,,a_systematic_literature_assessment_on_th,yes
+src/morskamary/data/derived/a_systematic_literature_assessment_on_the_effects_of_human-altered_soundscapes_on_marine_life_dataset_kopia__summary_stats.csv,dataset_derived,,,,,,a_systematic_literature_assessment_on_th,yes
+src/morskamary/data/derived/a_systematic_literature_assessment_on_the_effects_of_human-altered_soundscapes_on_marine_life_dataset_kopia__summary_stats__datadict.csv,dataset_derived,,,,,,a_systematic_literature_assessment_on_th,yes
+src/morskamary/data/derived/abstract_converted — kopia.md,text,,,,,,abstract_converted___kopia,yes
+src/morskamary/data/derived/abstract_converted.md,text,,,,,,abstract_converted,yes
+src/morskamary/data/derived/Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+src/morskamary/data/derived/Blue Social Competences Univ Szczecin - Blue competences x blue economy sector.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+src/morskamary/data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+src/morskamary/data/derived/Blue Social Competences Univ Szczecin matrix — kopia (2).xlsx,dataset_raw,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,yes
+src/morskamary/data/derived/Blue Social Competences Univ Szczecin matrix — kopia — kopia.xlsx,dataset_raw,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,yes
+src/morskamary/data/derived/Blue Social Competences Univ Szczecin matrix — kopia.pdf,policy_or_literature,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,no
+src/morskamary/data/derived/Blue Social Competences Univ Szczecin matrix — kopia.xlsx,dataset_raw,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,yes
+src/morskamary/data/derived/Blue Social Competences Univ Szczecin matrix.pdf,policy_or_literature,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,no
+src/morskamary/data/derived/Blue Social Competences Univ Szczecin matrix.xlsx,dataset_raw,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,yes
+src/morskamary/data/derived/Blue Social Competences Univ Szczecin — kopia.xlsx,dataset_raw,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+src/morskamary/data/derived/Blue Social Competences Univ Szczecin.xlsx,dataset_raw,,,,,,Blue_Social_Competences_Univ_Szczecin,yes
+src/morskamary/data/derived/blue_economy_gaps_analysis — kopia.md,text,,,,,,blue_economy_gaps_analysis___kopia,yes
+src/morskamary/data/derived/blue_economy_gaps_analysis.md,text,,,,,,blue_economy_gaps_analysis,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin__blue_clusters_for_microcredenti.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin__b,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin__blue_clusters_for_microcredenti__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin__b,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin__blue_competences_x_blue_economy.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin__b,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin__blue_competences_x_blue_economy__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin__b,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin__overall_blue_competences_dimens.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin__o,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin__overall_blue_competences_dimens__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin__o,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_kopia__blue_clusters_for_microcredenti.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ko,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_kopia__blue_clusters_for_microcredenti__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ko,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_kopia__blue_competences_x_blue_economy.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ko,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_kopia__blue_competences_x_blue_economy__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ko,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_kopia__overall_blue_competences_dimens.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ko,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_kopia__overall_blue_competences_dimens__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ko,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix__blue_clusters_for_microcredenti.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix__blue_clusters_for_microcredenti__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix__blue_competences_x_blue_economy.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix__blue_competences_x_blue_economy__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix__bluecomp_meet_bluesociology.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix__bluecomp_meet_bluesociology__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix__maritime_sociology_in_credentia.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix__maritime_sociology_in_credentia__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix__overall_blue_competences_dimens.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix__overall_blue_competences_dimens__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_2__blue_clusters_for_microcredenti.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_2__blue_clusters_for_microcredenti__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_2__blue_competences_x_blue_economy.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_2__blue_competences_x_blue_economy__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_2__bluecomp_meet_bluesociology.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_2__bluecomp_meet_bluesociology__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_2__maritime_sociology_in_credentia.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_2__maritime_sociology_in_credentia__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_2__overall_blue_competences_dimens.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_2__overall_blue_competences_dimens__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia__blue_clusters_for_microcredenti.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia__blue_clusters_for_microcredenti__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia__blue_competences_x_blue_economy.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia__blue_competences_x_blue_economy__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia__bluecomp_meet_bluesociology.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia__bluecomp_meet_bluesociology__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia__maritime_sociology_in_credentia.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia__maritime_sociology_in_credentia__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia__overall_blue_competences_dimens.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia__overall_blue_competences_dimens__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_kopia__blue_clusters_for_microcredenti.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_kopia__blue_clusters_for_microcredenti__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_kopia__blue_competences_x_blue_economy.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_kopia__blue_competences_x_blue_economy__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_kopia__bluecomp_meet_bluesociology.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_kopia__bluecomp_meet_bluesociology__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_kopia__maritime_sociology_in_credentia.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_kopia__maritime_sociology_in_credentia__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_kopia__overall_blue_competences_dimens.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/blue_social_competences_univ_szczecin_matrix_kopia_kopia__overall_blue_competences_dimens__datadict.csv,dataset_derived,,,,,,blue_social_competences_univ_szczecin_ma,yes
+src/morskamary/data/derived/Blue_Sociology_Executive_Summary — kopia.md,text,,,,,,Blue_Sociology_Executive_Summary___kopia,yes
+src/morskamary/data/derived/Blue_Sociology_Executive_Summary.md,text,,,,,,Blue_Sociology_Executive_Summary,yes
+src/morskamary/data/derived/Blue_Sociology_Framework_Complete — kopia (2).md,text,,,,,,Blue_Sociology_Framework_Complete___kopi,yes
+src/morskamary/data/derived/Blue_Sociology_Framework_Complete — kopia — kopia.md,text,,,,,,Blue_Sociology_Framework_Complete___kopi,yes
+src/morskamary/data/derived/Blue_Sociology_Framework_Complete — kopia.md,text,,,,,,Blue_Sociology_Framework_Complete___kopi,yes
+src/morskamary/data/derived/Blue_Sociology_Framework_Complete.md,text,,,,,,Blue_Sociology_Framework_Complete,yes
+src/morskamary/data/derived/Blue_Sociology_Framework_Concept_Map (1) — kopia.png,other,,,,,,Blue_Sociology_Framework_Concept_Map__1_,no
+src/morskamary/data/derived/Blue_Sociology_Framework_Concept_Map (1).png,other,,,,,,Blue_Sociology_Framework_Concept_Map__1,no
+src/morskamary/data/derived/Blue_Sociology_Framework_Concept_Map — kopia.png,other,,,,,,Blue_Sociology_Framework_Concept_Map___k,no
+src/morskamary/data/derived/Blue_Sociology_Framework_Concept_Map.png,other,,,,,,Blue_Sociology_Framework_Concept_Map,no
+src/morskamary/data/derived/Blue_Sociology_Framework_Synthesis — kopia.md,text,,,,,,Blue_Sociology_Framework_Synthesis___kop,yes
+src/morskamary/data/derived/Blue_Sociology_Framework_Synthesis.md,text,,,,,,Blue_Sociology_Framework_Synthesis,yes
+src/morskamary/data/derived/CaseStudies — kopia.xlsx,dataset_raw,,,,,,CaseStudies___kopia,yes
+src/morskamary/data/derived/CaseStudies.xlsx,dataset_raw,,,,,,CaseStudies,yes
+src/morskamary/data/derived/casestudies__casestudies.csv,dataset_derived,,,,,,casestudies__casestudies,yes
+src/morskamary/data/derived/casestudies__casestudies__datadict.csv,dataset_derived,,,,,,casestudies__casestudies__datadict,yes
+src/morskamary/data/derived/casestudies_kopia__casestudies.csv,dataset_derived,,,,,,casestudies_kopia__casestudies,yes
+src/morskamary/data/derived/casestudies_kopia__casestudies__datadict.csv,dataset_derived,,,,,,casestudies_kopia__casestudies__datadict,yes
+src/morskamary/data/derived/combined_blue_economy_labor_justice.csv,dataset_derived,,,,,,combined_blue_economy_labor_justice,yes
+src/morskamary/data/derived/combined_blue_economy_research_gaps.csv,dataset_derived,,,,,,combined_blue_economy_research_gaps,yes
+src/morskamary/data/derived/combined_blue_sociology_results.csv,dataset_derived,,,,,,combined_blue_sociology_results,yes
+src/morskamary/data/derived/combined_eu_blue_economy_results.csv,dataset_derived,,,,,,combined_eu_blue_economy_results,yes
+src/morskamary/data/derived/combined_janiszewski_maritime_sociology.csv,dataset_derived,,,,,,combined_janiszewski_maritime_sociology,yes
+src/morskamary/data/derived/combined_maritime_sociology_results.csv,dataset_derived,,,,,,combined_maritime_sociology_results,yes
+src/morskamary/data/derived/combined_maritimization_results.csv,dataset_derived,,,,,,combined_maritimization_results,yes
+src/morskamary/data/derived/combined_poole_maritime_sociology_results.csv,dataset_derived,,,,,,combined_poole_maritime_sociology_result,yes
+src/morskamary/data/derived/DOCUMENT_GUIDE — kopia.md,text,,,,,,DOCUMENT_GUIDE___kopia,yes
+src/morskamary/data/derived/DOCUMENT_GUIDE.md,text,,,,,,DOCUMENT_GUIDE,yes
+src/morskamary/data/derived/European ports list 2024 — kopia.xlsx,dataset_raw,,,,,,European_ports_list_2024___kopia,yes
+src/morskamary/data/derived/European ports list 2024.xlsx,dataset_raw,,,,,,European_ports_list_2024,yes
+src/morskamary/data/derived/european_ports_list_2024__1_2024_extended_list_of_ports.csv,dataset_derived,,,,,,european_ports_list_2024__1_2024_extende,yes
+src/morskamary/data/derived/european_ports_list_2024__1_2024_extended_list_of_ports__datadict.csv,dataset_derived,,,,,,european_ports_list_2024__1_2024_extende,yes
+src/morskamary/data/derived/european_ports_list_2024__1bis_minor_ports.csv,dataset_derived,,,,,,european_ports_list_2024__1bis_minor_por,yes
+src/morskamary/data/derived/european_ports_list_2024__1bis_minor_ports__datadict.csv,dataset_derived,,,,,,european_ports_list_2024__1bis_minor_por,yes
+src/morskamary/data/derived/european_ports_list_2024_kopia__1_2024_extended_list_of_ports.csv,dataset_derived,,,,,,european_ports_list_2024_kopia__1_2024_e,yes
+src/morskamary/data/derived/european_ports_list_2024_kopia__1_2024_extended_list_of_ports__datadict.csv,dataset_derived,,,,,,european_ports_list_2024_kopia__1_2024_e,yes
+src/morskamary/data/derived/european_ports_list_2024_kopia__1bis_minor_ports.csv,dataset_derived,,,,,,european_ports_list_2024_kopia__1bis_min,yes
+src/morskamary/data/derived/european_ports_list_2024_kopia__1bis_minor_ports__datadict.csv,dataset_derived,,,,,,european_ports_list_2024_kopia__1bis_min,yes
+src/morskamary/data/derived/EXPANSION_COMPLETE_SUMMARY — kopia.md,text,,,,,,EXPANSION_COMPLETE_SUMMARY___kopia,yes
+src/morskamary/data/derived/EXPANSION_COMPLETE_SUMMARY.md,text,,,,,,EXPANSION_COMPLETE_SUMMARY,yes
+src/morskamary/data/derived/final_comprehensive_analysis — kopia.md,text,,,,,,final_comprehensive_analysis___kopia,yes
+src/morskamary/data/derived/final_comprehensive_analysis.md,text,,,,,,final_comprehensive_analysis,yes
+src/morskamary/data/derived/janiszewski_detailed_analysis — kopia.md,text,,,,,,janiszewski_detailed_analysis___kopia,yes
+src/morskamary/data/derived/janiszewski_detailed_analysis.md,text,,,,,,janiszewski_detailed_analysis,yes
+src/morskamary/data/derived/Janiszewski_Poole_Comparison — kopia.png,other,,,,,,Janiszewski_Poole_Comparison___kopia,no
+src/morskamary/data/derived/Janiszewski_Poole_Comparison.png,other,,,,,,Janiszewski_Poole_Comparison,no
+src/morskamary/data/derived/JRC135889_02 TAC TEC tool EC taxonomy — kopia.xlsx,dataset_raw,,,,,,JRC135889_02_TAC_TEC_tool_EC_taxonomy___,yes
+src/morskamary/data/derived/JRC135889_02 TAC TEC tool EC taxonomy.xlsx,dataset_raw,,,,,,JRC135889_02_TAC_TEC_tool_EC_taxonomy,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__licence.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__l,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__licence__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__l,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__metadata.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__m,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__metadata__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__m,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__nets_tac_eu.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__n,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__nets_tac_eu__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__n,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__nets_tac_neu.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__n,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__nets_tac_neu__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__n,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__nets_tec_eu.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__n,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__nets_tec_eu__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__n,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__nets_tec_neu.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__n,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__nets_tec_neu__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__n,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__tac_tec_2021_rationale.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__t,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__tac_tec_2021_rationale__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__t,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__taxo-nace.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__t,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__taxo-nace__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__t,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__tool_tac_tec.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__t,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy__tool_tac_tec__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy__t,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__licence.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__licence__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__metadata.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__metadata__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__nets_tac_eu.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__nets_tac_eu__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__nets_tac_neu.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__nets_tac_neu__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__nets_tec_eu.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__nets_tec_eu__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__nets_tec_neu.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__nets_tec_neu__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__tac_tec_2021_rationale.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__tac_tec_2021_rationale__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__taxo-nace.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__taxo-nace__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__tool_tac_tec.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/jrc135889_02_tac_tec_tool_ec_taxonomy_kopia__tool_tac_tec__datadict.csv,dataset_derived,,,,,,jrc135889_02_tac_tec_tool_ec_taxonomy_ko,yes
+src/morskamary/data/derived/Key_References_by_Theme — kopia.md,text,,,,,,Key_References_by_Theme___kopia,yes
+src/morskamary/data/derived/Key_References_by_Theme.md,text,,,,,,Key_References_by_Theme,yes
+src/morskamary/data/derived/LeHavre_SensoryLab_Matrix v5 — kopia.xlsx,dataset_raw,,,,,,LeHavre_SensoryLab_Matrix_v5___kopia,yes
+src/morskamary/data/derived/LeHavre_SensoryLab_Matrix v5.xlsx,dataset_raw,,,,,,LeHavre_SensoryLab_Matrix_v5,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__entries.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__entries,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__entries__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__entries__d,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__glossary_v3_corrected.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__glossary_v,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__glossary_v3_corrected__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__glossary_v,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__mapping_keywords.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__mapping_ke,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__mapping_keywords__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__mapping_ke,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__mapping_keywords_v3_corrected_c.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__mapping_ke,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__mapping_keywords_v3_corrected_c__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__mapping_ke,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__notebook_fails.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__notebook_f,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__notebook_fails__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__notebook_f,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__pact_transition_glossary.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__pact_trans,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__pact_transition_glossary__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__pact_trans,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__port_energy_transition_glossary.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__port_energ,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__port_energy_transition_glossary__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__port_energ,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__readme.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__readme,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__readme__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__readme__da,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__stops.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__stops,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5__stops__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5__stops__dat,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__entries.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__entr,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__entries__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__entr,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__glossary_v3_corrected.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__glos,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__glossary_v3_corrected__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__glos,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__mapping_keywords.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__mapp,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__mapping_keywords__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__mapp,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__mapping_keywords_v3_corrected_c.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__mapp,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__mapping_keywords_v3_corrected_c__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__mapp,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__notebook_fails.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__note,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__notebook_fails__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__note,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__pact_transition_glossary.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__pact,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__pact_transition_glossary__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__pact,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__port_energy_transition_glossary.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__port,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__port_energy_transition_glossary__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__port,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__readme.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__read,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__readme__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__read,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__stops.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__stop,yes
+src/morskamary/data/derived/lehavre_sensorylab_matrix_v5_kopia__stops__datadict.csv,dataset_derived,,,,,,lehavre_sensorylab_matrix_v5_kopia__stop,yes
+src/morskamary/data/derived/mar_esms_an_2 — kopia.xlsx,dataset_raw,,,,,,mar_esms_an_2___kopia,yes
+src/morskamary/data/derived/mar_esms_an_2.xlsx,dataset_raw,,,,,,mar_esms_an_2,yes
+src/morskamary/data/derived/mar_esms_an_2__1_2024_extended_list_of_ports.csv,dataset_derived,,,,,,mar_esms_an_2__1_2024_extended_list_of_p,yes
+src/morskamary/data/derived/mar_esms_an_2__1_2024_extended_list_of_ports__datadict.csv,dataset_derived,,,,,,mar_esms_an_2__1_2024_extended_list_of_p,yes
+src/morskamary/data/derived/mar_esms_an_2__1bis_minor_ports.csv,dataset_derived,,,,,,mar_esms_an_2__1bis_minor_ports,yes
+src/morskamary/data/derived/mar_esms_an_2__1bis_minor_ports__datadict.csv,dataset_derived,,,,,,mar_esms_an_2__1bis_minor_ports__datadic,yes
+src/morskamary/data/derived/mar_esms_an_2_kopia__1_2024_extended_list_of_ports.csv,dataset_derived,,,,,,mar_esms_an_2_kopia__1_2024_extended_lis,yes
+src/morskamary/data/derived/mar_esms_an_2_kopia__1_2024_extended_list_of_ports__datadict.csv,dataset_derived,,,,,,mar_esms_an_2_kopia__1_2024_extended_lis,yes
+src/morskamary/data/derived/mar_esms_an_2_kopia__1bis_minor_ports.csv,dataset_derived,,,,,,mar_esms_an_2_kopia__1bis_minor_ports,yes
+src/morskamary/data/derived/mar_esms_an_2_kopia__1bis_minor_ports__datadict.csv,dataset_derived,,,,,,mar_esms_an_2_kopia__1bis_minor_ports__d,yes
+src/morskamary/data/derived/maritime_sociology_framework_synthesis — kopia.md,text,,,,,,maritime_sociology_framework_synthesis__,yes
+src/morskamary/data/derived/maritime_sociology_framework_synthesis.md,text,,,,,,maritime_sociology_framework_synthesis,yes
+src/morskamary/data/derived/matthews_2023_waves_floods_currents_politics_and_poetics_of_water__sheet1.csv,dataset_derived,,,,,,matthews_2023_waves_floods_currents_poli,yes
+src/morskamary/data/derived/matthews_2023_waves_floods_currents_politics_and_poetics_of_water__sheet1__datadict.csv,dataset_derived,,,,,,matthews_2023_waves_floods_currents_poli,yes
+src/morskamary/data/derived/Modulo senza titolo (Risposte) — kopia.xlsx,dataset_raw,,,,,,Modulo_senza_titolo__Risposte____kopia,yes
+src/morskamary/data/derived/Modulo senza titolo (Risposte).xlsx,dataset_raw,,,,,,Modulo_senza_titolo__Risposte,yes
+src/morskamary/data/derived/modulo_senza_titolo_risposte__risposte_del_modulo_1.csv,dataset_derived,,,,,,modulo_senza_titolo_risposte__risposte_d,yes
+src/morskamary/data/derived/modulo_senza_titolo_risposte__risposte_del_modulo_1__datadict.csv,dataset_derived,,,,,,modulo_senza_titolo_risposte__risposte_d,yes
+src/morskamary/data/derived/modulo_senza_titolo_risposte_kopia__risposte_del_modulo_1.csv,dataset_derived,,,,,,modulo_senza_titolo_risposte_kopia__risp,yes
+src/morskamary/data/derived/modulo_senza_titolo_risposte_kopia__risposte_del_modulo_1__datadict.csv,dataset_derived,,,,,,modulo_senza_titolo_risposte_kopia__risp,yes
+src/morskamary/data/derived/ocean_pact_main_analysis — kopia.md,text,,,,,,ocean_pact_main_analysis___kopia,yes
+src/morskamary/data/derived/ocean_pact_main_analysis.md,text,,,,,,ocean_pact_main_analysis,yes
+src/morskamary/data/derived/PACT_WG3_Contested_Glossary_Template_v1 (1) — kopia.xlsx,dataset_raw,,,,,,PACT_WG3_Contested_Glossary_Template_v1_,yes
+src/morskamary/data/derived/PACT_WG3_Contested_Glossary_Template_v1 (1).xlsx,dataset_raw,,,,,,PACT_WG3_Contested_Glossary_Template_v1_,yes
+src/morskamary/data/derived/PACT_WG3_Contested_Glossary_Template_v1 — kopia.xlsx,dataset_raw,,,,,,PACT_WG3_Contested_Glossary_Template_v1_,yes
+src/morskamary/data/derived/PACT_WG3_Contested_Glossary_Template_v1.xlsx,dataset_raw,,,,,,PACT_WG3_Contested_Glossary_Template_v1,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__data_dictionary.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__data_dictionary__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__energy_vectors_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__energy_vectors_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__glossary_entries.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__glossary_entries__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__instruments_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__instruments_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__metrics_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__metrics_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__pct_layers_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__pct_layers_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__readme.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__readme__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__roles_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__roles_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__sensory_cues_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__sensory_cues_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__workflow_checklist.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1__workflow_checklist__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__data_dictionary.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__data_dictionary__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__energy_vectors_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__energy_vectors_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__glossary_entries.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__glossary_entries__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__instruments_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__instruments_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__metrics_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__metrics_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__pct_layers_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__pct_layers_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__readme.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__readme__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__roles_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__roles_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__sensory_cues_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__sensory_cues_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__workflow_checklist.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_1_kopia__workflow_checklist__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__data_dictionary.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__data_dictionary__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__energy_vectors_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__energy_vectors_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__glossary_entries.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__glossary_entries__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__instruments_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__instruments_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__metrics_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__metrics_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__pct_layers_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__pct_layers_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__readme.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__readme__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__roles_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__roles_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__sensory_cues_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__sensory_cues_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__workflow_checklist.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1__workflow_checklist__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__data_dictionary.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__data_dictionary__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__energy_vectors_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__energy_vectors_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__glossary_entries.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__glossary_entries__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__instruments_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__instruments_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__metrics_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__metrics_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__pct_layers_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__pct_layers_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__readme.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__readme__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__roles_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__roles_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__sensory_cues_lookup.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__sensory_cues_lookup__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__workflow_checklist.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/pact_wg3_contested_glossary_template_v1_kopia__workflow_checklist__datadict.csv,dataset_derived,,,,,,pact_wg3_contested_glossary_template_v1_,yes
+src/morskamary/data/derived/paper-table-2026-02-12 (2).csv,dataset_derived,,,,,,paper_table_2026_02_12__2,yes
+src/morskamary/data/derived/paper-table-2026-02-12.csv,dataset_derived,,,,,,paper_table_2026_02_12,yes
+src/morskamary/data/derived/poole_article_search.csv,dataset_derived,,,,,,poole_article_search,yes
+src/morskamary/data/derived/poole_detailed_analysis — kopia.md,text,,,,,,poole_detailed_analysis___kopia,yes
+src/morskamary/data/derived/poole_detailed_analysis.md,text,,,,,,poole_detailed_analysis,yes
+src/morskamary/data/derived/Port Sensory Fieldwork Planning — kopia.xlsx,dataset_raw,,,,,,Port_Sensory_Fieldwork_Planning___kopia,yes
+src/morskamary/data/derived/Port Sensory Fieldwork Planning.xlsx,dataset_raw,,,,,,Port_Sensory_Fieldwork_Planning,yes
+src/morskamary/data/derived/port_energy_transition_glossary — kopia.xlsx,dataset_raw,,,,,,port_energy_transition_glossary___kopia,yes
+src/morskamary/data/derived/port_energy_transition_glossary.xlsx,dataset_raw,,,,,,port_energy_transition_glossary,yes
+src/morskamary/data/derived/port_energy_transition_glossary__sheet1.csv,dataset_derived,,,,,,port_energy_transition_glossary__sheet1,yes
+src/morskamary/data/derived/port_energy_transition_glossary__sheet1__datadict.csv,dataset_derived,,,,,,port_energy_transition_glossary__sheet1_,yes
+src/morskamary/data/derived/port_energy_transition_glossary_kopia__sheet1.csv,dataset_derived,,,,,,port_energy_transition_glossary_kopia__s,yes
+src/morskamary/data/derived/port_energy_transition_glossary_kopia__sheet1__datadict.csv,dataset_derived,,,,,,port_energy_transition_glossary_kopia__s,yes
+src/morskamary/data/derived/port_sensory_fieldwork_planning__port_sensory_fieldwork_planning.csv,dataset_derived,,,,,,port_sensory_fieldwork_planning__port_se,yes
+src/morskamary/data/derived/port_sensory_fieldwork_planning__port_sensory_fieldwork_planning__datadict.csv,dataset_derived,,,,,,port_sensory_fieldwork_planning__port_se,yes
+src/morskamary/data/derived/port_sensory_fieldwork_planning_kopia__port_sensory_fieldwork_planning.csv,dataset_derived,,,,,,port_sensory_fieldwork_planning_kopia__p,yes
+src/morskamary/data/derived/port_sensory_fieldwork_planning_kopia__port_sensory_fieldwork_planning__datadict.csv,dataset_derived,,,,,,port_sensory_fieldwork_planning_kopia__p,yes
+src/morskamary/data/derived/Project_search_results_keep_eu — kopia.xlsx,dataset_raw,,,,,,Project_search_results_keep_eu___kopia,yes
+src/morskamary/data/derived/Project_search_results_keep_eu.xlsx,dataset_raw,,,,,,Project_search_results_keep_eu,yes
+src/morskamary/data/derived/project_search_results_keep_eu__search_results_calls.csv,dataset_derived,,,,,,project_search_results_keep_eu__search_r,yes
+src/morskamary/data/derived/project_search_results_keep_eu__search_results_calls__datadict.csv,dataset_derived,,,,,,project_search_results_keep_eu__search_r,yes
+src/morskamary/data/derived/project_search_results_keep_eu__search_results_partners.csv,dataset_derived,,,,,,project_search_results_keep_eu__search_r,yes
+src/morskamary/data/derived/project_search_results_keep_eu__search_results_partners__datadict.csv,dataset_derived,,,,,,project_search_results_keep_eu__search_r,yes
+src/morskamary/data/derived/project_search_results_keep_eu__search_results_projects.csv,dataset_derived,,,,,,project_search_results_keep_eu__search_r,yes
+src/morskamary/data/derived/project_search_results_keep_eu__search_results_projects__datadict.csv,dataset_derived,,,,,,project_search_results_keep_eu__search_r,yes
+src/morskamary/data/derived/project_search_results_keep_eu__search_summary.csv,dataset_derived,,,,,,project_search_results_keep_eu__search_s,yes
+src/morskamary/data/derived/project_search_results_keep_eu__search_summary__datadict.csv,dataset_derived,,,,,,project_search_results_keep_eu__search_s,yes
+src/morskamary/data/derived/project_search_results_keep_eu_kopia__search_results_calls.csv,dataset_derived,,,,,,project_search_results_keep_eu_kopia__se,yes
+src/morskamary/data/derived/project_search_results_keep_eu_kopia__search_results_calls__datadict.csv,dataset_derived,,,,,,project_search_results_keep_eu_kopia__se,yes
+src/morskamary/data/derived/project_search_results_keep_eu_kopia__search_results_partners.csv,dataset_derived,,,,,,project_search_results_keep_eu_kopia__se,yes
+src/morskamary/data/derived/project_search_results_keep_eu_kopia__search_results_partners__datadict.csv,dataset_derived,,,,,,project_search_results_keep_eu_kopia__se,yes
+src/morskamary/data/derived/project_search_results_keep_eu_kopia__search_results_projects.csv,dataset_derived,,,,,,project_search_results_keep_eu_kopia__se,yes
+src/morskamary/data/derived/project_search_results_keep_eu_kopia__search_results_projects__datadict.csv,dataset_derived,,,,,,project_search_results_keep_eu_kopia__se,yes
+src/morskamary/data/derived/project_search_results_keep_eu_kopia__search_summary.csv,dataset_derived,,,,,,project_search_results_keep_eu_kopia__se,yes
+src/morskamary/data/derived/project_search_results_keep_eu_kopia__search_summary__datadict.csv,dataset_derived,,,,,,project_search_results_keep_eu_kopia__se,yes
+src/morskamary/data/derived/QueryResult RBHAB1AZURE — kopia.xlsx,dataset_raw,,,,,,QueryResult_RBHAB1AZURE___kopia,yes
+src/morskamary/data/derived/QueryResult RBHAB1AZURE.xlsx,dataset_raw,,,,,,QueryResult_RBHAB1AZURE,yes
+src/morskamary/data/derived/queryresult_rbhab1azure__queryresult_rbhab1azure.csv,dataset_derived,,,,,,queryresult_rbhab1azure__queryresult_rbh,yes
+src/morskamary/data/derived/queryresult_rbhab1azure__queryresult_rbhab1azure__datadict.csv,dataset_derived,,,,,,queryresult_rbhab1azure__queryresult_rbh,yes
+src/morskamary/data/derived/queryresult_rbhab1azure_kopia__queryresult_rbhab1azure.csv,dataset_derived,,,,,,queryresult_rbhab1azure_kopia__queryresu,yes
+src/morskamary/data/derived/queryresult_rbhab1azure_kopia__queryresult_rbhab1azure__datadict.csv,dataset_derived,,,,,,queryresult_rbhab1azure_kopia__queryresu,yes
+src/morskamary/data/derived/refine (1) — kopia.xlsx,dataset_raw,,,,,,refine__1____kopia,yes
+src/morskamary/data/derived/refine (1).xlsx,dataset_raw,,,,,,refine__1,yes
+src/morskamary/data/derived/refine — kopia.xlsx,dataset_raw,,,,,,refine___kopia,yes
+src/morskamary/data/derived/refine.xlsx,dataset_raw,,,,,,refine,yes
+src/morskamary/data/derived/refine_1__data.csv,dataset_derived,,,,,,refine_1__data,yes
+src/morskamary/data/derived/refine_1__data__datadict.csv,dataset_derived,,,,,,refine_1__data__datadict,yes
+src/morskamary/data/derived/refine_1_kopia__data.csv,dataset_derived,,,,,,refine_1_kopia__data,yes
+src/morskamary/data/derived/refine_1_kopia__data__datadict.csv,dataset_derived,,,,,,refine_1_kopia__data__datadict,yes
+src/morskamary/data/derived/refine__data.csv,dataset_derived,,,,,,refine__data,yes
+src/morskamary/data/derived/refine__data__datadict.csv,dataset_derived,,,,,,refine__data__datadict,yes
+src/morskamary/data/derived/refine_kopia__data.csv,dataset_derived,,,,,,refine_kopia__data,yes
+src/morskamary/data/derived/refine_kopia__data__datadict.csv,dataset_derived,,,,,,refine_kopia__data__datadict,yes
+src/morskamary/data/derived/sample_competences__sheet1.csv,dataset_derived,,,,,,sample_competences__sheet1,yes
+src/morskamary/data/derived/sample_competences__sheet1__datadict.csv,dataset_derived,,,,,,sample_competences__sheet1__datadict,yes
+src/morskamary/data/derived/savedrecs — kopia.xls,dataset_raw,,,,,,savedrecs___kopia,yes
+src/morskamary/data/derived/savedrecs.xls,dataset_raw,,,,,,savedrecs,yes
+src/morskamary/data/derived/scharenberg_ocean_activim_political_acts__sheet1.csv,dataset_derived,,,,,,scharenberg_ocean_activim_political_acts,yes
+src/morskamary/data/derived/scharenberg_ocean_activim_political_acts__sheet1__datadict.csv,dataset_derived,,,,,,scharenberg_ocean_activim_political_acts,yes
+src/morskamary/data/derived/scholar_blue_economy_2.csv,dataset_derived,,,,,,scholar_blue_economy_2,yes
+src/morskamary/data/derived/scholar_blue_economy_3.csv,dataset_derived,,,,,,scholar_blue_economy_3,yes
+src/morskamary/data/derived/scholar_blue_economy_equity.csv,dataset_derived,,,,,,scholar_blue_economy_equity,yes
+src/morskamary/data/derived/scholar_blue_economy_labor.csv,dataset_derived,,,,,,scholar_blue_economy_labor,yes
+src/morskamary/data/derived/scholar_blue_economy_social_science.csv,dataset_derived,,,,,,scholar_blue_economy_social_science,yes
+src/morskamary/data/derived/scholar_blue_sociology_1.csv,dataset_derived,,,,,,scholar_blue_sociology_1,yes
+src/morskamary/data/derived/scholar_blue_sociology_2.csv,dataset_derived,,,,,,scholar_blue_sociology_2,yes
+src/morskamary/data/derived/scholar_blue_sociology_3.csv,dataset_derived,,,,,,scholar_blue_sociology_3,yes
+src/morskamary/data/derived/scholar_janiszewski_maritime.csv,dataset_derived,,,,,,scholar_janiszewski_maritime,yes
+src/morskamary/data/derived/scholar_janiszewski_marynizacja.csv,dataset_derived,,,,,,scholar_janiszewski_marynizacja,yes
+src/morskamary/data/derived/scholar_maritime_governance.csv,dataset_derived,,,,,,scholar_maritime_governance,yes
+src/morskamary/data/derived/scholar_maritime_poole.csv,dataset_derived,,,,,,scholar_maritime_poole,yes
+src/morskamary/data/derived/scholar_maritime_sectors_equity.csv,dataset_derived,,,,,,scholar_maritime_sectors_equity,yes
+src/morskamary/data/derived/scholar_maritimization.csv,dataset_derived,,,,,,scholar_maritimization,yes
+src/morskamary/data/derived/scholar_ocean_governance_gaps.csv,dataset_derived,,,,,,scholar_ocean_governance_gaps,yes
+src/morskamary/data/derived/scholar_poole_maritime_1.csv,dataset_derived,,,,,,scholar_poole_maritime_1,yes
+src/morskamary/data/derived/scholar_poole_maritime_3.csv,dataset_derived,,,,,,scholar_poole_maritime_3,yes
+src/morskamary/data/derived/scispace_blue_economy_governance.csv,dataset_derived,,,,,,scispace_blue_economy_governance,yes
+src/morskamary/data/derived/scispace_blue_economy_labor.csv,dataset_derived,,,,,,scispace_blue_economy_labor,yes
+src/morskamary/data/derived/scispace_blue_economy_research_gaps.csv,dataset_derived,,,,,,scispace_blue_economy_research_gaps,yes
+src/morskamary/data/derived/scispace_blue_economy_social_dimensions.csv,dataset_derived,,,,,,scispace_blue_economy_social_dimensions,yes
+src/morskamary/data/derived/scispace_blue_sociology_1.csv,dataset_derived,,,,,,scispace_blue_sociology_1,yes
+src/morskamary/data/derived/scispace_blue_sociology_2.csv,dataset_derived,,,,,,scispace_blue_sociology_2,yes
+src/morskamary/data/derived/scispace_blue_sociology_3.csv,dataset_derived,,,,,,scispace_blue_sociology_3,yes
+src/morskamary/data/derived/scispace_coastal_communities_blue_economy.csv,dataset_derived,,,,,,scispace_coastal_communities_blue_econom,yes
+src/morskamary/data/derived/scispace_eu_blue_economy_1.csv,dataset_derived,,,,,,scispace_eu_blue_economy_1,yes
+src/morskamary/data/derived/scispace_eu_blue_economy_2.csv,dataset_derived,,,,,,scispace_eu_blue_economy_2,yes
+src/morskamary/data/derived/scispace_eu_blue_economy_3.csv,dataset_derived,,,,,,scispace_eu_blue_economy_3,yes
+src/morskamary/data/derived/scispace_fulltext_blue_economy_1.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_1,yes
+src/morskamary/data/derived/scispace_fulltext_blue_economy_2.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_2,yes
+src/morskamary/data/derived/scispace_fulltext_blue_economy_3.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_3,yes
+src/morskamary/data/derived/scispace_fulltext_blue_economy_gaps.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_gaps,yes
+src/morskamary/data/derived/scispace_fulltext_blue_economy_limitations.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_limitatio,yes
+src/morskamary/data/derived/scispace_fulltext_blue_sociology_1.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_1,yes
+src/morskamary/data/derived/scispace_fulltext_blue_sociology_2.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_2,yes
+src/morskamary/data/derived/scispace_fulltext_labor_maritime.csv,dataset_derived,,,,,,scispace_fulltext_labor_maritime,yes
+src/morskamary/data/derived/scispace_fulltext_maritime_sociology.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology,yes
+src/morskamary/data/derived/scispace_fulltext_maritime_sociology_poland.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology_pol,yes
+src/morskamary/data/derived/scispace_fulltext_marynizacja.csv,dataset_derived,,,,,,scispace_fulltext_marynizacja,yes
+src/morskamary/data/derived/scispace_fulltext_poole_maritime_1.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_1,yes
+src/morskamary/data/derived/scispace_fulltext_poole_maritime_2.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_2,yes
+src/morskamary/data/derived/scispace_fulltext_social_justice.csv,dataset_derived,,,,,,scispace_fulltext_social_justice,yes
+src/morskamary/data/derived/scispace_janiszewski_maritime_sociology.csv,dataset_derived,,,,,,scispace_janiszewski_maritime_sociology,yes
+src/morskamary/data/derived/scispace_maritime_sociology.csv,dataset_derived,,,,,,scispace_maritime_sociology,yes
+src/morskamary/data/derived/scispace_maritimization_theory.csv,dataset_derived,,,,,,scispace_maritimization_theory,yes
+src/morskamary/data/derived/scispace_poole_maritime_sociology_1.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_1,yes
+src/morskamary/data/derived/scispace_poole_maritime_sociology_2.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_2,yes
+src/morskamary/data/derived/scispace_poole_maritime_sociology_3.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_3,yes
+src/morskamary/data/derived/scispace_social_justice_maritime.csv,dataset_derived,,,,,,scispace_social_justice_maritime,yes
+src/morskamary/data/derived/Theoretical_Foundations_Expansion — kopia.md,text,,,,,,Theoretical_Foundations_Expansion___kopi,yes
+src/morskamary/data/derived/Theoretical_Foundations_Expansion.md,text,,,,,,Theoretical_Foundations_Expansion,yes
+src/morskamary/data/derived/UN_Ocean_Decade_ILK_Resource_Database_V1_02-2026 — kopia.xlsx,dataset_raw,,,,,,UN_Ocean_Decade_ILK_Resource_Database_V1,yes
+src/morskamary/data/derived/UN_Ocean_Decade_ILK_Resource_Database_V1_02-2026.xlsx,dataset_raw,,,,,,UN_Ocean_Decade_ILK_Resource_Database_V1,yes
+src/morskamary/data/derived/un_ocean_decade_ilk_resource_database_v1_02-2026__read_me.csv,dataset_derived,,,,,,un_ocean_decade_ilk_resource_database_v1,yes
+src/morskamary/data/derived/un_ocean_decade_ilk_resource_database_v1_02-2026__read_me__datadict.csv,dataset_derived,,,,,,un_ocean_decade_ilk_resource_database_v1,yes
+src/morskamary/data/derived/un_ocean_decade_ilk_resource_database_v1_02-2026__resources.csv,dataset_derived,,,,,,un_ocean_decade_ilk_resource_database_v1,yes
+src/morskamary/data/derived/un_ocean_decade_ilk_resource_database_v1_02-2026__resources__datadict.csv,dataset_derived,,,,,,un_ocean_decade_ilk_resource_database_v1,yes
+src/morskamary/data/derived/un_ocean_decade_ilk_resource_database_v1_02-2026_kopia__read_me.csv,dataset_derived,,,,,,un_ocean_decade_ilk_resource_database_v1,yes
+src/morskamary/data/derived/un_ocean_decade_ilk_resource_database_v1_02-2026_kopia__read_me__datadict.csv,dataset_derived,,,,,,un_ocean_decade_ilk_resource_database_v1,yes
+src/morskamary/data/derived/un_ocean_decade_ilk_resource_database_v1_02-2026_kopia__resources.csv,dataset_derived,,,,,,un_ocean_decade_ilk_resource_database_v1,yes
+src/morskamary/data/derived/un_ocean_decade_ilk_resource_database_v1_02-2026_kopia__resources__datadict.csv,dataset_derived,,,,,,un_ocean_decade_ilk_resource_database_v1,yes
+src/morskamary/data/derived/web_search_poole_article_search — kopia.json,other,,,,,,web_search_poole_article_search___kopia,no
+src/morskamary/data/derived/web_search_poole_article_search.json,other,,,,,,web_search_poole_article_search,no
+src/morskamary/data/derived/WG3_Glossary_FULL_100pct_DROP_KEEP_REWRITE_bySector_withAnchors — kopia.xlsx,dataset_raw,,,,,,WG3_Glossary_FULL_100pct_DROP_KEEP_REWRI,yes
+src/morskamary/data/derived/WG3_Glossary_FULL_100pct_DROP_KEEP_REWRITE_bySector_withAnchors.xlsx,dataset_raw,,,,,,WG3_Glossary_FULL_100pct_DROP_KEEP_REWRI,yes
+src/morskamary/data/derived/wg3_glossary_full_100pct_drop_keep_rewrite_bysector_withanchors__full_term_table.csv,dataset_derived,,,,,,wg3_glossary_full_100pct_drop_keep_rewri,yes
+src/morskamary/data/derived/wg3_glossary_full_100pct_drop_keep_rewrite_bysector_withanchors__full_term_table__datadict.csv,dataset_derived,,,,,,wg3_glossary_full_100pct_drop_keep_rewri,yes
+src/morskamary/data/derived/wg3_glossary_full_100pct_drop_keep_rewrite_bysector_withanchors_kopia__full_term_table.csv,dataset_derived,,,,,,wg3_glossary_full_100pct_drop_keep_rewri,yes
+src/morskamary/data/derived/wg3_glossary_full_100pct_drop_keep_rewrite_bysector_withanchors_kopia__full_term_table__datadict.csv,dataset_derived,,,,,,wg3_glossary_full_100pct_drop_keep_rewri,yes
+src/morskamary/data/derived/WG_applications_export_05-01-2026 — kopia.xlsx,dataset_raw,,,,,,WG_applications_export_05_01_2026___kopi,yes
+src/morskamary/data/derived/WG_applications_export_05-01-2026.xlsx,dataset_raw,,,,,,WG_applications_export_05_01_2026,yes
+src/morskamary/data/derived/wg_applications_export_05-01-2026_1__worksheet.csv,dataset_derived,,,,,,wg_applications_export_05_01_2026_1__wor,yes
+src/morskamary/data/derived/wg_applications_export_05-01-2026_1__worksheet__datadict.csv,dataset_derived,,,,,,wg_applications_export_05_01_2026_1__wor,yes
+src/morskamary/data/derived/wg_applications_export_05-01-2026__worksheet.csv,dataset_derived,,,,,,wg_applications_export_05_01_2026__works,yes
+src/morskamary/data/derived/wg_applications_export_05-01-2026__worksheet__datadict.csv,dataset_derived,,,,,,wg_applications_export_05_01_2026__works,yes
+src/morskamary/data/derived/wg_applications_export_05-01-2026_kopia__worksheet.csv,dataset_derived,,,,,,wg_applications_export_05_01_2026_kopia_,yes
+src/morskamary/data/derived/wg_applications_export_05-01-2026_kopia__worksheet__datadict.csv,dataset_derived,,,,,,wg_applications_export_05_01_2026_kopia_,yes
+src/morskamary/data/raw/Abstract ESA Ioannis Robert Tallinn 29_01_2026.docx,manuscript,,,,,,Abstract_ESA_Ioannis_Robert_Tallinn_29_0,yes
+src/morskamary/data/raw/abstract_converted.md,text,,,,,,abstract_converted,yes
+src/morskamary/data/raw/blue economy gapspaper-table-2026-02-12 (1).csv,dataset_derived,,,,,,blue_economy_gapspaper_table_2026_02_12_,yes
+src/morskamary/data/raw/blue economy gapspaper-table-2026-02-12.csv,dataset_derived,,,,,,blue_economy_gapspaper_table_2026_02_12,yes
+src/morskamary/data/raw/Blue Economy Maritime Sociology 12_02 18_08.docx,manuscript,,,,,,Blue_Economy_Maritime_Sociology_12_02_18,yes
+src/morskamary/data/raw/Blue Economy Maritime Sociology 12_02 18_08.pdf,policy_or_literature,,,,,,Blue_Economy_Maritime_Sociology_12_02_18,no
+src/morskamary/data/raw/Blue Economy_ Sociological Revival - Blue Economy_ Sociological Revival (1).csv,dataset_derived,,,,,,Blue_Economy__Sociological_Revival___Blu,yes
+src/morskamary/data/raw/Blue Economy_ Sociological Revival - Blue Economy_ Sociological Revival.csv,dataset_derived,,,,,,Blue_Economy__Sociological_Revival___Blu,yes
+src/morskamary/data/raw/Blue growth and sustainable blue economy new approach for sustainable future.xml,other,,,,,,Blue_growth_and_sustainable_blue_economy,no
+src/morskamary/data/raw/Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+src/morskamary/data/raw/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv,dataset_derived,,,,,,Blue_Social_Competences_Univ_Szczecin___,yes
+src/morskamary/data/raw/Blue Social Competences Univ Szczecin.xlsx,dataset_raw,,,,,,Blue_Social_Competences_Univ_Szczecin,yes
+src/morskamary/data/raw/blue_economy_gaps_analysis.md,text,,,,,,blue_economy_gaps_analysis,yes
+src/morskamary/data/raw/Blue_Sociology_Executive_Summary.md,text,,,,,,Blue_Sociology_Executive_Summary,yes
+src/morskamary/data/raw/Blue_Sociology_Framework_Complete.md,text,,,,,,Blue_Sociology_Framework_Complete,yes
+src/morskamary/data/raw/Blue_Sociology_Framework_Concept_Map (1).png,other,,,,,,Blue_Sociology_Framework_Concept_Map__1,no
+src/morskamary/data/raw/Blue_Sociology_Framework_Concept_Map.png,other,,,,,,Blue_Sociology_Framework_Concept_Map,no
+src/morskamary/data/raw/Blue_Sociology_Framework_Synthesis.md,text,,,,,,Blue_Sociology_Framework_Synthesis,yes
+src/morskamary/data/raw/combined_blue_economy_labor_justice.csv,dataset_derived,,,,,,combined_blue_economy_labor_justice,yes
+src/morskamary/data/raw/combined_blue_economy_research_gaps.csv,dataset_derived,,,,,,combined_blue_economy_research_gaps,yes
+src/morskamary/data/raw/combined_blue_sociology_results.csv,dataset_derived,,,,,,combined_blue_sociology_results,yes
+src/morskamary/data/raw/combined_eu_blue_economy_results.csv,dataset_derived,,,,,,combined_eu_blue_economy_results,yes
+src/morskamary/data/raw/combined_janiszewski_maritime_sociology.csv,dataset_derived,,,,,,combined_janiszewski_maritime_sociology,yes
+src/morskamary/data/raw/combined_maritime_sociology_results.csv,dataset_derived,,,,,,combined_maritime_sociology_results,yes
+src/morskamary/data/raw/combined_maritimization_results.csv,dataset_derived,,,,,,combined_maritimization_results,yes
+src/morskamary/data/raw/combined_poole_maritime_sociology_results.csv,dataset_derived,,,,,,combined_poole_maritime_sociology_result,yes
+src/morskamary/data/raw/DOCUMENT_GUIDE.md,text,,,,,,DOCUMENT_GUIDE,yes
+src/morskamary/data/raw/EU blue economy lex.xml,other,,,,,,EU_blue_economy_lex,no
+src/morskamary/data/raw/EU Ocean Pact Response_ “Tentative steps forward but critical gaps must be addressed to protect our ocean” - Seas At Risk.pdf,policy_or_literature,,,,,,EU_Ocean_Pact_Response___Tentative_steps,no
+src/morskamary/data/raw/EXPANSION_COMPLETE_SUMMARY.md,text,,,,,,EXPANSION_COMPLETE_SUMMARY,yes
+src/morskamary/data/raw/final_comprehensive_analysis.md,text,,,,,,final_comprehensive_analysis,yes
+src/morskamary/data/raw/Glossary Term Proposal.csv,dataset_derived,,,,,,Glossary_Term_Proposal,yes
+src/morskamary/data/raw/Here is the comprehensive scientific content for the article draft.docx,manuscript,,,,,,Here_is_the_comprehensive_scientific_con,yes
+src/morskamary/data/raw/Janiszewski.docx,manuscript,,,,,,Janiszewski,yes
+src/morskamary/data/raw/janiszewski_detailed_analysis.md,text,,,,,,janiszewski_detailed_analysis,yes
+src/morskamary/data/raw/Janiszewski_Poole_Comparison.png,other,,,,,,Janiszewski_Poole_Comparison,no
+src/morskamary/data/raw/Key_References_by_Theme.md,text,,,,,,Key_References_by_Theme,yes
+src/morskamary/data/raw/maritime_sociology_framework_synthesis.md,text,,,,,,maritime_sociology_framework_synthesis,yes
+src/morskamary/data/raw/ocean_pact_main_analysis.md,text,,,,,,ocean_pact_main_analysis,yes
+src/morskamary/data/raw/PACT_WG3_Stakeholder_Matrix_with_Category (version 2).csv,dataset_derived,,,,,,PACT_WG3_Stakeholder_Matrix_with_Categor,yes
+src/morskamary/data/raw/Pakt na rzecz wszechoceanu.pdf,policy_or_literature,,,,,,Pakt_na_rzecz_wszechoceanu,no
+src/morskamary/data/raw/paper-table-2026-02-12 (1).csv,dataset_derived,,,,,,paper_table_2026_02_12__1,yes
+src/morskamary/data/raw/paper-table-2026-02-12 (2).csv,dataset_derived,,,,,,paper_table_2026_02_12__2,yes
+src/morskamary/data/raw/paper-table-2026-02-12.csv,dataset_derived,,,,,,paper_table_2026_02_12,yes
+src/morskamary/data/raw/poole_article_search.csv,dataset_derived,,,,,,poole_article_search,yes
+src/morskamary/data/raw/poole_detailed_analysis.md,text,,,,,,poole_detailed_analysis,yes
+src/morskamary/data/raw/Port Sensory Research Fieldwork Protocol - Port Sensory Research Fieldwork Protocol (1).csv,dataset_derived,,,,,,Port_Sensory_Research_Fieldwork_Protocol,yes
+src/morskamary/data/raw/Port Sensory Research Fieldwork Protocol - Port Sensory Research Fieldwork Protocol.csv,dataset_derived,,,,,,Port_Sensory_Research_Fieldwork_Protocol,yes
+src/morskamary/data/raw/scholar.enw,other,,,,,,scholar,no
+src/morskamary/data/raw/scholar_blue_economy_2.csv,dataset_derived,,,,,,scholar_blue_economy_2,yes
+src/morskamary/data/raw/scholar_blue_economy_3.csv,dataset_derived,,,,,,scholar_blue_economy_3,yes
+src/morskamary/data/raw/scholar_blue_economy_equity.csv,dataset_derived,,,,,,scholar_blue_economy_equity,yes
+src/morskamary/data/raw/scholar_blue_economy_labor.csv,dataset_derived,,,,,,scholar_blue_economy_labor,yes
+src/morskamary/data/raw/scholar_blue_economy_social_science.csv,dataset_derived,,,,,,scholar_blue_economy_social_science,yes
+src/morskamary/data/raw/scholar_blue_sociology_1.csv,dataset_derived,,,,,,scholar_blue_sociology_1,yes
+src/morskamary/data/raw/scholar_blue_sociology_2.csv,dataset_derived,,,,,,scholar_blue_sociology_2,yes
+src/morskamary/data/raw/scholar_blue_sociology_3.csv,dataset_derived,,,,,,scholar_blue_sociology_3,yes
+src/morskamary/data/raw/scholar_janiszewski_maritime.csv,dataset_derived,,,,,,scholar_janiszewski_maritime,yes
+src/morskamary/data/raw/scholar_janiszewski_marynizacja.csv,dataset_derived,,,,,,scholar_janiszewski_marynizacja,yes
+src/morskamary/data/raw/scholar_maritime_governance.csv,dataset_derived,,,,,,scholar_maritime_governance,yes
+src/morskamary/data/raw/scholar_maritime_poole.csv,dataset_derived,,,,,,scholar_maritime_poole,yes
+src/morskamary/data/raw/scholar_maritime_sectors_equity.csv,dataset_derived,,,,,,scholar_maritime_sectors_equity,yes
+src/morskamary/data/raw/scholar_maritimization.csv,dataset_derived,,,,,,scholar_maritimization,yes
+src/morskamary/data/raw/scholar_ocean_governance_gaps.csv,dataset_derived,,,,,,scholar_ocean_governance_gaps,yes
+src/morskamary/data/raw/scholar_poole_maritime_1.csv,dataset_derived,,,,,,scholar_poole_maritime_1,yes
+src/morskamary/data/raw/scholar_poole_maritime_3.csv,dataset_derived,,,,,,scholar_poole_maritime_3,yes
+src/morskamary/data/raw/scispace_blue_economy_governance.csv,dataset_derived,,,,,,scispace_blue_economy_governance,yes
+src/morskamary/data/raw/scispace_blue_economy_labor.csv,dataset_derived,,,,,,scispace_blue_economy_labor,yes
+src/morskamary/data/raw/scispace_blue_economy_research_gaps.csv,dataset_derived,,,,,,scispace_blue_economy_research_gaps,yes
+src/morskamary/data/raw/scispace_blue_economy_social_dimensions.csv,dataset_derived,,,,,,scispace_blue_economy_social_dimensions,yes
+src/morskamary/data/raw/scispace_blue_sociology_1.csv,dataset_derived,,,,,,scispace_blue_sociology_1,yes
+src/morskamary/data/raw/scispace_blue_sociology_2.csv,dataset_derived,,,,,,scispace_blue_sociology_2,yes
+src/morskamary/data/raw/scispace_blue_sociology_3.csv,dataset_derived,,,,,,scispace_blue_sociology_3,yes
+src/morskamary/data/raw/scispace_coastal_communities_blue_economy.csv,dataset_derived,,,,,,scispace_coastal_communities_blue_econom,yes
+src/morskamary/data/raw/scispace_eu_blue_economy_1.csv,dataset_derived,,,,,,scispace_eu_blue_economy_1,yes
+src/morskamary/data/raw/scispace_eu_blue_economy_2.csv,dataset_derived,,,,,,scispace_eu_blue_economy_2,yes
+src/morskamary/data/raw/scispace_eu_blue_economy_3.csv,dataset_derived,,,,,,scispace_eu_blue_economy_3,yes
+src/morskamary/data/raw/scispace_fulltext_blue_economy_1.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_1,yes
+src/morskamary/data/raw/scispace_fulltext_blue_economy_2.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_2,yes
+src/morskamary/data/raw/scispace_fulltext_blue_economy_3.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_3,yes
+src/morskamary/data/raw/scispace_fulltext_blue_economy_gaps.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_gaps,yes
+src/morskamary/data/raw/scispace_fulltext_blue_economy_limitations.csv,dataset_derived,,,,,,scispace_fulltext_blue_economy_limitatio,yes
+src/morskamary/data/raw/scispace_fulltext_blue_sociology_1.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_1,yes
+src/morskamary/data/raw/scispace_fulltext_blue_sociology_2.csv,dataset_derived,,,,,,scispace_fulltext_blue_sociology_2,yes
+src/morskamary/data/raw/scispace_fulltext_labor_maritime.csv,dataset_derived,,,,,,scispace_fulltext_labor_maritime,yes
+src/morskamary/data/raw/scispace_fulltext_maritime_sociology.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology,yes
+src/morskamary/data/raw/scispace_fulltext_maritime_sociology_poland.csv,dataset_derived,,,,,,scispace_fulltext_maritime_sociology_pol,yes
+src/morskamary/data/raw/scispace_fulltext_marynizacja.csv,dataset_derived,,,,,,scispace_fulltext_marynizacja,yes
+src/morskamary/data/raw/scispace_fulltext_poole_maritime_1.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_1,yes
+src/morskamary/data/raw/scispace_fulltext_poole_maritime_2.csv,dataset_derived,,,,,,scispace_fulltext_poole_maritime_2,yes
+src/morskamary/data/raw/scispace_fulltext_social_justice.csv,dataset_derived,,,,,,scispace_fulltext_social_justice,yes
+src/morskamary/data/raw/scispace_janiszewski_maritime_sociology.csv,dataset_derived,,,,,,scispace_janiszewski_maritime_sociology,yes
+src/morskamary/data/raw/scispace_maritime_sociology.csv,dataset_derived,,,,,,scispace_maritime_sociology,yes
+src/morskamary/data/raw/scispace_maritimization_theory.csv,dataset_derived,,,,,,scispace_maritimization_theory,yes
+src/morskamary/data/raw/scispace_poole_maritime_sociology_1.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_1,yes
+src/morskamary/data/raw/scispace_poole_maritime_sociology_2.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_2,yes
+src/morskamary/data/raw/scispace_poole_maritime_sociology_3.csv,dataset_derived,,,,,,scispace_poole_maritime_sociology_3,yes
+src/morskamary/data/raw/scispace_social_justice_maritime.csv,dataset_derived,,,,,,scispace_social_justice_maritime,yes
+src/morskamary/data/raw/The Theoretical Lineage of Maritime Sociology.docx,manuscript,,,,,,The_Theoretical_Lineage_of_Maritime_Soci,yes
+src/morskamary/data/raw/Theoretical_Foundations_Expansion Visiual Studio Edit 12_02.md,text,,,,,,Theoretical_Foundations_Expansion_Visiua,yes
+src/morskamary/data/raw/Theoretical_Foundations_Expansion.md,text,,,,,,Theoretical_Foundations_Expansion,yes
+src/morskamary/data/raw/web_search_poole_article_search.json,other,,,,,,web_search_poole_article_search,no
+src/morskamary/DATA_GOVERNANCE.txt,text,,,,,,DATA_GOVERNANCE,yes
+src/morskamary/deep_update_patch/EXECUTIVE_PLAN.txt,text,,,,,,EXECUTIVE_PLAN,yes
+src/morskamary/deep_update_patch/load_real_competences.py,other,,,,,,load_real_competences,no
+src/morskamary/deep_update_patch/main_real_data.py,other,,,,,,main_real_data,no
+src/morskamary/deep_update_patch/run_full_analysis.py,other,,,,,,run_full_analysis,no
+src/morskamary/deep_update_patch/src/__init__.py,other,,,,,,init,no
+src/morskamary/deep_update_patch/src/competence_mapper.py,other,,,,,,competence_mapper,no
+src/morskamary/deep_update_patch/src/core.py,other,,,,,,core,no
+src/morskamary/deep_update_patch/tests/conftest.py,other,,,,,,conftest,no
+src/morskamary/deep_update_patch/tests/test_core.py,other,,,,,,test_core,no
+src/morskamary/demo_additional_tasks.py,other,,,,,,demo_additional_tasks,no
+src/morskamary/DEMO_COMPLETE_SUMMARY.md,text,,,,,,DEMO_COMPLETE_SUMMARY,yes
+src/morskamary/demo_workspace_instructions.py,other,,,,,,demo_workspace_instructions,no
+src/morskamary/Deploy-CopilotSynergy.ps1,other,,,,,,Deploy_CopilotSynergy,no
+src/morskamary/Dockerfile,other,,,,,,Dockerfile,no
+src/morskamary/Dockerfile.txt,text,,,,,,Dockerfile,yes
+src/morskamary/docs/BASELINE_VALIDATION.md,text,,,,,,BASELINE_VALIDATION,yes
+src/morskamary/docs/GOOGLE_CLOUD_BUILD_OPTIONAL_SETUP.md,text,,,,,,GOOGLE_CLOUD_BUILD_OPTIONAL_SETUP,yes
+src/morskamary/docs/literature/(Posthumanities) Timothy Morton - Hyperobjects_ Philosophy and Ecology after the End of the World-University of Minnesota Press (2013).txt,text,,,,,,Posthumanities__Timothy_Morton___Hyperob,yes
+src/morskamary/docs/literature/40152_2021_Article_238.PDF,policy_or_literature,,,,,,40152_2021_Article_238,no
+src/morskamary/docs/literature/A Sensorial Walk for Le Havre.docx,manuscript,,,,,,A_Sensorial_Walk_for_Le_Havre,yes
+src/morskamary/docs/literature/Aaa Hab 4_250621_114734.txt,text,,,,,,Aaa_Hab_4_250621_114734,yes
+src/morskamary/docs/literature/Agenda Core Group Meeting 251208.docx,manuscript,,,,,,Agenda_Core_Group_Meeting_251208,yes
+src/morskamary/docs/literature/Alice Vadrot UN Decade of Ocean Science for Sustainable Development.txt,text,,,,,,Alice_Vadrot_UN_Decade_of_Ocean_Science_,yes
+src/morskamary/docs/literature/Bartłomiejski Cocco Performatywność wody morza oceanu.txt,text,,,,,,Bartłomiejski_Cocco_Performatywność_wody,yes
+src/morskamary/docs/literature/Bartłomiejskie Cocco krytyka oceanocentryzmu.txt,text,,,,,,Bartłomiejskie_Cocco_krytyka_oceanocentr,yes
+src/morskamary/docs/literature/Blue Bolt Rotterdam _250106_112646.txt,text,,,,,,Blue_Bolt_Rotterdam__250106_112646,yes
+src/morskamary/docs/literature/Blue Mind_250421_094727.txt,text,,,,,,Blue_Mind_250421_094727,yes
+src/morskamary/docs/literature/Breguła Weird Szczecin_250412_101024.txt,text,,,,,,Breguła_Weird_Szczecin_250412_101024,yes
+src/morskamary/docs/literature/Deep image Ocean_241231_091047.txt,text,,,,,,Deep_image_Ocean_241231_091047,yes
+src/morskamary/docs/literature/Delft wyjazd_241017_170643.txt,text,,,,,,Delft_wyjazd_241017_170643,yes
+src/morskamary/docs/literature/Do hab_250403_204509.txt,text,,,,,,Do_hab_250403_204509,yes
+src/morskamary/docs/literature/Early Foundations of Maritime Sociology (Pre-1981) (1).docx,manuscript,,,,,,Early_Foundations_of_Maritime_Sociology_,yes
+src/morskamary/docs/literature/Early Foundations of Maritime Sociology (Pre-1981).docx,manuscript,,,,,,Early_Foundations_of_Maritime_Sociology_,yes
+src/morskamary/docs/literature/Gomez sea gentrification Zadar 2024.txt,text,,,,,,Gomez_sea_gentrification_Zadar_2024,yes
+src/morskamary/docs/literature/Hab - okazuje_241013_210006.txt,text,,,,,,Hab___okazuje_241013_210006,yes
+src/morskamary/docs/literature/Hab Hein Culture port cities mindset_250108_081453.txt,text,,,,,,Hab_Hein_Culture_port_cities_mindset_250,yes
+src/morskamary/docs/literature/Hydrology_Water_covers_70_of_the.docx,manuscript,,,,,,Hydrology_Water_covers_70_of_the,yes
+src/morskamary/docs/literature/Iscot_240905_142040.txt,text,,,,,,Iscot_240905_142040,yes
+src/morskamary/docs/literature/Janiszewski CORE2.txt,text,,,,,,Janiszewski_CORE2,yes
+src/morskamary/docs/literature/Kim 2004 Blue ocean strategy.doc,manuscript,,,,,,Kim_2004_Blue_ocean_strategy,yes
+src/morskamary/docs/literature/Kopia Marine Maritime Sociology 09_01_2026.docx,manuscript,,,,,,Kopia_Marine_Maritime_Sociology_09_01_20,yes
+src/morskamary/docs/literature/Materialnosc w morzu_241217_113623.txt,text,,,,,,Materialnosc_w_morzu_241217_113623,yes
+src/morskamary/docs/literature/Matthews 2023 Waves floods currents politics and poetics of water.xlsx,dataset_raw,,,,,,Matthews_2023_Waves_floods_currents_poli,yes
+src/morskamary/docs/literature/Maurice Jensen Paul van der Laar note.txt,text,,,,,,Maurice_Jensen_Paul_van_der_Laar_note,yes
+src/morskamary/docs/literature/MC Budget plans WG3 _2.JPG,other,,,,,,MC_Budget_plans_WG3__2,no
+src/morskamary/docs/literature/MC Budget plans WG3 _3.JPG,other,,,,,,MC_Budget_plans_WG3__3,no
+src/morskamary/docs/literature/MC Budget plans WG3.JPG,other,,,,,,MC_Budget_plans_WG3,no
+src/morskamary/docs/literature/MC Budget plans.JPG,other,,,,,,MC_Budget_plans,no
+src/morskamary/docs/literature/Mervyn_Hartwig_ed_Dictionary_of_Critica.docx,manuscript,,,,,,Mervyn_Hartwig_ed_Dictionary_of_Critica,yes
+src/morskamary/docs/literature/P17151806a00df0e0ad3e0b69bc15d6b19.docx,manuscript,,,,,,P17151806a00df0e0ad3e0b69bc15d6b19,yes
+src/morskamary/docs/literature/Port Animal-Human Relation_241026_074847.txt,text,,,,,,Port_Animal_Human_Relation_241026_074847,yes
+src/morskamary/docs/literature/Prolegomena_to_Arts_Transciplinarity.docx,manuscript,,,,,,Prolegomena_to_Arts_Transciplinarity,yes
+src/morskamary/docs/literature/Prompt Ioanis and Cocco.txt,text,,,,,,Prompt_Ioanis_and_Cocco,yes
+src/morskamary/docs/literature/Przechwytywanie.JPG,other,,,,,,Przechwytywanie,no
+src/morskamary/docs/literature/Przechwytywanie2.JPG,other,,,,,,Przechwytywanie2,no
+src/morskamary/docs/literature/Przechwytywanie3.JPG,other,,,,,,Przechwytywanie3,no
+src/morskamary/docs/literature/Resolved_ Port Cities_ edited_27 June 2024 RBMK sent 22_50.docx,manuscript,,,,,,Resolved__Port_Cities__edited_27_June_20,yes
+src/morskamary/docs/literature/Scharenberg Ocean activim political acts.xlsx,dataset_raw,,,,,,Scharenberg_Ocean_activim_political_acts,yes
+src/morskamary/docs/literature/Socjologia morska 1984 summary Poole Janiszewski.txt,text,,,,,,Socjologia_morska_1984_summary_Poole_Jan,yes
+src/morskamary/docs/literature/WG3 Meeting  - 2025_12_12 10_57 GMT - Notes by Gemini.docx,manuscript,,,,,,WG3_Meeting____2025_12_12_10_57_GMT___No,yes
+src/morskamary/docs/literature/WG3_PACT_WG3_Sensory_Walk_Methodology_Slides_EN-UK rob.pptx,other,,,,,,WG3_PACT_WG3_Sensory_Walk_Methodology_Sl,no
+src/morskamary/docs/literature/WG_applications_export_05-01-2026 (1).xlsx,dataset_raw,,,,,,WG_applications_export_05_01_2026__1,yes
+src/morskamary/docs/literature/Wyrzucone przez morze_250521_002507.txt,text,,,,,,Wyrzucone_przez_morze_250521_002507,yes
+src/morskamary/docs/ONE_CLICK_RESEARCH_RUNBOOK.md,text,,,,,,ONE_CLICK_RESEARCH_RUNBOOK,yes
+src/morskamary/docs/policy/Blue Economy_ Social Soul Revival Blue Skills Diplomat.docx,manuscript,,,,,,Blue_Economy__Social_Soul_Revival_Blue_S,yes
+src/morskamary/docs/policy/Blue Occupation Boatbuilder.txt,text,,,,,,Blue_Occupation_Boatbuilder,yes
+src/morskamary/docs/policy/Blue Occupation Boutyard manager.txt,text,,,,,,Blue_Occupation_Boutyard_manager,yes
+src/morskamary/docs/policy/Blue Occupation Charter Fleeet Manager.txt,text,,,,,,Blue_Occupation_Charter_Fleeet_Manager,yes
+src/morskamary/docs/policy/Blue Occupation Crew Manager.txt,text,,,,,,Blue_Occupation_Crew_Manager,yes
+src/morskamary/docs/policy/Blue Occupation Insurance broker.txt,text,,,,,,Blue_Occupation_Insurance_broker,yes
+src/morskamary/docs/policy/Blue Occupation Sailmaker.txt,text,,,,,,Blue_Occupation_Sailmaker,yes
+src/morskamary/docs/policy/Blue_Sociology_Framework_Complete.md,text,,,,,,Blue_Sociology_Framework_Complete,yes
+src/morskamary/docs/RESEARCH_API_CICD_SETUP.md,text,,,,,,RESEARCH_API_CICD_SETUP,yes
+src/morskamary/docs/RESEARCH_SOURCE_GOVERNANCE.md,text,,,,,,RESEARCH_SOURCE_GOVERNANCE,yes
+src/morskamary/examples/add_coastal_resilience_competence.py,other,,,,,,add_coastal_resilience_competence,no
+src/morskamary/fix_all_md.py,other,,,,,,fix_all_md,no
+src/morskamary/fix_markdown.py,other,,,,,,fix_markdown,no
+src/morskamary/fix_markdown_bulk.py,other,,,,,,fix_markdown_bulk,no
+src/morskamary/infra/gcp-mirror/main.tf,other,,,,,,main,no
+src/morskamary/infra/gcp-mirror/outputs.tf,other,,,,,,outputs,no
+src/morskamary/infra/gcp-mirror/README.md,text,,,,,,README,yes
+src/morskamary/infra/gcp-mirror/variables.tf,other,,,,,,variables,no
+src/morskamary/LLM_CONTEXT_INSTRUCTION.txt,text,,,,,,LLM_CONTEXT_INSTRUCTION,yes
+src/morskamary/load_real_competences.py,other,,,,,,load_real_competences,no
+src/morskamary/LOAD_REAL_DATA.md,text,,,,,,LOAD_REAL_DATA,yes
+src/morskamary/main.py,other,,,,,,main,no
+src/morskamary/main_real_data.py,other,,,,,,main_real_data,no
+src/morskamary/MANIFEST_SOURCES.csv,dataset_derived,,,,,,MANIFEST_SOURCES,yes
+src/morskamary/manuscripts/drafts/AAA Methodological Glossary Values WG3.txt,text,,,,,,AAA_Methodological_Glossary_Values_WG3,yes
+src/morskamary/manuscripts/drafts/Abstact ESA Performativity of the Ocean Reframe Marinization.docx,manuscript,,,,,,Abstact_ESA_Performativity_of_the_Ocean_,yes
+src/morskamary/manuscripts/drafts/Abstract ESA Ioannis Robert Tallinn 29_01_2026.docx,manuscript,,,,,,Abstract_ESA_Ioannis_Robert_Tallinn_29_0,yes
+src/morskamary/manuscripts/drafts/abstract with Ioanis ESA 2026.docx,manuscript,,,,,,abstract_with_Ioanis_ESA_2026,yes
+src/morskamary/manuscripts/drafts/Article_BLUE_REVISED (2).docx,manuscript,,,,,,Article_BLUE_REVISED__2,yes
+src/morskamary/manuscripts/drafts/Article_BLUE_REVISED end.docx,manuscript,,,,,,Article_BLUE_REVISED_end,yes
+src/morskamary/manuscripts/drafts/artykuł kocowy.docx,manuscript,,,,,,artykuł_kocowy,yes
+src/morskamary/manuscripts/drafts/Blue Economy Gaps SCISPACE.docx,manuscript,,,,,,Blue_Economy_Gaps_SCISPACE,yes
+src/morskamary/manuscripts/drafts/Blue Economy Maritime Sociology 12_02 18_08_TMDB SURPRISE rewrite_2026-02-13 (1).docx,manuscript,,,,,,Blue_Economy_Maritime_Sociology_12_02_18,yes
+src/morskamary/manuscripts/drafts/Blue Economy Maritime Sociology 12_02 18_08_TMDB SURPRISE rewrite_2026-02-13 edit.docx,manuscript,,,,,,Blue_Economy_Maritime_Sociology_12_02_18,yes
+src/morskamary/manuscripts/drafts/Blue Social Competences Univ Szczecin matrix.pdf,policy_or_literature,,,,,,Blue_Social_Competences_Univ_Szczecin_ma,no
+src/morskamary/manuscripts/drafts/Blue Sociology and the Tripartite Model of Blue Dynamics_ A Conceptual Framework for Sustainable Ocean Governance and the Blue Economy (1).docx,manuscript,,,,,,Blue_Sociology_and_the_Tripartite_Model_,yes
+src/morskamary/manuscripts/drafts/Blue Sociology and the Tripartite Model of Blue Dynamics_ A Conceptual Framework for Sustainable Ocean Governance and the Blue Economy (1).pdf,policy_or_literature,,,,,,Blue_Sociology_and_the_Tripartite_Model_,no
+src/morskamary/manuscripts/drafts/Blue Sociology Manuscript Review New.docx,manuscript,,,,,,Blue_Sociology_Manuscript_Review_New,yes
+src/morskamary/manuscripts/drafts/Blue Sociology Maritime Sociology Article BASE 19_32.docx,manuscript,,,,,,Blue_Sociology_Maritime_Sociology_Articl,yes
+src/morskamary/manuscripts/drafts/Blue Sociology Maritime Sociology Article PUBLI note.docx,manuscript,,,,,,Blue_Sociology_Maritime_Sociology_Articl,yes
+src/morskamary/manuscripts/drafts/Blue sociology ocean maritime social hydro.docx,manuscript,,,,,,Blue_sociology_ocean_maritime_social_hyd,yes
+src/morskamary/manuscripts/drafts/Blue Sociology One Ocean 14_02 (1).docx,manuscript,,,,,,Blue_Sociology_One_Ocean_14_02__1,yes
+src/morskamary/manuscripts/drafts/Blue Sociology One Ocean 14_02.docx,manuscript,,,,,,Blue_Sociology_One_Ocean_14_02,yes
+src/morskamary/manuscripts/drafts/Comparative Analysis of Ocean-Related Sociological Frameworks.docx,manuscript,,,,,,Comparative_Analysis_of_Ocean_Related_So,yes
+src/morskamary/manuscripts/drafts/COMPLETE SCISPACE ARTICLE BLUE SOCIOLOGY.docx,manuscript,,,,,,COMPLETE_SCISPACE_ARTICLE_BLUE_SOCIOLOGY,yes
+src/morskamary/manuscripts/drafts/Developing Blue Sociology Framework Blue Economy 2 FULL ARTICLE SCISPACE.docx,manuscript,,,,,,Developing_Blue_Sociology_Framework_Blue,yes
+src/morskamary/manuscripts/drafts/Developing Blue Sociology Framework Blue Economy FULL ARTICLE SCISPACE.docx,manuscript,,,,,,Developing_Blue_Sociology_Framework_Blue,yes
+src/morskamary/manuscripts/drafts/Early Foundations of Maritime Sociology (Pre-1981) (1).docx,manuscript,,,,,,Early_Foundations_of_Maritime_Sociology_,yes
+src/morskamary/manuscripts/drafts/exploring_research_gaps_in_the_sustainable_blue_economy_demaritimisation.docx,manuscript,,,,,,exploring_research_gaps_in_the_sustainab,yes
+src/morskamary/manuscripts/drafts/exploring_research_gaps_in_the_sustainable_blue_economy_through_oceanic_and_maritime_social_sciences__a_literature_review.docx,manuscript,,,,,,exploring_research_gaps_in_the_sustainab,yes
+"src/morskamary/manuscripts/drafts/For each combination, I will include a plausible Perplexity.docx",manuscript,,,,,,For_each_combination__I_will_include_a_p,yes
+src/morskamary/manuscripts/drafts/From Marinization to Oceanization Sustanable Blue Economy Threshold and Solutions.pdf,policy_or_literature,,,,,,From_Marinization_to_Oceanization_Sustan,no
+src/morskamary/manuscripts/drafts/Google Gemini Canva Tripartite Model Blue Dynamic Janiszewski 13_02_2026 ver1.pdf,policy_or_literature,,,,,,Google_Gemini_Canva_Tripartite_Model_Blu,no
+src/morskamary/manuscripts/drafts/Guidelines for Subgroup Leaders.docx,manuscript,,,,,,Guidelines_for_Subgroup_Leaders,yes
+src/morskamary/manuscripts/drafts/hydrologia oceanografia Perpleixity.docx,manuscript,,,,,,hydrologia_oceanografia_Perpleixity,yes
+src/morskamary/manuscripts/drafts/Instruction for the Analysis of Glossary Term Proposals.docx,manuscript,,,,,,Instruction_for_the_Analysis_of_Glossary,yes
+src/morskamary/manuscripts/drafts/JANISZEWSKI meet ONE BLUE OCEAN ECONOMY - NotebookLM.pdf,policy_or_literature,,,,,,JANISZEWSKI_meet_ONE_BLUE_OCEAN_ECONOMY_,no
+src/morskamary/manuscripts/drafts/Kopia Marine Maritime Sociology 25_01_2026.docx,manuscript,,,,,,Kopia_Marine_Maritime_Sociology_25_01_20,yes
+src/morskamary/manuscripts/drafts/Maritime Sociology and Oceanic Turn.docx,manuscript,,,,,,Maritime_Sociology_and_Oceanic_Turn,yes
+src/morskamary/manuscripts/drafts/Maritime Sociology and the Blue Economy Blue Sociology.pdf,policy_or_literature,,,,,,Maritime_Sociology_and_the_Blue_Economy_,no
+src/morskamary/manuscripts/drafts/maritime_sociology_and_the_blue_economy__developing_a_blue_sociology_framework.docx,manuscript,,,,,,maritime_sociology_and_the_blue_economy_,yes
+src/morskamary/manuscripts/drafts/Oceanic turn Blue Growth Maritime Sociology  note container.docx,manuscript,,,,,,Oceanic_turn_Blue_Growth_Maritime_Sociol,yes
+src/morskamary/manuscripts/drafts/Pas nadmorski woda rzeka własność water river sea.docx,manuscript,,,,,,Pas_nadmorski_woda_rzeka_własność_water_,yes
+src/morskamary/manuscripts/drafts/Route MC Stop 1 to 12 Lisbon.docx,manuscript,,,,,,Route_MC_Stop_1_to_12_Lisbon,yes
+src/morskamary/manuscripts/drafts/Rozmowa z Gemini ReMARITIMISATION THE OCEAN PACT Blue economy.docx,manuscript,,,,,,Rozmowa_z_Gemini_ReMARITIMISATION_THE_OC,yes
+src/morskamary/manuscripts/drafts/Socjologia morska 1984 summary field of study.docx,manuscript,,,,,,Socjologia_morska_1984_summary_field_of_,yes
+src/morskamary/manuscripts/drafts/Socjologia morska i koncepcja marynizacji Ludwika Janiszewskiego.docx,manuscript,,,,,,Socjologia_morska_i_koncepcja_marynizacj,yes
+src/morskamary/manuscripts/drafts/Strategic Integration of Social Sciences into the EU Ocean Act.docx,manuscript,,,,,,Strategic_Integration_of_Social_Sciences,yes
+src/morskamary/manuscripts/drafts/Subgroup Discussion Summary Template – Book Chapter Input.docx,manuscript,,,,,,Subgroup_Discussion_Summary_Template___B,yes
+src/morskamary/manuscripts/drafts/Sustainable Blue Economy Maritime Sociology SCISPACE.docx,manuscript,,,,,,Sustainable_Blue_Economy_Maritime_Sociol,yes
+src/morskamary/manuscripts/drafts/Sustainable Blue Economy Research SCIVAL.pdf,policy_or_literature,,,,,,Sustainable_Blue_Economy_Research_SCIVAL,no
+src/morskamary/manuscripts/drafts/Theoretical Framework Janiszsewski Maritime Sociology SCISPACE.docx,manuscript,,,,,,Theoretical_Framework_Janiszsewski_Marit,yes
+src/morskamary/manuscripts/drafts/World Café Facilitation Guide – Energy Transition Glossary.docx,manuscript,,,,,,World_Cafe__Facilitation_Guide___Energy_,yes
+src/morskamary/morskamary.code-workspace,other,,,,,,morskamary,no
+src/morskamary/morskamary.code-workspace2.txt,text,,,,,,morskamary_code_workspace2,yes
+src/morskamary/outputs/competences_full_database.json,other,,,,,,competences_full_database,no
+src/morskamary/outputs/credentials_database.json,other,,,,,,credentials_database,no
+src/morskamary/outputs/credentials_matrix.html,other,,,,,,credentials_matrix,no
+src/morskamary/outputs/gaps_by_sector.html,other,,,,,,gaps_by_sector,no
+src/morskamary/outputs/gaps_summary.csv,dataset_derived,,,,,,gaps_summary,yes
+src/morskamary/outputs/literature_integration.html,other,,,,,,literature_integration,no
+src/morskamary/outputs/report_index.html,other,,,,,,report_index,no
+src/morskamary/outputs/research_source_capabilities.json,other,,,,,,research_source_capabilities,no
+src/morskamary/outputs/sector_dictionaries/blue_biotech_tmbd_dictionary.json,other,,,,,,blue_biotech_tmbd_dictionary,no
+src/morskamary/outputs/sector_dictionaries/coastal_tourism_tmbd_dictionary.json,other,,,,,,coastal_tourism_tmbd_dictionary,no
+src/morskamary/outputs/sector_dictionaries/desalination_tmbd_dictionary.json,other,,,,,,desalination_tmbd_dictionary,no
+src/morskamary/outputs/sector_dictionaries/infra_robotics_tmbd_dictionary.json,other,,,,,,infra_robotics_tmbd_dictionary,no
+src/morskamary/outputs/sector_dictionaries/living_res_tmbd_dictionary.json,other,,,,,,living_res_tmbd_dictionary,no
+src/morskamary/outputs/sector_dictionaries/maritime_defence_tmbd_dictionary.json,other,,,,,,maritime_defence_tmbd_dictionary,no
+src/morskamary/outputs/sector_dictionaries/maritime_transport_tmbd_dictionary.json,other,,,,,,maritime_transport_tmbd_dictionary,no
+src/morskamary/outputs/sector_dictionaries/non_living_res_tmbd_dictionary.json,other,,,,,,non_living_res_tmbd_dictionary,no
+src/morskamary/outputs/sector_dictionaries/port_activities_tmbd_dictionary.json,other,,,,,,port_activities_tmbd_dictionary,no
+src/morskamary/outputs/sector_dictionaries/r_i_tmbd_dictionary.json,other,,,,,,r_i_tmbd_dictionary,no
+src/morskamary/outputs/sector_dictionaries/renewable_energy_tmbd_dictionary.json,other,,,,,,renewable_energy_tmbd_dictionary,no
+src/morskamary/outputs/sector_dictionaries/ship_repair_tmbd_dictionary.json,other,,,,,,ship_repair_tmbd_dictionary,no
+src/morskamary/outputs/sector_pathways.json,other,,,,,,sector_pathways,no
+src/morskamary/PROMPT_REQUEST_TEMPLATE.txt,text,,,,,,PROMPT_REQUEST_TEMPLATE,yes
+src/morskamary/push_output.txt,text,,,,,,push_output,yes
+src/morskamary/pyproject.toml,other,,,,,,pyproject,no
+src/morskamary/readme,other,,,,,,readme,no
+src/morskamary/README.md,text,,,,,,README,yes
+src/morskamary/requirements.txt,text,,,,,,requirements,yes
+src/morskamary/run_full_analysis.py,other,,,,,,run_full_analysis,no
+src/morskamary/scientific_bridge.py,other,,,,,,scientific_bridge,no
+src/morskamary/scripts/40152_2021_Article_238.PDF,policy_or_literature,,,,,,40152_2021_Article_238,no
+src/morskamary/scripts/Aaa Hab 4_250621_114734.txt,text,,,,,,Aaa_Hab_4_250621_114734,yes
+src/morskamary/scripts/audit_research_api_config.py,other,,,,,,audit_research_api_config,no
+src/morskamary/scripts/Blue Bolt Rotterdam _250106_112646.txt,text,,,,,,Blue_Bolt_Rotterdam__250106_112646,yes
+src/morskamary/scripts/Blue Mind_250421_094727.txt,text,,,,,,Blue_Mind_250421_094727,yes
+src/morskamary/scripts/bootstrap_research_secrets.ps1,other,,,,,,bootstrap_research_secrets,no
+src/morskamary/scripts/bootstrap_research_secrets.sh,other,,,,,,bootstrap_research_secrets,no
+src/morskamary/scripts/Breguła Weird Szczecin_250412_101024.txt,text,,,,,,Breguła_Weird_Szczecin_250412_101024,yes
+src/morskamary/scripts/build_derived.py,other,,,,,,build_derived,no
+src/morskamary/scripts/build_tmbd_dictionary.py,other,,,,,,build_tmbd_dictionary,no
+src/morskamary/scripts/check_research_env.py,other,,,,,,check_research_env,no
+src/morskamary/scripts/convert_pdfs_to_txt.py,other,,,,,,convert_pdfs_to_txt,no
+src/morskamary/scripts/Delft wyjazd_241017_170643.txt,text,,,,,,Delft_wyjazd_241017_170643,yes
+src/morskamary/scripts/Do hab_250403_204509.txt,text,,,,,,Do_hab_250403_204509,yes
+src/morskamary/scripts/export_research_source_capabilities.py,other,,,,,,export_research_source_capabilities,no
+src/morskamary/scripts/generate_manifest.py,other,,,,,,generate_manifest,no
+src/morskamary/scripts/GPT Blue Sociology Prompt 13_02 BIG.txt,text,,,,,,GPT_Blue_Sociology_Prompt_13_02_BIG,yes
+src/morskamary/scripts/GPT Visual Studio Code Blue Economy last article.txt,text,,,,,,GPT_Visual_Studio_Code_Blue_Economy_last,yes
+src/morskamary/scripts/Hab - okazuje_241013_210006.txt,text,,,,,,Hab___okazuje_241013_210006,yes
+src/morskamary/scripts/Hab Hein Culture port cities mindset_250108_081453.txt,text,,,,,,Hab_Hein_Culture_port_cities_mindset_250,yes
+src/morskamary/scripts/Iscot_240905_142040.txt,text,,,,,,Iscot_240905_142040,yes
+src/morskamary/scripts/Materialnosc w morzu_241217_113623.txt,text,,,,,,Materialnosc_w_morzu_241217_113623,yes
+src/morskamary/scripts/pip install pypdf.txt,text,,,,,,pip_install_pypdf,yes
+src/morskamary/scripts/Port Animal-Human Relation_241026_074847.txt,text,,,,,,Port_Animal_Human_Relation_241026_074847,yes
+src/morskamary/scripts/prompt ioanis 12_02 18_37.txt,text,,,,,,prompt_ioanis_12_02_18_37,yes
+src/morskamary/scripts/prompt ioanis 12_02 18_56.txt,text,,,,,,prompt_ioanis_12_02_18_56,yes
+src/morskamary/scripts/prompt ioanis 12_02 18_58 Gemini.txt,text,,,,,,prompt_ioanis_12_02_18_58_Gemini,yes
+src/morskamary/scripts/Prompt Ioanis and Cocco.txt,text,,,,,,Prompt_Ioanis_and_Cocco,yes
+src/morskamary/scripts/README.txt,text,,,,,,README,yes
+src/morskamary/scripts/README_WHATTODO IN LIZBONA 2026 NEW.txt,text,,,,,,README_WHATTODO_IN_LIZBONA_2026_NEW,yes
+src/morskamary/scripts/run_cloudbuild_research_full.ps1,other,,,,,,run_cloudbuild_research_full,no
+src/morskamary/scripts/run_cloudbuild_research_full.sh,other,,,,,,run_cloudbuild_research_full,no
+src/morskamary/scripts/run_research_api_full.ps1,other,,,,,,run_research_api_full,no
+src/morskamary/scripts/run_research_api_full.sh,other,,,,,,run_research_api_full,no
+src/morskamary/scripts/smoke_scientific_bridge.py,other,,,,,,smoke_scientific_bridge,no
+src/morskamary/scripts/Tripatle Blue Value Model WOW.txt,text,,,,,,Tripatle_Blue_Value_Model_WOW,yes
+src/morskamary/scripts/validate_generated_outputs.py,other,,,,,,validate_generated_outputs,no
+src/morskamary/scripts/validate_research_source_outputs.py,other,,,,,,validate_research_source_outputs,no
+src/morskamary/scripts/Wyrzucone przez morze_250521_002507.txt,text,,,,,,Wyrzucone_przez_morze_250521_002507,yes
+src/morskamary/SECURITY.md,text,,,,,,SECURITY,yes
+src/morskamary/security/security-checklist.md,text,,,,,,security_checklist,yes
+src/morskamary/SESSION_SUMMARY.md,text,,,,,,SESSION_SUMMARY,yes
+src/morskamary/setup_one_click.ps1,other,,,,,,setup_one_click,no
+src/morskamary/src/__init__.py,other,,,,,,init,no
+src/morskamary/src/axis_classifier.py,other,,,,,,axis_classifier,no
+src/morskamary/src/competence_mapper.py,other,,,,,,competence_mapper,no
+src/morskamary/src/competence_repository.py,other,,,,,,competence_repository,no
+src/morskamary/src/core.py,other,,,,,,core,no
+src/morskamary/src/dimension_mapping.py,other,,,,,,dimension_mapping,no
+src/morskamary/src/literature_extraction.py,other,,,,,,literature_extraction,no
+src/morskamary/src/nlp_reliability/__init__.py,other,,,,,,init,no
+src/morskamary/src/nlp_reliability/confidence.py,other,,,,,,confidence,no
+src/morskamary/src/nlp_reliability/deduplication.py,other,,,,,,deduplication,no
+src/morskamary/src/nlp_reliability/source_coverage.py,other,,,,,,source_coverage,no
+src/morskamary/src/nlp_reliability/triangulation.py,other,,,,,,triangulation,no
+src/morskamary/src/scientific_sources/__init__.py,other,,,,,,init,no
+src/morskamary/src/scientific_sources/base.py,other,,,,,,base,no
+src/morskamary/src/scientific_sources/crossref.py,other,,,,,,crossref,no
+src/morskamary/src/scientific_sources/elsevier_scopus.py,other,,,,,,elsevier_scopus,no
+src/morskamary/src/scientific_sources/google_drive.py,other,,,,,,google_drive,no
+src/morskamary/src/scientific_sources/microsoft_graph.py,other,,,,,,microsoft_graph,no
+src/morskamary/src/scientific_sources/models.py,other,,,,,,models,no
+src/morskamary/src/scientific_sources/provenance.py,other,,,,,,provenance,no
+src/morskamary/src/scientific_sources/scival.py,other,,,,,,scival,no
+src/morskamary/src/scientific_sources/source_registry.py,other,,,,,,source_registry,no
+src/morskamary/src/scientific_sources/web_of_science.py,other,,,,,,web_of_science,no
+src/morskamary/src/Untitled-1.litcoffee,other,,,,,,Untitled_1,no
+src/morskamary/src/utils.py,other,,,,,,utils,no
+src/morskamary/TEST_COVERAGE_IMPROVEMENTS.md,text,,,,,,TEST_COVERAGE_IMPROVEMENTS,yes
+src/morskamary/TEST_COVERAGE_REPORT.md,text,,,,,,TEST_COVERAGE_REPORT,yes
+src/morskamary/tests/__init__.py,other,,,,,,init,no
+src/morskamary/tests/fixtures/blue_social_competences_sample.csv,dataset_derived,,,,,,blue_social_competences_sample,yes
+src/morskamary/tests/fixtures/empty_competences.csv,dataset_derived,,,,,,empty_competences,yes
+src/morskamary/tests/fixtures/invalid_competences.csv,dataset_derived,,,,,,invalid_competences,yes
+src/morskamary/tests/fixtures/sample_competences.csv,dataset_derived,,,,,,sample_competences,yes
+src/morskamary/tests/fixtures/sample_competences.xlsx,dataset_raw,,,,,,sample_competences,yes
+src/morskamary/tests/test_axis_classifier.py,other,,,,,,test_axis_classifier,no
+src/morskamary/tests/test_bootstrap_ps1_syntax.py,other,,,,,,test_bootstrap_ps1_syntax,no
+src/morskamary/tests/test_build_derived.py,other,,,,,,test_build_derived,no
+src/morskamary/tests/test_build_tmbd_dictionary.py,other,,,,,,test_build_tmbd_dictionary,no
+src/morskamary/tests/test_competence_repository.py,other,,,,,,test_competence_repository,no
+src/morskamary/tests/test_convert_pdfs_to_txt.py,other,,,,,,test_convert_pdfs_to_txt,no
+src/morskamary/tests/test_core.py,other,,,,,,test_core,no
+src/morskamary/tests/test_e2e_workflows.py,other,,,,,,test_e2e_workflows,no
+src/morskamary/tests/test_edge_cases.py,other,,,,,,test_edge_cases,no
+src/morskamary/tests/test_generate_manifest.py,other,,,,,,test_generate_manifest,no
+src/morskamary/tests/test_literature_extraction.py,other,,,,,,test_literature_extraction,no
+src/morskamary/tests/test_load_real_competences.py,other,,,,,,test_load_real_competences,no
+src/morskamary/tests/test_main_entrypoints.py,other,,,,,,test_main_entrypoints,no
+src/morskamary/tests/test_nlp_reliability.py,other,,,,,,test_nlp_reliability,no
+src/morskamary/tests/test_run_full_analysis.py,other,,,,,,test_run_full_analysis,no
+src/morskamary/tests/test_scientific_bridge.py,other,,,,,,test_scientific_bridge,no
+src/morskamary/tests/test_scientific_sources.py,other,,,,,,test_scientific_sources,no
+src/morskamary/tests/test_script_cli.py,other,,,,,,test_script_cli,no
+src/morskamary/tests/test_validate_generated_outputs.py,other,,,,,,test_validate_generated_outputs,no
 src/nlp_reliability/__init__.py,other,,,,,,init,no
 src/nlp_reliability/confidence.py,other,,,,,,confidence,no
 src/nlp_reliability/deduplication.py,other,,,,,,deduplication,no
