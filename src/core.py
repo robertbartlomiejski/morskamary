@@ -2,17 +2,17 @@
 Core utilities and data structures for Blue Sociology analysis
 """
 
-from pathlib import Path
-from typing import Dict, List, Any, Union, TYPE_CHECKING
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 if TYPE_CHECKING:
     from src.scientific_sources.models import LiteratureRecord
 
 
 class BlueDynamicsAxis(Enum):
-    """Tripartite Model of Blue Dynamics (TMBD) axes"""
+    """Quadripartite Model of Blue Dynamics (QMBD) axes"""
 
     MARINE = "M"  # Marine (biophysical agency)
     MARITIME = "T"  # Maritime (techno-economic and institutional mediation)
@@ -38,7 +38,7 @@ class Competence:
         id: Unique identifier
         name: Competence name
         description: Detailed description
-        axis: TMBD axis (Marine, Maritime, Oceanic, or Hydronization)
+        axis: QMBD axis (Marine, Maritime, Oceanic, or Hydronization)
         level: Proficiency level
         keywords: Associated keywords for discovery
     """

@@ -129,6 +129,14 @@ class TestDetectAllThemes:
         themes = _detect_all_themes(empty)
         assert themes[BlueDynamicsAxis.OCEANIC] == ["[CITATION_REQUIRED]"]
 
+    def test_detect_all_themes_is_case_insensitive(self):
+        """Keyword matching should remain case-insensitive."""
+        mixed_case = self._record(
+            title="HyDrOsOcIaL Transition for WATER-SOCIETY Governance"
+        )
+        themes = _detect_all_themes(mixed_case)
+        assert "hydrosocial" in themes[BlueDynamicsAxis.HYDRONIZATION]
+
 
 class TestLoadCompetenceMatrix:
     """Tests for load_competence_matrix function"""
