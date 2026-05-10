@@ -860,21 +860,7 @@ src/cumulative_analysis/__init__.py,other,,,,,,init,no
 src/cumulative_analysis/triangulator.py,other,,,,,,triangulator,no
 src/dimension_mapping.py,other,,,,,,dimension_mapping,no
 src/literature_extraction.py,other,,,,,,literature_extraction,no
-src/morskamary/# Changelog for `2162d953c8d0c13b775dcf3.litcoffee,other,,,,,,Changelog_for__2162d953c8d0c13b775dcf3,no
-src/morskamary/# Changelog for `68efdd831ef476fb3cbdf16.md,text,,,,,,Changelog_for__68efdd831ef476fb3cbdf16,yes
-src/morskamary/# Changelog for `c068036473875707f9d8054.litcoffee,other,,,,,,Changelog_for__c068036473875707f9d8054,no
-src/morskamary/.dockerignore,other,,,,,,dockerignore,no
-src/morskamary/.flake8,other,,,,,,flake8,no
-src/morskamary/.github/add-competence.prompt.md,text,,,,,,add_competence_prompt,yes
-src/morskamary/.github/competence-domain.instructions.md,text,,,,,,competence_domain_instructions,yes
-src/morskamary/.github/copilot-instructions.md,text,,,,,,copilot_instructions,yes
-src/morskamary/.github/integrate-literature.skill.md,text,,,,,,integrate_literature_skill,yes
-src/morskamary/.github/ISSUE_TEMPLATE/bug_report.md,text,,,,,,bug_report,yes
-src/morskamary/.github/ISSUE_TEMPLATE/custom.md,text,,,,,,custom,yes
-src/morskamary/.github/ISSUE_TEMPLATE/feature_request.md,text,,,,,,feature_request,yes
-src/morskamary/.github/repository-guardrails.instructions.md,text,,,,,,repository_guardrails_instructions,yes
-src/morskamary/.github/workflows/blank.yml,other,,,,,,blank,no
-src/morskamary/.github/workflows/ci.yml,other,,,,,,ci,no
+
 src/morskamary/.github/workflows/dependency-submission.yml,other,,,,,,dependency_submission,no
 src/morskamary/.github/workflows/full-analysis.yml,other,,,,,,full_analysis,no
 src/morskamary/.github/workflows/research-api-smoke.yml,other,,,,,,research_api_smoke,no
