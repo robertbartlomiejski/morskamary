@@ -184,6 +184,26 @@ def _to_stage1_compliant_dict(rec: LiteratureRecord) -> Dict[str, Any]:
     }
 
 
+# Stage 1 governance: CSV columns are the bibliographic-metadata-only subset
+# permitted for all providers, including institutional ones.  Note that
+# subject_terms is intentionally excluded from the CSV (it is a list, not a
+# flat scalar) but is present in the JSON export via _to_stage1_compliant_dict.
+# (docs/licensing_and_compliance.md — Category 1/2/3 constraints.)
+STAGE1_CSV_FIELDS: List[str] = [
+    "title",
+    "authors",
+    "year",
+    "doi",
+    "source_id",
+    "provider",
+    "journal",
+    "url",
+    "source_query",
+    "retrieval_timestamp",
+    "licence_note",
+]
+
+
 def export_records_json(records: List[LiteratureRecord], output_path: Path) -> None:
     """Export records as JSON using Stage 1 compliance filtering.
 
@@ -203,48 +223,32 @@ def export_records_json(records: List[LiteratureRecord], output_path: Path) -> N
 def export_records_csv(records: List[LiteratureRecord], output_path: Path) -> None:
     """Export records as CSV using Stage 1 compliance filtering.
 
-    Column set is deliberately limited to bibliographic metadata fields that
-    are safe to commit and redistribute under all provider licence categories
-    (docs/licensing_and_compliance.md — "What you are always allowed to store").
+    Column set is deliberately limited to the fields in ``STAGE1_CSV_FIELDS``
+    which are safe to commit and redistribute under all provider licence
+    categories (docs/licensing_and_compliance.md — "What you are always
+    allowed to store").
 
     Excluded fields (citation_count, abstract_available, abstract_stored) are
     omitted here for the same reasons documented in
     ``_to_stage1_compliant_dict``.
     """
-    # Stage 1 governance: CSV columns are the bibliographic-metadata-only
-    # subset permitted for all providers, including institutional ones.
-    # (docs/licensing_and_compliance.md — Category 1/2/3 constraints.)
-    _CSV_FIELDS = [
-        "title",
-        "authors",
-        "year",
-        "doi",
-        "source_id",
-        "provider",
-        "journal",
-        "url",
-        "source_query",
-        "retrieval_timestamp",
-        "licence_note",
-    ]
     output_path.parent.mkdir(parents=True, exist_ok=True)
     if not records:
         # Write empty CSV with headers only
         with open(output_path, "w", encoding="utf-8", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=_CSV_FIELDS)
+            writer = csv.DictWriter(f, fieldnames=STAGE1_CSV_FIELDS)
             writer.writeheader()
         print(f"Exported 0 records to {output_path}")
         return
 
     with open(output_path, "w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=_CSV_FIELDS)
+        writer = csv.DictWriter(f, fieldnames=STAGE1_CSV_FIELDS)
         writer.writeheader()
         for rec in records:
             compliant = _to_stage1_compliant_dict(rec)
-            # Write only the CSV-designated fields (subject_terms is excluded
-            # from CSV: it is a list and not suited to a flat column format;
-            # it is available in the JSON export).
-            writer.writerow({k: compliant[k] for k in _CSV_FIELDS})
+            # subject_terms is excluded from CSV (list type, not a flat scalar);
+            # it is available in the JSON export.
+            writer.writerow({k: compliant[k] for k in STAGE1_CSV_FIELDS})
     print(f"Exported {len(records)} records to {output_path}")
 
 

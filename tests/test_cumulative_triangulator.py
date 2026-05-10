@@ -187,9 +187,7 @@ class TestIngestStaticBaseline:
     def test_ingest_skips_rows_without_title(self, tmp_path):
         csv_path = _csv_file(
             tmp_path,
-            [_static_row(), {"title": "", "authors": "X", "year": "2024", "doi": "10.0/x",
-                              "journal": "", "url": "", "subject_terms": "",
-                              "source_query": "", "retrieval_timestamp": "", "licence_note": ""}],
+            [_static_row(), _static_row(title="", doi="10.0/x")],
         )
         t = CumulativeTriangulator()
         n = t.ingest_static_baseline(csv_path)

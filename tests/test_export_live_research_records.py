@@ -896,7 +896,10 @@ query_groups:
 # ---------------------------------------------------------------------------
 
 
-from scripts.export_live_research_records import _to_stage1_compliant_dict  # noqa: E402
+from scripts.export_live_research_records import (  # noqa: E402
+    STAGE1_CSV_FIELDS,
+    _to_stage1_compliant_dict,
+)
 
 
 class TestStage1ComplianceFilter:
