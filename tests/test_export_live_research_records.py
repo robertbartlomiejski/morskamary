@@ -889,3 +889,143 @@ query_groups:
         assert result == 1
         captured = capsys.readouterr()
         assert "--providers must not be empty" in captured.err
+
+
+# ---------------------------------------------------------------------------
+# Stage 1 governance compliance tests
+# ---------------------------------------------------------------------------
+
+
+from scripts.export_live_research_records import _to_stage1_compliant_dict  # noqa: E402
+
+
+class TestStage1ComplianceFilter:
+    """Verify that _to_stage1_compliant_dict enforces Stage 1 metadata rules.
+
+    Rules sourced from docs/licensing_and_compliance.md:
+    - Retained: title, authors, year, doi, source_id, provider, journal,
+      url, subject_terms, source_query, retrieval_timestamp, licence_note.
+    - Dropped: citation_count (institutional-provider restriction),
+      abstract_available, abstract_stored (misleading flags for 3rd parties).
+    """
+
+    def _make_full_record(self, **kwargs) -> LiteratureRecord:
+        """Return a LiteratureRecord with all fields populated."""
+        defaults = dict(
+            title="Maritime Governance Study",
+            authors="J. Smith",
+            year="2024",
+            doi="10.0001/test",
+            source_id="crossref:10.0001/test",
+            provider="Crossref",
+            journal="Ocean Studies",
+            url="https://doi.org/10.0001/test",
+            abstract_available=True,
+            abstract_stored=False,
+            citation_count=42,
+            subject_terms=["governance", "blue economy"],
+            source_query="maritime governance",
+            retrieval_timestamp="2024-01-01T00:00:00Z",
+            licence_note="Crossref — freely redistributable",
+        )
+        defaults.update(kwargs)
+        return LiteratureRecord(**defaults)
+
+    def test_permitted_fields_are_present(self):
+        """All Stage 1 permitted bibliographic fields must appear in the output."""
+        rec = self._make_full_record()
+        result = _to_stage1_compliant_dict(rec)
+        for field in (
+            "title",
+            "authors",
+            "year",
+            "doi",
+            "source_id",
+            "provider",
+            "journal",
+            "url",
+            "subject_terms",
+            "source_query",
+            "retrieval_timestamp",
+            "licence_note",
+        ):
+            assert field in result, f"Expected permitted field '{field}' to be present"
+
+    def test_citation_count_is_dropped(self):
+        """citation_count must not appear — restricted for institutional providers."""
+        rec = self._make_full_record(citation_count=99)
+        result = _to_stage1_compliant_dict(rec)
+        assert "citation_count" not in result, (
+            "citation_count must be dropped per docs/licensing_and_compliance.md "
+            "Category 2/3 institutional-provider restrictions"
+        )
+
+    def test_abstract_available_flag_is_dropped(self):
+        """abstract_available flag must not be exported — could mislead redistributors."""
+        rec = self._make_full_record(abstract_available=True)
+        result = _to_stage1_compliant_dict(rec)
+        assert "abstract_available" not in result, (
+            "abstract_available must be dropped per Stage 1 compliance "
+            "(docs/licensing_and_compliance.md — never store abstract content signals)"
+        )
+
+    def test_abstract_stored_flag_is_dropped(self):
+        """abstract_stored flag must not be exported."""
+        rec = self._make_full_record(abstract_stored=True)
+        result = _to_stage1_compliant_dict(rec)
+        assert "abstract_stored" not in result
+
+    def test_compliant_dict_field_values_match_record(self):
+        """Retained field values must match the source record exactly."""
+        rec = self._make_full_record(
+            title="Test Title",
+            authors="A. Author",
+            doi="10.9999/x",
+            subject_terms=["fisheries"],
+            licence_note="open",
+        )
+        result = _to_stage1_compliant_dict(rec)
+        assert result["title"] == "Test Title"
+        assert result["authors"] == "A. Author"
+        assert result["doi"] == "10.9999/x"
+        assert result["subject_terms"] == ["fisheries"]
+        assert result["licence_note"] == "open"
+
+    def test_json_export_omits_restricted_fields(self, tmp_path):
+        """JSON export must not contain citation_count or abstract fields."""
+        rec = self._make_full_record(citation_count=10, abstract_available=True)
+        output_path = tmp_path / "out.json"
+        export_records_json([rec], output_path)
+        import json as _json
+        data = _json.loads(output_path.read_text())
+        assert len(data) == 1
+        row = data[0]
+        assert "citation_count" not in row
+        assert "abstract_available" not in row
+        assert "abstract_stored" not in row
+
+    def test_csv_export_omits_restricted_fields(self, tmp_path):
+        """CSV export must not contain citation_count or abstract field columns."""
+        import csv as _csv
+        rec = self._make_full_record(citation_count=7, abstract_stored=True)
+        output_path = tmp_path / "out.csv"
+        export_records_csv([rec], output_path)
+        with open(output_path, newline="") as f:
+            reader = _csv.DictReader(f)
+            headers = reader.fieldnames or []
+        assert "citation_count" not in headers
+        assert "abstract_available" not in headers
+        assert "abstract_stored" not in headers
+
+    def test_csv_export_includes_licence_note(self, tmp_path):
+        """CSV export must include licence_note column (added by Stage 1 compliance)."""
+        import csv as _csv
+        rec = self._make_full_record(licence_note="Crossref open")
+        output_path = tmp_path / "out.csv"
+        export_records_csv([rec], output_path)
+        with open(output_path, newline="") as f:
+            reader = _csv.DictReader(f)
+            rows = list(reader)
+        assert len(rows) == 1
+        assert rows[0]["licence_note"] == "Crossref open"
+

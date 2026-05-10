@@ -9,11 +9,18 @@ from enum import Enum
 
 
 class BlueDynamicsAxis(Enum):
-    """Tripartite Model of Blue Dynamics (TMBD) axes"""
+    """Quadripartite Model of Blue Dynamics (QMBD) axes.
+
+    The original Tripartite Model (TMBD) comprised Marine/Maritime/Oceanic.
+    The fourth dimension, Hydronization, extends the model following the Manus
+    methodological review while remaining fully backward-compatible: all
+    existing TMBD logic is preserved and the new axis is additive only.
+    """
 
     MARINE = "M"  # Marine (biophysical agency)
     MARITIME = "T"  # Maritime (techno-economic and institutional mediation)
     OCEANIC = "O"  # Oceanic (planetary governance and hydrosocial subjectivity)
+    HYDRONIZATION = "H"  # Hydronization (water-society co-constitution and blue subjectivity)
 
 
 class CompetenceLevel(Enum):
@@ -34,7 +41,7 @@ class Competence:
         id: Unique identifier
         name: Competence name
         description: Detailed description
-        axis: TMBD axis (Marine, Maritime, or Oceanic)
+        axis: QMBD axis (Marine, Maritime, Oceanic, or Hydronization)
         level: Proficiency level
         keywords: Associated keywords for discovery
     """
