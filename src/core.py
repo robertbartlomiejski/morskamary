@@ -23,7 +23,7 @@ class BlueDynamicsAxis(Enum):
     MARINE = "M"  # Marine (biophysical agency)
     MARITIME = "T"  # Maritime (techno-economic and institutional mediation)
     OCEANIC = "O"  # Oceanic (planetary governance and hydrosocial subjectivity)
-    HYDRONIZATION = "H"  # Hydronization (water-society co-constitution)
+    HYDRONIZATION = "H"  # Hydronization dimension
 
 
 class CompetenceLevel(Enum):
