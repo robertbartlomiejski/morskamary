@@ -12,12 +12,12 @@ if TYPE_CHECKING:
 
 
 class BlueDynamicsAxis(Enum):
-    """Quadripartite Model of Blue Dynamics (QMBD) axes"""
+    """Blue Dynamics axes."""
 
     MARINE = "M"  # Marine (biophysical agency)
     MARITIME = "T"  # Maritime (techno-economic and institutional mediation)
     OCEANIC = "O"  # Oceanic (planetary governance and hydrosocial subjectivity)
-    HYDRONIZATION = "H"  # Hydronization (water-society coupling and transitions)
+    HYDRONIZATION = "H"  # Hydronization [citation needed]
 
 
 class CompetenceLevel(Enum):
@@ -38,7 +38,7 @@ class Competence:
         id: Unique identifier
         name: Competence name
         description: Detailed description
-        axis: QMBD axis (Marine, Maritime, Oceanic, or Hydronization)
+        axis: Blue Dynamics axis (Marine, Maritime, Oceanic, or Hydronization)
         level: Proficiency level
         keywords: Associated keywords for discovery
     """
@@ -131,7 +131,7 @@ def _detect_all_themes(record: "LiteratureRecord") -> Dict[BlueDynamicsAxis, Lis
     """
     Detect axis themes from a literature record and return a structured mapping.
 
-    If no axis keywords are found, a single ``[CITATION_REQUIRED]`` marker is added
+    If no axis keywords are found, a single ``[citation needed]`` marker is added
     under ``OCEANIC`` to keep downstream outputs explicit and non-empty.
     """
     themes: Dict[BlueDynamicsAxis, List[str]] = {axis: [] for axis in BlueDynamicsAxis}
@@ -150,7 +150,7 @@ def _detect_all_themes(record: "LiteratureRecord") -> Dict[BlueDynamicsAxis, Lis
         themes[axis] = [keyword for keyword in keywords if keyword in text]
 
     if not any(themes.values()):
-        themes[BlueDynamicsAxis.OCEANIC].append("[CITATION_REQUIRED]")
+        themes[BlueDynamicsAxis.OCEANIC].append("[citation needed]")
 
     return themes
 

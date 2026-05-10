@@ -127,7 +127,7 @@ class TestDetectAllThemes:
             subject_terms=[],
         )
         themes = _detect_all_themes(empty)
-        assert themes[BlueDynamicsAxis.OCEANIC] == ["[CITATION_REQUIRED]"]
+        assert themes[BlueDynamicsAxis.OCEANIC] == ["[citation needed]"]
 
     def test_detect_all_themes_is_case_insensitive(self):
         """Keyword matching should remain case-insensitive."""
