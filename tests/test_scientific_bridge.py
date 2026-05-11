@@ -348,14 +348,16 @@ def test_handle_request_tools_call_dispatch_and_unknown(monkeypatch):
 def test_run_writes_responses_and_internal_errors(monkeypatch, capsys):
     """run should print valid responses and internal-error payloads."""
     bridge = sb.ScientificBridge()
+
+    def _fake_handle_request(request):
+        if request.get("method") == "explode":
+            raise RuntimeError("boom")
+        return {"result": {"content": [{"type": "text", "text": "ok"}]}}
+
     monkeypatch.setattr(
         bridge,
         "handle_request",
-        lambda request: (
-            (_ for _ in ()).throw(RuntimeError("boom"))
-            if request.get("method") == "explode"
-            else {"result": {"content": [{"type": "text", "text": "ok"}]}}
-        ),
+        _fake_handle_request,
     )
     monkeypatch.setattr(
         sb.sys,
