@@ -2,7 +2,6 @@
 
 import csv
 import pytest
-from pathlib import Path
 from scripts.generate_manifest import (
     classify,
     text_available,
