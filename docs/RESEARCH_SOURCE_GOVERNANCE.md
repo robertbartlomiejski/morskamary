@@ -18,7 +18,6 @@ the source provider, provided they are bibliographic (not full-text) data:
 | `journal` / `venue` | Publication venue name |
 | `url` | Persistent URL or DOI link |
 | `subject_terms` | Keywords/subject classifications |
-| `citation_count` | Aggregated citation count (if licensed) |
 | `source_id` | Internal identifier (provider:doi format) |
 | `provider` | Name of the source provider |
 | `retrieval_timestamp` | ISO 8601 timestamp of retrieval |
@@ -30,6 +29,7 @@ The following MUST NOT be stored in derived outputs committed to the repository:
 
 | Field | Reason |
 |---|---|
+| `citation_count` | Retrieved from institutional provider APIs (Scopus, WoS, SciVal) during a session only; always dropped by the Stage 1 compliance filter (`_to_stage1_compliant_dict()`) before any committed export — see `docs/providers.md` — "Stage 1 compliance filter" |
 | Full abstract text | Copyrighted by publisher; redistribution requires explicit licence |
 | Full-text body | Copyrighted; never permitted without explicit licence |
 | Affiliation institutional data | May constitute personal data under GDPR |
@@ -45,16 +45,17 @@ The following MUST NOT be stored in derived outputs committed to the repository:
 - Store: title, authors, year, DOI, journal, URL.
 
 ### Elsevier / Scopus
-- Store only: title, authors, year, DOI, journal, URL, citation count,
-  subject terms.
+- Store only: title, authors, year, DOI, journal, URL, subject terms.
+- `citation_count` may be retrieved from the Scopus API but is always dropped
+  by the Stage 1 compliance filter before any committed export.
 - Do NOT store: full abstracts, full article text, affiliation details,
   or any Scopus database payload unless your institutional licence
   explicitly permits redistribution.
 
 ### Web of Science (Clarivate)
 - Same constraints as Elsevier/Scopus.
-- Aggregated citation counts (Citing Articles count) may be stored if
-  permitted by your institutional licence.
+- Aggregated citation counts may be retrieved from the WoS API but are always
+  dropped by the Stage 1 compliance filter before any committed export.
 
 ### SciVal (Elsevier)
 - Store only: aggregated bibliometric indicators, topic cluster labels,

@@ -126,6 +126,9 @@ exports.
 **Constraints:**
 Institutional subscription and IP entitlement required. Do not store full abstracts
 or affiliation data. Check your institution's Elsevier licence before activating.
+Note: `citation_count` may be retrieved from the API but is **always dropped** by
+the Stage 1 compliance filter before any committed export. See the
+"Stage 1 compliance filter" section at the top of this document.
 
 ---
 
@@ -150,8 +153,11 @@ Title, authors, year, DOI, journal, URL, aggregated citation counts.
 
 **Constraints:**
 Same constraints as Elsevier/Scopus. Do not store raw WoS database payloads.
-Aggregated citation counts may be stored if your institutional licence explicitly
-permits redistribution.
+Aggregated citation counts may be retrieved from the WoS API when your
+institutional licence permits, but `citation_count` is **always dropped** by
+the Stage 1 compliance filter (`_to_stage1_compliant_dict()`) before any export
+is committed to this repository. No committed output file will ever contain
+`citation_count`, regardless of licence.
 
 ---
 
