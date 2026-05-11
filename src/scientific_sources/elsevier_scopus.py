@@ -163,7 +163,7 @@ class ElsevierScopusProvider(BaseProvider):
         ts = datetime.now(timezone.utc).isoformat()
         evidence: List[SourceEvidence] = []
         for rec in records:
-            raw = f"scopus|{query}|{rec.doi}|{ts}"
+            raw = f"scopus|{query}|{rec.doi}|{rec.source_id}|{rec.title}|{ts}"
             evidence.append(
                 SourceEvidence(
                     record_id=rec.source_id,

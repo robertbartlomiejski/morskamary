@@ -691,6 +691,32 @@ def _normalize_title_for_dedup(title: str) -> str:
     return re.sub(r"\W+", " ", title.lower()).strip()
 
 
+def _infer_live_record_sectors(text: str, axis: TMBDAxis) -> List[str]:
+    """Infer a narrow sector scope for a live record using existing theme maps."""
+    text_tokens = set(re.findall(r"\w+", text.lower()))
+    best_theme: Optional[str] = None
+    best_score = -1
+    fallback_theme: Optional[str] = None
+
+    for theme_pool in _LIT_THEMES.values():
+        for axis_name, theme_names in theme_pool.items():
+            if axis_name != axis.name:
+                continue
+            for theme_name in theme_names:
+                if fallback_theme is None:
+                    fallback_theme = theme_name
+                theme_tokens = set(re.findall(r"\w+", theme_name.lower()))
+                score = len(text_tokens & theme_tokens)
+                if score > best_score:
+                    best_score = score
+                    best_theme = theme_name
+
+    chosen_theme = best_theme or fallback_theme
+    if not chosen_theme:
+        return list(SECTORS)
+    return list(_THEME_SECTORS.get(chosen_theme, SECTORS))
+
+
 def extract_literature_competences() -> List[Competence]:
     """
     Extract competences from 3 literature CSV files:
@@ -880,6 +906,7 @@ def extract_live_records_competences(
             subject_terms = [str(subject_terms)] if subject_terms else []
         combined_text = " ".join([title, journal] + [str(t) for t in subject_terms])
         axis = _detect_axis(combined_text, default="OCEANIC")
+        sectors = _infer_live_record_sectors(combined_text, axis)
 
         source = CompetenceSource(
             file=rel_path,
@@ -907,7 +934,7 @@ def extract_live_records_competences(
                     axis.name.lower(),
                     "literature",
                 ],
-                sectors=SECTORS,
+                sectors=sectors,
             )
         )
 

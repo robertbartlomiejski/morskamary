@@ -14,6 +14,7 @@ from run_full_analysis import (
     GapAnalysis,
     MicroCredential,
     TMBDAxis,
+    extract_live_records_competences,
     export_sector_dictionaries,
     generate_micro_credentials,
     main,
@@ -1047,7 +1048,7 @@ class TestCLIAndEdgeCases:
             args = parse_cli_args()
             assert hasattr(args, 'sectors')
             # Default value is an empty list, not None
-            assert args.sectors == [] or args.sectors is None
+            assert args.sectors == []
             assert args.analysis_input_mode == "static"
             assert args.live_records_path == str(DEFAULT_LIVE_RECORDS_JSON)
 
@@ -1195,6 +1196,34 @@ def test_extract_literature_competences_known_theme_uses_specific_sectors(
     # Sector-specific theme must produce exactly the expected sector list, not SECTORS
     assert comp.sectors == expected_sectors
     assert comp.sectors != SECTORS
+
+
+def test_extract_live_records_competences_infers_narrow_theme_sectors(
+    tmp_path: Path,
+) -> None:
+    """Live records should inherit narrowed sector scope from inferred themes."""
+    live_file = tmp_path / "live_records.json"
+    live_file.write_text(
+        json.dumps(
+            [
+                {
+                    "title": "Seafarer welfare and social protection at sea",
+                    "provider": "Web of Science (Clarivate)",
+                    "journal": "Maritime Labour Journal",
+                    "subject_terms": ["seafarer welfare", "social protection"],
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    competences = extract_live_records_competences(live_file)
+    assert len(competences) == 1
+    assert competences[0].sectors == [
+        "Maritime Transport",
+        "Maritime Defence",
+        "Ship Repair",
+    ]
 
 
 def test_extract_literature_competences_seafarer_theme_not_cross_sector(

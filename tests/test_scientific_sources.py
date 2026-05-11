@@ -540,6 +540,39 @@ class TestElsevierScopusConfiguredPaths:
         assert result.records[0].doi == "10.1234/x"
         assert result.provenance
 
+    def test_search_without_dois_has_distinct_provenance_hashes(self, monkeypatch):
+        payload = {
+            "search-results": {
+                "entry": [
+                    {
+                        "dc:title": "Scopus Record One",
+                        "dc:creator": "Ada Lovelace",
+                        "prism:url": "https://example.org/scopus-1",
+                        "prism:publicationName": "Scopus Journal",
+                    },
+                    {
+                        "dc:title": "Scopus Record Two",
+                        "dc:creator": "Grace Hopper",
+                        "prism:url": "https://example.org/scopus-2",
+                        "prism:publicationName": "Scopus Journal",
+                    },
+                ]
+            }
+        }
+
+        def fake_urlopen(req, timeout=12):
+            return _DummyResponse(payload)
+
+        import urllib.request
+
+        monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        provider = ElsevierScopusProvider()
+        result = provider.search("blue economy")
+        hashes = [ev.provenance_hash for ev in result.provenance]
+        assert len(hashes) == 2
+        assert len(set(hashes)) == 2
+
 
 class TestGoogleDriveConfiguredPath:
     def test_search_with_credentials_returns_not_implemented_warning(
@@ -640,6 +673,7 @@ class TestWebOfScienceConfiguredPaths:
         assert result.records[0].doi == "10.3000/wos"
         assert result.records[0].citation_count == 7
         assert result.provenance
+        assert result.provenance[0].source_provider == "Web of Science (Clarivate)"
 
     def test_verify_doi_with_key_returns_parsed_records(self, monkeypatch):
         payload = {
@@ -665,3 +699,32 @@ class TestWebOfScienceConfiguredPaths:
         assert not result.is_empty
         assert result.records[0].doi == "10.1234/x"
         assert result.provenance
+
+    def test_search_without_dois_has_distinct_provenance_hashes(self, monkeypatch):
+        payload = {
+            "hits": [
+                {
+                    "title": "WoS Record One",
+                    "source": {"sourceTitle": "WoS Journal", "publishYear": 2023},
+                    "links": {"record": "https://example.org/wos-1"},
+                },
+                {
+                    "title": "WoS Record Two",
+                    "source": {"sourceTitle": "WoS Journal", "publishYear": 2024},
+                    "links": {"record": "https://example.org/wos-2"},
+                },
+            ]
+        }
+
+        def fake_urlopen(req, timeout=12):
+            return _DummyResponse(payload)
+
+        import urllib.request
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        provider = WebOfScienceProvider()
+        result = provider.search("maritime transport")
+        hashes = [ev.provenance_hash for ev in result.provenance]
+        assert len(hashes) == 2
+        assert len(set(hashes)) == 2

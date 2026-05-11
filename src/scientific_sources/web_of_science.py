@@ -164,11 +164,11 @@ class WebOfScienceProvider(BaseProvider):
         ts = datetime.now(timezone.utc).isoformat()
         evidence: List[SourceEvidence] = []
         for rec in records:
-            raw = f"wos|{query}|{rec.doi}|{ts}"
+            raw = f"wos|{query}|{rec.doi}|{rec.source_id}|{rec.title}|{ts}"
             evidence.append(
                 SourceEvidence(
                     record_id=rec.source_id,
-                    source_provider="Web of Science",
+                    source_provider="Web of Science (Clarivate)",
                     retrieval_mode="live",
                     query=query,
                     api_endpoint_label=endpoint,
