@@ -58,8 +58,7 @@ def _request(url: str, headers: dict[str, str]) -> ProbeResult:
             return ProbeResult("", "present-but-invalid", f"HTTP {exc.code}", exc.code)
         return ProbeResult("", "present-but-invalid", f"HTTP {exc.code}", exc.code)
     except Exception as exc:
-        detail = str(exc)
-        normalized_detail = detail.lower()
+        normalized_detail = str(exc).lower()
         if (
             isinstance(exc, ConnectionResetError)
             or "econnreset" in normalized_detail

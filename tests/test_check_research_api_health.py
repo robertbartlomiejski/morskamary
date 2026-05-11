@@ -5,16 +5,19 @@ import urllib.error
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
 
-def test_request_marks_econnreset_as_transient_network_error() -> None:
+@pytest.mark.parametrize("errno", [104, 10054])
+def test_request_marks_econnreset_as_transient_network_error(errno: int) -> None:
     """_request should classify ECONNRESET as a transient network error."""
     import check_research_api_health
 
     reset_error = urllib.error.URLError(
-        ConnectionResetError(104, "Connection reset by peer")
+        ConnectionResetError(errno, "Connection reset by peer")
     )
     with patch(
         "check_research_api_health.urllib.request.urlopen",
