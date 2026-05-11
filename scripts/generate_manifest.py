@@ -99,12 +99,14 @@ def classify(path: Path) -> str:
         return "manuscript"
     if ext in {".txt", ".md"}:
         return "text"
+    if ext == ".py":
+        return "script"
     return "other"
 
 
 def text_available(path: Path) -> str:
     ext = path.suffix.lower()
-    if ext in {".txt", ".md", ".csv"}:
+    if ext in {".txt", ".md", ".csv", ".py"}:
         return "yes"
     if ext == ".pdf":
         # treat as yes if a sidecar text exists
