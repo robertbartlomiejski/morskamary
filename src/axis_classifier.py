@@ -25,24 +25,78 @@ class AxisClassifier:
     """
 
     KEYWORD_AXIS_MAP = {
-        BlueDynamicsAxis.MARINE: ("ecosystem", "biodiversity", "habitat", "species"),
-        BlueDynamicsAxis.MARITIME: ("port", "shipping", "infrastructure", "logistics"),
-        # Hydronization keywords — water-society co-constitution (QMBD 4th
-        # dimension, Manus methodological review).
-        # "hydronization": direct term for the 4th axis.
-        # "hydrosocial": established in blue-sociology literature; cf. Linton &
-        #   Budds (2014) "The hydrosocial cycle", Geoforum 57, cited in
-        #   docs/literature/Bartłomiejskie Cocco krytyka oceanocentryzmu.txt:912
-        #   and scripts/cumulative_fragment_analysis.py:qmbd_label_from_text.
-        # "wet ontology": Steinberg & Peters (2015) via Bartłomiejski Cocco
-        #   Performatywność wody morza oceanu.txt:2064-2066; also in use in
-        #   scripts/cumulative_fragment_analysis.py:qmbd_label_from_text.
+        BlueDynamicsAxis.MARINE: (
+            "ecosystem",
+            "biodiversity",
+            "habitat",
+            "species",
+            "bio-cycles",
+            "deep-time rhythms",
+            "cofka",
+            "thermohaline circulation",
+            "stewardship",
+            "habitus of seafarers",
+            "marine ecotone",
+            "vibrant materialism",
+            "weather-based risk",
+            "intra-action",
+            "pelagic metabolism",
+            "benthic agency",
+        ),
+        BlueDynamicsAxis.MARITIME: (
+            "port",
+            "shipping",
+            "infrastructure",
+            "logistics",
+            "maritimization",
+            "port 4.0",
+            "growth machine",
+            "blue-washing",
+            "ocean grabbing",
+            "rigid superinfrastructure",
+            "ten-t corridors",
+            "flag of convenience",
+            "throughput tonnage",
+            "logistics algorithms",
+            "supply chain acceleration",
+            "maritime mindset",
+            "cyber-physical port systems",
+        ),
         BlueDynamicsAxis.HYDRONIZATION: (
             "hydronization",
             "hydrosocial",
             "wet ontology",
+            "hydrofeminism",
+            "transcorporeality",
+            "porocity",
+            "sponge city",
+            "liquid materiality",
+            "estuarial hydrofeminism",
+            "bodies of water",
+            "hydrobiography",
+            "metabolism of flows",
+            "porous infrastructure",
+            "hydro-social territory",
         ),
-        BlueDynamicsAxis.OCEANIC: ("governance", "policy", "cooperation", "justice"),
+        BlueDynamicsAxis.OCEANIC: (
+            "governance",
+            "policy",
+            "cooperation",
+            "justice",
+            "hyperobject",
+            "hydrocommons",
+            "blue degrowth",
+            "high sea treaties",
+            "volumetric sovereignty",
+            "tidalectics",
+            "rights of nature",
+            "blue justice",
+            "planetary water",
+            "hydro-solidarity",
+            "ocean literacy",
+            "blue citizenship",
+            "multispecies justice",
+        ),
     }
 
     def classify_axis(self, text: str, dimension: str | None = None) -> BlueDynamicsAxis:
