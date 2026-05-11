@@ -14,7 +14,7 @@ original Tripartite Model of Blue Dynamics (TMBD):
 | Marine | M | Biophysical and ecological agency and constraints |
 | Maritime | T | Techno-economic, infrastructural, labour, and institutional mediation |
 | Oceanic | O | Planetary coupling, multi-level governance, hydrosocial subjectivity |
-| Hydronization | H | Water-society co-constitution, blue subject formation, and hydrosocial mediation |
+| Hydronization | H | Water-society co-constitution, wet-ontological reframing, and hydrosocial mediation |
 
 Every **competence** and competence-derived analysis in the repository maps to
 exactly one of these four axes. This is not optional — the QMBD framework is the
