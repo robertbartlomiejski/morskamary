@@ -375,6 +375,7 @@ def test_run_writes_responses_and_internal_errors(monkeypatch, capsys):
     lines = [line for line in capsys.readouterr().out.strip().splitlines() if line.strip()]
 
     assert len(lines) == 2  # malformed JSON input is ignored by the run loop
+    assert all("not-json" not in line for line in lines)
     ok_payload = json.loads(lines[0])
     error_payload = json.loads(lines[1])
     assert ok_payload["id"] == 1
