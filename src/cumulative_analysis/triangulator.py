@@ -191,6 +191,11 @@ def _normalize_title(title: str) -> str:
     return t
 
 
+def _is_dynamic_record(record: TriangulatedRecord) -> bool:
+    """Return True when a pool slot already contains a live-provider record."""
+    return record.source is not ClaimOrigin.STATIC_BASELINE
+
+
 def _record_from_csv_row(row: Dict[str, str]) -> Optional[TriangulatedRecord]:
     """
     Convert a raw CSV row from the static baseline into a TriangulatedRecord.
@@ -275,13 +280,17 @@ class CumulativeTriangulator:
 
     Deduplication rules
     -------------------
-    1. **DOI-exact match** — a dynamic (Crossref) record whose DOI matches a
-       previously ingested static record replaces it in-place.  This gives the
-       live API record chronological authority while preserving the slot order.
+    1. **DOI-exact match** — a dynamic record whose DOI matches a previously
+       ingested static record replaces it in-place. This gives the live API
+       record chronological authority while preserving the slot order.
     2. **Title-normalised match** — when no DOI is available, the normalised
-       title is used.  A dynamic record that matches a static title replaces
+       title is used. A dynamic record that matches a static title replaces
        the static slot (DOI wins, i.e. the API-sourced variant is preferred).
-    3. All remaining records are kept in ingestion order (static first, then
+    3. **Dynamic duplicate match** — once a slot has been upgraded to a dynamic
+       record, later dynamic records matching that slot by DOI or normalised
+       title are skipped. This preserves first-ingested dynamic provider
+       priority within the dynamic pool.
+    4. All remaining records are kept in ingestion order (static first, then
        dynamic additions).
     """
 
@@ -351,8 +360,10 @@ class CumulativeTriangulator:
         Merge static and dynamic records into a single deduplicated list.
 
         DOI-bearing dynamic records take authority over static records with
-        the same DOI or the same normalised title (DOI-wins policy).  This
-        mirrors the deduplication contract used in
+        the same DOI or the same normalised title (DOI-wins policy).  Once a
+        static slot has been upgraded to a dynamic record, subsequent dynamic
+        duplicates are skipped so the first dynamic provider ingested retains
+        provenance priority.  This mirrors the deduplication contract used in
         ``scripts/export_live_research_records.py``.
 
         Returns:
@@ -389,6 +400,16 @@ class CumulativeTriangulator:
                 # Preserve first-ingested dynamic provider priority.
                 if old_rec.source != ClaimOrigin.STATIC_BASELINE:
                     continue
+
+                if _is_dynamic_record(old_rec):
+                    # A previous dynamic record already claimed this work.
+                    # Preserve first-ingested dynamic priority and only record
+                    # this title variant as seen so later no-DOI duplicates do
+                    # not re-enter as new records.
+                    if norm_title:
+                        seen_titles.add(norm_title)
+                    continue
+
                 # Remove stale title-index entry so a later dynamic record
                 # matching the old static title does not overwrite this slot.
                 old_norm_title = _normalize_title(old_rec.title)
@@ -415,6 +436,17 @@ class CumulativeTriangulator:
                     continue
                 old_norm_doi = _normalize_doi(old_rec.doi) if old_rec.doi else ""
                 # Replace static slot; first dynamic variant is authoritative.
+
+                if _is_dynamic_record(old_rec):
+                    # A previous dynamic record already claimed this title.
+                    # Preserve first-ingested dynamic priority and mark this DOI
+                    # as seen so later DOI duplicates do not append separately.
+                    if norm_doi:
+                        seen_dois.add(norm_doi)
+                    continue
+
+                old_norm_doi = _normalize_doi(old_rec.doi) if old_rec.doi else ""
+                # Replace static slot; dynamic variant is authoritative.
                 pool[idx] = dyn
                 if old_norm_doi and old_norm_doi != norm_doi:
                     if doi_to_idx.get(old_norm_doi) == idx:

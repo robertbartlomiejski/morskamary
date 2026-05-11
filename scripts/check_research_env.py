@@ -80,6 +80,7 @@ def main() -> int:
         ("GOOGLE_DRIVE_OAUTH_CREDENTIALS", "Google Drive OAuth path"),
         ("MICROSOFT_TENANT_ID", "Microsoft Tenant ID"),
         ("MICROSOFT_CLIENT_ID", "Microsoft Client ID"),
+        ("MICROSOFT_CLIENT_SECRET", "Microsoft Client Secret"),
         ("GCP_PROJECT_ID", "GCP Project ID"),
     ]
     for env, label in envs:

@@ -44,7 +44,7 @@ query time. Each record carries a `ClaimOrigin` label:
 
 | Origin | Source | Priority |
 |---|---|---|
-| `DYNAMIC_API_CROSSREF` | Live Crossref API call | Higher — upgrades static record on DOI match |
+| `DYNAMIC_API_CROSSREF` | Live Crossref API call (current triangulator dynamic provenance label) | Higher — upgrades static record on DOI match |
 | `STATIC_BASELINE` | CSV snapshot (e.g., University of Szczecin baseline) | Lower |
 
 Deduplication is DOI-first; title-based fallback uses exact matching on
@@ -109,8 +109,8 @@ to an institutional email address to access the polite pool (better rate limits)
 | Module | `src/scientific_sources/elsevier_scopus.py` |
 | Credential required | Yes — `ELSEVIER_API_KEY` and/or `SCOPUS_API_KEY` |
 | Always configured | No |
-| Live API | Stub — architecture in place, live calls not yet implemented (Phase 2) |
-| Implementation status | Capability-gated stub; returns structured "not configured" when key absent |
+| Live API | Yes — Elsevier Scopus Search API (capability-gated) |
+| Implementation status | Live implementation with structured "not configured" behavior when key absent |
 
 **Why it exists:**
 Scopus is one of the two dominant citation databases for social-science and
@@ -143,8 +143,8 @@ this document. Check your institution's Elsevier licence before activating.
 | Module | `src/scientific_sources/web_of_science.py` |
 | Credential required | Yes — `WOS_API_KEY` |
 | Always configured | No |
-| Live API | Stub — architecture in place, live calls not yet implemented (Phase 2) |
-| Implementation status | Capability-gated stub |
+| Live API | Yes — Clarivate WoS Starter API (capability-gated) |
+| Implementation status | Live implementation with structured "not configured" behavior when key absent |
 
 **Why it exists:**
 Web of Science is the standard citation index for natural and social science
@@ -171,8 +171,8 @@ ever contain `citation_count`, regardless of licence.
 | Module | `src/scientific_sources/scival.py` |
 | Credential required | Yes — `SCIVAL_API_KEY` |
 | Always configured | No |
-| Live API | Stub — architecture in place, live calls not yet implemented (Phase 2) |
-| Implementation status | Capability-gated stub |
+| Live API | Yes — Elsevier SciVal analytics API (capability-gated) |
+| Implementation status | Live implementation with structured "not configured" behavior when key absent |
 
 **Why it exists:**
 SciVal provides aggregated bibliometric indicators and topic cluster labels for

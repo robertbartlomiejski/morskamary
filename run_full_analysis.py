@@ -47,6 +47,7 @@ logging.basicConfig(
     stream=sys.stdout,
 )
 log = logging.getLogger(__name__)
+_TOKEN_PATTERN = re.compile(r"\w+")
 
 # ---------------------------------------------------------------------------
 # Repository constants
@@ -55,6 +56,7 @@ REPO_ROOT = Path(__file__).resolve().parent
 DATA_DERIVED = REPO_ROOT / "data" / "derived"
 DATA_RAW = REPO_ROOT / "data" / "raw"
 OUTPUTS_DIR = REPO_ROOT / "outputs"
+DEFAULT_LIVE_RECORDS_JSON = OUTPUTS_DIR / "research_sources" / "live_records.json"
 REPO_GITHUB_BASE = "https://github.com/robertbartlomiejski/morskamary/blob/main"
 
 # 12 blue economy sectors (canonical names matching the CSV headers)
@@ -678,6 +680,51 @@ def _slugify(text: str) -> str:
     return slugify(text, max_length=60)
 
 
+def _normalize_title_for_dedup(title: str) -> str:
+    """
+    Normalize titles for cross-source deduplication.
+
+    Rules:
+      - convert to lowercase
+      - replace non-word characters with spaces
+      - collapse/strip surrounding whitespace
+    """
+    return re.sub(r"\W+", " ", title.lower()).strip()
+
+
+def _infer_live_record_sectors(text: str, axis: TMBDAxis) -> List[str]:
+    """Infer a narrow sector scope for a live record using existing theme maps.
+
+    Strategy:
+      1. Filter candidate themes to the detected TMBD axis only.
+      2. Score each theme by token-overlap between record text and theme name.
+      3. Select the highest-scoring theme; if all scores are zero, fall back to a
+         deterministic axis-local theme (lexicographically first).
+      4. Map the chosen theme to sectors via _THEME_SECTORS.
+    """
+    text_tokens = set(_TOKEN_PATTERN.findall(text.lower()))
+    axis_theme_names: List[str] = []
+    best_theme: Optional[str] = None
+    best_score = 0
+
+    for theme_pool in _LIT_THEMES.values():
+        for axis_name, theme_names in theme_pool.items():
+            if axis_name != axis.name:
+                continue
+            for theme_name in theme_names:
+                axis_theme_names.append(theme_name)
+                theme_tokens = set(_TOKEN_PATTERN.findall(theme_name.lower()))
+                score = len(text_tokens & theme_tokens)
+                if score > best_score:
+                    best_score = score
+                    best_theme = theme_name
+
+    fallback_theme = sorted(axis_theme_names)[0] if len(axis_theme_names) > 0 else None
+    chosen_theme = best_theme or fallback_theme
+    selected_sectors = _THEME_SECTORS.get(chosen_theme, SECTORS)
+    return list(selected_sectors)
+
+
 def extract_literature_competences() -> List[Competence]:
     """
     Extract competences from 3 literature CSV files:
@@ -736,7 +783,7 @@ def extract_literature_competences() -> List[Competence]:
                     continue
 
                 # Deduplicate across files by normalised title
-                norm_title = re.sub(r"\W+", " ", title.lower()).strip()
+                norm_title = _normalize_title_for_dedup(title)
                 if norm_title in seen_titles:
                     continue
                 seen_titles.add(norm_title)
@@ -803,6 +850,103 @@ def extract_literature_competences() -> List[Competence]:
         )
 
     log.info("  Total literature competences: %d", len(competences))
+    return competences
+
+
+def extract_live_records_competences(
+    live_records_path: Path,
+    known_titles: Optional[Set[str]] = None,
+) -> List[Competence]:
+    """
+    Convert Stage-1 live records JSON into literature-like competence objects.
+
+    Args:
+        live_records_path: Path to outputs/research_sources/live_records.json.
+        known_titles: Optional set of normalized titles to deduplicate against.
+
+    Returns:
+        List of competence objects derived from live API records.
+    """
+    if not live_records_path.exists():
+        log.warning(
+            "Live records file not found (%s) — skipping live enrichment.",
+            live_records_path,
+        )
+        return []
+
+    try:
+        payload = json.loads(live_records_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        log.warning("Failed to parse live records JSON (%s): %s", live_records_path, exc)
+        return []
+
+    if not isinstance(payload, list):
+        log.warning("Live records JSON must be a list: %s", live_records_path)
+        return []
+
+    seen_titles: Set[str] = set(known_titles or set())
+    competences: List[Competence] = []
+    try:
+        rel_path = live_records_path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        # Custom paths may live outside REPO_ROOT; keep source metadata usable.
+        rel_path = live_records_path.resolve().as_posix()
+
+    # start=2 aligns source row references with data-row indexing semantics.
+    for idx, row in enumerate(payload, start=2):
+        if not isinstance(row, dict):
+            continue
+        title = str(row.get("title", "")).strip()
+        if not title:
+            continue
+        norm_title = _normalize_title_for_dedup(title)
+        if norm_title in seen_titles:
+            continue
+        seen_titles.add(norm_title)
+
+        authors = str(row.get("authors", "")).strip()
+        year = str(row.get("year", "")).strip()
+        doi = str(row.get("doi", "")).strip()
+        provider = str(row.get("provider", "")).strip() or "Unknown"
+        journal = str(row.get("journal", "")).strip()
+        subject_terms = row.get("subject_terms", [])
+        if not isinstance(subject_terms, list):
+            subject_terms = [str(subject_terms)] if subject_terms else []
+        combined_text = " ".join([title, journal] + [str(t) for t in subject_terms])
+        axis = _detect_axis(combined_text, default="OCEANIC")
+        sectors = _infer_live_record_sectors(combined_text, axis)
+
+        source = CompetenceSource(
+            file=rel_path,
+            row=idx,
+            authors=authors[:120],
+            year=year,
+            paper_title=title[:120],
+            doi=doi,
+        )
+        comp_id = f"lit_live_{_slugify(provider)}_{idx:05d}"
+        competences.append(
+            Competence(
+                id=comp_id,
+                name=f"Live API ({provider}): {title[:70].rstrip(',. ')}",
+                description=(
+                    "Live-API-derived literature competence from provider "
+                    f"{provider}. Source paper: {title[:120]} ({authors[:60]}, {year})."
+                ),
+                axis=axis,
+                dimension="literature",
+                source=source,
+                keywords=[
+                    "live-api",
+                    _slugify(provider),
+                    axis.name.lower(),
+                    "literature",
+                ],
+                sectors=sectors,
+            )
+        )
+
+    log.info("  Live API competences: %d", len(competences))
     return competences
 
 
@@ -1707,7 +1851,11 @@ def generate_literature_html(
 # ---------------------------------------------------------------------------
 
 
-def main(selected_sectors: Optional[List[str]] = None) -> int:
+def main(
+    selected_sectors: Optional[List[str]] = None,
+    analysis_input_mode: str = "static",
+    live_records_path: Optional[Path] = None,
+) -> int:
     """
     Execute the full analysis pipeline:
       1. Load baseline competences (15 from University of Szczecin CSV)
@@ -1724,6 +1872,7 @@ def main(selected_sectors: Optional[List[str]] = None) -> int:
         Exit code (0 = success, 1 = error)
     """
     target_sectors = selected_sectors or SECTORS
+    live_path = live_records_path or DEFAULT_LIVE_RECORDS_JSON
 
     log.info("=" * 65)
     log.info("Blue Economy Full Analysis — morskamary")
@@ -1742,6 +1891,20 @@ def main(selected_sectors: Optional[List[str]] = None) -> int:
 
     # --- Step 2: Literature competences ---
     literature = extract_literature_competences()
+    if analysis_input_mode == "live-enriched":
+        baseline_titles = {
+            _normalize_title_for_dedup(
+                getattr(c.source, "paper_title", None) or c.name
+            )
+            for c in literature
+        }
+        live_competences = extract_live_records_competences(live_path, baseline_titles)
+        literature.extend(live_competences)
+        log.info(
+            "Live enrichment enabled — merged %d live competences from %s.",
+            len(live_competences),
+            live_path,
+        )
 
     if not literature:
         log.warning("No literature competences extracted — check data/derived files.")
@@ -1853,9 +2016,26 @@ def parse_cli_args() -> argparse.Namespace:
         choices=SECTORS,
         help="Limit execution scope to one or more sectors (repeatable).",
     )
+    parser.add_argument(
+        "--analysis-input-mode",
+        choices=["static", "live-enriched"],
+        default="static",
+        help="Use static literature inputs only, or enrich with live API exports.",
+    )
+    parser.add_argument(
+        "--live-records-path",
+        default=str(DEFAULT_LIVE_RECORDS_JSON),
+        help="Path to live_records.json used when --analysis-input-mode=live-enriched.",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     cli_args = parse_cli_args()
-    sys.exit(main(selected_sectors=cli_args.sectors))
+    sys.exit(
+        main(
+            selected_sectors=cli_args.sectors,
+            analysis_input_mode=cli_args.analysis_input_mode,
+            live_records_path=Path(cli_args.live_records_path),
+        )
+    )

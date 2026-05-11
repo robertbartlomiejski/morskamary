@@ -12,6 +12,7 @@ Covers:
 from __future__ import annotations
 
 import json
+import urllib.request
 
 from src.scientific_sources.models import (
     LiteratureRecord,
@@ -295,6 +296,7 @@ class TestSciValProvider:
         monkeypatch.setenv("SCIVAL_API_KEY", "scivalkey")
         provider = SciValProvider()
         assert provider.capability.configured is True
+        assert "url" in provider.capability.allowed_metadata_fields
 
 
 class TestGoogleDriveProvider:
@@ -475,6 +477,28 @@ class TestCrossrefVerifyDoiNetworkFailure:
 
 
 class TestElsevierScopusConfiguredPaths:
+    def test_search_with_key_returns_parsed_records(self, monkeypatch):
+        payload = {
+            "search-results": {
+                "entry": [
+                    {
+                        "dc:title": "Scopus Blue Economy Paper",
+                        "dc:creator": "Ada Lovelace",
+                        "prism:doi": "10.2000/scopus",
+                        "prism:url": "https://example.org/scopus",
+                        "prism:publicationName": "Scopus Journal",
+                        "prism:coverDate": "2025-03-11",
+                        "citedby-count": "12",
+                        "authkeywords": "blue economy|governance",
+                    }
+                ]
+            }
+        }
+
+        def fake_urlopen(req, timeout=12):
+            return _DummyResponse(payload)
+
+        monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
     """Tests for ElsevierScopusProvider when an API key is present."""
 
     # Minimal synthetic Scopus search-results payload.
@@ -510,15 +534,87 @@ class TestElsevierScopusConfiguredPaths:
         provider = ElsevierScopusProvider()
         result = provider.search("blue economy")
         assert not result.is_empty
+        assert result.records[0].provider == "Scopus"
+        assert result.records[0].doi == "10.9999/scopus-test"
+        assert result.records[0].citation_count == 7
+        assert result.records[0].subject_terms == ["maritime", "governance", "blue economy"]
+        assert result.provenance
+
+    def test_verify_doi_with_key_returns_parsed_records(self, monkeypatch):
+        payload = {
+            "search-results": {
+                "entry": [
+                    {
+                        "dc:title": "Scopus DOI Result",
+                        "dc:creator": "A. Researcher",
+                        "prism:doi": "10.1234/x",
+                        "prism:url": "https://example.org/doi",
+                        "prism:publicationName": "DOI Journal",
+                        "prism:coverDate": "2024-02-01",
+                    }
+                ]
+            }
+        }
+
+        def fake_urlopen(req, timeout=12):
+            return _DummyResponse(payload)
+
+        import urllib.request
+
+        monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        provider = ElsevierScopusProvider()
+        result = provider.verify_doi("10.1234/x")
+        assert not result.is_empty
+        assert result.records[0].doi == "10.1234/x"
+        assert result.provenance
+
+    def test_search_without_dois_has_distinct_provenance_hashes(self, monkeypatch):
+        payload = {
+            "search-results": {
+                "entry": [
+                    {
+                        "dc:title": "Scopus Record One",
+                        "dc:creator": "Ada Lovelace",
+                        "prism:url": "https://example.org/scopus-1",
+                        "prism:publicationName": "Scopus Journal",
+                        "prism:coverDate": "2023-05-01",
+                        "authkeywords": "maritime|governance",
+                    },
+                    {
+                        "dc:title": "Scopus Record Two",
+                        "dc:creator": "Grace Hopper",
+                        "prism:url": "https://example.org/scopus-2",
+                        "prism:publicationName": "Scopus Journal",
+                        "prism:coverDate": "2024-02-10",
+                        "authkeywords": "ports|resilience",
+                    },
+                ]
+            }
+        }
+
+        def fake_urlopen(req, timeout=12):
+            return _DummyResponse(payload)
+
+        import urllib.request
+
+        monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        provider = ElsevierScopusProvider()
+        result = provider.search("blue economy")
+        hashes = [ev.provenance_hash for ev in result.provenance]
+        assert len(hashes) == 2
+        assert len(set(hashes)) == 2
         rec = result.records[0]
-        assert rec.title == "Blue Maritime Governance"
-        assert "Kowalski" in rec.authors
+        assert rec.title == "Scopus Record One"
+        assert "Ada" in rec.authors
         assert rec.year == "2023"
-        assert rec.doi == "10.9999/scopus-test"
-        assert rec.journal == "Ocean Policy"
+        assert rec.doi == ""
+        assert rec.journal == "Scopus Journal"
         assert rec.provider == "Scopus"
-        assert rec.subject_terms == ["maritime", "governance", "blue economy"]
-        assert len(result.provenance) == 1
+        assert rec.subject_terms == ["maritime", "governance"]
+        assert len(result.provenance) == 2
 
     def test_search_sets_stage1_compliance_flags(self, monkeypatch):
         """Scopus records must never store abstract content (Stage 1 governance)."""
@@ -624,23 +720,166 @@ class TestMicrosoftGraphConfiguredPath:
 
 
 class TestSciValConfiguredPaths:
-    def test_search_with_key_returns_not_implemented_warning(self, monkeypatch):
+    def test_search_with_key_returns_topic_records(self, monkeypatch):
+        payload = {
+            "results": [
+                {
+                    "id": "topic-1",
+                    "topicName": "Ocean governance analytics",
+                    "year": 2025,
+                    "keywords": ["ocean", "governance"],
+                }
+            ]
+        }
+
+        def fake_urlopen(req, timeout=12):
+            return _DummyResponse(payload)
+
+        import urllib.request
+
         monkeypatch.setenv("SCIVAL_API_KEY", "scivalkey")
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
         provider = SciValProvider()
         result = provider.search("ocean governance")
-        assert result.warnings
-        assert "not yet implemented" in result.warnings[0].lower()
+        assert not result.is_empty
+        assert result.records[0].provider == "SciVal"
+        assert "SciVal topic" in result.records[0].title
+        assert result.records[0].authors == ""
+        assert result.records[0].journal == ""
+        assert result.provenance
 
-    def test_verify_doi_with_key_returns_not_implemented_warning(self, monkeypatch):
+    def test_verify_doi_with_key_uses_search(self, monkeypatch):
+        payload = {"results": [{"id": "topic-2", "name": "DOI topic"}]}
+
+        def fake_urlopen(req, timeout=12):
+            return _DummyResponse(payload)
+
+        import urllib.request
+
         monkeypatch.setenv("SCIVAL_API_KEY", "scivalkey")
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
         provider = SciValProvider()
         result = provider.verify_doi("10.1234/x")
-        assert result.warnings
-        assert "not yet implemented" in result.warnings[0].lower()
+        assert not result.is_empty
+        assert result.records[0].provider == "SciVal"
 
 
 class TestWebOfScienceConfiguredPaths:
-    """Tests for WebOfScienceProvider when an API key is present."""
+    def test_search_with_key_returns_parsed_records(self, monkeypatch):
+        payload = {
+            "hits": [
+                {
+                    "title": "Web of Science Maritime Paper",
+                    "source": {"sourceTitle": "WoS Journal", "publishYear": 2023},
+                    "identifiers": {"doi": "10.3000/wos"},
+                    "links": {"record": "https://example.org/wos"},
+                    "names": {"authors": [{"displayName": "Grace Hopper"}]},
+                    "keywords": {"authorKeywords": ["maritime", "transport"]},
+                    "timesCited": 7,
+                }
+            ]
+        }
+
+        def fake_urlopen(req, timeout=12):
+            return _DummyResponse(payload)
+
+        import urllib.request
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        provider = WebOfScienceProvider()
+        result = provider.search("maritime transport")
+        assert not result.is_empty
+        assert result.records[0].provider == "Web of Science (Clarivate)"
+        assert result.records[0].doi == "10.3000/wos"
+        assert result.records[0].citation_count == 7
+        assert result.provenance
+        assert result.provenance[0].source_provider == "Web of Science (Clarivate)"
+
+    def test_verify_doi_with_key_returns_parsed_records(self, monkeypatch):
+        payload = {
+            "hits": [
+                {
+                    "title": "WoS DOI Paper",
+                    "source": {"sourceTitle": "DOI Journal", "publishYear": 2024},
+                    "identifiers": {"doi": "10.1234/x"},
+                    "links": {"record": "https://example.org/wos-doi"},
+                }
+            ]
+        }
+
+        def fake_urlopen(req, timeout=12):
+            return _DummyResponse(payload)
+
+        import urllib.request
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        provider = WebOfScienceProvider()
+        result = provider.verify_doi("10.1234/x")
+        assert not result.is_empty
+        assert result.records[0].doi == "10.1234/x"
+        assert result.provenance
+
+    def test_search_without_dois_has_distinct_provenance_hashes(self, monkeypatch):
+        payload = {
+            "hits": [
+                {
+                    "title": "WoS Record One",
+                    "source": {"sourceTitle": "WoS Journal", "publishYear": 2023},
+                    "links": {"record": "https://example.org/wos-1"},
+                },
+                {
+                    "title": "WoS Record Two",
+                    "source": {"sourceTitle": "WoS Journal", "publishYear": 2024},
+                    "links": {"record": "https://example.org/wos-2"},
+                },
+            ]
+        }
+
+        def fake_urlopen(req, timeout=12):
+            return _DummyResponse(payload)
+
+        import urllib.request
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        provider = WebOfScienceProvider()
+        result = provider.search("maritime transport")
+        hashes = [ev.provenance_hash for ev in result.provenance]
+        assert len(hashes) == 2
+        assert len(set(hashes)) == 2
+
+    def test_search_merges_and_deduplicates_keyword_sources(self, monkeypatch):
+        payload = {
+            "hits": [
+                {
+                    "title": "Keyword Merge Paper",
+                    "source": {"sourceTitle": "WoS Journal", "publishYear": 2024},
+                    "identifiers": {"doi": "10.1234/kw"},
+                    "links": {"record": "https://example.org/wos-kw"},
+                    "keywords": {
+                        "authorKeywords": ["shipping", "ports"],
+                        "keywordsPlus": ["ports", "governance"],
+                        "keyword": ["governance", "resilience"],
+                    },
+                }
+            ]
+        }
+
+        def fake_urlopen(req, timeout=12):
+            return _DummyResponse(payload)
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        provider = WebOfScienceProvider()
+        result = provider.search("shipping")
+        assert result.records[0].subject_terms == [
+            "shipping",
+            "ports",
+            "governance",
+            "resilience",
+        ]
 
     # Minimal synthetic WoS Starter API hits payload.
     _WOS_PAYLOAD = {
