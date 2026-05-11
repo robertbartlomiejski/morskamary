@@ -35,6 +35,7 @@ The following MUST NOT be stored in derived outputs committed to the repository:
 
 | Field | Reason |
 |---|---|
+| `citation_count` | Retrieved from institutional provider APIs (Scopus, WoS, SciVal) during a session only; always dropped by the Stage 1 compliance filter (`_to_stage1_compliant_dict()`) before any committed export — see `docs/providers.md` — "Stage 1 compliance filter" |
 | Full abstract text | Copyrighted by publisher; redistribution requires explicit licence |
 | Full-text body | Copyrighted; never permitted without explicit licence |
 | Affiliation institutional data | May constitute personal data under GDPR |
@@ -50,18 +51,23 @@ The following MUST NOT be stored in derived outputs committed to the repository:
 - Store: title, authors, year, DOI, journal, URL.
 
 ### Elsevier / Scopus
-- Store only in Stage 1 committed outputs: title, authors, year, DOI, journal,
-  URL, subject terms.
-- Citation counts may be queried transiently for local verification, but are
-  not stored in Stage 1 outputs.
+- Provider-returned bibliographic fields permitted in Stage 1 committed outputs:
+  title, authors, year, DOI, journal, URL, subject terms.
+- Common provenance fields (`source_id`, `provider`, `retrieval_timestamp`,
+  `licence_note`) are also stored for all records as listed in the
+  "Stage 1 permissible metadata fields" table above.
+- `citation_count` may be queried transiently for local verification, but is
+  always dropped by the Stage 1 compliance filter before any committed export.
 - Do NOT store: full abstracts, full article text, affiliation details,
   or any Scopus database payload unless your institutional licence
   explicitly permits redistribution.
 
 ### Web of Science (Clarivate)
-- Same constraints as Elsevier/Scopus.
-- Citation counts may be queried transiently for local verification, but are
-  not stored in Stage 1 outputs.
+- Same constraints as Elsevier/Scopus. Provider-returned bibliographic fields
+  permitted in Stage 1 outputs: title, authors, year, DOI, journal, URL,
+  subject terms. Common provenance fields are additionally stored as above.
+- `citation_count` may be queried transiently for local verification, but is
+  always dropped by the Stage 1 compliance filter before any committed export.
 
 ### SciVal (Elsevier)
 - Store only: aggregated bibliometric indicators, topic cluster labels,
