@@ -6,26 +6,28 @@
 of maritime sociology for the EU Sustainable Blue Economy and "one ocean" governance.
 
 Its primary function is to support **competence mapping and micro-credential design**
-grounded in the Tripartite Model of Blue Dynamics (TMBD):
+grounded in the Quadripartite Model of Blue Dynamics (QMBD), which extends the
+original Tripartite Model of Blue Dynamics (TMBD):
 
 | Axis | Code | Domain |
 |---|---|---|
 | Marine | M | Biophysical and ecological agency and constraints |
 | Maritime | T | Techno-economic, infrastructural, labour, and institutional mediation |
 | Oceanic | O | Planetary coupling, multi-level governance, hydrosocial subjectivity |
+| Hydronization | H | Water-society co-constitution, blue subject formation, and hydrosocial mediation |
 
 Every **competence** and competence-derived analysis in the repository maps to
-exactly one of these three axes. This is not optional — the TMBD framework is the
+exactly one of these four axes. This is not optional — the QMBD framework is the
 analytic spine of the entire project.
 
 Literature records retrieved from providers (`LiteratureRecord`) are **not**
 automatically classified by axis. Axis assignment for literature is applied
 downstream during competence mapping and manuscript analysis, where a researcher
-or the axis classifier explicitly associates a record with one or more TMBD
+or the axis classifier explicitly associates a record with one or more QMBD
 dimensions. Do not assume that a literature record in the repository has a
 pre-assigned axis.
 
-Clarification on literature axis assignment: TMBD axis assignment is a downstream,
+Clarification on literature axis assignment: QMBD axis assignment is a downstream,
 derived analytical step performed on extracted, deduplicated text fragments (not
 on raw ingested bibliographic metadata). Fragment-level provenance hashing ensures
 that the same DOI-linked sentence is counted only once in cumulative semantic
@@ -52,9 +54,9 @@ The repository combines:
 |---|---|
 | A public-facing API product | No SLA, rate-limiting, or uptime guarantee |
 | A substitute for institutional database subscriptions | Proprietary providers (Scopus, WoS) are capability-gated; access requires your own credentials |
-| A general-purpose literature database | Scope is confined to Blue Sociology, TMBD competences, and EU blue economy policy |
+| A general-purpose literature database | Scope is confined to Blue Sociology, QMBD competences, and EU blue economy policy |
 | A place to store full-text articles or abstracts | Publisher copyright prevents this; only bibliographic metadata fields are permitted |
-| A validated machine-learning system | The TMBD classifier uses a deterministic rule map, not a trained model; reported accuracy reflects rule-label circularity in the current baseline |
+| A validated machine-learning system | The repository's rule-based QMBD/TMBD axis classifier uses a deterministic map, not a trained model; reported accuracy reflects rule-label circularity in the current baseline |
 
 ---
 
