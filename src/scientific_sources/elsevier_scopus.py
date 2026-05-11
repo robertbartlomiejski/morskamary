@@ -27,10 +27,6 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
-from typing import Any, Dict, List
-import urllib.parse
-import urllib.request
-from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from src.scientific_sources.base import BaseProvider
@@ -185,6 +181,7 @@ class ElsevierScopusProvider(BaseProvider):
                     licence_note="Elsevier Scopus bibliographic metadata",
                 )
             )
+        return records
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
@@ -287,15 +284,11 @@ class ElsevierScopusProvider(BaseProvider):
     def _make_evidence(
         self, query: str, endpoint: str, records: List[LiteratureRecord]
     ) -> List[SourceEvidence]:
-        ts = datetime.now(timezone.utc).isoformat()
-        evidence: List[SourceEvidence] = []
-        for rec in records:
-            raw = f"scopus|{query}|{rec.doi}|{rec.source_id}|{rec.title}|{ts}"
         """Create provenance evidence entries for a Scopus search call."""
         ts = datetime.now(timezone.utc).isoformat()
         evidence: List[SourceEvidence] = []
         for rec in records:
-            raw = f"scopus|{query}|{rec.doi}|{ts}"
+            raw = f"scopus|{query}|{rec.doi}|{rec.source_id}|{rec.title}|{ts}"
             phash = hashlib.sha256(raw.encode()).hexdigest()[:16]
             evidence.append(
                 SourceEvidence(
@@ -305,8 +298,6 @@ class ElsevierScopusProvider(BaseProvider):
                     query=query,
                     api_endpoint_label=endpoint,
                     timestamp=ts,
-                    confidence_score=0.85,
-                    provenance_hash=hashlib.sha256(raw.encode()).hexdigest()[:16],
                     confidence_score=0.9,
                     provenance_hash=phash,
                 )
@@ -345,18 +336,6 @@ class ElsevierScopusProvider(BaseProvider):
             )
         except urllib.error.HTTPError as exc:
             return self._http_error_result("search", exc)
-        params = urllib.parse.urlencode(
-            {"query": query, "count": max_results, "field": _SCOPUS_FIELDS}
-        )
-        url = f"{_SCOPUS_API_BASE}?{params}"
-        try:
-            req = urllib.request.Request(url, headers=self._headers())
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                data = json.loads(resp.read().decode())
-            entries = data.get("search-results", {}).get("entry", [])
-            records = self._parse_entries(entries, query)
-            evidence = self._make_evidence(query, "scopus/search", records)
-            return ProviderResult(records=records, provenance=evidence)
         except Exception as exc:
             return ProviderResult(errors=[f"Scopus search error: {exc}"])
 
@@ -383,17 +362,5 @@ class ElsevierScopusProvider(BaseProvider):
             )
         except urllib.error.HTTPError as exc:
             return self._http_error_result("DOI verification", exc)
-        params = urllib.parse.urlencode(
-            {"query": f"DOI({doi})", "count": 1, "field": _SCOPUS_FIELDS}
-        )
-        url = f"{_SCOPUS_API_BASE}?{params}"
-        try:
-            req = urllib.request.Request(url, headers=self._headers())
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                data = json.loads(resp.read().decode())
-            entries = data.get("search-results", {}).get("entry", [])
-            records = self._parse_entries(entries, doi)
-            evidence = self._make_evidence(doi, f"scopus/doi/{doi}", records)
-            return ProviderResult(records=records, provenance=evidence)
         except Exception as exc:
             return ProviderResult(errors=[f"Scopus DOI verification error: {exc}"])

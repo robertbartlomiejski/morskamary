@@ -26,10 +26,6 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
-from typing import Any, Dict, List
-import urllib.parse
-import urllib.request
-from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from src.scientific_sources.base import BaseProvider
@@ -121,13 +117,15 @@ class WebOfScienceProvider(BaseProvider):
         keywords = item.get("keywords", {})
         if not isinstance(keywords, dict):
             return []
+        terms: List[str] = []
         for key in ("authorKeywords", "keywordsPlus", "keyword"):
             value = keywords.get(key)
             if isinstance(value, list):
-                return [str(v).strip() for v in value if str(v).strip()]
-            if isinstance(value, str) and value.strip():
-                return [value.strip()]
-        return []
+                terms.extend(str(v).strip() for v in value if str(v).strip())
+            elif isinstance(value, str) and value.strip():
+                terms.append(value.strip())
+        # Preserve order while removing duplicates.
+        return list(dict.fromkeys(terms))
 
     @staticmethod
     def _extract_citation_count(item: Dict[str, Any]) -> int | None:
@@ -281,15 +279,11 @@ class WebOfScienceProvider(BaseProvider):
     def _make_evidence(
         self, query: str, endpoint: str, records: List[LiteratureRecord]
     ) -> List[SourceEvidence]:
-        ts = datetime.now(timezone.utc).isoformat()
-        evidence: List[SourceEvidence] = []
-        for rec in records:
-            raw = f"wos|{query}|{rec.doi}|{rec.source_id}|{rec.title}|{ts}"
         """Create provenance evidence entries for a WoS search call."""
         ts = datetime.now(timezone.utc).isoformat()
         evidence: List[SourceEvidence] = []
         for rec in records:
-            raw = f"wos|{query}|{rec.doi}|{ts}"
+            raw = f"wos|{query}|{rec.doi}|{rec.source_id}|{rec.title}|{ts}"
             phash = hashlib.sha256(raw.encode()).hexdigest()[:16]
             evidence.append(
                 SourceEvidence(
@@ -299,8 +293,6 @@ class WebOfScienceProvider(BaseProvider):
                     query=query,
                     api_endpoint_label=endpoint,
                     timestamp=ts,
-                    confidence_score=0.85,
-                    provenance_hash=hashlib.sha256(raw.encode()).hexdigest()[:16],
                     confidence_score=0.9,
                     provenance_hash=phash,
                 )
@@ -343,16 +335,6 @@ class WebOfScienceProvider(BaseProvider):
             )
         except urllib.error.HTTPError as exc:
             return self._http_error_result("search", exc)
-        params = urllib.parse.urlencode({"q": query, "limit": max_results, "page": 1})
-        url = f"{_WOS_API_BASE}?{params}"
-        try:
-            req = urllib.request.Request(url, headers=self._headers())
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                data = json.loads(resp.read().decode())
-            hits = data.get("hits", [])
-            records = self._parse_hits(hits, query)
-            evidence = self._make_evidence(query, "wos-starter/documents", records)
-            return ProviderResult(records=records, provenance=evidence)
         except Exception as exc:
             return ProviderResult(errors=[f"Web of Science search error: {exc}"])
 
@@ -380,15 +362,3 @@ class WebOfScienceProvider(BaseProvider):
             return ProviderResult(
                 errors=[f"Web of Science DOI verification error: {exc}"]
             )
-        params = urllib.parse.urlencode({"q": f"DO={doi}", "limit": 1, "page": 1})
-        url = f"{_WOS_API_BASE}?{params}"
-        try:
-            req = urllib.request.Request(url, headers=self._headers())
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                data = json.loads(resp.read().decode())
-            hits = data.get("hits", [])
-            records = self._parse_hits(hits, doi)
-            evidence = self._make_evidence(doi, f"wos-starter/documents/doi/{doi}", records)
-            return ProviderResult(records=records, provenance=evidence)
-        except Exception as exc:
-            return ProviderResult(errors=[f"Web of Science DOI verification error: {exc}"])

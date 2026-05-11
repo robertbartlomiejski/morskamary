@@ -12,6 +12,7 @@ Covers:
 from __future__ import annotations
 
 import json
+import urllib.request
 
 from src.scientific_sources.models import (
     LiteratureRecord,
@@ -496,8 +497,6 @@ class TestElsevierScopusConfiguredPaths:
         def fake_urlopen(req, timeout=12):
             return _DummyResponse(payload)
 
-        import urllib.request
-
         monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
     """Tests for ElsevierScopusProvider when an API key is present."""
 
@@ -535,9 +534,9 @@ class TestElsevierScopusConfiguredPaths:
         result = provider.search("blue economy")
         assert not result.is_empty
         assert result.records[0].provider == "Scopus"
-        assert result.records[0].doi == "10.2000/scopus"
-        assert result.records[0].citation_count == 12
-        assert result.records[0].subject_terms == ["blue economy", "governance"]
+        assert result.records[0].doi == "10.9999/scopus-test"
+        assert result.records[0].citation_count == 7
+        assert result.records[0].subject_terms == ["maritime", "governance", "blue economy"]
         assert result.provenance
 
     def test_verify_doi_with_key_returns_parsed_records(self, monkeypatch):
@@ -579,12 +578,16 @@ class TestElsevierScopusConfiguredPaths:
                         "dc:creator": "Ada Lovelace",
                         "prism:url": "https://example.org/scopus-1",
                         "prism:publicationName": "Scopus Journal",
+                        "prism:coverDate": "2023-05-01",
+                        "authkeywords": "maritime|governance",
                     },
                     {
                         "dc:title": "Scopus Record Two",
                         "dc:creator": "Grace Hopper",
                         "prism:url": "https://example.org/scopus-2",
                         "prism:publicationName": "Scopus Journal",
+                        "prism:coverDate": "2024-02-10",
+                        "authkeywords": "ports|resilience",
                     },
                 ]
             }
@@ -603,14 +606,14 @@ class TestElsevierScopusConfiguredPaths:
         assert len(hashes) == 2
         assert len(set(hashes)) == 2
         rec = result.records[0]
-        assert rec.title == "Blue Maritime Governance"
-        assert "Kowalski" in rec.authors
+        assert rec.title == "Scopus Record One"
+        assert "Ada" in rec.authors
         assert rec.year == "2023"
-        assert rec.doi == "10.9999/scopus-test"
-        assert rec.journal == "Ocean Policy"
+        assert rec.doi == ""
+        assert rec.journal == "Scopus Journal"
         assert rec.provider == "Scopus"
-        assert rec.subject_terms == ["maritime", "governance", "blue economy"]
-        assert len(result.provenance) == 1
+        assert rec.subject_terms == ["maritime", "governance"]
+        assert len(result.provenance) == 2
 
     def test_search_sets_stage1_compliance_flags(self, monkeypatch):
         """Scopus records must never store abstract content (Stage 1 governance)."""
@@ -845,7 +848,37 @@ class TestWebOfScienceConfiguredPaths:
         hashes = [ev.provenance_hash for ev in result.provenance]
         assert len(hashes) == 2
         assert len(set(hashes)) == 2
-    """Tests for WebOfScienceProvider when an API key is present."""
+
+    def test_search_merges_and_deduplicates_keyword_sources(self, monkeypatch):
+        payload = {
+            "hits": [
+                {
+                    "title": "Keyword Merge Paper",
+                    "source": {"sourceTitle": "WoS Journal", "publishYear": 2024},
+                    "identifiers": {"doi": "10.1234/kw"},
+                    "links": {"record": "https://example.org/wos-kw"},
+                    "keywords": {
+                        "authorKeywords": ["shipping", "ports"],
+                        "keywordsPlus": ["ports", "governance"],
+                        "keyword": ["governance", "resilience"],
+                    },
+                }
+            ]
+        }
+
+        def fake_urlopen(req, timeout=12):
+            return _DummyResponse(payload)
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        provider = WebOfScienceProvider()
+        result = provider.search("shipping")
+        assert result.records[0].subject_terms == [
+            "shipping",
+            "ports",
+            "governance",
+            "resilience",
+        ]
 
     # Minimal synthetic WoS Starter API hits payload.
     _WOS_PAYLOAD = {
