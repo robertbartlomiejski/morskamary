@@ -30,6 +30,10 @@ enforces the "bibliographic metadata only" rule regardless of provider category:
 requirements. The filter is the programmatic enforcement of the rules described
 in `docs/licensing_and_compliance.md` (Categories 1–3).
 
+For Stage 1 committed outputs, this rule is unambiguous: `citation_count` is not
+stored or exported for any provider category, even when an institutional API can
+return it for transient research use.
+
 ---
 
 ## Cumulative triangulation
@@ -125,7 +129,9 @@ exports.
 
 **Constraints:**
 Institutional subscription and IP entitlement required. Do not store full abstracts
-or affiliation data. Check your institution's Elsevier licence before activating.
+or affiliation data. Citation counts may be queried for local verification, but
+Stage 1 committed outputs still drop `citation_count` via the compliance filter.
+Check your institution's Elsevier licence before activating.
 
 ---
 
@@ -150,8 +156,8 @@ Title, authors, year, DOI, journal, URL, aggregated citation counts.
 
 **Constraints:**
 Same constraints as Elsevier/Scopus. Do not store raw WoS database payloads.
-Aggregated citation counts may be stored if your institutional licence explicitly
-permits redistribution.
+Citation counts may be queried for local verification, but Stage 1 committed
+outputs still drop `citation_count` via the compliance filter.
 
 ---
 

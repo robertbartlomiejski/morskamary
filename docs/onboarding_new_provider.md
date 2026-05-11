@@ -76,7 +76,7 @@ Before writing any code, add a new section at the end of this document describin
 - Permitted metadata fields (with justification)
 - Credential type and storage plan
 - Reason for adding (what gap does it fill)
-- TMBD relevance (which axes does it primarily serve)
+- QMBD axis relevance (which axes does it primarily serve)
 
 Commit this document update on its own, before any code changes. This creates an
 auditable record of the intent, separate from the implementation.
