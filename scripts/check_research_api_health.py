@@ -58,17 +58,16 @@ def _request(url: str, headers: dict[str, str]) -> ProbeResult:
             return ProbeResult("", "present-but-invalid", f"HTTP {exc.code}", exc.code)
         return ProbeResult("", "present-but-invalid", f"HTTP {exc.code}", exc.code)
     except Exception as exc:
-        reset_reason = (
+        is_wrapped_reset_error = (
             isinstance(exc, urllib.error.URLError)
             and isinstance(exc.reason, ConnectionResetError)
         )
+        if isinstance(exc, ConnectionResetError) or is_wrapped_reset_error:
+            return ProbeResult(
+                "", "transient-network-error", "ECONNRESET: connection reset", None
+            )
         normalized_detail = str(exc).lower()
-        if (
-            isinstance(exc, ConnectionResetError)
-            or reset_reason
-            or "econnreset" in normalized_detail
-            or "connection reset" in normalized_detail
-        ):
+        if "econnreset" in normalized_detail or "connection reset" in normalized_detail:
             return ProbeResult(
                 "", "transient-network-error", "ECONNRESET: connection reset", None
             )
