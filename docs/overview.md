@@ -27,10 +27,11 @@ existing TMBD logic is preserved and the new axis is additive only. See
 
 Literature records retrieved from providers (`LiteratureRecord`) are **not**
 automatically classified by axis. Axis assignment for literature is applied
-downstream during competence mapping and manuscript analysis, where a researcher
-or the axis classifier explicitly associates a record with one or more QMBD
-dimensions. Do not assume that a literature record in the repository has a
-pre-assigned axis.
+downstream during competence mapping and manuscript analysis. The automated
+`AxisClassifier` assigns **exactly one** QMBD axis label per text fragment;
+researchers may manually associate a record with more than one axis, but the
+classifier itself is single-label. Do not assume that a literature record in the
+repository has a pre-assigned axis.
 
 Clarification on literature axis assignment: QMBD axis assignment is a downstream,
 derived analytical step performed on extracted, deduplicated text fragments (not
