@@ -156,9 +156,11 @@ def test_format_citation_markdown_error_and_year_only():
 
     assert bridge.format_citation_markdown({"error": "not found"}) == "⚠️ not found"
 
-    text = bridge.format_citation_markdown({"title": "Only Year", "year": "2024"})
-    assert "**Only Year**" in text
-    assert "(2024)" in text
+    markdown_output = bridge.format_citation_markdown(
+        {"title": "Only Year", "year": "2024"}
+    )
+    assert "**Only Year**" in markdown_output
+    assert "(2024)" in markdown_output
 
 
 def test_handle_list_capabilities_formats_provider_status(monkeypatch):
@@ -372,7 +374,7 @@ def test_run_writes_responses_and_internal_errors(monkeypatch, capsys):
     bridge.run()
     lines = [line for line in capsys.readouterr().out.strip().splitlines() if line.strip()]
 
-    assert len(lines) == 2
+    assert len(lines) == 2  # malformed JSON input is ignored by the run loop
     ok_payload = json.loads(lines[0])
     error_payload = json.loads(lines[1])
     assert ok_payload["id"] == 1
