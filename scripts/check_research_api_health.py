@@ -8,7 +8,7 @@ Statuses:
 - missing
 - present-but-invalid
 - rate-limited
-- transient-network-error
+- transient-network-error (temporary transport failure, e.g., ECONNRESET)
 - ok
 """
 
@@ -58,9 +58,14 @@ def _request(url: str, headers: dict[str, str]) -> ProbeResult:
             return ProbeResult("", "present-but-invalid", f"HTTP {exc.code}", exc.code)
         return ProbeResult("", "present-but-invalid", f"HTTP {exc.code}", exc.code)
     except Exception as exc:
+        reset_reason = (
+            isinstance(exc, urllib.error.URLError)
+            and isinstance(exc.reason, ConnectionResetError)
+        )
         normalized_detail = str(exc).lower()
         if (
             isinstance(exc, ConnectionResetError)
+            or reset_reason
             or "econnreset" in normalized_detail
             or "connection reset" in normalized_detail
         ):

@@ -12,18 +12,18 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
 
 @pytest.mark.parametrize(
-    "errno",
+    "reset_errno",
     [
         pytest.param(104, id="linux-econnreset"),
         pytest.param(10054, id="windows-wsaeconnreset"),
     ],
 )
-def test_request_marks_econnreset_as_transient_network_error(errno: int) -> None:
+def test_request_marks_econnreset_as_transient_network_error(reset_errno: int) -> None:
     """_request should classify ECONNRESET as a transient network error."""
     import check_research_api_health
 
     reset_error = urllib.error.URLError(
-        ConnectionResetError(errno, "Connection reset by peer")
+        ConnectionResetError(reset_errno, "Connection reset by peer")
     )
     with patch(
         "check_research_api_health.urllib.request.urlopen",
