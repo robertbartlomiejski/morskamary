@@ -2,22 +2,26 @@
 Cumulative Triangulation Engine — Stage 1 / QMBD synthesis.
 
 Merges the static University of Szczecin baseline (CSV) with dynamic
-Crossref ``LiteratureRecord`` outputs into a single, deduplicated,
-strongly-provenanced record set suitable for QMBD matrix construction.
+API ``LiteratureRecord`` outputs (Crossref, Scopus, WoS, SciVal, Drive,
+Graph) into a single, deduplicated, strongly-provenanced record set
+suitable for QMBD matrix construction.
 
 Provenance typing
 -----------------
 Every record in the triangulated output carries a ``ClaimOrigin`` label
-that identifies whether the evidence came from the static baseline or
-from a live API call.  This satisfies the data-lineage requirement of the
-``DATA_GOVERNANCE.txt`` FAIR traceability rules.
+that identifies the specific provider that produced the evidence.  This
+satisfies the data-lineage requirement of the ``DATA_GOVERNANCE.txt``
+FAIR traceability rules and allows downstream analysis to distinguish
+open (Crossref) from institutional (Scopus, WoS, SciVal) records.
 
 Deduplication policy
 --------------------
 DOI takes chronological authority: if the same work appears in both the
-static baseline and the live API output (matched by DOI or by normalised
-title), the DYNAMIC_API_CROSSREF variant replaces the STATIC_BASELINE
-variant.  This reflects the "DOI wins" principle described in
+static baseline and a live API output (matched by DOI or by normalised
+title), the dynamic variant replaces the STATIC_BASELINE variant.  When
+multiple live providers return the same DOI, the first dynamic record
+ingested wins (insertion-order priority within the dynamic pool).  This
+reflects the "DOI wins" principle described in
 ``docs/licensing_and_compliance.md`` (Category 1 — Open providers) and
 the deduplication contract already established in
 ``scripts/export_live_research_records.py``.
@@ -49,10 +53,69 @@ class ClaimOrigin(Enum):
         ``src.scientific_sources.crossref.CrossrefProvider``.  These records
         are freely redistributable under Category 1 (Open providers) rules
         defined in ``docs/licensing_and_compliance.md``.
+
+    DYNAMIC_API_SCOPUS
+        The record originated from a live Elsevier Scopus API query mediated
+        by ``src.scientific_sources.elsevier_scopus.ElsevierScopusProvider``.
+        Subject to institutional licence constraints (Category 2).
+
+    DYNAMIC_API_WOS
+        The record originated from a live Clarivate Web of Science API query
+        mediated by ``src.scientific_sources.web_of_science.WebOfScienceProvider``.
+        Subject to institutional licence constraints (Category 2).
+
+    DYNAMIC_API_SCIVAL
+        The record originated from an Elsevier SciVal analytics query mediated
+        by ``src.scientific_sources.scival.SciValProvider``.  SciVal records
+        contain aggregated bibliometric indicators and topic labels only
+        (Category 3 — restricted analytics).
+
+    DYNAMIC_API_GOOGLE_DRIVE
+        The record originated from a Google Drive metadata index mediated by
+        ``src.scientific_sources.google_drive.GoogleDriveProvider``.  Only
+        sanitised document metadata (title, year, DOI, file ID) is stored.
+
+    DYNAMIC_API_MICROSOFT_GRAPH
+        The record originated from a Microsoft Graph / OneDrive metadata index
+        mediated by ``src.scientific_sources.microsoft_graph.MicrosoftGraphProvider``.
+        Only sanitised document metadata is stored.
     """
 
     STATIC_BASELINE = "static_baseline"
     DYNAMIC_API_CROSSREF = "dynamic_api_crossref"
+    DYNAMIC_API_SCOPUS = "dynamic_api_scopus"
+    DYNAMIC_API_WOS = "dynamic_api_wos"
+    DYNAMIC_API_SCIVAL = "dynamic_api_scival"
+    DYNAMIC_API_GOOGLE_DRIVE = "dynamic_api_google_drive"
+    DYNAMIC_API_MICROSOFT_GRAPH = "dynamic_api_microsoft_graph"
+
+
+# ---------------------------------------------------------------------------
+# Provider → ClaimOrigin mapping
+# ---------------------------------------------------------------------------
+
+# Maps normalised provider name strings (as set in LiteratureRecord.provider)
+# to their ClaimOrigin enum member.  Matching is case-insensitive.
+# Unknown providers default to DYNAMIC_API_CROSSREF (open, least-restrictive).
+_PROVIDER_CLAIM_ORIGIN: Dict[str, ClaimOrigin] = {
+    "crossref": ClaimOrigin.DYNAMIC_API_CROSSREF,
+    "scopus": ClaimOrigin.DYNAMIC_API_SCOPUS,
+    "elsevier / scopus": ClaimOrigin.DYNAMIC_API_SCOPUS,
+    "web of science (clarivate)": ClaimOrigin.DYNAMIC_API_WOS,
+    "elsevier scival": ClaimOrigin.DYNAMIC_API_SCIVAL,
+    "google drive": ClaimOrigin.DYNAMIC_API_GOOGLE_DRIVE,
+    "microsoft graph (onedrive/sharepoint)": ClaimOrigin.DYNAMIC_API_MICROSOFT_GRAPH,
+}
+
+
+def _claim_origin_for_provider(provider: str) -> ClaimOrigin:
+    """Return the ClaimOrigin enum member for a given provider name string.
+
+    Matching is case-insensitive.  Unknown providers default to
+    DYNAMIC_API_CROSSREF so that the triangulator never crashes on a new
+    provider added to the registry without a corresponding mapping entry.
+    """
+    return _PROVIDER_CLAIM_ORIGIN.get(provider.strip().lower(), ClaimOrigin.DYNAMIC_API_CROSSREF)
 
 
 @dataclass
@@ -128,6 +191,11 @@ def _normalize_title(title: str) -> str:
     return t
 
 
+def _is_dynamic_record(record: TriangulatedRecord) -> bool:
+    """Return True when a pool slot already contains a live-provider record."""
+    return record.source is not ClaimOrigin.STATIC_BASELINE
+
+
 def _record_from_csv_row(row: Dict[str, str]) -> Optional[TriangulatedRecord]:
     """
     Convert a raw CSV row from the static baseline into a TriangulatedRecord.
@@ -169,6 +237,11 @@ def _record_from_literature_record(rec: LiteratureRecord) -> TriangulatedRecord:
     """
     Convert a live-API ``LiteratureRecord`` into a ``TriangulatedRecord``.
 
+    The ``ClaimOrigin`` is derived from ``rec.provider`` via
+    ``_claim_origin_for_provider`` so that records from Scopus, WoS, SciVal,
+    Google Drive, and Microsoft Graph carry distinct provenance labels rather
+    than being incorrectly marked as DYNAMIC_API_CROSSREF.
+
     Bibliographic metadata fields are copied directly; fields excluded by
     Stage 1 governance (citation_count, abstract_available, abstract_stored)
     are not forwarded (docs/licensing_and_compliance.md — Category 1/2/3).
@@ -178,7 +251,7 @@ def _record_from_literature_record(rec: LiteratureRecord) -> TriangulatedRecord:
         authors=rec.authors,
         year=rec.year,
         doi=rec.doi,
-        source=ClaimOrigin.DYNAMIC_API_CROSSREF,
+        source=_claim_origin_for_provider(rec.provider),
         provider=rec.provider,
         journal=rec.journal,
         url=rec.url,
@@ -207,13 +280,17 @@ class CumulativeTriangulator:
 
     Deduplication rules
     -------------------
-    1. **DOI-exact match** — a dynamic (Crossref) record whose DOI matches a
-       previously ingested static record replaces it in-place.  This gives the
-       live API record chronological authority while preserving the slot order.
+    1. **DOI-exact match** — a dynamic record whose DOI matches a previously
+       ingested static record replaces it in-place. This gives the live API
+       record chronological authority while preserving the slot order.
     2. **Title-normalised match** — when no DOI is available, the normalised
-       title is used.  A dynamic record that matches a static title replaces
+       title is used. A dynamic record that matches a static title replaces
        the static slot (DOI wins, i.e. the API-sourced variant is preferred).
-    3. All remaining records are kept in ingestion order (static first, then
+    3. **Dynamic duplicate match** — once a slot has been upgraded to a dynamic
+       record, later dynamic records matching that slot by DOI or normalised
+       title are skipped. This preserves first-ingested dynamic provider
+       priority within the dynamic pool.
+    4. All remaining records are kept in ingestion order (static first, then
        dynamic additions).
     """
 
@@ -254,11 +331,16 @@ class CumulativeTriangulator:
 
     def ingest_dynamic_records(self, records: List[LiteratureRecord]) -> int:
         """
-        Load dynamic API records (``LiteratureRecord`` objects from Crossref).
+        Load dynamic API records (``LiteratureRecord`` objects from any provider).
+
+        The ``ClaimOrigin`` of each ingested record is determined automatically
+        from its ``provider`` field via ``_claim_origin_for_provider``, so
+        records from Crossref, Scopus, WoS, SciVal, Google Drive, and
+        Microsoft Graph all carry distinct provenance labels.
 
         Args:
-            records: List of ``LiteratureRecord`` objects from
-                     ``src.scientific_sources.crossref.CrossrefProvider``.
+            records: List of ``LiteratureRecord`` objects from any configured
+                     provider in ``src.scientific_sources``.
 
         Returns:
             Number of records ingested.
@@ -278,8 +360,10 @@ class CumulativeTriangulator:
         Merge static and dynamic records into a single deduplicated list.
 
         DOI-bearing dynamic records take authority over static records with
-        the same DOI or the same normalised title (DOI-wins policy).  This
-        mirrors the deduplication contract used in
+        the same DOI or the same normalised title (DOI-wins policy).  Once a
+        static slot has been upgraded to a dynamic record, subsequent dynamic
+        duplicates are skipped so the first dynamic provider ingested retains
+        provenance priority.  This mirrors the deduplication contract used in
         ``scripts/export_live_research_records.py``.
 
         Returns:
@@ -313,6 +397,16 @@ class CumulativeTriangulator:
             if norm_doi and norm_doi in doi_to_idx:
                 idx = doi_to_idx[norm_doi]
                 old_rec = pool[idx]
+
+                if _is_dynamic_record(old_rec):
+                    # A previous dynamic record already claimed this work.
+                    # Preserve first-ingested dynamic priority and only record
+                    # this title variant as seen so later no-DOI duplicates do
+                    # not re-enter as new records.
+                    if norm_title:
+                        seen_titles.add(norm_title)
+                    continue
+
                 # Remove stale title-index entry so a later dynamic record
                 # matching the old static title does not overwrite this slot.
                 old_norm_title = _normalize_title(old_rec.title)
@@ -333,8 +427,23 @@ class CumulativeTriangulator:
             # --- Title-normalised upgrade ------------------------------------
             if norm_title and norm_title in title_to_idx:
                 idx = title_to_idx[norm_title]
+                old_rec = pool[idx]
+
+                if _is_dynamic_record(old_rec):
+                    # A previous dynamic record already claimed this title.
+                    # Preserve first-ingested dynamic priority and mark this DOI
+                    # as seen so later DOI duplicates do not append separately.
+                    if norm_doi:
+                        seen_dois.add(norm_doi)
+                    continue
+
+                old_norm_doi = _normalize_doi(old_rec.doi) if old_rec.doi else ""
                 # Replace static slot; dynamic variant is authoritative.
                 pool[idx] = dyn
+                if old_norm_doi and old_norm_doi != norm_doi:
+                    if doi_to_idx.get(old_norm_doi) == idx:
+                        del doi_to_idx[old_norm_doi]
+                    seen_dois.discard(old_norm_doi)
                 if norm_doi:
                     doi_to_idx[norm_doi] = idx
                     seen_dois.add(norm_doi)

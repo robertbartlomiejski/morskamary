@@ -896,6 +896,7 @@ tests/test_convert_pdfs_to_txt.py,script,,,,,,test_convert_pdfs_to_txt,yes
 tests/test_core.py,script,,,,,,test_core,yes
 tests/test_cumulative_fragment_analysis.py,script,,,,,,test_cumulative_fragment_analysis,yes
 tests/test_cumulative_triangulator.py,script,,,,,,test_cumulative_triangulator,yes
+tests/test_cumulative_triangulator_dynamic_priority.py,script,,,,,,test_cumulative_triangulator_dynamic_pri,yes
 tests/test_e2e_workflows.py,script,,,,,,test_e2e_workflows,yes
 tests/test_edge_cases.py,script,,,,,,test_edge_cases,yes
 tests/test_export_live_research_records.py,script,,,,,,test_export_live_research_records,yes

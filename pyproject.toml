@@ -43,11 +43,9 @@ dev = [
 "Github" = "https://github.com/robertbartlomiejski/morskamary"
 "Documentation" = "https://github.com/robertbartlomiejski/morskamary/blob/main/README.md"
 
-[tool.setuptools]
-package-dir = {"" = "src"}
-
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["."]
+include = ["src*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
