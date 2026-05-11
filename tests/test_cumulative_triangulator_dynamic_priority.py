@@ -71,3 +71,32 @@ def test_same_normalized_title_first_dynamic_provider_wins_after_static_upgrade(
 
     assert len(out) == 1
     assert out[0].provider == "Crossref"
+
+
+def test_title_upgrade_removes_old_static_doi_index(tmp_path: Path):
+    t = CumulativeTriangulator()
+    t.ingest_static_baseline(
+        _baseline_csv(tmp_path, "Shared Normalized Title", "10.1000/static-doi")
+    )
+    t.ingest_dynamic_records(
+        [
+            _record(
+                "Shared Normalized Title",
+                "10.1000/crossref-doi",
+                "Crossref",
+                "crossref:10.1000/crossref-doi",
+            ),
+            _record(
+                "A distinct Scopus record",
+                "10.1000/static-doi",
+                "Scopus",
+                "scopus:10.1000/static-doi",
+            ),
+        ]
+    )
+
+    out = t.triangulate()
+
+    assert len(out) == 2
+    providers = {rec.provider for rec in out}
+    assert providers == {"Crossref", "Scopus"}
