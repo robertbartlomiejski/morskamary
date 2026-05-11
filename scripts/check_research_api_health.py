@@ -62,7 +62,6 @@ def _request(url: str, headers: dict[str, str]) -> ProbeResult:
         if (
             isinstance(exc, ConnectionResetError)
             or "econnreset" in normalized_detail
-            or "econreset" in normalized_detail
             or "connection reset" in normalized_detail
         ):
             return ProbeResult(
