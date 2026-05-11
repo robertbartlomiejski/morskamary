@@ -13,7 +13,6 @@ Verifies:
 from __future__ import annotations
 
 import csv
-import io
 from pathlib import Path
 
 import pytest
@@ -24,6 +23,7 @@ from src.cumulative_analysis.triangulator import (
     TriangulatedRecord,
     _normalize_doi,
     _normalize_title,
+    _claim_origin_for_provider,
 )
 from src.scientific_sources.models import LiteratureRecord
 
@@ -112,8 +112,57 @@ class TestClaimOrigin:
     def test_dynamic_api_crossref_value(self):
         assert ClaimOrigin.DYNAMIC_API_CROSSREF.value == "dynamic_api_crossref"
 
-    def test_two_members(self):
-        assert len(list(ClaimOrigin)) == 2
+    def test_all_claim_origin_members(self):
+        """ClaimOrigin must contain exactly the canonical seven provenance labels."""
+        expected = {
+            "STATIC_BASELINE",
+            "DYNAMIC_API_CROSSREF",
+            "DYNAMIC_API_SCOPUS",
+            "DYNAMIC_API_WOS",
+            "DYNAMIC_API_SCIVAL",
+            "DYNAMIC_API_GOOGLE_DRIVE",
+            "DYNAMIC_API_MICROSOFT_GRAPH",
+        }
+        assert {m.name for m in ClaimOrigin} == expected
+
+    def test_new_provider_values(self):
+        assert ClaimOrigin.DYNAMIC_API_SCOPUS.value == "dynamic_api_scopus"
+        assert ClaimOrigin.DYNAMIC_API_WOS.value == "dynamic_api_wos"
+        assert ClaimOrigin.DYNAMIC_API_SCIVAL.value == "dynamic_api_scival"
+        assert ClaimOrigin.DYNAMIC_API_GOOGLE_DRIVE.value == "dynamic_api_google_drive"
+        assert ClaimOrigin.DYNAMIC_API_MICROSOFT_GRAPH.value == "dynamic_api_microsoft_graph"
+
+
+class TestClaimOriginForProvider:
+    """Tests for the _claim_origin_for_provider mapping helper."""
+
+    def test_crossref_maps_correctly(self):
+        assert _claim_origin_for_provider("Crossref") == ClaimOrigin.DYNAMIC_API_CROSSREF
+
+    def test_scopus_maps_correctly(self):
+        assert _claim_origin_for_provider("Scopus") == ClaimOrigin.DYNAMIC_API_SCOPUS
+
+    def test_elsevier_scopus_maps_correctly(self):
+        assert _claim_origin_for_provider("Elsevier / Scopus") == ClaimOrigin.DYNAMIC_API_SCOPUS
+
+    def test_wos_maps_correctly(self):
+        assert _claim_origin_for_provider("Web of Science (Clarivate)") == ClaimOrigin.DYNAMIC_API_WOS
+
+    def test_scival_maps_correctly(self):
+        assert _claim_origin_for_provider("Elsevier SciVal") == ClaimOrigin.DYNAMIC_API_SCIVAL
+
+    def test_google_drive_maps_correctly(self):
+        assert _claim_origin_for_provider("Google Drive") == ClaimOrigin.DYNAMIC_API_GOOGLE_DRIVE
+
+    def test_microsoft_graph_maps_correctly(self):
+        assert _claim_origin_for_provider("Microsoft Graph (OneDrive/SharePoint)") == ClaimOrigin.DYNAMIC_API_MICROSOFT_GRAPH
+
+    def test_case_insensitive_matching(self):
+        assert _claim_origin_for_provider("CROSSREF") == ClaimOrigin.DYNAMIC_API_CROSSREF
+        assert _claim_origin_for_provider("scopus") == ClaimOrigin.DYNAMIC_API_SCOPUS
+
+    def test_unknown_provider_defaults_to_crossref(self):
+        assert _claim_origin_for_provider("UnknownProvider") == ClaimOrigin.DYNAMIC_API_CROSSREF
 
 
 # ---------------------------------------------------------------------------
@@ -218,6 +267,20 @@ class TestIngestDynamicRecords:
         t.ingest_dynamic_records([_lit_record(provider="Crossref")])
         records = t.triangulate()
         assert records[0].provider == "Crossref"
+
+    def test_scopus_record_gets_scopus_origin(self):
+        """LiteratureRecord with provider='Scopus' must yield DYNAMIC_API_SCOPUS."""
+        t = CumulativeTriangulator()
+        t.ingest_dynamic_records([_lit_record(provider="Scopus", source_id="scopus:10.1/a")])
+        records = t.triangulate()
+        assert records[0].source == ClaimOrigin.DYNAMIC_API_SCOPUS
+
+    def test_wos_record_gets_wos_origin(self):
+        """LiteratureRecord with provider='Web of Science (Clarivate)' must yield DYNAMIC_API_WOS."""
+        t = CumulativeTriangulator()
+        t.ingest_dynamic_records([_lit_record(provider="Web of Science (Clarivate)", source_id="wos:10.1/a")])
+        records = t.triangulate()
+        assert records[0].source == ClaimOrigin.DYNAMIC_API_WOS
 
 
 # ---------------------------------------------------------------------------
@@ -362,4 +425,3 @@ class TestTriangulate:
         assert doi_upgraded_result is not None
         assert doi_upgraded_result.title == "NewTitle"
         assert doi_upgraded_result.source == ClaimOrigin.DYNAMIC_API_CROSSREF
-

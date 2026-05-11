@@ -12,14 +12,10 @@ Covers:
 from __future__ import annotations
 
 import json
-import os
-
-import pytest
 
 from src.scientific_sources.models import (
     LiteratureRecord,
     ProviderResult,
-    SourceCapability,
     SourceEvidence,
 )
 from src.scientific_sources.crossref import CrossrefProvider
@@ -479,19 +475,128 @@ class TestCrossrefVerifyDoiNetworkFailure:
 
 
 class TestElsevierScopusConfiguredPaths:
-    def test_search_with_key_returns_not_implemented_warning(self, monkeypatch):
+    """Tests for ElsevierScopusProvider when an API key is present."""
+
+    # Minimal synthetic Scopus search-results payload.
+    _SCOPUS_PAYLOAD = {
+        "search-results": {
+            "entry": [
+                {
+                    "dc:title": "Blue Maritime Governance",
+                    "dc:creator": "Kowalski, A.",
+                    "author": [{"authname": "Kowalski A."}],
+                    "prism:coverDate": "2023-06-01",
+                    "prism:doi": "10.9999/scopus-test",
+                    "prism:publicationName": "Ocean Policy",
+                    "prism:url": "https://api.elsevier.com/content/abstract/scopus_id/123",
+                    "eid": "2-s2.0-123456789",
+                    "citedby-count": "7",
+                    "authkeywords": "maritime | governance | blue economy",
+                }
+            ]
+        }
+    }
+
+    def test_search_with_key_parses_records(self, monkeypatch):
+        """When key present, search must return a parsed LiteratureRecord."""
         monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
+
+        def fake_urlopen(req, timeout=15):
+            return _DummyResponse(self._SCOPUS_PAYLOAD)
+
+        import urllib.request
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
         provider = ElsevierScopusProvider()
         result = provider.search("blue economy")
-        assert result.warnings
-        assert "not yet implemented" in result.warnings[0].lower()
+        assert not result.is_empty
+        rec = result.records[0]
+        assert rec.title == "Blue Maritime Governance"
+        assert "Kowalski" in rec.authors
+        assert rec.year == "2023"
+        assert rec.doi == "10.9999/scopus-test"
+        assert rec.journal == "Ocean Policy"
+        assert rec.provider == "Scopus"
+        assert rec.subject_terms == ["maritime", "governance", "blue economy"]
+        assert len(result.provenance) == 1
 
-    def test_verify_doi_with_key_returns_not_implemented_warning(self, monkeypatch):
+    def test_search_sets_stage1_compliance_flags(self, monkeypatch):
+        """Scopus records must never store abstract content (Stage 1 governance)."""
         monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
+
+        def fake_urlopen(req, timeout=15):
+            return _DummyResponse(self._SCOPUS_PAYLOAD)
+
+        import urllib.request
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
         provider = ElsevierScopusProvider()
-        result = provider.verify_doi("10.1234/x")
-        assert result.warnings
-        assert "not yet implemented" in result.warnings[0].lower()
+        result = provider.search("blue economy")
+        rec = result.records[0]
+        assert rec.abstract_available is False
+        assert rec.abstract_stored is False
+
+    def test_search_returns_error_on_network_failure(self, monkeypatch):
+        """Network errors must surface as errors, not exceptions."""
+        monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
+
+        def fake_urlopen(req, timeout=15):
+            raise OSError("network down")
+
+        import urllib.request
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        provider = ElsevierScopusProvider()
+        result = provider.search("blue economy")
+        assert result.is_empty
+        assert result.errors
+        assert "Scopus search error" in result.errors[0]
+
+    def test_verify_doi_with_key_parses_record(self, monkeypatch):
+        """verify_doi must parse a Scopus entry into a LiteratureRecord."""
+        monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
+
+        def fake_urlopen(req, timeout=15):
+            return _DummyResponse(self._SCOPUS_PAYLOAD)
+
+        import urllib.request
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        provider = ElsevierScopusProvider()
+        result = provider.verify_doi("10.9999/scopus-test")
+        assert not result.is_empty
+        assert result.records[0].doi == "10.9999/scopus-test"
+
+    def test_verify_doi_returns_error_on_network_failure(self, monkeypatch):
+        """Network errors in verify_doi must surface as errors, not exceptions."""
+        monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
+
+        def fake_urlopen(req, timeout=15):
+            raise OSError("timeout")
+
+        import urllib.request
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        provider = ElsevierScopusProvider()
+        result = provider.verify_doi("10.9999/x")
+        assert result.is_empty
+        assert result.errors
+        assert "Scopus DOI verification error" in result.errors[0]
+
+    def test_scopus_skips_error_entries(self, monkeypatch):
+        """Scopus error-sentinel entries ({"error": ...}) must be silently skipped."""
+        monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
+        payload = {"search-results": {"entry": [{"error": "RESOURCE_NOT_FOUND"}]}}
+
+        def fake_urlopen(req, timeout=15):
+            return _DummyResponse(payload)
+
+        import urllib.request
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        provider = ElsevierScopusProvider()
+        result = provider.search("nothing")
+        assert result.is_empty
 
 
 class TestGoogleDriveConfiguredPath:
@@ -535,16 +640,131 @@ class TestSciValConfiguredPaths:
 
 
 class TestWebOfScienceConfiguredPaths:
-    def test_search_with_key_returns_not_implemented_warning(self, monkeypatch):
+    """Tests for WebOfScienceProvider when an API key is present."""
+
+    # Minimal synthetic WoS Starter API hits payload.
+    _WOS_PAYLOAD = {
+        "hits": [
+            {
+                "uid": "WOS:000000000000001",
+                "title": "Maritime Transport Resilience",
+                "types": ["Article"],
+                "names": {
+                    "authors": [
+                        {"displayName": "Smith, J.", "wosStandard": "Smith, J"}
+                    ]
+                },
+                "source": {"sourceTitle": "Maritime Policy", "publishYear": 2022},
+                "identifiers": {"doi": "10.8888/wos-test"},
+                "keywords": {
+                    "authorKeywords": ["shipping", "resilience"],
+                    "keywordsPlus": ["port logistics"],
+                },
+                "links": {
+                    "record": "https://www.webofscience.com/wos/woscc/full-record/WOS:000000000000001"
+                },
+                "citations": [{"db": "WOS", "count": 12}],
+            }
+        ]
+    }
+
+    def test_search_with_key_parses_records(self, monkeypatch):
+        """When key present, search must return a parsed LiteratureRecord."""
         monkeypatch.setenv("WOS_API_KEY", "woskey")
+
+        def fake_urlopen(req, timeout=15):
+            return _DummyResponse(self._WOS_PAYLOAD)
+
+        import urllib.request
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
         provider = WebOfScienceProvider()
         result = provider.search("maritime transport")
-        assert result.warnings
-        assert "not yet implemented" in result.warnings[0].lower()
+        assert not result.is_empty
+        rec = result.records[0]
+        assert rec.title == "Maritime Transport Resilience"
+        assert "Smith" in rec.authors
+        assert rec.year == "2022"
+        assert rec.doi == "10.8888/wos-test"
+        assert rec.journal == "Maritime Policy"
+        assert rec.provider == "Web of Science (Clarivate)"
+        assert "shipping" in rec.subject_terms
+        assert "port logistics" in rec.subject_terms
+        assert len(result.provenance) == 1
 
-    def test_verify_doi_with_key_returns_not_implemented_warning(self, monkeypatch):
+    def test_search_sets_stage1_compliance_flags(self, monkeypatch):
+        """WoS records must never store abstract content (Stage 1 governance)."""
         monkeypatch.setenv("WOS_API_KEY", "woskey")
+
+        def fake_urlopen(req, timeout=15):
+            return _DummyResponse(self._WOS_PAYLOAD)
+
+        import urllib.request
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
         provider = WebOfScienceProvider()
-        result = provider.verify_doi("10.1234/x")
-        assert result.warnings
-        assert "not yet implemented" in result.warnings[0].lower()
+        result = provider.search("maritime transport")
+        rec = result.records[0]
+        assert rec.abstract_available is False
+        assert rec.abstract_stored is False
+
+    def test_search_returns_error_on_network_failure(self, monkeypatch):
+        """Network errors must surface as errors, not exceptions."""
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+
+        def fake_urlopen(req, timeout=15):
+            raise OSError("network down")
+
+        import urllib.request
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        provider = WebOfScienceProvider()
+        result = provider.search("maritime")
+        assert result.is_empty
+        assert result.errors
+        assert "Web of Science search error" in result.errors[0]
+
+    def test_verify_doi_with_key_parses_record(self, monkeypatch):
+        """verify_doi must parse a WoS hit into a LiteratureRecord."""
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+
+        def fake_urlopen(req, timeout=15):
+            return _DummyResponse(self._WOS_PAYLOAD)
+
+        import urllib.request
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        provider = WebOfScienceProvider()
+        result = provider.verify_doi("10.8888/wos-test")
+        assert not result.is_empty
+        assert result.records[0].doi == "10.8888/wos-test"
+
+    def test_verify_doi_returns_error_on_network_failure(self, monkeypatch):
+        """Network errors in verify_doi must surface as errors, not exceptions."""
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+
+        def fake_urlopen(req, timeout=15):
+            raise OSError("timeout")
+
+        import urllib.request
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        provider = WebOfScienceProvider()
+        result = provider.verify_doi("10.8888/x")
+        assert result.is_empty
+        assert result.errors
+        assert "Web of Science DOI verification error" in result.errors[0]
+
+    def test_wos_citation_count_parsed(self, monkeypatch):
+        """Citation count from WoS citations[] must be parsed (transient only)."""
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+
+        def fake_urlopen(req, timeout=15):
+            return _DummyResponse(self._WOS_PAYLOAD)
+
+        import urllib.request
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        provider = WebOfScienceProvider()
+        result = provider.search("maritime")
+        assert result.records[0].citation_count == 12
