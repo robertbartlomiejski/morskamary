@@ -852,7 +852,11 @@ def extract_live_records_competences(
 
     seen_titles: Set[str] = set(known_titles or set())
     competences: List[Competence] = []
-    rel_path = live_records_path.relative_to(REPO_ROOT).as_posix()
+    try:
+        rel_path = live_records_path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        # Custom paths may live outside REPO_ROOT; keep source metadata usable.
+        rel_path = live_records_path.resolve().as_posix()
 
     # start=2 aligns source row references with data-row indexing semantics.
     for idx, row in enumerate(payload, start=2):
