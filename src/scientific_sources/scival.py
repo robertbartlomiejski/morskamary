@@ -30,6 +30,7 @@ _ALLOWED_FIELDS = [
     "year",
     "doi",
     "journal",
+    "url",
     "subject_terms",
     "source_id",
     "provider",

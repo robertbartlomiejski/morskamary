@@ -296,6 +296,7 @@ class TestSciValProvider:
         monkeypatch.setenv("SCIVAL_API_KEY", "scivalkey")
         provider = SciValProvider()
         assert provider.capability.configured is True
+        assert "url" in provider.capability.allowed_metadata_fields
 
 
 class TestGoogleDriveProvider:
