@@ -22,10 +22,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 def check_python_version() -> bool:
-    """Verify Python version is at least 3.9."""
+    """Verify Python version is at least 3.10."""
     major, minor = sys.version_info[:2]
-    ok = (major, minor) >= (3, 9)
-    status = "OK" if ok else "FAIL (need >= 3.9)"
+    ok = (major, minor) >= (3, 10)
+    status = "OK" if ok else "FAIL (need >= 3.10)"
     print(f"  Python version: {major}.{minor} — {status}")
     return ok
 
@@ -80,6 +80,7 @@ def main() -> int:
         ("GOOGLE_DRIVE_OAUTH_CREDENTIALS", "Google Drive OAuth path"),
         ("MICROSOFT_TENANT_ID", "Microsoft Tenant ID"),
         ("MICROSOFT_CLIENT_ID", "Microsoft Client ID"),
+        ("MICROSOFT_CLIENT_SECRET", "Microsoft Client Secret"),
         ("GCP_PROJECT_ID", "GCP Project ID"),
     ]
     for env, label in envs:

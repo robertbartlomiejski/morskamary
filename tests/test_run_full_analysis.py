@@ -202,6 +202,75 @@ def test_generate_micro_credentials_missing_gaps_error() -> None:
     assert "Coastal Tourism" in str(exc_info.value)
 
 
+def test_main_live_enriched_merges_live_competences(tmp_path: Path) -> None:
+    baseline_csv = tmp_path / "baseline.csv"
+    baseline_csv.write_text("placeholder", encoding="utf-8")
+    output_dir = tmp_path / "outputs"
+    baseline = [
+        Competence(
+            id="baseline_a1",
+            name="Baseline competence",
+            description="Baseline row",
+            axis=TMBDAxis.MARINE,
+            dimension="A",
+            source=CompetenceSource(file="data/derived/y.csv", row=3),
+            sectors=["Blue Biotech"],
+        )
+    ]
+    literature = [
+        Competence(
+            id="lit_static_1",
+            name="Static literature competence",
+            description="Static",
+            axis=TMBDAxis.MARITIME,
+            dimension="literature",
+            source=CompetenceSource(file="data/derived/x.csv", row=2),
+            sectors=["Blue Biotech"],
+        )
+    ]
+    live_competence = Competence(
+        id="lit_live_1",
+        name="Live competence",
+        description="Live",
+        axis=TMBDAxis.OCEANIC,
+        dimension="literature",
+        source=CompetenceSource(file="outputs/research_sources/live_records.json", row=2),
+        sectors=["Blue Biotech"],
+    )
+
+    with (
+        patch("run_full_analysis.BASELINE_CSV", baseline_csv),
+        patch("run_full_analysis.OUTPUTS_DIR", output_dir),
+        patch("run_full_analysis.load_baseline_competences", return_value=baseline),
+        patch("run_full_analysis.extract_literature_competences", return_value=literature),
+        patch(
+            "run_full_analysis.extract_live_records_competences",
+            return_value=[live_competence],
+        ) as m_live_extract,
+        patch("run_full_analysis.run_gap_analysis", return_value=({}, {})),
+        patch("run_full_analysis.generate_micro_credentials", return_value=[]),
+        patch("run_full_analysis.compute_sector_pathways", return_value=[]),
+        patch("run_full_analysis.export_competences_json") as m_export,
+        patch("run_full_analysis.export_credentials_json"),
+        patch("run_full_analysis.export_pathways_json"),
+        patch("run_full_analysis.export_gaps_summary_csv"),
+        patch("run_full_analysis.generate_report_index"),
+        patch("run_full_analysis.generate_gaps_html"),
+        patch("run_full_analysis.generate_credentials_html"),
+        patch("run_full_analysis.generate_literature_html"),
+        patch("run_full_analysis.export_sector_dictionaries", return_value=[]),
+    ):
+        exit_code = main(
+            analysis_input_mode="live-enriched",
+            live_records_path=tmp_path / "live_records.json",
+        )
+
+    assert exit_code == 0
+    m_live_extract.assert_called_once()
+    literature_arg = m_export.call_args[0][1]
+    assert any(c.id == "lit_live_1" for c in literature_arg)
+
+
 def test_generate_micro_credentials_uses_sector_filtered_literature() -> None:
     baseline = [
         Competence(
@@ -978,6 +1047,8 @@ class TestCLIAndEdgeCases:
             assert hasattr(args, 'sectors')
             # Default value is an empty list, not None
             assert args.sectors == [] or args.sectors is None
+            assert args.analysis_input_mode == "static"
+            assert args.live_records_path
 
     def test_main_with_cli_sector_selection(self, tmp_path):
         """Test main() with CLI sector selection"""
@@ -1011,6 +1082,25 @@ class TestCLIAndEdgeCases:
             args = parse_cli_args()
             assert hasattr(args, 'sectors')
 
+    def test_parse_cli_args_live_enriched_mode(self):
+        """CLI should accept live-enriched mode and custom live records path."""
+        import sys
+
+        with patch.object(
+            sys,
+            "argv",
+            [
+                "run_full_analysis.py",
+                "--analysis-input-mode",
+                "live-enriched",
+                "--live-records-path",
+                "/tmp/live_records.json",
+            ],
+        ):
+            args = parse_cli_args()
+            assert args.analysis_input_mode == "live-enriched"
+            assert args.live_records_path == "/tmp/live_records.json"
+
 
 # ---------------------------------------------------------------------------
 # Tests for _THEME_SECTORS mapping and sector-specific gap analysis
@@ -1019,7 +1109,7 @@ class TestCLIAndEdgeCases:
 
 def test_theme_sectors_keys_are_valid_lit_themes() -> None:
     """All _THEME_SECTORS keys must exist in _LIT_THEMES theme universe."""
-    from run_full_analysis import _THEME_SECTORS, _LIT_THEMES, SECTORS
+    from run_full_analysis import _THEME_SECTORS, _LIT_THEMES
 
     all_themes = set()
     for axis_groups in _LIT_THEMES.values():
@@ -1116,7 +1206,6 @@ def test_extract_literature_competences_seafarer_theme_not_cross_sector(
     from run_full_analysis import (
         extract_literature_competences,
         _THEME_SECTORS,
-        SECTORS,
     )
 
     theme_name = "Seafarer welfare and social protection"
@@ -1262,4 +1351,3 @@ def test_two_sector_dictionaries_differ_with_sector_specific_literature(
     assert maritime_ids == {"lit_maritime_001"}
     assert biotech_ids == {"lit_biotech_001"}
     assert desalination_ids == set()  # no competences for Desalination
-
