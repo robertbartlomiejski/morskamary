@@ -370,7 +370,7 @@ def test_run_writes_responses_and_internal_errors(monkeypatch, capsys):
     )
 
     bridge.run()
-    lines = [line for line in capsys.readouterr().out.strip().splitlines() if line]
+    lines = [line for line in capsys.readouterr().out.strip().splitlines() if line.strip()]
 
     assert len(lines) == 2
     ok_payload = json.loads(lines[0])
