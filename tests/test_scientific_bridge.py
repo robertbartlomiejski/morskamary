@@ -133,7 +133,7 @@ def test_handle_request_lists_tools():
 
 
 def _record(
-    title: str = "Blue Social Competences",
+    title: str = "Test Publication",
     doi: str = "10.1000/xyz",
     provider: str = "CrossRef",
 ) -> LiteratureRecord:
@@ -209,11 +209,13 @@ def test_handle_search_open_metadata_validates_topic():
 def test_handle_search_open_metadata_formats_records(monkeypatch):
     """search_open_metadata should render flattened records."""
     bridge = sb.ScientificBridge()
-    result = ProviderResult(records=[_record(title="Oceanic Systems")])
+    provider_result = ProviderResult(records=[_record(title="Oceanic Systems")])
     monkeypatch.setattr(
-        bridge._registry, "search", lambda _topic, _max_results: [result]
+        bridge._registry, "search", lambda _topic, _max_results: [provider_result]
     )
-    monkeypatch.setattr(bridge._registry, "flat_records", lambda results: [result.records[0]])
+    monkeypatch.setattr(
+        bridge._registry, "flat_records", lambda results: [provider_result.records[0]]
+    )
 
     response = bridge.handle_search_open_metadata({"topic": "oceanic systems"})
 
@@ -281,9 +283,9 @@ def test_export_and_compare_handlers_validate_topic():
 def test_export_and_compare_handlers_format_outputs(monkeypatch):
     """export and compare handlers should render imported formatter output."""
     bridge = sb.ScientificBridge()
-    mock_results = [ProviderResult(records=[_record()])]
+    mock_search_results = [ProviderResult(records=[_record()])]
     monkeypatch.setattr(
-        bridge._registry, "search", lambda _topic, _max_results: mock_results
+        bridge._registry, "search", lambda _topic, _max_results: mock_search_results
     )
     monkeypatch.setattr(
         "src.scientific_sources.provenance.export_provenance_json",
