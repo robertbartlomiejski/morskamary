@@ -719,9 +719,9 @@ def _infer_live_record_sectors(text: str, axis: TMBDAxis) -> List[str]:
                     best_score = score
                     best_theme = theme_name
 
-    fallback_theme = sorted(axis_theme_names)[0] if axis_theme_names else None
+    fallback_theme = sorted(axis_theme_names)[0] if len(axis_theme_names) > 0 else None
     chosen_theme = best_theme or fallback_theme
-    selected_sectors = _THEME_SECTORS.get(chosen_theme, SECTORS) if chosen_theme else SECTORS
+    selected_sectors = _THEME_SECTORS.get(chosen_theme, SECTORS)
     return list(selected_sectors)
 
 

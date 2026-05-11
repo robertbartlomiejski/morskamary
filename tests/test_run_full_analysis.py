@@ -1048,6 +1048,7 @@ class TestCLIAndEdgeCases:
             args = parse_cli_args()
             assert hasattr(args, 'sectors')
             # Default value is an empty list, not None
+            assert args.sectors is not None
             assert args.sectors == []
             assert args.analysis_input_mode == "static"
             assert args.live_records_path == str(DEFAULT_LIVE_RECORDS_JSON)
