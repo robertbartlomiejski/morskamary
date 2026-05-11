@@ -416,7 +416,7 @@ class CumulativeTriangulator:
                 ):
                     del title_to_idx[old_norm_title]
                     seen_titles.discard(old_norm_title)
-                # Replace the static slot with the dynamic (DOI-authority) rec.
+                # Replace the static slot with the first matching dynamic rec.
                 pool[idx] = dyn
                 # Register the new title so it is visible to subsequent records.
                 if norm_title and norm_title not in seen_titles:

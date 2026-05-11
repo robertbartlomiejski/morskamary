@@ -61,7 +61,7 @@ def _record(*, provider: str, title: str, doi: str, source_id: str) -> Literatur
     )
 
 
-def test_first_dynamic_doi_match_preserved_after_static_upgrade(tmp_path):
+def test_first_dynamic_doi_match_preserved_after_static_upgrade(tmp_path: Path):
     """Later dynamic DOI duplicates must not overwrite the first dynamic upgrade."""
     doi = "10.1234/shared"
     baseline = _write_static_csv(tmp_path, title="Static Title", doi=doi)
@@ -93,7 +93,7 @@ def test_first_dynamic_doi_match_preserved_after_static_upgrade(tmp_path):
     assert result[0].source == ClaimOrigin.DYNAMIC_API_CROSSREF
 
 
-def test_first_dynamic_title_match_preserved_after_static_upgrade(tmp_path):
+def test_first_dynamic_title_match_preserved_after_static_upgrade(tmp_path: Path):
     """Later dynamic title duplicates must not overwrite the first dynamic upgrade."""
     baseline = _write_static_csv(tmp_path, title="Shared Dynamic Title", doi="")
 
@@ -124,7 +124,7 @@ def test_first_dynamic_title_match_preserved_after_static_upgrade(tmp_path):
     assert result[0].source == ClaimOrigin.DYNAMIC_API_CROSSREF
 
 
-def test_title_upgrade_removes_old_static_doi_index(tmp_path):
+def test_title_upgrade_removes_old_static_doi_index(tmp_path: Path):
     """Title-based static upgrade must clear stale DOI index for later dynamics."""
     triangulator = CumulativeTriangulator()
     triangulator.ingest_static_baseline(
