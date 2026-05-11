@@ -1103,6 +1103,24 @@ class TestCLIAndEdgeCases:
             assert args.analysis_input_mode == "live-enriched"
             assert args.live_records_path == "/tmp/live_records.json"
 
+    def test_parse_cli_args_with_explicit_sectors(self):
+        """CLI should capture repeated --sector arguments."""
+        import sys
+
+        with patch.object(
+            sys,
+            "argv",
+            [
+                "run_full_analysis.py",
+                "--sector",
+                "Blue Biotech",
+                "--sector",
+                "R&I",
+            ],
+        ):
+            args = parse_cli_args()
+            assert args.sectors == ["Blue Biotech", "R&I"]
+
 
 # ---------------------------------------------------------------------------
 # Tests for _THEME_SECTORS mapping and sector-specific gap analysis

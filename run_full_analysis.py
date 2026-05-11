@@ -47,6 +47,7 @@ logging.basicConfig(
     stream=sys.stdout,
 )
 log = logging.getLogger(__name__)
+_TOKEN_PATTERN = re.compile(r"\w+")
 
 # ---------------------------------------------------------------------------
 # Repository constants
@@ -693,7 +694,7 @@ def _normalize_title_for_dedup(title: str) -> str:
 
 def _infer_live_record_sectors(text: str, axis: TMBDAxis) -> List[str]:
     """Infer a narrow sector scope for a live record using existing theme maps."""
-    text_tokens = set(re.findall(r"\w+", text.lower()))
+    text_tokens = set(_TOKEN_PATTERN.findall(text.lower()))
     best_theme: Optional[str] = None
     best_score = -1
     fallback_theme: Optional[str] = None
@@ -705,16 +706,15 @@ def _infer_live_record_sectors(text: str, axis: TMBDAxis) -> List[str]:
             for theme_name in theme_names:
                 if fallback_theme is None:
                     fallback_theme = theme_name
-                theme_tokens = set(re.findall(r"\w+", theme_name.lower()))
+                theme_tokens = set(_TOKEN_PATTERN.findall(theme_name.lower()))
                 score = len(text_tokens & theme_tokens)
                 if score > best_score:
                     best_score = score
                     best_theme = theme_name
 
     chosen_theme = best_theme or fallback_theme
-    if not chosen_theme:
-        return list(SECTORS)
-    return list(_THEME_SECTORS.get(chosen_theme, SECTORS))
+    selected_sectors = _THEME_SECTORS.get(chosen_theme, SECTORS) if chosen_theme else SECTORS
+    return list(selected_sectors)
 
 
 def extract_literature_competences() -> List[Competence]:
