@@ -157,9 +157,9 @@ def test_format_citation_markdown_error_and_year_only():
     assert bridge.format_citation_markdown({"error": "not found"}) == "⚠️ not found"
 
     markdown_output = bridge.format_citation_markdown(
-        {"title": "Only Year", "year": "2024"}
+        {"title": "Year-Only Record", "year": "2024"}
     )
-    assert "**Only Year**" in markdown_output
+    assert "**Year-Only Record**" in markdown_output
     assert "(2024)" in markdown_output
 
 
