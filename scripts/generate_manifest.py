@@ -72,7 +72,15 @@ def should_ignore_file(path: Path) -> bool:
 
 def classify(path: Path) -> str:
     rel = path.relative_to(REPO_ROOT).as_posix()
-    if rel in {"README.md", "CITATION.txt", "DATA_GOVERNANCE.txt", "LLM_CONTEXT_INSTRUCTION.txt", "CHANGELOG.txt", "PROMPT_REQUEST_TEMPLATE.txt", "MANIFEST_SOURCES.csv"}:
+    if rel in {
+        "README.md",
+        "CITATION.txt",
+        "DATA_GOVERNANCE.txt",
+        "LLM_CONTEXT_INSTRUCTION.txt",
+        "CHANGELOG.txt",
+        "PROMPT_REQUEST_TEMPLATE.txt",
+        "MANIFEST_SOURCES.csv",
+    }:
         return "governance"
     if rel.startswith("scripts/") or rel == "requirements.txt":
         return "script"
