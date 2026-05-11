@@ -693,25 +693,33 @@ def _normalize_title_for_dedup(title: str) -> str:
 
 
 def _infer_live_record_sectors(text: str, axis: TMBDAxis) -> List[str]:
-    """Infer a narrow sector scope for a live record using existing theme maps."""
+    """Infer a narrow sector scope for a live record using existing theme maps.
+
+    Strategy:
+      1. Filter candidate themes to the detected TMBD axis only.
+      2. Score each theme by token-overlap between record text and theme name.
+      3. Select the highest-scoring theme; if all scores are zero, fall back to a
+         deterministic axis-local theme (lexicographically first).
+      4. Map the chosen theme to sectors via _THEME_SECTORS.
+    """
     text_tokens = set(_TOKEN_PATTERN.findall(text.lower()))
+    axis_theme_names: List[str] = []
     best_theme: Optional[str] = None
-    best_score = -1
-    fallback_theme: Optional[str] = None
+    best_score = 0
 
     for theme_pool in _LIT_THEMES.values():
         for axis_name, theme_names in theme_pool.items():
             if axis_name != axis.name:
                 continue
             for theme_name in theme_names:
-                if fallback_theme is None:
-                    fallback_theme = theme_name
+                axis_theme_names.append(theme_name)
                 theme_tokens = set(_TOKEN_PATTERN.findall(theme_name.lower()))
                 score = len(text_tokens & theme_tokens)
                 if score > best_score:
                     best_score = score
                     best_theme = theme_name
 
+    fallback_theme = sorted(axis_theme_names)[0] if axis_theme_names else None
     chosen_theme = best_theme or fallback_theme
     selected_sectors = _THEME_SECTORS.get(chosen_theme, SECTORS) if chosen_theme else SECTORS
     return list(selected_sectors)
