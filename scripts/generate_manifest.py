@@ -13,11 +13,10 @@ from __future__ import annotations
 
 import csv
 import os
-from dataclasses import dataclass
-from pathlib import Path
+import pathlib
 from typing import Dict, List
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 MANIFEST_PATH = REPO_ROOT / "MANIFEST_SOURCES.csv"
 
 COLUMNS = [
@@ -58,7 +57,7 @@ IGNORED_FILE_PREFIXES = {
 }
 
 
-def should_ignore_file(path: Path) -> bool:
+def should_ignore_file(path: pathlib.Path) -> bool:
     """Return True when a file should be skipped from the manifest scan."""
     name = path.name
     if name in IGNORED_FILE_BASENAMES:
@@ -70,7 +69,7 @@ def should_ignore_file(path: Path) -> bool:
     return False
 
 
-def classify(path: Path) -> str:
+def classify(path: pathlib.Path) -> str:
     rel = path.relative_to(REPO_ROOT).as_posix()
     if rel in {
         "README.md",
@@ -112,7 +111,7 @@ def classify(path: Path) -> str:
     return "other"
 
 
-def text_available(path: Path) -> str:
+def text_available(path: pathlib.Path) -> str:
     ext = path.suffix.lower()
     if ext in {".txt", ".md", ".csv", ".py"}:
         return "yes"
@@ -139,10 +138,10 @@ def load_existing() -> Dict[str, Dict[str, str]]:
     return existing
 
 
-def scan_files() -> List[Path]:
-    files: List[Path] = []
+def scan_files() -> List[pathlib.Path]:
+    files: List[pathlib.Path] = []
     for root, dirs, filenames in os.walk(REPO_ROOT):
-        root_path = Path(root).relative_to(REPO_ROOT)
+        root_path = pathlib.Path(root).relative_to(REPO_ROOT)
 
         # prune ignored dirs
         pruned_dirs = []
@@ -156,7 +155,7 @@ def scan_files() -> List[Path]:
         dirs[:] = pruned_dirs
 
         for name in filenames:
-            p = Path(root) / name
+            p = pathlib.Path(root) / name
             # ignore manifest while generating to avoid churn
             if p.resolve() == MANIFEST_PATH.resolve():
                 continue
