@@ -11,6 +11,7 @@ from src.core import (
     CompetenceLevel,
     create_sample_competences,
     load_competence_matrix,
+    _detect_all_themes,
 )
 from src.competence_mapper import CompetenceMapper
 
@@ -269,6 +270,43 @@ class TestCompetenceMapper:
             starting_level=CompetenceLevel.ADVANCED
         )
         assert len(pathway) == 2
+
+
+class TestDetectAllThemes:
+    """Tests for structured theme detection across all QMBD axes."""
+
+    def test_detect_all_themes_returns_all_axes(self):
+        record = {
+            "title": "Hydrosocial governance for maritime ports",
+            "abstract": "Marine ecosystems and sustainability policy",
+            "keywords": "shipping, hydronization",
+        }
+
+        themes = _detect_all_themes(record)
+
+        assert set(themes.keys()) == set(BlueDynamicsAxis)
+        assert "marine" in themes[BlueDynamicsAxis.MARINE]
+        assert "shipping" in themes[BlueDynamicsAxis.MARITIME]
+        assert "sustainability" in themes[BlueDynamicsAxis.OCEANIC]
+        assert "hydronization" in themes[BlueDynamicsAxis.HYDRONIZATION]
+
+    def test_detect_all_themes_case_insensitive(self):
+        record = {
+            "title": "HYDROSOCIAL Transitions",
+            "abstract": "PORT LOGISTICS",
+            "keywords": "MARINE",
+        }
+
+        themes = _detect_all_themes(record)
+
+        assert "hydrosocial" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "port" in themes[BlueDynamicsAxis.MARITIME]
+        assert "marine" in themes[BlueDynamicsAxis.MARINE]
+
+    def test_detect_all_themes_fallback_marker(self):
+        themes = _detect_all_themes({"title": "", "abstract": "", "keywords": ""})
+
+        assert themes[BlueDynamicsAxis.OCEANIC] == ["[citation needed]"]
 
 
 class TestLoadCompetenceMatrixImportError:

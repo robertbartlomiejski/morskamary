@@ -23,6 +23,61 @@ class BlueDynamicsAxis(Enum):
     HYDRONIZATION = "H"  # Hydronization (water-society co-constitution and blue subjectivity)
 
 
+_AXIS_THEME_KEYWORDS: Dict[BlueDynamicsAxis, List[str]] = {
+    BlueDynamicsAxis.MARINE: [
+        "marine",
+        "ocean",
+        "fisheries",
+        "aquaculture",
+        "ecosystem",
+        "biodiversity",
+    ],
+    BlueDynamicsAxis.MARITIME: [
+        "maritime",
+        "port",
+        "shipping",
+        "logistics",
+        "infrastructure",
+        "msp",
+    ],
+    BlueDynamicsAxis.OCEANIC: [
+        "governance",
+        "policy",
+        "cooperation",
+        "justice",
+        "sustainability",
+    ],
+    BlueDynamicsAxis.HYDRONIZATION: [
+        "hydronization",
+        "hydrosocial",
+        "wet ontology",
+        "blue subjectivity",
+    ],
+}
+
+
+def _detect_all_themes(record: Dict[str, Any]) -> Dict[BlueDynamicsAxis, List[str]]:
+    """Detect per-axis thematic keywords from record text.
+
+    Returns a dictionary keyed by all QMBD axes. If no keywords are found,
+    applies a deterministic governance fallback under OCEANIC.
+    """
+    text = " ".join(
+        str(record.get(field, "")) for field in ("title", "abstract", "keywords")
+    ).lower()
+
+    themes: Dict[BlueDynamicsAxis, List[str]] = {
+        axis: [] for axis in BlueDynamicsAxis
+    }
+    for axis, keywords in _AXIS_THEME_KEYWORDS.items():
+        themes[axis] = [keyword for keyword in keywords if keyword in text]
+
+    if not any(themes.values()):
+        themes[BlueDynamicsAxis.OCEANIC] = ["[citation needed]"]
+
+    return themes
+
+
 class CompetenceLevel(Enum):
     """Competence proficiency levels"""
 
