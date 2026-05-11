@@ -122,3 +122,35 @@ def test_first_dynamic_title_match_preserved_after_static_upgrade(tmp_path):
     assert result[0].doi == "10.1234/crossref"
     assert result[0].provider == "Crossref"
     assert result[0].source == ClaimOrigin.DYNAMIC_API_CROSSREF
+
+
+def test_title_upgrade_removes_old_static_doi_index(tmp_path):
+    """Title-based static upgrade must clear stale DOI index for later dynamics."""
+    triangulator = CumulativeTriangulator()
+    triangulator.ingest_static_baseline(
+        _write_static_csv(
+            tmp_path, title="Shared Normalized Title", doi="10.1000/static-doi"
+        )
+    )
+    triangulator.ingest_dynamic_records(
+        [
+            _record(
+                provider="Crossref",
+                title="Shared Normalized Title",
+                doi="10.1000/crossref-doi",
+                source_id="crossref:10.1000/crossref-doi",
+            ),
+            _record(
+                provider="Scopus",
+                title="A distinct Scopus record",
+                doi="10.1000/static-doi",
+                source_id="scopus:10.1000/static-doi",
+            ),
+        ]
+    )
+
+    result = triangulator.triangulate()
+
+    assert len(result) == 2
+    providers = {rec.provider for rec in result}
+    assert providers == {"Crossref", "Scopus"}

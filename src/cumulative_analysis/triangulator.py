@@ -437,8 +437,13 @@ class CumulativeTriangulator:
                         seen_dois.add(norm_doi)
                     continue
 
+                old_norm_doi = _normalize_doi(old_rec.doi) if old_rec.doi else ""
                 # Replace static slot; dynamic variant is authoritative.
                 pool[idx] = dyn
+                if old_norm_doi and old_norm_doi != norm_doi:
+                    if doi_to_idx.get(old_norm_doi) == idx:
+                        del doi_to_idx[old_norm_doi]
+                    seen_dois.discard(old_norm_doi)
                 if norm_doi:
                     doi_to_idx[norm_doi] = idx
                     seen_dois.add(norm_doi)
