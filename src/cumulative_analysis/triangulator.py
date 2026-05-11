@@ -397,9 +397,6 @@ class CumulativeTriangulator:
             if norm_doi and norm_doi in doi_to_idx:
                 idx = doi_to_idx[norm_doi]
                 old_rec = pool[idx]
-                # Preserve first-ingested dynamic provider priority.
-                if old_rec.source != ClaimOrigin.STATIC_BASELINE:
-                    continue
 
                 if _is_dynamic_record(old_rec):
                     # A previous dynamic record already claimed this work.
@@ -431,11 +428,6 @@ class CumulativeTriangulator:
             if norm_title and norm_title in title_to_idx:
                 idx = title_to_idx[norm_title]
                 old_rec = pool[idx]
-                # Preserve first-ingested dynamic provider priority.
-                if old_rec.source != ClaimOrigin.STATIC_BASELINE:
-                    continue
-                old_norm_doi = _normalize_doi(old_rec.doi) if old_rec.doi else ""
-                # Replace static slot; first dynamic variant is authoritative.
 
                 if _is_dynamic_record(old_rec):
                     # A previous dynamic record already claimed this title.
