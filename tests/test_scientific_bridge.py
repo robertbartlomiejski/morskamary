@@ -133,9 +133,9 @@ def test_handle_request_lists_tools():
 
 
 def _record(
-    title: str = "Blue Justice",
+    title: str = "Blue Social Competences",
     doi: str = "10.1000/xyz",
-    provider: str = "Crossref",
+    provider: str = "CrossRef",
 ) -> LiteratureRecord:
     """Create a minimal normalized record for bridge tests."""
     return LiteratureRecord(
