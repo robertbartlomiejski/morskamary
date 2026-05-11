@@ -3,6 +3,7 @@
 import io
 import json
 
+import pytest
 import scientific_bridge as sb
 from src.scientific_sources.models import LiteratureRecord, ProviderResult
 
@@ -162,6 +163,9 @@ def test_format_citation_markdown_error_and_year_only():
     assert "**Blue Economy Analysis**" in markdown_output
     assert "(2024)" in markdown_output
 
+    with pytest.raises(KeyError):
+        bridge.format_citation_markdown({})
+
 
 def test_handle_list_capabilities_formats_provider_status(monkeypatch):
     """list capabilities should include provider names and configured status."""
@@ -244,15 +248,13 @@ def test_handle_verify_citation_no_record_and_error_paths(monkeypatch):
     monkeypatch.setattr(bridge._registry, "flat_records", lambda results: [])
 
     error_response = bridge.handle_verify_citation({"doi": "10.1000/missing"})
-    assert "Error verifying DOI: temporarily unavailable" in error_response["content"][0][
-        "text"
-    ]
+    error_text = error_response["content"][0]["text"]
+    assert "Error verifying DOI: temporarily unavailable" in error_text
 
     monkeypatch.setattr(bridge._registry, "verify_doi", lambda doi: [ProviderResult()])
     no_record_response = bridge.handle_verify_citation({"doi": "10.1000/none"})
-    assert "No record found for DOI: 10.1000/none" in no_record_response["content"][0][
-        "text"
-    ]
+    no_record_text = no_record_response["content"][0]["text"]
+    assert "No record found for DOI: 10.1000/none" in no_record_text
 
 
 def test_handle_verify_doi_alias(monkeypatch):
