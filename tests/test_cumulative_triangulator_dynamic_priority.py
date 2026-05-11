@@ -1,5 +1,10 @@
 """Regression tests for dynamic provider priority in triangulation."""
 
+from __future__ import annotations
+
+import csv
+from pathlib import Path
+
 from src.cumulative_analysis.triangulator import CumulativeTriangulator
 from src.scientific_sources.models import LiteratureRecord
 
@@ -17,8 +22,28 @@ def _record(title: str, doi: str, provider: str, source_id: str) -> LiteratureRe
     )
 
 
-def test_same_doi_first_dynamic_provider_wins():
+def _baseline_csv(tmp_path: Path, title: str, doi: str) -> Path:
+    csv_path = tmp_path / "baseline.csv"
+    with csv_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["title", "authors", "year", "doi", "provider", "journal", "url"])
+        writer.writeheader()
+        writer.writerow(
+            {
+                "title": title,
+                "authors": "Static Author",
+                "year": "2023",
+                "doi": doi,
+                "provider": "static",
+                "journal": "Static Journal",
+                "url": "https://example.org/static",
+            }
+        )
+    return csv_path
+
+
+def test_same_doi_first_dynamic_provider_wins_after_static_upgrade(tmp_path: Path):
     t = CumulativeTriangulator()
+    t.ingest_static_baseline(_baseline_csv(tmp_path, "Shared DOI title", "10.1000/shared"))
     t.ingest_dynamic_records(
         [
             _record("Shared DOI title", "10.1000/shared", "Crossref", "crossref:10.1000/shared"),
@@ -32,8 +57,9 @@ def test_same_doi_first_dynamic_provider_wins():
     assert out[0].provider == "Crossref"
 
 
-def test_same_normalized_title_first_dynamic_provider_wins():
+def test_same_normalized_title_first_dynamic_provider_wins_after_static_upgrade(tmp_path: Path):
     t = CumulativeTriangulator()
+    t.ingest_static_baseline(_baseline_csv(tmp_path, "Maritime Transport: Resilience", ""))
     t.ingest_dynamic_records(
         [
             _record("Maritime Transport: Resilience", "", "Crossref", "crossref:1"),
