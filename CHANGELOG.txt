@@ -30,6 +30,17 @@ Provenance src/core.py:BlueDynamicsAxis (QMBD with HYDRONIZATION); scripts/expor
 Quality checks Baseline `python -m pytest -q` passes locally before and after the documentation update. `flake8 src tests` and `mypy src` remain non-clean due to pre-existing unrelated issues.
 Reviewer GitHub Copilot Coding Agent
 
+2026-05-11 (governance docs provider-field clarification and manifest refresh)
+Change type fix update
+Scope governance
+Files affected docs/RESEARCH_SOURCE_GOVERNANCE.md MANIFEST_SOURCES.csv CHANGELOG.txt
+Summary Clarified Scopus and Web of Science provider-specific notes in docs/RESEARCH_SOURCE_GOVERNANCE.md to explicitly distinguish provider-returned bibliographic fields (title, authors, year, DOI, journal, URL, subject terms) from common provenance fields (source_id, provider, retrieval_timestamp, licence_note) which are additionally stored for all records. Refreshed MANIFEST_SOURCES.csv to reflect current repository state after manifest regeneration classified Python scripts as type "script" with text_available=yes.
+Reason The prior wording could be read as implying that the provider-specific field list was the complete allowed storage schema, creating ambiguity for contributors. The manifest update is a mechanical reclassification of .py files and aligns the CSV with the updated generate_manifest.py classification logic.
+Impact Documentation only for the governance doc fix. MANIFEST_SOURCES.csv: many .py file rows changed from type "other" / text_available=no to type "script" / text_available=yes — no runtime or test behaviour changed.
+Provenance docs/RESEARCH_SOURCE_GOVERNANCE.md Stage 1 permissible fields table; scripts/generate_manifest.py classification logic (.py → script); .github/workflows/ci.yml CHANGELOG enforcement rule.
+Quality checks CI CHANGELOG enforcement rule satisfied. No code or test changes.
+Reviewer GitHub Copilot Coding Agent
+
 2026-05-10 (QMBD keyword governance fix — remove ungrounded blue subjectivity keyword)
 Change type fix
 Scope src tests governance
