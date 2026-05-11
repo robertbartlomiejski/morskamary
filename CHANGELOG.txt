@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-05-11 (Stage 1 documentation reconciliation — QMBD wording and citation-count rule)
+Change type fix
+Scope governance
+Files affected docs/overview.md docs/onboarding_new_provider.md docs/providers.md docs/RESEARCH_SOURCE_GOVERNANCE.md CHANGELOG.txt
+Summary Reconciled the remaining Stage 1 documentation clashes without changing code. docs/overview.md now describes the implemented QMBD 4-axis model (including Hydronization) instead of the obsolete 3-axis TMBD wording, docs/onboarding_new_provider.md now asks for "QMBD axis relevance", and the Stage 1 citation-count rule is now consistent across provider/governance docs: `citation_count` may be visible during licensed institutional research use but is not stored or exported in Stage 1 committed outputs.
+Reason Review feedback concluded that Stage 1 enforcement was already correct in code and tests, but the documentation foundation was not yet officially complete because the human contracts still contradicted the implementation in three places.
+Impact Documentation only. No code, test, CI, or schema behaviour changes. Stage 1 governance text now matches `_to_stage1_compliant_dict()` and the current 4-axis `BlueDynamicsAxis` enum.
+Provenance src/core.py:BlueDynamicsAxis (QMBD with HYDRONIZATION); scripts/export_live_research_records.py:_to_stage1_compliant_dict() and STAGE1_CSV_FIELDS (citation-count drop rule); tests/test_export_live_research_records.py:TestStage1ComplianceFilter
+Quality checks Baseline `python -m pytest -q` passes locally before and after the documentation update. `flake8 src tests` and `mypy src` remain non-clean due to pre-existing unrelated issues.
+Reviewer GitHub Copilot Coding Agent
+
 2026-05-10 (QMBD keyword governance fix — remove ungrounded blue subjectivity keyword)
 Change type fix
 Scope src tests governance
