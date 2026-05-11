@@ -6,7 +6,7 @@ on:
       providers:
         description: 'Comma-separated list of providers (e.g., crossref,scopus)'
         required: false
-        default: 'crossref'
+        default: 'crossref,scopus,wos,scival'
       max_results_per_query:
         description: 'Maximum results per query'
         required: false

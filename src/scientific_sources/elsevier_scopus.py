@@ -1,6 +1,8 @@
 """
 Elsevier / Scopus provider.
 
+Requires ELSEVIER_API_KEY and/or SCOPUS_API_KEY.
+Returns a structured "not configured" result when key is absent.
 This provider requires an institutional Elsevier API key (ELSEVIER_API_KEY
 and/or SCOPUS_API_KEY).  When the key is absent the provider returns a
 structured "not configured" result without making any network call.
@@ -21,6 +23,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
@@ -64,12 +67,13 @@ _LICENCE_NOTE = (
 
 
 class ElsevierScopusProvider(BaseProvider):
-    """Elsevier Scopus provider (capability-gated; live impl requires key)."""
+    """Elsevier Scopus provider."""
 
     def __init__(self) -> None:
         self._api_key: str = os.getenv("ELSEVIER_API_KEY", "") or os.getenv(
             "SCOPUS_API_KEY", ""
         )
+        self._api_base = "https://api.elsevier.com/content/search/scopus"
 
     @property
     def capability(self) -> SourceCapability:
@@ -89,6 +93,95 @@ class ElsevierScopusProvider(BaseProvider):
             ),
         )
 
+    def _request_json(self, url: str) -> Dict[str, Any]:
+        req = urllib.request.Request(
+            url, headers={"X-ELS-APIKey": self._api_key, "Accept": "application/json"}
+        )
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            return json.loads(resp.read().decode())
+
+    @staticmethod
+    def _parse_year(entry: Dict[str, Any]) -> str:
+        def _extract_4digit_year(text: str) -> str:
+            for token in text.replace("/", " ").replace("-", " ").split():
+                if len(token) == 4 and token.isdigit():
+                    return token
+            return ""
+
+        cover_date = str(entry.get("prism:coverDate", "")).strip()
+        year = _extract_4digit_year(cover_date)
+        if year:
+            return year
+        cover_display = str(entry.get("prism:coverDisplayDate", "")).strip()
+        return _extract_4digit_year(cover_display)
+
+    @staticmethod
+    def _parse_subject_terms(entry: Dict[str, Any]) -> List[str]:
+        terms: List[str] = []
+        raw_keywords = entry.get("authkeywords")
+        if isinstance(raw_keywords, str):
+            for separator in ("|", ";", ","):
+                if separator in raw_keywords:
+                    terms = [t.strip() for t in raw_keywords.split(separator) if t.strip()]
+                    break
+            if not terms and raw_keywords.strip():
+                terms = [raw_keywords.strip()]
+        return terms
+
+    @staticmethod
+    def _parse_authors(entry: Dict[str, Any]) -> str:
+        creator = str(entry.get("dc:creator", "")).strip()
+        if creator:
+            return creator
+        author_block = entry.get("author")
+        if isinstance(author_block, list):
+            names: List[str] = []
+            for author in author_block:
+                if not isinstance(author, dict):
+                    continue
+                name = (
+                    str(author.get("authname", "")).strip()
+                    or str(author.get("preferred-name", "")).strip()
+                )
+                if name:
+                    names.append(name)
+            if names:
+                return ", ".join(names)
+        return "Unknown"
+
+    def _parse_items(self, items: List[Dict[str, Any]], query: str) -> List[LiteratureRecord]:
+        records: List[LiteratureRecord] = []
+        for item in items:
+            title = str(item.get("dc:title", "")).strip()
+            if not title:
+                continue
+            authors = self._parse_authors(item)
+            doi = str(item.get("prism:doi", "")).strip()
+            url = str(item.get("prism:url", "")).strip()
+            journal = str(item.get("prism:publicationName", "")).strip()
+            year = self._parse_year(item)
+            citation_count = item.get("citedby-count")
+            try:
+                citation_count_int = int(citation_count) if citation_count is not None else None
+            except (TypeError, ValueError):
+                citation_count_int = None
+            records.append(
+                LiteratureRecord(
+                    title=title,
+                    authors=authors,
+                    year=year,
+                    doi=doi,
+                    source_id=f"scopus:{doi}" if doi else f"scopus:{url or title}",
+                    provider="Scopus",
+                    journal=journal,
+                    url=url,
+                    citation_count=citation_count_int,
+                    subject_terms=self._parse_subject_terms(item),
+                    source_query=query,
+                    licence_note="Elsevier Scopus bibliographic metadata",
+                )
+            )
+        return records
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
@@ -195,7 +288,7 @@ class ElsevierScopusProvider(BaseProvider):
         ts = datetime.now(timezone.utc).isoformat()
         evidence: List[SourceEvidence] = []
         for rec in records:
-            raw = f"scopus|{query}|{rec.doi}|{ts}"
+            raw = f"scopus|{query}|{rec.doi}|{rec.source_id}|{rec.title}|{ts}"
             phash = hashlib.sha256(raw.encode()).hexdigest()[:16]
             evidence.append(
                 SourceEvidence(
@@ -211,44 +304,63 @@ class ElsevierScopusProvider(BaseProvider):
             )
         return evidence
 
+    @staticmethod
+    def _http_error_result(action: str, exc: urllib.error.HTTPError) -> ProviderResult:
+        if exc.code == 429:
+            return ProviderResult(
+                warnings=[f"Scopus {action} rate limited (HTTP 429)."],
+                rate_limit_status="rate-limited",
+            )
+        if exc.code in (401, 403):
+            return ProviderResult(errors=[f"Scopus {action} unauthorized (HTTP {exc.code})."])
+        return ProviderResult(errors=[f"Scopus {action} failed (HTTP {exc.code})."])
     # ------------------------------------------------------------------
     # Public API (BaseProvider contract)
     # ------------------------------------------------------------------
 
     def search(self, query: str, max_results: int = 5) -> ProviderResult:
-        """Search Scopus — returns 'not configured' if key is absent."""
+        """Search Scopus."""
         if not self._api_key:
             return self._not_configured_result()
-        params = urllib.parse.urlencode(
-            {"query": query, "count": max_results, "field": _SCOPUS_FIELDS}
-        )
-        url = f"{_SCOPUS_API_BASE}?{params}"
+        encoded_query = urllib.parse.quote(query)
+        url = f"{self._api_base}?query={encoded_query}&count={max_results}&view=STANDARD"
         try:
-            req = urllib.request.Request(url, headers=self._headers())
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                data = json.loads(resp.read().decode())
-            entries = data.get("search-results", {}).get("entry", [])
-            records = self._parse_entries(entries, query)
-            evidence = self._make_evidence(query, "scopus/search", records)
-            return ProviderResult(records=records, provenance=evidence)
+            payload = self._request_json(url)
+            items = payload.get("search-results", {}).get("entry", [])
+            if not isinstance(items, list):
+                items = []
+            records = self._parse_items(items, query)
+            return ProviderResult(
+                records=records,
+                provenance=self._make_evidence(query, "scopus/search", records),
+            )
+        except urllib.error.HTTPError as exc:
+            return self._http_error_result("search", exc)
         except Exception as exc:
             return ProviderResult(errors=[f"Scopus search error: {exc}"])
 
     def verify_doi(self, doi: str) -> ProviderResult:
-        """Verify DOI via Scopus — returns 'not configured' if key is absent."""
+        """Verify DOI via Scopus."""
         if not self._api_key:
             return self._not_configured_result()
-        params = urllib.parse.urlencode(
-            {"query": f"DOI({doi})", "count": 1, "field": _SCOPUS_FIELDS}
-        )
-        url = f"{_SCOPUS_API_BASE}?{params}"
+        query = f'DOI("{doi}")'
+        encoded_query = urllib.parse.quote(query)
+        url = f"{self._api_base}?query={encoded_query}&count=1&view=STANDARD"
         try:
-            req = urllib.request.Request(url, headers=self._headers())
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                data = json.loads(resp.read().decode())
-            entries = data.get("search-results", {}).get("entry", [])
-            records = self._parse_entries(entries, doi)
-            evidence = self._make_evidence(doi, f"scopus/doi/{doi}", records)
-            return ProviderResult(records=records, provenance=evidence)
+            payload = self._request_json(url)
+            items = payload.get("search-results", {}).get("entry", [])
+            if not isinstance(items, list):
+                items = []
+            records = self._parse_items(items[:1], doi)
+            if records:
+                records[0].source_query = doi
+            return ProviderResult(
+                records=records,
+                provenance=self._make_evidence(
+                    doi, "scopus/search?query=DOI", records
+                ),
+            )
+        except urllib.error.HTTPError as exc:
+            return self._http_error_result("DOI verification", exc)
         except Exception as exc:
             return ProviderResult(errors=[f"Scopus DOI verification error: {exc}"])
