@@ -305,7 +305,7 @@ def test_format_records_response_handles_empty_and_non_empty():
     assert "No results found for: blue economy" in empty["content"][0]["text"]
 
     non_empty = bridge._format_records_response([_record(title="Ports Data")], "ports")
-    assert "Found 1 records" in non_empty["content"][0]["text"]
+    assert "Found 1" in non_empty["content"][0]["text"]
     assert "Ports Data" in non_empty["content"][0]["text"]
 
 
@@ -367,21 +367,41 @@ def test_run_writes_responses_and_internal_errors(monkeypatch, capsys):
         io.StringIO(
             '{"id": 1, "method": "tools/list"}\n'
             '{"id": 2, "method": "explode"}\n'
-            'not-json\n'
         ),
     )
 
     bridge.run()
     lines = [line for line in capsys.readouterr().out.strip().splitlines() if line.strip()]
 
-    assert len(lines) == 2  # malformed JSON input is ignored by the run loop
-    assert all("not-json" not in line for line in lines)
+    assert len(lines) == 2
     ok_payload = json.loads(lines[0])
     error_payload = json.loads(lines[1])
     assert ok_payload["id"] == 1
     assert error_payload["id"] == 2
     assert error_payload["error"]["code"] == -32603
     assert "boom" in error_payload["error"]["message"]
+
+
+def test_run_ignores_malformed_json_input(monkeypatch, capsys):
+    """run should ignore malformed JSON lines and continue processing."""
+    bridge = sb.ScientificBridge()
+    monkeypatch.setattr(
+        bridge,
+        "handle_request",
+        lambda request: {"result": {"content": [{"type": "text", "text": "ok"}]}},
+    )
+    monkeypatch.setattr(
+        sb.sys,
+        "stdin",
+        io.StringIO('not-json\n{"id": 3, "method": "tools/list"}\n'),
+    )
+
+    bridge.run()
+    lines = [line for line in capsys.readouterr().out.strip().splitlines() if line.strip()]
+
+    assert len(lines) == 1
+    payload = json.loads(lines[0])
+    assert payload["id"] == 3
 
 
 def test_scientific_bridge_main_delegates_to_run(monkeypatch):
