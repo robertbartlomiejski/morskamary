@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-05-11
+Change type fix add
+Scope triangulator tests
+Files affected src/cumulative_analysis/triangulator.py tests/test_cumulative_triangulator_dynamic_priority.py MANIFEST_SOURCES.csv
+Summary Fixed a bug in CumulativeTriangulator where a later dynamic ingestion (e.g. Scopus) could overwrite a record already upgraded from the static baseline by an earlier dynamic provider (e.g. Crossref). The triangulator now preserves first-ingested dynamic provider priority for both DOI-matched and title-matched deduplication slots. Added regression tests covering both DOI-match and title-match scenarios to prevent reintroduction of the overwrite bug. Updated MANIFEST_SOURCES.csv to reflect the new test file.
+Reason When multiple dynamic providers returned records sharing the same DOI or normalised title, the second provider's data silently overwrote the first provider's upgrade, losing provenance accuracy. Insertion-order priority within the dynamic pool is the documented contract.
+Impact CumulativeTriangulator.triangulate() now consistently returns the first-ingested dynamic provider's record when duplicates exist, matching the documented deduplication contract. Downstream analyses that rely on ClaimOrigin labels will now receive the correct first-source attribution.
+Provenance src/cumulative_analysis/triangulator.py (deduplication logic); src/scientific_sources/models.py (LiteratureRecord); tests/test_cumulative_triangulator.py (existing triangulator test suite).
+Quality checks python -m pytest -q passed; new tests test_first_dynamic_doi_match_preserved_after_static_upgrade and test_first_dynamic_title_match_preserved_after_static_upgrade both pass.
+Reviewer GitHub Copilot Coding Agent
+
 2026-05-11 (Stage 1 documentation reconciliation — QMBD wording and citation-count rule)
 Change type fix
 Scope governance
