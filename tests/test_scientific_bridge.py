@@ -157,9 +157,9 @@ def test_format_citation_markdown_error_and_year_only():
     assert bridge.format_citation_markdown({"error": "not found"}) == "⚠️ not found"
 
     markdown_output = bridge.format_citation_markdown(
-        {"title": "Year-Only Record", "year": "2024"}
+        {"title": "Blue Economy Analysis", "year": "2024"}
     )
-    assert "**Year-Only Record**" in markdown_output
+    assert "**Blue Economy Analysis**" in markdown_output
     assert "(2024)" in markdown_output
 
 
@@ -210,7 +210,9 @@ def test_handle_search_open_metadata_formats_records(monkeypatch):
     """search_open_metadata should render flattened records."""
     bridge = sb.ScientificBridge()
     result = ProviderResult(records=[_record(title="Oceanic Systems")])
-    monkeypatch.setattr(bridge._registry, "search", lambda topic, max_results: [result])
+    monkeypatch.setattr(
+        bridge._registry, "search", lambda _topic, _max_results: [result]
+    )
     monkeypatch.setattr(bridge._registry, "flat_records", lambda results: [result.records[0]])
 
     response = bridge.handle_search_open_metadata({"topic": "oceanic systems"})
@@ -280,7 +282,9 @@ def test_export_and_compare_handlers_format_outputs(monkeypatch):
     """export and compare handlers should render imported formatter output."""
     bridge = sb.ScientificBridge()
     mock_results = [ProviderResult(records=[_record()])]
-    monkeypatch.setattr(bridge._registry, "search", lambda topic, max_results: mock_results)
+    monkeypatch.setattr(
+        bridge._registry, "search", lambda _topic, _max_results: mock_results
+    )
     monkeypatch.setattr(
         "src.scientific_sources.provenance.export_provenance_json",
         lambda results: '{"records": 1}',
@@ -316,7 +320,7 @@ def test_search_single_handles_warnings_when_no_records(monkeypatch):
     monkeypatch.setattr(
         bridge._registry,
         "search",
-        lambda topic, max_results, providers: [warning_result],
+        lambda _topic, _max_results, providers=None: [warning_result],
     )
     monkeypatch.setattr(bridge._registry, "flat_records", lambda results: [])
 
