@@ -14,18 +14,24 @@ original Tripartite Model of Blue Dynamics (TMBD):
 | Marine | M | Biophysical and ecological agency and constraints |
 | Maritime | T | Techno-economic, infrastructural, labour, and institutional mediation |
 | Oceanic | O | Planetary coupling, multi-level governance, hydrosocial subjectivity |
-| Hydronization | H | Water-society co-constitution, blue subject formation, and hydrosocial mediation |
+| Hydronization | H | Water-society co-constitution, wet-ontological reframing, and hydrosocial mediation |
 
 Every **competence** and competence-derived analysis in the repository maps to
 exactly one of these four axes. This is not optional — the QMBD framework is the
 analytic spine of the entire project.
 
+The QMBD extends the original Tripartite Model of Blue Dynamics (TMBD) with a
+fourth axis, Hydronization, added following the Manus methodological review. All
+existing TMBD logic is preserved and the new axis is additive only. See
+`src/core.py` (`BlueDynamicsAxis` enum) for the canonical representation.
+
 Literature records retrieved from providers (`LiteratureRecord`) are **not**
 automatically classified by axis. Axis assignment for literature is applied
-downstream during competence mapping and manuscript analysis, where a researcher
-or the axis classifier explicitly associates a record with one or more QMBD
-dimensions. Do not assume that a literature record in the repository has a
-pre-assigned axis.
+downstream during competence mapping and manuscript analysis. The automated
+`AxisClassifier` assigns **exactly one** QMBD axis label per text fragment;
+researchers may manually associate a record with more than one axis, but the
+classifier itself is single-label. Do not assume that a literature record in the
+repository has a pre-assigned axis.
 
 Clarification on literature axis assignment: QMBD axis assignment is a downstream,
 derived analytical step performed on extracted, deduplicated text fragments (not

@@ -890,6 +890,7 @@ tests/test_axis_classifier.py,script,,,,,,test_axis_classifier,yes
 tests/test_bootstrap_ps1_syntax.py,script,,,,,,test_bootstrap_ps1_syntax,yes
 tests/test_build_derived.py,script,,,,,,test_build_derived,yes
 tests/test_build_tmbd_dictionary.py,script,,,,,,test_build_tmbd_dictionary,yes
+tests/test_check_research_api_health.py,script,,,,,,test_check_research_api_health,yes
 tests/test_competence_repository.py,script,,,,,,test_competence_repository,yes
 tests/test_convert_pdfs_to_txt.py,script,,,,,,test_convert_pdfs_to_txt,yes
 tests/test_core.py,script,,,,,,test_core,yes
