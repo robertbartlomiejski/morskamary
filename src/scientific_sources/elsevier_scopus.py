@@ -76,14 +76,18 @@ class ElsevierScopusProvider(BaseProvider):
 
     @staticmethod
     def _parse_year(entry: Dict[str, Any]) -> str:
+        def _extract_4digit_year(text: str) -> str:
+            for token in text.replace("/", " ").replace("-", " ").split():
+                if len(token) == 4 and token.isdigit():
+                    return token
+            return ""
+
         cover_date = str(entry.get("prism:coverDate", "")).strip()
-        if len(cover_date) >= 4 and cover_date[:4].isdigit():
-            return cover_date[:4]
+        year = _extract_4digit_year(cover_date)
+        if year:
+            return year
         cover_display = str(entry.get("prism:coverDisplayDate", "")).strip()
-        for token in cover_display.split():
-            if len(token) == 4 and token.isdigit():
-                return token
-        return ""
+        return _extract_4digit_year(cover_display)
 
     @staticmethod
     def _parse_subject_terms(entry: Dict[str, Any]) -> List[str]:
@@ -98,13 +102,34 @@ class ElsevierScopusProvider(BaseProvider):
                 terms = [raw_keywords.strip()]
         return terms
 
+    @staticmethod
+    def _parse_authors(entry: Dict[str, Any]) -> str:
+        creator = str(entry.get("dc:creator", "")).strip()
+        if creator:
+            return creator
+        author_block = entry.get("author")
+        if isinstance(author_block, list):
+            names: List[str] = []
+            for author in author_block:
+                if not isinstance(author, dict):
+                    continue
+                name = (
+                    str(author.get("authname", "")).strip()
+                    or str(author.get("preferred-name", "")).strip()
+                )
+                if name:
+                    names.append(name)
+            if names:
+                return ", ".join(names)
+        return "Unknown"
+
     def _parse_items(self, items: List[Dict[str, Any]], query: str) -> List[LiteratureRecord]:
         records: List[LiteratureRecord] = []
         for item in items:
             title = str(item.get("dc:title", "")).strip()
             if not title:
                 continue
-            authors = str(item.get("dc:creator", "")).strip() or "Unknown"
+            authors = self._parse_authors(item)
             doi = str(item.get("prism:doi", "")).strip()
             url = str(item.get("prism:url", "")).strip()
             journal = str(item.get("prism:publicationName", "")).strip()

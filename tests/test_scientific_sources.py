@@ -634,7 +634,7 @@ class TestWebOfScienceConfiguredPaths:
         provider = WebOfScienceProvider()
         result = provider.search("maritime transport")
         assert not result.is_empty
-        assert result.records[0].provider == "Web of Science"
+        assert result.records[0].provider == "Web of Science (Clarivate)"
         assert result.records[0].doi == "10.3000/wos"
         assert result.records[0].citation_count == 7
         assert result.provenance

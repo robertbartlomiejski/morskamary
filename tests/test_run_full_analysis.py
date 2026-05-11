@@ -9,6 +9,7 @@ import pytest
 from run_full_analysis import (
     Competence,
     CompetenceSource,
+    DEFAULT_LIVE_RECORDS_JSON,
     EQFLevel,
     GapAnalysis,
     MicroCredential,
@@ -1048,7 +1049,7 @@ class TestCLIAndEdgeCases:
             # Default value is an empty list, not None
             assert args.sectors == [] or args.sectors is None
             assert args.analysis_input_mode == "static"
-            assert args.live_records_path
+            assert args.live_records_path == str(DEFAULT_LIVE_RECORDS_JSON)
 
     def test_main_with_cli_sector_selection(self, tmp_path):
         """Test main() with CLI sector selection"""

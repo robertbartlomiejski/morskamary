@@ -22,10 +22,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 def check_python_version() -> bool:
-    """Verify Python version is at least 3.10."""
+    """Verify Python version is at least 3.9."""
     major, minor = sys.version_info[:2]
-    ok = (major, minor) >= (3, 10)
-    status = "OK" if ok else "FAIL (need >= 3.10)"
+    ok = (major, minor) >= (3, 9)
+    status = "OK" if ok else "FAIL (need >= 3.9)"
     print(f"  Python version: {major}.{minor} — {status}")
     return ok
 

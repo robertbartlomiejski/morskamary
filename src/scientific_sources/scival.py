@@ -71,6 +71,7 @@ class SciValProvider(BaseProvider):
 
     @staticmethod
     def _parse_topics(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+        # SciVal response keys vary by endpoint/version; support common variants.
         for key in ("results", "data", "topicCompetencies", "topics"):
             val = payload.get(key)
             if isinstance(val, list):

@@ -680,7 +680,14 @@ def _slugify(text: str) -> str:
 
 
 def _normalize_title_for_dedup(title: str) -> str:
-    """Normalize titles for cross-source deduplication."""
+    """
+    Normalize titles for cross-source deduplication.
+
+    Rules:
+      - convert to lowercase
+      - replace non-word characters with spaces
+      - collapse/strip surrounding whitespace
+    """
     return re.sub(r"\W+", " ", title.lower()).strip()
 
 
@@ -847,6 +854,7 @@ def extract_live_records_competences(
     competences: List[Competence] = []
     rel_path = live_records_path.relative_to(REPO_ROOT).as_posix()
 
+    # start=2 aligns source row references with data-row indexing semantics.
     for idx, row in enumerate(payload, start=2):
         if not isinstance(row, dict):
             continue
@@ -1846,7 +1854,10 @@ def main(
     literature = extract_literature_competences()
     if analysis_input_mode == "live-enriched":
         baseline_titles = {
-            _normalize_title_for_dedup(c.source.paper_title or c.name) for c in literature
+            _normalize_title_for_dedup(
+                getattr(c.source, "paper_title", None) or c.name
+            )
+            for c in literature
         }
         live_competences = extract_live_records_competences(live_path, baseline_titles)
         literature.extend(live_competences)

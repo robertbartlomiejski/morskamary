@@ -89,7 +89,9 @@ class WebOfScienceProvider(BaseProvider):
                     parts.append(name)
             if parts:
                 return ", ".join(parts)
-        return str(item.get("authorString", "")).strip() or "Unknown"
+        # Some WoS payload variants expose a pre-flattened author field.
+        fallback_author_field = str(item.get("authorString", "")).strip()
+        return fallback_author_field or "Unknown"
 
     @staticmethod
     def _extract_subject_terms(item: Dict[str, Any]) -> List[str]:
@@ -145,7 +147,7 @@ class WebOfScienceProvider(BaseProvider):
                     year=year,
                     doi=doi,
                     source_id=f"wos:{doi}" if doi else f"wos:{url or title}",
-                    provider="Web of Science",
+                    provider="Web of Science (Clarivate)",
                     journal=journal,
                     url=url,
                     citation_count=self._extract_citation_count(item),
