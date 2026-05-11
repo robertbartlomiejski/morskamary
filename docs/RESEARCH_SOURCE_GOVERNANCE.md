@@ -4,10 +4,11 @@ This document explains what external bibliographic metadata may and may not
 be stored in the morskamary repository, in accordance with DATA_GOVERNANCE.txt
 and the FAIR/CARE principles.
 
-## Permissible metadata fields
+## Stage 1 permissible metadata fields
 
-The following fields may be stored for any literature record, regardless of
-the source provider, provided they are bibliographic (not full-text) data:
+The following fields may be stored in Stage 1 committed outputs for any
+literature record, regardless of the source provider, provided they are
+bibliographic (not full-text) data:
 
 | Field | Notes |
 |---|---|
@@ -22,6 +23,11 @@ the source provider, provided they are bibliographic (not full-text) data:
 | `provider` | Name of the source provider |
 | `retrieval_timestamp` | ISO 8601 timestamp of retrieval |
 | `licence_note` | Licence constraint note for this record |
+
+`citation_count` is intentionally excluded from Stage 1 committed outputs. Even
+if an institutional provider can return citation metrics under licence, the
+Stage 1 compliance filter in `scripts/export_live_research_records.py` drops the
+field before export.
 
 ## Prohibited fields
 
@@ -45,17 +51,18 @@ The following MUST NOT be stored in derived outputs committed to the repository:
 - Store: title, authors, year, DOI, journal, URL.
 
 ### Elsevier / Scopus
-- Store only: title, authors, year, DOI, journal, URL, subject terms.
-- `citation_count` may be retrieved from the Scopus API but is always dropped
-  by the Stage 1 compliance filter before any committed export.
+- Store only in Stage 1 committed outputs: title, authors, year, DOI, journal,
+  URL, subject terms.
+- `citation_count` may be queried transiently for local verification, but is
+  always dropped by the Stage 1 compliance filter before any committed export.
 - Do NOT store: full abstracts, full article text, affiliation details,
   or any Scopus database payload unless your institutional licence
   explicitly permits redistribution.
 
 ### Web of Science (Clarivate)
 - Same constraints as Elsevier/Scopus.
-- Aggregated citation counts may be retrieved from the WoS API but are always
-  dropped by the Stage 1 compliance filter before any committed export.
+- `citation_count` may be queried transiently for local verification, but is
+  always dropped by the Stage 1 compliance filter before any committed export.
 
 ### SciVal (Elsevier)
 - Store only: aggregated bibliometric indicators, topic cluster labels,

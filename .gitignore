@@ -84,6 +84,13 @@ bluesociology.json
 data/local/
 *.csv.bak
 
+# Azurite local emulator state (machine-generated)
+.azurite/
+__azurite_db*.json
+__blobstorage__/
+__queuestorage__/
+__tablestorage__/
+
 # Generated analysis outputs are now tracked in git
 # (run python run_full_analysis.py to regenerate)
 # outputs/*.html

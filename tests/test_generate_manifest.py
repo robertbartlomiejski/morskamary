@@ -2,7 +2,6 @@
 
 import csv
 import pytest
-from pathlib import Path
 from scripts.generate_manifest import (
     classify,
     text_available,
@@ -68,6 +67,7 @@ class TestClassify:
         """Test fallback classification for text files"""
         assert classify(REPO_ROOT / "somewhere" / "notes.txt") == "text"
         assert classify(REPO_ROOT / "somewhere" / "readme.md") == "text"
+        assert classify(REPO_ROOT / "somewhere" / "script.py") == "script"
 
     def test_fallback_other(self):
         """Test fallback classification for unknown types"""
@@ -83,10 +83,12 @@ class TestTextAvailable:
         txt_file = REPO_ROOT / "tests" / "fixtures" / "test.txt"
         md_file = REPO_ROOT / "tests" / "fixtures" / "test.md"
         csv_file = REPO_ROOT / "tests" / "fixtures" / "test.csv"
+        py_file = REPO_ROOT / "tests" / "fixtures" / "test.py"
 
         assert text_available(txt_file) == "yes"
         assert text_available(md_file) == "yes"
         assert text_available(csv_file) == "yes"
+        assert text_available(py_file) == "yes"
 
     def test_pdf_without_sidecar(self):
         """PDF without sidecar text should be marked as not available"""

@@ -3,7 +3,7 @@ Core utilities and data structures for Blue Sociology analysis
 """
 
 from pathlib import Path
-from typing import Dict, List, Any, Union
+from typing import Any, Dict, List, Union
 from dataclasses import dataclass
 from enum import Enum
 
@@ -20,7 +20,111 @@ class BlueDynamicsAxis(Enum):
     MARINE = "M"  # Marine (biophysical agency)
     MARITIME = "T"  # Maritime (techno-economic and institutional mediation)
     OCEANIC = "O"  # Oceanic (planetary governance and hydrosocial subjectivity)
-    HYDRONIZATION = "H"  # Hydronization (water-society co-constitution and blue subjectivity)
+    HYDRONIZATION = "H"  # Hydronization (water-society co-constitution)
+
+
+_AXIS_THEME_KEYWORDS: Dict[BlueDynamicsAxis, List[str]] = {
+    BlueDynamicsAxis.MARINE: [
+        "marine",
+        "ocean",
+        "fisheries",
+        "aquaculture",
+        "ecosystem",
+        "biodiversity",
+        "bio-cycles",
+        "deep-time rhythms",
+        "cofka",
+        "thermohaline circulation",
+        "stewardship",
+        "habitus of seafarers",
+        "marine ecotone",
+        "vibrant materialism",
+        "weather-based risk",
+        "intra-action",
+        "pelagic metabolism",
+        "benthic agency",
+    ],
+    BlueDynamicsAxis.MARITIME: [
+        "maritime",
+        "port",
+        "shipping",
+        "logistics",
+        "infrastructure",
+        "msp",
+        "maritimization",
+        "port 4.0",
+        "growth machine",
+        "blue-washing",
+        "ocean grabbing",
+        "rigid superinfrastructure",
+        "ten-t corridors",
+        "flag of convenience",
+        "throughput tonnage",
+        "logistics algorithms",
+        "supply chain acceleration",
+        "maritime mindset",
+        "cyber-physical port systems",
+    ],
+    BlueDynamicsAxis.OCEANIC: [
+        "governance",
+        "policy",
+        "cooperation",
+        "justice",
+        "sustainability",
+        "hyperobject",
+        "hydrocommons",
+        "blue degrowth",
+        "high sea treaties",
+        "volumetric sovereignty",
+        "tidalectics",
+        "rights of nature",
+        "blue justice",
+        "planetary water",
+        "hydro-solidarity",
+        "ocean literacy",
+        "blue citizenship",
+        "multispecies justice",
+    ],
+    BlueDynamicsAxis.HYDRONIZATION: [
+        "hydronization",
+        "hydrosocial",
+        "wet ontology",
+        "hydrofeminism",
+        "transcorporeality",
+        "porocity",
+        "sponge city",
+        "liquid materiality",
+        "estuarial hydrofeminism",
+        "bodies of water",
+        "hydrobiography",
+        "metabolism of flows",
+        "porous infrastructure",
+        "hydro-social territory",
+        "[citation needed]",
+    ],
+}
+
+
+def _detect_all_themes(record: Dict[str, Any]) -> Dict[BlueDynamicsAxis, List[str]]:
+    """Detect per-axis thematic keywords from record text.
+
+    Returns a dictionary keyed by all QMBD axes. If no keywords are found,
+    applies a deterministic governance fallback under OCEANIC.
+    """
+    text = " ".join(
+        str(record.get(field, "")) for field in ("title", "abstract", "keywords")
+    ).lower()
+
+    themes: Dict[BlueDynamicsAxis, List[str]] = {
+        axis: [] for axis in BlueDynamicsAxis
+    }
+    for axis, keywords in _AXIS_THEME_KEYWORDS.items():
+        themes[axis] = [keyword for keyword in keywords if keyword in text]
+
+    if not any(themes.values()):
+        themes[BlueDynamicsAxis.OCEANIC] = ["[citation needed]"]
+
+    return themes
 
 
 class CompetenceLevel(Enum):

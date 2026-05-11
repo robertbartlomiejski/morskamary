@@ -19,16 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
-2026-05-11 (Stage 1 documentation fixes — QMBD alignment and citation_count governance)
+2026-05-11 (Stage 1 documentation reconciliation — QMBD wording and citation-count rule)
 Change type fix
 Scope governance
 Files affected docs/overview.md docs/onboarding_new_provider.md docs/providers.md docs/RESEARCH_SOURCE_GOVERNANCE.md CHANGELOG.txt
-Summary Three targeted fixes to complete Stage 1 documentation consistency: (1) docs/overview.md updated from TMBD (3 axes) to QMBD (4 axes) — added Hydronization row to the axis table, updated all in-text references from "three axes / TMBD framework" to "four axes / QMBD framework", and noted backward compatibility with TMBD; (2) docs/onboarding_new_provider.md line 79 corrected from "TMBD relevance" to "QMBD relevance"; (3) citation_count governance reconciled across docs/providers.md (Scopus and WoS provider sections) and docs/RESEARCH_SOURCE_GOVERNANCE.md — citation_count removed from the permissible fields table, added to the prohibited fields table with a Stage 1 filter cross-reference, and provider-specific notes updated to clarify it may be retrieved from APIs but is always dropped before committed exports.
-Reason Identified by Stage 1 completion review: docs/overview.md was still TMBD-only (pre-QMBD synthesis), docs/onboarding_new_provider.md had a stale TMBD label, and citation_count had contradictory rules ("may be stored if licensed" vs "always dropped by Stage 1 filter") across three documents.
-Impact Documentation only. No code, CI, or schema changes. Stage 1 documentation layer is now internally consistent across all four contract documents and RESEARCH_SOURCE_GOVERNANCE.md.
-Provenance src/core.py:BlueDynamicsAxis (4 QMBD axes); scripts/export_live_research_records.py:_to_stage1_compliant_dict() (citation_count always dropped).
-Quality checks No tests affected. Governance files only.
-Reviewer GitHub Copilot Task Agent
+Summary Reconciled the remaining Stage 1 documentation clashes without changing code. docs/overview.md now describes the implemented QMBD 4-axis model (including Hydronization) instead of the obsolete 3-axis TMBD wording, docs/onboarding_new_provider.md now asks for "QMBD axis relevance", and the Stage 1 citation-count rule is now consistent across provider/governance docs: `citation_count` may be visible during licensed institutional research use but is not stored or exported in Stage 1 committed outputs.
+Reason Review feedback concluded that Stage 1 enforcement was already correct in code and tests, but the documentation foundation was not yet officially complete because the human contracts still contradicted the implementation in three places.
+Impact Documentation only. No code, test, CI, or schema behaviour changes. Stage 1 governance text now matches `_to_stage1_compliant_dict()` and the current 4-axis `BlueDynamicsAxis` enum.
+Provenance src/core.py:BlueDynamicsAxis (QMBD with HYDRONIZATION); scripts/export_live_research_records.py:_to_stage1_compliant_dict() and STAGE1_CSV_FIELDS (citation-count drop rule); tests/test_export_live_research_records.py:TestStage1ComplianceFilter
+Quality checks Baseline `python -m pytest -q` passes locally before and after the documentation update. `flake8 src tests` and `mypy src` remain non-clean due to pre-existing unrelated issues.
+Reviewer GitHub Copilot Coding Agent
 
 2026-05-10 (QMBD keyword governance fix — remove ungrounded blue subjectivity keyword)
 Change type fix

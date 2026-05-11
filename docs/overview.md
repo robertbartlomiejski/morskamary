@@ -6,14 +6,15 @@
 of maritime sociology for the EU Sustainable Blue Economy and "one ocean" governance.
 
 Its primary function is to support **competence mapping and micro-credential design**
-grounded in the Quadripartite Model of Blue Dynamics (QMBD):
+grounded in the Quadripartite Model of Blue Dynamics (QMBD), which extends the
+original Tripartite Model of Blue Dynamics (TMBD):
 
 | Axis | Code | Domain |
 |---|---|---|
 | Marine | M | Biophysical and ecological agency and constraints |
 | Maritime | T | Techno-economic, infrastructural, labour, and institutional mediation |
 | Oceanic | O | Planetary coupling, multi-level governance, hydrosocial subjectivity |
-| Hydronization | H | Water-society co-constitution and blue subjectivity |
+| Hydronization | H | Water-society co-constitution, blue subject formation, and hydrosocial mediation |
 
 Every **competence** and competence-derived analysis in the repository maps to
 exactly one of these four axes. This is not optional — the QMBD framework is the
@@ -60,7 +61,7 @@ The repository combines:
 | A substitute for institutional database subscriptions | Proprietary providers (Scopus, WoS) are capability-gated; access requires your own credentials |
 | A general-purpose literature database | Scope is confined to Blue Sociology, QMBD competences, and EU blue economy policy |
 | A place to store full-text articles or abstracts | Publisher copyright prevents this; only bibliographic metadata fields are permitted |
-| A validated machine-learning system | The QMBD classifier uses a deterministic rule map, not a trained model; reported accuracy reflects rule-label circularity in the current baseline |
+| A validated machine-learning system | The repository's rule-based QMBD/TMBD axis classifier uses a deterministic map, not a trained model; reported accuracy reflects rule-label circularity in the current baseline |
 
 ---
 
