@@ -44,7 +44,7 @@ query time. Each record carries a `ClaimOrigin` label:
 
 | Origin | Source | Priority |
 |---|---|---|
-| `DYNAMIC_API_*` | Live provider API call (Crossref / Scopus / WoS / SciVal / workspace providers) | Higher — upgrades static record on DOI match |
+| `DYNAMIC_API_CROSSREF` | Live Crossref API call (current triangulator dynamic provenance label) | Higher — upgrades static record on DOI match |
 | `STATIC_BASELINE` | CSV snapshot (e.g., University of Szczecin baseline) | Lower |
 
 Deduplication is DOI-first; title-based fallback uses exact matching on

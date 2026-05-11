@@ -590,6 +590,8 @@ class TestSciValConfiguredPaths:
         assert not result.is_empty
         assert result.records[0].provider == "SciVal"
         assert "SciVal topic" in result.records[0].title
+        assert result.records[0].authors == ""
+        assert result.records[0].journal == ""
         assert result.provenance
 
     def test_verify_doi_with_key_uses_search(self, monkeypatch):

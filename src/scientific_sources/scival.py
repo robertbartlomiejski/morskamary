@@ -113,12 +113,12 @@ class SciValProvider(BaseProvider):
         url = str(topic.get("url", "")).strip()
         return LiteratureRecord(
             title=f"SciVal topic: {title}",
-            authors="SciVal Analytics",
+            authors="",
             year=SciValProvider._topic_year(topic),
             doi="",
             source_id=source_id,
             provider="SciVal",
-            journal="SciVal",
+            journal="",
             url=url,
             subject_terms=SciValProvider._topic_subject_terms(topic),
             source_query=query,
