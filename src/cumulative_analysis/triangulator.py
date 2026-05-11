@@ -386,6 +386,9 @@ class CumulativeTriangulator:
             if norm_doi and norm_doi in doi_to_idx:
                 idx = doi_to_idx[norm_doi]
                 old_rec = pool[idx]
+                # Preserve first-ingested dynamic provider priority.
+                if old_rec.source != ClaimOrigin.STATIC_BASELINE:
+                    continue
                 # Remove stale title-index entry so a later dynamic record
                 # matching the old static title does not overwrite this slot.
                 old_norm_title = _normalize_title(old_rec.title)
@@ -395,7 +398,7 @@ class CumulativeTriangulator:
                 ):
                     del title_to_idx[old_norm_title]
                     seen_titles.discard(old_norm_title)
-                # Replace the static slot with the dynamic (DOI-authority) rec.
+                # Replace the static slot with the first matching dynamic rec.
                 pool[idx] = dyn
                 # Register the new title so it is visible to subsequent records.
                 if norm_title and norm_title not in seen_titles:
@@ -406,7 +409,11 @@ class CumulativeTriangulator:
             # --- Title-normalised upgrade ------------------------------------
             if norm_title and norm_title in title_to_idx:
                 idx = title_to_idx[norm_title]
-                # Replace static slot; dynamic variant is authoritative.
+                old_rec = pool[idx]
+                # Preserve first-ingested dynamic provider priority.
+                if old_rec.source != ClaimOrigin.STATIC_BASELINE:
+                    continue
+                # Replace static slot; first dynamic variant is authoritative.
                 pool[idx] = dyn
                 if norm_doi:
                     doi_to_idx[norm_doi] = idx
