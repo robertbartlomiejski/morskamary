@@ -358,6 +358,10 @@ def main() -> int:
     # Initialize registry
     registry = SourceRegistry()
 
+    # --providers all => query every registered provider in registry order.
+    if len(provider_list) == 1 and provider_list[0] == "all":
+        provider_list = [cap.name for cap in registry.list_capabilities()]
+
     # Validate that every requested provider name is known to the registry.
     known_names: Set[str] = {cap.name for cap in registry.list_capabilities()}
     unknown = [p for p in provider_list if p not in known_names]

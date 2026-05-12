@@ -20,11 +20,11 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/workflows/research-api-smoke.yml,other,,,,,,research_api_smoke,no
 .gitignore,other,,,,,,gitignore,no
 .vscode/## Chat Customization Diagnostics.md,text,,,,,,Chat_Customization_Diagnostics,yes
-.vscode/launch.json,other,,,,,,launch,no
-.vscode/mcp.json,other,,,,,,mcp,no
-.vscode/settings.json,other,,,,,,settings,no
-.vscode/tasks.json,other,,,,,,tasks,no
-.vscode/test_launch.json,other,,,,,,test_launch,no
+.vscode/launch.json,other,,,,,,launch,yes
+.vscode/mcp.json,other,,,,,,mcp,yes
+.vscode/settings.json,other,,,,,,settings,yes
+.vscode/tasks.json,other,,,,,,tasks,yes
+.vscode/test_launch.json,other,,,,,,test_launch,yes
 branch_reconciliation_2026-04-30.md,text,,,,,,branch_reconciliation_2026_04_30,yes
 CHANGELOG.txt,governance,,,,,,CHANGELOG,yes
 CITATION.txt,governance,,,,,,CITATION,yes
@@ -527,8 +527,8 @@ data/derived/un_ocean_decade_ilk_resource_database_v1_02-2026_kopia__read_me.csv
 data/derived/un_ocean_decade_ilk_resource_database_v1_02-2026_kopia__read_me__datadict.csv,dataset_derived,,,,,,un_ocean_decade_ilk_resource_database_v1,yes
 data/derived/un_ocean_decade_ilk_resource_database_v1_02-2026_kopia__resources.csv,dataset_derived,,,,,,un_ocean_decade_ilk_resource_database_v1,yes
 data/derived/un_ocean_decade_ilk_resource_database_v1_02-2026_kopia__resources__datadict.csv,dataset_derived,,,,,,un_ocean_decade_ilk_resource_database_v1,yes
-data/derived/web_search_poole_article_search — kopia.json,dataset_derived,,,,,,web_search_poole_article_search___kopia,no
-data/derived/web_search_poole_article_search.json,dataset_derived,,,,,,web_search_poole_article_search,no
+data/derived/web_search_poole_article_search — kopia.json,dataset_derived,,,,,,web_search_poole_article_search___kopia,yes
+data/derived/web_search_poole_article_search.json,dataset_derived,,,,,,web_search_poole_article_search,yes
 data/derived/WG3_Glossary_FULL_100pct_DROP_KEEP_REWRITE_bySector_withAnchors — kopia.xlsx,dataset_derived,,,,,,WG3_Glossary_FULL_100pct_DROP_KEEP_REWRI,yes
 data/derived/WG3_Glossary_FULL_100pct_DROP_KEEP_REWRITE_bySector_withAnchors.xlsx,dataset_derived,,,,,,WG3_Glossary_FULL_100pct_DROP_KEEP_REWRI,yes
 data/derived/wg3_glossary_full_100pct_drop_keep_rewrite_bysector_withanchors__full_term_table.csv,dataset_derived,,,,,,wg3_glossary_full_100pct_drop_keep_rewri,yes
@@ -644,7 +644,7 @@ data/raw/scispace_social_justice_maritime.csv,dataset_raw,,,,,,scispace_social_j
 data/raw/The Theoretical Lineage of Maritime Sociology.docx,dataset_raw,,,,,,The_Theoretical_Lineage_of_Maritime_Soci,yes
 data/raw/Theoretical_Foundations_Expansion Visiual Studio Edit 12_02.md,dataset_raw,,,,,,Theoretical_Foundations_Expansion_Visiua,yes
 data/raw/Theoretical_Foundations_Expansion.md,dataset_raw,,,,,,Theoretical_Foundations_Expansion,yes
-data/raw/web_search_poole_article_search.json,dataset_raw,,,,,,web_search_poole_article_search,no
+data/raw/web_search_poole_article_search.json,dataset_raw,,,,,,web_search_poole_article_search,yes
 DATA_GOVERNANCE.txt,governance,,,,,,DATA_GOVERNANCE,yes
 deep_update_patch/EXECUTIVE_PLAN.txt,text,,,,,,EXECUTIVE_PLAN,yes
 deep_update_patch/load_real_competences.py,script,,,,,,load_real_competences,yes
@@ -788,21 +788,21 @@ manuscripts/drafts/Theoretical Framework Janiszsewski Maritime Sociology SCISPAC
 manuscripts/drafts/World Café Facilitation Guide – Energy Transition Glossary.docx,manuscript,,,,,,World_Cafe__Facilitation_Guide___Energy_,yes
 morskamary.code-workspace,other,,,,,,morskamary,no
 morskamary.code-workspace2.txt,text,,,,,,morskamary_code_workspace2,yes
-outputs/competences_full_database.json,other,,,,,,competences_full_database,no
-outputs/credentials_database.json,other,,,,,,credentials_database,no
+outputs/competences_full_database.json,other,,,,,,competences_full_database,yes
+outputs/credentials_database.json,other,,,,,,credentials_database,yes
 outputs/credentials_matrix.html,other,,,,,,credentials_matrix,no
 outputs/gaps_by_sector.html,other,,,,,,gaps_by_sector,no
 outputs/gaps_summary.csv,dataset_derived,,,,,,gaps_summary,yes
 outputs/literature_integration.html,other,,,,,,literature_integration,no
 outputs/report_index.html,other,,,,,,report_index,no
-outputs/research_source_capabilities.json,other,,,,,,research_source_capabilities,no
+outputs/research_source_capabilities.json,other,,,,,,research_source_capabilities,yes
 outputs/research_sources/crossref_records.json,dataset_derived,,,,,,crossref_records,yes
 outputs/research_sources/live_provenance.json,dataset_derived,,,,,,live_provenance,yes
 outputs/research_sources/live_records.csv,dataset_derived,,,,,,live_records,yes
 outputs/research_sources/live_records.json,dataset_derived,,,,,,live_records,yes
 outputs/research_sources/live_source_coverage.csv,dataset_derived,,,,,,live_source_coverage,yes
 outputs/research_sources/low_confidence_live_records.json,dataset_derived,,,,,,low_confidence_live_records,yes
-outputs/sector_pathways.json,other,,,,,,sector_pathways,no
+outputs/sector_pathways.json,other,,,,,,sector_pathways,yes
 PROMPT_REQUEST_TEMPLATE.txt,governance,,,,,,PROMPT_REQUEST_TEMPLATE,yes
 push_output.txt,text,,,,,,push_output,yes
 pyproject.toml,other,,,,,,pyproject,no
@@ -810,7 +810,7 @@ readme,other,,,,,,readme,no
 README.md,governance,,,,,,README,yes
 requirements.txt,script,,,,,,requirements,yes
 run_full_analysis.py,script,,,,,,run_full_analysis,yes
-schemas/research_metadata.schema.json,other,,,,,,research_metadata_schema,no
+schemas/research_metadata.schema.json,other,,,,,,research_metadata_schema,yes
 scientific_bridge.py,script,,,,,,scientific_bridge,yes
 scripts/40152_2021_Article_238.PDF,script,,,,,,40152_2021_Article_238,no
 scripts/Aaa Hab 4_250621_114734.txt,script,,,,,,Aaa_Hab_4_250621_114734,yes

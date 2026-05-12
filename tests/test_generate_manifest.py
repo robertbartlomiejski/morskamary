@@ -38,6 +38,10 @@ class TestClassify:
         """Test classification of derived datasets"""
         assert classify(REPO_ROOT / "data" / "derived" / "output.csv") == "dataset_derived"
         assert classify(REPO_ROOT / "data" / "derived" / "processed.csv") == "dataset_derived"
+        assert (
+            classify(REPO_ROOT / "outputs" / "research_sources" / "live_records.json")
+            == "dataset_derived"
+        )
 
     def test_policy_documents(self):
         """Test classification of policy documents"""
@@ -83,11 +87,13 @@ class TestTextAvailable:
         txt_file = REPO_ROOT / "tests" / "fixtures" / "test.txt"
         md_file = REPO_ROOT / "tests" / "fixtures" / "test.md"
         csv_file = REPO_ROOT / "tests" / "fixtures" / "test.csv"
+        json_file = REPO_ROOT / "tests" / "fixtures" / "test.json"
         py_file = REPO_ROOT / "tests" / "fixtures" / "test.py"
 
         assert text_available(txt_file) == "yes"
         assert text_available(md_file) == "yes"
         assert text_available(csv_file) == "yes"
+        assert text_available(json_file) == "yes"
         assert text_available(py_file) == "yes"
 
     def test_pdf_without_sidecar(self):

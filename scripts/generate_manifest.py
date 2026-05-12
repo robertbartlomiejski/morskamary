@@ -93,6 +93,8 @@ def classify(path: pathlib.Path) -> str:
         return "literature"
     if rel.startswith("manuscripts/"):
         return "manuscript"
+    if rel.startswith("outputs/research_sources/") and path.suffix.lower() == ".json":
+        return "dataset_derived"
 
     # Fallback by extension
     ext = path.suffix.lower()
@@ -113,7 +115,7 @@ def classify(path: pathlib.Path) -> str:
 
 def text_available(path: pathlib.Path) -> str:
     ext = path.suffix.lower()
-    if ext in {".txt", ".md", ".csv", ".py"}:
+    if ext in {".txt", ".md", ".csv", ".json", ".py"}:
         return "yes"
     if ext == ".pdf":
         # treat as yes if a sidecar text exists
