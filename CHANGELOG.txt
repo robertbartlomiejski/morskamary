@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-05-12 (test fix — pdfminer mock compatibility in PDF sidecar converter)
+Change type fix
+Scope scripts tests governance
+Files affected scripts/convert_pdfs_to_txt.py CHANGELOG.txt
+Summary Restored compatibility between the pdfminer helper and the test patching strategy by exposing a module-level `extract_text` symbol with lazy fallback import behavior. `extract_with_pdfminer()` now resolves `extract_text` from module scope first and only imports dynamically when unavailable, preserving runtime behavior while making patch-based unit tests deterministic.
+Reason CI baseline had two failing tests in tests/test_convert_pdfs_to_txt.py due to patch target drift: tests patched `convert_pdfs_to_txt.extract_text`, but the function-level import removed that attribute from module scope.
+Impact PDF sidecar conversion behavior is unchanged for production runs; only import/patchability semantics were adjusted. The previously failing pdfminer tests now pass and full repository test suite is green in this workspace run.
+Provenance tests/test_convert_pdfs_to_txt.py (TestExtractWithPdfminer patch targets); scripts/convert_pdfs_to_txt.py extract_with_pdfminer import path.
+Quality checks `python -m pytest -q tests/test_convert_pdfs_to_txt.py` passes (17 passed); `python -m pytest -q` passes (429 passed, 8 warnings); `python run_full_analysis.py` completed; `python scripts/generate_manifest.py` completed; `git diff --exit-code outputs/` clean.
+Reviewer GitHub Copilot Coding Agent
+
 2026-05-12 (CI reconciliation — governance-and-repro and run-analysis alignment)
 Change type update fix
 Scope governance scripts outputs

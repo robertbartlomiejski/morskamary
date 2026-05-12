@@ -16,6 +16,11 @@ import os
 from pathlib import Path
 import pypdf
 
+try:
+    from pdfminer.high_level import extract_text as extract_text
+except Exception:
+    extract_text = None
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 IGNORED_DIRS = {".git", "__pycache__", ".pytest_cache"}
 
@@ -33,7 +38,11 @@ def extract_with_pypdf(pdf_path: Path) -> str:
 
 
 def extract_with_pdfminer(pdf_path: Path) -> str:
-    from pdfminer.high_level import extract_text
+    global extract_text
+    if extract_text is None:
+        from pdfminer.high_level import extract_text as _extract_text
+
+        extract_text = _extract_text
 
     return extract_text(str(pdf_path)) or ""
 
