@@ -1,17 +1,17 @@
 column,dtype,non_null,null
-Dimension (Aspect),str,9,12
-ID,str,19,2
-Competence Name,str,19,2
-Key Simplified Focus (Applied to all 12 Sectors),str,19,2
-Blue Biotech,str,19,2
-Coastal Tourism,str,19,2
-Desalination,str,19,2
-Infra & Robotics,str,19,2
-Living Res.,str,19,2
-Non-living Res.,str,19,2
-Renewable Energy,str,19,2
-Maritime Defence,str,19,2
-Maritime Transport,str,19,2
-Port Activities,str,19,2
-R&I,str,19,2
-Ship Repair,str,19,2
+Dimension (Aspect),object,9,12
+ID,object,19,2
+Competence Name,object,19,2
+Key Simplified Focus (Applied to all 12 Sectors),object,19,2
+Blue Biotech,object,19,2
+Coastal Tourism,object,19,2
+Desalination,object,19,2
+Infra & Robotics,object,19,2
+Living Res.,object,19,2
+Non-living Res.,object,19,2
+Renewable Energy,object,19,2
+Maritime Defence,object,19,2
+Maritime Transport,object,19,2
+Port Activities,object,19,2
+R&I,object,19,2
+Ship Repair,object,19,2

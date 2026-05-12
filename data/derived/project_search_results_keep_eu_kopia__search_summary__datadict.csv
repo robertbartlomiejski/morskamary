@@ -1,3 +1,3 @@
 column,dtype,non_null,null
-Filter,str,1,0
-Value,str,1,0
+Filter,object,1,0
+Value,object,1,0

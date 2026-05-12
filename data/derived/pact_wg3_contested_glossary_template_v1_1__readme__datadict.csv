@@ -1,2 +1,2 @@
 column,dtype,non_null,null
-README,str,5,0
+README,object,5,0

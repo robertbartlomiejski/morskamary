@@ -1,4 +1,4 @@
 column,dtype,non_null,null
-Term,str,43,0
-Domain,str,43,0
-Notes,str,43,0
+Term,object,43,0
+Domain,object,43,0
+Notes,object,43,0

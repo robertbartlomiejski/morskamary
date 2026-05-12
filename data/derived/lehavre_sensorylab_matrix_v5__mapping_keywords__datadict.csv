@@ -1,8 +1,8 @@
 column,dtype,non_null,null
-Keyword,str,230,0
-Modality,str,230,0
-EnergyTerm,str,35,195
-Performance,str,230,0
-Subsystem,str,230,0
-BinaryDefault,str,230,0
-Notes,str,230,0
+Keyword,object,230,0
+Modality,object,230,0
+EnergyTerm,object,35,195
+Performance,object,230,0
+Subsystem,object,230,0
+BinaryDefault,object,230,0
+Notes,object,230,0

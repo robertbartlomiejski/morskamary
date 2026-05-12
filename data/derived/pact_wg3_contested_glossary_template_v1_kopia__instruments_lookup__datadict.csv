@@ -1,3 +1,3 @@
 column,dtype,non_null,null
-instrument_type,str,6,0
-examples,str,6,0
+instrument_type,object,6,0
+examples,object,6,0

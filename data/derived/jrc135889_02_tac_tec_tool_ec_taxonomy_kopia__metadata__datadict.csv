@@ -1,5 +1,5 @@
 column,dtype,non_null,null
-Unnamed: 0,str,14,52
-Unnamed: 1,str,14,52
-Unnamed: 2,str,53,13
-Unnamed: 3,str,55,11
+Unnamed: 0,object,14,52
+Unnamed: 1,object,14,52
+Unnamed: 2,object,53,13
+Unnamed: 3,object,55,11

@@ -1,5 +1,5 @@
 column,dtype,non_null,null
-Indicator 5: Quarterly web traffic statistics,str,17,21
+Indicator 5: Quarterly web traffic statistics,object,17,21
 Unnamed: 1,object,8,30
 Unnamed: 2,object,2,36
 Unnamed: 3,object,2,36
