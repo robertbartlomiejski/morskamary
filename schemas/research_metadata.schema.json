@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/robertbartlomiejski/morskamary/main/schemas/research_metadata.schema.json",
+  "title": "Stage 2 Provider-Agnostic Research Metadata Record",
+  "description": "Machine-readable governance schema for committed research metadata exports.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "title",
+    "authors",
+    "year",
+    "doi",
+    "source_id",
+    "provider",
+    "journal",
+    "url",
+    "subject_terms",
+    "source_query",
+    "retrieval_timestamp",
+    "licence_note"
+  ],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "authors": {
+      "type": "string"
+    },
+    "year": {
+      "type": "string"
+    },
+    "doi": {
+      "type": "string"
+    },
+    "source_id": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "journal": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "subject_terms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_query": {
+      "type": "string"
+    },
+    "retrieval_timestamp": {
+      "type": "string"
+    },
+    "licence_note": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "not": {
+        "required": [
+          "citation_count"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "abstract_available"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "abstract_stored"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "abstract"
+        ]
+      }
+    }
+  ]
+}
