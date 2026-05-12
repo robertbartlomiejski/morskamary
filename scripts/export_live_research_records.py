@@ -6,15 +6,21 @@ Fetches literature metadata from Crossref and other configured providers
 based on query groups defined in config/research_queries.yml.
 
 Outputs:
-  - outputs/research_sources/live_records.json (all records, all providers)
+  - outputs/research_sources/live_records.json (triangulated winners; Stage 1)
+  - outputs/research_sources/live_records_triangulated.json (winners + loop metadata)
   - outputs/research_sources/live_records.csv (flattened CSV)
   - outputs/research_sources/crossref_records.json (Crossref-only records)
+  - outputs/research_sources/raw_provider_records.json (raw provider rows pre-merge)
+  - outputs/research_sources/enrichment_records.json (non-identity provider rows)
   - outputs/research_sources/live_provenance.json (provenance metadata)
   - outputs/research_sources/live_source_coverage.csv (coverage by sector/provider)
   - outputs/research_sources/low_confidence_live_records.json (records with confidence < 0.8)
+  - outputs/research_sources/triangulation_identity_loop.json (loop-1 identity audit)
+  - outputs/research_sources/triangulation_thematic_loop.json (loop-2 QMBD audit)
 
 Features:
-  - Deduplicates by DOI first, then by normalized title
+  - Explicit provider-priority identity triangulation (loop 1)
+  - Thematic/QMBD validation audit (loop 2)
   - Includes full provenance tracking (provider, query, timestamp, endpoint, DOI)
   - Does not store abstracts or full text (licence compliance)
   - Supports offline mode for testing (no network calls)
@@ -27,6 +33,7 @@ import csv
 import json
 import re
 import sys
+from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Set, Tuple
 
@@ -41,6 +48,26 @@ from src.scientific_sources.models import (  # noqa: E402
     SourceEvidence,
 )
 from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
+from src.axis_classifier import AxisClassifier  # noqa: E402
+from src.cumulative_analysis.triangulator import (  # noqa: E402
+    CumulativeTriangulator,
+    TriangulatedRecord,
+)
+
+DEFAULT_PROVIDER_POLICY_PATH = REPO_ROOT / "config" / "research_provider_policy.yml"
+
+_DEFAULT_PROVIDER_POLICY: Dict[str, Any] = {
+    "precedence": ["crossref", "scopus", "wos", "scival", "microsoft_graph", "google_drive"],
+    "classes": {
+        "crossref": "bibliographic",
+        "scopus": "bibliographic",
+        "wos": "bibliographic",
+        "scival": "enrichment",
+        "microsoft_graph": "workspace",
+        "google_drive": "workspace",
+    },
+    "primary_identity_providers": ["crossref", "scopus", "wos"],
+}
 
 
 def normalize_title(title: str) -> str:
@@ -55,6 +82,231 @@ def normalize_title(title: str) -> str:
     # Collapse whitespace
     title_normalized = re.sub(r"\s+", " ", title_clean).strip()
     return title_normalized
+
+
+def normalize_provider_name(provider: str) -> str:
+    """Normalize provider labels to SourceRegistry capability names."""
+    text = provider.strip().lower()
+    if "crossref" in text:
+        return "crossref"
+    if "scopus" in text:
+        return "scopus"
+    if "web of science" in text or text == "wos" or "clarivate" in text:
+        return "wos"
+    if "scival" in text:
+        return "scival"
+    if "microsoft graph" in text or "onedrive" in text or "sharepoint" in text:
+        return "microsoft_graph"
+    if "google drive" in text:
+        return "google_drive"
+    return re.sub(r"[^a-z0-9]+", "_", text).strip("_")
+
+
+def load_provider_policy(path: Path) -> Dict[str, Any]:
+    """Load explicit provider-priority and class policy from YAML."""
+    if not path.exists():
+        return dict(_DEFAULT_PROVIDER_POLICY)
+    payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    section = payload.get("provider_policy", {})
+    if not isinstance(section, dict):
+        return dict(_DEFAULT_PROVIDER_POLICY)
+    merged = dict(_DEFAULT_PROVIDER_POLICY)
+    merged.update({k: v for k, v in section.items() if v})
+    return merged
+
+
+def _identity_key_from_record(rec: LiteratureRecord) -> str:
+    doi = rec.doi.strip().lower()
+    if doi:
+        return f"doi:{doi}"
+    return f"title:{normalize_title(rec.title)}"
+
+
+def _identity_key_from_triangulated(rec: TriangulatedRecord) -> str:
+    doi = rec.doi.strip().lower()
+    if doi:
+        return f"doi:{doi}"
+    return f"title:{normalize_title(rec.title)}"
+
+
+def _triangulated_to_literature(rec: TriangulatedRecord) -> LiteratureRecord:
+    """Convert TriangulatedRecord back to LiteratureRecord for existing exporters."""
+    return LiteratureRecord(
+        title=rec.title,
+        authors=rec.authors,
+        year=rec.year,
+        doi=rec.doi,
+        source_id=rec.source_id or f"{normalize_provider_name(rec.provider)}:{rec.doi or rec.title[:40]}",
+        provider=rec.provider,
+        journal=rec.journal,
+        url=rec.url,
+        subject_terms=list(rec.subject_terms),
+        source_query=rec.source_query,
+        retrieval_timestamp=rec.retrieval_timestamp,
+        licence_note=rec.licence_note,
+    )
+
+
+def triangulate_identity_loop(
+    records: List[LiteratureRecord],
+    policy: Dict[str, Any],
+) -> Tuple[
+    List[LiteratureRecord],
+    List[TriangulatedRecord],
+    Dict[str, Any],
+    Dict[str, int],
+    Dict[str, List[str]],
+]:
+    """Triangulate live records using explicit provider priority and emit identity audit."""
+    precedence = list(policy.get("precedence", _DEFAULT_PROVIDER_POLICY["precedence"]))
+    rank = {name: idx for idx, name in enumerate(precedence)}
+    primary_identity = set(
+        policy.get(
+            "primary_identity_providers",
+            _DEFAULT_PROVIDER_POLICY["primary_identity_providers"],
+        )
+    )
+
+    identity_records = [
+        rec for rec in records if normalize_provider_name(rec.provider) in primary_identity
+    ]
+    if not identity_records:
+        deduped, stats = deduplicate_records(records)
+        empty_audit = {
+            "policy_precedence": precedence,
+            "primary_identity_providers": sorted(primary_identity),
+            "collision_events": [],
+            "dedup_stats": stats,
+        }
+        return deduped, [], empty_audit, stats, {}
+
+    indexed = list(enumerate(identity_records))
+    indexed.sort(
+        key=lambda pair: (
+            rank.get(normalize_provider_name(pair[1].provider), len(rank)),
+            pair[0],
+        )
+    )
+    sorted_identity = [rec for _, rec in indexed]
+
+    triangulator = CumulativeTriangulator()
+    triangulator.ingest_dynamic_records(sorted_identity)
+    merged = triangulator.triangulate()
+    merged_records = [_triangulated_to_literature(rec) for rec in merged]
+
+    winner_by_identity = {
+        _identity_key_from_triangulated(rec): rec for rec in merged
+    }
+    grouped_candidates: Dict[str, List[LiteratureRecord]] = defaultdict(list)
+    for rec in identity_records:
+        grouped_candidates[_identity_key_from_record(rec)].append(rec)
+
+    support_by_identity: Dict[str, List[str]] = {}
+    collision_events: List[Dict[str, Any]] = []
+    doi_dups = 0
+    title_dups = 0
+    for identity_key, candidates in grouped_candidates.items():
+        candidates_sorted = sorted(
+            candidates,
+            key=lambda rec: rank.get(normalize_provider_name(rec.provider), len(rank)),
+        )
+        support_by_identity[identity_key] = sorted(
+            {normalize_provider_name(c.provider) for c in candidates_sorted}
+        )
+        if len(candidates) <= 1:
+            continue
+        if identity_key.startswith("doi:"):
+            doi_dups += len(candidates) - 1
+        else:
+            title_dups += len(candidates) - 1
+        winner = winner_by_identity.get(identity_key)
+        if winner is None:
+            continue
+        winner_norm = normalize_provider_name(winner.provider)
+        losers = [
+            {
+                "provider": rec.provider,
+                "provider_name": normalize_provider_name(rec.provider),
+                "source_id": rec.source_id,
+                "doi": rec.doi,
+            }
+            for rec in candidates_sorted
+            if rec.source_id != winner.source_id
+        ]
+        collision_events.append(
+            {
+                "identity_key": identity_key,
+                "winner": {
+                    "provider": winner.provider,
+                    "provider_name": winner_norm,
+                    "source_id": winner.source_id,
+                    "doi": winner.doi,
+                    "reason": "highest-provider-priority",
+                },
+                "losers": losers,
+                "candidate_count": len(candidates_sorted),
+            }
+        )
+
+    stats = {"doi_duplicates": doi_dups, "title_duplicates": title_dups}
+    audit = {
+        "policy_precedence": precedence,
+        "primary_identity_providers": sorted(primary_identity),
+        "collision_events": collision_events,
+        "dedup_stats": stats,
+    }
+    return merged_records, merged, audit, stats, support_by_identity
+
+
+def build_thematic_loop_audit(
+    records: List[LiteratureRecord],
+    provenance: List[SourceEvidence],
+    support_by_identity: Dict[str, List[str]],
+    provider_classes: Dict[str, str],
+) -> Dict[str, Any]:
+    """Build loop-2 thematic/QMBD audit for triangulated records."""
+    classifier = AxisClassifier()
+    confidence_by_record: Dict[str, float] = {}
+    for ev in provenance:
+        prev = confidence_by_record.get(ev.record_id, 0.0)
+        confidence_by_record[ev.record_id] = max(prev, float(ev.confidence_score))
+
+    rows: List[Dict[str, Any]] = []
+    for rec in records:
+        text = " ".join([rec.title, rec.journal] + [str(t) for t in rec.subject_terms])
+        axis = classifier.classify_axis(text)
+        identity_key = _identity_key_from_record(rec)
+        support = support_by_identity.get(identity_key, [normalize_provider_name(rec.provider)])
+        overlap_status = "multi-source" if len(set(support)) > 1 else "single-source"
+        confidence = confidence_by_record.get(rec.source_id, 0.0)
+        manual_review_flags: List[str] = []
+        if not rec.doi:
+            manual_review_flags.append("missing-doi")
+        if confidence < 0.8:
+            manual_review_flags.append("low-confidence")
+        if overlap_status == "single-source":
+            manual_review_flags.append("single-source-evidence")
+
+        rows.append(
+            {
+                "source_id": rec.source_id,
+                "title": rec.title,
+                "provider": rec.provider,
+                "provider_class": provider_classes.get(
+                    normalize_provider_name(rec.provider), "unknown"
+                ),
+                "qmbd_axis": axis.name,
+                "qmbd_axis_code": axis.value,
+                "confidence_score": confidence,
+                "overlap_status": overlap_status,
+                "supporting_providers": support,
+                "manual_review_flags": manual_review_flags,
+            }
+        )
+    return {
+        "loop_2_name": "thematic-qmbd-validation",
+        "records": rows,
+    }
 
 
 def deduplicate_records(
@@ -316,6 +568,11 @@ def main() -> int:
         default="false",
         help="Offline mode: skip network calls (default: false)",
     )
+    parser.add_argument(
+        "--provider-policy-file",
+        default=str(DEFAULT_PROVIDER_POLICY_PATH),
+        help="Path to provider precedence/class policy YAML.",
+    )
 
     args = parser.parse_args()
 
@@ -357,6 +614,7 @@ def main() -> int:
 
     # Initialize registry
     registry = SourceRegistry()
+    provider_policy = load_provider_policy(Path(args.provider_policy_file))
 
     # Validate that every requested provider name is known to the registry.
     known_names: Set[str] = {cap.name for cap in registry.list_capabilities()}
@@ -435,11 +693,13 @@ def main() -> int:
 
                     print(f"    Fetched {len(result.records)} records")
 
-    # Deduplicate
-    print(f"\nDeduplicating {len(all_records)} records...")
-    deduped_records, dedup_stats = deduplicate_records(all_records)
+    # Loop 1: identity triangulation with explicit provider priority policy
+    print(f"\nLoop 1 identity triangulation for {len(all_records)} records...")
+    deduped_records, triangulated_identity, identity_audit, dedup_stats, support_by_identity = (
+        triangulate_identity_loop(all_records, provider_policy)
+    )
     print(
-        f"Deduplicated: {len(deduped_records)} unique records "
+        f"Triangulated: {len(deduped_records)} unique records "
         f"(removed {dedup_stats['doi_duplicates']} DOI duplicates, "
         f"{dedup_stats['title_duplicates']} title duplicates)"
     )
@@ -457,19 +717,76 @@ def main() -> int:
 
     # Build coverage report
     coverage = build_coverage_report(all_coverage_items)
+    provider_classes = provider_policy.get("classes", {})
+
+    # Loop 2: thematic QMBD validation audit over triangulated winners
+    thematic_audit = build_thematic_loop_audit(
+        deduped_records,
+        all_provenance,
+        support_by_identity,
+        provider_classes,
+    )
+
+    # Raw/enrichment artifacts for explicit provenance workflows.
+    primary_identity = set(
+        provider_policy.get(
+            "primary_identity_providers",
+            _DEFAULT_PROVIDER_POLICY["primary_identity_providers"],
+        )
+    )
+    enrichment_records = [
+        _to_stage1_compliant_dict(rec)
+        for rec in all_records
+        if normalize_provider_name(rec.provider) not in primary_identity
+    ]
+    raw_records = [_to_stage1_compliant_dict(rec) for rec in all_records]
+    triangulated_payload: List[Dict[str, Any]] = []
+    if triangulated_identity:
+        confidence_by_record: Dict[str, float] = {}
+        for ev in all_provenance:
+            confidence_by_record[ev.record_id] = max(
+                confidence_by_record.get(ev.record_id, 0.0), float(ev.confidence_score)
+            )
+        for rec in triangulated_identity:
+            identity_key = _identity_key_from_triangulated(rec)
+            support = support_by_identity.get(
+                identity_key, [normalize_provider_name(rec.provider)]
+            )
+            overlap_status = "multi-source" if len(set(support)) > 1 else "single-source"
+            row = rec.to_dict()
+            row["confidence_score"] = confidence_by_record.get(rec.source_id, 0.0)
+            row["overlap_status"] = overlap_status
+            row["supporting_providers"] = support
+            row["provider_class"] = provider_classes.get(
+                normalize_provider_name(rec.provider), "unknown"
+            )
+            triangulated_payload.append(row)
+    else:
+        triangulated_payload = [_to_stage1_compliant_dict(rec) for rec in deduped_records]
 
     # Export outputs
     output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     print(f"\nExporting to {output_dir}/...")
 
     export_records_json(deduped_records, output_dir / "live_records.json")
     export_records_csv(deduped_records, output_dir / "live_records.csv")
+    with open(output_dir / "live_records_triangulated.json", "w", encoding="utf-8") as f:
+        json.dump(triangulated_payload, f, indent=2, ensure_ascii=False)
     export_records_json(crossref_records, output_dir / "crossref_records.json")
     export_provenance_json(all_provenance, output_dir / "live_provenance.json")
     export_coverage_csv(coverage, output_dir / "live_source_coverage.csv")
     export_records_json(
         low_confidence_records, output_dir / "low_confidence_live_records.json"
     )
+    with open(output_dir / "raw_provider_records.json", "w", encoding="utf-8") as f:
+        json.dump(raw_records, f, indent=2, ensure_ascii=False)
+    with open(output_dir / "enrichment_records.json", "w", encoding="utf-8") as f:
+        json.dump(enrichment_records, f, indent=2, ensure_ascii=False)
+    with open(output_dir / "triangulation_identity_loop.json", "w", encoding="utf-8") as f:
+        json.dump(identity_audit, f, indent=2, ensure_ascii=False)
+    with open(output_dir / "triangulation_thematic_loop.json", "w", encoding="utf-8") as f:
+        json.dump(thematic_audit, f, indent=2, ensure_ascii=False)
 
     print("\nExport complete.")
     return 0

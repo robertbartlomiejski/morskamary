@@ -4,7 +4,9 @@
 > - ✅ **Crossref** — fully implemented (open API, no key required)
 > - ✅ **Elsevier / Scopus / Web of Science / SciVal** — live proprietary integrations
 >   implemented with capability-gated behavior (missing/invalid credentials do not crash).
-> - 🔧 **Google Drive / Microsoft Graph** — provider stubs (Phase 2)
+> - 🔧 **Google Drive** — provider stub (Phase 2)
+> - ✅ **Microsoft Graph** — live metadata integration (capability-gated; requires
+>   Azure app credentials and site/drive scope)
 
 This document describes the complete workflow for setting up and running the
 morskamary research API integration from scratch — from credential bootstrap
@@ -97,7 +99,8 @@ This single command:
 3. Runs `check_research_env.py`
 4. Runs the offline smoke test
 5. Runs the live API smoke test (for configured providers)
-6. Exports live records to `outputs/research_sources/live_records.json` (live mode)
+6. Exports live records and two-loop triangulation artifacts to
+   `outputs/research_sources/` (including `live_records_triangulated.json`) in live mode
 7. Runs `run_full_analysis.py` in `live-enriched` mode when `--live` is used
 8. Exports provider capabilities to `outputs/research_source_capabilities.json`
 9. Validates research source outputs
@@ -167,7 +170,7 @@ gcloud secrets versions list crossref-mailto --project=YOUR_PROJECT_ID
 gcloud builds submit --config cloudbuild.yaml
 ```
 
-### Full live research run (Crossref + Scopus + WoS + SciVal live; workspace providers pending Phase 2)
+### Full live research run (Crossref + Scopus + WoS + SciVal + Microsoft Graph live when configured)
 
 ```bash
 # Bash
