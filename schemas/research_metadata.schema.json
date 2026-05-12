@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.org/schemas/research_metadata.schema.json",
+  "$id": "https://raw.githubusercontent.com/robertbartlomiejski/morskamary/main/schemas/research_metadata.schema.json",
   "title": "Stage 2 Provider-Agnostic Research Metadata Record",
   "description": "Machine-readable governance schema for committed research metadata exports.",
   "type": "object",
@@ -30,10 +30,7 @@
       "type": "string"
     },
     "doi": {
-      "type": [
-        "string",
-        "null"
-      ]
+      "type": "string"
     },
     "source_id": {
       "type": "string"
@@ -42,16 +39,10 @@
       "type": "string"
     },
     "journal": {
-      "type": [
-        "string",
-        "null"
-      ]
+      "type": "string"
     },
     "url": {
-      "type": [
-        "string",
-        "null"
-      ]
+      "type": "string"
     },
     "subject_terms": {
       "type": "array",
@@ -66,10 +57,7 @@
       "type": "string"
     },
     "licence_note": {
-      "type": [
-        "string",
-        "null"
-      ]
+      "type": "string"
     }
   },
   "allOf": [

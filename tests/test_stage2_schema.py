@@ -5,26 +5,18 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import jsonschema
+import pytest
+
 from scripts.export_live_research_records import export_records_json
 from src.scientific_sources.models import LiteratureRecord
 
-SCHEMA_PATH = Path("schemas/research_metadata.schema.json")
+SCHEMA_PATH = Path(__file__).parent.parent / "schemas" / "research_metadata.schema.json"
 
 
 def _load_schema() -> dict:
     with SCHEMA_PATH.open("r", encoding="utf-8") as f:
         return json.load(f)
-
-
-def _validate_against_stage2_schema(payload: dict, schema: dict) -> None:
-    required = set(schema["required"])
-    props = set(schema["properties"].keys())
-
-    missing = required - set(payload.keys())
-    assert not missing, f"Missing required fields: {sorted(missing)}"
-
-    extra = set(payload.keys()) - props
-    assert not extra, f"Unexpected fields (violates additionalProperties=false): {sorted(extra)}"
 
 
 def _make_record(**kwargs) -> LiteratureRecord:
@@ -66,7 +58,7 @@ def test_exported_records_conform_to_stage2_schema(tmp_path: Path):
 
     data = json.loads(out.read_text(encoding="utf-8"))
     assert isinstance(data, list) and len(data) == 1
-    _validate_against_stage2_schema(data[0], schema)
+    jsonschema.validate(instance=data[0], schema=schema)
 
 
 def test_schema_rejects_restricted_fields_in_payload():
@@ -87,10 +79,5 @@ def test_schema_rejects_restricted_fields_in_payload():
         "citation_count": 10,
     }
 
-    try:
-        _validate_against_stage2_schema(payload, schema)
-        raised = False
-    except AssertionError:
-        raised = True
-
-    assert raised, "Stage 2 schema validation must reject citation_count"
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(instance=payload, schema=schema)
