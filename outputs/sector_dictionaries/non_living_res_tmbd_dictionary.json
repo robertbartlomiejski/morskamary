@@ -177,6 +177,34 @@
           "year": "2021",
           "doi": "10.1007/978-3-030-49540-4_6"
         }
+      },
+      {
+        "id": "lit_live_crossref_00296",
+        "name": "Live API (Crossref): Expert assessment of risks posed by climate change and anthropogenic a",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Expert assessment of risks posed by climate change and anthropogenic activities to ecosystem services in the deep North  (Claire W. Armstrong\nGodwin Kofi Vondolia\nGodwin Kofi Vondoli, 2019).",
+        "axis": "MARINE",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 296,
+          "paper_title": "Expert assessment of risks posed by climate change and anthropogenic activities to ecosystem services in the deep North ",
+          "authors": "Claire W. Armstrong\nGodwin Kofi Vondolia\nGodwin Kofi Vondolia\nNaomi Foley\nLea-Anne Henry\nKatherine Needham\nAdriana Ressu",
+          "year": "2019",
+          "doi": "10.3389/FMARS.2019.00158"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00378",
+        "name": "Live API (Crossref): Limited Development in the Shenzhen Bay Area: A Future Model for Coord",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Limited Development in the Shenzhen Bay Area: A Future Model for Coordinated Development of Urbanisation and Eco-Conserv (X Jiao\nNHC WANG\nJ VAN AMEIJDE, ).",
+        "axis": "MARINE",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 378,
+          "paper_title": "Limited Development in the Shenzhen Bay Area: A Future Model for Coordinated Development of Urbanisation and Eco-Conserv",
+          "authors": "X Jiao\nNHC WANG\nJ VAN AMEIJDE",
+          "year": "",
+          "doi": ""
+        }
       }
     ],
     "MARITIME": [
@@ -556,6 +584,90 @@
           "authors": "",
           "year": "2023",
           "doi": "10.1017/cft.2023.25.pr3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00003",
+        "name": "Live API (Crossref): Racial capitalism and the sea: Development and change in Black maritim",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Racial capitalism and the sea: Development and change in Black maritime labour, and what it means for fisheries and a bl (Timothy Clark, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 3,
+          "paper_title": "Racial capitalism and the sea: Development and change in Black maritime labour, and what it means for fisheries and a bl",
+          "authors": "Timothy Clark",
+          "year": "2022",
+          "doi": "10.1111/faf.12639"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00084",
+        "name": "Live API (Crossref): Putting coastal communities at the center of a sustainable blue econom",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Putting coastal communities at the center of a sustainable blue economy: A review of risks, opportunities, and strategie (Louisa Evans\nP.M. Buchan\nMatt Fortnam\nM B Honig\nLouise Heaps, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 84,
+          "paper_title": "Putting coastal communities at the center of a sustainable blue economy: A review of risks, opportunities, and strategie",
+          "authors": "Louisa Evans\nP.M. Buchan\nMatt Fortnam\nM B Honig\nLouise Heaps",
+          "year": "2023",
+          "doi": "10.3389/fpos.2022.1032204"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00196",
+        "name": "Live API (Crossref): Supporting places left to the sea: A place-based research agenda for r",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Supporting places left to the sea: A place-based research agenda for regional coastal transformations in the blue econom (Jack L. Harris\nBenjamin S Thompson, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 196,
+          "paper_title": "Supporting places left to the sea: A place-based research agenda for regional coastal transformations in the blue econom",
+          "authors": "Jack L. Harris\nBenjamin S Thompson",
+          "year": "2023",
+          "doi": "10.1177/27539687231212672"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00233",
+        "name": "Live API (Crossref): Assembling a Blue Economy moment? Geographic engagement with globalizi",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Assembling a Blue Economy moment? Geographic engagement with globalizing biological-economic relations in multi-use mari (Gordon M. Winder\nRichard Le Heron, 2017).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 233,
+          "paper_title": "Assembling a Blue Economy moment? Geographic engagement with globalizing biological-economic relations in multi-use mari",
+          "authors": "Gordon M. Winder\nRichard Le Heron",
+          "year": "2017",
+          "doi": "10.1177/2043820617691643"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00308",
+        "name": "Live API (Crossref): Corrigendum: Putting coastal communities at the center of a sustainabl",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Corrigendum: Putting coastal communities at the center of a sustainable blue economy: A review of risks, opportunities,  (Louisa Evans\nP.M. Buchan\nMatt Fortnam\nM B Honig\nLouise Heaps, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 308,
+          "paper_title": "Corrigendum: Putting coastal communities at the center of a sustainable blue economy: A review of risks, opportunities, ",
+          "authors": "Louisa Evans\nP.M. Buchan\nMatt Fortnam\nM B Honig\nLouise Heaps",
+          "year": "2023",
+          "doi": "10.3389/fpos.2023.1182415"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00317",
+        "name": "Live API (Crossref): Gender equity and collaborative care in Madagascar’s locally managed m",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Gender equity and collaborative care in Madagascar’s locally managed marine areas: reflections on the launch of a fisher (Merrill S. A. Baker-Médard\nVatosoa Rakotondrazafy, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 317,
+          "paper_title": "Gender equity and collaborative care in Madagascar’s locally managed marine areas: reflections on the launch of a fisher",
+          "authors": "Merrill S. A. Baker-Médard\nVatosoa Rakotondrazafy",
+          "year": "2023",
+          "doi": "10.5751/es-13959-280226"
         }
       }
     ],
@@ -3274,6 +3386,496 @@
           "authors": "Esha Shah\nRutgerd Boelens\nBert Bruins",
           "year": "2019",
           "doi": "10.3390/W11030417"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00013",
+        "name": "Live API (Crossref): Exploring social justice in marine spatial planning: planner and stake",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Exploring social justice in marine spatial planning: planner and stakeholder perspectives and experiences in the Baltic  (Ignė Stalmokaitė\nRalph Tafon\nFred Saunders\nKira Gee\nMichael , 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 13,
+          "paper_title": "Exploring social justice in marine spatial planning: planner and stakeholder perspectives and experiences in the Baltic ",
+          "authors": "Ignė Stalmokaitė\nRalph Tafon\nFred Saunders\nKira Gee\nMichael Gilek\nAurelija Armoškaitė\nAnda Ikauniece\nMaciej Matczak\nJaku",
+          "year": "2023",
+          "doi": "10.1080/09640568.2023.2279512"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00021",
+        "name": "Live API (Crossref): Exploring the winners and losers of marine environmental governance/Ma",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Exploring the winners and losers of marine environmental governance/Marine spatial planning: Cui bono?/“More than fishy  (W Flannery\nG Ellis\nG Ellis\nW Flannery, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 21,
+          "paper_title": "Exploring the winners and losers of marine environmental governance/Marine spatial planning: Cui bono?/“More than fishy ",
+          "authors": "W Flannery\nG Ellis\nG Ellis\nW Flannery",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_live_crossref_00048",
+        "name": "Live API (Crossref): Justicia en territorios pesqueros: Violaciones a los derechos humanos",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Justicia en territorios pesqueros: Violaciones a los derechos humanos en la pesca artesanal en la Corte Constitucional d (Isabela Figueroa\nLina M. Saavedra-Díaz\nPaula Satizábal, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 48,
+          "paper_title": "Justicia en territorios pesqueros: Violaciones a los derechos humanos en la pesca artesanal en la Corte Constitucional d",
+          "authors": "Isabela Figueroa\nLina M. Saavedra-Díaz\nPaula Satizábal",
+          "year": "2023",
+          "doi": "10.12804/revistas.urosario.edu.co/sociojuridicos/a.12518"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00061",
+        "name": "Live API (Crossref): Integrating environmental sustainability and social justice principles",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Integrating environmental sustainability and social justice principles into South Africa's blue economy initiative: re-i (Merle Sowman\nJackie Sunde, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 61,
+          "paper_title": "Integrating environmental sustainability and social justice principles into South Africa's blue economy initiative: re-i",
+          "authors": "Merle Sowman\nJackie Sunde",
+          "year": "2024",
+          "doi": "10.3389/focsu.2024.1459496"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00068",
+        "name": "Live API (Crossref): A comparative analysis of two forms of stakeholder participation in Eu",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: A comparative analysis of two forms of stakeholder participation in European aquaculture governance: self-regulation and (Selina M. Stead, 2005).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 68,
+          "paper_title": "A comparative analysis of two forms of stakeholder participation in European aquaculture governance: self-regulation and",
+          "authors": "Selina M. Stead",
+          "year": "2005",
+          "doi": "10.1007/1-4020-3778-3_10"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00074",
+        "name": "Live API (Crossref): Derechos de las comunidades costeras en la gestión de espacios marinos",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Derechos de las comunidades costeras en la gestión de espacios marinos: lecciones aprendidas por la Asociación Comunitar (Manuela de los Ríos Oakes, 2016).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 74,
+          "paper_title": "Derechos de las comunidades costeras en la gestión de espacios marinos: lecciones aprendidas por la Asociación Comunitar",
+          "authors": "Manuela de los Ríos Oakes",
+          "year": "2016",
+          "doi": "10.25267/HACHETETEPE.2016.V2.I13.9"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00076",
+        "name": "Live API (Crossref): Forging connections, pursuing social justice: a tribute to Maarten Bav",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Forging connections, pursuing social justice: a tribute to Maarten Bavinck's conceptual and institution-building contrib (Joeri Scholtens\nDerek Johnson\nSvein Jentoft\nMirjam A. F. Ros, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 76,
+          "paper_title": "Forging connections, pursuing social justice: a tribute to Maarten Bavinck's conceptual and institution-building contrib",
+          "authors": "Joeri Scholtens\nDerek Johnson\nSvein Jentoft\nMirjam A. F. Ros-Tonen\nRatana Chuenpagdee\nJoyeeta Gupta\nMarloes Kraan\nAjit M",
+          "year": "2021",
+          "doi": "10.1007/S40152-021-00243-0"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00078",
+        "name": "Live API (Crossref): Blue justice: A survey for eliciting perceptions of environmental just",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Blue justice: A survey for eliciting perceptions of environmental justice among coastal planners’ and small-scale fisher (Sigrid Engen\nVera Helene Hausner\nGeorgina G. Gurney\nElse Gre, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 78,
+          "paper_title": "Blue justice: A survey for eliciting perceptions of environmental justice among coastal planners’ and small-scale fisher",
+          "authors": "Sigrid Engen\nVera Helene Hausner\nGeorgina G. Gurney\nElse Grete Broderstad\nRose Keller\nAase Kristine Aasen Lundberg\nFranc",
+          "year": "2021",
+          "doi": "10.1371/JOURNAL.PONE.0251467"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00086",
+        "name": "Live API (Crossref): Enhancing the Sustainability of Blue Economy Projects in Kenya's Coast",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Enhancing the Sustainability of Blue Economy Projects in Kenya's Coastal Region: The Role of Strategic Grassroots Commun (M Otundo Richard, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 86,
+          "paper_title": "Enhancing the Sustainability of Blue Economy Projects in Kenya's Coastal Region: The Role of Strategic Grassroots Commun",
+          "authors": "M Otundo Richard",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_live_crossref_00109",
+        "name": "Live API (Crossref): Community-Centered Approach to Integrated Coastal Management Strategy",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Community-Centered Approach to Integrated Coastal Management Strategy for Sustainable Development of the Blue Economy in (Emmanuel Sekile Mwasonya -\nStephen Handa -\nElijah Nyaga Muny, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 109,
+          "paper_title": "Community-Centered Approach to Integrated Coastal Management Strategy for Sustainable Development of the Blue Economy in",
+          "authors": "Emmanuel Sekile Mwasonya -\nStephen Handa -\nElijah Nyaga Munyi",
+          "year": "2024",
+          "doi": "10.36948/ijfmr.2024.v06i04.24591"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00112",
+        "name": "Live API (Crossref): Towards sustainability of marine governance: Challenges and enablers f",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Towards sustainability of marine governance: Challenges and enablers for stakeholder integration in transboundary marine (Andrea Morf\nJohn Moodie\nKira Gee\nAlberto Giacometti\nMichael , 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 112,
+          "paper_title": "Towards sustainability of marine governance: Challenges and enablers for stakeholder integration in transboundary marine",
+          "authors": "Andrea Morf\nJohn Moodie\nKira Gee\nAlberto Giacometti\nMichael Kull\nJoanna Piwowarczyk\nKerstin S. Schiele\nJacek Zaucha\nIlha",
+          "year": "2019",
+          "doi": "10.1016/J.OCECOAMAN.2019.04.009"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00161",
+        "name": "Live API (Crossref): Tourism centres efficiency as spatial unites for applying blue economy",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Tourism centres efficiency as spatial unites for applying blue economy approach: A case study of the Southern Red Sea re (Moaaz Kabil\nEbtehal Ahmed AbdAlmoity\nK. Csoban\nL. David, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 161,
+          "paper_title": "Tourism centres efficiency as spatial unites for applying blue economy approach: A case study of the Southern Red Sea re",
+          "authors": "Moaaz Kabil\nEbtehal Ahmed AbdAlmoity\nK. Csoban\nL. David",
+          "year": "2022",
+          "doi": "10.1371/journal.pone.0268047"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00177",
+        "name": "Live API (Crossref): The Sea Unites Us but It Is Governed to Keep Us Apart: Restoring the C",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: The Sea Unites Us but It Is Governed to Keep Us Apart: Restoring the Creole Afro-Indigenous Sea Mobilities in the Southw (María Catalina García, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 177,
+          "paper_title": "The Sea Unites Us but It Is Governed to Keep Us Apart: Restoring the Creole Afro-Indigenous Sea Mobilities in the Southw",
+          "authors": "María Catalina García",
+          "year": "2024",
+          "doi": "10.24043/001c.92749"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00181",
+        "name": "Live API (Crossref): Assessing knowledge gaps and management needs to cope with barriers fo",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Assessing knowledge gaps and management needs to cope with barriers for environmental, economic, and social sustainabili (P Pita\nJ Alós\nM Antelo\nI Artetxe, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 181,
+          "paper_title": "Assessing knowledge gaps and management needs to cope with barriers for environmental, economic, and social sustainabili",
+          "authors": "P Pita\nJ Alós\nM Antelo\nI Artetxe",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_live_crossref_00195",
+        "name": "Live API (Crossref): Strengthening regional resilience through adaptive collaboration: A ca",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Strengthening regional resilience through adaptive collaboration: A case study on the fisheries co-management Northern B (E Cedergren\nD Huynh\nA Morf\nJ Moodie, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 195,
+          "paper_title": "Strengthening regional resilience through adaptive collaboration: A case study on the fisheries co-management Northern B",
+          "authors": "E Cedergren\nD Huynh\nA Morf\nJ Moodie",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_live_crossref_00201",
+        "name": "Live API (Crossref): Implementation of the Blue Economy Program in Achieving SDGs : An Anal",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Implementation of the Blue Economy Program in Achieving SDGs : An Analysis of the Impact on Natuna Coastal Communities i (Claudia T. Wattimena\nTriesanto Romulo Simanjuntak\nNovriest U, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 201,
+          "paper_title": "Implementation of the Blue Economy Program in Achieving SDGs : An Analysis of the Impact on Natuna Coastal Communities i",
+          "authors": "Claudia T. Wattimena\nTriesanto Romulo Simanjuntak\nNovriest Umbu Walangara Nau",
+          "year": "2025",
+          "doi": "10.56910/literacy.v4i2.2409"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00215",
+        "name": "Live API (Crossref): Problematic blue growth: a thematic synthesis of social sustainability",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Problematic blue growth: a thematic synthesis of social sustainability problems related to growth in the marine and coas (Neva Lepoša, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 215,
+          "paper_title": "Problematic blue growth: a thematic synthesis of social sustainability problems related to growth in the marine and coas",
+          "authors": "Neva Lepoša",
+          "year": "2020",
+          "doi": "10.1007/S11625-020-00796-9"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00219",
+        "name": "Live API (Crossref): Integrating Social-Environmental Systems in Coastal Well-being Assessm",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Integrating Social-Environmental Systems in Coastal Well-being Assessment: A Blue Dimension Enhancement to the Social Pr (M.D.F. Rodríguez\nJaime Lora‐Garcia, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 219,
+          "paper_title": "Integrating Social-Environmental Systems in Coastal Well-being Assessment: A Blue Dimension Enhancement to the Social Pr",
+          "authors": "M.D.F. Rodríguez\nJaime Lora‐Garcia",
+          "year": "2025",
+          "doi": "10.5194/oos2025-687"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00221",
+        "name": "Live API (Crossref): Blue Growth and its discontents in the Faroe Islands: An island perspe",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Blue Growth and its discontents in the Faroe Islands: An island perspective on Blue (De) Growth, sustainability, and env (R Bogadóttir, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 221,
+          "paper_title": "Blue Growth and its discontents in the Faroe Islands: An island perspective on Blue (De) Growth, sustainability, and env",
+          "authors": "R Bogadóttir",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_live_crossref_00226",
+        "name": "Live API (Crossref): Tinjauan Literatur: Peranan Blue Economy dalam Meningkatkan Pendapatan",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Tinjauan Literatur: Peranan Blue Economy dalam Meningkatkan Pendapatan Masyarakat Pesisir Melalui Sumber Daya Perikanan  (Ardhi Sahjaya\nRifaldy Yusliandi\nLian Diza Loriva Siregar, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 226,
+          "paper_title": "Tinjauan Literatur: Peranan Blue Economy dalam Meningkatkan Pendapatan Masyarakat Pesisir Melalui Sumber Daya Perikanan ",
+          "authors": "Ardhi Sahjaya\nRifaldy Yusliandi\nLian Diza Loriva Siregar",
+          "year": "2025",
+          "doi": "10.61132/manuhara.v3i2.1590"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00231",
+        "name": "Live API (Crossref): La Economía Azul en el contexto de los objetivos del desarrollo sosten",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: La Economía Azul en el contexto de los objetivos del desarrollo sostenible: una revisión mixta e integrada de la literat (Verenice Sánchez Castillo\nCarlos Alberto Gómez Cano\nAlfredo , 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 231,
+          "paper_title": "La Economía Azul en el contexto de los objetivos del desarrollo sostenible: una revisión mixta e integrada de la literat",
+          "authors": "Verenice Sánchez Castillo\nCarlos Alberto Gómez Cano\nAlfredo Javier Pérez Gamboa",
+          "year": "2024",
+          "doi": "10.15649/2346030x.4028"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00241",
+        "name": "Live API (Crossref): Author comment: A decade of ‘blue tourism’ sustainability research: Ex",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Author comment: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal ar (Mihaela Leasa-Lixandru, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 241,
+          "paper_title": "Author comment: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal ar",
+          "authors": "Mihaela Leasa-Lixandru",
+          "year": "2022",
+          "doi": "10.1017/cft.2023.2.pr1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00257",
+        "name": "Live API (Crossref): Towards sustainable blue growth: Outline of the joint Baltic Sea and t",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Towards sustainable blue growth: Outline of the joint Baltic Sea and the North Sea research and innovation programme 201 (Andris Andrusaitis\nDavid Cox\nAntoine Dosdat\nKay Emeis\nJoachi, 2016).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 257,
+          "paper_title": "Towards sustainable blue growth: Outline of the joint Baltic Sea and the North Sea research and innovation programme 201",
+          "authors": "Andris Andrusaitis\nDavid Cox\nAntoine Dosdat\nKay Emeis\nJoachim Harms\nMaurice Heral\nPeter Herrmann\nFloor ten Hoopen\nSimon ",
+          "year": "2016",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_live_crossref_00277",
+        "name": "Live API (Crossref): Ocean Literacy, Climate Change and Health in Coastal Living Environmen",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Ocean Literacy, Climate Change and Health in Coastal Living Environments: A Scoping Review and Bibliometric Analysis (Sc (Jazimatul Husna\nAdi Wijaya\nIzni Syahrizal Ibrahim\nOktavianto, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 277,
+          "paper_title": "Ocean Literacy, Climate Change and Health in Coastal Living Environments: A Scoping Review and Bibliometric Analysis (Sc",
+          "authors": "Jazimatul Husna\nAdi Wijaya\nIzni Syahrizal Ibrahim\nOktavianto Eko Jati\nNaintina Lisnawati\nAlvina Maghfiroh\nNoer’aida",
+          "year": "2024",
+          "doi": "10.1051/bioconf/202413300026"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00291",
+        "name": "Live API (Crossref): 2.3. Sub-Theme 3: Approaches for collaborative regional ocean governan",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: 2.3. Sub-Theme 3: Approaches for collaborative regional ocean governance for a sustainable blue economy 2.3. 1. Conserva (A Tuda\nM Graziano\nM Azali\nA Heenan, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 291,
+          "paper_title": "2.3. Sub-Theme 3: Approaches for collaborative regional ocean governance for a sustainable blue economy 2.3. 1. Conserva",
+          "authors": "A Tuda\nM Graziano\nM Azali\nA Heenan",
+          "year": "",
+          "doi": ""
+        }
+      },
+      {
+        "id": "lit_live_crossref_00299",
+        "name": "Live API (Crossref): Availability of educational materials and training courses on blue eco",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Availability of educational materials and training courses on blue economy and marine spatial planning (MSP): A global r (Grace Mumbi Mutia\nMaurine Kerubo Arori, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 299,
+          "paper_title": "Availability of educational materials and training courses on blue economy and marine spatial planning (MSP): A global r",
+          "authors": "Grace Mumbi Mutia\nMaurine Kerubo Arori",
+          "year": "2024",
+          "doi": "10.22271/fish.2024.v12.i3a.2934"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00326",
+        "name": "Live API (Crossref): Green Out of the Blue, or How (Not) to Deal with Overfed Oceans: An An",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Green Out of the Blue, or How (Not) to Deal with Overfed Oceans: An Analytical Review of Coastal Eutrophication and Soci (Alix Levain\nCarole Barthelemy\nMagalie Bourblanc\nJean-Marc Do, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 326,
+          "paper_title": "Green Out of the Blue, or How (Not) to Deal with Overfed Oceans: An Analytical Review of Coastal Eutrophication and Soci",
+          "authors": "Alix Levain\nCarole Barthelemy\nMagalie Bourblanc\nJean-Marc Douguet\nAgathe Euzen\nYves Souchon",
+          "year": "2020",
+          "doi": "10.3167/ARES.2020.110108"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00329",
+        "name": "Live API (Crossref): The territories of governance: unpacking the ontologies and geophiloso",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: The territories of governance: unpacking the ontologies and geophilosophies of fixed to flexible ocean management, and b (Kimberley Peters, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 329,
+          "paper_title": "The territories of governance: unpacking the ontologies and geophilosophies of fixed to flexible ocean management, and b",
+          "authors": "Kimberley Peters",
+          "year": "2020",
+          "doi": "10.1098/RSTB.2019.0458"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00342",
+        "name": "Live API (Crossref): Uma Agenda de Investigação nas Humanidades Azuis: Exploração dos Ambie",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Uma Agenda de Investigação nas Humanidades Azuis: Exploração dos Ambientes Aquáticos e os 4 Oceanos em Épocas Pré-Indust (Cristina de Jesus Brito, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 342,
+          "paper_title": "Uma Agenda de Investigação nas Humanidades Azuis: Exploração dos Ambientes Aquáticos e os 4 Oceanos em Épocas Pré-Indust",
+          "authors": "Cristina de Jesus Brito",
+          "year": "2022",
+          "doi": "10.32991/2237-2717.2022v12i2.p459-474"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00343",
+        "name": "Live API (Crossref): “Mother of the Oceans”: Maritime Governance as a Template for a New Gl",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: “Mother of the Oceans”: Maritime Governance as a Template for a New Global Order in the International Thought of Elisabe (Lucian M. Ashworth, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 343,
+          "paper_title": "“Mother of the Oceans”: Maritime Governance as a Template for a New Global Order in the International Thought of Elisabe",
+          "authors": "Lucian M. Ashworth",
+          "year": "2023",
+          "doi": "10.1093/isagsq/ksad010"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00344",
+        "name": "Live API (Crossref): Coastal Communities, Leisure and Wellbeing: Advancing a Trans-Discipli",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Coastal Communities, Leisure and Wellbeing: Advancing a Trans-Disciplinary Agenda for Understanding Ocean-Human Relation (Belinda Wheaton\nJordan Waiti\nRebecca Olive\nRobin Kearns, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 344,
+          "paper_title": "Coastal Communities, Leisure and Wellbeing: Advancing a Trans-Disciplinary Agenda for Understanding Ocean-Human Relation",
+          "authors": "Belinda Wheaton\nJordan Waiti\nRebecca Olive\nRobin Kearns",
+          "year": "2021",
+          "doi": "10.3390/IJERPH18020450"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00358",
+        "name": "Live API (Crossref): El CoLaboratorio de oceanografía social: espacio plural para la conser",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: El CoLaboratorio de oceanografía social: espacio plural para la conservación integral de los mares y las sociedades cost (Nemer E. Narchi\nMicheline Cariño\nM. Azahara Mesa-Jurado\nAlej, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 358,
+          "paper_title": "El CoLaboratorio de oceanografía social: espacio plural para la conservación integral de los mares y las sociedades cost",
+          "authors": "Nemer E. Narchi\nMicheline Cariño\nM. Azahara Mesa-Jurado\nAlejandro Espinoza-Tenorio\nAramis Olivos-Ortiz\nMichelle María Ea",
+          "year": "2018",
+          "doi": "10.31840/SYA.V0I18.1888"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00372",
+        "name": "Live API (Crossref): Equipamentos para a Educação Ambiental na zona costeira da Euroregião",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Equipamentos para a Educação Ambiental na zona costeira da Euroregião do Eixo Atlântico – Das práticas conservacionistas (Sara Carvalho\nUlisses Miranda Azeiteiro\nPablo A. Meira-Carte, 2011).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 372,
+          "paper_title": "Equipamentos para a Educação Ambiental na zona costeira da Euroregião do Eixo Atlântico – Das práticas conservacionistas",
+          "authors": "Sara Carvalho\nUlisses Miranda Azeiteiro\nPablo A. Meira-Cartea",
+          "year": "2011",
+          "doi": "10.5894/RGCI264"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00415",
+        "name": "Live API (Crossref): Territoire hydrosocial et conflictualité : lecture croisée des arrange",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: Territoire hydrosocial et conflictualité : lecture croisée des arrangements et reconfigurations territoriales associés à (Gaële Rouillé-Kielo\nSelin Le Visage\nSilvia Flaminio, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 415,
+          "paper_title": "Territoire hydrosocial et conflictualité : lecture croisée des arrangements et reconfigurations territoriales associés à",
+          "authors": "Gaële Rouillé-Kielo\nSelin Le Visage\nSilvia Flaminio",
+          "year": "2022",
+          "doi": "10.4000/geocarrefour.20092"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00436",
+        "name": "Live API (Crossref): What governance? The role of public and private stakeholders in water",
+        "description": "Live-API-derived literature competence from provider Crossref. Source paper: What governance? The role of public and private stakeholders in water supply management in Mediterranean coastal tourist (David Pavón\nAriadna Gabarda-Mallorquí\nAnna Ribas, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records.json",
+          "row": 436,
+          "paper_title": "What governance? The role of public and private stakeholders in water supply management in Mediterranean coastal tourist",
+          "authors": "David Pavón\nAriadna Gabarda-Mallorquí\nAnna Ribas",
+          "year": "2018",
+          "doi": "10.3390/W10121758"
         }
       }
     ]
