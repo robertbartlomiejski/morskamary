@@ -796,6 +796,12 @@ outputs/gaps_summary.csv,dataset_derived,,,,,,gaps_summary,yes
 outputs/literature_integration.html,other,,,,,,literature_integration,no
 outputs/report_index.html,other,,,,,,report_index,no
 outputs/research_source_capabilities.json,other,,,,,,research_source_capabilities,no
+outputs/research_sources/crossref_records.json,other,,,,,,crossref_records,no
+outputs/research_sources/live_provenance.json,other,,,,,,live_provenance,no
+outputs/research_sources/live_records.csv,dataset_derived,,,,,,live_records,yes
+outputs/research_sources/live_records.json,other,,,,,,live_records,no
+outputs/research_sources/live_source_coverage.csv,dataset_derived,,,,,,live_source_coverage,yes
+outputs/research_sources/low_confidence_live_records.json,other,,,,,,low_confidence_live_records,no
 outputs/sector_pathways.json,other,,,,,,sector_pathways,no
 PROMPT_REQUEST_TEMPLATE.txt,governance,,,,,,PROMPT_REQUEST_TEMPLATE,yes
 push_output.txt,text,,,,,,push_output,yes
