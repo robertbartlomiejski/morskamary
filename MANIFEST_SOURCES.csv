@@ -3,6 +3,8 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 # Changelog for `68efdd831ef476fb3cbdf16.md,text,,,,,,Changelog_for__68efdd831ef476fb3cbdf16,yes
 # Changelog for `c068036473875707f9d8054.litcoffee,other,,,,,,Changelog_for__c068036473875707f9d8054,no
 .dockerignore,other,,,,,,dockerignore,no
+.env,other,,,,,,env,no
+.env.ps1,other,,,,,,env,no
 .flake8,other,,,,,,flake8,no
 .github/add-competence.prompt.md,text,,,,,,add_competence_prompt,yes
 .github/competence-domain.instructions.md,text,,,,,,competence_domain_instructions,yes

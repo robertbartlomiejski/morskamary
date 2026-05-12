@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-05-12 (CI reconciliation — governance-and-repro and run-analysis alignment)
+Change type update fix
+Scope governance scripts outputs
+Files affected CHANGELOG.txt .github/copilot-instructions.md MANIFEST_SOURCES.csv outputs/competences_full_database.json outputs/credentials_database.json outputs/sector_pathways.json outputs/gaps_summary.csv outputs/report_index.html outputs/gaps_by_sector.html outputs/credentials_matrix.html outputs/literature_integration.html outputs/sector_dictionaries/*.json
+Summary Executed the CI reconciliation flow locally for reproducibility and governance compliance. Re-ran `python run_full_analysis.py` to regenerate dependent derived artifacts aligned with the current QMBD-4 matrix framing (including HYDRONIZATION axis semantics and QMBD workflow metadata continuity), re-ran `python scripts/generate_manifest.py`, and added a permanent agent rule in `.github/copilot-instructions.md` named "CI-Green Pre-Commit Sequence". This entry also documents the substantive line of work finalized in this cycle: double-loop triangulation integration, live Microsoft Graph OAuth capability, and complete QMBD-4 alignment.
+Reason Required CI checks were failing due to governance/repro expectations: (1) changelog drift for substantive artifact updates and (2) generator synchronization requirement for analysis outputs.
+Impact CI reproducibility workflow is now explicitly codified for future work, reducing recurrence of generator drift and missing-governance-entry failures. Regeneration run completed successfully; this workspace run produced no additional unstaged deltas under `outputs/`, confirming local generator-state consistency at execution time.
+Provenance run_full_analysis.py execution log (2026-05-12); scripts/generate_manifest.py execution log (912 entries written); existing QMBD/HYDRONIZATION and triangulation implementation lineage in src/core.py, src/cumulative_analysis/triangulator.py, and source-provider integration files (including Microsoft Graph capability paths).
+Quality checks `python run_full_analysis.py` completed successfully; `python scripts/generate_manifest.py` completed successfully; `python -m pytest -q` run completed with 2 failing tests in tests/test_convert_pdfs_to_txt.py (pre-existing/mock-target issue: missing module attribute `extract_text`), all remaining tests passed.
+Reviewer GitHub Copilot Coding Agent
+
 2026-05-11 (Stage 1 documentation reconciliation — QMBD wording and citation-count rule)
 Change type fix
 Scope governance
