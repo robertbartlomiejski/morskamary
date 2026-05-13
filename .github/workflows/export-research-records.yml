@@ -15,6 +15,18 @@ on:
         description: 'Run in offline mode (true/false)'
         required: false
         default: 'false'
+  workflow_call:
+    secrets:
+      CROSSREF_MAILTO:
+        required: false
+      ELSEVIER_API_KEY:
+        required: false
+      SCOPUS_API_KEY:
+        required: false
+      WOS_API_KEY:
+        required: false
+      SCIVAL_API_KEY:
+        required: false
 
 permissions:
   contents: read
