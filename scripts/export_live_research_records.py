@@ -341,18 +341,25 @@ def main() -> int:
         return 1
 
     with open(query_file_path, "r", encoding="utf-8") as f:
-        query_config = yaml.safe_load(f)
+        query_config_raw = yaml.safe_load(f)
 
-    if not isinstance(query_config, dict):
+    if query_config_raw is None:
+        query_config: Dict[str, Any] = {}
+    elif isinstance(query_config_raw, dict):
+        query_config = query_config_raw
+    else:
         print(
-            f"Error: Query file is empty or not a valid YAML mapping: {query_file_path}",
+            f"Error: Query file is not a valid YAML mapping: {query_file_path}",
             file=sys.stderr,
         )
         return 1
 
-    query_groups = query_config.get("query_groups", {})
-    if not query_groups:
-        print("Error: No query_groups found in query file", file=sys.stderr)
+    query_groups = query_config.get("query_groups")
+    if not isinstance(query_groups, dict) or not query_groups:
+        print(
+            f"Error: No research queries found in query file: {query_file_path}",
+            file=sys.stderr,
+        )
         return 1
 
     # Initialize registry
