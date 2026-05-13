@@ -127,6 +127,12 @@ class TestE2EBaselineToLiteratureFlow:
         assert "baseline_1" in all_competence_ids
         assert "lit_001" in all_competence_ids or "lit_002" in all_competence_ids
 
+        ri_creds = [c for c in credentials if c.sector == "R&I"]
+        ri_competence_ids = set()
+        for cred in ri_creds:
+            ri_competence_ids.update(cred.competences)
+        assert "baseline_2" in ri_competence_ids
+
     def test_micro_credentials_generated_for_every_sector(self) -> None:
         """Ensure every declared sector receives the full EQF stack."""
         baseline = [
