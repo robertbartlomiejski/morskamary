@@ -857,6 +857,56 @@ query_groups:
             result = main()
             assert result == 0
 
+    def test_all_provider_token_expands_to_registry_providers(self, tmp_path, monkeypatch):
+        """--providers all should query all known providers in registry order."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test Sector"
+    queries:
+      - "blue economy"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+        mock_result = ProviderResult(records=[], provenance=[])
+        seen_providers = []
+
+        def mock_search(query, max_results, providers):
+            seen_providers.append(providers)
+            return [mock_result, mock_result]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability(
+                "crossref", "scopus"
+            )
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "all",
+                ],
+            )
+
+            result = main()
+            assert result == 0
+            assert seen_providers == [["crossref", "scopus"]]
+
     def test_empty_providers_string_returns_error(self, tmp_path, monkeypatch, capsys):
         """Passing an empty string for --providers must return error code 1."""
         query_file = tmp_path / "queries.yml"
@@ -1047,4 +1097,3 @@ class TestStage1ComplianceFilter:
             "licence_note must be in STAGE1_CSV_FIELDS — it is required by "
             "docs/licensing_and_compliance.md Stage 1 export rules."
         )
-

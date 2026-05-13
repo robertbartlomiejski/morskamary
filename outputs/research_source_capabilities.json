@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-29T00:12:24.984393+00:00",
+  "generated_at": "2026-05-12T15:38:52.915540+00:00",
   "note": "Provider capability snapshot. Values reflect runtime environment. Re-run after configuring additional provider credentials.",
   "providers": {
     "crossref": {
@@ -74,6 +74,7 @@
         "year",
         "doi",
         "journal",
+        "url",
         "subject_terms",
         "source_id",
         "provider",
