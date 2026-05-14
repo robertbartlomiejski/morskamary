@@ -81,6 +81,7 @@ class MicrosoftGraphProvider(BaseProvider):
         return str(data.get("access_token", ""))
 
     def _search_url(self, query: str, max_results: int) -> str:
+        # OData string literals escape single quotes by doubling them.
         odata_escaped = query.replace("'", "''")
         quoted_q = urllib.parse.quote(odata_escaped, safe="")
         if self._drive_id:

@@ -250,9 +250,10 @@ def triangulate_identity_loop(
         )
 
     unmatched_non_identity: List[LiteratureRecord] = []
+    winner_keys = set(winner_by_identity)
     for rec in non_identity_records:
         identity_key = _identity_key_from_record(rec)
-        if identity_key not in winner_by_identity:
+        if identity_key not in winner_keys:
             unmatched_non_identity.append(rec)
     deduped_unmatched_non_identity, _ = deduplicate_records(unmatched_non_identity)
     merged_records.extend(deduped_unmatched_non_identity)
