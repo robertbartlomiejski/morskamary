@@ -20,6 +20,8 @@ from src.scientific_sources.models import (
     SourceEvidence,
 )
 
+_DOI_PATTERN = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Za-z0-9]+\b")
+
 _ALLOWED_FIELDS = [
     "title",
     "authors",
@@ -100,7 +102,7 @@ class MicrosoftGraphProvider(BaseProvider):
         if desc:
             candidates.append(desc)
         raw = " ".join(candidates)
-        match = re.search(r"\b10\.\d{4,9}/[-._;()/:A-Za-z0-9]+\b", raw)
+        match = _DOI_PATTERN.search(raw)
         return match.group(0).rstrip(".,;)") if match else ""
 
     @staticmethod
