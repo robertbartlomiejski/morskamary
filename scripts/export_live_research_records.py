@@ -340,20 +340,88 @@ def main() -> int:
         print(f"Error: Query file not found: {query_file_path}", file=sys.stderr)
         return 1
 
-    with open(query_file_path, "r", encoding="utf-8") as f:
-        query_config = yaml.safe_load(f)
-
-    if not isinstance(query_config, dict):
+    try:
+        with open(query_file_path, "r", encoding="utf-8") as f:
+            query_config_raw = yaml.safe_load(f)
+    except yaml.YAMLError as exc:
         print(
-            f"Error: Query file is empty or not a valid YAML mapping: {query_file_path}",
+            f"Error: Failed to parse '{query_file_path}'. Syntactically invalid YAML:\n{exc}",
             file=sys.stderr,
         )
         return 1
 
-    query_groups = query_config.get("query_groups", {})
-    if not query_groups:
-        print("Error: No query_groups found in query file", file=sys.stderr)
+    if query_config_raw is None or not isinstance(query_config_raw, dict):
+        print(
+            f"Error: '{query_file_path}' is empty or not a valid YAML mapping.",
+            file=sys.stderr,
+        )
         return 1
+
+    query_config: Dict[str, Any] = query_config_raw
+
+    query_groups = query_config.get("query_groups")
+    if not isinstance(query_groups, dict) or not query_groups:
+        print(
+            f"Error: No research queries found in query file: {query_file_path}",
+            file=sys.stderr,
+        )
+        return 1
+
+    validated_query_groups: Dict[str, Dict[str, Any]] = {}
+    runnable_query_count = 0
+    for group_name, sector_data in query_groups.items():
+        if not isinstance(sector_data, dict):
+            print(
+                "Error: Query group "
+                f"'{group_name}' must be a mapping with the shape "
+                "{label?, queries: [str, ...]}",
+                file=sys.stderr,
+            )
+            return 1
+
+        label = sector_data.get("label")
+        if label is not None and not isinstance(label, str):
+            print(
+                f"Error: Query group '{group_name}' has a non-string label",
+                file=sys.stderr,
+            )
+            return 1
+
+        queries = sector_data.get("queries")
+        if not isinstance(queries, list):
+            print(
+                f"Error: Query group '{group_name}' must define "
+                "'queries' as a non-empty list of strings",
+                file=sys.stderr,
+            )
+            return 1
+
+        normalized_queries = [
+            query.strip()
+            for query in queries
+            if isinstance(query, str) and query.strip()
+        ]
+        if len(normalized_queries) != len(queries) or not normalized_queries:
+            print(
+                f"Error: Query group '{group_name}' must define "
+                "'queries' as a non-empty list of non-empty strings",
+                file=sys.stderr,
+            )
+            return 1
+
+        validated_query_groups[group_name] = dict(sector_data)
+        validated_query_groups[group_name]["queries"] = normalized_queries
+        runnable_query_count += len(normalized_queries)
+
+    if runnable_query_count == 0:
+        print(
+            f"Error: No runnable research queries found in query file: {query_file_path}",
+            file=sys.stderr,
+        )
+        return 1
+
+    query_groups = validated_query_groups
+    query_config["query_groups"] = query_groups
 
     # Initialize registry
     registry = SourceRegistry()

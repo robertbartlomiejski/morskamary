@@ -593,7 +593,7 @@ query_groups:
         result = main()
         assert result == 1
         captured = capsys.readouterr()
-        assert "empty or not a valid YAML mapping" in captured.err
+        assert "is empty or not a valid YAML mapping" in captured.err
 
     def test_comment_only_query_file_returns_error(self, tmp_path, monkeypatch, capsys):
         """A comment-only YAML file (yaml.safe_load returns None) must return error code 1."""
@@ -616,7 +616,32 @@ query_groups:
         result = main()
         assert result == 1
         captured = capsys.readouterr()
-        assert "empty or not a valid YAML mapping" in captured.err
+        assert "is empty or not a valid YAML mapping" in captured.err
+
+    def test_invalid_yaml_syntax_returns_parse_error(self, tmp_path, monkeypatch, capsys):
+        """A YAML file with a syntax error must return error code 1 with a parse error."""
+        query_file = tmp_path / "bad_syntax.yml"
+        query_file.write_text("query_groups:\n- [unclosed list\n  key: value\n")
+
+        output_dir = tmp_path / "outputs"
+
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "export_live_research_records.py",
+                "--query-file",
+                str(query_file),
+                "--output-dir",
+                str(output_dir),
+            ],
+        )
+
+        result = main()
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "Failed to parse" in captured.err
+        assert "Syntactically invalid YAML" in captured.err
+        assert str(query_file) in captured.err
 
     def test_scalar_query_file_returns_error(self, tmp_path, monkeypatch, capsys):
         """A YAML file containing only a scalar (not a dict) must return error code 1."""
@@ -639,7 +664,7 @@ query_groups:
         result = main()
         assert result == 1
         captured = capsys.readouterr()
-        assert "empty or not a valid YAML mapping" in captured.err
+        assert "is empty or not a valid YAML mapping" in captured.err
 
     def test_zero_record_provider_identity_in_coverage(self, tmp_path, monkeypatch):
         """Zero-record provider results must preserve provider identity in coverage CSV."""
@@ -829,6 +854,7 @@ query_groups:
         mock_result = ProviderResult(records=[], provenance=[])
 
         def mock_search(query, max_results, providers):
+            assert providers == ["crossref"]
             return [mock_result]
 
         with patch(
@@ -906,6 +932,57 @@ query_groups:
             result = main()
             assert result == 0
             assert seen_providers == [["crossref", "scopus"]]
+
+    def test_comma_separated_providers_are_trimmed_and_normalised(
+        self, tmp_path, monkeypatch
+    ):
+        """Comma-separated providers with spaces should be lowercased before search."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test"
+    queries:
+      - "query1"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+        mock_result_crossref = ProviderResult(records=[], provenance=[])
+        mock_result_scopus = ProviderResult(records=[], provenance=[])
+
+        def mock_search(query, max_results, providers):
+            assert providers == ["crossref", "scopus"]
+            return [mock_result_crossref, mock_result_scopus]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability(
+                "crossref", "scopus"
+            )
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    " Crossref, Scopus ",
+                ],
+            )
+
+            result = main()
+            assert result == 0
 
     def test_empty_providers_string_returns_error(self, tmp_path, monkeypatch, capsys):
         """Passing an empty string for --providers must return error code 1."""
