@@ -207,13 +207,14 @@ def triangulate_identity_loop(
     doi_dups = 0
     title_dups = 0
     for identity_key, candidates in grouped_candidates.items():
+        candidates_with_norm = [
+            (rec, normalize_provider_name(rec.provider)) for rec in candidates
+        ]
         candidates_sorted = sorted(
-            candidates,
-            key=lambda rec: rank.get(normalize_provider_name(rec.provider), len(rank)),
+            candidates_with_norm,
+            key=lambda pair: rank.get(pair[1], len(rank)),
         )
-        support_by_identity[identity_key] = sorted(
-            {normalize_provider_name(c.provider) for c in candidates_sorted}
-        )
+        support_by_identity[identity_key] = sorted({norm for _, norm in candidates_sorted})
         if len(candidates) <= 1:
             continue
         if identity_key.startswith("doi:"):
@@ -227,11 +228,11 @@ def triangulate_identity_loop(
         losers = [
             {
                 "provider": rec.provider,
-                "provider_name": normalize_provider_name(rec.provider),
+                "provider_name": provider_name,
                 "source_id": rec.source_id,
                 "doi": rec.doi,
             }
-            for rec in candidates_sorted
+            for rec, provider_name in candidates_sorted
             if rec.source_id != winner.source_id
         ]
         collision_events.append(
@@ -245,7 +246,7 @@ def triangulate_identity_loop(
                     "reason": "highest-provider-priority",
                 },
                 "losers": losers,
-                "candidate_count": len(candidates_sorted),
+                "candidate_count": len(candidates),
             }
         )
 
