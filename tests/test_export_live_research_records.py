@@ -299,11 +299,16 @@ query_groups:
 
         # Verify outputs exist and are empty/minimal
         assert (output_dir / "live_records.json").exists()
+        assert (output_dir / "live_records_triangulated.json").exists()
         assert (output_dir / "live_records.csv").exists()
         assert (output_dir / "crossref_records.json").exists()
+        assert (output_dir / "raw_provider_records.json").exists()
+        assert (output_dir / "enrichment_records.json").exists()
         assert (output_dir / "live_provenance.json").exists()
         assert (output_dir / "live_source_coverage.csv").exists()
         assert (output_dir / "low_confidence_live_records.json").exists()
+        assert (output_dir / "triangulation_identity_loop.json").exists()
+        assert (output_dir / "triangulation_thematic_loop.json").exists()
 
         # Check that outputs are empty
         records = json.loads((output_dir / "live_records.json").read_text())
@@ -568,9 +573,12 @@ query_groups:
             assert len(crossref_only) == 1
             assert crossref_only[0]["provider"] == "Crossref"
 
-            # Verify live_records.json contains both
+            # Verify live_records.json applies provider-priority triangulation
             all_records = json.loads((output_dir / "live_records.json").read_text())
-            assert len(all_records) == 2
+            assert len(all_records) == 1
+            assert all_records[0]["provider"] == "Crossref"
+            assert (output_dir / "triangulation_identity_loop.json").exists()
+            assert (output_dir / "triangulation_thematic_loop.json").exists()
 
     def test_empty_query_file_returns_error(self, tmp_path, monkeypatch, capsys):
         """An empty YAML file must return error code 1 with a user-facing message."""
