@@ -345,21 +345,19 @@ def main() -> int:
             query_config_raw = yaml.safe_load(f)
     except yaml.YAMLError as exc:
         print(
-            f"Error: Failed to parse YAML query file: {query_file_path}: {exc}",
+            f"Error: Failed to parse '{query_file_path}'. Syntactically invalid YAML:\n{exc}",
             file=sys.stderr,
         )
         return 1
 
-    if query_config_raw is None:
-        query_config: Dict[str, Any] = {}
-    elif isinstance(query_config_raw, dict):
-        query_config = query_config_raw
-    else:
+    if query_config_raw is None or not isinstance(query_config_raw, dict):
         print(
-            f"Error: Query file is not a valid YAML mapping: {query_file_path}",
+            f"Error: '{query_file_path}' is empty or not a valid YAML mapping.",
             file=sys.stderr,
         )
         return 1
+
+    query_config: Dict[str, Any] = query_config_raw
 
     query_groups = query_config.get("query_groups")
     if not isinstance(query_groups, dict) or not query_groups:

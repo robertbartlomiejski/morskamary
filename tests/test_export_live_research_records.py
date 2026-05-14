@@ -593,7 +593,7 @@ query_groups:
         result = main()
         assert result == 1
         captured = capsys.readouterr()
-        assert "No research queries found" in captured.err
+        assert "is empty or not a valid YAML mapping" in captured.err
 
     def test_comment_only_query_file_returns_error(self, tmp_path, monkeypatch, capsys):
         """A comment-only YAML file (yaml.safe_load returns None) must return error code 1."""
@@ -616,12 +616,12 @@ query_groups:
         result = main()
         assert result == 1
         captured = capsys.readouterr()
-        assert "No research queries found" in captured.err
+        assert "is empty or not a valid YAML mapping" in captured.err
 
-    def test_invalid_yaml_syntax_returns_error(self, tmp_path, monkeypatch, capsys):
+    def test_invalid_yaml_syntax_returns_parse_error(self, tmp_path, monkeypatch, capsys):
         """A YAML file with a syntax error must return error code 1 with a parse error."""
         query_file = tmp_path / "bad_syntax.yml"
-        query_file.write_text("key: [\nunot_closed\n")
+        query_file.write_text("query_groups:\n- [unclosed list\n  key: value\n")
 
         output_dir = tmp_path / "outputs"
 
@@ -639,7 +639,8 @@ query_groups:
         result = main()
         assert result == 1
         captured = capsys.readouterr()
-        assert "Failed to parse YAML query file" in captured.err
+        assert "Failed to parse" in captured.err
+        assert "Syntactically invalid YAML" in captured.err
         assert str(query_file) in captured.err
 
     def test_scalar_query_file_returns_error(self, tmp_path, monkeypatch, capsys):
@@ -663,7 +664,7 @@ query_groups:
         result = main()
         assert result == 1
         captured = capsys.readouterr()
-        assert "not a valid YAML mapping" in captured.err
+        assert "is empty or not a valid YAML mapping" in captured.err
 
     def test_zero_record_provider_identity_in_coverage(self, tmp_path, monkeypatch):
         """Zero-record provider results must preserve provider identity in coverage CSV."""

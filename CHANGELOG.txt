@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-05-14
+Change type fix add
+Scope scripts tests
+Files affected scripts/export_live_research_records.py tests/test_export_live_research_records.py
+Summary Hardened live research export CLI query-file validation. yaml.safe_load() is now wrapped in a try/except yaml.YAMLError block that emits a clear parse-error message including the file path and YAML syntax detail, distinct from the structural empty/non-mapping check. Provider names are normalised (trimmed, lowercased) before registry lookup, including comma-separated inputs. Each query group's shape is validated to ensure sector_data is a dict with a non-empty list of non-empty query strings; the script exits with exit code 1 and a clear message if no runnable queries exist.
+Reason Previously a syntactically invalid YAML query file would crash the script with an unhandled traceback. Provider inputs with differing case or surrounding whitespace were silently rejected. Non-dict query-group values caused a downstream AttributeError.
+Impact scripts/export_live_research_records.py now fails fast with actionable operator messages for all YAML and provider-input edge cases.
+Provenance scripts/export_live_research_records.py (CLI entrypoint); tests/test_export_live_research_records.py (integration tests).
+Quality checks python -m pytest tests/test_export_live_research_records.py -q passed (45 tests).
+Reviewer GitHub Copilot Coding Agent
+
 2026-05-11
 Change type fix add
 Scope triangulator tests
