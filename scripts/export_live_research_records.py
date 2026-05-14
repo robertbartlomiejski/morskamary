@@ -340,8 +340,15 @@ def main() -> int:
         print(f"Error: Query file not found: {query_file_path}", file=sys.stderr)
         return 1
 
-    with open(query_file_path, "r", encoding="utf-8") as f:
-        query_config_raw = yaml.safe_load(f)
+    try:
+        with open(query_file_path, "r", encoding="utf-8") as f:
+            query_config_raw = yaml.safe_load(f)
+    except yaml.YAMLError as exc:
+        print(
+            f"Error: Failed to parse YAML query file: {query_file_path}: {exc}",
+            file=sys.stderr,
+        )
+        return 1
 
     if query_config_raw is None:
         query_config: Dict[str, Any] = {}

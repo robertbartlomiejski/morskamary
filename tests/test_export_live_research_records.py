@@ -618,6 +618,30 @@ query_groups:
         captured = capsys.readouterr()
         assert "No research queries found" in captured.err
 
+    def test_invalid_yaml_syntax_returns_error(self, tmp_path, monkeypatch, capsys):
+        """A YAML file with a syntax error must return error code 1 with a parse error."""
+        query_file = tmp_path / "bad_syntax.yml"
+        query_file.write_text("key: [\nunot_closed\n")
+
+        output_dir = tmp_path / "outputs"
+
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "export_live_research_records.py",
+                "--query-file",
+                str(query_file),
+                "--output-dir",
+                str(output_dir),
+            ],
+        )
+
+        result = main()
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "Failed to parse YAML query file" in captured.err
+        assert str(query_file) in captured.err
+
     def test_scalar_query_file_returns_error(self, tmp_path, monkeypatch, capsys):
         """A YAML file containing only a scalar (not a dict) must return error code 1."""
         query_file = tmp_path / "scalar.yml"
