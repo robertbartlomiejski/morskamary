@@ -18,6 +18,7 @@ from scripts.export_live_research_records import (
     export_records_json,
     main,
     normalize_title,
+    triangulate_identity_loop,
 )
 from src.scientific_sources.models import LiteratureRecord, ProviderResult, SourceEvidence
 
@@ -196,6 +197,42 @@ class TestBuildCoverageReport:
         assert len(coverage) == 2
         assert coverage[0]["sector"] == "Offshore Energy"
         assert coverage[1]["record_count"] == 5
+
+
+class TestTriangulationPolicy:
+    def test_keeps_unique_non_primary_records_and_supports_overlap(self):
+        crossref_shared = _make_record(
+            doi="10.1234/shared",
+            source_id="crossref:10.1234/shared",
+            provider="Crossref",
+            title="Shared title",
+        )
+        scival_shared = _make_record(
+            doi="10.1234/shared",
+            source_id="scival:10.1234/shared",
+            provider="SciVal",
+            title="Shared title",
+        )
+        scival_unique = _make_record(
+            doi="10.9999/unique",
+            source_id="scival:10.9999/unique",
+            provider="SciVal",
+            title="Unique scival record",
+        )
+
+        policy = {
+            "precedence": ["crossref", "scopus", "wos", "scival"],
+            "primary_identity_providers": ["crossref", "scopus", "wos"],
+        }
+        merged_records, _, _, _, support_by_identity = triangulate_identity_loop(
+            [crossref_shared, scival_shared, scival_unique], policy
+        )
+
+        dois = {r.doi for r in merged_records}
+        assert "10.1234/shared" in dois
+        assert "10.9999/unique" in dois
+        assert any(r.provider == "SciVal" and r.doi == "10.9999/unique" for r in merged_records)
+        assert set(support_by_identity["doi:10.1234/shared"]) == {"crossref", "scival"}
 
 
 # ---------------------------------------------------------------------------
@@ -382,6 +419,87 @@ query_groups:
 
             provenance = json.loads((output_dir / "live_provenance.json").read_text())
             assert len(provenance) == 1
+
+    def test_live_records_triangulated_keeps_unique_non_primary_records(
+        self, tmp_path, monkeypatch
+    ):
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  offshore_energy:
+    label: "Offshore Energy"
+    queries:
+      - "offshore wind"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+
+        crossref_record = _make_record(
+            title="Crossref shared",
+            doi="10.1234/shared",
+            source_id="crossref:10.1234/shared",
+            provider="Crossref",
+        )
+        scival_record = _make_record(
+            title="SciVal unique",
+            doi="10.9999/unique",
+            source_id="scival:10.9999/unique",
+            provider="SciVal",
+        )
+        crossref_ev = _make_evidence(
+            record_id="crossref:10.1234/shared",
+            source_provider="Crossref",
+        )
+        scival_ev = _make_evidence(
+            record_id="scival:10.9999/unique",
+            source_provider="SciVal",
+        )
+        mock_crossref_result = ProviderResult(
+            records=[crossref_record], provenance=[crossref_ev]
+        )
+        mock_scival_result = ProviderResult(records=[scival_record], provenance=[scival_ev])
+
+        def mock_search(query, max_results, providers):
+            return [mock_crossref_result, mock_scival_result]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability(
+                "crossref", "scival"
+            )
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref,scival",
+                ],
+            )
+
+            result = main()
+            assert result == 0
+
+            live_triangulated = json.loads(
+                (output_dir / "live_records_triangulated.json").read_text()
+            )
+            assert len(live_triangulated) == 2
+            assert any(
+                row["provider"] == "SciVal" and row["doi"] == "10.9999/unique"
+                for row in live_triangulated
+            )
 
     def test_deduplication_in_main(self, tmp_path, monkeypatch):
         """Test that duplicate records are removed in main."""

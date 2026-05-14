@@ -81,7 +81,8 @@ class MicrosoftGraphProvider(BaseProvider):
         return str(data.get("access_token", ""))
 
     def _search_url(self, query: str, max_results: int) -> str:
-        quoted_q = urllib.parse.quote(query)
+        odata_escaped = query.replace("'", "''")
+        quoted_q = urllib.parse.quote(odata_escaped, safe="")
         if self._drive_id:
             return (
                 f"https://graph.microsoft.com/v1.0/drives/{urllib.parse.quote(self._drive_id)}"
@@ -128,14 +129,18 @@ class MicrosoftGraphProvider(BaseProvider):
                 continue
             created = str(item.get("createdDateTime", "")).strip()
             year = created[:4] if len(created) >= 4 else ""
-            source_id = str(item.get("id", "")).strip() or f"graph:{title[:40]}"
+            source_id = str(item.get("id", "")).strip() or title[:40]
+            if source_id.startswith("graph:"):
+                prefixed_source_id = source_id
+            else:
+                prefixed_source_id = f"graph:{source_id}"
             records.append(
                 LiteratureRecord(
                     title=title,
                     authors=self._authors(item),
                     year=year,
                     doi=self._extract_doi(item),
-                    source_id=f"graph:{source_id}",
+                    source_id=prefixed_source_id,
                     provider="Microsoft Graph (OneDrive/SharePoint)",
                     url=str(item.get("webUrl", "")).strip(),
                     source_query=query,

@@ -170,6 +170,9 @@ def triangulate_identity_loop(
     identity_records = [
         rec for rec in records if normalize_provider_name(rec.provider) in primary_identity
     ]
+    non_identity_records = [
+        rec for rec in records if normalize_provider_name(rec.provider) not in primary_identity
+    ]
     if not identity_records:
         deduped, stats = deduplicate_records(records)
         empty_audit = {
@@ -194,11 +197,9 @@ def triangulate_identity_loop(
     merged = triangulator.triangulate()
     merged_records = [_triangulated_to_literature(rec) for rec in merged]
 
-    winner_by_identity = {
-        _identity_key_from_triangulated(rec): rec for rec in merged
-    }
+    winner_by_identity = {_identity_key_from_triangulated(rec): rec for rec in merged}
     grouped_candidates: Dict[str, List[LiteratureRecord]] = defaultdict(list)
-    for rec in identity_records:
+    for rec in records:
         grouped_candidates[_identity_key_from_record(rec)].append(rec)
 
     support_by_identity: Dict[str, List[str]] = {}
@@ -247,6 +248,14 @@ def triangulate_identity_loop(
                 "candidate_count": len(candidates_sorted),
             }
         )
+
+    unmatched_non_identity: List[LiteratureRecord] = []
+    for rec in non_identity_records:
+        identity_key = _identity_key_from_record(rec)
+        if identity_key not in winner_by_identity:
+            unmatched_non_identity.append(rec)
+    deduped_unmatched_non_identity, _ = deduplicate_records(unmatched_non_identity)
+    merged_records.extend(deduped_unmatched_non_identity)
 
     stats = {"doi_duplicates": doi_dups, "title_duplicates": title_dups}
     audit = {
@@ -767,7 +776,7 @@ def main() -> int:
 
     # Loop 1: identity triangulation with explicit provider priority policy
     print(f"\nLoop 1 identity triangulation for {len(all_records)} records...")
-    deduped_records, triangulated_identity, identity_audit, dedup_stats, support_by_identity = (
+    deduped_records, _triangulated_identity, identity_audit, dedup_stats, support_by_identity = (
         triangulate_identity_loop(all_records, provider_policy)
     )
     print(
@@ -813,28 +822,25 @@ def main() -> int:
     ]
     raw_records = [_to_stage1_compliant_dict(rec) for rec in all_records]
     triangulated_payload: List[Dict[str, Any]] = []
-    if triangulated_identity:
-        confidence_by_record: Dict[str, float] = {}
-        for ev in all_provenance:
-            confidence_by_record[ev.record_id] = max(
-                confidence_by_record.get(ev.record_id, 0.0), float(ev.confidence_score)
-            )
-        for rec in triangulated_identity:
-            identity_key = _identity_key_from_triangulated(rec)
-            support = support_by_identity.get(
-                identity_key, [normalize_provider_name(rec.provider)]
-            )
-            overlap_status = "multi-source" if len(set(support)) > 1 else "single-source"
-            row = rec.to_dict()
-            row["confidence_score"] = confidence_by_record.get(rec.source_id, 0.0)
-            row["overlap_status"] = overlap_status
-            row["supporting_providers"] = support
-            row["provider_class"] = provider_classes.get(
-                normalize_provider_name(rec.provider), "unknown"
-            )
-            triangulated_payload.append(row)
-    else:
-        triangulated_payload = [_to_stage1_compliant_dict(rec) for rec in deduped_records]
+    confidence_by_record: Dict[str, float] = {}
+    for ev in all_provenance:
+        confidence_by_record[ev.record_id] = max(
+            confidence_by_record.get(ev.record_id, 0.0), float(ev.confidence_score)
+        )
+    for rec in deduped_records:
+        identity_key = _identity_key_from_record(rec)
+        support = support_by_identity.get(
+            identity_key, [normalize_provider_name(rec.provider)]
+        )
+        overlap_status = "multi-source" if len(set(support)) > 1 else "single-source"
+        row = _to_stage1_compliant_dict(rec)
+        row["confidence_score"] = confidence_by_record.get(rec.source_id, 0.0)
+        row["overlap_status"] = overlap_status
+        row["supporting_providers"] = support
+        row["provider_class"] = provider_classes.get(
+            normalize_provider_name(rec.provider), "unknown"
+        )
+        triangulated_payload.append(row)
 
     # Export outputs
     output_dir = Path(args.output_dir)
