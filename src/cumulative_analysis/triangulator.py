@@ -148,6 +148,7 @@ class TriangulatedRecord:
     doi: str
     source: ClaimOrigin
     provider: str
+    source_id: str = ""
     journal: str = ""
     url: str = ""
     subject_terms: List[str] = field(default_factory=list)
@@ -164,6 +165,7 @@ class TriangulatedRecord:
             "doi": self.doi,
             "source": self.source.value,
             "provider": self.provider,
+            "source_id": self.source_id,
             "journal": self.journal,
             "url": self.url,
             "subject_terms": self.subject_terms,
@@ -224,6 +226,7 @@ def _record_from_csv_row(row: Dict[str, str]) -> Optional[TriangulatedRecord]:
         doi=row.get("doi", "").strip(),
         source=ClaimOrigin.STATIC_BASELINE,
         provider=row.get("provider", "static").strip() or "static",
+        source_id=row.get("source_id", "").strip(),
         journal=row.get("journal", "").strip(),
         url=row.get("url", "").strip(),
         subject_terms=subject_terms,
@@ -253,6 +256,7 @@ def _record_from_literature_record(rec: LiteratureRecord) -> TriangulatedRecord:
         doi=rec.doi,
         source=_claim_origin_for_provider(rec.provider),
         provider=rec.provider,
+        source_id=rec.source_id,
         journal=rec.journal,
         url=rec.url,
         subject_terms=list(rec.subject_terms),

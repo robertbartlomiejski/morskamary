@@ -44,7 +44,12 @@ query time. Each record carries a `ClaimOrigin` label:
 
 | Origin | Source | Priority |
 |---|---|---|
-| `DYNAMIC_API_CROSSREF` | Live Crossref API call (current triangulator dynamic provenance label) | Higher — upgrades static record on DOI match |
+| `DYNAMIC_API_CROSSREF` | Live Crossref API call | Dynamic (provider-priority policy) |
+| `DYNAMIC_API_SCOPUS` | Live Elsevier/Scopus API call | Dynamic (provider-priority policy) |
+| `DYNAMIC_API_WOS` | Live Web of Science API call | Dynamic (provider-priority policy) |
+| `DYNAMIC_API_SCIVAL` | Live SciVal analytics API call | Dynamic (provider-priority policy) |
+| `DYNAMIC_API_MICROSOFT_GRAPH` | Live Microsoft Graph metadata call | Dynamic (provider-priority policy) |
+| `DYNAMIC_API_GOOGLE_DRIVE` | Live Google Drive metadata call | Dynamic (provider-priority policy) |
 | `STATIC_BASELINE` | CSV snapshot (e.g., University of Szczecin baseline) | Lower |
 
 Deduplication is DOI-first; title-based fallback uses exact matching on
@@ -253,11 +258,11 @@ OAuth credentials or SharePoint file contents.
 | Provider | Open? | Credentials | Status | QMBD axis relevance |
 |---|---|---|---|---|
 | Crossref | Yes | None required | Fully implemented | All axes — broadest coverage |
-| Elsevier / Scopus | No | Institutional | Stub (Phase 2) | Maritime (T), Oceanic (O) |
-| Web of Science | No | Institutional | Stub (Phase 2) | Marine (M), Maritime (T) |
-| SciVal | No | Institutional | Stub (Phase 2) | All axes — institutional analytics |
+| Elsevier / Scopus | No | Institutional | Live implementation (capability-gated by key) | Maritime (T), Oceanic (O) |
+| Web of Science | No | Institutional | Live implementation (capability-gated by key) | Marine (M), Maritime (T) |
+| SciVal | No | Institutional | Live implementation (capability-gated by key) | All axes — institutional analytics |
 | Google Drive | Personal | OAuth JSON | Stub | Any — personal collections |
-| Microsoft Graph | Personal / Enterprise | Azure App | Stub | Any — institutional collections |
+| Microsoft Graph | Personal / Enterprise | Azure App | Live metadata implementation (capability-gated by app credentials and site/drive scope) | Any — institutional collections |
 
 The four QMBD axes are: Marine (M), Maritime (T), Oceanic (O), and Hydronization (H).
 The single-letter codes follow the established convention: 'M' for Marine, 'T' for

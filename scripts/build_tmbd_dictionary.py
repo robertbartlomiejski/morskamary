@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build TMBD competence dictionaries directly from literature source files."""
+"""Build QMBD competence dictionaries directly from literature source files."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ from src.competence_repository import (
 from src.utils import slugify
 
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "outputs" / "sector_dictionaries"
-AXES = ("MARINE", "MARITIME", "OCEANIC")
+AXES = ("MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION")
 
 
 def _to_dictionary_record(competence: Any) -> Dict[str, Any]:
@@ -46,7 +46,7 @@ def _to_dictionary_record(competence: Any) -> Dict[str, Any]:
 def build_axis_dictionary(
     competences: Sequence[Any],
 ) -> Dict[str, List[Dict[str, Any]]]:
-    """Group competences by TMBD axis."""
+    """Group competences by QMBD axis."""
     grouped: Dict[str, List[Dict[str, Any]]] = {axis: [] for axis in AXES}
     for competence in competences:
         # Keep duck-typed access to support lightweight test doubles and
@@ -66,7 +66,7 @@ def build_axis_dictionary(
 def build_sector_dictionary(
     competences: Sequence[Any], sector: str
 ) -> Dict[str, List[Dict[str, Any]]]:
-    """Build TMBD dictionary for one sector from literature-derived competences."""
+    """Build QMBD dictionary for one sector from literature-derived competences."""
     normalized_sector = normalize_sector_name(sector)
     filtered = [
         competence
@@ -82,7 +82,7 @@ def build_sector_dictionary(
 def build_sector_dictionary_from_repository(
     repository: MixedProvenanceCompetenceRepository, sector: str
 ) -> Dict[str, List[Dict[str, Any]]]:
-    """Build TMBD dictionary for one sector via repository data access methods."""
+    """Build QMBD dictionary for one sector via repository data access methods."""
     return build_axis_dictionary(
         list(repository.iter_literature_competences_for_sector(sector))
     )
@@ -97,7 +97,7 @@ def export_sector_dictionary(
     payload = {
         "metadata": {
             "sector": sector,
-            "source_workflow": "literature -> competences -> TMBD -> sector dictionary",
+            "source_workflow": "literature -> competences -> QMBD -> sector dictionary",
             "axes": list(AXES),
         },
         "dictionary": grouped,
@@ -111,7 +111,7 @@ def parse_args() -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(
         description=(
-            "Build TMBD sector dictionary from literature sources. "
+            "Build QMBD sector dictionary from literature sources. "
             "This script does not consume outputs/competences_full_database.json."
         )
     )

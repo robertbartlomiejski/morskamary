@@ -18,6 +18,7 @@ from scripts.export_live_research_records import (
     export_records_json,
     main,
     normalize_title,
+    triangulate_identity_loop,
 )
 from src.scientific_sources.models import LiteratureRecord, ProviderResult, SourceEvidence
 
@@ -198,6 +199,42 @@ class TestBuildCoverageReport:
         assert coverage[1]["record_count"] == 5
 
 
+class TestTriangulationPolicy:
+    def test_keeps_unique_non_primary_records_and_supports_overlap(self):
+        crossref_shared = _make_record(
+            doi="10.1234/shared",
+            source_id="crossref:10.1234/shared",
+            provider="Crossref",
+            title="Shared title",
+        )
+        scival_shared = _make_record(
+            doi="10.1234/shared",
+            source_id="scival:10.1234/shared",
+            provider="SciVal",
+            title="Shared title",
+        )
+        scival_unique = _make_record(
+            doi="10.9999/unique",
+            source_id="scival:10.9999/unique",
+            provider="SciVal",
+            title="Unique scival record",
+        )
+
+        policy = {
+            "precedence": ["crossref", "scopus", "wos", "scival"],
+            "primary_identity_providers": ["crossref", "scopus", "wos"],
+        }
+        merged_records, _, _, _, support_by_identity = triangulate_identity_loop(
+            [crossref_shared, scival_shared, scival_unique], policy
+        )
+
+        dois = {r.doi for r in merged_records}
+        assert "10.1234/shared" in dois
+        assert "10.9999/unique" in dois
+        assert any(r.provider == "SciVal" and r.doi == "10.9999/unique" for r in merged_records)
+        assert set(support_by_identity["doi:10.1234/shared"]) == {"crossref", "scival"}
+
+
 # ---------------------------------------------------------------------------
 # Export function tests
 # ---------------------------------------------------------------------------
@@ -299,11 +336,16 @@ query_groups:
 
         # Verify outputs exist and are empty/minimal
         assert (output_dir / "live_records.json").exists()
+        assert (output_dir / "live_records_triangulated.json").exists()
         assert (output_dir / "live_records.csv").exists()
         assert (output_dir / "crossref_records.json").exists()
+        assert (output_dir / "raw_provider_records.json").exists()
+        assert (output_dir / "enrichment_records.json").exists()
         assert (output_dir / "live_provenance.json").exists()
         assert (output_dir / "live_source_coverage.csv").exists()
         assert (output_dir / "low_confidence_live_records.json").exists()
+        assert (output_dir / "triangulation_identity_loop.json").exists()
+        assert (output_dir / "triangulation_thematic_loop.json").exists()
 
         # Check that outputs are empty
         records = json.loads((output_dir / "live_records.json").read_text())
@@ -377,6 +419,87 @@ query_groups:
 
             provenance = json.loads((output_dir / "live_provenance.json").read_text())
             assert len(provenance) == 1
+
+    def test_live_records_triangulated_keeps_unique_non_primary_records(
+        self, tmp_path, monkeypatch
+    ):
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  offshore_energy:
+    label: "Offshore Energy"
+    queries:
+      - "offshore wind"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+
+        crossref_record = _make_record(
+            title="Crossref shared",
+            doi="10.1234/shared",
+            source_id="crossref:10.1234/shared",
+            provider="Crossref",
+        )
+        scival_record = _make_record(
+            title="SciVal unique",
+            doi="10.9999/unique",
+            source_id="scival:10.9999/unique",
+            provider="SciVal",
+        )
+        crossref_ev = _make_evidence(
+            record_id="crossref:10.1234/shared",
+            source_provider="Crossref",
+        )
+        scival_ev = _make_evidence(
+            record_id="scival:10.9999/unique",
+            source_provider="SciVal",
+        )
+        mock_crossref_result = ProviderResult(
+            records=[crossref_record], provenance=[crossref_ev]
+        )
+        mock_scival_result = ProviderResult(records=[scival_record], provenance=[scival_ev])
+
+        def mock_search(query, max_results, providers):
+            return [mock_crossref_result, mock_scival_result]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability(
+                "crossref", "scival"
+            )
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref,scival",
+                ],
+            )
+
+            result = main()
+            assert result == 0
+
+            live_triangulated = json.loads(
+                (output_dir / "live_records_triangulated.json").read_text()
+            )
+            assert len(live_triangulated) == 2
+            assert any(
+                row["provider"] == "SciVal" and row["doi"] == "10.9999/unique"
+                for row in live_triangulated
+            )
 
     def test_deduplication_in_main(self, tmp_path, monkeypatch):
         """Test that duplicate records are removed in main."""
@@ -568,9 +691,12 @@ query_groups:
             assert len(crossref_only) == 1
             assert crossref_only[0]["provider"] == "Crossref"
 
-            # Verify live_records.json contains both
+            # Verify live_records.json applies provider-priority triangulation
             all_records = json.loads((output_dir / "live_records.json").read_text())
-            assert len(all_records) == 2
+            assert len(all_records) == 1
+            assert all_records[0]["provider"] == "Crossref"
+            assert (output_dir / "triangulation_identity_loop.json").exists()
+            assert (output_dir / "triangulation_thematic_loop.json").exists()
 
     def test_empty_query_file_returns_error(self, tmp_path, monkeypatch, capsys):
         """An empty YAML file must return error code 1 with a user-facing message."""
@@ -593,7 +719,7 @@ query_groups:
         result = main()
         assert result == 1
         captured = capsys.readouterr()
-        assert "empty or not a valid YAML mapping" in captured.err
+        assert "is empty or not a valid YAML mapping" in captured.err
 
     def test_comment_only_query_file_returns_error(self, tmp_path, monkeypatch, capsys):
         """A comment-only YAML file (yaml.safe_load returns None) must return error code 1."""
@@ -616,7 +742,32 @@ query_groups:
         result = main()
         assert result == 1
         captured = capsys.readouterr()
-        assert "empty or not a valid YAML mapping" in captured.err
+        assert "is empty or not a valid YAML mapping" in captured.err
+
+    def test_invalid_yaml_syntax_returns_parse_error(self, tmp_path, monkeypatch, capsys):
+        """A YAML file with a syntax error must return error code 1 with a parse error."""
+        query_file = tmp_path / "bad_syntax.yml"
+        query_file.write_text("query_groups:\n- [unclosed list\n  key: value\n")
+
+        output_dir = tmp_path / "outputs"
+
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "export_live_research_records.py",
+                "--query-file",
+                str(query_file),
+                "--output-dir",
+                str(output_dir),
+            ],
+        )
+
+        result = main()
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "Failed to parse" in captured.err
+        assert "Syntactically invalid YAML" in captured.err
+        assert str(query_file) in captured.err
 
     def test_scalar_query_file_returns_error(self, tmp_path, monkeypatch, capsys):
         """A YAML file containing only a scalar (not a dict) must return error code 1."""
@@ -639,7 +790,7 @@ query_groups:
         result = main()
         assert result == 1
         captured = capsys.readouterr()
-        assert "empty or not a valid YAML mapping" in captured.err
+        assert "is empty or not a valid YAML mapping" in captured.err
 
     def test_zero_record_provider_identity_in_coverage(self, tmp_path, monkeypatch):
         """Zero-record provider results must preserve provider identity in coverage CSV."""
@@ -829,6 +980,7 @@ query_groups:
         mock_result = ProviderResult(records=[], provenance=[])
 
         def mock_search(query, max_results, providers):
+            assert providers == ["crossref"]
             return [mock_result]
 
         with patch(
@@ -906,6 +1058,57 @@ query_groups:
             result = main()
             assert result == 0
             assert seen_providers == [["crossref", "scopus"]]
+
+    def test_comma_separated_providers_are_trimmed_and_normalised(
+        self, tmp_path, monkeypatch
+    ):
+        """Comma-separated providers with spaces should be lowercased before search."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test"
+    queries:
+      - "query1"
+"""
+        )
+
+        output_dir = tmp_path / "outputs"
+        mock_result_crossref = ProviderResult(records=[], provenance=[])
+        mock_result_scopus = ProviderResult(records=[], provenance=[])
+
+        def mock_search(query, max_results, providers):
+            assert providers == ["crossref", "scopus"]
+            return [mock_result_crossref, mock_result_scopus]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability(
+                "crossref", "scopus"
+            )
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    " Crossref, Scopus ",
+                ],
+            )
+
+            result = main()
+            assert result == 0
 
     def test_empty_providers_string_returns_error(self, tmp_path, monkeypatch, capsys):
         """Passing an empty string for --providers must return error code 1."""

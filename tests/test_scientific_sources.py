@@ -718,6 +718,75 @@ class TestMicrosoftGraphConfiguredPath:
         assert result.warnings
         assert "not yet implemented" in result.warnings[0].lower()
 
+    def test_search_with_site_scope_parses_graph_records(self, monkeypatch):
+        monkeypatch.setenv("MICROSOFT_TENANT_ID", "tid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_ID", "cid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_SECRET", "csecret")
+        monkeypatch.setenv("MICROSOFT_GRAPH_SITE_ID", "site-1")
+
+        token_payload = {"access_token": "graph-token"}
+        search_payload = {
+            "value": [
+                {
+                    "id": "doc-1",
+                    "name": "Blue economy note 10.5555/graph-doi",
+                    "webUrl": "https://example.org/graph/doc-1",
+                    "createdDateTime": "2026-01-03T10:00:00Z",
+                    "createdBy": {"user": {"displayName": "Researcher A"}},
+                }
+            ]
+        }
+
+        def fake_urlopen(req, timeout=12):
+            url = req.full_url
+            if "oauth2/v2.0/token" in url:
+                return _DummyResponse(token_payload)
+            return _DummyResponse(search_payload)
+
+        import urllib.request
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        provider = MicrosoftGraphProvider()
+        result = provider.search("blue economy")
+        assert not result.is_empty
+        assert result.records[0].provider == "Microsoft Graph (OneDrive/SharePoint)"
+        assert result.records[0].doi == "10.5555/graph-doi"
+        assert result.provenance
+
+    def test_search_url_escapes_single_quotes_for_odata(self, monkeypatch):
+        monkeypatch.setenv("MICROSOFT_TENANT_ID", "tid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_ID", "cid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_SECRET", "csecret")
+        monkeypatch.setenv("MICROSOFT_GRAPH_SITE_ID", "site-1")
+        provider = MicrosoftGraphProvider()
+
+        url = provider._search_url("ocean's justice", max_results=5)
+
+        assert "search(q='ocean%27%27s%20justice')" in url
+
+    def test_parse_items_fallback_source_id_is_prefixed_once(self, monkeypatch):
+        monkeypatch.setenv("MICROSOFT_TENANT_ID", "tid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_ID", "cid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_SECRET", "csecret")
+        monkeypatch.setenv("MICROSOFT_GRAPH_SITE_ID", "site-1")
+        provider = MicrosoftGraphProvider()
+
+        payload = {
+            "value": [
+                {
+                    "name": "Doc without id",
+                    "webUrl": "https://example.org/doc",
+                    "createdDateTime": "2026-01-03T10:00:00Z",
+                }
+            ]
+        }
+
+        records = provider._parse_items(payload, "blue economy")
+
+        assert len(records) == 1
+        assert records[0].source_id.startswith("graph:")
+        assert records[0].source_id.count("graph:") == 1
+
 
 class TestSciValConfiguredPaths:
     def test_search_with_key_returns_topic_records(self, monkeypatch):

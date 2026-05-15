@@ -1,0 +1,19 @@
+provider_policy:
+  precedence:
+    - crossref
+    - scopus
+    - wos
+    - scival
+    - microsoft_graph
+    - google_drive
+  classes:
+    crossref: bibliographic
+    scopus: bibliographic
+    wos: bibliographic
+    scival: enrichment
+    microsoft_graph: workspace
+    google_drive: workspace
+  primary_identity_providers:
+    - crossref
+    - scopus
+    - wos
