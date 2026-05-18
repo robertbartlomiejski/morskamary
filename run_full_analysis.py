@@ -38,6 +38,7 @@ from scripts.build_tmbd_dictionary import (
     build_sector_dictionary_from_repository,
     export_sector_dictionary,
 )
+from src.core import BlueDynamicsAxis
 from src.utils import slugify
 from src.competence_repository import MixedProvenanceCompetenceRepository
 
@@ -56,7 +57,9 @@ REPO_ROOT = Path(__file__).resolve().parent
 DATA_DERIVED = REPO_ROOT / "data" / "derived"
 DATA_RAW = REPO_ROOT / "data" / "raw"
 OUTPUTS_DIR = REPO_ROOT / "outputs"
-DEFAULT_LIVE_RECORDS_JSON = OUTPUTS_DIR / "research_sources" / "live_records.json"
+DEFAULT_LIVE_RECORDS_JSON = (
+    OUTPUTS_DIR / "research_sources" / "live_records_triangulated.json"
+)
 REPO_GITHUB_BASE = "https://github.com/robertbartlomiejski/morskamary/blob/main"
 
 # 12 blue economy sectors (canonical names matching the CSV headers)
@@ -118,12 +121,7 @@ LITERATURE_FILES: List[Dict[str, str]] = [
 # ---------------------------------------------------------------------------
 
 
-class TMBDAxis(Enum):
-    """Tripartite Model of Blue Dynamics axes"""
-
-    MARINE = "M"  # biophysical / ecological agency
-    MARITIME = "T"  # techno-economic / institutional mediation
-    OCEANIC = "O"  # planetary governance / hydrosocial subjectivity
+TMBDAxis = BlueDynamicsAxis
 
 
 class EQFLevel(Enum):
@@ -330,14 +328,32 @@ _OCEANIC_KW = {
     "hydrosocial",
 }
 
+_HYDRONIZATION_KW = {
+    "hydronization",
+    "hydrosocial",
+    "wet ontology",
+    "hydrofeminism",
+    "transcorporeality",
+    "porocity",
+    "sponge city",
+    "liquid materiality",
+    "estuarial hydrofeminism",
+    "bodies of water",
+    "hydrobiography",
+    "metabolism of flows",
+    "porous infrastructure",
+    "hydro-social territory",
+}
+
 
 def _detect_axis(text: str, default: str = "OCEANIC") -> TMBDAxis:
-    """Detect TMBD axis from free text using keyword frequency."""
+    """Detect QMBD axis from free text using weighted keyword frequency."""
     lower = text.lower()
     scores = {
         "MARINE": sum(1 for kw in _MARINE_KW if kw in lower),
         "MARITIME": sum(1 for kw in _MARITIME_KW if kw in lower),
         "OCEANIC": sum(1 for kw in _OCEANIC_KW if kw in lower),
+        "HYDRONIZATION": sum(1 for kw in _HYDRONIZATION_KW if kw in lower),
     }
     best = max(scores, key=lambda k: scores[k])
     if scores[best] == 0:
@@ -908,6 +924,9 @@ def extract_live_records_competences(
         year = str(row.get("year", "")).strip()
         doi = str(row.get("doi", "")).strip()
         provider = str(row.get("provider", "")).strip() or "Unknown"
+        claim_origin = str(row.get("source", "")).strip()
+        overlap_status = str(row.get("overlap_status", "")).strip()
+        confidence_score = row.get("confidence_score")
         journal = str(row.get("journal", "")).strip()
         subject_terms = row.get("subject_terms", [])
         if not isinstance(subject_terms, list):
@@ -925,13 +944,21 @@ def extract_live_records_competences(
             doi=doi,
         )
         comp_id = f"lit_live_{_slugify(provider)}_{idx:05d}"
+        confidence_text = (
+            f" confidence={confidence_score:.2f}."
+            if isinstance(confidence_score, (int, float))
+            else ""
+        )
+        source_text = f" claim_origin={claim_origin}." if claim_origin else ""
+        overlap_text = f" overlap={overlap_status}." if overlap_status else ""
         competences.append(
             Competence(
                 id=comp_id,
                 name=f"Live API ({provider}): {title[:70].rstrip(',. ')}",
                 description=(
                     "Live-API-derived literature competence from provider "
-                    f"{provider}. Source paper: {title[:120]} ({authors[:60]}, {year})."
+                    f"{provider}.{source_text}{overlap_text}{confidence_text} "
+                    f"Source paper: {title[:120]} ({authors[:60]}, {year})."
                 ),
                 axis=axis,
                 dimension="literature",
@@ -939,6 +966,8 @@ def extract_live_records_competences(
                 keywords=[
                     "live-api",
                     _slugify(provider),
+                    _slugify(claim_origin) if claim_origin else "claim-origin-unknown",
+                    _slugify(overlap_status) if overlap_status else "overlap-unknown",
                     axis.name.lower(),
                     "literature",
                 ],
@@ -1530,6 +1559,8 @@ _HTML_HEAD = """\
                padding: 2px 6px; font-size: 0.78rem; }}
   .badge-O {{ background: #6a1a8a; color: #fff; border-radius: 4px;
                padding: 2px 6px; font-size: 0.78rem; }}
+  .badge-H {{ background: #8a5a1a; color: #fff; border-radius: 4px;
+               padding: 2px 6px; font-size: 0.78rem; }}
   .card {{ background: #fff; border: 1px solid #cce; border-radius: 6px;
            padding: 1rem 1.2rem; margin-bottom: 1rem;
            box-shadow: 0 1px 4px rgba(0,0,50,0.07); }}
@@ -1570,7 +1601,12 @@ _HTML_FOOT = """\
 
 
 def _axis_badge(axis: TMBDAxis) -> str:
-    cls = {"MARINE": "M", "MARITIME": "T", "OCEANIC": "O"}[axis.name]
+    cls = {
+        "MARINE": "M",
+        "MARITIME": "T",
+        "OCEANIC": "O",
+        "HYDRONIZATION": "H",
+    }[axis.name]
     return f'<span class="badge-{cls}">{axis.value} {axis.name}</span>'
 
 
@@ -1797,6 +1833,7 @@ def generate_literature_html(
         "MARINE": "Competences derived from papers on marine biodiversity, ecosystem science, and fisheries ecology",
         "MARITIME": "Competences from papers on labour relations, maritime industry, and techno-economic dimensions",
         "OCEANIC": "Competences from papers on ocean governance, blue justice, and planetary sustainability",
+        "HYDRONIZATION": "Competences from papers on hydrosocial relations, wet ontology, and water-society co-constitution",
     }
     for ax in TMBDAxis:
         html += (

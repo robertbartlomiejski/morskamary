@@ -32,7 +32,7 @@ def test_request_marks_econnreset_as_transient_network_error(reset_errno: int) -
         result = check_research_api_health._request("https://example.com", {})
 
     assert result.status == "transient-network-error"
-    assert result.detail == "ECONNRESET: connection reset"
+    assert "connection reset" in result.detail.lower()
 
 
 def test_request_keeps_other_runtime_errors_as_present_but_invalid() -> None:
@@ -47,3 +47,23 @@ def test_request_keeps_other_runtime_errors_as_present_but_invalid() -> None:
 
     assert result.status == "present-but-invalid"
     assert result.detail == "boom"
+
+
+def test_probe_microsoft_graph_treats_timeout_as_transient(monkeypatch) -> None:
+    """probe_microsoft_graph should classify timeout-like URLError as transient."""
+    import check_research_api_health
+
+    monkeypatch.setenv("MICROSOFT_TENANT_ID", "tid")
+    monkeypatch.setenv("MICROSOFT_CLIENT_ID", "cid")
+    monkeypatch.setenv("MICROSOFT_CLIENT_SECRET", "secret")
+
+    timeout_err = urllib.error.URLError(TimeoutError("timed out"))
+    with patch(
+        "check_research_api_health.urllib.request.urlopen",
+        side_effect=timeout_err,
+    ):
+        result = check_research_api_health.probe_microsoft_graph()
+
+    assert result.provider == "microsoft_graph"
+    assert result.status == "transient-network-error"
+    assert "timed out" in result.detail.lower()

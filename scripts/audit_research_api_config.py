@@ -44,7 +44,8 @@ def main() -> int:
                 "google_drive": "GOOGLE_DRIVE_OAUTH_CREDENTIALS",
                 "microsoft_graph": (
                     "MICROSOFT_TENANT_ID, MICROSOFT_CLIENT_ID, "
-                    "MICROSOFT_CLIENT_SECRET"
+                    "MICROSOFT_CLIENT_SECRET (+ MICROSOFT_GRAPH_SITE_ID or "
+                    "MICROSOFT_GRAPH_DRIVE_ID for search scope)"
                 ),
             }.get(cap.name, "provider-specific credential")
             print(f"    → Set {env_hint} to enable")

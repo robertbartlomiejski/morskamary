@@ -73,7 +73,7 @@ echo ""
 if [[ "$LIVE" == "true" ]]; then
   echo "--- Step 6: Export live research records ---"
   $PYTHON scripts/export_live_research_records.py \
-    --providers "crossref,scopus,wos,scival" \
+    --providers "crossref,scopus,wos,scival,microsoft_graph" \
     --query-file config/research_queries.yml \
     --max-results-per-query 30 \
     --output-dir outputs/research_sources \
@@ -86,7 +86,9 @@ fi
 echo ""
 echo "--- Step 7: Full analysis ---"
 if [[ "$LIVE" == "true" ]]; then
-  $PYTHON run_full_analysis.py --analysis-input-mode live-enriched
+  $PYTHON run_full_analysis.py \
+    --analysis-input-mode live-enriched \
+    --live-records-path outputs/research_sources/live_records_triangulated.json
 else
   $PYTHON run_full_analysis.py --analysis-input-mode static
 fi

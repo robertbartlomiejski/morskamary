@@ -19,6 +19,28 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+2026-05-14 (Policy-driven live triangulation, QMBD-4 enrichment, and Microsoft Graph integration)
+Change type add update
+Scope scripts src docs config
+Files affected scripts/export_live_research_records.py scripts/build_tmbd_dictionary.py scripts/check_research_api_health.py scripts/check_research_env.py scripts/audit_research_api_config.py scripts/run_research_api_full.sh src/cumulative_analysis/triangulator.py src/scientific_sources/microsoft_graph.py run_full_analysis.py config/research_provider_policy.yml docs/providers.md docs/ONE_CLICK_RESEARCH_RUNBOOK.md MANIFEST_SOURCES.csv
+Summary Implemented policy-driven live triangulation with explicit provider-priority contract (Loop 1: identity/provenance deduplication; Loop 2: thematic/QMBD axis assignment). Added durable audit artifacts (live_records_triangulated.json, raw_provider_records.json, enrichment_records.json, triangulation_identity_loop.json, triangulation_thematic_loop.json). Extended QMBD analysis to include HYDRONIZATION axis in run_full_analysis.py. Upgraded microsoft_graph.py from stub to capability-gated live metadata provider using OAuth client-credentials flow and DOI extraction. Added explicit provider policy config (config/research_provider_policy.yml) to replace implicit ordering.
+Reason The previous implicit registry-order deduplication gave no audit trail when two providers returned the same record. The new double-loop design ensures identity winners are policy-driven and every thematic assignment is auditable. The Microsoft Graph stub was blocking the one-click live run path.
+Impact export_live_research_records.py now emits triangulated and raw artifacts. run_full_analysis.py defaults to live_records_triangulated.json for enrichment. Microsoft Graph provider is operational when MICROSOFT_GRAPH_SITE_ID or MICROSOFT_GRAPH_DRIVE_ID is set.
+Provenance config/research_provider_policy.yml (new); src/scientific_sources/microsoft_graph.py; scripts/export_live_research_records.py.
+Quality checks python -m pytest -q passed locally.
+Reviewer GitHub Copilot Coding Agent
+
+2026-05-14
+Change type fix add
+Scope scripts tests
+Files affected scripts/export_live_research_records.py tests/test_export_live_research_records.py
+Summary Hardened live research export CLI query-file validation. yaml.safe_load() is now wrapped in a try/except yaml.YAMLError block that emits a clear parse-error message including the file path and YAML syntax detail, distinct from the structural empty/non-mapping check. Provider names are normalised (trimmed, lowercased) before registry lookup, including comma-separated inputs. Each query group's shape is validated to ensure sector_data is a dict with a non-empty list of non-empty query strings; the script exits with exit code 1 and a clear message if no runnable queries exist.
+Reason Previously a syntactically invalid YAML query file would crash the script with an unhandled traceback. Provider inputs with differing case or surrounding whitespace were silently rejected. Non-dict query-group values caused a downstream AttributeError.
+Impact scripts/export_live_research_records.py now fails fast with actionable operator messages for all YAML and provider-input edge cases.
+Provenance scripts/export_live_research_records.py (CLI entrypoint); tests/test_export_live_research_records.py (integration tests).
+Quality checks python -m pytest tests/test_export_live_research_records.py -q passed (45 tests).
+Reviewer GitHub Copilot Coding Agent
+
 2026-05-11
 Change type fix add
 Scope triangulator tests

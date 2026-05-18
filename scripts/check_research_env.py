@@ -81,6 +81,8 @@ def main() -> int:
         ("MICROSOFT_TENANT_ID", "Microsoft Tenant ID"),
         ("MICROSOFT_CLIENT_ID", "Microsoft Client ID"),
         ("MICROSOFT_CLIENT_SECRET", "Microsoft Client Secret"),
+        ("MICROSOFT_GRAPH_SITE_ID", "Microsoft Graph Site ID"),
+        ("MICROSOFT_GRAPH_DRIVE_ID", "Microsoft Graph Drive ID"),
         ("GCP_PROJECT_ID", "GCP Project ID"),
     ]
     for env, label in envs:

@@ -32,6 +32,7 @@ cloudbuild.live.yaml,other,,,,,,cloudbuild_live,no
 cloudbuild.yaml,other,,,,,,cloudbuild,no
 compose.debug.yaml,other,,,,,,compose_debug,no
 compose.yaml,other,,,,,,compose,no
+config/research_provider_policy.yml,other,,,,,,research_provider_policy,no
 config/research_queries.yml,other,,,,,,research_queries,no
 config/research_sources.example.yml,other,,,,,,research_sources_example,no
 CONTRIBUTING.md,text,,,,,,CONTRIBUTING,yes
