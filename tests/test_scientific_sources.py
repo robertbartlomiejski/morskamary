@@ -1007,3 +1007,185 @@ class TestWebOfScienceConfiguredPaths:
         provider = WebOfScienceProvider()
         result = provider.search("maritime")
         assert result.records[0].citation_count == 12
+
+
+# ---------------------------------------------------------------------------
+# Tests for Microsoft Graph helper functions
+# ---------------------------------------------------------------------------
+
+
+class TestODataEscape:
+    """_odata_escape must double single quotes for OData string literals."""
+
+    def test_plain_query_unchanged(self):
+        from src.scientific_sources.microsoft_graph import _odata_escape
+
+        assert _odata_escape("blue economy") == "blue economy"
+
+    def test_single_quote_doubled(self):
+        from src.scientific_sources.microsoft_graph import _odata_escape
+
+        assert _odata_escape("O'Brien") == "O''Brien"
+
+    def test_multiple_single_quotes(self):
+        from src.scientific_sources.microsoft_graph import _odata_escape
+
+        assert _odata_escape("it's O'Brien's data") == "it''s O''Brien''s data"
+
+    def test_empty_string(self):
+        from src.scientific_sources.microsoft_graph import _odata_escape
+
+        assert _odata_escape("") == ""
+
+    def test_no_double_url_encoding(self):
+        """_odata_escape must NOT percent-encode; URL-encoding is a separate step."""
+        from src.scientific_sources.microsoft_graph import _odata_escape
+
+        result = _odata_escape("blue & green")
+        assert "%" not in result
+
+
+class TestSearchUrl:
+    """_search_url must produce valid OData-safe URLs."""
+
+    def test_plain_query_contains_encoded_value(self):
+        from src.scientific_sources.microsoft_graph import _search_url
+
+        url = _search_url("site1", "drive1", "blue economy")
+        # spaces become %20 or +
+        assert "blue" in url
+        assert "economy" in url
+
+    def test_apostrophe_in_query_produces_doubled_quote(self):
+        """Single quotes must be doubled (OData) before URL-encoding."""
+        from src.scientific_sources.microsoft_graph import _search_url
+        import urllib.parse
+
+        url = _search_url("site1", "drive1", "O'Brien")
+        # The OData-escaped form "O''Brien" should appear URL-encoded in the URL.
+        assert urllib.parse.quote("O''Brien", safe="") in url
+
+    def test_apostrophe_is_not_raw_in_url(self):
+        """A bare unescaped single quote must not appear in the URL path."""
+        from src.scientific_sources.microsoft_graph import _search_url
+
+        url = _search_url("site1", "drive1", "O'Brien")
+        # The raw (unescaped) OData literal "O'Brien" must not appear verbatim.
+        assert "O'Brien" not in url
+
+    def test_url_contains_site_and_drive(self):
+        from src.scientific_sources.microsoft_graph import _search_url
+
+        url = _search_url("mysite", "mydrive", "test")
+        assert "mysite" in url
+        assert "mydrive" in url
+
+
+class TestMakeSourceId:
+    """_make_source_id must produce a single-prefixed graph: identifier."""
+
+    def test_uses_item_id_when_present(self):
+        from src.scientific_sources.microsoft_graph import _make_source_id
+
+        sid = _make_source_id({"id": "abc123", "name": "Document.pdf"})
+        assert sid == "graph:abc123"
+
+    def test_falls_back_to_name_when_no_id(self):
+        from src.scientific_sources.microsoft_graph import _make_source_id
+
+        sid = _make_source_id({"name": "Blue Economy Report"})
+        assert sid == "graph:Blue Economy Report"
+        assert not sid.startswith("graph:graph:")
+
+    def test_no_double_prefix(self):
+        """source_id must never start with 'graph:graph:'."""
+        from src.scientific_sources.microsoft_graph import _make_source_id
+
+        sid = _make_source_id({"name": "Report"})
+        assert sid.count("graph:") == 1
+
+    def test_name_truncated_to_40_chars(self):
+        from src.scientific_sources.microsoft_graph import _make_source_id
+
+        long_name = "A" * 80
+        sid = _make_source_id({"name": long_name})
+        # Discriminator is first 40 chars of name; plus 'graph:' prefix
+        assert sid == f"graph:{'A' * 40}"
+
+    def test_fallback_to_title_field_when_no_name_or_id(self):
+        from src.scientific_sources.microsoft_graph import _make_source_id
+
+        sid = _make_source_id({"title": "Maritime Security"})
+        assert sid == "graph:Maritime Security"
+
+    def test_unknown_when_no_fields(self):
+        from src.scientific_sources.microsoft_graph import _make_source_id
+
+        sid = _make_source_id({})
+        assert sid == "graph:unknown"
+
+
+class TestProbeMicrosoftGraph:
+    """probe_microsoft_graph must classify all URLError subtypes as transient."""
+
+    def test_connection_error_is_transient(self, monkeypatch):
+        import urllib.error
+        import urllib.request
+        from src.scientific_sources.microsoft_graph import probe_microsoft_graph
+
+        def fake_urlopen(req, timeout=5):
+            raise urllib.error.URLError("connection refused")
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        assert probe_microsoft_graph("t", "c", "s") == "transient-network-error"
+
+    def test_connection_reset_is_transient(self, monkeypatch):
+        import urllib.error
+        import urllib.request
+        from src.scientific_sources.microsoft_graph import probe_microsoft_graph
+
+        def fake_urlopen(req, timeout=5):
+            raise urllib.error.URLError("connection reset by peer")
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        assert probe_microsoft_graph("t", "c", "s") == "transient-network-error"
+
+    def test_http_error_is_transient(self, monkeypatch):
+        """HTTPError (4xx/5xx) must also be classified as transient."""
+        import urllib.error
+        import urllib.request
+        from src.scientific_sources.microsoft_graph import probe_microsoft_graph
+
+        def fake_urlopen(req, timeout=5):
+            raise urllib.error.HTTPError(
+                url="https://example.com", code=401,
+                msg="Unauthorized", hdrs=None, fp=None,
+            )
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        assert probe_microsoft_graph("t", "c", "s") == "transient-network-error"
+
+    def test_generic_os_error_is_transient(self, monkeypatch):
+        """Any other exception must not produce 'present-but-invalid'."""
+        import urllib.request
+        from src.scientific_sources.microsoft_graph import probe_microsoft_graph
+
+        def fake_urlopen(req, timeout=5):
+            raise OSError("ssl handshake failed")
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        assert probe_microsoft_graph("t", "c", "s") == "transient-network-error"
+
+    def test_successful_response_is_valid(self, monkeypatch):
+        import urllib.request
+        from src.scientific_sources.microsoft_graph import probe_microsoft_graph
+
+        class _FakeResp:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_):
+                pass
+
+        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=5: _FakeResp())
+        assert probe_microsoft_graph("t", "c", "s") == "present-and-valid"

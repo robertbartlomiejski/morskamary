@@ -12,9 +12,13 @@ Outputs:
   - outputs/research_sources/live_provenance.json (provenance metadata)
   - outputs/research_sources/live_source_coverage.csv (coverage by sector/provider)
   - outputs/research_sources/low_confidence_live_records.json (records with confidence < 0.8)
+  - outputs/research_sources/live_records_triangulated.json (enriched merged records)
 
 Features:
   - Deduplicates by DOI first, then by normalized title
+  - Triangulates records across providers: primary providers (Crossref) determine
+    canonical identity; non-primary providers contribute enrichment metadata
+    (subject_terms, url, journal) that is merged into the canonical record
   - Includes full provenance tracking (provider, query, timestamp, endpoint, DOI)
   - Does not store abstracts or full text (licence compliance)
   - Supports offline mode for testing (no network calls)
@@ -41,6 +45,131 @@ from src.scientific_sources.models import (  # noqa: E402
     SourceEvidence,
 )
 from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
+
+# ---------------------------------------------------------------------------
+# Triangulation: identity vs. enrichment providers
+# ---------------------------------------------------------------------------
+
+# These provider names (lower-case, matching LiteratureRecord.provider.lower())
+# are treated as **identity** sources: they determine the canonical record when
+# multiple providers return the same paper.  Non-identity providers are
+# **enrichment** sources: their metadata (subject_terms, url, journal) is
+# merged into the canonical record but they do NOT set its identity fields.
+#
+# Bug rationale: filtering to PRIMARY_IDENTITY_PROVIDERS *before* merging
+# would silently drop enrichment data from SciVal, Microsoft Graph, etc.
+# The correct order is: (1) identity-deduplicate across all records, then
+# (2) merge enrichment from non-primary records into the canonical record.
+PRIMARY_IDENTITY_PROVIDERS: frozenset = frozenset({"crossref"})
+
+
+def triangulate_records(
+    records: List[LiteratureRecord],
+) -> List[LiteratureRecord]:
+    """Merge multi-provider records, preserving non-primary enrichment.
+
+    Algorithm
+    ---------
+    1. Group records by DOI (exact, lower-cased) first, then by normalized
+       title for records without a DOI.  Each group represents the same
+       underlying paper seen by one or more providers.
+    2. Within each group, elect the **canonical** record:
+       - Prefer the first record whose ``provider`` matches a name in
+         ``PRIMARY_IDENTITY_PROVIDERS`` (case-insensitive).
+       - Fall back to the first record in the group when no primary
+         provider is present.
+    3. Enrich the canonical record from every *non-canonical* sibling:
+       - ``subject_terms``: union of all lists (order-preserving, deduped).
+       - ``url``:           first non-empty value wins (canonical's own url
+                             is preferred; sibling url fills in if absent).
+       - ``journal``:       same as url — canonical preferred.
+
+    This ensures that records identity-matched by Crossref still carry
+    thematic subject_terms contributed by SciVal or Microsoft Graph.
+
+    Args:
+        records: Flat list of ``LiteratureRecord`` objects from all providers
+                 **after** deduplication (so DOI/title collisions within a
+                 single provider have already been removed).
+
+    Returns:
+        List of canonical, enriched ``LiteratureRecord`` objects.  Order
+        matches the order in which each group's canonical record was first
+        encountered.
+    """
+    # --- Group records ---
+    # doi_groups:   doi_key (str) → list of records
+    # title_groups: norm_title (str) → list of records  (no-DOI records only)
+    doi_groups: Dict[str, List[LiteratureRecord]] = {}
+    title_groups: Dict[str, List[LiteratureRecord]] = {}
+    # Stable insertion-order list of group keys so output order is deterministic.
+    group_order: List[str] = []  # each key is "doi:<key>" or "title:<key>"
+
+    for rec in records:
+        if rec.doi:
+            key = f"doi:{rec.doi.strip().lower()}"
+            if key not in doi_groups:
+                doi_groups[key] = []
+                group_order.append(key)
+            doi_groups[key].append(rec)
+        else:
+            norm = normalize_title(rec.title)
+            key = f"title:{norm}"
+            if key not in title_groups:
+                title_groups[key] = []
+                group_order.append(key)
+            title_groups[key].append(rec)
+
+    triangulated: List[LiteratureRecord] = []
+
+    for key in group_order:
+        if key.startswith("doi:"):
+            group = doi_groups[key]
+        else:
+            group = title_groups[key]
+
+        if len(group) == 1:
+            # No enrichment needed — emit as-is.
+            triangulated.append(group[0])
+            continue
+
+        # --- Elect canonical record ---
+        canonical: LiteratureRecord = group[0]
+        for rec in group:
+            if rec.provider.lower() in PRIMARY_IDENTITY_PROVIDERS:
+                canonical = rec
+                break
+
+        # --- Merge enrichment from siblings ---
+        seen_terms: Set[str] = set(canonical.subject_terms)
+        merged_terms: List[str] = list(canonical.subject_terms)
+        merged_url: str = canonical.url
+        merged_journal: str = canonical.journal
+
+        for sibling in group:
+            if sibling is canonical:
+                continue
+            for term in sibling.subject_terms:
+                if term not in seen_terms:
+                    seen_terms.add(term)
+                    merged_terms.append(term)
+            if not merged_url and sibling.url:
+                merged_url = sibling.url
+            if not merged_journal and sibling.journal:
+                merged_journal = sibling.journal
+
+        # Produce a new record so we don't mutate shared state.
+        import dataclasses
+
+        enriched = dataclasses.replace(
+            canonical,
+            subject_terms=merged_terms,
+            url=merged_url,
+            journal=merged_journal,
+        )
+        triangulated.append(enriched)
+
+    return triangulated
 
 
 def normalize_title(title: str) -> str:
@@ -462,6 +591,15 @@ def main() -> int:
     # Build coverage report
     coverage = build_coverage_report(all_coverage_items)
 
+    # Triangulate: operate on the FULL raw list (before deduplication) so that
+    # enrichment metadata from non-primary providers (SciVal, Microsoft Graph,
+    # etc.) is merged into the canonical Crossref record, not silently dropped.
+    # The deduped live_records.json pipeline above is intentionally kept
+    # separate so its output shape remains stable.
+    print(f"\nTriangulating {len(all_records)} records across providers...")
+    triangulated_records = triangulate_records(all_records)
+    print(f"Triangulated: {len(triangulated_records)} canonical records")
+
     # Export outputs
     output_dir = Path(args.output_dir)
     print(f"\nExporting to {output_dir}/...")
@@ -473,6 +611,25 @@ def main() -> int:
     export_coverage_csv(coverage, output_dir / "live_source_coverage.csv")
     export_records_json(
         low_confidence_records, output_dir / "low_confidence_live_records.json"
+    )
+    export_records_json(
+        triangulated_records, output_dir / "live_records_triangulated.json"
+    )
+
+    # Export outputs
+    output_dir = Path(args.output_dir)
+    print(f"\nExporting to {output_dir}/...")
+
+    export_records_json(deduped_records, output_dir / "live_records.json")
+    export_records_csv(deduped_records, output_dir / "live_records.csv")
+    export_records_json(crossref_records, output_dir / "crossref_records.json")
+    export_provenance_json(all_provenance, output_dir / "live_provenance.json")
+    export_coverage_csv(coverage, output_dir / "live_source_coverage.csv")
+    export_records_json(
+        low_confidence_records, output_dir / "low_confidence_live_records.json"
+    )
+    export_records_json(
+        triangulated_records, output_dir / "live_records_triangulated.json"
     )
 
     print("\nExport complete.")
