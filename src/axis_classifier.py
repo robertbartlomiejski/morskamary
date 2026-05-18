@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 
 from src.core import BlueDynamicsAxis
 from src.dimension_mapping import map_dimension_to_axis
@@ -69,6 +70,7 @@ class AxisClassifier:
             "hydrofeminism",
             "transcorporeality",
             "porocity",
+            "porosity",
             "sponge city",
             "liquid materiality",
             "estuarial hydrofeminism",
@@ -98,8 +100,51 @@ class AxisClassifier:
             "multispecies justice",
         ),
     }
+    _SEPARATOR_RE = re.compile(r"[-_]+")
+    _WHITESPACE_RE = re.compile(r"\s+")
+    _compiled_keyword_map: (
+        dict[BlueDynamicsAxis, tuple[re.Pattern[str], ...]] | None
+    ) = None
 
-    def classify_axis(self, text: str, dimension: str | None = None) -> BlueDynamicsAxis:
+    @classmethod
+    def _normalize_text(cls, text: str) -> str:
+        """Normalize text for deterministic keyword matching."""
+        lowered = text.lower()
+        separator_normalized = cls._SEPARATOR_RE.sub(" ", lowered)
+        return cls._WHITESPACE_RE.sub(" ", separator_normalized).strip()
+
+    @classmethod
+    def _compile_keyword_pattern(cls, keyword: str) -> re.Pattern[str]:
+        """Compile a regex that matches a keyword/phrase at word boundaries."""
+        normalized_keyword = cls._normalize_text(keyword)
+        keyword_tokens = normalized_keyword.split()
+        escaped_phrase = r"\s+".join(re.escape(token) for token in keyword_tokens)
+        return re.compile(rf"\b{escaped_phrase}\b")
+
+    @classmethod
+    def _get_compiled_keyword_map(
+        cls,
+    ) -> dict[BlueDynamicsAxis, tuple[re.Pattern[str], ...]]:
+        """Compile and cache keyword regexes while preserving scan order."""
+        if cls._compiled_keyword_map is None:
+            cls._compiled_keyword_map = {
+                axis: tuple(
+                    cls._compile_keyword_pattern(keyword) for keyword in keywords
+                )
+                for axis, keywords in cls.KEYWORD_AXIS_MAP.items()
+            }
+        return cls._compiled_keyword_map
+
+    @staticmethod
+    def _matches_any_keyword(
+        normalized_text: str, keyword_patterns: Iterable[re.Pattern[str]]
+    ) -> bool:
+        """Return True when any compiled keyword pattern appears in the text."""
+        return any(pattern.search(normalized_text) for pattern in keyword_patterns)
+
+    def classify_axis(
+        self, text: str, dimension: str | None = None
+    ) -> BlueDynamicsAxis:
         """Classify axis using dimension-first logic and a text fallback.
 
         When a dimension code is provided (e.g. 'A.1', 'B', 'C.3', 'D'),
@@ -118,10 +163,10 @@ class AxisClassifier:
         if not text or not text.strip():
             return BlueDynamicsAxis.OCEANIC
 
-        normalized = re.sub(r"\s+", " ", text.lower())
+        normalized = self._normalize_text(text)
 
-        for axis, keywords in self.KEYWORD_AXIS_MAP.items():
-            if any(keyword in normalized for keyword in keywords):
+        for axis, keyword_patterns in self._get_compiled_keyword_map().items():
+            if self._matches_any_keyword(normalized, keyword_patterns):
                 return axis
 
         return BlueDynamicsAxis.OCEANIC
