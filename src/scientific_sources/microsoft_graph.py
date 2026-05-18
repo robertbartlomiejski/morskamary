@@ -34,6 +34,105 @@ _ALLOWED_FIELDS = [
     "retrieval_timestamp",
 ]
 
+_GRAPH_API_BASE = "https://graph.microsoft.com/v1.0"
+_PROBE_URL = f"{_GRAPH_API_BASE}/me"
+
+_PROBE_TRANSIENT_STATUS = "transient-network-error"
+_PROBE_VALID_STATUS = "present-and-valid"
+
+
+def _odata_escape(query: str) -> str:
+    """Escape a query string for use inside an OData string literal.
+
+    Per OData §5.1.1.6.1 a single quote inside a string literal must be
+    represented as two consecutive single quotes (``''``).  This escaping
+    must happen **before** URL-encoding so the encoded form is unambiguous.
+
+    Args:
+        query: Raw query string (may contain single quotes).
+
+    Returns:
+        OData-safe query string with ``'`` replaced by ``''``.
+    """
+    return query.replace("'", "''")
+
+
+def _search_url(site_id: str, drive_id: str, query: str) -> str:
+    """Build a Graph drive-search URL with a correctly quoted OData literal.
+
+    Steps: (1) OData-escape, (2) URL-encode, (3) interpolate.
+    Swapping steps 1 and 2 causes double-encoding or raw-quote artefacts.
+
+    Args:
+        site_id:  SharePoint site identifier.
+        drive_id: OneDrive drive identifier.
+        query:    Free-text search string (may contain single quotes).
+
+    Returns:
+        Fully formed Graph search URL string.
+    """
+    odata_safe = _odata_escape(query)
+    encoded = urllib.parse.quote(odata_safe, safe="")
+    return (
+        f"{_GRAPH_API_BASE}/sites/{site_id}/drives/{drive_id}"
+        f"/root/search(q='{encoded}')"
+    )
+
+
+def _make_source_id(item: dict) -> str:
+    """Return a ``graph:``-prefixed source_id for a Graph drive item.
+
+    The prefix is applied exactly **once**.  Falls back to ``name[:40]``
+    then ``title[:40]`` then ``"unknown"`` when ``id`` is absent.
+
+    Args:
+        item: Raw drive-item dict from the Graph API ``value`` array.
+
+    Returns:
+        String of the form ``graph:<discriminator>``.
+    """
+    item_id: str = item.get("id", "")
+    if not item_id:
+        name: str = item.get("name", item.get("title", "unknown"))
+        item_id = name[:40]
+    return f"graph:{item_id}"
+
+
+def probe_microsoft_graph(
+    tenant_id: str,
+    client_id: str,
+    client_secret: str,
+) -> str:
+    """Probe the Microsoft Graph endpoint to classify credential/network state.
+
+    Returns one of two canonical status strings:
+
+    * ``'present-and-valid'``       — endpoint reachable and request succeeded.
+    * ``'transient-network-error'`` — any ``URLError`` (including ``HTTPError``
+                                      for 4xx/5xx) or other network exception.
+
+    Classifying **all** ``URLError`` subtypes as transient is intentional:
+    callers should retry rather than treat a network glitch as a permanent
+    credential failure.
+
+    Args:
+        tenant_id:     Azure AD tenant identifier.
+        client_id:     App registration client identifier.
+        client_secret: App registration client secret.
+
+    Returns:
+        Status string (see above).
+    """
+    try:
+        req = urllib.request.Request(_PROBE_URL)
+        with urllib.request.urlopen(req, timeout=5):
+            pass
+        return _PROBE_VALID_STATUS
+    except urllib.error.URLError:
+        return _PROBE_TRANSIENT_STATUS
+    except Exception:
+        return _PROBE_TRANSIENT_STATUS
+
 
 class MicrosoftGraphProvider(BaseProvider):
     """Microsoft Graph / OneDrive provider (capability-gated; requires app reg)."""
