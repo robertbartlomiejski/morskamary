@@ -166,6 +166,80 @@ def test_main_orchestration_success(tmp_path: Path) -> None:
     assert m_export_dict.call_count == len(SECTORS)
 
 
+def test_main_qmbd_enrichment_includes_static_baseline_and_literature(
+    tmp_path: Path,
+) -> None:
+    """Static mode QMBD enrichment should include both baseline and literature records."""
+    baseline_csv = tmp_path / "baseline.csv"
+    baseline_csv.write_text("placeholder", encoding="utf-8")
+    output_dir = tmp_path / "outputs"
+    baseline = [
+        Competence(
+            id="baseline_a1",
+            name="Baseline competence",
+            description="Baseline row",
+            axis=TMBDAxis.MARINE,
+            dimension="A",
+            source=CompetenceSource(file="data/derived/y.csv", row=3),
+            sectors=["Blue Biotech"],
+        )
+    ]
+    literature = [
+        Competence(
+            id="lit_static_0001",
+            name="Static literature competence",
+            description="Literature row",
+            axis=TMBDAxis.OCEANIC,
+            dimension="literature",
+            source=CompetenceSource(file="data/derived/x.csv", row=2, doi="10.1/abc"),
+            sectors=["Blue Biotech"],
+        )
+    ]
+    captured: dict[str, object] = {}
+
+    def _capture_enrichment(records_iterator, output_path):
+        records = list(records_iterator)
+        captured["records"] = records
+        captured["output_path"] = output_path
+        return records
+
+    with (
+        patch("run_full_analysis.BASELINE_CSV", baseline_csv),
+        patch("run_full_analysis.OUTPUTS_DIR", output_dir),
+        patch("run_full_analysis.load_baseline_competences", return_value=baseline),
+        patch(
+            "run_full_analysis.extract_literature_competences", return_value=literature
+        ),
+        patch("run_full_analysis.run_gap_analysis", return_value=({}, {})),
+        patch("run_full_analysis.generate_micro_credentials", return_value=[]),
+        patch("run_full_analysis.compute_sector_pathways", return_value=[]),
+        patch("run_full_analysis.export_competences_json"),
+        patch("run_full_analysis.export_credentials_json"),
+        patch("run_full_analysis.export_pathways_json"),
+        patch("run_full_analysis.export_gaps_summary_csv"),
+        patch("run_full_analysis.generate_report_index"),
+        patch("run_full_analysis.generate_gaps_html"),
+        patch("run_full_analysis.generate_credentials_html"),
+        patch("run_full_analysis.generate_literature_html"),
+        patch("run_full_analysis.export_sector_dictionaries", return_value=[]),
+        patch(
+            "run_full_analysis.enrich_and_store_records",
+            side_effect=_capture_enrichment,
+        ),
+    ):
+        exit_code = main()
+
+    assert exit_code == 0
+    records = captured["records"]
+    assert isinstance(records, list)
+    assert len(records) == 2
+    assert {record["record_origin"] for record in records} == {
+        "STATIC_BASELINE",
+        "STATIC_LITERATURE",
+    }
+    assert captured["output_path"] == output_dir / "cumulative_qmbd_records.json"
+
+
 def test_generate_micro_credentials_missing_gaps_error() -> None:
     baseline = [
         Competence(
@@ -439,40 +513,124 @@ def test_cli_argument_parsing_rejects_invalid_sector() -> None:
 # ============================================================================
 
 
-def test_detect_axis_marine_keywords() -> None:
-    """Test _detect_axis with MARINE keywords."""
-    from run_full_analysis import _detect_axis
+def test_extract_sentences_preserves_full_context() -> None:
+    """Sentence extraction should preserve sentence-level context boundaries."""
+    from run_full_analysis import extract_sentences
 
-    text = "This research focuses on ecosystem biodiversity and coral reef restoration"
-    result = _detect_axis(text)
-    assert result.name == "MARINE"
-
-
-def test_detect_axis_maritime_keywords() -> None:
-    """Test _detect_axis with MARITIME keywords."""
-    from run_full_analysis import _detect_axis
-
-    text = "Labour rights for seafarers in port logistics and maritime transport"
-    result = _detect_axis(text)
-    assert result.name == "MARITIME"
+    text = "Marine systems evolve. Maritime labour adapts! Oceanic governance?"
+    assert extract_sentences(text) == [
+        "Marine systems evolve.",
+        "Maritime labour adapts!",
+        "Oceanic governance?",
+    ]
 
 
-def test_detect_axis_oceanic_keywords() -> None:
-    """Test _detect_axis with OCEANIC keywords."""
-    from run_full_analysis import _detect_axis
+def test_resolve_primary_axis_from_analysis_prefers_counted_single_axis() -> None:
+    """Primary axis should resolve from sentence-level strict classifications."""
+    from run_full_analysis import _resolve_primary_axis_from_analysis
 
-    text = "Planetary ocean governance and hydrosocial systems thinking"
-    result = _detect_axis(text)
-    assert result.name == "OCEANIC"
+    analysis = [
+        {"classification": "MARITIME", "matched_qmbd_axes": ["MARITIME"]},
+        {"classification": "MARITIME", "matched_qmbd_axes": ["MARITIME"]},
+        {"classification": "OCEANIC", "matched_qmbd_axes": ["OCEANIC"]},
+    ]
+    assert _resolve_primary_axis_from_analysis(analysis).name == "MARITIME"
 
 
-def test_detect_axis_no_keywords_uses_default() -> None:
-    """Test _detect_axis with no matching keywords uses default."""
-    from run_full_analysis import _detect_axis
+def test_resolve_primary_axis_from_analysis_uses_default_when_unclassified() -> None:
+    """Default axis should be used when no strict axis can be resolved."""
+    from run_full_analysis import _resolve_primary_axis_from_analysis
 
-    text = "General notes about scheduling, document review, and meeting agendas"
-    result = _detect_axis(text, default="MARINE")
-    assert result.name == "MARINE"
+    analysis = [
+        {"classification": "UNCLASSIFIED_REVIEW_REQUIRED", "matched_qmbd_axes": []},
+        {"classification": "MULTI_AXIS_INTERSECTION", "matched_qmbd_axes": []},
+    ]
+    assert (
+        _resolve_primary_axis_from_analysis(analysis, default_axis="MARINE").name
+        == "MARINE"
+    )
+
+
+def test_resolve_primary_axis_from_analysis_ignores_fallback_oceanic_without_evidence() -> None:
+    """Fallback OCEANIC sentences must not outvote keyword-backed evidence."""
+    from run_full_analysis import _resolve_primary_axis_from_analysis
+
+    analysis = [
+        {
+            "classification": "OCEANIC",
+            "axis": "OCEANIC",
+            "matched_keywords": [],
+            "confidence_score": 0.6,
+            "matched_qmbd_axes": [],
+        },
+        {
+            "classification": "OCEANIC",
+            "axis": "OCEANIC",
+            "matched_keywords": [],
+            "confidence_score": 0.6,
+            "matched_qmbd_axes": [],
+        },
+        {
+            "classification": "MARINE",
+            "axis": "MARINE",
+            "matched_keywords": ["ecosystem"],
+            "confidence_score": 0.95,
+            "matched_qmbd_axes": ["MARINE"],
+        },
+    ]
+
+    assert _resolve_primary_axis_from_analysis(analysis).name == "MARINE"
+
+
+def test_classify_sentence_contexts_marks_no_keyword_sentences_unclassified() -> None:
+    """No-keyword fallback sentences should stay auditable but not count as OCEANIC evidence."""
+    from run_full_analysis import _classify_sentence_contexts
+
+    analysis = _classify_sentence_contexts(
+        ["Generic blue economy transition with no classifier keywords."],
+        "source:test",
+    )
+
+    assert len(analysis) == 1
+    assert analysis[0]["axis"] == "OCEANIC"
+    assert analysis[0]["classification"] == "UNCLASSIFIED_REVIEW_REQUIRED"
+    assert analysis[0]["matched_qmbd_axes"] == []
+
+
+def test_serialize_subject_terms_handles_lists_and_scalars() -> None:
+    """Subject terms should be serialized deterministically for enrichment text."""
+    from run_full_analysis import _serialize_subject_terms
+
+    assert _serialize_subject_terms(["blue justice", "  ocean policy  "]) == (
+        "blue justice, ocean policy"
+    )
+    assert _serialize_subject_terms("single term") == "single term"
+    assert _serialize_subject_terms(None) == ""
+
+
+def test_build_static_qmbd_records_prefers_doi_as_source_id() -> None:
+    """Static QMBD records should use DOI source_id when available."""
+    from run_full_analysis import _build_static_qmbd_records
+
+    competence = Competence(
+        id="lit_test_0001",
+        name="Blue governance competence",
+        description="From literature",
+        axis=TMBDAxis.OCEANIC,
+        dimension="literature",
+        source=CompetenceSource(
+            file="data/derived/x.csv", row=4, doi="10.1234/example"
+        ),
+        keywords=["blue governance", "policy"],
+        sectors=["R&I"],
+    )
+    records = _build_static_qmbd_records(
+        [competence], record_origin="STATIC_LITERATURE"
+    )
+
+    assert records[0]["source_id"] == "10.1234/example"
+    assert records[0]["record_origin"] == "STATIC_LITERATURE"
+    assert records[0]["subject_terms"] == "blue governance, policy"
 
 
 def test_slugify_converts_text_to_slug() -> None:
@@ -1293,6 +1451,97 @@ def test_extract_live_records_competences_uses_sentence_level_axis(
     competences = extract_live_records_competences(live_file)
     assert len(competences) == 1
     assert competences[0].axis == TMBDAxis.MARINE
+
+
+def test_extract_live_records_competences_accepts_sanitized_sentence_metadata(
+    tmp_path: Path,
+) -> None:
+    """Hashed persisted classifications should still drive live axis selection."""
+    live_file = tmp_path / "live_records.json"
+    live_file.write_text(
+        json.dumps(
+            [
+                {
+                    "title": "General blue economy transition",
+                    "provider": "Crossref",
+                    "journal": "Ocean Studies",
+                    "sentence_classifications": [
+                        {
+                            "axis": "MARITIME",
+                            "axis_code": "T",
+                            "text_scope": "live_api_title_sentence",
+                            "sentence_hash": "abc123",
+                            "sentence_length": 42,
+                        },
+                        {
+                            "axis": "MARITIME",
+                            "axis_code": "T",
+                            "text_scope": "live_api_subject_terms_sentence",
+                            "sentence_hash": "def456",
+                            "sentence_length": 31,
+                        },
+                    ],
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    competences = extract_live_records_competences(live_file)
+    assert len(competences) == 1
+    assert competences[0].axis == TMBDAxis.MARITIME
+
+
+def test_extract_live_records_competences_ignores_fallback_oceanic_sentences(
+    tmp_path: Path,
+) -> None:
+    """Fallback OCEANIC live sentences without evidence must not dominate axis choice."""
+    live_file = tmp_path / "live_records.json"
+    live_file.write_text(
+        json.dumps(
+            [
+                {
+                    "title": "General blue economy transition",
+                    "provider": "Crossref",
+                    "journal": "Ocean Studies",
+                    "sentence_classifications": [
+                        {
+                            "axis": "OCEANIC",
+                            "axis_code": "O",
+                            "text_scope": "live_api_abstract_sentence",
+                            "matched_keywords": [],
+                            "confidence_score": 0.6,
+                            "sentence_hash": "oceanic1",
+                            "sentence_length": 41,
+                        },
+                        {
+                            "axis": "OCEANIC",
+                            "axis_code": "O",
+                            "text_scope": "live_api_abstract_sentence",
+                            "matched_keywords": [],
+                            "confidence_score": 0.6,
+                            "sentence_hash": "oceanic2",
+                            "sentence_length": 37,
+                        },
+                        {
+                            "axis": "MARITIME",
+                            "axis_code": "T",
+                            "text_scope": "live_api_title_sentence",
+                            "matched_keywords": ["port"],
+                            "confidence_score": 0.95,
+                            "sentence_hash": "maritime1",
+                            "sentence_length": 28,
+                        },
+                    ],
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    competences = extract_live_records_competences(live_file)
+    assert len(competences) == 1
+    assert competences[0].axis == TMBDAxis.MARITIME
 
 
 def test_extract_literature_competences_seafarer_theme_not_cross_sector(

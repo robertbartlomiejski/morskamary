@@ -1,5 +1,6 @@
 """Tests for src/axis_classifier.py - TMBD axis classification logic."""
 
+import pytest
 from src.axis_classifier import AxisClassifier
 from src.core import BlueDynamicsAxis
 from src.dimension_mapping import map_dimension_to_axis
@@ -302,3 +303,65 @@ class TestQMBDHydronizationAxis:
             assert (
                 result != BlueDynamicsAxis.HYDRONIZATION
             ), f"Dimension '{dim}' must not route to HYDRONIZATION"
+
+
+# ---------------------------------------------------------------------------
+# Negative / regression tests for input validation
+# ---------------------------------------------------------------------------
+
+
+class TestAxisClassifierInputValidation:
+    """Regression tests that guard against invalid inputs reaching the classifier."""
+
+    def test_classify_axis_raises_type_error_for_non_str_text(self):
+        """Passing a non-str value for ``text`` must raise TypeError."""
+        classifier = AxisClassifier()
+        with pytest.raises(TypeError, match="Expected 'text' to be str"):
+            classifier.classify_axis(text=None)  # type: ignore[arg-type]
+
+    def test_classify_axis_raises_type_error_for_non_str_dimension(self):
+        """Passing a non-str value for ``dimension`` must raise TypeError."""
+        classifier = AxisClassifier()
+        with pytest.raises(TypeError, match="Expected 'dimension' to be str"):
+            classifier.classify_axis(text="Some text", dimension=123)  # type: ignore[arg-type]
+
+    def test_classify_context_raises_type_error_for_non_str_text(self):
+        """Passing a non-str value for ``text`` to classify_context must raise TypeError."""
+        classifier = AxisClassifier()
+        with pytest.raises(TypeError, match="Expected 'text' to be str"):
+            classifier.classify_context(text=42)  # type: ignore[arg-type]
+
+    def test_classify_context_raises_value_error_for_empty_text_scope(self):
+        """Passing an empty string for ``text_scope`` must raise ValueError."""
+        classifier = AxisClassifier()
+        with pytest.raises(ValueError, match="'text_scope' must be a non-empty string"):
+            classifier.classify_context(text="Some text", text_scope="")
+
+    def test_classify_context_raises_value_error_for_none_text_scope(self):
+        """Passing None for ``text_scope`` must raise ValueError."""
+        classifier = AxisClassifier()
+        with pytest.raises(ValueError, match="'text_scope' must be a non-empty string"):
+            classifier.classify_context(text="Some text", text_scope=None)  # type: ignore[arg-type]
+
+    def test_classify_context_raises_value_error_for_whitespace_text_scope(self):
+        """Passing whitespace-only string for ``text_scope`` must raise ValueError."""
+        classifier = AxisClassifier()
+        with pytest.raises(ValueError, match="'text_scope' must be a non-empty string"):
+            classifier.classify_context(text="Some text", text_scope="   ")
+
+    def test_dimension_lowercase_normalized_to_uppercase(self):
+        """Lowercase dimension code must produce the same axis as its uppercase equivalent.
+
+        Dimension 'b.1' (lowercase) should yield MARITIME, identical to 'B.1'.
+        """
+        classifier = AxisClassifier()
+        assert classifier.classify_axis("some text", dimension="b.1") == BlueDynamicsAxis.MARITIME
+        assert classifier.classify_axis("some text", dimension="a") == BlueDynamicsAxis.OCEANIC
+        assert classifier.classify_axis("some text", dimension="c") == BlueDynamicsAxis.MARINE
+
+    def test_dimension_mixed_case_normalized(self):
+        """Mixed-case dimension codes must be handled correctly after normalization."""
+        classifier = AxisClassifier()
+        assert classifier.classify_axis("some text", dimension="B.2") == classifier.classify_axis(
+            "some text", dimension="b.2"
+        )

@@ -792,6 +792,7 @@ morskamary.code-workspace2.txt,text,,,,,,morskamary_code_workspace2,yes
 outputs/competences_full_database.json,other,,,,,,competences_full_database,yes
 outputs/credentials_database.json,other,,,,,,credentials_database,yes
 outputs/credentials_matrix.html,other,,,,,,credentials_matrix,no
+outputs/cumulative_qmbd_records.json,other,,,,,,cumulative_qmbd_records,yes
 outputs/gaps_by_sector.html,other,,,,,,gaps_by_sector,no
 outputs/gaps_summary.csv,dataset_derived,,,,,,gaps_summary,yes
 outputs/literature_integration.html,other,,,,,,literature_integration,no
