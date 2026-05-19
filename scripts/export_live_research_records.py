@@ -953,15 +953,25 @@ def main() -> int:
     triangulated_payload: List[Dict[str, Any]] = []
     confidence_by_record: Dict[str, float] = {}
     classification_repo = LiveContextClassificationRepository()
+    sentence_classifications_by_record: Dict[str, List[Dict[str, Any]]] = {}
+    axis_by_record: Dict[str, Tuple[str, str]] = {}
     for ev in all_provenance:
         confidence_by_record[ev.record_id] = max(
             confidence_by_record.get(ev.record_id, 0.0), float(ev.confidence_score)
         )
     for rec in deduped_records:
         sentence_classifications = classification_repo.classify_record_sentences(rec)
-        axis_name, axis_code = classification_repo.dominant_axis_from_classifications(
+        sentence_classifications_by_record[rec.source_id] = sentence_classifications
+        axis_by_record[
+            rec.source_id
+        ] = classification_repo.dominant_axis_from_classifications(
             sentence_classifications
         )
+    for rec in deduped_records:
+        sentence_classifications = sentence_classifications_by_record.get(
+            rec.source_id, []
+        )
+        axis_name, axis_code = axis_by_record.get(rec.source_id, ("Unknown", "unknown"))
         identity_key = _identity_key_from_record(rec)
         support = support_by_identity.get(
             identity_key, [normalize_provider_name(rec.provider)]
