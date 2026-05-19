@@ -21,6 +21,17 @@ Use this section for changes in progress that are not yet merged into the main b
 
 - 2026-05-19
   Change type fix update
+  Scope src tests governance
+  Files affected src/scientific_sources/crossref.py tests/test_scientific_sources.py CHANGELOG.txt
+  Summary Stopped the Crossref search request from asking for abstract metadata and added regression coverage ensuring the provider requests only the export-safe metadata fields it actually uses.
+  Reason The methodological-hardening follow-up found that Crossref still requested the abstract field even though the normalized provider now discards it. Removing the request tightens compliance with the repository rule against retaining or redistributing restricted abstract text.
+  Impact Reduces unnecessary retrieval of restricted metadata while preserving Crossref search behavior and keeping provider outputs aligned with the intended compliance-safe contract.
+  Provenance PR #162.
+  Quality checks python3 -m pytest tests/test_scientific_sources.py -q passed (85 tests); python3 -m pytest tests/test_axis_classifier.py tests/test_run_full_analysis.py tests/test_export_live_research_records.py tests/test_scientific_sources.py -q passed (228 tests).
+  Reviewer GitHub Copilot Coding Agent
+
+- 2026-05-19
+  Change type fix update
   Scope src tests outputs governance
   Files affected run_full_analysis.py tests/test_run_full_analysis.py outputs/competences_full_database.json outputs/credentials_database.json outputs/cumulative_qmbd_records.json outputs/gaps_by_sector.html outputs/gaps_summary.csv outputs/literature_integration.html outputs/report_index.html outputs/sector_dictionaries/blue_biotech_tmbd_dictionary.json outputs/sector_dictionaries/coastal_tourism_tmbd_dictionary.json outputs/sector_dictionaries/desalination_tmbd_dictionary.json outputs/sector_dictionaries/infra_robotics_tmbd_dictionary.json outputs/sector_dictionaries/living_res_tmbd_dictionary.json outputs/sector_dictionaries/maritime_defence_tmbd_dictionary.json outputs/sector_dictionaries/maritime_transport_tmbd_dictionary.json outputs/sector_dictionaries/non_living_res_tmbd_dictionary.json outputs/sector_dictionaries/port_activities_tmbd_dictionary.json outputs/sector_dictionaries/r_i_tmbd_dictionary.json outputs/sector_dictionaries/renewable_energy_tmbd_dictionary.json outputs/sector_dictionaries/ship_repair_tmbd_dictionary.json CHANGELOG.txt
   Summary Hardened sentence-level QMBD resolution so fallback OCEANIC classifications without keyword evidence no longer dominate primary-axis selection. Live sentence resolution now ignores unsupported fallback OCEANIC records while preserving compatibility fallbacks when no evidence is available.

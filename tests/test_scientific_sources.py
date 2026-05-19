@@ -225,6 +225,23 @@ class TestCrossrefProvider:
         assert rec.abstract_available is False
         assert rec.abstract_stored is False
 
+    def test_search_does_not_request_crossref_abstract_field(self, monkeypatch):
+        captured_url = {}
+
+        def fake_urlopen(req, timeout=10):
+            captured_url["url"] = req.full_url
+            return _DummyResponse(_CROSSREF_PAYLOAD)
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        provider = CrossrefProvider()
+        provider.search("blue economy", max_results=1)
+
+        assert "&select=" in captured_url["url"]
+        assert "abstract" not in captured_url["url"].split("&select=", 1)[1].split(
+            "&rows=", 1
+        )[0]
+
     def test_search_returns_error_on_network_failure(self, monkeypatch):
         def fake_urlopen(req, timeout=10):
             raise OSError("network down")

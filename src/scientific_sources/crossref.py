@@ -173,7 +173,7 @@ class CrossrefProvider(BaseProvider):
         url = (
             f"{_API_BASE}/works"
             f"?query={urllib.parse.quote(query)}"
-            f"&select=title,author,URL,DOI,published,container-title,abstract,subject"
+            f"&select=title,author,URL,DOI,published,container-title,subject"
             f"&rows={max_results}"
         )
         try:
