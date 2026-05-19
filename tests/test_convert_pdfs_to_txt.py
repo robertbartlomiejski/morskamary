@@ -24,7 +24,7 @@ class TestExtractWithPypdf:
         """Extract text from a single-page PDF."""
         pdf_path = tmp_path / "test.pdf"
 
-        with patch("convert_pdfs_to_txt.pypdf.PdfReader") as mock_reader:
+        with patch("convert_pdfs_to_txt.PdfReader") as mock_reader:
             mock_page = MagicMock()
             mock_page.extract_text.return_value = "Page 1 content"
             mock_reader.return_value.pages = [mock_page]
@@ -38,7 +38,7 @@ class TestExtractWithPypdf:
         """Extract text from a multi-page PDF."""
         pdf_path = tmp_path / "multipage.pdf"
 
-        with patch("convert_pdfs_to_txt.pypdf.PdfReader") as mock_reader:
+        with patch("convert_pdfs_to_txt.PdfReader") as mock_reader:
             mock_page1 = MagicMock()
             mock_page1.extract_text.return_value = "Page 1"
             mock_page2 = MagicMock()
@@ -53,7 +53,7 @@ class TestExtractWithPypdf:
         """Handle extraction errors gracefully by returning empty string for that page."""
         pdf_path = tmp_path / "error.pdf"
 
-        with patch("convert_pdfs_to_txt.pypdf.PdfReader") as mock_reader:
+        with patch("convert_pdfs_to_txt.PdfReader") as mock_reader:
             mock_page1 = MagicMock()
             mock_page1.extract_text.return_value = "Page 1"
             mock_page2 = MagicMock()
@@ -68,7 +68,7 @@ class TestExtractWithPypdf:
         """Handle pages that return None or empty text."""
         pdf_path = tmp_path / "empty.pdf"
 
-        with patch("convert_pdfs_to_txt.pypdf.PdfReader") as mock_reader:
+        with patch("convert_pdfs_to_txt.PdfReader") as mock_reader:
             mock_page = MagicMock()
             mock_page.extract_text.return_value = None
             mock_reader.return_value.pages = [mock_page]
@@ -85,7 +85,7 @@ class TestExtractWithPdfminer:
         """Extract text using pdfminer."""
         pdf_path = tmp_path / "test.pdf"
 
-        with patch("convert_pdfs_to_txt.extract_text") as mock_extract:
+        with patch("pdfminer.high_level.extract_text") as mock_extract:
             mock_extract.return_value = "Extracted text via pdfminer"
 
             result = convert_pdfs_to_txt.extract_with_pdfminer(pdf_path)
@@ -97,7 +97,7 @@ class TestExtractWithPdfminer:
         """Handle None return from pdfminer."""
         pdf_path = tmp_path / "test.pdf"
 
-        with patch("convert_pdfs_to_txt.extract_text") as mock_extract:
+        with patch("pdfminer.high_level.extract_text") as mock_extract:
             mock_extract.return_value = None
 
             result = convert_pdfs_to_txt.extract_with_pdfminer(pdf_path)
