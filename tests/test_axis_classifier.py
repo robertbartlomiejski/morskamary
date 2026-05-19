@@ -365,3 +365,27 @@ class TestAxisClassifierInputValidation:
         assert classifier.classify_axis("some text", dimension="B.2") == classifier.classify_axis(
             "some text", dimension="b.2"
         )
+
+    def test_is_blue_planetaryism_false_when_axis_keywords_present_in_other_axis(self):
+        """is_blue_planetaryism must be False when ANY axis keyword appears in text,
+        even if the dimension argument forces a different axis that has no matched
+        keywords for the selected axis.
+
+        Regression guard for: is_blue_planetaryism previously checked only
+        matched_keywords (resolved-axis keywords), not the full keyword map.
+        """
+        classifier = AxisClassifier()
+        # Text contains a MARINE keyword ("ecosystem"), dimension forces MARITIME (B).
+        # matched_keywords for MARITIME will be empty, but the full map has a hit
+        # → is_blue_planetaryism must be False.
+        result = classifier.classify_context(
+            "Blue economy ecosystem resilience transition",
+            dimension="B",
+            text_scope="test_scope",
+        )
+        assert result["axis"] == "MARITIME", "Dimension B must force MARITIME axis"
+        assert result["matched_keywords"] == [], "No MARITIME keywords in text"
+        assert result["is_blue_planetaryism"] is False, (
+            "is_blue_planetaryism must be False when any QMBD axis keyword "
+            "('ecosystem') appears in text, regardless of resolved axis"
+        )
