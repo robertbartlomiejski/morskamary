@@ -12,10 +12,8 @@ Directive 4: Implement the Unified Matrix Smoke Test.
 from __future__ import annotations
 
 import csv
-import io
 import json
 import urllib.request
-from pathlib import Path
 from typing import Any, Dict, List
 from unittest.mock import patch
 
