@@ -41,6 +41,11 @@ class TestMapDimensionToAxis:
         assert map_dimension_to_axis("X.1") == BlueDynamicsAxis.OCEANIC
         assert map_dimension_to_axis("Z") == BlueDynamicsAxis.OCEANIC
 
+    def test_empty_or_blank_dimension_defaults_to_oceanic(self):
+        """Empty or blank dimensions should default to OCEANIC."""
+        assert map_dimension_to_axis("") == BlueDynamicsAxis.OCEANIC
+        assert map_dimension_to_axis("   ") == BlueDynamicsAxis.OCEANIC
+
 
 class TestLoadBlueCompetences:
     """Tests for loading Blue Social Competences from CSV"""
