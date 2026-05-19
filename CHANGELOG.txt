@@ -20,6 +20,17 @@ Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
 - 2026-05-19
+  Change type add fix update
+  Scope scripts tests governance
+  Files affected scripts/changelog_guard.py .github/workflows/ci.yml tests/test_changelog_guard.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Extracted the CI CHANGELOG enforcement rule into a reusable Python guard and added direct regression coverage for pull-request changed-file detection, normalization, and CLI outcomes.
+  Reason Coverage analysis showed the CHANGELOG policy lived only in an inline workflow shell block with no dedicated tests, leaving pull/commit-style enforcement behavior unverified.
+  Impact Makes the governance rule testable and easier to maintain while preserving the existing lightweight policy for substantive tracked artifacts.
+  Provenance `.github/workflows/ci.yml` CHANGELOG enforcement step; `scripts/changelog_guard.py`; `tests/test_changelog_guard.py`.
+  Quality checks Pending targeted pytest, full pytest with coverage, `python scripts/generate_manifest.py`, and CodeQL review.
+  Reviewer GitHub Copilot Coding Agent
+
+- 2026-05-19
   Change type fix update
   Scope src tests
   Files affected src/axis_classifier.py tests/test_axis_classifier.py tests/test_check_research_api_health.py tests/test_run_full_analysis.py CHANGELOG.txt
