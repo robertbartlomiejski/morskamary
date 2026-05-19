@@ -3,170 +3,209 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
+from typing import Any, Dict, List
 
 from src.core import BlueDynamicsAxis
 from src.dimension_mapping import map_dimension_to_axis
 
 
 class AxisClassifier:
-    """Classifier facade for assigning QMBD axis labels.
+    """Classifier implementing strict QMBD 4D context evaluation."""
 
-    Supports all four axes of the Quadripartite Model of Blue Dynamics (QMBD):
-    Marine, Maritime, Oceanic, and Hydronization.  The TMBD three-axis logic
-    (Marine/Maritime/Oceanic) is preserved unchanged; the Hydronization axis is
-    an additive extension inserted *before* the OCEANIC fallback so that
-    Hydronization-specific keywords are matched in preference to the generic
-    governance-first default.
+    def __init__(self) -> None:
+        # 1. Core QMBD Vocabularies (Deep trans-disciplinary semantic scopes)
+        self.qmbd_vocabularies = {
+            "MARINE": [
+                r"\bmarine\b",
+                r"\bmarinization\b",
+                r"\bczynnik morski\b",
+                r"\bmetabolic rift\b",
+                r"\boceanography\b",
+                r"\bacidification\b",
+                r"\bbiophysical\b",
+                r"\btrophic webs\b",
+                r"\bmarine protected areas\b",
+                r"\bbenthic\b",
+                r"\bhydrothermal\b",
+                r"\bde marinisation\b",
+                r"\bbiodiversity collapse\b",
+                r"\bplanetary boundaries\b",
+            ],
+            "MARITIME": [
+                r"\bmaritime\b",
+                r"\bmaritimization\b",
+                r"\bterraforming\b",
+                r"\bport cityness\b",
+                r"\bshipping\b",
+                r"\bseafarers\b",
+                r"\blogistics\b",
+                r"\bmaritime spatial planning\b",
+                r"\boffshore infrastructure\b",
+                r"\bexclusive economic zone\b",
+                r"\bmaritime labour\b",
+                r"\bde maritimisation\b",
+                r"\baquaculture\b",
+                r"\bchoke points\b",
+            ],
+            "OCEANIC": [
+                r"\boceanic\b",
+                r"\boceanization\b",
+                r"\bplanetary governance\b",
+                r"\bblue justice\b",
+                r"\btransboundary\b",
+                r"\bhigh seas treaty\b",
+                r"\bbbnj\b",
+                r"\bglobal commons\b",
+                r"\bvolumetric sovereignty\b",
+                r"\bmulti level governance\b",
+                r"\bocean grabbing\b",
+            ],
+            "HYDRONIZATION": [
+                r"\bhydronization\b",
+                r"\bhydroization\b",
+                r"\bporosity\b",
+                r"\bporocity\b",
+                r"\bwater cycle\b",
+                r"\bwet ontologies\b",
+                r"\bhydro social\b",
+                r"\btranscorporeality\b",
+                r"\bliquid life\b",
+                r"\bwater personhood\b",
+                r"\briverhood\b",
+                r"\bamphibious\b",
+                r"\baquapelagic assemblages\b",
+                r"\bvirtual water\b",
+            ],
+        }
 
-    Fallback order when no dimension is supplied:
-      1. Keyword scan in KEYWORD_AXIS_MAP order (MARINE → MARITIME →
-         HYDRONIZATION → OCEANIC).
-      2. Default → OCEANIC (governance-first bias, as per TMBD/QMBD spec).
-    """
+        # 2. Blue Planetaryism (Cross-cutting policy, economic, and systemic signals)
+        self.planetaryism_vocab = [
+            r"\bblue economy\b",
+            r"\bblue growth\b",
+            r"\bgreenwashing\b",
+            r"\bblue washing\b",
+            r"\bresilience\b",
+            r"\bdegrowth\b",
+            r"\bocean literacy\b",
+            r"\becosystem services\b",
+            r"\bsustainable development\b",
+            r"\bblue finance\b",
+            r"\bblue bonds\b",
+        ]
 
-    KEYWORD_AXIS_MAP = {
-        BlueDynamicsAxis.MARINE: (
-            "ecosystem",
-            "biodiversity",
-            "habitat",
-            "species",
-            "bio-cycles",
-            "deep-time rhythms",
-            "cofka",
-            "thermohaline circulation",
-            "stewardship",
-            "habitus of seafarers",
-            "marine ecotone",
-            "vibrant materialism",
-            "weather-based risk",
-            "intra-action",
-            "pelagic metabolism",
-            "benthic agency",
-        ),
-        BlueDynamicsAxis.MARITIME: (
-            "port",
-            "shipping",
-            "infrastructure",
-            "logistics",
-            "maritimization",
-            "port 4.0",
-            "growth machine",
-            "blue-washing",
-            "ocean grabbing",
-            "rigid superinfrastructure",
-            "ten-t corridors",
-            "flag of convenience",
-            "throughput tonnage",
-            "logistics algorithms",
-            "supply chain acceleration",
-            "maritime mindset",
-            "cyber-physical port systems",
-        ),
-        BlueDynamicsAxis.HYDRONIZATION: (
-            "hydronization",
-            "hydrosocial",
-            "wet ontology",
-            "hydrofeminism",
-            "transcorporeality",
-            "porocity",
-            "porosity",
-            "sponge city",
-            "liquid materiality",
-            "estuarial hydrofeminism",
-            "bodies of water",
-            "hydrobiography",
-            "metabolism of flows",
-            "porous infrastructure",
-            "hydro-social territory",
-        ),
-        BlueDynamicsAxis.OCEANIC: (
-            "governance",
-            "policy",
-            "cooperation",
-            "justice",
-            "hyperobject",
-            "hydrocommons",
-            "blue degrowth",
-            "high sea treaties",
-            "volumetric sovereignty",
-            "tidalectics",
-            "rights of nature",
-            "blue justice",
-            "planetary water",
-            "hydro-solidarity",
-            "ocean literacy",
-            "blue citizenship",
-            "multispecies justice",
-        ),
-    }
-    _SEPARATOR_RE = re.compile(r"[-_]+")
-    _WHITESPACE_RE = re.compile(r"\s+")
-    _compiled_keyword_map: (
-        dict[BlueDynamicsAxis, tuple[re.Pattern[str], ...]] | None
-    ) = None
-
-    @classmethod
-    def _normalize_text(cls, text: str) -> str:
-        """Normalize text for deterministic keyword matching."""
-        lowered = text.lower()
-        separator_normalized = cls._SEPARATOR_RE.sub(" ", lowered)
-        return cls._WHITESPACE_RE.sub(" ", separator_normalized).strip()
-
-    @classmethod
-    def _compile_keyword_pattern(cls, keyword: str) -> re.Pattern[str]:
-        """Compile a regex that matches a keyword/phrase at word boundaries."""
-        normalized_keyword = cls._normalize_text(keyword)
-        keyword_tokens = normalized_keyword.split()
-        escaped_phrase = r"\s+".join(re.escape(token) for token in keyword_tokens)
-        return re.compile(rf"\b{escaped_phrase}\b")
-
-    @classmethod
-    def _get_compiled_keyword_map(
-        cls,
-    ) -> dict[BlueDynamicsAxis, tuple[re.Pattern[str], ...]]:
-        """Compile and cache keyword regexes while preserving scan order."""
-        if cls._compiled_keyword_map is None:
-            cls._compiled_keyword_map = {
-                axis: tuple(
-                    cls._compile_keyword_pattern(keyword) for keyword in keywords
+        # Compile cached regex patterns
+        self.compiled_qmbd = {
+            axis: re.compile("|".join(patterns), re.IGNORECASE)
+            for axis, patterns in self.qmbd_vocabularies.items()
+        }
+        self.compiled_planetaryism = re.compile(
+            "|".join(self.planetaryism_vocab), re.IGNORECASE
+        )
+        self.legacy_keyword_axis_map = {
+            BlueDynamicsAxis.MARINE: (
+                "ecosystem",
+                "biodiversity",
+                "habitat",
+                "species",
+                "benthic",
+            ),
+            BlueDynamicsAxis.MARITIME: (
+                "port",
+                "shipping",
+                "infrastructure",
+                "logistics",
+                "maritimization",
+            ),
+            BlueDynamicsAxis.HYDRONIZATION: (
+                "hydronization",
+                "hydrosocial",
+                "wet ontology",
+                "porosity",
+                "porocity",
+                "hydro social territory",
+            ),
+            BlueDynamicsAxis.OCEANIC: (
+                "governance",
+                "policy",
+                "cooperation",
+                "justice",
+                "ocean literacy",
+            ),
+        }
+        self.compiled_legacy_keyword_map = {
+            axis: tuple(
+                re.compile(
+                    rf"\b{'\\s+'.join(re.escape(t) for t in self._normalize_text(keyword).split())}\b",
+                    re.IGNORECASE,
                 )
-                for axis, keywords in cls.KEYWORD_AXIS_MAP.items()
-            }
-        return cls._compiled_keyword_map
+                for keyword in keywords
+            )
+            for axis, keywords in self.legacy_keyword_axis_map.items()
+        }
 
-    @staticmethod
-    def _matches_any_keyword(
-        normalized_text: str, keyword_patterns: Iterable[re.Pattern[str]]
-    ) -> bool:
-        """Return True when any compiled keyword pattern appears in the text."""
-        return any(pattern.search(normalized_text) for pattern in keyword_patterns)
+    def _normalize_text(self, text: str) -> str:
+        """Deterministic text normalization ensuring canonical matching."""
+        if not text:
+            return ""
+        text = text.lower()
+        text = re.sub(r"[-_]", " ", text)  # hyphen/underscore -> space
+        text = re.sub(r"\s+", " ", text).strip()  # whitespace collapse
+        return text
+
+    def classify_context(
+        self, text_context: str, source_id: str, scope_type: str
+    ) -> Dict[str, Any]:
+        """
+        Evaluate full sentence/paragraph contexts against the strict QMBD matrix.
+        """
+        normalized_text = self._normalize_text(text_context)
+        matched_axes: List[str] = []
+
+        for axis, pattern in self.compiled_qmbd.items():
+            if pattern.search(normalized_text):
+                matched_axes.append(axis)
+
+        has_planetaryism = bool(self.compiled_planetaryism.search(normalized_text))
+
+        if not matched_axes:
+            primary_classification = "UNCLASSIFIED_REVIEW_REQUIRED"
+        elif len(matched_axes) == 1:
+            primary_classification = matched_axes[0]
+        else:
+            primary_classification = "MULTI_AXIS_INTERSECTION"
+
+        return {
+            "classification": primary_classification,
+            "is_blue_planetaryism": has_planetaryism,
+            "matched_qmbd_axes": matched_axes,
+            "provenance": {
+                "source_id": source_id,
+                "text_scope": scope_type,  # e.g., "full_sentence", "abstract_fragment"
+                "classification_text": text_context,
+                "classifier_version": "QMBD-4.0-strict",
+            },
+        }
 
     def classify_axis(
         self, text: str, dimension: str | None = None
     ) -> BlueDynamicsAxis:
-        """Classify axis using dimension-first logic and a text fallback.
-
-        When a dimension code is provided (e.g. 'A.1', 'B', 'C.3', 'D'),
-        ``map_dimension_to_axis`` is used directly — the dimension mapping
-        covers only the original TMBD axes (A→OCEANIC, B→MARITIME,
-        C→MARINE, D→MARITIME).  Hydronization is reached via the keyword
-        path only.
-
-        When no dimension is provided, the KEYWORD_AXIS_MAP is scanned in
-        declaration order (MARINE → MARITIME → HYDRONIZATION → OCEANIC).
-        If no keywords match, the default is OCEANIC (governance-first bias).
-        """
+        """Compatibility helper returning a single axis for existing call sites."""
         if dimension:
             return map_dimension_to_axis(dimension)
 
-        if not text or not text.strip():
+        normalized_text = self._normalize_text(text)
+        if not normalized_text:
             return BlueDynamicsAxis.OCEANIC
 
-        normalized = self._normalize_text(text)
-
-        for axis, keyword_patterns in self._get_compiled_keyword_map().items():
-            if self._matches_any_keyword(normalized, keyword_patterns):
+        for axis, patterns in self.compiled_legacy_keyword_map.items():
+            if any(pattern.search(normalized_text) for pattern in patterns):
                 return axis
 
+        result = self.classify_context(
+            text_context=text,
+            source_id="compat",
+            scope_type="full_text",
+        )
+        if result["classification"] in BlueDynamicsAxis.__members__:
+            return BlueDynamicsAxis[result["classification"]]
         return BlueDynamicsAxis.OCEANIC
