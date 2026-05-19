@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import re
 import sys
@@ -94,6 +95,7 @@ class LiveContextClassificationRepository:
 
     def __init__(self, classifier: AxisClassifier | None = None) -> None:
         self._classifier = classifier or AxisClassifier()
+        self._cache: Dict[str, List[Dict[str, Any]]] = {}
 
     @staticmethod
     def _extract_abstract(rec: LiteratureRecord) -> str:
@@ -151,6 +153,11 @@ class LiveContextClassificationRepository:
 
     def classify_record_sentences(self, rec: LiteratureRecord) -> List[Dict[str, Any]]:
         """Return sentence-level classifications for one live record."""
+        cache_key = rec.source_id or f"{rec.provider}:{normalize_title(rec.title)}"
+        cached = self._cache.get(cache_key)
+        if cached is not None:
+            return [dict(item) for item in cached]
+
         combined_text, scoped_segments = self._build_scoped_context(rec)
         sentence_records = extract_sentence_records(combined_text)
         classifications: List[Dict[str, Any]] = []
@@ -164,7 +171,8 @@ class LiveContextClassificationRepository:
             )
             classification["sentence_index"] = len(classifications) + 1
             classifications.append(classification)
-        return classifications
+        self._cache[cache_key] = [dict(item) for item in classifications]
+        return [dict(item) for item in classifications]
 
     @staticmethod
     def dominant_axis_from_classifications(
@@ -396,9 +404,10 @@ def build_thematic_loop_audit(
     provenance: List[SourceEvidence],
     support_by_identity: Dict[str, List[str]],
     provider_classes: Dict[str, str],
+    classification_repo: LiveContextClassificationRepository | None = None,
 ) -> Dict[str, Any]:
     """Build loop-2 thematic/QMBD audit for triangulated records."""
-    classification_repo = LiveContextClassificationRepository()
+    classification_repo = classification_repo or LiveContextClassificationRepository()
     confidence_by_record: Dict[str, float] = {}
     for ev in provenance:
         prev = confidence_by_record.get(ev.record_id, 0.0)
@@ -434,7 +443,9 @@ def build_thematic_loop_audit(
                 ),
                 "qmbd_axis": axis_name,
                 "qmbd_axis_code": axis_code,
-                "sentence_classifications": sentence_classifications,
+                "sentence_classifications": _sanitize_persisted_sentence_classifications(
+                    sentence_classifications
+                ),
                 "confidence_score": confidence,
                 "overlap_status": overlap_status,
                 "supporting_providers": support,
@@ -445,6 +456,33 @@ def build_thematic_loop_audit(
         "loop_2_name": "thematic-qmbd-validation",
         "records": rows,
     }
+
+
+def _sanitize_persisted_sentence_classifications(
+    sentence_classifications: List[Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    """Remove raw sentence text before persisting sentence-level audit payloads."""
+    sanitized: List[Dict[str, Any]] = []
+    for item in sentence_classifications:
+        sentence = str(item.get("sentence", "")).strip()
+        sanitized_item: Dict[str, Any] = {
+            "axis": item.get("axis", ""),
+            "axis_code": item.get("axis_code", ""),
+            "text_scope": item.get("text_scope", ""),
+        }
+        if "matched_keywords" in item:
+            sanitized_item["matched_keywords"] = item.get("matched_keywords", [])
+        if "confidence_score" in item:
+            sanitized_item["confidence_score"] = item.get("confidence_score", 0.0)
+        if "sentence_index" in item:
+            sanitized_item["sentence_index"] = item.get("sentence_index")
+        if sentence:
+            sanitized_item["sentence_hash"] = hashlib.sha256(
+                sentence.encode("utf-8")
+            ).hexdigest()
+            sanitized_item["sentence_length"] = len(sentence)
+        sanitized.append(sanitized_item)
+    return sanitized
 
 
 def deduplicate_records(
@@ -930,11 +968,13 @@ def main() -> int:
     provider_classes = provider_policy.get("classes", {})
 
     # Loop 2: thematic QMBD validation audit over triangulated winners
+    classification_repo = LiveContextClassificationRepository()
     thematic_audit = build_thematic_loop_audit(
         deduped_records,
         all_provenance,
         support_by_identity,
         provider_classes,
+        classification_repo=classification_repo,
     )
 
     # Raw/enrichment artifacts for explicit provenance workflows.
@@ -986,7 +1026,9 @@ def main() -> int:
         )
         row["qmbd_axis"] = axis_name
         row["qmbd_axis_code"] = axis_code
-        row["sentence_classifications"] = sentence_classifications
+        row["sentence_classifications"] = _sanitize_persisted_sentence_classifications(
+            sentence_classifications
+        )
         triangulated_payload.append(row)
 
     # Export outputs

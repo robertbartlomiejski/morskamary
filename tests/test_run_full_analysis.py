@@ -1407,6 +1407,45 @@ def test_extract_live_records_competences_uses_sentence_level_axis(
     assert competences[0].axis == TMBDAxis.MARINE
 
 
+def test_extract_live_records_competences_accepts_sanitized_sentence_metadata(
+    tmp_path: Path,
+) -> None:
+    """Hashed persisted classifications should still drive live axis selection."""
+    live_file = tmp_path / "live_records.json"
+    live_file.write_text(
+        json.dumps(
+            [
+                {
+                    "title": "General blue economy transition",
+                    "provider": "Crossref",
+                    "journal": "Ocean Studies",
+                    "sentence_classifications": [
+                        {
+                            "axis": "MARITIME",
+                            "axis_code": "T",
+                            "text_scope": "live_api_title_sentence",
+                            "sentence_hash": "abc123",
+                            "sentence_length": 42,
+                        },
+                        {
+                            "axis": "MARITIME",
+                            "axis_code": "T",
+                            "text_scope": "live_api_subject_terms_sentence",
+                            "sentence_hash": "def456",
+                            "sentence_length": 31,
+                        },
+                    ],
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    competences = extract_live_records_competences(live_file)
+    assert len(competences) == 1
+    assert competences[0].axis == TMBDAxis.MARITIME
+
+
 def test_extract_literature_competences_seafarer_theme_not_cross_sector(
     tmp_path: Path,
 ) -> None:

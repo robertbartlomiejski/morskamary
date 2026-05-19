@@ -51,6 +51,7 @@ from scripts.build_tmbd_dictionary import (
 )
 from src.axis_classifier import AxisClassifier
 from src.core import BlueDynamicsAxis
+from src.literature_extraction import extract_sentences
 from src.utils import slugify
 from src.competence_repository import (
     CompetenceLike,
@@ -269,14 +270,6 @@ class SectorPathway:
 # ---------------------------------------------------------------------------
 # QMBD sentence-context classification helpers and localized record repository
 # ---------------------------------------------------------------------------
-
-
-def extract_sentences(text: str) -> List[str]:
-    """Extract full sentences to preserve contextual integrity."""
-    if not text:
-        return []
-    return [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
-
 
 def _classify_sentence_contexts(
     sentences: List[str], source_id: str
@@ -891,13 +884,14 @@ def _extract_live_sentence_classifications(
     """Return validated sentence-level live classifications from one payload row.
 
     Enforces the minimum FAIR/QMBD audit schema: each item must be a dict
-    containing all required keys and non-empty ``text_scope`` and ``sentence``
-    values.  Incomplete or malformed items are silently dropped.
+    containing the axis metadata plus either a raw non-empty ``sentence`` or a
+    persisted non-empty ``sentence_hash`` with positive ``sentence_length``.
+    Incomplete or malformed items are silently dropped.
     """
     raw = row.get("sentence_classifications", [])
     if not isinstance(raw, list):
         return []
-    _REQUIRED_KEYS: set[str] = {"axis", "axis_code", "text_scope", "sentence"}
+    _REQUIRED_KEYS: set[str] = {"axis", "axis_code", "text_scope"}
     valid: List[Dict[str, object]] = []
     for item in raw:
         if not isinstance(item, dict) or not _REQUIRED_KEYS.issubset(item.keys()):
@@ -910,23 +904,35 @@ def _extract_live_sentence_classifications(
 
         if not all(
             isinstance(value, str)
-            for value in (axis, axis_code, text_scope, sentence)
+            for value in (axis, axis_code, text_scope)
         ):
             continue
 
         normalized_axis = axis.strip().upper()
         normalized_axis_code = axis_code.strip().upper()
         normalized_text_scope = text_scope.strip()
-        normalized_sentence = sentence.strip()
 
-        if not normalized_text_scope or not normalized_sentence:
+        if not normalized_text_scope:
             continue
 
         normalized_item = dict(item)
         normalized_item["axis"] = normalized_axis
         normalized_item["axis_code"] = normalized_axis_code
         normalized_item["text_scope"] = normalized_text_scope
-        normalized_item["sentence"] = normalized_sentence
+        if isinstance(sentence, str) and sentence.strip():
+            normalized_item["sentence"] = sentence.strip()
+        else:
+            sentence_hash = item.get("sentence_hash")
+            sentence_length = item.get("sentence_length")
+            if (
+                not isinstance(sentence_hash, str)
+                or not sentence_hash.strip()
+                or not isinstance(sentence_length, int)
+                or sentence_length <= 0
+            ):
+                continue
+            normalized_item["sentence_hash"] = sentence_hash.strip()
+            normalized_item["sentence_length"] = sentence_length
         valid.append(normalized_item)
     return valid
 

@@ -159,8 +159,8 @@ class AxisClassifier:
         If no keywords match, the default is OCEANIC (governance-first bias).
 
         Raises:
-            TypeError: If ``text`` is not a str (and not None) or ``dimension``
-                is not a str (and not None).
+            TypeError: If ``text`` is not a str, or if ``dimension`` is neither
+                ``None`` nor a str.
         """
         if not isinstance(text, str):
             raise TypeError(
@@ -195,7 +195,7 @@ class AxisClassifier:
         """Classify one contextual sentence and return auditable metadata.
 
         Raises:
-            TypeError: If ``text`` is not a str (and not None).
+            TypeError: If ``text`` is not a str.
             ValueError: If ``text_scope`` is not a non-empty str.
         """
         if not isinstance(text, str):

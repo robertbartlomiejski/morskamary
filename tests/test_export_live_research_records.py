@@ -10,6 +10,7 @@ import json
 from unittest.mock import MagicMock, patch
 
 from scripts.export_live_research_records import (
+    LiveContextClassificationRepository,
     build_thematic_loop_audit,
     build_coverage_report,
     deduplicate_records,
@@ -226,6 +227,35 @@ class TestSentenceLevelClassification:
         assert isinstance(row["sentence_classifications"], list)
         assert row["sentence_classifications"]
         assert row["sentence_classifications"][0]["text_scope"].startswith("live_api_")
+        assert "sentence" not in row["sentence_classifications"][0]
+        assert row["sentence_classifications"][0]["sentence_hash"]
+        assert row["sentence_classifications"][0]["sentence_length"] > 0
+
+    def test_classification_repository_caches_sentence_analysis(self):
+        repo = LiveContextClassificationRepository()
+        rec = _make_record(
+            title="Port logistics and maritime labour transitions",
+            subject_terms=["shipping", "seafarer welfare"],
+            source_id="crossref:10.1234/cache",
+        )
+        classify_context = MagicMock(
+            return_value={
+                "axis": "MARITIME",
+                "axis_code": "T",
+                "text_scope": "live_api_title_sentence",
+                "sentence": "Port logistics and maritime labour transitions",
+                "matched_keywords": ["port"],
+                "confidence_score": 0.95,
+            }
+        )
+        repo._classifier.classify_context = classify_context  # type: ignore[method-assign]
+
+        first = repo.classify_record_sentences(rec)
+        second = repo.classify_record_sentences(rec)
+
+        assert classify_context.call_count == 1
+        assert first == second
+        assert first is not second
 
 
 class TestTriangulationPolicy:
@@ -450,6 +480,8 @@ query_groups:
             assert triangulated[0]["sentence_classifications"][0][
                 "text_scope"
             ].startswith("live_api_")
+            assert "sentence" not in triangulated[0]["sentence_classifications"][0]
+            assert triangulated[0]["sentence_classifications"][0]["sentence_hash"]
 
             provenance = json.loads((output_dir / "live_provenance.json").read_text())
             assert len(provenance) == 1

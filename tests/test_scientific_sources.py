@@ -99,7 +99,24 @@ class TestLiteratureRecord:
         assert d["provider"] == "Crossref"
         assert d["doi"] == "10.1234/blue"
         assert isinstance(d["subject_terms"], list)
-        assert isinstance(d["abstract_available"], bool)
+        assert "abstract" not in d
+        assert "abstract_available" not in d
+        assert "abstract_stored" not in d
+
+    def test_to_dict_can_include_restricted_fields_explicitly(self):
+        rec = _make_record(
+            abstract="Licensed internal abstract",
+            abstract_available=True,
+            abstract_stored=True,
+            citation_count=7,
+        )
+
+        d = rec.to_dict(include_restricted=True)
+
+        assert d["abstract"] == "Licensed internal abstract"
+        assert d["abstract_available"] is True
+        assert d["abstract_stored"] is True
+        assert d["citation_count"] == 7
 
     def test_default_retrieval_timestamp_is_set(self):
         rec = _make_record()
@@ -177,6 +194,36 @@ class TestCrossrefProvider:
         assert rec.doi == "10.1234/blue"
         assert rec.provider == "Crossref"
         assert len(result.provenance) == 1
+
+    def test_search_does_not_store_crossref_abstract_text(self, monkeypatch):
+        payload = {
+            "message": {
+                "items": [
+                    {
+                        "title": ["Blue Economy Governance"],
+                        "author": [{"given": "Ada", "family": "Lovelace"}],
+                        "URL": "https://example.org/paper",
+                        "DOI": "10.1234/blue",
+                        "published": {"date-parts": [[2024, 1, 1]]},
+                        "container-title": ["Ocean Studies"],
+                        "abstract": "<jats:p>Publisher abstract text</jats:p>",
+                    }
+                ]
+            }
+        }
+
+        def fake_urlopen(req, timeout=10):
+            return _DummyResponse(payload)
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        provider = CrossrefProvider()
+        result = provider.search("blue economy", max_results=1)
+
+        rec = result.records[0]
+        assert rec.abstract == ""
+        assert rec.abstract_available is False
+        assert rec.abstract_stored is False
 
     def test_search_returns_error_on_network_failure(self, monkeypatch):
         def fake_urlopen(req, timeout=10):

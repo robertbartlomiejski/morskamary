@@ -115,7 +115,6 @@ class CrossrefProvider(BaseProvider):
 
             doi = item.get("DOI", "")
             url = item.get("URL", "")
-            abstract = self._clean_abstract(item.get("abstract", ""))
             subject_terms = item.get("subject", [])
             if not isinstance(subject_terms, list):
                 subject_terms = [str(subject_terms)] if subject_terms else []
@@ -130,9 +129,9 @@ class CrossrefProvider(BaseProvider):
                     provider="Crossref",
                     journal=journal,
                     url=url,
-                    abstract=abstract,
-                    abstract_available=bool(abstract),
-                    abstract_stored=bool(abstract),
+                    abstract="",
+                    abstract_available=False,
+                    abstract_stored=False,
                     subject_terms=[
                         str(term).strip() for term in subject_terms if str(term).strip()
                     ],
