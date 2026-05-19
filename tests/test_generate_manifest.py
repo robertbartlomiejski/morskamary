@@ -256,6 +256,22 @@ class TestScanFiles:
         # Check that it's sorted
         assert rel_paths == sorted(rel_paths)
 
+    def test_scan_excludes_root_git_file_in_worktree(self, tmp_path, monkeypatch):
+        """Root .git file (Git worktree pointer) should be ignored."""
+        import scripts.generate_manifest as gm
+
+        (tmp_path / ".git").write_text("gitdir: /tmp/worktrees/repo")
+        (tmp_path / "keep.py").touch()
+
+        monkeypatch.setattr(gm, "REPO_ROOT", tmp_path)
+        monkeypatch.setattr(gm, "MANIFEST_PATH", tmp_path / "MANIFEST_SOURCES.csv")
+
+        files = gm.scan_files()
+        rel_paths = [f.relative_to(tmp_path).as_posix() for f in files]
+
+        assert ".git" not in rel_paths
+        assert "keep.py" in rel_paths
+
     def test_coverage_files_are_ignored(self):
         """Transient coverage artefacts should be ignored during scanning."""
         assert should_ignore_file(REPO_ROOT / ".coverage")
