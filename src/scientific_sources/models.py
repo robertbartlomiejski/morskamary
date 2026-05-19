@@ -55,6 +55,7 @@ class LiteratureRecord:
     provider: str
     journal: str = ""
     url: str = ""
+    abstract: str = ""
     abstract_available: bool = False
     abstract_stored: bool = False
     citation_count: Optional[int] = None
@@ -76,6 +77,7 @@ class LiteratureRecord:
             "provider": self.provider,
             "journal": self.journal,
             "url": self.url,
+            "abstract": self.abstract,
             "abstract_available": self.abstract_available,
             "abstract_stored": self.abstract_stored,
             "citation_count": self.citation_count,

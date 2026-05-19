@@ -282,14 +282,33 @@ def _classify_sentence_contexts(
     sentences: List[str], source_id: str
 ) -> List[Dict[str, Any]]:
     """Classify full-sentence contexts with strict QMBD output."""
-    return [
-        _AXIS_CLASSIFIER.classify_context(
-            text_context=sentence,
-            source_id=source_id,
-            scope_type="full_sentence",
+    classifications: List[Dict[str, Any]] = []
+    for sentence in sentences:
+        axis_payload = _AXIS_CLASSIFIER.classify_context(
+            sentence,
+            text_scope="full_sentence",
         )
-        for sentence in sentences
-    ]
+        axis_name = str(axis_payload.get("axis", "")).upper()
+        matched_axes = [axis_name] if axis_name in TMBDAxis.__members__ else []
+        classification_name = (
+            axis_name
+            if axis_name in TMBDAxis.__members__
+            else "UNCLASSIFIED_REVIEW_REQUIRED"
+        )
+        classifications.append(
+            {
+                "classification": classification_name,
+                "matched_qmbd_axes": matched_axes,
+                "provenance": {
+                    "source_id": source_id,
+                    "text_scope": "full_sentence",
+                    "classification_text": sentence,
+                    "classifier_version": "QMBD-4.0-strict",
+                },
+                **axis_payload,
+            }
+        )
+    return classifications
 
 
 def _resolve_primary_axis_from_analysis(
@@ -303,7 +322,10 @@ def _resolve_primary_axis_from_analysis(
         "HYDRONIZATION": 0,
     }
     for item in analysis:
-        classification = str(item.get("classification", ""))
+        classification = str(item.get("classification", "")) or str(
+            item.get("axis", "")
+        )
+        classification = classification.upper()
         if classification in axis_counts:
             axis_counts[classification] += 1
 
@@ -847,10 +869,45 @@ def _infer_live_record_sectors(text: str, axis: TMBDAxis) -> List[str]:
 
     fallback_theme = sorted(axis_theme_names)[0] if len(axis_theme_names) > 0 else None
     chosen_theme = best_theme or fallback_theme
+    if chosen_theme is None or chosen_theme not in _THEME_SECTORS:
+        global_best_theme: Optional[str] = None
+        global_best_score = 0
+        for theme_name in _THEME_SECTORS:
+            theme_tokens = set(_TOKEN_PATTERN.findall(theme_name.lower()))
+            score = len(text_tokens & theme_tokens)
+            if score > global_best_score:
+                global_best_score = score
+                global_best_theme = theme_name
+        chosen_theme = global_best_theme if global_best_score > 0 else None
     selected_sectors = (
         _THEME_SECTORS.get(chosen_theme, SECTORS) if chosen_theme else SECTORS
     )
     return list(selected_sectors)
+
+
+def _extract_live_sentence_classifications(
+    row: Dict[str, object],
+) -> List[Dict[str, object]]:
+    """Return validated sentence-level live classifications from one payload row."""
+    raw = row.get("sentence_classifications", [])
+    if not isinstance(raw, list):
+        return []
+    return [item for item in raw if isinstance(item, dict)]
+
+
+def _dominant_axis_from_live_sentence_classifications(
+    sentence_classifications: List[Dict[str, object]],
+) -> Optional[TMBDAxis]:
+    """Resolve dominant axis from sentence-level live classifications."""
+    axis_count: Dict[str, int] = {}
+    for item in sentence_classifications:
+        axis_name = str(item.get("axis", "")).strip().upper()
+        if axis_name in TMBDAxis.__members__:
+            axis_count[axis_name] = axis_count.get(axis_name, 0) + 1
+    if not axis_count:
+        return None
+    winner = max(axis_count.items(), key=lambda pair: pair[1])[0]
+    return TMBDAxis[winner]
 
 
 def extract_literature_competences() -> List[Competence]:
@@ -1048,20 +1105,25 @@ def extract_live_records_competences(
         overlap_status = str(row.get("overlap_status", "")).strip()
         confidence_score = row.get("confidence_score")
         journal = str(row.get("journal", "")).strip()
+        abstract = str(row.get("abstract", "")).strip()
         subject_terms = row.get("subject_terms", [])
         if not isinstance(subject_terms, list):
             subject_terms = [str(subject_terms)] if subject_terms else []
-        description = str(row.get("description", "")).strip()
+        sentence_classifications = _extract_live_sentence_classifications(row)
         combined_text = " ".join(
-            [title, description, journal] + [str(t) for t in subject_terms]
+            [title, abstract, journal] + [str(t).strip() for t in subject_terms]
+        ).strip()
+        axis = _dominant_axis_from_live_sentence_classifications(
+            sentence_classifications
         )
-        source_identifier = doi or f"{provider}:{idx}"
-        sentence_analysis = _classify_sentence_contexts(
-            extract_sentences(combined_text), source_identifier
-        )
-        axis = _resolve_primary_axis_from_analysis(
-            sentence_analysis, default_axis="OCEANIC"
-        )
+        if axis is None:
+            source_identifier = doi or f"{provider}:{idx}"
+            sentence_analysis = _classify_sentence_contexts(
+                extract_sentences(combined_text), source_identifier
+            )
+            axis = _resolve_primary_axis_from_analysis(
+                sentence_analysis, default_axis="OCEANIC"
+            )
         sectors = _infer_live_record_sectors(combined_text, axis)
 
         source = CompetenceSource(
@@ -1080,13 +1142,18 @@ def extract_live_records_competences(
         )
         source_text = f" claim_origin={claim_origin}." if claim_origin else ""
         overlap_text = f" overlap={overlap_status}." if overlap_status else ""
+        sentence_text = (
+            f" sentence_classifications={len(sentence_classifications)}."
+            if sentence_classifications
+            else ""
+        )
         competences.append(
             Competence(
                 id=comp_id,
                 name=f"Live API ({provider}): {title[:70].rstrip(',. ')}",
                 description=(
                     "Live-API-derived literature competence from provider "
-                    f"{provider}.{source_text}{overlap_text}{confidence_text} "
+                    f"{provider}.{source_text}{overlap_text}{confidence_text}{sentence_text} "
                     f"Source paper: {title[:120]} ({authors[:60]}, {year})."
                 ),
                 axis=axis,

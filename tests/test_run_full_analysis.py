@@ -1370,6 +1370,43 @@ def test_extract_live_records_competences_infers_narrow_theme_sectors(
     ]
 
 
+def test_extract_live_records_competences_uses_sentence_level_axis(
+    tmp_path: Path,
+) -> None:
+    """Sentence-level classifications should drive live axis selection when present."""
+    live_file = tmp_path / "live_records.json"
+    live_file.write_text(
+        json.dumps(
+            [
+                {
+                    "title": "General blue economy transition",
+                    "provider": "Crossref",
+                    "journal": "Ocean Studies",
+                    "sentence_classifications": [
+                        {
+                            "axis": "MARINE",
+                            "axis_code": "M",
+                            "text_scope": "live_api_abstract_sentence",
+                            "sentence": "Marine ecosystem restoration and biodiversity stewardship.",
+                        },
+                        {
+                            "axis": "MARINE",
+                            "axis_code": "M",
+                            "text_scope": "live_api_abstract_sentence",
+                            "sentence": "Habitat recovery supports coastal fisheries.",
+                        },
+                    ],
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    competences = extract_live_records_competences(live_file)
+    assert len(competences) == 1
+    assert competences[0].axis == TMBDAxis.MARINE
+
+
 def test_extract_literature_competences_seafarer_theme_not_cross_sector(
     tmp_path: Path,
 ) -> None:
