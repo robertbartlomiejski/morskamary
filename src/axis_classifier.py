@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Iterable
+from typing import Any
 
 from src.core import BlueDynamicsAxis
 from src.dimension_mapping import map_dimension_to_axis
@@ -170,3 +171,33 @@ class AxisClassifier:
                 return axis
 
         return BlueDynamicsAxis.OCEANIC
+
+    def classify_context(
+        self,
+        text: str,
+        dimension: str | None = None,
+        *,
+        text_scope: str = "context_sentence",
+    ) -> dict[str, Any]:
+        """Classify one contextual sentence and return auditable metadata."""
+        sentence = text.strip()
+        axis = self.classify_axis(sentence, dimension=dimension)
+        normalized = self._normalize_text(sentence) if sentence else ""
+
+        matched_keywords: list[str] = []
+        keyword_patterns = self._get_compiled_keyword_map().get(axis, ())
+        for keyword, pattern in zip(
+            self.KEYWORD_AXIS_MAP.get(axis, ()), keyword_patterns
+        ):
+            if pattern.search(normalized):
+                matched_keywords.append(keyword)
+
+        confidence_score = 0.95 if matched_keywords else 0.6
+        return {
+            "axis": axis.name,
+            "axis_code": axis.value,
+            "text_scope": text_scope,
+            "sentence": sentence,
+            "matched_keywords": matched_keywords,
+            "confidence_score": confidence_score,
+        }

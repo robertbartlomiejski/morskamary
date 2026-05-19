@@ -127,6 +127,27 @@ class TestAxisClassifier:
         result = classifier.classify_axis("Important blue economy transitions")
         assert result == BlueDynamicsAxis.OCEANIC
 
+    def test_classify_context_returns_sentence_level_metadata(self):
+        """classify_context should emit axis metadata for one sentence."""
+        classifier = AxisClassifier()
+        result = classifier.classify_context(
+            "Port logistics and shipping corridors are expanding.",
+            text_scope="live_api_abstract_sentence",
+        )
+        assert result["axis"] == BlueDynamicsAxis.MARITIME.name
+        assert result["axis_code"] == BlueDynamicsAxis.MARITIME.value
+        assert result["text_scope"] == "live_api_abstract_sentence"
+        assert (
+            result["sentence"] == "Port logistics and shipping corridors are expanding."
+        )
+
+    def test_classify_context_collects_keyword_matches(self):
+        """Matched keywords should be included in classify_context output."""
+        classifier = AxisClassifier()
+        result = classifier.classify_context("Hydrosocial governance transitions.")
+        assert result["axis"] == BlueDynamicsAxis.HYDRONIZATION.name
+        assert "hydrosocial" in result["matched_keywords"]
+
 
 class TestMapDimensionToAxis:
     """Direct tests for map_dimension_to_axis edge cases."""

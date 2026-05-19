@@ -16,6 +16,47 @@ class ExtractionRecord:
     confidence_score: float
 
 
+@dataclass(frozen=True)
+class SentenceRecord:
+    """One parsed sentence with its character offsets in the source text."""
+
+    sentence: str
+    start: int
+    end: int
+
+
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
+
+
+def extract_sentences(text: str) -> List[str]:
+    """Split text into sentence-level fragments."""
+    if not text or not text.strip():
+        return []
+
+    normalized = re.sub(r"\s+", " ", text.strip())
+    return [
+        chunk.strip() for chunk in _SENTENCE_SPLIT_RE.split(normalized) if chunk.strip()
+    ]
+
+
+def extract_sentence_records(text: str) -> List[SentenceRecord]:
+    """Split text into sentence records with offsets for provenance mapping."""
+    if not text or not text.strip():
+        return []
+
+    records: List[SentenceRecord] = []
+    normalized = re.sub(r"\s+", " ", text.strip())
+    cursor = 0
+    for sentence in extract_sentences(normalized):
+        start = normalized.find(sentence, cursor)
+        if start < 0:
+            continue
+        end = start + len(sentence)
+        records.append(SentenceRecord(sentence=sentence, start=start, end=end))
+        cursor = end
+    return records
+
+
 class LiteratureExtractor:
     """Extract competence-focused snippets from scientific abstract text."""
 
@@ -36,15 +77,7 @@ class LiteratureExtractor:
 
     def parse_abstracts(self, text: str) -> List[str]:
         """Parse one raw text blob into cleaned abstract fragments/sentences."""
-        if not text or not text.strip():
-            return []
-
-        normalized = re.sub(r"\s+", " ", text.strip())
-        return [
-            chunk.strip()
-            for chunk in re.split(r"(?<=[.!?])\s+", normalized)
-            if chunk.strip()
-        ]
+        return extract_sentences(text)
 
     def detect_competence_phrases(self, text: str) -> List[ExtractionRecord]:
         """Detect competence phrases and return records with confidence metadata."""

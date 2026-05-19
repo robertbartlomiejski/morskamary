@@ -14,6 +14,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
@@ -76,6 +77,16 @@ class CrossrefProvider(BaseProvider):
             base += f"; mailto:{self._mailto}"
         return base + ")"
 
+    @staticmethod
+    def _clean_abstract(raw_abstract: Any) -> str:
+        """Return normalized plain-text abstract from Crossref/JATS payload."""
+        if not raw_abstract:
+            return ""
+        text = str(raw_abstract)
+        text = re.sub(r"<[^>]+>", " ", text)
+        text = re.sub(r"\s+", " ", text).strip()
+        return text
+
     def _parse_items(
         self, items: List[Dict[str, Any]], query: str
     ) -> List[LiteratureRecord]:
@@ -104,6 +115,10 @@ class CrossrefProvider(BaseProvider):
 
             doi = item.get("DOI", "")
             url = item.get("URL", "")
+            abstract = self._clean_abstract(item.get("abstract", ""))
+            subject_terms = item.get("subject", [])
+            if not isinstance(subject_terms, list):
+                subject_terms = [str(subject_terms)] if subject_terms else []
 
             records.append(
                 LiteratureRecord(
@@ -115,6 +130,12 @@ class CrossrefProvider(BaseProvider):
                     provider="Crossref",
                     journal=journal,
                     url=url,
+                    abstract=abstract,
+                    abstract_available=bool(abstract),
+                    abstract_stored=bool(abstract),
+                    subject_terms=[
+                        str(term).strip() for term in subject_terms if str(term).strip()
+                    ],
                     source_query=query,
                     licence_note="Crossref open metadata",
                 )
@@ -153,7 +174,7 @@ class CrossrefProvider(BaseProvider):
         url = (
             f"{_API_BASE}/works"
             f"?query={urllib.parse.quote(query)}"
-            f"&select=title,author,URL,DOI,published,container-title"
+            f"&select=title,author,URL,DOI,published,container-title,abstract,subject"
             f"&rows={max_results}"
         )
         try:
@@ -180,9 +201,7 @@ class CrossrefProvider(BaseProvider):
                 data = json.loads(resp.read().decode())
             item = data.get("message", {})
             records = self._parse_items([item], doi)
-            evidence = self._make_evidence(
-                doi, f"crossref/works/{doi}", records
-            )
+            evidence = self._make_evidence(doi, f"crossref/works/{doi}", records)
             return ProviderResult(records=records, provenance=evidence)
         except Exception as exc:
             return ProviderResult(errors=[f"Crossref DOI verification error: {exc}"])

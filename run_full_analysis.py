@@ -544,114 +544,150 @@ _LIT_THEMES: Dict[str, Dict[str, List[str]]] = {
 _THEME_SECTORS: Dict[str, List[str]] = {
     # labor_justice
     "Fair wage and labour rights in maritime sectors": [
-        "Maritime Transport", "Port Activities", "Ship Repair", "Maritime Defence"
+        "Maritime Transport",
+        "Port Activities",
+        "Ship Repair",
+        "Maritime Defence",
     ],
     "Seafarer welfare and social protection": [
-        "Maritime Transport", "Maritime Defence", "Ship Repair"
+        "Maritime Transport",
+        "Maritime Defence",
+        "Ship Repair",
     ],
     "Labour union organising and collective bargaining": [
-        "Maritime Transport", "Port Activities", "Ship Repair"
+        "Maritime Transport",
+        "Port Activities",
+        "Ship Repair",
     ],
     "Occupational health and safety at sea": [
-        "Maritime Transport", "Maritime Defence", "Ship Repair", "Renewable Energy"
+        "Maritime Transport",
+        "Maritime Defence",
+        "Ship Repair",
+        "Renewable Energy",
     ],
     "Precarious work and informality in coastal fisheries": [
-        "Living Res.", "Coastal Tourism"
+        "Living Res.",
+        "Coastal Tourism",
     ],
-    "Child labour and forced labour prevention in fisheries": [
-        "Living Res."
-    ],
-    "Decent work standards for aquaculture workers": [
-        "Living Res."
-    ],
+    "Child labour and forced labour prevention in fisheries": ["Living Res."],
+    "Decent work standards for aquaculture workers": ["Living Res."],
     "Migration and mobile labour in maritime industries": [
-        "Maritime Transport", "Port Activities", "Ship Repair"
+        "Maritime Transport",
+        "Port Activities",
+        "Ship Repair",
     ],
     "Equitable benefit-sharing in ocean resource governance": [
-        "Living Res.", "Non-living Res.", "Renewable Energy", "Blue Biotech"
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Blue Biotech",
     ],
     "Indigenous and traditional fishing rights advocacy": [
-        "Living Res.", "Coastal Tourism"
+        "Living Res.",
+        "Coastal Tourism",
     ],
     "Small-scale fisheries sustainability and livelihoods": [
-        "Living Res.", "Coastal Tourism"
+        "Living Res.",
+        "Coastal Tourism",
     ],
-    "Artisanal fishing knowledge and ecological literacy": [
-        "Living Res."
-    ],
+    "Artisanal fishing knowledge and ecological literacy": ["Living Res."],
     # research_gaps
-    "Knowledge transfer between science and ocean policy": [
-        "R&I"
-    ],
+    "Knowledge transfer between science and ocean policy": ["R&I"],
     "Integrated ocean observing and data governance": [
-        "R&I", "Blue Biotech", "Non-living Res."
+        "R&I",
+        "Blue Biotech",
+        "Non-living Res.",
     ],
-    "Cross-border ocean research collaboration": [
-        "R&I"
-    ],
-    "Open science and FAIR data in blue economy": [
-        "R&I", "Blue Biotech"
-    ],
+    "Cross-border ocean research collaboration": ["R&I"],
+    "Open science and FAIR data in blue economy": ["R&I", "Blue Biotech"],
     "Digital transformation of maritime industries": [
-        "Maritime Transport", "Port Activities", "Ship Repair", "Infra & Robotics"
+        "Maritime Transport",
+        "Port Activities",
+        "Ship Repair",
+        "Infra & Robotics",
     ],
     "Technology readiness for sustainable blue economy": [
-        "Infra & Robotics", "Renewable Energy", "Desalination"
+        "Infra & Robotics",
+        "Renewable Energy",
+        "Desalination",
     ],
     "Marine biodiversity monitoring and assessment": [
-        "Blue Biotech", "Living Res.", "Non-living Res.", "R&I"
+        "Blue Biotech",
+        "Living Res.",
+        "Non-living Res.",
+        "R&I",
     ],
     "Cumulative impacts on marine ecosystems": [
-        "Blue Biotech", "Living Res.", "Non-living Res.", "R&I", "Renewable Energy"
+        "Blue Biotech",
+        "Living Res.",
+        "Non-living Res.",
+        "R&I",
+        "Renewable Energy",
     ],
     "Marine protected area design and effectiveness": [
-        "Living Res.", "Non-living Res.", "R&I", "Coastal Tourism"
+        "Living Res.",
+        "Non-living Res.",
+        "R&I",
+        "Coastal Tourism",
     ],
     "Blue carbon accounting and ecosystem services": [
-        "Blue Biotech", "Living Res.", "R&I", "Renewable Energy"
+        "Blue Biotech",
+        "Living Res.",
+        "R&I",
+        "Renewable Energy",
     ],
     "Coral reef and seagrass restoration science": [
-        "Blue Biotech", "Living Res.", "R&I", "Coastal Tourism"
+        "Blue Biotech",
+        "Living Res.",
+        "R&I",
+        "Coastal Tourism",
     ],
     "Deep-sea ecology and environmental safeguarding": [
-        "Blue Biotech", "Non-living Res.", "R&I"
+        "Blue Biotech",
+        "Non-living Res.",
+        "R&I",
     ],
     "Marine noise pollution and acoustic ecology": [
-        "Renewable Energy", "Living Res.", "R&I"
+        "Renewable Energy",
+        "Living Res.",
+        "R&I",
     ],
     "Plastic pollution monitoring in marine systems": [
-        "Blue Biotech", "Living Res.", "R&I", "Coastal Tourism"
+        "Blue Biotech",
+        "Living Res.",
+        "R&I",
+        "Coastal Tourism",
     ],
     # blue_sociology
-    "Cross-cultural maritime heritage management": [
-        "Coastal Tourism"
-    ],
+    "Cross-cultural maritime heritage management": ["Coastal Tourism"],
     "Sustainability transitions in coastal societies": [
-        "Coastal Tourism", "Living Res.", "Port Activities"
+        "Coastal Tourism",
+        "Living Res.",
+        "Port Activities",
     ],
     "Social-ecological resilience of coastal communities": [
-        "Coastal Tourism", "Living Res.", "Port Activities"
+        "Coastal Tourism",
+        "Living Res.",
+        "Port Activities",
     ],
     "Maritimisation processes and port-city relations": [
-        "Port Activities", "Maritime Transport"
+        "Port Activities",
+        "Maritime Transport",
     ],
-    "Socio-technical transitions in shipping": [
-        "Maritime Transport", "Ship Repair"
-    ],
-    "Labour geography of maritime transport": [
-        "Maritime Transport", "Port Activities"
-    ],
-    "Cultural dimensions of seafaring": [
-        "Maritime Transport", "Maritime Defence"
-    ],
+    "Socio-technical transitions in shipping": ["Maritime Transport", "Ship Repair"],
+    "Labour geography of maritime transport": ["Maritime Transport", "Port Activities"],
+    "Cultural dimensions of seafaring": ["Maritime Transport", "Maritime Defence"],
     "Coastal tourism and blue economy value chains": [
-        "Coastal Tourism", "Port Activities"
+        "Coastal Tourism",
+        "Port Activities",
     ],
     "Ethnographic approaches to fishing communities": [
-        "Living Res.", "Coastal Tourism"
+        "Living Res.",
+        "Coastal Tourism",
     ],
     "Traditional ecological knowledge in fisheries governance": [
-        "Living Res.", "Non-living Res."
+        "Living Res.",
+        "Non-living Res.",
     ],
 }
 
@@ -739,6 +775,31 @@ def _infer_live_record_sectors(text: str, axis: TMBDAxis) -> List[str]:
     chosen_theme = best_theme or fallback_theme
     selected_sectors = _THEME_SECTORS.get(chosen_theme, SECTORS)
     return list(selected_sectors)
+
+
+def _extract_live_sentence_classifications(
+    row: Dict[str, object],
+) -> List[Dict[str, object]]:
+    """Return validated sentence-level live classifications from one payload row."""
+    raw = row.get("sentence_classifications", [])
+    if not isinstance(raw, list):
+        return []
+    return [item for item in raw if isinstance(item, dict)]
+
+
+def _dominant_axis_from_live_sentence_classifications(
+    sentence_classifications: List[Dict[str, object]],
+) -> Optional[TMBDAxis]:
+    """Resolve dominant axis from sentence-level live classifications."""
+    axis_count: Dict[str, int] = {}
+    for item in sentence_classifications:
+        axis_name = str(item.get("axis", "")).strip().upper()
+        if axis_name in TMBDAxis.__members__:
+            axis_count[axis_name] = axis_count.get(axis_name, 0) + 1
+    if not axis_count:
+        return None
+    winner = max(axis_count.items(), key=lambda pair: pair[1])[0]
+    return TMBDAxis[winner]
 
 
 def extract_literature_competences() -> List[Competence]:
@@ -893,7 +954,9 @@ def extract_live_records_competences(
     try:
         payload = json.loads(live_records_path.read_text(encoding="utf-8"))
     except Exception as exc:
-        log.warning("Failed to parse live records JSON (%s): %s", live_records_path, exc)
+        log.warning(
+            "Failed to parse live records JSON (%s): %s", live_records_path, exc
+        )
         return []
 
     if not isinstance(payload, list):
@@ -928,11 +991,19 @@ def extract_live_records_competences(
         overlap_status = str(row.get("overlap_status", "")).strip()
         confidence_score = row.get("confidence_score")
         journal = str(row.get("journal", "")).strip()
+        abstract = str(row.get("abstract", "")).strip()
         subject_terms = row.get("subject_terms", [])
         if not isinstance(subject_terms, list):
             subject_terms = [str(subject_terms)] if subject_terms else []
-        combined_text = " ".join([title, journal] + [str(t) for t in subject_terms])
-        axis = _detect_axis(combined_text, default="OCEANIC")
+        sentence_classifications = _extract_live_sentence_classifications(row)
+        combined_text = " ".join(
+            [title, abstract, journal] + [str(t).strip() for t in subject_terms]
+        ).strip()
+        axis = _dominant_axis_from_live_sentence_classifications(
+            sentence_classifications
+        )
+        if axis is None:
+            axis = _detect_axis(combined_text, default="OCEANIC")
         sectors = _infer_live_record_sectors(combined_text, axis)
 
         source = CompetenceSource(
@@ -951,13 +1022,18 @@ def extract_live_records_competences(
         )
         source_text = f" claim_origin={claim_origin}." if claim_origin else ""
         overlap_text = f" overlap={overlap_status}." if overlap_status else ""
+        sentence_text = (
+            f" sentence_classifications={len(sentence_classifications)}."
+            if sentence_classifications
+            else ""
+        )
         competences.append(
             Competence(
                 id=comp_id,
                 name=f"Live API ({provider}): {title[:70].rstrip(',. ')}",
                 description=(
                     "Live-API-derived literature competence from provider "
-                    f"{provider}.{source_text}{overlap_text}{confidence_text} "
+                    f"{provider}.{source_text}{overlap_text}{confidence_text}{sentence_text} "
                     f"Source paper: {title[:120]} ({authors[:60]}, {year})."
                 ),
                 axis=axis,
@@ -1930,9 +2006,7 @@ def main(
     literature = extract_literature_competences()
     if analysis_input_mode == "live-enriched":
         baseline_titles = {
-            _normalize_title_for_dedup(
-                getattr(c.source, "paper_title", None) or c.name
-            )
+            _normalize_title_for_dedup(getattr(c.source, "paper_title", None) or c.name)
             for c in literature
         }
         live_competences = extract_live_records_competences(live_path, baseline_titles)
