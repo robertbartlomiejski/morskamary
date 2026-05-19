@@ -8,8 +8,8 @@ data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Di
 
 import csv
 from pathlib import Path
+from src.core import Competence, BlueDynamicsAxis, CompetenceLevel
 from src.competence_mapper import CompetenceMapper
-from src.core import BlueDynamicsAxis, Competence, CompetenceLevel
 from src.dimension_mapping import map_dimension_to_axis
 
 

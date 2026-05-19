@@ -2,7 +2,6 @@
 
 import csv
 import pytest
-from pathlib import Path
 from scripts.generate_manifest import (
     classify,
     text_available,
@@ -39,6 +38,10 @@ class TestClassify:
         """Test classification of derived datasets"""
         assert classify(REPO_ROOT / "data" / "derived" / "output.csv") == "dataset_derived"
         assert classify(REPO_ROOT / "data" / "derived" / "processed.csv") == "dataset_derived"
+        assert (
+            classify(REPO_ROOT / "outputs" / "research_sources" / "live_records.json")
+            == "dataset_derived"
+        )
 
     def test_policy_documents(self):
         """Test classification of policy documents"""
@@ -68,6 +71,7 @@ class TestClassify:
         """Test fallback classification for text files"""
         assert classify(REPO_ROOT / "somewhere" / "notes.txt") == "text"
         assert classify(REPO_ROOT / "somewhere" / "readme.md") == "text"
+        assert classify(REPO_ROOT / "somewhere" / "script.py") == "script"
 
     def test_fallback_other(self):
         """Test fallback classification for unknown types"""
@@ -83,10 +87,14 @@ class TestTextAvailable:
         txt_file = REPO_ROOT / "tests" / "fixtures" / "test.txt"
         md_file = REPO_ROOT / "tests" / "fixtures" / "test.md"
         csv_file = REPO_ROOT / "tests" / "fixtures" / "test.csv"
+        json_file = REPO_ROOT / "tests" / "fixtures" / "test.json"
+        py_file = REPO_ROOT / "tests" / "fixtures" / "test.py"
 
         assert text_available(txt_file) == "yes"
         assert text_available(md_file) == "yes"
         assert text_available(csv_file) == "yes"
+        assert text_available(json_file) == "yes"
+        assert text_available(py_file) == "yes"
 
     def test_pdf_without_sidecar(self):
         """PDF without sidecar text should be marked as not available"""
@@ -247,6 +255,22 @@ class TestScanFiles:
 
         # Check that it's sorted
         assert rel_paths == sorted(rel_paths)
+
+    def test_scan_excludes_root_git_file_in_worktree(self, tmp_path, monkeypatch):
+        """Root .git file (Git worktree pointer) should be ignored."""
+        import scripts.generate_manifest as gm
+
+        (tmp_path / ".git").write_text("gitdir: /tmp/worktrees/repo")
+        (tmp_path / "keep.py").touch()
+
+        monkeypatch.setattr(gm, "REPO_ROOT", tmp_path)
+        monkeypatch.setattr(gm, "MANIFEST_PATH", tmp_path / "MANIFEST_SOURCES.csv")
+
+        files = gm.scan_files()
+        rel_paths = [f.relative_to(tmp_path).as_posix() for f in files]
+
+        assert ".git" not in rel_paths
+        assert "keep.py" in rel_paths
 
     def test_coverage_files_are_ignored(self):
         """Transient coverage artefacts should be ignored during scanning."""

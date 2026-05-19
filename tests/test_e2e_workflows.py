@@ -121,11 +121,18 @@ class TestE2EBaselineToLiteratureFlow:
 
         # Step 7: Verify credentials include competences from baseline and literature
         blue_biotech_creds = [c for c in credentials if c.sector == "Blue Biotech"]
+        assert len(blue_biotech_creds) == 4
         all_competence_ids = set()
         for cred in blue_biotech_creds:
             all_competence_ids.update(cred.competences)
         assert "baseline_1" in all_competence_ids
         assert "lit_001" in all_competence_ids or "lit_002" in all_competence_ids
+
+        ri_creds = [c for c in credentials if c.sector == "R&I"]
+        ri_competence_ids = set()
+        for cred in ri_creds:
+            ri_competence_ids.update(cred.competences)
+        assert "baseline_2" in ri_competence_ids
 
     def test_micro_credentials_generated_for_every_sector(self) -> None:
         """Ensure every declared sector receives the full EQF stack."""

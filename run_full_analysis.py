@@ -31,14 +31,32 @@ import sys
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    cast,
+)
 from urllib.parse import quote
 
 from scripts.build_tmbd_dictionary import (
     build_sector_dictionary_from_repository,
     export_sector_dictionary,
 )
-from src.competence_repository import LiteratureCompetenceRepository
+from src.axis_classifier import AxisClassifier
+from src.core import BlueDynamicsAxis
+from src.literature_extraction import extract_sentences
+from src.utils import slugify
+from src.competence_repository import (
+    CompetenceLike,
+    MixedProvenanceCompetenceRepository,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -46,6 +64,7 @@ logging.basicConfig(
     stream=sys.stdout,
 )
 log = logging.getLogger(__name__)
+_TOKEN_PATTERN = re.compile(r"\w+")
 
 # ---------------------------------------------------------------------------
 # Repository constants
@@ -54,7 +73,12 @@ REPO_ROOT = Path(__file__).resolve().parent
 DATA_DERIVED = REPO_ROOT / "data" / "derived"
 DATA_RAW = REPO_ROOT / "data" / "raw"
 OUTPUTS_DIR = REPO_ROOT / "outputs"
+DEFAULT_LIVE_RECORDS_JSON = (
+    OUTPUTS_DIR / "research_sources" / "live_records_triangulated.json"
+)
+CUMULATIVE_QMBD_RECORDS_FILENAME = "cumulative_qmbd_records.json"
 REPO_GITHUB_BASE = "https://github.com/robertbartlomiejski/morskamary/blob/main"
+_AXIS_CLASSIFIER = AxisClassifier()
 
 # 12 blue economy sectors (canonical names matching the CSV headers)
 SECTORS: List[str] = [
@@ -115,12 +139,14 @@ LITERATURE_FILES: List[Dict[str, str]] = [
 # ---------------------------------------------------------------------------
 
 
-class TMBDAxis(Enum):
-    """Tripartite Model of Blue Dynamics axes"""
+TMBDAxis = BlueDynamicsAxis
 
-    MARINE = "M"  # biophysical / ecological agency
-    MARITIME = "T"  # techno-economic / institutional mediation
-    OCEANIC = "O"  # planetary governance / hydrosocial subjectivity
+
+def _axis_from_name(
+    axis_name: str, default_axis: TMBDAxis = TMBDAxis.OCEANIC
+) -> TMBDAxis:
+    """Safely convert axis name to enum value with default fallback."""
+    return getattr(TMBDAxis, axis_name, default_axis)
 
 
 class EQFLevel(Enum):
@@ -242,104 +268,217 @@ class SectorPathway:
 
 
 # ---------------------------------------------------------------------------
-# Keyword maps for TMBD axis assignment (literature competences)
+# QMBD sentence-context classification helpers and localized record repository
 # ---------------------------------------------------------------------------
-_MARINE_KW = {
-    "ecosystem",
-    "species",
-    "biodiversity",
-    "ecology",
-    "habitat",
-    "benthic",
-    "pelagic",
-    "coral",
-    "seagrass",
-    "mangrove",
-    "fisheries",
-    "aquaculture",
-    "biophysical",
-    "trophic",
-    "marine biology",
-    "ocean acidification",
-    "stock",
-    "biomass",
-    "nutrient",
-    "sediment",
-    "restoration",
-    "conservation",
-    "wildlife",
-    "cetacean",
-    "seabird",
-}
 
-_MARITIME_KW = {
-    "labour",
-    "labor",
-    "seafarer",
-    "crew",
-    "vessel",
-    "port",
-    "shipping",
-    "fleet",
-    "logistics",
-    "maritime",
-    "transport",
-    "infrastructure",
-    "technology",
-    "digital",
-    "automation",
-    "industry",
-    "trade",
-    "economic",
-    "work",
-    "worker",
-    "employment",
-    "union",
-    "safety",
-    "regulation",
-    "inspection",
-}
-
-_OCEANIC_KW = {
-    "governance",
-    "policy",
-    "international",
-    "sustainability",
-    "justice",
-    "equity",
-    "community",
-    "stakeholder",
-    "transboundary",
-    "institution",
-    "convention",
-    "treaty",
-    "blue economy",
-    "management",
-    "social",
-    "resilience",
-    "human rights",
-    "participatory",
-    "co-management",
-    "indigenous",
-    "knowledge",
-    "ocean",
-    "planetary",
-    "hydrosocial",
-}
+def _classify_sentence_contexts(
+    sentences: List[str], source_id: str
+) -> List[Dict[str, Any]]:
+    """Classify full-sentence contexts with strict QMBD output."""
+    classifications: List[Dict[str, Any]] = []
+    for sentence in sentences:
+        axis_payload = _AXIS_CLASSIFIER.classify_context(
+            sentence,
+            text_scope="full_sentence",
+        )
+        axis_name = str(axis_payload.get("axis", "")).upper()
+        matched_keywords = axis_payload.get("matched_keywords", [])
+        has_supported_evidence = isinstance(matched_keywords, list) and any(
+            isinstance(keyword, str) and keyword.strip() for keyword in matched_keywords
+        )
+        matched_axes = (
+            [axis_name]
+            if axis_name in TMBDAxis.__members__ and has_supported_evidence
+            else []
+        )
+        classification_name = (
+            axis_name
+            if axis_name in TMBDAxis.__members__ and has_supported_evidence
+            else "UNCLASSIFIED_REVIEW_REQUIRED"
+        )
+        classifications.append(
+            {
+                "classification": classification_name,
+                "matched_qmbd_axes": matched_axes,
+                "provenance": {
+                    "source_id": source_id,
+                    "text_scope": "full_sentence",
+                    "classification_text": sentence,
+                    "classifier_version": "QMBD-4.0-strict",
+                },
+                **axis_payload,
+            }
+        )
+    return classifications
 
 
-def _detect_axis(text: str, default: str = "OCEANIC") -> TMBDAxis:
-    """Detect TMBD axis from free text using keyword frequency."""
-    lower = text.lower()
-    scores = {
-        "MARINE": sum(1 for kw in _MARINE_KW if kw in lower),
-        "MARITIME": sum(1 for kw in _MARITIME_KW if kw in lower),
-        "OCEANIC": sum(1 for kw in _OCEANIC_KW if kw in lower),
+def _sentence_classification_counts_as_evidence(item: Dict[str, Any]) -> bool:
+    """Return True when a sentence-level classification contains positive axis evidence."""
+    matched_keywords = item.get("matched_keywords", [])
+    if isinstance(matched_keywords, list) and any(
+        isinstance(keyword, str) and keyword.strip() for keyword in matched_keywords
+    ):
+        return True
+
+    confidence_score = item.get("confidence_score")
+    if isinstance(confidence_score, (int, float)) and float(confidence_score) > 0.6:
+        return True
+
+    axis_name = str(item.get("axis") or item.get("classification") or "").strip().upper()
+    if axis_name in {"MARINE", "MARITIME", "HYDRONIZATION"} and (
+        "matched_keywords" not in item and "confidence_score" not in item
+    ):
+        return True
+
+    return False
+
+
+def _resolve_primary_axis_from_analysis(
+    analysis: List[Dict[str, Any]], default_axis: str = "OCEANIC"
+) -> TMBDAxis:
+    """Resolve one axis for competence objects from strict sentence analysis."""
+    axis_counts: Dict[str, int] = {
+        "MARINE": 0,
+        "MARITIME": 0,
+        "OCEANIC": 0,
+        "HYDRONIZATION": 0,
     }
-    best = max(scores, key=lambda k: scores[k])
-    if scores[best] == 0:
-        best = default
-    return TMBDAxis[best]
+    for item in analysis:
+        if not _sentence_classification_counts_as_evidence(item):
+            continue
+        classification = str(item.get("classification", "")) or str(
+            item.get("axis", "")
+        )
+        classification = classification.upper()
+        if classification in axis_counts:
+            axis_counts[classification] += 1
+
+    ranked = sorted(axis_counts.items(), key=lambda kv: kv[1], reverse=True)
+    if ranked and ranked[0][1] > 0:
+        top_score = ranked[0][1]
+        tied_axes = [axis for axis, score in ranked if score == top_score]
+        if len(tied_axes) == 1:
+            return _axis_from_name(tied_axes[0], default_axis=TMBDAxis.OCEANIC)
+        precedence = ("MARINE", "MARITIME", "HYDRONIZATION", "OCEANIC")
+        for axis_name in precedence:
+            if axis_name in tied_axes:
+                return _axis_from_name(axis_name, default_axis=TMBDAxis.OCEANIC)
+
+    for item in analysis:
+        for axis_name in item.get("matched_qmbd_axes", []):
+            if axis_name in TMBDAxis.__members__:
+                return _axis_from_name(axis_name, default_axis=TMBDAxis.OCEANIC)
+
+    return _axis_from_name(default_axis, default_axis=TMBDAxis.OCEANIC)
+
+
+@dataclass
+class LocalizedQMBDRecordRepository:
+    """Localized repository exposing baseline and live records as one iterator."""
+
+    static_records: List[Dict[str, Any]]
+    live_records_path: Path
+    include_live_records: bool = True
+
+    def _iter_live_records(self) -> Iterator[Dict[str, Any]]:
+        if not self.include_live_records:
+            return
+        if not self.live_records_path.exists():
+            log.info(
+                "Live records file not found for QMBD enrichment: %s",
+                self.live_records_path,
+            )
+            return
+        try:
+            payload = json.loads(self.live_records_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            log.warning(
+                "Failed to parse live records for QMBD enrichment (%s): %s",
+                self.live_records_path,
+                exc,
+            )
+            return
+        if not isinstance(payload, list):
+            log.warning(
+                "Live records JSON must be a list for QMBD enrichment: %s",
+                self.live_records_path,
+            )
+            return
+        for idx, record in enumerate(payload, start=2):
+            if isinstance(record, dict):
+                prepared = dict(record)
+                prepared.setdefault("source_id", str(record.get("doi", "")).strip())
+                if not prepared.get("source_id"):
+                    prepared["source_id"] = f"live_record_{idx:05d}"
+                yield prepared
+
+    def iter_records(self) -> Iterator[Dict[str, Any]]:
+        """Iterate static records followed by dynamic live records."""
+        yield from self.static_records
+        yield from self._iter_live_records()
+
+
+def enrich_and_store_records(
+    records_iterator: Iterable[Dict[str, Any]], output_filepath: Path
+) -> List[Dict[str, Any]]:
+    """
+    Enrich records with full-sentence QMBD analysis and store cumulatively.
+    """
+    enriched_outputs: List[Dict[str, Any]] = []
+
+    for record in records_iterator:
+        serialized_subject_terms = _serialize_subject_terms(
+            record.get("subject_terms", "")
+        )
+        full_text = (
+            f"{record.get('title', '')}. "
+            f"{record.get('description', '')}. "
+            f"{serialized_subject_terms}"
+        )
+        sentences = extract_sentences(full_text)
+        source_id = str(record.get("source_id", "unknown_doi"))
+        record_classifications = _classify_sentence_contexts(sentences, source_id)
+        enriched_record = dict(record)
+        enriched_record["qmbd_analysis"] = record_classifications
+        enriched_outputs.append(enriched_record)
+
+    output_filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_filepath, "w", encoding="utf-8") as f:
+        json.dump(enriched_outputs, f, indent=4, ensure_ascii=False)
+
+    return enriched_outputs
+
+
+def _serialize_subject_terms(subject_terms: Any) -> str:
+    """Serialize subject terms into a deterministic string for sentence analysis."""
+    if subject_terms is None:
+        return ""
+    if isinstance(subject_terms, list):
+        return ", ".join(
+            str(term).strip() for term in subject_terms if str(term).strip()
+        )
+    return str(subject_terms).strip()
+
+
+def _build_static_qmbd_records(
+    competences: List[Competence], record_origin: str
+) -> List[Dict[str, Any]]:
+    """Build static records from competences for the localized QMBD repository."""
+    records: List[Dict[str, Any]] = []
+    for competence in competences:
+        source_identifier = competence.source.doi or competence.id
+        records.append(
+            {
+                "source_id": source_identifier,
+                "title": competence.name,
+                "description": competence.description,
+                "subject_terms": _serialize_subject_terms(competence.keywords),
+                "axis_name": competence.axis.name,
+                "sectors": competence.sectors,
+                "record_origin": record_origin,
+            }
+        )
+    return records
 
 
 # ---------------------------------------------------------------------------
@@ -517,9 +656,344 @@ _LIT_THEMES: Dict[str, Dict[str, List[str]]] = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Theme → sector mapping for literature competences
+# ---------------------------------------------------------------------------
+# Maps each theme cluster name to the blue economy sectors it primarily
+# addresses. Themes absent from this dict fall back to SECTORS (cross-sector).
+_THEME_SECTORS: Dict[str, List[str]] = {
+    # labor_justice
+    "Fair wage and labour rights in maritime sectors": [
+        "Maritime Transport",
+        "Port Activities",
+        "Ship Repair",
+        "Maritime Defence",
+    ],
+    "Seafarer welfare and social protection": [
+        "Maritime Transport",
+        "Maritime Defence",
+        "Ship Repair",
+    ],
+    "Labour union organising and collective bargaining": [
+        "Maritime Transport",
+        "Port Activities",
+        "Ship Repair",
+    ],
+    "Occupational health and safety at sea": [
+        "Maritime Transport",
+        "Maritime Defence",
+        "Ship Repair",
+        "Renewable Energy",
+    ],
+    "Precarious work and informality in coastal fisheries": [
+        "Living Res.",
+        "Coastal Tourism",
+    ],
+    "Child labour and forced labour prevention in fisheries": ["Living Res."],
+    "Decent work standards for aquaculture workers": ["Living Res."],
+    "Migration and mobile labour in maritime industries": [
+        "Maritime Transport",
+        "Port Activities",
+        "Ship Repair",
+    ],
+    "Equitable benefit-sharing in ocean resource governance": [
+        "Living Res.",
+        "Non-living Res.",
+        "Renewable Energy",
+        "Blue Biotech",
+    ],
+    "Indigenous and traditional fishing rights advocacy": [
+        "Living Res.",
+        "Coastal Tourism",
+    ],
+    "Small-scale fisheries sustainability and livelihoods": [
+        "Living Res.",
+        "Coastal Tourism",
+    ],
+    "Artisanal fishing knowledge and ecological literacy": ["Living Res."],
+    # research_gaps
+    "Knowledge transfer between science and ocean policy": ["R&I"],
+    "Integrated ocean observing and data governance": [
+        "R&I",
+        "Blue Biotech",
+        "Non-living Res.",
+    ],
+    "Cross-border ocean research collaboration": ["R&I"],
+    "Open science and FAIR data in blue economy": ["R&I", "Blue Biotech"],
+    "Digital transformation of maritime industries": [
+        "Maritime Transport",
+        "Port Activities",
+        "Ship Repair",
+        "Infra & Robotics",
+    ],
+    "Technology readiness for sustainable blue economy": [
+        "Infra & Robotics",
+        "Renewable Energy",
+        "Desalination",
+    ],
+    "Marine biodiversity monitoring and assessment": [
+        "Blue Biotech",
+        "Living Res.",
+        "Non-living Res.",
+        "R&I",
+    ],
+    "Cumulative impacts on marine ecosystems": [
+        "Blue Biotech",
+        "Living Res.",
+        "Non-living Res.",
+        "R&I",
+        "Renewable Energy",
+    ],
+    "Marine protected area design and effectiveness": [
+        "Living Res.",
+        "Non-living Res.",
+        "R&I",
+        "Coastal Tourism",
+    ],
+    "Blue carbon accounting and ecosystem services": [
+        "Blue Biotech",
+        "Living Res.",
+        "R&I",
+        "Renewable Energy",
+    ],
+    "Coral reef and seagrass restoration science": [
+        "Blue Biotech",
+        "Living Res.",
+        "R&I",
+        "Coastal Tourism",
+    ],
+    "Deep-sea ecology and environmental safeguarding": [
+        "Blue Biotech",
+        "Non-living Res.",
+        "R&I",
+    ],
+    "Marine noise pollution and acoustic ecology": [
+        "Renewable Energy",
+        "Living Res.",
+        "R&I",
+    ],
+    "Plastic pollution monitoring in marine systems": [
+        "Blue Biotech",
+        "Living Res.",
+        "R&I",
+        "Coastal Tourism",
+    ],
+    # blue_sociology
+    "Cross-cultural maritime heritage management": ["Coastal Tourism"],
+    "Sustainability transitions in coastal societies": [
+        "Coastal Tourism",
+        "Living Res.",
+        "Port Activities",
+    ],
+    "Social-ecological resilience of coastal communities": [
+        "Coastal Tourism",
+        "Living Res.",
+        "Port Activities",
+    ],
+    "Maritimisation processes and port-city relations": [
+        "Port Activities",
+        "Maritime Transport",
+    ],
+    "Socio-technical transitions in shipping": ["Maritime Transport", "Ship Repair"],
+    "Labour geography of maritime transport": ["Maritime Transport", "Port Activities"],
+    "Cultural dimensions of seafaring": ["Maritime Transport", "Maritime Defence"],
+    "Coastal tourism and blue economy value chains": [
+        "Coastal Tourism",
+        "Port Activities",
+    ],
+    "Ethnographic approaches to fishing communities": [
+        "Living Res.",
+        "Coastal Tourism",
+    ],
+    "Traditional ecological knowledge in fisheries governance": [
+        "Living Res.",
+        "Non-living Res.",
+    ],
+}
+
+
+def _validate_theme_sectors() -> None:
+    """Validate _THEME_SECTORS keys and values at import time.
+
+    Raises:
+        ValueError: if a key in _THEME_SECTORS does not match any theme in
+            _LIT_THEMES, or if a sector value is not a canonical member of SECTORS.
+    """
+    all_themes: Set[str] = set()
+    for axis_groups in _LIT_THEMES.values():
+        for names in axis_groups.values():
+            all_themes.update(names)
+
+    bad_keys = [k for k in _THEME_SECTORS if k not in all_themes]
+    if bad_keys:
+        raise ValueError(
+            "_THEME_SECTORS contains keys that do not match any theme in _LIT_THEMES: "
+            + ", ".join(sorted(bad_keys))
+        )
+
+    sectors_set = set(SECTORS)
+    bad_values: List[str] = []
+    for theme, sector_list in _THEME_SECTORS.items():
+        for sec in sector_list:
+            if sec not in sectors_set:
+                bad_values.append(f"{theme!r} → {sec!r}")
+    if bad_values:
+        raise ValueError(
+            "_THEME_SECTORS contains sector names not in the canonical SECTORS list: "
+            + "; ".join(bad_values)
+        )
+
+
+_validate_theme_sectors()
+
+
 def _slugify(text: str) -> str:
     """Convert text to a safe identifier slug."""
-    return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")[:60]
+    return slugify(text, max_length=60)
+
+
+def _normalize_title_for_dedup(title: str) -> str:
+    """
+    Normalize titles for cross-source deduplication.
+
+    Rules:
+      - convert to lowercase
+      - replace non-word characters with spaces
+      - collapse/strip surrounding whitespace
+    """
+    return re.sub(r"\W+", " ", title.lower()).strip()
+
+
+def _infer_live_record_sectors(text: str, axis: TMBDAxis) -> List[str]:
+    """Infer a narrow sector scope for a live record using existing theme maps.
+
+    Strategy:
+      1. Filter candidate themes to the detected TMBD axis only.
+      2. Score each theme by token-overlap between record text and theme name.
+      3. Select the highest-scoring theme; if all scores are zero, fall back to a
+         deterministic axis-local theme (lexicographically first).
+      4. Map the chosen theme to sectors via _THEME_SECTORS.
+    """
+    text_tokens = set(_TOKEN_PATTERN.findall(text.lower()))
+    axis_theme_names: List[str] = []
+    best_theme: Optional[str] = None
+    best_score = 0
+
+    for theme_pool in _LIT_THEMES.values():
+        for axis_name, theme_names in theme_pool.items():
+            if axis_name != axis.name:
+                continue
+            for theme_name in theme_names:
+                axis_theme_names.append(theme_name)
+                theme_tokens = set(_TOKEN_PATTERN.findall(theme_name.lower()))
+                score = len(text_tokens & theme_tokens)
+                if score > best_score:
+                    best_score = score
+                    best_theme = theme_name
+
+    fallback_theme = sorted(axis_theme_names)[0] if len(axis_theme_names) > 0 else None
+    chosen_theme = best_theme or fallback_theme
+    if chosen_theme is None or chosen_theme not in _THEME_SECTORS:
+        global_best_theme: Optional[str] = None
+        global_best_score = 0
+        for theme_name in _THEME_SECTORS:
+            theme_tokens = set(_TOKEN_PATTERN.findall(theme_name.lower()))
+            score = len(text_tokens & theme_tokens)
+            if score > global_best_score:
+                global_best_score = score
+                global_best_theme = theme_name
+        chosen_theme = global_best_theme if global_best_score > 0 else None
+    selected_sectors = (
+        _THEME_SECTORS.get(chosen_theme, SECTORS) if chosen_theme else SECTORS
+    )
+    return list(selected_sectors)
+
+
+def _extract_live_sentence_classifications(
+    row: Dict[str, object],
+) -> List[Dict[str, object]]:
+    """Return validated sentence-level live classifications from one payload row.
+
+    Enforces the minimum FAIR/QMBD audit schema: each item must be a dict
+    containing the axis metadata plus either a raw non-empty ``sentence`` or a
+    persisted non-empty ``sentence_hash`` with positive ``sentence_length``.
+    Incomplete or malformed items are silently dropped.
+    """
+    raw = row.get("sentence_classifications", [])
+    if not isinstance(raw, list):
+        return []
+    _REQUIRED_KEYS: set[str] = {"axis", "axis_code", "text_scope"}
+    valid: List[Dict[str, object]] = []
+    for item in raw:
+        if not isinstance(item, dict) or not _REQUIRED_KEYS.issubset(item.keys()):
+            continue
+
+        axis = item.get("axis")
+        axis_code = item.get("axis_code")
+        text_scope = item.get("text_scope")
+        sentence = item.get("sentence")
+
+        if not all(
+            isinstance(value, str)
+            for value in (axis, axis_code, text_scope)
+        ):
+            continue
+
+        normalized_axis = axis.strip().upper()
+        normalized_axis_code = axis_code.strip().upper()
+        normalized_text_scope = text_scope.strip()
+
+        if not normalized_text_scope:
+            continue
+
+        normalized_item = dict(item)
+        normalized_item["axis"] = normalized_axis
+        normalized_item["axis_code"] = normalized_axis_code
+        normalized_item["text_scope"] = normalized_text_scope
+        if isinstance(sentence, str) and sentence.strip():
+            normalized_item["sentence"] = sentence.strip()
+        else:
+            sentence_hash = item.get("sentence_hash")
+            sentence_length = item.get("sentence_length")
+            if (
+                not isinstance(sentence_hash, str)
+                or not sentence_hash.strip()
+                or not isinstance(sentence_length, int)
+                or sentence_length <= 0
+            ):
+                continue
+            normalized_item["sentence_hash"] = sentence_hash.strip()
+            normalized_item["sentence_length"] = sentence_length
+        valid.append(normalized_item)
+    return valid
+
+
+def _dominant_axis_from_live_sentence_classifications(
+    sentence_classifications: List[Dict[str, object]],
+) -> Optional[TMBDAxis]:
+    """Resolve dominant axis from sentence-level live classifications."""
+    axis_count: Dict[str, int] = {
+        "MARINE": 0,
+        "MARITIME": 0,
+        "OCEANIC": 0,
+        "HYDRONIZATION": 0,
+    }
+    for item in sentence_classifications:
+        if not _sentence_classification_counts_as_evidence(dict(item)):
+            continue
+        axis_name = str(item.get("axis", "")).strip().upper()
+        if axis_name in axis_count:
+            axis_count[axis_name] += 1
+    ranked = sorted(axis_count.items(), key=lambda pair: pair[1], reverse=True)
+    if not ranked or ranked[0][1] <= 0:
+        return None
+    top_score = ranked[0][1]
+    tied_axes = [axis for axis, score in ranked if score == top_score]
+    precedence = ("MARINE", "MARITIME", "HYDRONIZATION", "OCEANIC")
+    for axis_name in precedence:
+        if axis_name in tied_axes:
+            return TMBDAxis[axis_name]
+    return None
 
 
 def extract_literature_competences() -> List[Competence]:
@@ -580,14 +1054,20 @@ def extract_literature_competences() -> List[Competence]:
                     continue
 
                 # Deduplicate across files by normalised title
-                norm_title = re.sub(r"\W+", " ", title.lower()).strip()
+                norm_title = _normalize_title_for_dedup(title)
                 if norm_title in seen_titles:
                     continue
                 seen_titles.add(norm_title)
 
-                # Detect axis from combined title + abstract
-                combined_text = f"{title} {abstract}"
-                detected_axis = _detect_axis(combined_text, default=default_axis)
+                # Detect axis from full-sentence context of title + abstract
+                combined_text = f"{title}. {abstract}"
+                source_identifier = doi or f"{theme_key}:{row_idx}"
+                sentence_analysis = _classify_sentence_contexts(
+                    extract_sentences(combined_text), source_identifier
+                )
+                detected_axis = _resolve_primary_axis_from_analysis(
+                    sentence_analysis, default_axis=default_axis
+                )
 
                 # Pick the closest theme cluster from the pool for this axis
                 candidate_themes = [
@@ -598,7 +1078,7 @@ def extract_literature_competences() -> List[Competence]:
 
                 # Assign theme deterministically using row index as cycle offset
                 ax_name, theme_name = candidate_themes[row_idx % len(candidate_themes)]
-                axis = TMBDAxis[ax_name]
+                axis = _axis_from_name(ax_name, default_axis=detected_axis)
 
                 # Competence name: theme cluster + paper title excerpt (unique per paper)
                 title_short = title[:70].rstrip(",. ")
@@ -634,7 +1114,7 @@ def extract_literature_competences() -> List[Competence]:
                             "literature",
                             theme_name[:30],
                         ],
-                        sectors=SECTORS,  # cross-sector by default
+                        sectors=_THEME_SECTORS.get(theme_name, SECTORS),
                     )
                 )
                 file_count += 1
@@ -647,6 +1127,137 @@ def extract_literature_competences() -> List[Competence]:
         )
 
     log.info("  Total literature competences: %d", len(competences))
+    return competences
+
+
+def extract_live_records_competences(
+    live_records_path: Path,
+    known_titles: Optional[Set[str]] = None,
+) -> List[Competence]:
+    """
+    Convert Stage-1 live records JSON into literature-like competence objects.
+
+    Args:
+        live_records_path: Path to outputs/research_sources/live_records.json.
+        known_titles: Optional set of normalized titles to deduplicate against.
+
+    Returns:
+        List of competence objects derived from live API records.
+    """
+    if not live_records_path.exists():
+        log.warning(
+            "Live records file not found (%s) — skipping live enrichment.",
+            live_records_path,
+        )
+        return []
+
+    try:
+        payload = json.loads(live_records_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        log.warning(
+            "Failed to parse live records JSON (%s): %s", live_records_path, exc
+        )
+        return []
+
+    if not isinstance(payload, list):
+        log.warning("Live records JSON must be a list: %s", live_records_path)
+        return []
+
+    seen_titles: Set[str] = set(known_titles or set())
+    competences: List[Competence] = []
+    try:
+        rel_path = live_records_path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        # Custom paths may live outside REPO_ROOT; keep source metadata usable.
+        rel_path = live_records_path.resolve().as_posix()
+
+    # start=2 aligns source row references with data-row indexing semantics.
+    for idx, row in enumerate(payload, start=2):
+        if not isinstance(row, dict):
+            continue
+        title = str(row.get("title", "")).strip()
+        if not title:
+            continue
+        norm_title = _normalize_title_for_dedup(title)
+        if norm_title in seen_titles:
+            continue
+        seen_titles.add(norm_title)
+
+        authors = str(row.get("authors", "")).strip()
+        year = str(row.get("year", "")).strip()
+        doi = str(row.get("doi", "")).strip()
+        provider = str(row.get("provider", "")).strip() or "Unknown"
+        claim_origin = str(row.get("source", "")).strip()
+        overlap_status = str(row.get("overlap_status", "")).strip()
+        confidence_score = row.get("confidence_score")
+        journal = str(row.get("journal", "")).strip()
+        abstract = str(row.get("abstract", "")).strip()
+        subject_terms = row.get("subject_terms", [])
+        if not isinstance(subject_terms, list):
+            subject_terms = [str(subject_terms)] if subject_terms else []
+        sentence_classifications = _extract_live_sentence_classifications(row)
+        combined_text = " ".join(
+            [title, abstract, journal] + [str(t).strip() for t in subject_terms]
+        ).strip()
+        axis = _dominant_axis_from_live_sentence_classifications(
+            sentence_classifications
+        )
+        if axis is None:
+            source_identifier = doi or f"{provider}:{idx}"
+            sentence_analysis = _classify_sentence_contexts(
+                extract_sentences(combined_text), source_identifier
+            )
+            axis = _resolve_primary_axis_from_analysis(
+                sentence_analysis, default_axis="OCEANIC"
+            )
+        sectors = _infer_live_record_sectors(combined_text, axis)
+
+        source = CompetenceSource(
+            file=rel_path,
+            row=idx,
+            authors=authors[:120],
+            year=year,
+            paper_title=title[:120],
+            doi=doi,
+        )
+        comp_id = f"lit_live_{_slugify(provider)}_{idx:05d}"
+        confidence_text = (
+            f" confidence={confidence_score:.2f}."
+            if isinstance(confidence_score, (int, float))
+            else ""
+        )
+        source_text = f" claim_origin={claim_origin}." if claim_origin else ""
+        overlap_text = f" overlap={overlap_status}." if overlap_status else ""
+        sentence_text = (
+            f" sentence_classifications={len(sentence_classifications)}."
+            if sentence_classifications
+            else ""
+        )
+        competences.append(
+            Competence(
+                id=comp_id,
+                name=f"Live API ({provider}): {title[:70].rstrip(',. ')}",
+                description=(
+                    "Live-API-derived literature competence from provider "
+                    f"{provider}.{source_text}{overlap_text}{confidence_text}{sentence_text} "
+                    f"Source paper: {title[:120]} ({authors[:60]}, {year})."
+                ),
+                axis=axis,
+                dimension="literature",
+                source=source,
+                keywords=[
+                    "live-api",
+                    _slugify(provider),
+                    _slugify(claim_origin) if claim_origin else "claim-origin-unknown",
+                    _slugify(overlap_status) if overlap_status else "overlap-unknown",
+                    axis.name.lower(),
+                    "literature",
+                ],
+                sectors=sectors,
+            )
+        )
+
+    log.info("  Live API competences: %d", len(competences))
     return competences
 
 
@@ -663,13 +1274,14 @@ def run_gap_analysis(
     Run competence gap analysis for all 12 blue economy sectors.
 
     For each sector:
-      - required: all competences (baseline + literature) that list that sector
+      - required: baseline competences that list that sector + literature
+                  competences whose sectors field includes that sector
       - available: baseline competences for that sector
       - missing: required − available
 
     Args:
         baseline: 15 University of Szczecin baseline competences
-        literature: literature-derived competences
+        literature: literature-derived competences (sector-specific via _THEME_SECTORS)
 
     Returns:
         Tuple of:
@@ -687,14 +1299,15 @@ def run_gap_analysis(
     sector_comps: Dict[str, List[Competence]] = {}
 
     for sector in SECTORS:
-        # Required: baseline comps that include this sector + all literature comps
+        # Required: baseline comps that include this sector + literature comps
+        # that explicitly list this sector in their sectors field.
         required_ids: List[str] = []
         for c in baseline:
             if sector in c.sectors:
                 required_ids.append(c.id)
-        # Literature competences are cross-sector
         for c in literature:
-            required_ids.append(c.id)
+            if sector in c.sectors:
+                required_ids.append(c.id)
 
         # Available: baseline competences for this sector
         available_ids = [c.id for c in baseline if sector in c.sectors]
@@ -839,10 +1452,18 @@ def generate_micro_credentials(
         slug = SECTOR_SLUG[sector]
         gap = gaps[sector]
 
-        # Select competences: available baseline comps + first 5 literature
+        # Select competences from the same sector-aware pool used by gap analysis:
+        # available baseline competences + first 5 literature competences
+        # required for this sector.
         base_ids = gap.available_ids[:8]
-        lit_ids = [c.id for c in literature[:5]]
-        comp_ids = base_ids + lit_ids
+        sector_lit_ids = [
+            cid
+            for cid in gap.required_ids
+            if cid in all_comps and all_comps[cid].dimension == "literature"
+        ]
+        lit_ids = sector_lit_ids[:5]
+        # dict.fromkeys preserves order while deduplicating IDs
+        comp_ids = list(dict.fromkeys(base_ids + lit_ids))
 
         learner_profile = _SECTOR_LEARNER_PROFILES.get(
             sector, "Blue economy practitioners"
@@ -1099,9 +1720,10 @@ def export_competences_json(
     output_path: Path,
 ) -> None:
     """Export full competences database as JSON."""
+    total_count = len(baseline) + len(literature)
     data = {
         "metadata": {
-            "total": len(baseline) + len(literature),
+            "total": total_count,
             "baseline_count": len(baseline),
             "literature_count": len(literature),
             "axes": {ax.name: ax.value for ax in TMBDAxis},
@@ -1112,7 +1734,7 @@ def export_competences_json(
     }
     with open(output_path, "w", encoding="utf-8") as fh:
         json.dump(data, fh, indent=2, ensure_ascii=False)
-    log.info("  Exported: %s (%d competences)", output_path, data["metadata"]["total"])
+    log.info("  Exported: %s (%d competences)", output_path, total_count)
 
 
 def export_credentials_json(
@@ -1162,7 +1784,7 @@ def export_sector_dictionaries(
     Export one sector TMBD dictionary JSON per requested sector.
 
     Input may include mixed provenance (baseline + literature). In this helper,
-    ``LiteratureCompetenceRepository`` wraps the provided extractor output, while
+    ``MixedProvenanceCompetenceRepository`` wraps the provided extractor output, while
     literature-only selection is applied during sector-dictionary construction
     before grouping by TMBD axis (MARINE, MARITIME, OCEANIC). This helper is
     intended for single-use pipeline export in ``main()``. Files follow the
@@ -1171,7 +1793,11 @@ def export_sector_dictionaries(
     paths preserve the order of the input ``sectors`` list.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
-    repository = LiteratureCompetenceRepository(lambda: list(competences))
+
+    def extractor() -> Sequence[CompetenceLike]:
+        return cast(Sequence[CompetenceLike], competences)
+
+    repository = MixedProvenanceCompetenceRepository(extractor)
     exported_paths: List[Path] = []
 
     for sector in sectors:
@@ -1220,6 +1846,8 @@ _HTML_HEAD = """\
                padding: 2px 6px; font-size: 0.78rem; }}
   .badge-O {{ background: #6a1a8a; color: #fff; border-radius: 4px;
                padding: 2px 6px; font-size: 0.78rem; }}
+  .badge-H {{ background: #8a5a1a; color: #fff; border-radius: 4px;
+               padding: 2px 6px; font-size: 0.78rem; }}
   .card {{ background: #fff; border: 1px solid #cce; border-radius: 6px;
            padding: 1rem 1.2rem; margin-bottom: 1rem;
            box-shadow: 0 1px 4px rgba(0,0,50,0.07); }}
@@ -1260,7 +1888,12 @@ _HTML_FOOT = """\
 
 
 def _axis_badge(axis: TMBDAxis) -> str:
-    cls = {"MARINE": "M", "MARITIME": "T", "OCEANIC": "O"}[axis.name]
+    cls = {
+        "MARINE": "M",
+        "MARITIME": "T",
+        "OCEANIC": "O",
+        "HYDRONIZATION": "H",
+    }[axis.name]
     return f'<span class="badge-{cls}">{axis.value} {axis.name}</span>'
 
 
@@ -1487,6 +2120,7 @@ def generate_literature_html(
         "MARINE": "Competences derived from papers on marine biodiversity, ecosystem science, and fisheries ecology",
         "MARITIME": "Competences from papers on labour relations, maritime industry, and techno-economic dimensions",
         "OCEANIC": "Competences from papers on ocean governance, blue justice, and planetary sustainability",
+        "HYDRONIZATION": "Competences from papers on hydrosocial relations, wet ontology, and water-society co-constitution",
     }
     for ax in TMBDAxis:
         html += (
@@ -1541,7 +2175,11 @@ def generate_literature_html(
 # ---------------------------------------------------------------------------
 
 
-def main(selected_sectors: Optional[List[str]] = None) -> int:
+def main(
+    selected_sectors: Optional[List[str]] = None,
+    analysis_input_mode: str = "static",
+    live_records_path: Optional[Path] = None,
+) -> int:
     """
     Execute the full analysis pipeline:
       1. Load baseline competences (15 from University of Szczecin CSV)
@@ -1558,6 +2196,7 @@ def main(selected_sectors: Optional[List[str]] = None) -> int:
         Exit code (0 = success, 1 = error)
     """
     target_sectors = selected_sectors or SECTORS
+    live_path = live_records_path or DEFAULT_LIVE_RECORDS_JSON
 
     log.info("=" * 65)
     log.info("Blue Economy Full Analysis — morskamary")
@@ -1576,6 +2215,38 @@ def main(selected_sectors: Optional[List[str]] = None) -> int:
 
     # --- Step 2: Literature competences ---
     literature = extract_literature_competences()
+    static_literature = list(literature)
+    if analysis_input_mode == "live-enriched":
+        baseline_titles = {
+            _normalize_title_for_dedup(getattr(c.source, "paper_title", None) or c.name)
+            for c in literature
+        }
+        live_competences = extract_live_records_competences(live_path, baseline_titles)
+        literature.extend(live_competences)
+        log.info(
+            "Live enrichment enabled — merged %d live competences from %s.",
+            len(live_competences),
+            live_path,
+        )
+
+    static_qmbd_records = _build_static_qmbd_records(
+        baseline, record_origin="STATIC_BASELINE"
+    ) + _build_static_qmbd_records(static_literature, record_origin="STATIC_LITERATURE")
+    qmbd_repository = LocalizedQMBDRecordRepository(
+        static_records=static_qmbd_records,
+        live_records_path=live_path,
+        include_live_records=(analysis_input_mode == "live-enriched"),
+    )
+    cumulative_qmbd_records_path = OUTPUTS_DIR / CUMULATIVE_QMBD_RECORDS_FILENAME
+    qmbd_enriched_records = enrich_and_store_records(
+        qmbd_repository.iter_records(),
+        cumulative_qmbd_records_path,
+    )
+    log.info(
+        "QMBD cumulative output generated: %s (%d records)",
+        cumulative_qmbd_records_path,
+        len(qmbd_enriched_records),
+    )
 
     if not literature:
         log.warning("No literature competences extracted — check data/derived files.")
@@ -1655,6 +2326,7 @@ def main(selected_sectors: Optional[List[str]] = None) -> int:
         "credentials_database.json",
         "sector_pathways.json",
         "gaps_summary.csv",
+        "cumulative_qmbd_records.json",
     ]:
         fpath = OUTPUTS_DIR / fname
         if fpath.exists():
@@ -1687,9 +2359,26 @@ def parse_cli_args() -> argparse.Namespace:
         choices=SECTORS,
         help="Limit execution scope to one or more sectors (repeatable).",
     )
+    parser.add_argument(
+        "--analysis-input-mode",
+        choices=["static", "live-enriched"],
+        default="static",
+        help="Use static literature inputs only, or enrich with live API exports.",
+    )
+    parser.add_argument(
+        "--live-records-path",
+        default=str(DEFAULT_LIVE_RECORDS_JSON),
+        help="Path to live_records.json used when --analysis-input-mode=live-enriched.",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     cli_args = parse_cli_args()
-    sys.exit(main(selected_sectors=cli_args.sectors))
+    sys.exit(
+        main(
+            selected_sectors=cli_args.sectors,
+            analysis_input_mode=cli_args.analysis_input_mode,
+            live_records_path=Path(cli_args.live_records_path),
+        )
+    )

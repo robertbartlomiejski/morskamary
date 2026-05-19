@@ -19,26 +19,402 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-05-19
+  Change type add fix update
+  Scope tests outputs governance
+  Files affected tests/test_convert_pdfs_to_txt.py tests/test_cumulative_fragment_analysis.py tests/test_scientific_sources.py tests/test_smoke_scientific_bridge.py outputs/cumulative_qmbd_records.json MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Expanded coverage for PDF conversion, cumulative fragment analysis, scientific bridge smoke paths, and scientific-source provider branches; regenerated cumulative QMBD output and manifest artifacts to keep committed outputs synchronized with the current pipeline state.
+  Reason PR #170 changes substantive test, output, and manifest artifacts, so the governance rule requires explicit changelog traceability.
+  Impact Improves regression coverage for scientific-source and analysis utilities while preserving reproducible output state for full-analysis and governance checks.
+  Provenance PR #170; coverage-expansion test changes; regenerated outputs/cumulative_qmbd_records.json; regenerated MANIFEST_SOURCES.csv; governance-and-repro branch changelog sync commit.
+  Quality checks CI test-suite passed on Python 3.10, 3.11, and 3.12; manifest reproducibility check passed for MANIFEST_SOURCES.csv; governance-and-repro expected to pass after this CHANGELOG entry.
+  Reviewer GitHub Copilot Coding Agent
+
+- 2026-05-19
+  Change type add fix update
+  Scope scripts tests governance
+  Files affected scripts/changelog_guard.py .github/workflows/ci.yml tests/test_changelog_guard.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Extracted the CI CHANGELOG enforcement rule into a reusable Python guard and added direct regression coverage for pull-request changed-file detection, normalization, and CLI outcomes.
+  Reason Coverage analysis showed the CHANGELOG policy lived only in an inline workflow shell block with no dedicated tests, leaving pull/commit-style enforcement behavior unverified.
+  Impact Makes the governance rule testable and easier to maintain while preserving the existing lightweight policy for substantive tracked artifacts.
+  Provenance `.github/workflows/ci.yml` CHANGELOG enforcement step; `scripts/changelog_guard.py`; `tests/test_changelog_guard.py`.
+  Quality checks `python scripts/generate_manifest.py` passed; `python -m pytest tests/test_changelog_guard.py -q` passed (26 tests); `python -m pytest tests/ -q --cov=src --cov=scripts --cov-repo[...] 
+  Reviewer GitHub Copilot Coding Agent
+
+- 2026-05-19
+  Change type fix update
+  Scope src tests
+  Files affected src/axis_classifier.py tests/test_axis_classifier.py tests/test_check_research_api_health.py tests/test_run_full_analysis.py CHANGELOG.txt
+  Summary Refined axis classification behavior and expanded regression coverage for research API health checks and full-analysis orchestration.
+  Reason CI requires changelog updates when substantive tracked artifacts change, and this PR modifies source and test files.
+  Impact Preserves governance traceability for classifier and orchestration changes; no substantive source/test update is left undocumented.
+  Provenance PR #162.
+  Quality checks CI governance-and-repro rule satisfied after adding CHANGELOG.txt.
+  Reviewer GitHub Copilot Chat Assistant
+
+- 2026-05-19
+  Change type fix update
+  Scope src tests governance
+  Files affected src/scientific_sources/crossref.py tests/test_scientific_sources.py CHANGELOG.txt
+  Summary Stopped the Crossref search request from asking for abstract metadata and added regression coverage ensuring the provider requests only the export-safe metadata fields it actually uses.
+  Reason The methodological-hardening follow-up found that Crossref still requested the abstract field even though the normalized provider now discards it. Removing the request tightens compliance[...]
+  Impact Reduces unnecessary retrieval of restricted metadata while preserving Crossref search behavior and keeping provider outputs aligned with the intended compliance-safe contract.
+  Provenance PR #162.
+  Quality checks python3 -m pytest tests/test_scientific_sources.py -q passed (85 tests); python3 -m pytest tests/test_axis_classifier.py tests/test_run_full_analysis.py tests/test_export_live_res[...] 
+  Reviewer GitHub Copilot Coding Agent
+
+- 2026-05-19
+  Change type fix update
+  Scope src tests outputs governance
+  Files affected run_full_analysis.py tests/test_run_full_analysis.py outputs/competences_full_database.json outputs/credentials_database.json outputs/cumulative_qmbd_records.json outputs/gaps_by_[...]
+  Summary Hardened sentence-level QMBD resolution so fallback OCEANIC classifications without keyword evidence no longer dominate primary-axis selection. Live sentence resolution now ignores unsup[...]
+  Reason The sentence-level audit path was methodologically over-classifying generic/no-signal material as OCEANIC, which biased literature and live-record primary-axis results. This change keeps [...]
+  Impact Regenerated outputs now show a materially broader literature-axis distribution and more defensible primary-axis assignment across cumulative QMBD artifacts.
+  Provenance PR #162.
+  Quality checks python3 -m pytest tests/test_axis_classifier.py tests/test_run_full_analysis.py tests/test_export_live_research_records.py tests/test_scientific_sources.py -q passed (227 tests); [...]
+  Reviewer GitHub Copilot Coding Agent
+
+- 2026-05-19
+  Change type fix update
+  Scope src outputs governance
+  Files affected run_full_analysis.py scripts/export_live_research_records.py src/axis_classifier.py src/scientific_sources/models.py src/scientific_sources/crossref.py outputs/competences_full_da[...]
+  Summary Regenerated committed full-analysis outputs after the QMBD pipeline hardening changes and documented the associated compliance-safe serialization, sanitized live audit payloads, and shar[...]
+  Reason The PR changed substantive generator behavior, so outputs/ needed to be brought back in sync with `python run_full_analysis.py`, and governance CI requires a changelog entry when tracked [...]
+  Impact Restores deterministic PR state for full-analysis sync checks and preserves traceability for the hardened live-audit and scientific-source handling changes.
+  Provenance PR #162.
+  Quality checks python3 run_full_analysis.py completed twice locally; regenerated outputs reviewed; manifest regeneration remained deterministic.
+  Reviewer GitHub Copilot Coding Agent
+
+- 2026-05-19
+  Change type fix update
+  Scope src tests
+  Files affected src/scientific_sources/models.py tests/test_axis_classifier.py tests/test_export_live_research_records.py tests/test_run_full_analysis.py CHANGELOG.txt
+  Summary Updated the scientific sources model and aligned test coverage for axis classification, live research export, and full-analysis orchestration.
+  Reason CI requires changelog updates when substantive tracked artifacts change, and these code/test updates alter repository behaviour and verification scope.
+  Impact Preserves governance traceability for source-model and test-suite changes; no undocumented substantive changes remain in the PR.
+  Provenance PR #163.
+  Quality checks CI governance-and-repro rule satisfied after adding CHANGELOG.txt.
+  Reviewer GitHub Copilot Coding Agent
+
+2026-05-14 (Policy-driven live triangulation, QMBD-4 enrichment, and Microsoft Graph integration)
+Change type add update
+Scope scripts src docs config
+Files affected scripts/export_live_research_records.py scripts/build_tmbd_dictionary.py scripts/check_research_api_health.py scripts/check_research_env.py scripts/audit_research_api_config.py scri[...]
+Summary Implemented policy-driven live triangulation with explicit provider-priority contract (Loop 1: identity/provenance deduplication; Loop 2: thematic/QMBD axis assignment). Added durable audi[...]
+Reason The previous implicit registry-order deduplication gave no audit trail when two providers returned the same record. The new double-loop design ensures identity winners are policy-driven and[...]
+Impact export_live_research_records.py now emits triangulated and raw artifacts. run_full_analysis.py defaults to live_records_triangulated.json for enrichment. Microsoft Graph provider is operati[...]
+Provenance config/research_provider_policy.yml (new); src/scientific_sources/microsoft_graph.py; scripts/export_live_research_records.py.
+Quality checks python -m pytest -q passed locally.
+Reviewer GitHub Copilot Coding Agent
+
+2026-05-14
+Change type fix add
+Scope scripts tests
+Files affected scripts/export_live_research_records.py tests/test_export_live_research_records.py
+Summary Hardened live research export CLI query-file validation. yaml.safe_load() is now wrapped in a try/except yaml.YAMLError block that emits a clear parse-error message including the file pat[...]
+Reason Previously a syntactically invalid YAML query file would crash the script with an unhandled traceback. Provider inputs with differing case or surrounding whitespace were silently rejected.[...]
+Impact scripts/export_live_research_records.py now fails fast with actionable operator messages for all YAML and provider-input edge cases.
+Provenance scripts/export_live_research_records.py (CLI entrypoint); tests/test_export_live_research_records.py (integration tests).
+Quality checks python -m pytest tests/test_export_live_research_records.py -q passed (45 tests).
+Reviewer GitHub Copilot Coding Agent
+
+2026-05-11
+Change type fix add
+Scope triangulator tests
+Files affected src/cumulative_analysis/triangulator.py tests/test_cumulative_triangulator_dynamic_priority.py MANIFEST_SOURCES.csv
+Summary Fixed a bug in CumulativeTriangulator where a later dynamic ingestion (e.g. Scopus) could overwrite a record already upgraded from the static baseline by an earlier dynamic provider (e.g.[...]
+Reason When multiple dynamic providers returned records sharing the same DOI or normalised title, the second provider's data silently overwrote the first provider's upgrade, losing provenance acc[...]
+Impact CumulativeTriangulator.triangulate() now consistently returns the first-ingested dynamic provider's record when duplicates exist, matching the documented deduplication contract. Downstream[...]
+Provenance src/cumulative_analysis/triangulator.py (deduplication logic); src/scientific_sources/models.py (LiteratureRecord); tests/test_cumulative_triangulator.py (existing triangulator test su[...]
+Quality checks python -m pytest -q passed; new tests test_first_dynamic_doi_match_preserved_after_static_upgrade and test_first_dynamic_title_match_preserved_after_static_upgrade both pass.
+Reviewer GitHub Copilot Coding Agent
+
+2026-05-11 (Stage 1 documentation reconciliation — QMBD wording and citation-count rule)
+Change type fix
+Scope governance
+Files affected docs/overview.md docs/onboarding_new_provider.md docs/providers.md docs/RESEARCH_SOURCE_GOVERNANCE.md CHANGELOG.txt
+Summary Reconciled the remaining Stage 1 documentation clashes without changing code. docs/overview.md now describes the implemented QMBD 4-axis model (including Hydronization) instead of the obs[...]
+Reason Review feedback concluded that Stage 1 enforcement was already correct in code and tests, but the documentation foundation was not yet officially complete because the human contracts still[...]
+Impact Documentation only. No code, test, CI, or schema behaviour changes. Stage 1 governance text now matches `_to_stage1_compliant_dict()` and the current 4-axis `BlueDynamicsAxis` enum.
+Provenance src/core.py:BlueDynamicsAxis (QMBD with HYDRONIZATION); scripts/export_live_research_records.py:_to_stage1_compliant_dict() and STAGE1_CSV_FIELDS (citation-count drop rule); tests/test[...]
+Quality checks Baseline `python -m pytest -q` passes locally before and after the documentation update. `flake8 src tests` and `mypy src` remain non-clean due to pre-existing unrelated issues.
+Reviewer GitHub Copilot Coding Agent
+
+2026-05-11 (governance docs provider-field clarification and manifest refresh)
+Change type fix update
+Scope governance
+Files affected docs/RESEARCH_SOURCE_GOVERNANCE.md MANIFEST_SOURCES.csv CHANGELOG.txt
+Summary Clarified Scopus and Web of Science provider-specific notes in docs/RESEARCH_SOURCE_GOVERNANCE.md to explicitly distinguish provider-returned bibliographic fields (title, authors, year, D[...]
+Reason The prior wording could be read as implying that the provider-specific field list was the complete allowed storage schema, creating ambiguity for contributors. The manifest update is a mec[...]
+Impact Documentation only for the governance doc fix. MANIFEST_SOURCES.csv: many .py file rows changed from type "other" / text_available=no to type "script" / text_available=yes — no runtime o[...]
+Provenance docs/RESEARCH_SOURCE_GOVERNANCE.md Stage 1 permissible fields table; scripts/generate_manifest.py classification logic (.py → script); .github/workflows/ci.yml CHANGELOG enforcement [...]
+Quality checks CI CHANGELOG enforcement rule satisfied. No code or test changes.
+Reviewer GitHub Copilot Coding Agent
+
+2026-05-10 (QMBD keyword governance fix — remove ungrounded blue subjectivity keyword)
+Change type fix
+Scope src tests governance
+Files affected src/axis_classifier.py tests/test_axis_classifier.py CHANGELOG.txt
+Summary Removed "blue subjectivity" from the HYDRONIZATION keyword set in AxisClassifier.KEYWORD_AXIS_MAP after failing to locate a source document citation in the repository. Per LLM_CONTEXT_INS[...]
+Reason Review feedback identified the [CITATION_REQUIRED] placeholder as a compliance risk. Spelling of HYDRONIZATION is intentional and matches the established codebase usage in scripts/cumulati[...]
+Impact src/axis_classifier.py: HYDRONIZATION keyword count reduced from 4 to 3. Texts containing only "blue subjectivity" now fall through to OCEANIC (governance-first default). No other behaviou[...]
+Provenance docs/literature/Bartłomiejskie Cocco krytyka oceanocentryzmu.txt:912 (hydrosocial); Bartłomiejski Cocco Performatywność wody morza oceanu.txt:2064-2066 (wet ontology); scripts/cumu[...]
+Quality checks pytest: all tests pass. No [CITATION_REQUIRED] placeholders remain in production code.
+Reviewer GitHub Copilot Coding Agent
+
+
+2026-05-10 (QMBD synthesis — Stage 1 compliance, triangulator, HYDRONIZATION axis)
+Change type add update
+Scope governance scripts src tests
+Files affected scripts/export_live_research_records.py src/core.py src/axis_classifier.py src/cumulative_analysis/__init__.py src/cumulative_analysis/triangulator.py tests/test_export_live_resear[...]
+Summary Three coordinated changes: (1) Stage 1 governance audit — scripts/export_live_research_records.py now routes JSON and CSV exports through _to_stage1_compliant_dict(), explicitly droppin[...]
+Reason Reconcile PR #125 (Stage 1 Human Contracts), PR #119 (Live API Export), and the Manus methodological review to establish a unified QMBD framework. The governance audit ensures no restricte[...]
+Impact scripts/export_live_research_records.py: JSON output no longer includes citation_count, abstract_available, or abstract_stored; CSV now includes licence_note column. src/core.py: BlueDynam[...]
+Provenance docs/licensing_and_compliance.md (Stage 1 bibliographic-only rules); scripts/cumulative_fragment_analysis.py:qmbd_label_from_text (hydronization keyword basis); DATA_GOVERNANCE.txt (FA[...]
+Quality checks pytest: all tests pass. Compliance filter verified by new TestStage1ComplianceFilter suite. Triangulator verified by new test_cumulative_triangulator.py. QMBD axis verified by new [...]
+Reviewer GitHub Copilot Coding Agent
+
+2026-05-10 (docs/providers.md — QMBD alignment and Stage 1 compliance section)
+Change type update
+Scope governance
+Files affected docs/providers.md CHANGELOG.txt
+Summary Updated docs/providers.md to reflect the QMBD (4-axis) model replacing TMBD references: renamed "TMBD relevance" column to "QMBD axis relevance" in the summary table, updated SciVal secti[...]
+Reason The existing docs/providers.md was drafted against the 3-axis TMBD model. The QMBD synthesis PR extended the axis model to 4 dimensions and introduced a compliance filter and triangulation[...]
+Impact Documentation only. No code, CI, or schema changes.
+Provenance scripts/export_live_research_records.py:_to_stage1_compliant_dict() (compliance filter); src/cumulative_analysis/triangulator.py (triangulation engine); src/core.py:BlueDynam[...] 
+Quality checks No tests for documentation; prose reviewed for consistency with implementation.
+Reviewer GitHub Copilot Coding Agent
+
+2026-05-08 (Stage 1 documentation — accuracy corrections)
+Change type fix
+Scope governance
+Files affected docs/overview.md docs/onboarding_new_provider.md CHANGELOG.txt
+Summary Corrected two inaccurate claims in the Stage 1 documentation layer. In docs/overview.md, removed the incorrect assertion that literature records automatically map to a TMBD axis (Literatu[...]
+Reason Code review on PR identified a factual mismatch between the documentation and the actual LiteratureRecord data model and existing provider implementations (ElsevierScopusProvider, GoogleDr[...]
+Impact Documentation only. No code, CI, or schema changes.
+Provenance src/scientific_sources/models.py (LiteratureRecord has no axis field); src/scientific_sources/elsevier_scopus.py and google_drive.py (credential check pattern in __init__ + capability [...]
+Quality checks No tests affected. Governance files only.
+Reviewer GitHub Copilot Coding Agent
+
+2026-05-08 (Cumulative fragment analysis workflow)
+Change type add
+Scope scripts tests governance
+Files affected scripts/cumulative_fragment_analysis.py tests/test_cumulative_fragment_analysis.py docs/overview.md CHANGELOG.txt
+Summary Added a cumulative, fragment-level semantic analysis workflow that deduplicates DOI-linked sentences across runs using a stable hash, then records both strict TMBD axis classification (vi[...]
+Reason PR review requested implementing fragment-level provenance so semantic frequencies are not double-counted when the same source is processed multiple times, while keeping LiteratureRecord a[...]
+Impact Adds a new derived-state workflow for researchers; no changes to existing provider ingestion or core data models.
+Provenance src/axis_classifier.py (deterministic TMBD classifier); DATA_GOVERNANCE.txt (derived outputs are append-only and do not overwrite raw baselines).
+Quality checks python -m pytest -q passes locally; flake8/mypy remain non-clean due to pre-existing issues.
+Reviewer Codex CLI agent
+
+2026-05-04 (Stage 1 documentation layer — human contracts)
+Change type add
+Scope governance
+Files affected docs/overview.md docs/providers.md docs/onboarding_new_provider.md docs/licensing_and_compliance.md CHANGELOG.txt
+Summary Added four plain-English contract documents forming the Stage 1 documentation layer of the repository upgrade plan. docs/overview.md describes what the repository is and is not, documents[...]
+Reason CI enforcement already existed before this documentation was written. Stage 1 documents intent and rules in human-readable form before any additional enforcement is layered on top, followi[...]
+Impact No code changes. No CI changes. These documents are non-executable. Future enforcement stages (Stage 4 and beyond) may reference these documents as the written basis for rules that become [...]
+Provenance Derived from DATA_GOVERNANCE.txt, CITATION.txt, LLM_CONTEXT_INSTRUCTION.txt, docs/RESEARCH_SOURCE_GOVERNANCE.md, docs/RESEARCH_API_CICD_SETUP.md, and src/scientific_sources/ module ins[...]
+Quality checks No tests affected. Governance files only. CI conflict-marker check and governance-file-presence check unaffected.
+Reviewer GitHub Copilot Coding Agent
+
+2026-05-03 (validate and normalise --providers CLI argument)
+Change type fix
+Scope scripts tests
+Files affected scripts/export_live_research_records.py tests/test_export_live_research_records.py CHANGELOG.txt
+Summary Normalised provider names to lowercase on parse (preventing silent mismatches like "Crossref" vs "crossref"), rejected empty provider lists, and added validation of provider names against[...]
+Reason SourceCapability.name values are lowercase (crossref, scopus, etc.). Passing "Crossref" or a typo like "crossreff" previously silently resulted in zero providers being queried, producing e[...]
+Impact Export script now rejects unrecognised provider names and normalises case; existing users passing lowercase names see no behaviour change.
+Provenance Review thread pullrequestreview-4207014085, comment at scripts/export_live_research_records.py:285.
+Quality checks python -m pytest -q passes (341 passed, 1 skipped); flake8 scripts/export_live_research_records.py clean.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-30 (fix provider ordering in coverage report and E305 blank-line lint)
+Change type fix
+Scope scripts tests
+Files affected scripts/export_live_research_records.py tests/test_export_live_research_records.py CHANGELOG.txt
+Summary Fixed provider_name attribution in coverage rows: instead of indexing into provider_list (which reflects user input order), derive ordered_provider_names from registry.list_capabilities()[...]
+Reason SourceRegistry.search() preserves the registry's internal _providers order, not the caller's requested provider order. Indexing provider_list[i] therefore mislabelled coverage rows when th[...]
+Impact Coverage CSV now correctly attributes provider names for all result positions, including zero-record providers.
+Provenance Code review comment on scripts/export_live_research_records.py lines 338-343.
+Quality checks python -m pytest tests/test_export_live_research_records.py -v passes (27 passed); flake8 scripts/export_live_research_records.py clean.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-30 (preflight API health check)
+Change type add
+Scope scripts workflows docs
+Files affected scripts/check_research_api_health.py .github/workflows/export-research-records.yml .github/workflows/research-api-smoke.yml docs/RESEARCH_API_CICD_SETUP.md docs/ONE_CLICK_RESEARCH_[...]
+Summary Added scripts/check_research_api_health.py, a lightweight preflight probe that verifies provider credentials before long-running live export workflows. Returns explicit machine-readable s[...]
+Reason Live export workflows would previously fail mid-run with opaque API errors when credentials were revoked or rate-limited; a fast preflight gate saves CI time and gives actionable diagnosti[...]
+Impact CI live-export workflows now fail fast with a clear error when credentials are invalid, rather than after full query execution. Sanitized health status artifact is retained per run.
+Provenance PR #120 (codex/extend-preflight-logic-for-api-health-checks).
+Quality checks python -m py_compile scripts/check_research_api_health.py passes; python -m pytest -q passes.
+Reviewer GitHub Copilot Task Agent
+
+2026-04-30 (guard against empty/invalid YAML query config)
+Change type fix
+Scope scripts tests
+Files affected scripts/export_live_research_records.py tests/test_export_live_research_records.py CHANGELOG.txt
+Summary Added an isinstance(query_config, dict) guard after yaml.safe_load in export_live_research_records.py (line 268 area) so that empty files, comment-only files, or non-dict scalars produce [...]
+Reason yaml.safe_load returns None for empty/comment-only files and non-dict scalars for other malformed inputs; calling .get() on those values raised AttributeError and broke the export workflow[...]
+Impact Export script now exits cleanly with an actionable error message when the query YAML file is present but empty or malformed. No change to behaviour for valid query files.
+Provenance Code review comment on scripts/export_live_research_records.py line 268 (P2 badge).
+Quality checks python -m pytest tests/test_export_live_research_records.py -v passes (25 passed).
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-30 (fix stale MANIFEST_SOURCES.csv)
+Change type fix
+Scope governance
+Files affected MANIFEST_SOURCES.csv CHANGELOG.txt
+Summary Regenerated MANIFEST_SOURCES.csv to remove 907 stale src/morskamary/ path entries that were no longer produced by generate_manifest.py, resolving the governance-and-repro manifest reprodu[...]
+Reason The first commit in this PR inadvertently committed an older MANIFEST_SOURCES.csv snapshot containing src/morskamary/ prefixed entries; the CI governance check runs generate_manifest.py fr[...]
+Impact CI governance-and-repro manifest check passes. The test-suite Python 3.10 failure (pandas==3.0.2 unavailable) is a pre-existing issue on main and is not related to this PR.
+Provenance python scripts/generate_manifest.py output (898 entries).
+Quality checks git diff MANIFEST_SOURCES.csv shows 907 deletions and 0 additions after regeneration.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-29 (test coverage improvements to 100%)
+Change type add
+Scope tests
+Files affected tests/test_axis_classifier.py tests/test_nlp_reliability.py tests/test_scientific_sources.py CHANGELOG.txt
+Summary Added 14 new test cases to cover the 17 previously uncovered lines across src/, bringing test coverage from 98% to 100%. New tests cover: map_dimension_to_axis with empty/whitespace input[...]
+Reason Coverage analysis identified 17 uncovered lines in 10 source files, all reachable through legitimate production code paths.
+Impact All 686 executable statements in src/ are now exercised by the test suite (python -m pytest --cov=src reports TOTAL 686 0 100%).
+Provenance python -m pytest --cov=src --cov-report=term-missing output.
+Quality checks python -m pytest -q passes (332 passed 1 skipped); python -m pytest --cov=src shows 100% total coverage.
+Reviewer GitHub Copilot Task Agent
+
+
+2026-04-29 (export live research records feature)
+Change type add
+Scope scripts config docs governance tests
+Files affected config/research_queries.yml scripts/export_live_research_records.py tests/test_export_live_research_records.py docs/ONE_CLICK_RESEARCH_RUNBOOK.md CHANGELOG.txt
+Summary Added scripts/export_live_research_records.py to export Crossref and other provider metadata based on 12 canonical blue economy sector queries defined in config/research_queries.yml. The [...]
+Reason The Crossref provider is fully implemented; the next step is to export live metadata into outputs/research_sources without changing the core competence model yet. This enables evidence col[...]
+Impact Researchers can now fetch structured literature metadata for 12 blue economy sectors (offshore energy, ports, maritime transport, fisheries, aquaculture, coastal tourism, marine biotechnol[...]
+Provenance Crossref REST API documentation https://www.crossref.org/documentation/retrieve-metadata/rest-api/, EU Sustainable Blue Economy framework sector definitions, University of Szczecin Blu[...]
+Quality checks python -m pytest tests/test_export_live_research_records.py passed (20 tests); offline mode smoke test successful; outputs/research_sources directory structure verified.
+Reviewer GitHub Copilot Task Agent
+
+2026-04-29 (research secrets setup documentation and audit output alignment)
+Change type fix update
+Scope scripts docs governance
+Files affected scripts/bootstrap_research_secrets.ps1 scripts/audit_research_api_config.py COPILOT_MCP_SETUP.md docs/RESEARCH_API_CICD_SETUP.md MANIFEST_SOURCES.csv
+Summary Restored scripts/bootstrap_research_secrets.ps1 (ASCII-safe for Windows PowerShell 5.1 and PowerShell 7) with correct backend alias normalisation (DotEnv, Gcp, Github, UserEnv, user-env),[...]
+Reason Windows manual setup needed a stable PowerShell loading path and the MCP setup runbook did not provide enough portal-level onboarding guidance for academic API access.
+Impact Windows users can reliably dot-source generated `.env.ps1` files across PowerShell versions, and the documented secret bootstrap flow now matches the supported backend names and current pr[...]
+Provenance User findings on COPILOT_MCP_SETUP.md and helper output naming; official provider setup references for Crossref, Elsevier Scopus, SciVal, and Clarivate.
+Quality checks python -m pytest tests/ passed; MANIFEST_SOURCES.csv updated.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-28 (PowerShell research run fixes and UTF-8 validation hardening)
+Change type fix update add
+Scope scripts infra governance
+Files affected scripts/run_research_api_full.ps1 scripts/validate_generated_outputs.py outputs/research_source_capabilities.json MANIFEST_SOURCES.csv
+Summary (1) Fixed Python version guard in run_research_api_full.ps1: corrected capture-group indices (Groups[1]/Groups[2] instead of Groups[2]/Groups[3]) so Python 3.10+ is now enforced correctly[...]
+Reason The Python version guard was accepting Python 3.0–3.9 due to off-by-one capture-group indexing; Step 5 was silently skipped; validate_generated_outputs.py could fail on Windows due to en[...]
+Impact run_research_api_full.ps1 now correctly blocks Python <3.10 and executes the live smoke test when -Live is passed; validate_generated_outputs.py is encoding-safe on all platforms.
+Provenance PR review comments from copilot-pull-request-reviewer; CI governance-and-repro failure logs.
+Quality checks python -m pytest tests/ passed; MANIFEST_SOURCES.csv regenerated and committed.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-27 (Python version policy)
+Change type update fix
+Scope ci policy
+Files affected .github/workflows/ci.yml pyproject.toml
+Summary Updated CI test-suite matrix from Python 3.9/3.11/3.12 to 3.10/3.11/3.12. Updated pyproject.toml: requires-python = ">=3.10", classifiers updated to reflect 3.10/3.11/3.12, black target-v[...]
+Reason sentence-transformers==5.4.1 (pinned in requirements.txt to address CVE-2024-3568) does not support Python 3.9; CI was failing on the 3.9 matrix leg during dependency installation. The NLP[...]
+Impact CI is now green across the 3.10/3.11/3.12 matrix. Python 3.9 is no longer a supported runtime. This is a breaking change for users running Python 3.9; upgrade to Python 3.10+ is required.
+Provenance Review comment 4181625551 (robertbartlomiejski); requirements.txt pinning sentence-transformers==5.4.1.
+Quality checks python -m pytest tests/ passed (291 tests) on Python 3.12 (sandbox); CI matrix updated to 3.10/3.11/3.12.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-27 (hardening pass)
+Change type update fix add
+Scope scripts infra docs ci safety
+Files affected cloudbuild.yaml cloudbuild.live.yaml scripts/bootstrap_research_secrets.sh scripts/bootstrap_research_secrets.ps1 scripts/run_research_api_full.ps1 scripts/run_cloudbuild_research_[...]
+Summary Hardening pass (review comment 4181399408): (1) Split cloudbuild.yaml into offline-only file (no availableSecrets/secretEnv — safe to run without Secret Manager versions) and cloudbuild[...]
+Reason Review comment 4181399408 (robertbartlomiejski): offline Cloud Build must not require secrets, PowerShell equivalents needed for Windows workflow, user-env bootstrap was misleading, gcloud[...]
+Impact cloudbuild.yaml is now safe to run without Secret Manager versions; bootstrap script no longer silently suppresses gcloud failures; Windows users have full PowerShell parity; Terraform sup[...]
+Provenance Review comment 4181399408 on PR#101.
+Quality checks python -m pytest tests/ passed (291 tests); smoke_scientific_bridge.py --offline passed.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-27
+Change type add update
+Scope scripts infra docs testing ci governance
+Files affected scientific_bridge.py src/scientific_sources/ src/nlp_reliability/ infra/gcp-mirror/ cloudbuild.yaml scripts/bootstrap_research_secrets.sh scripts/run_research_api_full.sh scripts/a[...]
+Summary Implemented Issue #100 (all refinement comments): (1) Modular provider architecture in src/scientific_sources/ with CrossrefProvider, ElsevierScopusProvider, WebOfScienceProvider, SciValP[...]
+Reason Issue #100 with refinement comments from repository owner: provider system, GCP mirror, one-click bootstrap, runbook, safety gitignore rules.
+Impact scientific_bridge.py still works as MCP server; Crossref always configured; proprietary providers capability-gated; no committed secrets; CI remains green without API keys; 53 new tests pa[...]
+Provenance Issue #100 and all 4 refinement comments (IDs 4327013628, 4327058852, 4327130546, 4327198583).
+Quality checks python -m pytest tests/ passed (all new and existing tests); smoke_scientific_bridge.py --offline passed.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-25
+Change type fix update add
+Scope scripts testing
+Files affected scripts/validate_generated_outputs.py tests/test_validate_generated_outputs.py
+Summary Post-review fixes to the semantic validator: (1) Added ERRORS.clear() and WARNINGS.clear() at start of main() so repeated in-process calls are independent. (2) Added loud schema validatio[...]
+Reason Review comment 4175248362 identified: unsafe global state for repeated main() calls, silent schema failures via .get() defaults, and a misleading OK EQF-level message emitted even when a s[...]
+Impact Validator is now safe for in-process repeated calls, fails loudly on malformed JSON/CSV, and does not mislead with spurious OK messages.
+Provenance PR#98 review comment 4175248362; scripts/validate_generated_outputs.py; tests/test_validate_generated_outputs.py.
+Quality checks python scripts/validate_generated_outputs.py passed; python -m pytest tests/test_validate_generated_outputs.py passed (20 tests); python -m pytest tests/ passed (238 passed, 1 skip[...]
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-25
+Change type add update
+Scope scripts testing ci outputs
+Files affected outputs/ scripts/validate_generated_outputs.py tests/test_validate_generated_outputs.py .github/workflows/full-analysis.yml
+Summary Regenerated all committed outputs from post-PR#95/PR#97 sector-aware model: rm -rf outputs && python run_full_analysis.py. Added scripts/validate_generated_outputs.py, a semantic validato[...]
+Reason outputs/ was stale: gaps_summary.csv showed identical values for all 12 sectors and credentials_database.json reused the same global literature IDs across sectors, both inconsistent with t[...]
+Impact outputs/ now reflects sector-differentiated gap counts, sector-valid EQF6/EQF7 literature competences, and 12 distinct sector TMBD dictionaries. CI will block any future logic change that [...]
+Provenance PR#95 (sector-scoped extract_literature_competences / run_gap_analysis), PR#97 (sector-filtered generate_micro_credentials); issue #98.
+Quality checks python run_full_analysis.py succeeded; python scripts/validate_generated_outputs.py passed all checks; python -m pytest tests/ passed (228 passed, 1 skipped).
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-25
+Change type fix update add
+Scope scripts testing
+Files affected run_full_analysis.py tests/test_run_full_analysis.py
+Summary Fixed generate_micro_credentials to use sector-aware literature selection: replaced global literature[:5] slice with sector_lit_ids derived from gap.required_ids filtered by dimension=="l[...]
+Reason generate_micro_credentials previously selected literature[:5] globally, bypassing the sector filter introduced by PR #95 in run_gap_analysis. This could insert out-of-sector literature com[...]
+Impact Micro-credential competence lists now respect sector boundaries for literature-derived competences, consistent with gap analysis and sector dictionary semantics.
+Provenance PR #95 and post-merge review; problem statement for PR #97.
+Quality checks python -m pytest tests/test_run_full_analysis.py passed; python -m pytest tests/ passed.
+Reviewer GitHub Copilot Coding Agent
+
+2026-04-25
+Change type fix update add
+Scope scripts testing
+Files affected run_full_analysis.py tests/test_run_full_analysis.py
+Summary Fixed sector-specific literature competence mapping in run_full_analysis.py: added _THEME_SECTORS lookup (36 of 52 themes mapped to primary sectors), updated extract_literature_competence[...]
+Reason All 12 sector TMBD dictionary JSONs were identical because extract_literature_competences hardcoded sectors=SECTORS for every competence. run_gap_analysis also treated all literature compe[...]
+Impact Sector dictionaries now differ per sector. Gap analysis, micro-credential generation, and sector pathways now apply sector-specific literature filtering, consistent with sector dictionary [...]
+Provenance PR #95 and PR #96 review comments (robertbartlomiejski, copilot-pull-request-reviewer); _LIT_THEMES universe in run_full_analysis.py; canonical SECTORS list.
+Quality checks python -m pytest tests/test_run_full_analysis.py passed (6 new regression tests); python -m pytest tests/ passed (217 passed, 1 skipped); MANIFEST_SOURCES.csv regenerated and uncha[...]
+Reviewer GitHub Copilot Coding Agent
+
 2026-04-20
 Change type add update fix
 Scope testing infrastructure governance
-Files affected .github/workflows/ci.yml tests/test_core.py tests/test_load_real_competences.py tests/test_generate_manifest.py tests/test_edge_cases.py tests/fixtures/sample_competences.csv tests/fixtures/sample_competences.xlsx tests/fixtures/invalid_competences.csv tests/fixtures/empty_competences.csv tests/fixtures/blue_social_competences_sample.csv TEST_COVERAGE_REPORT.md MANIFEST_SOURCES.csv
-Summary Expanded test coverage from 22 to 104 tests and integrated test suite into CI/CD pipeline with multi-version Python testing (3.9, 3.11, 3.12). Added test-suite job to .github/workflows/ci.yml with pytest execution, coverage reporting, and Codecov integration. Added test_load_real_competences.py (14 tests for dimension-to-axis mapping and CSV parsing), test_generate_manifest.py (25 tests for file classification and manifest scanning), test_edge_cases.py (27 tests for enum validation, sector normalization, origin classification). Enhanced test_core.py with TestLoadCompetenceMatrix (6 tests for CSV/Excel loading and error handling) and expanded TestCompetenceMapper (13 additional tests for gap analysis and credential pathways). Created tests/fixtures/ with sample CSV/Excel files. Fixed test isolation issues: test_empty_rows_are_skipped now uses pytest tmp_path fixture, test_load_nonexistent_manifest uses monkeypatch. Added missing sample_competences.xlsx fixture. Updated MANIFEST_SOURCES.csv. Created TEST_COVERAGE_REPORT.md documenting the 373% test coverage increase.
-Reason Fulfill requirement to integrate test suite into CI/CD pipeline for safe refactoring and feature development while maintaining TMBD framework integrity. Address PR review feedback on test isolation and missing fixtures. Provides automated regression prevention, multi-version Python compatibility validation, and coverage tracking.
-Impact CI/CD pipeline now runs 104 tests across 3 Python versions on every push and pull request. Coverage significantly improved: src/core.py (4→24 tests), src/competence_mapper.py (4→17 tests), load_real_competences.py (0→14 tests), scripts/generate_manifest.py (0→25 tests). Test isolation improved using pytest fixtures (tmp_path, monkeypatch) per best practices. Coverage reports uploaded to Codecov for monitoring.
-Provenance PR review comments from copilot-pull-request-reviewer; tests/fixtures/blue_social_competences_sample.csv based on data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv structure; pytest best practices for test isolation.
-Quality checks pytest tests/ 104/104 passed; all review comments addressed; CI manifest reproducibility check passes; test isolation verified (no temp files left in repo tree); Excel fixture force-added via git add -f.
+Files affected .github/workflows/ci.yml tests/test_core.py tests/test_load_real_competences.py tests/test_generate_manifest.py tests/test_edge_cases.py tests/fixtures/sample_competences.csv tests[...]
+Summary Expanded test coverage from 22 to 104 tests and integrated test suite into CI/CD pipeline with multi-version Python testing (3.9, 3.11, 3.12). Added test-suite job to .github/workflows/ci[...]
+Reason Fulfill requirement to integrate test suite into CI/CD pipeline for safe refactoring and feature development while maintaining TMBD framework integrity. Address PR review feedback on test [...]
+Impact CI/CD pipeline now runs 104 tests across 3 Python versions on every push and pull request. Coverage significantly improved: src/core.py (4→24 tests), src/competence_mapper.py (4→17 tes[...]
+Provenance PR review comments from copilot-pull-request-reviewer; tests/fixtures/blue_social_competences_sample.csv based on data/derived/Blue Social Competences Univ Szczecin - Overall Blue Comp[...]
+Quality checks pytest tests/ 104/104 passed; all review comments addressed; CI manifest reproducibility check passes; test isolation verified (no temp files left in repo tree); Excel fixture forc[...]
 Reviewer GitHub Copilot Coding Agent
 
 2026-04-02
 Change type add update fix
 Scope infrastructure pipeline data
-Files affected deep_update_patch/load_real_competences.py (new) deep_update_patch/main_real_data.py deep_update_patch/run_full_analysis.py deep_update_patch/src/competence_mapper.py deep_update_patch/src/core.py deep_update_patch/src/__init__.py deep_update_patch/EXECUTIVE_PLAN.txt deep_update_patch/tests/test_core.py .gitignore pyproject.toml src/__init__.py
-Summary Added missing deep_update_patch/load_real_competences.py providing a plug-and-play three-matrix loader (baseline, sector, cluster CSVs). Fixed both entrypoints to pass the correct CSV file path instead of a directory (was: IsADirectoryError). Fixed sector normalization on insert in add_sector_requirement so records created with non-normalized labels (e.g. 'Renewable Energy') are retrievable via normalized lookups. Added HTML escaping for sector labels and cluster names in run_full_analysis.py. Renamed add_credentials to add_credential (backward-compatible alias kept). Fixed redundant EQF filter in suggest_credential_pathway. Added class docstrings to Competence, SectorRequirement, MicroCredential. Removed stale report_index.html from git tracking; added deep_update_patch/outputs/ to .gitignore. Aligned EXECUTIVE_PLAN.txt with actual committed bundle and generated outputs. Bumped package version from 0.1.0 to 0.2.0 consistently in pyproject.toml and src/__init__.py.
-Reason Addresses all substantive and secondary review blockers raised in PR #37 review (https://github.com/robertbartlomiejski/morskamary/pull/37#pullrequestreview-4049795157). Primary blockers: loader API mismatch (IsADirectoryError on run), missing loader file, sector normalization logic bug, plan/output mismatch, stale generated artifact committed. Secondary fixes: HTML escaping, version consistency, API naming clarity, EQF filter redundancy, missing docstrings.
-Impact Entrypoints deep_update_patch/main_real_data.py and deep_update_patch/run_full_analysis.py now run without error and load all three CSV matrices. Sector gap analysis is correct for non-normalized sector labels. HTML reports are safe for labels containing & characters. EXECUTIVE_PLAN.txt is accurate and actionable.
-Provenance data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv, data/derived/Blue Social Competences Univ Szczecin - Blue competences x blue economy sector.csv, data/derived/Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials.csv, PR #37 review comments (review id 4049795157).
-Quality checks deep_update_patch/tests/test_core.py passes (8 tests). Both entrypoints run smoke-tested successfully. HTML output validated for proper escaping of R&I and Infra & Robotics labels. Sector normalization regression confirmed.
+Files affected deep_update_patch/load_real_competences.py (new) deep_update_patch/main_real_data.py deep_update_patch/run_full_analysis.py deep_update_patch/src/competence_mapper.py deep_update_p[...]
+Summary Added missing deep_update_patch/load_real_competences.py providing a plug-and-play three-matrix loader (baseline, sector, cluster CSVs). Fixed both entrypoints to pass the correct CSV fil[...]
+Reason Addresses all substantive and secondary review blockers raised in PR #37 review (https://github.com/robertbartlomiejski/morskamary/pull/37#pullrequestreview-4049795157). Primary blockers: [...]
+Impact Entrypoints deep_update_patch/main_real_data.py and deep_update_patch/run_full_analysis.py now run without error and load all three CSV matrices. Sector gap analysis is correct for non-nor[...]
+Provenance data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv; data/derived/combined_blue_economy_labor_justice.csv; data/derived/combined_blue_economy_re[...]
+Quality checks deep_update_patch/tests/test_core.py passes (8 tests). Both entrypoints run smoke-tested successfully. HTML output validated for proper escaping of R&I and Infra & Robotics labels.[...]
 Reviewer GitHub Copilot Coding Agent
 
 
@@ -46,43 +422,43 @@ Reviewer GitHub Copilot Coding Agent
 Change type fix update add
 Scope scripts infrastructure security
 Files affected load_real_competences.py run_full_analysis.py security/security-checklist.md (new) .github/workflows/full-analysis.yml (new) outputs/ (regenerated)
-Summary Fixed flake8 F541 warnings (bare f-strings without placeholders) and W293 whitespace-in-blank-lines in load_real_competences.py. Formatted both load_real_competences.py and run_full_analysis.py with black. Added html.escape() to all four HTML report generators in run_full_analysis.py to correctly escape ampersands and other HTML-special characters in sector names (e.g. "Infra & Robotics", "R&I") and CSV-derived competence names. Created security/security-checklist.md documenting input validation, output safety, dependency, readability, data governance, and CI/CD verification requirements as mandated by PR #43 review. Added .github/workflows/full-analysis.yml CI workflow that runs run_full_analysis.py on ubuntu-latest, verifies all 8 output artifacts exist, and uploads them as the "blue-economy-analysis-outputs" artifact bundle. Regenerated all 8 outputs/ artifacts with corrected HTML escaping.
-Reason Address PR #43 review feedback: (1) apply security checklist validation, (2) improve readability and eliminate bare f-strings, (3) ensure HTML reports escape user-derived content per the checklist Output Safety requirement, (4) provide the full-analysis.yml CI workflow referenced in the problem statement.
-Impact All four HTML reports now contain valid, well-escaped HTML. The full-analysis.yml CI workflow enables on-push and workflow_dispatch execution of the complete pipeline with artifact upload. The security checklist provides a permanent reference for future contributors.
-Provenance data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv; data/derived/combined_blue_economy_labor_justice.csv; data/derived/combined_blue_economy_research_gaps.csv; data/derived/combined_blue_sociology_results.csv
-Quality checks flake8 load_real_competences.py run_full_analysis.py: 0 findings; black --check: reformatted successfully; python run_full_analysis.py: generated all 8 outputs; pytest tests/ 8/8 passed; grep "Infra &amp;" outputs/gaps_by_sector.html confirmed escaping present.
+Summary Fixed flake8 F541 warnings (bare f-strings without placeholders) and W293 whitespace-in-blank-lines in load_real_competences.py. Formatted both load_real_competences.py and run_full_analy[...]
+Reason Address PR #43 review feedback: (1) apply security checklist validation, (2) improve readability and eliminate bare f-strings, (3) ensure HTML reports escape user-derived content per the c[...]
+Impact All four HTML reports now contain valid, well-escaped HTML. The full-analysis.yml CI workflow enables on-push and workflow_dispatch execution of the complete pipeline with artifact upload.[...]
+Provenance data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv; data/derived/combined_blue_economy_labor_justice.csv; data/derived/combined_blue_economy_re[...]
+Quality checks flake8 load_real_competences.py run_full_analysis.py: 0 findings; black --check: reformatted successfully; python run_full_analysis.py: generated all 8 outputs; pytest tests/ 8/8 p[...]
 Reviewer GitHub Copilot Coding Agent
 
 2026-04-01
 Change type add update
 Scope infrastructure documentation governance scripts
 Files affected .github/repository-guardrails.instructions.md (new) Deploy-CopilotSynergy.ps1 scientific_bridge.py COPILOT_MCP_SETUP.md README.md CHANGELOG.txt
-Summary Added repository guardrails policy file at .github/repository-guardrails.instructions.md establishing hard constraints for coding agents: real-data precedence (main_real_data.py over demo_workspace_instructions.py), Python-first architecture enforcement, separation of repository and workstation configurations, and priority order (derived-data value → provenance/governance → assistant-access). Updated all MCP-related files to clarify they are optional, local, workstation-specific tooling, NOT core repository dependencies. Updated README.md to reorder Quick Start prioritizing real-data workflow and add guardrails reference. Updated COPILOT_MCP_SETUP.md header with prominent warning about optional nature.
-Reason Strengthen repository governance by establishing clear execution hierarchy and preventing scope creep of optional tooling into core infrastructure. Respond to maintainer feedback requesting explicit guardrails that preserve Python-first architecture, enforce real-data precedence, and maintain portability by keeping workstation-specific configurations separate from repository core. Ensure Node.js and MCP infrastructure remain strictly optional second-phase tooling rather than default requirements.
-Impact Coding agents now have explicit instructions to prioritize main_real_data.py for substantive outputs, treat demo scripts as validation-only, avoid introducing Node.js as core dependency, and maintain separation between portable repository artifacts and local workstation configurations. MCP infrastructure clearly marked as optional advanced feature. Repository maintains Python-first identity while supporting optional advanced integration for users who need it.
-Provenance main_real_data.py (real-data primary script), demo_workspace_instructions.py (validation script), requirements.txt (Python-only core dependencies), README.md (Quick Start hierarchy), maintainer feedback via PR comments (comment_id 4170105857, 4044233213).
-Quality checks All updated files validated for consistency; README.md Quick Start section reordered with real-data first; all MCP files include "optional tooling" disclaimers; guardrails policy reviewed against repository structure and existing governance files (LLM_CONTEXT_INSTRUCTION.txt, DATA_GOVERNANCE.txt, .github/copilot-instructions.md).
+Summary Added repository guardrails policy file at .github/repository-guardrails.instructions.md establishing hard constraints for coding agents: real-data precedence (main_real_data.py over demo[...]
+Reason Strengthen repository governance by establishing clear execution hierarchy and preventing scope creep of optional tooling into core infrastructure. Respond to maintainer feedback requestin[...]
+Impact Coding agents now have explicit instructions to prioritize main_real_data.py for substantive outputs, treat demo scripts as validation-only, avoid introducing Node.js as core dependency, a[...]
+Provenance main_real_data.py (real-data primary script), demo_workspace_instructions.py (validation script), requirements.txt (Python-only core dependencies), README.md (Quick Start hierarchy), m[...]
+Quality checks All updated files validated for consistency; README.md Quick Start section reordered with real-data first; all MCP files include "optional tooling" disclaimers; guardrails policy r[...]
 Reviewer GitHub Copilot Coding Agent
 
 2026-04-01
 Change type add
 Scope infrastructure documentation scripts
 Files affected Deploy-CopilotSynergy.ps1 scientific_bridge.py COPILOT_MCP_SETUP.md .vscode/mcp_full_integration.json
-Summary Added comprehensive MCP (Model Context Protocol) infrastructure for GitHub Copilot integration, enabling full-context access to local repositories, SharePoint, Google Drive, and scientific databases. Created Deploy-CopilotSynergy.ps1 PowerShell deployment script with automatic Node.js/Python verification, MCP package installation, and configuration generation. Implemented scientific_bridge.py Python MCP server for querying Crossref, Scopus, and Web of Science APIs with DOI verification. Created COPILOT_MCP_SETUP.md with complete deployment guide, privacy governance, and troubleshooting documentation.
-Reason Enable "Full Data Use" architecture for GitHub Copilot Coding Agent, providing direct access to morskamary and maritimesociology repositories, University of Szczecin SharePoint synchronized folders, Google Drive research materials, and verified scientific citations without hallucination. Support Windows-based research workflow with privacy-first configuration (no telemetry/training on proprietary data).
-Impact Researchers can now use GitHub Copilot with full contextual awareness of TMBD framework, Blue Social Competences, literature sources, and institutional data. Scientific claims are automatically backed by verified DOI citations from Crossref API. MCP servers enable competence mapping and micro-credential design grounded in local evidence base while maintaining FAIR/CARE data governance principles.
-Provenance LLM_CONTEXT_INSTRUCTION.txt (TMBD definitions), DATA_GOVERNANCE.txt (FAIR/CARE principles), .github/copilot-instructions.md (coding conventions), README.md (project overview). Scientific bridge implements Crossref REST API v1 (https://api.crossref.org) for citation metadata.
-Quality checks Deploy-CopilotSynergy.ps1 syntax verified with PowerShell 7.x; scientific_bridge.py tested with Python 3.9+ and mypy type checking; COPILOT_MCP_SETUP.md reviewed for accuracy against MCP specification and GitHub Copilot documentation; all configuration files validated as valid JSON.
+Summary Added comprehensive MCP (Model Context Protocol) infrastructure for GitHub Copilot integration, enabling full-context access to local repositories, SharePoint, Google Drive, and scientifi[...]
+Reason Enable "Full Data Use" architecture for GitHub Copilot Coding Agent, providing direct access to morskamary and maritimesociology repositories, University of Szczecin SharePoint synchronize[...]
+Impact Researchers can now use GitHub Copilot with full contextual awareness of TMBD framework, Blue Social Competences, literature sources, and institutional data. Scientific claims are automati[...]
+Provenance LLM_CONTEXT_INSTRUCTION.txt (TMBD definitions), DATA_GOVERNANCE.txt (FAIR/CARE principles), .github/copilot-instructions.md (coding conventions), README.md (project overview). Scientif[...]
+Quality checks Deploy-CopilotSynergy.ps1 syntax verified with PowerShell 7.x; scientific_bridge.py tested with Python 3.9+ and mypy type checking; COPILOT_MCP_SETUP.md reviewed for accuracy again[...]
 Reviewer GitHub Copilot Coding Agent
 
 2026-03-22
 Change type fix add
 Scope scripts governance CI
 Files affected .github/workflows/CI (deleted) run_full_analysis.py (new) outputs/.gitkeep (new) .gitignore (updated) CHANGELOG.txt
-Summary Deleted the invalid .github/workflows/CI workflow file (no .yml extension, malformed YAML missing top-level name:/on:/jobs: keys) since the correct ci.yml already existed. Created run_full_analysis.py, a production-ready master script that loads 15 baseline competences from the University of Szczecin CSV plus 450+ literature-derived competences from 3 combined_*.csv files, runs full gap analysis across 12 blue economy sectors, generates 48 micro-credentials (EQF 4-7) with 9 required fields each, computes 132 sector transition pathways, and exports HTML reports and JSON/CSV databases to outputs/.
-Reason The CI workflow file had two independent defects: (1) no .yml/.yaml extension so GitHub Actions would not reliably recognise it; (2) the YAML was structurally invalid starting with a bare list item rather than top-level workflow keys. The master analysis script fulfils the enhanced gap analysis and micro-credential design requirements.
+Summary Deleted the invalid .github/workflows/CI workflow file (no .yml extension, malformed YAML missing top-level name:/on:/jobs: keys) since the correct ci.yml already existed. Created run_ful[...]
+Reason The CI workflow file had two independent defects: (1) no .yml/.yaml extension so GitHub Actions would not reliably recognise it; (2) the YAML was structurally invalid starting with a bare [...]
 Impact All outputs are now generated by run_full_analysis.py in outputs/ (excluded from git via .gitignore). CI is now handled exclusively by ci.yml.
-Provenance data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv; data/derived/combined_blue_economy_labor_justice.csv; data/derived/combined_blue_economy_research_gaps.csv; data/derived/combined_blue_sociology_results.csv
+Provenance data/derived/Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv; data/derived/combined_blue_economy_labor_justice.csv; data/derived/combined_blue_economy_re[...]
 Quality checks flake8 run_full_analysis.py passed; pytest tests/ 8/8 passed; run_full_analysis.py executed successfully generating all 8 output files.
 Reviewer GitHub Copilot Coding Agent
 
@@ -90,7 +466,7 @@ Reviewer GitHub Copilot Coding Agent
 Change type fix add
 Scope scripts governance
 Files affected requirements.txt Dockerfile CONTRIBUTING.md
-Summary Fixed openpyxl version constraint in requirements.txt (changed >=3.8.0 to >=3.0.0; version 3.8.0 does not exist). Fixed Windows-style path in Dockerfile CMD (backslash → forward slash). Added CONTRIBUTING.md with step-by-step getting-started guide for new contributors.
+Summary Fixed openpyxl version constraint in requirements.txt (changed >=3.8.0 to >=3.0.0; version 3.8.0 does not exist). Fixed Windows-style path in Dockerfile CMD (backslash → forward slash).[...]
 Reason requirements.txt blocked pip install entirely; Dockerfile CMD would fail on Linux containers; no onboarding guide existed for new contributors.
 Impact pip install -r requirements.txt now succeeds; Docker build runs correctly; new contributors can set up and verify the environment in minutes.
 Provenance None (bug fixes and new documentation only).

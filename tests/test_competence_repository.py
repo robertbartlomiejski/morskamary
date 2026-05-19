@@ -8,7 +8,7 @@ from src.competence_repository import (
     ORIGIN_BASELINE,
     ORIGIN_LITERATURE,
     ORIGIN_UNKNOWN,
-    LiteratureCompetenceRepository,
+    MixedProvenanceCompetenceRepository,
     classify_competence_origin,
 )
 
@@ -18,6 +18,7 @@ SECTOR_PORTS = "Ports"
 AXIS_MARINE = "MARINE"
 AXIS_MARITIME = "MARITIME"
 AXIS_OCEANIC = "OCEANIC"
+AXIS_HYDRONIZATION = "HYDRONIZATION"
 
 
 @dataclass
@@ -54,7 +55,7 @@ def _extractor() -> List[_StubCompetence]:
 
 
 def test_iter_all_competences() -> None:
-    repository = LiteratureCompetenceRepository(_extractor)
+    repository = MixedProvenanceCompetenceRepository(_extractor)
     all_competences = list(repository.iter_all_competences())
     ids = [competence.id for competence in all_competences]
     assert ids == ["baseline_a1", "lit_test_0001", "lit_test_0002", "other_0001"]
@@ -63,7 +64,7 @@ def test_iter_all_competences() -> None:
 
 
 def test_get_competence_by_id() -> None:
-    repository = LiteratureCompetenceRepository(_extractor)
+    repository = MixedProvenanceCompetenceRepository(_extractor)
     competence = repository.get_competence_by_id("lit_test_0001")
     assert competence is not None
     assert competence.id == "lit_test_0001"
@@ -71,7 +72,7 @@ def test_get_competence_by_id() -> None:
 
 
 def test_iter_competences_for_sector_and_axis() -> None:
-    repository = LiteratureCompetenceRepository(_extractor)
+    repository = MixedProvenanceCompetenceRepository(_extractor)
     sector_ids = [
         c.id
         for c in repository.iter_competences_for_sector(SECTOR_BLUE_BIOTECH_LOWERCASE)
@@ -87,7 +88,7 @@ def test_iter_competences_for_sector_and_axis() -> None:
 
 def test_axis_names_align_with_canonical_enum() -> None:
     canonical_axis_names = {axis.name for axis in BlueDynamicsAxis}
-    stub_axis_names = {AXIS_MARINE, AXIS_MARITIME, AXIS_OCEANIC}
+    stub_axis_names = {AXIS_MARINE, AXIS_MARITIME, AXIS_OCEANIC, AXIS_HYDRONIZATION}
     assert stub_axis_names == canonical_axis_names
 
 
@@ -98,7 +99,7 @@ def test_repository_caches_extractor_results() -> None:
         calls["count"] += 1
         return _extractor()
 
-    repository = LiteratureCompetenceRepository(counting_extractor)
+    repository = MixedProvenanceCompetenceRepository(counting_extractor)
     list(repository.iter_all_competences())
     repository.get_competence_by_id("baseline_a1")
     list(repository.iter_competences_for_sector(SECTOR_BLUE_BIOTECH))
@@ -116,7 +117,7 @@ def test_classify_competence_origin() -> None:
 
 
 def test_origin_specific_iterators() -> None:
-    repository = LiteratureCompetenceRepository(_extractor)
+    repository = MixedProvenanceCompetenceRepository(_extractor)
     baseline_ids = [c.id for c in repository.iter_baseline_competences()]
     literature_ids = [c.id for c in repository.iter_literature_competences()]
     literature_sector_ids = [

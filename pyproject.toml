@@ -7,7 +7,7 @@ name = "morskamary"
 version = "0.2.0"
 description = "Blue Sociology Evidence Base: Maritime competence mapping and micro-credential design"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {text = "CC-BY-4.0"}
 authors = [
     {name = "Robert Bartłomiejski", email = "r.bartlomiejski@gmail.com"}
@@ -19,9 +19,9 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Information Analysis",
     "License :: OSI Approved :: Creative Commons Attribution 4.0 International",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 
 dependencies = [
@@ -29,7 +29,6 @@ dependencies = [
     "pandas>=1.5.0",
     "openpyxl>=3.0.0",
     "pyyaml>=6.0",
-    "pytest>=7.0",
 ]
 
 [project.optional-dependencies]
@@ -38,14 +37,16 @@ dev = [
     "black>=23.0",
     "flake8>=6.0",
     "mypy>=1.0",
+    "jsonschema>=4.10.3",
 ]
 
 [project.urls]
 "Github" = "https://github.com/robertbartlomiejski/morskamary"
 "Documentation" = "https://github.com/robertbartlomiejski/morskamary/blob/main/README.md"
 
-[tool.setuptools]
-packages = ["src"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -56,10 +57,10 @@ markers = [
 
 [tool.black]
 line-length = 88
-target-version = ["py39"]
+target-version = ["py310"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false

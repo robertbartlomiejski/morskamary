@@ -55,7 +55,7 @@ def normalize_sector_name(sector: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", sector.lower()).strip()
 
 
-class LiteratureCompetenceRepository:
+class MixedProvenanceCompetenceRepository:
     """Repository abstraction exposing semantic access to mixed-provenance competences."""
 
     def __init__(self, extractor: Callable[[], Sequence[CompetenceLike]]) -> None:
@@ -147,3 +147,7 @@ class LiteratureCompetenceRepository:
         for competence in self._load():
             if competence.axis.name == axis:
                 yield competence
+
+
+# Backwards compatibility alias
+LiteratureCompetenceRepository = MixedProvenanceCompetenceRepository

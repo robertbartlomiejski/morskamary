@@ -11,6 +11,7 @@ from src.core import (
     CompetenceLevel,
     create_sample_competences,
     load_competence_matrix,
+    _detect_all_themes,
 )
 from src.competence_mapper import CompetenceMapper
 
@@ -269,6 +270,130 @@ class TestCompetenceMapper:
             starting_level=CompetenceLevel.ADVANCED
         )
         assert len(pathway) == 2
+
+
+class TestDetectAllThemes:
+    """Tests for structured theme detection across all QMBD axes."""
+
+    def test_detect_all_themes_returns_all_axes(self):
+        record = {
+            "title": "Hydrosocial governance for maritime ports",
+            "abstract": "Marine ecosystems and sustainability policy",
+            "keywords": "shipping, hydronization",
+        }
+
+        themes = _detect_all_themes(record)
+
+        assert set(themes.keys()) == set(BlueDynamicsAxis)
+        assert "marine" in themes[BlueDynamicsAxis.MARINE]
+        assert "shipping" in themes[BlueDynamicsAxis.MARITIME]
+        assert "sustainability" in themes[BlueDynamicsAxis.OCEANIC]
+        assert "hydronization" in themes[BlueDynamicsAxis.HYDRONIZATION]
+
+    def test_detect_all_themes_case_insensitive(self):
+        record = {
+            "title": "HYDROSOCIAL Transitions",
+            "abstract": "PORT LOGISTICS",
+            "keywords": "MARINE",
+        }
+
+        themes = _detect_all_themes(record)
+
+        assert "hydrosocial" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "port" in themes[BlueDynamicsAxis.MARITIME]
+        assert "marine" in themes[BlueDynamicsAxis.MARINE]
+
+    def test_detect_all_themes_fallback_marker(self):
+        themes = _detect_all_themes({"title": "", "abstract": "", "keywords": ""})
+
+        assert themes[BlueDynamicsAxis.OCEANIC] == ["[citation needed]"]
+
+    def test_detect_all_themes_expanded_marine_keywords(self):
+        record = {
+            "title": "Cofka and thermohaline circulation in estuarine adaptation",
+            "abstract": "Stewardship responds to deep-time rhythms and benthic agency",
+            "keywords": "bio-cycles; marine ecotone",
+        }
+
+        themes = _detect_all_themes(record)
+
+        assert "cofka" in themes[BlueDynamicsAxis.MARINE]
+        assert "thermohaline circulation" in themes[BlueDynamicsAxis.MARINE]
+        assert "stewardship" in themes[BlueDynamicsAxis.MARINE]
+        assert "deep-time rhythms" in themes[BlueDynamicsAxis.MARINE]
+        assert "benthic agency" in themes[BlueDynamicsAxis.MARINE]
+        assert "bio-cycles" in themes[BlueDynamicsAxis.MARINE]
+        assert "marine ecotone" in themes[BlueDynamicsAxis.MARINE]
+
+    def test_detect_all_themes_expanded_maritime_keywords(self):
+        record = {
+            "title": "Port 4.0 and cyber-physical port systems",
+            "abstract": "TEN-T corridors, logistics algorithms, and throughput tonnage reshape shipping",
+            "keywords": "flag of convenience; supply chain acceleration; ocean grabbing",
+        }
+
+        themes = _detect_all_themes(record)
+
+        assert "port 4.0" in themes[BlueDynamicsAxis.MARITIME]
+        assert "cyber-physical port systems" in themes[BlueDynamicsAxis.MARITIME]
+        assert "ten-t corridors" in themes[BlueDynamicsAxis.MARITIME]
+        assert "logistics algorithms" in themes[BlueDynamicsAxis.MARITIME]
+        assert "throughput tonnage" in themes[BlueDynamicsAxis.MARITIME]
+        assert "flag of convenience" in themes[BlueDynamicsAxis.MARITIME]
+        assert "supply chain acceleration" in themes[BlueDynamicsAxis.MARITIME]
+        assert "ocean grabbing" in themes[BlueDynamicsAxis.MARITIME]
+
+    def test_detect_all_themes_expanded_oceanic_keywords(self):
+        record = {
+            "title": "Hydrocommons, blue justice, and rights of nature",
+            "abstract": "High sea treaties require hydro-solidarity and blue citizenship",
+            "keywords": "hyperobject; tidalectics; planetary water; multispecies justice",
+        }
+
+        themes = _detect_all_themes(record)
+
+        assert "hydrocommons" in themes[BlueDynamicsAxis.OCEANIC]
+        assert "blue justice" in themes[BlueDynamicsAxis.OCEANIC]
+        assert "rights of nature" in themes[BlueDynamicsAxis.OCEANIC]
+        assert "high sea treaties" in themes[BlueDynamicsAxis.OCEANIC]
+        assert "hydro-solidarity" in themes[BlueDynamicsAxis.OCEANIC]
+        assert "blue citizenship" in themes[BlueDynamicsAxis.OCEANIC]
+        assert "hyperobject" in themes[BlueDynamicsAxis.OCEANIC]
+        assert "tidalectics" in themes[BlueDynamicsAxis.OCEANIC]
+        assert "planetary water" in themes[BlueDynamicsAxis.OCEANIC]
+        assert "multispecies justice" in themes[BlueDynamicsAxis.OCEANIC]
+
+    def test_detect_all_themes_expanded_hydronization_keywords(self):
+        record = {
+            "title": "Hydrofeminism and wet ontology in the sponge city",
+            "abstract": "Liquid materiality and porous infrastructure shape hydrobiography",
+            "keywords": "poroCity; bodies of water; hydro-social territory; metabolism of flows",
+        }
+
+        themes = _detect_all_themes(record)
+
+        assert "hydrofeminism" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "wet ontology" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "sponge city" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "liquid materiality" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "porous infrastructure" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "hydrobiography" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "porocity" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "bodies of water" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "hydro-social territory" in themes[BlueDynamicsAxis.HYDRONIZATION]
+        assert "metabolism of flows" in themes[BlueDynamicsAxis.HYDRONIZATION]
+
+    def test_detect_all_themes_excludes_blue_subjectivity(self):
+        record = {
+            "title": "Blue subjectivity in coastal discourse",
+            "abstract": "No other glossary keyword is present here",
+            "keywords": "",
+        }
+
+        themes = _detect_all_themes(record)
+
+        assert themes[BlueDynamicsAxis.HYDRONIZATION] == []
+        assert themes[BlueDynamicsAxis.OCEANIC] == ["[citation needed]"]
 
 
 class TestLoadCompetenceMatrixImportError:

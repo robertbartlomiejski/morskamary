@@ -84,12 +84,30 @@ bluesociology.json
 data/local/
 *.csv.bak
 
+# Azurite local emulator state (machine-generated)
+.azurite/
+__azurite_db*.json
+__blobstorage__/
+__queuestorage__/
+__tablestorage__/
+
 # Generated analysis outputs are now tracked in git
 # (run python run_full_analysis.py to regenerate)
 # outputs/*.html
 # outputs/*.json
 # outputs/*.csv
 outputs/sectors/
-outputs/sector_dictionaries/
+# outputs/sector_dictionaries/ — now tracked as committed artifacts (PR#98)
 # deep_update_patch bundle: generated outputs are regenerated at runtime
 deep_update_patch/outputs/
+
+# Secrets and credentials — NEVER commit these
+.env
+.env.*
+.env.ps1
+.secrets/
+*oauth*.json
+*credentials*.json
+*token*.json
+config/research_sources.local.yml
+src/morskamary/

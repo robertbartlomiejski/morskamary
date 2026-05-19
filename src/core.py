@@ -3,17 +3,128 @@ Core utilities and data structures for Blue Sociology analysis
 """
 
 from pathlib import Path
-from typing import Dict, List, Any, Union
+from typing import Any, Dict, List, Union
 from dataclasses import dataclass
 from enum import Enum
 
 
 class BlueDynamicsAxis(Enum):
-    """Tripartite Model of Blue Dynamics (TMBD) axes"""
+    """Quadripartite Model of Blue Dynamics (QMBD) axes.
+
+    The original Tripartite Model (TMBD) comprised Marine/Maritime/Oceanic.
+    The fourth dimension, Hydronization, extends the model following the Manus
+    methodological review while remaining fully backward-compatible: all
+    existing TMBD logic is preserved and the new axis is additive only.
+    """
 
     MARINE = "M"  # Marine (biophysical agency)
     MARITIME = "T"  # Maritime (techno-economic and institutional mediation)
     OCEANIC = "O"  # Oceanic (planetary governance and hydrosocial subjectivity)
+    HYDRONIZATION = "H"  # Hydronization (water-society co-constitution)
+
+
+_AXIS_THEME_KEYWORDS: Dict[BlueDynamicsAxis, List[str]] = {
+    BlueDynamicsAxis.MARINE: [
+        "marine",
+        "ocean",
+        "fisheries",
+        "aquaculture",
+        "ecosystem",
+        "biodiversity",
+        "bio-cycles",
+        "deep-time rhythms",
+        "cofka",
+        "thermohaline circulation",
+        "stewardship",
+        "habitus of seafarers",
+        "marine ecotone",
+        "vibrant materialism",
+        "weather-based risk",
+        "intra-action",
+        "pelagic metabolism",
+        "benthic agency",
+    ],
+    BlueDynamicsAxis.MARITIME: [
+        "maritime",
+        "port",
+        "shipping",
+        "logistics",
+        "infrastructure",
+        "msp",
+        "maritimization",
+        "port 4.0",
+        "growth machine",
+        "blue-washing",
+        "ocean grabbing",
+        "rigid superinfrastructure",
+        "ten-t corridors",
+        "flag of convenience",
+        "throughput tonnage",
+        "logistics algorithms",
+        "supply chain acceleration",
+        "maritime mindset",
+        "cyber-physical port systems",
+    ],
+    BlueDynamicsAxis.OCEANIC: [
+        "governance",
+        "policy",
+        "cooperation",
+        "justice",
+        "sustainability",
+        "hyperobject",
+        "hydrocommons",
+        "blue degrowth",
+        "high sea treaties",
+        "volumetric sovereignty",
+        "tidalectics",
+        "rights of nature",
+        "blue justice",
+        "planetary water",
+        "hydro-solidarity",
+        "ocean literacy",
+        "blue citizenship",
+        "multispecies justice",
+    ],
+    BlueDynamicsAxis.HYDRONIZATION: [
+        "hydronization",
+        "hydrosocial",
+        "wet ontology",
+        "hydrofeminism",
+        "transcorporeality",
+        "porocity",
+        "sponge city",
+        "liquid materiality",
+        "estuarial hydrofeminism",
+        "bodies of water",
+        "hydrobiography",
+        "metabolism of flows",
+        "porous infrastructure",
+        "hydro-social territory",
+        "[citation needed]",
+    ],
+}
+
+
+def _detect_all_themes(record: Dict[str, Any]) -> Dict[BlueDynamicsAxis, List[str]]:
+    """Detect per-axis thematic keywords from record text.
+
+    Returns a dictionary keyed by all QMBD axes. If no keywords are found,
+    applies a deterministic governance fallback under OCEANIC.
+    """
+    text = " ".join(
+        str(record.get(field, "")) for field in ("title", "abstract", "keywords")
+    ).lower()
+
+    themes: Dict[BlueDynamicsAxis, List[str]] = {
+        axis: [] for axis in BlueDynamicsAxis
+    }
+    for axis, keywords in _AXIS_THEME_KEYWORDS.items():
+        themes[axis] = [keyword for keyword in keywords if keyword in text]
+
+    if not any(themes.values()):
+        themes[BlueDynamicsAxis.OCEANIC] = ["[citation needed]"]
+
+    return themes
 
 
 class CompetenceLevel(Enum):
@@ -34,7 +145,7 @@ class Competence:
         id: Unique identifier
         name: Competence name
         description: Detailed description
-        axis: TMBD axis (Marine, Maritime, or Oceanic)
+        axis: QMBD axis (Marine, Maritime, Oceanic, or Hydronization)
         level: Proficiency level
         keywords: Associated keywords for discovery
     """
@@ -110,14 +221,47 @@ def load_competence_matrix(file_path: Union[str, Path]) -> List[Competence]:
             raise ValueError(f"Unsupported file format: {path}")
 
         competences = []
-        for _, row in df.iterrows():
+        ids = (
+            df["id"].astype(str)
+            if "id" in df.columns
+            else pd.Series("", index=df.index)
+        ).tolist()
+        names = (
+            df["name"].fillna("")
+            if "name" in df.columns
+            else pd.Series("", index=df.index)
+        ).tolist()
+        descriptions = (
+            df["description"].fillna("")
+            if "description" in df.columns
+            else pd.Series("", index=df.index)
+        ).tolist()
+        axes = (
+            df["axis"].fillna("MARINE")
+            if "axis" in df.columns
+            else pd.Series("MARINE", index=df.index)
+        ).tolist()
+        levels = (
+            df["level"].fillna("FOUNDATIONAL")
+            if "level" in df.columns
+            else pd.Series("FOUNDATIONAL", index=df.index)
+        ).tolist()
+        keywords_col = (
+            df["keywords"].fillna("").astype(str)
+            if "keywords" in df.columns
+            else pd.Series("", index=df.index)
+        ).tolist()
+
+        for id_val, name, desc, axis, level, kw in zip(
+            ids, names, descriptions, axes, levels, keywords_col
+        ):
             competence = Competence(
-                id=str(row.get("id", "")),
-                name=row.get("name", ""),
-                description=row.get("description", ""),
-                axis=BlueDynamicsAxis[row.get("axis", "MARINE")],
-                level=CompetenceLevel[row.get("level", "FOUNDATIONAL")],
-                keywords=str(row.get("keywords", "")).split(";"),
+                id=id_val,
+                name=name,
+                description=desc,
+                axis=BlueDynamicsAxis[str(axis)],
+                level=CompetenceLevel[str(level)],
+                keywords=kw.split(";"),
             )
             competences.append(competence)
 

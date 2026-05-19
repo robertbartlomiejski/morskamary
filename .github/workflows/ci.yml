@@ -1,3 +1,23 @@
+            - name: Cache
+  uses: actions/cache@v5.0.5
+  with:
+    # A list of files, directories, and wildcard patterns to cache and restore
+    path: 
+    # An explicit key for restoring and saving the cache
+    key: 
+    # An ordered multiline string listing the prefix-matched keys, that are used for restoring stale cache if no cache hit occurred for key. Note `cache-hit` returns false in this case.
+    restore-keys: # optional
+    # The chunk size used to split up large files during upload, in bytes
+    upload-chunk-size: # optional
+    # An optional boolean when enabled, allows windows runners to save or restore caches that can be restored or saved respectively on other platforms
+    enableCrossOsArchive: # optional, default is false
+    # Fail the workflow if cache entry is not found
+    fail-on-cache-miss: # optional, default is false
+    # Check if a cache entry exists for the given input(s) (key, restore-keys) without downloading the cache
+    lookup-only: # optional, default is false
+    # Run the post step to save the cache even if another step before fails
+    save-always: # optional, default is false
+
 name: CI
 
 on:
@@ -12,6 +32,41 @@ permissions:
   pull-requests: read
 
 jobs:
+  conflict-marker-check:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Detect unresolved merge conflict markers
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          matches="$(
+            rg -n '^(<{7} .+|={7}|>{7} .+)$' . \
+              --glob '!.git/**' \
+              --glob '!outputs/**' \
+              --glob '!data/raw/**' \
+              --glob '!data/derived/**' \
+            || true
+          )"
+
+          if [[ -n "$matches" ]]; then
+            echo "Found unresolved merge conflict markers."
+            echo
+            echo "Offending files:"
+            echo "$matches" | cut -d: -f1 | sort -u
+            echo
+            echo "Matching lines:"
+            echo "$matches"
+            exit 1
+          fi
+
+          echo "No merge conflict markers detected."
+
   governance-and-repro:
     runs-on: ubuntu-latest
     env:
@@ -22,10 +77,30 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fail on merge conflict markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          rg_output=$(rg -n '^(<{7} .+|={7}|>{7} .+)$' . --glob '!.git/**' --glob '!outputs/**' || true)
+          if [ -n "$rg_output" ]; then
+            echo "Merge conflict markers found"
+            echo "$rg_output"
+            exit 1
+          else
+            echo "No markers"
+          fi
+
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: "3.12"
+
+      - name: Install runtime dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install -e .
 
       - name: Verify required governance files exist
         shell: bash
@@ -101,39 +176,16 @@ jobs:
 
           base_ref="${{ github.base_ref }}"
           git fetch origin "$base_ref" --depth=1 || true
-
-          changed="$(git diff --name-only "origin/$base_ref"...HEAD || true)"
-
-          needs_changelog=0
-          while IFS= read -r f; do
-            [[ -z "$f" ]] && continue
-            [[ "$f" == "CHANGELOG.txt" ]] && continue
-
-            if [[ "$f" == "scripts/"* ]] || [[ "$f" == "prompts/"* ]] || [[ "$f" == "templates/"* ]] || \
-               [[ "$f" == "data/"* ]] || [[ "$f" == *.csv ]] || [[ "$f" == *.xlsx ]] || [[ "$f" == *.pdf ]] || \
-               [[ "$f" == "CITATION.txt" ]] || [[ "$f" == "DATA_GOVERNANCE.txt" ]] || [[ "$f" == "LLM_CONTEXT_INSTRUCTION.txt" ]]; then
-              needs_changelog=1
-            fi
-          done <<< "$changed"
-
-          if [[ "$needs_changelog" -eq 1 ]]; then
-            if ! echo "$changed" | grep -qx "CHANGELOG.txt"; then
-              echo "PR changes substantive artifacts but does not update CHANGELOG.txt."
-              echo "Changed files:"
-              echo "$changed"
-              exit 1
-            fi
-          fi
-
-          echo "CHANGELOG enforcement passed."
+          python3 scripts/changelog_guard.py --base-ref "$base_ref"
 
   test-suite:
+    needs: [conflict-marker-check]
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     strategy:
       matrix:
-        python-version: ["3.9", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
       - name: Checkout
@@ -147,8 +199,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -e .
+          pip install -e ".[dev]"
           pip install pytest pytest-cov
 
       - name: Run test suite
@@ -159,9 +210,8 @@ jobs:
         if: matrix.python-version == '3.11'
         uses: codecov/codecov-action@v6
         with:
-          file: ./coverage.xml
+          files: ./coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: false
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

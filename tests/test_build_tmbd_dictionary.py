@@ -10,7 +10,7 @@ from scripts.build_tmbd_dictionary import (
     export_sector_dictionary,
     slugify,
 )
-from src.competence_repository import LiteratureCompetenceRepository
+from src.competence_repository import MixedProvenanceCompetenceRepository
 
 
 @dataclass
@@ -150,7 +150,7 @@ def test_build_sector_dictionary_from_repository() -> None:
             sectors=["Ports"],
         ),
     ]
-    repository = LiteratureCompetenceRepository(lambda: competences)
+    repository = MixedProvenanceCompetenceRepository(lambda: competences)
 
     grouped = build_sector_dictionary_from_repository(repository, sector="Blue Biotech")
 
@@ -238,4 +238,3 @@ class TestMainAndCLI:
             # Verify output directory has dictionary file
             expected_file = tmp_path / "blue_biotech_tmbd_dictionary.json"
             assert expected_file.exists()
-

@@ -36,6 +36,18 @@ If Node.js is not installed and you need MCP features:
 2. Restart your terminal/command prompt
 3. See [COPILOT_MCP_SETUP.md](COPILOT_MCP_SETUP.md) for complete MCP setup
 
+### Codex CLI shell completion (optional)
+
+If you use the Codex CLI, enable completions for your shell (choose one):
+
+```bash
+codex completion bash
+# OR
+codex completion zsh
+# OR
+codex completion fish
+```
+
 ---
 
 ## 2. Clone the repository
@@ -154,6 +166,79 @@ docker compose up --build
 
 ---
 
-## 10. Questions?
+## 10. Codex shell completion details
+
+You can generate shell completion scripts directly from the Codex CLI.
+
+### Generate completion scripts
+
+Run the exact command for your shell:
+
+```bash
+codex completion bash
+codex completion zsh
+codex completion fish
+```
+
+### Persistent install
+
+#### Bash
+
+Write completion output to the standard per-user completions path:
+
+```bash
+mkdir -p ~/.local/share/bash-completion/completions
+codex completion bash > ~/.local/share/bash-completion/completions/codex
+```
+
+> Note: Some distros use a different completion directory (for example `/etc/bash_completion.d/` for system-wide installation).
+
+#### Zsh
+
+Write the completion function to a directory on `$fpath` (example: `~/.zfunc`), then initialize completion:
+
+```bash
+mkdir -p ~/.zfunc
+codex completion zsh > ~/.zfunc/_codex
+
+# ensure ~/.zfunc is in fpath (e.g. in ~/.zshrc)
+fpath=(~/.zfunc $fpath)
+autoload -Uz compinit && compinit
+```
+
+#### Fish
+
+Write completion output to Fish's user completions directory:
+
+```bash
+mkdir -p ~/.config/fish/completions
+codex completion fish > ~/.config/fish/completions/codex.fish
+```
+
+### Verify completion is active
+
+- **Zsh/Bash function check**:
+
+```bash
+type _codex
+```
+
+- **Interactive completion smoke test**:
+  - Open a new shell session.
+  - Type `codex ` and press <kbd>TAB</kbd> to verify suggestions appear.
+
+### Troubleshooting
+
+- If completion does not load, confirm your shell startup file actually runs in your session type:
+  - **Bash login shell**: `~/.bash_profile` or `~/.profile`
+  - **Bash interactive non-login shell**: `~/.bashrc`
+  - **Zsh**: `~/.zshrc`
+  - **Fish**: `~/.config/fish/config.fish`
+- After editing startup files, start a **new terminal session** (or `source` the file) and test again.
+- Ensure the target completion file exists at the expected path and has readable permissions.
+
+---
+
+## 11. Questions?
 
 Open an issue on GitHub or consult `LLM_CONTEXT_INSTRUCTION.txt` for domain-specific guidance on competence mapping and micro-credential design.

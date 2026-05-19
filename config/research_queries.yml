@@ -1,0 +1,112 @@
+# config/research_queries.yml
+#
+# Research query groups for the 12 canonical blue economy sectors.
+# Used by scripts/export_live_research_records.py to fetch literature
+# from configured providers (Crossref, Scopus, Web of Science, etc.).
+#
+# Query design principles:
+# - Target scholarly/academic databases (journal articles, conference papers)
+# - Balance specificity (sector focus) with coverage (multiple relevant terms)
+# - Include governance, policy, and sustainability aspects for Blue Sociology
+# - Align with TMBD axes: Marine, Maritime, Oceanic
+#
+# Sector definitions from EU Sustainable Blue Economy framework and
+# Blue Social Competences baseline (University of Szczecin).
+
+query_groups:
+
+  offshore_energy:
+    label: "Offshore Energy (Wind, Wave, Tidal)"
+    description: "Offshore renewable energy generation, including wind farms, wave energy, tidal energy, and ocean thermal energy conversion (OTEC)"
+    queries:
+      - "offshore wind energy marine spatial planning"
+      - "ocean renewable energy governance sustainability"
+      - "tidal energy wave energy environmental impact"
+
+  ports:
+    label: "Ports and Harbours"
+    description: "Port infrastructure, maritime logistics, port governance, and coastal urban development"
+    queries:
+      - "port governance maritime logistics sustainability"
+      - "smart ports digital transformation blue economy"
+      - "port environmental management coastal infrastructure"
+
+  maritime_transport:
+    label: "Maritime Transport and Shipping"
+    description: "Shipping, freight, passenger transport, maritime safety, and decarbonization"
+    queries:
+      - "maritime transport decarbonization emissions reduction"
+      - "shipping governance international regulations IMO"
+      - "maritime safety maritime labour conditions"
+
+  fisheries:
+    label: "Fisheries and Fishing Communities"
+    description: "Commercial fisheries, small-scale fisheries, fisheries management, and fishing community livelihoods"
+    queries:
+      - "fisheries management sustainability overfishing"
+      - "small-scale fisheries livelihoods blue economy"
+      - "fisheries governance marine protected areas"
+
+  aquaculture:
+    label: "Aquaculture and Mariculture"
+    description: "Fish farming, shellfish cultivation, seaweed farming, and integrated multi-trophic aquaculture (IMTA)"
+    queries:
+      - "aquaculture sustainability environmental impact social"
+      - "mariculture seaweed farming blue bioeconomy"
+      - "aquaculture governance social licence coastal communities"
+
+  coastal_tourism:
+    label: "Coastal and Marine Tourism"
+    description: "Coastal tourism, marine recreation, ecotourism, cruise tourism, and tourism governance"
+    queries:
+      - "coastal tourism sustainability overtourism management"
+      - "marine ecotourism blue economy livelihoods"
+      - "cruise tourism environmental impact governance"
+
+  marine_biotechnology:
+    label: "Marine Biotechnology and Blue Bioeconomy"
+    description: "Marine bioprospecting, pharmaceuticals, industrial enzymes, biomaterials, and bioremediation"
+    queries:
+      - "marine biotechnology blue bioeconomy innovation"
+      - "bioprospecting marine genetic resources governance"
+      - "marine biomaterials pharmaceuticals sustainability"
+
+  ocean_governance:
+    label: "Ocean Governance and Marine Policy"
+    description: "Marine spatial planning, ocean governance, international law of the sea, and multi-level governance"
+    queries:
+      - "ocean governance marine spatial planning sustainability"
+      - "law of the sea UNCLOS blue economy"
+      - "ocean policy transboundary governance blue growth"
+
+  marine_conservation:
+    label: "Marine Conservation and Protected Areas"
+    description: "Marine biodiversity conservation, marine protected areas (MPAs), ecosystem-based management, and ocean literacy"
+    queries:
+      - "marine protected areas effectiveness governance"
+      - "marine biodiversity conservation blue economy"
+      - "ecosystem-based management ocean literacy"
+
+  climate_ocean:
+    label: "Climate Change and Ocean Health"
+    description: "Ocean acidification, sea-level rise, ocean warming, climate adaptation, and ocean-climate nexus"
+    queries:
+      - "ocean acidification climate change marine ecosystems"
+      - "sea level rise coastal adaptation governance"
+      - "ocean warming biodiversity climate mitigation"
+
+  ocean_observation:
+    label: "Ocean Observation and Data Infrastructure"
+    description: "Marine monitoring, ocean observing systems, satellite oceanography, and ocean data governance"
+    queries:
+      - "ocean observation marine monitoring sustainability"
+      - "ocean data governance FAIR principles"
+      - "satellite oceanography marine spatial planning"
+
+  blue_skills:
+    label: "Blue Skills and Education"
+    description: "Maritime education, marine vocational training, ocean literacy, and blue workforce development"
+    queries:
+      - "blue skills maritime education ocean literacy"
+      - "marine vocational training blue workforce"
+      - "ocean education sustainability competences"

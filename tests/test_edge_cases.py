@@ -26,20 +26,23 @@ class TestBlueDynamicsAxisEnum:
         assert BlueDynamicsAxis.MARINE.value == "M"
         assert BlueDynamicsAxis.MARITIME.value == "T"
         assert BlueDynamicsAxis.OCEANIC.value == "O"
+        assert BlueDynamicsAxis.HYDRONIZATION.value == "H"
 
     def test_enum_names(self):
         """Test that enum names are correct"""
         assert BlueDynamicsAxis.MARINE.name == "MARINE"
         assert BlueDynamicsAxis.MARITIME.name == "MARITIME"
         assert BlueDynamicsAxis.OCEANIC.name == "OCEANIC"
+        assert BlueDynamicsAxis.HYDRONIZATION.name == "HYDRONIZATION"
 
     def test_enum_iteration(self):
-        """Test that all axes can be iterated"""
+        """Test that all axes can be iterated (QMBD — 4 axes)"""
         axes = list(BlueDynamicsAxis)
-        assert len(axes) == 3
+        assert len(axes) == 4
         assert BlueDynamicsAxis.MARINE in axes
         assert BlueDynamicsAxis.MARITIME in axes
         assert BlueDynamicsAxis.OCEANIC in axes
+        assert BlueDynamicsAxis.HYDRONIZATION in axes
 
 
 class TestCompetenceLevelEnum:

@@ -2,7 +2,6 @@ column,dtype,non_null,null
 Informazioni cronologiche,datetime64[us],32,0
 Full Name ,str,32,0
 Discipline / Sector,str,32,0
-Email address,str,32,0
 Term 1 and description,str,32,0
 Term 2 and description,str,32,0
 Term 3 and description,str,32,0

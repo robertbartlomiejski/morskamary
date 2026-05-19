@@ -65,9 +65,24 @@ jobs:
           echo "✓ $sector_dir ($sector_count files)"
           echo "All output artifacts verified, including sector dictionaries."
 
+      - name: Validate generated output semantics
+        run: python scripts/validate_generated_outputs.py
+
+      - name: Check committed outputs are in sync with generator
+        run: |
+          git diff --exit-code -- outputs || {
+            echo ""
+            echo "ERROR: Committed outputs/ are out of sync with the generator."
+            echo "Run 'python run_full_analysis.py' locally and commit the updated outputs/."
+            exit 1
+          }
+
       - name: Upload analysis outputs
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
         uses: actions/upload-artifact@v4
         with:
-          name: blue-economy-analysis-outputs
-          path: outputs/
+          name: Morskamary_QMBD_Audit_Run_${{ github.run_id }}
+          path: |
+            outputs/
+            data/derived/
           retention-days: 30
