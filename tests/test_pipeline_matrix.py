@@ -118,7 +118,7 @@ def live_records() -> List[LiteratureRecord]:
 
 
 @pytest.fixture
-def static_fixtures(tmp_path: Path) -> List[LiteratureRecord]:
+def static_fixtures() -> List[LiteratureRecord]:
     """Two static offline LiteratureRecord fixtures (simulating baseline CSV)."""
     return [
         LiteratureRecord(

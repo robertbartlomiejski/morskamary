@@ -226,8 +226,14 @@ class AxisClassifier:
 
         confidence_score = 0.95 if matched_keywords else 0.6
 
+        # Check the full keyword map — independent of the resolved axis — so
+        # that providing a `dimension` argument never produces a false positive.
+        any_axis_keyword_matched = any(
+            self._matches_any_keyword(normalized, patterns)
+            for patterns in self._get_compiled_keyword_map().values()
+        )
         is_blue_planetaryism = bool(
-            not matched_keywords
+            not any_axis_keyword_matched
             and self._BLUE_WORD_RE.search(normalized)
             and self._BLUE_PLANETARYISM_TERMS_RE.search(normalized)
         )
