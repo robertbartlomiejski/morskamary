@@ -49,6 +49,7 @@ IGNORED_RELATIVE_DIRS = {
     "outputs/sector_dictionaries",
 }
 IGNORED_FILE_BASENAMES = {
+    ".git",
     ".coverage",
     "coverage.json",
 }

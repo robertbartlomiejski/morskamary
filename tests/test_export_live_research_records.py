@@ -10,6 +10,8 @@ import json
 from unittest.mock import MagicMock, patch
 
 from scripts.export_live_research_records import (
+    LiveContextClassificationRepository,
+    build_thematic_loop_audit,
     build_coverage_report,
     deduplicate_records,
     export_coverage_csv,
@@ -20,8 +22,11 @@ from scripts.export_live_research_records import (
     normalize_title,
     triangulate_identity_loop,
 )
-from src.scientific_sources.models import LiteratureRecord, ProviderResult, SourceEvidence
-
+from src.scientific_sources.models import (
+    LiteratureRecord,
+    ProviderResult,
+    SourceEvidence,
+)
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -83,7 +88,9 @@ class TestNormalizeTitle:
         assert normalize_title("Blue Economy: Governance!") == "blue economy governance"
 
     def test_collapses_whitespace(self):
-        assert normalize_title("Blue   Economy    Governance") == "blue economy governance"
+        assert (
+            normalize_title("Blue   Economy    Governance") == "blue economy governance"
+        )
 
     def test_strips_leading_trailing_whitespace(self):
         assert normalize_title("  Blue Economy  ") == "blue economy"
@@ -199,6 +206,58 @@ class TestBuildCoverageReport:
         assert coverage[1]["record_count"] == 5
 
 
+class TestSentenceLevelClassification:
+    def test_build_thematic_loop_audit_emits_sentence_classifications(self):
+        rec = _make_record(
+            title="Port logistics and maritime labour transitions",
+            subject_terms=["shipping", "seafarer welfare"],
+            source_id="crossref:10.1234/ctx",
+        )
+        provenance = [
+            _make_evidence(record_id="crossref:10.1234/ctx", confidence_score=0.91)
+        ]
+        audit = build_thematic_loop_audit(
+            records=[rec],
+            provenance=provenance,
+            support_by_identity={"doi:10.1234/blue": ["crossref"]},
+            provider_classes={"crossref": "bibliographic"},
+        )
+        assert audit["records"]
+        row = audit["records"][0]
+        assert isinstance(row["sentence_classifications"], list)
+        assert row["sentence_classifications"]
+        assert row["sentence_classifications"][0]["text_scope"].startswith("live_api_")
+        assert "sentence" not in row["sentence_classifications"][0]
+        assert row["sentence_classifications"][0]["sentence_hash"]
+        assert row["sentence_classifications"][0]["sentence_length"] > 0
+
+    def test_classification_repository_caches_sentence_analysis(self):
+        repo = LiveContextClassificationRepository()
+        rec = _make_record(
+            title="Port logistics and maritime labour transitions",
+            subject_terms=["shipping", "seafarer welfare"],
+            source_id="crossref:10.1234/cache",
+        )
+        classify_context = MagicMock(
+            return_value={
+                "axis": "MARITIME",
+                "axis_code": "T",
+                "text_scope": "live_api_title_sentence",
+                "sentence": "Port logistics and maritime labour transitions",
+                "matched_keywords": ["port"],
+                "confidence_score": 0.95,
+            }
+        )
+        repo._classifier.classify_context = classify_context  # type: ignore[method-assign]
+
+        first = repo.classify_record_sentences(rec)
+        second = repo.classify_record_sentences(rec)
+
+        assert classify_context.call_count == 1
+        assert first == second
+        assert first is not second
+
+
 class TestTriangulationPolicy:
     def test_keeps_unique_non_primary_records_and_supports_overlap(self):
         crossref_shared = _make_record(
@@ -231,7 +290,9 @@ class TestTriangulationPolicy:
         dois = {r.doi for r in merged_records}
         assert "10.1234/shared" in dois
         assert "10.9999/unique" in dois
-        assert any(r.provider == "SciVal" and r.doi == "10.9999/unique" for r in merged_records)
+        assert any(
+            r.provider == "SciVal" and r.doi == "10.9999/unique" for r in merged_records
+        )
         assert set(support_by_identity["doi:10.1234/shared"]) == {"crossref", "scival"}
 
 
@@ -304,15 +365,13 @@ class TestMainIntegration:
         """Test that offline mode produces empty outputs without network calls."""
         # Create minimal query file
         query_file = tmp_path / "queries.yml"
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   test_sector:
     label: "Test Sector"
     queries:
       - "test query"
-"""
-        )
+""")
 
         output_dir = tmp_path / "outputs"
 
@@ -355,15 +414,13 @@ query_groups:
         """Test live mode with mocked SourceRegistry returning synthetic records."""
         # Create minimal query file
         query_file = tmp_path / "queries.yml"
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   offshore_energy:
     label: "Offshore Energy"
     queries:
       - "offshore wind"
-"""
-        )
+""")
 
         output_dir = tmp_path / "outputs"
 
@@ -376,9 +433,7 @@ query_groups:
         mock_evidence = _make_evidence(
             record_id="crossref:10.1234/wind", query="offshore wind"
         )
-        mock_result = ProviderResult(
-            records=[mock_record], provenance=[mock_evidence]
-        )
+        mock_result = ProviderResult(records=[mock_record], provenance=[mock_evidence])
 
         def mock_search(query, max_results, providers):
             return [mock_result]
@@ -417,6 +472,17 @@ query_groups:
             assert len(records) == 1
             assert records[0]["title"] == "Offshore Wind Energy"
 
+            triangulated = json.loads(
+                (output_dir / "live_records_triangulated.json").read_text()
+            )
+            assert len(triangulated) == 1
+            assert triangulated[0]["sentence_classifications"]
+            assert triangulated[0]["sentence_classifications"][0][
+                "text_scope"
+            ].startswith("live_api_")
+            assert "sentence" not in triangulated[0]["sentence_classifications"][0]
+            assert triangulated[0]["sentence_classifications"][0]["sentence_hash"]
+
             provenance = json.loads((output_dir / "live_provenance.json").read_text())
             assert len(provenance) == 1
 
@@ -424,15 +490,13 @@ query_groups:
         self, tmp_path, monkeypatch
     ):
         query_file = tmp_path / "queries.yml"
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   offshore_energy:
     label: "Offshore Energy"
     queries:
       - "offshore wind"
-"""
-        )
+""")
 
         output_dir = tmp_path / "outputs"
 
@@ -459,7 +523,9 @@ query_groups:
         mock_crossref_result = ProviderResult(
             records=[crossref_record], provenance=[crossref_ev]
         )
-        mock_scival_result = ProviderResult(records=[scival_record], provenance=[scival_ev])
+        mock_scival_result = ProviderResult(
+            records=[scival_record], provenance=[scival_ev]
+        )
 
         def mock_search(query, max_results, providers):
             return [mock_crossref_result, mock_scival_result]
@@ -504,25 +570,21 @@ query_groups:
     def test_deduplication_in_main(self, tmp_path, monkeypatch):
         """Test that duplicate records are removed in main."""
         query_file = tmp_path / "queries.yml"
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   test_sector:
     label: "Test"
     queries:
       - "query1"
       - "query2"
-"""
-        )
+""")
 
         output_dir = tmp_path / "outputs"
 
         # Mock two identical records from different queries
         mock_record = _make_record(doi="10.1234/same")
         mock_evidence = _make_evidence()
-        mock_result = ProviderResult(
-            records=[mock_record], provenance=[mock_evidence]
-        )
+        mock_result = ProviderResult(records=[mock_record], provenance=[mock_evidence])
 
         def mock_search(query, max_results, providers):
             return [mock_result]
@@ -558,15 +620,13 @@ query_groups:
     def test_low_confidence_filtering(self, tmp_path, monkeypatch):
         """Test that low-confidence records are exported separately."""
         query_file = tmp_path / "queries.yml"
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   test_sector:
     label: "Test"
     queries:
       - "query1"
-"""
-        )
+""")
 
         output_dir = tmp_path / "outputs"
 
@@ -575,9 +635,7 @@ query_groups:
         mock_evidence = _make_evidence(
             record_id="crossref:10.1234/low", confidence_score=0.5
         )
-        mock_result = ProviderResult(
-            records=[mock_record], provenance=[mock_evidence]
-        )
+        mock_result = ProviderResult(records=[mock_record], provenance=[mock_evidence])
 
         def mock_search(query, max_results, providers):
             return [mock_result]
@@ -636,15 +694,13 @@ query_groups:
     def test_crossref_records_json_contains_only_crossref(self, tmp_path, monkeypatch):
         """Test that crossref_records.json contains only Crossref records."""
         query_file = tmp_path / "queries.yml"
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   test_sector:
     label: "Test"
     queries:
       - "query1"
-"""
-        )
+""")
 
         output_dir = tmp_path / "outputs"
 
@@ -654,8 +710,12 @@ query_groups:
             provider="Scopus", doi="10.1234/sc", source_id="scopus:10.1234/sc"
         )
         mock_evidence = _make_evidence()
-        mock_result_cr = ProviderResult(records=[crossref_rec], provenance=[mock_evidence])
-        mock_result_sc = ProviderResult(records=[scopus_rec], provenance=[mock_evidence])
+        mock_result_cr = ProviderResult(
+            records=[crossref_rec], provenance=[mock_evidence]
+        )
+        mock_result_sc = ProviderResult(
+            records=[scopus_rec], provenance=[mock_evidence]
+        )
 
         def mock_search(query, max_results, providers):
             return [mock_result_cr, mock_result_sc]
@@ -744,7 +804,9 @@ query_groups:
         captured = capsys.readouterr()
         assert "is empty or not a valid YAML mapping" in captured.err
 
-    def test_invalid_yaml_syntax_returns_parse_error(self, tmp_path, monkeypatch, capsys):
+    def test_invalid_yaml_syntax_returns_parse_error(
+        self, tmp_path, monkeypatch, capsys
+    ):
         """A YAML file with a syntax error must return error code 1 with a parse error."""
         query_file = tmp_path / "bad_syntax.yml"
         query_file.write_text("query_groups:\n- [unclosed list\n  key: value\n")
@@ -795,15 +857,13 @@ query_groups:
     def test_zero_record_provider_identity_in_coverage(self, tmp_path, monkeypatch):
         """Zero-record provider results must preserve provider identity in coverage CSV."""
         query_file = tmp_path / "queries.yml"
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   test_sector:
     label: "Test Sector"
     queries:
       - "blue economy"
-"""
-        )
+""")
 
         output_dir = tmp_path / "outputs"
 
@@ -855,15 +915,13 @@ query_groups:
     ):
         """Coverage provider labels must follow registry order, not raw CLI order."""
         query_file = tmp_path / "queries.yml"
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   test_sector:
     label: "Test Sector"
     queries:
       - "blue economy"
-"""
-        )
+""")
 
         output_dir = tmp_path / "outputs"
         crossref_rec = _make_record(
@@ -923,15 +981,13 @@ query_groups:
     def test_unknown_provider_returns_error(self, tmp_path, monkeypatch, capsys):
         """An unrecognised provider name must return error code 1 with a clear message."""
         query_file = tmp_path / "queries.yml"
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   test_sector:
     label: "Test"
     queries:
       - "query1"
-"""
-        )
+""")
 
         output_dir = tmp_path / "outputs"
 
@@ -966,15 +1022,13 @@ query_groups:
     def test_mixed_case_provider_is_normalised(self, tmp_path, monkeypatch):
         """Provider names like 'Crossref' should be normalised to lowercase and accepted."""
         query_file = tmp_path / "queries.yml"
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   test_sector:
     label: "Test"
     queries:
       - "query1"
-"""
-        )
+""")
 
         output_dir = tmp_path / "outputs"
         mock_result = ProviderResult(records=[], provenance=[])
@@ -1009,18 +1063,18 @@ query_groups:
             result = main()
             assert result == 0
 
-    def test_all_provider_token_expands_to_registry_providers(self, tmp_path, monkeypatch):
+    def test_all_provider_token_expands_to_registry_providers(
+        self, tmp_path, monkeypatch
+    ):
         """--providers all should query all known providers in registry order."""
         query_file = tmp_path / "queries.yml"
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   test_sector:
     label: "Test Sector"
     queries:
       - "blue economy"
-"""
-        )
+""")
 
         output_dir = tmp_path / "outputs"
         mock_result = ProviderResult(records=[], provenance=[])
@@ -1064,15 +1118,13 @@ query_groups:
     ):
         """Comma-separated providers with spaces should be lowercased before search."""
         query_file = tmp_path / "queries.yml"
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   test_sector:
     label: "Test"
     queries:
       - "query1"
-"""
-        )
+""")
 
         output_dir = tmp_path / "outputs"
         mock_result_crossref = ProviderResult(records=[], provenance=[])
@@ -1113,15 +1165,13 @@ query_groups:
     def test_empty_providers_string_returns_error(self, tmp_path, monkeypatch, capsys):
         """Passing an empty string for --providers must return error code 1."""
         query_file = tmp_path / "queries.yml"
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   test_sector:
     label: "Test"
     queries:
       - "query1"
-"""
-        )
+""")
 
         output_dir = tmp_path / "outputs"
 
@@ -1253,6 +1303,7 @@ class TestStage1ComplianceFilter:
         output_path = tmp_path / "out.json"
         export_records_json([rec], output_path)
         import json as _json
+
         data = _json.loads(output_path.read_text())
         assert len(data) == 1
         row = data[0]
@@ -1263,6 +1314,7 @@ class TestStage1ComplianceFilter:
     def test_csv_export_omits_restricted_fields(self, tmp_path):
         """CSV export must not contain citation_count or abstract field columns."""
         import csv as _csv
+
         rec = self._make_full_record(citation_count=7, abstract_stored=True)
         output_path = tmp_path / "out.csv"
         export_records_csv([rec], output_path)
@@ -1276,6 +1328,7 @@ class TestStage1ComplianceFilter:
     def test_csv_export_includes_licence_note(self, tmp_path):
         """CSV export must include licence_note column (added by Stage 1 compliance)."""
         import csv as _csv
+
         rec = self._make_full_record(licence_note="Crossref open")
         output_path = tmp_path / "out.csv"
         export_records_csv([rec], output_path)

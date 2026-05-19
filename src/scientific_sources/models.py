@@ -55,6 +55,7 @@ class LiteratureRecord:
     provider: str
     journal: str = ""
     url: str = ""
+    abstract: str = ""
     abstract_available: bool = False
     abstract_stored: bool = False
     citation_count: Optional[int] = None
@@ -65,9 +66,15 @@ class LiteratureRecord:
     )
     licence_note: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Serialize to a plain dictionary (for JSON export)."""
-        return {
+    def to_dict(self, *, include_restricted: bool = False) -> Dict[str, Any]:
+        """Serialize to a plain dictionary.
+
+        By default, only bibliographic and internal provenance metadata that is
+        safe to export is included. Restricted fields such as full abstract text
+        are only returned when ``include_restricted=True`` is requested
+        explicitly for in-memory/internal workflows.
+        """
+        payload: Dict[str, Any] = {
             "title": self.title,
             "authors": self.authors,
             "year": self.year,
@@ -76,14 +83,21 @@ class LiteratureRecord:
             "provider": self.provider,
             "journal": self.journal,
             "url": self.url,
-            "abstract_available": self.abstract_available,
-            "abstract_stored": self.abstract_stored,
-            "citation_count": self.citation_count,
             "subject_terms": self.subject_terms,
             "source_query": self.source_query,
             "retrieval_timestamp": self.retrieval_timestamp,
             "licence_note": self.licence_note,
         }
+        if include_restricted:
+            payload.update(
+                {
+                    "abstract": self.abstract,
+                    "abstract_available": self.abstract_available,
+                    "abstract_stored": self.abstract_stored,
+                    "citation_count": self.citation_count,
+                }
+            )
+        return payload
 
 
 @dataclass
@@ -134,10 +148,12 @@ class ProviderResult:
         """Return True when no records were returned."""
         return len(self.records) == 0
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Serialize to a plain dictionary (for JSON export)."""
+    def to_dict(self, *, include_restricted: bool = False) -> Dict[str, Any]:
+        """Serialize to a plain dictionary."""
         return {
-            "records": [r.to_dict() for r in self.records],
+            "records": [
+                r.to_dict(include_restricted=include_restricted) for r in self.records
+            ],
             "errors": self.errors,
             "warnings": self.warnings,
             "rate_limit_status": self.rate_limit_status,
