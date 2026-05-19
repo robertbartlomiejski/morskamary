@@ -118,11 +118,15 @@ def test_main_orchestration_success(tmp_path: Path) -> None:
     with (
         patch("run_full_analysis.BASELINE_CSV", baseline_csv),
         patch("run_full_analysis.OUTPUTS_DIR", output_dir),
-        patch("run_full_analysis.load_baseline_competences", return_value=baseline) as m_load,
+        patch(
+            "run_full_analysis.load_baseline_competences", return_value=baseline
+        ) as m_load,
         patch(
             "run_full_analysis.extract_literature_competences", return_value=literature
         ) as m_extract,
-        patch("run_full_analysis.run_gap_analysis", return_value=(fake_gaps, {})) as m_gaps,
+        patch(
+            "run_full_analysis.run_gap_analysis", return_value=(fake_gaps, {})
+        ) as m_gaps,
         patch(
             "run_full_analysis.generate_micro_credentials",
             return_value=fake_credentials,
@@ -236,7 +240,9 @@ def test_main_live_enriched_merges_live_competences(tmp_path: Path) -> None:
         description="Live",
         axis=TMBDAxis.OCEANIC,
         dimension="literature",
-        source=CompetenceSource(file="outputs/research_sources/live_records.json", row=2),
+        source=CompetenceSource(
+            file="outputs/research_sources/live_records.json", row=2
+        ),
         sectors=["Blue Biotech"],
     )
 
@@ -244,7 +250,9 @@ def test_main_live_enriched_merges_live_competences(tmp_path: Path) -> None:
         patch("run_full_analysis.BASELINE_CSV", baseline_csv),
         patch("run_full_analysis.OUTPUTS_DIR", output_dir),
         patch("run_full_analysis.load_baseline_competences", return_value=baseline),
-        patch("run_full_analysis.extract_literature_competences", return_value=literature),
+        patch(
+            "run_full_analysis.extract_literature_competences", return_value=literature
+        ),
         patch(
             "run_full_analysis.extract_live_records_competences",
             return_value=[live_competence],
@@ -373,7 +381,9 @@ def test_main_uses_selected_sectors_for_dictionary_export(tmp_path: Path) -> Non
         patch("run_full_analysis.BASELINE_CSV", baseline_csv),
         patch("run_full_analysis.OUTPUTS_DIR", output_dir),
         patch("run_full_analysis.load_baseline_competences", return_value=baseline),
-        patch("run_full_analysis.extract_literature_competences", return_value=literature),
+        patch(
+            "run_full_analysis.extract_literature_competences", return_value=literature
+        ),
         patch("run_full_analysis.run_gap_analysis", return_value=({}, {})),
         patch("run_full_analysis.generate_micro_credentials", return_value=[]),
         patch("run_full_analysis.compute_sector_pathways", return_value=[]),
@@ -385,7 +395,9 @@ def test_main_uses_selected_sectors_for_dictionary_export(tmp_path: Path) -> Non
         patch("run_full_analysis.generate_gaps_html"),
         patch("run_full_analysis.generate_credentials_html"),
         patch("run_full_analysis.generate_literature_html"),
-        patch("run_full_analysis.export_sector_dictionaries", return_value=[]) as m_export,
+        patch(
+            "run_full_analysis.export_sector_dictionaries", return_value=[]
+        ) as m_export,
     ):
         exit_code = main(selected_sectors=selected)
 
@@ -717,7 +729,8 @@ def test_compute_sector_pathways_finds_bridges() -> None:
 
     # Find pathway from Blue Biotech to Coastal Tourism
     biotech_to_tourism = next(
-        p for p in pathways
+        p
+        for p in pathways
         if p.from_sector == "Blue Biotech" and p.to_sector == "Coastal Tourism"
     )
     assert "shared_comp" in biotech_to_tourism.bridge_competences
@@ -982,8 +995,12 @@ def test_generate_literature_html_creates_file(tmp_path: Path) -> None:
             axis=TMBDAxis.OCEANIC,
             dimension="literature",
             source=CompetenceSource(
-                file="lit.csv", row=1, authors="Smith, J.", year="2023",
-                paper_title="Test Paper", doi="10.1234/test"
+                file="lit.csv",
+                row=1,
+                authors="Smith, J.",
+                year="2023",
+                paper_title="Test Paper",
+                doi="10.1234/test",
             ),
             sectors=SECTORS,
         ),
@@ -1019,7 +1036,7 @@ def test_main_handles_no_literature_files(tmp_path: Path) -> None:
     baseline_csv.write_text(
         "Dimension,Competence,Blue competence name,Focus,Sector1\n"
         "A,A.1,Test,Description,X\n",
-        encoding="utf-8"
+        encoding="utf-8",
     )
 
     output_dir = tmp_path / "outputs"
@@ -1044,9 +1061,9 @@ class TestCLIAndEdgeCases:
         import sys
 
         # Test with no arguments (default)
-        with patch.object(sys, 'argv', ['run_full_analysis.py']):
+        with patch.object(sys, "argv", ["run_full_analysis.py"]):
             args = parse_cli_args()
-            assert hasattr(args, 'sectors')
+            assert hasattr(args, "sectors")
             # Default value is an empty list, not None
             assert args.sectors is not None
             assert args.sectors == []
@@ -1059,7 +1076,7 @@ class TestCLIAndEdgeCases:
         baseline_csv.write_text(
             "Dimension,Competence,Blue competence name,Focus,Blue Biotech,Ports\n"
             "A,A.1,Test,Description,X,X\n",
-            encoding="utf-8"
+            encoding="utf-8",
         )
 
         output_dir = tmp_path / "outputs"
@@ -1081,9 +1098,9 @@ class TestCLIAndEdgeCases:
         # We verify parse_cli_args works and returns expected structure
         import sys
 
-        with patch.object(sys, 'argv', ['run_full_analysis.py']):
+        with patch.object(sys, "argv", ["run_full_analysis.py"]):
             args = parse_cli_args()
-            assert hasattr(args, 'sectors')
+            assert hasattr(args, "sectors")
 
     def test_parse_cli_args_live_enriched_mode(self):
         """CLI should accept live-enriched mode and custom live records path."""
@@ -1138,9 +1155,7 @@ def test_theme_sectors_keys_are_valid_lit_themes() -> None:
             all_themes.update(names)
 
     bad_keys = [k for k in _THEME_SECTORS if k not in all_themes]
-    assert bad_keys == [], (
-        f"_THEME_SECTORS keys not found in _LIT_THEMES: {bad_keys}"
-    )
+    assert bad_keys == [], f"_THEME_SECTORS keys not found in _LIT_THEMES: {bad_keys}"
 
 
 def test_theme_sectors_values_are_canonical_sectors() -> None:
@@ -1154,9 +1169,7 @@ def test_theme_sectors_values_are_canonical_sectors() -> None:
         for sec in sector_list
         if sec not in sectors_set
     ]
-    assert bad == [], (
-        f"_THEME_SECTORS contains sector names not in SECTORS: {bad}"
-    )
+    assert bad == [], f"_THEME_SECTORS contains sector names not in SECTORS: {bad}"
 
 
 def test_extract_literature_competences_known_theme_uses_specific_sectors(
@@ -1245,6 +1258,43 @@ def test_extract_live_records_competences_infers_narrow_theme_sectors(
     ]
 
 
+def test_extract_live_records_competences_uses_sentence_level_axis(
+    tmp_path: Path,
+) -> None:
+    """Sentence-level classifications should drive live axis selection when present."""
+    live_file = tmp_path / "live_records.json"
+    live_file.write_text(
+        json.dumps(
+            [
+                {
+                    "title": "General blue economy transition",
+                    "provider": "Crossref",
+                    "journal": "Ocean Studies",
+                    "sentence_classifications": [
+                        {
+                            "axis": "MARINE",
+                            "axis_code": "M",
+                            "text_scope": "live_api_abstract_sentence",
+                            "sentence": "Marine ecosystem restoration and biodiversity stewardship.",
+                        },
+                        {
+                            "axis": "MARINE",
+                            "axis_code": "M",
+                            "text_scope": "live_api_abstract_sentence",
+                            "sentence": "Habitat recovery supports coastal fisheries.",
+                        },
+                    ],
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    competences = extract_live_records_competences(live_file)
+    assert len(competences) == 1
+    assert competences[0].axis == TMBDAxis.MARINE
+
+
 def test_extract_literature_competences_seafarer_theme_not_cross_sector(
     tmp_path: Path,
 ) -> None:
@@ -1259,9 +1309,9 @@ def test_extract_literature_competences_seafarer_theme_not_cross_sector(
 
     theme_name = "Seafarer welfare and social protection"
     expected_sectors = _THEME_SECTORS[theme_name]
-    assert "Desalination" not in expected_sectors, (
-        "Test assumption violated: Desalination should not be in seafarer welfare sectors"
-    )
+    assert (
+        "Desalination" not in expected_sectors
+    ), "Test assumption violated: Desalination should not be in seafarer welfare sectors"
 
     csv_content = (
         '"Paper Title","Abstract","Author Names","Publication Year","DOI"\n'

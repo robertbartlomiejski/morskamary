@@ -34,6 +34,7 @@ import json
 import re
 import sys
 from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Set, Tuple
 
@@ -53,11 +54,19 @@ from src.cumulative_analysis.triangulator import (  # noqa: E402
     CumulativeTriangulator,
     TriangulatedRecord,
 )
+from src.literature_extraction import extract_sentence_records  # noqa: E402
 
 DEFAULT_PROVIDER_POLICY_PATH = REPO_ROOT / "config" / "research_provider_policy.yml"
 
 _DEFAULT_PROVIDER_POLICY: Dict[str, Any] = {
-    "precedence": ["crossref", "scopus", "wos", "scival", "microsoft_graph", "google_drive"],
+    "precedence": [
+        "crossref",
+        "scopus",
+        "wos",
+        "scival",
+        "microsoft_graph",
+        "google_drive",
+    ],
     "classes": {
         "crossref": "bibliographic",
         "scopus": "bibliographic",
@@ -68,6 +77,112 @@ _DEFAULT_PROVIDER_POLICY: Dict[str, Any] = {
     },
     "primary_identity_providers": ["crossref", "scopus", "wos"],
 }
+
+
+@dataclass(frozen=True)
+class _ScopedTextSegment:
+    """Scoped segment within a concatenated live API text block."""
+
+    text_scope: str
+    text: str
+    start: int
+    end: int
+
+
+class LiveContextClassificationRepository:
+    """Repository-style access to sentence-level live API classifications."""
+
+    def __init__(self, classifier: AxisClassifier | None = None) -> None:
+        self._classifier = classifier or AxisClassifier()
+
+    @staticmethod
+    def _extract_abstract(rec: LiteratureRecord) -> str:
+        value = getattr(rec, "abstract", "")
+        return str(value).strip() if value else ""
+
+    def _build_scoped_context(
+        self, rec: LiteratureRecord
+    ) -> Tuple[str, List[_ScopedTextSegment]]:
+        title = str(rec.title).strip()
+        abstract = self._extract_abstract(rec)
+        subject_text = " ".join(
+            str(term).strip() for term in rec.subject_terms if str(term).strip()
+        )
+        raw_segments = [
+            ("live_api_title_sentence", title),
+            ("live_api_abstract_sentence", abstract),
+            ("live_api_subject_terms_sentence", subject_text),
+        ]
+
+        chunks: List[str] = []
+        scoped: List[_ScopedTextSegment] = []
+        cursor = 0
+        for text_scope, raw in raw_segments:
+            normalized = re.sub(r"\s+", " ", raw).strip()
+            if not normalized:
+                continue
+            if chunks:
+                chunks.append(" ")
+                cursor += 1
+            start = cursor
+            chunks.append(normalized)
+            cursor += len(normalized)
+            scoped.append(
+                _ScopedTextSegment(
+                    text_scope=text_scope,
+                    text=normalized,
+                    start=start,
+                    end=cursor,
+                )
+            )
+
+        return "".join(chunks), scoped
+
+    @staticmethod
+    def _scope_for_sentence(
+        sentence_start: int,
+        sentence_end: int,
+        scoped_segments: List[_ScopedTextSegment],
+    ) -> str:
+        for segment in scoped_segments:
+            if sentence_start >= segment.start and sentence_end <= segment.end:
+                return segment.text_scope
+        return "live_api_context_sentence"
+
+    def classify_record_sentences(self, rec: LiteratureRecord) -> List[Dict[str, Any]]:
+        """Return sentence-level classifications for one live record."""
+        combined_text, scoped_segments = self._build_scoped_context(rec)
+        sentence_records = extract_sentence_records(combined_text)
+        classifications: List[Dict[str, Any]] = []
+        for sentence_record in sentence_records:
+            scope = self._scope_for_sentence(
+                sentence_record.start, sentence_record.end, scoped_segments
+            )
+            classification = self._classifier.classify_context(
+                sentence_record.sentence,
+                text_scope=scope,
+            )
+            classification["sentence_index"] = len(classifications) + 1
+            classifications.append(classification)
+        return classifications
+
+    @staticmethod
+    def dominant_axis_from_classifications(
+        classifications: List[Dict[str, Any]],
+    ) -> Tuple[str, str]:
+        """Return dominant axis name/code from sentence-level classifications."""
+        axis_count: Dict[str, int] = {}
+        axis_code: Dict[str, str] = {}
+        for item in classifications:
+            axis_name = str(item.get("axis", "")).strip().upper()
+            if not axis_name:
+                continue
+            axis_count[axis_name] = axis_count.get(axis_name, 0) + 1
+            axis_code[axis_name] = str(item.get("axis_code", "")).strip()
+        if not axis_count:
+            return "OCEANIC", "O"
+        winner = max(axis_count.items(), key=lambda pair: pair[1])[0]
+        return winner, axis_code.get(winner, "")
 
 
 def normalize_title(title: str) -> str:
@@ -136,7 +251,8 @@ def _triangulated_to_literature(rec: TriangulatedRecord) -> LiteratureRecord:
         authors=rec.authors,
         year=rec.year,
         doi=rec.doi,
-        source_id=rec.source_id or f"{normalize_provider_name(rec.provider)}:{rec.doi or rec.title[:40]}",
+        source_id=rec.source_id
+        or f"{normalize_provider_name(rec.provider)}:{rec.doi or rec.title[:40]}",
         provider=rec.provider,
         journal=rec.journal,
         url=rec.url,
@@ -168,10 +284,14 @@ def triangulate_identity_loop(
     )
 
     identity_records = [
-        rec for rec in records if normalize_provider_name(rec.provider) in primary_identity
+        rec
+        for rec in records
+        if normalize_provider_name(rec.provider) in primary_identity
     ]
     non_identity_records = [
-        rec for rec in records if normalize_provider_name(rec.provider) not in primary_identity
+        rec
+        for rec in records
+        if normalize_provider_name(rec.provider) not in primary_identity
     ]
     if not identity_records:
         deduped, stats = deduplicate_records(records)
@@ -214,7 +334,9 @@ def triangulate_identity_loop(
             candidates_with_norm,
             key=lambda pair: rank.get(pair[1], len(rank)),
         )
-        support_by_identity[identity_key] = sorted({norm for _, norm in candidates_sorted})
+        support_by_identity[identity_key] = sorted(
+            {norm for _, norm in candidates_sorted}
+        )
         if len(candidates) <= 1:
             continue
         if identity_key.startswith("doi:"):
@@ -276,7 +398,7 @@ def build_thematic_loop_audit(
     provider_classes: Dict[str, str],
 ) -> Dict[str, Any]:
     """Build loop-2 thematic/QMBD audit for triangulated records."""
-    classifier = AxisClassifier()
+    classification_repo = LiveContextClassificationRepository()
     confidence_by_record: Dict[str, float] = {}
     for ev in provenance:
         prev = confidence_by_record.get(ev.record_id, 0.0)
@@ -284,10 +406,14 @@ def build_thematic_loop_audit(
 
     rows: List[Dict[str, Any]] = []
     for rec in records:
-        text = " ".join([rec.title, rec.journal] + [str(t) for t in rec.subject_terms])
-        axis = classifier.classify_axis(text)
+        sentence_classifications = classification_repo.classify_record_sentences(rec)
+        axis_name, axis_code = classification_repo.dominant_axis_from_classifications(
+            sentence_classifications
+        )
         identity_key = _identity_key_from_record(rec)
-        support = support_by_identity.get(identity_key, [normalize_provider_name(rec.provider)])
+        support = support_by_identity.get(
+            identity_key, [normalize_provider_name(rec.provider)]
+        )
         overlap_status = "multi-source" if len(set(support)) > 1 else "single-source"
         confidence = confidence_by_record.get(rec.source_id, 0.0)
         manual_review_flags: List[str] = []
@@ -306,8 +432,9 @@ def build_thematic_loop_audit(
                 "provider_class": provider_classes.get(
                     normalize_provider_name(rec.provider), "unknown"
                 ),
-                "qmbd_axis": axis.name,
-                "qmbd_axis_code": axis.value,
+                "qmbd_axis": axis_name,
+                "qmbd_axis_code": axis_code,
+                "sentence_classifications": sentence_classifications,
                 "confidence_score": confidence,
                 "overlap_status": overlap_status,
                 "supporting_providers": support,
@@ -375,9 +502,7 @@ def deduplicate_records(
     return deduped, stats
 
 
-def build_coverage_report(
-    all_results: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
+def build_coverage_report(all_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Build a coverage report showing records per sector and provider.
 
@@ -515,9 +640,7 @@ def export_records_csv(records: List[LiteratureRecord], output_path: Path) -> No
     print(f"Exported {len(records)} records to {output_path}")
 
 
-def export_provenance_json(
-    provenance: List[SourceEvidence], output_path: Path
-) -> None:
+def export_provenance_json(provenance: List[SourceEvidence], output_path: Path) -> None:
     """Export provenance as JSON."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     data = [p.to_dict() for p in provenance]
@@ -714,9 +837,7 @@ def main() -> int:
     # registry.search() filters _providers by name membership in provider_list but
     # preserves the registry's internal order — NOT the order of provider_list itself.
     ordered_provider_names: List[str] = [
-        cap.name
-        for cap in registry.list_capabilities()
-        if cap.name in provider_list
+        cap.name for cap in registry.list_capabilities() if cap.name in provider_list
     ]
 
     # Storage for all results
@@ -740,7 +861,9 @@ def main() -> int:
             for query in queries:
                 print(f"  Query: {query}")
                 results = registry.search(
-                    query, max_results=args.max_results_per_query, providers=provider_list
+                    query,
+                    max_results=args.max_results_per_query,
+                    providers=provider_list,
                 )
 
                 for i, result in enumerate(results):
@@ -778,9 +901,13 @@ def main() -> int:
 
     # Loop 1: identity triangulation with explicit provider priority policy
     print(f"\nLoop 1 identity triangulation for {len(all_records)} records...")
-    deduped_records, _triangulated_identity, identity_audit, dedup_stats, support_by_identity = (
-        triangulate_identity_loop(all_records, provider_policy)
-    )
+    (
+        deduped_records,
+        _triangulated_identity,
+        identity_audit,
+        dedup_stats,
+        support_by_identity,
+    ) = triangulate_identity_loop(all_records, provider_policy)
     print(
         f"Triangulated: {len(deduped_records)} unique records "
         f"(removed {dedup_stats['doi_duplicates']} DOI duplicates, "
@@ -825,11 +952,16 @@ def main() -> int:
     raw_records = [_to_stage1_compliant_dict(rec) for rec in all_records]
     triangulated_payload: List[Dict[str, Any]] = []
     confidence_by_record: Dict[str, float] = {}
+    classification_repo = LiveContextClassificationRepository()
     for ev in all_provenance:
         confidence_by_record[ev.record_id] = max(
             confidence_by_record.get(ev.record_id, 0.0), float(ev.confidence_score)
         )
     for rec in deduped_records:
+        sentence_classifications = classification_repo.classify_record_sentences(rec)
+        axis_name, axis_code = classification_repo.dominant_axis_from_classifications(
+            sentence_classifications
+        )
         identity_key = _identity_key_from_record(rec)
         support = support_by_identity.get(
             identity_key, [normalize_provider_name(rec.provider)]
@@ -842,6 +974,9 @@ def main() -> int:
         row["provider_class"] = provider_classes.get(
             normalize_provider_name(rec.provider), "unknown"
         )
+        row["qmbd_axis"] = axis_name
+        row["qmbd_axis_code"] = axis_code
+        row["sentence_classifications"] = sentence_classifications
         triangulated_payload.append(row)
 
     # Export outputs
@@ -851,7 +986,9 @@ def main() -> int:
 
     export_records_json(deduped_records, output_dir / "live_records.json")
     export_records_csv(deduped_records, output_dir / "live_records.csv")
-    with open(output_dir / "live_records_triangulated.json", "w", encoding="utf-8") as f:
+    with open(
+        output_dir / "live_records_triangulated.json", "w", encoding="utf-8"
+    ) as f:
         json.dump(triangulated_payload, f, indent=2, ensure_ascii=False)
     export_records_json(crossref_records, output_dir / "crossref_records.json")
     export_provenance_json(all_provenance, output_dir / "live_provenance.json")
@@ -863,9 +1000,13 @@ def main() -> int:
         json.dump(raw_records, f, indent=2, ensure_ascii=False)
     with open(output_dir / "enrichment_records.json", "w", encoding="utf-8") as f:
         json.dump(enrichment_records, f, indent=2, ensure_ascii=False)
-    with open(output_dir / "triangulation_identity_loop.json", "w", encoding="utf-8") as f:
+    with open(
+        output_dir / "triangulation_identity_loop.json", "w", encoding="utf-8"
+    ) as f:
         json.dump(identity_audit, f, indent=2, ensure_ascii=False)
-    with open(output_dir / "triangulation_thematic_loop.json", "w", encoding="utf-8") as f:
+    with open(
+        output_dir / "triangulation_thematic_loop.json", "w", encoding="utf-8"
+    ) as f:
         json.dump(thematic_audit, f, indent=2, ensure_ascii=False)
 
     print("\nExport complete.")
