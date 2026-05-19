@@ -121,6 +121,7 @@ class TestE2EBaselineToLiteratureFlow:
 
         # Step 7: Verify credentials include competences from baseline and literature
         blue_biotech_creds = [c for c in credentials if c.sector == "Blue Biotech"]
+        assert len(blue_biotech_creds) == 4
         all_competence_ids = set()
         for cred in blue_biotech_creds:
             all_competence_ids.update(cred.competences)

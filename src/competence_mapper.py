@@ -37,10 +37,11 @@ class CompetenceMapper:
 
     def get_sector_competences(self, sector: str) -> List[str]:
         """Get competence IDs required for a specific sector"""
+        sector_lower = sector.lower()
         sector_credentials = [
             cred
             for cred in self.credentials.values()
-            if cred.sector.lower() == sector.lower()
+            if cred.sector.lower() == sector_lower
         ]
 
         all_competences: Set[str] = set()
@@ -114,21 +115,18 @@ class CompetenceMapper:
 
     def get_summary(self) -> Dict[str, Any]:
         """Get a summary of all mapped competences and credentials"""
-        axis_counts = {
-            axis: len(self.get_competences_by_axis(axis)) for axis in BlueDynamicsAxis
-        }
-
-        level_counts = {
-            level.name: len(self.get_competences_by_level(level))
-            for level in CompetenceLevel
-        }
+        axis_counts: Dict[str, int] = {axis.name: 0 for axis in BlueDynamicsAxis}
+        level_counts: Dict[str, int] = {level.name: 0 for level in CompetenceLevel}
+        for competence in self.competences.values():
+            axis_counts[competence.axis.name] += 1
+            level_counts[competence.level.name] += 1
 
         sectors = set(cred.sector for cred in self.credentials.values())
 
         return {
             "total_competences": len(self.competences),
             "total_credentials": len(self.credentials),
-            "competences_by_axis": {k.name: v for k, v in axis_counts.items()},
+            "competences_by_axis": axis_counts,
             "competences_by_level": level_counts,
             "sectors": list(sectors),
         }
