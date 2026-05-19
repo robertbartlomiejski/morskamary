@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import urllib.request
+from typing import Any
 
 from src.scientific_sources.models import (
     LiteratureRecord,
@@ -40,7 +41,7 @@ from src.scientific_sources.provenance import (
 
 def _make_record(**kwargs) -> LiteratureRecord:
     """Return a minimal LiteratureRecord with overridable fields."""
-    defaults = dict(
+    defaults: dict[str, Any] = dict(
         title="Blue Economy Governance",
         authors="Ada Lovelace",
         year="2024",
@@ -49,6 +50,10 @@ def _make_record(**kwargs) -> LiteratureRecord:
         provider="Crossref",
         journal="Ocean Studies",
         url="https://example.org/paper",
+        abstract_available=False,
+        abstract_stored=False,
+        citation_count=None,
+        subject_terms=[],
     )
     defaults.update(kwargs)
     return LiteratureRecord(**defaults)
@@ -1285,6 +1290,7 @@ class TestProbeMicrosoftGraph:
 
     def test_http_error_is_transient(self, monkeypatch):
         """HTTPError (4xx/5xx) must also be classified as transient."""
+        import email.message
         import urllib.error
         import urllib.request
         from src.scientific_sources.microsoft_graph import probe_microsoft_graph
@@ -1292,7 +1298,7 @@ class TestProbeMicrosoftGraph:
         def fake_urlopen(req, timeout=5):
             raise urllib.error.HTTPError(
                 url="https://example.com", code=401,
-                msg="Unauthorized", hdrs=None, fp=None,
+                msg="Unauthorized", hdrs=email.message.Message(), fp=None,
             )
 
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
