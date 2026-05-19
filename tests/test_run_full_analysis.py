@@ -166,6 +166,80 @@ def test_main_orchestration_success(tmp_path: Path) -> None:
     assert m_export_dict.call_count == len(SECTORS)
 
 
+def test_main_qmbd_enrichment_includes_static_baseline_and_literature(
+    tmp_path: Path,
+) -> None:
+    """Static mode QMBD enrichment should include both baseline and literature records."""
+    baseline_csv = tmp_path / "baseline.csv"
+    baseline_csv.write_text("placeholder", encoding="utf-8")
+    output_dir = tmp_path / "outputs"
+    baseline = [
+        Competence(
+            id="baseline_a1",
+            name="Baseline competence",
+            description="Baseline row",
+            axis=TMBDAxis.MARINE,
+            dimension="A",
+            source=CompetenceSource(file="data/derived/y.csv", row=3),
+            sectors=["Blue Biotech"],
+        )
+    ]
+    literature = [
+        Competence(
+            id="lit_static_0001",
+            name="Static literature competence",
+            description="Literature row",
+            axis=TMBDAxis.OCEANIC,
+            dimension="literature",
+            source=CompetenceSource(file="data/derived/x.csv", row=2, doi="10.1/abc"),
+            sectors=["Blue Biotech"],
+        )
+    ]
+    captured: dict[str, object] = {}
+
+    def _capture_enrichment(records_iterator, output_path):
+        records = list(records_iterator)
+        captured["records"] = records
+        captured["output_path"] = output_path
+        return records
+
+    with (
+        patch("run_full_analysis.BASELINE_CSV", baseline_csv),
+        patch("run_full_analysis.OUTPUTS_DIR", output_dir),
+        patch("run_full_analysis.load_baseline_competences", return_value=baseline),
+        patch(
+            "run_full_analysis.extract_literature_competences", return_value=literature
+        ),
+        patch("run_full_analysis.run_gap_analysis", return_value=({}, {})),
+        patch("run_full_analysis.generate_micro_credentials", return_value=[]),
+        patch("run_full_analysis.compute_sector_pathways", return_value=[]),
+        patch("run_full_analysis.export_competences_json"),
+        patch("run_full_analysis.export_credentials_json"),
+        patch("run_full_analysis.export_pathways_json"),
+        patch("run_full_analysis.export_gaps_summary_csv"),
+        patch("run_full_analysis.generate_report_index"),
+        patch("run_full_analysis.generate_gaps_html"),
+        patch("run_full_analysis.generate_credentials_html"),
+        patch("run_full_analysis.generate_literature_html"),
+        patch("run_full_analysis.export_sector_dictionaries", return_value=[]),
+        patch(
+            "run_full_analysis.enrich_and_store_records",
+            side_effect=_capture_enrichment,
+        ),
+    ):
+        exit_code = main()
+
+    assert exit_code == 0
+    records = captured["records"]
+    assert isinstance(records, list)
+    assert len(records) == 2
+    assert {record["record_origin"] for record in records} == {
+        "STATIC_BASELINE",
+        "STATIC_LITERATURE",
+    }
+    assert captured["output_path"] == output_dir / "cumulative_qmbd_records.json"
+
+
 def test_generate_micro_credentials_missing_gaps_error() -> None:
     baseline = [
         Competence(
@@ -475,6 +549,42 @@ def test_resolve_primary_axis_from_analysis_uses_default_when_unclassified() -> 
         _resolve_primary_axis_from_analysis(analysis, default_axis="MARINE").name
         == "MARINE"
     )
+
+
+def test_serialize_subject_terms_handles_lists_and_scalars() -> None:
+    """Subject terms should be serialized deterministically for enrichment text."""
+    from run_full_analysis import _serialize_subject_terms
+
+    assert _serialize_subject_terms(["blue justice", "  ocean policy  "]) == (
+        "blue justice, ocean policy"
+    )
+    assert _serialize_subject_terms("single term") == "single term"
+    assert _serialize_subject_terms(None) == ""
+
+
+def test_build_static_qmbd_records_prefers_doi_as_source_id() -> None:
+    """Static QMBD records should use DOI source_id when available."""
+    from run_full_analysis import _build_static_qmbd_records
+
+    competence = Competence(
+        id="lit_test_0001",
+        name="Blue governance competence",
+        description="From literature",
+        axis=TMBDAxis.OCEANIC,
+        dimension="literature",
+        source=CompetenceSource(
+            file="data/derived/x.csv", row=4, doi="10.1234/example"
+        ),
+        keywords=["blue governance", "policy"],
+        sectors=["R&I"],
+    )
+    records = _build_static_qmbd_records(
+        [competence], record_origin="STATIC_LITERATURE"
+    )
+
+    assert records[0]["source_id"] == "10.1234/example"
+    assert records[0]["record_origin"] == "STATIC_LITERATURE"
+    assert records[0]["subject_terms"] == "blue governance, policy"
 
 
 def test_slugify_converts_text_to_slug() -> None:

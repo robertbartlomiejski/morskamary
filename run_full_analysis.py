@@ -31,7 +31,18 @@ import sys
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    cast,
+)
 from urllib.parse import quote
 
 from scripts.build_tmbd_dictionary import (
@@ -41,7 +52,10 @@ from scripts.build_tmbd_dictionary import (
 from src.axis_classifier import AxisClassifier
 from src.core import BlueDynamicsAxis
 from src.utils import slugify
-from src.competence_repository import MixedProvenanceCompetenceRepository
+from src.competence_repository import (
+    CompetenceLike,
+    MixedProvenanceCompetenceRepository,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -316,7 +330,7 @@ def _resolve_primary_axis_from_analysis(
 class LocalizedQMBDRecordRepository:
     """Localized repository exposing baseline and live records as one iterator."""
 
-    baseline_records: List[Dict[str, Any]]
+    static_records: List[Dict[str, Any]]
     live_records_path: Path
     include_live_records: bool = True
 
@@ -353,8 +367,8 @@ class LocalizedQMBDRecordRepository:
                 yield prepared
 
     def iter_records(self) -> Iterator[Dict[str, Any]]:
-        """Iterate static baseline records followed by dynamic live records."""
-        yield from self.baseline_records
+        """Iterate static records followed by dynamic live records."""
+        yield from self.static_records
         yield from self._iter_live_records()
 
 
@@ -367,10 +381,13 @@ def enrich_and_store_records(
     enriched_outputs: List[Dict[str, Any]] = []
 
     for record in records_iterator:
+        serialized_subject_terms = _serialize_subject_terms(
+            record.get("subject_terms", "")
+        )
         full_text = (
             f"{record.get('title', '')}. "
             f"{record.get('description', '')}. "
-            f"{record.get('subject_terms', '')}"
+            f"{serialized_subject_terms}"
         )
         sentences = extract_sentences(full_text)
         source_id = str(record.get("source_id", "unknown_doi"))
@@ -386,19 +403,33 @@ def enrich_and_store_records(
     return enriched_outputs
 
 
-def _build_baseline_qmbd_records(baseline: List[Competence]) -> List[Dict[str, Any]]:
-    """Build static baseline records for the localized QMBD repository."""
+def _serialize_subject_terms(subject_terms: Any) -> str:
+    """Serialize subject terms into a deterministic string for sentence analysis."""
+    if subject_terms is None:
+        return ""
+    if isinstance(subject_terms, list):
+        return ", ".join(
+            str(term).strip() for term in subject_terms if str(term).strip()
+        )
+    return str(subject_terms).strip()
+
+
+def _build_static_qmbd_records(
+    competences: List[Competence], record_origin: str
+) -> List[Dict[str, Any]]:
+    """Build static records from competences for the localized QMBD repository."""
     records: List[Dict[str, Any]] = []
-    for competence in baseline:
+    for competence in competences:
+        source_identifier = competence.source.doi or competence.id
         records.append(
             {
-                "source_id": competence.id,
+                "source_id": source_identifier,
                 "title": competence.name,
                 "description": competence.description,
-                "subject_terms": ", ".join(competence.keywords),
+                "subject_terms": _serialize_subject_terms(competence.keywords),
                 "axis_name": competence.axis.name,
                 "sectors": competence.sectors,
-                "record_origin": "STATIC_BASELINE",
+                "record_origin": record_origin,
             }
         )
     return records
@@ -1536,9 +1567,10 @@ def export_competences_json(
     output_path: Path,
 ) -> None:
     """Export full competences database as JSON."""
+    total_count = len(baseline) + len(literature)
     data = {
         "metadata": {
-            "total": len(baseline) + len(literature),
+            "total": total_count,
             "baseline_count": len(baseline),
             "literature_count": len(literature),
             "axes": {ax.name: ax.value for ax in TMBDAxis},
@@ -1549,7 +1581,7 @@ def export_competences_json(
     }
     with open(output_path, "w", encoding="utf-8") as fh:
         json.dump(data, fh, indent=2, ensure_ascii=False)
-    log.info("  Exported: %s (%d competences)", output_path, data["metadata"]["total"])
+    log.info("  Exported: %s (%d competences)", output_path, total_count)
 
 
 def export_credentials_json(
@@ -1608,7 +1640,11 @@ def export_sector_dictionaries(
     paths preserve the order of the input ``sectors`` list.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
-    repository = MixedProvenanceCompetenceRepository(lambda: list(competences))
+
+    def extractor() -> Sequence[CompetenceLike]:
+        return cast(Sequence[CompetenceLike], competences)
+
+    repository = MixedProvenanceCompetenceRepository(extractor)
     exported_paths: List[Path] = []
 
     for sector in sectors:
@@ -2026,6 +2062,7 @@ def main(
 
     # --- Step 2: Literature competences ---
     literature = extract_literature_competences()
+    static_literature = list(literature)
     if analysis_input_mode == "live-enriched":
         baseline_titles = {
             _normalize_title_for_dedup(getattr(c.source, "paper_title", None) or c.name)
@@ -2039,8 +2076,11 @@ def main(
             live_path,
         )
 
+    static_qmbd_records = _build_static_qmbd_records(
+        baseline, record_origin="STATIC_BASELINE"
+    ) + _build_static_qmbd_records(static_literature, record_origin="STATIC_LITERATURE")
     qmbd_repository = LocalizedQMBDRecordRepository(
-        baseline_records=_build_baseline_qmbd_records(baseline),
+        static_records=static_qmbd_records,
         live_records_path=live_path,
         include_live_records=(analysis_input_mode == "live-enriched"),
     )
