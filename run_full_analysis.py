@@ -900,13 +900,34 @@ def _extract_live_sentence_classifications(
     _REQUIRED_KEYS: set[str] = {"axis", "axis_code", "text_scope", "sentence"}
     valid: List[Dict[str, object]] = []
     for item in raw:
-        if (
-            isinstance(item, dict)
-            and _REQUIRED_KEYS.issubset(item.keys())
-            and item["text_scope"]
-            and item["sentence"]
+        if not isinstance(item, dict) or not _REQUIRED_KEYS.issubset(item.keys()):
+            continue
+
+        axis = item.get("axis")
+        axis_code = item.get("axis_code")
+        text_scope = item.get("text_scope")
+        sentence = item.get("sentence")
+
+        if not all(
+            isinstance(value, str)
+            for value in (axis, axis_code, text_scope, sentence)
         ):
-            valid.append(item)
+            continue
+
+        normalized_axis = axis.strip().upper()
+        normalized_axis_code = axis_code.strip().upper()
+        normalized_text_scope = text_scope.strip()
+        normalized_sentence = sentence.strip()
+
+        if not normalized_text_scope or not normalized_sentence:
+            continue
+
+        normalized_item = dict(item)
+        normalized_item["axis"] = normalized_axis
+        normalized_item["axis_code"] = normalized_axis_code
+        normalized_item["text_scope"] = normalized_text_scope
+        normalized_item["sentence"] = normalized_sentence
+        valid.append(normalized_item)
     return valid
 
 
