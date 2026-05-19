@@ -26,7 +26,7 @@ Use this section for changes in progress that are not yet merged into the main b
   Summary Expanded coverage for PDF conversion, cumulative fragment analysis, scientific bridge smoke paths, and scientific-source provider branches; regenerated cumulative QMBD output and manifest artifacts to keep committed outputs synchronized with the current pipeline state.
   Reason PR #170 changes substantive test, output, and manifest artifacts, so the governance rule requires explicit changelog traceability.
   Impact Improves regression coverage for scientific-source and analysis utilities while preserving reproducible output state for full-analysis and governance checks.
-  Provenance PR #170; coverage-expansion test changes; regenerated outputs/cumulative_qmbd_records.json; regenerated MANIFEST_SOURCES.csv.
+  Provenance PR #170; coverage-expansion test changes; regenerated outputs/cumulative_qmbd_records.json; regenerated MANIFEST_SOURCES.csv; governance-and-repro branch changelog sync commit.
   Quality checks CI test-suite passed on Python 3.10, 3.11, and 3.12; manifest reproducibility check passed for MANIFEST_SOURCES.csv; governance-and-repro expected to pass after this CHANGELOG entry.
   Reviewer GitHub Copilot Coding Agent
 
