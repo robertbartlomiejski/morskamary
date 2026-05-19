@@ -888,11 +888,26 @@ def _infer_live_record_sectors(text: str, axis: TMBDAxis) -> List[str]:
 def _extract_live_sentence_classifications(
     row: Dict[str, object],
 ) -> List[Dict[str, object]]:
-    """Return validated sentence-level live classifications from one payload row."""
+    """Return validated sentence-level live classifications from one payload row.
+
+    Enforces the minimum FAIR/QMBD audit schema: each item must be a dict
+    containing all required keys and non-empty ``text_scope`` and ``sentence``
+    values.  Incomplete or malformed items are silently dropped.
+    """
     raw = row.get("sentence_classifications", [])
     if not isinstance(raw, list):
         return []
-    return [item for item in raw if isinstance(item, dict)]
+    _REQUIRED_KEYS: set[str] = {"axis", "axis_code", "text_scope", "sentence"}
+    valid: List[Dict[str, object]] = []
+    for item in raw:
+        if (
+            isinstance(item, dict)
+            and _REQUIRED_KEYS.issubset(item.keys())
+            and item["text_scope"]
+            and item["sentence"]
+        ):
+            valid.append(item)
+    return valid
 
 
 def _dominant_axis_from_live_sentence_classifications(

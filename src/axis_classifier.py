@@ -157,9 +157,22 @@ class AxisClassifier:
         When no dimension is provided, the KEYWORD_AXIS_MAP is scanned in
         declaration order (MARINE → MARITIME → HYDRONIZATION → OCEANIC).
         If no keywords match, the default is OCEANIC (governance-first bias).
+
+        Raises:
+            TypeError: If ``text`` is not a str (and not None) or ``dimension``
+                is not a str (and not None).
         """
+        if not isinstance(text, str):
+            raise TypeError(
+                f"Expected 'text' to be str, got {type(text).__name__}"
+            )
+        if dimension is not None and not isinstance(dimension, str):
+            raise TypeError(
+                f"Expected 'dimension' to be str, got {type(dimension).__name__}"
+            )
+
         if dimension:
-            return map_dimension_to_axis(dimension)
+            return map_dimension_to_axis(dimension.strip().upper())
 
         if not text or not text.strip():
             return BlueDynamicsAxis.OCEANIC
@@ -179,8 +192,22 @@ class AxisClassifier:
         *,
         text_scope: str = "context_sentence",
     ) -> dict[str, Any]:
-        """Classify one contextual sentence and return auditable metadata."""
-        sentence = text.strip()
+        """Classify one contextual sentence and return auditable metadata.
+
+        Raises:
+            TypeError: If ``text`` is not a str (and not None).
+            ValueError: If ``text_scope`` is not a non-empty str.
+        """
+        if not isinstance(text, str):
+            raise TypeError(
+                f"Expected 'text' to be str, got {type(text).__name__}"
+            )
+        if not isinstance(text_scope, str) or not text_scope.strip():
+            raise ValueError(
+                f"'text_scope' must be a non-empty string, got: {text_scope!r}"
+            )
+
+        sentence = text.strip() if text else ""
         axis = self.classify_axis(sentence, dimension=dimension)
         normalized = self._normalize_text(sentence) if sentence else ""
 
