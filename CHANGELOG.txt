@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-05-19
+  Change type fix update
+  Scope src tests
+  Files affected src/scientific_sources/models.py tests/test_axis_classifier.py tests/test_export_live_research_records.py tests/test_run_full_analysis.py CHANGELOG.txt
+  Summary Updated the scientific sources model and aligned test coverage for axis classification, live research export, and full-analysis orchestration.
+  Reason CI requires changelog updates when substantive tracked artifacts change, and these code/test updates alter repository behaviour and verification scope.
+  Impact Preserves governance traceability for source-model and test-suite changes; no undocumented substantive changes remain in the PR.
+  Provenance PR #163.
+  Quality checks CI governance-and-repro rule satisfied after adding CHANGELOG.txt.
+  Reviewer GitHub Copilot Coding Agent
+
 2026-05-14 (Policy-driven live triangulation, QMBD-4 enrichment, and Microsoft Graph integration)
 Change type add update
 Scope scripts src docs config
