@@ -12,6 +12,7 @@ Covers:
 from __future__ import annotations
 
 import json
+import urllib.error
 import urllib.request
 from typing import Any
 
@@ -32,7 +33,6 @@ from src.scientific_sources.provenance import (
     build_provenance_summary,
     export_provenance_json,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -243,9 +243,10 @@ class TestCrossrefProvider:
         provider.search("blue economy", max_results=1)
 
         assert "&select=" in captured_url["url"]
-        assert "abstract" not in captured_url["url"].split("&select=", 1)[1].split(
-            "&rows=", 1
-        )[0]
+        assert (
+            "abstract"
+            not in captured_url["url"].split("&select=", 1)[1].split("&rows=", 1)[0]
+        )
 
     def test_search_returns_error_on_network_failure(self, monkeypatch):
         def fake_urlopen(req, timeout=10):
@@ -336,6 +337,83 @@ class TestElsevierScopusProvider:
         assert result.is_empty
         assert result.warnings
 
+    def test_headers_include_api_key(self, monkeypatch):
+        monkeypatch.setenv("ELSEVIER_API_KEY", "abc")
+        provider = ElsevierScopusProvider()
+        assert provider._headers() == {
+            "X-ELS-APIKey": "abc",
+            "Accept": "application/json",
+        }
+
+    def test_parse_helpers_cover_fallback_branches(self):
+        provider = ElsevierScopusProvider()
+        assert (
+            provider._parse_year(
+                {"prism:coverDate": "N/A", "prism:coverDisplayDate": "May 2022"}
+            )
+            == "2022"
+        )
+        assert provider._parse_subject_terms({"authkeywords": "a|b|c"}) == [
+            "a",
+            "b",
+            "c",
+        ]
+        assert provider._parse_subject_terms({"authkeywords": "a;b"}) == ["a", "b"]
+        assert provider._parse_subject_terms({"authkeywords": "single"}) == ["single"]
+        assert (
+            provider._parse_authors({"author": [{"preferred-name": "Jane Doe"}]})
+            == "Jane Doe"
+        )
+        assert provider._parse_authors({"author": []}) == "Unknown"
+
+    def test_parse_entry_fallback_source_id_and_invalid_citation(self):
+        provider = ElsevierScopusProvider()
+        record = provider._parse_entry(
+            {
+                "dc:title": "Blue ports",
+                "author": [{"authname": "A B"}],
+                "prism:coverDate": "",
+                "prism:doi": "",
+                "prism:publicationName": "Journal",
+                "prism:url": "",
+                "citedby-count": "not-int",
+                "authkeywords": "blue | economy",
+                "eid": "",
+            },
+            "query",
+        )
+        assert record.source_id.startswith("scopus:Blue ports")
+        assert record.citation_count is None
+        assert record.subject_terms == ["blue", "economy"]
+
+    def test_http_error_result_branches(self):
+        rate_limited = ElsevierScopusProvider._http_error_result(
+            "search",
+            urllib.error.HTTPError("https://x", 429, "too many", None, None),
+        )
+        assert rate_limited.rate_limit_status == "rate-limited"
+        unauthorized = ElsevierScopusProvider._http_error_result(
+            "search",
+            urllib.error.HTTPError("https://x", 401, "unauthorized", None, None),
+        )
+        assert "unauthorized" in unauthorized.errors[0].lower()
+        generic = ElsevierScopusProvider._http_error_result(
+            "search",
+            urllib.error.HTTPError("https://x", 500, "server", None, None),
+        )
+        assert "failed (http 500)" in generic.errors[0].lower()
+
+    def test_search_handles_non_list_entry_payload(self, monkeypatch):
+        monkeypatch.setenv("ELSEVIER_API_KEY", "abc")
+        provider = ElsevierScopusProvider()
+        monkeypatch.setattr(
+            provider,
+            "_request_json",
+            lambda _url: {"search-results": {"entry": {"not": "a-list"}}},
+        )
+        result = provider.search("blue economy")
+        assert result.records == []
+
 
 class TestWebOfScienceProvider:
     def test_not_configured_without_key(self, monkeypatch):
@@ -350,6 +428,82 @@ class TestWebOfScienceProvider:
         monkeypatch.setenv("WOS_API_KEY", "woskey")
         provider = WebOfScienceProvider()
         assert provider.capability.configured is True
+
+    def test_headers_include_api_key(self, monkeypatch):
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+        assert provider._headers() == {
+            "X-ApiKey": "woskey",
+            "Accept": "application/json",
+        }
+
+    def test_extract_subject_terms_and_citations_branches(self):
+        provider = WebOfScienceProvider()
+        terms = provider._extract_subject_terms(
+            {
+                "keywords": {
+                    "authorKeywords": ["Ports", "Ports"],
+                    "keywordsPlus": "Governance",
+                    "keyword": "Ocean",
+                }
+            }
+        )
+        assert terms == ["Ports", "Governance", "Ocean"]
+        assert provider._extract_subject_terms({"keywords": "invalid"}) == []
+
+        assert provider._extract_citation_count({"timesCited": 7}) == 7
+        assert provider._extract_citation_count({"citations": [{"count": "x"}]}) is None
+
+    def test_parse_hit_fallback_source_id_and_author_branches(self):
+        provider = WebOfScienceProvider()
+        record = provider._parse_hit(
+            {
+                "title": "",
+                "authors": {"authors": [{"fullName": "Legacy Author"}]},
+                "source": {},
+                "identifiers": {"doi": ""},
+                "links": {},
+                "citations": [],
+                "keywords": {"authorKeywords": ["blue"], "keywordsPlus": ["ports"]},
+                "uid": "",
+            },
+            "query",
+        )
+        assert record.title == "Unknown Title"
+        assert record.authors == "Legacy Author"
+        assert record.source_id.startswith("wos:Unknown Title")
+        assert record.subject_terms == ["blue", "ports"]
+
+    def test_parse_hits_filters_non_dict_items(self):
+        provider = WebOfScienceProvider()
+        records = provider._parse_hits([{"title": "T", "source": {}}, "x"], "q")
+        assert len(records) == 1
+
+    def test_http_error_result_branches(self):
+        rate_limited = WebOfScienceProvider._http_error_result(
+            "search",
+            urllib.error.HTTPError("https://x", 429, "too many", None, None),
+        )
+        assert rate_limited.rate_limit_status == "rate-limited"
+        unauthorized = WebOfScienceProvider._http_error_result(
+            "search",
+            urllib.error.HTTPError("https://x", 403, "forbidden", None, None),
+        )
+        assert "unauthorized" in unauthorized.errors[0].lower()
+        generic = WebOfScienceProvider._http_error_result(
+            "search",
+            urllib.error.HTTPError("https://x", 500, "server", None, None),
+        )
+        assert "failed (http 500)" in generic.errors[0].lower()
+
+    def test_search_handles_non_list_hits_payload(self, monkeypatch):
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+        monkeypatch.setattr(
+            provider, "_request_json", lambda _url: {"hits": {"not": "list"}}
+        )
+        result = provider.search("blue economy")
+        assert result.records == []
 
 
 class TestSciValProvider:
@@ -568,6 +722,7 @@ class TestElsevierScopusConfiguredPaths:
             return _DummyResponse(payload)
 
         monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
+
     """Tests for ElsevierScopusProvider when an API key is present."""
 
     # Minimal synthetic Scopus search-results payload.
@@ -598,6 +753,7 @@ class TestElsevierScopusConfiguredPaths:
             return _DummyResponse(self._SCOPUS_PAYLOAD)
 
         import urllib.request
+
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
 
         provider = ElsevierScopusProvider()
@@ -606,7 +762,11 @@ class TestElsevierScopusConfiguredPaths:
         assert result.records[0].provider == "Scopus"
         assert result.records[0].doi == "10.9999/scopus-test"
         assert result.records[0].citation_count == 7
-        assert result.records[0].subject_terms == ["maritime", "governance", "blue economy"]
+        assert result.records[0].subject_terms == [
+            "maritime",
+            "governance",
+            "blue economy",
+        ]
         assert result.provenance
 
     def test_verify_doi_with_key_returns_parsed_records(self, monkeypatch):
@@ -693,6 +853,7 @@ class TestElsevierScopusConfiguredPaths:
             return _DummyResponse(self._SCOPUS_PAYLOAD)
 
         import urllib.request
+
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
 
         provider = ElsevierScopusProvider()
@@ -709,6 +870,7 @@ class TestElsevierScopusConfiguredPaths:
             raise OSError("network down")
 
         import urllib.request
+
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
 
         provider = ElsevierScopusProvider()
@@ -725,6 +887,7 @@ class TestElsevierScopusConfiguredPaths:
             return _DummyResponse(self._SCOPUS_PAYLOAD)
 
         import urllib.request
+
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
 
         provider = ElsevierScopusProvider()
@@ -740,6 +903,7 @@ class TestElsevierScopusConfiguredPaths:
             raise OSError("timeout")
 
         import urllib.request
+
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
 
         provider = ElsevierScopusProvider()
@@ -757,6 +921,7 @@ class TestElsevierScopusConfiguredPaths:
             return _DummyResponse(payload)
 
         import urllib.request
+
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
 
         provider = ElsevierScopusProvider()
@@ -1027,9 +1192,7 @@ class TestWebOfScienceConfiguredPaths:
                 "title": "Maritime Transport Resilience",
                 "types": ["Article"],
                 "names": {
-                    "authors": [
-                        {"displayName": "Smith, J.", "wosStandard": "Smith, J"}
-                    ]
+                    "authors": [{"displayName": "Smith, J.", "wosStandard": "Smith, J"}]
                 },
                 "source": {"sourceTitle": "Maritime Policy", "publishYear": 2022},
                 "identifiers": {"doi": "10.8888/wos-test"},
@@ -1053,6 +1216,7 @@ class TestWebOfScienceConfiguredPaths:
             return _DummyResponse(self._WOS_PAYLOAD)
 
         import urllib.request
+
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
 
         provider = WebOfScienceProvider()
@@ -1077,6 +1241,7 @@ class TestWebOfScienceConfiguredPaths:
             return _DummyResponse(self._WOS_PAYLOAD)
 
         import urllib.request
+
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
 
         provider = WebOfScienceProvider()
@@ -1093,6 +1258,7 @@ class TestWebOfScienceConfiguredPaths:
             raise OSError("network down")
 
         import urllib.request
+
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
 
         provider = WebOfScienceProvider()
@@ -1109,6 +1275,7 @@ class TestWebOfScienceConfiguredPaths:
             return _DummyResponse(self._WOS_PAYLOAD)
 
         import urllib.request
+
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
 
         provider = WebOfScienceProvider()
@@ -1124,6 +1291,7 @@ class TestWebOfScienceConfiguredPaths:
             raise OSError("timeout")
 
         import urllib.request
+
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
 
         provider = WebOfScienceProvider()
@@ -1140,6 +1308,7 @@ class TestWebOfScienceConfiguredPaths:
             return _DummyResponse(self._WOS_PAYLOAD)
 
         import urllib.request
+
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
 
         provider = WebOfScienceProvider()
@@ -1297,8 +1466,11 @@ class TestProbeMicrosoftGraph:
 
         def fake_urlopen(req, timeout=5):
             raise urllib.error.HTTPError(
-                url="https://example.com", code=401,
-                msg="Unauthorized", hdrs=email.message.Message(), fp=None,
+                url="https://example.com",
+                code=401,
+                msg="Unauthorized",
+                hdrs=email.message.Message(),
+                fp=None,
             )
 
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
@@ -1326,5 +1498,7 @@ class TestProbeMicrosoftGraph:
             def __exit__(self, *_):
                 pass
 
-        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=5: _FakeResp())
+        monkeypatch.setattr(
+            urllib.request, "urlopen", lambda req, timeout=5: _FakeResp()
+        )
         assert probe_microsoft_graph("t", "c", "s") == "present-and-valid"

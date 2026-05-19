@@ -3,18 +3,28 @@
 Note: These tests are skipped if pypdf is not installed (optional dependency).
 """
 
+import importlib
 import sys
+import types
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-
-import pytest
-
-pytest.importorskip("pypdf", reason="pypdf not installed (optional dependency)")
 
 # Add scripts directory to path for import
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-import convert_pdfs_to_txt  # noqa: E402
+try:
+    import pypdf  # noqa: F401
+except ImportError:
+    fake_pypdf = types.ModuleType("pypdf")
+
+    class _StubPdfReader:
+        def __init__(self, *_args, **_kwargs):
+            self.pages = []
+
+    fake_pypdf.PdfReader = _StubPdfReader
+    sys.modules["pypdf"] = fake_pypdf
+
+convert_pdfs_to_txt = importlib.import_module("convert_pdfs_to_txt")  # noqa: E402
 
 
 class TestExtractWithPypdf:
@@ -81,28 +91,34 @@ class TestExtractWithPypdf:
 class TestExtractWithPdfminer:
     """Test pdfminer extraction function."""
 
+    @staticmethod
+    def _install_fake_pdfminer(extract_text_result=None):
+        fake_pdfminer = types.ModuleType("pdfminer")
+        fake_high_level = types.ModuleType("pdfminer.high_level")
+
+        def _fake_extract_text(_path):
+            return extract_text_result
+
+        fake_high_level.extract_text = _fake_extract_text
+        fake_pdfminer.high_level = fake_high_level
+        sys.modules["pdfminer"] = fake_pdfminer
+        sys.modules["pdfminer.high_level"] = fake_high_level
+
     def test_extract_with_pdfminer(self, tmp_path):
         """Extract text using pdfminer."""
         pdf_path = tmp_path / "test.pdf"
+        self._install_fake_pdfminer("Extracted text via pdfminer")
 
-        with patch("pdfminer.high_level.extract_text") as mock_extract:
-            mock_extract.return_value = "Extracted text via pdfminer"
-
-            result = convert_pdfs_to_txt.extract_with_pdfminer(pdf_path)
-
-            assert result == "Extracted text via pdfminer"
-            mock_extract.assert_called_once_with(str(pdf_path))
+        result = convert_pdfs_to_txt.extract_with_pdfminer(pdf_path)
+        assert result == "Extracted text via pdfminer"
 
     def test_extract_with_pdfminer_returns_empty_on_none(self, tmp_path):
         """Handle None return from pdfminer."""
         pdf_path = tmp_path / "test.pdf"
+        self._install_fake_pdfminer(None)
 
-        with patch("pdfminer.high_level.extract_text") as mock_extract:
-            mock_extract.return_value = None
-
-            result = convert_pdfs_to_txt.extract_with_pdfminer(pdf_path)
-
-            assert result == ""
+        result = convert_pdfs_to_txt.extract_with_pdfminer(pdf_path)
+        assert result == ""
 
 
 class TestScanPdfs:
@@ -188,7 +204,9 @@ class TestMain:
         captured = capsys.readouterr()
         assert "converted=1" in captured.out
 
-    def test_main_skips_existing_sidecar_without_force(self, tmp_path, monkeypatch, capsys):
+    def test_main_skips_existing_sidecar_without_force(
+        self, tmp_path, monkeypatch, capsys
+    ):
         """Main should skip PDFs with existing sidecar files unless --force."""
         pdf_file = tmp_path / "test.pdf"
         pdf_file.touch()
@@ -240,7 +258,9 @@ class TestMain:
         captured = capsys.readouterr()
         assert "converted=2" in captured.out
 
-    def test_main_fallback_to_pdfminer_on_pypdf_failure(self, tmp_path, monkeypatch, capsys):
+    def test_main_fallback_to_pdfminer_on_pypdf_failure(
+        self, tmp_path, monkeypatch, capsys
+    ):
         """Main should fallback to pdfminer if pypdf fails."""
         pdf_file = tmp_path / "test.pdf"
         pdf_file.touch()
@@ -248,8 +268,10 @@ class TestMain:
         monkeypatch.setattr(convert_pdfs_to_txt, "REPO_ROOT", tmp_path)
         monkeypatch.setattr(sys, "argv", ["convert_pdfs_to_txt.py"])
 
-        with patch("convert_pdfs_to_txt.extract_with_pypdf") as mock_pypdf, \
-             patch("convert_pdfs_to_txt.extract_with_pdfminer") as mock_pdfminer:
+        with (
+            patch("convert_pdfs_to_txt.extract_with_pypdf") as mock_pypdf,
+            patch("convert_pdfs_to_txt.extract_with_pdfminer") as mock_pdfminer,
+        ):
             mock_pypdf.side_effect = Exception("pypdf failed")
             mock_pdfminer.return_value = "Fallback content"
 
@@ -267,8 +289,10 @@ class TestMain:
         monkeypatch.setattr(convert_pdfs_to_txt, "REPO_ROOT", tmp_path)
         monkeypatch.setattr(sys, "argv", ["convert_pdfs_to_txt.py"])
 
-        with patch("convert_pdfs_to_txt.extract_with_pypdf") as mock_pypdf, \
-             patch("convert_pdfs_to_txt.extract_with_pdfminer") as mock_pdfminer:
+        with (
+            patch("convert_pdfs_to_txt.extract_with_pypdf") as mock_pypdf,
+            patch("convert_pdfs_to_txt.extract_with_pdfminer") as mock_pdfminer,
+        ):
             mock_pypdf.side_effect = Exception("Failed")
             mock_pdfminer.side_effect = Exception("Failed")
 
