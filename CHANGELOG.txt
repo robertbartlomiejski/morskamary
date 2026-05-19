@@ -21,6 +21,17 @@ Use this section for changes in progress that are not yet merged into the main b
 
 - 2026-05-19
   Change type fix update
+  Scope src tests
+  Files affected src/axis_classifier.py tests/test_axis_classifier.py tests/test_check_research_api_health.py tests/test_run_full_analysis.py CHANGELOG.txt
+  Summary Refined axis classification behavior and expanded regression coverage for research API health checks and full-analysis orchestration.
+  Reason CI requires changelog updates when substantive tracked artifacts change, and this PR modifies source and test files.
+  Impact Preserves governance traceability for classifier and orchestration changes; no substantive source/test update is left undocumented.
+  Provenance PR #162.
+  Quality checks CI governance-and-repro rule satisfied after adding CHANGELOG.txt.
+  Reviewer GitHub Copilot Chat Assistant
+
+- 2026-05-19
+  Change type fix update
   Scope src tests governance
   Files affected src/scientific_sources/crossref.py tests/test_scientific_sources.py CHANGELOG.txt
   Summary Stopped the Crossref search request from asking for abstract metadata and added regression coverage ensuring the provider requests only the export-safe metadata fields it actually uses.
