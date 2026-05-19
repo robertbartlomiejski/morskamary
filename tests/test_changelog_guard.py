@@ -82,6 +82,11 @@ class TestEvaluateChangedFiles:
 class TestDiffChangedFiles:
     """Tests for git diff integration."""
 
+    def test_rejects_empty_base_ref(self) -> None:
+        """An empty base ref should fail fast before running git."""
+        with pytest.raises(ValueError, match="base_ref must not be empty"):
+            changelog_guard.diff_changed_files(" ")
+
     def test_raises_when_git_diff_fails(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """A git diff failure should surface as a runtime error."""
 
@@ -122,6 +127,11 @@ class TestDiffChangedFiles:
 class TestMain:
     """CLI tests for the changelog guard."""
 
+    def test_main_requires_input_source(self) -> None:
+        """CLI should require either explicit files or a base ref."""
+        with pytest.raises(SystemExit, match="2"):
+            changelog_guard.main([])
+
     def test_main_returns_failure_for_missing_changelog(
         self, capsys: pytest.CaptureFixture[str]
     ) -> None:
@@ -147,6 +157,25 @@ class TestMain:
                 "CHANGELOG.txt",
             ]
         )
+
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert "CHANGELOG enforcement passed." in captured.out
+
+    def test_main_uses_base_ref_diff(
+        self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """CLI should delegate to git diff when a base ref is provided."""
+
+        def fake_diff(base_ref: str, head_ref: str, repo_root):  # type: ignore[no-untyped-def]
+            assert base_ref == "main"
+            assert head_ref == "HEAD"
+            assert str(repo_root) == "."
+            return ("CHANGELOG.txt", "scripts/changelog_guard.py")
+
+        monkeypatch.setattr(changelog_guard, "diff_changed_files", fake_diff)
+
+        exit_code = changelog_guard.main(["--base-ref", "main"])
 
         captured = capsys.readouterr()
         assert exit_code == 0

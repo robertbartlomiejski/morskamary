@@ -27,7 +27,7 @@ Use this section for changes in progress that are not yet merged into the main b
   Reason Coverage analysis showed the CHANGELOG policy lived only in an inline workflow shell block with no dedicated tests, leaving pull/commit-style enforcement behavior unverified.
   Impact Makes the governance rule testable and easier to maintain while preserving the existing lightweight policy for substantive tracked artifacts.
   Provenance `.github/workflows/ci.yml` CHANGELOG enforcement step; `scripts/changelog_guard.py`; `tests/test_changelog_guard.py`.
-  Quality checks Pending targeted pytest, full pytest with coverage, `python scripts/generate_manifest.py`, and CodeQL review.
+  Quality checks `python scripts/generate_manifest.py` passed; `python -m pytest tests/test_changelog_guard.py -q` passed (26 tests); `python -m pytest tests/ -q --cov=src --cov=scripts --cov-report=term-missing` passed (561 passed, 1 skipped, total coverage 81%); `flake8 scripts/changelog_guard.py tests/test_changelog_guard.py` passed.
   Reviewer GitHub Copilot Coding Agent
 
 - 2026-05-19
