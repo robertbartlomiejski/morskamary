@@ -156,31 +156,7 @@ jobs:
 
           base_ref="${{ github.base_ref }}"
           git fetch origin "$base_ref" --depth=1 || true
-
-          changed="$(git diff --name-only "origin/$base_ref"...HEAD || true)"
-
-          needs_changelog=0
-          while IFS= read -r f; do
-            [[ -z "$f" ]] && continue
-            [[ "$f" == "CHANGELOG.txt" ]] && continue
-
-            if [[ "$f" == "scripts/"* ]] || [[ "$f" == "prompts/"* ]] || [[ "$f" == "templates/"* ]] || \
-               [[ "$f" == "data/"* ]] || [[ "$f" == *.csv ]] || [[ "$f" == *.xlsx ]] || [[ "$f" == *.pdf ]] || \
-               [[ "$f" == "CITATION.txt" ]] || [[ "$f" == "DATA_GOVERNANCE.txt" ]] || [[ "$f" == "LLM_CONTEXT_INSTRUCTION.txt" ]]; then
-              needs_changelog=1
-            fi
-          done <<< "$changed"
-
-          if [[ "$needs_changelog" -eq 1 ]]; then
-            if ! echo "$changed" | grep -qx "CHANGELOG.txt"; then
-              echo "PR changes substantive artifacts but does not update CHANGELOG.txt."
-              echo "Changed files:"
-              echo "$changed"
-              exit 1
-            fi
-          fi
-
-          echo "CHANGELOG enforcement passed."
+          python3 scripts/changelog_guard.py --base-ref "$base_ref"
 
   test-suite:
     needs: [conflict-marker-check]
