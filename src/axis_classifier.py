@@ -103,6 +103,11 @@ class AxisClassifier:
     }
     _SEPARATOR_RE = re.compile(r"[-_]+")
     _WHITESPACE_RE = re.compile(r"\s+")
+    _BLUE_WORD_RE = re.compile(r"\bblue\b")
+    _BLUE_PLANETARYISM_TERMS_RE = re.compile(
+        r"\b(?:economy|resilience|sustainability|transition|growth|innovation"
+        r"|development|investment|circular|competitiveness|adaptation)\b"
+    )
     _compiled_keyword_map: (
         dict[BlueDynamicsAxis, tuple[re.Pattern[str], ...]] | None
     ) = None
@@ -220,6 +225,19 @@ class AxisClassifier:
                 matched_keywords.append(keyword)
 
         confidence_score = 0.95 if matched_keywords else 0.6
+
+        # Check the full keyword map — independent of the resolved axis — so
+        # that providing a `dimension` argument never produces a false positive.
+        any_axis_keyword_matched = any(
+            self._matches_any_keyword(normalized, patterns)
+            for patterns in self._get_compiled_keyword_map().values()
+        )
+        is_blue_planetaryism = bool(
+            not any_axis_keyword_matched
+            and self._BLUE_WORD_RE.search(normalized)
+            and self._BLUE_PLANETARYISM_TERMS_RE.search(normalized)
+        )
+
         return {
             "axis": axis.name,
             "axis_code": axis.value,
@@ -227,4 +245,5 @@ class AxisClassifier:
             "sentence": sentence,
             "matched_keywords": matched_keywords,
             "confidence_score": confidence_score,
+            "is_blue_planetaryism": is_blue_planetaryism,
         }
