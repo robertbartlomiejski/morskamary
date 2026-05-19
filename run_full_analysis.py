@@ -282,10 +282,18 @@ def _classify_sentence_contexts(
             text_scope="full_sentence",
         )
         axis_name = str(axis_payload.get("axis", "")).upper()
-        matched_axes = [axis_name] if axis_name in TMBDAxis.__members__ else []
+        matched_keywords = axis_payload.get("matched_keywords", [])
+        has_supported_evidence = isinstance(matched_keywords, list) and any(
+            isinstance(keyword, str) and keyword.strip() for keyword in matched_keywords
+        )
+        matched_axes = (
+            [axis_name]
+            if axis_name in TMBDAxis.__members__ and has_supported_evidence
+            else []
+        )
         classification_name = (
             axis_name
-            if axis_name in TMBDAxis.__members__
+            if axis_name in TMBDAxis.__members__ and has_supported_evidence
             else "UNCLASSIFIED_REVIEW_REQUIRED"
         )
         classifications.append(
@@ -304,6 +312,27 @@ def _classify_sentence_contexts(
     return classifications
 
 
+def _sentence_classification_counts_as_evidence(item: Dict[str, Any]) -> bool:
+    """Return True when a sentence-level classification contains positive axis evidence."""
+    matched_keywords = item.get("matched_keywords", [])
+    if isinstance(matched_keywords, list) and any(
+        isinstance(keyword, str) and keyword.strip() for keyword in matched_keywords
+    ):
+        return True
+
+    confidence_score = item.get("confidence_score")
+    if isinstance(confidence_score, (int, float)) and float(confidence_score) > 0.6:
+        return True
+
+    axis_name = str(item.get("axis") or item.get("classification") or "").strip().upper()
+    if axis_name in {"MARINE", "MARITIME", "HYDRONIZATION"} and (
+        "matched_keywords" not in item and "confidence_score" not in item
+    ):
+        return True
+
+    return False
+
+
 def _resolve_primary_axis_from_analysis(
     analysis: List[Dict[str, Any]], default_axis: str = "OCEANIC"
 ) -> TMBDAxis:
@@ -315,6 +344,8 @@ def _resolve_primary_axis_from_analysis(
         "HYDRONIZATION": 0,
     }
     for item in analysis:
+        if not _sentence_classification_counts_as_evidence(item):
+            continue
         classification = str(item.get("classification", "")) or str(
             item.get("axis", "")
         )
@@ -941,15 +972,28 @@ def _dominant_axis_from_live_sentence_classifications(
     sentence_classifications: List[Dict[str, object]],
 ) -> Optional[TMBDAxis]:
     """Resolve dominant axis from sentence-level live classifications."""
-    axis_count: Dict[str, int] = {}
+    axis_count: Dict[str, int] = {
+        "MARINE": 0,
+        "MARITIME": 0,
+        "OCEANIC": 0,
+        "HYDRONIZATION": 0,
+    }
     for item in sentence_classifications:
+        if not _sentence_classification_counts_as_evidence(dict(item)):
+            continue
         axis_name = str(item.get("axis", "")).strip().upper()
-        if axis_name in TMBDAxis.__members__:
-            axis_count[axis_name] = axis_count.get(axis_name, 0) + 1
-    if not axis_count:
+        if axis_name in axis_count:
+            axis_count[axis_name] += 1
+    ranked = sorted(axis_count.items(), key=lambda pair: pair[1], reverse=True)
+    if not ranked or ranked[0][1] <= 0:
         return None
-    winner = max(axis_count.items(), key=lambda pair: pair[1])[0]
-    return TMBDAxis[winner]
+    top_score = ranked[0][1]
+    tied_axes = [axis for axis, score in ranked if score == top_score]
+    precedence = ("MARINE", "MARITIME", "HYDRONIZATION", "OCEANIC")
+    for axis_name in precedence:
+        if axis_name in tied_axes:
+            return TMBDAxis[axis_name]
+    return None
 
 
 def extract_literature_competences() -> List[Competence]:

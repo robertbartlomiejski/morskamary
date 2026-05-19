@@ -551,6 +551,52 @@ def test_resolve_primary_axis_from_analysis_uses_default_when_unclassified() -> 
     )
 
 
+def test_resolve_primary_axis_from_analysis_ignores_fallback_oceanic_without_evidence() -> None:
+    """Fallback OCEANIC sentences must not outvote keyword-backed evidence."""
+    from run_full_analysis import _resolve_primary_axis_from_analysis
+
+    analysis = [
+        {
+            "classification": "OCEANIC",
+            "axis": "OCEANIC",
+            "matched_keywords": [],
+            "confidence_score": 0.6,
+            "matched_qmbd_axes": [],
+        },
+        {
+            "classification": "OCEANIC",
+            "axis": "OCEANIC",
+            "matched_keywords": [],
+            "confidence_score": 0.6,
+            "matched_qmbd_axes": [],
+        },
+        {
+            "classification": "MARINE",
+            "axis": "MARINE",
+            "matched_keywords": ["ecosystem"],
+            "confidence_score": 0.95,
+            "matched_qmbd_axes": ["MARINE"],
+        },
+    ]
+
+    assert _resolve_primary_axis_from_analysis(analysis).name == "MARINE"
+
+
+def test_classify_sentence_contexts_marks_no_keyword_sentences_unclassified() -> None:
+    """No-keyword fallback sentences should stay auditable but not count as OCEANIC evidence."""
+    from run_full_analysis import _classify_sentence_contexts
+
+    analysis = _classify_sentence_contexts(
+        ["Generic blue economy transition with no classifier keywords."],
+        "source:test",
+    )
+
+    assert len(analysis) == 1
+    assert analysis[0]["axis"] == "OCEANIC"
+    assert analysis[0]["classification"] == "UNCLASSIFIED_REVIEW_REQUIRED"
+    assert analysis[0]["matched_qmbd_axes"] == []
+
+
 def test_serialize_subject_terms_handles_lists_and_scalars() -> None:
     """Subject terms should be serialized deterministically for enrichment text."""
     from run_full_analysis import _serialize_subject_terms
@@ -1433,6 +1479,58 @@ def test_extract_live_records_competences_accepts_sanitized_sentence_metadata(
                             "text_scope": "live_api_subject_terms_sentence",
                             "sentence_hash": "def456",
                             "sentence_length": 31,
+                        },
+                    ],
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    competences = extract_live_records_competences(live_file)
+    assert len(competences) == 1
+    assert competences[0].axis == TMBDAxis.MARITIME
+
+
+def test_extract_live_records_competences_ignores_fallback_oceanic_sentences(
+    tmp_path: Path,
+) -> None:
+    """Fallback OCEANIC live sentences without evidence must not dominate axis choice."""
+    live_file = tmp_path / "live_records.json"
+    live_file.write_text(
+        json.dumps(
+            [
+                {
+                    "title": "General blue economy transition",
+                    "provider": "Crossref",
+                    "journal": "Ocean Studies",
+                    "sentence_classifications": [
+                        {
+                            "axis": "OCEANIC",
+                            "axis_code": "O",
+                            "text_scope": "live_api_abstract_sentence",
+                            "matched_keywords": [],
+                            "confidence_score": 0.6,
+                            "sentence_hash": "oceanic1",
+                            "sentence_length": 41,
+                        },
+                        {
+                            "axis": "OCEANIC",
+                            "axis_code": "O",
+                            "text_scope": "live_api_abstract_sentence",
+                            "matched_keywords": [],
+                            "confidence_score": 0.6,
+                            "sentence_hash": "oceanic2",
+                            "sentence_length": 37,
+                        },
+                        {
+                            "axis": "MARITIME",
+                            "axis_code": "T",
+                            "text_scope": "live_api_title_sentence",
+                            "matched_keywords": ["port"],
+                            "confidence_score": 0.95,
+                            "sentence_hash": "maritime1",
+                            "sentence_length": 28,
                         },
                     ],
                 }
