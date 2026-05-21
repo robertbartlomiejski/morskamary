@@ -662,6 +662,7 @@ demo_workspace_instructions.py,script,,,,,,demo_workspace_instructions,yes
 Deploy-CopilotSynergy.ps1,other,,,,,,Deploy_CopilotSynergy,no
 Dockerfile,other,,,,,,Dockerfile,no
 Dockerfile.txt,text,,,,,,Dockerfile,yes
+docs/AGENT_WORKING_AGREEMENT.md,text,,,,,,AGENT_WORKING_AGREEMENT,yes
 docs/BASELINE_VALIDATION.md,text,,,,,,BASELINE_VALIDATION,yes
 docs/GOOGLE_CLOUD_BUILD_OPTIONAL_SETUP.md,text,,,,,,GOOGLE_CLOUD_BUILD_OPTIONAL_SETUP,yes
 docs/licensing_and_compliance.md,text,,,,,,licensing_and_compliance,yes

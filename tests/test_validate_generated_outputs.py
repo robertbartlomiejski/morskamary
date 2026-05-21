@@ -1,8 +1,6 @@
 """Tests for scripts/validate_generated_outputs.py."""
 
-import csv
 import json
-import sys
 from pathlib import Path
 
 import pytest
