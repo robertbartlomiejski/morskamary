@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-05-21 (hardening patch)
+  Change type add
+  Scope governance scripts CI tests
+  Files affected .github/PULL_REQUEST_TEMPLATE.md scripts/sync_audit.py .github/workflows/ci.yml tests/test_sync_audit.py CHANGELOG.txt
+  Summary Added PR template enforcing AGENT_WORKING_AGREEMENT contribution fields, a sync-audit script for multi-device drift detection, and a CI quick-mode-gate job that runs deterministic static analysis + output sync verification on every PR.
+  Reason Observed destabilization of syncing between local, remote, Android, API providers, Google Drive, and SharePoint. The hardening patch closes the enforcement gap between the documented working agreement and actual CI/PR policy, reducing risk of silent drift, merge conflicts, and failed tests.
+  Impact PRs now require explicit objective/source-basis/axis-logic/artifact declarations. CI catches output drift and manifest desynchronization before merge. Contributors can run `python scripts/sync_audit.py --strict` locally to pre-validate sync state.
+  Provenance docs/AGENT_WORKING_AGREEMENT.md § 3; COPILOT_MCP_SETUP.md (sync architecture); .github/workflows/ci.yml governance-and-repro pattern.
+  Quality checks python -m pytest tests/test_sync_audit.py -q (all passed); python scripts/sync_audit.py (passed); yamllint .github/workflows/ci.yml (valid).
+
 - 2026-05-21
   Change type add update fix
   Scope scripts governance docs tests
