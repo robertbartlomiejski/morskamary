@@ -30,7 +30,12 @@ MODE="full-static"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --mode)
-      MODE="${2:-}"
+      if [[ -z "${2:-}" ]]; then
+        echo "Error: --mode requires a value (quick|full-static|full-live)"
+        echo "Usage: ./scripts/run_research_api_full.sh [--mode quick|full-static|full-live] [--live]"
+        exit 1
+      fi
+      MODE="$2"
       shift 2
       ;;
     --mode=*)

@@ -475,7 +475,11 @@ def check_cumulative_qmbd_records(records: list[dict]) -> None:
     duplicate_keys = set()
     seen_keys = set()
     for item in records:
-        key = (str(item.get("record_origin", "")), str(item.get("source_id", "")))
+        origin = item.get("record_origin", "")
+        source = item.get("source_id", "")
+        if not origin or not source:
+            continue
+        key = (str(origin), str(source))
         if key in seen_keys:
             duplicate_keys.add(key)
         seen_keys.add(key)

@@ -26,6 +26,7 @@ def test_validator_passes_on_regenerated_outputs() -> None:
         outputs_dir / "gaps_summary.csv",
         outputs_dir / "credentials_database.json",
         outputs_dir / "competences_full_database.json",
+        outputs_dir / "cumulative_qmbd_records.json",
     ]
     for f in required:
         if not f.exists():
@@ -34,11 +35,6 @@ def test_validator_passes_on_regenerated_outputs() -> None:
     mod = _load_validator_module()
     result = mod.main()
     assert result == 0, "Validator reported failures on regenerated outputs"
-
-
-# ---------------------------------------------------------------------------
-# Unit tests for individual check functions
-# ---------------------------------------------------------------------------
 
 
 def _load_validator_module():
@@ -103,6 +99,7 @@ def test_main_state_reset_between_calls() -> None:
         outputs_dir / "gaps_summary.csv",
         outputs_dir / "credentials_database.json",
         outputs_dir / "competences_full_database.json",
+        outputs_dir / "cumulative_qmbd_records.json",
     ]
     for f in required:
         if not f.exists():
