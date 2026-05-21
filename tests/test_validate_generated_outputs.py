@@ -282,8 +282,16 @@ class TestCheckCredentials:
                 lit_ids = eqf6_lit_ids.get(sector, []) if level in [6, 7] else []
                 creds.append(
                     {
+                        "id": f"{sector.lower().replace(' ', '_')}_eqf{level}",
+                        "title": f"{sector} EQF{level}",
                         "sector": sector,
                         "eqf_level": level,
+                        "ects": 3.0,
+                        "assessment_method": "Portfolio and applied case study",
+                        "learner_profile": "Practitioner transitioning into blue sector roles",
+                        "learning_outcomes": [f"Outcome EQF{level}"],
+                        "stackability_rules": "Stackable toward sector specialization pathway",
+                        "prerequisites": [],
                         "competences": ["baseline_a_1"] + lit_ids,
                     }
                 )
@@ -346,7 +354,21 @@ class TestCheckCredentials:
         for sector in CANONICAL_SECTORS:
             levels = [4, 5, 6, 7] if sector != "Desalination" else [4, 5, 6]
             for level in levels:
-                creds.append({"sector": sector, "eqf_level": level, "competences": ["baseline_a_1"]})
+                creds.append(
+                    {
+                        "id": f"{sector.lower().replace(' ', '_')}_eqf{level}",
+                        "title": f"{sector} EQF{level}",
+                        "sector": sector,
+                        "eqf_level": level,
+                        "ects": 3.0,
+                        "assessment_method": "Portfolio and applied case study",
+                        "learner_profile": "Practitioner transitioning into blue sector roles",
+                        "learning_outcomes": [f"Outcome EQF{level}"],
+                        "stackability_rules": "Stackable toward sector specialization pathway",
+                        "prerequisites": [],
+                        "competences": ["baseline_a_1"],
+                    }
+                )
         mod.check_credentials(creds, comps)
         # A failure for Desalination must be present
         assert any("Desalination" in e and "7" in e for e in mod.ERRORS), (
@@ -393,3 +415,83 @@ class TestCheckSectorDictionaries:
         self._write_dict_files(tmp_path, {s: [f"comp_{s}"] for s in stems})
         mod.check_sector_dictionaries(tmp_path)
         assert not mod.ERRORS, f"Unexpected errors: {mod.ERRORS}"
+
+
+class TestCumulativeQmbdValidation:
+    def test_load_cumulative_qmbd_records_fails_on_missing_record_origin(
+        self, tmp_path: Path
+    ) -> None:
+        mod = _load_validator_module()
+        payload = [
+            {
+                "source_id": "s1",
+                "title": "t1",
+                "axis_name": "OCEANIC",
+                "qmbd_analysis": [
+                    {
+                        "axis": "OCEANIC",
+                        "axis_code": "O",
+                        "text_scope": "full_sentence",
+                        "sentence": "Ocean literacy.",
+                    }
+                ],
+            }
+        ]
+        bad_file = tmp_path / "cumulative.json"
+        bad_file.write_text(json.dumps(payload))
+        mod.load_cumulative_qmbd_records(bad_file)
+        assert any("record_origin" in e for e in mod.ERRORS), mod.ERRORS
+
+    def test_check_cumulative_qmbd_records_detects_duplicate_origin_source_id(self) -> None:
+        mod = _load_validator_module()
+        record = {
+            "source_id": "dup-id",
+            "title": "Title",
+            "axis_name": "MARINE",
+            "record_origin": "STATIC_BASELINE",
+            "qmbd_analysis": [
+                {
+                    "axis": "MARINE",
+                    "axis_code": "M",
+                    "text_scope": "full_sentence",
+                    "sentence": "Marine ecosystem dynamics.",
+                }
+            ],
+        }
+        mod.check_cumulative_qmbd_records([record, dict(record)])
+        assert any("Duplicate (record_origin, source_id)" in e for e in mod.ERRORS)
+
+    def test_check_cumulative_qmbd_records_passes_with_required_origins(self) -> None:
+        mod = _load_validator_module()
+        records = [
+            {
+                "source_id": "baseline_1",
+                "title": "Ocean literacy",
+                "axis_name": "OCEANIC",
+                "record_origin": "STATIC_BASELINE",
+                "qmbd_analysis": [
+                    {
+                        "axis": "OCEANIC",
+                        "axis_code": "O",
+                        "text_scope": "full_sentence",
+                        "sentence": "Ocean literacy.",
+                    }
+                ],
+            },
+            {
+                "source_id": "lit_1",
+                "title": "Policy competence",
+                "axis_name": "MARITIME",
+                "record_origin": "STATIC_LITERATURE",
+                "qmbd_analysis": [
+                    {
+                        "axis": "MARITIME",
+                        "axis_code": "T",
+                        "text_scope": "full_sentence",
+                        "sentence": "Port governance and policy.",
+                    }
+                ],
+            },
+        ]
+        mod.check_cumulative_qmbd_records(records)
+        assert not mod.ERRORS, mod.ERRORS

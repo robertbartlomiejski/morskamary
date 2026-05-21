@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-05-21
+  Change type add update fix
+  Scope scripts governance docs tests
+  Files affected scripts/run_research_api_full.sh scripts/run_research_api_full.ps1 scripts/validate_generated_outputs.py tests/test_validate_generated_outputs.py docs/AGENT_WORKING_AGREEMENT.md docs/ONE_CLICK_RESEARCH_RUNBOOK.md README.md CHANGELOG.txt
+  Summary Implemented a shared Agent Working Agreement checklist and standardized one-command workflow modes (`quick`, `full-static`, `full-live`) with explicit provider capability diagnostics. Strengthened output semantic validation with cumulative QMBD schema checks and stricter micro-credential completeness requirements.
+  Reason The collaboration plan required a single operational contract for all contributors plus stronger automation and consistency gates aligned to repository scientific aims and governance traceability.
+  Impact Improves cross-contributor alignment, makes standard execution modes explicit, and hardens validation for cumulative QMBD integrity and required credential fields before downstream analysis/review.
+  Provenance docs/AGENT_WORKING_AGREEMENT.md (new contract); scripts/run_research_api_full* mode orchestration; scripts/validate_generated_outputs.py new gates; tests/test_validate_generated_outputs.py regression coverage.
+  Quality checks python -m pytest tests/test_validate_generated_outputs.py -q; python -m pytest tests/test_run_full_analysis.py tests/test_script_cli.py tests/test_main_entrypoints.py -q; python scripts/validate_generated_outputs.py; python scripts/run_research_api_full.py (N/A, shell/PowerShell scripts reviewed); flake8 and mypy baseline issues remain pre-existing outside modified scope.
+  Reviewer GitHub Copilot Coding Agent
+
 - 2026-05-19
   Change type add fix update
   Scope tests outputs governance

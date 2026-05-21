@@ -90,7 +90,14 @@ python scripts/smoke_scientific_bridge.py --offline
 ## Everyday local full research run
 
 ```bash
-./scripts/run_research_api_full.sh --live
+# Fast static consistency run (no live APIs)
+./scripts/run_research_api_full.sh --mode quick
+
+# Full static pipeline
+./scripts/run_research_api_full.sh --mode full-static
+
+# Full live-enriched pipeline
+./scripts/run_research_api_full.sh --mode full-live
 ```
 
 This single command:
@@ -106,7 +113,13 @@ This single command:
 9. Validates research source outputs
 10. Prints a summary of configured providers and output file paths
 
-Without `--live`, live API calls are skipped (safe for offline use).
+Mode summary:
+
+- `quick` — static full-analysis + consistency validators (fastest).
+- `full-static` — full workflow without live API pulls.
+- `full-live` — full workflow with capability-gated live providers and live-enriched analysis.
+
+Backward compatibility: `--live` remains supported as an alias for `--mode full-live`.
 
 ---
 

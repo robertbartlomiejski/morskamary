@@ -6,10 +6,20 @@ Windows PowerShell version.
 Requires Python 3.10 or newer.
 #>
 [CmdletBinding()]
-param([switch]$Live)
+param(
+    [switch]$Live,
+    [ValidateSet("quick", "full-static", "full-live")]
+    [string]$Mode = "full-static"
+)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
-$LiveMode = $Live.IsPresent -or ($env:LIVE_RESEARCH_API_TESTS -ieq "true")
+if ($Live.IsPresent) {
+    $Mode = "full-live"
+}
+if ($env:LIVE_RESEARCH_API_TESTS -ieq "true" -and $Mode -ne "full-live") {
+    $Mode = "full-live"
+}
+$LiveMode = $Mode -eq "full-live"
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 
 function Step {
@@ -27,6 +37,7 @@ function RunCmd {
 
 Write-Host "=============================================" -ForegroundColor Green
 Write-Host " morskamary - Full Research Run" -ForegroundColor Green
+Write-Host " Mode: $Mode" -ForegroundColor Green
 Write-Host " Live API: $(if ($LiveMode) { 'ENABLED' } else { 'DISABLED' })" -ForegroundColor Green
 Write-Host "=============================================" -ForegroundColor Green
 
@@ -50,13 +61,27 @@ try {
     RunCmd "python" @("-m", "pip", "install", "-e", ".[dev]", "--quiet")
     Write-Host "Package installed."
 
-    Step "Step 3: Environment check"
+    Step "Step 3: Provider capability diagnostics"
+    RunCmd "python" @("scripts/audit_research_api_config.py")
+    RunCmd "python" @("scripts/export_research_source_capabilities.py")
+
+    Step "Step 4: Environment check"
     RunCmd "python" @("scripts/check_research_env.py")
 
-    Step "Step 4: Offline smoke test"
+    if ($Mode -eq "quick") {
+        Step "QUICK MODE: static analysis and consistency gates"
+        RunCmd "python" @("run_full_analysis.py", "--analysis-input-mode", "static")
+        RunCmd "python" @("scripts/validate_generated_outputs.py")
+        RunCmd "python" @("scripts/validate_research_source_outputs.py")
+        Step "Summary"
+        Write-Host "`nRun complete (quick mode)." -ForegroundColor Green
+        return
+    }
+
+    Step "Step 5: Offline smoke test"
     RunCmd "python" @("scripts/smoke_scientific_bridge.py", "--offline")
 
-    Step "Step 5: Live API smoke test (requires Python 3.10+)"
+    Step "Step 6: Live API smoke test (requires Python 3.10+)"
     if ($LiveMode) {
         $hadOldLive = Test-Path Env:LIVE_RESEARCH_API_TESTS
         $oldLive = $env:LIVE_RESEARCH_API_TESTS
@@ -74,14 +99,24 @@ try {
         Write-Host "SKIPPED (pass -Live to enable)"
     }
 
-    Step "Step 6: Full analysis"
-    RunCmd "python" @("run_full_analysis.py")
+    Step "Step 7: Full analysis"
+    if ($LiveMode) {
+        RunCmd "python" @(
+            "run_full_analysis.py",
+            "--analysis-input-mode",
+            "live-enriched",
+            "--live-records-path",
+            "outputs/research_sources/live_records_triangulated.json"
+        )
+    } else {
+        RunCmd "python" @("run_full_analysis.py", "--analysis-input-mode", "static")
+    }
     RunCmd "python" @("scripts/validate_generated_outputs.py")
 
-    Step "Step 7: Export provider capabilities"
+    Step "Step 8: Export provider capabilities"
     RunCmd "python" @("scripts/export_research_source_capabilities.py")
 
-    Step "Step 8: Validate research source outputs"
+    Step "Step 9: Validate research source outputs"
     RunCmd "python" @("scripts/validate_research_source_outputs.py")
 
     Step "Step 9: Summary"
