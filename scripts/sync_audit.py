@@ -287,10 +287,11 @@ def check_provider_capabilities(report: AuditReport) -> None:
 
 
 def _capabilities_semantically_equal(old: dict, new: dict) -> bool:
-    """Compare capability snapshots ignoring generated_at and configured fields."""
+    """Compare capability snapshots ignoring generated_at, configured, and note fields."""
     def normalize(data: dict) -> dict:
         normalized = dict(data)
         normalized.pop("generated_at", None)
+        normalized.pop("note", None)
         providers = normalized.get("providers", {})
         normalized_providers = {}
         for name, prov in providers.items():

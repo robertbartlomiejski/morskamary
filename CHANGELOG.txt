@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-05-22 (CI-safe fixes for hardening patch)
+  Change type fix
+  Scope scripts governance
+  Files affected scripts/validate_research_source_outputs.py scripts/sync_audit.py
+  Summary Removed generated_at from required-key check in validate_research_source_outputs.py (field was intentionally dropped from the neutral baseline). Updated sync_audit _capabilities_semantically_equal to also ignore the note field, preventing false drift warnings when environment-dependent note text differs.
+  Reason The neutral capabilities baseline no longer includes generated_at; requiring it caused validate_research_source_outputs.py to fail. The note field varies between baseline ("repository baseline state") and runtime ("runtime environment"), producing false semantic drift.
+  Impact CI quick-mode-gate and local sync_audit --strict now pass cleanly without false positives from non-semantic fields.
+  Provenance PR #173 reviewer feedback (commit 7cf6f3d); AGENT_WORKING_AGREEMENT § 3 deterministic output policy.
+  Quality checks python scripts/validate_research_source_outputs.py (passed); python scripts/validate_generated_outputs.py (passed); git diff --exit-code -- outputs/ MANIFEST_SOURCES.csv (no drift).
+
 - 2026-05-21 (hardening patch)
   Change type add
   Scope governance scripts CI tests

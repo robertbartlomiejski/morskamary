@@ -49,7 +49,7 @@ def validate_capabilities_json() -> None:
             _err(f"research_source_capabilities.json is not valid JSON: {exc}")
             return
 
-    for key in ("generated_at", "providers"):
+    for key in ("providers",):
         if key not in data:
             _err(f"research_source_capabilities.json missing key: {key}")
 
