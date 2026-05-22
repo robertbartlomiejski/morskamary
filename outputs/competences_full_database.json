@@ -10074,30 +10074,22 @@
     },
     {
       "id": "lit_research_gaps_0152",
-      "name": "Transdisciplinary ocean research co-production: Community responses to flood risk management–An empirical Investigatio",
-      "description": "Literature-derived competence (cluster: Transdisciplinary ocean research co-production) from Blue economy research gaps & governance papers. Source paper: Community responses to flood risk management–An empirical Investigation of the Marine Protected Areas (MPAs) in Malaysia (MM Masud\nAS Sackor\nASAF Alam\nAQ Al-Amin, ).",
-      "axis": "O",
-      "axis_name": "OCEANIC",
+      "name": "Marine biodiversity monitoring and assessment: Community responses to flood risk management–An empirical Investigatio",
+      "description": "Literature-derived competence (cluster: Marine biodiversity monitoring and assessment) from Blue economy research gaps & governance papers. Source paper: Community responses to flood risk management–An empirical Investigation of the Marine Protected Areas (MPAs) in Malaysia (MM Masud\nAS Sackor\nASAF Alam\nAQ Al-Amin, ).",
+      "axis": "M",
+      "axis_name": "MARINE",
       "dimension": "literature",
       "keywords": [
         "research_gaps",
-        "oceanic",
+        "marine",
         "literature",
-        "Transdisciplinary ocean resear"
+        "Marine biodiversity monitoring"
       ],
       "sectors": [
         "Blue Biotech",
-        "Coastal Tourism",
-        "Desalination",
-        "Infra & Robotics",
         "Living Res.",
         "Non-living Res.",
-        "Renewable Energy",
-        "Maritime Defence",
-        "Maritime Transport",
-        "Port Activities",
-        "R&I",
-        "Ship Repair"
+        "R&I"
       ],
       "source": {
         "file": "data/derived/combined_blue_economy_research_gaps.csv",

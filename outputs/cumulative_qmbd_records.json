@@ -664,20 +664,24 @@
                 "is_blue_planetaryism": false
             },
             {
-                "classification": "UNCLASSIFIED_REVIEW_REQUIRED",
-                "matched_qmbd_axes": [],
+                "classification": "HYDRONIZATION",
+                "matched_qmbd_axes": [
+                    "HYDRONIZATION"
+                ],
                 "provenance": {
                     "source_id": "baseline_c_2",
                     "text_scope": "full_sentence",
                     "classification_text": "Reducing waste & recycling, water retention.",
                     "classifier_version": "QMBD-4.0-strict"
                 },
-                "axis": "OCEANIC",
-                "axis_code": "O",
+                "axis": "HYDRONIZATION",
+                "axis_code": "H",
                 "text_scope": "full_sentence",
                 "sentence": "Reducing waste & recycling, water retention.",
-                "matched_keywords": [],
-                "confidence_score": 0.6,
+                "matched_keywords": [
+                    "water retention"
+                ],
+                "confidence_score": 0.95,
                 "is_blue_planetaryism": false
             },
             {
@@ -33191,96 +33195,100 @@
     },
     {
         "source_id": "lit_research_gaps_0152",
-        "title": "Transdisciplinary ocean research co-production: Community responses to flood risk management–An empirical Investigatio",
-        "description": "Literature-derived competence (cluster: Transdisciplinary ocean research co-production) from Blue economy research gaps & governance papers. Source paper: Community responses to flood risk management–An empirical Investigation of the Marine Protected Areas (MPAs) in Malaysia (MM Masud\nAS Sackor\nASAF Alam\nAQ Al-Amin, ).",
-        "subject_terms": "research_gaps, oceanic, literature, Transdisciplinary ocean resear",
-        "axis_name": "OCEANIC",
+        "title": "Marine biodiversity monitoring and assessment: Community responses to flood risk management–An empirical Investigatio",
+        "description": "Literature-derived competence (cluster: Marine biodiversity monitoring and assessment) from Blue economy research gaps & governance papers. Source paper: Community responses to flood risk management–An empirical Investigation of the Marine Protected Areas (MPAs) in Malaysia (MM Masud\nAS Sackor\nASAF Alam\nAQ Al-Amin, ).",
+        "subject_terms": "research_gaps, marine, literature, Marine biodiversity monitoring",
+        "axis_name": "MARINE",
         "sectors": [
             "Blue Biotech",
-            "Coastal Tourism",
-            "Desalination",
-            "Infra & Robotics",
             "Living Res.",
             "Non-living Res.",
-            "Renewable Energy",
-            "Maritime Defence",
-            "Maritime Transport",
-            "Port Activities",
-            "R&I",
-            "Ship Repair"
+            "R&I"
         ],
         "record_origin": "STATIC_LITERATURE",
         "qmbd_analysis": [
             {
-                "classification": "UNCLASSIFIED_REVIEW_REQUIRED",
-                "matched_qmbd_axes": [],
-                "provenance": {
-                    "source_id": "lit_research_gaps_0152",
-                    "text_scope": "full_sentence",
-                    "classification_text": "Transdisciplinary ocean research co-production: Community responses to flood risk management–An empirical Investigatio.",
-                    "classifier_version": "QMBD-4.0-strict"
-                },
-                "axis": "OCEANIC",
-                "axis_code": "O",
-                "text_scope": "full_sentence",
-                "sentence": "Transdisciplinary ocean research co-production: Community responses to flood risk management–An empirical Investigatio.",
-                "matched_keywords": [],
-                "confidence_score": 0.6,
-                "is_blue_planetaryism": false
-            },
-            {
-                "classification": "OCEANIC",
+                "classification": "MARINE",
                 "matched_qmbd_axes": [
-                    "OCEANIC"
+                    "MARINE"
                 ],
                 "provenance": {
                     "source_id": "lit_research_gaps_0152",
                     "text_scope": "full_sentence",
-                    "classification_text": "Literature-derived competence (cluster: Transdisciplinary ocean research co-production) from Blue economy research gaps & governance papers.",
+                    "classification_text": "Marine biodiversity monitoring and assessment: Community responses to flood risk management–An empirical Investigatio.",
                     "classifier_version": "QMBD-4.0-strict"
                 },
-                "axis": "OCEANIC",
-                "axis_code": "O",
+                "axis": "MARINE",
+                "axis_code": "M",
                 "text_scope": "full_sentence",
-                "sentence": "Literature-derived competence (cluster: Transdisciplinary ocean research co-production) from Blue economy research gaps & governance papers.",
+                "sentence": "Marine biodiversity monitoring and assessment: Community responses to flood risk management–An empirical Investigatio.",
                 "matched_keywords": [
-                    "governance"
+                    "biodiversity"
                 ],
                 "confidence_score": 0.95,
                 "is_blue_planetaryism": false
             },
             {
-                "classification": "UNCLASSIFIED_REVIEW_REQUIRED",
-                "matched_qmbd_axes": [],
+                "classification": "MARINE",
+                "matched_qmbd_axes": [
+                    "MARINE"
+                ],
+                "provenance": {
+                    "source_id": "lit_research_gaps_0152",
+                    "text_scope": "full_sentence",
+                    "classification_text": "Literature-derived competence (cluster: Marine biodiversity monitoring and assessment) from Blue economy research gaps & governance papers.",
+                    "classifier_version": "QMBD-4.0-strict"
+                },
+                "axis": "MARINE",
+                "axis_code": "M",
+                "text_scope": "full_sentence",
+                "sentence": "Literature-derived competence (cluster: Marine biodiversity monitoring and assessment) from Blue economy research gaps & governance papers.",
+                "matched_keywords": [
+                    "biodiversity"
+                ],
+                "confidence_score": 0.95,
+                "is_blue_planetaryism": false
+            },
+            {
+                "classification": "HYDRONIZATION",
+                "matched_qmbd_axes": [
+                    "HYDRONIZATION"
+                ],
                 "provenance": {
                     "source_id": "lit_research_gaps_0152",
                     "text_scope": "full_sentence",
                     "classification_text": "Source paper: Community responses to flood risk management–An empirical Investigation of the Marine Protected Areas (MPAs) in Malaysia (MM Masud AS Sackor ASAF Alam AQ Al-Amin, )..",
                     "classifier_version": "QMBD-4.0-strict"
                 },
-                "axis": "OCEANIC",
-                "axis_code": "O",
+                "axis": "HYDRONIZATION",
+                "axis_code": "H",
                 "text_scope": "full_sentence",
                 "sentence": "Source paper: Community responses to flood risk management–An empirical Investigation of the Marine Protected Areas (MPAs) in Malaysia (MM Masud AS Sackor ASAF Alam AQ Al-Amin, )..",
-                "matched_keywords": [],
-                "confidence_score": 0.6,
+                "matched_keywords": [
+                    "flood risk"
+                ],
+                "confidence_score": 0.95,
                 "is_blue_planetaryism": false
             },
             {
-                "classification": "UNCLASSIFIED_REVIEW_REQUIRED",
-                "matched_qmbd_axes": [],
+                "classification": "MARINE",
+                "matched_qmbd_axes": [
+                    "MARINE"
+                ],
                 "provenance": {
                     "source_id": "lit_research_gaps_0152",
                     "text_scope": "full_sentence",
-                    "classification_text": "research_gaps, oceanic, literature, Transdisciplinary ocean resear",
+                    "classification_text": "research_gaps, marine, literature, Marine biodiversity monitoring",
                     "classifier_version": "QMBD-4.0-strict"
                 },
-                "axis": "OCEANIC",
-                "axis_code": "O",
+                "axis": "MARINE",
+                "axis_code": "M",
                 "text_scope": "full_sentence",
-                "sentence": "research_gaps, oceanic, literature, Transdisciplinary ocean resear",
-                "matched_keywords": [],
-                "confidence_score": 0.6,
+                "sentence": "research_gaps, marine, literature, Marine biodiversity monitoring",
+                "matched_keywords": [
+                    "biodiversity"
+                ],
+                "confidence_score": 0.95,
                 "is_blue_planetaryism": false
             }
         ]
@@ -40908,20 +40916,24 @@
         "record_origin": "STATIC_LITERATURE",
         "qmbd_analysis": [
             {
-                "classification": "UNCLASSIFIED_REVIEW_REQUIRED",
-                "matched_qmbd_axes": [],
+                "classification": "HYDRONIZATION",
+                "matched_qmbd_axes": [
+                    "HYDRONIZATION"
+                ],
                 "provenance": {
                     "source_id": "10.1016/j.ajss.2023.06.001",
                     "text_scope": "full_sentence",
                     "classification_text": "Marinisation of societies and biophysical coupling: Indus River Delta: contested narratives in the climate of change.",
                     "classifier_version": "QMBD-4.0-strict"
                 },
-                "axis": "OCEANIC",
-                "axis_code": "O",
+                "axis": "HYDRONIZATION",
+                "axis_code": "H",
                 "text_scope": "full_sentence",
                 "sentence": "Marinisation of societies and biophysical coupling: Indus River Delta: contested narratives in the climate of change.",
-                "matched_keywords": [],
-                "confidence_score": 0.6,
+                "matched_keywords": [
+                    "river delta"
+                ],
+                "confidence_score": 0.95,
                 "is_blue_planetaryism": false
             },
             {
@@ -40942,20 +40954,24 @@
                 "is_blue_planetaryism": false
             },
             {
-                "classification": "UNCLASSIFIED_REVIEW_REQUIRED",
-                "matched_qmbd_axes": [],
+                "classification": "HYDRONIZATION",
+                "matched_qmbd_axes": [
+                    "HYDRONIZATION"
+                ],
                 "provenance": {
                     "source_id": "10.1016/j.ajss.2023.06.001",
                     "text_scope": "full_sentence",
                     "classification_text": "Source paper: Indus River Delta: contested narratives in the climate of change (Hameed Jamali Maryam Jamali Shakeel Hayat Javed Iqbal, 2023)..",
                     "classifier_version": "QMBD-4.0-strict"
                 },
-                "axis": "OCEANIC",
-                "axis_code": "O",
+                "axis": "HYDRONIZATION",
+                "axis_code": "H",
                 "text_scope": "full_sentence",
                 "sentence": "Source paper: Indus River Delta: contested narratives in the climate of change (Hameed Jamali Maryam Jamali Shakeel Hayat Javed Iqbal, 2023)..",
-                "matched_keywords": [],
-                "confidence_score": 0.6,
+                "matched_keywords": [
+                    "river delta"
+                ],
+                "confidence_score": 0.95,
                 "is_blue_planetaryism": false
             },
             {

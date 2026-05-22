@@ -38,6 +38,9 @@
     "provider": {
       "type": "string"
     },
+    "language": {
+      "type": "string"
+    },
     "journal": {
       "type": "string"
     },

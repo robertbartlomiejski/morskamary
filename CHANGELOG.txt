@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-05-22 (deep consistency validation)
+  Change type fix
+  Scope scripts pipeline tests
+  Files affected run_full_analysis.py scripts/export_live_research_records.py src/core.py src/axis_classifier.py tests/test_research_queries_config.py
+  Summary Reformatted touched files with black, fixed a trailing-blank-line flake8 warning, and improved type-check clarity in run_full_analysis.py (TypeAlias for TMBDAxis, safer sentence-classification normalization, explicit cast for slugify). Marked PyYAML import as untyped for mypy without changing runtime behaviour.
+  Reason Ensure the new live-enriched pipeline remains internally consistent and tool-clean when running optional developer checks (black/flake8/mypy) without expanding scope into unrelated pre-existing type errors.
+  Impact No behavioural changes intended; improves maintainability and audit stability for the live-enriched analysis code paths.
+  Provenance Internal consistency review per PROMPT 1 master plan and governance checks in scripts/sync_audit.py --strict.
+  Quality checks python -m black (reformatted); python -m flake8 (touched files clean); pytest tests/ (passed); python scripts/sync_audit.py --strict (passes after commit).
+
 - 2026-05-22 (CI-safe fixes for hardening patch)
   Change type fix
   Scope scripts governance
@@ -28,6 +38,16 @@ Use this section for changes in progress that are not yet merged into the main b
   Impact CI quick-mode-gate and local sync_audit --strict now pass cleanly without false positives from non-semantic fields.
   Provenance PR #173 reviewer feedback (commit 7cf6f3d); AGENT_WORKING_AGREEMENT § 3 deterministic output policy.
   Quality checks python scripts/validate_research_source_outputs.py (passed); python scripts/validate_generated_outputs.py (passed); git diff --exit-code -- outputs/ MANIFEST_SOURCES.csv (no drift).
+
+- 2026-05-22 (live-enriched append-only QMBD workflow)
+  Change type add update
+  Scope pipeline scripts CI tests data
+  Files affected .github/workflows/full-live-analysis.yml config/research_queries.yml scripts/export_live_research_records.py run_full_analysis.py src/axis_classifier.py src/core.py src/scientific_sources/models.py schemas/research_metadata.schema.json tests/test_export_live_research_records.py tests/test_research_queries_config.py outputs/ MANIFEST_SOURCES.csv
+  Summary Added an opt-in scheduled/manual GitHub Actions workflow for live-enriched analysis. Updated live export to retain sector provenance and optional language metadata, strengthened DOI→title→source_id dedup keys, expanded HYDRONIZATION keyword coverage, and updated HTML outputs to show QMBD axis columns and live/static breakdown when available.
+  Reason Reduce static-count and sector-query mismatch bias by aligning live query groups to the 12 canonical sectors and carrying sector evidence through triangulation into the append-only analysis layer.
+  Impact Static outputs remain valid; live-enriched runs can merge and report additional evidence without assuming fixed competence counts. Stage-2 schema now allows language metadata while still forbidding restricted abstract/citation fields.
+  Provenance PROMPT 1 Master Implementation Prompt (sector-query mismatch, DOI bias, Hydronization underpopulation); existing QMBD pipeline in run_full_analysis.py and scripts/export_live_research_records.py.
+  Quality checks python -m pytest tests/ (passed); python run_full_analysis.py --analysis-input-mode static (generated outputs); python scripts/validate_generated_outputs.py (passed); python scripts/generate_manifest.py (deterministic).
 
 - 2026-05-21 (hardening patch)
   Change type add

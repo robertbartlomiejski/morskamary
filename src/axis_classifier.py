@@ -80,6 +80,21 @@ class AxisClassifier:
             "metabolism of flows",
             "porous infrastructure",
             "hydro-social territory",
+            "river-sea continuum",
+            "river sea continuum",
+            "freshwater-marine",
+            "freshwater marine",
+            "river basin",
+            "watershed",
+            "aquifer",
+            "river delta",
+            "river mouth",
+            "estuarine",
+            "floodplain",
+            "water retention",
+            "retention basin",
+            "flood risk",
+            "drought risk",
         ),
         BlueDynamicsAxis.OCEANIC: (
             "governance",
@@ -168,9 +183,7 @@ class AxisClassifier:
                 ``None`` nor a str.
         """
         if not isinstance(text, str):
-            raise TypeError(
-                f"Expected 'text' to be str, got {type(text).__name__}"
-            )
+            raise TypeError(f"Expected 'text' to be str, got {type(text).__name__}")
         if dimension is not None and not isinstance(dimension, str):
             raise TypeError(
                 f"Expected 'dimension' to be str, got {type(dimension).__name__}"
@@ -204,9 +217,7 @@ class AxisClassifier:
             ValueError: If ``text_scope`` is not a non-empty str.
         """
         if not isinstance(text, str):
-            raise TypeError(
-                f"Expected 'text' to be str, got {type(text).__name__}"
-            )
+            raise TypeError(f"Expected 'text' to be str, got {type(text).__name__}")
         if not isinstance(text_scope, str) or not text_scope.strip():
             raise ValueError(
                 f"'text_scope' must be a non-empty string, got: {text_scope!r}"

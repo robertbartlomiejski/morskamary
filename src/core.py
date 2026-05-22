@@ -100,6 +100,21 @@ _AXIS_THEME_KEYWORDS: Dict[BlueDynamicsAxis, List[str]] = {
         "metabolism of flows",
         "porous infrastructure",
         "hydro-social territory",
+        "river-sea continuum",
+        "river sea continuum",
+        "freshwater-marine",
+        "freshwater marine",
+        "river basin",
+        "watershed",
+        "aquifer",
+        "river delta",
+        "river mouth",
+        "estuarine",
+        "floodplain",
+        "water retention",
+        "retention basin",
+        "flood risk",
+        "drought risk",
         "[citation needed]",
     ],
 }
@@ -115,9 +130,7 @@ def _detect_all_themes(record: Dict[str, Any]) -> Dict[BlueDynamicsAxis, List[st
         str(record.get(field, "")) for field in ("title", "abstract", "keywords")
     ).lower()
 
-    themes: Dict[BlueDynamicsAxis, List[str]] = {
-        axis: [] for axis in BlueDynamicsAxis
-    }
+    themes: Dict[BlueDynamicsAxis, List[str]] = {axis: [] for axis in BlueDynamicsAxis}
     for axis, keywords in _AXIS_THEME_KEYWORDS.items():
         themes[axis] = [keyword for keyword in keywords if keyword in text]
 

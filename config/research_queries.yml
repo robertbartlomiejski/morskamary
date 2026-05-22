@@ -8,105 +8,105 @@
 # - Target scholarly/academic databases (journal articles, conference papers)
 # - Balance specificity (sector focus) with coverage (multiple relevant terms)
 # - Include governance, policy, and sustainability aspects for Blue Sociology
-# - Align with TMBD axes: Marine, Maritime, Oceanic
+# - Align with QMBD axes: Marine, Maritime, Oceanic, Hydronization
 #
 # Sector definitions from EU Sustainable Blue Economy framework and
 # Blue Social Competences baseline (University of Szczecin).
 
 query_groups:
 
-  offshore_energy:
-    label: "Offshore Energy (Wind, Wave, Tidal)"
-    description: "Offshore renewable energy generation, including wind farms, wave energy, tidal energy, and ocean thermal energy conversion (OTEC)"
+  blue_biotech:
+    label: "Blue Biotech"
+    description: "Marine biotechnology, bioeconomy, bioprospecting, biomaterials, and blue innovation pathways."
     queries:
-      - "offshore wind energy marine spatial planning"
+      - "marine biotechnology blue bioeconomy innovation governance"
+      - "bioprospecting marine genetic resources benefit sharing"
+      - "marine biomaterials pharmaceuticals bioremediation sustainability"
+
+  coastal_tourism:
+    label: "Coastal Tourism"
+    description: "Coastal and marine tourism, cruise tourism, ecotourism, and tourism governance."
+    queries:
+      - "coastal tourism sustainability overtourism management"
+      - "marine ecotourism blue economy livelihoods governance"
+      - "cruise tourism environmental impact governance"
+
+  desalination:
+    label: "Desalination"
+    description: "Desalination systems, brine management, water-energy nexus, and hydrosocial governance."
+    queries:
+      - "desalination brine management environmental impact governance"
+      - "desalination water energy nexus sustainability"
+      - "desalination hydrosocial water justice governance"
+
+  infra_robotics:
+    label: "Infra & Robotics"
+    description: "Blue infrastructure, offshore/coastal robotics, monitoring systems, and cyber-physical maritime systems."
+    queries:
+      - "maritime infrastructure cyber physical systems digital twin"
+      - "offshore robotics marine monitoring autonomous systems"
+      - "smart coastal infrastructure flood risk adaptation"
+
+  living_res:
+    label: "Living Res."
+    description: "Living marine resources: fisheries, aquaculture, mariculture, and coastal livelihoods."
+    queries:
+      - "small scale fisheries livelihoods blue economy governance"
+      - "fisheries management sustainability marine protected areas"
+      - "aquaculture social licence environmental impact governance"
+
+  non_living_res:
+    label: "Non-living Res."
+    description: "Non-living marine resources: seabed resources, aggregates, critical raw materials, and extraction governance."
+    queries:
+      - "seabed mining governance environmental impact social licence"
+      - "marine aggregates extraction coastal governance sustainability"
+      - "critical raw materials offshore extraction governance"
+
+  renewable_energy:
+    label: "Renewable Energy"
+    description: "Offshore renewable energy: wind, wave, tidal, and related spatial planning and social acceptance."
+    queries:
+      - "offshore wind energy marine spatial planning governance"
       - "ocean renewable energy governance sustainability"
       - "tidal energy wave energy environmental impact"
 
-  ports:
-    label: "Ports and Harbours"
-    description: "Port infrastructure, maritime logistics, port governance, and coastal urban development"
+  maritime_defence:
+    label: "Maritime Defence"
+    description: "Maritime security, naval operations, surveillance, and defence governance in blue spaces."
     queries:
-      - "port governance maritime logistics sustainability"
-      - "smart ports digital transformation blue economy"
-      - "port environmental management coastal infrastructure"
+      - "maritime security governance blue economy"
+      - "naval operations maritime domain awareness surveillance"
+      - "critical maritime infrastructure protection governance"
 
   maritime_transport:
-    label: "Maritime Transport and Shipping"
-    description: "Shipping, freight, passenger transport, maritime safety, and decarbonization"
+    label: "Maritime Transport"
+    description: "Shipping, freight/passenger transport, maritime safety, labour conditions, and decarbonization."
     queries:
       - "maritime transport decarbonization emissions reduction"
       - "shipping governance international regulations IMO"
       - "maritime safety maritime labour conditions"
 
-  fisheries:
-    label: "Fisheries and Fishing Communities"
-    description: "Commercial fisheries, small-scale fisheries, fisheries management, and fishing community livelihoods"
+  port_activities:
+    label: "Port Activities"
+    description: "Port operations, logistics, port governance, and coastal urban-port interfaces."
     queries:
-      - "fisheries management sustainability overfishing"
-      - "small-scale fisheries livelihoods blue economy"
-      - "fisheries governance marine protected areas"
+      - "port governance maritime logistics sustainability"
+      - "smart ports digital transformation port operations"
+      - "port climate adaptation sea level rise flood risk"
 
-  aquaculture:
-    label: "Aquaculture and Mariculture"
-    description: "Fish farming, shellfish cultivation, seaweed farming, and integrated multi-trophic aquaculture (IMTA)"
+  r_i:
+    label: "R&I"
+    description: "Blue research and innovation ecosystems, ocean observation, data infrastructure, and research governance."
     queries:
-      - "aquaculture sustainability environmental impact social"
-      - "mariculture seaweed farming blue bioeconomy"
-      - "aquaculture governance social licence coastal communities"
+      - "ocean observation marine monitoring data infrastructure"
+      - "ocean data governance FAIR CARE principles"
+      - "blue economy research innovation policy governance"
 
-  coastal_tourism:
-    label: "Coastal and Marine Tourism"
-    description: "Coastal tourism, marine recreation, ecotourism, cruise tourism, and tourism governance"
+  ship_repair:
+    label: "Ship Repair"
+    description: "Ship repair, maintenance, shipyards, retrofit/decarbonization, and workforce competences."
     queries:
-      - "coastal tourism sustainability overtourism management"
-      - "marine ecotourism blue economy livelihoods"
-      - "cruise tourism environmental impact governance"
-
-  marine_biotechnology:
-    label: "Marine Biotechnology and Blue Bioeconomy"
-    description: "Marine bioprospecting, pharmaceuticals, industrial enzymes, biomaterials, and bioremediation"
-    queries:
-      - "marine biotechnology blue bioeconomy innovation"
-      - "bioprospecting marine genetic resources governance"
-      - "marine biomaterials pharmaceuticals sustainability"
-
-  ocean_governance:
-    label: "Ocean Governance and Marine Policy"
-    description: "Marine spatial planning, ocean governance, international law of the sea, and multi-level governance"
-    queries:
-      - "ocean governance marine spatial planning sustainability"
-      - "law of the sea UNCLOS blue economy"
-      - "ocean policy transboundary governance blue growth"
-
-  marine_conservation:
-    label: "Marine Conservation and Protected Areas"
-    description: "Marine biodiversity conservation, marine protected areas (MPAs), ecosystem-based management, and ocean literacy"
-    queries:
-      - "marine protected areas effectiveness governance"
-      - "marine biodiversity conservation blue economy"
-      - "ecosystem-based management ocean literacy"
-
-  climate_ocean:
-    label: "Climate Change and Ocean Health"
-    description: "Ocean acidification, sea-level rise, ocean warming, climate adaptation, and ocean-climate nexus"
-    queries:
-      - "ocean acidification climate change marine ecosystems"
-      - "sea level rise coastal adaptation governance"
-      - "ocean warming biodiversity climate mitigation"
-
-  ocean_observation:
-    label: "Ocean Observation and Data Infrastructure"
-    description: "Marine monitoring, ocean observing systems, satellite oceanography, and ocean data governance"
-    queries:
-      - "ocean observation marine monitoring sustainability"
-      - "ocean data governance FAIR principles"
-      - "satellite oceanography marine spatial planning"
-
-  blue_skills:
-    label: "Blue Skills and Education"
-    description: "Maritime education, marine vocational training, ocean literacy, and blue workforce development"
-    queries:
-      - "blue skills maritime education ocean literacy"
-      - "marine vocational training blue workforce"
-      - "ocean education sustainability competences"
+      - "ship repair shipyard workforce skills training"
+      - "ship retrofit decarbonization maintenance governance"
+      - "maritime repair supply chain safety standards"
