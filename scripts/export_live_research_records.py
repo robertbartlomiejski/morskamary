@@ -39,7 +39,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Set, Tuple
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
@@ -1042,10 +1042,10 @@ def main() -> int:
     for rec in deduped_records:
         sentence_classifications = classification_repo.classify_record_sentences(rec)
         sentence_classifications_by_record[rec.source_id] = sentence_classifications
-        axis_by_record[
-            rec.source_id
-        ] = classification_repo.dominant_axis_from_classifications(
-            sentence_classifications
+        axis_by_record[rec.source_id] = (
+            classification_repo.dominant_axis_from_classifications(
+                sentence_classifications
+            )
         )
     for rec in deduped_records:
         sentence_classifications = sentence_classifications_by_record.get(

@@ -41,6 +41,7 @@ from typing import (
     Sequence,
     Set,
     Tuple,
+    TypeAlias,
     cast,
 )
 from urllib.parse import quote
@@ -139,7 +140,7 @@ LITERATURE_FILES: List[Dict[str, str]] = [
 # ---------------------------------------------------------------------------
 
 
-TMBDAxis = BlueDynamicsAxis
+TMBDAxis: TypeAlias = BlueDynamicsAxis
 
 
 def _axis_from_name(
@@ -271,6 +272,7 @@ class SectorPathway:
 # QMBD sentence-context classification helpers and localized record repository
 # ---------------------------------------------------------------------------
 
+
 def _classify_sentence_contexts(
     sentences: List[str], source_id: str
 ) -> List[Dict[str, Any]]:
@@ -324,7 +326,9 @@ def _sentence_classification_counts_as_evidence(item: Dict[str, Any]) -> bool:
     if isinstance(confidence_score, (int, float)) and float(confidence_score) > 0.6:
         return True
 
-    axis_name = str(item.get("axis") or item.get("classification") or "").strip().upper()
+    axis_name = (
+        str(item.get("axis") or item.get("classification") or "").strip().upper()
+    )
     if axis_name in {"MARINE", "MARITIME", "HYDRONIZATION"} and (
         "matched_keywords" not in item and "confidence_score" not in item
     ):
@@ -849,7 +853,7 @@ _validate_theme_sectors()
 
 def _slugify(text: str) -> str:
     """Convert text to a safe identifier slug."""
-    return slugify(text, max_length=60)
+    return cast(str, slugify(text, max_length=60))
 
 
 def _normalize_title_for_dedup(title: str) -> str:
@@ -933,10 +937,11 @@ def _extract_live_sentence_classifications(
         text_scope = item.get("text_scope")
         sentence = item.get("sentence")
 
-        if not all(
-            isinstance(value, str)
-            for value in (axis, axis_code, text_scope)
-        ):
+        if not isinstance(axis, str):
+            continue
+        if not isinstance(axis_code, str):
+            continue
+        if not isinstance(text_scope, str):
             continue
 
         normalized_axis = axis.strip().upper()
@@ -992,7 +997,7 @@ def _dominant_axis_from_live_sentence_classifications(
     precedence = ("MARINE", "MARITIME", "HYDRONIZATION", "OCEANIC")
     for axis_name in precedence:
         if axis_name in tied_axes:
-            return TMBDAxis[axis_name]
+            return TMBDAxis.__members__.get(axis_name)
     return None
 
 
@@ -1217,7 +1222,9 @@ def extract_live_records_competences(
         raw_sectors = row.get("sectors") or row.get("sector")
         candidates: List[str] = []
         if isinstance(raw_sectors, list):
-            candidates = [str(item).strip() for item in raw_sectors if str(item).strip()]
+            candidates = [
+                str(item).strip() for item in raw_sectors if str(item).strip()
+            ]
         elif isinstance(raw_sectors, str) and raw_sectors.strip():
             candidates = [raw_sectors.strip()]
         for candidate in candidates:
@@ -1942,8 +1949,12 @@ def generate_report_index(
         "Blue%20Social%20Competences%20Univ%20Szczecin%20"
         "-%20Overall%20Blue%20Competences%20Dimension.csv"
     )
-    live_records_url = f"{REPO_GITHUB_BASE}/outputs/research_sources/live_records_triangulated.json"
-    live_coverage_url = f"{REPO_GITHUB_BASE}/outputs/research_sources/live_source_coverage.csv"
+    live_records_url = (
+        f"{REPO_GITHUB_BASE}/outputs/research_sources/live_records_triangulated.json"
+    )
+    live_coverage_url = (
+        f"{REPO_GITHUB_BASE}/outputs/research_sources/live_source_coverage.csv"
+    )
 
     html = _HTML_HEAD.format(
         title="Blue Economy Analysis — Master Report Index",
@@ -2177,9 +2188,7 @@ def generate_literature_html(
     )
 
     html += "<h2>Overview</h2>\n"
-    html += (
-        f"<p>Total literature-derived competences: <strong>{len(literature)}</strong></p>\n"
-    )
+    html += f"<p>Total literature-derived competences: <strong>{len(literature)}</strong></p>\n"
     if analysis_input_mode == "live-enriched" and live_count:
         html += (
             "<p>Breakdown: "
@@ -2240,9 +2249,7 @@ def generate_literature_html(
         html += "</table>\n"
 
     if analysis_input_mode == "live-enriched" and live_competences:
-        live_records_url = (
-            f"{REPO_GITHUB_BASE}/outputs/research_sources/live_records_triangulated.json"
-        )
+        live_records_url = f"{REPO_GITHUB_BASE}/outputs/research_sources/live_records_triangulated.json"
         live_coverage_url = (
             f"{REPO_GITHUB_BASE}/outputs/research_sources/live_source_coverage.csv"
         )
@@ -2261,7 +2268,9 @@ def generate_literature_html(
             "<th>Authors</th><th>Year</th><th>Source</th></tr>\n"
         )
         for c in live_competences[:max_rows]:
-            sectors_text = ", ".join(_html_module.escape(sec) for sec in c.sectors) or ""
+            sectors_text = (
+                ", ".join(_html_module.escape(sec) for sec in c.sectors) or ""
+            )
             html += (
                 f"<tr><td>{_html_module.escape(c.source.paper_title)}</td>"
                 f"<td>{_axis_badge(c.axis)}</td>"

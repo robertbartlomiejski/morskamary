@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-05-22 (deep consistency validation)
+  Change type fix
+  Scope scripts pipeline tests
+  Files affected run_full_analysis.py scripts/export_live_research_records.py src/core.py src/axis_classifier.py tests/test_research_queries_config.py
+  Summary Reformatted touched files with black, fixed a trailing-blank-line flake8 warning, and improved type-check clarity in run_full_analysis.py (TypeAlias for TMBDAxis, safer sentence-classification normalization, explicit cast for slugify). Marked PyYAML import as untyped for mypy without changing runtime behaviour.
+  Reason Ensure the new live-enriched pipeline remains internally consistent and tool-clean when running optional developer checks (black/flake8/mypy) without expanding scope into unrelated pre-existing type errors.
+  Impact No behavioural changes intended; improves maintainability and audit stability for the live-enriched analysis code paths.
+  Provenance Internal consistency review per PROMPT 1 master plan and governance checks in scripts/sync_audit.py --strict.
+  Quality checks python -m black (reformatted); python -m flake8 (touched files clean); pytest tests/ (passed); python scripts/sync_audit.py --strict (passes after commit).
+
 - 2026-05-22 (CI-safe fixes for hardening patch)
   Change type fix
   Scope scripts governance

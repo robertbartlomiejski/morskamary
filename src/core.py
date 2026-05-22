@@ -130,9 +130,7 @@ def _detect_all_themes(record: Dict[str, Any]) -> Dict[BlueDynamicsAxis, List[st
         str(record.get(field, "")) for field in ("title", "abstract", "keywords")
     ).lower()
 
-    themes: Dict[BlueDynamicsAxis, List[str]] = {
-        axis: [] for axis in BlueDynamicsAxis
-    }
+    themes: Dict[BlueDynamicsAxis, List[str]] = {axis: [] for axis in BlueDynamicsAxis}
     for axis, keywords in _AXIS_THEME_KEYWORDS.items():
         themes[axis] = [keyword for keyword in keywords if keyword in text]
 
