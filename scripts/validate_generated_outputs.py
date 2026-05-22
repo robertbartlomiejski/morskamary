@@ -46,6 +46,20 @@ REQUIRED_GAP_COLUMNS = [
     "Missing OCEANIC",
 ]
 
+REQUIRED_CREDENTIAL_FIELDS = (
+    "id",
+    "title",
+    "sector",
+    "eqf_level",
+    "ects",
+    "assessment_method",
+    "learner_profile",
+    "learning_outcomes",
+    "stackability_rules",
+    "prerequisites",
+    "competences",
+)
+
 ERRORS: list[str] = []
 WARNINGS: list[str] = []
 
@@ -150,12 +164,11 @@ def load_credentials(path: Path) -> list[dict]:
         )
         return []
 
-    required_cred_fields = ("sector", "eqf_level", "competences")
     for i, c in enumerate(entries):
         if not isinstance(c, dict):
             fail(f"{path.name}: credentials[{i}] is not an object")
             continue
-        for field in required_cred_fields:
+        for field in REQUIRED_CREDENTIAL_FIELDS:
             if field not in c:
                 fail(
                     f"{path.name}: credentials[{i}] is missing required "
@@ -226,6 +239,98 @@ def load_sector_dict_ids(path: Path) -> set[str]:
             ids.add(entry["id"])
 
     return ids
+
+
+def load_cumulative_qmbd_records(path: Path) -> list[dict]:
+    """Load cumulative_qmbd_records.json and validate required schema fields.
+
+    Static records (STATIC_BASELINE, STATIC_LITERATURE) require axis_name and
+    record_origin.  Live-enriched records (LIVE_TRIANGULATED or records without
+    record_origin) have relaxed requirements — only source_id, title, and
+    qmbd_analysis are mandatory.
+    """
+    try:
+        with path.open(encoding="utf-8") as f:
+            content = f.read()
+    except OSError as exc:
+        fail(f"{path.name}: cannot read file: {exc}")
+        return []
+
+    if not content.strip():
+        fail(f"{path.name}: file is empty — run 'python run_full_analysis.py' to regenerate")
+        return []
+
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as exc:
+        fail(f"{path.name}: invalid JSON: {exc}")
+        return []
+
+    if not isinstance(data, list):
+        fail(
+            f"{path.name}: expected a list of records, got {type(data).__name__}"
+        )
+        return []
+
+    # Fields required for all records regardless of origin
+    base_required_fields = ("source_id", "title", "qmbd_analysis")
+    # Additional fields required only for static-origin records
+    static_only_fields = ("axis_name", "record_origin")
+    static_origins = ("STATIC_BASELINE", "STATIC_LITERATURE")
+
+    required_sentence_fields = ("axis", "axis_code", "text_scope", "sentence")
+
+    for idx, item in enumerate(data):
+        if not isinstance(item, dict):
+            fail(f"{path.name}: record[{idx}] is not an object")
+            continue
+
+        for field in base_required_fields:
+            if field not in item:
+                fail(f"{path.name}: record[{idx}] missing required field '{field}'")
+
+        # Gate static-only fields by record_origin
+        origin = item.get("record_origin", "")
+        if origin in static_origins:
+            for field in static_only_fields:
+                if field not in item:
+                    fail(f"{path.name}: record[{idx}] missing required field '{field}'")
+
+        qmbd_analysis = item.get("qmbd_analysis")
+        if not isinstance(qmbd_analysis, list):
+            fail(
+                f"{path.name}: record[{idx}] field 'qmbd_analysis' must be a list"
+            )
+            continue
+        if not qmbd_analysis:
+            fail(f"{path.name}: record[{idx}] has empty qmbd_analysis")
+            continue
+
+        for sentence_idx, sentence_item in enumerate(qmbd_analysis):
+            if not isinstance(sentence_item, dict):
+                fail(
+                    f"{path.name}: record[{idx}] qmbd_analysis[{sentence_idx}] "
+                    "is not an object"
+                )
+                continue
+            for field in required_sentence_fields:
+                if field not in sentence_item:
+                    fail(
+                        f"{path.name}: record[{idx}] qmbd_analysis[{sentence_idx}] "
+                        f"missing required field '{field}'"
+                    )
+            if not str(sentence_item.get("text_scope", "")).strip():
+                fail(
+                    f"{path.name}: record[{idx}] qmbd_analysis[{sentence_idx}] "
+                    "has empty text_scope"
+                )
+            if not str(sentence_item.get("sentence", "")).strip():
+                fail(
+                    f"{path.name}: record[{idx}] qmbd_analysis[{sentence_idx}] "
+                    "has empty sentence"
+                )
+
+    return data
 
 
 # ---------------------------------------------------------------------------
@@ -328,6 +433,26 @@ def check_credentials(
     if not leakage_found:
         ok("No cross-sector literature leakage in EQF6/EQF7 credentials")
 
+    # 4.5 Ensure each credential has complete and non-empty quality fields
+    completeness_errors = False
+    for cred in credentials:
+        cred_id = cred.get("id", "<unknown>")
+        outcomes = cred.get("learning_outcomes", [])
+        if not isinstance(outcomes, list) or not outcomes:
+            fail(f"Credential '{cred_id}' has missing/empty learning_outcomes list")
+            completeness_errors = True
+        stackability = str(cred.get("stackability_rules", "")).strip()
+        if not stackability:
+            fail(f"Credential '{cred_id}' has empty stackability_rules")
+            completeness_errors = True
+        assessment = str(cred.get("assessment_method", "")).strip()
+        if not assessment:
+            fail(f"Credential '{cred_id}' has empty assessment_method")
+            completeness_errors = True
+
+    if not completeness_errors:
+        ok("Credential completeness fields are present and non-empty")
+
     # 4. EQF6/EQF7 literature ID sets must not be identical for all sectors
     eqf67_lit_sets: dict[str, frozenset] = {}
     for cred in credentials:
@@ -354,6 +479,44 @@ def check_credentials(
                 f"EQF6/EQF7 literature ID sets differ across sectors "
                 f"({len(unique_sets)} distinct sets)"
             )
+
+
+def check_cumulative_qmbd_records(records: list[dict]) -> None:
+    """Validate cumulative_qmbd_records integrity and provenance coverage."""
+    print("\n[cumulative_qmbd_records.json]")
+
+    if not records:
+        fail("cumulative_qmbd_records.json is empty")
+        return
+
+    origins = {str(item.get("record_origin", "")) for item in records}
+    if "STATIC_BASELINE" not in origins:
+        fail("Missing STATIC_BASELINE records in cumulative_qmbd_records.json")
+    else:
+        ok("STATIC_BASELINE origin present")
+    if "STATIC_LITERATURE" not in origins:
+        fail("Missing STATIC_LITERATURE records in cumulative_qmbd_records.json")
+    else:
+        ok("STATIC_LITERATURE origin present")
+
+    duplicate_keys = set()
+    seen_keys = set()
+    for item in records:
+        origin = item.get("record_origin", "")
+        source = item.get("source_id", "")
+        if not origin or not source:
+            continue
+        key = (str(origin), str(source))
+        if key in seen_keys:
+            duplicate_keys.add(key)
+        seen_keys.add(key)
+    if duplicate_keys:
+        fail(
+            "Duplicate (record_origin, source_id) keys found in cumulative records: "
+            f"{sorted(duplicate_keys)[:5]}"
+        )
+    else:
+        ok("No duplicate (record_origin, source_id) keys detected")
 
 
 def check_desalination_integrity(
@@ -476,9 +639,10 @@ def main() -> int:
     gaps_csv_path = OUTPUTS_DIR / "gaps_summary.csv"
     creds_path = OUTPUTS_DIR / "credentials_database.json"
     comps_path = OUTPUTS_DIR / "competences_full_database.json"
+    cumulative_path = OUTPUTS_DIR / "cumulative_qmbd_records.json"
     sector_dict_dir = OUTPUTS_DIR / "sector_dictionaries"
 
-    required_files = [gaps_csv_path, creds_path, comps_path]
+    required_files = [gaps_csv_path, creds_path, comps_path, cumulative_path]
     all_present = all(require_file(p) for p in required_files)
     if not all_present:
         print("\nAbort: one or more required files are missing.")
@@ -488,10 +652,12 @@ def main() -> int:
     all_comps = load_competences(comps_path)
     credentials = load_credentials(creds_path)
     gaps_rows = load_gaps_csv(gaps_csv_path)
+    cumulative_records = load_cumulative_qmbd_records(cumulative_path)
 
     # Run semantic checks
     check_gaps_csv(gaps_rows)
     check_credentials(credentials, all_comps)
+    check_cumulative_qmbd_records(cumulative_records)
     check_desalination_integrity(credentials, all_comps)
     check_sector_dictionaries(sector_dict_dir)
 

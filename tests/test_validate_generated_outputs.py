@@ -1,8 +1,6 @@
 """Tests for scripts/validate_generated_outputs.py."""
 
-import csv
 import json
-import sys
 from pathlib import Path
 
 import pytest
@@ -28,6 +26,7 @@ def test_validator_passes_on_regenerated_outputs() -> None:
         outputs_dir / "gaps_summary.csv",
         outputs_dir / "credentials_database.json",
         outputs_dir / "competences_full_database.json",
+        outputs_dir / "cumulative_qmbd_records.json",
     ]
     for f in required:
         if not f.exists():
@@ -36,11 +35,6 @@ def test_validator_passes_on_regenerated_outputs() -> None:
     mod = _load_validator_module()
     result = mod.main()
     assert result == 0, "Validator reported failures on regenerated outputs"
-
-
-# ---------------------------------------------------------------------------
-# Unit tests for individual check functions
-# ---------------------------------------------------------------------------
 
 
 def _load_validator_module():
@@ -105,6 +99,7 @@ def test_main_state_reset_between_calls() -> None:
         outputs_dir / "gaps_summary.csv",
         outputs_dir / "credentials_database.json",
         outputs_dir / "competences_full_database.json",
+        outputs_dir / "cumulative_qmbd_records.json",
     ]
     for f in required:
         if not f.exists():
@@ -282,8 +277,16 @@ class TestCheckCredentials:
                 lit_ids = eqf6_lit_ids.get(sector, []) if level in [6, 7] else []
                 creds.append(
                     {
+                        "id": f"{sector.lower().replace(' ', '_')}_eqf{level}",
+                        "title": f"{sector} EQF{level}",
                         "sector": sector,
                         "eqf_level": level,
+                        "ects": 3.0,
+                        "assessment_method": "Portfolio and applied case study",
+                        "learner_profile": "Practitioner transitioning into blue sector roles",
+                        "learning_outcomes": [f"Outcome EQF{level}"],
+                        "stackability_rules": "Stackable toward sector specialization pathway",
+                        "prerequisites": [],
                         "competences": ["baseline_a_1"] + lit_ids,
                     }
                 )
@@ -346,7 +349,21 @@ class TestCheckCredentials:
         for sector in CANONICAL_SECTORS:
             levels = [4, 5, 6, 7] if sector != "Desalination" else [4, 5, 6]
             for level in levels:
-                creds.append({"sector": sector, "eqf_level": level, "competences": ["baseline_a_1"]})
+                creds.append(
+                    {
+                        "id": f"{sector.lower().replace(' ', '_')}_eqf{level}",
+                        "title": f"{sector} EQF{level}",
+                        "sector": sector,
+                        "eqf_level": level,
+                        "ects": 3.0,
+                        "assessment_method": "Portfolio and applied case study",
+                        "learner_profile": "Practitioner transitioning into blue sector roles",
+                        "learning_outcomes": [f"Outcome EQF{level}"],
+                        "stackability_rules": "Stackable toward sector specialization pathway",
+                        "prerequisites": [],
+                        "competences": ["baseline_a_1"],
+                    }
+                )
         mod.check_credentials(creds, comps)
         # A failure for Desalination must be present
         assert any("Desalination" in e and "7" in e for e in mod.ERRORS), (
@@ -393,3 +410,146 @@ class TestCheckSectorDictionaries:
         self._write_dict_files(tmp_path, {s: [f"comp_{s}"] for s in stems})
         mod.check_sector_dictionaries(tmp_path)
         assert not mod.ERRORS, f"Unexpected errors: {mod.ERRORS}"
+
+
+class TestCumulativeQmbdValidation:
+    def test_load_cumulative_qmbd_records_fails_on_static_missing_axis_name(
+        self, tmp_path: Path
+    ) -> None:
+        """Static-origin records must have axis_name."""
+        mod = _load_validator_module()
+        payload = [
+            {
+                "source_id": "s1",
+                "title": "t1",
+                "record_origin": "STATIC_BASELINE",
+                "qmbd_analysis": [
+                    {
+                        "axis": "OCEANIC",
+                        "axis_code": "O",
+                        "text_scope": "full_sentence",
+                        "sentence": "Ocean literacy.",
+                    }
+                ],
+            }
+        ]
+        bad_file = tmp_path / "cumulative.json"
+        bad_file.write_text(json.dumps(payload))
+        mod.load_cumulative_qmbd_records(bad_file)
+        assert any("axis_name" in e for e in mod.ERRORS), mod.ERRORS
+
+    def test_check_cumulative_qmbd_records_detects_duplicate_origin_source_id(self) -> None:
+        mod = _load_validator_module()
+        record = {
+            "source_id": "dup-id",
+            "title": "Title",
+            "axis_name": "MARINE",
+            "record_origin": "STATIC_BASELINE",
+            "qmbd_analysis": [
+                {
+                    "axis": "MARINE",
+                    "axis_code": "M",
+                    "text_scope": "full_sentence",
+                    "sentence": "Marine ecosystem dynamics.",
+                }
+            ],
+        }
+        mod.check_cumulative_qmbd_records([record, dict(record)])
+        assert any("Duplicate (record_origin, source_id)" in e for e in mod.ERRORS)
+
+    def test_check_cumulative_qmbd_records_passes_with_required_origins(self) -> None:
+        mod = _load_validator_module()
+        records = [
+            {
+                "source_id": "baseline_1",
+                "title": "Ocean literacy",
+                "axis_name": "OCEANIC",
+                "record_origin": "STATIC_BASELINE",
+                "qmbd_analysis": [
+                    {
+                        "axis": "OCEANIC",
+                        "axis_code": "O",
+                        "text_scope": "full_sentence",
+                        "sentence": "Ocean literacy.",
+                    }
+                ],
+            },
+            {
+                "source_id": "lit_1",
+                "title": "Policy competence",
+                "axis_name": "MARITIME",
+                "record_origin": "STATIC_LITERATURE",
+                "qmbd_analysis": [
+                    {
+                        "axis": "MARITIME",
+                        "axis_code": "T",
+                        "text_scope": "full_sentence",
+                        "sentence": "Port governance and policy.",
+                    }
+                ],
+            },
+        ]
+        mod.check_cumulative_qmbd_records(records)
+        assert not mod.ERRORS, mod.ERRORS
+
+    def test_empty_cumulative_file_produces_controlled_error(self, tmp_path: Path) -> None:
+        """Empty cumulative_qmbd_records.json should produce a clear error, not JSONDecodeError."""
+        mod = _load_validator_module()
+        empty_file = tmp_path / "cumulative.json"
+        empty_file.write_text("", encoding="utf-8")
+        result = mod.load_cumulative_qmbd_records(empty_file)
+        assert result == []
+        assert any("empty" in e.lower() for e in mod.ERRORS), mod.ERRORS
+        # Should NOT be a raw JSONDecodeError message
+        assert not any("JSONDecodeError" in e for e in mod.ERRORS), mod.ERRORS
+
+    def test_live_cumulative_record_without_static_only_fields_passes(
+        self, tmp_path: Path
+    ) -> None:
+        """Live-enriched records (LIVE_TRIANGULATED) should not require axis_name/record_origin."""
+        mod = _load_validator_module()
+        payload = [
+            {
+                "source_id": "live_crossref_1",
+                "title": "Blue economy governance",
+                "record_origin": "LIVE_TRIANGULATED",
+                "qmbd_analysis": [
+                    {
+                        "axis": "OCEANIC",
+                        "axis_code": "O",
+                        "text_scope": "full_sentence",
+                        "sentence": "Ocean governance framework.",
+                    }
+                ],
+            }
+        ]
+        live_file = tmp_path / "cumulative.json"
+        live_file.write_text(json.dumps(payload))
+        mod.load_cumulative_qmbd_records(live_file)
+        # axis_name not present but record_origin is LIVE_TRIANGULATED → no error
+        assert not any("axis_name" in e for e in mod.ERRORS), mod.ERRORS
+
+    def test_live_record_without_record_origin_passes_schema(
+        self, tmp_path: Path
+    ) -> None:
+        """Records without record_origin (live) should pass base schema check."""
+        mod = _load_validator_module()
+        payload = [
+            {
+                "source_id": "live_unknown_1",
+                "title": "Marine social science",
+                "qmbd_analysis": [
+                    {
+                        "axis": "MARINE",
+                        "axis_code": "M",
+                        "text_scope": "full_sentence",
+                        "sentence": "Marine social dynamics.",
+                    }
+                ],
+            }
+        ]
+        live_file = tmp_path / "cumulative.json"
+        live_file.write_text(json.dumps(payload))
+        mod.load_cumulative_qmbd_records(live_file)
+        # No record_origin → not a static record → should not fail on missing axis_name/record_origin
+        assert not mod.ERRORS, mod.ERRORS

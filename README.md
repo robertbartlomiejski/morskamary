@@ -8,6 +8,11 @@ Repository: robertbartlomiejski/morskamary
 # One-click setup (recommended)
 docker compose up --build
 
+# Standard research workflow modes (Linux/macOS)
+./scripts/run_research_api_full.sh --mode quick
+./scripts/run_research_api_full.sh --mode full-static
+./scripts/run_research_api_full.sh --mode full-live
+
 # One-click setup (local Windows, no Docker)
 powershell -ExecutionPolicy Bypass -File .\setup_one_click.ps1
 
@@ -158,6 +163,10 @@ This repository includes specialized instructions for AI coding assistants:
   - Coding conventions (Python ≥3.9, black, flake8, mypy)
   - Evidence discipline and citation requirements
   - Architecture patterns and data workflows
+- [docs/AGENT_WORKING_AGREEMENT.md](docs/AGENT_WORKING_AGREEMENT.md) — Shared contribution contract for humans and agents
+  - Common mission lock and scientific guardrails
+  - Required per-contribution declaration fields
+  - Standard execution modes and validation gates
 
 - [.github/repository-guardrails.instructions.md](.github/repository-guardrails.instructions.md) — Hard guardrails for coding agents
   - Prioritizes real-data execution (`main_real_data.py` over `demo_workspace_instructions.py`)

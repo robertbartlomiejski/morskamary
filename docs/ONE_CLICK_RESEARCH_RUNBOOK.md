@@ -90,23 +90,38 @@ python scripts/smoke_scientific_bridge.py --offline
 ## Everyday local full research run
 
 ```bash
-./scripts/run_research_api_full.sh --live
+# Fast static consistency run (no live APIs)
+./scripts/run_research_api_full.sh --mode quick
+
+# Full static pipeline
+./scripts/run_research_api_full.sh --mode full-static
+
+# Full live-enriched pipeline
+./scripts/run_research_api_full.sh --mode full-live
 ```
 
-This single command:
+This single command (using `--mode quick|full-static|full-live`):
 1. Checks Python version
 2. Installs/updates the package
-3. Runs `check_research_env.py`
-4. Runs the offline smoke test
-5. Runs the live API smoke test (for configured providers)
-6. Exports live records and two-loop triangulation artifacts to
-   `outputs/research_sources/` (including `live_records_triangulated.json`) in live mode
-7. Runs `run_full_analysis.py` in `live-enriched` mode when `--live` is used
-8. Exports provider capabilities to `outputs/research_source_capabilities.json`
-9. Validates research source outputs
-10. Prints a summary of configured providers and output file paths
+3. Runs provider capability diagnostics
+4. Runs `check_research_env.py`
+5. Runs the offline smoke test
+6. Runs the live API smoke test (for configured providers, in `full-live` mode)
+7. Exports live records and two-loop triangulation artifacts to
+   `outputs/research_sources/` (including `live_records_triangulated.json`) in `full-live` mode
+8. Runs `run_full_analysis.py` (static or `live-enriched` depending on mode)
+9. Exports provider capabilities to `outputs/research_source_capabilities.json`
+10. Runs `validate_generated_outputs.py` as a quality gate
+11. Validates research source outputs
+12. Prints a summary of configured providers and output file paths
 
-Without `--live`, live API calls are skipped (safe for offline use).
+Mode summary:
+
+- `quick` — static full-analysis + consistency validators (fastest).
+- `full-static` — full workflow without live API pulls.
+- `full-live` — full workflow with capability-gated live providers and live-enriched analysis.
+
+Backward compatibility: `--live` remains supported as an alias for `--mode full-live`.
 
 ---
 
