@@ -1963,7 +1963,7 @@ def generate_report_index(
     competence_breakdown = (
         f"{len(baseline)} baseline + {len(literature)} literature-derived"
     )
-    if analysis_input_mode == "live-enriched" and live_count:
+    if analysis_input_mode == "live-enriched":
         competence_breakdown = (
             f"{len(baseline)} baseline + {static_count} static literature + "
             f"{live_count} live-enriched"
@@ -1998,7 +1998,7 @@ def generate_report_index(
     <td><a href="{REPO_GITHUB_BASE}/data/derived/{lit["filename"].replace(" ", "%20")}" target="_blank">View on GitHub</a></td>
   </tr>
 """
-    if analysis_input_mode == "live-enriched" and live_count:
+    if analysis_input_mode == "live-enriched":
         html += f"""  <tr>
     <td>outputs/research_sources/live_records_triangulated.json</td>
     <td>Live</td><td>{live_count}</td>
@@ -2010,6 +2010,12 @@ def generate_report_index(
     <td><a href="{live_coverage_url}" target="_blank">View on GitHub</a></td>
   </tr>
 """
+        if live_count == 0:
+            html += (
+                "<tr><td colspan='4'>"
+                "Live-enriched mode requested, but zero live records were ingested."
+                "</td></tr>\n"
+            )
     html += "</table>\n"
 
     html += "<h2>Sector Gap Overview</h2>\n"
@@ -2198,6 +2204,11 @@ def generate_literature_html(
             "<p>Breakdown: "
             f"<strong>{static_count}</strong> static literature + "
             f"<strong>{live_count}</strong> live-enriched.</p>\n"
+        )
+    elif analysis_input_mode == "live-enriched":
+        html += (
+            "<p>Live-enriched mode requested, but no live records were available "
+            "for this run.</p>\n"
         )
 
     by_axis: Dict[str, List[Competence]] = {ax.name: [] for ax in TMBDAxis}

@@ -1071,6 +1071,53 @@ def test_generate_report_index_creates_html(tmp_path: Path) -> None:
     assert "Summary Dashboard" in content
 
 
+def test_generate_report_index_live_enriched_shows_zero_live_sources(
+    tmp_path: Path,
+) -> None:
+    from run_full_analysis import generate_report_index
+
+    baseline = [
+        Competence(
+            id="base_1",
+            name="Baseline",
+            description="Test",
+            axis=TMBDAxis.MARINE,
+            dimension="A",
+            source=CompetenceSource(file="test.csv", row=1),
+            sectors=["Blue Biotech"],
+        ),
+    ]
+    literature = []
+    gaps = {
+        sector: GapAnalysis(
+            sector=sector,
+            required_ids=["a"],
+            available_ids=[],
+            missing_ids=["a"],
+            gap_pct=100.0,
+            by_axis={"MARINE": ["a"], "MARITIME": [], "OCEANIC": []},
+        )
+        for sector in SECTORS
+    }
+
+    output_file = tmp_path / "index_live_zero.html"
+    generate_report_index(
+        baseline,
+        literature,
+        gaps,
+        [],
+        output_file,
+        analysis_input_mode="live-enriched",
+        static_literature_count=0,
+        live_enrichment_count=0,
+    )
+
+    content = output_file.read_text(encoding="utf-8")
+    assert "outputs/research_sources/live_records_triangulated.json" in content
+    assert "outputs/research_sources/live_source_coverage.csv" in content
+    assert "Live-enriched mode requested, but zero live records were ingested." in content
+
+
 def test_generate_gaps_html_creates_file(tmp_path: Path) -> None:
     """Test generate_gaps_html creates HTML file."""
     from run_full_analysis import generate_gaps_html
@@ -1221,6 +1268,7 @@ def test_generate_literature_html_subtitle_static_does_not_claim_live_enriched(
     content_no_live = output_file_live_mode_no_live.read_text(encoding="utf-8")
     assert "Static literature with QMBD axis assignment" in content_no_live
     assert "live-enriched evidence" not in content_no_live
+    assert "Live-enriched mode requested, but no live records were available" in content_no_live
 
 
 def test_generate_literature_html_subtitle_live_enriched_when_live_count_positive(
