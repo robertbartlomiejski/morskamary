@@ -278,6 +278,7 @@ def _triangulated_to_literature(rec: TriangulatedRecord) -> LiteratureRecord:
         source_id=rec.source_id
         or f"{normalize_provider_name(rec.provider)}:{rec.doi or rec.title[:40]}",
         provider=rec.provider,
+        language=rec.language,
         journal=rec.journal,
         url=rec.url,
         subject_terms=list(rec.subject_terms),
@@ -342,6 +343,9 @@ def triangulate_identity_loop(
     merged_records = [_triangulated_to_literature(rec) for rec in merged]
 
     winner_by_identity = {_identity_key_from_triangulated(rec): rec for rec in merged}
+    merged_record_by_identity = {
+        _identity_key_from_record(rec): rec for rec in merged_records
+    }
     grouped_candidates: Dict[str, List[LiteratureRecord]] = defaultdict(list)
     for rec in records:
         grouped_candidates[_identity_key_from_record(rec)].append(rec)
@@ -370,6 +374,16 @@ def triangulate_identity_loop(
         winner = winner_by_identity.get(identity_key)
         if winner is None:
             continue
+        preferred_language = next(
+            (rec.language for rec, _ in candidates_sorted if rec.language.strip()),
+            "",
+        )
+        if preferred_language and not winner.language.strip():
+            winner.language = preferred_language
+        merged_record = merged_record_by_identity.get(identity_key)
+        if merged_record is not None and preferred_language:
+            if not merged_record.language.strip():
+                merged_record.language = preferred_language
         winner_norm = normalize_provider_name(winner.provider)
         losers = [
             {
@@ -522,6 +536,7 @@ def deduplicate_records(
     """
     seen_dois: Set[str] = set()
     seen_titles: Set[str] = set()
+    doi_idx: Dict[str, int] = {}
     # Maps norm_title → index in `deduped` for records accepted without a DOI.
     # When a DOI-bearing record for the same title arrives later we upgrade the
     # slot in-place so the DOI record wins (DOI-first policy).
@@ -543,12 +558,22 @@ def deduplicate_records(
             doi_key = rec.doi.strip().lower()
             if doi_key in seen_dois:
                 stats["doi_duplicates"] += 1
+                existing_idx = doi_idx.get(doi_key)
+                if existing_idx is not None:
+                    existing = deduped[existing_idx]
+                    if not existing.language.strip() and rec.language.strip():
+                        existing.language = rec.language
                 continue
             # A no-DOI record with the same title was accepted earlier: upgrade
             # it with this DOI-bearing record so the DOI version wins.
             if title_key in nondoi_title_idx:
-                deduped[nondoi_title_idx.pop(title_key)] = rec
+                idx = nondoi_title_idx.pop(title_key)
+                existing = deduped[idx]
+                if not rec.language.strip() and existing.language.strip():
+                    rec.language = existing.language
+                deduped[idx] = rec
                 seen_dois.add(doi_key)
+                doi_idx[doi_key] = idx
                 # Count as a title duplicate: the incoming record was matched
                 # by title (not DOI) against a previously accepted no-DOI slot.
                 stats["title_duplicates"] += 1
@@ -557,6 +582,7 @@ def deduplicate_records(
             # match, so keep the record regardless of seen_titles.
             seen_dois.add(doi_key)
             seen_titles.add(title_key)
+            doi_idx[doi_key] = len(deduped)
             deduped.append(rec)
         else:
             # No DOI: skip if an accepted record (DOI or no-DOI) shares this title.
@@ -633,7 +659,7 @@ def _to_stage1_compliant_dict(rec: LiteratureRecord) -> Dict[str, Any]:
         "doi": rec.doi,
         "source_id": rec.source_id,
         "provider": rec.provider,
-        "language": getattr(rec, "language", ""),
+        "language": rec.language,
         "journal": rec.journal,
         "url": rec.url,
         "subject_terms": rec.subject_terms,

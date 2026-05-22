@@ -1176,6 +1176,9 @@ def extract_live_records_competences(
         # Custom paths may live outside REPO_ROOT; keep source metadata usable.
         rel_path = live_records_path.resolve().as_posix()
 
+    canonical_by_norm = {
+        re.sub(r"[^a-z0-9]+", " ", sec.lower()).strip(): sec for sec in SECTORS
+    }
     # start=2 aligns source row references with data-row indexing semantics.
     for idx, row in enumerate(payload, start=2):
         if not isinstance(row, dict):
@@ -1215,9 +1218,6 @@ def extract_live_records_competences(
             axis = _resolve_primary_axis_from_analysis(
                 sentence_analysis, default_axis="OCEANIC"
             )
-        canonical_by_norm = {
-            re.sub(r"[^a-z0-9]+", " ", sec.lower()).strip(): sec for sec in SECTORS
-        }
         supplied_sectors: List[str] = []
         raw_sectors = row.get("sectors") or row.get("sector")
         candidates: List[str] = []
@@ -2169,11 +2169,6 @@ def generate_literature_html(
     live_enrichment_count: Optional[int] = None,
 ) -> None:
     """Generate literature integration HTML: papers → competences mapping."""
-    html = _HTML_HEAD.format(
-        title="Literature Integration — Papers to Competences Mapping",
-        subtitle="Static literature + live-enriched evidence with QMBD axis assignment",
-    )
-
     live_competences = [c for c in literature if c.id.startswith("lit_live_")]
     static_competences = [c for c in literature if c not in live_competences]
     static_count = (
@@ -2185,6 +2180,15 @@ def generate_literature_html(
         int(live_enrichment_count)
         if live_enrichment_count is not None
         else len(live_competences)
+    )
+
+    subtitle = "Static literature with QMBD axis assignment"
+    if analysis_input_mode == "live-enriched" and live_count:
+        subtitle = "Static literature + live-enriched evidence with QMBD axis assignment"
+
+    html = _HTML_HEAD.format(
+        title="Literature Integration — Papers to Competences Mapping",
+        subtitle=subtitle,
     )
 
     html += "<h2>Overview</h2>\n"

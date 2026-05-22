@@ -25,6 +25,7 @@ on:
     # Weekly refresh (UTC)
     - cron: "0 3 * * 1"
 
+# Least-privilege default. Only the optional commit job needs write permissions.
 permissions:
   contents: read
 
@@ -37,7 +38,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      ALLOW_BOT_COMMITS: ${{ vars.ALLOW_BOT_COMMITS || 'false' }}
 
       # Optional provider secrets (Crossref should always work; others may be absent)
       CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
@@ -83,7 +83,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Morskamary_QMBD_Live_Audit_Run_${{ github.run_id }}
+          name: live-enriched-analysis-outputs
           path: |
             outputs/
             data/derived/
@@ -92,6 +92,8 @@ jobs:
   commit-outputs:
     needs: live-analysis
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: >
       github.ref == 'refs/heads/main' &&
       vars.ALLOW_BOT_COMMITS == 'true' &&
@@ -99,16 +101,17 @@ jobs:
         (github.event_name == 'workflow_dispatch' && github.event.inputs.commit_outputs == 'true') ||
         (github.event_name == 'schedule' && vars.LIVE_OUTPUTS_AUTOCOMMIT == 'true')
       )
-    permissions:
-      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Download analysis outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: live-enriched-analysis-outputs
+          path: .
+
       - name: Commit refreshed outputs (opt-in)
-        # Commit gating is explicit per trigger:
-        # - workflow_dispatch: requires commit_outputs=true and ALLOW_BOT_COMMITS=true
-        # - schedule: requires LIVE_OUTPUTS_AUTOCOMMIT=true and ALLOW_BOT_COMMITS=true
         run: |
           set -euo pipefail
           git config user.name "morskamary-bot"

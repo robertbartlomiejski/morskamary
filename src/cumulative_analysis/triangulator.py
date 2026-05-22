@@ -134,6 +134,7 @@ class TriangulatedRecord:
         doi:                 Digital Object Identifier — the primary dedup key.
         source:              Provenance label (``ClaimOrigin`` enum).
         provider:            Short provider name (e.g. "Crossref", "static").
+        language:            Bibliographic language code (when available).
         journal:             Journal or venue name (bibliographic fact).
         url:                 Persistent URL or DOI link (pointer, not content).
         subject_terms:       Aggregated classification terms, not full text.
@@ -148,6 +149,7 @@ class TriangulatedRecord:
     doi: str
     source: ClaimOrigin
     provider: str
+    language: str = ""
     source_id: str = ""
     journal: str = ""
     url: str = ""
@@ -165,6 +167,7 @@ class TriangulatedRecord:
             "doi": self.doi,
             "source": self.source.value,
             "provider": self.provider,
+            "language": self.language,
             "source_id": self.source_id,
             "journal": self.journal,
             "url": self.url,
@@ -226,6 +229,7 @@ def _record_from_csv_row(row: Dict[str, str]) -> Optional[TriangulatedRecord]:
         doi=row.get("doi", "").strip(),
         source=ClaimOrigin.STATIC_BASELINE,
         provider=row.get("provider", "static").strip() or "static",
+        language=row.get("language", "").strip(),
         source_id=row.get("source_id", "").strip(),
         journal=row.get("journal", "").strip(),
         url=row.get("url", "").strip(),
@@ -256,6 +260,7 @@ def _record_from_literature_record(rec: LiteratureRecord) -> TriangulatedRecord:
         doi=rec.doi,
         source=_claim_origin_for_provider(rec.provider),
         provider=rec.provider,
+        language=rec.language,
         source_id=rec.source_id,
         journal=rec.journal,
         url=rec.url,

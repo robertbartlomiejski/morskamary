@@ -1174,6 +1174,107 @@ def test_generate_literature_html_creates_file(tmp_path: Path) -> None:
     assert "Smith, J." in content
 
 
+def test_generate_literature_html_subtitle_static_does_not_claim_live_enriched(
+    tmp_path: Path,
+) -> None:
+    from run_full_analysis import generate_literature_html
+
+    literature = [
+        Competence(
+            id="labor_justice_0001",
+            name="Static competence",
+            description="Test",
+            axis=TMBDAxis.OCEANIC,
+            dimension="literature",
+            source=CompetenceSource(
+                file="lit.csv",
+                row=1,
+                authors="Smith, J.",
+                year="2023",
+                paper_title="Test Paper",
+                doi="10.1234/test",
+            ),
+            sectors=SECTORS,
+        ),
+    ]
+
+    output_file = tmp_path / "lit_static.html"
+    generate_literature_html(
+        literature,
+        output_file,
+        analysis_input_mode="static",
+        static_literature_count=1,
+        live_enrichment_count=0,
+    )
+    content = output_file.read_text(encoding="utf-8")
+    assert "Static literature with QMBD axis assignment" in content
+    assert "live-enriched evidence" not in content
+
+    output_file_live_mode_no_live = tmp_path / "lit_live_mode_no_live.html"
+    generate_literature_html(
+        literature,
+        output_file_live_mode_no_live,
+        analysis_input_mode="live-enriched",
+        static_literature_count=1,
+        live_enrichment_count=0,
+    )
+    content_no_live = output_file_live_mode_no_live.read_text(encoding="utf-8")
+    assert "Static literature with QMBD axis assignment" in content_no_live
+    assert "live-enriched evidence" not in content_no_live
+
+
+def test_generate_literature_html_subtitle_live_enriched_when_live_count_positive(
+    tmp_path: Path,
+) -> None:
+    from run_full_analysis import generate_literature_html
+
+    static_comp = Competence(
+        id="labor_justice_0001",
+        name="Static competence",
+        description="Test",
+        axis=TMBDAxis.OCEANIC,
+        dimension="literature",
+        source=CompetenceSource(
+            file="lit.csv",
+            row=1,
+            authors="Smith, J.",
+            year="2023",
+            paper_title="Test Paper",
+            doi="10.1234/test",
+        ),
+        sectors=SECTORS,
+    )
+    live_comp = Competence(
+        id="lit_live_crossref_00001",
+        name="Live competence",
+        description="Test",
+        axis=TMBDAxis.MARITIME,
+        dimension="literature",
+        source=CompetenceSource(
+            file="outputs/research_sources/live_records_triangulated.json",
+            row=2,
+            authors="Doe, J.",
+            year="2024",
+            paper_title="Live Paper",
+            doi="10.9999/live",
+        ),
+        sectors=SECTORS,
+    )
+
+    output_file = tmp_path / "lit_live.html"
+    generate_literature_html(
+        [static_comp, live_comp],
+        output_file,
+        analysis_input_mode="live-enriched",
+        static_literature_count=1,
+        live_enrichment_count=1,
+    )
+    content = output_file.read_text(encoding="utf-8")
+    assert "Static literature + live-enriched evidence with QMBD axis assignment" in content
+    assert "Breakdown:" in content
+    assert "live-enriched" in content
+
+
 def test_main_handles_missing_baseline_csv(tmp_path: Path) -> None:
     """Test main returns error code when baseline CSV is missing."""
     from run_full_analysis import main

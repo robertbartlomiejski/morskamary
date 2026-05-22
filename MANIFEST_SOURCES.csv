@@ -915,6 +915,7 @@ tests/test_cumulative_triangulator_dynamic_priority.py,script,,,,,,test_cumulati
 tests/test_e2e_workflows.py,script,,,,,,test_e2e_workflows,yes
 tests/test_edge_cases.py,script,,,,,,test_edge_cases,yes
 tests/test_export_live_research_records.py,script,,,,,,test_export_live_research_records,yes
+tests/test_full_live_analysis_workflow.py,script,,,,,,test_full_live_analysis_workflow,yes
 tests/test_generate_manifest.py,script,,,,,,test_generate_manifest,yes
 tests/test_literature_extraction.py,script,,,,,,test_literature_extraction,yes
 tests/test_load_real_competences.py,script,,,,,,test_load_real_competences,yes

@@ -11,6 +11,7 @@ from unittest.mock import MagicMock, patch
 
 from scripts.export_live_research_records import (
     LiveContextClassificationRepository,
+    _to_stage1_compliant_dict,
     build_thematic_loop_audit,
     build_coverage_report,
     deduplicate_records,
@@ -183,6 +184,28 @@ class TestDeduplicateRecords:
         assert deduped[0].doi == "10.1234/x"
         assert stats["doi_duplicates"] + stats["title_duplicates"] == 1
 
+    def test_preserves_language_on_doi_winner_from_duplicate_candidate(self):
+        rec1 = _make_record(doi="10.1234/lang", language="")
+        rec2 = _make_record(doi="10.1234/lang", language="en", title="Other title")
+        deduped, stats = deduplicate_records([rec1, rec2])
+        assert len(deduped) == 1
+        assert stats["doi_duplicates"] == 1
+        assert deduped[0].language == "en"
+
+    def test_preserves_language_when_upgrading_title_only_to_doi_record(self):
+        title_only = _make_record(doi="", language="fr", source_id="no-doi")
+        doi_record = _make_record(
+            doi="10.1234/upgrade",
+            language="",
+            title=title_only.title,
+            source_id="with-doi",
+        )
+        deduped, stats = deduplicate_records([title_only, doi_record])
+        assert len(deduped) == 1
+        assert stats["title_duplicates"] == 1
+        assert deduped[0].doi == "10.1234/upgrade"
+        assert deduped[0].language == "fr"
+
 
 class TestBuildCoverageReport:
     def test_builds_coverage_rows(self):
@@ -294,6 +317,61 @@ class TestTriangulationPolicy:
             r.provider == "SciVal" and r.doi == "10.9999/unique" for r in merged_records
         )
         assert set(support_by_identity["doi:10.1234/shared"]) == {"crossref", "scival"}
+
+    def test_preserves_language_from_non_identity_candidate_on_winner(self, tmp_path):
+        crossref_shared = _make_record(
+            doi="10.1234/shared",
+            source_id="crossref:10.1234/shared",
+            provider="Crossref",
+            title="Shared title",
+            language="",
+        )
+        scival_shared = _make_record(
+            doi="10.1234/shared",
+            source_id="scival:10.1234/shared",
+            provider="SciVal",
+            title="Shared title",
+            language="en",
+        )
+        policy = {
+            "precedence": ["crossref", "scopus", "wos", "scival"],
+            "primary_identity_providers": ["crossref", "scopus", "wos"],
+        }
+        merged_records, _, _, _, _ = triangulate_identity_loop(
+            [crossref_shared, scival_shared], policy
+        )
+        assert len(merged_records) == 1
+        assert merged_records[0].doi == "10.1234/shared"
+        assert merged_records[0].language == "en"
+
+        output_path = tmp_path / "live_records.json"
+        export_records_json(merged_records, output_path)
+        payload = json.loads(output_path.read_text(encoding="utf-8"))
+        assert payload[0]["language"] == "en"
+
+        stage1_row = _to_stage1_compliant_dict(merged_records[0])
+        assert stage1_row["language"] == "en"
+
+    def test_non_doi_source_id_fallback_preserves_language(self, tmp_path):
+        record = _make_record(
+            doi="",
+            title="",
+            source_id="drive:abc123",
+            provider="Google Drive",
+            language="pl",
+        )
+        policy = {
+            "precedence": ["crossref", "scopus", "wos", "scival", "google_drive"],
+            "primary_identity_providers": ["crossref", "scopus", "wos"],
+        }
+        merged_records, _, _, _, _ = triangulate_identity_loop([record], policy)
+        assert len(merged_records) == 1
+        assert merged_records[0].language == "pl"
+
+        output_path = tmp_path / "live_records.json"
+        export_records_json(merged_records, output_path)
+        payload = json.loads(output_path.read_text(encoding="utf-8"))
+        assert payload[0]["language"] == "pl"
 
 
 # ---------------------------------------------------------------------------
