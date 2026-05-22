@@ -26,7 +26,7 @@ on:
     - cron: "0 3 * * 1"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: full-live-analysis-${{ github.ref }}
@@ -89,12 +89,26 @@ jobs:
             data/derived/
           retention-days: 30
 
+  commit-outputs:
+    needs: live-analysis
+    runs-on: ubuntu-latest
+    if: >
+      github.ref == 'refs/heads/main' &&
+      vars.ALLOW_BOT_COMMITS == 'true' &&
+      (
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.commit_outputs == 'true') ||
+        (github.event_name == 'schedule' && vars.LIVE_OUTPUTS_AUTOCOMMIT == 'true')
+      )
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
       - name: Commit refreshed outputs (opt-in)
-        if: >
-          github.ref == 'refs/heads/main' &&
-          (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') &&
-          env.ALLOW_BOT_COMMITS == 'true' &&
-          (github.event.inputs.commit_outputs || 'false') == 'true'
+        # Commit gating is explicit per trigger:
+        # - workflow_dispatch: requires commit_outputs=true and ALLOW_BOT_COMMITS=true
+        # - schedule: requires LIVE_OUTPUTS_AUTOCOMMIT=true and ALLOW_BOT_COMMITS=true
         run: |
           set -euo pipefail
           git config user.name "morskamary-bot"
