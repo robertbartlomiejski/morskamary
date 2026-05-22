@@ -53,6 +53,7 @@ class LiteratureRecord:
     doi: str
     source_id: str
     provider: str
+    language: str = ""
     journal: str = ""
     url: str = ""
     abstract: str = ""
@@ -81,6 +82,7 @@ class LiteratureRecord:
             "doi": self.doi,
             "source_id": self.source_id,
             "provider": self.provider,
+            "language": self.language,
             "journal": self.journal,
             "url": self.url,
             "subject_terms": self.subject_terms,

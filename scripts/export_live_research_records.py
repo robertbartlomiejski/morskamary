@@ -239,17 +239,33 @@ def load_provider_policy(path: Path) -> Dict[str, Any]:
 
 
 def _identity_key_from_record(rec: LiteratureRecord) -> str:
+    """Return deterministic deduplication key (DOI → title → provider source_id)."""
     doi = rec.doi.strip().lower()
     if doi:
         return f"doi:{doi}"
-    return f"title:{normalize_title(rec.title)}"
+    normalized_title = normalize_title(rec.title)
+    if normalized_title:
+        return f"title:{normalized_title}"
+    source_id = rec.source_id.strip()
+    if source_id:
+        provider_key = normalize_provider_name(rec.provider) or "unknown"
+        return f"source_id:{provider_key}:{source_id}"
+    return "unknown:missing-identity"
 
 
 def _identity_key_from_triangulated(rec: TriangulatedRecord) -> str:
     doi = rec.doi.strip().lower()
     if doi:
         return f"doi:{doi}"
-    return f"title:{normalize_title(rec.title)}"
+    normalized_title = normalize_title(rec.title)
+    if normalized_title:
+        return f"title:{normalized_title}"
+    source_id = str(getattr(rec, "source_id", "")).strip()
+    provider = str(getattr(rec, "provider", "")).strip()
+    if source_id:
+        provider_key = normalize_provider_name(provider) or "unknown"
+        return f"source_id:{provider_key}:{source_id}"
+    return "unknown:missing-identity"
 
 
 def _triangulated_to_literature(rec: TriangulatedRecord) -> LiteratureRecord:
@@ -404,6 +420,7 @@ def build_thematic_loop_audit(
     provenance: List[SourceEvidence],
     support_by_identity: Dict[str, List[str]],
     provider_classes: Dict[str, str],
+    sectors_by_identity_key: Dict[str, Set[str]] | None = None,
     classification_repo: LiveContextClassificationRepository | None = None,
 ) -> Dict[str, Any]:
     """Build loop-2 thematic/QMBD audit for triangulated records."""
@@ -425,6 +442,11 @@ def build_thematic_loop_audit(
         )
         overlap_status = "multi-source" if len(set(support)) > 1 else "single-source"
         confidence = confidence_by_record.get(rec.source_id, 0.0)
+        sectors = (
+            sorted(sectors_by_identity_key.get(identity_key, set()))
+            if sectors_by_identity_key
+            else []
+        )
         manual_review_flags: List[str] = []
         if not rec.doi:
             manual_review_flags.append("missing-doi")
@@ -441,6 +463,7 @@ def build_thematic_loop_audit(
                 "provider_class": provider_classes.get(
                     normalize_provider_name(rec.provider), "unknown"
                 ),
+                "sectors": sectors,
                 "qmbd_axis": axis_name,
                 "qmbd_axis_code": axis_code,
                 "sentence_classifications": _sanitize_persisted_sentence_classifications(
@@ -508,6 +531,14 @@ def deduplicate_records(
 
     for rec in records:
         norm_title = normalize_title(rec.title)
+        title_key = norm_title
+        if not title_key:
+            source_id = rec.source_id.strip()
+            provider_key = normalize_provider_name(rec.provider) or "unknown"
+            if source_id:
+                title_key = f"source_id:{provider_key}:{source_id}"
+            else:
+                title_key = "unknown:missing-title-and-source-id"
         if rec.doi:
             doi_key = rec.doi.strip().lower()
             if doi_key in seen_dois:
@@ -515,8 +546,8 @@ def deduplicate_records(
                 continue
             # A no-DOI record with the same title was accepted earlier: upgrade
             # it with this DOI-bearing record so the DOI version wins.
-            if norm_title in nondoi_title_idx:
-                deduped[nondoi_title_idx.pop(norm_title)] = rec
+            if title_key in nondoi_title_idx:
+                deduped[nondoi_title_idx.pop(title_key)] = rec
                 seen_dois.add(doi_key)
                 # Count as a title duplicate: the incoming record was matched
                 # by title (not DOI) against a previously accepted no-DOI slot.
@@ -525,16 +556,16 @@ def deduplicate_records(
             # Distinct DOIs identify distinct papers even if titles happen to
             # match, so keep the record regardless of seen_titles.
             seen_dois.add(doi_key)
-            seen_titles.add(norm_title)
+            seen_titles.add(title_key)
             deduped.append(rec)
         else:
             # No DOI: skip if an accepted record (DOI or no-DOI) shares this title.
-            if norm_title in seen_titles:
+            if title_key in seen_titles:
                 stats["title_duplicates"] += 1
                 continue
             idx = len(deduped)
-            nondoi_title_idx[norm_title] = idx
-            seen_titles.add(norm_title)
+            nondoi_title_idx[title_key] = idx
+            seen_titles.add(title_key)
             deduped.append(rec)
 
     return deduped, stats
@@ -584,6 +615,7 @@ def _to_stage1_compliant_dict(rec: LiteratureRecord) -> Dict[str, Any]:
 
     Fields retained and their docs/licensing_and_compliance.md basis:
     - title, authors, year, doi    → "Bibliographic fact; not copyright-protected"
+    - language                     → "Bibliographic metadata field (when available)"
     - journal                       → "Bibliographic fact"
     - url                           → "Pointer, not content"
     - subject_terms                 → "Aggregated classification, not full text"
@@ -601,6 +633,7 @@ def _to_stage1_compliant_dict(rec: LiteratureRecord) -> Dict[str, Any]:
         "doi": rec.doi,
         "source_id": rec.source_id,
         "provider": rec.provider,
+        "language": getattr(rec, "language", ""),
         "journal": rec.journal,
         "url": rec.url,
         "subject_terms": rec.subject_terms,
@@ -622,6 +655,7 @@ STAGE1_CSV_FIELDS: List[str] = [
     "doi",
     "source_id",
     "provider",
+    "language",
     "journal",
     "url",
     "source_query",
@@ -882,6 +916,7 @@ def main() -> int:
     all_records: List[LiteratureRecord] = []
     all_provenance: List[SourceEvidence] = []
     all_coverage_items: List[Dict[str, Any]] = []
+    sectors_by_identity_key: Dict[str, Set[str]] = defaultdict(set)
 
     # Offline mode: skip all queries
     if offline:
@@ -932,6 +967,10 @@ def main() -> int:
                         }
                     )
 
+                    for record in result.records:
+                        sectors_by_identity_key[_identity_key_from_record(record)].add(
+                            str(sector_label)
+                        )
                     all_records.extend(result.records)
                     all_provenance.extend(result.provenance)
 
@@ -974,6 +1013,7 @@ def main() -> int:
         all_provenance,
         support_by_identity,
         provider_classes,
+        sectors_by_identity_key=sectors_by_identity_key,
         classification_repo=classification_repo,
     )
 
@@ -1016,11 +1056,13 @@ def main() -> int:
         support = support_by_identity.get(
             identity_key, [normalize_provider_name(rec.provider)]
         )
+        sectors = sorted(sectors_by_identity_key.get(identity_key, set()))
         overlap_status = "multi-source" if len(set(support)) > 1 else "single-source"
         row = _to_stage1_compliant_dict(rec)
         row["confidence_score"] = confidence_by_record.get(rec.source_id, 0.0)
         row["overlap_status"] = overlap_status
         row["supporting_providers"] = support
+        row["sectors"] = sectors
         row["provider_class"] = provider_classes.get(
             normalize_provider_name(rec.provider), "unknown"
         )

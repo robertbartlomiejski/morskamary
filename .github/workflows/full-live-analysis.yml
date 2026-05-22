@@ -1,0 +1,110 @@
+name: Full Live-Enriched Analysis
+
+on:
+  workflow_dispatch:
+    inputs:
+      providers:
+        description: "Comma-separated list of providers (e.g., crossref,scopus,wos,scival,microsoft_graph,google_drive)"
+        required: false
+        default: "crossref,scopus,wos,scival,microsoft_graph,google_drive"
+      max_results_per_query:
+        description: "Maximum results per query"
+        required: false
+        default: "50"
+      offline:
+        description: "Run in offline mode (true/false)"
+        required: false
+        default: "false"
+      commit_outputs:
+        description: "Commit updated outputs/ back to main (requires vars.ALLOW_BOT_COMMITS=true)"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+  schedule:
+    # Weekly refresh (UTC)
+    - cron: "0 3 * * 1"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: full-live-analysis-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  live-analysis:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      ALLOW_BOT_COMMITS: ${{ vars.ALLOW_BOT_COMMITS || 'false' }}
+
+      # Optional provider secrets (Crossref should always work; others may be absent)
+      CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
+      ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
+      SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
+      WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
+      SCIVAL_API_KEY: ${{ secrets.SCIVAL_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Export live research records (triangulated)
+        run: |
+          python scripts/export_live_research_records.py \
+            --providers "${{ github.event.inputs.providers || 'crossref,scopus,wos,scival,microsoft_graph,google_drive' }}" \
+            --query-file config/research_queries.yml \
+            --max-results-per-query "${{ github.event.inputs.max_results_per_query || '50' }}" \
+            --output-dir outputs/research_sources \
+            --offline "${{ github.event.inputs.offline || 'false' }}"
+
+      - name: Run full analysis (live-enriched)
+        run: |
+          python run_full_analysis.py \
+            --analysis-input-mode live-enriched \
+            --live-records-path outputs/research_sources/live_records_triangulated.json
+
+      - name: Validate generated outputs
+        run: |
+          python scripts/validate_generated_outputs.py
+
+      - name: Upload analysis outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Morskamary_QMBD_Live_Audit_Run_${{ github.run_id }}
+          path: |
+            outputs/
+            data/derived/
+          retention-days: 30
+
+      - name: Commit refreshed outputs (opt-in)
+        if: >
+          github.ref == 'refs/heads/main' &&
+          (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') &&
+          env.ALLOW_BOT_COMMITS == 'true' &&
+          (github.event.inputs.commit_outputs || 'false') == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "morskamary-bot"
+          git config user.email "actions@github.com"
+
+          git add outputs/
+          if git diff --cached --quiet; then
+            echo "No output changes to commit."
+            exit 0
+          fi
+
+          git commit -m "chore: refresh live-enriched outputs"
+          git push

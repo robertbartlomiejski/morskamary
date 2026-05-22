@@ -1210,7 +1210,7 @@ class TestStage1ComplianceFilter:
 
     Rules sourced from docs/licensing_and_compliance.md:
     - Retained: title, authors, year, doi, source_id, provider, journal,
-      url, subject_terms, source_query, retrieval_timestamp, licence_note.
+      language, url, subject_terms, source_query, retrieval_timestamp, licence_note.
     - Dropped: citation_count (institutional-provider restriction),
       abstract_available, abstract_stored (misleading flags for 3rd parties).
     """
@@ -1248,6 +1248,7 @@ class TestStage1ComplianceFilter:
             "doi",
             "source_id",
             "provider",
+            "language",
             "journal",
             "url",
             "subject_terms",
@@ -1287,6 +1288,7 @@ class TestStage1ComplianceFilter:
             title="Test Title",
             authors="A. Author",
             doi="10.9999/x",
+            language="pl",
             subject_terms=["fisheries"],
             licence_note="open",
         )
@@ -1294,6 +1296,7 @@ class TestStage1ComplianceFilter:
         assert result["title"] == "Test Title"
         assert result["authors"] == "A. Author"
         assert result["doi"] == "10.9999/x"
+        assert result["language"] == "pl"
         assert result["subject_terms"] == ["fisheries"]
         assert result["licence_note"] == "open"
 

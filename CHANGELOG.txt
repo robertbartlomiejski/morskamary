@@ -29,6 +29,16 @@ Use this section for changes in progress that are not yet merged into the main b
   Provenance PR #173 reviewer feedback (commit 7cf6f3d); AGENT_WORKING_AGREEMENT § 3 deterministic output policy.
   Quality checks python scripts/validate_research_source_outputs.py (passed); python scripts/validate_generated_outputs.py (passed); git diff --exit-code -- outputs/ MANIFEST_SOURCES.csv (no drift).
 
+- 2026-05-22 (live-enriched append-only QMBD workflow)
+  Change type add update
+  Scope pipeline scripts CI tests data
+  Files affected .github/workflows/full-live-analysis.yml config/research_queries.yml scripts/export_live_research_records.py run_full_analysis.py src/axis_classifier.py src/core.py src/scientific_sources/models.py schemas/research_metadata.schema.json tests/test_export_live_research_records.py tests/test_research_queries_config.py outputs/ MANIFEST_SOURCES.csv
+  Summary Added an opt-in scheduled/manual GitHub Actions workflow for live-enriched analysis. Updated live export to retain sector provenance and optional language metadata, strengthened DOI→title→source_id dedup keys, expanded HYDRONIZATION keyword coverage, and updated HTML outputs to show QMBD axis columns and live/static breakdown when available.
+  Reason Reduce static-count and sector-query mismatch bias by aligning live query groups to the 12 canonical sectors and carrying sector evidence through triangulation into the append-only analysis layer.
+  Impact Static outputs remain valid; live-enriched runs can merge and report additional evidence without assuming fixed competence counts. Stage-2 schema now allows language metadata while still forbidding restricted abstract/citation fields.
+  Provenance PROMPT 1 Master Implementation Prompt (sector-query mismatch, DOI bias, Hydronization underpopulation); existing QMBD pipeline in run_full_analysis.py and scripts/export_live_research_records.py.
+  Quality checks python -m pytest tests/ (passed); python run_full_analysis.py --analysis-input-mode static (generated outputs); python scripts/validate_generated_outputs.py (passed); python scripts/generate_manifest.py (deterministic).
+
 - 2026-05-21 (hardening patch)
   Change type add
   Scope governance scripts CI tests

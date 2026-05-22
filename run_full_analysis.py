@@ -1138,7 +1138,7 @@ def extract_live_records_competences(
     Convert Stage-1 live records JSON into literature-like competence objects.
 
     Args:
-        live_records_path: Path to outputs/research_sources/live_records.json.
+        live_records_path: Path to outputs/research_sources/live_records_triangulated.json.
         known_titles: Optional set of normalized titles to deduplicate against.
 
     Returns:
@@ -1210,7 +1210,22 @@ def extract_live_records_competences(
             axis = _resolve_primary_axis_from_analysis(
                 sentence_analysis, default_axis="OCEANIC"
             )
-        sectors = _infer_live_record_sectors(combined_text, axis)
+        canonical_by_norm = {
+            re.sub(r"[^a-z0-9]+", " ", sec.lower()).strip(): sec for sec in SECTORS
+        }
+        supplied_sectors: List[str] = []
+        raw_sectors = row.get("sectors") or row.get("sector")
+        candidates: List[str] = []
+        if isinstance(raw_sectors, list):
+            candidates = [str(item).strip() for item in raw_sectors if str(item).strip()]
+        elif isinstance(raw_sectors, str) and raw_sectors.strip():
+            candidates = [raw_sectors.strip()]
+        for candidate in candidates:
+            norm = re.sub(r"[^a-z0-9]+", " ", candidate.lower()).strip()
+            canonical = canonical_by_norm.get(norm)
+            if canonical and canonical not in supplied_sectors:
+                supplied_sectors.append(canonical)
+        sectors = supplied_sectors or _infer_live_record_sectors(combined_text, axis)
 
         source = CompetenceSource(
             file=rel_path,
@@ -1903,26 +1918,50 @@ def generate_report_index(
     gaps: Dict[str, GapAnalysis],
     credentials: List[MicroCredential],
     output_path: Path,
+    *,
+    analysis_input_mode: str = "static",
+    static_literature_count: Optional[int] = None,
+    live_enrichment_count: Optional[int] = None,
 ) -> None:
     """Generate master report index HTML."""
     total_comps = len(baseline) + len(literature)
     avg_gap = sum(g.gap_pct for g in gaps.values()) / max(1, len(gaps))
+    static_count = (
+        int(static_literature_count)
+        if static_literature_count is not None
+        else len(literature)
+    )
+    live_count = (
+        int(live_enrichment_count)
+        if live_enrichment_count is not None
+        else max(0, len(literature) - static_count)
+    )
 
     baseline_csv_url = (
         f"{REPO_GITHUB_BASE}/data/derived/"
         "Blue%20Social%20Competences%20Univ%20Szczecin%20"
         "-%20Overall%20Blue%20Competences%20Dimension.csv"
     )
+    live_records_url = f"{REPO_GITHUB_BASE}/outputs/research_sources/live_records_triangulated.json"
+    live_coverage_url = f"{REPO_GITHUB_BASE}/outputs/research_sources/live_source_coverage.csv"
 
     html = _HTML_HEAD.format(
         title="Blue Economy Analysis — Master Report Index",
         subtitle="Competence Gap Analysis & Micro-Credential Design | morskamary",
     )
+    competence_breakdown = (
+        f"{len(baseline)} baseline + {len(literature)} literature-derived"
+    )
+    if analysis_input_mode == "live-enriched" and live_count:
+        competence_breakdown = (
+            f"{len(baseline)} baseline + {static_count} static literature + "
+            f"{live_count} live-enriched"
+        )
     html += f"""
 <h2>Summary Dashboard</h2>
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem">
   <div class="card"><h3>📋 Competences</h3><p style="font-size:2rem;margin:0">{total_comps}</p>
-    <p>{len(baseline)} baseline + {len(literature)} literature-derived</p></div>
+    <p>{competence_breakdown}</p></div>
   <div class="card"><h3>🎓 Credentials</h3><p style="font-size:2rem;margin:0">{len(credentials)}</p>
     <p>{len(SECTORS)} sectors × 4 EQF levels</p></div>
   <div class="card"><h3>🏭 Sectors</h3><p style="font-size:2rem;margin:0">{len(SECTORS)}</p>
@@ -1948,24 +1987,37 @@ def generate_report_index(
     <td><a href="{REPO_GITHUB_BASE}/data/derived/{lit["filename"].replace(" ", "%20")}" target="_blank">View on GitHub</a></td>
   </tr>
 """
+    if analysis_input_mode == "live-enriched" and live_count:
+        html += f"""  <tr>
+    <td>outputs/research_sources/live_records_triangulated.json</td>
+    <td>Live</td><td>{live_count}</td>
+    <td><a href="{live_records_url}" target="_blank">View on GitHub</a></td>
+  </tr>
+  <tr>
+    <td>outputs/research_sources/live_source_coverage.csv</td>
+    <td>Live</td><td>{len(SECTORS)}</td>
+    <td><a href="{live_coverage_url}" target="_blank">View on GitHub</a></td>
+  </tr>
+"""
     html += "</table>\n"
 
     html += "<h2>Sector Gap Overview</h2>\n"
     html += "<table>\n"
+    axis_columns = ["MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION"]
+    axis_header = "".join(f"<th>{name}</th>" for name in axis_columns)
     html += (
         "<tr><th>Sector</th><th>Required</th><th>Available</th>"
-        "<th>Missing</th><th>Gap %</th><th>MARINE</th><th>MARITIME</th><th>OCEANIC</th></tr>\n"
+        f"<th>Missing</th><th>Gap %</th>{axis_header}</tr>\n"
     )
     for sector in SECTORS:
         g = gaps[sector]
-        m = len(g.by_axis.get("MARINE", []))
-        t = len(g.by_axis.get("MARITIME", []))
-        o = len(g.by_axis.get("OCEANIC", []))
+        axis_counts = [len(g.by_axis.get(axis, [])) for axis in axis_columns]
+        axis_cells = "".join(f"<td>{count}</td>" for count in axis_counts)
         html += (
             f"<tr><td><a href='gaps_by_sector.html#{SECTOR_SLUG[sector]}'>{_html_module.escape(sector)}</a></td>"
             f"<td>{len(g.required_ids)}</td><td>{len(g.available_ids)}</td>"
             f"<td>{len(g.missing_ids)}</td><td>{g.gap_pct:.1f}%</td>"
-            f"<td>{m}</td><td>{t}</td><td>{o}</td></tr>\n"
+            f"{axis_cells}</tr>\n"
         )
     html += "</table>\n"
 
@@ -2100,15 +2152,40 @@ def generate_credentials_html(
 def generate_literature_html(
     literature: List[Competence],
     output_path: Path,
+    *,
+    analysis_input_mode: str = "static",
+    static_literature_count: Optional[int] = None,
+    live_enrichment_count: Optional[int] = None,
 ) -> None:
     """Generate literature integration HTML: papers → competences mapping."""
     html = _HTML_HEAD.format(
         title="Literature Integration — Papers to Competences Mapping",
-        subtitle="200+ competences derived from systematic literature review with TMBD axis assignment",
+        subtitle="Static literature + live-enriched evidence with QMBD axis assignment",
+    )
+
+    live_competences = [c for c in literature if c.id.startswith("lit_live_")]
+    static_competences = [c for c in literature if c not in live_competences]
+    static_count = (
+        int(static_literature_count)
+        if static_literature_count is not None
+        else len(static_competences)
+    )
+    live_count = (
+        int(live_enrichment_count)
+        if live_enrichment_count is not None
+        else len(live_competences)
     )
 
     html += "<h2>Overview</h2>\n"
-    html += f"<p>Total literature-derived competences: <strong>{len(literature)}</strong></p>\n"
+    html += (
+        f"<p>Total literature-derived competences: <strong>{len(literature)}</strong></p>\n"
+    )
+    if analysis_input_mode == "live-enriched" and live_count:
+        html += (
+            "<p>Breakdown: "
+            f"<strong>{static_count}</strong> static literature + "
+            f"<strong>{live_count}</strong> live-enriched.</p>\n"
+        )
 
     by_axis: Dict[str, List[Competence]] = {ax.name: [] for ax in TMBDAxis}
     for c in literature:
@@ -2132,7 +2209,7 @@ def generate_literature_html(
 
     for lit in LITERATURE_FILES:
         theme = lit["theme"]
-        theme_comps = [c for c in literature if theme in c.id]
+        theme_comps = [c for c in static_competences if theme in c.id]
         if not theme_comps:
             continue
 
@@ -2161,6 +2238,45 @@ def generate_literature_html(
                 f"{_html_module.escape(Path(c.source.file).name)}#L{c.source.row}</a></td></tr>\n"
             )
         html += "</table>\n"
+
+    if analysis_input_mode == "live-enriched" and live_competences:
+        live_records_url = (
+            f"{REPO_GITHUB_BASE}/outputs/research_sources/live_records_triangulated.json"
+        )
+        live_coverage_url = (
+            f"{REPO_GITHUB_BASE}/outputs/research_sources/live_source_coverage.csv"
+        )
+        html += "<h2>Live API evidence (triangulated winners)</h2>\n"
+        html += (
+            "<p>Source: "
+            f"<a href='{_html_module.escape(live_records_url, quote=True)}' target='_blank'>"
+            "live_records_triangulated.json</a> &nbsp;|&nbsp; "
+            f"<a href='{_html_module.escape(live_coverage_url, quote=True)}' target='_blank'>"
+            "live_source_coverage.csv</a></p>\n"
+        )
+        max_rows = 200
+        html += "<table>\n"
+        html += (
+            "<tr><th>Paper Title</th><th>Axis</th><th>Sectors</th>"
+            "<th>Authors</th><th>Year</th><th>Source</th></tr>\n"
+        )
+        for c in live_competences[:max_rows]:
+            sectors_text = ", ".join(_html_module.escape(sec) for sec in c.sectors) or ""
+            html += (
+                f"<tr><td>{_html_module.escape(c.source.paper_title)}</td>"
+                f"<td>{_axis_badge(c.axis)}</td>"
+                f"<td>{sectors_text}</td>"
+                f"<td>{_html_module.escape(c.source.authors[:50])}</td>"
+                f"<td>{c.source.year}</td>"
+                f"<td><a href='{c.source.github_url}' target='_blank'>"
+                f"{_html_module.escape(Path(c.source.file).name)}#L{c.source.row}</a></td></tr>\n"
+            )
+        html += "</table>\n"
+        if len(live_competences) > max_rows:
+            html += (
+                f"<p>Showing first {max_rows} live records out of "
+                f"{len(live_competences)}.</p>\n"
+            )
 
     html += _HTML_FOOT.format(
         repo_url="https://github.com/robertbartlomiejski/morskamary"
@@ -2216,6 +2332,7 @@ def main(
     # --- Step 2: Literature competences ---
     literature = extract_literature_competences()
     static_literature = list(literature)
+    live_competences: List[Competence] = []
     if analysis_input_mode == "live-enriched":
         baseline_titles = {
             _normalize_title_for_dedup(getattr(c.source, "paper_title", None) or c.name)
@@ -2295,10 +2412,19 @@ def main(
         gaps,
         credentials,
         OUTPUTS_DIR / "report_index.html",
+        analysis_input_mode=analysis_input_mode,
+        static_literature_count=len(static_literature),
+        live_enrichment_count=len(live_competences),
     )
     generate_gaps_html(gaps, all_comps, OUTPUTS_DIR / "gaps_by_sector.html")
     generate_credentials_html(credentials, OUTPUTS_DIR / "credentials_matrix.html")
-    generate_literature_html(literature, OUTPUTS_DIR / "literature_integration.html")
+    generate_literature_html(
+        literature,
+        OUTPUTS_DIR / "literature_integration.html",
+        analysis_input_mode=analysis_input_mode,
+        static_literature_count=len(static_literature),
+        live_enrichment_count=len(live_competences),
+    )
 
     # --- Step 9: Summary ---
     log.info("=" * 65)

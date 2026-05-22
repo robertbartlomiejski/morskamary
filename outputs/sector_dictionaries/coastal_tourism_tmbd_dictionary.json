@@ -2606,20 +2606,6 @@
         }
       },
       {
-        "id": "lit_research_gaps_0152",
-        "name": "Transdisciplinary ocean research co-production: Community responses to flood risk management–An empirical Investigatio",
-        "description": "Literature-derived competence (cluster: Transdisciplinary ocean research co-production) from Blue economy research gaps & governance papers. Source paper: Community responses to flood risk management–An empirical Investigation of the Marine Protected Areas (MPAs) in Malaysia (MM Masud\nAS Sackor\nASAF Alam\nAQ Al-Amin, ).",
-        "axis": "OCEANIC",
-        "source": {
-          "file": "data/derived/combined_blue_economy_research_gaps.csv",
-          "row": 152,
-          "paper_title": "Community responses to flood risk management–An empirical Investigation of the Marine Protected Areas (MPAs) in Malaysia",
-          "authors": "MM Masud\nAS Sackor\nASAF Alam\nAQ Al-Amin",
-          "year": "",
-          "doi": ""
-        }
-      },
-      {
         "id": "lit_research_gaps_0157",
         "name": "Science-policy interface in maritime governance: Corrigendum: Putting coastal communities at the center of a sustainabl",
         "description": "Literature-derived competence (cluster: Science-policy interface in maritime governance) from Blue economy research gaps & governance papers. Source paper: Corrigendum: Putting coastal communities at the center of a sustainable blue economy: A review of risks, opportunities,  (Louisa Evans\nP.M. Buchan\nMatt Fortnam\nM B Honig\nLouise Heaps, 2023).",

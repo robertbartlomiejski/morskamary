@@ -18,6 +18,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/workflows/dependency-submission.yml,other,,,,,,dependency_submission,no
 .github/workflows/export-research-records.yml,other,,,,,,export_research_records,no
 .github/workflows/full-analysis.yml,other,,,,,,full_analysis,no
+.github/workflows/full-live-analysis.yml,other,,,,,,full_live_analysis,no
 .github/workflows/research-api-smoke.yml,other,,,,,,research_api_smoke,no
 .gitignore,other,,,,,,gitignore,no
 .vscode/## Chat Customization Diagnostics.md,text,,,,,,Chat_Customization_Diagnostics,yes
@@ -920,6 +921,7 @@ tests/test_load_real_competences.py,script,,,,,,test_load_real_competences,yes
 tests/test_main_entrypoints.py,script,,,,,,test_main_entrypoints,yes
 tests/test_nlp_reliability.py,script,,,,,,test_nlp_reliability,yes
 tests/test_pipeline_matrix.py,script,,,,,,test_pipeline_matrix,yes
+tests/test_research_queries_config.py,script,,,,,,test_research_queries_config,yes
 tests/test_research_support_scripts.py,script,,,,,,test_research_support_scripts,yes
 tests/test_run_full_analysis.py,script,,,,,,test_run_full_analysis,yes
 tests/test_scientific_bridge.py,script,,,,,,test_scientific_bridge,yes
