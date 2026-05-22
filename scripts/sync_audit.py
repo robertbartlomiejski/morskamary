@@ -108,7 +108,7 @@ def check_git_status(report: AuditReport) -> None:
     else:
         report.ok("Working tree clean")
 
-    # Ahead/behind
+    # Ahead/behind — skip in CI detached-HEAD environments
     result = _run(["git", "rev-list", "--left-right", "--count", "HEAD...@{upstream}"])
     if result.returncode == 0:
         parts = result.stdout.strip().split()
@@ -123,9 +123,10 @@ def check_git_status(report: AuditReport) -> None:
         else:
             report.warn("Could not parse ahead/behind counts")
     else:
-        report.warn(
-            "No upstream tracking branch configured (git rev-list failed). "
-            "Skipping ahead/behind check."
+        # In CI (detached HEAD or no upstream), this is expected — just note it
+        report.ok(
+            "No upstream tracking branch configured — "
+            "skipping ahead/behind check (expected in CI)"
         )
 
 
@@ -187,10 +188,10 @@ def check_manifest_drift(report: AuditReport) -> None:
         report.warn("No manifest file found — skipping drift check")
         return
 
-    # Snapshot before
-    before_hash = _file_hash(manifest_path)
+    # Snapshot the current content
+    before_content = manifest_path.read_bytes()
 
-    # Run generator
+    # Run generator (it writes in-place)
     result = _run([sys.executable, str(generator)])
     if result.returncode != 0:
         report.error(
@@ -199,8 +200,11 @@ def check_manifest_drift(report: AuditReport) -> None:
         )
         return
 
-    after_hash = _file_hash(manifest_path)
-    if before_hash != after_hash:
+    after_content = manifest_path.read_bytes()
+
+    # Restore original content so audit is non-mutating
+    if before_content != after_content:
+        manifest_path.write_bytes(before_content)
         report.error(
             f"{manifest_path.name} changed after regeneration — "
             "commit the regenerated manifest before pushing."
@@ -224,7 +228,7 @@ def _file_hash(path: Path) -> str:
 
 
 def check_provider_capabilities(report: AuditReport) -> None:
-    """Verify provider capability export is current."""
+    """Verify provider capability export is current (non-mutating)."""
     print("\n[4/6] Provider capability snapshot")
 
     cap_file = REPO_ROOT / "outputs" / "research_source_capabilities.json"
@@ -251,20 +255,52 @@ def check_provider_capabilities(report: AuditReport) -> None:
     total = len(providers)
     report.ok(f"Provider capabilities: {configured}/{total} configured")
 
-    # Check if the file might be stale (compare with live export)
+    # Non-mutating check: re-export to a temp file and compare semantically
+    # (ignoring generated_at timestamp and environment-dependent configured flags)
     exporter = REPO_ROOT / "scripts" / "export_research_source_capabilities.py"
     if exporter.is_file():
-        before_hash = _file_hash(cap_file)
+        # Save current content and restore after comparison
+        original_content = cap_file.read_bytes()
         result = _run([sys.executable, str(exporter)])
         if result.returncode == 0:
-            after_hash = _file_hash(cap_file)
-            if before_hash != after_hash:
-                report.warn(
-                    "Capability snapshot changed after re-export — "
-                    "commit updated research_source_capabilities.json"
-                )
-            else:
-                report.ok("Capability snapshot is current")
+            try:
+                with open(cap_file, encoding="utf-8") as f:
+                    new_data = json.load(f)
+            except (json.JSONDecodeError, OSError):
+                new_data = None
+
+            # Restore original file immediately (non-mutating)
+            cap_file.write_bytes(original_content)
+
+            if new_data is not None:
+                # Compare ignoring generated_at and configured fields
+                if _capabilities_semantically_equal(data, new_data):
+                    report.ok("Capability snapshot is current (ignoring timestamps/configured)")
+                else:
+                    report.warn(
+                        "Capability snapshot structure changed after re-export — "
+                        "commit updated research_source_capabilities.json"
+                    )
+        else:
+            # Restore original on exporter failure
+            cap_file.write_bytes(original_content)
+
+
+def _capabilities_semantically_equal(old: dict, new: dict) -> bool:
+    """Compare capability snapshots ignoring generated_at and configured fields."""
+    def normalize(data: dict) -> dict:
+        normalized = dict(data)
+        normalized.pop("generated_at", None)
+        providers = normalized.get("providers", {})
+        normalized_providers = {}
+        for name, prov in providers.items():
+            p = dict(prov)
+            p.pop("configured", None)
+            normalized_providers[name] = p
+        normalized["providers"] = normalized_providers
+        return normalized
+
+    return normalize(old) == normalize(new)
 
 
 # ---------------------------------------------------------------------------

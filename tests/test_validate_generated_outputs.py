@@ -413,15 +413,16 @@ class TestCheckSectorDictionaries:
 
 
 class TestCumulativeQmbdValidation:
-    def test_load_cumulative_qmbd_records_fails_on_missing_record_origin(
+    def test_load_cumulative_qmbd_records_fails_on_static_missing_axis_name(
         self, tmp_path: Path
     ) -> None:
+        """Static-origin records must have axis_name."""
         mod = _load_validator_module()
         payload = [
             {
                 "source_id": "s1",
                 "title": "t1",
-                "axis_name": "OCEANIC",
+                "record_origin": "STATIC_BASELINE",
                 "qmbd_analysis": [
                     {
                         "axis": "OCEANIC",
@@ -435,7 +436,7 @@ class TestCumulativeQmbdValidation:
         bad_file = tmp_path / "cumulative.json"
         bad_file.write_text(json.dumps(payload))
         mod.load_cumulative_qmbd_records(bad_file)
-        assert any("record_origin" in e for e in mod.ERRORS), mod.ERRORS
+        assert any("axis_name" in e for e in mod.ERRORS), mod.ERRORS
 
     def test_check_cumulative_qmbd_records_detects_duplicate_origin_source_id(self) -> None:
         mod = _load_validator_module()
@@ -489,4 +490,66 @@ class TestCumulativeQmbdValidation:
             },
         ]
         mod.check_cumulative_qmbd_records(records)
+        assert not mod.ERRORS, mod.ERRORS
+
+    def test_empty_cumulative_file_produces_controlled_error(self, tmp_path: Path) -> None:
+        """Empty cumulative_qmbd_records.json should produce a clear error, not JSONDecodeError."""
+        mod = _load_validator_module()
+        empty_file = tmp_path / "cumulative.json"
+        empty_file.write_text("", encoding="utf-8")
+        result = mod.load_cumulative_qmbd_records(empty_file)
+        assert result == []
+        assert any("empty" in e.lower() for e in mod.ERRORS), mod.ERRORS
+        # Should NOT be a raw JSONDecodeError message
+        assert not any("JSONDecodeError" in e for e in mod.ERRORS), mod.ERRORS
+
+    def test_live_cumulative_record_without_static_only_fields_passes(
+        self, tmp_path: Path
+    ) -> None:
+        """Live-enriched records (LIVE_TRIANGULATED) should not require axis_name/record_origin."""
+        mod = _load_validator_module()
+        payload = [
+            {
+                "source_id": "live_crossref_1",
+                "title": "Blue economy governance",
+                "record_origin": "LIVE_TRIANGULATED",
+                "qmbd_analysis": [
+                    {
+                        "axis": "OCEANIC",
+                        "axis_code": "O",
+                        "text_scope": "full_sentence",
+                        "sentence": "Ocean governance framework.",
+                    }
+                ],
+            }
+        ]
+        live_file = tmp_path / "cumulative.json"
+        live_file.write_text(json.dumps(payload))
+        mod.load_cumulative_qmbd_records(live_file)
+        # axis_name not present but record_origin is LIVE_TRIANGULATED → no error
+        assert not any("axis_name" in e for e in mod.ERRORS), mod.ERRORS
+
+    def test_live_record_without_record_origin_passes_schema(
+        self, tmp_path: Path
+    ) -> None:
+        """Records without record_origin (live) should pass base schema check."""
+        mod = _load_validator_module()
+        payload = [
+            {
+                "source_id": "live_unknown_1",
+                "title": "Marine social science",
+                "qmbd_analysis": [
+                    {
+                        "axis": "MARINE",
+                        "axis_code": "M",
+                        "text_scope": "full_sentence",
+                        "sentence": "Marine social dynamics.",
+                    }
+                ],
+            }
+        ]
+        live_file = tmp_path / "cumulative.json"
+        live_file.write_text(json.dumps(payload))
+        mod.load_cumulative_qmbd_records(live_file)
+        # No record_origin → not a static record → should not fail on missing axis_name/record_origin
         assert not mod.ERRORS, mod.ERRORS

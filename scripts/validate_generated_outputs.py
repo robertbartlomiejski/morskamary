@@ -242,9 +242,29 @@ def load_sector_dict_ids(path: Path) -> set[str]:
 
 
 def load_cumulative_qmbd_records(path: Path) -> list[dict]:
-    """Load cumulative_qmbd_records.json and validate required schema fields."""
-    with path.open(encoding="utf-8") as f:
-        data = json.load(f)
+    """Load cumulative_qmbd_records.json and validate required schema fields.
+
+    Static records (STATIC_BASELINE, STATIC_LITERATURE) require axis_name and
+    record_origin.  Live-enriched records (LIVE_TRIANGULATED or records without
+    record_origin) have relaxed requirements — only source_id, title, and
+    qmbd_analysis are mandatory.
+    """
+    try:
+        with path.open(encoding="utf-8") as f:
+            content = f.read()
+    except OSError as exc:
+        fail(f"{path.name}: cannot read file: {exc}")
+        return []
+
+    if not content.strip():
+        fail(f"{path.name}: file is empty — run 'python run_full_analysis.py' to regenerate")
+        return []
+
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as exc:
+        fail(f"{path.name}: invalid JSON: {exc}")
+        return []
 
     if not isinstance(data, list):
         fail(
@@ -252,22 +272,29 @@ def load_cumulative_qmbd_records(path: Path) -> list[dict]:
         )
         return []
 
-    required_record_fields = (
-        "source_id",
-        "title",
-        "axis_name",
-        "record_origin",
-        "qmbd_analysis",
-    )
+    # Fields required for all records regardless of origin
+    base_required_fields = ("source_id", "title", "qmbd_analysis")
+    # Additional fields required only for static-origin records
+    static_only_fields = ("axis_name", "record_origin")
+    static_origins = ("STATIC_BASELINE", "STATIC_LITERATURE")
+
     required_sentence_fields = ("axis", "axis_code", "text_scope", "sentence")
 
     for idx, item in enumerate(data):
         if not isinstance(item, dict):
             fail(f"{path.name}: record[{idx}] is not an object")
             continue
-        for field in required_record_fields:
+
+        for field in base_required_fields:
             if field not in item:
                 fail(f"{path.name}: record[{idx}] missing required field '{field}'")
+
+        # Gate static-only fields by record_origin
+        origin = item.get("record_origin", "")
+        if origin in static_origins:
+            for field in static_only_fields:
+                if field not in item:
+                    fail(f"{path.name}: record[{idx}] missing required field '{field}'")
 
         qmbd_analysis = item.get("qmbd_analysis")
         if not isinstance(qmbd_analysis, list):

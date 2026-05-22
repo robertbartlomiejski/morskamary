@@ -1,6 +1,5 @@
 {
-  "generated_at": "2026-05-21T20:10:23.661026+00:00",
-  "note": "Provider capability snapshot. Values reflect runtime environment. Re-run after configuring additional provider credentials.",
+  "note": "Provider capability snapshot. Values reflect repository baseline state. Re-run after configuring additional provider credentials.",
   "providers": {
     "crossref": {
       "provider": "Crossref",
@@ -24,7 +23,7 @@
     "scopus": {
       "provider": "Elsevier / Scopus",
       "requires_secret": true,
-      "configured": true,
+      "configured": false,
       "live_test_allowed": false,
       "allowed_metadata_fields": [
         "title",
@@ -45,7 +44,7 @@
     "wos": {
       "provider": "Web of Science (Clarivate)",
       "requires_secret": true,
-      "configured": true,
+      "configured": false,
       "live_test_allowed": false,
       "allowed_metadata_fields": [
         "title",
@@ -66,7 +65,7 @@
     "scival": {
       "provider": "Elsevier SciVal",
       "requires_secret": true,
-      "configured": true,
+      "configured": false,
       "live_test_allowed": false,
       "allowed_metadata_fields": [
         "title",

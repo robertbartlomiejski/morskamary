@@ -101,6 +101,16 @@ try {
 
     Step "Step 7: Full analysis"
     if ($LiveMode) {
+        Step "Step 7a: Export live research records"
+        RunCmd "python" @(
+            "scripts/export_live_research_records.py",
+            "--providers", "crossref,scopus,wos,scival,microsoft_graph",
+            "--query-file", "config/research_queries.yml",
+            "--max-results-per-query", "30",
+            "--output-dir", "outputs/research_sources",
+            "--offline", "false"
+        )
+        Step "Step 7b: Full analysis (live-enriched)"
         RunCmd "python" @(
             "run_full_analysis.py",
             "--analysis-input-mode",
@@ -119,7 +129,7 @@ try {
     Step "Step 9: Validate research source outputs"
     RunCmd "python" @("scripts/validate_research_source_outputs.py")
 
-    Step "Step 9: Summary"
+    Step "Step 10: Summary"
     Write-Host "`nRun complete." -ForegroundColor Green
     Write-Host "`nConfigured providers:"
     RunCmd "python" @("scripts/audit_research_api_config.py")

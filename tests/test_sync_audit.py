@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
 from sync_audit import (  # noqa: E402
     AuditReport,
+    _capabilities_semantically_equal,
     _file_hash,
     check_changelog_governance,
     check_git_status,
@@ -271,3 +272,66 @@ class TestMain:
 
             exit_code = main([])
             assert exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# Regression tests for CI-safety
+# ---------------------------------------------------------------------------
+
+
+class TestCISafety:
+    def test_detached_head_no_upstream_does_not_warn(self):
+        """In CI (detached HEAD), no-upstream should emit ok, not warn."""
+        report = AuditReport()
+        mock_result_status = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="", stderr=""
+        )
+        # Simulate failure from no upstream (detached HEAD in CI)
+        mock_result_revlist = subprocess.CompletedProcess(
+            args=[], returncode=128,
+            stdout="",
+            stderr="fatal: no upstream configured for branch"
+        )
+        with patch("sync_audit._run", side_effect=[mock_result_status, mock_result_revlist]):
+            check_git_status(report)
+        assert not report.failed
+        assert not report.has_warnings
+
+    def test_provider_capability_reexport_no_false_drift_from_generated_at(self, tmp_path):
+        """Re-export with only generated_at/configured changes should not warn."""
+        from sync_audit import _capabilities_semantically_equal
+
+        old_data = {
+            "generated_at": "2026-01-01T00:00:00Z",
+            "providers": {
+                "crossref": {"provider": "Crossref", "configured": True, "requires_secret": False},
+                "scopus": {"provider": "Scopus", "configured": False, "requires_secret": True},
+            },
+        }
+        new_data = {
+            "generated_at": "2026-05-22T12:00:00Z",
+            "providers": {
+                "crossref": {"provider": "Crossref", "configured": True, "requires_secret": False},
+                "scopus": {"provider": "Scopus", "configured": True, "requires_secret": True},
+            },
+        }
+        assert _capabilities_semantically_equal(old_data, new_data)
+
+    def test_provider_capability_structural_change_detected(self, tmp_path):
+        """Structural changes (new provider, changed fields) should be detected."""
+        from sync_audit import _capabilities_semantically_equal
+
+        old_data = {
+            "generated_at": "2026-01-01T00:00:00Z",
+            "providers": {
+                "crossref": {"provider": "Crossref", "configured": True, "requires_secret": False},
+            },
+        }
+        new_data = {
+            "generated_at": "2026-05-22T12:00:00Z",
+            "providers": {
+                "crossref": {"provider": "Crossref", "configured": True, "requires_secret": False},
+                "scopus": {"provider": "Scopus", "configured": True, "requires_secret": True},
+            },
+        }
+        assert not _capabilities_semantically_equal(old_data, new_data)
