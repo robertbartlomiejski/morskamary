@@ -12,6 +12,7 @@ from run_full_analysis import (
     DEFAULT_LIVE_RECORDS_JSON,
     EQFLevel,
     GapAnalysis,
+    LocalizedQMBDRecordRepository,
     MicroCredential,
     TMBDAxis,
     extract_live_records_competences,
@@ -238,6 +239,36 @@ def test_main_qmbd_enrichment_includes_static_baseline_and_literature(
         "STATIC_LITERATURE",
     }
     assert captured["output_path"] == output_dir / "cumulative_qmbd_records.json"
+
+
+def test_localized_qmbd_repository_tags_live_records_with_origin(
+    tmp_path: Path,
+) -> None:
+    live_records_path = tmp_path / "live_records_triangulated.json"
+    live_records_path.write_text(
+        json.dumps(
+            [
+                {
+                    "title": "Live Crossref paper",
+                    "doi": "10.1234/live",
+                    "provider": "Crossref",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    repository = LocalizedQMBDRecordRepository(
+        static_records=[],
+        live_records_path=live_records_path,
+        include_live_records=True,
+    )
+
+    records = list(repository.iter_records())
+
+    assert len(records) == 1
+    assert records[0]["source_id"] == "10.1234/live"
+    assert records[0]["record_origin"] == "LIVE_API"
 
 
 def test_generate_micro_credentials_missing_gaps_error() -> None:
