@@ -82,6 +82,7 @@ jobs:
           pip install -e ".[dev]"
 
       - name: Provider health preflight
+        if: ${{ env.OFFLINE_MODE != 'true' }}
         run: |
           set -euo pipefail
           mkdir -p outputs
@@ -120,8 +121,7 @@ jobs:
               --require-live \
               --min-live-records 1
           else
-            python scripts/validate_research_source_outputs.py \
-              --require-health
+            python scripts/validate_research_source_outputs.py
           fi
 
       - name: Run full analysis

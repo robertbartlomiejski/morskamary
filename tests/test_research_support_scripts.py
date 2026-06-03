@@ -419,6 +419,41 @@ class TestValidateResearchSourceOutputs:
         assert "outputs/research_sources directory not found" in out
         assert "Validation FAILED." in out
 
+    def test_validate_health_json_warns_on_invalid_provider_status(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        import validate_research_source_outputs as script
+
+        outputs_dir = tmp_path / "outputs"
+        outputs_dir.mkdir()
+        (outputs_dir / "research_source_capabilities.json").write_text(
+            json.dumps(
+                {
+                    "generated_at": "2026-01-01T00:00:00+00:00",
+                    "providers": {"crossref": {"configured": True}},
+                }
+            ),
+            encoding="utf-8",
+        )
+        (outputs_dir / "research_api_health.json").write_text(
+            json.dumps(
+                {
+                    "statuses": [
+                        {"provider": "crossref", "status": "ok"},
+                        {"provider": "scopus", "status": "present-but-invalid"},
+                    ],
+                    "summary": {"ok": 1},
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        monkeypatch.setattr(script, "OUTPUTS_DIR", str(outputs_dir))
+        assert script.main(["--require-health"]) == 0
+        out = capsys.readouterr().out
+        assert "WARN:  provider health contains invalid/rate-limited statuses" in out
+        assert "Validation passed (warnings are informational)." in out
+
 
 class TestAssertCumulativeLiveEnriched:
     """Coverage for scripts/assert_cumulative_live_enriched.py."""
