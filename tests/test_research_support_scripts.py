@@ -418,3 +418,56 @@ class TestValidateResearchSourceOutputs:
         out = capsys.readouterr().out
         assert "outputs/research_sources directory not found" in out
         assert "Validation FAILED." in out
+
+
+class TestAssertCumulativeLiveEnriched:
+    """Coverage for scripts/assert_cumulative_live_enriched.py."""
+
+    def test_happy_path_counts_live_like_records(self, tmp_path, capsys):
+        import assert_cumulative_live_enriched as script
+
+        cumulative_path = tmp_path / "cumulative_qmbd_records.json"
+        cumulative_path.write_text(
+            json.dumps(
+                [
+                    {"source_id": "static:1", "record_origin": "STATIC_BASELINE"},
+                    {"source_id": "10.1234/live", "record_origin": "LIVE_API"},
+                    {"source_id": "crossref:10.1234/also-live"},
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+        assert script.main(["--path", str(cumulative_path), "--require-live"]) == 0
+        out = capsys.readouterr().out
+        assert "cumulative_records=3" in out
+        assert "cumulative_live_like_records=2" in out
+
+    def test_require_live_fails_when_only_static_records(self, tmp_path, capsys):
+        import assert_cumulative_live_enriched as script
+
+        cumulative_path = tmp_path / "cumulative_qmbd_records.json"
+        cumulative_path.write_text(
+            json.dumps(
+                [
+                    {"source_id": "static:1", "record_origin": "STATIC_BASELINE"},
+                    {"source_id": "static:2", "record_origin": "STATIC_LITERATURE"},
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+        assert script.main(["--path", str(cumulative_path), "--require-live"]) == 1
+        out = capsys.readouterr().out
+        assert "cumulative_live_like_records=0" in out
+        assert "produced no live-like cumulative records" in out
+
+    def test_reports_json_type_with_dunder_name(self, tmp_path, capsys):
+        import assert_cumulative_live_enriched as script
+
+        cumulative_path = tmp_path / "cumulative_qmbd_records.json"
+        cumulative_path.write_text(json.dumps({"records": []}), encoding="utf-8")
+
+        assert script.main(["--path", str(cumulative_path)]) == 1
+        out = capsys.readouterr().out
+        assert "must contain a JSON list, got dict" in out
