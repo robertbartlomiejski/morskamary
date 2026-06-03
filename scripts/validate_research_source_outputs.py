@@ -144,7 +144,7 @@ def validate_health_json(require_health: bool = False) -> None:
         if status in {"present-but-invalid", "rate-limited"}
     }
     if invalid:
-        _err(f"provider health contains invalid/rate-limited statuses: {invalid}")
+        _warn(f"provider health contains invalid/rate-limited statuses: {invalid}")
 
     print(f"  OK: research_api_health.json ({len(statuses)} statuses)")
 

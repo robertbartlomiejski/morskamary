@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-06-03 (offline-mode live workflow gating)
+  Change type fix
+  Scope CI scripts tests governance
+  Files affected .github/workflows/full-live-analysis.yml scripts/validate_research_source_outputs.py tests/test_research_support_scripts.py CHANGELOG.txt
+  Summary Gated provider health preflight behind OFFLINE_MODE so offline runs avoid network probes, and removed mandatory health-file requirement from the offline validation path. Updated research-source health validation to warn (not fail) on invalid/rate-limited provider statuses so strict credential gating remains controlled by check_research_api_health.py --require-valid.
+  Reason Review feedback highlighted that offline executions still depended on networked health checks and that health-status invalids could fail downstream validation even when strict credential gating was disabled.
+  Impact Offline workflow dispatch now behaves consistently with its no-network intent; live validation still enforces health/live artifacts for online runs; invalid provider statuses remain visible as warnings.
+  Provenance PR #175 review threads for full-live-analysis.yml and validate_research_source_outputs.py.
+  Quality checks python -m pytest tests/test_research_support_scripts.py tests/test_validate_generated_outputs.py -q (passed).
+
 - 2026-05-22 (deep consistency validation)
   Change type fix
   Scope scripts pipeline tests
