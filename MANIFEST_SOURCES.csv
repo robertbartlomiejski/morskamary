@@ -819,6 +819,7 @@ schemas/research_metadata.schema.json,other,,,,,,research_metadata_schema,yes
 scientific_bridge.py,script,,,,,,scientific_bridge,yes
 scripts/40152_2021_Article_238.PDF,script,,,,,,40152_2021_Article_238,no
 scripts/Aaa Hab 4_250621_114734.txt,script,,,,,,Aaa_Hab_4_250621_114734,yes
+scripts/assert_cumulative_live_enriched.py,script,,,,,,assert_cumulative_live_enriched,yes
 scripts/audit_research_api_config.py,script,,,,,,audit_research_api_config,yes
 scripts/Blue Bolt Rotterdam _250106_112646.txt,script,,,,,,Blue_Bolt_Rotterdam__250106_112646,yes
 scripts/Blue Mind_250421_094727.txt,script,,,,,,Blue_Mind_250421_094727,yes
