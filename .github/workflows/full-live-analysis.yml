@@ -75,6 +75,17 @@ jobs:
             --analysis-input-mode live-enriched \
             --live-records-path outputs/research_sources/live_records_triangulated.json
 
+      - name: Assert cumulative output is live-enriched
+        run: |
+          set -euo pipefail
+          ASSERT_ARGS=()
+          if [ "${{ github.event.inputs.offline || 'false' }}" != "true" ]; then
+            ASSERT_ARGS+=(--require-live)
+          fi
+
+          python scripts/assert_cumulative_live_enriched.py \
+            --path outputs/cumulative_qmbd_records.json \
+            "${ASSERT_ARGS[@]}"
       - name: Validate generated outputs
         run: |
           python scripts/validate_generated_outputs.py
