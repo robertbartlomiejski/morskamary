@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       providers:
-        description: "Comma-separated list of providers (e.g., crossref,scopus,wos,scival,microsoft_graph,google_drive)"
+        description: "Comma-separated providers. Default excludes google_drive because it is local-OAuth/stub-like in CI."
         required: false
-        default: "crossref,scopus,wos,scival,microsoft_graph,google_drive"
+        default: "crossref,scopus,wos,scival,microsoft_graph"
       max_results_per_query:
         description: "Maximum results per query"
         required: false
@@ -15,6 +15,20 @@ on:
         description: "Run in offline mode (true/false)"
         required: false
         default: "false"
+        type: choice
+        options: ["false", "true"]
+      require_valid_credentials:
+        description: "Fail when configured proprietary credentials are invalid or rate-limited"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+      require_live_records:
+        description: "Fail live-enriched run if no live records reach outputs"
+        required: false
+        default: "true"
+        type: choice
+        options: ["true", "false"]
       commit_outputs:
         description: "Commit updated outputs/ back to main (requires vars.ALLOW_BOT_COMMITS=true)"
         required: false
@@ -22,10 +36,8 @@ on:
         type: choice
         options: ["false", "true"]
   schedule:
-    # Weekly refresh (UTC)
     - cron: "0 3 * * 1"
 
-# Least-privilege default. Only the optional commit job needs write permissions.
 permissions:
   contents: read
 
@@ -39,12 +51,20 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-      # Optional provider secrets (Crossref should always work; others may be absent)
+      REQUESTED_PROVIDERS: ${{ github.event.inputs.providers || 'crossref,scopus,wos,scival,microsoft_graph' }}
+      MAX_RESULTS_PER_QUERY: ${{ github.event.inputs.max_results_per_query || '50' }}
+      OFFLINE_MODE: ${{ github.event.inputs.offline || 'false' }}
+      REQUIRE_VALID_CREDENTIALS: ${{ github.event.inputs.require_valid_credentials || 'false' }}
+      REQUIRE_LIVE_RECORDS: ${{ github.event.inputs.require_live_records || 'true' }}
+
       CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
       ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
       SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
       WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
       SCIVAL_API_KEY: ${{ secrets.SCIVAL_API_KEY }}
+      MICROSOFT_TENANT_ID: ${{ secrets.MICROSOFT_TENANT_ID }}
+      MICROSOFT_CLIENT_ID: ${{ secrets.MICROSOFT_CLIENT_ID }}
+      MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
 
     steps:
       - name: Checkout
@@ -57,29 +77,108 @@ jobs:
 
       - name: Install dependencies
         run: |
+          set -euo pipefail
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
 
-      - name: Export live research records (triangulated)
+      - name: Provider health preflight
         run: |
-          python scripts/export_live_research_records.py \
-            --providers "${{ github.event.inputs.providers || 'crossref,scopus,wos,scival,microsoft_graph,google_drive' }}" \
-            --query-file config/research_queries.yml \
-            --max-results-per-query "${{ github.event.inputs.max_results_per_query || '50' }}" \
-            --output-dir outputs/research_sources \
-            --offline "${{ github.event.inputs.offline || 'false' }}"
+          set -euo pipefail
+          mkdir -p outputs
 
-      - name: Run full analysis (live-enriched)
+          HEALTH_ARGS=()
+          if [ "$REQUIRE_VALID_CREDENTIALS" = "true" ]; then
+            HEALTH_ARGS+=(--require-valid)
+          fi
+
+          python scripts/check_research_api_health.py \
+            --output outputs/research_api_health.json \
+            "${HEALTH_ARGS[@]}"
+
+      - name: Export provider capabilities
         run: |
+          set -euo pipefail
+          python scripts/export_research_source_capabilities.py
+
+      - name: Export live research records
+        run: |
+          set -euo pipefail
+          python scripts/export_live_research_records.py \
+            --providers "$REQUESTED_PROVIDERS" \
+            --query-file config/research_queries.yml \
+            --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
+            --output-dir outputs/research_sources \
+            --offline "$OFFLINE_MODE"
+
+      - name: Validate research source outputs
+        run: |
+          set -euo pipefail
+
+          if [ "$REQUIRE_LIVE_RECORDS" = "true" ] && [ "$OFFLINE_MODE" != "true" ]; then
+            python scripts/validate_research_source_outputs.py \
+              --require-health \
+              --require-live \
+              --min-live-records 1
+          else
+            python scripts/validate_research_source_outputs.py \
+              --require-health
+          fi
+
+      - name: Run full analysis
+        run: |
+          set -euo pipefail
           python run_full_analysis.py \
             --analysis-input-mode live-enriched \
             --live-records-path outputs/research_sources/live_records_triangulated.json
 
+      - name: Assert cumulative output is live-enriched
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          require_live = (
+              os.environ.get("REQUIRE_LIVE_RECORDS", "true").lower() == "true"
+              and os.environ.get("OFFLINE_MODE", "false").lower() != "true"
+          )
+
+          path = Path("outputs/cumulative_qmbd_records.json")
+          if not path.exists():
+              print(f"ERROR: {path} is missing")
+              sys.exit(1)
+
+          with path.open(encoding="utf-8") as f:
+              records = json.load(f)
+
+          if not isinstance(records, list):
+              print(f"ERROR: {path} must contain a JSON list")
+              sys.exit(1)
+
+          live_records = [
+              record for record in records
+              if str(record.get("record_origin", "")).upper().startswith("LIVE")
+              or str(record.get("source_id", "")).lower().startswith(
+                  ("crossref:", "scopus:", "wos:", "scival:", "microsoft_graph:")
+              )
+          ]
+
+          print(f"cumulative_records={len(records)}")
+          print(f"cumulative_live_like_records={len(live_records)}")
+
+          if require_live and not live_records:
+              print("ERROR: live-enriched mode produced no live-like cumulative records.")
+              sys.exit(1)
+          PY
+
       - name: Validate generated outputs
         run: |
+          set -euo pipefail
           python scripts/validate_generated_outputs.py
 
-      - name: Upload analysis outputs
+      - name: Upload live-enriched analysis outputs
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -87,6 +186,7 @@ jobs:
           path: |
             outputs/
             data/derived/
+          if-no-files-found: warn
           retention-days: 30
 
   commit-outputs:
@@ -111,7 +211,7 @@ jobs:
           name: live-enriched-analysis-outputs
           path: .
 
-      - name: Commit refreshed outputs (opt-in)
+      - name: Commit refreshed outputs
         run: |
           set -euo pipefail
           git config user.name "morskamary-bot"

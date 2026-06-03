@@ -1,7 +1,6 @@
 name: Research API Smoke
 
 on:
-  # Manual trigger only — live API tests never run in default CI.
   workflow_dispatch:
     inputs:
       live_api_tests:
@@ -21,58 +20,76 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       LIVE_RESEARCH_API_TESTS: ${{ github.event.inputs.live_api_tests || 'false' }}
 
+      CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
+      ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
+      SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
+      WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
+      SCIVAL_API_KEY: ${{ secrets.SCIVAL_API_KEY }}
+      MICROSOFT_TENANT_ID: ${{ secrets.MICROSOFT_TENANT_ID }}
+      MICROSOFT_CLIENT_ID: ${{ secrets.MICROSOFT_CLIENT_ID }}
+      MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
       - name: Install dependencies
         run: |
+          set -euo pipefail
           python -m pip install --upgrade pip
-          pip install -e .[dev]
+          pip install -e ".[dev]"
 
       - name: Provider configuration audit
         run: |
+          set -euo pipefail
           python scripts/audit_research_api_config.py
 
-      - name: Offline smoke test (always runs)
+      - name: Offline smoke test
         run: |
+          set -euo pipefail
           python scripts/smoke_scientific_bridge.py --offline
 
-      - name: Live smoke test (only if secrets present and enabled)
-        if: github.event.inputs.live_api_tests == 'true'
-        env:
-          CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
-          ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
-          SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
-          WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
-          SCIVAL_API_KEY: ${{ secrets.SCIVAL_API_KEY }}
+      - name: Provider health preflight
         run: |
+          set -euo pipefail
+          mkdir -p outputs
+          python scripts/check_research_api_health.py \
+            --output outputs/research_api_health.json
+
+      - name: Live smoke test
+        if: github.event.inputs.live_api_tests == 'true'
+        run: |
+          set -euo pipefail
           python scripts/check_research_api_health.py \
             --require-valid \
             --output outputs/research_api_health.json
+
           LIVE_RESEARCH_API_TESTS=true \
             python scripts/smoke_scientific_bridge.py --live-if-secrets-present
 
       - name: Export provider capabilities
         run: |
+          set -euo pipefail
           python scripts/export_research_source_capabilities.py
 
       - name: Validate research source outputs
         run: |
-          python scripts/validate_research_source_outputs.py
+          set -euo pipefail
+          python scripts/validate_research_source_outputs.py --require-health
 
-      - name: Upload sanitized capability report
+      - name: Upload sanitized research API reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: research-source-capabilities
+          name: research-api-smoke-reports
           path: |
             outputs/research_source_capabilities.json
             outputs/research_api_health.json
+            outputs/research_api_smoke_report.json
           if-no-files-found: warn
           retention-days: 7
