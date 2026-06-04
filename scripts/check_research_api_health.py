@@ -137,6 +137,17 @@ def probe_scival() -> ProbeResult:
     return result
 
 
+def probe_google_drive() -> ProbeResult:
+    credentials_path = os.getenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", "")
+    if credentials_path and os.path.isfile(credentials_path):
+        return ProbeResult("google_drive", "ok", "OAuth credentials configured")
+    return ProbeResult(
+        "google_drive",
+        "present-but-invalid",
+        "GOOGLE_DRIVE_OAUTH_CREDENTIALS not configured",
+    )
+
+
 def probe_microsoft_graph() -> ProbeResult:
     tenant = os.getenv("MICROSOFT_TENANT_ID", "")
     client_id = os.getenv("MICROSOFT_CLIENT_ID", "")
@@ -199,6 +210,7 @@ def main() -> int:
     _register_probe("scopus", probe_scopus)
     _register_probe("wos", probe_wos)
     _register_probe("scival", probe_scival)
+    _register_probe("google_drive", probe_google_drive)
     _register_probe("microsoft_graph", probe_microsoft_graph)
 
     parser = argparse.ArgumentParser()
@@ -223,12 +235,18 @@ def main() -> int:
                 file=sys.stderr,
             )
             return 1
-        unknown = [p for p in requested if p not in _PROBE_REGISTRY]
-        if unknown:
-            print(
-                f"WARNING: unknown provider(s) ignored: {', '.join(unknown)}",
-                file=sys.stderr,
-            )
+        if "all" in requested:
+            requested = list(_PROBE_REGISTRY.keys())
+        else:
+            unknown = [p for p in requested if p not in _PROBE_REGISTRY]
+            if unknown:
+                print(
+                    f"WARNING: unknown provider(s) ignored: {', '.join(unknown)}",
+                    file=sys.stderr,
+                )
+            requested = [p for p in requested if p in _PROBE_REGISTRY]
+        if "crossref" not in requested:
+            requested.append("crossref")
         probes = [_PROBE_REGISTRY[p] for p in requested if p in _PROBE_REGISTRY]
         if not probes:
             print(

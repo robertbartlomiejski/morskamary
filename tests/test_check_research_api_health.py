@@ -202,6 +202,9 @@ def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
         check_research_api_health.ProbeResult("wos", "missing", "missing", None),
         check_research_api_health.ProbeResult("scival", "missing", "missing", None),
         check_research_api_health.ProbeResult(
+            "google_drive", "present-but-invalid", "missing", None
+        ),
+        check_research_api_health.ProbeResult(
             "microsoft_graph", "missing", "missing", None
         ),
     ]
@@ -220,9 +223,10 @@ def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
         patch("check_research_api_health.probe_scopus", return_value=fake_results[1]),
         patch("check_research_api_health.probe_wos", return_value=fake_results[2]),
         patch("check_research_api_health.probe_scival", return_value=fake_results[3]),
+        patch("check_research_api_health.probe_google_drive", return_value=fake_results[4]),
         patch(
             "check_research_api_health.probe_microsoft_graph",
-            return_value=fake_results[4],
+            return_value=fake_results[5],
         ),
     ):
         exit_code = check_research_api_health.main()
@@ -248,6 +252,7 @@ def test_main_without_require_valid_returns_zero(tmp_path: Path) -> None:
         patch("check_research_api_health.probe_scopus", return_value=ok_result),
         patch("check_research_api_health.probe_wos", return_value=ok_result),
         patch("check_research_api_health.probe_scival", return_value=ok_result),
+        patch("check_research_api_health.probe_google_drive", return_value=ok_result),
         patch(
             "check_research_api_health.probe_microsoft_graph", return_value=ok_result
         ),
@@ -256,7 +261,7 @@ def test_main_without_require_valid_returns_zero(tmp_path: Path) -> None:
 
     payload = json.loads(output_file.read_text(encoding="utf-8"))
     assert exit_code == 0
-    assert payload["summary"]["ok"] == 5
+    assert payload["summary"]["ok"] == 6
 
 
 def test_main_with_providers_scopes_probes_to_requested_subset(tmp_path: Path) -> None:
@@ -282,6 +287,7 @@ def test_main_with_providers_scopes_probes_to_requested_subset(tmp_path: Path) -
         patch("check_research_api_health.probe_scopus", return_value=scopus_result) as probe_scopus,
         patch("check_research_api_health.probe_wos") as probe_wos,
         patch("check_research_api_health.probe_scival") as probe_scival,
+        patch("check_research_api_health.probe_google_drive") as probe_google_drive,
         patch("check_research_api_health.probe_microsoft_graph") as probe_microsoft_graph,
     ):
         exit_code = check_research_api_health.main()
@@ -293,7 +299,104 @@ def test_main_with_providers_scopes_probes_to_requested_subset(tmp_path: Path) -
     probe_scopus.assert_called_once()
     probe_wos.assert_not_called()
     probe_scival.assert_not_called()
+    probe_google_drive.assert_not_called()
     probe_microsoft_graph.assert_not_called()
+
+
+def test_main_with_providers_adds_crossref_when_missing(tmp_path: Path) -> None:
+    """main should always include crossref even if omitted from --providers."""
+    import check_research_api_health
+
+    output_file = tmp_path / "health" / "results.json"
+    crossref_result = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
+    scopus_result = check_research_api_health.ProbeResult("scopus", "missing", "missing", None)
+
+    with (
+        patch(
+            "sys.argv",
+            [
+                "check_research_api_health.py",
+                "--output",
+                str(output_file),
+                "--providers",
+                "scopus",
+            ],
+        ),
+        patch("check_research_api_health.probe_crossref", return_value=crossref_result) as probe_crossref,
+        patch("check_research_api_health.probe_scopus", return_value=scopus_result) as probe_scopus,
+        patch("check_research_api_health.probe_wos") as probe_wos,
+        patch("check_research_api_health.probe_scival") as probe_scival,
+        patch("check_research_api_health.probe_google_drive") as probe_google_drive,
+        patch("check_research_api_health.probe_microsoft_graph") as probe_microsoft_graph,
+    ):
+        exit_code = check_research_api_health.main()
+
+    payload = json.loads(output_file.read_text(encoding="utf-8"))
+    assert exit_code == 0
+    assert [item["provider"] for item in payload["statuses"]] == ["scopus", "crossref"]
+    probe_scopus.assert_called_once()
+    probe_crossref.assert_called_once()
+    probe_wos.assert_not_called()
+    probe_scival.assert_not_called()
+    probe_google_drive.assert_not_called()
+    probe_microsoft_graph.assert_not_called()
+
+
+def test_main_with_providers_all_expands_registry(tmp_path: Path) -> None:
+    """main should expand --providers all to every registered provider."""
+    import check_research_api_health
+
+    output_file = tmp_path / "health" / "results.json"
+    crossref_result = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
+    scopus_result = check_research_api_health.ProbeResult("scopus", "missing", "missing", None)
+    wos_result = check_research_api_health.ProbeResult("wos", "missing", "missing", None)
+    scival_result = check_research_api_health.ProbeResult("scival", "missing", "missing", None)
+    google_drive_result = check_research_api_health.ProbeResult(
+        "google_drive", "present-but-invalid", "missing", None
+    )
+    microsoft_graph_result = check_research_api_health.ProbeResult(
+        "microsoft_graph", "missing", "missing", None
+    )
+
+    with (
+        patch(
+            "sys.argv",
+            [
+                "check_research_api_health.py",
+                "--output",
+                str(output_file),
+                "--providers",
+                "all",
+            ],
+        ),
+        patch("check_research_api_health.probe_crossref", return_value=crossref_result) as probe_crossref,
+        patch("check_research_api_health.probe_scopus", return_value=scopus_result) as probe_scopus,
+        patch("check_research_api_health.probe_wos", return_value=wos_result) as probe_wos,
+        patch("check_research_api_health.probe_scival", return_value=scival_result) as probe_scival,
+        patch("check_research_api_health.probe_google_drive", return_value=google_drive_result) as probe_google_drive,
+        patch(
+            "check_research_api_health.probe_microsoft_graph",
+            return_value=microsoft_graph_result,
+        ) as probe_microsoft_graph,
+    ):
+        exit_code = check_research_api_health.main()
+
+    payload = json.loads(output_file.read_text(encoding="utf-8"))
+    assert exit_code == 0
+    assert [item["provider"] for item in payload["statuses"]] == [
+        "crossref",
+        "scopus",
+        "wos",
+        "scival",
+        "google_drive",
+        "microsoft_graph",
+    ]
+    probe_crossref.assert_called_once()
+    probe_scopus.assert_called_once()
+    probe_wos.assert_called_once()
+    probe_scival.assert_called_once()
+    probe_google_drive.assert_called_once()
+    probe_microsoft_graph.assert_called_once()
 
 
 def test_main_with_providers_ignores_unknown_names(tmp_path: Path, capsys) -> None:
@@ -318,6 +421,7 @@ def test_main_with_providers_ignores_unknown_names(tmp_path: Path, capsys) -> No
         patch("check_research_api_health.probe_scopus") as probe_scopus,
         patch("check_research_api_health.probe_wos") as probe_wos,
         patch("check_research_api_health.probe_scival") as probe_scival,
+        patch("check_research_api_health.probe_google_drive") as probe_google_drive,
         patch("check_research_api_health.probe_microsoft_graph") as probe_microsoft_graph,
     ):
         exit_code = check_research_api_health.main()
@@ -331,6 +435,7 @@ def test_main_with_providers_ignores_unknown_names(tmp_path: Path, capsys) -> No
     probe_scopus.assert_not_called()
     probe_wos.assert_not_called()
     probe_scival.assert_not_called()
+    probe_google_drive.assert_not_called()
     probe_microsoft_graph.assert_not_called()
 
 
