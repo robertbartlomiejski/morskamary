@@ -22,6 +22,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
+from typing import Callable
 
 _REQUEST_TIMEOUT_SECONDS = 12
 _ERROR_BODY_MAX_BYTES = 512
@@ -186,10 +187,10 @@ def probe_microsoft_graph() -> ProbeResult:
         return ProbeResult("microsoft_graph", "present-but-invalid", str(exc))
 
 
-_PROBE_REGISTRY: dict[str, "Callable[[], ProbeResult]"] = {}
+_PROBE_REGISTRY: dict[str, Callable[[], ProbeResult]] = {}
 
 
-def _register_probe(name: str, fn: "Callable[[], ProbeResult]") -> None:
+def _register_probe(name: str, fn: Callable[[], ProbeResult]) -> None:
     _PROBE_REGISTRY[name] = fn
 
 
