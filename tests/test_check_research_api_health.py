@@ -189,6 +189,24 @@ def test_probe_wos_and_scival_missing_keys(monkeypatch) -> None:
     assert scival_result.provider == "scival"
 
 
+def test_probe_google_drive_missing_and_configured_paths(monkeypatch, tmp_path: Path) -> None:
+    """probe_google_drive should report missing without credentials and ok with a valid file."""
+    import check_research_api_health
+
+    monkeypatch.delenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", raising=False)
+    missing_result = check_research_api_health.probe_google_drive()
+    assert missing_result.status == "missing"
+    assert missing_result.provider == "google_drive"
+
+    credentials_file = tmp_path / "oauth.json"
+    credentials_file.write_text("{}", encoding="utf-8")
+    monkeypatch.setenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", str(credentials_file))
+
+    configured_result = check_research_api_health.probe_google_drive()
+    assert configured_result.status == "ok"
+    assert configured_result.provider == "google_drive"
+
+
 def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
     """main should return non-zero with --require-valid when invalid provider exists."""
     import check_research_api_health
@@ -204,6 +222,7 @@ def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
         check_research_api_health.ProbeResult(
             "microsoft_graph", "missing", "missing", None
         ),
+        check_research_api_health.ProbeResult("google_drive", "missing", "missing", None),
     ]
 
     with (
@@ -224,6 +243,7 @@ def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
             "check_research_api_health.probe_microsoft_graph",
             return_value=fake_results[4],
         ),
+        patch("check_research_api_health.probe_google_drive", return_value=fake_results[5]),
     ):
         exit_code = check_research_api_health.main()
 
@@ -251,9 +271,79 @@ def test_main_without_require_valid_returns_zero(tmp_path: Path) -> None:
         patch(
             "check_research_api_health.probe_microsoft_graph", return_value=ok_result
         ),
+        patch("check_research_api_health.probe_google_drive", return_value=ok_result),
     ):
         exit_code = check_research_api_health.main()
 
     payload = json.loads(output_file.read_text(encoding="utf-8"))
     assert exit_code == 0
-    assert payload["summary"]["ok"] == 5
+    assert payload["summary"]["ok"] == 6
+
+
+def test_main_filters_to_requested_providers(tmp_path: Path) -> None:
+    """main should only run probes listed in --providers."""
+    import check_research_api_health
+
+    output_file = tmp_path / "health" / "results.json"
+    crossref_ok = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
+    wos_ok = check_research_api_health.ProbeResult("wos", "ok", "ok", 200)
+
+    with (
+        patch(
+            "sys.argv",
+            [
+                "check_research_api_health.py",
+                "--output",
+                str(output_file),
+                "--providers",
+                "crossref,wos",
+            ],
+        ),
+        patch("check_research_api_health.probe_crossref", return_value=crossref_ok),
+        patch("check_research_api_health.probe_wos", return_value=wos_ok),
+        patch("check_research_api_health.probe_scopus") as probe_scopus,
+        patch("check_research_api_health.probe_scival") as probe_scival,
+        patch("check_research_api_health.probe_microsoft_graph") as probe_microsoft_graph,
+        patch("check_research_api_health.probe_google_drive") as probe_google_drive,
+    ):
+        exit_code = check_research_api_health.main()
+
+    payload = json.loads(output_file.read_text(encoding="utf-8"))
+    assert exit_code == 0
+    assert payload["summary"]["ok"] == 2
+    assert [item["provider"] for item in payload["statuses"]] == ["crossref", "wos"]
+    probe_scopus.assert_not_called()
+    probe_scival.assert_not_called()
+    probe_microsoft_graph.assert_not_called()
+    probe_google_drive.assert_not_called()
+
+
+def test_main_rejects_unknown_or_mixed_all_providers(tmp_path: Path) -> None:
+    """main should return error for unknown providers and invalid all-combinations."""
+    import check_research_api_health
+
+    output_file = tmp_path / "health" / "results.json"
+
+    with patch(
+        "sys.argv",
+        [
+            "check_research_api_health.py",
+            "--output",
+            str(output_file),
+            "--providers",
+            "crossref,unknown",
+        ],
+    ):
+        assert check_research_api_health.main() == 1
+
+    with patch(
+        "sys.argv",
+        [
+            "check_research_api_health.py",
+            "--output",
+            str(output_file),
+            "--providers",
+            "all,crossref",
+        ],
+    ):
+        assert check_research_api_health.main() == 1
