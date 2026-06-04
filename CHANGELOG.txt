@@ -29,7 +29,7 @@ Use this section for changes in progress that are not yet merged into the main b
   Provenance Review comment on PR #176 (comment_id 4626365487).
   Quality checks python scripts/check_research_api_health.py --providers crossref,scopus,wos --output /tmp/health.json (manual smoke-test).
 
-
+- 2026-06-04 (restrict default providers in full-live-analysis workflow)
   Change type fix
   Scope CI governance
   Files affected .github/workflows/full-live-analysis.yml CHANGELOG.txt
