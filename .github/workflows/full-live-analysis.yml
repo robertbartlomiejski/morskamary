@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       providers:
-        description: "Comma-separated providers. Default excludes google_drive because it is local-OAuth/stub-like in CI."
+        description: "Comma-separated providers. Default excludes providers requiring extra proprietary credentials in CI."
         required: false
-        default: "crossref,scopus,wos,scival,microsoft_graph"
+        default: "crossref,scopus,wos"
       max_results_per_query:
         description: "Maximum results per query"
         required: false
@@ -51,7 +51,7 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-      REQUESTED_PROVIDERS: ${{ github.event.inputs.providers || 'crossref,scopus,wos,scival,microsoft_graph' }}
+      REQUESTED_PROVIDERS: ${{ github.event.inputs.providers || 'crossref,scopus,wos' }}
       MAX_RESULTS_PER_QUERY: ${{ github.event.inputs.max_results_per_query || '50' }}
       OFFLINE_MODE: ${{ github.event.inputs.offline || 'false' }}
       REQUIRE_VALID_CREDENTIALS: ${{ github.event.inputs.require_valid_credentials || 'false' }}

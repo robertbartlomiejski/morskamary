@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-06-04 (restrict default providers in full-live-analysis workflow)
+  Change type fix
+  Scope CI governance
+  Files affected .github/workflows/full-live-analysis.yml CHANGELOG.txt
+  Summary Removed scival and microsoft_graph from the default providers list in full-live-analysis.yml (both the workflow_dispatch input default and the env REQUESTED_PROVIDERS fallback). Default is now crossref,scopus,wos — providers with guaranteed CI secret coverage.
+  Reason scival and microsoft_graph do not have guaranteed secrets in CI; including them as defaults caused unnecessary health-preflight noise and potential credential failures. This mirrors the earlier removal of google_drive from CI defaults.
+  Impact Scheduled and unparameterised workflow_dispatch runs now only invoke crossref, scopus, and wos by default. Users can still pass scival,microsoft_graph explicitly when the secrets are configured.
+  Provenance Recommendation from governance review (Opcja 2 - Ograniczenie domyślnych dostawców).
+  Quality checks python3 scripts/changelog_guard.py --changed-file .github/workflows/full-live-analysis.yml --changed-file CHANGELOG.txt (passed).
+
 - 2026-06-04 (manifest update for cumulative merge script)
   Change type add
   Scope scripts governance
