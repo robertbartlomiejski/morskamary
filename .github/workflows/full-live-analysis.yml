@@ -93,6 +93,7 @@ jobs:
           fi
 
           python scripts/check_research_api_health.py \
+            --providers "$REQUESTED_PROVIDERS" \
             --output outputs/research_api_health.json \
             "${HEALTH_ARGS[@]}"
 

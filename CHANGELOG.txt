@@ -19,7 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
-- 2026-06-04 (restrict default providers in full-live-analysis workflow)
+- 2026-06-04 (scope preflight health check to requested providers)
+  Change type fix
+  Scope CI scripts governance
+  Files affected scripts/check_research_api_health.py .github/workflows/full-live-analysis.yml CHANGELOG.txt
+  Summary Added --providers flag to check_research_api_health.py so the preflight probe only contacts the providers listed in REQUESTED_PROVIDERS. The full-live-analysis.yml preflight step now passes --providers "$REQUESTED_PROVIDERS", ensuring the health check scope matches the analysis scope.
+  Reason The preflight step previously scanned all five providers regardless of which providers were requested. On default CI runs (crossref,scopus,wos) the scival and microsoft_graph probes still ran, producing spurious credential errors when those secrets were absent.
+  Impact Preflight now only probes providers that will actually be used; scival and microsoft_graph health checks are skipped on default CI runs.
+  Provenance Review comment on PR #176 (comment_id 4626365487).
+  Quality checks python scripts/check_research_api_health.py --providers crossref,scopus,wos --output /tmp/health.json (manual smoke-test).
+
+
   Change type fix
   Scope CI governance
   Files affected .github/workflows/full-live-analysis.yml CHANGELOG.txt

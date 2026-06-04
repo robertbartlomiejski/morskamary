@@ -186,13 +186,43 @@ def probe_microsoft_graph() -> ProbeResult:
         return ProbeResult("microsoft_graph", "present-but-invalid", str(exc))
 
 
+_PROBE_REGISTRY: dict[str, "Callable[[], ProbeResult]"] = {}
+
+
+def _register_probe(name: str, fn: "Callable[[], ProbeResult]") -> None:
+    _PROBE_REGISTRY[name] = fn
+
+
 def main() -> int:
+    _register_probe("crossref", probe_crossref)
+    _register_probe("scopus", probe_scopus)
+    _register_probe("wos", probe_wos)
+    _register_probe("scival", probe_scival)
+    _register_probe("microsoft_graph", probe_microsoft_graph)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default="outputs/research_api_health.json")
     parser.add_argument("--require-valid", action="store_true")
+    parser.add_argument(
+        "--providers",
+        default=None,
+        help=(
+            "Comma-separated list of providers to probe "
+            "(e.g. crossref,scopus,wos). "
+            "Defaults to all known providers when omitted."
+        ),
+    )
     args = parser.parse_args()
 
-    probes = [probe_crossref, probe_scopus, probe_wos, probe_scival, probe_microsoft_graph]
+    if args.providers:
+        requested = [p.strip() for p in args.providers.split(",") if p.strip()]
+        unknown = [p for p in requested if p not in _PROBE_REGISTRY]
+        if unknown:
+            print(f"WARNING: unknown provider(s) ignored: {', '.join(unknown)}", file=sys.stderr)
+        probes = [_PROBE_REGISTRY[p] for p in requested if p in _PROBE_REGISTRY]
+    else:
+        probes = list(_PROBE_REGISTRY.values())
+
     results = [p() for p in probes]
 
     print("=== Research API health preflight ===")
