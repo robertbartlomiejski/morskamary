@@ -306,3 +306,203 @@ class TestValidateResearchSourceOutputs:
         out = capsys.readouterr().out
         assert "crossref provider missing from capabilities export" in out
         assert "Validation FAILED." in out
+
+    def test_validate_live_research_sources_required_happy_path(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        import validate_research_source_outputs as script
+
+        outputs_dir = tmp_path / "outputs"
+        research_dir = outputs_dir / "research_sources"
+        research_dir.mkdir(parents=True)
+
+        (outputs_dir / "research_source_capabilities.json").write_text(
+            json.dumps(
+                {
+                    "generated_at": "2026-01-01T00:00:00+00:00",
+                    "providers": {"crossref": {"configured": True}},
+                }
+            ),
+            encoding="utf-8",
+        )
+        (outputs_dir / "research_api_health.json").write_text(
+            json.dumps(
+                {
+                    "statuses": [
+                        {
+                            "provider": "crossref",
+                            "status": "ok",
+                            "detail": "request succeeded",
+                            "http_status": 200,
+                        }
+                    ],
+                    "summary": {"ok": 1},
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        live_record = {
+            "title": "Live record",
+            "source_id": "crossref:10.1234/test",
+            "provider": "Crossref",
+        }
+        for name in [
+            "live_records.json",
+            "live_records_triangulated.json",
+            "crossref_records.json",
+        ]:
+            (research_dir / name).write_text(json.dumps([live_record]), encoding="utf-8")
+
+        (research_dir / "live_provenance.json").write_text(
+            json.dumps([{"provider": "crossref", "source_id": "crossref:10.1234/test"}]),
+            encoding="utf-8",
+        )
+        (research_dir / "low_confidence_live_records.json").write_text(
+            json.dumps([]),
+            encoding="utf-8",
+        )
+        (research_dir / "live_records.csv").write_text(
+            "title,source_id,provider\nLive record,crossref:10.1234/test,Crossref\n",
+            encoding="utf-8",
+        )
+        (research_dir / "live_source_coverage.csv").write_text(
+            "sector,provider,query,record_count\nBlue Biotech,crossref,test,1\n",
+            encoding="utf-8",
+        )
+
+        monkeypatch.setattr(script, "OUTPUTS_DIR", str(outputs_dir))
+
+        assert script.main(["--require-health", "--require-live"]) == 0
+        out = capsys.readouterr().out
+        assert "OK: live_records.json (1 JSON records/items)" in out
+        assert "OK: live_source_coverage.csv (1 CSV rows)" in out
+
+    def test_validate_live_research_sources_required_fails_when_missing(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        import validate_research_source_outputs as script
+
+        outputs_dir = tmp_path / "outputs"
+        outputs_dir.mkdir()
+
+        (outputs_dir / "research_source_capabilities.json").write_text(
+            json.dumps(
+                {
+                    "generated_at": "2026-01-01T00:00:00+00:00",
+                    "providers": {"crossref": {"configured": True}},
+                }
+            ),
+            encoding="utf-8",
+        )
+        (outputs_dir / "research_api_health.json").write_text(
+            json.dumps(
+                {
+                    "statuses": [
+                        {
+                            "provider": "crossref",
+                            "status": "ok",
+                            "detail": "request succeeded",
+                            "http_status": 200,
+                        }
+                    ],
+                    "summary": {"ok": 1},
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        monkeypatch.setattr(script, "OUTPUTS_DIR", str(outputs_dir))
+
+        assert script.main(["--require-health", "--require-live"]) == 1
+        out = capsys.readouterr().out
+        assert "outputs/research_sources directory not found" in out
+        assert "Validation FAILED." in out
+
+    def test_validate_health_json_warns_on_invalid_provider_status(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        import validate_research_source_outputs as script
+
+        outputs_dir = tmp_path / "outputs"
+        outputs_dir.mkdir()
+        (outputs_dir / "research_source_capabilities.json").write_text(
+            json.dumps(
+                {
+                    "generated_at": "2026-01-01T00:00:00+00:00",
+                    "providers": {"crossref": {"configured": True}},
+                }
+            ),
+            encoding="utf-8",
+        )
+        (outputs_dir / "research_api_health.json").write_text(
+            json.dumps(
+                {
+                    "statuses": [
+                        {"provider": "crossref", "status": "ok"},
+                        {"provider": "scopus", "status": "present-but-invalid"},
+                    ],
+                    "summary": {"ok": 1},
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        monkeypatch.setattr(script, "OUTPUTS_DIR", str(outputs_dir))
+        assert script.main(["--require-health"]) == 0
+        out = capsys.readouterr().out
+        assert "WARN:  provider health contains invalid/rate-limited statuses" in out
+        assert "Validation passed (warnings are informational)." in out
+
+
+class TestAssertCumulativeLiveEnriched:
+    """Coverage for scripts/assert_cumulative_live_enriched.py."""
+
+    def test_happy_path_counts_live_like_records(self, tmp_path, capsys):
+        import assert_cumulative_live_enriched as script
+
+        cumulative_path = tmp_path / "cumulative_qmbd_records.json"
+        cumulative_path.write_text(
+            json.dumps(
+                [
+                    {"source_id": "static:1", "record_origin": "STATIC_BASELINE"},
+                    {"source_id": "10.1234/live", "record_origin": "LIVE_API"},
+                    {"source_id": "crossref:10.1234/also-live"},
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+        assert script.main(["--path", str(cumulative_path), "--require-live"]) == 0
+        out = capsys.readouterr().out
+        assert "cumulative_records=3" in out
+        assert "cumulative_live_like_records=2" in out
+
+    def test_require_live_fails_when_only_static_records(self, tmp_path, capsys):
+        import assert_cumulative_live_enriched as script
+
+        cumulative_path = tmp_path / "cumulative_qmbd_records.json"
+        cumulative_path.write_text(
+            json.dumps(
+                [
+                    {"source_id": "static:1", "record_origin": "STATIC_BASELINE"},
+                    {"source_id": "static:2", "record_origin": "STATIC_LITERATURE"},
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+        assert script.main(["--path", str(cumulative_path), "--require-live"]) == 1
+        out = capsys.readouterr().out
+        assert "cumulative_live_like_records=0" in out
+        assert "produced no live-like cumulative records" in out
+
+    def test_reports_json_type_with_dunder_name(self, tmp_path, capsys):
+        import assert_cumulative_live_enriched as script
+
+        cumulative_path = tmp_path / "cumulative_qmbd_records.json"
+        cumulative_path.write_text(json.dumps({"records": []}), encoding="utf-8")
+
+        assert script.main(["--path", str(cumulative_path)]) == 1
+        out = capsys.readouterr().out
+        assert "must contain a JSON list, got dict" in out

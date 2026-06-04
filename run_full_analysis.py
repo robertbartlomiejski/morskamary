@@ -414,6 +414,7 @@ class LocalizedQMBDRecordRepository:
                 prepared.setdefault("source_id", str(record.get("doi", "")).strip())
                 if not prepared.get("source_id"):
                     prepared["source_id"] = f"live_record_{idx:05d}"
+                prepared.setdefault("record_origin", "LIVE_API")
                 yield prepared
 
     def iter_records(self) -> Iterator[Dict[str, Any]]:
