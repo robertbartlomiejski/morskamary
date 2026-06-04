@@ -382,6 +382,10 @@ def _row_key(row: dict[str, str]) -> str:
     return "sha256:" + hashlib.sha256(stable.encode("utf-8")).hexdigest()
 
 
+def _sha256_bytes(payload: bytes) -> str:
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
 def _richness_score(value: Any) -> tuple[int, int]:
     """Prefer records with more populated fields and larger structured payloads."""
 
@@ -539,6 +543,13 @@ def _write_csv(
             writer.writerow(row)
 
 
+def _write_bytes(path: Path, payload: bytes, *, dry_run: bool) -> None:
+    if dry_run:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(payload)
+
+
 def _backup_outputs(*, dry_run: bool) -> Path | None:
     if dry_run or not OUTPUTS_DIR.exists():
         return None
@@ -597,6 +608,22 @@ def _merge_candidate_groups(
                 dry_run=dry_run,
             )
             manifest_paths[rel_path] = {"status": "written", **meta}
+
+        elif suffix in HTML_SUFFIXES:
+            selected = max(
+                candidates,
+                key=lambda c: (len(c.payload), _sha256_bytes(c.payload), c.source),
+            )
+            _write_bytes(out_path, selected.payload, dry_run=dry_run)
+            manifest_paths[rel_path] = {
+                "status": "written",
+                "mode": "passthrough",
+                "selected_source": selected.source,
+                "selected_sha256": _sha256_bytes(selected.payload),
+                "selected_size": len(selected.payload),
+                "candidates": len(candidates),
+                "unique_payloads": len({_sha256_bytes(c.payload) for c in candidates}),
+            }
 
     return manifest_paths
 
@@ -718,8 +745,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--include-html",
         action="store_true",
         help=(
-            "Include HTML files in branch/artifact discovery. HTML files are discovered "
-            "but not merged by semantic content; use run_full_analysis.py regeneration instead."
+            "Include HTML files in branch/artifact discovery and restore them via deterministic "
+            "passthrough selection. Prefer --run-analysis for full regeneration when possible."
         ),
     )
     parser.add_argument(
@@ -782,10 +809,9 @@ def main(argv: list[str] | None = None) -> int:
         )
     )
 
-    # HTML is deliberately not merged: regenerated HTML is safer than synthetic concatenation.
-    candidates = [
-        c for c in candidates if not c.path.lower().endswith(HTML_SUFFIXES)
-    ]
+    if not args.include_html:
+        # HTML is deliberately excluded by default: regenerated HTML is safer.
+        candidates = [c for c in candidates if not c.path.lower().endswith(HTML_SUFFIXES)]
 
     grouped = _group_candidates(candidates)
     path_manifest = _merge_candidate_groups(grouped, dry_run=args.dry_run)
