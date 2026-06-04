@@ -21,8 +21,8 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 _REQUEST_TIMEOUT_SECONDS = 12
 _ERROR_BODY_MAX_BYTES = 512
