@@ -257,3 +257,109 @@ def test_main_without_require_valid_returns_zero(tmp_path: Path) -> None:
     payload = json.loads(output_file.read_text(encoding="utf-8"))
     assert exit_code == 0
     assert payload["summary"]["ok"] == 5
+
+
+def test_main_with_providers_scopes_probes_to_requested_subset(tmp_path: Path) -> None:
+    """main should run only explicitly requested providers from --providers."""
+    import check_research_api_health
+
+    output_file = tmp_path / "health" / "results.json"
+    crossref_result = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
+    scopus_result = check_research_api_health.ProbeResult("scopus", "missing", "missing", None)
+
+    with (
+        patch(
+            "sys.argv",
+            [
+                "check_research_api_health.py",
+                "--output",
+                str(output_file),
+                "--providers",
+                "crossref,scopus",
+            ],
+        ),
+        patch("check_research_api_health.probe_crossref", return_value=crossref_result) as probe_crossref,
+        patch("check_research_api_health.probe_scopus", return_value=scopus_result) as probe_scopus,
+        patch("check_research_api_health.probe_wos") as probe_wos,
+        patch("check_research_api_health.probe_scival") as probe_scival,
+        patch("check_research_api_health.probe_microsoft_graph") as probe_microsoft_graph,
+    ):
+        exit_code = check_research_api_health.main()
+
+    payload = json.loads(output_file.read_text(encoding="utf-8"))
+    assert exit_code == 0
+    assert [item["provider"] for item in payload["statuses"]] == ["crossref", "scopus"]
+    probe_crossref.assert_called_once()
+    probe_scopus.assert_called_once()
+    probe_wos.assert_not_called()
+    probe_scival.assert_not_called()
+    probe_microsoft_graph.assert_not_called()
+
+
+def test_main_with_providers_ignores_unknown_names(tmp_path: Path, capsys) -> None:
+    """main should skip unknown providers and continue with known ones."""
+    import check_research_api_health
+
+    output_file = tmp_path / "health" / "results.json"
+    crossref_result = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
+
+    with (
+        patch(
+            "sys.argv",
+            [
+                "check_research_api_health.py",
+                "--output",
+                str(output_file),
+                "--providers",
+                "unknown,crossref,missing",
+            ],
+        ),
+        patch("check_research_api_health.probe_crossref", return_value=crossref_result) as probe_crossref,
+        patch("check_research_api_health.probe_scopus") as probe_scopus,
+        patch("check_research_api_health.probe_wos") as probe_wos,
+        patch("check_research_api_health.probe_scival") as probe_scival,
+        patch("check_research_api_health.probe_microsoft_graph") as probe_microsoft_graph,
+    ):
+        exit_code = check_research_api_health.main()
+
+    captured = capsys.readouterr()
+    payload = json.loads(output_file.read_text(encoding="utf-8"))
+    assert exit_code == 0
+    assert "unknown provider(s) ignored: unknown, missing" in captured.err
+    assert [item["provider"] for item in payload["statuses"]] == ["crossref"]
+    probe_crossref.assert_called_once()
+    probe_scopus.assert_not_called()
+    probe_wos.assert_not_called()
+    probe_scival.assert_not_called()
+    probe_microsoft_graph.assert_not_called()
+
+
+def test_main_with_empty_providers_string_fails_fast(tmp_path: Path, capsys) -> None:
+    """main should fail when --providers is provided but empty after trimming."""
+    import check_research_api_health
+
+    output_file = tmp_path / "health" / "results.json"
+
+    with (
+        patch(
+            "sys.argv",
+            [
+                "check_research_api_health.py",
+                "--output",
+                str(output_file),
+                "--providers",
+                "  ",
+            ],
+        ),
+        patch("check_research_api_health.probe_crossref") as probe_crossref,
+    ):
+        exit_code = check_research_api_health.main()
+
+    captured = capsys.readouterr()
+    assert exit_code == 1
+    assert (
+        "Error: --providers must not be empty. Specify one or more provider names"
+        in captured.err
+    )
+    assert not output_file.exists()
+    probe_crossref.assert_not_called()
