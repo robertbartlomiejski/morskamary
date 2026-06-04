@@ -214,12 +214,27 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    if args.providers:
-        requested = [p.strip() for p in args.providers.split(",") if p.strip()]
+    if args.providers is not None:
+        requested = [p.strip().lower() for p in args.providers.split(",") if p.strip()]
+        if not requested:
+            print(
+                "Error: --providers must not be empty. Specify one or more provider names (e.g. crossref).",
+                file=sys.stderr,
+            )
+            return 1
         unknown = [p for p in requested if p not in _PROBE_REGISTRY]
         if unknown:
-            print(f"WARNING: unknown provider(s) ignored: {', '.join(unknown)}", file=sys.stderr)
+            print(
+                f"WARNING: unknown provider(s) ignored: {', '.join(unknown)}",
+                file=sys.stderr,
+            )
         probes = [_PROBE_REGISTRY[p] for p in requested if p in _PROBE_REGISTRY]
+        if not probes:
+            print(
+                "Error: no known providers selected after filtering unknown names.",
+                file=sys.stderr,
+            )
+            return 1
     else:
         probes = list(_PROBE_REGISTRY.values())
 
