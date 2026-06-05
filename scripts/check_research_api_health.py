@@ -33,7 +33,9 @@ def _is_transient_network_error(exc: Exception) -> bool:
     """Return True for transport-level transient failures."""
     if isinstance(exc, urllib.error.URLError):
         reason = exc.reason
-        if isinstance(reason, (ConnectionResetError, TimeoutError, ConnectionAbortedError)):
+        if isinstance(
+            reason, (ConnectionResetError, TimeoutError, ConnectionAbortedError)
+        ):
             return True
         if isinstance(reason, OSError):
             return True
@@ -104,7 +106,9 @@ def _get_elsevier_key() -> str:
 def probe_scopus() -> ProbeResult:
     key = _get_elsevier_key()
     if not key:
-        return ProbeResult("scopus", "missing", "ELSEVIER_API_KEY/SCOPUS_API_KEY not set")
+        return ProbeResult(
+            "scopus", "missing", "ELSEVIER_API_KEY/SCOPUS_API_KEY not set"
+        )
     query = urllib.parse.quote("TITLE(ocean)")
     url = f"https://api.elsevier.com/content/search/scopus?query={query}&count=1"
     result = _request(url, {"X-ELS-APIKey": key, "Accept": "application/json"})
@@ -180,8 +184,12 @@ def probe_microsoft_graph() -> ProbeResult:
                 exc.code,
             )
         if _is_rate_limited(exc.code, ""):
-            return ProbeResult("microsoft_graph", "rate-limited", f"HTTP {exc.code}", exc.code)
-        return ProbeResult("microsoft_graph", "present-but-invalid", f"HTTP {exc.code}", exc.code)
+            return ProbeResult(
+                "microsoft_graph", "rate-limited", f"HTTP {exc.code}", exc.code
+            )
+        return ProbeResult(
+            "microsoft_graph", "present-but-invalid", f"HTTP {exc.code}", exc.code
+        )
     except Exception as exc:
         if _is_transient_network_error(exc):
             return ProbeResult("microsoft_graph", "transient-network-error", str(exc))
@@ -265,9 +273,13 @@ def main() -> int:
         json.dump(payload, f, indent=2)
 
     if args.require_valid:
-        invalid = [r for r in results if r.status in {"present-but-invalid", "rate-limited"}]
+        invalid = [
+            r for r in results if r.status in {"present-but-invalid", "rate-limited"}
+        ]
         if invalid:
-            print("\nFailing preflight due to invalid/rate-limited provider credentials.")
+            print(
+                "\nFailing preflight due to invalid/rate-limited provider credentials."
+            )
             return 1
     return 0
 

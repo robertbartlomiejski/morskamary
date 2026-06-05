@@ -13,7 +13,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
 @pytest.mark.parametrize(
     "reset_errno",
-    [pytest.param(104, id="linux-econnreset"), pytest.param(10054, id="windows-wsaeconnreset")],
+    [
+        pytest.param(104, id="linux-econnreset"),
+        pytest.param(10054, id="windows-wsaeconnreset"),
+    ],
 )
 def test_request_marks_econnreset_as_transient_network_error(reset_errno: int) -> None:
     import check_research_api_health
@@ -21,7 +24,9 @@ def test_request_marks_econnreset_as_transient_network_error(reset_errno: int) -
     reset_error = urllib.error.URLError(
         ConnectionResetError(reset_errno, "Connection reset by peer")
     )
-    with patch("check_research_api_health.urllib.request.urlopen", side_effect=reset_error):
+    with patch(
+        "check_research_api_health.urllib.request.urlopen", side_effect=reset_error
+    ):
         result = check_research_api_health._request("https://example.com", {})
 
     assert result.status == "transient-network-error"
@@ -36,7 +41,9 @@ def test_request_success_returns_ok_status() -> None:
     response.__enter__.return_value = response
     response.__exit__.return_value = False
 
-    with patch("check_research_api_health.urllib.request.urlopen", return_value=response):
+    with patch(
+        "check_research_api_health.urllib.request.urlopen", return_value=response
+    ):
         result = check_research_api_health._request("https://example.com", {})
 
     assert result.status == "ok"
@@ -49,7 +56,9 @@ def test_request_http_429_is_rate_limited() -> None:
     http_error = urllib.error.HTTPError(
         "https://example.com", 429, "Too Many Requests", hdrs=None, fp=None
     )
-    with patch("check_research_api_health.urllib.request.urlopen", side_effect=http_error):
+    with patch(
+        "check_research_api_health.urllib.request.urlopen", side_effect=http_error
+    ):
         result = check_research_api_health._request("https://example.com", {})
 
     assert result.status == "rate-limited"
@@ -62,14 +71,18 @@ def test_request_http_401_is_present_but_invalid() -> None:
     http_error = urllib.error.HTTPError(
         "https://example.com", 401, "Unauthorized", hdrs=None, fp=None
     )
-    with patch("check_research_api_health.urllib.request.urlopen", side_effect=http_error):
+    with patch(
+        "check_research_api_health.urllib.request.urlopen", side_effect=http_error
+    ):
         result = check_research_api_health._request("https://example.com", {})
 
     assert result.status == "present-but-invalid"
     assert result.http_status == 401
 
 
-def test_probe_google_drive_missing_and_configured_paths(monkeypatch, tmp_path: Path) -> None:
+def test_probe_google_drive_missing_and_configured_paths(
+    monkeypatch, tmp_path: Path
+) -> None:
     import check_research_api_health
 
     monkeypatch.delenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", raising=False)
@@ -123,7 +136,9 @@ def test_main_filters_to_requested_providers_and_crossref(tmp_path: Path) -> Non
     import check_research_api_health
 
     output_file = tmp_path / "health" / "results.json"
-    scopus_missing = check_research_api_health.ProbeResult("scopus", "missing", "missing", None)
+    scopus_missing = check_research_api_health.ProbeResult(
+        "scopus", "missing", "missing", None
+    )
     crossref_ok = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
 
     with (
@@ -137,11 +152,17 @@ def test_main_filters_to_requested_providers_and_crossref(tmp_path: Path) -> Non
                 "scopus",
             ],
         ),
-        patch("check_research_api_health.probe_scopus", return_value=scopus_missing) as probe_scopus,
-        patch("check_research_api_health.probe_crossref", return_value=crossref_ok) as probe_crossref,
+        patch(
+            "check_research_api_health.probe_scopus", return_value=scopus_missing
+        ) as probe_scopus,
+        patch(
+            "check_research_api_health.probe_crossref", return_value=crossref_ok
+        ) as probe_crossref,
         patch("check_research_api_health.probe_wos") as probe_wos,
         patch("check_research_api_health.probe_scival") as probe_scival,
-        patch("check_research_api_health.probe_microsoft_graph") as probe_microsoft_graph,
+        patch(
+            "check_research_api_health.probe_microsoft_graph"
+        ) as probe_microsoft_graph,
         patch("check_research_api_health.probe_google_drive") as probe_google_drive,
     ):
         exit_code = check_research_api_health.main()
