@@ -223,7 +223,9 @@ def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
         patch("check_research_api_health.probe_scopus", return_value=fake_results[1]),
         patch("check_research_api_health.probe_wos", return_value=fake_results[2]),
         patch("check_research_api_health.probe_scival", return_value=fake_results[3]),
-        patch("check_research_api_health.probe_google_drive", return_value=fake_results[4]),
+        patch(
+            "check_research_api_health.probe_google_drive", return_value=fake_results[4]
+        ),
         patch(
             "check_research_api_health.probe_microsoft_graph",
             return_value=fake_results[5],
@@ -270,7 +272,9 @@ def test_main_with_providers_scopes_probes_to_requested_subset(tmp_path: Path) -
 
     output_file = tmp_path / "health" / "results.json"
     crossref_result = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
-    scopus_result = check_research_api_health.ProbeResult("scopus", "missing", "missing", None)
+    scopus_result = check_research_api_health.ProbeResult(
+        "scopus", "missing", "missing", None
+    )
 
     with (
         patch(
@@ -283,12 +287,18 @@ def test_main_with_providers_scopes_probes_to_requested_subset(tmp_path: Path) -
                 "crossref,scopus",
             ],
         ),
-        patch("check_research_api_health.probe_crossref", return_value=crossref_result) as probe_crossref,
-        patch("check_research_api_health.probe_scopus", return_value=scopus_result) as probe_scopus,
+        patch(
+            "check_research_api_health.probe_crossref", return_value=crossref_result
+        ) as probe_crossref,
+        patch(
+            "check_research_api_health.probe_scopus", return_value=scopus_result
+        ) as probe_scopus,
         patch("check_research_api_health.probe_wos") as probe_wos,
         patch("check_research_api_health.probe_scival") as probe_scival,
         patch("check_research_api_health.probe_google_drive") as probe_google_drive,
-        patch("check_research_api_health.probe_microsoft_graph") as probe_microsoft_graph,
+        patch(
+            "check_research_api_health.probe_microsoft_graph"
+        ) as probe_microsoft_graph,
     ):
         exit_code = check_research_api_health.main()
 
@@ -309,7 +319,9 @@ def test_main_with_providers_adds_crossref_when_missing(tmp_path: Path) -> None:
 
     output_file = tmp_path / "health" / "results.json"
     crossref_result = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
-    scopus_result = check_research_api_health.ProbeResult("scopus", "missing", "missing", None)
+    scopus_result = check_research_api_health.ProbeResult(
+        "scopus", "missing", "missing", None
+    )
 
     with (
         patch(
@@ -322,12 +334,18 @@ def test_main_with_providers_adds_crossref_when_missing(tmp_path: Path) -> None:
                 "scopus",
             ],
         ),
-        patch("check_research_api_health.probe_crossref", return_value=crossref_result) as probe_crossref,
-        patch("check_research_api_health.probe_scopus", return_value=scopus_result) as probe_scopus,
+        patch(
+            "check_research_api_health.probe_crossref", return_value=crossref_result
+        ) as probe_crossref,
+        patch(
+            "check_research_api_health.probe_scopus", return_value=scopus_result
+        ) as probe_scopus,
         patch("check_research_api_health.probe_wos") as probe_wos,
         patch("check_research_api_health.probe_scival") as probe_scival,
         patch("check_research_api_health.probe_google_drive") as probe_google_drive,
-        patch("check_research_api_health.probe_microsoft_graph") as probe_microsoft_graph,
+        patch(
+            "check_research_api_health.probe_microsoft_graph"
+        ) as probe_microsoft_graph,
     ):
         exit_code = check_research_api_health.main()
 
@@ -348,9 +366,15 @@ def test_main_with_providers_all_expands_registry(tmp_path: Path) -> None:
 
     output_file = tmp_path / "health" / "results.json"
     crossref_result = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
-    scopus_result = check_research_api_health.ProbeResult("scopus", "missing", "missing", None)
-    wos_result = check_research_api_health.ProbeResult("wos", "missing", "missing", None)
-    scival_result = check_research_api_health.ProbeResult("scival", "missing", "missing", None)
+    scopus_result = check_research_api_health.ProbeResult(
+        "scopus", "missing", "missing", None
+    )
+    wos_result = check_research_api_health.ProbeResult(
+        "wos", "missing", "missing", None
+    )
+    scival_result = check_research_api_health.ProbeResult(
+        "scival", "missing", "missing", None
+    )
     google_drive_result = check_research_api_health.ProbeResult(
         "google_drive", "present-but-invalid", "missing", None
     )
@@ -369,11 +393,22 @@ def test_main_with_providers_all_expands_registry(tmp_path: Path) -> None:
                 "all",
             ],
         ),
-        patch("check_research_api_health.probe_crossref", return_value=crossref_result) as probe_crossref,
-        patch("check_research_api_health.probe_scopus", return_value=scopus_result) as probe_scopus,
-        patch("check_research_api_health.probe_wos", return_value=wos_result) as probe_wos,
-        patch("check_research_api_health.probe_scival", return_value=scival_result) as probe_scival,
-        patch("check_research_api_health.probe_google_drive", return_value=google_drive_result) as probe_google_drive,
+        patch(
+            "check_research_api_health.probe_crossref", return_value=crossref_result
+        ) as probe_crossref,
+        patch(
+            "check_research_api_health.probe_scopus", return_value=scopus_result
+        ) as probe_scopus,
+        patch(
+            "check_research_api_health.probe_wos", return_value=wos_result
+        ) as probe_wos,
+        patch(
+            "check_research_api_health.probe_scival", return_value=scival_result
+        ) as probe_scival,
+        patch(
+            "check_research_api_health.probe_google_drive",
+            return_value=google_drive_result,
+        ) as probe_google_drive,
         patch(
             "check_research_api_health.probe_microsoft_graph",
             return_value=microsoft_graph_result,
@@ -417,12 +452,16 @@ def test_main_with_providers_ignores_unknown_names(tmp_path: Path, capsys) -> No
                 "unknown,crossref,missing",
             ],
         ),
-        patch("check_research_api_health.probe_crossref", return_value=crossref_result) as probe_crossref,
+        patch(
+            "check_research_api_health.probe_crossref", return_value=crossref_result
+        ) as probe_crossref,
         patch("check_research_api_health.probe_scopus") as probe_scopus,
         patch("check_research_api_health.probe_wos") as probe_wos,
         patch("check_research_api_health.probe_scival") as probe_scival,
         patch("check_research_api_health.probe_google_drive") as probe_google_drive,
-        patch("check_research_api_health.probe_microsoft_graph") as probe_microsoft_graph,
+        patch(
+            "check_research_api_health.probe_microsoft_graph"
+        ) as probe_microsoft_graph,
     ):
         exit_code = check_research_api_health.main()
 
