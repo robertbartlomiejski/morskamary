@@ -833,6 +833,7 @@ scripts/check_research_api_health.py,script,,,,,,check_research_api_health,yes
 scripts/check_research_env.py,script,,,,,,check_research_env,yes
 scripts/convert_pdfs_to_txt.py,script,,,,,,convert_pdfs_to_txt,yes
 scripts/cumulative_fragment_analysis.py,script,,,,,,cumulative_fragment_analysis,yes
+scripts/cumulative_update_merge_full_live_enriched_and_static_all_outputs_fragmented_analysis.py,script,,,,,,cumulative_update_merge_full_live_enrich,yes
 scripts/Delft wyjazd_241017_170643.txt,script,,,,,,Delft_wyjazd_241017_170643,yes
 scripts/Do hab_250403_204509.txt,script,,,,,,Do_hab_250403_204509,yes
 scripts/export_live_research_records.py,script,,,,,,export_live_research_records,yes

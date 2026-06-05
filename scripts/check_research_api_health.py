@@ -22,6 +22,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Callable
 
 _REQUEST_TIMEOUT_SECONDS = 12
 _ERROR_BODY_MAX_BYTES = 512
@@ -186,14 +188,66 @@ def probe_microsoft_graph() -> ProbeResult:
         return ProbeResult("microsoft_graph", "present-but-invalid", str(exc))
 
 
+def probe_google_drive() -> ProbeResult:
+    credentials_path = os.getenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", "")
+    if not credentials_path:
+        return ProbeResult(
+            "google_drive", "missing", "GOOGLE_DRIVE_OAUTH_CREDENTIALS not set"
+        )
+    if not Path(credentials_path).is_file():
+        return ProbeResult(
+            "google_drive",
+            "missing",
+            "GOOGLE_DRIVE_OAUTH_CREDENTIALS does not point to a file",
+        )
+    return ProbeResult("google_drive", "ok", "credentials file found")
+
+
+def _probe_functions() -> dict[str, Callable[[], ProbeResult]]:
+    return {
+        "crossref": probe_crossref,
+        "scopus": probe_scopus,
+        "wos": probe_wos,
+        "scival": probe_scival,
+        "microsoft_graph": probe_microsoft_graph,
+        "google_drive": probe_google_drive,
+    }
+
+
+def _parse_requested_providers(raw_value: str) -> list[str]:
+    probe_functions = _probe_functions()
+    requested = [item.strip().lower() for item in raw_value.split(",") if item.strip()]
+    if not requested:
+        raise ValueError(
+            "--providers must not be empty. Specify one or more provider names."
+        )
+    if "all" in requested:
+        if len(requested) > 1:
+            raise ValueError("--providers=all cannot be combined with other providers.")
+        return list(probe_functions.keys())
+    unknown = sorted({name for name in requested if name not in probe_functions})
+    if unknown:
+        raise ValueError(
+            f"Unknown provider(s): {unknown}. Valid names are: {sorted(probe_functions)}"
+        )
+    return requested
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default="outputs/research_api_health.json")
+    parser.add_argument("--providers", default="all")
     parser.add_argument("--require-valid", action="store_true")
     args = parser.parse_args()
 
-    probes = [probe_crossref, probe_scopus, probe_wos, probe_scival, probe_microsoft_graph]
-    results = [p() for p in probes]
+    try:
+        requested_provider_names = _parse_requested_providers(args.providers)
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+    probe_functions = _probe_functions()
+    results = [probe_functions[name]() for name in requested_provider_names]
 
     print("=== Research API health preflight ===")
     for r in results:
