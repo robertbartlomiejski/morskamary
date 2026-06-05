@@ -23,6 +23,7 @@ import urllib.parse
 import urllib.request
 from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 
 _REQUEST_TIMEOUT_SECONDS = 12
 _ERROR_BODY_MAX_BYTES = 512
@@ -32,9 +33,7 @@ def _is_transient_network_error(exc: Exception) -> bool:
     """Return True for transport-level transient failures."""
     if isinstance(exc, urllib.error.URLError):
         reason = exc.reason
-        if isinstance(
-            reason, (ConnectionResetError, TimeoutError, ConnectionAbortedError)
-        ):
+        if isinstance(reason, (ConnectionResetError, TimeoutError, ConnectionAbortedError)):
             return True
         if isinstance(reason, OSError):
             return True
@@ -105,9 +104,7 @@ def _get_elsevier_key() -> str:
 def probe_scopus() -> ProbeResult:
     key = _get_elsevier_key()
     if not key:
-        return ProbeResult(
-            "scopus", "missing", "ELSEVIER_API_KEY/SCOPUS_API_KEY not set"
-        )
+        return ProbeResult("scopus", "missing", "ELSEVIER_API_KEY/SCOPUS_API_KEY not set")
     query = urllib.parse.quote("TITLE(ocean)")
     url = f"https://api.elsevier.com/content/search/scopus?query={query}&count=1"
     result = _request(url, {"X-ELS-APIKey": key, "Accept": "application/json"})
@@ -139,17 +136,6 @@ def probe_scival() -> ProbeResult:
     result = _request(url, {"X-ELS-APIKey": key, "Accept": "application/json"})
     result.provider = "scival"
     return result
-
-
-def probe_google_drive() -> ProbeResult:
-    credentials_path = os.getenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", "")
-    if credentials_path and os.path.isfile(credentials_path):
-        return ProbeResult("google_drive", "ok", "OAuth credentials configured")
-    return ProbeResult(
-        "google_drive",
-        "present-but-invalid",
-        "GOOGLE_DRIVE_OAUTH_CREDENTIALS not configured",
-    )
 
 
 def probe_microsoft_graph() -> ProbeResult:
@@ -194,78 +180,76 @@ def probe_microsoft_graph() -> ProbeResult:
                 exc.code,
             )
         if _is_rate_limited(exc.code, ""):
-            return ProbeResult(
-                "microsoft_graph", "rate-limited", f"HTTP {exc.code}", exc.code
-            )
-        return ProbeResult(
-            "microsoft_graph", "present-but-invalid", f"HTTP {exc.code}", exc.code
-        )
+            return ProbeResult("microsoft_graph", "rate-limited", f"HTTP {exc.code}", exc.code)
+        return ProbeResult("microsoft_graph", "present-but-invalid", f"HTTP {exc.code}", exc.code)
     except Exception as exc:
         if _is_transient_network_error(exc):
             return ProbeResult("microsoft_graph", "transient-network-error", str(exc))
         return ProbeResult("microsoft_graph", "present-but-invalid", str(exc))
 
 
-_PROBE_REGISTRY: dict[str, Callable[[], ProbeResult]] = {}
+def probe_google_drive() -> ProbeResult:
+    credentials_path = os.getenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", "")
+    if not credentials_path:
+        return ProbeResult(
+            "google_drive", "missing", "GOOGLE_DRIVE_OAUTH_CREDENTIALS not set"
+        )
+    if not Path(credentials_path).is_file():
+        return ProbeResult(
+            "google_drive",
+            "missing",
+            "GOOGLE_DRIVE_OAUTH_CREDENTIALS does not point to a file",
+        )
+    return ProbeResult("google_drive", "ok", "credentials file found")
 
 
-def _register_probe(name: str, fn: Callable[[], ProbeResult]) -> None:
-    _PROBE_REGISTRY[name] = fn
+def _probe_functions() -> dict[str, Callable[[], ProbeResult]]:
+    return {
+        "crossref": probe_crossref,
+        "scopus": probe_scopus,
+        "wos": probe_wos,
+        "scival": probe_scival,
+        "microsoft_graph": probe_microsoft_graph,
+        "google_drive": probe_google_drive,
+    }
+
+
+def _parse_requested_providers(raw_value: str) -> list[str]:
+    probe_functions = _probe_functions()
+    requested = [item.strip().lower() for item in raw_value.split(",") if item.strip()]
+    if not requested:
+        raise ValueError(
+            "--providers must not be empty. Specify one or more provider names."
+        )
+    if "all" in requested:
+        if len(requested) > 1:
+            raise ValueError("--providers=all cannot be combined with other providers.")
+        return list(probe_functions.keys())
+    unknown = sorted({name for name in requested if name not in probe_functions})
+    if unknown:
+        raise ValueError(
+            f"Unknown provider(s): {unknown}. Valid names are: {sorted(probe_functions)}"
+        )
+    if "crossref" not in requested:
+        requested.append("crossref")
+    return requested
 
 
 def main() -> int:
-    _register_probe("crossref", probe_crossref)
-    _register_probe("scopus", probe_scopus)
-    _register_probe("wos", probe_wos)
-    _register_probe("scival", probe_scival)
-    _register_probe("google_drive", probe_google_drive)
-    _register_probe("microsoft_graph", probe_microsoft_graph)
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default="outputs/research_api_health.json")
+    parser.add_argument("--providers", default="all")
     parser.add_argument("--require-valid", action="store_true")
-    parser.add_argument(
-        "--providers",
-        default=None,
-        help=(
-            "Comma-separated list of providers to probe "
-            "(e.g. crossref,scopus,wos). "
-            "Defaults to all known providers when omitted."
-        ),
-    )
     args = parser.parse_args()
 
-    if args.providers is not None:
-        requested = [p.strip().lower() for p in args.providers.split(",") if p.strip()]
-        if not requested:
-            print(
-                "Error: --providers must not be empty. Specify one or more provider names (e.g. crossref).",
-                file=sys.stderr,
-            )
-            return 1
-        if "all" in requested:
-            requested = list(_PROBE_REGISTRY.keys())
-        else:
-            unknown = [p for p in requested if p not in _PROBE_REGISTRY]
-            if unknown:
-                print(
-                    f"WARNING: unknown provider(s) ignored: {', '.join(unknown)}",
-                    file=sys.stderr,
-                )
-            requested = [p for p in requested if p in _PROBE_REGISTRY]
-        if "crossref" not in requested:
-            requested.append("crossref")
-        probes = [_PROBE_REGISTRY[p] for p in requested if p in _PROBE_REGISTRY]
-        if not probes:
-            print(
-                "Error: no known providers selected after filtering unknown names.",
-                file=sys.stderr,
-            )
-            return 1
-    else:
-        probes = list(_PROBE_REGISTRY.values())
+    try:
+        requested_provider_names = _parse_requested_providers(args.providers)
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
 
-    results = [p() for p in probes]
+    probe_functions = _probe_functions()
+    results = [probe_functions[name]() for name in requested_provider_names]
 
     print("=== Research API health preflight ===")
     for r in results:
@@ -281,13 +265,9 @@ def main() -> int:
         json.dump(payload, f, indent=2)
 
     if args.require_valid:
-        invalid = [
-            r for r in results if r.status in {"present-but-invalid", "rate-limited"}
-        ]
+        invalid = [r for r in results if r.status in {"present-but-invalid", "rate-limited"}]
         if invalid:
-            print(
-                "\nFailing preflight due to invalid/rate-limited provider credentials."
-            )
+            print("\nFailing preflight due to invalid/rate-limited provider credentials.")
             return 1
     return 0
 
