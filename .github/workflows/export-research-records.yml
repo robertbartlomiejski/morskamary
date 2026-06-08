@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       providers:
-        description: 'Comma-separated list of providers (e.g., crossref,scopus)'
+        description: 'Comma-separated list of providers (default: CI-safe providers)'
         required: false
-        default: 'crossref,scopus,wos,scival'
+        default: 'crossref,scopus'
       max_results_per_query:
         description: 'Maximum results per query'
         required: false
@@ -48,6 +48,7 @@ jobs:
         if: github.event.inputs.offline != 'true'
         run: |
           python scripts/check_research_api_health.py \
+            --providers "${{ github.event.inputs.providers }}" \
             --require-valid \
             --output outputs/research_api_health.json
 
