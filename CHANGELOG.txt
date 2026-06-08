@@ -28,6 +28,15 @@ Use this section for changes in progress that are not yet merged into the main b
   Impact Preflight now only probes providers that will actually be used; scival and microsoft_graph health checks are skipped on default CI runs.
   Provenance Review comment on PR #176 (comment_id 4626365487).
   Quality checks python scripts/check_research_api_health.py --providers crossref,scopus,wos --output /tmp/health.json (manual smoke-test).
+- 2026-06-08 (export workflow preflight provider scope)
+  Change type fix
+  Scope CI tests governance
+  Files affected .github/workflows/export-research-records.yml tests/test_export_research_records_workflow.py CHANGELOG.txt
+  Summary Scoped the export workflow preflight credential validation to the requested provider list and kept the default providers CI-safe (crossref,scopus). Relaxed regression assertions to verify semantic flags/arguments without brittle line-continuation formatting coupling.
+  Reason The preflight step previously validated optional providers outside the selected export scope, causing avoidable failures. Governance CI also requires changelog traceability for substantive workflow/test updates.
+  Impact Manual and CI-like runs no longer fail due to unrelated provider credentials; regression tests still lock in provider scoping/default behavior while tolerating harmless YAML formatting changes.
+  Provenance PR #178 review feedback and governance-and-repro CI changelog guard.
+  Quality checks python -m pytest tests/test_export_research_records_workflow.py -q; python scripts/changelog_guard.py --base-ref main.
 
 - 2026-06-04 (restrict default providers in full-live-analysis workflow)
   Change type fix
