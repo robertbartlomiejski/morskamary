@@ -16,6 +16,6 @@ def test_export_workflow_uses_ci_safe_provider_defaults() -> None:
 
 
 def test_export_workflow_preflight_scopes_to_requested_providers() -> None:
-    assert "python scripts/check_research_api_health.py \\" in WORKFLOW_TEXT
-    assert '--providers "${{ github.event.inputs.providers }}" \\' in WORKFLOW_TEXT
-    assert "--require-valid \\" in WORKFLOW_TEXT
+    assert "python scripts/check_research_api_health.py" in WORKFLOW_TEXT
+    assert '--providers "${{ github.event.inputs.providers }}"' in WORKFLOW_TEXT
+    assert "--require-valid" in WORKFLOW_TEXT
