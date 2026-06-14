@@ -149,6 +149,38 @@ jobs:
           set -euo pipefail
           python scripts/validate_generated_outputs.py
 
+          python - <<'PY'
+          import json
+          from datetime import datetime, UTC
+          from pathlib import Path
+
+          payload = {
+              "validator": "scripts/validate_generated_outputs.py",
+              "status": "passed",
+              "captured_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
+          }
+          output_path = Path("outputs") / "validation_state.json"
+          output_path.parent.mkdir(parents=True, exist_ok=True)
+          output_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+          print(f"Validation state captured: {output_path}")
+          PY
+
+      - name: Archive full run outputs
+        run: |
+          set -euo pipefail
+          python scripts/archive_run_outputs.py \
+            --repo-root . \
+            --archive-root outputs/run_archive \
+            --run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --workflow-name "${{ github.workflow }}" \
+            --event-name "${{ github.event_name }}" \
+            --git-sha "${{ github.sha }}" \
+            --git-ref "${{ github.ref }}" \
+            --providers "$REQUESTED_PROVIDERS" \
+            --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
+            --offline "$OFFLINE_MODE" \
+            --require-live-records "$REQUIRE_LIVE_RECORDS"
+
       - name: Upload live-enriched analysis outputs
         if: always()
         uses: actions/upload-artifact@v4

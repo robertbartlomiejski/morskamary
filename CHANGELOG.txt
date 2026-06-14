@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-06-14 (durable per-run archive for full live analysis)
+  Change type add
+  Scope scripts CI governance tests
+  Files affected scripts/archive_run_outputs.py .github/workflows/full-live-analysis.yml tests/test_archive_run_outputs.py tests/test_full_live_analysis_workflow.py CHANGELOG.txt
+  Summary Added a dedicated archival script that captures the complete full-live-analysis output set into outputs/run_archive/runs/<run_id>, including checksums, run manifest metadata, and a cumulative JSONL run index. Integrated archival into the full-live-analysis workflow after output validation and persisted validation_state.json for reproducibility context.
+  Reason The repository previously preserved only latest snapshots in outputs/ and short-lived workflow artifacts; methodological requirements need durable, repo-side per-run corpus storage.
+  Impact Existing canonical outputs/ filenames remain unchanged for backward compatibility, while each workflow run now gains an immutable archive copy suitable for longitudinal evidence tracking.
+  Provenance Audit findings on snapshot-only outputs and missing cross-run corpus persistence.
+  Quality checks python -m pytest -q (baseline pass); python -m pytest tests/test_archive_run_outputs.py tests/test_full_live_analysis_workflow.py -q; flake8 src tests (pre-existing unrelated failures); mypy src (pre-existing unrelated failures).
+
 - 2026-06-08 (export workflow preflight provider scope)
   Change type fix
   Scope CI tests governance

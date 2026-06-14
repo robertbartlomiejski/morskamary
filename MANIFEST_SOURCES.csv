@@ -819,6 +819,7 @@ schemas/research_metadata.schema.json,other,,,,,,research_metadata_schema,yes
 scientific_bridge.py,script,,,,,,scientific_bridge,yes
 scripts/40152_2021_Article_238.PDF,script,,,,,,40152_2021_Article_238,no
 scripts/Aaa Hab 4_250621_114734.txt,script,,,,,,Aaa_Hab_4_250621_114734,yes
+scripts/archive_run_outputs.py,script,,,,,,archive_run_outputs,yes
 scripts/assert_cumulative_live_enriched.py,script,,,,,,assert_cumulative_live_enriched,yes
 scripts/audit_research_api_config.py,script,,,,,,audit_research_api_config,yes
 scripts/Blue Bolt Rotterdam _250106_112646.txt,script,,,,,,Blue_Bolt_Rotterdam__250106_112646,yes
@@ -902,6 +903,7 @@ tests/fixtures/empty_competences.csv,dataset_derived,,,,,,empty_competences,yes
 tests/fixtures/invalid_competences.csv,dataset_derived,,,,,,invalid_competences,yes
 tests/fixtures/sample_competences.csv,dataset_derived,,,,,,sample_competences,yes
 tests/fixtures/sample_competences.xlsx,dataset_raw,,,,,,sample_competences,yes
+tests/test_archive_run_outputs.py,script,,,,,,test_archive_run_outputs,yes
 tests/test_axis_classifier.py,script,,,,,,test_axis_classifier,yes
 tests/test_bootstrap_ps1_syntax.py,script,,,,,,test_bootstrap_ps1_syntax,yes
 tests/test_build_derived.py,script,,,,,,test_build_derived,yes
