@@ -14,6 +14,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+MANIFEST_SCHEMA_PATH = "schemas/run_archive_manifest.schema.json"
+
 ARCHIVE_REQUIRED_TARGETS: tuple[str, ...] = (
     "outputs/research_sources",
     "outputs/gaps_summary.csv",
@@ -124,6 +126,20 @@ def _append_run_index(
         handle.write(json.dumps(summary, ensure_ascii=False) + "\n")
 
 
+def _resolve_run_path(archive_root: Path, run_id: str) -> tuple[str, Path]:
+    """Return a non-colliding run directory so previous archives are preserved."""
+    runs_dir = archive_root / "runs"
+    runs_dir.mkdir(parents=True, exist_ok=True)
+    candidate_id = run_id
+    candidate_path = runs_dir / candidate_id
+    suffix = 1
+    while candidate_path.exists():
+        suffix += 1
+        candidate_id = f"{run_id}.{suffix}"
+        candidate_path = runs_dir / candidate_id
+    return candidate_id, candidate_path
+
+
 def archive_run_outputs(
     *,
     repo_root: Path,
@@ -144,10 +160,8 @@ def archive_run_outputs(
         return 1
 
     archive_root.mkdir(parents=True, exist_ok=True)
-    run_dir = archive_root / "runs" / run_id
-    if run_dir.exists():
-        shutil.rmtree(run_dir)
-    run_dir.mkdir(parents=True, exist_ok=True)
+    resolved_run_id, run_dir = _resolve_run_path(archive_root, run_id)
+    run_dir.mkdir(parents=True, exist_ok=False)
 
     copy_targets = list(ARCHIVE_REQUIRED_TARGETS) + [
         rel for rel in ARCHIVE_OPTIONAL_TARGETS if (repo_root / rel).exists()
@@ -160,7 +174,9 @@ def archive_run_outputs(
 
     manifest_path = run_dir / "_run_manifest.json"
     manifest_payload: dict[str, Any] = {
-        "run_id": run_id,
+        "manifest_schema": MANIFEST_SCHEMA_PATH,
+        "requested_run_id": run_id,
+        "run_id": resolved_run_id,
         "archived_at": _now_utc_iso(),
         "archive_root": archive_root.as_posix(),
         "run_path": run_dir.as_posix(),
@@ -184,7 +200,7 @@ def archive_run_outputs(
 
     _append_run_index(
         archive_root=archive_root,
-        run_id=run_id,
+        run_id=resolved_run_id,
         archived_files=archived_files,
         workflow_metadata=workflow_metadata,
     )

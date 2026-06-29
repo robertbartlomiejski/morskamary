@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/run_archive_manifest.schema.json",
+  "title": "Run Archive Manifest",
+  "type": "object",
+  "required": [
+    "manifest_schema",
+    "requested_run_id",
+    "run_id",
+    "archived_at",
+    "archive_root",
+    "run_path",
+    "copied_targets",
+    "file_count",
+    "total_bytes",
+    "workflow",
+    "files"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "manifest_schema": {
+      "type": "string",
+      "const": "schemas/run_archive_manifest.schema.json"
+    },
+    "requested_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "archived_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "archive_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "copied_targets": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "file_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "total_bytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "workflow": {
+      "type": "object",
+      "required": [
+        "name",
+        "event",
+        "git_sha",
+        "git_ref",
+        "inputs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "event": {
+          "type": "string"
+        },
+        "git_sha": {
+          "type": "string"
+        },
+        "git_ref": {
+          "type": "string"
+        },
+        "inputs": {
+          "type": "object",
+          "required": [
+            "providers",
+            "max_results_per_query",
+            "offline",
+            "require_live_records"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "providers": {
+              "type": "string"
+            },
+            "max_results_per_query": {
+              "type": "string"
+            },
+            "offline": {
+              "type": "string"
+            },
+            "require_live_records": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "size_bytes",
+          "sha256"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    }
+  }
+}

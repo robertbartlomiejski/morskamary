@@ -188,6 +188,7 @@ jobs:
           name: live-enriched-analysis-outputs
           path: |
             outputs/
+            outputs/run_archive/
             data/derived/
           if-no-files-found: warn
           retention-days: 30
@@ -220,7 +221,7 @@ jobs:
           git config user.name "morskamary-bot"
           git config user.email "actions@github.com"
 
-          git add outputs/
+          git add outputs/ outputs/run_archive/
           if git diff --cached --quiet; then
             echo "No output changes to commit."
             exit 0
