@@ -176,10 +176,15 @@ jobs:
             --event-name "${{ github.event_name }}" \
             --git-sha "${{ github.sha }}" \
             --git-ref "${{ github.ref }}" \
+            --github-run-id "${{ github.run_id }}" \
+            --github-run-attempt "${{ github.run_attempt }}" \
+            --github-run-number "${{ github.run_number }}" \
+            --github-job "$GITHUB_JOB" \
             --providers "$REQUESTED_PROVIDERS" \
             --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
             --offline "$OFFLINE_MODE" \
-            --require-live-records "$REQUIRE_LIVE_RECORDS"
+            --require-live-records "$REQUIRE_LIVE_RECORDS" \
+            --query-file config/research_queries.yml
 
       - name: Validate archived run integrity
         run: |

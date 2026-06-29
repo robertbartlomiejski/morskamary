@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import re
@@ -14,8 +15,39 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 MANIFEST_SCHEMA_PATH = "schemas/run_archive_manifest.schema.json"
+CANONICAL_MANIFEST_FILENAME = "manifest.json"
 RUN_MANIFEST_FILENAME = "run_manifest.json"
 LEGACY_RUN_MANIFEST_FILENAME = "_run_manifest.json"
+INDEX_CSV_FILENAME = "cumulative_runs_index.csv"
+INDEX_CSV_REQUIRED_COLUMNS: tuple[str, ...] = (
+    "timestamp_utc",
+    "run_id",
+    "run_path",
+    "github_run_id",
+    "github_run_attempt",
+    "github_run_number",
+    "github_job",
+    "workflow_name",
+    "event_name",
+    "commit_sha",
+    "branch_ref",
+    "providers",
+    "max_results_per_query",
+    "offline",
+    "require_live_records",
+    "query_file_sha256",
+    "live_records_count",
+    "triangulated_records_count",
+    "cumulative_qmbd_records_count",
+    "competences_total",
+    "baseline_count",
+    "static_literature_count",
+    "live_enrichment_count",
+    "gaps_summary_available",
+    "credentials_count",
+    "file_count",
+    "total_bytes",
+)
 CHECKSUM_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 CHECKSUM_SEPARATOR = "  "
 
@@ -68,6 +100,7 @@ def _parse_checksums(path: Path) -> tuple[dict[str, str], list[str]]:
 
 def _collect_archived_paths(run_dir: Path) -> list[Path]:
     ignored = {
+        CANONICAL_MANIFEST_FILENAME,
         RUN_MANIFEST_FILENAME,
         LEGACY_RUN_MANIFEST_FILENAME,
         "_checksums.sha256",
@@ -92,16 +125,20 @@ def _validate_one_run(
     run_id = run_dir.name
     errors: list[str] = []
 
-    manifest_path = run_dir / RUN_MANIFEST_FILENAME
+    manifest_path = run_dir / CANONICAL_MANIFEST_FILENAME
+    compat_manifest_path = run_dir / RUN_MANIFEST_FILENAME
     legacy_manifest_path = run_dir / LEGACY_RUN_MANIFEST_FILENAME
     checksums_path = run_dir / "_checksums.sha256"
 
     if not manifest_path.is_file():
-        if legacy_manifest_path.is_file():
+        if compat_manifest_path.is_file():
+            manifest_path = compat_manifest_path
+        elif legacy_manifest_path.is_file():
             manifest_path = legacy_manifest_path
         else:
             errors.append(
-                f"{run_dir}: missing {RUN_MANIFEST_FILENAME} (or legacy {LEGACY_RUN_MANIFEST_FILENAME})"
+                f"{run_dir}: missing {CANONICAL_MANIFEST_FILENAME} "
+                f"(or compatibility {RUN_MANIFEST_FILENAME}/{LEGACY_RUN_MANIFEST_FILENAME})"
             )
             return run_id, errors
     if not checksums_path.is_file():
@@ -203,7 +240,7 @@ def _validate_one_run(
     return run_id, errors
 
 
-def _validate_index(archive_root: Path, run_ids: set[str]) -> list[str]:
+def _validate_index_jsonl(archive_root: Path, run_ids: set[str]) -> list[str]:
     errors: list[str] = []
     index_path = archive_root / "_index" / "runs_index.jsonl"
     if not index_path.is_file():
@@ -239,6 +276,64 @@ def _validate_index(archive_root: Path, run_ids: set[str]) -> list[str]:
     if missing:
         errors.append(
             f"{index_path}: missing index entries for run ids: {', '.join(missing)}"
+        )
+    return errors
+
+
+def _validate_index_csv(
+    archive_root: Path,
+    run_ids: set[str],
+    expected_run_paths: dict[str, str],
+) -> list[str]:
+    errors: list[str] = []
+    csv_path = archive_root / INDEX_CSV_FILENAME
+    if not csv_path.is_file():
+        return [f"{csv_path}: missing cumulative run index file"]
+
+    try:
+        with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.DictReader(handle)
+            fieldnames = tuple(reader.fieldnames or ())
+            missing_columns = [
+                column
+                for column in INDEX_CSV_REQUIRED_COLUMNS
+                if column not in fieldnames
+            ]
+            if missing_columns:
+                errors.append(
+                    f"{csv_path}: missing required columns: {', '.join(missing_columns)}"
+                )
+                return errors
+
+            rows = list(reader)
+    except OSError as exc:
+        return [f"{csv_path}: cannot read CSV index ({exc})"]
+    except csv.Error as exc:
+        return [f"{csv_path}: invalid CSV ({exc})"]
+
+    if not rows:
+        return [f"{csv_path}: expected at least one index entry"]
+
+    indexed_runs: set[str] = set()
+    for row_number, row in enumerate(rows, start=2):
+        run_id = str(row.get("run_id", "")).strip()
+        run_path = str(row.get("run_path", "")).strip()
+        if not run_id:
+            continue
+        if run_id in run_ids:
+            expected_path = expected_run_paths.get(run_id, "")
+            if run_path != expected_path:
+                errors.append(
+                    f"{csv_path}: inconsistent run_path for run_id '{run_id}' on line "
+                    f"{row_number} (expected {expected_path}, got {run_path})"
+                )
+                continue
+            indexed_runs.add(run_id)
+
+    missing = sorted(run_id for run_id in run_ids if run_id not in indexed_runs)
+    if missing:
+        errors.append(
+            f"{csv_path}: missing index entries for run ids: {', '.join(missing)}"
         )
     return errors
 
@@ -310,12 +405,15 @@ def main(argv: list[str] | None = None) -> int:
 
     all_errors: list[str] = []
     run_ids: set[str] = set()
+    expected_run_paths: dict[str, str] = {}
     for run_dir in run_dirs:
         run_id, run_errors = _validate_one_run(run_dir, validator)
         run_ids.add(run_id)
+        expected_run_paths[run_id] = run_dir.resolve().as_posix()
         all_errors.extend(run_errors)
 
-    all_errors.extend(_validate_index(archive_root, run_ids))
+    all_errors.extend(_validate_index_jsonl(archive_root, run_ids))
+    all_errors.extend(_validate_index_csv(archive_root, run_ids, expected_run_paths))
 
     if all_errors:
         print("Run archive integrity validation FAILED:")

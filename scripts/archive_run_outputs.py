@@ -124,10 +124,21 @@ def _count_json_records(path: Path) -> int:
     if isinstance(payload, list):
         return len(payload)
     if isinstance(payload, dict):
-        if isinstance(payload.get("records"), list):
-            return len(payload["records"])
-        if isinstance(payload.get("items"), list):
-            return len(payload["items"])
+        if path.name == "credentials_database.json" and isinstance(
+            payload.get("credentials"), list
+        ):
+            return len(payload["credentials"])
+        for key in (
+            "records",
+            "items",
+            "credentials",
+            "competences",
+            "baseline",
+            "literature",
+        ):
+            value = payload.get(key)
+            if isinstance(value, list):
+                return len(value)
         return len(payload)
     raise ValueError(f"Unsupported JSON payload type in {path}: {type(payload).__name__}")
 
