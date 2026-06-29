@@ -283,7 +283,7 @@ def _validate_index_jsonl(archive_root: Path, run_ids: set[str]) -> list[str]:
 def _validate_index_csv(
     archive_root: Path,
     run_ids: set[str],
-    expected_run_paths: dict[str, str],
+    expected_run_paths: dict[str, tuple[str, str]],
 ) -> list[str]:
     errors: list[str] = []
     csv_path = archive_root / INDEX_CSV_FILENAME
@@ -321,11 +321,11 @@ def _validate_index_csv(
         if not run_id:
             continue
         if run_id in run_ids:
-            expected_path = expected_run_paths.get(run_id, "")
-            if run_path != expected_path:
+            expected_relative, expected_absolute = expected_run_paths.get(run_id, ("", ""))
+            if run_path not in {expected_relative, expected_absolute}:
                 errors.append(
                     f"{csv_path}: inconsistent run_path for run_id '{run_id}' on line "
-                    f"{row_number} (expected {expected_path}, got {run_path})"
+                    f"{row_number} (expected {expected_relative}, got {run_path})"
                 )
                 continue
             indexed_runs.add(run_id)
@@ -405,11 +405,14 @@ def main(argv: list[str] | None = None) -> int:
 
     all_errors: list[str] = []
     run_ids: set[str] = set()
-    expected_run_paths: dict[str, str] = {}
+    expected_run_paths: dict[str, tuple[str, str]] = {}
     for run_dir in run_dirs:
         run_id, run_errors = _validate_one_run(run_dir, validator)
         run_ids.add(run_id)
-        expected_run_paths[run_id] = run_dir.resolve().as_posix()
+        expected_run_paths[run_id] = (
+            f"runs/{run_id}",
+            run_dir.resolve().as_posix(),
+        )
         all_errors.extend(run_errors)
 
     all_errors.extend(_validate_index_jsonl(archive_root, run_ids))

@@ -366,6 +366,10 @@ def _resolve_run_path(archive_root: Path, run_id: str) -> tuple[str, Path]:
     return candidate_id, candidate_path
 
 
+def _archive_relative_run_path(run_id: str) -> str:
+    return (Path("runs") / run_id).as_posix()
+
+
 def archive_run_outputs(
     *,
     repo_root: Path,
@@ -415,7 +419,7 @@ def archive_run_outputs(
         "timestamp_utc": timestamp_utc,
         "archived_at": timestamp_utc,
         "archive_root": archive_root.as_posix(),
-        "run_path": run_dir.as_posix(),
+        "run_path": _archive_relative_run_path(resolved_run_id),
         "copied_targets": copy_targets,
         "file_count": len(archived_files),
         "total_bytes": sum(item.size_bytes for item in archived_files),

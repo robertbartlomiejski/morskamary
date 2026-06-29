@@ -226,6 +226,24 @@ def test_validate_run_archive_integrity_requires_consistent_cumulative_csv_run_p
     assert _validate_archive(tmp_path) == 1
 
 
+def test_validate_run_archive_integrity_accepts_legacy_absolute_cumulative_csv_run_path(
+    tmp_path: Path,
+) -> None:
+    run_dir = _create_archive(tmp_path, run_id="run-csv-legacy-abs")
+    csv_path = tmp_path / "outputs" / "run_archive" / "cumulative_runs_index.csv"
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = list(rows[0].keys())
+
+    rows[-1]["run_path"] = run_dir.resolve().as_posix()
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert _validate_archive(tmp_path) == 0
+
+
 def test_validate_run_archive_integrity_accepts_legacy_manifest_filename(
     tmp_path: Path,
 ) -> None:

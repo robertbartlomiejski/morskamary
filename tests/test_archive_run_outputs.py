@@ -185,6 +185,7 @@ def test_archive_run_outputs_creates_full_run_archive(tmp_path: Path) -> None:
 
     assert manifest["run_id"] == "run-123-1"
     assert manifest["requested_run_id"] == "run-123-1"
+    assert manifest["run_path"] == "runs/run-123-1"
     assert manifest["manifest_schema"] == "schemas/run_archive_manifest.schema.json"
     assert manifest["workflow"]["name"] == "Full Live-Enriched Analysis"
     assert manifest["workflow"]["inputs"]["providers"] == "crossref,scopus,wos"
@@ -226,7 +227,7 @@ def test_archive_run_outputs_creates_full_run_archive(tmp_path: Path) -> None:
     assert rows
     csv_latest = rows[-1]
     assert csv_latest["run_id"] == "run-123-1"
-    assert csv_latest["run_path"] == run_dir.resolve().as_posix()
+    assert csv_latest["run_path"] == "runs/run-123-1"
     assert csv_latest["query_file_sha256"] == expected_metrics["query_file_sha256"]
     assert csv_latest["credentials_count"] == str(expected_metrics["credentials_count"])
 
