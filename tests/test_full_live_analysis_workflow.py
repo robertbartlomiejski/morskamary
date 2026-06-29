@@ -41,5 +41,7 @@ def test_workflow_archives_full_run_outputs_into_run_archive() -> None:
     assert "python scripts/archive_run_outputs.py" in WORKFLOW_TEXT
     assert "--archive-root outputs/run_archive" in WORKFLOW_TEXT
     assert '--run-id "${{ github.run_id }}-${{ github.run_attempt }}"' in WORKFLOW_TEXT
+    assert "python scripts/validate_run_archive_integrity.py" in WORKFLOW_TEXT
+    assert "--require-present" in WORKFLOW_TEXT
     assert "validation_state.json" in WORKFLOW_TEXT
     assert "outputs/run_archive/" in WORKFLOW_TEXT

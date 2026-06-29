@@ -816,6 +816,7 @@ README.md,governance,,,,,,README,yes
 requirements.txt,script,,,,,,requirements,yes
 run_full_analysis.py,script,,,,,,run_full_analysis,yes
 schemas/research_metadata.schema.json,other,,,,,,research_metadata_schema,yes
+schemas/run_archive_manifest.schema.json,other,,,,,,run_archive_manifest_schema,yes
 scientific_bridge.py,script,,,,,,scientific_bridge,yes
 scripts/40152_2021_Article_238.PDF,script,,,,,,40152_2021_Article_238,no
 scripts/Aaa Hab 4_250621_114734.txt,script,,,,,,Aaa_Hab_4_250621_114734,yes
@@ -863,6 +864,7 @@ scripts/sync_audit.py,script,,,,,,sync_audit,yes
 scripts/Tripatle Blue Value Model WOW.txt,script,,,,,,Tripatle_Blue_Value_Model_WOW,yes
 scripts/validate_generated_outputs.py,script,,,,,,validate_generated_outputs,yes
 scripts/validate_research_source_outputs.py,script,,,,,,validate_research_source_outputs,yes
+scripts/validate_run_archive_integrity.py,script,,,,,,validate_run_archive_integrity,yes
 scripts/Wyrzucone przez morze_250521_002507.txt,script,,,,,,Wyrzucone_przez_morze_250521_002507,yes
 SECURITY.md,text,,,,,,SECURITY,yes
 security/security-checklist.md,text,,,,,,security_checklist,yes
@@ -910,6 +912,7 @@ tests/test_build_derived.py,script,,,,,,test_build_derived,yes
 tests/test_build_tmbd_dictionary.py,script,,,,,,test_build_tmbd_dictionary,yes
 tests/test_changelog_guard.py,script,,,,,,test_changelog_guard,yes
 tests/test_check_research_api_health.py,script,,,,,,test_check_research_api_health,yes
+tests/test_ci_workflow.py,script,,,,,,test_ci_workflow,yes
 tests/test_competence_repository.py,script,,,,,,test_competence_repository,yes
 tests/test_convert_pdfs_to_txt.py,script,,,,,,test_convert_pdfs_to_txt,yes
 tests/test_core.py,script,,,,,,test_core,yes
@@ -937,3 +940,4 @@ tests/test_smoke_scientific_bridge.py,script,,,,,,test_smoke_scientific_bridge,y
 tests/test_stage2_schema.py,script,,,,,,test_stage2_schema,yes
 tests/test_sync_audit.py,script,,,,,,test_sync_audit,yes
 tests/test_validate_generated_outputs.py,script,,,,,,test_validate_generated_outputs,yes
+tests/test_validate_run_archive_integrity.py,script,,,,,,test_validate_run_archive_integrity,yes

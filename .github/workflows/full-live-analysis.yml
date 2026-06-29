@@ -181,6 +181,13 @@ jobs:
             --offline "$OFFLINE_MODE" \
             --require-live-records "$REQUIRE_LIVE_RECORDS"
 
+      - name: Validate archived run integrity
+        run: |
+          set -euo pipefail
+          python scripts/validate_run_archive_integrity.py \
+            --archive-root outputs/run_archive \
+            --require-present
+
       - name: Upload live-enriched analysis outputs
         if: always()
         uses: actions/upload-artifact@v4

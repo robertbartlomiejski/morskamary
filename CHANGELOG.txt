@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-06-29 (run archive integrity enforcement in workflow and CI)
+  Change type add
+  Scope scripts CI tests governance
+  Files affected scripts/validate_run_archive_integrity.py .github/workflows/full-live-analysis.yml .github/workflows/ci.yml tests/test_validate_run_archive_integrity.py tests/test_full_live_analysis_workflow.py tests/test_ci_workflow.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Added a dedicated validator for `outputs/run_archive/` that verifies manifest schema conformance, checksum correctness, file metadata consistency, and run index coverage for every archived run. Integrated this validator into full-live-analysis (strict presence required) and CI quick-mode gate (validate when archive exists) so archive corruption or drift is blocked by automation.
+  Reason PR-2 requires explicit validation and enforcement of run archive integrity instead of relying only on archive creation.
+  Impact CI now fails fast on corrupted/mutated archived artifacts; full-live-analysis confirms archive integrity immediately after writing archival outputs.
+  Provenance PR-2 requirement: walidacja i egzekwowanie integralności outputs/run_archive/ w workflow/CI.
+  Quality checks python -m pytest -q (baseline pass before changes); python -m pytest tests/test_validate_run_archive_integrity.py tests/test_full_live_analysis_workflow.py tests/test_ci_workflow.py -q; python -m pytest tests/ -q; python scripts/generate_manifest.py; flake8 src tests scripts (pre-existing unrelated failures); mypy src (pre-existing unrelated failures).
+
 - 2026-06-14 (durable per-run archive for full live analysis)
   Change type add
   Scope scripts CI governance tests
