@@ -19,6 +19,36 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-06-29 (run archive manifest filename alignment)
+  Change type fix
+  Scope scripts tests governance
+  Files affected scripts/archive_run_outputs.py scripts/validate_run_archive_integrity.py tests/test_archive_run_outputs.py tests/test_validate_run_archive_integrity.py CHANGELOG.txt
+  Summary Updated run-archive manifest naming from `_run_manifest.json` to canonical `run_manifest.json` to match the agreed archive schema. Kept validator backward compatibility by accepting legacy `_run_manifest.json` in existing archives.
+  Reason PR review flagged manifest filename mismatch against acceptance criteria for `outputs/run_archive/`.
+  Impact New archives follow canonical filename while historical archives remain verifiable without migration.
+  Provenance PR-1 review verdict: manifest filename does not meet agreed schema.
+  Quality checks python -m pytest tests/test_archive_run_outputs.py tests/test_validate_run_archive_integrity.py tests/test_full_live_analysis_workflow.py tests/test_ci_workflow.py -q; python -m pytest tests/ -q; flake8 src tests scripts (pre-existing unrelated failures); mypy src (pre-existing unrelated failures).
+
+- 2026-06-29 (run archive integrity enforcement in workflow and CI)
+  Change type add
+  Scope scripts CI tests governance
+  Files affected scripts/validate_run_archive_integrity.py .github/workflows/full-live-analysis.yml .github/workflows/ci.yml tests/test_validate_run_archive_integrity.py tests/test_full_live_analysis_workflow.py tests/test_ci_workflow.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Added a dedicated validator for `outputs/run_archive/` that verifies manifest schema conformance, checksum correctness, file metadata consistency, and run index coverage for every archived run. Integrated this validator into full-live-analysis (strict presence required) and CI quick-mode gate (validate when archive exists) so archive corruption or drift is blocked by automation.
+  Reason PR-2 requires explicit validation and enforcement of run archive integrity instead of relying only on archive creation.
+  Impact CI now fails fast on corrupted/mutated archived artifacts; full-live-analysis confirms archive integrity immediately after writing archival outputs.
+  Provenance PR-2 requirement: walidacja i egzekwowanie integralności outputs/run_archive/ w workflow/CI.
+  Quality checks python -m pytest -q (baseline pass before changes); python -m pytest tests/test_validate_run_archive_integrity.py tests/test_full_live_analysis_workflow.py tests/test_ci_workflow.py -q; python -m pytest tests/ -q; python scripts/generate_manifest.py; flake8 src tests scripts (pre-existing unrelated failures); mypy src (pre-existing unrelated failures).
+
+- 2026-06-14 (durable per-run archive for full live analysis)
+  Change type add
+  Scope scripts CI governance tests
+  Files affected scripts/archive_run_outputs.py .github/workflows/full-live-analysis.yml tests/test_archive_run_outputs.py tests/test_full_live_analysis_workflow.py CHANGELOG.txt
+  Summary Added a dedicated archival script that captures the complete full-live-analysis output set into outputs/run_archive/runs/<run_id>, including checksums, run manifest metadata, and a cumulative JSONL run index. Integrated archival into the full-live-analysis workflow after output validation and persisted validation_state.json for reproducibility context.
+  Reason The repository previously preserved only latest snapshots in outputs/ and short-lived workflow artifacts; methodological requirements need durable, repo-side per-run corpus storage.
+  Impact Existing canonical outputs/ filenames remain unchanged for backward compatibility, while each workflow run now gains an immutable archive copy suitable for longitudinal evidence tracking.
+  Provenance Audit findings on snapshot-only outputs and missing cross-run corpus persistence.
+  Quality checks python -m pytest -q (baseline pass); python -m pytest tests/test_archive_run_outputs.py tests/test_full_live_analysis_workflow.py -q; flake8 src tests (pre-existing unrelated failures); mypy src (pre-existing unrelated failures).
+
 - 2026-06-08 (export workflow preflight provider scope)
   Change type fix
   Scope CI tests governance

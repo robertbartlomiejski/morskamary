@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/run_archive_manifest.schema.json",
+  "title": "Run Archive Manifest",
+  "type": "object",
+  "required": [
+    "manifest_schema",
+    "requested_run_id",
+    "run_id",
+    "timestamp_utc",
+    "archived_at",
+    "archive_root",
+    "run_path",
+    "copied_targets",
+    "file_count",
+    "total_bytes",
+    "workflow",
+    "workflow_name",
+    "event_name",
+    "commit_sha",
+    "branch_ref",
+    "github_run_id",
+    "github_run_attempt",
+    "github_run_number",
+    "github_job",
+    "providers",
+    "max_results_per_query",
+    "offline",
+    "require_live_records",
+    "query_file_sha256",
+    "live_records_count",
+    "triangulated_records_count",
+    "cumulative_qmbd_records_count",
+    "competences_total",
+    "baseline_count",
+    "static_literature_count",
+    "live_enrichment_count",
+    "gaps_summary_available",
+    "credentials_count",
+    "files"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "manifest_schema": {
+      "type": "string",
+      "const": "schemas/run_archive_manifest.schema.json"
+    },
+    "requested_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "minLength": 1
+    },
+    "archived_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "archive_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "copied_targets": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "file_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "total_bytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "workflow": {
+      "type": "object",
+      "required": [
+        "name",
+        "event",
+        "git_sha",
+        "git_ref",
+        "github_run_id",
+        "github_run_attempt",
+        "github_run_number",
+        "github_job",
+        "query_file",
+        "inputs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "event": { "type": "string" },
+        "git_sha": { "type": "string" },
+        "git_ref": { "type": "string" },
+        "github_run_id": { "type": "string" },
+        "github_run_attempt": { "type": "string" },
+        "github_run_number": { "type": "string" },
+        "github_job": { "type": "string" },
+        "query_file": { "type": "string", "minLength": 1 },
+        "inputs": {
+          "type": "object",
+          "required": [
+            "providers",
+            "max_results_per_query",
+            "offline",
+            "require_live_records"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "providers": { "type": "string" },
+            "max_results_per_query": { "type": "string" },
+            "offline": { "type": "string" },
+            "require_live_records": { "type": "string" }
+          }
+        }
+      }
+    },
+    "workflow_name": { "type": "string" },
+    "event_name": { "type": "string" },
+    "commit_sha": { "type": "string" },
+    "branch_ref": { "type": "string" },
+    "github_run_id": { "type": "string" },
+    "github_run_attempt": { "type": "string" },
+    "github_run_number": { "type": "string" },
+    "github_job": { "type": "string" },
+    "providers": { "type": "string" },
+    "max_results_per_query": { "type": "string" },
+    "offline": { "type": "string" },
+    "require_live_records": { "type": "string" },
+    "query_file_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "live_records_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "triangulated_records_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "cumulative_qmbd_records_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "competences_total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "baseline_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "static_literature_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "live_enrichment_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "gaps_summary_available": {
+      "type": "boolean"
+    },
+    "credentials_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "size_bytes", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    }
+  }
+}
