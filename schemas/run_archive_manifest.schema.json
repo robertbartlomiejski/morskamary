@@ -7,6 +7,7 @@
     "manifest_schema",
     "requested_run_id",
     "run_id",
+    "timestamp_utc",
     "archived_at",
     "archive_root",
     "run_path",
@@ -14,6 +15,28 @@
     "file_count",
     "total_bytes",
     "workflow",
+    "workflow_name",
+    "event_name",
+    "commit_sha",
+    "branch_ref",
+    "github_run_id",
+    "github_run_attempt",
+    "github_run_number",
+    "github_job",
+    "providers",
+    "max_results_per_query",
+    "offline",
+    "require_live_records",
+    "query_file_sha256",
+    "live_records_count",
+    "triangulated_records_count",
+    "cumulative_qmbd_records_count",
+    "competences_total",
+    "baseline_count",
+    "static_literature_count",
+    "live_enrichment_count",
+    "gaps_summary_available",
+    "credentials_count",
     "files"
   ],
   "additionalProperties": false,
@@ -27,6 +50,10 @@
       "minLength": 1
     },
     "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp_utc": {
       "type": "string",
       "minLength": 1
     },
@@ -64,22 +91,24 @@
         "event",
         "git_sha",
         "git_ref",
+        "github_run_id",
+        "github_run_attempt",
+        "github_run_number",
+        "github_job",
+        "query_file",
         "inputs"
       ],
       "additionalProperties": false,
       "properties": {
-        "name": {
-          "type": "string"
-        },
-        "event": {
-          "type": "string"
-        },
-        "git_sha": {
-          "type": "string"
-        },
-        "git_ref": {
-          "type": "string"
-        },
+        "name": { "type": "string" },
+        "event": { "type": "string" },
+        "git_sha": { "type": "string" },
+        "git_ref": { "type": "string" },
+        "github_run_id": { "type": "string" },
+        "github_run_attempt": { "type": "string" },
+        "github_run_number": { "type": "string" },
+        "github_job": { "type": "string" },
+        "query_file": { "type": "string", "minLength": 1 },
         "inputs": {
           "type": "object",
           "required": [
@@ -90,31 +119,70 @@
           ],
           "additionalProperties": false,
           "properties": {
-            "providers": {
-              "type": "string"
-            },
-            "max_results_per_query": {
-              "type": "string"
-            },
-            "offline": {
-              "type": "string"
-            },
-            "require_live_records": {
-              "type": "string"
-            }
+            "providers": { "type": "string" },
+            "max_results_per_query": { "type": "string" },
+            "offline": { "type": "string" },
+            "require_live_records": { "type": "string" }
           }
         }
       }
+    },
+    "workflow_name": { "type": "string" },
+    "event_name": { "type": "string" },
+    "commit_sha": { "type": "string" },
+    "branch_ref": { "type": "string" },
+    "github_run_id": { "type": "string" },
+    "github_run_attempt": { "type": "string" },
+    "github_run_number": { "type": "string" },
+    "github_job": { "type": "string" },
+    "providers": { "type": "string" },
+    "max_results_per_query": { "type": "string" },
+    "offline": { "type": "string" },
+    "require_live_records": { "type": "string" },
+    "query_file_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "live_records_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "triangulated_records_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "cumulative_qmbd_records_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "competences_total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "baseline_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "static_literature_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "live_enrichment_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "gaps_summary_available": {
+      "type": "boolean"
+    },
+    "credentials_count": {
+      "type": "integer",
+      "minimum": 0
     },
     "files": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "path",
-          "size_bytes",
-          "sha256"
-        ],
+        "required": ["path", "size_bytes", "sha256"],
         "additionalProperties": false,
         "properties": {
           "path": {
