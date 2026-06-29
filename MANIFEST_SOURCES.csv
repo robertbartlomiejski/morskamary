@@ -828,6 +828,7 @@ scripts/Blue Mind_250421_094727.txt,script,,,,,,Blue_Mind_250421_094727,yes
 scripts/bootstrap_research_secrets.ps1,script,,,,,,bootstrap_research_secrets,no
 scripts/bootstrap_research_secrets.sh,script,,,,,,bootstrap_research_secrets,no
 scripts/Breguła Weird Szczecin_250412_101024.txt,script,,,,,,Breguła_Weird_Szczecin_250412_101024,yes
+scripts/build_cross_run_evidence_index.py,script,,,,,,build_cross_run_evidence_index,yes
 scripts/build_derived.py,script,,,,,,build_derived,yes
 scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,yes
 scripts/changelog_guard.py,script,,,,,,changelog_guard,yes
@@ -908,6 +909,7 @@ tests/fixtures/sample_competences.xlsx,dataset_raw,,,,,,sample_competences,yes
 tests/test_archive_run_outputs.py,script,,,,,,test_archive_run_outputs,yes
 tests/test_axis_classifier.py,script,,,,,,test_axis_classifier,yes
 tests/test_bootstrap_ps1_syntax.py,script,,,,,,test_bootstrap_ps1_syntax,yes
+tests/test_build_cross_run_evidence_index.py,script,,,,,,test_build_cross_run_evidence_index,yes
 tests/test_build_derived.py,script,,,,,,test_build_derived,yes
 tests/test_build_tmbd_dictionary.py,script,,,,,,test_build_tmbd_dictionary,yes
 tests/test_changelog_guard.py,script,,,,,,test_changelog_guard,yes

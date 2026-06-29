@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-06-29 (cross-run cumulative evidence index tables from run archive)
+  Change type add
+  Scope scripts tests governance
+  Files affected scripts/build_cross_run_evidence_index.py tests/test_build_cross_run_evidence_index.py CHANGELOG.txt
+  Summary Added `scripts/build_cross_run_evidence_index.py` to generate cross-run longitudinal evidence tables directly from archived run artifacts (`manifest.json`, `research_sources/live_records*.json`, `analysis_outputs/cumulative_qmbd_records.json`) and `outputs/run_archive/cumulative_runs_index.csv`. The script outputs run summary, per-occurrence evidence rows, deduplicated cross-run evidence index, and a build report JSON for statistical workflows.
+  Reason PR-2 requires a stable cross-run empirical evidence layer built from the methodological run archive before any PR-3 gap-model refactoring.
+  Impact Introduces reproducible archive-derived cumulative evidence tables without changing existing gap analysis logic or EQF/micro-credential generation paths.
+  Provenance PR-2 requirement: build cross-run cumulative evidence index from archived runs under `outputs/run_archive/runs/*`.
+  Quality checks python -m pytest tests/test_build_cross_run_evidence_index.py -q; python -m pytest tests/ -q; flake8 src tests scripts (pre-existing unrelated failures); mypy src (pre-existing unrelated failures).
+
 - 2026-06-29 (run archive manifest filename alignment)
   Change type fix
   Scope scripts tests governance
