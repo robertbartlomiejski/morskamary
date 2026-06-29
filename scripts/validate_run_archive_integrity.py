@@ -14,6 +14,8 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 MANIFEST_SCHEMA_PATH = "schemas/run_archive_manifest.schema.json"
+RUN_MANIFEST_FILENAME = "run_manifest.json"
+LEGACY_RUN_MANIFEST_FILENAME = "_run_manifest.json"
 CHECKSUM_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 CHECKSUM_SEPARATOR = "  "
 
@@ -65,7 +67,11 @@ def _parse_checksums(path: Path) -> tuple[dict[str, str], list[str]]:
 
 
 def _collect_archived_paths(run_dir: Path) -> list[Path]:
-    ignored = {"_run_manifest.json", "_checksums.sha256"}
+    ignored = {
+        RUN_MANIFEST_FILENAME,
+        LEGACY_RUN_MANIFEST_FILENAME,
+        "_checksums.sha256",
+    }
     return sorted(
         item
         for item in run_dir.rglob("*")
@@ -86,12 +92,18 @@ def _validate_one_run(
     run_id = run_dir.name
     errors: list[str] = []
 
-    manifest_path = run_dir / "_run_manifest.json"
+    manifest_path = run_dir / RUN_MANIFEST_FILENAME
+    legacy_manifest_path = run_dir / LEGACY_RUN_MANIFEST_FILENAME
     checksums_path = run_dir / "_checksums.sha256"
 
     if not manifest_path.is_file():
-        errors.append(f"{run_dir}: missing _run_manifest.json")
-        return run_id, errors
+        if legacy_manifest_path.is_file():
+            manifest_path = legacy_manifest_path
+        else:
+            errors.append(
+                f"{run_dir}: missing {RUN_MANIFEST_FILENAME} (or legacy {LEGACY_RUN_MANIFEST_FILENAME})"
+            )
+            return run_id, errors
     if not checksums_path.is_file():
         errors.append(f"{run_dir}: missing _checksums.sha256")
         return run_id, errors

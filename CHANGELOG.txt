@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-06-29 (run archive manifest filename alignment)
+  Change type fix
+  Scope scripts tests governance
+  Files affected scripts/archive_run_outputs.py scripts/validate_run_archive_integrity.py tests/test_archive_run_outputs.py tests/test_validate_run_archive_integrity.py CHANGELOG.txt
+  Summary Updated run-archive manifest naming from `_run_manifest.json` to canonical `run_manifest.json` to match the agreed archive schema. Kept validator backward compatibility by accepting legacy `_run_manifest.json` in existing archives.
+  Reason PR review flagged manifest filename mismatch against acceptance criteria for `outputs/run_archive/`.
+  Impact New archives follow canonical filename while historical archives remain verifiable without migration.
+  Provenance PR-1 review verdict: manifest filename does not meet agreed schema.
+  Quality checks python -m pytest tests/test_archive_run_outputs.py tests/test_validate_run_archive_integrity.py tests/test_full_live_analysis_workflow.py tests/test_ci_workflow.py -q; python -m pytest tests/ -q; flake8 src tests scripts (pre-existing unrelated failures); mypy src (pre-existing unrelated failures).
+
 - 2026-06-29 (run archive integrity enforcement in workflow and CI)
   Change type add
   Scope scripts CI tests governance

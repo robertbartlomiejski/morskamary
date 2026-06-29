@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 MANIFEST_SCHEMA_PATH = "schemas/run_archive_manifest.schema.json"
+RUN_MANIFEST_FILENAME = "run_manifest.json"
 
 ARCHIVE_REQUIRED_TARGETS: tuple[str, ...] = (
     "outputs/research_sources",
@@ -74,7 +75,7 @@ def _collect_archived_files(run_dir: Path) -> list[ArchivedFile]:
     files: list[ArchivedFile] = []
     for file_path in sorted(p for p in run_dir.rglob("*") if p.is_file()):
         rel = file_path.relative_to(run_dir).as_posix()
-        if rel in {"_run_manifest.json", "_checksums.sha256"}:
+        if rel in {RUN_MANIFEST_FILENAME, "_checksums.sha256"}:
             continue
         files.append(
             ArchivedFile(
@@ -172,7 +173,7 @@ def archive_run_outputs(
     archived_files = _collect_archived_files(run_dir)
     _write_checksums(run_dir, archived_files)
 
-    manifest_path = run_dir / "_run_manifest.json"
+    manifest_path = run_dir / RUN_MANIFEST_FILENAME
     manifest_payload: dict[str, Any] = {
         "manifest_schema": MANIFEST_SCHEMA_PATH,
         "requested_run_id": run_id,

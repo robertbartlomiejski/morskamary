@@ -95,7 +95,7 @@ def test_archive_run_outputs_creates_full_run_archive(tmp_path: Path) -> None:
     assert (run_dir / "MANIFEST_SOURCES.csv").exists()
     assert (run_dir / "_checksums.sha256").exists()
 
-    manifest = json.loads((run_dir / "_run_manifest.json").read_text(encoding="utf-8"))
+    manifest = json.loads((run_dir / "run_manifest.json").read_text(encoding="utf-8"))
     assert manifest["run_id"] == "run-123-1"
     assert manifest["requested_run_id"] == "run-123-1"
     assert manifest["manifest_schema"] == "schemas/run_archive_manifest.schema.json"
@@ -133,7 +133,7 @@ def test_manifest_matches_json_schema(tmp_path: Path) -> None:
     assert result == 0
 
     manifest_path = (
-        tmp_path / "outputs" / "run_archive" / "runs" / "run-schema" / "_run_manifest.json"
+        tmp_path / "outputs" / "run_archive" / "runs" / "run-schema" / "run_manifest.json"
     )
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     schema_path = REPO_ROOT / "schemas" / "run_archive_manifest.schema.json"

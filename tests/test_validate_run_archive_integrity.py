@@ -161,3 +161,26 @@ def test_validate_run_archive_integrity_requires_index_file(tmp_path: Path) -> N
         ]
     )
     assert result == 1
+
+
+def test_validate_run_archive_integrity_accepts_legacy_manifest_filename(
+    tmp_path: Path,
+) -> None:
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH, "validate_run_archive_integrity_legacy_manifest_test"
+    )
+    run_dir = _create_archive(tmp_path, run_id="run-legacy")
+    canonical_manifest = run_dir / "run_manifest.json"
+    legacy_manifest = run_dir / "_run_manifest.json"
+    canonical_manifest.rename(legacy_manifest)
+
+    result = validate_module.main(
+        [
+            "--repo-root",
+            str(tmp_path),
+            "--archive-root",
+            "outputs/run_archive",
+            "--require-present",
+        ]
+    )
+    assert result == 0
