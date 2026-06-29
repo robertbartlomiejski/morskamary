@@ -23,10 +23,10 @@ Use this section for changes in progress that are not yet merged into the main b
   Change type fix
   Scope CI tests governance
   Files affected .github/workflows/blank.yml tests/test_ci_workflow.py CHANGELOG.txt
-  Summary Split flake8 setup into an explicit install step and switched lint execution to `python -m flake8` in `.github/workflows/blank.yml`. Added a workflow regression assertion to ensure the explicit flake8 install/run contract remains in place.
-  Reason Prevent CI failures where `flake8` is unavailable on PATH in runner environments despite dependency installation attempts.
-  Impact Legacy workflow dispatch now guarantees flake8 installation in the job environment before lint execution.
-  Provenance CI remediation request for PR-179 to ensure runner-side flake8 availability.
+  Summary Corrected PR-179 framing for run `27282229158`: flake8 was installed successfully in that run, and the failure was caused by repository-wide flake8 violations. Retained the narrower reliability improvement by executing lint via `python -m flake8` from the active Python environment and added a regression assertion for that invocation contract.
+  Reason Address review feedback so PR-179 does not claim a missing-flake8 root cause for run `27282229158`, while preserving environment-bound linter invocation hardening.
+  Impact Workflow execution is more robust to PATH ambiguity (`python -m flake8`), while repository-wide flake8/mypy failures remain unchanged pre-existing baseline debt outside this PR scope.
+  Provenance PR-179 review correction: run `27282229158` installed flake8 successfully; lint violations caused the failure.
   Quality checks python -m pytest tests/test_ci_workflow.py -q; python -m pytest tests/ -q; flake8 src tests scripts (pre-existing unrelated failures); mypy src (pre-existing unrelated failures).
 
 - 2026-06-29 (cross-run cumulative evidence index tables from run archive)
