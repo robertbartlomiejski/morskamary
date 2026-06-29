@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-06-29 (flake8 installation hardening in legacy CI workflow)
+  Change type fix
+  Scope CI tests governance
+  Files affected .github/workflows/blank.yml tests/test_ci_workflow.py CHANGELOG.txt
+  Summary Split flake8 setup into an explicit install step and switched lint execution to `python -m flake8` in `.github/workflows/blank.yml`. Added a workflow regression assertion to ensure the explicit flake8 install/run contract remains in place.
+  Reason Prevent CI failures where `flake8` is unavailable on PATH in runner environments despite dependency installation attempts.
+  Impact Legacy workflow dispatch now guarantees flake8 installation in the job environment before lint execution.
+  Provenance CI remediation request for PR-179 to ensure runner-side flake8 availability.
+  Quality checks python -m pytest tests/test_ci_workflow.py -q; python -m pytest tests/ -q; flake8 src tests scripts (pre-existing unrelated failures); mypy src (pre-existing unrelated failures).
+
 - 2026-06-29 (cross-run cumulative evidence index tables from run archive)
   Change type add
   Scope scripts tests governance
