@@ -15,7 +15,6 @@ from src.core import (
 )
 from src.competence_mapper import CompetenceMapper
 
-
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
 
@@ -212,8 +211,7 @@ class TestCompetenceMapper:
     def test_analyze_competence_gaps_basic(self, mapper_with_credentials):
         """Test basic gap analysis"""
         gaps = mapper_with_credentials.analyze_competence_gaps(
-            available=["comp_marine_001"],
-            required_sector="fisheries"
+            available=["comp_marine_001"], required_sector="fisheries"
         )
         assert len(gaps["available"]) == 1
         assert len(gaps["missing"]) == 2
@@ -225,7 +223,7 @@ class TestCompetenceMapper:
         """Test gap analysis when all competences are available"""
         gaps = mapper_with_credentials.analyze_competence_gaps(
             available=["comp_marine_001", "comp_maritime_001", "comp_oceanic_001"],
-            required_sector="fisheries"
+            required_sector="fisheries",
         )
         assert len(gaps["available"]) == 3
         assert len(gaps["missing"]) == 0
@@ -233,8 +231,7 @@ class TestCompetenceMapper:
     def test_analyze_competence_gaps_none_available(self, mapper_with_credentials):
         """Test gap analysis when no competences are available"""
         gaps = mapper_with_credentials.analyze_competence_gaps(
-            available=[],
-            required_sector="fisheries"
+            available=[], required_sector="fisheries"
         )
         assert len(gaps["available"]) == 0
         assert len(gaps["missing"]) == 3
@@ -242,8 +239,7 @@ class TestCompetenceMapper:
     def test_analyze_competence_gaps_by_level(self, mapper_with_credentials):
         """Test gap analysis includes level breakdown"""
         gaps = mapper_with_credentials.analyze_competence_gaps(
-            available=["comp_marine_001"],
-            required_sector="fisheries"
+            available=["comp_marine_001"], required_sector="fisheries"
         )
         assert "by_level" in gaps
         assert "ADVANCED" in gaps["by_level"]
@@ -401,7 +397,6 @@ class TestLoadCompetenceMatrixImportError:
 
     def test_load_competence_matrix_without_pandas(self, monkeypatch, tmp_path):
         """Test that load_competence_matrix raises helpful ImportError when pandas is missing"""
-        import sys
         import builtins
 
         # Create a simple CSV file

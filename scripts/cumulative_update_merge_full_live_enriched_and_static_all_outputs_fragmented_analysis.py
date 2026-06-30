@@ -463,6 +463,7 @@ def _merge_json_candidates(candidates: list[Candidate]) -> tuple[Any | None, dic
 
     values = [value for _, value in decoded]
 
+    merged: Any
     if all(isinstance(value, list) for value in values):
         merged = _merge_lists(value for value in values if isinstance(value, list))
     elif all(isinstance(value, dict) for value in values):

@@ -15,11 +15,11 @@ REPO_ROOT = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from src.competence_repository import (
+from src.competence_repository import (  # noqa: E402
     MixedProvenanceCompetenceRepository,
     normalize_sector_name,
 )
-from src.utils import slugify
+from src.utils import slugify  # noqa: E402
 
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "outputs" / "sector_dictionaries"
 AXES = ("MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION")
@@ -93,7 +93,9 @@ def export_sector_dictionary(
 ) -> Path:
     """Export one sector dictionary as JSON."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / f"{slugify(sector, max_length=None)}_tmbd_dictionary.json"
+    output_path = (
+        output_dir / f"{slugify(sector, max_length=None)}_tmbd_dictionary.json"
+    )
     payload = {
         "metadata": {
             "sector": sector,

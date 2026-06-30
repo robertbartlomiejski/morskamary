@@ -11,6 +11,7 @@ from unittest.mock import MagicMock, patch
 
 from scripts.export_live_research_records import (
     LiveContextClassificationRepository,
+    STAGE1_CSV_FIELDS,
     _to_stage1_compliant_dict,
     build_thematic_loop_audit,
     build_coverage_report,
@@ -1275,12 +1276,6 @@ query_groups:
 # ---------------------------------------------------------------------------
 # Stage 1 governance compliance tests
 # ---------------------------------------------------------------------------
-
-
-from scripts.export_live_research_records import (  # noqa: E402
-    STAGE1_CSV_FIELDS,
-    _to_stage1_compliant_dict,
-)
 
 
 class TestStage1ComplianceFilter:

@@ -625,3 +625,12 @@ Provenance None (new files created from scratch).
 Quality checks Manual review for internal consistency and alignment with repository sources referenced in the governance files.
 Reviewer Robert Bartłomiejski
 text
+
+2026-06-30
+Change type fix update
+Scope static-quality linting typing CI documentation
+Files affected .flake8 pyproject.toml .github/workflows/ci.yml CONTRIBUTING.md main.py main_real_data.py scientific_bridge.py scripts/build_derived.py scripts/build_tmbd_dictionary.py scripts/convert_pdfs_to_txt.py scripts/cumulative_update_merge_full_live_enriched_and_static_all_outputs_fragmented_analysis.py scripts/smoke_scientific_bridge.py scripts/sync_audit.py src/nlp_reliability/triangulation.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/scival.py src/scientific_sources/web_of_science.py tests/test_build_derived.py tests/test_ci_workflow.py tests/test_core.py tests/test_edge_cases.py tests/test_export_live_research_records.py tests/test_nlp_reliability.py tests/test_pipeline_matrix.py tests/test_sync_audit.py
+Summary PR-181 baseline cleanup: resolved repository lint/type root causes in maintained code, added explicit legacy/demo exclusions for non-production artifacts, and added canonical CI static-quality gate running module-based flake8 and mypy.
+Reason Separate baseline static-quality hardening from PR-179/180 feature/changelog work and prevent recurrence through canonical CI enforcement.
+Impact `python -m flake8 $(git ls-files "*.py")`, `python -m mypy src scripts run_full_analysis.py main.py`, and `python -m pytest tests/ -v` are now aligned across local workflow and CI.
+Reviewer GitHub Copilot Coding Agent

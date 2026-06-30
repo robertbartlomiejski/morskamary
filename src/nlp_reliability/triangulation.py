@@ -10,14 +10,14 @@ registered in the SourceRegistry).
 
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
-from src.scientific_sources.models import LiteratureRecord, ProviderResult
+from src.scientific_sources.models import ProviderResult
 
 
 def build_provider_overlap_matrix(
     results: List[ProviderResult],
-) -> Dict[str, object]:
+) -> Dict[str, Any]:
     """
     Build a provider overlap matrix from a list of ProviderResult objects.
 

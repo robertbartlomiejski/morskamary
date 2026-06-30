@@ -27,7 +27,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -93,9 +92,7 @@ def check_git_status(report: AuditReport) -> None:
         report.error(f"git status failed: {result.stderr.strip()}")
         return
 
-    dirty_lines = [
-        line for line in result.stdout.splitlines() if line.strip()
-    ]
+    dirty_lines = [line for line in result.stdout.splitlines() if line.strip()]
     if dirty_lines:
         report.warn(
             f"{len(dirty_lines)} uncommitted change(s) detected. "
@@ -275,7 +272,9 @@ def check_provider_capabilities(report: AuditReport) -> None:
             if new_data is not None:
                 # Compare ignoring generated_at and configured fields
                 if _capabilities_semantically_equal(data, new_data):
-                    report.ok("Capability snapshot is current (ignoring timestamps/configured)")
+                    report.ok(
+                        "Capability snapshot is current (ignoring timestamps/configured)"
+                    )
                 else:
                     report.warn(
                         "Capability snapshot structure changed after re-export — "
@@ -288,6 +287,7 @@ def check_provider_capabilities(report: AuditReport) -> None:
 
 def _capabilities_semantically_equal(old: dict, new: dict) -> bool:
     """Compare capability snapshots ignoring generated_at, configured, and note fields."""
+
     def normalize(data: dict) -> dict:
         normalized = dict(data)
         normalized.pop("generated_at", None)
@@ -394,9 +394,7 @@ def check_changelog_governance(report: AuditReport) -> None:
 
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the full sync audit."""
-    parser = argparse.ArgumentParser(
-        description="Repository sync & integration audit"
-    )
+    parser = argparse.ArgumentParser(description="Repository sync & integration audit")
     parser.add_argument(
         "--strict",
         action="store_true",
@@ -420,7 +418,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     # Summary
     print("\n" + "=" * 60)
     if report.failed:
-        print(f"  FAILED: {len(report.errors)} error(s), {len(report.warnings)} warning(s)")
+        print(
+            f"  FAILED: {len(report.errors)} error(s), {len(report.warnings)} warning(s)"
+        )
         print("  Fix errors above before pushing.")
         print("=" * 60)
         return 1

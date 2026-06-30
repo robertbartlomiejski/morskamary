@@ -26,7 +26,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
@@ -88,7 +88,8 @@ class WebOfScienceProvider(BaseProvider):
             url, headers={"X-ApiKey": self._api_key, "Accept": "application/json"}
         )
         with urllib.request.urlopen(req, timeout=12) as resp:
-            return json.loads(resp.read().decode())
+            payload = json.loads(resp.read().decode())
+        return cast(Dict[str, Any], payload)
 
     @staticmethod
     def _extract_authors(item: Dict[str, Any]) -> str:
@@ -137,19 +138,25 @@ class WebOfScienceProvider(BaseProvider):
             first = citations[0]
             if isinstance(first, dict):
                 raw = first.get("count")
-                try:
-                    return int(raw)
-                except (TypeError, ValueError):
-                    return None
+                if isinstance(raw, (int, str)):
+                    try:
+                        return int(raw)
+                    except (TypeError, ValueError):
+                        return None
+                return None
         return None
 
-    def _parse_items(self, items: List[Dict[str, Any]], query: str) -> List[LiteratureRecord]:
+    def _parse_items(
+        self, items: List[Dict[str, Any]], query: str
+    ) -> List[LiteratureRecord]:
         records: List[LiteratureRecord] = []
         for item in items:
             title = str(item.get("title", "")).strip()
             if not title:
                 continue
-            source = item.get("source", {}) if isinstance(item.get("source"), dict) else {}
+            source = (
+                item.get("source", {}) if isinstance(item.get("source"), dict) else {}
+            )
             identifiers = (
                 item.get("identifiers", {})
                 if isinstance(item.get("identifiers"), dict)
@@ -160,7 +167,9 @@ class WebOfScienceProvider(BaseProvider):
             year = str(year_raw).strip()
             doi = str(identifiers.get("doi", item.get("doi", ""))).strip()
             url = str(links.get("record", item.get("url", ""))).strip()
-            journal = str(source.get("sourceTitle", item.get("sourceTitle", ""))).strip()
+            journal = str(
+                source.get("sourceTitle", item.get("sourceTitle", ""))
+            ).strip()
             records.append(
                 LiteratureRecord(
                     title=title,
@@ -178,6 +187,7 @@ class WebOfScienceProvider(BaseProvider):
                 )
             )
         return records
+
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
@@ -205,13 +215,17 @@ class WebOfScienceProvider(BaseProvider):
         title = (hit.get("title") or "Unknown Title").strip()
 
         # Authors: WoS Starter uses names.authors; some older versions use authors.authors.
-        author_objs = (
-            hit.get("names", {}).get("authors", [])
-            or hit.get("authors", {}).get("authors", [])
-        )
+        author_objs = hit.get("names", {}).get("authors", []) or hit.get(
+            "authors", {}
+        ).get("authors", [])
         authors_list: List[str] = []
         for author in author_objs:
-            name = (author.get("displayName") or author.get("fullName") or author.get("wosStandard") or "").strip()
+            name = (
+                author.get("displayName")
+                or author.get("fullName")
+                or author.get("wosStandard")
+                or ""
+            ).strip()
             if name:
                 authors_list.append(name)
         authors = ", ".join(authors_list) if authors_list else "Unknown"
@@ -272,7 +286,9 @@ class WebOfScienceProvider(BaseProvider):
             licence_note=_LICENCE_NOTE,
         )
 
-    def _parse_hits(self, hits: List[Dict[str, Any]], query: str) -> List[LiteratureRecord]:
+    def _parse_hits(
+        self, hits: List[Dict[str, Any]], query: str
+    ) -> List[LiteratureRecord]:
         """Parse a list of WoS hit dicts into LiteratureRecord objects."""
         return [self._parse_hit(h, query) for h in hits if isinstance(h, dict)]
 
@@ -313,6 +329,7 @@ class WebOfScienceProvider(BaseProvider):
         return ProviderResult(
             errors=[f"Web of Science {action} failed (HTTP {exc.code})."]
         )
+
     # ------------------------------------------------------------------
     # Public API (BaseProvider contract)
     # ------------------------------------------------------------------

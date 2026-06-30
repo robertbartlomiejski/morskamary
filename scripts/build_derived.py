@@ -16,6 +16,7 @@ from __future__ import annotations
 import os
 import re
 from pathlib import Path
+from typing import cast
 
 import pandas as pd
 
@@ -60,7 +61,12 @@ def scan_excel_files() -> list[Path]:
                     continue
                 hits.append(p)
     # prioritize known names
-    hits.sort(key=lambda p: (p.name not in KNOWN_EXCEL_NAMES, p.relative_to(REPO_ROOT).as_posix().lower()))
+    hits.sort(
+        key=lambda p: (
+            p.name not in KNOWN_EXCEL_NAMES,
+            p.relative_to(REPO_ROOT).as_posix().lower(),
+        )
+    )
     return hits
 
 
@@ -93,7 +99,10 @@ def sanitize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     if rename_map:
         sanitized = sanitized.rename(columns=rename_map)
 
-    sanitized = sanitized.replace(TEXT_REPLACEMENTS, regex=True)
+    sanitized = cast(
+        pd.DataFrame,
+        sanitized.replace(TEXT_REPLACEMENTS, regex=True),
+    )
     return sanitized
 
 
@@ -117,7 +126,7 @@ def main() -> None:
 
         for sheet in xls.sheet_names:
             try:
-                df = xls.parse(sheet_name=sheet)
+                df = pd.read_excel(xlsx, sheet_name=sheet)
             except Exception as e:
                 print(f"FAILED to parse: {rel} :: {sheet} ({e})")
                 continue
@@ -127,7 +136,7 @@ def main() -> None:
                 skipped += 1
                 continue
 
-            sheet_tag = sanitize(sheet)
+            sheet_tag = sanitize(str(sheet))
             out_csv = DERIVED_DIR / f"{base}__{sheet_tag}.csv"
             out_dd = DERIVED_DIR / f"{base}__{sheet_tag}__datadict.csv"
 
@@ -138,7 +147,11 @@ def main() -> None:
 
         print(f"Processed: {rel} (sheets={len(xls.sheet_names)})")
 
-    print(f"Derived exports written to {DERIVED_DIR.relative_to(REPO_ROOT).as_posix()}: exported_tables={exported} skipped_empty={skipped}")
+    print(
+        "Derived exports written to "
+        f"{DERIVED_DIR.relative_to(REPO_ROOT).as_posix()}: "
+        f"exported_tables={exported} skipped_empty={skipped}"
+    )
 
 
 if __name__ == "__main__":

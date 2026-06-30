@@ -24,8 +24,6 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
-from src.scientific_sources.models import ProviderResult  # noqa: E402
-
 
 PASS = "PASS"
 FAIL = "FAIL"
@@ -45,7 +43,14 @@ def run_offline_checks() -> list:
 
     # 1. Registry lists all expected providers
     caps = registry.capabilities_dict()
-    expected = {"crossref", "scopus", "wos", "scival", "google_drive", "microsoft_graph"}
+    expected = {
+        "crossref",
+        "scopus",
+        "wos",
+        "scival",
+        "google_drive",
+        "microsoft_graph",
+    }
     missing = expected - set(caps.keys())
     if missing:
         _result_line("Registry contains all providers", FAIL, f"missing: {missing}")
@@ -89,7 +94,12 @@ def run_offline_checks() -> list:
 
         bridge = sb.ScientificBridge()
         resp = bridge.handle_request({"method": "tools/list"})
-        tool_names = {t["name"] for t in resp["tools"]}
+        if not isinstance(resp, dict):
+            raise ValueError("tools/list response must be a dictionary")
+        tools = resp.get("tools", [])
+        if not isinstance(tools, list):
+            raise ValueError("tools/list response must contain a list under 'tools'")
+        tool_names = {t["name"] for t in tools if isinstance(t, dict) and "name" in t}
         required_tools = {
             "fetch_scientific_proofs",
             "verify_citation",
@@ -135,7 +145,9 @@ def run_live_checks() -> list:
             _result_line(f"Live: {cap.provider}", SKIP, "not configured or not enabled")
             continue
         try:
-            results = registry.search("blue economy", max_results=2, providers=[cap.name])
+            results = registry.search(
+                "blue economy", max_results=2, providers=[cap.name]
+            )
             records = registry.flat_records(results)
             errs = [e for r in results for e in r.errors]
             if errs:
@@ -143,13 +155,13 @@ def run_live_checks() -> list:
                 failures.append(f"live {cap.name}")
             elif records:
                 _result_line(
-                    f"Live: {cap.provider}", PASS,
-                    f"{len(records)} record(s) returned"
+                    f"Live: {cap.provider}", PASS, f"{len(records)} record(s) returned"
                 )
             else:
                 _result_line(
-                    f"Live: {cap.provider}", SKIP,
-                    "no records (may be normal for stub providers)"
+                    f"Live: {cap.provider}",
+                    SKIP,
+                    "no records (may be normal for stub providers)",
                 )
         except Exception as exc:
             _result_line(f"Live: {cap.provider}", FAIL, str(exc))
@@ -162,7 +174,6 @@ def main() -> int:
     """Run smoke checks based on CLI arguments."""
     args = sys.argv[1:]
     live_mode = "--live-if-secrets-present" in args
-    offline_only = "--offline" in args or not live_mode
 
     print("=== Scientific Bridge Smoke Test ===\n")
     print("Offline checks:")
