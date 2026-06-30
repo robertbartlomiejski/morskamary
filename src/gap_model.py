@@ -5,13 +5,21 @@ Implements the four-layer gap model:
   1. demand_evidence  — static literature + live API-derived competences, by sector × QMBD axis
   2. supply_evidence  — baseline competences + existing coursework/credential/curriculum files
   3. missing_clusters — demand clusters not covered by supply
-  4. priority_score   — composite score:
-       evidence_frequency + recency + provider_confidence
-       + multi_source_support + sector_relevance + QMBD_axis_undercoverage
+  4. priority_score   — composite score (7 equal-weight factors):
+       gap_ratio + missing_count_normalized + evidence_frequency + recency
+       + provider_confidence + multi_source_support + QMBD_axis_undercoverage
 
 Each evidence item carries full provenance: origin, source_file, source_row,
 provider, doi, title, year, sector, qmbd_axis, confidence_score, overlap_status,
 supporting_providers.
+
+Supply origin taxonomy
+----------------------
+static_baseline               — verified Univ. Szczecin Blue Social Competences baseline
+existing_microcredential      — parsed from existing curriculum/microcredential CSV
+generated_credential_previous_run — from outputs/credentials_database.json of a prior run
+                                    (recommended, not verified institutional supply)
+supply_file_unparsed          — supply file detected but not yet parsed into evidence
 """
 
 from __future__ import annotations
@@ -54,7 +62,7 @@ class GapEvidence:
     description: str
     sector: str
     qmbd_axis: str
-    origin: str  # 'static_baseline' | 'static_literature' | 'live' | 'supply_file'
+    origin: str  # see supply origin taxonomy in module docstring
     source_file: str
     source_row: int
     provider: str
@@ -102,6 +110,8 @@ class GapCluster:
         supply_items: Evidence items representing available supply.
         missing_items: Demand items NOT covered by any supply item.
         priority_score: Composite priority score in [0.0, 1.0].
+        coverage_method: How covered items were matched.
+            Values: 'exact_id' | 'name_similarity' | 'mixed' | 'uncovered' | 'no_demand'
     """
 
     sector: str
@@ -110,6 +120,7 @@ class GapCluster:
     supply_items: List[GapEvidence] = field(default_factory=list)
     missing_items: List[GapEvidence] = field(default_factory=list)
     priority_score: float = 0.0
+    coverage_method: str = "no_demand"
 
     @property
     def gap_ratio(self) -> float:
@@ -128,6 +139,7 @@ class GapCluster:
             "missing_count": len(self.missing_items),
             "gap_ratio": round(self.gap_ratio, 4),
             "priority_score": round(self.priority_score, 4),
+            "coverage_method": self.coverage_method,
             "demand_items": [e.to_dict() for e in self.demand_items],
             "supply_items": [e.to_dict() for e in self.supply_items],
             "missing_items": [e.to_dict() for e in self.missing_items],
@@ -190,14 +202,20 @@ def compute_priority_score(
 ) -> float:
     """Compute a composite priority score in [0.0, 1.0] for *cluster*.
 
-    The score is the unweighted average of six factors:
+    The score is the equal-weight average of seven factors:
 
-    1. evidence_frequency     — demand item count normalised across all clusters
-    2. recency                — average year of demand items (normalised)
-    3. provider_confidence    — average confidence_score of demand items
-    4. multi_source_support   — fraction of demand items with >1 supporting provider
-    5. sector_relevance       — 1.0 (equal weight; reserved for future weighting)
-    6. QMBD_axis_undercoverage— fraction of sectors where this axis has > 0 missing items
+    1. gap_ratio                — fraction of demand not covered (cluster.gap_ratio)
+    2. missing_count_normalized — missing item count normalised across all clusters
+    3. evidence_frequency       — demand item count normalised across all clusters
+    4. recency                  — average year of demand items (normalised)
+    5. provider_confidence      — average confidence_score of demand items
+    6. multi_source_support     — fraction of demand items with ≥1 supporting provider
+    7. QMBD_axis_undercoverage  — fraction of sectors where this axis has >0 missing items
+
+    Note: ``uniform_sector_weight`` (formerly ``sector_relevance``) has been
+    removed from the formula because a constant 1.0 adds no discriminating power.
+    If sector-specific weights are needed in future, they should be supplied via
+    a dedicated mapping argument.
 
     Args:
         cluster: The cluster to score.
@@ -210,11 +228,21 @@ def compute_priority_score(
     min_dc, max_dc = (
         (min(demand_counts), max(demand_counts)) if demand_counts else (0, 0)
     )
+    missing_counts = [len(c.missing_items) for c in all_clusters]
+    min_mc, max_mc = (
+        (min(missing_counts), max(missing_counts)) if missing_counts else (0, 0)
+    )
 
-    # 1. evidence_frequency
+    # 1. gap_ratio
+    f_gap_ratio = cluster.gap_ratio
+
+    # 2. missing_count_normalized
+    f_missing = _normalise(len(cluster.missing_items), min_mc, max_mc)
+
+    # 3. evidence_frequency
     f_evidence = _normalise(len(cluster.demand_items), min_dc, max_dc)
 
-    # 2. recency — parse years from demand items
+    # 4. recency — parse years from demand items
     years: List[int] = []
     for item in cluster.demand_items:
         try:
@@ -233,7 +261,7 @@ def compute_priority_score(
     max_y = max(all_years) if all_years else 0
     f_recency = _normalise(avg_year, min_y, max_y) if avg_year else 0.5
 
-    # 3. provider_confidence
+    # 5. provider_confidence
     if cluster.demand_items:
         f_confidence = sum(i.confidence_score for i in cluster.demand_items) / len(
             cluster.demand_items
@@ -241,7 +269,7 @@ def compute_priority_score(
     else:
         f_confidence = 0.0
 
-    # 4. multi_source_support — fraction with at least one supporting_provider
+    # 6. multi_source_support — fraction with at least one supporting_provider
     if cluster.demand_items:
         multi = sum(
             1 for i in cluster.demand_items if i.supporting_providers
@@ -249,10 +277,7 @@ def compute_priority_score(
     else:
         multi = 0.0
 
-    # 5. sector_relevance (uniform)
-    f_sector = 1.0
-
-    # 6. QMBD_axis_undercoverage — fraction of sectors where this axis has missing items
+    # 7. QMBD_axis_undercoverage — fraction of sectors where this axis has missing items
     axis = cluster.qmbd_axis
     sectors_with_gap = sum(
         1
@@ -266,7 +291,9 @@ def compute_priority_score(
         else 0.0
     )
 
-    score = (f_evidence + f_recency + f_confidence + multi + f_sector + f_axis) / 6.0
+    score = (
+        f_gap_ratio + f_missing + f_evidence + f_recency + f_confidence + multi + f_axis
+    ) / 7.0
     return max(0.0, min(1.0, score))
 
 
@@ -274,15 +301,34 @@ def compute_priority_score(
 # Core model computation
 # ---------------------------------------------------------------------------
 
+_COVERAGE_STOPWORDS: frozenset = frozenset(
+    {
+        "and", "the", "for", "with", "from", "into", "that", "this", "are",
+        "its", "has", "was", "not", "have", "been", "also", "their", "will",
+        "can", "may", "use", "used", "using", "based", "blue", "ocean",
+        "marine", "maritime", "oceanic", "sea", "water",
+    }
+)
+_NAME_SIM_THRESHOLD: float = 0.30  # minimum Jaccard similarity for name-based coverage
 
-def _supply_ids_for_sector(supply_items: List[GapEvidence]) -> set[str]:
-    """Return the set of competence IDs from supply items."""
-    return {item.competence_id for item in supply_items}
+
+def _name_tokens(name: str) -> frozenset:
+    """Return meaningful lowercased tokens from *name* with stopwords removed."""
+    return frozenset(
+        t
+        for t in name.lower().split()
+        if len(t) > 3 and t not in _COVERAGE_STOPWORDS
+    )
 
 
-def _supply_axes_for_sector(supply_items: List[GapEvidence]) -> set[str]:
-    """Return the set of QMBD axes covered by supply for a sector."""
-    return {item.qmbd_axis for item in supply_items}
+def _jaccard(a: frozenset, b: frozenset) -> float:
+    """Jaccard similarity between two token sets; returns 0.0 if both empty."""
+    if not a and not b:
+        return 0.0
+    union = a | b
+    if not union:
+        return 0.0
+    return len(a & b) / len(union)
 
 
 def compute_gap_model(
@@ -293,10 +339,17 @@ def compute_gap_model(
 ) -> GapModelResult:
     """Build the full gap model from pre-collected demand and supply evidence.
 
-    A demand item is considered *covered* if the same sector's supply evidence
-    contains an item sharing its competence_id, OR if the supply already covers
-    the same sector × axis combination AND the demand item's name tokens overlap
-    with at least one supply item's name tokens.
+    Coverage rule (axis-sensitive):
+      A demand item is considered *covered* if, within the **same sector × axis**:
+
+      1. **Exact ID match** — supply contains an item with the same competence_id.
+      2. **Name similarity** — at least one supply item's name tokens overlap with
+         the demand item's name tokens with a Jaccard similarity ≥
+         ``_NAME_SIM_THRESHOLD`` (default 0.30) after stopword removal.
+
+    Cross-axis coverage is intentionally **not** applied: a supply item on the
+    MARITIME axis cannot cover a demand item on the MARINE axis within the same
+    sector, preventing axis-leakage false positives.
 
     Args:
         demand_evidence: Dict mapping sector → list of demand GapEvidence items.
@@ -320,33 +373,47 @@ def compute_gap_model(
         d_items = demand_evidence.get(sector, [])
         s_items = supply_evidence.get(sector, [])
 
-        supply_ids = _supply_ids_for_sector(s_items)
-
         for axis in qmbd_axes:
             d_axis = [i for i in d_items if i.qmbd_axis == axis]
             s_axis = [i for i in s_items if i.qmbd_axis == axis]
             supply_axis_ids = {i.competence_id for i in s_axis}
 
-            # Build supply name-token sets for soft matching
-            supply_name_tokens: set[str] = set()
-            for si in s_axis:
-                supply_name_tokens.update(si.name.lower().split())
+            # Pre-compute token sets for axis-scoped supply items only
+            supply_token_sets: List[frozenset] = [
+                _name_tokens(si.name) for si in s_axis
+            ]
 
             missing: List[GapEvidence] = []
-            covered_ids: List[str] = []
+            exact_covered = 0
+            sim_covered = 0
             for item in d_axis:
-                if item.competence_id in supply_axis_ids or item.competence_id in supply_ids:
-                    covered_ids.append(item.competence_id)
+                if item.competence_id in supply_axis_ids:
+                    # Rule 1: exact ID match within same sector × axis
+                    exact_covered += 1
                 else:
-                    # Soft name-token overlap check
-                    item_tokens = set(item.name.lower().split())
-                    meaningful = {
-                        t for t in item_tokens if len(t) > 3
-                    }  # skip short stop-words
-                    if meaningful and meaningful & supply_name_tokens:
-                        covered_ids.append(item.competence_id)
+                    # Rule 2: name-similarity match within same sector × axis
+                    item_tokens = _name_tokens(item.name)
+                    covered_by_sim = any(
+                        _jaccard(item_tokens, st) >= _NAME_SIM_THRESHOLD
+                        for st in supply_token_sets
+                        if st  # skip empty supply token sets
+                    )
+                    if covered_by_sim:
+                        sim_covered += 1
                     else:
                         missing.append(item)
+
+            # Determine dominant coverage method for this cluster
+            if not d_axis:
+                coverage_method = "no_demand"
+            elif exact_covered > 0 and sim_covered > 0:
+                coverage_method = "mixed"
+            elif exact_covered > 0:
+                coverage_method = "exact_id"
+            elif sim_covered > 0:
+                coverage_method = "name_similarity"
+            else:
+                coverage_method = "uncovered"
 
             cluster = GapCluster(
                 sector=sector,
@@ -354,6 +421,7 @@ def compute_gap_model(
                 demand_items=d_axis,
                 supply_items=s_axis,
                 missing_items=missing,
+                coverage_method=coverage_method,
             )
             all_clusters.append(cluster)
 

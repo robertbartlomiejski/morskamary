@@ -40,7 +40,6 @@ from run_full_analysis import (
     SECTORS,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -403,8 +402,7 @@ class TestRunGapModel:
     def test_supply_evidence_augmented_when_credentials_db_exists(
         self, tmp_path: Path
     ) -> None:
-        """Supply evidence should include credentials_database.json items when the file exists."""
-        # Build a minimal credentials_database.json
+        """credentials_database.json items must be tagged generated_credential_previous_run."""
         cred_db = {
             "metadata": {"total": 1},
             "credentials": [
@@ -423,29 +421,42 @@ class TestRunGapModel:
         baseline = self._make_baseline()
         literature = self._make_literature()
 
-        # Patch REPO_ROOT and supply spec to point to tmp_path
         import run_full_analysis as rfa
 
         original_specs = rfa._SUPPLY_FILE_SPECS
         rfa._SUPPLY_FILE_SPECS = [
             {
                 "path": str(db_path),
-                "origin": "supply_file",
+                "origin": "generated_credential_previous_run",
                 "provider": "credentials_database",
             }
         ]
-        # Also patch REPO_ROOT to resolve relative_to correctly
-        import src.gap_model  # noqa: F401
-
         try:
             result = run_gap_model(baseline, literature)
             supply_bb = result.supply_evidence.get("Blue Biotech", [])
             supply_origins = {e.origin for e in supply_bb}
-            assert "supply_file" in supply_origins, (
-                "Supply evidence should contain supply_file items from credentials_database.json"
+            assert "generated_credential_previous_run" in supply_origins, (
+                "credentials_database.json items must be tagged "
+                "generated_credential_previous_run, not static supply"
             )
+            # Must NOT be treated as verified institutional supply
+            assert "static_baseline" not in {
+                e.origin for e in supply_bb if e.provider == "credentials_database"
+            }
         finally:
             rfa._SUPPLY_FILE_SPECS = original_specs
+
+    def test_generated_credentials_distinct_from_verified_baseline(self) -> None:
+        """generated_credential_previous_run and static_baseline must be distinguishable."""
+        baseline = self._make_baseline()
+        literature = self._make_literature()
+        result = run_gap_model(baseline, literature)
+        for sector_items in result.supply_evidence.values():
+            for item in sector_items:
+                if item.provider == "baseline":
+                    assert item.origin == "static_baseline"
+                if item.origin == "generated_credential_previous_run":
+                    assert item.provider != "baseline"
 
     def test_missing_clusters_only_when_gap_present(self) -> None:
         baseline = self._make_baseline()
@@ -540,3 +551,360 @@ class TestExportFunctions:
         export_gaps_detailed_json(result, out)
         # Should not raise
         json.loads(out.read_text(encoding="utf-8"))
+
+    def test_export_gap_priority_ranking_csv_audit_fields(self, tmp_path: Path) -> None:
+        """gap_priority_ranking.csv must include the audit columns."""
+        result = self._make_result()
+        out = tmp_path / "gap_priority_ranking.csv"
+        export_gap_priority_ranking_csv(result, out)
+        rows = list(csv.DictReader(out.open(encoding="utf-8")))
+        assert len(rows) == 1
+        row = rows[0]
+        required_audit_cols = {
+            "Top_Origins",
+            "Top_Providers",
+            "Top_DOIs",
+            "Top_Titles",
+            "Year_Range",
+            "Average_Confidence",
+            "Coverage_Method",
+            "Supporting_Providers",
+        }
+        assert required_audit_cols.issubset(set(row.keys()))
+        # Coverage_Method must be a meaningful value (not empty)
+        assert row["Coverage_Method"]  # non-empty string
+
+
+# ---------------------------------------------------------------------------
+# Tests: axis-sensitive coverage (Fix 3)
+# ---------------------------------------------------------------------------
+
+
+class TestAxisSensitiveCoverage:
+    """The coverage rule must be axis-scoped — no cross-axis leakage."""
+
+    def test_cross_axis_supply_does_not_cover_demand(self) -> None:
+        """A MARITIME supply item must NOT cover a MARINE demand item."""
+        demand_item = _make_evidence("comp_001", "Blue Biotech", "MARINE")
+        # Supply is MARITIME, not MARINE — must not cover the MARINE demand item
+        supply_item = _make_evidence(
+            "comp_001",  # same competence_id, but different axis
+            "Blue Biotech",
+            "MARITIME",
+            origin="static_baseline",
+        )
+        demand = {"Blue Biotech": [demand_item]}
+        supply = {"Blue Biotech": [supply_item]}
+        result = compute_gap_model(demand, supply, sectors=["Blue Biotech"])
+        marine_cluster = next(
+            c for c in result.all_clusters
+            if c.sector == "Blue Biotech" and c.qmbd_axis == "MARINE"
+        )
+        missing_ids = {e.competence_id for e in marine_cluster.missing_items}
+        assert "comp_001" in missing_ids, (
+            "comp_001 on MARITIME supply must NOT cover MARINE demand"
+        )
+
+    def test_same_axis_supply_covers_demand_by_exact_id(self) -> None:
+        """Same sector × axis exact ID match must cover the demand item."""
+        demand_item = _make_evidence("comp_exact", "Blue Biotech", "MARINE")
+        supply_item = _make_evidence(
+            "comp_exact", "Blue Biotech", "MARINE", origin="static_baseline"
+        )
+        demand = {"Blue Biotech": [demand_item]}
+        supply = {"Blue Biotech": [supply_item]}
+        result = compute_gap_model(demand, supply, sectors=["Blue Biotech"])
+        marine_cluster = next(
+            c for c in result.all_clusters
+            if c.sector == "Blue Biotech" and c.qmbd_axis == "MARINE"
+        )
+        missing_ids = {e.competence_id for e in marine_cluster.missing_items}
+        assert "comp_exact" not in missing_ids
+
+    def test_coverage_method_exact_id(self) -> None:
+        demand_item = _make_evidence("comp_exact", "Blue Biotech", "MARINE")
+        supply_item = _make_evidence(
+            "comp_exact", "Blue Biotech", "MARINE", origin="static_baseline"
+        )
+        demand = {"Blue Biotech": [demand_item]}
+        supply = {"Blue Biotech": [supply_item]}
+        result = compute_gap_model(demand, supply, sectors=["Blue Biotech"])
+        marine_cluster = next(
+            c for c in result.all_clusters
+            if c.sector == "Blue Biotech" and c.qmbd_axis == "MARINE"
+        )
+        assert marine_cluster.coverage_method == "exact_id"
+
+    def test_coverage_method_uncovered(self) -> None:
+        demand_item = _make_evidence("comp_only_demand", "Blue Biotech", "MARINE")
+        demand = {"Blue Biotech": [demand_item]}
+        supply: Dict[str, List[GapEvidence]] = {"Blue Biotech": []}
+        result = compute_gap_model(demand, supply, sectors=["Blue Biotech"])
+        marine_cluster = next(
+            c for c in result.all_clusters
+            if c.sector == "Blue Biotech" and c.qmbd_axis == "MARINE"
+        )
+        assert marine_cluster.coverage_method == "uncovered"
+
+
+# ---------------------------------------------------------------------------
+# Tests: false-positive token overlap prevention (Fix 3)
+# ---------------------------------------------------------------------------
+
+
+class TestFalsePositiveOverlapPrevention:
+    """The strengthened coverage rule must not cover unrelated items."""
+
+    def test_stopword_only_names_not_covered(self) -> None:
+        """Items whose names consist only of stopwords must not be covered by similarity."""
+        # "blue ocean" — all tokens are in _COVERAGE_STOPWORDS
+        demand_item = _make_evidence("d_stopword", "Blue Biotech", "MARINE")
+        demand_item.name = "blue ocean"
+        supply_item = _make_evidence(
+            "s_other", "Blue Biotech", "MARINE", origin="static_baseline"
+        )
+        supply_item.name = "marine water"
+        demand = {"Blue Biotech": [demand_item]}
+        supply = {"Blue Biotech": [supply_item]}
+        result = compute_gap_model(demand, supply, sectors=["Blue Biotech"])
+        marine_cluster = next(
+            c for c in result.all_clusters
+            if c.sector == "Blue Biotech" and c.qmbd_axis == "MARINE"
+        )
+        missing_ids = {e.competence_id for e in marine_cluster.missing_items}
+        assert "d_stopword" in missing_ids, (
+            "Stopword-only names must not produce false coverage"
+        )
+
+    def test_low_jaccard_similarity_not_covered(self) -> None:
+        """Items with low name similarity (< threshold) must NOT be covered."""
+        demand_item = _make_evidence("d_unrelated", "Blue Biotech", "MARINE")
+        demand_item.name = "coastal erosion monitoring sediment transport"
+        supply_item = _make_evidence(
+            "s_unrelated", "Blue Biotech", "MARINE", origin="static_baseline"
+        )
+        supply_item.name = "digital twin vessel navigation autopilot control"
+        demand = {"Blue Biotech": [demand_item]}
+        supply = {"Blue Biotech": [supply_item]}
+        result = compute_gap_model(demand, supply, sectors=["Blue Biotech"])
+        marine_cluster = next(
+            c for c in result.all_clusters
+            if c.sector == "Blue Biotech" and c.qmbd_axis == "MARINE"
+        )
+        missing_ids = {e.competence_id for e in marine_cluster.missing_items}
+        assert "d_unrelated" in missing_ids, (
+            "Low-similarity names must not produce false coverage"
+        )
+
+    def test_high_jaccard_similarity_covered(self) -> None:
+        """Items with high name similarity (> threshold) SHOULD be covered."""
+        demand_item = _make_evidence("d_similar", "Blue Biotech", "MARINE")
+        demand_item.name = "bioprospecting marine organisms pharmaceutical applications"
+        supply_item = _make_evidence(
+            "s_similar", "Blue Biotech", "MARINE", origin="static_baseline"
+        )
+        supply_item.name = "bioprospecting organisms pharmaceutical marine applications"
+        demand = {"Blue Biotech": [demand_item]}
+        supply = {"Blue Biotech": [supply_item]}
+        result = compute_gap_model(demand, supply, sectors=["Blue Biotech"])
+        marine_cluster = next(
+            c for c in result.all_clusters
+            if c.sector == "Blue Biotech" and c.qmbd_axis == "MARINE"
+        )
+        missing_ids = {e.competence_id for e in marine_cluster.missing_items}
+        assert "d_similar" not in missing_ids, (
+            "High-similarity names must be marked as covered"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Tests: gap-aware priority score (Fix 4)
+# ---------------------------------------------------------------------------
+
+
+class TestGapAwarePriorityScore:
+    """Priority score must increase with gap_ratio and missing_count."""
+
+    def _cluster_with_gap(
+        self, demand: int, missing: int, year: str = "2022", conf: float = 0.8
+    ) -> GapCluster:
+        d_items = [
+            _make_evidence(f"d{i}", "Blue Biotech", "MARINE", year=year, confidence_score=conf)
+            for i in range(demand)
+        ]
+        m_items = d_items[:missing]
+        return GapCluster(
+            sector="Blue Biotech",
+            qmbd_axis="MARINE",
+            demand_items=d_items,
+            supply_items=[],
+            missing_items=m_items,
+        )
+
+    def test_higher_gap_ratio_raises_score(self) -> None:
+        """A cluster with 100% gap must score higher than one with 0% gap."""
+        full_gap = self._cluster_with_gap(demand=4, missing=4)
+        no_gap = self._cluster_with_gap(demand=4, missing=0)
+        all_clusters = [full_gap, no_gap]
+        s_full = compute_priority_score(full_gap, all_clusters)
+        s_none = compute_priority_score(no_gap, all_clusters)
+        assert s_full > s_none, "Higher gap_ratio must yield higher priority score"
+
+    def test_higher_missing_count_raises_score(self) -> None:
+        """A cluster with more missing items must score higher (all else equal)."""
+        many_missing = self._cluster_with_gap(demand=6, missing=6)
+        few_missing = self._cluster_with_gap(demand=6, missing=1)
+        all_clusters = [many_missing, few_missing]
+        s_many = compute_priority_score(many_missing, all_clusters)
+        s_few = compute_priority_score(few_missing, all_clusters)
+        assert s_many > s_few, "Higher missing_count must yield higher priority score"
+
+    def test_zero_gap_cluster_gets_low_score(self) -> None:
+        """A fully-covered cluster must have lower score than a full-gap cluster."""
+        full_gap = self._cluster_with_gap(demand=4, missing=4)
+        zero_gap = self._cluster_with_gap(demand=4, missing=0)
+        score_gap = compute_priority_score(full_gap, [full_gap, zero_gap])
+        score_zero = compute_priority_score(zero_gap, [full_gap, zero_gap])
+        assert score_gap > score_zero
+
+
+# ---------------------------------------------------------------------------
+# Tests: CSV supply parsing (Fix 2)
+# ---------------------------------------------------------------------------
+
+
+class TestMicrocredentialsCsvParsing:
+    def _csv_path(self) -> Path:
+        return Path(
+            "data/derived/"
+            "Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials.csv"
+        )
+
+    def test_csv_parsed_when_file_exists(self) -> None:
+        """Blue Clusters CSV must produce supply evidence when file is present."""
+        from run_full_analysis import (
+            REPO_ROOT,
+            _collect_supply_from_microcredentials_csv,
+        )
+
+        csv_path = REPO_ROOT / self._csv_path()
+        if not csv_path.exists():
+            pytest.skip("Blue Clusters CSV not present in this checkout")
+
+        supply = _collect_supply_from_microcredentials_csv(csv_path)
+        assert supply, "CSV parsing must produce at least one sector of supply evidence"
+        # Each item must be tagged as existing_microcredential
+        for sector_items in supply.values():
+            for item in sector_items:
+                assert item.origin == "existing_microcredential"
+                assert item.provider == "microcredentials_clusters_csv"
+
+    def test_csv_parsed_returns_empty_for_missing_file(self, tmp_path: Path) -> None:
+        from run_full_analysis import _collect_supply_from_microcredentials_csv
+
+        supply = _collect_supply_from_microcredentials_csv(tmp_path / "nonexistent.csv")
+        assert supply == {}
+
+    def test_csv_parsed_covers_known_sectors(self) -> None:
+        """Parsed CSV must contain items for canonical SECTORS."""
+        from run_full_analysis import (
+            REPO_ROOT,
+            SECTORS,
+            _collect_supply_from_microcredentials_csv,
+        )
+
+        csv_path = REPO_ROOT / self._csv_path()
+        if not csv_path.exists():
+            pytest.skip("Blue Clusters CSV not present in this checkout")
+
+        supply = _collect_supply_from_microcredentials_csv(csv_path)
+        known = set(SECTORS) & set(supply.keys())
+        assert known, "CSV parsing must map to at least one canonical SECTORS entry"
+
+    def test_csv_run_gap_model_includes_microcredential_origin(self) -> None:
+        """run_gap_model with real CSV must include existing_microcredential in supply."""
+        from run_full_analysis import REPO_ROOT
+
+        csv_path = (
+            REPO_ROOT
+            / "data/derived"
+            / "Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials.csv"
+        )
+        if not csv_path.exists():
+            pytest.skip("Blue Clusters CSV not present in this checkout")
+
+        baseline = [
+            _make_competence("bl_a1", TMBDAxis.OCEANIC, ["Blue Biotech"], "A"),
+        ]
+        literature = [
+            _make_competence("lit_bb_001", TMBDAxis.MARINE, ["Blue Biotech"], "literature"),
+        ]
+        result = run_gap_model(baseline, literature)
+        all_origins = {
+            item.origin
+            for sector_items in result.supply_evidence.values()
+            for item in sector_items
+        }
+        assert "existing_microcredential" in all_origins
+
+
+# ---------------------------------------------------------------------------
+# Tests: provider provenance extraction (Fix 6)
+# ---------------------------------------------------------------------------
+
+
+class TestProviderProvenanceExtraction:
+    def _make_comp_with_authors(self, authors: str) -> "Competence":
+        return Competence(
+            id="lit_live_crossref_00001",
+            name="Test competence",
+            description="Test",
+            axis=TMBDAxis.MARINE,
+            dimension="literature",
+            source=CompetenceSource(
+                file="data/derived/x.csv",
+                row=1,
+                authors=authors,
+                year="2023",
+                paper_title="Some paper",
+                doi="10.1234/test",
+            ),
+            keywords=["crossref", "blue-economy"],
+            sectors=["Blue Biotech"],
+        )
+
+    def test_structured_authors_used_first(self) -> None:
+        """Provider must come from comp.source.authors when available."""
+        from run_full_analysis import _extract_provider_from_comp
+
+        comp = self._make_comp_with_authors("Smith, J.; Jones, K.")
+        provider = _extract_provider_from_comp(comp)
+        assert provider == "Smith, J.; Jones, K."
+
+    def test_id_slug_used_when_no_authors(self) -> None:
+        """Provider must be extracted from lit_live_<provider>_ID when authors absent."""
+        from run_full_analysis import _extract_provider_from_comp
+
+        comp = self._make_comp_with_authors("")
+        comp.id = "lit_live_scopus_00042"
+        provider = _extract_provider_from_comp(comp)
+        assert provider == "scopus"
+
+    def test_keyword_fallback_marked_as_inferred(self) -> None:
+        """Keyword fallback must be prefixed with 'inferred:keyword:'."""
+        from run_full_analysis import _extract_provider_from_comp
+
+        comp = _make_competence("baseline_x", TMBDAxis.MARINE, ["Blue Biotech"])
+        comp.keywords = ["special-provider-kw"]
+        provider = _extract_provider_from_comp(comp)
+        assert provider.startswith("inferred:keyword:"), (
+            f"Expected keyword fallback with 'inferred:keyword:' prefix, got: {provider!r}"
+        )
+
+    def test_unknown_returned_when_no_info(self) -> None:
+        from run_full_analysis import _extract_provider_from_comp
+
+        comp = _make_competence("baseline_y", TMBDAxis.MARINE, ["Blue Biotech"])
+        comp.keywords = []
+        provider = _extract_provider_from_comp(comp)
+        assert provider == "unknown"

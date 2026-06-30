@@ -1371,11 +1371,21 @@ def run_gap_analysis(
 # ---------------------------------------------------------------------------
 
 # Supply files to scan for existing coursework/micro-credentials/curricula.
-# Paths are relative to REPO_ROOT; each file gets an origin tag.
+# Paths are relative to REPO_ROOT; each file gets an explicit origin tag.
+#
+# Origin taxonomy (mirrors src/gap_model.py module docstring):
+#   static_baseline                  — Univ. Szczecin verified baseline
+#   existing_microcredential         — parsed from existing curriculum/microcredential CSV
+#   generated_credential_previous_run — outputs/credentials_database.json of a prior run
+#                                       (recommended, NOT verified institutional supply)
+#   supply_file_unparsed             — file detected but not yet parsed
 _SUPPLY_FILE_SPECS: List[Dict[str, str]] = [
     {
         "path": "outputs/credentials_database.json",
-        "origin": "supply_file",
+        # IMPORTANT: this is a *generated* output from a previous analysis run,
+        # not verified institutional supply. It is tagged accordingly so the gap
+        # model can distinguish it from the verified baseline.
+        "origin": "generated_credential_previous_run",
         "provider": "credentials_database",
     },
     {
@@ -1383,7 +1393,7 @@ _SUPPLY_FILE_SPECS: List[Dict[str, str]] = [
             "data/derived/"
             "Blue Social Competences Univ Szczecin - Blue Clusters for Microcredentials.csv"
         ),
-        "origin": "supply_file",
+        "origin": "existing_microcredential",
         "provider": "microcredentials_clusters_csv",
     },
 ]
@@ -1397,7 +1407,15 @@ def _competence_to_gap_evidence(
     *,
     confidence_score: float = 0.8,
 ) -> GapEvidence:
-    """Convert a *Competence* object into a *GapEvidence* item for *sector*."""
+    """Convert a *Competence* object into a *GapEvidence* item for *sector*.
+
+    Provider resolution priority:
+      1. ``comp.source.authors`` (structured provenance, most reliable)
+      2. ID-based extraction for ``lit_live_<provider>_NNNNN`` IDs
+      3. Caller-supplied *provider* argument (used for baseline, credentials_db, etc.)
+      Keyword-based fallback is NOT used here; call ``_extract_provider_from_comp``
+      separately when you want inferred provider with explicit ``inferred:`` marking.
+    """
     src = comp.source
     year = getattr(src, "year", "") or ""
     doi = getattr(src, "doi", "") or ""
@@ -1415,11 +1433,12 @@ def _competence_to_gap_evidence(
                 pass
     effective_cs = raw_cs if raw_cs is not None else confidence_score
 
-    # supporting_providers from keywords
+    # supporting_providers from keywords (exclude thematic/control tags)
     supporting: List[str] = [
         kw
         for kw in comp.keywords
         if kw not in {"live-api", "literature", "baseline"} and not kw.startswith("claim-")
+        and not kw.startswith("overlap-")
     ]
 
     return GapEvidence(
@@ -1447,8 +1466,10 @@ def _collect_supply_from_credentials_db(
 ) -> Dict[str, List[GapEvidence]]:
     """Load supply evidence from an existing *credentials_database.json*.
 
-    For each credential that references known competence IDs, creates a
-    GapEvidence item tagged as 'supply_file'.
+    IMPORTANT: ``credentials_database.json`` is a *generated* output produced by
+    a previous analysis run.  It is tagged with origin
+    ``'generated_credential_previous_run'`` so the gap model can distinguish it
+    from the verified Univ. Szczecin baseline.
 
     Args:
         db_path: Path to credentials_database.json.
@@ -1464,6 +1485,11 @@ def _collect_supply_from_credentials_db(
         data = json.loads(db_path.read_text(encoding="utf-8"))
     except Exception:
         return supply
+    source_file = (
+        db_path.relative_to(REPO_ROOT).as_posix()
+        if db_path.is_absolute() and db_path.is_relative_to(REPO_ROOT)
+        else str(db_path)
+    )
     for cred in data.get("credentials", []):
         sector = cred.get("sector", "")
         if not sector:
@@ -1478,10 +1504,8 @@ def _collect_supply_from_credentials_db(
                     description=cred.get("title", ""),
                     sector=sector,
                     qmbd_axis="MARITIME",  # default for unresolved IDs
-                    origin="supply_file",
-                    source_file=db_path.relative_to(REPO_ROOT).as_posix()
-                    if db_path.is_absolute()
-                    else str(db_path),
+                    origin="generated_credential_previous_run",
+                    source_file=source_file,
                     source_row=0,
                     provider="credentials_database",
                     doi="",
@@ -1495,12 +1519,124 @@ def _collect_supply_from_credentials_db(
                 evidence = _competence_to_gap_evidence(
                     comp,
                     sector=sector,
-                    origin="supply_file",
+                    origin="generated_credential_previous_run",
                     provider="credentials_database",
                     confidence_score=0.7,
                 )
                 evidence.overlap_status = "supply_only"
             supply.setdefault(sector, []).append(evidence)
+    return supply
+
+
+# Canonical CSV sector name → SECTORS canonical name mapping
+_CSV_SECTOR_MAP: Dict[str, str] = {
+    "Coastal Tourism": "Coastal Tourism",
+    "Maritime Defence": "Maritime Defence",
+    "Infrastructure & Robotics": "Infra & Robotics",
+    "Renewable Energy (Wind/Ocean)": "Renewable Energy",
+    "Non-Living Resources (Mining)": "Non-living Res.",
+    "Desalination": "Desalination",
+    "Maritime Transport": "Maritime Transport",
+    "Port Activities": "Port Activities",
+    "Ship Repair & Shipbuilding": "Ship Repair",
+    "Blue Biotech": "Blue Biotech",
+    "Living Resources (Fisheries/Aqua)": "Living Res.",
+    "R&I (Research & Innovation)": "R&I",
+}
+
+# CSV dimension label → QMBD axis name
+_CSV_DIMENSION_AXIS: Dict[str, str] = {
+    "A. Understanding": "OCEANIC",
+    "A. Competences": "OCEANIC",
+    "B. Digital": "MARITIME",
+    "C. Sustainability": "MARINE",
+    "D. Business": "MARITIME",
+}
+
+
+def _collect_supply_from_microcredentials_csv(
+    csv_path: Path,
+) -> Dict[str, List[GapEvidence]]:
+    """Parse the Blue Clusters for Microcredentials CSV into supply evidence.
+
+    The CSV maps dimension × sector clusters to competence descriptions.  Each
+    non-empty cell in a dimension row is parsed into a ``GapEvidence`` item
+    tagged as ``'existing_microcredential'``.
+
+    Args:
+        csv_path: Path to "Blue Social Competences Univ Szczecin -
+            Blue Clusters for Microcredentials.csv".
+
+    Returns:
+        Dict mapping canonical sector → list of GapEvidence supply items.
+    """
+    supply: Dict[str, List[GapEvidence]] = {}
+    if not csv_path.exists():
+        return supply
+    try:
+        import csv as csv_mod
+
+        source_file = (
+            csv_path.relative_to(REPO_ROOT).as_posix()
+            if csv_path.is_absolute() and csv_path.is_relative_to(REPO_ROOT)
+            else str(csv_path)
+        )
+        with open(csv_path, newline="", encoding="utf-8") as fh:
+            reader = csv_mod.reader(fh)
+            rows = list(reader)
+
+        # Row 2 (index 2) is the header row: "Dimension", sector1, sector2, ...
+        if len(rows) < 3:
+            return supply
+        header_row = rows[2]
+        sector_cols: Dict[int, str] = {}
+        for col_idx, col_val in enumerate(header_row):
+            canonical = _CSV_SECTOR_MAP.get(col_val.strip())
+            if canonical:
+                sector_cols[col_idx] = canonical
+
+        for row_idx, row in enumerate(rows[3:], start=3):
+            if not row:
+                continue
+            dim_label = row[0].strip()
+            axis = _CSV_DIMENSION_AXIS.get(dim_label)
+            if axis is None:
+                continue
+            for col_idx, sector in sector_cols.items():
+                if col_idx >= len(row):
+                    continue
+                cell = row[col_idx].strip()
+                if not cell:
+                    continue
+                # Each cell may contain multiple competences separated by
+                # line-breaks embedded in the cell; treat each line as one item
+                cell_parts = [p.strip() for p in cell.replace("\r", "").split("\n") if p.strip()]
+                for part_idx, part in enumerate(cell_parts):
+                    comp_id = (
+                        f"csv_mc_{dim_label.split('.')[0].strip().lower()}"
+                        f"_{sector.lower().replace(' ', '_').replace('&', 'and')}"
+                        f"_{row_idx}_{part_idx}"
+                    )
+                    evidence = GapEvidence(
+                        competence_id=comp_id,
+                        name=part[:120],
+                        description=f"From microcredentials clusters CSV: {dim_label} / {sector}",
+                        sector=sector,
+                        qmbd_axis=axis,
+                        origin="existing_microcredential",
+                        source_file=source_file,
+                        source_row=row_idx,
+                        provider="microcredentials_clusters_csv",
+                        doi="",
+                        title=part[:120],
+                        year="",
+                        confidence_score=0.85,
+                        overlap_status="supply_only",
+                        supporting_providers=[],
+                    )
+                    supply.setdefault(sector, []).append(evidence)
+    except Exception as exc:
+        log.warning("Could not parse microcredentials CSV %s: %s", csv_path, exc)
     return supply
 
 
@@ -1515,9 +1651,11 @@ def run_gap_model(
       - literature competences (static, from CSV files)
       - live API-derived competences (if provided)
 
-    Supply evidence:
-      - baseline competences (Univ Szczecin)
-      - competences referenced by outputs/credentials_database.json (if present)
+    Supply evidence (in order of institutional trustworthiness):
+      1. static_baseline  — verified Univ. Szczecin Blue Social Competences
+      2. existing_microcredential — parsed from Blue Clusters for Microcredentials CSV
+      3. generated_credential_previous_run — credentials_database.json from a prior run
+         (recommended outputs, NOT verified institutional supply)
 
     Args:
         baseline: Baseline (Univ Szczecin) Competence objects.
@@ -1536,7 +1674,11 @@ def run_gap_model(
     # --- Demand evidence ---
     demand: Dict[str, List[GapEvidence]] = {s: [] for s in SECTORS}
     for comp in literature:
-        origin = "live" if "live_api" in comp.id or comp.dimension == "literature" and "live" in comp.id else "static_literature"
+        origin = (
+            "live"
+            if comp.id.startswith("lit_live_")
+            else "static_literature"
+        )
         for sector in comp.sectors:
             if sector in demand:
                 demand[sector].append(
@@ -1586,12 +1728,14 @@ def run_gap_model(
             for sector, items in extra.items():
                 if sector in supply:
                     supply[sector].extend(items)
-        # CSV supply files: currently only logged; CSV scanning is complex
-        # and kept as a future extension hook.
         elif fpath.suffix.lower() == ".csv":
-            log.debug(
-                "Supply CSV file detected (not yet parsed into evidence): %s", fpath
-            )
+            extra_csv = _collect_supply_from_microcredentials_csv(fpath)
+            added = 0
+            for sector, items in extra_csv.items():
+                if sector in supply:
+                    supply[sector].extend(items)
+                    added += len(items)
+            log.debug("Loaded %d supply items from CSV: %s", added, fpath)
 
     result = compute_gap_model(
         demand_evidence=demand,
@@ -1607,19 +1751,38 @@ def run_gap_model(
 
 
 def _extract_provider_from_comp(comp: Competence) -> str:
-    """Extract provider name from competence keywords or ID."""
-    for kw in comp.keywords:
-        if kw not in {
-            "live-api",
-            "literature",
-            "baseline",
-            "blue-economy",
-        } and not kw.startswith("claim-") and not kw.startswith("overlap-"):
-            return kw
+    """Extract provider name from structured source metadata or competence ID.
+
+    Resolution priority:
+      1. ``comp.source.authors`` — structured provenance from the source record
+      2. ``lit_live_<provider>_NNNNN`` ID pattern — for live API competences
+      3. Keyword fallback — marked as ``inferred:keyword:<kw>`` to signal
+         that this is an inferred value, not structured provenance.
+
+    Args:
+        comp: The competence to extract a provider from.
+
+    Returns:
+        Provider string; never empty (falls back to ``'unknown'``).
+    """
+    # Priority 1: structured authors field
+    authors = getattr(comp.source, "authors", "") or ""
+    if authors.strip():
+        return authors.strip()[:80]
+
+    # Priority 2: live-API ID slug (lit_live_<provider>_NNNNN)
     if comp.id.startswith("lit_live_"):
         parts = comp.id.split("_")
-        if len(parts) >= 3:
+        # lit_live_<provider>_<idx>  →  parts[2] = provider
+        if len(parts) >= 4:
             return parts[2]
+
+    # Priority 3: keyword fallback — explicitly marked as inferred
+    _exclude = {"live-api", "literature", "baseline", "blue-economy"}
+    for kw in comp.keywords:
+        if kw not in _exclude and not kw.startswith("claim-") and not kw.startswith("overlap-"):
+            return f"inferred:keyword:{kw}"
+
     return "unknown"
 
 
@@ -1695,7 +1858,12 @@ def export_gap_priority_ranking_csv(
     result: GapModelResult,
     output_path: Path,
 ) -> None:
-    """Export priority-ranked missing clusters to *gap_priority_ranking.csv*."""
+    """Export priority-ranked missing clusters to *gap_priority_ranking.csv*.
+
+    Each row includes full audit fields for independent inspection:
+    Top_Origins, Top_Providers, Top_DOIs, Top_Titles, Year_Range,
+    Average_Confidence, Coverage_Method, Supporting_Providers.
+    """
     ranked = sorted(
         result.missing_clusters,
         key=lambda c: c.priority_score,
@@ -1713,25 +1881,65 @@ def export_gap_priority_ranking_csv(
                 "Demand_Count",
                 "Gap_Ratio",
                 "Representative_Competences",
+                "Top_Origins",
+                "Top_Providers",
+                "Top_DOIs",
+                "Top_Titles",
+                "Year_Range",
+                "Average_Confidence",
+                "Coverage_Method",
+                "Supporting_Providers",
             ]
         )
         for rank, cluster in enumerate(ranked, start=1):
-            rep_names = "; ".join(
-                item.name[:60] for item in cluster.missing_items[:3]
+            missing = cluster.missing_items
+            rep_names = "; ".join(item.name[:60] for item in missing[:3])
+
+            # Audit: aggregate provenance fields from missing items
+            origins = _top_values([i.origin for i in missing], n=3)
+            providers = _top_values([i.provider for i in missing], n=3)
+            dois = _top_values([i.doi for i in missing if i.doi], n=3)
+            titles = _top_values([i.title[:60] for i in missing if i.title], n=3)
+            years = [i.year for i in missing if i.year]
+            year_range = f"{min(years)}–{max(years)}" if years else ""
+            avg_conf = (
+                sum(i.confidence_score for i in missing) / len(missing)
+                if missing
+                else 0.0
             )
+            sup_providers = _top_values(
+                [sp for i in missing for sp in i.supporting_providers], n=3
+            )
+
             writer.writerow(
                 [
                     rank,
                     cluster.sector,
                     cluster.qmbd_axis,
                     f"{cluster.priority_score:.4f}",
-                    len(cluster.missing_items),
+                    len(missing),
                     len(cluster.demand_items),
                     f"{cluster.gap_ratio:.4f}",
                     rep_names,
+                    "; ".join(origins),
+                    "; ".join(providers),
+                    "; ".join(dois),
+                    "; ".join(titles),
+                    year_range,
+                    f"{avg_conf:.3f}",
+                    cluster.coverage_method,
+                    "; ".join(sup_providers),
                 ]
             )
     log.info("  Exported: %s", output_path)
+
+
+def _top_values(values: List[str], n: int = 3) -> List[str]:
+    """Return the top-*n* most frequent non-empty values from *values*."""
+    from collections import Counter
+
+    counts = Counter(v for v in values if v)
+    return [v for v, _ in counts.most_common(n)]
 
 _SECTOR_LEARNER_PROFILES: Dict[str, str] = {
     "Blue Biotech": (
