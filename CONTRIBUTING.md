@@ -6,7 +6,7 @@ Welcome! This guide explains how to set up the development environment and start
 
 ## 1. Prerequisites
 
-- **Python ≥ 3.9** (check with `python --version`)
+- **Python ≥ 3.10** (check with `python --version`)
 - **Git**
 - **Node.js ≥ 18** (optional, required only for GitHub Copilot MCP integration)
 
@@ -19,7 +19,7 @@ py --version
 ```
 
 If Python is not installed:
-1. Download from https://python.org (version 3.9 or higher)
+1. Download from https://python.org (version 3.10 or higher)
 2. **Important**: Check "Add Python to PATH" during installation
 3. Restart your terminal/command prompt
 
@@ -62,13 +62,8 @@ cd morskamary
 ## 3. Install dependencies
 
 ```bash
-pip install -r requirements.txt
-```
-
-To also install development tools (formatter, linter, type checker):
-
-```bash
-pip install black flake8 mypy
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
 ```
 
 ---
@@ -78,7 +73,7 @@ pip install black flake8 mypy
 Run the test suite to confirm everything works:
 
 ```bash
-pytest tests/
+python -m pytest tests/
 ```
 
 All 8 tests should pass. Then run the demo entry point:
@@ -100,19 +95,19 @@ black src/ tests/
 ### Lint
 
 ```bash
-flake8 src/ tests/
+python -m flake8 .
 ```
 
 ### Type-check
 
 ```bash
-mypy src/
+python -m mypy src scripts run_full_analysis.py main.py
 ```
 
 ### Run tests
 
 ```bash
-pytest tests/ -v
+python -m pytest tests/ -v
 ```
 
 ---

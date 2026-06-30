@@ -6,10 +6,8 @@ Covers deduplication, coverage, confidence scoring, and triangulation.
 
 from __future__ import annotations
 
-import pytest
-
 from src.scientific_sources.models import LiteratureRecord, ProviderResult
-from src.nlp_reliability.deduplication import deduplicate_records, TITLE_SIMILARITY_THRESHOLD
+from src.nlp_reliability.deduplication import deduplicate_records
 from src.nlp_reliability.source_coverage import compute_coverage
 from src.nlp_reliability.confidence import score_record_confidence, is_low_confidence
 from src.nlp_reliability.triangulation import (
@@ -190,9 +188,7 @@ class TestTriangulation:
 
     def test_overlap_matrix_skips_records_without_doi(self):
         results = [
-            ProviderResult(
-                records=[_rec(doi="", source_id="a", provider="Crossref")]
-            )
+            ProviderResult(records=[_rec(doi="", source_id="a", provider="Crossref")])
         ]
         matrix = build_provider_overlap_matrix(results)
         assert matrix["total_unique_dois"] == 0

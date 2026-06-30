@@ -27,7 +27,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
@@ -98,7 +98,8 @@ class ElsevierScopusProvider(BaseProvider):
             url, headers={"X-ELS-APIKey": self._api_key, "Accept": "application/json"}
         )
         with urllib.request.urlopen(req, timeout=12) as resp:
-            return json.loads(resp.read().decode())
+            payload = json.loads(resp.read().decode())
+        return cast(Dict[str, Any], payload)
 
     @staticmethod
     def _parse_year(entry: Dict[str, Any]) -> str:
@@ -122,7 +123,9 @@ class ElsevierScopusProvider(BaseProvider):
         if isinstance(raw_keywords, str):
             for separator in ("|", ";", ","):
                 if separator in raw_keywords:
-                    terms = [t.strip() for t in raw_keywords.split(separator) if t.strip()]
+                    terms = [
+                        t.strip() for t in raw_keywords.split(separator) if t.strip()
+                    ]
                     break
             if not terms and raw_keywords.strip():
                 terms = [raw_keywords.strip()]
@@ -149,7 +152,9 @@ class ElsevierScopusProvider(BaseProvider):
                 return ", ".join(names)
         return "Unknown"
 
-    def _parse_items(self, items: List[Dict[str, Any]], query: str) -> List[LiteratureRecord]:
+    def _parse_items(
+        self, items: List[Dict[str, Any]], query: str
+    ) -> List[LiteratureRecord]:
         records: List[LiteratureRecord] = []
         for item in items:
             title = str(item.get("dc:title", "")).strip()
@@ -162,7 +167,9 @@ class ElsevierScopusProvider(BaseProvider):
             year = self._parse_year(item)
             citation_count = item.get("citedby-count")
             try:
-                citation_count_int = int(citation_count) if citation_count is not None else None
+                citation_count_int = (
+                    int(citation_count) if citation_count is not None else None
+                )
             except (TypeError, ValueError):
                 citation_count_int = None
             records.append(
@@ -182,6 +189,7 @@ class ElsevierScopusProvider(BaseProvider):
                 )
             )
         return records
+
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
@@ -268,7 +276,9 @@ class ElsevierScopusProvider(BaseProvider):
             licence_note=_LICENCE_NOTE,
         )
 
-    def _parse_entries(self, entries: List[Dict[str, Any]], query: str) -> List[LiteratureRecord]:
+    def _parse_entries(
+        self, entries: List[Dict[str, Any]], query: str
+    ) -> List[LiteratureRecord]:
         """Parse a list of Scopus entry dicts into LiteratureRecord objects.
 
         Scopus returns a single ``{"error": ...}`` entry when the result set
@@ -312,8 +322,11 @@ class ElsevierScopusProvider(BaseProvider):
                 rate_limit_status="rate-limited",
             )
         if exc.code in (401, 403):
-            return ProviderResult(errors=[f"Scopus {action} unauthorized (HTTP {exc.code})."])
+            return ProviderResult(
+                errors=[f"Scopus {action} unauthorized (HTTP {exc.code})."]
+            )
         return ProviderResult(errors=[f"Scopus {action} failed (HTTP {exc.code})."])
+
     # ------------------------------------------------------------------
     # Public API (BaseProvider contract)
     # ------------------------------------------------------------------
@@ -323,7 +336,9 @@ class ElsevierScopusProvider(BaseProvider):
         if not self._api_key:
             return self._not_configured_result()
         encoded_query = urllib.parse.quote(query)
-        url = f"{self._api_base}?query={encoded_query}&count={max_results}&view=STANDARD"
+        url = (
+            f"{self._api_base}?query={encoded_query}&count={max_results}&view=STANDARD"
+        )
         try:
             payload = self._request_json(url)
             items = payload.get("search-results", {}).get("entry", [])
@@ -356,9 +371,7 @@ class ElsevierScopusProvider(BaseProvider):
                 records[0].source_query = doi
             return ProviderResult(
                 records=records,
-                provenance=self._make_evidence(
-                    doi, "scopus/search?query=DOI", records
-                ),
+                provenance=self._make_evidence(doi, "scopus/search?query=DOI", records),
             )
         except urllib.error.HTTPError as exc:
             return self._http_error_result("DOI verification", exc)

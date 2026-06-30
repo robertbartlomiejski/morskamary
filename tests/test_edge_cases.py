@@ -1,7 +1,6 @@
 """Edge case and error handling tests for morskamary."""
 
 import pytest
-from pathlib import Path
 from src.core import (
     Competence,
     MicroCredential,
@@ -135,15 +134,25 @@ class TestClassifyCompetenceOrigin:
         """Test unknown competence identification"""
         assert classify_competence_origin("comp_001") == ORIGIN_UNKNOWN
         assert classify_competence_origin("other_001") == ORIGIN_UNKNOWN
-        assert classify_competence_origin("baselinea1") == ORIGIN_UNKNOWN  # no underscore
-        assert classify_competence_origin("my_baseline_data") == ORIGIN_UNKNOWN  # not at start
+        assert (
+            classify_competence_origin("baselinea1") == ORIGIN_UNKNOWN
+        )  # no underscore
+        assert (
+            classify_competence_origin("my_baseline_data") == ORIGIN_UNKNOWN
+        )  # not at start
 
     def test_edge_cases(self):
         """Test edge cases for origin classification"""
-        assert classify_competence_origin("baseline") == ORIGIN_BASELINE  # just "baseline"
+        assert (
+            classify_competence_origin("baseline") == ORIGIN_BASELINE
+        )  # just "baseline"
         assert classify_competence_origin("lit_") == ORIGIN_LITERATURE  # just "lit_"
-        assert classify_competence_origin("baseline2_test") == ORIGIN_UNKNOWN  # baseline not at boundary
-        assert classify_competence_origin("  baseline_a1  ") == ORIGIN_BASELINE  # with whitespace
+        assert (
+            classify_competence_origin("baseline2_test") == ORIGIN_UNKNOWN
+        )  # baseline not at boundary
+        assert (
+            classify_competence_origin("  baseline_a1  ") == ORIGIN_BASELINE
+        )  # with whitespace
 
 
 class TestCompetenceEdgeCases:
@@ -302,7 +311,7 @@ class TestCompetenceMapperEdgeCases:
         # User has more competences than required
         gaps = mapper.analyze_competence_gaps(
             available=["comp_001", "comp_002", "comp_003"],
-            required_sector="test-sector"
+            required_sector="test-sector",
         )
 
         assert len(gaps["available"]) == 1  # Only comp_001 is required

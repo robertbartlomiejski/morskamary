@@ -51,8 +51,12 @@ def scan_pdfs() -> list[Path]:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--force", action="store_true", help="Overwrite existing sidecar text files")
-    ap.add_argument("--limit", type=int, default=0, help="Convert only first N PDFs (0 = no limit)")
+    ap.add_argument(
+        "--force", action="store_true", help="Overwrite existing sidecar text files"
+    )
+    ap.add_argument(
+        "--limit", type=int, default=0, help="Convert only first N PDFs (0 = no limit)"
+    )
     args = ap.parse_args()
 
     pdfs = scan_pdfs()
@@ -86,7 +90,9 @@ def main() -> None:
         sidecar.write_text(text, encoding="utf-8")
         converted += 1
 
-    print(f"PDF sidecars: converted={converted} skipped={skipped} failed={failed} (repo_root={REPO_ROOT})")
+    print(
+        f"PDF sidecars: converted={converted} skipped={skipped} failed={failed} (repo_root={REPO_ROOT})"
+    )
 
 
 if __name__ == "__main__":

@@ -6,9 +6,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import patch
 
 # Ensure scripts/ is importable
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
@@ -19,10 +17,8 @@ from sync_audit import (  # noqa: E402
     _file_hash,
     check_changelog_governance,
     check_git_status,
-    check_manifest_drift,
     check_mcp_config,
     check_outputs_drift,
-    check_provider_capabilities,
     main,
 )
 
@@ -299,8 +295,6 @@ class TestCISafety:
 
     def test_provider_capability_reexport_no_false_drift_from_generated_at(self, tmp_path):
         """Re-export with only generated_at/configured changes should not warn."""
-        from sync_audit import _capabilities_semantically_equal
-
         old_data = {
             "generated_at": "2026-01-01T00:00:00Z",
             "providers": {
@@ -319,8 +313,6 @@ class TestCISafety:
 
     def test_provider_capability_structural_change_detected(self, tmp_path):
         """Structural changes (new provider, changed fields) should be detected."""
-        from sync_audit import _capabilities_semantically_equal
-
         old_data = {
             "generated_at": "2026-01-01T00:00:00Z",
             "providers": {

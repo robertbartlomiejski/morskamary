@@ -1,11 +1,9 @@
 """Tests for scripts/build_derived.py — Excel to CSV conversion logic."""
 
-import json
 from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
-import pytest
 
 from scripts.build_derived import (
     export_sheet,
@@ -285,4 +283,3 @@ class TestMainIntegration:
         result = main()
         # main() returns None, not int, so we just verify it runs
         assert result is None
-

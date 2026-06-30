@@ -1,3 +1,9 @@
 [flake8]
 max-line-length = 130
 extend-ignore = E128,E124,E203
+exclude =
+    deep_update_patch/*
+    demo_*.py
+    fix_all_md.py
+    fix_markdown.py
+    fix_markdown_bulk.py

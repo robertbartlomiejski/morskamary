@@ -14,7 +14,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
-from typing import Any, Dict, List
+from typing import Any, Dict, List, cast
 
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
@@ -68,7 +68,8 @@ class SciValProvider(BaseProvider):
             url, headers={"X-ELS-APIKey": self._api_key, "Accept": "application/json"}
         )
         with urllib.request.urlopen(req, timeout=12) as resp:
-            return json.loads(resp.read().decode())
+            payload = json.loads(resp.read().decode())
+        return cast(Dict[str, Any], payload)
 
     @staticmethod
     def _parse_topics(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -155,7 +156,9 @@ class SciValProvider(BaseProvider):
                 rate_limit_status="rate-limited",
             )
         if exc.code in (401, 403):
-            return ProviderResult(errors=[f"SciVal {action} unauthorized (HTTP {exc.code})."])
+            return ProviderResult(
+                errors=[f"SciVal {action} unauthorized (HTTP {exc.code})."]
+            )
         return ProviderResult(errors=[f"SciVal {action} failed (HTTP {exc.code})."])
 
     def search(self, query: str, max_results: int = 5) -> ProviderResult:
@@ -173,7 +176,9 @@ class SciValProvider(BaseProvider):
             ]
             return ProviderResult(
                 records=records,
-                provenance=self._make_evidence(query, "scival/topicCompetency", records),
+                provenance=self._make_evidence(
+                    query, "scival/topicCompetency", records
+                ),
             )
         except urllib.error.HTTPError as exc:
             return self._http_error_result("search", exc)
