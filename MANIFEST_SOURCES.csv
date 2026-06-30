@@ -879,6 +879,7 @@ src/core.py,script,,,,,,core,yes
 src/cumulative_analysis/__init__.py,script,,,,,,init,yes
 src/cumulative_analysis/triangulator.py,script,,,,,,triangulator,yes
 src/dimension_mapping.py,script,,,,,,dimension_mapping,yes
+src/gap_model.py,script,,,,,,gap_model,yes
 src/literature_extraction.py,script,,,,,,literature_extraction,yes
 src/nlp_reliability/__init__.py,script,,,,,,init,yes
 src/nlp_reliability/confidence.py,script,,,,,,confidence,yes
@@ -926,6 +927,7 @@ tests/test_edge_cases.py,script,,,,,,test_edge_cases,yes
 tests/test_export_live_research_records.py,script,,,,,,test_export_live_research_records,yes
 tests/test_export_research_records_workflow.py,script,,,,,,test_export_research_records_workflow,yes
 tests/test_full_live_analysis_workflow.py,script,,,,,,test_full_live_analysis_workflow,yes
+tests/test_gap_model.py,script,,,,,,test_gap_model,yes
 tests/test_generate_manifest.py,script,,,,,,test_generate_manifest,yes
 tests/test_literature_extraction.py,script,,,,,,test_literature_extraction,yes
 tests/test_load_real_competences.py,script,,,,,,test_load_real_competences,yes

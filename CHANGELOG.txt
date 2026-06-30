@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-06-30 (PR A: dynamic gap model)
+  Change type add
+  Scope analysis pipeline scripts tests
+  Files affected src/gap_model.py run_full_analysis.py tests/test_gap_model.py CHANGELOG.txt
+  Summary Added explicit four-layer gap model (demand_evidence / supply_evidence / missing_clusters / priority_score) in src/gap_model.py. Wired run_gap_model() orchestration function and three new export functions into run_full_analysis.py main() pipeline. Added 30 unit and integration tests.
+  Reason The previous run_gap_analysis() treated supply as purely static baseline competences and lacked rich provenance on evidence items. The new model separates demand (literature + live API records) from supply (baseline + existing supply files), computes a multi-factor priority score, and produces richer outputs for downstream credential generation.
+  Impact New output files: outputs/gaps_detailed.json, outputs/gaps_by_sector_axis.csv, outputs/gap_priority_ranking.csv. Existing outputs/gaps_summary.csv is preserved unchanged for backward compatibility.
+  Provenance src/gap_model.py — new module; run_full_analysis.py sections 3b and 3c — new code; tests/test_gap_model.py — 30 new tests.
+  Quality checks python -m pytest tests/test_gap_model.py -v (30 passed); python -m pytest tests/ -q (725 passed).
+
 - 2026-06-29 (flake8 installation hardening in legacy CI workflow)
   Change type fix
   Scope CI tests governance
