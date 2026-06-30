@@ -95,7 +95,7 @@ black src/ tests/
 ### Lint
 
 ```bash
-python -m flake8 $(git ls-files "*.py")
+python -m flake8 .
 ```
 
 ### Type-check

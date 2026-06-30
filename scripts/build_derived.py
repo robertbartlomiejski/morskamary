@@ -126,7 +126,7 @@ def main() -> None:
 
         for sheet in xls.sheet_names:
             try:
-                df = pd.read_excel(xlsx, sheet_name=sheet)
+                df = cast(pd.DataFrame, xls.parse(sheet_name=sheet))  # type: ignore[attr-defined]
             except Exception as e:
                 print(f"FAILED to parse: {rel} :: {sheet} ({e})")
                 continue

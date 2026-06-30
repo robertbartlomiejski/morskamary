@@ -43,13 +43,11 @@ License: See repository LICENSE file
 
 import json
 import sys
-import urllib.request  # kept for backward-compat monkeypatching in tests
+import urllib.request  # noqa: F401 - kept for tests that monkeypatch sb.urllib.request
 from typing import Any, Dict, List, Optional
 
 from src.scientific_sources.models import LiteratureRecord
 from src.scientific_sources.source_registry import SourceRegistry
-
-_urllib_request_for_test_monkeypatch = urllib.request
 
 
 class ScientificBridge:
