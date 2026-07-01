@@ -1588,17 +1588,27 @@ def _collect_supply_from_microcredentials_csv(
             reader = csv_mod.reader(fh)
             rows = list(reader)
 
-        # Row 2 (index 2) is the header row: "Dimension", sector1, sector2, ...
-        if len(rows) < 3:
+        # Dynamically locate the header row: first row whose first cell is
+        # "Dimension" and which contains at least one known sector header.
+        header_index: Optional[int] = None
+        for i, row in enumerate(rows):
+            if row and row[0].strip() == "Dimension":
+                if any(
+                    col.strip() in _CSV_SECTOR_MAP
+                    for col in row[1:]
+                ):
+                    header_index = i
+                    break
+        if header_index is None:
             return supply
-        header_row = rows[2]
+        header_row = rows[header_index]
         sector_cols: Dict[int, str] = {}
         for col_idx, col_val in enumerate(header_row):
             canonical = _CSV_SECTOR_MAP.get(col_val.strip())
             if canonical:
                 sector_cols[col_idx] = canonical
 
-        for row_idx, row in enumerate(rows[3:], start=4):
+        for row_idx, row in enumerate(rows[header_index + 1:], start=header_index + 2):
             if not row:
                 continue
             dim_label = row[0].strip()
@@ -1783,13 +1793,19 @@ def run_gap_model(
 
 
 def _extract_provider_from_comp(comp: Competence) -> str:
-    """Extract provider name from structured source metadata or competence ID.
+    """Extract the data-source provider name from competence metadata.
+
+    ``provider`` identifies the *data/source provider* (e.g. ``'crossref'``,
+    ``'scopus'``, ``'wos'``, ``'baseline'``, ``'credentials_database'``).
+    Bibliographic authorship (``comp.source.authors``) is **not** the provider
+    and must not be used here.
 
     Resolution priority:
-      1. ``comp.source.authors`` — structured provenance from the source record
-      2. ``lit_live_<provider>_NNNNN`` ID pattern — for live API competences
-      3. Keyword fallback — marked as ``inferred:keyword:<kw>`` to signal
+      1. ``lit_live_<provider>_NNNNN`` ID pattern — for live API competences
+         (e.g. ``'lit_live_scopus_00042'`` → provider ``'scopus'``).
+      2. Keyword fallback — marked as ``inferred:keyword:<kw>`` to signal
          that this is an inferred value, not structured provenance.
+      3. ``'unknown'`` — when no provider can be determined.
 
     Args:
         comp: The competence to extract a provider from.
@@ -1797,12 +1813,7 @@ def _extract_provider_from_comp(comp: Competence) -> str:
     Returns:
         Provider string; never empty (falls back to ``'unknown'``).
     """
-    # Priority 1: structured authors field
-    authors = getattr(comp.source, "authors", "") or ""
-    if authors.strip():
-        return authors.strip()[:80]
-
-    # Priority 2: live-API ID slug (lit_live_<provider>_NNNNN)
+    # Priority 1: live-API ID slug (lit_live_<provider>_NNNNN)
     if comp.id.startswith("lit_live_"):
         # Strip "lit_live_" prefix, then remove the trailing numeric suffix
         # e.g. "lit_live_web_of_science_clarivate_00002" → "web_of_science_clarivate"
@@ -1815,7 +1826,7 @@ def _extract_provider_from_comp(comp: Competence) -> str:
         if slug:
             return slug
 
-    # Priority 3: keyword fallback — explicitly marked as inferred
+    # Priority 2: keyword fallback — explicitly marked as inferred
     _exclude = {"live-api", "literature", "baseline", "blue-economy"}
     for kw in comp.keywords:
         if kw not in _exclude and not kw.startswith("claim-") and not kw.startswith("overlap-"):
