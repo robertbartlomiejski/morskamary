@@ -1433,12 +1433,15 @@ def _competence_to_gap_evidence(
                 pass
     effective_cs = raw_cs if raw_cs is not None else confidence_score
 
-    # supporting_providers from keywords (exclude thematic/control tags)
+    # supporting_providers: only populate from explicit "support:<provider>" keyword
+    # prefixes.  Generic thematic tags (e.g. "labor_justice", "oceanic") and
+    # control tags ("live-api", "literature") must NOT be treated as corroborating
+    # providers — doing so inflates the multi_source_support priority factor and
+    # writes misleading audit provenance.
     supporting: List[str] = [
-        kw
+        kw[len("support:"):].strip()
         for kw in comp.keywords
-        if kw not in {"live-api", "literature", "baseline"} and not kw.startswith("claim-")
-        and not kw.startswith("overlap-")
+        if kw.startswith("support:") and kw[len("support:"):].strip()
     ]
 
     return GapEvidence(
@@ -1595,7 +1598,7 @@ def _collect_supply_from_microcredentials_csv(
             if canonical:
                 sector_cols[col_idx] = canonical
 
-        for row_idx, row in enumerate(rows[3:], start=3):
+        for row_idx, row in enumerate(rows[3:], start=4):
             if not row:
                 continue
             dim_label = row[0].strip()
@@ -1608,9 +1611,21 @@ def _collect_supply_from_microcredentials_csv(
                 cell = row[col_idx].strip()
                 if not cell:
                     continue
-                # Each cell may contain multiple competences separated by
-                # line-breaks embedded in the cell; treat each line as one item
-                cell_parts = [p.strip() for p in cell.replace("\r", "").split("\n") if p.strip()]
+                # Each cell may contain multiple competences either separated by
+                # line-breaks or concatenated without breaks using competence-code
+                # prefixes (e.g. "A.1: desc text A.3: other desc").  Split on both
+                # embedded newlines and code-boundary lookaheads so each coded item
+                # becomes a separate GapEvidence entry.
+                raw_lines = [
+                    p.strip()
+                    for p in cell.replace("\r", "").split("\n")
+                    if p.strip()
+                ]
+                cell_parts: List[str] = []
+                for raw_line in raw_lines:
+                    # Split on embedded competence-code boundaries (e.g. "A.1:", "C.4:")
+                    sub = re.split(r"(?=\b[A-Z]\.\d+:)", raw_line)
+                    cell_parts.extend(p.strip() for p in sub if p.strip())
                 for part_idx, part in enumerate(cell_parts):
                     comp_id = (
                         f"csv_mc_{dim_label.split('.')[0].strip().lower()}"
@@ -1704,11 +1719,19 @@ def run_gap_model(
                 )
 
     # --- Supply evidence ---
-    supply: Dict[str, List[GapEvidence]] = {s: [] for s in SECTORS}
+    # verified_supply: only verified institutional sources (static_baseline +
+    # existing_microcredential CSV).  These are the ONLY items passed to
+    # compute_gap_model() for coverage calculations; generated credentials from
+    # prior runs must NOT close verified gaps.
+    verified_supply: Dict[str, List[GapEvidence]] = {s: [] for s in SECTORS}
+    # generated_supply: audit-only items from credentials_database.json of a prior run;
+    # kept separate so reruns cannot suppress gaps with the pipeline's own output.
+    generated_supply: Dict[str, List[GapEvidence]] = {s: [] for s in SECTORS}
+
     for comp in baseline:
         for sector in comp.sectors:
-            if sector in supply:
-                supply[sector].append(
+            if sector in verified_supply:
+                verified_supply[sector].append(
                     _competence_to_gap_evidence(
                         comp,
                         sector=sector,
@@ -1724,22 +1747,24 @@ def run_gap_model(
         if not fpath.exists():
             continue
         if fpath.suffix.lower() == ".json":
+            # JSON = credentials_database.json (generated output) → audit only
             extra = _collect_supply_from_credentials_db(fpath, all_comps)
             for sector, items in extra.items():
-                if sector in supply:
-                    supply[sector].extend(items)
+                if sector in generated_supply:
+                    generated_supply[sector].extend(items)
         elif fpath.suffix.lower() == ".csv":
+            # CSV = existing microcredentials → verified institutional supply
             extra_csv = _collect_supply_from_microcredentials_csv(fpath)
             added = 0
             for sector, items in extra_csv.items():
-                if sector in supply:
-                    supply[sector].extend(items)
+                if sector in verified_supply:
+                    verified_supply[sector].extend(items)
                     added += len(items)
             log.debug("Loaded %d supply items from CSV: %s", added, fpath)
 
     result = compute_gap_model(
         demand_evidence=demand,
-        supply_evidence=supply,
+        supply_evidence=verified_supply,
         sectors=SECTORS,
     )
     log.info(
@@ -1747,6 +1772,13 @@ def run_gap_model(
         len(result.all_clusters),
         len(result.missing_clusters),
     )
+
+    # Merge generated credentials into result.supply_evidence for audit visibility
+    # (they are deliberately NOT in the coverage calculation above)
+    for sector, items in generated_supply.items():
+        if items:
+            result.supply_evidence.setdefault(sector, []).extend(items)
+
     return result
 
 
@@ -1772,10 +1804,16 @@ def _extract_provider_from_comp(comp: Competence) -> str:
 
     # Priority 2: live-API ID slug (lit_live_<provider>_NNNNN)
     if comp.id.startswith("lit_live_"):
-        parts = comp.id.split("_")
-        # lit_live_<provider>_<idx>  →  parts[2] = provider
-        if len(parts) >= 4:
-            return parts[2]
+        # Strip "lit_live_" prefix, then remove the trailing numeric suffix
+        # e.g. "lit_live_web_of_science_clarivate_00002" → "web_of_science_clarivate"
+        stripped = comp.id[len("lit_live_"):]
+        parts = stripped.rsplit("_", 1)
+        if len(parts) == 2 and parts[1].isdigit():
+            slug = parts[0]
+        else:
+            slug = stripped
+        if slug:
+            return slug
 
     # Priority 3: keyword fallback — explicitly marked as inferred
     _exclude = {"live-api", "literature", "baseline", "blue-economy"}
@@ -1940,6 +1978,7 @@ def _top_values(values: List[str], n: int = 3) -> List[str]:
 
     counts = Counter(v for v in values if v)
     return [v for v, _ in counts.most_common(n)]
+
 
 _SECTOR_LEARNER_PROFILES: Dict[str, str] = {
     "Blue Biotech": (

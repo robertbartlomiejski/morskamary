@@ -24,6 +24,7 @@ supply_file_unparsed          — supply file detected but not yet parsed into e
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Sequence
 
@@ -307,18 +308,41 @@ _COVERAGE_STOPWORDS: frozenset = frozenset(
         "its", "has", "was", "not", "have", "been", "also", "their", "will",
         "can", "may", "use", "used", "using", "based", "blue", "ocean",
         "marine", "maritime", "oceanic", "sea", "water",
+        # generic competence vocabulary — too common to be discriminating
+        "skills", "skill", "competence", "competences", "competency",
+        "ability", "abilities", "understanding", "awareness", "knowledge",
+        "management", "development", "sector", "approach", "practice",
+        "practices", "systems", "system", "process", "processes",
     }
 )
 _NAME_SIM_THRESHOLD: float = 0.30  # minimum Jaccard similarity for name-based coverage
+_NAME_SIM_MIN_SHARED: int = 2      # minimum shared meaningful tokens required
 
 
 def _name_tokens(name: str) -> frozenset:
-    """Return meaningful lowercased tokens from *name* with stopwords removed."""
+    """Return meaningful lowercased tokens from *name* with stopwords removed.
+
+    Tokenization uses word characters only (handles punctuation such as
+    hyphens, slashes, and trailing commas transparently).
+    """
     return frozenset(
         t
-        for t in name.lower().split()
+        for t in re.findall(r"[a-zA-Z]+", name.lower())
         if len(t) > 3 and t not in _COVERAGE_STOPWORDS
     )
+
+
+def _name_similarity_covers(demand_tokens: frozenset, supply_tokens: frozenset) -> bool:
+    """Return True if supply tokens adequately cover demand tokens.
+
+    Both the Jaccard threshold AND a minimum shared-token count must be met so
+    that names sharing only one generic term (e.g. "digital skills" vs
+    "business skills") are not falsely marked as covered.
+    """
+    shared = demand_tokens & supply_tokens
+    if len(shared) < _NAME_SIM_MIN_SHARED:
+        return False
+    return _jaccard(demand_tokens, supply_tokens) >= _NAME_SIM_THRESHOLD
 
 
 def _jaccard(a: frozenset, b: frozenset) -> float:
@@ -386,6 +410,8 @@ def compute_gap_model(
             missing: List[GapEvidence] = []
             exact_covered = 0
             sim_covered = 0
+            # Track indices of supply items used for name-similarity coverage
+            sim_covered_supply_indices: set = set()
             for item in d_axis:
                 if item.competence_id in supply_axis_ids:
                     # Rule 1: exact ID match within same sector × axis
@@ -393,14 +419,14 @@ def compute_gap_model(
                 else:
                     # Rule 2: name-similarity match within same sector × axis
                     item_tokens = _name_tokens(item.name)
-                    covered_by_sim = any(
-                        _jaccard(item_tokens, st) >= _NAME_SIM_THRESHOLD
-                        for st in supply_token_sets
-                        if st  # skip empty supply token sets
-                    )
-                    if covered_by_sim:
-                        sim_covered += 1
-                    else:
+                    matched = False
+                    for s_idx, st in enumerate(supply_token_sets):
+                        if st and _name_similarity_covers(item_tokens, st):
+                            sim_covered += 1
+                            sim_covered_supply_indices.add(s_idx)
+                            matched = True
+                            break
+                    if not matched:
                         missing.append(item)
 
             # Determine dominant coverage method for this cluster
@@ -423,6 +449,13 @@ def compute_gap_model(
                 missing_items=missing,
                 coverage_method=coverage_method,
             )
+            # Annotate overlap_status on supply items while indices are available
+            d_ids = {i.competence_id for i in d_axis}
+            for s_idx, item in enumerate(s_axis):
+                if item.competence_id in d_ids or s_idx in sim_covered_supply_indices:
+                    item.overlap_status = "covered"
+                else:
+                    item.overlap_status = "supply_only"
             all_clusters.append(cluster)
 
     # Update overlap_status on demand items
@@ -431,12 +464,6 @@ def compute_gap_model(
         for item in cluster.demand_items:
             if item.competence_id in missing_ids:
                 item.overlap_status = "demand_only"
-            else:
-                item.overlap_status = "covered"
-        for item in cluster.supply_items:
-            d_ids = {i.competence_id for i in cluster.demand_items}
-            if item.competence_id not in d_ids:
-                item.overlap_status = "supply_only"
             else:
                 item.overlap_status = "covered"
 

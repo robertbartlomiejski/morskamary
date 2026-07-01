@@ -13,10 +13,8 @@ from __future__ import annotations
 
 import csv
 import json
-import re
 from pathlib import Path
 from typing import Dict, List
-from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -526,7 +524,6 @@ class TestExportFunctions:
 
     def test_export_gaps_summary_csv_still_produced(self, tmp_path: Path) -> None:
         """gaps_summary.csv must remain produced by export_gaps_summary_csv."""
-        sector = SECTORS[0]
         gaps = {
             s: GapAnalysis(
                 sector=s,
@@ -908,3 +905,312 @@ class TestProviderProvenanceExtraction:
         comp.keywords = []
         provider = _extract_provider_from_comp(comp)
         assert provider == "unknown"
+
+    def test_multiword_provider_slug_preserved(self) -> None:
+        """Multiword live-provider slugs must not be truncated to a single token."""
+        from run_full_analysis import _extract_provider_from_comp
+
+        comp = self._make_comp_with_authors("")
+        comp.id = "lit_live_web_of_science_clarivate_00002"
+        provider = _extract_provider_from_comp(comp)
+        assert provider == "web_of_science_clarivate", (
+            f"Full provider slug must be preserved; got {provider!r}"
+        )
+
+    def test_single_token_provider_slug_preserved(self) -> None:
+        """Single-word provider slugs must still resolve correctly."""
+        from run_full_analysis import _extract_provider_from_comp
+
+        comp = self._make_comp_with_authors("")
+        comp.id = "lit_live_crossref_00099"
+        provider = _extract_provider_from_comp(comp)
+        assert provider == "crossref"
+
+
+# ---------------------------------------------------------------------------
+# Regression tests: methodological edge cases
+# ---------------------------------------------------------------------------
+
+
+class TestGeneratedCredentialsNotUsedForCoverage:
+    """P1: generated_credential_previous_run items must NOT affect gap ratios."""
+
+    def _make_baseline(self) -> "List[Competence]":
+        return [_make_competence("bl_a1", TMBDAxis.MARINE, ["Blue Biotech"], "A")]
+
+    def _make_literature(self) -> "List[Competence]":
+        return [_make_competence("lit_001", TMBDAxis.MARINE, ["Blue Biotech"], "literature")]
+
+    def test_gap_ratios_unchanged_by_credentials_db(self, tmp_path: Path) -> None:
+        """Presence of credentials_database.json must not change per-cluster gap ratios."""
+        import run_full_analysis as rfa
+
+        baseline = self._make_baseline()
+        literature = self._make_literature()
+
+        # Run without any credentials database
+        result_without = run_gap_model(baseline, literature)
+
+        # Create a credentials database with a matching competence ID
+        cred_db = {
+            "metadata": {"total": 1},
+            "credentials": [
+                {
+                    "id": "mc_generated_001",
+                    "title": "Generated credential",
+                    "sector": "Blue Biotech",
+                    "competences": ["lit_001"],  # matches demand item ID
+                    "eqf_level": 4,
+                }
+            ],
+        }
+        db_path = tmp_path / "credentials_database.json"
+        db_path.write_text(json.dumps(cred_db), encoding="utf-8")
+
+        original_specs = rfa._SUPPLY_FILE_SPECS
+        rfa._SUPPLY_FILE_SPECS = [
+            {
+                "path": str(db_path),
+                "origin": "generated_credential_previous_run",
+                "provider": "credentials_database",
+            }
+        ]
+        try:
+            result_with = run_gap_model(baseline, literature)
+        finally:
+            rfa._SUPPLY_FILE_SPECS = original_specs
+
+        # Gap ratios must be identical regardless of the credentials database
+        clusters_without = {
+            (c.sector, c.qmbd_axis): c.gap_ratio for c in result_without.all_clusters
+        }
+        clusters_with = {
+            (c.sector, c.qmbd_axis): c.gap_ratio for c in result_with.all_clusters
+        }
+        assert clusters_without == clusters_with, (
+            "Gap ratios must not change when credentials_database.json is present; "
+            "generated credentials must NOT be used for coverage"
+        )
+
+    def test_generated_credentials_visible_in_supply_evidence_for_audit(
+        self, tmp_path: Path
+    ) -> None:
+        """generated_credential_previous_run items must still appear in supply_evidence."""
+        import run_full_analysis as rfa
+
+        baseline = self._make_baseline()
+        literature = self._make_literature()
+
+        cred_db = {
+            "metadata": {"total": 1},
+            "credentials": [
+                {
+                    "id": "mc_audit_001",
+                    "title": "Audit credential",
+                    "sector": "Blue Biotech",
+                    "competences": ["bl_a1"],
+                    "eqf_level": 4,
+                }
+            ],
+        }
+        db_path = tmp_path / "credentials_database.json"
+        db_path.write_text(json.dumps(cred_db), encoding="utf-8")
+
+        original_specs = rfa._SUPPLY_FILE_SPECS
+        rfa._SUPPLY_FILE_SPECS = [
+            {
+                "path": str(db_path),
+                "origin": "generated_credential_previous_run",
+                "provider": "credentials_database",
+            }
+        ]
+        try:
+            result = run_gap_model(baseline, literature)
+        finally:
+            rfa._SUPPLY_FILE_SPECS = original_specs
+
+        all_origins = {
+            item.origin
+            for sector_items in result.supply_evidence.values()
+            for item in sector_items
+        }
+        assert "generated_credential_previous_run" in all_origins, (
+            "Generated credentials must remain in supply_evidence for audit visibility"
+        )
+
+
+class TestThematicKeywordsNotUsedAsProviders:
+    """Thematic keyword tags must not appear as supporting_providers."""
+
+    def test_thematic_keywords_not_in_supporting_providers(self) -> None:
+        """Keywords like 'labor_justice', 'oceanic', axis labels must not pollute providers."""
+        from run_full_analysis import _competence_to_gap_evidence
+
+        comp = _make_competence("lit_x", TMBDAxis.OCEANIC, ["Blue Biotech"], "literature")
+        comp.keywords = ["labor_justice", "oceanic", "maritime", "literature", "live-api"]
+        evidence = _competence_to_gap_evidence(
+            comp, sector="Blue Biotech", origin="static_literature", provider="crossref"
+        )
+        assert evidence.supporting_providers == [], (
+            "Thematic/control keywords must not be added to supporting_providers"
+        )
+
+    def test_support_prefix_keyword_becomes_provider(self) -> None:
+        """Only keywords with 'support:' prefix must populate supporting_providers."""
+        from run_full_analysis import _competence_to_gap_evidence
+
+        comp = _make_competence("lit_y", TMBDAxis.MARITIME, ["Port Activities"], "literature")
+        comp.keywords = ["support:wos", "support:scopus", "labor_justice", "maritime"]
+        evidence = _competence_to_gap_evidence(
+            comp, sector="Port Activities", origin="static_literature", provider="crossref"
+        )
+        assert set(evidence.supporting_providers) == {"wos", "scopus"}, (
+            "Only 'support:' prefixed keywords must populate supporting_providers"
+        )
+
+
+class TestSimlarityMatchedSupplyOverlapStatus:
+    """Supply items that cover demand via name similarity must be marked 'covered'."""
+
+    def test_similarity_matched_supply_gets_covered_status(self) -> None:
+        """A supply item that name-similarity-covers a demand item must not be 'supply_only'."""
+        demand_item = _make_evidence("d_biodiversity", "Blue Biotech", "MARINE")
+        demand_item.name = "biodiversity assessment coastal habitats monitoring"
+        supply_item = _make_evidence(
+            "s_biodiversity_monitor", "Blue Biotech", "MARINE", origin="static_baseline"
+        )
+        supply_item.name = "coastal habitats biodiversity monitoring assessment"
+        demand = {"Blue Biotech": [demand_item]}
+        supply = {"Blue Biotech": [supply_item]}
+        result = compute_gap_model(demand, supply, sectors=["Blue Biotech"])
+        marine_cluster = next(
+            c for c in result.all_clusters
+            if c.sector == "Blue Biotech" and c.qmbd_axis == "MARINE"
+        )
+        # demand must be covered
+        assert marine_cluster.missing_items == [], "High-similarity demand must be covered"
+        # supply item must NOT be 'supply_only'
+        assert marine_cluster.supply_items[0].overlap_status == "covered", (
+            "Supply item that covers via name similarity must have overlap_status='covered'"
+        )
+
+
+class TestNameTokenNormalization:
+    """_name_tokens must normalize punctuation and use expanded stopwords."""
+
+    def test_hyphenated_token_split(self) -> None:
+        """Hyphenated compound words must be split into separate tokens."""
+        from src.gap_model import _name_tokens
+
+        tokens = _name_tokens("eco-tourism coastal")
+        assert "eco" in tokens or "tourism" in tokens, (
+            "Hyphenated words must be split on punctuation"
+        )
+
+    def test_slash_separated_tokens_split(self) -> None:
+        """Slash-separated terms must be split into separate tokens."""
+        from src.gap_model import _name_tokens
+
+        tokens = _name_tokens("water/waste resource management")
+        assert "water" in tokens or "waste" in tokens
+
+    def test_generic_stopwords_excluded(self) -> None:
+        """Extended stopwords (skills, management, etc.) must be excluded."""
+        from src.gap_model import _name_tokens
+
+        tokens = _name_tokens("digital skills management competence awareness")
+        assert "skills" not in tokens
+        assert "management" not in tokens
+        assert "competence" not in tokens
+        assert "awareness" not in tokens
+
+    def test_only_one_shared_generic_token_not_covered(self) -> None:
+        """Names sharing only one non-stopword token must NOT be covered (min_shared=2)."""
+        demand_item = _make_evidence("d_single", "Blue Biotech", "MARITIME")
+        demand_item.name = "digital literacy coastal communities"
+        supply_item = _make_evidence(
+            "s_single", "Blue Biotech", "MARITIME", origin="static_baseline"
+        )
+        # Shares "digital" but not "literacy" with demand — only 1 shared meaningful token
+        supply_item.name = "digital navigation instruments vessel"
+        demand = {"Blue Biotech": [demand_item]}
+        supply = {"Blue Biotech": [supply_item]}
+        result = compute_gap_model(demand, supply, sectors=["Blue Biotech"])
+        maritime_cluster = next(
+            c for c in result.all_clusters
+            if c.sector == "Blue Biotech" and c.qmbd_axis == "MARITIME"
+        )
+        missing_ids = {e.competence_id for e in maritime_cluster.missing_items}
+        assert "d_single" in missing_ids, (
+            "One shared token must not satisfy the minimum-shared-token guard"
+        )
+
+
+class TestCsvSourceRowProvenance:
+    """source_row in CSV-parsed supply evidence must use 1-based file line numbers."""
+
+    def test_first_data_row_has_source_row_four(self, tmp_path: Path) -> None:
+        """First data row (rows[3]) is physical line 4; source_row must be 4 not 3."""
+        from run_full_analysis import _collect_supply_from_microcredentials_csv
+
+        csv_content = (
+            "# Comment row\n"
+            "# Another comment\n"
+            "Dimension,Blue Biotech,Coastal Tourism\n"
+            "A,Bioprospecting techniques,Coastal ecosystem interpretation\n"
+        )
+        csv_file = tmp_path / "test_clusters.csv"
+        csv_file.write_text(csv_content, encoding="utf-8")
+
+        # Patch the sector map to recognise test headers
+        import run_full_analysis as rfa
+
+        orig_map = dict(rfa._CSV_SECTOR_MAP)
+        orig_axis = dict(rfa._CSV_DIMENSION_AXIS)
+        rfa._CSV_SECTOR_MAP = {"Blue Biotech": "Blue Biotech", "Coastal Tourism": "Coastal Tourism"}
+        rfa._CSV_DIMENSION_AXIS = {"A": "OCEANIC"}
+        try:
+            supply = _collect_supply_from_microcredentials_csv(csv_file)
+        finally:
+            rfa._CSV_SECTOR_MAP = orig_map
+            rfa._CSV_DIMENSION_AXIS = orig_axis
+
+        items = supply.get("Blue Biotech", [])
+        assert items, "CSV must produce at least one supply item"
+        assert items[0].source_row == 4, (
+            f"First data row is physical line 4; got source_row={items[0].source_row}"
+        )
+
+
+class TestCsvCodeBoundarySplitting:
+    """Concatenated competence codes in CSV cells must be split into separate items."""
+
+    def test_concatenated_codes_split_into_multiple_items(self, tmp_path: Path) -> None:
+        """Cell with 'A.1: desc A.3: other' must produce two evidence items."""
+        from run_full_analysis import _collect_supply_from_microcredentials_csv
+        import run_full_analysis as rfa
+
+        # Cell contains two coded items concatenated without a line break
+        csv_content = (
+            "# Row 1\n"
+            "# Row 2\n"
+            "Dimension,Blue Biotech\n"
+            "A,A.1: Bioprospecting coastal A.3: Environmental impact assessment\n"
+        )
+        csv_file = tmp_path / "test_concat.csv"
+        csv_file.write_text(csv_content, encoding="utf-8")
+
+        orig_map = dict(rfa._CSV_SECTOR_MAP)
+        orig_axis = dict(rfa._CSV_DIMENSION_AXIS)
+        rfa._CSV_SECTOR_MAP = {"Blue Biotech": "Blue Biotech"}
+        rfa._CSV_DIMENSION_AXIS = {"A": "OCEANIC"}
+        try:
+            supply = _collect_supply_from_microcredentials_csv(csv_file)
+        finally:
+            rfa._CSV_SECTOR_MAP = orig_map
+            rfa._CSV_DIMENSION_AXIS = orig_axis
+
+        items = supply.get("Blue Biotech", [])
+        assert len(items) == 2, (
+            f"Concatenated codes must produce 2 items; got {len(items)}: {[i.name for i in items]}"
+        )
