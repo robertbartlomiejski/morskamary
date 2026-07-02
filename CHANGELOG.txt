@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-02 (PR-3B: evidence-first dynamic EQF micro-credential generation and validation)
+  Change type add update fix
+  Scope analysis pipeline scripts tests outputs governance
+  Files affected run_full_analysis.py scripts/validate_generated_outputs.py tests/test_dynamic_credentials_generation.py tests/test_run_full_analysis.py scripts/build_derived.py MANIFEST_SOURCES.csv .gitignore outputs/credentials_database.json outputs/credentials_dynamic_database.json outputs/credentials_generation_rationale.json outputs/sector_qmbd_learning_pathways.json outputs/credentials_matrix.html outputs/report_index.html outputs/sector_pathways.json outputs/gaps_detailed.json outputs/gaps_by_sector_axis.csv outputs/gap_priority_ranking.csv CHANGELOG.txt
+  Summary Implemented PR-3B evidence-first dynamic EQF micro-credential generation from PR-3A gap-model missing clusters, exported three new dynamic PR-3B artifacts, preserved backward-compatible outputs/credentials_database.json, normalized learning outcomes to avoid raw or truncated evidence-title fragments, and extended semantic validation for generated and review_required coverage.
+  Reason PR-3B must convert gap-model evidence into defensible micro-credential outputs without forcing fixed 48 credentials where evidence is insufficient; missing EQF-sector combinations must be represented through review_required.
+  Impact Downstream credential and report outputs now use dynamic evidence-first credentials. Audit traceability improves through outputs/credentials_generation_rationale.json and outputs/sector_qmbd_learning_pathways.json while legacy report and test consumers remain supported through outputs/credentials_database.json.
+  Provenance PR-3A gap-model outputs are consumed, not refactored; generated_supply_evidence remains audit-only context, not verified supply.
+  Quality checks python -m pytest tests/test_dynamic_credentials_generation.py -q; python -m pytest tests/ -q; python -m flake8 .; python -m mypy src scripts run_full_analysis.py main.py; python run_full_analysis.py --analysis-input-mode static; python scripts/generate_manifest.py; python scripts/validate_generated_outputs.py; Full Analysis workflow success; CodeQL 0 alerts.
+
 - 2026-06-30 (PR A rev2: gap model — supply taxonomy, axis-sensitive coverage, gap-aware scoring)
   Change type update fix add
   Scope analysis pipeline scripts tests
