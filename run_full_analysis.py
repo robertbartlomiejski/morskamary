@@ -1409,12 +1409,13 @@ def _competence_to_gap_evidence(
 ) -> GapEvidence:
     """Convert a *Competence* object into a *GapEvidence* item for *sector*.
 
-    Provider resolution priority:
-      1. ``comp.source.authors`` (structured provenance, most reliable)
-      2. ID-based extraction for ``lit_live_<provider>_NNNNN`` IDs
-      3. Caller-supplied *provider* argument (used for baseline, credentials_db, etc.)
-      Keyword-based fallback is NOT used here; call ``_extract_provider_from_comp``
-      separately when you want inferred provider with explicit ``inferred:`` marking.
+    The *provider* argument is used directly (baseline, credentials_db, etc.).
+    ID-based extraction for ``lit_live_<provider>_NNNNN`` IDs is handled by
+    ``_extract_provider_from_comp``; call that separately when you need an
+    inferred provider with an explicit ``inferred:`` marking.
+    Note: ``comp.source.authors`` is bibliographic authorship and must NOT be
+    used as a data provider; pass the resolved provider via the *provider*
+    argument instead.
     """
     src = comp.source
     year = getattr(src, "year", "") or ""
@@ -1584,15 +1585,17 @@ def _collect_supply_from_microcredentials_csv(
             if csv_path.is_absolute() and csv_path.is_relative_to(REPO_ROOT)
             else str(csv_path)
         )
-        with open(csv_path, newline="", encoding="utf-8") as fh:
+        with open(csv_path, newline="", encoding="utf-8-sig") as fh:
             reader = csv_mod.reader(fh)
             rows = list(reader)
 
         # Dynamically locate the header row: first row whose first cell is
         # "Dimension" and which contains at least one known sector header.
+        # Strip any residual BOM characters that may survive encoding="utf-8-sig"
+        # (e.g. if the file was saved with a BOM inside a non-first field).
         header_index: Optional[int] = None
         for i, row in enumerate(rows):
-            if row and row[0].strip() == "Dimension":
+            if row and row[0].strip().lstrip("\ufeff") == "Dimension":
                 if any(
                     col.strip() in _CSV_SECTOR_MAP
                     for col in row[1:]

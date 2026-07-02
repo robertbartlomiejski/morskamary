@@ -56,13 +56,18 @@ class GapEvidence:
         confidence_score: Reliability score in [0.0, 1.0].
         overlap_status: 'demand_only' | 'covered' | 'supply_only'.
         supporting_providers: Additional provider IDs that corroborate this item.
-        matched_supply_id: ID of the supply item that covered this demand item
-            (set when overlap_status == 'covered'); None otherwise.
-        matched_supply_origin: Origin of the matched supply item; None if not covered.
-        match_method: How this item was matched: 'exact_id' | 'name_similarity';
-            None if not covered.
-        match_score: Jaccard similarity score for 'name_similarity' matches (0–1);
-            1.0 for 'exact_id' matches; None if not covered.
+        matched_supply_id: ID of the supply item that covered this demand item.
+            Populated only for **demand-side** items whose ``overlap_status``
+            becomes ``'covered'``; always ``None`` for supply-side items and for
+            demand items that remain ``'demand_only'``.
+        matched_supply_origin: Origin of the matched supply item.  Same
+            population rules as ``matched_supply_id``.
+        match_method: How this demand item was matched: ``'exact_id'`` |
+            ``'name_similarity'``.  ``None`` for supply-side items and unmatched
+            demand items.
+        match_score: Jaccard similarity score for ``'name_similarity'`` matches
+            (0–1); ``1.0`` for ``'exact_id'`` matches; ``None`` for supply-side
+            items and unmatched demand items.
     """
 
     competence_id: str
@@ -80,7 +85,9 @@ class GapEvidence:
     confidence_score: float
     overlap_status: str  # 'demand_only' | 'covered' | 'supply_only'
     supporting_providers: List[str] = field(default_factory=list)
-    # Item-level match provenance (populated when overlap_status == 'covered')
+    # Item-level match provenance — populated only for demand-side items that
+    # are covered by a supply item; always None for supply-side items and for
+    # demand items that remain 'demand_only'.
     matched_supply_id: Optional[str] = field(default=None)
     matched_supply_origin: Optional[str] = field(default=None)
     match_method: Optional[str] = field(default=None)  # 'exact_id' | 'name_similarity'
@@ -432,6 +439,12 @@ def compute_gap_model(
             # Track indices of supply items used for name-similarity coverage
             sim_covered_supply_indices: set = set()
             for item in d_axis:
+                # Clear any stale match provenance from a previous compute pass
+                # so reused GapEvidence objects cannot retain stale data.
+                item.matched_supply_id = None
+                item.matched_supply_origin = None
+                item.match_method = None
+                item.match_score = None
                 if item.competence_id in supply_axis_ids:
                     # Rule 1: exact ID match within same sector × axis
                     exact_covered += 1

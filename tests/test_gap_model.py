@@ -1311,6 +1311,34 @@ class TestCsvDynamicHeaderDetection:
 
         assert supply == {}, "CSV without 'Dimension' header must return empty dict"
 
+    def test_bom_header_is_detected(self, tmp_path: Path) -> None:
+        """CSV whose first cell carries a UTF-8 BOM must still detect the header."""
+        from run_full_analysis import _collect_supply_from_microcredentials_csv
+        import run_full_analysis as rfa
+
+        # Write file with a UTF-8 BOM prefix so the first cell becomes
+        # "\ufeffDimension" when read with plain encoding="utf-8".
+        # Using encoding="utf-8-sig" (our fix) strips the BOM automatically.
+        csv_content = "\ufeffDimension,Blue Biotech\nA,Bioprospecting techniques\n"
+        csv_file = tmp_path / "test_bom.csv"
+        csv_file.write_bytes(csv_content.encode("utf-8"))
+
+        orig_map = dict(rfa._CSV_SECTOR_MAP)
+        orig_axis = dict(rfa._CSV_DIMENSION_AXIS)
+        rfa._CSV_SECTOR_MAP = {"Blue Biotech": "Blue Biotech"}
+        rfa._CSV_DIMENSION_AXIS = {"A": "OCEANIC"}
+        try:
+            supply = _collect_supply_from_microcredentials_csv(csv_file)
+        finally:
+            rfa._CSV_SECTOR_MAP = orig_map
+            rfa._CSV_DIMENSION_AXIS = orig_axis
+
+        items = supply.get("Blue Biotech", [])
+        assert items, "CSV with BOM header must produce supply items"
+        assert items[0].source_row == 2, (
+            f"Data row is physical line 2; got source_row={items[0].source_row}"
+        )
+
 
 class TestItemLevelMatchProvenance:
     """GapEvidence match provenance fields must be populated when items are covered."""
@@ -1406,3 +1434,30 @@ class TestItemLevelMatchProvenance:
         assert item.match_score is None
         assert item.matched_supply_id is None
         assert item.matched_supply_origin is None
+
+    def test_stale_match_provenance_cleared_on_second_pass(self) -> None:
+        """Reused demand GapEvidence must not retain match fields from a prior pass."""
+        demand = self._make_demand("d_reuse", "Marine ecology monitoring")
+        supply = self._make_supply("d_reuse", "Marine ecology monitoring")
+
+        # First call: demand is covered; match fields must be populated.
+        compute_gap_model(
+            {"Blue Biotech": [demand]},
+            {"Blue Biotech": [supply]},
+            qmbd_axes=["MARINE"],
+        )
+        assert demand.overlap_status == "covered"
+        assert demand.match_method == "exact_id"
+
+        # Second call: no supply provided; demand must become 'demand_only' and
+        # all match-provenance fields must be cleared (not retain stale values).
+        compute_gap_model(
+            {"Blue Biotech": [demand]},
+            {},
+            qmbd_axes=["MARINE"],
+        )
+        assert demand.overlap_status == "demand_only"
+        assert demand.matched_supply_id is None
+        assert demand.matched_supply_origin is None
+        assert demand.match_method is None
+        assert demand.match_score is None
