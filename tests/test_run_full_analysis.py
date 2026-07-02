@@ -129,9 +129,17 @@ def test_main_orchestration_success(tmp_path: Path) -> None:
             "run_full_analysis.run_gap_analysis", return_value=(fake_gaps, {})
         ) as m_gaps,
         patch(
-            "run_full_analysis.generate_micro_credentials",
+            "run_full_analysis._build_dynamic_credentials_from_gap_model",
+            return_value=(
+                [{"id": "mc_blue-biotech_eqf5"}],
+                {"generated_credentials": [], "review_required": []},
+                {"sector_qmbd_pathways": []},
+            ),
+        ) as m_build_dynamic,
+        patch(
+            "run_full_analysis._convert_dynamic_to_legacy_credentials",
             return_value=fake_credentials,
-        ) as m_generate,
+        ) as m_convert_dynamic,
         patch(
             "run_full_analysis.compute_sector_pathways", return_value=fake_pathways
         ) as m_pathways,
@@ -160,7 +168,8 @@ def test_main_orchestration_success(tmp_path: Path) -> None:
     m_load.assert_called_once_with()
     m_extract.assert_called_once_with()
     m_gaps.assert_called_once_with(baseline, literature)
-    m_generate.assert_called_once_with(baseline, literature, fake_gaps)
+    m_build_dynamic.assert_called_once()
+    m_convert_dynamic.assert_called_once()
     m_pathways.assert_called_once_with(fake_credentials, baseline)
     m_repo_cls.assert_called_once()
     assert m_build_dict.call_count == len(SECTORS)
@@ -212,7 +221,17 @@ def test_main_qmbd_enrichment_includes_static_baseline_and_literature(
             "run_full_analysis.extract_literature_competences", return_value=literature
         ),
         patch("run_full_analysis.run_gap_analysis", return_value=({}, {})),
-        patch("run_full_analysis.generate_micro_credentials", return_value=[]),
+        patch(
+            "run_full_analysis._build_dynamic_credentials_from_gap_model",
+            return_value=(
+                [],
+                {"generated_credentials": [], "review_required": []},
+                {"sector_qmbd_pathways": []},
+            ),
+        ),
+        patch(
+            "run_full_analysis._convert_dynamic_to_legacy_credentials", return_value=[]
+        ),
         patch("run_full_analysis.compute_sector_pathways", return_value=[]),
         patch("run_full_analysis.export_competences_json"),
         patch("run_full_analysis.export_credentials_json"),
@@ -363,7 +382,17 @@ def test_main_live_enriched_merges_live_competences(tmp_path: Path) -> None:
             return_value=[live_competence],
         ) as m_live_extract,
         patch("run_full_analysis.run_gap_analysis", return_value=({}, {})),
-        patch("run_full_analysis.generate_micro_credentials", return_value=[]),
+        patch(
+            "run_full_analysis._build_dynamic_credentials_from_gap_model",
+            return_value=(
+                [],
+                {"generated_credentials": [], "review_required": []},
+                {"sector_qmbd_pathways": []},
+            ),
+        ),
+        patch(
+            "run_full_analysis._convert_dynamic_to_legacy_credentials", return_value=[]
+        ),
         patch("run_full_analysis.compute_sector_pathways", return_value=[]),
         patch("run_full_analysis.export_competences_json") as m_export,
         patch("run_full_analysis.export_credentials_json"),
@@ -490,7 +519,17 @@ def test_main_uses_selected_sectors_for_dictionary_export(tmp_path: Path) -> Non
             "run_full_analysis.extract_literature_competences", return_value=literature
         ),
         patch("run_full_analysis.run_gap_analysis", return_value=({}, {})),
-        patch("run_full_analysis.generate_micro_credentials", return_value=[]),
+        patch(
+            "run_full_analysis._build_dynamic_credentials_from_gap_model",
+            return_value=(
+                [],
+                {"generated_credentials": [], "review_required": []},
+                {"sector_qmbd_pathways": []},
+            ),
+        ),
+        patch(
+            "run_full_analysis._convert_dynamic_to_legacy_credentials", return_value=[]
+        ),
         patch("run_full_analysis.compute_sector_pathways", return_value=[]),
         patch("run_full_analysis.export_competences_json"),
         patch("run_full_analysis.export_credentials_json"),
@@ -582,7 +621,9 @@ def test_resolve_primary_axis_from_analysis_uses_default_when_unclassified() -> 
     )
 
 
-def test_resolve_primary_axis_from_analysis_ignores_fallback_oceanic_without_evidence() -> None:
+def test_resolve_primary_axis_from_analysis_ignores_fallback_oceanic_without_evidence() -> (
+    None
+):
     """Fallback OCEANIC sentences must not outvote keyword-backed evidence."""
     from run_full_analysis import _resolve_primary_axis_from_analysis
 
@@ -1146,7 +1187,9 @@ def test_generate_report_index_live_enriched_shows_zero_live_sources(
     content = output_file.read_text(encoding="utf-8")
     assert "outputs/research_sources/live_records_triangulated.json" in content
     assert "outputs/research_sources/live_source_coverage.csv" in content
-    assert "Live-enriched mode requested, but zero live records were ingested." in content
+    assert (
+        "Live-enriched mode requested, but zero live records were ingested." in content
+    )
 
 
 def test_generate_gaps_html_creates_file(tmp_path: Path) -> None:
@@ -1299,7 +1342,10 @@ def test_generate_literature_html_subtitle_static_does_not_claim_live_enriched(
     content_no_live = output_file_live_mode_no_live.read_text(encoding="utf-8")
     assert "Static literature with QMBD axis assignment" in content_no_live
     assert "live-enriched evidence" not in content_no_live
-    assert "Live-enriched mode requested, but no live records were available" in content_no_live
+    assert (
+        "Live-enriched mode requested, but no live records were available"
+        in content_no_live
+    )
 
 
 def test_generate_literature_html_subtitle_live_enriched_when_live_count_positive(
@@ -1349,7 +1395,10 @@ def test_generate_literature_html_subtitle_live_enriched_when_live_count_positiv
         live_enrichment_count=1,
     )
     content = output_file.read_text(encoding="utf-8")
-    assert "Static literature + live-enriched evidence with QMBD axis assignment" in content
+    assert (
+        "Static literature + live-enriched evidence with QMBD axis assignment"
+        in content
+    )
     assert "Breakdown:" in content
     assert "live-enriched" in content
 
