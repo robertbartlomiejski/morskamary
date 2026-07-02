@@ -181,13 +181,19 @@ class GapModelResult:
 
     Attributes:
         demand_evidence: Demand items grouped by sector.
-        supply_evidence: Supply items grouped by sector.
+        supply_evidence: Verified supply items grouped by sector (static_baseline +
+            existing_microcredential).  These items are used in coverage calculations.
+        generated_supply_evidence: Audit-only supply items from prior-run generated
+            credentials (``generated_credential_previous_run`` origin).  These are
+            stored separately so they never inflate verified supply summaries or
+            affect gap ratios.
         all_clusters: All sector × axis clusters (including zero-gap ones).
         missing_clusters: Clusters where gap_ratio > 0.
     """
 
     demand_evidence: Dict[str, List[GapEvidence]]
     supply_evidence: Dict[str, List[GapEvidence]]
+    generated_supply_evidence: Dict[str, List[GapEvidence]]
     all_clusters: List[GapCluster]
     missing_clusters: List[GapCluster]
 
@@ -199,6 +205,10 @@ class GapModelResult:
             },
             "supply_sector_counts": {
                 sector: len(items) for sector, items in self.supply_evidence.items()
+            },
+            "generated_supply_sector_counts": {
+                sector: len(items)
+                for sector, items in self.generated_supply_evidence.items()
             },
             "all_clusters": [c.to_dict() for c in self.all_clusters],
             "missing_clusters": [c.to_dict() for c in self.missing_clusters],
@@ -518,6 +528,7 @@ def compute_gap_model(
     return GapModelResult(
         demand_evidence=demand_evidence,
         supply_evidence=supply_evidence,
+        generated_supply_evidence={},
         all_clusters=all_clusters,
         missing_clusters=missing_clusters,
     )

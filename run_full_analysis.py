@@ -1637,7 +1637,7 @@ def _collect_supply_from_microcredentials_csv(
                 cell_parts: List[str] = []
                 for raw_line in raw_lines:
                     # Split on embedded competence-code boundaries (e.g. "A.1:", "C.4:")
-                    sub = re.split(r"(?=\b[A-Z]\.\d+:)", raw_line)
+                    sub = re.split(r"(?=[A-Z]\.\d+:)", raw_line)
                     cell_parts.extend(p.strip() for p in sub if p.strip())
                 for part_idx, part in enumerate(cell_parts):
                     comp_id = (
@@ -1786,11 +1786,11 @@ def run_gap_model(
         len(result.missing_clusters),
     )
 
-    # Merge generated credentials into result.supply_evidence for audit visibility
-    # (they are deliberately NOT in the coverage calculation above)
+    # Store generated credentials in the dedicated audit field so they never
+    # inflate verified supply summaries or affect gap ratios.
     for sector, items in generated_supply.items():
         if items:
-            result.supply_evidence.setdefault(sector, []).extend(items)
+            result.generated_supply_evidence.setdefault(sector, []).extend(items)
 
     return result
 
@@ -1801,14 +1801,19 @@ def _extract_provider_from_comp(comp: Competence) -> str:
     ``provider`` identifies the *data/source provider* (e.g. ``'crossref'``,
     ``'scopus'``, ``'wos'``, ``'baseline'``, ``'credentials_database'``).
     Bibliographic authorship (``comp.source.authors``) is **not** the provider
-    and must not be used here.
+    and must not be used here.  Thematic keywords (e.g. ``'labor_justice'``,
+    ``'oceanic'``, ``'sustainability'``) are also not providers and must never
+    be returned.
 
     Resolution priority:
       1. ``lit_live_<provider>_NNNNN`` ID pattern — for live API competences
          (e.g. ``'lit_live_scopus_00042'`` → provider ``'scopus'``).
-      2. Keyword fallback — marked as ``inferred:keyword:<kw>`` to signal
-         that this is an inferred value, not structured provenance.
-      3. ``'unknown'`` — when no provider can be determined.
+      2. Explicit provider keyword — a keyword with one of the recognised
+         provider-declaration prefixes: ``provider:``, ``source_provider:``,
+         ``data_provider:``.  The prefix is stripped and the value returned.
+         ``support:`` is NOT a provider prefix; those keywords belong only in
+         ``supporting_providers``.
+      3. ``'unknown'`` — when no structured provider information is available.
 
     Args:
         comp: The competence to extract a provider from.
@@ -1829,11 +1834,14 @@ def _extract_provider_from_comp(comp: Competence) -> str:
         if slug:
             return slug
 
-    # Priority 2: keyword fallback — explicitly marked as inferred
-    _exclude = {"live-api", "literature", "baseline", "blue-economy"}
+    # Priority 2: explicit provider keyword (provider:, source_provider:, data_provider:)
+    _PROVIDER_PREFIXES = ("provider:", "source_provider:", "data_provider:")
     for kw in comp.keywords:
-        if kw not in _exclude and not kw.startswith("claim-") and not kw.startswith("overlap-"):
-            return f"inferred:keyword:{kw}"
+        for prefix in _PROVIDER_PREFIXES:
+            if kw.startswith(prefix):
+                value = kw[len(prefix):].strip()
+                if value:
+                    return value
 
     return "unknown"
 
@@ -1862,6 +1870,10 @@ def export_gaps_detailed_json(
         "supply_sector_summary": {
             sector: len(items)
             for sector, items in result.supply_evidence.items()
+        },
+        "generated_supply_sector_summary": {
+            sector: len(items)
+            for sector, items in result.generated_supply_evidence.items()
         },
         "all_clusters": [c.to_dict() for c in result.all_clusters],
         "missing_clusters": [c.to_dict() for c in result.missing_clusters],

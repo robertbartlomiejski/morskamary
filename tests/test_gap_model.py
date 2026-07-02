@@ -435,16 +435,17 @@ class TestRunGapModel:
         ]
         try:
             result = run_gap_model(baseline, literature)
-            supply_bb = result.supply_evidence.get("Blue Biotech", [])
-            supply_origins = {e.origin for e in supply_bb}
-            assert "generated_credential_previous_run" in supply_origins, (
+            generated_bb = result.generated_supply_evidence.get("Blue Biotech", [])
+            generated_origins = {e.origin for e in generated_bb}
+            assert "generated_credential_previous_run" in generated_origins, (
                 "credentials_database.json items must be tagged "
                 "generated_credential_previous_run, not static supply"
             )
-            # Must NOT be treated as verified institutional supply
-            assert "static_baseline" not in {
-                e.origin for e in supply_bb if e.provider == "credentials_database"
-            }
+            # Must NOT appear in verified supply_evidence
+            supply_bb = result.supply_evidence.get("Blue Biotech", [])
+            assert "generated_credential_previous_run" not in {
+                e.origin for e in supply_bb
+            }, "Generated credentials must not appear in verified supply_evidence"
         finally:
             rfa._SUPPLY_FILE_SPECS = original_specs
 
@@ -490,6 +491,7 @@ class TestExportFunctions:
         return GapModelResult(
             demand_evidence={"Blue Biotech": [ev_demand]},
             supply_evidence={"Blue Biotech": [ev_supply]},
+            generated_supply_evidence={},
             all_clusters=[cluster],
             missing_clusters=[cluster],
         )
@@ -898,15 +900,70 @@ class TestProviderProvenanceExtraction:
         provider = _extract_provider_from_comp(comp)
         assert provider == "scopus"
 
-    def test_keyword_fallback_marked_as_inferred(self) -> None:
-        """Keyword fallback must be prefixed with 'inferred:keyword:'."""
+    def test_arbitrary_keyword_returns_unknown(self) -> None:
+        """Arbitrary thematic keywords must not be returned as provider; return 'unknown'."""
         from run_full_analysis import _extract_provider_from_comp
 
         comp = _make_competence("baseline_x", TMBDAxis.MARINE, ["Blue Biotech"])
         comp.keywords = ["special-provider-kw"]
         provider = _extract_provider_from_comp(comp)
-        assert provider.startswith("inferred:keyword:"), (
-            f"Expected keyword fallback with 'inferred:keyword:' prefix, got: {provider!r}"
+        assert provider == "unknown", (
+            f"Arbitrary keyword must not be used as provider; expected 'unknown', got: {provider!r}"
+        )
+
+    def test_support_prefix_keyword_not_used_as_provider(self) -> None:
+        """'support:wos' keyword must not become the provider; only provider: prefixes count."""
+        from run_full_analysis import _extract_provider_from_comp
+
+        comp = _make_competence("baseline_z", TMBDAxis.MARINE, ["Blue Biotech"])
+        comp.keywords = ["support:wos"]
+        provider = _extract_provider_from_comp(comp)
+        assert provider == "unknown", (
+            f"'support:' prefix must not map to provider; expected 'unknown', got: {provider!r}"
+        )
+
+    def test_thematic_keyword_labor_justice_not_provider(self) -> None:
+        """'labor_justice' keyword must not become provider."""
+        from run_full_analysis import _extract_provider_from_comp
+
+        comp = _make_competence("baseline_lj", TMBDAxis.MARITIME, ["Blue Biotech"])
+        comp.keywords = ["labor_justice", "oceanic", "sustainability"]
+        provider = _extract_provider_from_comp(comp)
+        assert provider == "unknown", (
+            f"Thematic keyword 'labor_justice' must not be provider; got: {provider!r}"
+        )
+
+    def test_thematic_keyword_research_gaps_not_provider(self) -> None:
+        """'research_gaps' keyword must not become provider."""
+        from run_full_analysis import _extract_provider_from_comp
+
+        comp = _make_competence("baseline_rg", TMBDAxis.OCEANIC, ["Blue Biotech"])
+        comp.keywords = ["research_gaps", "blue_sociology"]
+        provider = _extract_provider_from_comp(comp)
+        assert provider == "unknown", (
+            f"Thematic keyword 'research_gaps' must not be provider; got: {provider!r}"
+        )
+
+    def test_explicit_provider_prefix_keyword_resolved(self) -> None:
+        """'provider:crossref' keyword must resolve to 'crossref'."""
+        from run_full_analysis import _extract_provider_from_comp
+
+        comp = _make_competence("baseline_cr", TMBDAxis.MARINE, ["Blue Biotech"])
+        comp.keywords = ["provider:crossref", "blue-economy"]
+        provider = _extract_provider_from_comp(comp)
+        assert provider == "crossref", (
+            f"'provider:crossref' keyword must resolve to 'crossref'; got: {provider!r}"
+        )
+
+    def test_source_provider_prefix_keyword_resolved(self) -> None:
+        """'source_provider:scopus' keyword must resolve to 'scopus'."""
+        from run_full_analysis import _extract_provider_from_comp
+
+        comp = _make_competence("baseline_sp", TMBDAxis.MARINE, ["Blue Biotech"])
+        comp.keywords = ["source_provider:scopus"]
+        provider = _extract_provider_from_comp(comp)
+        assert provider == "scopus", (
+            f"'source_provider:scopus' must resolve to 'scopus'; got: {provider!r}"
         )
 
     def test_unknown_returned_when_no_info(self) -> None:
@@ -1003,10 +1060,10 @@ class TestGeneratedCredentialsNotUsedForCoverage:
             "generated credentials must NOT be used for coverage"
         )
 
-    def test_generated_credentials_visible_in_supply_evidence_for_audit(
+    def test_generated_credentials_visible_in_generated_supply_evidence_for_audit(
         self, tmp_path: Path
     ) -> None:
-        """generated_credential_previous_run items must still appear in supply_evidence."""
+        """generated_credential_previous_run items must appear in generated_supply_evidence."""
         import run_full_analysis as rfa
 
         baseline = self._make_baseline()
@@ -1040,13 +1097,23 @@ class TestGeneratedCredentialsNotUsedForCoverage:
         finally:
             rfa._SUPPLY_FILE_SPECS = original_specs
 
-        all_origins = {
+        # Generated credentials must be in generated_supply_evidence, not supply_evidence
+        all_generated_origins = {
+            item.origin
+            for sector_items in result.generated_supply_evidence.values()
+            for item in sector_items
+        }
+        assert "generated_credential_previous_run" in all_generated_origins, (
+            "Generated credentials must be in generated_supply_evidence for audit visibility"
+        )
+        # Verified supply_evidence must NOT contain generated credentials
+        all_supply_origins = {
             item.origin
             for sector_items in result.supply_evidence.values()
             for item in sector_items
         }
-        assert "generated_credential_previous_run" in all_origins, (
-            "Generated credentials must remain in supply_evidence for audit visibility"
+        assert "generated_credential_previous_run" not in all_supply_origins, (
+            "Generated credentials must not pollute verified supply_evidence"
         )
 
 
@@ -1080,7 +1147,7 @@ class TestThematicKeywordsNotUsedAsProviders:
         )
 
 
-class TestSimlarityMatchedSupplyOverlapStatus:
+class TestSimilarityMatchedSupplyOverlapStatus:
     """Supply items that cover demand via name similarity must be marked 'covered'."""
 
     def test_similarity_matched_supply_gets_covered_status(self) -> None:
@@ -1224,6 +1291,54 @@ class TestCsvCodeBoundarySplitting:
         items = supply.get("Blue Biotech", [])
         assert len(items) == 2, (
             f"Concatenated codes must produce 2 items; got {len(items)}: {[i.name for i in items]}"
+        )
+
+    def test_glued_codes_without_space_split_into_three_items(self, tmp_path: Path) -> None:
+        """Cell with codes glued directly to preceding word must produce three items.
+
+        'A.1: Visa governance outreachA.2: Stakeholder consultation outreachA.3: Monitoring practice'
+        must yield three separate GapEvidence items (no space before A.2: and A.3:).
+        """
+        from run_full_analysis import _collect_supply_from_microcredentials_csv
+        import run_full_analysis as rfa
+
+        # No space before A.2: or A.3: — the word boundary \b regex would fail here
+        glued_cell = (
+            "A.1: Visa governance outreachA.2: "
+            "Stakeholder consultation outreachA.3: Monitoring practice"
+        )
+        csv_content = (
+            "# Row 1\n"
+            "# Row 2\n"
+            f"Dimension,Blue Biotech\n"
+            f"A,{glued_cell}\n"
+        )
+        csv_file = tmp_path / "test_glued.csv"
+        csv_file.write_text(csv_content, encoding="utf-8")
+
+        orig_map = dict(rfa._CSV_SECTOR_MAP)
+        orig_axis = dict(rfa._CSV_DIMENSION_AXIS)
+        rfa._CSV_SECTOR_MAP = {"Blue Biotech": "Blue Biotech"}
+        rfa._CSV_DIMENSION_AXIS = {"A": "OCEANIC"}
+        try:
+            supply = _collect_supply_from_microcredentials_csv(csv_file)
+        finally:
+            rfa._CSV_SECTOR_MAP = orig_map
+            rfa._CSV_DIMENSION_AXIS = orig_axis
+
+        items = supply.get("Blue Biotech", [])
+        assert len(items) == 3, (
+            f"Glued codes must produce 3 items; got {len(items)}: {[i.name for i in items]}"
+        )
+        names = [i.name for i in items]
+        assert any("Visa governance" in n for n in names), (
+            f"First item must contain 'Visa governance'; got {names}"
+        )
+        assert any("Stakeholder consultation" in n for n in names), (
+            f"Second item must contain 'Stakeholder consultation'; got {names}"
+        )
+        assert any("Monitoring practice" in n for n in names), (
+            f"Third item must contain 'Monitoring practice'; got {names}"
         )
 
 
