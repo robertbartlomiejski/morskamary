@@ -798,7 +798,10 @@ outputs/credentials_dynamic_database.json,other,,,,,,credentials_dynamic_databas
 outputs/credentials_generation_rationale.json,other,,,,,,credentials_generation_rationale,yes
 outputs/credentials_matrix.html,other,,,,,,credentials_matrix,no
 outputs/cumulative_qmbd_records.json,other,,,,,,cumulative_qmbd_records,yes
+outputs/gap_priority_ranking.csv,dataset_derived,,,,,,gap_priority_ranking,yes
 outputs/gaps_by_sector.html,other,,,,,,gaps_by_sector,no
+outputs/gaps_by_sector_axis.csv,dataset_derived,,,,,,gaps_by_sector_axis,yes
+outputs/gaps_detailed.json,other,,,,,,gaps_detailed,yes
 outputs/gaps_summary.csv,dataset_derived,,,,,,gaps_summary,yes
 outputs/literature_integration.html,other,,,,,,literature_integration,no
 outputs/report_index.html,other,,,,,,report_index,no
@@ -810,6 +813,7 @@ outputs/research_sources/live_records.json,dataset_derived,,,,,,live_records,yes
 outputs/research_sources/live_source_coverage.csv,dataset_derived,,,,,,live_source_coverage,yes
 outputs/research_sources/low_confidence_live_records.json,dataset_derived,,,,,,low_confidence_live_records,yes
 outputs/sector_pathways.json,other,,,,,,sector_pathways,yes
+outputs/sector_qmbd_learning_pathways.json,other,,,,,,sector_qmbd_learning_pathways,yes
 PROMPT_REQUEST_TEMPLATE.txt,governance,,,,,,PROMPT_REQUEST_TEMPLATE,yes
 push_output.txt,text,,,,,,push_output,yes
 pyproject.toml,other,,,,,,pyproject,no
