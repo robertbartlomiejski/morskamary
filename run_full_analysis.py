@@ -9,7 +9,10 @@ Deliverables (generated in outputs/ directory):
   credentials_matrix.html     — Micro-credential cards with stackability
   literature_integration.html — Papers → competences mapping
   competences_full_database.json — All competences with metadata
-  credentials_database.json   — Auto-generated micro-credentials
+  credentials_database.json   — Backward-compatible dynamic credentials schema
+  credentials_dynamic_database.json — Evidence-first dynamic credentials
+  credentials_generation_rationale.json — Credential generation traceability
+  sector_qmbd_learning_pathways.json — Sector × QMBD pathways from gaps
   sector_pathways.json        — Sector transition graphs
   gaps_summary.csv            — Gap percentages by sector
   sector_dictionaries/*.json  — Sector-specific TMBD competence dictionaries
@@ -28,6 +31,7 @@ import json
 import logging
 import re
 import sys
+from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -59,6 +63,7 @@ from src.competence_repository import (
     MixedProvenanceCompetenceRepository,
 )
 from src.gap_model import (
+    GapCluster,
     GapEvidence,
     GapModelResult,
     compute_gap_model,
@@ -1440,9 +1445,9 @@ def _competence_to_gap_evidence(
     # providers — doing so inflates the multi_source_support priority factor and
     # writes misleading audit provenance.
     supporting: List[str] = [
-        kw[len("support:"):].strip()
+        kw[len("support:") :].strip()
         for kw in comp.keywords
-        if kw.startswith("support:") and kw[len("support:"):].strip()
+        if kw.startswith("support:") and kw[len("support:") :].strip()
     ]
 
     return GapEvidence(
@@ -1596,10 +1601,7 @@ def _collect_supply_from_microcredentials_csv(
         header_index: Optional[int] = None
         for i, row in enumerate(rows):
             if row and row[0].strip().lstrip("\ufeff") == "Dimension":
-                if any(
-                    col.strip() in _CSV_SECTOR_MAP
-                    for col in row[1:]
-                ):
+                if any(col.strip() in _CSV_SECTOR_MAP for col in row[1:]):
                     header_index = i
                     break
         if header_index is None:
@@ -1611,7 +1613,7 @@ def _collect_supply_from_microcredentials_csv(
             if canonical:
                 sector_cols[col_idx] = canonical
 
-        for row_idx, row in enumerate(rows[header_index + 1:], start=header_index + 2):
+        for row_idx, row in enumerate(rows[header_index + 1 :], start=header_index + 2):
             if not row:
                 continue
             dim_label = row[0].strip()
@@ -1630,9 +1632,7 @@ def _collect_supply_from_microcredentials_csv(
                 # embedded newlines and code-boundary lookaheads so each coded item
                 # becomes a separate GapEvidence entry.
                 raw_lines = [
-                    p.strip()
-                    for p in cell.replace("\r", "").split("\n")
-                    if p.strip()
+                    p.strip() for p in cell.replace("\r", "").split("\n") if p.strip()
                 ]
                 cell_parts: List[str] = []
                 for raw_line in raw_lines:
@@ -1702,11 +1702,7 @@ def run_gap_model(
     # --- Demand evidence ---
     demand: Dict[str, List[GapEvidence]] = {s: [] for s in SECTORS}
     for comp in literature:
-        origin = (
-            "live"
-            if comp.id.startswith("lit_live_")
-            else "static_literature"
-        )
+        origin = "live" if comp.id.startswith("lit_live_") else "static_literature"
         for sector in comp.sectors:
             if sector in demand:
                 demand[sector].append(
@@ -1718,7 +1714,7 @@ def run_gap_model(
                         confidence_score=0.75,
                     )
                 )
-    for comp in (live_competences or []):
+    for comp in live_competences or []:
         for sector in comp.sectors:
             if sector in demand:
                 demand[sector].append(
@@ -1825,7 +1821,7 @@ def _extract_provider_from_comp(comp: Competence) -> str:
     if comp.id.startswith("lit_live_"):
         # Strip "lit_live_" prefix, then remove the trailing numeric suffix
         # e.g. "lit_live_web_of_science_clarivate_00002" → "web_of_science_clarivate"
-        stripped = comp.id[len("lit_live_"):]
+        stripped = comp.id[len("lit_live_") :]
         parts = stripped.rsplit("_", 1)
         if len(parts) == 2 and parts[1].isdigit():
             slug = parts[0]
@@ -1839,7 +1835,7 @@ def _extract_provider_from_comp(comp: Competence) -> str:
     for kw in comp.keywords:
         for prefix in _PROVIDER_PREFIXES:
             if kw.startswith(prefix):
-                value = kw[len(prefix):].strip()
+                value = kw[len(prefix) :].strip()
                 if value:
                     return value
 
@@ -1864,12 +1860,10 @@ def export_gaps_detailed_json(
             "qmbd_axes": ["MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION"],
         },
         "demand_sector_summary": {
-            sector: len(items)
-            for sector, items in result.demand_evidence.items()
+            sector: len(items) for sector, items in result.demand_evidence.items()
         },
         "supply_sector_summary": {
-            sector: len(items)
-            for sector, items in result.supply_evidence.items()
+            sector: len(items) for sector, items in result.supply_evidence.items()
         },
         "generated_supply_sector_summary": {
             sector: len(items)
@@ -1902,7 +1896,8 @@ def export_gaps_by_sector_axis_csv(
             ]
         )
         for cluster in sorted(
-            result.all_clusters, key=lambda c: (-c.priority_score, c.sector, c.qmbd_axis)
+            result.all_clusters,
+            key=lambda c: (-c.priority_score, c.sector, c.qmbd_axis),
         ):
             writer.writerow(
                 [
@@ -2004,6 +1999,507 @@ def _top_values(values: List[str], n: int = 3) -> List[str]:
 
     counts = Counter(v for v in values if v)
     return [v for v, _ in counts.most_common(n)]
+
+
+_EQF_RULE_KEYWORDS: Dict[int, Dict[str, Set[str]]] = {
+    4: {
+        "verbs": {"identify", "recognize", "define", "describe", "list", "explain"},
+        "context": {"terminology", "awareness", "literacy", "basic", "foundational"},
+    },
+    5: {
+        "verbs": {
+            "apply",
+            "implement",
+            "operate",
+            "monitor",
+            "execute",
+            "maintain",
+        },
+        "context": {"procedure", "workflow", "technical", "operational", "compliance"},
+    },
+    6: {
+        "verbs": {"analyze", "design", "evaluate", "integrate", "optimize", "model"},
+        "context": {"independent", "project", "assessment", "problem-solving"},
+    },
+    7: {
+        "verbs": {"lead", "govern", "transform", "strategize", "mentor", "synthesize"},
+        "context": {
+            "policy",
+            "governance",
+            "research",
+            "systemic",
+            "strategic",
+            "leadership",
+        },
+    },
+}
+
+_EQF_ECTS: Dict[int, float] = {4: 3.0, 5: 6.0, 6: 9.0, 7: 12.0}
+_EQF_ASSESSMENT: Dict[int, str] = {
+    4: "Foundational terminology quiz + guided reflection",
+    5: "Applied scenario exercise + supervised implementation log",
+    6: "Independent sector project + analytical evaluation brief",
+    7: "Strategic governance portfolio + research design defence",
+}
+_EQF_LEVEL_LABEL: Dict[int, str] = {
+    4: "Foundations",
+    5: "Professional Practice",
+    6: "Advanced Analysis",
+    7: "Strategic Leadership",
+}
+
+
+def _classify_eqf_level(cluster: GapCluster) -> int:
+    """Classify one missing cluster into an EQF level using explicit rules."""
+    text = " ".join(
+        f"{item.name} {item.description}".lower() for item in cluster.missing_items
+    )
+    tokens = set(re.findall(r"[a-zA-Z]+", text))
+
+    scores: Dict[int, int] = {4: 0, 5: 0, 6: 0, 7: 0}
+    for level, rules in _EQF_RULE_KEYWORDS.items():
+        scores[level] += len(tokens & rules["verbs"]) * 2
+        scores[level] += len(tokens & rules["context"])
+
+    if cluster.priority_score >= 0.85:
+        scores[7] += 2
+    elif cluster.priority_score >= 0.7:
+        scores[6] += 1
+    elif cluster.priority_score >= 0.5:
+        scores[5] += 1
+
+    if cluster.gap_ratio >= 0.8:
+        scores[6] += 1
+    elif cluster.gap_ratio >= 0.6:
+        scores[5] += 1
+
+    if cluster.qmbd_axis == "OCEANIC":
+        scores[7] += 1
+    elif cluster.qmbd_axis == "MARITIME":
+        scores[5] += 1
+
+    best_level = max(scores.items(), key=lambda item: (item[1], item[0]))[0]
+    if max(scores.values()) == 0:
+        if cluster.priority_score >= 0.75:
+            return 6
+        if cluster.priority_score >= 0.45:
+            return 5
+        return 4
+    return best_level
+
+
+def _build_eqf_learning_outcomes(
+    sector: str,
+    axes: List[str],
+    level: int,
+    missing_names: List[str],
+) -> List[str]:
+    """Build sector- and evidence-specific learning outcomes."""
+    axis_text = ", ".join(axes) if axes else "QMBD axes"
+    del missing_names
+    focus = {
+        "MARINE": "ecosystem stewardship and biophysical risk management",
+        "MARITIME": "operational systems, logistics, and institutional compliance",
+        "OCEANIC": "planetary governance, transboundary coordination, and systems thinking",
+    }
+    focus_text = "; ".join(focus[axis] for axis in axes if axis in focus) or (
+        "priority competence gaps"
+    )
+    if level == 4:
+        return [
+            f"Identify foundational {axis_text} competences required in {sector}.",
+            f"Describe evidence-backed {sector} gaps with focus on {focus_text}.",
+            "Recognize verified supply evidence versus audit-only generated supply in supervised assessment contexts.",
+        ]
+    if level == 5:
+        return [
+            f"Apply operational procedures to address {axis_text} gaps in {sector}.",
+            f"Implement supervised interventions targeting {focus_text}.",
+            "Monitor decisions and delivery outcomes against evidence-backed missing clusters.",
+        ]
+    if level == 6:
+        return [
+            f"Analyze and design independent responses to {axis_text} gaps in {sector}.",
+            f"Evaluate strategic alternatives for {focus_text}.",
+            "Integrate sector evidence and provenance into project-level decisions.",
+        ]
+    return [
+        f"Lead strategic governance and transformation responses for {sector} ({axis_text}).",
+        f"Synthesize multi-source evidence to prioritize {focus_text}.",
+        "Design system-level interventions with traceable provenance and review controls.",
+    ]
+
+
+def _build_dynamic_credentials_from_gap_model(
+    gap_model_result: GapModelResult,
+) -> Tuple[List[Dict[str, Any]], Dict[str, Any], Dict[str, Any]]:
+    """Generate dynamic credentials, rationale, and sector×QMBD learning pathways."""
+    credentials: List[Dict[str, Any]] = []
+    rationale_generated: List[Dict[str, Any]] = []
+    review_required: List[Dict[str, Any]] = []
+    pathway_nodes: List[Dict[str, Any]] = []
+
+    missing_by_sector: Dict[str, List[GapCluster]] = defaultdict(list)
+    for cluster in gap_model_result.missing_clusters:
+        if cluster.missing_items:
+            missing_by_sector[cluster.sector].append(cluster)
+
+    for sector in SECTORS:
+        sector_clusters = sorted(
+            missing_by_sector.get(sector, []),
+            key=lambda c: c.priority_score,
+            reverse=True,
+        )
+        grouped: Dict[int, List[GapCluster]] = defaultdict(list)
+        for cluster in sector_clusters:
+            grouped[_classify_eqf_level(cluster)].append(cluster)
+
+        if not sector_clusters:
+            review_required.append(
+                {
+                    "sector": sector,
+                    "qmbd_axis": "ALL",
+                    "reason": "No evidence-backed missing clusters in current gap model.",
+                    "evidence_count": 0,
+                    "priority_score": None,
+                    "recommended_human_action": (
+                        "Validate demand ingestion and confirm whether dynamic credentials "
+                        "are required for this sector."
+                    ),
+                }
+            )
+
+        generated_ids_by_level: Dict[int, str] = {}
+        for level in sorted(grouped):
+            level_clusters = grouped[level]
+            slug = SECTOR_SLUG[sector]
+            credential_id = f"mc_{slug}_eqf{level}"
+            generated_ids_by_level[level] = credential_id
+
+            axes = sorted({cluster.qmbd_axis for cluster in level_clusters})
+            evidence_items = [
+                item for cluster in level_clusters for item in cluster.missing_items
+            ]
+            demand_items = [
+                item for cluster in level_clusters for item in cluster.demand_items
+            ]
+            supply_items = [
+                item for cluster in level_clusters for item in cluster.supply_items
+            ]
+            missing_ids = list(
+                dict.fromkeys(item.competence_id for item in evidence_items)
+            )
+            missing_names = list(
+                dict.fromkeys(item.name for item in evidence_items if item.name)
+            )
+
+            evidence_clusters = []
+            for cluster in level_clusters:
+                coverage_items = [
+                    item
+                    for item in cluster.demand_items
+                    if item.matched_supply_id or item.matched_supply_origin
+                ]
+                evidence_clusters.append(
+                    {
+                        "sector": cluster.sector,
+                        "qmbd_axis": cluster.qmbd_axis,
+                        "missing_cluster": f"{cluster.sector}|{cluster.qmbd_axis}",
+                        "priority_score": round(cluster.priority_score, 4),
+                        "gap_ratio": round(cluster.gap_ratio, 4),
+                        "missing_count": len(cluster.missing_items),
+                        "demand_evidence_ids": [
+                            item.competence_id for item in cluster.demand_items
+                        ],
+                        "top_providers": _top_values(
+                            [item.provider for item in cluster.missing_items], n=3
+                        ),
+                        "top_origins": _top_values(
+                            [item.origin for item in cluster.missing_items], n=3
+                        ),
+                        "verified_supply_coverage_status": cluster.coverage_method,
+                        "matched_supply_provenance": [
+                            {
+                                "matched_supply_id": item.matched_supply_id,
+                                "matched_supply_origin": item.matched_supply_origin,
+                                "match_method": item.match_method,
+                                "match_score": item.match_score,
+                            }
+                            for item in coverage_items
+                        ],
+                    }
+                )
+
+            generated_supply_context = gap_model_result.generated_supply_evidence.get(
+                sector, []
+            )
+            credential = {
+                "id": credential_id,
+                "title": f"{sector} — {_EQF_LEVEL_LABEL[level]} (EQF{level})",
+                "sector": sector,
+                "eqf_level": level,
+                "qmbd_axes": axes,
+                "competences": missing_ids,
+                "description": (
+                    f"Evidence-first credential generated from missing {sector} clusters on "
+                    f"{', '.join(axes)}."
+                ),
+                "learning_outcomes": _build_eqf_learning_outcomes(
+                    sector, axes, level, missing_names
+                ),
+                "assessment_method": _EQF_ASSESSMENT[level],
+                "prerequisites": [],
+                "stackability_rules": "",
+                "learner_profile": _SECTOR_LEARNER_PROFILES.get(
+                    sector, "Blue economy practitioners"
+                ),
+                "ects": _EQF_ECTS[level],
+                "evidence_clusters": evidence_clusters,
+                "priority_score_basis": [
+                    round(c.priority_score, 4) for c in level_clusters
+                ],
+                "supply_gap_basis": {
+                    "verified_supply_count": len(supply_items),
+                    "missing_count": len(evidence_items),
+                    "coverage_method": _top_values(
+                        [cluster.coverage_method for cluster in level_clusters], n=2
+                    ),
+                    "generated_supply_audit_only_count": len(generated_supply_context),
+                },
+                "review_status": "generated",
+            }
+            credentials.append(credential)
+            rationale_generated.append(
+                {
+                    "credential_id": credential_id,
+                    "sector": sector,
+                    "eqf_level": level,
+                    "applied_eqf_rule": "keyword+priority+gap_ratio classifier",
+                    "trigger_clusters": [
+                        ec["missing_cluster"] for ec in evidence_clusters
+                    ],
+                    "used_evidence_items": [
+                        item.competence_id for item in evidence_items
+                    ],
+                    "verified_supply_items": [
+                        item.competence_id for item in supply_items
+                    ],
+                    "related_demand_items": [
+                        item.competence_id for item in demand_items
+                    ],
+                    "generated_supply_audit_context": [
+                        item.competence_id for item in generated_supply_context
+                    ],
+                    "tests_and_thresholds": {
+                        "priority_thresholds": [0.45, 0.5, 0.7, 0.85],
+                        "gap_ratio_thresholds": [0.6, 0.8],
+                        "keyword_rules": {
+                            str(k): {
+                                "verbs": sorted(v["verbs"]),
+                                "context": sorted(v["context"]),
+                            }
+                            for k, v in _EQF_RULE_KEYWORDS.items()
+                        },
+                    },
+                }
+            )
+
+        for level in (4, 5, 6, 7):
+            if level not in generated_ids_by_level:
+                top_cluster = sector_clusters[0] if sector_clusters else None
+                review_required.append(
+                    {
+                        "sector": sector,
+                        "qmbd_axis": top_cluster.qmbd_axis if top_cluster else "ALL",
+                        "reason": f"No evidence-backed cluster classified to EQF{level}.",
+                        "evidence_count": (
+                            len(top_cluster.missing_items) if top_cluster else 0
+                        ),
+                        "priority_score": (
+                            round(top_cluster.priority_score, 4)
+                            if top_cluster
+                            else None
+                        ),
+                        "recommended_human_action": (
+                            "Review cluster descriptions and confirm whether manual "
+                            f"EQF{level} credential design is required."
+                        ),
+                    }
+                )
+
+        for level in sorted(generated_ids_by_level):
+            current_id = generated_ids_by_level[level]
+            lower_levels = [
+                lvl for lvl in sorted(generated_ids_by_level) if lvl < level
+            ]
+            prerequisites = (
+                [generated_ids_by_level[lower_levels[-1]]] if lower_levels else []
+            )
+            for credential in credentials:
+                if credential["id"] == current_id:
+                    credential["prerequisites"] = prerequisites
+                    next_levels = [
+                        lvl for lvl in sorted(generated_ids_by_level) if lvl > level
+                    ]
+                    if next_levels:
+                        credential["stackability_rules"] = (
+                            f"Stacks to {generated_ids_by_level[next_levels[0]]}; "
+                            "link only available credentials."
+                        )
+                    else:
+                        credential["stackability_rules"] = (
+                            "Top generated level for this sector in current evidence run."
+                        )
+                    break
+
+        for axis in ("MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION"):
+            axis_clusters = [
+                cluster for cluster in sector_clusters if cluster.qmbd_axis == axis
+            ]
+            axis_credentials = [
+                cred["id"]
+                for cred in credentials
+                if cred["sector"] == sector and axis in cred["qmbd_axes"]
+            ]
+            axis_reviews = [
+                rr
+                for rr in review_required
+                if rr["sector"] == sector and rr["qmbd_axis"] in {axis, "ALL"}
+            ]
+            stackability_links = []
+            for cred in credentials:
+                if cred["sector"] != sector:
+                    continue
+                for prereq in cred["prerequisites"]:
+                    stackability_links.append({"from": prereq, "to": cred["id"]})
+            pathway_nodes.append(
+                {
+                    "sector": sector,
+                    "qmbd_axis": axis,
+                    "gap_clusters": [
+                        {
+                            "cluster_id": f"{cluster.sector}|{cluster.qmbd_axis}",
+                            "priority_score": round(cluster.priority_score, 4),
+                            "gap_ratio": round(cluster.gap_ratio, 4),
+                            "missing_count": len(cluster.missing_items),
+                        }
+                        for cluster in axis_clusters
+                    ],
+                    "generated_credentials": axis_credentials,
+                    "stackability_links": stackability_links,
+                    "review_required_nodes": axis_reviews,
+                    "priority_order": [
+                        f"{cluster.sector}|{cluster.qmbd_axis}"
+                        for cluster in sorted(
+                            axis_clusters, key=lambda c: c.priority_score, reverse=True
+                        )
+                    ],
+                    "evidence_provenance_summary": {
+                        "top_providers": _top_values(
+                            [
+                                item.provider
+                                for cluster in axis_clusters
+                                for item in cluster.missing_items
+                            ],
+                            n=3,
+                        ),
+                        "top_origins": _top_values(
+                            [
+                                item.origin
+                                for cluster in axis_clusters
+                                for item in cluster.missing_items
+                            ],
+                            n=3,
+                        ),
+                        "demand_evidence_ids": [
+                            item.competence_id
+                            for cluster in axis_clusters
+                            for item in cluster.demand_items
+                        ],
+                    },
+                }
+            )
+
+    rationale = {
+        "metadata": {
+            "rule_version": "dynamic-gap-cluster-v1",
+            "note": (
+                "generated_supply_evidence is audit-only context and never counted "
+                "as verified supply."
+            ),
+        },
+        "generated_credentials": rationale_generated,
+        "review_required": review_required,
+    }
+    pathways = {
+        "metadata": {
+            "sectors": SECTORS,
+            "qmbd_axes": ["MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION"],
+        },
+        "sector_qmbd_pathways": pathway_nodes,
+    }
+    return credentials, rationale, pathways
+
+
+def _convert_dynamic_to_legacy_credentials(
+    dynamic_credentials: List[Dict[str, Any]],
+) -> List[MicroCredential]:
+    """Convert dynamic credentials into backward-compatible MicroCredential objects."""
+    converted: List[MicroCredential] = []
+    for credential in dynamic_credentials:
+        converted.append(
+            MicroCredential(
+                id=credential["id"],
+                title=credential["title"],
+                competences=list(credential.get("competences", [])),
+                description=str(credential.get("description", "")),
+                sector=str(credential.get("sector", "")),
+                ects=float(credential.get("ects", 0.0)),
+                eqf_level=EQFLevel(int(credential.get("eqf_level", 4))),
+                assessment_method=str(credential.get("assessment_method", "")),
+                prerequisites=list(credential.get("prerequisites", [])),
+                learner_profile=str(credential.get("learner_profile", "")),
+                learning_outcomes=list(credential.get("learning_outcomes", [])),
+                stackability_rules=str(credential.get("stackability_rules", "")),
+            )
+        )
+    return converted
+
+
+def export_credentials_dynamic_json(
+    dynamic_credentials: List[Dict[str, Any]], output_path: Path
+) -> None:
+    """Export dynamic credential database with rationale-linked evidence."""
+    payload = {
+        "metadata": {
+            "total": len(dynamic_credentials),
+            "source": "GapModelResult.missing_clusters",
+        },
+        "credentials": dynamic_credentials,
+    }
+    with open(output_path, "w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=2, ensure_ascii=False)
+    log.info(
+        "  Exported: %s (%d dynamic credentials)", output_path, len(dynamic_credentials)
+    )
+
+
+def export_credentials_generation_rationale_json(
+    rationale: Dict[str, Any], output_path: Path
+) -> None:
+    """Export traceable credential generation rationale."""
+    with open(output_path, "w", encoding="utf-8") as fh:
+        json.dump(rationale, fh, indent=2, ensure_ascii=False)
+    log.info("  Exported: %s", output_path)
+
+
+def export_sector_qmbd_learning_pathways_json(
+    pathways: Dict[str, Any], output_path: Path
+) -> None:
+    """Export sector × QMBD learning pathways from dynamic gap evidence."""
+    with open(output_path, "w", encoding="utf-8") as fh:
+        json.dump(pathways, fh, indent=2, ensure_ascii=False)
+    log.info("  Exported: %s", output_path)
 
 
 _SECTOR_LEARNER_PROFILES: Dict[str, str] = {
@@ -2832,7 +3328,9 @@ def generate_literature_html(
 
     subtitle = "Static literature with QMBD axis assignment"
     if analysis_input_mode == "live-enriched" and live_count:
-        subtitle = "Static literature + live-enriched evidence with QMBD axis assignment"
+        subtitle = (
+            "Static literature + live-enriched evidence with QMBD axis assignment"
+        )
 
     html = _HTML_HEAD.format(
         title="Literature Integration — Papers to Competences Mapping",
@@ -3056,8 +3554,11 @@ def main(
         live_competences=live_competences if live_competences else None,
     )
 
-    # --- Step 5: Micro-credentials ---
-    credentials = generate_micro_credentials(baseline, literature, gaps)
+    # --- Step 5: Dynamic micro-credentials from gap clusters ---
+    dynamic_credentials, generation_rationale, learning_pathways = (
+        _build_dynamic_credentials_from_gap_model(gap_model_result)
+    )
+    credentials = _convert_dynamic_to_legacy_credentials(dynamic_credentials)
 
     # --- Step 6: Pathways ---
     pathways = compute_sector_pathways(credentials, baseline)
@@ -3068,6 +3569,15 @@ def main(
         baseline, literature, OUTPUTS_DIR / "competences_full_database.json"
     )
     export_credentials_json(credentials, OUTPUTS_DIR / "credentials_database.json")
+    export_credentials_dynamic_json(
+        dynamic_credentials, OUTPUTS_DIR / "credentials_dynamic_database.json"
+    )
+    export_credentials_generation_rationale_json(
+        generation_rationale, OUTPUTS_DIR / "credentials_generation_rationale.json"
+    )
+    export_sector_qmbd_learning_pathways_json(
+        learning_pathways, OUTPUTS_DIR / "sector_qmbd_learning_pathways.json"
+    )
     export_pathways_json(pathways, OUTPUTS_DIR / "sector_pathways.json")
     export_gaps_summary_csv(gaps, OUTPUTS_DIR / "gaps_summary.csv")
     export_gaps_detailed_json(gap_model_result, OUTPUTS_DIR / "gaps_detailed.json")
@@ -3117,9 +3627,7 @@ def main(
         len(baseline),
         len(literature),
     )
-    log.info(
-        "  Credentials:  %d (%d sectors × 4 EQF levels)", len(credentials), len(SECTORS)
-    )
+    log.info("  Credentials:  %d dynamic evidence-first records", len(credentials))
     log.info("  Pathways:     %d sector transitions", len(pathways))
     log.info("")
     log.info("Output files:")
@@ -3130,6 +3638,9 @@ def main(
         "literature_integration.html",
         "competences_full_database.json",
         "credentials_database.json",
+        "credentials_dynamic_database.json",
+        "credentials_generation_rationale.json",
+        "sector_qmbd_learning_pathways.json",
         "sector_pathways.json",
         "gaps_summary.csv",
         "gaps_detailed.json",

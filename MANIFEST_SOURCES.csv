@@ -794,9 +794,14 @@ morskamary.code-workspace,other,,,,,,morskamary,no
 morskamary.code-workspace2.txt,text,,,,,,morskamary_code_workspace2,yes
 outputs/competences_full_database.json,other,,,,,,competences_full_database,yes
 outputs/credentials_database.json,other,,,,,,credentials_database,yes
+outputs/credentials_dynamic_database.json,other,,,,,,credentials_dynamic_database,yes
+outputs/credentials_generation_rationale.json,other,,,,,,credentials_generation_rationale,yes
 outputs/credentials_matrix.html,other,,,,,,credentials_matrix,no
 outputs/cumulative_qmbd_records.json,other,,,,,,cumulative_qmbd_records,yes
+outputs/gap_priority_ranking.csv,dataset_derived,,,,,,gap_priority_ranking,yes
 outputs/gaps_by_sector.html,other,,,,,,gaps_by_sector,no
+outputs/gaps_by_sector_axis.csv,dataset_derived,,,,,,gaps_by_sector_axis,yes
+outputs/gaps_detailed.json,other,,,,,,gaps_detailed,yes
 outputs/gaps_summary.csv,dataset_derived,,,,,,gaps_summary,yes
 outputs/literature_integration.html,other,,,,,,literature_integration,no
 outputs/report_index.html,other,,,,,,report_index,no
@@ -808,6 +813,7 @@ outputs/research_sources/live_records.json,dataset_derived,,,,,,live_records,yes
 outputs/research_sources/live_source_coverage.csv,dataset_derived,,,,,,live_source_coverage,yes
 outputs/research_sources/low_confidence_live_records.json,dataset_derived,,,,,,low_confidence_live_records,yes
 outputs/sector_pathways.json,other,,,,,,sector_pathways,yes
+outputs/sector_qmbd_learning_pathways.json,other,,,,,,sector_qmbd_learning_pathways,yes
 PROMPT_REQUEST_TEMPLATE.txt,governance,,,,,,PROMPT_REQUEST_TEMPLATE,yes
 push_output.txt,text,,,,,,push_output,yes
 pyproject.toml,other,,,,,,pyproject,no
@@ -922,6 +928,7 @@ tests/test_core.py,script,,,,,,test_core,yes
 tests/test_cumulative_fragment_analysis.py,script,,,,,,test_cumulative_fragment_analysis,yes
 tests/test_cumulative_triangulator.py,script,,,,,,test_cumulative_triangulator,yes
 tests/test_cumulative_triangulator_dynamic_priority.py,script,,,,,,test_cumulative_triangulator_dynamic_pri,yes
+tests/test_dynamic_credentials_generation.py,script,,,,,,test_dynamic_credentials_generation,yes
 tests/test_e2e_workflows.py,script,,,,,,test_e2e_workflows,yes
 tests/test_edge_cases.py,script,,,,,,test_edge_cases,yes
 tests/test_export_live_research_records.py,script,,,,,,test_export_live_research_records,yes
