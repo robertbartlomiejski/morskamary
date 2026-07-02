@@ -15,6 +15,7 @@ Exit codes:
 
 import csv
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -176,6 +177,101 @@ def load_credentials(path: Path) -> list[dict]:
                 )
 
     return entries
+
+
+def load_dynamic_credentials(path: Path) -> list[dict]:
+    """Load credentials_dynamic_database.json → list of dynamic credential dicts."""
+    with path.open(encoding="utf-8") as f:
+        data = json.load(f)
+
+    if not isinstance(data, dict):
+        fail(
+            f"{path.name}: expected a JSON object at top level, "
+            f"got {type(data).__name__}"
+        )
+        return []
+
+    if "credentials" not in data:
+        fail(
+            f"{path.name}: required top-level key 'credentials' is missing"
+        )
+        return []
+
+    entries = data["credentials"]
+    if not isinstance(entries, list):
+        fail(
+            f"{path.name}: 'credentials' must be a list, "
+            f"got {type(entries).__name__}"
+        )
+        return []
+
+    required_dynamic_fields = (
+        "id",
+        "sector",
+        "eqf_level",
+        "learning_outcomes",
+        "evidence_clusters",
+        "supply_gap_basis",
+    )
+    for i, c in enumerate(entries):
+        if not isinstance(c, dict):
+            fail(f"{path.name}: credentials[{i}] is not an object")
+            continue
+        for field in required_dynamic_fields:
+            if field not in c:
+                fail(
+                    f"{path.name}: credentials[{i}] is missing required "
+                    f"field '{field}' (id={c.get('id', '<unknown>')})"
+                )
+
+    return entries
+
+
+def load_generation_rationale(path: Path) -> dict:
+    """Load credentials_generation_rationale.json with required top-level keys."""
+    with path.open(encoding="utf-8") as f:
+        data = json.load(f)
+
+    if not isinstance(data, dict):
+        fail(
+            f"{path.name}: expected a JSON object at top level, "
+            f"got {type(data).__name__}"
+        )
+        return {}
+
+    for key in ("generated_credentials", "review_required"):
+        if key not in data:
+            fail(f"{path.name}: required top-level key '{key}' is missing")
+        elif not isinstance(data[key], list):
+            fail(
+                f"{path.name}: top-level key '{key}' must be a list, got "
+                f"{type(data[key]).__name__}"
+            )
+
+    return data
+
+
+def load_learning_pathways(path: Path) -> dict:
+    """Load sector_qmbd_learning_pathways.json with required schema keys."""
+    with path.open(encoding="utf-8") as f:
+        data = json.load(f)
+
+    if not isinstance(data, dict):
+        fail(
+            f"{path.name}: expected a JSON object at top level, "
+            f"got {type(data).__name__}"
+        )
+        return {}
+
+    if "sector_qmbd_pathways" not in data:
+        fail(f"{path.name}: required top-level key 'sector_qmbd_pathways' is missing")
+    elif not isinstance(data["sector_qmbd_pathways"], list):
+        fail(
+            f"{path.name}: 'sector_qmbd_pathways' must be a list, got "
+            f"{type(data['sector_qmbd_pathways']).__name__}"
+        )
+
+    return data
 
 
 def load_gaps_csv(path: Path) -> list[dict]:
@@ -377,6 +473,7 @@ def check_gaps_csv(rows: list[dict]) -> None:
 def check_credentials(
     credentials: list[dict],
     all_comps: dict[str, dict],
+    rationale: dict | None = None,
 ) -> None:
     """Validate credentials_database.json contents."""
     print("\n[credentials_database.json]")
@@ -389,26 +486,60 @@ def check_credentials(
     else:
         ok("All 12 canonical sectors have credentials")
 
-    # 2. EQF levels 4–7 must be present per sector
+    # 2. EQF levels 4–7 must be present per sector OR represented in review_required
     eqf_levels_by_sector: dict[str, set] = {}
     for c in credentials:
         sector = c.get("sector", "")
         lvl = c.get("eqf_level")
         eqf_levels_by_sector.setdefault(sector, set()).add(lvl)
 
+    review_by_sector: dict[str, set[int]] = {}
+    review_all_sector: set[str] = set()
+    if rationale:
+        review_required = rationale.get("review_required", [])
+        if isinstance(review_required, list):
+            for item in review_required:
+                if not isinstance(item, dict):
+                    continue
+                sector = str(item.get("sector", ""))
+                reason = str(item.get("reason", ""))
+                if not sector:
+                    continue
+                if "No evidence-backed missing clusters" in reason:
+                    review_all_sector.add(sector)
+                    continue
+                match = re.search(r"EQF(\d+)", reason)
+                if match:
+                    review_by_sector.setdefault(sector, set()).add(int(match.group(1)))
+
     eqf_ok = True
     for sector in CANONICAL_SECTORS:
         levels = eqf_levels_by_sector.get(sector, set())
         expected = {4, 5, 6, 7}
-        if not expected.issubset(levels):
+        missing_levels = expected - levels
+        if not missing_levels:
+            continue
+        if rationale:
+            reviewed = review_by_sector.get(sector, set())
+            unresolved = missing_levels - reviewed
+            if unresolved and sector not in review_all_sector:
+                fail(
+                    f"Sector '{sector}' is missing EQF levels without review_required "
+                    f"coverage: {sorted(unresolved)}"
+                )
+                eqf_ok = False
+        else:
             fail(
                 f"Sector '{sector}' is missing EQF levels: "
-                f"{sorted(expected - levels)}"
+                f"{sorted(missing_levels)}"
             )
             eqf_ok = False
 
     if eqf_ok:
-        ok("EQF levels 4–7 present for all 12 sectors")
+        if rationale:
+            ok("EQF coverage satisfied via generated credentials and review_required")
+        else:
+            ok("EQF levels 4–7 present for all 12 sectors")
 
     # 3. For EQF6/EQF7: every literature competence in a credential must have
     #    that credential's sector in its own sectors list.
@@ -621,6 +752,97 @@ def check_sector_dictionaries(sector_dict_dir: Path) -> None:
             )
 
 
+def check_dynamic_outputs(
+    dynamic_credentials: list[dict],
+    rationale: dict,
+    pathways: dict,
+) -> None:
+    """Validate PR-3B dynamic outputs and evidence-first semantics."""
+    print("\n[dynamic PR-3B outputs]")
+
+    generated_ids = {
+        cred.get("id")
+        for cred in dynamic_credentials
+        if isinstance(cred, dict) and cred.get("id")
+    }
+    if not generated_ids:
+        fail("credentials_dynamic_database.json has no generated credentials")
+        return
+    ok(f"Dynamic credentials generated: {len(generated_ids)}")
+
+    missing_evidence = False
+    outcome_quality_issues = False
+    for credential in dynamic_credentials:
+        cid = credential.get("id", "<unknown>")
+        evidence_clusters = credential.get("evidence_clusters", [])
+        if not isinstance(evidence_clusters, list) or not evidence_clusters:
+            fail(f"Dynamic credential '{cid}' has no evidence_clusters")
+            missing_evidence = True
+        outcomes = credential.get("learning_outcomes", [])
+        if not isinstance(outcomes, list) or not outcomes:
+            fail(f"Dynamic credential '{cid}' has missing learning_outcomes")
+            outcome_quality_issues = True
+            continue
+        for outcome in outcomes:
+            text = str(outcome)
+            if "..." in text or " et al." in text:
+                fail(
+                    f"Dynamic credential '{cid}' has non-normalized learning outcome text: "
+                    f"{text}"
+                )
+                outcome_quality_issues = True
+
+    if not missing_evidence:
+        ok("All dynamic credentials contain evidence_clusters")
+    if not outcome_quality_issues:
+        ok("Learning outcomes appear normalized (no raw/truncated title fragments)")
+
+    generated_entries = rationale.get("generated_credentials", [])
+    review_required = rationale.get("review_required", [])
+    if not isinstance(generated_entries, list) or not isinstance(review_required, list):
+        fail("credentials_generation_rationale.json has invalid generated/review sections")
+        return
+
+    rationale_ids = {
+        item.get("credential_id")
+        for item in generated_entries
+        if isinstance(item, dict) and item.get("credential_id")
+    }
+    if generated_ids != rationale_ids:
+        fail(
+            "Mismatch between dynamic credential IDs and rationale generated_credentials IDs"
+        )
+    else:
+        ok("Rationale generated_credentials aligns with dynamic credential IDs")
+
+    review_no_evidence = {
+        str(item.get("sector", ""))
+        for item in review_required
+        if isinstance(item, dict)
+        and "No evidence-backed missing clusters" in str(item.get("reason", ""))
+    }
+    sectors_with_dynamic = {
+        str(cred.get("sector", ""))
+        for cred in dynamic_credentials
+        if isinstance(cred, dict)
+    }
+    sectors_without_dynamic = set(CANONICAL_SECTORS) - sectors_with_dynamic
+    uncovered = sectors_without_dynamic - review_no_evidence
+    if uncovered:
+        fail(
+            "Sectors without dynamic credentials must appear in review_required "
+            f"with no-evidence reason: {sorted(uncovered)}"
+        )
+    else:
+        ok("Sectors lacking generated credentials are covered by review_required")
+
+    pathway_nodes = pathways.get("sector_qmbd_pathways", [])
+    if not isinstance(pathway_nodes, list) or not pathway_nodes:
+        fail("sector_qmbd_learning_pathways.json has no pathway nodes")
+    else:
+        ok(f"Pathway nodes present: {len(pathway_nodes)}")
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -638,11 +860,22 @@ def main() -> int:
     # Required files
     gaps_csv_path = OUTPUTS_DIR / "gaps_summary.csv"
     creds_path = OUTPUTS_DIR / "credentials_database.json"
+    dynamic_creds_path = OUTPUTS_DIR / "credentials_dynamic_database.json"
+    rationale_path = OUTPUTS_DIR / "credentials_generation_rationale.json"
+    pathways_path = OUTPUTS_DIR / "sector_qmbd_learning_pathways.json"
     comps_path = OUTPUTS_DIR / "competences_full_database.json"
     cumulative_path = OUTPUTS_DIR / "cumulative_qmbd_records.json"
     sector_dict_dir = OUTPUTS_DIR / "sector_dictionaries"
 
-    required_files = [gaps_csv_path, creds_path, comps_path, cumulative_path]
+    required_files = [
+        gaps_csv_path,
+        creds_path,
+        dynamic_creds_path,
+        rationale_path,
+        pathways_path,
+        comps_path,
+        cumulative_path,
+    ]
     all_present = all(require_file(p) for p in required_files)
     if not all_present:
         print("\nAbort: one or more required files are missing.")
@@ -651,15 +884,19 @@ def main() -> int:
     # Load data (schema errors are collected via fail() during loading)
     all_comps = load_competences(comps_path)
     credentials = load_credentials(creds_path)
+    dynamic_credentials = load_dynamic_credentials(dynamic_creds_path)
+    rationale = load_generation_rationale(rationale_path)
+    pathways = load_learning_pathways(pathways_path)
     gaps_rows = load_gaps_csv(gaps_csv_path)
     cumulative_records = load_cumulative_qmbd_records(cumulative_path)
 
     # Run semantic checks
     check_gaps_csv(gaps_rows)
-    check_credentials(credentials, all_comps)
+    check_credentials(credentials, all_comps, rationale=rationale)
     check_cumulative_qmbd_records(cumulative_records)
     check_desalination_integrity(credentials, all_comps)
     check_sector_dictionaries(sector_dict_dir)
+    check_dynamic_outputs(dynamic_credentials, rationale, pathways)
 
     print()
     if ERRORS:

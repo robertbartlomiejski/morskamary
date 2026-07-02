@@ -2096,28 +2096,36 @@ def _build_eqf_learning_outcomes(
 ) -> List[str]:
     """Build sector- and evidence-specific learning outcomes."""
     axis_text = ", ".join(axes) if axes else "QMBD axes"
-    focus = missing_names[:2]
+    del missing_names
+    focus = {
+        "MARINE": "ecosystem stewardship and biophysical risk management",
+        "MARITIME": "operational systems, logistics, and institutional compliance",
+        "OCEANIC": "planetary governance, transboundary coordination, and systems thinking",
+    }
+    focus_text = "; ".join(focus[axis] for axis in axes if axis in focus) or (
+        "priority competence gaps"
+    )
     if level == 4:
         return [
-            f"Identify foundational {axis_text} terminology for {sector}.",
-            f"Describe basic competence gaps in {sector} using documented evidence.",
-            "Recognize verified versus audit-only supply evidence in gap interpretation.",
+            f"Identify foundational {axis_text} competences required in {sector}.",
+            f"Describe evidence-backed {sector} gaps with focus on {focus_text}.",
+            "Recognize verified supply evidence versus audit-only generated supply in supervised assessment contexts.",
         ]
     if level == 5:
         return [
             f"Apply operational procedures to address {axis_text} gaps in {sector}.",
-            f"Implement supervised interventions for: {', '.join(focus) or 'priority gaps'}.",
-            "Monitor delivery outcomes against evidence-backed missing clusters.",
+            f"Implement supervised interventions targeting {focus_text}.",
+            "Monitor decisions and delivery outcomes against evidence-backed missing clusters.",
         ]
     if level == 6:
         return [
             f"Analyze and design independent responses to {axis_text} gaps in {sector}.",
-            f"Evaluate alternatives for: {', '.join(focus) or 'high-priority gaps'}.",
+            f"Evaluate strategic alternatives for {focus_text}.",
             "Integrate sector evidence and provenance into project-level decisions.",
         ]
     return [
         f"Lead strategic governance and transformation responses for {sector} ({axis_text}).",
-        f"Synthesize research evidence to prioritize: {', '.join(focus) or 'critical gaps'}.",
+        f"Synthesize multi-source evidence to prioritize {focus_text}.",
         "Design system-level interventions with traceable provenance and review controls.",
     ]
 
