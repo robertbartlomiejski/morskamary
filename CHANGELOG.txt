@@ -19,6 +19,26 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-06-30 (PR A rev2: gap model — supply taxonomy, axis-sensitive coverage, gap-aware scoring)
+  Change type update fix add
+  Scope analysis pipeline scripts tests
+  Files affected src/gap_model.py run_full_analysis.py tests/test_gap_model.py CHANGELOG.txt
+  Summary Revised the four-layer gap model to address review feedback: (1) supply origin taxonomy now distinguishes static_baseline / existing_microcredential / generated_credential_previous_run / supply_file_unparsed; (2) Blue Clusters CSV is fully parsed into existing_microcredential supply evidence; (3) coverage rule is strictly axis-scoped (no cross-axis leakage) with Jaccard similarity threshold 0.30 replacing any-token overlap; (4) priority_score is gap-aware — gap_ratio and missing_count_normalized replace the constant sector_relevance factor (7-factor equal-weight formula); (5) provider extracted from lit_live_ ID slug, then explicit provider:/source_provider:/data_provider: keyword, then 'unknown' — thematic keywords and authorship are never used as provider; (6) gap_priority_ranking.csv extended with 8 audit columns; (7) 20 new tests covering all changed behaviours.
+  Reason PR review required changes before merge: circular supply (credentials_database.json treated as verified supply), unparsed CSV claim, axis-leakage in coverage, non-gap-aware priority, inaccurate sector_relevance placeholder, thin priority CSV output, insufficient test coverage.
+  Impact outputs/gap_priority_ranking.csv now includes Top_Origins, Top_Providers, Top_DOIs, Top_Titles, Year_Range, Average_Confidence, Coverage_Method, Supporting_Providers. Supply side gains existing_microcredential items from Blue Clusters CSV. Coverage false-positive rate reduced.
+  Provenance src/gap_model.py — coverage rule, priority score, GapCluster.coverage_method; run_full_analysis.py — _collect_supply_from_microcredentials_csv(), _extract_provider_from_comp(), export_gap_priority_ranking_csv(); tests/test_gap_model.py — 20 new tests.
+  Quality checks python -m pytest tests/test_gap_model.py -v (50 passed); python -m pytest tests/ -q (745 passed).
+
+- 2026-06-30 (PR A: dynamic gap model)
+  Change type add
+  Scope analysis pipeline scripts tests
+  Files affected src/gap_model.py run_full_analysis.py tests/test_gap_model.py CHANGELOG.txt
+  Summary Added explicit four-layer gap model (demand_evidence / supply_evidence / missing_clusters / priority_score) in src/gap_model.py. Wired run_gap_model() orchestration function and three new export functions into run_full_analysis.py main() pipeline. Added 30 unit and integration tests.
+  Reason The previous run_gap_analysis() treated supply as purely static baseline competences and lacked rich provenance on evidence items. The new model separates demand (literature + live API records) from supply (baseline + existing supply files), computes a multi-factor priority score, and produces richer outputs for downstream credential generation.
+  Impact New output files: outputs/gaps_detailed.json, outputs/gaps_by_sector_axis.csv, outputs/gap_priority_ranking.csv. Existing outputs/gaps_summary.csv is preserved unchanged for backward compatibility.
+  Provenance src/gap_model.py — new module; run_full_analysis.py sections 3b and 3c — new code; tests/test_gap_model.py — 30 new tests.
+  Quality checks python -m pytest tests/test_gap_model.py -v (30 passed); python -m pytest tests/ -q (725 passed).
+
 - 2026-06-29 (flake8 installation hardening in legacy CI workflow)
   Change type fix
   Scope CI tests governance
@@ -633,4 +653,15 @@ Files affected .flake8 pyproject.toml .github/workflows/ci.yml CONTRIBUTING.md m
 Summary PR-181 baseline cleanup: resolved repository lint/type root causes in maintained code, added explicit legacy/demo exclusions for non-production artifacts, and added canonical CI static-quality gate running module-based flake8 and mypy.
 Reason Separate baseline static-quality hardening from PR-179/180 feature/changelog work and prevent recurrence through canonical CI enforcement.
 Impact `python -m flake8 .`, `python -m mypy src scripts run_full_analysis.py main.py`, and `python -m pytest tests/ -v` are now aligned across local workflow and CI.
+Reviewer GitHub Copilot Coding Agent
+
+2026-07-01
+Change type fix
+Scope gap-model provenance analysis
+Files affected src/gap_model.py run_full_analysis.py tests/test_gap_model.py
+Summary Fixed provider provenance (no longer uses comp.source.authors as provider); fixed dynamic CSV header detection in _collect_supply_from_microcredentials_csv; added item-level match provenance fields (matched_supply_id, matched_supply_origin, match_method, match_score) to GapEvidence.
+Reason Authors ("Smith, J.; Jones, K.") are bibliographic metadata, not data providers. Provider must identify the data/source provider (crossref, scopus, wos, baseline, etc.). CSV header was hard-coded at row index 2; now dynamically located by searching for the first row whose first cell equals "Dimension" and which contains a known sector header. Item-level match provenance improves auditability of gaps_detailed.json.
+Impact _extract_provider_from_comp now returns (1) a live-API provider slug from a lit_live_<provider>_NNNNN ID (e.g. "scopus"), or (2) an explicit provider:/source_provider:/data_provider: keyword value, otherwise "unknown"—bibliographic authors, support: keywords, and thematic keywords (labor_justice, research_gaps, oceanic, etc.) are never used as provider. CSV parsing is robust to BOM rows, shifted headers, and extra introductory rows. Covered demand items now carry matched_supply_id, matched_supply_origin, match_method, and match_score.
+Provenance PR addressing review comment #4608688805 on PR #182.
+Quality checks pytest tests/ passes (757/757).
 Reviewer GitHub Copilot Coding Agent
