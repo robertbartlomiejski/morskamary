@@ -56,6 +56,18 @@ class GapEvidence:
         confidence_score: Reliability score in [0.0, 1.0].
         overlap_status: 'demand_only' | 'covered' | 'supply_only'.
         supporting_providers: Additional provider IDs that corroborate this item.
+        matched_supply_id: ID of the supply item that covered this demand item.
+            Populated only for **demand-side** items whose ``overlap_status``
+            becomes ``'covered'``; always ``None`` for supply-side items and for
+            demand items that remain ``'demand_only'``.
+        matched_supply_origin: Origin of the matched supply item.  Same
+            population rules as ``matched_supply_id``.
+        match_method: How this demand item was matched: ``'exact_id'`` |
+            ``'name_similarity'``.  ``None`` for supply-side items and unmatched
+            demand items.
+        match_score: Jaccard similarity score for ``'name_similarity'`` matches
+            (0–1); ``1.0`` for ``'exact_id'`` matches; ``None`` for supply-side
+            items and unmatched demand items.
     """
 
     competence_id: str
@@ -73,6 +85,13 @@ class GapEvidence:
     confidence_score: float
     overlap_status: str  # 'demand_only' | 'covered' | 'supply_only'
     supporting_providers: List[str] = field(default_factory=list)
+    # Item-level match provenance — populated only for demand-side items that
+    # are covered by a supply item; always None for supply-side items and for
+    # demand items that remain 'demand_only'.
+    matched_supply_id: Optional[str] = field(default=None)
+    matched_supply_origin: Optional[str] = field(default=None)
+    match_method: Optional[str] = field(default=None)  # 'exact_id' | 'name_similarity'
+    match_score: Optional[float] = field(default=None)  # Jaccard score for name_similarity
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialize to plain dictionary."""
@@ -92,6 +111,10 @@ class GapEvidence:
             "confidence_score": self.confidence_score,
             "overlap_status": self.overlap_status,
             "supporting_providers": self.supporting_providers,
+            "matched_supply_id": self.matched_supply_id,
+            "matched_supply_origin": self.matched_supply_origin,
+            "match_method": self.match_method,
+            "match_score": self.match_score,
         }
 
 
@@ -406,6 +429,9 @@ def compute_gap_model(
             supply_token_sets: List[frozenset] = [
                 _name_tokens(si.name) for si in s_axis
             ]
+            supply_id_to_item: Dict[str, GapEvidence] = {
+                si.competence_id: si for si in s_axis
+            }
 
             missing: List[GapEvidence] = []
             exact_covered = 0
@@ -413,9 +439,20 @@ def compute_gap_model(
             # Track indices of supply items used for name-similarity coverage
             sim_covered_supply_indices: set = set()
             for item in d_axis:
+                # Clear any stale match provenance from a previous compute pass
+                # so reused GapEvidence objects cannot retain stale data.
+                item.matched_supply_id = None
+                item.matched_supply_origin = None
+                item.match_method = None
+                item.match_score = None
                 if item.competence_id in supply_axis_ids:
                     # Rule 1: exact ID match within same sector × axis
                     exact_covered += 1
+                    matched_si = supply_id_to_item[item.competence_id]
+                    item.matched_supply_id = matched_si.competence_id
+                    item.matched_supply_origin = matched_si.origin
+                    item.match_method = "exact_id"
+                    item.match_score = 1.0
                 else:
                     # Rule 2: name-similarity match within same sector × axis
                     item_tokens = _name_tokens(item.name)
@@ -425,6 +462,11 @@ def compute_gap_model(
                             sim_covered += 1
                             sim_covered_supply_indices.add(s_idx)
                             matched = True
+                            score = _jaccard(item_tokens, st)
+                            item.matched_supply_id = s_axis[s_idx].competence_id
+                            item.matched_supply_origin = s_axis[s_idx].origin
+                            item.match_method = "name_similarity"
+                            item.match_score = round(score, 4)
                             break
                     if not matched:
                         missing.append(item)

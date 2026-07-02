@@ -124,6 +124,10 @@ class TestGapEvidence:
             "confidence_score",
             "overlap_status",
             "supporting_providers",
+            "matched_supply_id",
+            "matched_supply_origin",
+            "match_method",
+            "match_score",
         }
         assert expected_keys == set(d.keys())
 
@@ -870,13 +874,20 @@ class TestProviderProvenanceExtraction:
             sectors=["Blue Biotech"],
         )
 
-    def test_structured_authors_used_first(self) -> None:
-        """Provider must come from comp.source.authors when available."""
+    def test_authors_not_used_as_provider(self) -> None:
+        """Authors must NOT be used as provider; ID slug takes priority instead."""
         from run_full_analysis import _extract_provider_from_comp
 
+        # comp has both authors and a lit_live_ ID; provider must come from ID slug
         comp = self._make_comp_with_authors("Smith, J.; Jones, K.")
+        comp.id = "lit_live_crossref_00001"
         provider = _extract_provider_from_comp(comp)
-        assert provider == "Smith, J.; Jones, K."
+        assert provider == "crossref", (
+            f"Authors must not be used as provider; expected ID slug 'crossref', got {provider!r}"
+        )
+        assert provider != "Smith, J.; Jones, K.", (
+            "Bibliographic authorship must never be returned as provider"
+        )
 
     def test_id_slug_used_when_no_authors(self) -> None:
         """Provider must be extracted from lit_live_<provider>_ID when authors absent."""
@@ -1214,3 +1225,239 @@ class TestCsvCodeBoundarySplitting:
         assert len(items) == 2, (
             f"Concatenated codes must produce 2 items; got {len(items)}: {[i.name for i in items]}"
         )
+
+
+class TestCsvDynamicHeaderDetection:
+    """Header row must be located dynamically, not assumed to be at a fixed index."""
+
+    def test_header_at_index_zero_is_found(self, tmp_path: Path) -> None:
+        """CSV with no preamble rows must still parse correctly."""
+        from run_full_analysis import _collect_supply_from_microcredentials_csv
+        import run_full_analysis as rfa
+
+        csv_content = (
+            "Dimension,Blue Biotech\n"
+            "A,Bioprospecting techniques\n"
+        )
+        csv_file = tmp_path / "test_no_preamble.csv"
+        csv_file.write_text(csv_content, encoding="utf-8")
+
+        orig_map = dict(rfa._CSV_SECTOR_MAP)
+        orig_axis = dict(rfa._CSV_DIMENSION_AXIS)
+        rfa._CSV_SECTOR_MAP = {"Blue Biotech": "Blue Biotech"}
+        rfa._CSV_DIMENSION_AXIS = {"A": "OCEANIC"}
+        try:
+            supply = _collect_supply_from_microcredentials_csv(csv_file)
+        finally:
+            rfa._CSV_SECTOR_MAP = orig_map
+            rfa._CSV_DIMENSION_AXIS = orig_axis
+
+        items = supply.get("Blue Biotech", [])
+        assert items, "CSV with header at row 0 must produce supply items"
+        assert items[0].source_row == 2, (
+            f"Data row is physical line 2; got source_row={items[0].source_row}"
+        )
+
+    def test_header_shifted_by_extra_intro_row(self, tmp_path: Path) -> None:
+        """CSV with an extra introductory row must still detect the header."""
+        from run_full_analysis import _collect_supply_from_microcredentials_csv
+        import run_full_analysis as rfa
+
+        # Three intro rows before the header (shifted by one vs the real CSV)
+        csv_content = (
+            "# Row 1\n"
+            "# Row 2\n"
+            "# Extra intro row\n"
+            "Dimension,Blue Biotech\n"
+            "A,Bioprospecting techniques\n"
+        )
+        csv_file = tmp_path / "test_shifted.csv"
+        csv_file.write_text(csv_content, encoding="utf-8")
+
+        orig_map = dict(rfa._CSV_SECTOR_MAP)
+        orig_axis = dict(rfa._CSV_DIMENSION_AXIS)
+        rfa._CSV_SECTOR_MAP = {"Blue Biotech": "Blue Biotech"}
+        rfa._CSV_DIMENSION_AXIS = {"A": "OCEANIC"}
+        try:
+            supply = _collect_supply_from_microcredentials_csv(csv_file)
+        finally:
+            rfa._CSV_SECTOR_MAP = orig_map
+            rfa._CSV_DIMENSION_AXIS = orig_axis
+
+        items = supply.get("Blue Biotech", [])
+        assert items, "CSV with shifted header must still produce supply items"
+        assert items[0].source_row == 5, (
+            f"Data row is physical line 5; got source_row={items[0].source_row}"
+        )
+
+    def test_no_dimension_header_returns_empty(self, tmp_path: Path) -> None:
+        """CSV without a 'Dimension' header row must return empty supply."""
+        from run_full_analysis import _collect_supply_from_microcredentials_csv
+        import run_full_analysis as rfa
+
+        csv_content = (
+            "Category,Blue Biotech\n"
+            "A,Bioprospecting techniques\n"
+        )
+        csv_file = tmp_path / "test_no_dim_header.csv"
+        csv_file.write_text(csv_content, encoding="utf-8")
+
+        orig_map = dict(rfa._CSV_SECTOR_MAP)
+        rfa._CSV_SECTOR_MAP = {"Blue Biotech": "Blue Biotech"}
+        try:
+            supply = _collect_supply_from_microcredentials_csv(csv_file)
+        finally:
+            rfa._CSV_SECTOR_MAP = orig_map
+
+        assert supply == {}, "CSV without 'Dimension' header must return empty dict"
+
+    def test_bom_header_is_detected(self, tmp_path: Path) -> None:
+        """CSV whose first cell carries a UTF-8 BOM must still detect the header."""
+        from run_full_analysis import _collect_supply_from_microcredentials_csv
+        import run_full_analysis as rfa
+
+        # Write file with a UTF-8 BOM prefix so the first cell becomes
+        # "\ufeffDimension" when read with plain encoding="utf-8".
+        # Using encoding="utf-8-sig" (our fix) strips the BOM automatically.
+        csv_content = "\ufeffDimension,Blue Biotech\nA,Bioprospecting techniques\n"
+        csv_file = tmp_path / "test_bom.csv"
+        csv_file.write_bytes(csv_content.encode("utf-8"))
+
+        orig_map = dict(rfa._CSV_SECTOR_MAP)
+        orig_axis = dict(rfa._CSV_DIMENSION_AXIS)
+        rfa._CSV_SECTOR_MAP = {"Blue Biotech": "Blue Biotech"}
+        rfa._CSV_DIMENSION_AXIS = {"A": "OCEANIC"}
+        try:
+            supply = _collect_supply_from_microcredentials_csv(csv_file)
+        finally:
+            rfa._CSV_SECTOR_MAP = orig_map
+            rfa._CSV_DIMENSION_AXIS = orig_axis
+
+        items = supply.get("Blue Biotech", [])
+        assert items, "CSV with BOM header must produce supply items"
+        assert items[0].source_row == 2, (
+            f"Data row is physical line 2; got source_row={items[0].source_row}"
+        )
+
+
+class TestItemLevelMatchProvenance:
+    """GapEvidence match provenance fields must be populated when items are covered."""
+
+    def _make_demand(self, comp_id: str, name: str, axis: str = "MARINE") -> GapEvidence:
+        return GapEvidence(
+            competence_id=comp_id,
+            name=name,
+            description="demand",
+            sector="Blue Biotech",
+            qmbd_axis=axis,
+            origin="static_literature",
+            source_file="f.csv",
+            source_row=1,
+            provider="crossref",
+            doi="",
+            title=name,
+            year="2023",
+            confidence_score=0.9,
+            overlap_status="demand_only",
+        )
+
+    def _make_supply(self, comp_id: str, name: str, axis: str = "MARINE") -> GapEvidence:
+        return GapEvidence(
+            competence_id=comp_id,
+            name=name,
+            description="supply",
+            sector="Blue Biotech",
+            qmbd_axis=axis,
+            origin="static_baseline",
+            source_file="g.csv",
+            source_row=2,
+            provider="baseline",
+            doi="",
+            title=name,
+            year="2022",
+            confidence_score=0.95,
+            overlap_status="supply_only",
+        )
+
+    def test_exact_id_match_provenance_set(self) -> None:
+        """Exact-ID covered demand items must have match_method='exact_id' and score 1.0."""
+        demand = self._make_demand("shared_id", "Marine ecology monitoring")
+        supply = self._make_supply("shared_id", "Marine ecology monitoring")
+        result = compute_gap_model(
+            {"Blue Biotech": [demand]},
+            {"Blue Biotech": [supply]},
+            qmbd_axes=["MARINE"],
+        )
+        covered = [
+            i for i in result.all_clusters[0].demand_items
+            if i.overlap_status == "covered"
+        ]
+        assert len(covered) == 1
+        item = covered[0]
+        assert item.match_method == "exact_id"
+        assert item.match_score == 1.0
+        assert item.matched_supply_id == "shared_id"
+        assert item.matched_supply_origin == "static_baseline"
+
+    def test_name_similarity_match_provenance_set(self) -> None:
+        """Name-similarity covered items must store match_method, score, and supply ID."""
+        demand = self._make_demand("d1", "underwater acoustic sensing monitoring techniques")
+        supply = self._make_supply("s1", "acoustic underwater monitoring sensing systems")
+        result = compute_gap_model(
+            {"Blue Biotech": [demand]},
+            {"Blue Biotech": [supply]},
+            qmbd_axes=["MARINE"],
+        )
+        covered = [
+            i for i in result.all_clusters[0].demand_items
+            if i.overlap_status == "covered"
+        ]
+        assert len(covered) == 1
+        item = covered[0]
+        assert item.match_method == "name_similarity"
+        assert item.match_score is not None and 0.0 < item.match_score <= 1.0
+        assert item.matched_supply_id == "s1"
+        assert item.matched_supply_origin == "static_baseline"
+
+    def test_unmatched_demand_has_no_provenance(self) -> None:
+        """Demand items with no supply coverage must have None provenance fields."""
+        demand = self._make_demand("d_only", "Unique niche competence with no overlap")
+        result = compute_gap_model(
+            {"Blue Biotech": [demand]},
+            {},
+            qmbd_axes=["MARINE"],
+        )
+        missing = result.all_clusters[0].missing_items
+        assert len(missing) == 1
+        item = missing[0]
+        assert item.match_method is None
+        assert item.match_score is None
+        assert item.matched_supply_id is None
+        assert item.matched_supply_origin is None
+
+    def test_stale_match_provenance_cleared_on_second_pass(self) -> None:
+        """Reused demand GapEvidence must not retain match fields from a prior pass."""
+        demand = self._make_demand("d_reuse", "Marine ecology monitoring")
+        supply = self._make_supply("d_reuse", "Marine ecology monitoring")
+
+        # First call: demand is covered; match fields must be populated.
+        compute_gap_model(
+            {"Blue Biotech": [demand]},
+            {"Blue Biotech": [supply]},
+            qmbd_axes=["MARINE"],
+        )
+        assert demand.overlap_status == "covered"
+        assert demand.match_method == "exact_id"
+
+        # Second call: no supply provided; demand must become 'demand_only' and
+        # all match-provenance fields must be cleared (not retain stale values).
+        compute_gap_model(
+            {"Blue Biotech": [demand]},
+            {},
+            qmbd_axes=["MARINE"],
+        )
+        assert demand.overlap_status == "demand_only"
+        assert demand.matched_supply_id is None
+        assert demand.matched_supply_origin is None
+        assert demand.match_method is None
+        assert demand.match_score is None
