@@ -149,6 +149,16 @@ class TestProviderResult:
         assert "warnings" in d
         assert d["errors"] == ["err1"]
 
+    def test_raw_payload_defaults_to_none(self):
+        result = ProviderResult(records=[_make_record()])
+        assert result.raw_payload is None
+
+    def test_raw_payload_can_be_set(self):
+        payload = {"message": {"items": [{"DOI": "10.1234/x"}]}}
+        result = ProviderResult(records=[_make_record()], raw_payload=payload)
+        assert result.raw_payload is payload
+        assert result.raw_payload["message"]["items"][0]["DOI"] == "10.1234/x"
+
 
 class TestSourceEvidence:
     def test_to_dict(self):
@@ -293,6 +303,53 @@ class TestCrossrefProvider:
         provider = CrossrefProvider()
         ua = provider._user_agent()
         assert "test@example.edu" in ua
+
+    def test_search_populates_raw_payload(self, monkeypatch):
+        """CrossrefProvider.search() must store the raw API JSON in raw_payload."""
+        import urllib.request
+
+        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=10: _DummyResponse(_CROSSREF_PAYLOAD))
+
+        provider = CrossrefProvider()
+        result = provider.search("blue economy", max_results=1)
+
+        assert result.raw_payload is not None
+        assert "message" in result.raw_payload
+        assert result.raw_payload["message"]["items"][0]["DOI"] == "10.1234/blue"
+
+    def test_verify_doi_populates_raw_payload(self, monkeypatch):
+        """CrossrefProvider.verify_doi() must store the raw API JSON in raw_payload."""
+        import urllib.request
+
+        doi_payload = {
+            "message": {
+                "title": ["Blue Economy Governance"],
+                "author": [{"given": "Ada", "family": "Lovelace"}],
+                "URL": "https://example.org/paper",
+                "DOI": "10.1234/blue",
+                "published": {"date-parts": [[2024, 1, 1]]},
+                "container-title": ["Ocean Studies"],
+            }
+        }
+        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=10: _DummyResponse(doi_payload))
+
+        provider = CrossrefProvider()
+        result = provider.verify_doi("10.1234/blue")
+
+        assert result.raw_payload is not None
+        assert result.raw_payload["message"]["DOI"] == "10.1234/blue"
+
+    def test_search_raw_payload_is_none_on_error(self, monkeypatch):
+        """raw_payload must remain None when a network error prevents API response."""
+        import urllib.request
+
+        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=10: (_ for _ in ()).throw(OSError("down")))
+
+        provider = CrossrefProvider()
+        result = provider.search("blue economy")
+
+        assert result.raw_payload is None
+        assert result.errors
 
     def test_live_test_allowed_false_by_default(self):
         provider = CrossrefProvider()

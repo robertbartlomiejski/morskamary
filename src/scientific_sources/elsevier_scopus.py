@@ -348,6 +348,7 @@ class ElsevierScopusProvider(BaseProvider):
             return ProviderResult(
                 records=records,
                 provenance=self._make_evidence(query, "scopus/search", records),
+                raw_payload=payload,
             )
         except urllib.error.HTTPError as exc:
             return self._http_error_result("search", exc)
@@ -372,6 +373,7 @@ class ElsevierScopusProvider(BaseProvider):
             return ProviderResult(
                 records=records,
                 provenance=self._make_evidence(doi, "scopus/search?query=DOI", records),
+                raw_payload=payload,
             )
         except urllib.error.HTTPError as exc:
             return self._http_error_result("DOI verification", exc)

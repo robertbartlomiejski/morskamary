@@ -178,6 +178,10 @@
       "type": "integer",
       "minimum": 0
     },
+    "raw_api_payloads_count": {
+      "type": "integer",
+      "minimum": 0
+    },
     "files": {
       "type": "array",
       "items": {

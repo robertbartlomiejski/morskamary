@@ -1576,3 +1576,272 @@ class TestItemLevelMatchProvenance:
         assert demand.matched_supply_origin is None
         assert demand.match_method is None
         assert demand.match_score is None
+
+
+# ---------------------------------------------------------------------------
+# Tests: _stem_token / _name_tokens morphological normalisation
+# ---------------------------------------------------------------------------
+
+
+class TestStemToken:
+    """Unit tests for the lightweight suffix-stripping stemmer."""
+
+    def test_digitalisation_stems_to_digital(self) -> None:
+        from src.gap_model import _stem_token
+        # "digitalisation" → strip "-isation" → "digital" (≥4 chars)
+        assert _stem_token("digitalisation") == "digital"
+
+    def test_digitalization_stems_to_digital(self) -> None:
+        from src.gap_model import _stem_token
+        # "digitalization" → strip "-ization" → "digital" (≥4 chars)
+        assert _stem_token("digitalization") == "digital"
+
+    def test_fisheries_stems_to_fish(self) -> None:
+        from src.gap_model import _stem_token
+        # "fisheries" → strip "-eries" → "fish" (≥4 chars)
+        assert _stem_token("fisheries") == "fish"
+
+    def test_governance_strips_nothing_useful(self) -> None:
+        from src.gap_model import _stem_token
+        # "governance" has no matching suffix; returned unchanged
+        result = _stem_token("governance")
+        # The word doesn't match any suffix long enough to yield ≥4 stem chars
+        # that would still be accepted; check it returns a non-empty string.
+        assert isinstance(result, str) and len(result) >= 4
+
+    def test_monitoring_stems_to_monitor(self) -> None:
+        from src.gap_model import _stem_token
+        # "monitoring" → strip "-ing" → "monitor" (≥4 chars)
+        assert _stem_token("monitoring") == "monitor"
+
+    def test_short_stem_guard_prevents_over_stripping(self) -> None:
+        from src.gap_model import _stem_token
+        # "ring" → strip "-ing" → "r" (< 4 chars) → no strip
+        assert _stem_token("ring") == "ring"
+
+    def test_ecological_stems_to_ecolog(self) -> None:
+        from src.gap_model import _stem_token
+        # "ecological" → strip "-ical" → "ecolog" (≥4 chars)
+        assert _stem_token("ecological") == "ecolog"
+
+
+class TestNameTokensStemming:
+    """Tests that _name_tokens applies stemming to improve coverage matching."""
+
+    def test_digitalization_and_digitalisation_share_stem(self) -> None:
+        from src.gap_model import _name_tokens
+        tokens_us = _name_tokens("digitalization of maritime transport")
+        tokens_uk = _name_tokens("digitalisation of maritime transport")
+        # Both should collapse to the same stem ("digital") for the key word
+        assert tokens_us == tokens_uk, (
+            f"Expected same stem set; got {tokens_us!r} vs {tokens_uk!r}"
+        )
+
+    def test_fisheries_and_fishery_stem_overlap(self) -> None:
+        from src.gap_model import _name_tokens
+        # "fisheries" stems to "fish"; "fishery" doesn't match a suffix cleanly
+        # but the two token sets should share at least the "fish" stem from "fisheries"
+        tokens_plural = _name_tokens("fisheries monitoring governance")
+        assert "fish" in tokens_plural, (
+            f"Expected 'fish' stem in {tokens_plural!r}"
+        )
+
+    def test_monitoring_and_monitored_overlap(self) -> None:
+        from src.gap_model import _name_tokens
+        tokens_a = _name_tokens("environmental monitoring systems")
+        tokens_b = _name_tokens("environmental monitored approach")
+        # Both should include the "monitor" stem
+        assert "monitor" in tokens_a
+        # "monitored" → strip "-ed" only if stem ≥4: "monitore" — but actually
+        # "monitored" ends with "ed", stem = "monitor" (7 chars ≥ 4) → "monitor"
+        assert "monitor" in tokens_b
+
+
+class TestJaccardMorphologicalCoverage:
+    """Integration tests for morphological Jaccard matching via compute_gap_model."""
+
+    def _make_evidence(
+        self,
+        competence_id: str,
+        name: str,
+        sector: str = "Blue Biotech",
+        axis: str = "MARINE",
+        origin: str = "static_literature",
+    ) -> GapEvidence:
+        return GapEvidence(
+            competence_id=competence_id,
+            name=name,
+            description="Test",
+            sector=sector,
+            qmbd_axis=axis,
+            origin=origin,
+            source_file="data/derived/test.csv",
+            source_row=1,
+            provider="crossref",
+            doi="10.1234/test",
+            title="Test paper",
+            year="2023",
+            confidence_score=0.8,
+            overlap_status="demand_only",
+        )
+
+    def test_digitalization_covers_digitalisation(self) -> None:
+        """Stemming must allow "digitalization" supply to cover "digitalisation" demand."""
+        demand = self._make_evidence("d1", "digitalisation of maritime transport competences")
+        supply = self._make_evidence("s1", "digitalization maritime transport competences")
+        result = compute_gap_model(
+            {"Blue Biotech": [demand]},
+            {"Blue Biotech": [supply]},
+            qmbd_axes=["MARINE"],
+        )
+        cluster = result.all_clusters[0]
+        covered = [i for i in cluster.demand_items if i.overlap_status == "covered"]
+        assert len(covered) == 1, (
+            "digitalization (supply) should cover digitalisation (demand) after stemming"
+        )
+
+    def test_fisheries_monitoring_coverage(self) -> None:
+        """Stemming must allow "fisheries" to match "fishery" context tokens."""
+        demand = self._make_evidence("d2", "fisheries monitoring ecological assessment")
+        supply = self._make_evidence("s2", "fisheries ecological monitoring evaluation")
+        result = compute_gap_model(
+            {"Blue Biotech": [demand]},
+            {"Blue Biotech": [supply]},
+            qmbd_axes=["MARINE"],
+        )
+        cluster = result.all_clusters[0]
+        covered = [i for i in cluster.demand_items if i.overlap_status == "covered"]
+        assert len(covered) == 1
+
+
+# ---------------------------------------------------------------------------
+# Tests: compute_priority_score with configurable weights
+# ---------------------------------------------------------------------------
+
+
+class TestConfigurableWeights:
+    """Tests for the weights parameter in compute_priority_score."""
+
+    def _make_cluster(
+        self,
+        *,
+        gap_ratio: float = 0.5,
+        missing_count: int = 1,
+        demand_count: int = 2,
+        axis: str = "MARINE",
+        sector: str = "Blue Biotech",
+        confidence: float = 0.8,
+    ) -> GapCluster:
+        demand_items = [
+            GapEvidence(
+                competence_id=f"d{i}",
+                name=f"Demand {i}",
+                description="Test",
+                sector=sector,
+                qmbd_axis=axis,
+                origin="static_literature",
+                source_file="data/derived/test.csv",
+                source_row=i,
+                provider="crossref",
+                doi=f"10.1234/d{i}",
+                title=f"Paper {i}",
+                year="2023",
+                confidence_score=confidence,
+                overlap_status="demand_only",
+            )
+            for i in range(demand_count)
+        ]
+        missing_items = demand_items[:missing_count]
+        return GapCluster(
+            sector=sector,
+            qmbd_axis=axis,
+            demand_items=demand_items,
+            supply_items=[],
+            missing_items=missing_items,
+            coverage_method="uncovered" if missing_count == demand_count else "mixed",
+        )
+
+    def test_default_weights_produce_same_result_as_original(self) -> None:
+        """Calling with weights=None must be equivalent to calling with 7 equal weights."""
+        cluster = self._make_cluster()
+        all_clusters = [cluster]
+        score_default = compute_priority_score(cluster, all_clusters)
+        score_equal = compute_priority_score(
+            cluster,
+            all_clusters,
+            weights={
+                "gap_ratio": 1.0,
+                "missing_count_normalized": 1.0,
+                "evidence_frequency": 1.0,
+                "recency": 1.0,
+                "provider_confidence": 1.0,
+                "multi_source_support": 1.0,
+                "qmbd_axis_undercoverage": 1.0,
+            },
+        )
+        assert abs(score_default - score_equal) < 1e-9
+
+    def test_zero_weight_factor_excluded_from_score(self) -> None:
+        """A factor with weight=0 must have no effect on the score."""
+        cluster_a = self._make_cluster(confidence=0.9)
+        cluster_b = self._make_cluster(confidence=0.1)
+        all_clusters = [cluster_a, cluster_b]
+
+        # With provider_confidence weight=0, the confidence difference should vanish
+        w = {k: 1.0 for k in (
+            "gap_ratio", "missing_count_normalized", "evidence_frequency",
+            "recency", "multi_source_support", "qmbd_axis_undercoverage"
+        )}
+        w["provider_confidence"] = 0.0
+        score_a = compute_priority_score(cluster_a, all_clusters, weights=w)
+        score_b = compute_priority_score(cluster_b, all_clusters, weights=w)
+        assert abs(score_a - score_b) < 1e-9, (
+            "Zeroing provider_confidence weight should make scores equal when only confidence differs"
+        )
+
+    def test_high_gap_ratio_weight_amplifies_score(self) -> None:
+        """Doubling gap_ratio weight must raise score for a high-gap cluster relative to equal weights."""
+        full_gap = self._make_cluster(gap_ratio=1.0, missing_count=2, demand_count=2)
+        no_gap = self._make_cluster(gap_ratio=0.0, missing_count=0, demand_count=2)
+        all_clusters = [full_gap, no_gap]
+
+        score_full_default = compute_priority_score(full_gap, all_clusters)
+        score_full_boosted = compute_priority_score(
+            full_gap, all_clusters, weights={"gap_ratio": 10.0}
+        )
+        score_no_default = compute_priority_score(no_gap, all_clusters)
+        score_no_boosted = compute_priority_score(
+            no_gap, all_clusters, weights={"gap_ratio": 10.0}
+        )
+
+        # Boosting gap_ratio weight must widen the gap between full-gap and no-gap clusters
+        diff_default = score_full_default - score_no_default
+        diff_boosted = score_full_boosted - score_no_boosted
+        assert diff_boosted > diff_default, (
+            "Boosting gap_ratio weight must increase the score differential"
+        )
+
+    def test_weights_normalised_regardless_of_magnitude(self) -> None:
+        """Scaling all weights by the same constant must not change the score."""
+        cluster = self._make_cluster()
+        all_clusters = [cluster]
+        equal = {k: 1.0 for k in (
+            "gap_ratio", "missing_count_normalized", "evidence_frequency",
+            "recency", "provider_confidence", "multi_source_support", "qmbd_axis_undercoverage"
+        )}
+        scaled = {k: 100.0 for k in equal}
+        score_equal = compute_priority_score(cluster, all_clusters, weights=equal)
+        score_scaled = compute_priority_score(cluster, all_clusters, weights=scaled)
+        assert abs(score_equal - score_scaled) < 1e-9
+
+    def test_unknown_weight_keys_ignored(self) -> None:
+        """Unknown weight keys must be silently ignored; known keys work normally."""
+        cluster = self._make_cluster()
+        all_clusters = [cluster]
+        score_default = compute_priority_score(cluster, all_clusters)
+        score_with_unknown = compute_priority_score(
+            cluster, all_clusters, weights={"gap_ratio": 1.0, "nonexistent_factor": 99.0}
+        )
+        # "nonexistent_factor" is ignored; "gap_ratio"=1.0 and remaining keys
+        # each default to 1.0, so the result should equal the default score.
+        assert abs(score_default - score_with_unknown) < 1e-9

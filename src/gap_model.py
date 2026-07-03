@@ -221,6 +221,20 @@ class GapModelResult:
 
 _QMBD_AXES = ["MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION"]
 
+# Default equal-weight factor names for compute_priority_score.
+# Keys correspond to the seven scoring factors; values must be positive and are
+# automatically normalised so they need not sum to 1.0.
+_PRIORITY_WEIGHT_KEYS: tuple[str, ...] = (
+    "gap_ratio",
+    "missing_count_normalized",
+    "evidence_frequency",
+    "recency",
+    "provider_confidence",
+    "multi_source_support",
+    "qmbd_axis_undercoverage",
+)
+_DEFAULT_PRIORITY_WEIGHTS: Dict[str, float] = {k: 1.0 for k in _PRIORITY_WEIGHT_KEYS}
+
 
 def _normalise(value: float, minimum: float, maximum: float) -> float:
     """Linearly normalise *value* to [0, 1]; returns 0.5 if range is zero."""
@@ -233,10 +247,12 @@ def _normalise(value: float, minimum: float, maximum: float) -> float:
 def compute_priority_score(
     cluster: GapCluster,
     all_clusters: Sequence[GapCluster],
+    *,
+    weights: Optional[Dict[str, float]] = None,
 ) -> float:
     """Compute a composite priority score in [0.0, 1.0] for *cluster*.
 
-    The score is the equal-weight average of seven factors:
+    The score is the weighted average of seven factors:
 
     1. gap_ratio                — fraction of demand not covered (cluster.gap_ratio)
     2. missing_count_normalized — missing item count normalised across all clusters
@@ -244,7 +260,22 @@ def compute_priority_score(
     4. recency                  — average year of demand items (normalised)
     5. provider_confidence      — average confidence_score of demand items
     6. multi_source_support     — fraction of demand items with ≥1 supporting provider
-    7. QMBD_axis_undercoverage  — fraction of sectors where this axis has >0 missing items
+    7. qmbd_axis_undercoverage  — fraction of sectors where this axis has >0 missing items
+
+    By default all seven factors receive equal weight (1/7 each), reproducing
+    the original equal-weight formula.  Pass a *weights* dict to override:
+
+    .. code-block:: python
+
+        weights = {
+            "gap_ratio": 2.0,
+            "qmbd_axis_undercoverage": 1.5,
+        }
+        score = compute_priority_score(cluster, all_clusters, weights=weights)
+
+    Only the keys present in ``_PRIORITY_WEIGHT_KEYS`` are recognised; unknown
+    keys are ignored.  Missing keys fall back to 1.0.  Weights are normalised
+    internally so they need not sum to any particular value.
 
     Note: ``uniform_sector_weight`` (formerly ``sector_relevance``) has been
     removed from the formula because a constant 1.0 adds no discriminating power.
@@ -254,10 +285,21 @@ def compute_priority_score(
     Args:
         cluster: The cluster to score.
         all_clusters: Full set of clusters (used for normalisation and axis stats).
+        weights: Optional mapping of factor name → relative weight.  Defaults to
+            equal weights.  See ``_PRIORITY_WEIGHT_KEYS`` for valid keys.
 
     Returns:
         Priority score as float in [0.0, 1.0].
     """
+    # Resolve per-factor weights; fall back to 1.0 for any missing key.
+    w_map = _DEFAULT_PRIORITY_WEIGHTS if weights is None else weights
+    raw_weights = [max(0.0, float(w_map.get(k, 1.0))) for k in _PRIORITY_WEIGHT_KEYS]
+    weight_sum = sum(raw_weights)
+    if weight_sum == 0.0:
+        # All weights are zero — return neutral midpoint to avoid division by zero.
+        return 0.5
+    norm_weights = [w / weight_sum for w in raw_weights]
+
     demand_counts = [len(c.demand_items) for c in all_clusters]
     min_dc, max_dc = (
         (min(demand_counts), max(demand_counts)) if demand_counts else (0, 0)
@@ -311,7 +353,7 @@ def compute_priority_score(
     else:
         multi = 0.0
 
-    # 7. QMBD_axis_undercoverage — fraction of sectors where this axis has missing items
+    # 7. qmbd_axis_undercoverage — fraction of sectors where this axis has missing items
     axis = cluster.qmbd_axis
     sectors_with_gap = sum(
         1
@@ -325,9 +367,8 @@ def compute_priority_score(
         else 0.0
     )
 
-    score = (
-        f_gap_ratio + f_missing + f_evidence + f_recency + f_confidence + multi + f_axis
-    ) / 7.0
+    factors = [f_gap_ratio, f_missing, f_evidence, f_recency, f_confidence, multi, f_axis]
+    score = sum(w * f for w, f in zip(norm_weights, factors))
     return max(0.0, min(1.0, score))
 
 
@@ -351,15 +392,71 @@ _COVERAGE_STOPWORDS: frozenset = frozenset(
 _NAME_SIM_THRESHOLD: float = 0.30  # minimum Jaccard similarity for name-based coverage
 _NAME_SIM_MIN_SHARED: int = 2      # minimum shared meaningful tokens required
 
+# Suffix table for lightweight morphological normalisation.
+# Ordered longest-to-shortest so that "digitalisation" strips "-isation" before
+# "-tion", and "fisheries" strips "-eries" before "-ies" / "-s".
+# All stems are guarded to a minimum length of 4 characters to prevent
+# over-stripping short words.
+_STEM_SUFFIXES: tuple[str, ...] = (
+    "isation",   # globalisation → global
+    "ization",   # globalization → global
+    "ational",   # navigational → navigat (acceptable for token matching)
+    "ication",   # qualification → qualif
+    "ation",     # digitalization → digital (after -ization stripped)
+    "eries",     # fisheries → fish
+    "ical",      # ecological → ecolog
+    "ment",      # management → manag
+    "ness",      # awareness → aware
+    "tion",      # protection → protect
+    "ive",       # adaptive → adapt
+    "ary",       # customary → custom
+    "ing",       # monitoring → monitor
+    "ity",       # sustainability → sustainabil
+    "ise",       # recognise → recogn
+    "ize",       # recognize → recogn
+    "ies",       # strategies → strateg
+    "ed",        # governed → govern
+    "er",        # researcher → research
+)
+_STEM_MIN_LENGTH: int = 4
+
+
+def _stem_token(token: str) -> str:
+    """Strip common English suffixes for morphological normalisation.
+
+    Applied after stopword removal so that domain-relevant tokens such as
+    "digitalisation" and "digitalization" collapse to the same stem, reducing
+    false negatives in Jaccard coverage matching.
+
+    The function uses a simple ordered suffix table (longest first) with a
+    minimum stem-length guard of 4 characters.  It requires no external
+    dependencies (stdlib only).
+
+    Args:
+        token: A single lowercase token with stopwords already removed.
+
+    Returns:
+        Stemmed token, or the original token if no suffix applies.
+    """
+    for suffix in _STEM_SUFFIXES:
+        if token.endswith(suffix):
+            stem = token[: -len(suffix)]
+            if len(stem) >= _STEM_MIN_LENGTH:
+                return stem
+    return token
+
 
 def _name_tokens(name: str) -> frozenset:
-    """Return meaningful lowercased tokens from *name* with stopwords removed.
+    """Return meaningful lowercased, stemmed tokens from *name* with stopwords removed.
 
     Tokenization uses word characters only (handles punctuation such as
-    hyphens, slashes, and trailing commas transparently).
+    hyphens, slashes, and trailing commas transparently).  Tokens shorter
+    than 4 characters are discarded before stemming.  Stemming applies
+    :func:`_stem_token` to collapse morphological variants (e.g.
+    "digitalization" and "digitalisation" share the same stem).
     """
     return frozenset(
-        t
+        _stem_token(t)
         for t in re.findall(r"[a-zA-Z]+", name.lower())
         if len(t) > 3 and t not in _COVERAGE_STOPWORDS
     )

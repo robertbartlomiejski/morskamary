@@ -137,6 +137,12 @@ class ProviderResult:
 
     Always contains *records* (possibly empty), *errors*, *warnings*, and
     *provenance* metadata.  Callers must never crash when *records* is empty.
+
+    ``raw_payload`` holds the verbatim JSON object returned by the provider API
+    before any parsing or normalisation.  It is ``None`` for offline/mocked
+    results and for error-only results where no network call succeeded.
+    Storing it enables cold-cache replay: archived raw payloads allow exact
+    replication of a run without re-querying third-party APIs.
     """
 
     records: List[LiteratureRecord] = field(default_factory=list)
@@ -144,6 +150,7 @@ class ProviderResult:
     warnings: List[str] = field(default_factory=list)
     rate_limit_status: Optional[str] = None
     provenance: List[SourceEvidence] = field(default_factory=list)
+    raw_payload: Optional[Dict[str, Any]] = field(default=None)
 
     @property
     def is_empty(self) -> bool:
