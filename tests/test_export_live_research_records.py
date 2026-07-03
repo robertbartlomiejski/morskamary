@@ -433,6 +433,46 @@ class TestExportFunctions:
         assert "sector,provider,query,record_count" in content
         assert "Offshore Energy" in content
 
+    def test_export_raw_api_payloads_writes_envelope(self, tmp_path):
+        """export_raw_api_payloads writes one file per (provider, query) pair."""
+        from scripts.export_live_research_records import export_raw_api_payloads
+
+        triples = [
+            {
+                "provider": "crossref",
+                "query": "offshore wind",
+                "raw_payload": {"message": {"items": [{"DOI": "10.1234/x"}]}},
+            }
+        ]
+        count = export_raw_api_payloads(triples, tmp_path)
+        assert count == 1
+        raw_dir = tmp_path / "raw_api_payloads"
+        assert raw_dir.is_dir()
+        files = list(raw_dir.glob("*.json"))
+        assert len(files) == 1
+        envelope = json.loads(files[0].read_text())
+        assert envelope["provider"] == "crossref"
+        assert envelope["query"] == "offshore wind"
+        assert "payload_sha256" in envelope
+        assert len(envelope["payload_sha256"]) == 64
+        assert envelope["payload"]["message"]["items"][0]["DOI"] == "10.1234/x"
+
+    def test_export_raw_api_payloads_empty_triples(self, tmp_path):
+        """export_raw_api_payloads returns 0 when no payloads are provided."""
+        from scripts.export_live_research_records import export_raw_api_payloads
+
+        count = export_raw_api_payloads([], tmp_path)
+        assert count == 0
+        assert not (tmp_path / "raw_api_payloads").exists()
+
+    def test_export_raw_api_payloads_skips_none_payload(self, tmp_path):
+        """Triples with raw_payload=None are silently skipped."""
+        from scripts.export_live_research_records import export_raw_api_payloads
+
+        triples = [{"provider": "crossref", "query": "test", "raw_payload": None}]
+        count = export_raw_api_payloads(triples, tmp_path)
+        assert count == 0
+
 
 # ---------------------------------------------------------------------------
 # Integration tests for main()
@@ -564,6 +604,65 @@ query_groups:
 
             provenance = json.loads((output_dir / "live_provenance.json").read_text())
             assert len(provenance) == 1
+
+    def test_live_mode_cold_cache_writes_raw_payloads(self, tmp_path, monkeypatch):
+        """When providers return raw_payload, raw_api_payloads/ directory is created."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text("""
+query_groups:
+  offshore_energy:
+    label: "Offshore Energy"
+    queries:
+      - "offshore wind"
+""")
+        output_dir = tmp_path / "outputs"
+
+        mock_record = _make_record(
+            title="Offshore Wind Energy",
+            doi="10.1234/wind",
+            source_id="crossref:10.1234/wind",
+        )
+        mock_evidence = _make_evidence(
+            record_id="crossref:10.1234/wind", query="offshore wind"
+        )
+        raw_payload = {"message": {"items": [{"DOI": "10.1234/wind", "title": ["Offshore Wind Energy"]}]}}
+        mock_result = ProviderResult(
+            records=[mock_record], provenance=[mock_evidence], raw_payload=raw_payload
+        )
+
+        def mock_search(query, max_results, providers):
+            return [mock_result]
+
+        with patch("scripts.export_live_research_records.SourceRegistry") as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file", str(query_file),
+                    "--output-dir", str(output_dir),
+                    "--offline", "false",
+                    "--providers", "crossref",
+                    "--max-results-per-query", "10",
+                ],
+            )
+
+            result = main()
+            assert result == 0
+
+        raw_dir = output_dir / "raw_api_payloads"
+        assert raw_dir.is_dir(), "raw_api_payloads/ directory must be created"
+        payload_files = list(raw_dir.glob("*.json"))
+        assert len(payload_files) >= 1, "At least one raw payload file must be written"
+        envelope = json.loads(payload_files[0].read_text())
+        assert envelope["provider"] == "crossref"
+        assert envelope["query"] == "offshore wind"
+        assert "payload_sha256" in envelope
+        assert envelope["payload"] == raw_payload
 
     def test_live_records_triangulated_keeps_unique_non_primary_records(
         self, tmp_path, monkeypatch

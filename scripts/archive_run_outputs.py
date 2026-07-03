@@ -217,6 +217,13 @@ def _collect_methodological_metrics(repo_root: Path, query_file: str) -> dict[st
     gaps_summary_available = _count_csv_rows(gaps_summary_path) > 0
     query_file_sha256 = _compute_query_file_sha256(repo_root, query_file)
 
+    raw_payloads_dir = repo_root / "outputs/research_sources/raw_api_payloads"
+    raw_api_payloads_count = (
+        sum(1 for f in raw_payloads_dir.iterdir() if f.is_file() and f.suffix == ".json")
+        if raw_payloads_dir.is_dir()
+        else 0
+    )
+
     return {
         "query_file_sha256": query_file_sha256,
         "live_records_count": live_records_count,
@@ -228,6 +235,7 @@ def _collect_methodological_metrics(repo_root: Path, query_file: str) -> dict[st
         "live_enrichment_count": live_enrichment_count,
         "gaps_summary_available": gaps_summary_available,
         "credentials_count": credentials_count,
+        "raw_api_payloads_count": raw_api_payloads_count,
     }
 
 
@@ -448,6 +456,7 @@ def archive_run_outputs(
         "live_enrichment_count": metrics["live_enrichment_count"],
         "gaps_summary_available": metrics["gaps_summary_available"],
         "credentials_count": metrics["credentials_count"],
+        "raw_api_payloads_count": metrics["raw_api_payloads_count"],
         "files": [
             {
                 "path": item.relative_path,

@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-03 (cold-caching raw API payloads, Jaccard stemming, configurable priority weights)
+  Change type add update
+  Scope scripts analysis gap-model tests governance
+  Files affected src/scientific_sources/models.py src/scientific_sources/crossref.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/web_of_science.py src/scientific_sources/scival.py scripts/export_live_research_records.py scripts/archive_run_outputs.py schemas/run_archive_manifest.schema.json src/gap_model.py tests/test_scientific_sources.py tests/test_export_live_research_records.py tests/test_gap_model.py CHANGELOG.txt
+  Summary (1) Added cold-caching of raw API JSON payloads: ProviderResult gains a raw_payload field; providers (Crossref, Scopus, WoS, SciVal) attach the verbatim API response before parsing; export_live_research_records.py writes each payload to outputs/research_sources/raw_api_payloads/<provider>_<sha8>.json in a self-describing envelope containing the payload SHA-256; archive_run_outputs.py counts cached files and writes raw_api_payloads_count to the run manifest. (2) Optimised Jaccard lexical coverage by adding a lightweight stdlib-only suffix-stripping stemmer (_stem_token) applied inside _name_tokens so morphological variants such as "digitalisation"/"digitalization" and "fisheries" collapse to the same stem before Jaccard comparison. (3) Made the multi-factor priority score configurable: compute_priority_score now accepts an optional weights dict; defaults to the existing equal 1/7 weighting, preserving backward compatibility.
+  Reason Live API responses are mutable — provider re-indexing, privacy-policy changes, or temporary downtime cause data drift between runs; archiving the verbatim JSON payload before any normalisation allows physical replication without re-querying external networks. Jaccard false-negatives for morphologically related terms (e.g. "governance" vs "governed") reduce coverage accuracy; stdlib stemming removes the dependency on NLTK/spaCy while eliminating the most common suffix mismatches. Hard-coded equal weights prevent domain experts from elevating QMBD_axis_undercoverage or provider_confidence without modifying source code.
+  Impact QMBD coverage analysis may reclassify previously "uncovered" demand items as "covered" (less pessimistic gap estimates) due to stemming. Priority scores are unchanged under default equal weights. Raw payload archive files are automatically included in _checksums.sha256 and manifest.json["files"] by the existing recursive archiver. New optional manifest field raw_api_payloads_count is backward-compatible with prior archived runs (field absent = 0 payloads).
+  Provenance Plan grounded in repository architecture analysis; no new external domain evidence introduced.
+  Quality checks python -m pytest tests/ -q (779 baseline + new tests); python -m flake8 src/ tests/ scripts/; python -m mypy src/.
+  Reviewer GitHub Copilot Coding Agent
+
 - 2026-07-02 (PR-3B: evidence-first dynamic EQF micro-credential generation and validation)
   Change type add update fix
   Scope analysis pipeline scripts tests outputs governance

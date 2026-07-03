@@ -179,6 +179,7 @@ class SciValProvider(BaseProvider):
                 provenance=self._make_evidence(
                     query, "scival/topicCompetency", records
                 ),
+                raw_payload=payload,
             )
         except urllib.error.HTTPError as exc:
             return self._http_error_result("search", exc)

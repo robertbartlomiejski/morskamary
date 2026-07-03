@@ -185,7 +185,7 @@ class CrossrefProvider(BaseProvider):
             items = data.get("message", {}).get("items", [])
             records = self._parse_items(items, query)
             evidence = self._make_evidence(query, "crossref/works", records)
-            return ProviderResult(records=records, provenance=evidence)
+            return ProviderResult(records=records, provenance=evidence, raw_payload=data)
         except Exception as exc:
             return ProviderResult(errors=[f"Crossref search error: {exc}"])
 
@@ -201,6 +201,6 @@ class CrossrefProvider(BaseProvider):
             item = data.get("message", {})
             records = self._parse_items([item], doi)
             evidence = self._make_evidence(doi, f"crossref/works/{doi}", records)
-            return ProviderResult(records=records, provenance=evidence)
+            return ProviderResult(records=records, provenance=evidence, raw_payload=data)
         except Exception as exc:
             return ProviderResult(errors=[f"Crossref DOI verification error: {exc}"])

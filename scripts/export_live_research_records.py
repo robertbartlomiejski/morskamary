@@ -769,6 +769,71 @@ def export_coverage_csv(coverage: List[Dict[str, Any]], output_path: Path) -> No
     print(f"Exported {len(coverage)} coverage rows to {output_path}")
 
 
+def export_raw_api_payloads(
+    payload_triples: List[Dict[str, Any]],
+    output_dir: Path,
+) -> int:
+    """Write raw API payloads to *output_dir*/raw_api_payloads/ for cold-cache archiving.
+
+    Each payload is stored in a self-describing envelope so the file can be
+    replayed without the original query context:
+
+    .. code-block:: json
+
+        {
+            "provider": "crossref",
+            "query": "offshore wind energy",
+            "captured_at": "2026-07-03T12:00:00+00:00",
+            "payload_sha256": "<sha256 of serialised payload key>",
+            "payload": { ... }
+        }
+
+    The filename is ``<provider>_<sha256(query)[:8]>.json`` so different
+    queries for the same provider produce distinct files.  If two calls
+    produce identical (provider, query) pairs the later one overwrites the
+    earlier — within a single run this indicates a duplicate query.
+
+    Args:
+        payload_triples: List of ``{"provider", "query", "raw_payload"}`` dicts
+            collected during the provider search loop.
+        output_dir: Base output directory (e.g. ``outputs/research_sources``).
+
+    Returns:
+        Number of payload files written.
+    """
+    from datetime import datetime, timezone
+
+    if not payload_triples:
+        return 0
+    raw_dir = output_dir / "raw_api_payloads"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    captured_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    written = 0
+    for triple in payload_triples:
+        provider = str(triple.get("provider", "unknown")).lower()
+        query = str(triple.get("query", ""))
+        raw_payload = triple.get("raw_payload")
+        if raw_payload is None:
+            continue
+        query_hash = hashlib.sha256(query.encode("utf-8")).hexdigest()[:8]
+        filename = f"{provider}_{query_hash}.json"
+        serialised = json.dumps(raw_payload, ensure_ascii=False, sort_keys=True)
+        payload_sha256 = hashlib.sha256(serialised.encode("utf-8")).hexdigest()
+        envelope: Dict[str, Any] = {
+            "provider": provider,
+            "query": query,
+            "captured_at": captured_at,
+            "payload_sha256": payload_sha256,
+            "payload": raw_payload,
+        }
+        dest = raw_dir / filename
+        with open(dest, "w", encoding="utf-8") as fh:
+            json.dump(envelope, fh, indent=2, ensure_ascii=False)
+        written += 1
+    print(f"Exported {written} raw API payload file(s) to {raw_dir}")
+    return written
+
+
 def main() -> int:
     """Main entry point."""
     parser = argparse.ArgumentParser(
@@ -943,6 +1008,8 @@ def main() -> int:
     all_provenance: List[SourceEvidence] = []
     all_coverage_items: List[Dict[str, Any]] = []
     sectors_by_identity_key: Dict[str, Set[str]] = defaultdict(set)
+    # Raw API payloads for cold-cache archiving — stored before any normalisation.
+    raw_api_payload_triples: List[Dict[str, Any]] = []
 
     # Offline mode: skip all queries
     if offline:
@@ -999,6 +1066,16 @@ def main() -> int:
                         )
                     all_records.extend(result.records)
                     all_provenance.extend(result.provenance)
+
+                    # Collect raw API payload for cold-cache archiving.
+                    if result.raw_payload is not None:
+                        raw_api_payload_triples.append(
+                            {
+                                "provider": provider_name,
+                                "query": query,
+                                "raw_payload": result.raw_payload,
+                            }
+                        )
 
                     print(f"    Fetched {len(result.records)} records")
 
@@ -1128,6 +1205,9 @@ def main() -> int:
         output_dir / "triangulation_thematic_loop.json", "w", encoding="utf-8"
     ) as f:
         json.dump(thematic_audit, f, indent=2, ensure_ascii=False)
+
+    # Cold-cache: persist raw provider API payloads before any normalisation.
+    export_raw_api_payloads(raw_api_payload_triples, output_dir)
 
     print("\nExport complete.")
     return 0

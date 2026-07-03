@@ -349,6 +349,7 @@ class WebOfScienceProvider(BaseProvider):
             return ProviderResult(
                 records=records,
                 provenance=self._make_evidence(query, "wos/documents", records),
+                raw_payload=payload,
             )
         except urllib.error.HTTPError as exc:
             return self._http_error_result("search", exc)
@@ -372,6 +373,7 @@ class WebOfScienceProvider(BaseProvider):
             return ProviderResult(
                 records=records,
                 provenance=self._make_evidence(doi, "wos/documents?doi", records),
+                raw_payload=payload,
             )
         except urllib.error.HTTPError as exc:
             return self._http_error_result("DOI verification", exc)
