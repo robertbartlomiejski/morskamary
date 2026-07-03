@@ -22,8 +22,8 @@
     "outputs/research_source_capabilities.json",
     "outputs/validation_state.json"
   ],
-  "file_count": 66,
-  "total_bytes": 44985357,
+  "file_count": 64,
+  "total_bytes": 44642361,
   "workflow": {
     "name": "Full Live-Enriched Analysis",
     "event": "workflow_dispatch",
@@ -73,11 +73,6 @@
       "path": "analysis_outputs/competences_full_database.json",
       "size_bytes": 2704796,
       "sha256": "2f3efb69164160a83de65781865902a4936880d061644aa358f6992ad228f3f6"
-    },
-    {
-      "path": "analysis_outputs/credentials_database.json",
-      "size_bytes": 171498,
-      "sha256": "a344906977cf048dd70ee09ffc5d23f0680c1ceb71937f763e6b5e08bcf155bf"
     },
     {
       "path": "analysis_outputs/credentials_matrix.html",
@@ -173,11 +168,6 @@
       "path": "outputs/competences_full_database.json",
       "size_bytes": 2704796,
       "sha256": "2f3efb69164160a83de65781865902a4936880d061644aa358f6992ad228f3f6"
-    },
-    {
-      "path": "outputs/credentials_database.json",
-      "size_bytes": 171498,
-      "sha256": "a344906977cf048dd70ee09ffc5d23f0680c1ceb71937f763e6b5e08bcf155bf"
     },
     {
       "path": "outputs/credentials_matrix.html",
