@@ -427,7 +427,7 @@ class TestCumulativeQmbdValidation:
                 "provider_set": "crossref",
                 "github_run_id": "123",
                 "commit_sha": "abc123",
-                "created_at_utc": "2026-07-07T00:00:00+00:00",
+                "timestamp_utc": "2026-07-07T00:00:00+00:00",
                 "warnings": [],
             },
             "records": [
@@ -530,7 +530,7 @@ class TestCumulativeQmbdValidation:
                 "provider_set": "crossref",
                 "github_run_id": "123",
                 "commit_sha": "abc123",
-                "created_at_utc": "2026-07-07T00:00:00+00:00",
+                "timestamp_utc": "2026-07-07T00:00:00+00:00",
                 "warnings": [],
             },
             "records": [
@@ -569,7 +569,7 @@ class TestCumulativeQmbdValidation:
                 "provider_set": "",
                 "github_run_id": "",
                 "commit_sha": "abc123",
-                "created_at_utc": "2026-07-07T00:00:00+00:00",
+                "timestamp_utc": "2026-07-07T00:00:00+00:00",
                 "warnings": [],
             },
             "records": [
@@ -603,7 +603,7 @@ class TestCumulativeQmbdValidation:
                 "provider_set": "",
                 "github_run_id": "",
                 "commit_sha": "abc123",
-                "created_at_utc": "2026-07-07T00:00:00+00:00",
+                "timestamp_utc": "2026-07-07T00:00:00+00:00",
             },
             "records": [],
         }

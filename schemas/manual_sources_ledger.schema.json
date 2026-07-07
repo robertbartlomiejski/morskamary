@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/manual_sources_ledger.schema.json",
+  "title": "Manual Sources Ledger Row",
+  "type": "object",
+  "required": [
+    "source_id",
+    "ingested_at_utc",
+    "source_kind",
+    "file_name",
+    "extension",
+    "size_bytes",
+    "sha256",
+    "text_available",
+    "original_path",
+    "zip_member_path",
+    "stored_path"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "source_id": {
+      "type": "string",
+      "pattern": "^manual_src_[0-9a-f]{16}$"
+    },
+    "ingested_at_utc": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_kind": {
+      "type": "string",
+      "enum": ["manual_document", "zip_member_document"]
+    },
+    "file_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "extension": {
+      "type": "string"
+    },
+    "size_bytes": {
+      "type": "string",
+      "pattern": "^[0-9]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "text_available": {
+      "type": "string",
+      "enum": ["yes", "no"]
+    },
+    "original_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "zip_member_path": {
+      "type": "string"
+    },
+    "stored_path": {
+      "type": "string"
+    },
+    "archive_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "doi": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "axis_name": {
+      "type": "string"
+    }
+  }
+}

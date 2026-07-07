@@ -53,7 +53,7 @@ ANALYSIS_VIEW_TARGETS: tuple[str, ...] = (
 
 INDEX_CSV_COLUMNS: tuple[str, ...] = (
     "timestamp_utc",
-    "created_at_utc",
+    "analysis_timestamp_utc",
     "run_id",
     "run_path",
     "analysis_input_mode",
@@ -95,7 +95,7 @@ REQUIRED_CUMULATIVE_METADATA_FIELDS: tuple[str, ...] = (
     "provider_set",
     "github_run_id",
     "commit_sha",
-    "created_at_utc",
+    "timestamp_utc",
 )
 
 
@@ -353,7 +353,7 @@ def _append_csv_index(archive_root: Path, manifest_payload: dict[str, Any]) -> N
     csv_path = archive_root / "cumulative_runs_index.csv"
     row = {
         "timestamp_utc": manifest_payload["timestamp_utc"],
-        "created_at_utc": manifest_payload["created_at_utc"],
+        "analysis_timestamp_utc": manifest_payload["analysis_timestamp_utc"],
         "run_id": manifest_payload["run_id"],
         "run_path": manifest_payload["run_path"],
         "analysis_input_mode": manifest_payload["analysis_input_mode"],
@@ -468,7 +468,7 @@ def archive_run_outputs(
         "requested_run_id": run_id,
         "run_id": resolved_run_id,
         "timestamp_utc": timestamp_utc,
-        "created_at_utc": str(cumulative_metadata.get("created_at_utc", "")),
+        "analysis_timestamp_utc": str(cumulative_metadata.get("timestamp_utc", "")),
         "archived_at": timestamp_utc,
         "archive_root": archive_root.as_posix(),
         "run_path": _archive_relative_run_path(resolved_run_id),

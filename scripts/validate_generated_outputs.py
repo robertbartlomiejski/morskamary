@@ -69,7 +69,7 @@ REQUIRED_CUMULATIVE_METADATA_FIELDS = (
     "provider_set",
     "github_run_id",
     "commit_sha",
-    "created_at_utc",
+    "timestamp_utc",
 )
 
 ERRORS: list[str] = []

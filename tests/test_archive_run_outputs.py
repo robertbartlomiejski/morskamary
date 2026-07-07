@@ -85,7 +85,7 @@ def _seed_required_targets(base_dir: Path) -> dict[str, int | str]:
                 "provider_set": "crossref,scopus,wos",
                 "github_run_id": "1001",
                 "commit_sha": "abc123",
-                "created_at_utc": "2026-07-07T00:00:00+00:00",
+                "timestamp_utc": "2026-07-07T00:00:00+00:00",
                 "warnings": [
                     "STATIC recovery mode active: deterministic recovery artifacts only; not cumulative live evidence."
                 ],
@@ -205,7 +205,7 @@ def test_archive_run_outputs_creates_full_run_archive(tmp_path: Path) -> None:
     assert manifest["static_recovery_reason"] == "offline-ci"
     assert manifest["allow_static_recovery_mode_env"] == "ALLOW_STATIC_RECOVERY_MODE"
     assert manifest["provider_set"] == "crossref,scopus,wos"
-    assert manifest["created_at_utc"] == "2026-07-07T00:00:00+00:00"
+    assert manifest["analysis_timestamp_utc"] == "2026-07-07T00:00:00+00:00"
     assert manifest["warnings"]
     assert manifest["workflow"]["name"] == "Full Live-Enriched Analysis"
     assert manifest["workflow"]["inputs"]["providers"] == "crossref,scopus,wos"

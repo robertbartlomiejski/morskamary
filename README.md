@@ -30,8 +30,8 @@ python demo_workspace_instructions.py
   recovery by setting `ALLOW_STATIC_RECOVERY_MODE=true`.
 - Every cumulative QMBD ledger now carries explicit run metadata
   (`analysis_input_mode`, recovery flag/reason, provider set, GitHub run ID,
-  commit SHA, timestamp) so static recovery outputs remain auditable and are not
-  confused with live cumulative evidence.
+  commit SHA, `timestamp_utc`) so static recovery outputs remain auditable and
+  are not confused with live cumulative evidence.
 - Manual supporting sources can be ingested into an append-only ledger:
   `python scripts/ingest_manual_supporting_sources.py --input <path> ...`
 - Historical ZIP/unpacked output bundles can be revalidated and recoded into a
@@ -41,6 +41,9 @@ python demo_workspace_instructions.py
   `python scripts/validate_manual_sources_gatekeeper.py --root outputs/manual_sources`
   and
   `python scripts/build_cross_run_evidence_index.py --manual-ledger outputs/manual_sources/manual_sources_ledger.jsonl`
+- Artifact variable definitions for runs, evidence occurrences, manual sources,
+  and historical revalidation live in
+  `docs/CROSS_RUN_EVIDENCE_CODEBOOK.md` with companion schemas under `schemas/`.
 
 ### GitHub Copilot MCP Integration (Optional Advanced Feature)
 

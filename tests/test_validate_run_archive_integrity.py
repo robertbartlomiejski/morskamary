@@ -69,7 +69,7 @@ def _seed_required_targets(base_dir: Path) -> None:
                 "provider_set": "crossref",
                 "github_run_id": "",
                 "commit_sha": "abc123",
-                "created_at_utc": "2026-07-07T00:00:00+00:00",
+                "timestamp_utc": "2026-07-07T00:00:00+00:00",
                 "warnings": [],
             },
             "records": [

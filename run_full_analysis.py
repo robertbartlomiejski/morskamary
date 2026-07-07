@@ -522,7 +522,7 @@ def _build_cumulative_run_metadata(
         "provider_set": os.getenv("REQUESTED_PROVIDERS", "").strip(),
         "github_run_id": os.getenv("GITHUB_RUN_ID", "").strip(),
         "commit_sha": os.getenv("GITHUB_SHA", "").strip() or _get_git_head_sha(),
-        "created_at_utc": _now_utc_iso(),
+        "timestamp_utc": _now_utc_iso(),
         "warnings": [warning_message] if static_recovery_enabled else [],
     }
     if static_recovery_enabled and not metadata["static_recovery_reason"]:

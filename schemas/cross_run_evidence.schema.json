@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/cross_run_evidence.schema.json",
+  "title": "Cross-run Evidence Tables",
+  "type": "object",
+  "required": [
+    "run_summary",
+    "evidence_occurrences",
+    "evidence_index",
+    "build_report"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_summary": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/run_summary_row"
+      }
+    },
+    "evidence_occurrences": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidence_occurrence_row"
+      }
+    },
+    "evidence_index": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidence_index_row"
+      }
+    },
+    "build_report": {
+      "$ref": "#/$defs/build_report"
+    }
+  },
+  "$defs": {
+    "run_summary_row": {
+      "type": "object",
+      "required": [
+        "run_id",
+        "run_path",
+        "timestamp_utc",
+        "manifest_timestamp_utc",
+        "live_records_count",
+        "triangulated_records_count",
+        "cumulative_qmbd_records_count",
+        "evidence_rows_total",
+        "evidence_rows_dedupable",
+        "unique_dedupe_values"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "run_id": { "type": "string", "minLength": 1 },
+        "run_path": { "type": "string", "minLength": 1 },
+        "timestamp_utc": { "type": "string", "minLength": 1 },
+        "manifest_timestamp_utc": { "type": "string" },
+        "live_records_count": { "type": "string", "pattern": "^[0-9]+$" },
+        "triangulated_records_count": { "type": "string", "pattern": "^[0-9]+$" },
+        "cumulative_qmbd_records_count": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "evidence_rows_total": { "type": "string", "pattern": "^[0-9]+$" },
+        "evidence_rows_dedupable": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "unique_dedupe_values": { "type": "string", "pattern": "^[0-9]+$" }
+      }
+    },
+    "evidence_occurrence_row": {
+      "type": "object",
+      "required": [
+        "run_id",
+        "run_path",
+        "timestamp_utc",
+        "manifest_timestamp_utc",
+        "dataset",
+        "record_index",
+        "dedupe_value",
+        "dedupe_field_used",
+        "doi",
+        "source_id",
+        "title",
+        "record_origin",
+        "axis_name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "run_id": { "type": "string", "minLength": 1 },
+        "run_path": { "type": "string", "minLength": 1 },
+        "timestamp_utc": { "type": "string" },
+        "manifest_timestamp_utc": { "type": "string" },
+        "dataset": { "type": "string", "minLength": 1 },
+        "record_index": { "type": "string", "pattern": "^[0-9]+$" },
+        "dedupe_value": { "type": "string" },
+        "dedupe_field_used": { "type": "string" },
+        "doi": { "type": "string" },
+        "source_id": { "type": "string" },
+        "title": { "type": "string" },
+        "record_origin": { "type": "string" },
+        "axis_name": { "type": "string" }
+      }
+    },
+    "evidence_index_row": {
+      "type": "object",
+      "required": [
+        "dedupe_value",
+        "first_seen_timestamp_utc",
+        "first_seen_run_id",
+        "last_seen_timestamp_utc",
+        "last_seen_run_id",
+        "run_count",
+        "occurrence_count",
+        "datasets",
+        "record_origins",
+        "axis_names",
+        "dois",
+        "source_ids",
+        "titles"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "dedupe_value": { "type": "string", "minLength": 1 },
+        "first_seen_timestamp_utc": { "type": "string", "minLength": 1 },
+        "first_seen_run_id": { "type": "string", "minLength": 1 },
+        "last_seen_timestamp_utc": { "type": "string", "minLength": 1 },
+        "last_seen_run_id": { "type": "string", "minLength": 1 },
+        "run_count": { "type": "string", "pattern": "^[0-9]+$" },
+        "occurrence_count": { "type": "string", "pattern": "^[0-9]+$" },
+        "datasets": { "type": "string" },
+        "record_origins": { "type": "string" },
+        "axis_names": { "type": "string" },
+        "dois": { "type": "string" },
+        "source_ids": { "type": "string" },
+        "titles": { "type": "string" }
+      }
+    },
+    "build_report": {
+      "type": "object",
+      "required": [
+        "archive_root",
+        "output_dir",
+        "runs_total",
+        "runs_processed",
+        "runs_skipped_invalid",
+        "dedupe_keys",
+        "occurrences_total",
+        "manual_occurrences_total",
+        "dedupe_groups_total"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "archive_root": { "type": "string", "minLength": 1 },
+        "output_dir": { "type": "string", "minLength": 1 },
+        "runs_total": { "type": "integer", "minimum": 0 },
+        "runs_processed": { "type": "integer", "minimum": 0 },
+        "runs_skipped_invalid": { "type": "integer", "minimum": 0 },
+        "dedupe_keys": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "occurrences_total": { "type": "integer", "minimum": 0 },
+        "manual_occurrences_total": { "type": "integer", "minimum": 0 },
+        "dedupe_groups_total": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

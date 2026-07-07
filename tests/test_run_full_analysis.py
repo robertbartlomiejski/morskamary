@@ -339,7 +339,7 @@ def test_main_static_recovery_emits_cumulative_metadata(tmp_path: Path) -> None:
     assert metadata["provider_set"] == "crossref,scopus"
     assert metadata["github_run_id"] == "123456"
     assert metadata["commit_sha"] == "deadbeef"
-    assert metadata["created_at_utc"]
+    assert metadata["timestamp_utc"]
     assert metadata["warnings"]
 
 
