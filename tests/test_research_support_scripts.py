@@ -464,11 +464,14 @@ class TestAssertCumulativeLiveEnriched:
         cumulative_path = tmp_path / "cumulative_qmbd_records.json"
         cumulative_path.write_text(
             json.dumps(
-                [
-                    {"source_id": "static:1", "record_origin": "STATIC_BASELINE"},
-                    {"source_id": "10.1234/live", "record_origin": "LIVE_API"},
-                    {"source_id": "crossref:10.1234/also-live"},
-                ]
+                {
+                    "metadata": {"analysis_input_mode": "live-enriched"},
+                    "records": [
+                        {"source_id": "static:1", "record_origin": "STATIC_BASELINE"},
+                        {"source_id": "10.1234/live", "record_origin": "LIVE_API"},
+                        {"source_id": "crossref:10.1234/also-live"},
+                    ],
+                }
             ),
             encoding="utf-8",
         )
@@ -484,10 +487,13 @@ class TestAssertCumulativeLiveEnriched:
         cumulative_path = tmp_path / "cumulative_qmbd_records.json"
         cumulative_path.write_text(
             json.dumps(
-                [
-                    {"source_id": "static:1", "record_origin": "STATIC_BASELINE"},
-                    {"source_id": "static:2", "record_origin": "STATIC_LITERATURE"},
-                ]
+                {
+                    "metadata": {"analysis_input_mode": "static"},
+                    "records": [
+                        {"source_id": "static:1", "record_origin": "STATIC_BASELINE"},
+                        {"source_id": "static:2", "record_origin": "STATIC_LITERATURE"},
+                    ],
+                }
             ),
             encoding="utf-8",
         )
@@ -497,12 +503,12 @@ class TestAssertCumulativeLiveEnriched:
         assert "cumulative_live_like_records=0" in out
         assert "produced no live-like cumulative records" in out
 
-    def test_reports_json_type_with_dunder_name(self, tmp_path, capsys):
+    def test_reports_missing_records_list_in_object_payload(self, tmp_path, capsys):
         import assert_cumulative_live_enriched as script
 
         cumulative_path = tmp_path / "cumulative_qmbd_records.json"
-        cumulative_path.write_text(json.dumps({"records": []}), encoding="utf-8")
+        cumulative_path.write_text(json.dumps({"metadata": {}}), encoding="utf-8")
 
         assert script.main(["--path", str(cumulative_path)]) == 1
         out = capsys.readouterr().out
-        assert "must contain a JSON list, got dict" in out
+        assert "must contain a 'records' list" in out

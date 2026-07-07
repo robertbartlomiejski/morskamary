@@ -28,6 +28,10 @@ python demo_workspace_instructions.py
 - Default research execution uses live-enriched inputs.
 - Static mode is blocked for normal runs and is available only for explicit
   recovery by setting `ALLOW_STATIC_RECOVERY_MODE=true`.
+- Every cumulative QMBD ledger now carries explicit run metadata
+  (`analysis_input_mode`, recovery flag/reason, provider set, GitHub run ID,
+  commit SHA, timestamp) so static recovery outputs remain auditable and are not
+  confused with live cumulative evidence.
 - Manual supporting sources can be ingested into an append-only ledger:
   `python scripts/ingest_manual_supporting_sources.py --input <path> ...`
 - Historical ZIP/unpacked output bundles can be revalidated and recoded into a

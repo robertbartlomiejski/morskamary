@@ -61,6 +61,17 @@ def _seed_required_targets(base_dir: Path) -> None:
     _write_json(
         base_dir / "outputs/cumulative_qmbd_records.json",
         {
+            "metadata": {
+                "analysis_input_mode": "live-enriched",
+                "is_static_recovery_mode": False,
+                "static_recovery_reason": "",
+                "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
+                "provider_set": "crossref",
+                "github_run_id": "",
+                "commit_sha": "abc123",
+                "created_at_utc": "2026-07-07T00:00:00+00:00",
+                "warnings": [],
+            },
             "records": [
                 {"id": "q-1", "record_origin": "live-crossref"},
                 {"id": "q-2", "record_origin": "baseline"},

@@ -418,21 +418,34 @@ class TestCumulativeQmbdValidation:
     ) -> None:
         """Static-origin records must have axis_name."""
         mod = _load_validator_module()
-        payload = [
-            {
-                "source_id": "s1",
-                "title": "t1",
-                "record_origin": "STATIC_BASELINE",
-                "qmbd_analysis": [
-                    {
-                        "axis": "OCEANIC",
-                        "axis_code": "O",
-                        "text_scope": "full_sentence",
-                        "sentence": "Ocean literacy.",
-                    }
-                ],
-            }
-        ]
+        payload = {
+            "metadata": {
+                "analysis_input_mode": "live-enriched",
+                "is_static_recovery_mode": False,
+                "static_recovery_reason": "",
+                "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
+                "provider_set": "crossref",
+                "github_run_id": "123",
+                "commit_sha": "abc123",
+                "created_at_utc": "2026-07-07T00:00:00+00:00",
+                "warnings": [],
+            },
+            "records": [
+                {
+                    "source_id": "s1",
+                    "title": "t1",
+                    "record_origin": "STATIC_BASELINE",
+                    "qmbd_analysis": [
+                        {
+                            "axis": "OCEANIC",
+                            "axis_code": "O",
+                            "text_scope": "full_sentence",
+                            "sentence": "Ocean literacy.",
+                        }
+                    ],
+                }
+            ],
+        }
         bad_file = tmp_path / "cumulative.json"
         bad_file.write_text(json.dumps(payload))
         mod.load_cumulative_qmbd_records(bad_file)
@@ -508,21 +521,34 @@ class TestCumulativeQmbdValidation:
     ) -> None:
         """Live-enriched records (LIVE_TRIANGULATED) should not require axis_name/record_origin."""
         mod = _load_validator_module()
-        payload = [
-            {
-                "source_id": "live_crossref_1",
-                "title": "Blue economy governance",
-                "record_origin": "LIVE_TRIANGULATED",
-                "qmbd_analysis": [
-                    {
-                        "axis": "OCEANIC",
-                        "axis_code": "O",
-                        "text_scope": "full_sentence",
-                        "sentence": "Ocean governance framework.",
-                    }
-                ],
-            }
-        ]
+        payload = {
+            "metadata": {
+                "analysis_input_mode": "live-enriched",
+                "is_static_recovery_mode": False,
+                "static_recovery_reason": "",
+                "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
+                "provider_set": "crossref",
+                "github_run_id": "123",
+                "commit_sha": "abc123",
+                "created_at_utc": "2026-07-07T00:00:00+00:00",
+                "warnings": [],
+            },
+            "records": [
+                {
+                    "source_id": "live_crossref_1",
+                    "title": "Blue economy governance",
+                    "record_origin": "LIVE_TRIANGULATED",
+                    "qmbd_analysis": [
+                        {
+                            "axis": "OCEANIC",
+                            "axis_code": "O",
+                            "text_scope": "full_sentence",
+                            "sentence": "Ocean governance framework.",
+                        }
+                    ],
+                }
+            ],
+        }
         live_file = tmp_path / "cumulative.json"
         live_file.write_text(json.dumps(payload))
         mod.load_cumulative_qmbd_records(live_file)
@@ -534,22 +560,54 @@ class TestCumulativeQmbdValidation:
     ) -> None:
         """Records without record_origin (live) should pass base schema check."""
         mod = _load_validator_module()
-        payload = [
-            {
-                "source_id": "live_unknown_1",
-                "title": "Marine social science",
-                "qmbd_analysis": [
-                    {
-                        "axis": "MARINE",
-                        "axis_code": "M",
-                        "text_scope": "full_sentence",
-                        "sentence": "Marine social dynamics.",
-                    }
-                ],
-            }
-        ]
+        payload = {
+            "metadata": {
+                "analysis_input_mode": "live-enriched",
+                "is_static_recovery_mode": False,
+                "static_recovery_reason": "",
+                "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
+                "provider_set": "",
+                "github_run_id": "",
+                "commit_sha": "abc123",
+                "created_at_utc": "2026-07-07T00:00:00+00:00",
+                "warnings": [],
+            },
+            "records": [
+                {
+                    "source_id": "live_unknown_1",
+                    "title": "Marine social science",
+                    "qmbd_analysis": [
+                        {
+                            "axis": "MARINE",
+                            "axis_code": "M",
+                            "text_scope": "full_sentence",
+                            "sentence": "Marine social dynamics.",
+                        }
+                    ],
+                }
+            ],
+        }
         live_file = tmp_path / "cumulative.json"
         live_file.write_text(json.dumps(payload))
         mod.load_cumulative_qmbd_records(live_file)
         # No record_origin → not a static record → should not fail on missing axis_name/record_origin
         assert not mod.ERRORS, mod.ERRORS
+
+    def test_cumulative_metadata_missing_required_field_fails(self, tmp_path: Path) -> None:
+        mod = _load_validator_module()
+        payload = {
+            "metadata": {
+                "analysis_input_mode": "static",
+                "is_static_recovery_mode": True,
+                "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
+                "provider_set": "",
+                "github_run_id": "",
+                "commit_sha": "abc123",
+                "created_at_utc": "2026-07-07T00:00:00+00:00",
+            },
+            "records": [],
+        }
+        bad_file = tmp_path / "cumulative.json"
+        bad_file.write_text(json.dumps(payload), encoding="utf-8")
+        mod.load_cumulative_qmbd_records(bad_file)
+        assert any("static_recovery_reason" in e for e in mod.ERRORS), mod.ERRORS

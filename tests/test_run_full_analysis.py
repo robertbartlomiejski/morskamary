@@ -207,10 +207,11 @@ def test_main_qmbd_enrichment_includes_static_baseline_and_literature(
     ]
     captured: dict[str, object] = {}
 
-    def _capture_enrichment(records_iterator, output_path):
+    def _capture_enrichment(records_iterator, output_path, *, metadata=None):
         records = list(records_iterator)
         captured["records"] = records
         captured["output_path"] = output_path
+        captured["metadata"] = metadata
         return records
 
     with (
@@ -258,6 +259,88 @@ def test_main_qmbd_enrichment_includes_static_baseline_and_literature(
         "STATIC_LITERATURE",
     }
     assert captured["output_path"] == output_dir / "cumulative_qmbd_records.json"
+    metadata = captured["metadata"]
+    assert isinstance(metadata, dict)
+    assert metadata["analysis_input_mode"] == "live-enriched"
+    assert metadata["is_static_recovery_mode"] is False
+
+
+def test_main_static_recovery_emits_cumulative_metadata(tmp_path: Path) -> None:
+    baseline_csv = tmp_path / "baseline.csv"
+    baseline_csv.write_text("placeholder", encoding="utf-8")
+    output_dir = tmp_path / "outputs"
+    baseline = [
+        Competence(
+            id="baseline_a1",
+            name="Baseline competence",
+            description="Baseline row",
+            axis=TMBDAxis.MARINE,
+            dimension="A",
+            source=CompetenceSource(file="data/derived/y.csv", row=3),
+            sectors=["Blue Biotech"],
+        )
+    ]
+    captured: dict[str, object] = {}
+
+    def _capture_enrichment(records_iterator, output_path, *, metadata=None):
+        captured["records"] = list(records_iterator)
+        captured["output_path"] = output_path
+        captured["metadata"] = metadata
+        return captured["records"]
+
+    with (
+        patch("run_full_analysis.BASELINE_CSV", baseline_csv),
+        patch("run_full_analysis.OUTPUTS_DIR", output_dir),
+        patch("run_full_analysis.load_baseline_competences", return_value=baseline),
+        patch("run_full_analysis.extract_literature_competences", return_value=[]),
+        patch("run_full_analysis.run_gap_analysis", return_value=({}, {})),
+        patch(
+            "run_full_analysis._build_dynamic_credentials_from_gap_model",
+            return_value=([], {"generated_credentials": [], "review_required": []}, {}),
+        ),
+        patch(
+            "run_full_analysis._convert_dynamic_to_legacy_credentials", return_value=[]
+        ),
+        patch("run_full_analysis.compute_sector_pathways", return_value=[]),
+        patch("run_full_analysis.export_competences_json"),
+        patch("run_full_analysis.export_credentials_json"),
+        patch("run_full_analysis.export_pathways_json"),
+        patch("run_full_analysis.export_gaps_summary_csv"),
+        patch("run_full_analysis.generate_report_index"),
+        patch("run_full_analysis.generate_gaps_html"),
+        patch("run_full_analysis.generate_credentials_html"),
+        patch("run_full_analysis.generate_literature_html"),
+        patch("run_full_analysis.export_sector_dictionaries", return_value=[]),
+        patch(
+            "run_full_analysis.enrich_and_store_records",
+            side_effect=_capture_enrichment,
+        ),
+        patch("run_full_analysis._get_git_head_sha", return_value="deadbeef"),
+        patch.dict(
+            "os.environ",
+            {
+                "ALLOW_STATIC_RECOVERY_MODE": "true",
+                "STATIC_RECOVERY_REASON": "offline-ci",
+                "REQUESTED_PROVIDERS": "crossref,scopus",
+                "GITHUB_RUN_ID": "123456",
+            },
+            clear=False,
+        ),
+    ):
+        exit_code = main(analysis_input_mode="static")
+
+    assert exit_code == 0
+    metadata = captured["metadata"]
+    assert isinstance(metadata, dict)
+    assert metadata["analysis_input_mode"] == "static"
+    assert metadata["is_static_recovery_mode"] is True
+    assert metadata["static_recovery_reason"] == "offline-ci"
+    assert metadata["allow_static_recovery_mode_env"] == "ALLOW_STATIC_RECOVERY_MODE"
+    assert metadata["provider_set"] == "crossref,scopus"
+    assert metadata["github_run_id"] == "123456"
+    assert metadata["commit_sha"] == "deadbeef"
+    assert metadata["created_at_utc"]
+    assert metadata["warnings"]
 
 
 def test_localized_qmbd_repository_tags_live_records_with_origin(
@@ -1507,6 +1590,18 @@ class TestCLIAndEdgeCases:
             args = parse_cli_args()
             assert args.analysis_input_mode == "live-enriched"
             assert args.live_records_path == "/tmp/live_records.json"
+
+    def test_parse_cli_args_static_recovery_mode(self):
+        """CLI should still accept explicit static recovery mode selection."""
+        import sys
+
+        with patch.object(
+            sys,
+            "argv",
+            ["run_full_analysis.py", "--analysis-input-mode", "static"],
+        ):
+            args = parse_cli_args()
+            assert args.analysis_input_mode == "static"
 
     def test_parse_cli_args_with_explicit_sectors(self):
         """CLI should capture repeated --sector arguments."""
