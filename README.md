@@ -44,6 +44,12 @@ python demo_workspace_instructions.py
 - Artifact variable definitions for runs, evidence occurrences, manual sources,
   and historical revalidation live in
   `docs/CROSS_RUN_EVIDENCE_CODEBOOK.md` with companion schemas under `schemas/`.
+- Publication-oriented methodology, content-analysis controls, statistical export
+  design, and data-release policy live in:
+  `docs/CUMULATIVE_DATABASE_METHODOLOGY.md`,
+  `docs/CONTENT_ANALYSIS_PROTOCOL.md`,
+  `docs/STATISTICAL_ANALYSIS_PLAN.md`, and
+  `docs/DATA_RELEASE_POLICY.md`.
 
 ### GitHub Copilot MCP Integration (Optional Advanced Feature)
 

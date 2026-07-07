@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/evidence_records.schema.json",
+  "title": "Evidence records row",
+  "type": "object",
+  "required": [
+    "record_pk",
+    "canonical_record_id",
+    "preferred_identifier",
+    "source_type_code",
+    "source_type_label",
+    "qmbd_axis_code",
+    "qmbd_axis_label",
+    "record_origin_code",
+    "record_origin_label",
+    "title",
+    "doi",
+    "source_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "record_pk": { "type": "string", "minLength": 1 },
+    "canonical_record_id": { "type": "string", "minLength": 1 },
+    "preferred_identifier": { "type": "string", "minLength": 1 },
+    "source_type_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, 4, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "source_type_label",
+      "x-value-labels": {
+        "1": "literature_record",
+        "2": "live_api_record",
+        "3": "manual_supporting_source",
+        "4": "historical_revalidated_record",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, 4, -99, -98, -97, -96, -95]
+    },
+    "source_type_label": { "type": "string", "minLength": 1 },
+    "qmbd_axis_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, 4, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "qmbd_axis_label",
+      "x-value-labels": {
+        "1": "Marine",
+        "2": "Maritime",
+        "3": "Oceanic",
+        "4": "Multi-axis",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, 4, -99, -98, -97, -96, -95]
+    },
+    "qmbd_axis_label": { "type": "string", "minLength": 1 },
+    "record_origin_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, 4, 5, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "record_origin_label",
+      "x-value-labels": {
+        "1": "STATIC_BASELINE",
+        "2": "STATIC_LITERATURE",
+        "3": "LIVE_API",
+        "4": "LIVE_TRIANGULATED",
+        "5": "MANUAL_SUPPORTING_SOURCE",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, 4, 5, -99, -98, -97, -96, -95]
+    },
+    "record_origin_label": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "doi": { "type": "string" },
+    "source_id": { "type": "string", "minLength": 1 }
+  }
+}

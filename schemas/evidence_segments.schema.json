@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/evidence_segments.schema.json",
+  "title": "Evidence segments row",
+  "type": "object",
+  "required": [
+    "segment_pk",
+    "occurrence_pk",
+    "segment_unit_code",
+    "segment_unit_label",
+    "text_scope_code",
+    "text_scope_label",
+    "segment_text",
+    "segment_order"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "segment_pk": { "type": "string", "minLength": 1 },
+    "occurrence_pk": { "type": "string", "minLength": 1 },
+    "segment_unit_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "segment_unit_label",
+      "x-value-labels": {
+        "1": "sentence",
+        "2": "phrase",
+        "3": "cluster_excerpt",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, -99, -98, -97, -96, -95]
+    },
+    "segment_unit_label": { "type": "string", "minLength": 1 },
+    "text_scope_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "text_scope_label",
+      "x-value-labels": {
+        "1": "full_sentence",
+        "2": "paragraph",
+        "3": "document_level",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, -99, -98, -97, -96, -95]
+    },
+    "text_scope_label": { "type": "string", "minLength": 1 },
+    "segment_text": { "type": "string", "minLength": 1 },
+    "segment_order": { "type": "integer", "minimum": 1 }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/runs.schema.json",
+  "title": "Runs row",
+  "type": "object",
+  "required": [
+    "run_pk",
+    "run_id",
+    "run_path",
+    "timestamp_utc",
+    "analysis_input_mode_code",
+    "analysis_input_mode_label",
+    "is_static_recovery_mode_code",
+    "is_static_recovery_mode_label",
+    "workflow_event_code",
+    "workflow_event_label",
+    "provider_set",
+    "commit_sha",
+    "github_run_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_pk": { "type": "string", "minLength": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "run_path": { "type": "string", "minLength": 1 },
+    "timestamp_utc": { "type": "string", "minLength": 1 },
+    "analysis_input_mode_code": {
+      "type": "integer",
+      "enum": [1, 2, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "analysis_input_mode_label",
+      "x-value-labels": {
+        "1": "live-enriched",
+        "2": "static recovery",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, -99, -98, -97, -96, -95]
+    },
+    "analysis_input_mode_label": { "type": "string", "minLength": 1 },
+    "is_static_recovery_mode_code": {
+      "type": "integer",
+      "enum": [0, 1, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "is_static_recovery_mode_label",
+      "x-value-labels": {
+        "0": "No",
+        "1": "Yes",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [0, 1, -99, -98, -97, -96, -95]
+    },
+    "is_static_recovery_mode_label": { "type": "string", "minLength": 1 },
+    "workflow_event_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "workflow_event_label",
+      "x-value-labels": {
+        "1": "workflow_dispatch",
+        "2": "schedule",
+        "3": "manual_local",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, -99, -98, -97, -96, -95]
+    },
+    "workflow_event_label": { "type": "string", "minLength": 1 },
+    "provider_set": { "type": "string" },
+    "commit_sha": { "type": "string", "minLength": 1 },
+    "github_run_id": { "type": "string" }
+  }
+}

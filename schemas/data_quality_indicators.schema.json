@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/data_quality_indicators.schema.json",
+  "title": "Data quality indicators row",
+  "type": "object",
+  "required": [
+    "indicator_pk",
+    "run_pk",
+    "indicator_family_code",
+    "indicator_family_label",
+    "indicator_code",
+    "indicator_label",
+    "status_code",
+    "status_label",
+    "indicator_value",
+    "notes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "indicator_pk": { "type": "string", "minLength": 1 },
+    "run_pk": { "type": "string", "minLength": 1 },
+    "indicator_family_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, 4, 5, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "indicator_family_label",
+      "x-value-labels": {
+        "1": "missingness",
+        "2": "duplicate_rate",
+        "3": "provider_bias",
+        "4": "gap_priority_stability",
+        "5": "review_required_rate",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, 4, 5, -99, -98, -97, -96, -95]
+    },
+    "indicator_family_label": { "type": "string", "minLength": 1 },
+    "indicator_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, 4, 5, 6, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "indicator_label",
+      "x-value-labels": {
+        "1": "missingness_rate",
+        "2": "duplicate_rate",
+        "3": "provider_concentration_index",
+        "4": "validation_error_rate",
+        "5": "restricted_content_rate",
+        "6": "review_required_rate",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, 4, 5, 6, -99, -98, -97, -96, -95]
+    },
+    "indicator_label": { "type": "string", "minLength": 1 },
+    "status_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "status_label",
+      "x-value-labels": {
+        "1": "pass",
+        "2": "warning",
+        "3": "fail",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, -99, -98, -97, -96, -95]
+    },
+    "status_label": { "type": "string", "minLength": 1 },
+    "indicator_value": { "type": "number" },
+    "notes": { "type": "string" }
+  }
+}

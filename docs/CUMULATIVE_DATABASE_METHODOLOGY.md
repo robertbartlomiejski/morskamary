@@ -1,0 +1,112 @@
+# Cumulative database methodology
+
+## Scope
+
+This document defines how `morskamary` moves from deterministic latest-snapshot
+outputs toward a publication-grade cumulative evidence database.
+
+## Code PR versus data release
+
+This Draft Code PR implements:
+
+- runtime mode enforcement,
+- append-only manual-source ingestion,
+- historical-output revalidation,
+- cumulative evidence indexing,
+- schemas, codebook, tests, and validators,
+- statistical export design.
+
+It does **not** publish the full empirical cumulative database. Large empirical
+artifacts belong to a later versioned dataset package.
+
+## Why the previous count stayed at 466
+
+`outputs/cumulative_qmbd_records.json` stayed at 466 because repeated static
+regeneration produced the same 15 baseline + 451 literature-derived records.
+Those runs overwrote the latest snapshot rather than preserving cross-run
+observations.
+
+The cumulative-ledger design changes this by preserving:
+
+- unique evidence records,
+- repeated appearances of those records across runs,
+- manual supporting sources,
+- historical bundle revalidation outcomes,
+- run-level methodological metadata.
+
+## Canonical model
+
+The canonical model is normalized and audit-oriented:
+
+1. `runs`
+2. `source_bundles`
+3. `artifacts`
+4. `providers`
+5. `queries`
+6. `evidence_records`
+7. `evidence_occurrences`
+8. `evidence_segments`
+9. `codebook_codes`
+10. `coding_assignments`
+11. `reliability_metrics`
+12. `demand_supply_units`
+13. `gap_clusters`
+14. `coverage_matches`
+15. `dynamic_credentials`
+16. `data_quality_indicators`
+
+Normalized tables are the canonical audit model. Flattened views are analytical
+derivatives for downstream software.
+
+## Export package design
+
+The later versioned dataset package should include:
+
+- UTF-8 CSV tables,
+- XLSX workbook with one sheet per table,
+- optional SPSS/PS IMAGO `.sav` exports when dependencies are available,
+- canonical JSONL audit records,
+- checksum manifest,
+- validation report,
+- data dictionary and value-label tables.
+
+## Statistical software readiness
+
+The export design supports:
+
+- **Excel** via workbook + CSV,
+- **Statistica** via CSV/XLSX with numeric-coded categorical fields,
+- **PS IMAGO/SPSS** via `.sav` plus CSV fallback,
+- **Python** via CSV/JSONL/Parquet-ready normalized tables,
+- **R** via CSV/JSONL and direct import of value-label dictionaries.
+
+## Categorical variable requirements
+
+Every categorical field must have:
+
+- a numeric `*_code`,
+- a string `*_label`,
+- value labels,
+- missing-value codes,
+- measurement level metadata,
+- allowed values metadata.
+
+Reserved missing codes:
+
+- `-99` Unknown
+- `-98` Not extracted
+- `-97` Not applicable
+- `-96` Restricted
+- `-95` Validation error
+
+## Quality controls
+
+The cumulative database must report at minimum:
+
+- duplicate rate,
+- missingness,
+- provider bias indicators,
+- human/machine agreement metrics,
+- review-required rate,
+- gap-priority stability,
+- validation failures and restricted-content counts.

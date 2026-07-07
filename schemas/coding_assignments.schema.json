@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/coding_assignments.schema.json",
+  "title": "Coding assignments row",
+  "type": "object",
+  "required": [
+    "assignment_pk",
+    "segment_pk",
+    "code_family_code",
+    "code_family_label",
+    "code_value_code",
+    "code_value_label",
+    "coder_type_code",
+    "coder_type_label",
+    "validation_status_code",
+    "validation_status_label",
+    "confidence_score"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "assignment_pk": { "type": "string", "minLength": 1 },
+    "segment_pk": { "type": "string", "minLength": 1 },
+    "code_family_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, 4, 5, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "code_family_label",
+      "x-value-labels": {
+        "1": "sector",
+        "2": "qmbd_axis",
+        "3": "provider_source_type",
+        "4": "gap_type",
+        "5": "review_status",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, 4, 5, -99, -98, -97, -96, -95]
+    },
+    "code_family_label": { "type": "string", "minLength": 1 },
+    "code_value_code": { "type": "integer" },
+    "code_value_label": { "type": "string", "minLength": 1 },
+    "coder_type_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "coder_type_label",
+      "x-value-labels": {
+        "1": "machine",
+        "2": "human",
+        "3": "machine_human_review",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, -99, -98, -97, -96, -95]
+    },
+    "coder_type_label": { "type": "string", "minLength": 1 },
+    "validation_status_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "validation_status_label",
+      "x-value-labels": {
+        "1": "accepted",
+        "2": "review_required",
+        "3": "rejected",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, -99, -98, -97, -96, -95]
+    },
+    "validation_status_label": { "type": "string", "minLength": 1 },
+    "confidence_score": { "type": "number", "minimum": 0, "maximum": 1 }
+  }
+}
