@@ -33,6 +33,18 @@ The later release package should include:
 - validation report,
 - checksum manifest.
 
+The release package is produced with:
+
+```bash
+python scripts/build_versioned_research_data_package.py \
+  --version-tag v0.1.0 \
+  --release-tag v0.1.0
+```
+
+This command creates a versioned package directory + zip, schema-validates
+core tables, and writes Git-referenceable `RELEASE_MANIFEST.json` and
+`CHECKSUMS.sha256` files plus APA citation template metadata.
+
 ## Governance constraints
 
 - raw sources are never overwritten,

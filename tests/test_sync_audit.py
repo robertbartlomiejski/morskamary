@@ -21,6 +21,7 @@ from sync_audit import (  # noqa: E402
     check_mcp_config,
     check_outputs_drift,
     main,
+    status_label,
 )
 
 # ---------------------------------------------------------------------------
@@ -46,6 +47,25 @@ class TestAuditReport:
         assert not r.failed
         assert r.has_warnings
         assert r.warnings == ["hmm"]
+
+    def test_status_labels_are_ascii_safe(self):
+        assert status_label("ok") == "[OK]"
+        assert status_label("warn") == "[WARN]"
+        assert status_label("error") == "[ERROR]"
+        assert status_label("info") == "[INFO]"
+        for level in ("ok", "warn", "error", "info"):
+            assert status_label(level).isascii()
+
+    def test_audit_report_prints_ascii_only_output(self, capsys):
+        report = AuditReport()
+        report.ok("alpha")
+        report.warn("beta")
+        report.error("gamma")
+        captured = capsys.readouterr().out
+        assert captured.isascii()
+        assert "[OK]" in captured
+        assert "[WARN]" in captured
+        assert "[ERROR]" in captured
 
 
 # ---------------------------------------------------------------------------

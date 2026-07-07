@@ -6,11 +6,12 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCHEMAS_DIR = REPO_ROOT / "schemas"
 DOCS_DIR = REPO_ROOT / "docs"
-FIXTURE_PATH = REPO_ROOT / "tests" / "fixtures" / "cumulative_database_schema_samples.json"
+FIXTURE_PATH = (
+    REPO_ROOT / "tests" / "fixtures" / "cumulative_database_schema_samples.json"
+)
 STANDARD_MISSING_CODES = [-99, -98, -97, -96, -95]
 
 SCHEMA_TO_FIXTURE = {
@@ -97,9 +98,7 @@ def test_schemas_reject_missing_primary_keys() -> None:
         validator = Draft202012Validator(schema)
         payload = copy.deepcopy(fixture[fixture_key])
         primary_key = next(
-            field
-            for field in schema["required"]
-            if field.endswith("_pk")
+            field for field in schema["required"] if field.endswith("_pk")
         )
         payload.pop(primary_key, None)
         errors = list(validator.iter_errors(payload))
@@ -174,3 +173,8 @@ def test_publication_docs_exist_with_required_content() -> None:
         content = (DOCS_DIR / filename).read_text(encoding="utf-8")
         for token in required_tokens:
             assert token in content, (filename, token)
+
+
+def test_research_data_package_manifest_schema_is_valid() -> None:
+    schema = _load_schema("research_data_package_manifest.schema.json")
+    Draft202012Validator.check_schema(schema)

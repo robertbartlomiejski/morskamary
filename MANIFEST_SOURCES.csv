@@ -1132,6 +1132,7 @@ outputs/manual_sources/manual_sources_ingest_report.json,other,,,,,,manual_sourc
 outputs/manual_sources/manual_sources_ledger.jsonl,other,,,,,,manual_sources_ledger,no
 outputs/report_index.html,other,,,,,,report_index,no
 outputs/research_api_health.json,other,,,,,,research_api_health,yes
+outputs/research_api_smoke_report.json,other,,,,,,research_api_smoke_report,yes
 outputs/research_source_capabilities.json,other,,,,,,research_source_capabilities,yes
 outputs/research_sources/crossref_records.json,dataset_derived,,,,,,crossref_records,yes
 outputs/research_sources/enrichment_records.json,dataset_derived,,,,,,enrichment_records,yes
@@ -1238,6 +1239,7 @@ schemas/gap_clusters.schema.json,other,,,,,,gap_clusters_schema,yes
 schemas/historical_revalidation_report.schema.json,other,,,,,,historical_revalidation_report_schema,yes
 schemas/manual_sources_ledger.schema.json,other,,,,,,manual_sources_ledger_schema,yes
 schemas/reliability_metrics.schema.json,other,,,,,,reliability_metrics_schema,yes
+schemas/research_data_package_manifest.schema.json,other,,,,,,research_data_package_manifest_schema,yes
 schemas/research_metadata.schema.json,other,,,,,,research_metadata_schema,yes
 schemas/run_archive_manifest.schema.json,other,,,,,,run_archive_manifest_schema,yes
 schemas/runs.schema.json,other,,,,,,runs_schema,yes
@@ -1256,6 +1258,7 @@ scripts/Breguła Weird Szczecin_250412_101024.txt,script,,,,,,Breguła_Weird_Szc
 scripts/build_cross_run_evidence_index.py,script,,,,,,build_cross_run_evidence_index,yes
 scripts/build_derived.py,script,,,,,,build_derived,yes
 scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,yes
+scripts/build_versioned_research_data_package.py,script,,,,,,build_versioned_research_data_package,yes
 scripts/changelog_guard.py,script,,,,,,changelog_guard,yes
 scripts/check_research_api_health.py,script,,,,,,check_research_api_health,yes
 scripts/check_research_env.py,script,,,,,,check_research_env,yes
@@ -1342,6 +1345,7 @@ tests/test_bootstrap_ps1_syntax.py,script,,,,,,test_bootstrap_ps1_syntax,yes
 tests/test_build_cross_run_evidence_index.py,script,,,,,,test_build_cross_run_evidence_index,yes
 tests/test_build_derived.py,script,,,,,,test_build_derived,yes
 tests/test_build_tmbd_dictionary.py,script,,,,,,test_build_tmbd_dictionary,yes
+tests/test_build_versioned_research_data_package.py,script,,,,,,test_build_versioned_research_data_packa,yes
 tests/test_changelog_guard.py,script,,,,,,test_changelog_guard,yes
 tests/test_check_research_api_health.py,script,,,,,,test_check_research_api_health,yes
 tests/test_ci_workflow.py,script,,,,,,test_ci_workflow,yes

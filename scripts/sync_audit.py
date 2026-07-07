@@ -33,6 +33,12 @@ from pathlib import Path
 from typing import Sequence
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+STATUS = {
+    "ok": "[OK]",
+    "warn": "[WARN]",
+    "error": "[ERROR]",
+    "info": "[INFO]",
+}
 
 # ---------------------------------------------------------------------------
 # Utilities
@@ -50,6 +56,11 @@ def _run(cmd: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess
     )
 
 
+def status_label(level: str) -> str:
+    """Return an ASCII-safe status label for terminal output."""
+    return STATUS[level]
+
+
 class AuditReport:
     """Collects audit findings."""
 
@@ -59,14 +70,14 @@ class AuditReport:
 
     def error(self, msg: str) -> None:
         self.errors.append(msg)
-        print(f"  [ERROR] {msg}")
+        print(f"  {status_label('error')} {msg}")
 
     def warn(self, msg: str) -> None:
         self.warnings.append(msg)
-        print(f"  [WARN]  {msg}")
+        print(f"  {status_label('warn')} {msg}")
 
     def ok(self, msg: str) -> None:
-        print(f"  [OK]    {msg}")
+        print(f"  {status_label('ok')} {msg}")
 
     @property
     def failed(self) -> bool:

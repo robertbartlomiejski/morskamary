@@ -9,7 +9,6 @@ from pathlib import Path
 
 from src.scientific_sources.models import SourceCapability
 
-
 SCRIPTS_DIR = Path(__file__).parent.parent / "scripts"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
@@ -352,10 +351,14 @@ class TestValidateResearchSourceOutputs:
             "live_records_triangulated.json",
             "crossref_records.json",
         ]:
-            (research_dir / name).write_text(json.dumps([live_record]), encoding="utf-8")
+            (research_dir / name).write_text(
+                json.dumps([live_record]), encoding="utf-8"
+            )
 
         (research_dir / "live_provenance.json").write_text(
-            json.dumps([{"provider": "crossref", "source_id": "crossref:10.1234/test"}]),
+            json.dumps(
+                [{"provider": "crossref", "source_id": "crossref:10.1234/test"}]
+            ),
             encoding="utf-8",
         )
         (research_dir / "low_confidence_live_records.json").write_text(
@@ -453,6 +456,40 @@ class TestValidateResearchSourceOutputs:
         out = capsys.readouterr().out
         assert "WARN:  provider health contains invalid/rate-limited statuses" in out
         assert "Validation passed (warnings are informational)." in out
+
+
+class TestSmokeScientificBridge:
+    """Coverage for scripts/smoke_scientific_bridge.py."""
+
+    def test_main_writes_smoke_report_on_success(self, tmp_path, monkeypatch):
+        import smoke_scientific_bridge as script
+
+        report_path = tmp_path / "outputs" / "research_api_smoke_report.json"
+        monkeypatch.setattr(script, "run_offline_checks", lambda: [])
+        monkeypatch.setattr(script, "run_live_checks", lambda: [])
+
+        assert script.main(["--offline", "--output", str(report_path)]) == 0
+        payload = json.loads(report_path.read_text(encoding="utf-8"))
+        assert payload["status"] == "passed"
+        assert payload["failure_count"] == 0
+        assert payload["mode"] == "offline"
+
+    def test_main_writes_smoke_report_on_failure(self, tmp_path, monkeypatch):
+        import smoke_scientific_bridge as script
+
+        report_path = tmp_path / "outputs" / "research_api_smoke_report.json"
+        monkeypatch.setattr(script, "run_offline_checks", lambda: ["offline failure"])
+        monkeypatch.setattr(script, "run_live_checks", lambda: ["live failure"])
+
+        assert (
+            script.main(["--live-if-secrets-present", "--output", str(report_path)])
+            == 1
+        )
+        payload = json.loads(report_path.read_text(encoding="utf-8"))
+        assert payload["status"] == "failed"
+        assert payload["failure_count"] == 2
+        assert payload["mode"] == "live-if-secrets-present"
+        assert payload["live_tests_requested"] is True
 
 
 class TestAssertCumulativeLiveEnriched:
