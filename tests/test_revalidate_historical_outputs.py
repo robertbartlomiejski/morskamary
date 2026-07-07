@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import importlib.util
 import json
+import subprocess
 import sys
 from pathlib import Path
 from zipfile import ZipFile
@@ -86,3 +87,28 @@ def test_revalidate_historical_outputs_generates_compatibility_and_cumulative_ro
     ]
     assert cumulative_rows
     assert all("canonical_record_id" in row for row in cumulative_rows)
+
+
+def test_revalidate_historical_outputs_cli_entrypoint_receives_input_flag(
+    tmp_path: Path,
+) -> None:
+    bundle_dir = tmp_path / "bundle"
+    _seed_bundle_dir(bundle_dir)
+    output_dir = tmp_path / "outputs" / "manual_sources"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT_PATH),
+            "--input",
+            str(bundle_dir),
+            "--output-dir",
+            str(output_dir),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert (output_dir / "historical_compatibility.csv").exists()

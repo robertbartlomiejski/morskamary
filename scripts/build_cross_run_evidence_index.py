@@ -550,7 +550,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "Set to empty string to disable."
         ),
     )
-    return parser.parse_args([] if argv is None else argv)
+    return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:

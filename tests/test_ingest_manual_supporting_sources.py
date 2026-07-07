@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import importlib.util
 import json
+import subprocess
 import sys
 from pathlib import Path
 from zipfile import ZipFile
@@ -86,3 +87,31 @@ def test_ingest_manual_sources_writes_append_only_ledger_and_index(
         if line.strip()
     ]
     assert len(ledger_rows_after) == 3
+
+
+def test_ingest_manual_sources_cli_entrypoint_receives_input_flag(
+    tmp_path: Path,
+) -> None:
+    docs_dir = tmp_path / "docs"
+    docs_dir.mkdir(parents=True)
+    (docs_dir / "a.txt").write_text("hello", encoding="utf-8")
+    output_dir = tmp_path / "outputs" / "manual_sources"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT_PATH),
+            "--input",
+            str(docs_dir),
+            "--ledger-dir",
+            str(output_dir),
+            "--copy-files",
+            "false",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert (output_dir / "manual_sources_ledger.jsonl").exists()

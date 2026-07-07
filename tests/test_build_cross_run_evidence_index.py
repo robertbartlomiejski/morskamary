@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import importlib.util
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -242,3 +243,45 @@ def test_build_cross_run_evidence_index_includes_manual_ledger_occurrences(
     )
     manual_rows = [row for row in rows if row["dataset"] == "manual_supporting_sources"]
     assert len(manual_rows) == 2
+
+
+def test_build_cross_run_evidence_index_cli_entrypoint_receives_manual_ledger_flag(
+    tmp_path: Path,
+) -> None:
+    _seed_run_archive(tmp_path)
+    manual_dir = tmp_path / "outputs" / "manual_sources"
+    _write_text(
+        manual_dir / "manual_sources_ledger.jsonl",
+        json.dumps(
+            {
+                "source_id": "manual_src_cli_001",
+                "title": "CLI Manual",
+                "ingested_at_utc": "2026-07-01T00:00:00+00:00",
+            }
+        )
+        + "\n",
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT_PATH),
+            "--archive-root",
+            str(tmp_path / "outputs" / "run_archive"),
+            "--output-dir",
+            str(tmp_path / "outputs" / "run_archive"),
+            "--fail-on-invalid",
+            "false",
+            "--manual-ledger",
+            str(manual_dir / "manual_sources_ledger.jsonl"),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    rows = _read_csv(
+        tmp_path / "outputs" / "run_archive" / "cross_run_evidence_occurrences.csv"
+    )
+    assert any(row["dataset"] == "manual_supporting_sources" for row in rows)

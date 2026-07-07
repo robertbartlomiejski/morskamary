@@ -154,7 +154,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default="true",
         help="Exit with code 1 when duplicate IDs or checksum mismatches exist.",
     )
-    return parser.parse_args([] if argv is None else argv)
+    return parser.parse_args(argv)
 
 
 def _to_bool(value: str) -> bool:

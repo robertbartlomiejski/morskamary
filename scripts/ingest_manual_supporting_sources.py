@@ -318,7 +318,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default="true",
         help="Copy ingested binaries into outputs/manual_sources/files (true/false).",
     )
-    return parser.parse_args([] if argv is None else argv)
+    return parser.parse_args(argv)
 
 
 def _to_bool(value: str) -> bool:
@@ -346,4 +346,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    raise SystemExit(main(sys.argv[1:]))

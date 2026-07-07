@@ -343,7 +343,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=str(DEFAULT_OUTPUT_DIR),
         help="Output directory for compatibility and cumulative artifacts.",
     )
-    return parser.parse_args([] if argv is None else argv)
+    return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:

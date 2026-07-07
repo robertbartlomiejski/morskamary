@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import hashlib
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -63,4 +64,28 @@ def test_gatekeeper_reports_and_passes_without_issues(tmp_path: Path) -> None:
     assert (root / "gatekeeper_duplicate_ids.json").exists()
     assert (root / "gatekeeper_checksum_mismatches.json").exists()
     assert (root / "gatekeeper_cumulative_growth_delta.json").exists()
+    assert (root / "gatekeeper_compatibility_summary.json").exists()
+
+
+def test_validate_manual_sources_gatekeeper_cli_entrypoint_receives_root_flag(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "outputs" / "manual_sources"
+    root.mkdir(parents=True)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT_PATH),
+            "--root",
+            str(root),
+            "--fail-on-issues",
+            "false",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
     assert (root / "gatekeeper_compatibility_summary.json").exists()
