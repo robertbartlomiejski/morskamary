@@ -59,14 +59,14 @@ class AuditReport:
 
     def error(self, msg: str) -> None:
         self.errors.append(msg)
-        print(f"  ✗ ERROR: {msg}")
+        print(f"  [ERROR] {msg}")
 
     def warn(self, msg: str) -> None:
         self.warnings.append(msg)
-        print(f"  ⚠ WARN:  {msg}")
+        print(f"  [WARN]  {msg}")
 
     def ok(self, msg: str) -> None:
-        print(f"  ✓ {msg}")
+        print(f"  [OK]    {msg}")
 
     @property
     def failed(self) -> bool:
@@ -184,6 +184,29 @@ def check_manifest_drift(report: AuditReport) -> None:
     if manifest_path is None:
         report.warn("No manifest file found — skipping drift check")
         return
+
+    # Local evidence-ingestion runs may create large untracked artifacts under
+    # outputs/ that should be reviewed separately from code-scope manifest drift.
+    untracked = _run(["git", "ls-files", "--others", "--exclude-standard"])
+    if untracked.returncode == 0:
+        untracked_paths = [
+            line.strip().replace("\\", "/")
+            for line in untracked.stdout.splitlines()
+            if line.strip()
+        ]
+        if untracked_paths:
+            allowed_runtime_prefixes = (
+                "outputs/manual_sources/",
+                "outputs/run_archive/",
+            )
+            if all(
+                path.startswith(allowed_runtime_prefixes) for path in untracked_paths
+            ):
+                report.warn(
+                    "Untracked runtime artifacts detected under outputs/; "
+                    "skipping manifest drift check for code-scope audit."
+                )
+                return
 
     # Snapshot the current content
     before_content = manifest_path.read_bytes()
