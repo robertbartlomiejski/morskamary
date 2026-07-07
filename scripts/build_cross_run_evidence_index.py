@@ -14,6 +14,7 @@ from typing import Any
 INDEX_CSV_FILENAME = "cumulative_runs_index.csv"
 RUNS_DIRNAME = "runs"
 DEFAULT_DEDUPE_KEY = "doi,source_id,title"
+DEFAULT_MANUAL_LEDGER = "outputs/manual_sources/manual_sources_ledger.jsonl"
 
 LIVE_RECORDS_REL = Path("research_sources/live_records.json")
 TRIANGULATED_REL = Path("research_sources/live_records_triangulated.json")
@@ -139,7 +140,9 @@ def _extract_records(payload: Any) -> list[dict[str, Any]]:
     return []
 
 
-def _pick_dedupe_value(record: dict[str, Any], dedupe_keys: tuple[str, ...]) -> tuple[str, str]:
+def _pick_dedupe_value(
+    record: dict[str, Any], dedupe_keys: tuple[str, ...]
+) -> tuple[str, str]:
     for field in dedupe_keys:
         value = _normalize_string(record.get(field))
         if value:
@@ -169,15 +172,41 @@ def _resolve_run_dir(archive_root: Path, run_path: str, run_id: str) -> Path:
     fallback = archive_root / RUNS_DIRNAME / run_id
     if fallback.is_dir():
         return fallback
-    raise FileNotFoundError(f"run directory missing for run_id={run_id}, run_path={run_path}")
+    raise FileNotFoundError(
+        f"run directory missing for run_id={run_id}, run_path={run_path}"
+    )
 
 
-def _write_csv(path: Path, fieldnames: tuple[str, ...], rows: list[dict[str, str]]) -> None:
+def _write_csv(
+    path: Path, fieldnames: tuple[str, ...], rows: list[dict[str, str]]
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(fieldnames))
         writer.writeheader()
         writer.writerows(rows)
+
+
+def _load_manual_ledger_rows(path: Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    if not path.is_file():
+        return rows
+    with path.open("r", encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, start=1):
+            payload = line.strip()
+            if not payload:
+                continue
+            try:
+                item = json.loads(payload)
+            except json.JSONDecodeError:
+                print(
+                    f"WARNING: skipping malformed manual ledger row {line_number} in {path}",
+                    file=sys.stderr,
+                )
+                continue
+            if isinstance(item, dict):
+                rows.append(item)
+    return rows
 
 
 def build_cross_run_evidence_index(
@@ -186,6 +215,7 @@ def build_cross_run_evidence_index(
     output_dir: Path,
     dedupe_keys: tuple[str, ...],
     fail_on_invalid: bool,
+    manual_ledger_path: Path | None = None,
 ) -> int:
     """Build longitudinal run/evidence tables from archived runs."""
     index_path = archive_root / INDEX_CSV_FILENAME
@@ -311,7 +341,11 @@ def build_cross_run_evidence_index(
                 )
             ),
             "cumulative_qmbd_records_count": str(
-                sum(1 for item in run_records if item.dataset == "cumulative_qmbd_records")
+                sum(
+                    1
+                    for item in run_records
+                    if item.dataset == "cumulative_qmbd_records"
+                )
             ),
             "evidence_rows_total": str(len(run_records)),
             "evidence_rows_dedupable": str(
@@ -339,19 +373,75 @@ def build_cross_run_evidence_index(
         }
         for item in sorted(
             occurrences,
-            key=lambda row: (row.dedupe_value, row.timestamp_utc, row.run_id, row.dataset),
+            key=lambda row: (
+                row.dedupe_value,
+                row.timestamp_utc,
+                row.run_id,
+                row.dataset,
+            ),
         )
     ]
 
+    manual_rows = (
+        _load_manual_ledger_rows(manual_ledger_path) if manual_ledger_path else []
+    )
+    manual_occurrences = 0
+    for index, row in enumerate(manual_rows, start=1):
+        title = _normalize_string(row.get("title") or row.get("file_name"))
+        source_id = _normalize_string(row.get("source_id") or row.get("id"))
+        synthetic_record = {
+            "doi": _normalize_string(row.get("doi")),
+            "source_id": source_id,
+            "title": title,
+        }
+        dedupe_value, dedupe_field = _pick_dedupe_value(synthetic_record, dedupe_keys)
+        occurrence_rows.append(
+            {
+                "run_id": "manual-ledger",
+                "run_path": "outputs/manual_sources",
+                "timestamp_utc": _normalize_string(row.get("ingested_at_utc")),
+                "manifest_timestamp_utc": "",
+                "dataset": "manual_supporting_sources",
+                "record_index": str(index),
+                "dedupe_value": dedupe_value,
+                "dedupe_field_used": dedupe_field,
+                "doi": synthetic_record["doi"],
+                "source_id": synthetic_record["source_id"],
+                "title": synthetic_record["title"],
+                "record_origin": "manual_supporting_source",
+                "axis_name": _normalize_string(row.get("axis_name")),
+            }
+        )
+        manual_occurrences += 1
+
     grouped: dict[str, list[EvidenceOccurrence]] = {}
-    for item in occurrences:
-        if not item.dedupe_value:
+    for row in occurrence_rows:
+        dedupe_value = row.get("dedupe_value", "")
+        if not dedupe_value:
             continue
-        grouped.setdefault(item.dedupe_value, []).append(item)
+        grouped.setdefault(dedupe_value, []).append(
+            EvidenceOccurrence(
+                run_id=row.get("run_id", ""),
+                run_path=row.get("run_path", ""),
+                timestamp_utc=row.get("timestamp_utc", ""),
+                manifest_timestamp_utc=row.get("manifest_timestamp_utc", ""),
+                dataset=row.get("dataset", ""),
+                record_index=int(row.get("record_index", "0") or 0),
+                dedupe_value=dedupe_value,
+                dedupe_field_used=row.get("dedupe_field_used", ""),
+                doi=row.get("doi", ""),
+                source_id=row.get("source_id", ""),
+                title=row.get("title", ""),
+                record_origin=row.get("record_origin", ""),
+                axis_name=row.get("axis_name", ""),
+            )
+        )
 
     evidence_index_rows: list[dict[str, str]] = []
     for dedupe_value, items in sorted(grouped.items(), key=lambda kv: kv[0]):
-        sorted_items = sorted(items, key=lambda row: (_parse_timestamp(row.timestamp_utc), row.run_id))
+        sorted_items = sorted(
+            items, key=lambda row: (_parse_timestamp(row.timestamp_utc), row.run_id)
+        )
         first = sorted_items[0]
         last = sorted_items[-1]
         evidence_index_rows.append(
@@ -363,14 +453,22 @@ def build_cross_run_evidence_index(
                 "last_seen_run_id": last.run_id,
                 "run_count": str(len({item.run_id for item in items})),
                 "occurrence_count": str(len(items)),
-                "datasets": "|".join(sorted({item.dataset for item in items if item.dataset})),
+                "datasets": "|".join(
+                    sorted({item.dataset for item in items if item.dataset})
+                ),
                 "record_origins": "|".join(
                     sorted({item.record_origin for item in items if item.record_origin})
                 ),
-                "axis_names": "|".join(sorted({item.axis_name for item in items if item.axis_name})),
+                "axis_names": "|".join(
+                    sorted({item.axis_name for item in items if item.axis_name})
+                ),
                 "dois": "|".join(sorted({item.doi for item in items if item.doi})),
-                "source_ids": "|".join(sorted({item.source_id for item in items if item.source_id})),
-                "titles": "|".join(sorted({item.title for item in items if item.title})),
+                "source_ids": "|".join(
+                    sorted({item.source_id for item in items if item.source_id})
+                ),
+                "titles": "|".join(
+                    sorted({item.title for item in items if item.title})
+                ),
             }
         )
 
@@ -378,13 +476,21 @@ def build_cross_run_evidence_index(
         run_summaries,
         key=lambda row: (_parse_timestamp(row["timestamp_utc"]), row["run_id"]),
     )
-    _write_csv(output_dir / "cross_run_run_summary.csv", RUN_SUMMARY_COLUMNS, run_summaries_sorted)
+    _write_csv(
+        output_dir / "cross_run_run_summary.csv",
+        RUN_SUMMARY_COLUMNS,
+        run_summaries_sorted,
+    )
     _write_csv(
         output_dir / "cross_run_evidence_occurrences.csv",
         EVIDENCE_OCCURRENCE_COLUMNS,
         occurrence_rows,
     )
-    _write_csv(output_dir / "cross_run_evidence_index.csv", EVIDENCE_INDEX_COLUMNS, evidence_index_rows)
+    _write_csv(
+        output_dir / "cross_run_evidence_index.csv",
+        EVIDENCE_INDEX_COLUMNS,
+        evidence_index_rows,
+    )
 
     report_payload = {
         "archive_root": archive_root.as_posix(),
@@ -394,6 +500,7 @@ def build_cross_run_evidence_index(
         "runs_skipped_invalid": invalid_runs,
         "dedupe_keys": list(dedupe_keys),
         "occurrences_total": len(occurrence_rows),
+        "manual_occurrences_total": manual_occurrences,
         "dedupe_groups_total": len(evidence_index_rows),
     }
     (output_dir / "cross_run_evidence_build_report.json").write_text(
@@ -404,7 +511,9 @@ def build_cross_run_evidence_index(
     print(f"Wrote {output_dir / 'cross_run_run_summary.csv'}")
     print(f"Wrote {output_dir / 'cross_run_evidence_occurrences.csv'}")
     print(f"Wrote {output_dir / 'cross_run_evidence_index.csv'}")
-    print(f"Processed runs: {len(run_summaries_sorted)} (skipped invalid: {invalid_runs})")
+    print(
+        f"Processed runs: {len(run_summaries_sorted)} (skipped invalid: {invalid_runs})"
+    )
     return 0
 
 
@@ -433,6 +542,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default="true",
         help="Whether to fail (true) or skip (false) invalid runs.",
     )
+    parser.add_argument(
+        "--manual-ledger",
+        default=DEFAULT_MANUAL_LEDGER,
+        help=(
+            "Optional JSONL ledger with manually uploaded supporting sources. "
+            "Set to empty string to disable."
+        ),
+    )
     return parser.parse_args([] if argv is None else argv)
 
 
@@ -448,11 +565,16 @@ def main(argv: list[str] | None = None) -> int:
     repo_root = Path(".").resolve()
     archive_root = (repo_root / str(args.archive_root)).resolve()
     output_dir = (repo_root / str(args.output_dir)).resolve()
+    manual_ledger_arg = str(args.manual_ledger).strip()
+    manual_ledger_path = (
+        (repo_root / manual_ledger_arg).resolve() if manual_ledger_arg else None
+    )
     return build_cross_run_evidence_index(
         archive_root=archive_root,
         output_dir=output_dir,
         dedupe_keys=dedupe_keys,
         fail_on_invalid=fail_on_invalid,
+        manual_ledger_path=manual_ledger_path,
     )
 
 

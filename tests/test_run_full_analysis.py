@@ -1454,7 +1454,7 @@ class TestCLIAndEdgeCases:
             # Default value is an empty list, not None
             assert args.sectors is not None
             assert args.sectors == []
-            assert args.analysis_input_mode == "static"
+            assert args.analysis_input_mode == "live-enriched"
             assert args.live_records_path == str(DEFAULT_LIVE_RECORDS_JSON)
 
     def test_main_with_cli_sector_selection(self, tmp_path):
@@ -1525,6 +1525,27 @@ class TestCLIAndEdgeCases:
         ):
             args = parse_cli_args()
             assert args.sectors == ["Blue Biotech", "R&I"]
+
+    def test_main_blocks_static_mode_without_recovery_override(self, tmp_path):
+        """Static mode should be rejected unless explicit recovery override is enabled."""
+        baseline_csv = tmp_path / "baseline.csv"
+        baseline_csv.write_text(
+            "Dimension,Competence,Blue competence name,Focus,Blue Biotech\n"
+            "A,A.1,Test,Description,X\n",
+            encoding="utf-8",
+        )
+        output_dir = tmp_path / "outputs"
+
+        with (
+            patch("run_full_analysis.BASELINE_CSV", baseline_csv),
+            patch("run_full_analysis.OUTPUTS_DIR", output_dir),
+            patch("run_full_analysis.LITERATURE_FILES", []),
+            patch("run_full_analysis.REPO_ROOT", tmp_path),
+            patch.dict("os.environ", {}, clear=False),
+        ):
+            exit_code = main(analysis_input_mode="static")
+
+        assert exit_code == 1
 
 
 # ---------------------------------------------------------------------------

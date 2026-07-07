@@ -29,6 +29,7 @@ import argparse
 import html as _html_module
 import json
 import logging
+import os
 import re
 import sys
 from collections import defaultdict
@@ -76,6 +77,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 _TOKEN_PATTERN = re.compile(r"\w+")
+_ALLOW_STATIC_RECOVERY_ENV = "ALLOW_STATIC_RECOVERY_MODE"
 
 # ---------------------------------------------------------------------------
 # Repository constants
@@ -3457,7 +3459,7 @@ def generate_literature_html(
 
 def main(
     selected_sectors: Optional[List[str]] = None,
-    analysis_input_mode: str = "static",
+    analysis_input_mode: str = "live-enriched",
     live_records_path: Optional[Path] = None,
 ) -> int:
     """
@@ -3475,8 +3477,33 @@ def main(
     Returns:
         Exit code (0 = success, 1 = error)
     """
+    requested_mode = str(analysis_input_mode or "").strip().lower()
+    static_recovery_enabled = os.getenv(
+        _ALLOW_STATIC_RECOVERY_ENV, ""
+    ).strip().lower() in {"1", "true", "yes", "y", "on"}
+    if requested_mode == "static" and not static_recovery_enabled:
+        log.error(
+            "Static analysis mode is disabled for normal execution. "
+            "Use --analysis-input-mode live-enriched."
+        )
+        log.error(
+            "Emergency local recovery only: set %s=true to permit static mode.",
+            _ALLOW_STATIC_RECOVERY_ENV,
+        )
+        return 1
+    if requested_mode not in {"static", "live-enriched"}:
+        log.error(
+            "Unsupported analysis input mode: %s (supported: live-enriched%s).",
+            requested_mode or "<empty>",
+            ", static with recovery override" if static_recovery_enabled else "",
+        )
+        return 1
+    analysis_input_mode = requested_mode
+
     target_sectors = selected_sectors or SECTORS
-    live_path = live_records_path or DEFAULT_LIVE_RECORDS_JSON
+    live_path = live_records_path or (
+        OUTPUTS_DIR / "research_sources" / "live_records_triangulated.json"
+    )
 
     log.info("=" * 65)
     log.info("Blue Economy Full Analysis — morskamary")
@@ -3681,9 +3708,12 @@ def parse_cli_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--analysis-input-mode",
-        choices=["static", "live-enriched"],
-        default="static",
-        help="Use static literature inputs only, or enrich with live API exports.",
+        choices=["live-enriched"],
+        default="live-enriched",
+        help=(
+            "Use live-enriched inputs. Static mode is reserved for local emergency "
+            f"recovery with {_ALLOW_STATIC_RECOVERY_ENV}=true."
+        ),
     )
     parser.add_argument(
         "--live-records-path",
