@@ -108,6 +108,7 @@ deep_update_patch/outputs/
 .secrets/
 *oauth*.json
 *credentials*.json
+!schemas/dynamic_credentials.schema.json
 !outputs/credentials_database.json
 !outputs/credentials_dynamic_database.json
 !outputs/credentials_generation_rationale.json
