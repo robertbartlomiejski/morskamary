@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-08 (feat: PR-190 Layer 0 — live query protocol registry with typed loader and legacy-view backward-compat)
+  Change type feat
+  Scope config scripts tests governance
+  Files affected config/live_query_protocol.yml src/scientific_sources/live_query_protocol.py tests/test_live_query_protocol.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Introduced config/live_query_protocol.yml as the structured successor to config/research_queries.yml. The new registry declares 12 blue economy sectors × 8 queries each (96 total, all unique query_ids) across 4 query families (core_sector, competence_demand, emerging_demand, validation_eqf_translation), satisfying the PR-190 per-sector minimums (≥3 core, ≥2 competence, ≥2 emerging, ≥1 validation). Each query record carries axis_target (BlueDynamicsAxis), evidence_intent, time_window (from_year/to_year), sort_strategy (crossref/scopus/wos), sampling_strategy (mode/pages/rows_per_page/dedupe_key), and expected_signal. Added typed loader src/scientific_sources/live_query_protocol.py with frozen dataclasses (TimeWindow, SortStrategy, SamplingStrategy, LiveQuery, LiveQuerySector, LiveQueryProtocol), strict schema/minimum/uniqueness validation via LiveQueryProtocolError, and a to_legacy_query_groups() shim that renders the protocol into the exact shape consumed by scripts/export_live_research_records.py. The legacy config/research_queries.yml is UNCHANGED and remains the default input to the exporter; the new protocol is additive-only for this PR. All 36 legacy query strings are preserved verbatim in the core_sector family. Added tests/test_live_query_protocol.py with 36 test cases covering structural conformance of the shipped file, per-sector family minimums, workforce/emerging/EQF vocabulary presence, legacy-view slug/label/query parity, and 17 loader validation rejection scenarios.
+  Reason PR-190 requires a structured live query protocol registry with per-family minimums as Layer 0 of the live cumulative scientific database. The registry provides the vocabulary and sampling contract for downstream layers (novelty gates, cumulative DB, statistical report) without weakening any PR-186/187/189 safeguards.
+  Impact New protocol registry is available for consumption by follow-up PRs implementing Layers 1-5; legacy exporter contract is preserved verbatim via the backward-compat shim; run_full_analysis default execution, archive integrity validation, deterministic output generation, and manifest/checksum discipline are unaffected.
+  Provenance Registry sector labels are pinned to run_full_analysis.SECTORS (12 canonical blue economy sectors); axis assignments use src.core.BlueDynamicsAxis (MARINE/MARITIME/OCEANIC/HYDRONIZATION); competence and emerging vocabularies follow the PR-190 specification.
+  Quality checks 36/36 new tests pass (tests/test_live_query_protocol.py); MANIFEST_SOURCES.csv regenerated deterministically (1164 entries; +3 for the new files); config/research_queries.yml unchanged.
+  Reviewer @robertbartlomiejski
+
 - 2026-07-08 (feat: PR-187 publication step — rebuild cumulative cross-run evidence index and versioned data package v1.0.0 for both runs)
   Change type feat
   Scope outputs governance archive release

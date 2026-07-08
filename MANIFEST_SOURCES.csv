@@ -34,6 +34,7 @@ cloudbuild.live.yaml,other,,,,,,cloudbuild_live,no
 cloudbuild.yaml,other,,,,,,cloudbuild,no
 compose.debug.yaml,other,,,,,,compose_debug,no
 compose.yaml,other,,,,,,compose,no
+config/live_query_protocol.yml,other,,,,,,live_query_protocol,no
 config/research_provider_policy.yml,other,,,,,,research_provider_policy,no
 config/research_queries.yml,other,,,,,,research_queries,no
 config/research_sources.example.yml,other,,,,,,research_sources_example,no
@@ -1098,6 +1099,7 @@ src/scientific_sources/base.py,script,,,,,,base,yes
 src/scientific_sources/crossref.py,script,,,,,,crossref,yes
 src/scientific_sources/elsevier_scopus.py,script,,,,,,elsevier_scopus,yes
 src/scientific_sources/google_drive.py,script,,,,,,google_drive,yes
+src/scientific_sources/live_query_protocol.py,script,,,,,,live_query_protocol,yes
 src/scientific_sources/microsoft_graph.py,script,,,,,,microsoft_graph,yes
 src/scientific_sources/models.py,script,,,,,,models,yes
 src/scientific_sources/provenance.py,script,,,,,,provenance,yes
@@ -1142,6 +1144,7 @@ tests/test_gap_model.py,script,,,,,,test_gap_model,yes
 tests/test_generate_manifest.py,script,,,,,,test_generate_manifest,yes
 tests/test_ingest_manual_supporting_sources.py,script,,,,,,test_ingest_manual_supporting_sources,yes
 tests/test_literature_extraction.py,script,,,,,,test_literature_extraction,yes
+tests/test_live_query_protocol.py,script,,,,,,test_live_query_protocol,yes
 tests/test_load_real_competences.py,script,,,,,,test_load_real_competences,yes
 tests/test_main_entrypoints.py,script,,,,,,test_main_entrypoints,yes
 tests/test_nlp_reliability.py,script,,,,,,test_nlp_reliability,yes
