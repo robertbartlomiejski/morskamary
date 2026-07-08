@@ -97,6 +97,9 @@ __tablestorage__/
 # outputs/*.json
 # outputs/*.csv
 outputs/sectors/
+# Transient smoke-test artifact — generated at runtime, uploaded as CI artifact,
+# not committed; exclude so generate_manifest.py and sync_audit see a clean tree.
+outputs/research_api_smoke_report.json
 # outputs/sector_dictionaries/ — now tracked as committed artifacts (PR#98)
 # deep_update_patch bundle: generated outputs are regenerated at runtime
 deep_update_patch/outputs/

@@ -19,6 +19,15 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-08 (sync-audit: exclude transient smoke-test artifact from manifest scan and git tracking)
+  Change type fix
+  Scope governance scripts
+  Files affected .gitignore scripts/generate_manifest.py
+  Summary Added outputs/research_api_smoke_report.json to .gitignore (transient CI artifact uploaded by research-api-smoke.yml, never committed) and to IGNORED_FILE_BASENAMES in generate_manifest.py so the file is skipped during manifest scans. This prevents the local sync audit from reporting manifest drift when the smoke report exists on the developer's filesystem after a test run.
+  Reason Local sync audit (python scripts/sync_audit.py --strict) failed with manifest drift when outputs/research_api_smoke_report.json was present from a local test run. The file was not ignored by git or by generate_manifest.py, causing a spurious extra row in the regenerated manifest.
+  Impact sync_audit --strict now passes cleanly on a local checkout even after running the full test suite. No committed outputs change.
+  Quality checks python scripts/sync_audit.py --strict; git diff MANIFEST_SOURCES.csv (no diff); python -m pytest tests/ -q (837 passed).
+
 - 2026-07-08 (CI fix: test isolation, quick-mode-gate env, manifest sync, run-analysis exclusion)
   Change type fix
   Scope governance scripts tests ci
