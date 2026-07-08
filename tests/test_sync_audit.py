@@ -17,11 +17,12 @@ from sync_audit import (  # noqa: E402
     _file_hash,
     check_changelog_governance,
     check_git_status,
+    check_manifest_drift,
     check_mcp_config,
     check_outputs_drift,
     main,
+    status_label,
 )
-
 
 # ---------------------------------------------------------------------------
 # AuditReport
@@ -46,6 +47,25 @@ class TestAuditReport:
         assert not r.failed
         assert r.has_warnings
         assert r.warnings == ["hmm"]
+
+    def test_status_labels_are_ascii_safe(self):
+        assert status_label("ok") == "[OK]"
+        assert status_label("warn") == "[WARN]"
+        assert status_label("error") == "[ERROR]"
+        assert status_label("info") == "[INFO]"
+        for level in ("ok", "warn", "error", "info"):
+            assert status_label(level).isascii()
+
+    def test_audit_report_prints_ascii_only_output(self, capsys):
+        report = AuditReport()
+        report.ok("alpha")
+        report.warn("beta")
+        report.error("gamma")
+        captured = capsys.readouterr().out
+        assert captured.isascii()
+        assert "[OK]" in captured
+        assert "[WARN]" in captured
+        assert "[ERROR]" in captured
 
 
 # ---------------------------------------------------------------------------
@@ -84,7 +104,9 @@ class TestCheckGitStatus:
         mock_result_revlist = subprocess.CompletedProcess(
             args=[], returncode=0, stdout="0\t0", stderr=""
         )
-        with patch("sync_audit._run", side_effect=[mock_result_status, mock_result_revlist]):
+        with patch(
+            "sync_audit._run", side_effect=[mock_result_status, mock_result_revlist]
+        ):
             check_git_status(report)
         assert not report.failed
         assert not report.has_warnings
@@ -97,7 +119,9 @@ class TestCheckGitStatus:
         mock_result_revlist = subprocess.CompletedProcess(
             args=[], returncode=0, stdout="0\t0", stderr=""
         )
-        with patch("sync_audit._run", side_effect=[mock_result_status, mock_result_revlist]):
+        with patch(
+            "sync_audit._run", side_effect=[mock_result_status, mock_result_revlist]
+        ):
             check_git_status(report)
         assert not report.failed
         assert report.has_warnings
@@ -110,7 +134,9 @@ class TestCheckGitStatus:
         mock_result_revlist = subprocess.CompletedProcess(
             args=[], returncode=0, stdout="3\t0", stderr=""
         )
-        with patch("sync_audit._run", side_effect=[mock_result_status, mock_result_revlist]):
+        with patch(
+            "sync_audit._run", side_effect=[mock_result_status, mock_result_revlist]
+        ):
             check_git_status(report)
         assert report.has_warnings
 
@@ -122,7 +148,9 @@ class TestCheckGitStatus:
         mock_result_revlist = subprocess.CompletedProcess(
             args=[], returncode=0, stdout="0\t2", stderr=""
         )
-        with patch("sync_audit._run", side_effect=[mock_result_status, mock_result_revlist]):
+        with patch(
+            "sync_audit._run", side_effect=[mock_result_status, mock_result_revlist]
+        ):
             check_git_status(report)
         assert report.has_warnings
 
@@ -204,7 +232,9 @@ class TestCheckMcpConfig:
 class TestCheckChangelogGovernance:
     def test_changelog_exists(self, tmp_path):
         changelog = tmp_path / "CHANGELOG.txt"
-        changelog.write_text("- Entry 1\n- Entry 2\n- Entry 3\n- Entry 4\n", encoding="utf-8")
+        changelog.write_text(
+            "- Entry 1\n- Entry 2\n- Entry 3\n- Entry 4\n", encoding="utf-8"
+        )
         with patch("sync_audit.REPO_ROOT", tmp_path):
             report = AuditReport()
             check_changelog_governance(report)
@@ -218,6 +248,40 @@ class TestCheckChangelogGovernance:
 
 
 # ---------------------------------------------------------------------------
+# check_manifest_drift
+# ---------------------------------------------------------------------------
+
+
+class TestCheckManifestDrift:
+    def test_skips_when_only_runtime_untracked_artifacts_exist(self, tmp_path):
+        scripts_dir = tmp_path / "scripts"
+        scripts_dir.mkdir(parents=True)
+        (scripts_dir / "generate_manifest.py").write_text(
+            "print('ok')\n", encoding="utf-8"
+        )
+        (tmp_path / "MANIFEST_SOURCES.csv").write_text(
+            "file_name\nREADME.md\n", encoding="utf-8"
+        )
+
+        report = AuditReport()
+        mock_untracked = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout=(
+                "outputs/manual_sources/manual_sources_ledger.jsonl\n"
+                "outputs/run_archive/cross_run_evidence_index.csv\n"
+            ),
+            stderr="",
+        )
+        with patch("sync_audit.REPO_ROOT", tmp_path):
+            with patch("sync_audit._run", side_effect=[mock_untracked]):
+                check_manifest_drift(report)
+
+        assert not report.failed
+        assert report.has_warnings
+
+
+# ---------------------------------------------------------------------------
 # main() integration
 # ---------------------------------------------------------------------------
 
@@ -225,15 +289,18 @@ class TestCheckChangelogGovernance:
 class TestMain:
     def test_strict_mode_fails_on_warnings(self):
         """In strict mode, warnings count as failures."""
-        with patch("sync_audit.check_git_status") as mock_git, \
-             patch("sync_audit.check_outputs_drift"), \
-             patch("sync_audit.check_manifest_drift"), \
-             patch("sync_audit.check_provider_capabilities"), \
-             patch("sync_audit.check_mcp_config"), \
-             patch("sync_audit.check_changelog_governance"):
+        with (
+            patch("sync_audit.check_git_status") as mock_git,
+            patch("sync_audit.check_outputs_drift"),
+            patch("sync_audit.check_manifest_drift"),
+            patch("sync_audit.check_provider_capabilities"),
+            patch("sync_audit.check_mcp_config"),
+            patch("sync_audit.check_changelog_governance"),
+        ):
             # Inject a warning via side effect
             def add_warning(report):
                 report.warn("test warning")
+
             mock_git.side_effect = add_warning
 
             exit_code = main(["--strict"])
@@ -241,14 +308,18 @@ class TestMain:
 
     def test_normal_mode_passes_with_warnings(self):
         """In normal mode, warnings don't cause failure."""
-        with patch("sync_audit.check_git_status") as mock_git, \
-             patch("sync_audit.check_outputs_drift"), \
-             patch("sync_audit.check_manifest_drift"), \
-             patch("sync_audit.check_provider_capabilities"), \
-             patch("sync_audit.check_mcp_config"), \
-             patch("sync_audit.check_changelog_governance"):
+        with (
+            patch("sync_audit.check_git_status") as mock_git,
+            patch("sync_audit.check_outputs_drift"),
+            patch("sync_audit.check_manifest_drift"),
+            patch("sync_audit.check_provider_capabilities"),
+            patch("sync_audit.check_mcp_config"),
+            patch("sync_audit.check_changelog_governance"),
+        ):
+
             def add_warning(report):
                 report.warn("test warning")
+
             mock_git.side_effect = add_warning
 
             exit_code = main([])
@@ -256,14 +327,18 @@ class TestMain:
 
     def test_errors_cause_failure(self):
         """Errors always cause failure."""
-        with patch("sync_audit.check_git_status") as mock_git, \
-             patch("sync_audit.check_outputs_drift"), \
-             patch("sync_audit.check_manifest_drift"), \
-             patch("sync_audit.check_provider_capabilities"), \
-             patch("sync_audit.check_mcp_config"), \
-             patch("sync_audit.check_changelog_governance"):
+        with (
+            patch("sync_audit.check_git_status") as mock_git,
+            patch("sync_audit.check_outputs_drift"),
+            patch("sync_audit.check_manifest_drift"),
+            patch("sync_audit.check_provider_capabilities"),
+            patch("sync_audit.check_mcp_config"),
+            patch("sync_audit.check_changelog_governance"),
+        ):
+
             def add_error(report):
                 report.error("critical issue")
+
             mock_git.side_effect = add_error
 
             exit_code = main([])
@@ -284,29 +359,50 @@ class TestCISafety:
         )
         # Simulate failure from no upstream (detached HEAD in CI)
         mock_result_revlist = subprocess.CompletedProcess(
-            args=[], returncode=128,
+            args=[],
+            returncode=128,
             stdout="",
-            stderr="fatal: no upstream configured for branch"
+            stderr="fatal: no upstream configured for branch",
         )
-        with patch("sync_audit._run", side_effect=[mock_result_status, mock_result_revlist]):
+        with patch(
+            "sync_audit._run", side_effect=[mock_result_status, mock_result_revlist]
+        ):
             check_git_status(report)
         assert not report.failed
         assert not report.has_warnings
 
-    def test_provider_capability_reexport_no_false_drift_from_generated_at(self, tmp_path):
+    def test_provider_capability_reexport_no_false_drift_from_generated_at(
+        self, tmp_path
+    ):
         """Re-export with only generated_at/configured changes should not warn."""
         old_data = {
             "generated_at": "2026-01-01T00:00:00Z",
             "providers": {
-                "crossref": {"provider": "Crossref", "configured": True, "requires_secret": False},
-                "scopus": {"provider": "Scopus", "configured": False, "requires_secret": True},
+                "crossref": {
+                    "provider": "Crossref",
+                    "configured": True,
+                    "requires_secret": False,
+                },
+                "scopus": {
+                    "provider": "Scopus",
+                    "configured": False,
+                    "requires_secret": True,
+                },
             },
         }
         new_data = {
             "generated_at": "2026-05-22T12:00:00Z",
             "providers": {
-                "crossref": {"provider": "Crossref", "configured": True, "requires_secret": False},
-                "scopus": {"provider": "Scopus", "configured": True, "requires_secret": True},
+                "crossref": {
+                    "provider": "Crossref",
+                    "configured": True,
+                    "requires_secret": False,
+                },
+                "scopus": {
+                    "provider": "Scopus",
+                    "configured": True,
+                    "requires_secret": True,
+                },
             },
         }
         assert _capabilities_semantically_equal(old_data, new_data)
@@ -316,14 +412,26 @@ class TestCISafety:
         old_data = {
             "generated_at": "2026-01-01T00:00:00Z",
             "providers": {
-                "crossref": {"provider": "Crossref", "configured": True, "requires_secret": False},
+                "crossref": {
+                    "provider": "Crossref",
+                    "configured": True,
+                    "requires_secret": False,
+                },
             },
         }
         new_data = {
             "generated_at": "2026-05-22T12:00:00Z",
             "providers": {
-                "crossref": {"provider": "Crossref", "configured": True, "requires_secret": False},
-                "scopus": {"provider": "Scopus", "configured": True, "requires_secret": True},
+                "crossref": {
+                    "provider": "Crossref",
+                    "configured": True,
+                    "requires_secret": False,
+                },
+                "scopus": {
+                    "provider": "Scopus",
+                    "configured": True,
+                    "requires_secret": True,
+                },
             },
         }
         assert not _capabilities_semantically_equal(old_data, new_data)

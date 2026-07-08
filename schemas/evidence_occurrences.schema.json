@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/evidence_occurrences.schema.json",
+  "title": "Evidence occurrences row",
+  "type": "object",
+  "required": [
+    "occurrence_pk",
+    "record_pk",
+    "run_pk",
+    "bundle_pk",
+    "dataset_code",
+    "dataset_label",
+    "provider_code",
+    "provider_label",
+    "occurrence_type_code",
+    "occurrence_type_label",
+    "timestamp_utc"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "occurrence_pk": { "type": "string", "minLength": 1 },
+    "record_pk": { "type": "string", "minLength": 1 },
+    "run_pk": { "type": "string", "minLength": 1 },
+    "bundle_pk": { "type": "string" },
+    "dataset_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, 4, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "dataset_label",
+      "x-value-labels": {
+        "1": "live_records",
+        "2": "live_records_triangulated",
+        "3": "cumulative_qmbd_records",
+        "4": "manual_supporting_sources",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, 4, -99, -98, -97, -96, -95]
+    },
+    "dataset_label": { "type": "string", "minLength": 1 },
+    "provider_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, 4, 5, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "provider_label",
+      "x-value-labels": {
+        "1": "crossref",
+        "2": "scopus",
+        "3": "wos",
+        "4": "manual",
+        "5": "historical_bundle",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, 4, 5, -99, -98, -97, -96, -95]
+    },
+    "provider_label": { "type": "string", "minLength": 1 },
+    "occurrence_type_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "occurrence_type_label",
+      "x-value-labels": {
+        "1": "run_observation",
+        "2": "manual_ledger_entry",
+        "3": "historical_bundle_recount",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, -99, -98, -97, -96, -95]
+    },
+    "occurrence_type_label": { "type": "string", "minLength": 1 },
+    "timestamp_utc": { "type": "string", "minLength": 1 }
+  }
+}

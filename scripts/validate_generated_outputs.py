@@ -61,6 +61,17 @@ REQUIRED_CREDENTIAL_FIELDS = (
     "competences",
 )
 
+REQUIRED_CUMULATIVE_METADATA_FIELDS = (
+    "analysis_input_mode",
+    "is_static_recovery_mode",
+    "static_recovery_reason",
+    "allow_static_recovery_mode_env",
+    "provider_set",
+    "github_run_id",
+    "commit_sha",
+    "timestamp_utc",
+)
+
 ERRORS: list[str] = []
 WARNINGS: list[str] = []
 
@@ -362,11 +373,31 @@ def load_cumulative_qmbd_records(path: Path) -> list[dict]:
         fail(f"{path.name}: invalid JSON: {exc}")
         return []
 
-    if not isinstance(data, list):
+    metadata: dict[str, object] = {}
+    if isinstance(data, dict):
+        metadata_candidate = data.get("metadata", {})
+        records_candidate = data.get("records", [])
+        if not isinstance(metadata_candidate, dict):
+            fail(f"{path.name}: top-level 'metadata' must be an object")
+        else:
+            metadata = metadata_candidate
+        if not isinstance(records_candidate, list):
+            fail(f"{path.name}: top-level 'records' must be a list")
+            return []
+        data = records_candidate
+    elif not isinstance(data, list):
         fail(
-            f"{path.name}: expected a list of records, got {type(data).__name__}"
+            f"{path.name}: expected a list of records or object payload, got "
+            f"{type(data).__name__}"
         )
         return []
+
+    for field in REQUIRED_CUMULATIVE_METADATA_FIELDS:
+        if field not in metadata:
+            fail(f"{path.name}: metadata missing required field '{field}'")
+    warnings = metadata.get("warnings", [])
+    if warnings and not isinstance(warnings, list):
+        fail(f"{path.name}: metadata field 'warnings' must be a list when present")
 
     # Fields required for all records regardless of origin
     base_required_fields = ("source_id", "title", "qmbd_analysis")

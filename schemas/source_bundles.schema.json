@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/source_bundles.schema.json",
+  "title": "Source bundles row",
+  "type": "object",
+  "required": [
+    "bundle_pk",
+    "run_pk",
+    "bundle_id",
+    "bundle_type_code",
+    "bundle_type_label",
+    "compatibility_status_code",
+    "compatibility_status_label",
+    "source_path",
+    "extracted_dir",
+    "bundle_sha256"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "bundle_pk": { "type": "string", "minLength": 1 },
+    "run_pk": { "type": "string", "minLength": 1 },
+    "bundle_id": { "type": "string", "minLength": 1 },
+    "bundle_type_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "bundle_type_label",
+      "x-value-labels": {
+        "1": "historical_zip",
+        "2": "historical_directory",
+        "3": "manual_source_bundle",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, -99, -98, -97, -96, -95]
+    },
+    "bundle_type_label": { "type": "string", "minLength": 1 },
+    "compatibility_status_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, 4, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "compatibility_status_label",
+      "x-value-labels": {
+        "1": "compatible",
+        "2": "incompatible",
+        "3": "invalid",
+        "4": "missing",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, 4, -99, -98, -97, -96, -95]
+    },
+    "compatibility_status_label": { "type": "string", "minLength": 1 },
+    "source_path": { "type": "string", "minLength": 1 },
+    "extracted_dir": { "type": "string" },
+    "bundle_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

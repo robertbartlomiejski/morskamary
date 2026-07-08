@@ -39,8 +39,20 @@ def load_records(path: Path) -> list[dict[str, Any]] | None:
         print(f"ERROR: {path} could not be read: {exc}")
         return None
 
-    if not isinstance(data, list):
-        print(f"ERROR: {path} must contain a JSON list, got {type(data).__name__}")
+    if isinstance(data, dict):
+        records = data.get("records")
+        if not isinstance(records, list):
+            print(
+                f"ERROR: {path} object payload must contain a 'records' list, "
+                f"got {type(records).__name__}"
+            )
+            return None
+        data = records
+    elif not isinstance(data, list):
+        print(
+            f"ERROR: {path} must contain a JSON list or object payload, "
+            f"got {type(data).__name__}"
+        )
         return None
 
     non_objects = sum(1 for item in data if not isinstance(item, dict))

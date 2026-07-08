@@ -866,6 +866,20 @@
           "year": "2017",
           "doi": "10.15274/TPJ.2017.02.02.06"
         }
+      },
+      {
+        "id": "lit_live_crossref_00264",
+        "name": "Live API (Crossref): The sources and magnitude of the economic impact on a local economy fr",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The sources and magnitude of the economic impact on a local economy from cruise activities: evidence from Port Canaveral (B. M. Braun, F. Tramell, 2006).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 264,
+          "paper_title": "The sources and magnitude of the economic impact on a local economy from cruise activities: evidence from Port Canaveral",
+          "authors": "B. M. Braun, F. Tramell",
+          "year": "2006",
+          "doi": "10.1079/9781845930486.0280"
+        }
       }
     ],
     "OCEANIC": [
@@ -3178,8 +3192,1927 @@
           "year": "2022",
           "doi": "10.1080/02508060.2022.2131156"
         }
+      },
+      {
+        "id": "lit_live_crossref_00044",
+        "name": "Live API (Crossref): Conceptualizing the interplay between blue justice, blue economy, and",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Conceptualizing the interplay between blue justice, blue economy, and blue governance (Carolijn van Noort, Mia Cassidy Prall, Furqan Asif, Nelson F, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 44,
+          "paper_title": "Conceptualizing the interplay between blue justice, blue economy, and blue governance",
+          "authors": "Carolijn van Noort, Mia Cassidy Prall, Furqan Asif, Nelson F. Coelho",
+          "year": "2026",
+          "doi": "10.1016/j.marpol.2025.106939"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00046",
+        "name": "Live API (Crossref): Blue Economy Policies and Marine Governance in Developed and Developin",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy Policies and Marine Governance in Developed and Developing Nations: Canada and Sri Lanka as Examples (Chanuka Swarnathilake, K. Udani, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 46,
+          "paper_title": "Blue Economy Policies and Marine Governance in Developed and Developing Nations: Canada and Sri Lanka as Examples",
+          "authors": "Chanuka Swarnathilake, K. Udani",
+          "year": "2026",
+          "doi": "10.1007/978-3-032-13638-1_13"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00048",
+        "name": "Live API (Crossref): Blue Economy Innovation: Enhancing Marine Resilience Through Sustainab",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy Innovation: Enhancing Marine Resilience Through Sustainable Technologies (Thangjam Ravichandra, Smrita Jain, Rashmi Prasad, Anisha Pur, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 48,
+          "paper_title": "Blue Economy Innovation: Enhancing Marine Resilience Through Sustainable Technologies",
+          "authors": "Thangjam Ravichandra, Smrita Jain, Rashmi Prasad, Anisha Puri, Vijay Prakash Gupta",
+          "year": "2026",
+          "doi": "10.1007/978-3-032-13638-1_14"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00132",
+        "name": "Live API (Crossref): Challenges of Overtourism in Coastal Iceland",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Challenges of Overtourism in Coastal Iceland (Edita Tverijonaite, Anna Dóra Sæþórsdóttir, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 132,
+          "paper_title": "Challenges of Overtourism in Coastal Iceland",
+          "authors": "Edita Tverijonaite, Anna Dóra Sæþórsdóttir",
+          "year": "2024",
+          "doi": "10.1007/978-3-031-73187-7_12"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00133",
+        "name": "Live API (Crossref): The Framework of Overtourism Management in Coastal Destinations Using",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Framework of Overtourism Management in Coastal Destinations Using the Smart Tourism Approach (Nastaran Pouyanzadeh, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 133,
+          "paper_title": "The Framework of Overtourism Management in Coastal Destinations Using the Smart Tourism Approach",
+          "authors": "Nastaran Pouyanzadeh",
+          "year": "2025",
+          "doi": "10.4018/979-8-3693-8347-6.ch006"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00134",
+        "name": "Live API (Crossref): The end of tourism through ‘localhood’ and ‘overtourism’?",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The end of tourism through ‘localhood’ and ‘overtourism’? (Michael Volgger, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 134,
+          "paper_title": "The end of tourism through ‘localhood’ and ‘overtourism’?",
+          "authors": "Michael Volgger",
+          "year": "2019",
+          "doi": "10.4324/9780429197987-15"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00135",
+        "name": "Live API (Crossref): Overtourism and resistance",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Overtourism and resistance (Michael Clancy, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 135,
+          "paper_title": "Overtourism and resistance",
+          "authors": "Michael Clancy",
+          "year": "2019",
+          "doi": "10.4324/9780429197987-2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00136",
+        "name": "Live API (Crossref): Decommodifying nature through commoning: an alternative for tourism an",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decommodifying nature through commoning: an alternative for tourism and private protected areas (Nora Müller, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 136,
+          "paper_title": "Decommodifying nature through commoning: an alternative for tourism and private protected areas",
+          "authors": "Nora Müller",
+          "year": "2024",
+          "doi": "10.1080/14616688.2024.2446355"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00137",
+        "name": "Live API (Crossref): Analysis of the Accommodation Density in Coastal Tourism Areas of Insu",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Analysis of the Accommodation Density in Coastal Tourism Areas of Insular Destinations from the Perspective of Overtouri (Moisés Simancas Cruz, María Pilar Peñarrubia Zaragoza, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 137,
+          "paper_title": "Analysis of the Accommodation Density in Coastal Tourism Areas of Insular Destinations from the Perspective of Overtouri",
+          "authors": "Moisés Simancas Cruz, María Pilar Peñarrubia Zaragoza",
+          "year": "2019",
+          "doi": "10.3390/su11113031"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00138",
+        "name": "Live API (Crossref): From Carrying Capacity to Overtourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: From Carrying Capacity to Overtourism (Marcus Herntrei, Veronika Jánová, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 138,
+          "paper_title": "From Carrying Capacity to Overtourism",
+          "authors": "Marcus Herntrei, Veronika Jánová",
+          "year": "2024",
+          "doi": "10.4324/9781003365815-3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00139",
+        "name": "Live API (Crossref): Overtourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Overtourism (Elisa Innerhofer, Greta Erschbamer, Harald Pechlaner, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 139,
+          "paper_title": "Overtourism",
+          "authors": "Elisa Innerhofer, Greta Erschbamer, Harald Pechlaner",
+          "year": "2019",
+          "doi": "10.4324/9780429197987-1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00140",
+        "name": "Live API (Crossref): Management strategies for overtourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Management strategies for overtourism (Ko Koens, Albert Postma, Bernadett Papp, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 140,
+          "paper_title": "Management strategies for overtourism",
+          "authors": "Ko Koens, Albert Postma, Bernadett Papp",
+          "year": "2019",
+          "doi": "10.4324/9780429197987-11"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00141",
+        "name": "Live API (Crossref): Sustainability Priorities Disclosures in Annual Reports and the Contri",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sustainability Priorities Disclosures in Annual Reports and the Contribution of Museums to Sustainable Development and O (Elena Borin, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 141,
+          "paper_title": "Sustainability Priorities Disclosures in Annual Reports and the Contribution of Museums to Sustainable Development and O",
+          "authors": "Elena Borin",
+          "year": "2024",
+          "doi": "10.4324/9781003365815-13"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00142",
+        "name": "Live API (Crossref): Resilience Agility in Tourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Resilience Agility in Tourism (Anastasia Traskevich, Martin Fontanari, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 142,
+          "paper_title": "Resilience Agility in Tourism",
+          "authors": "Anastasia Traskevich, Martin Fontanari",
+          "year": "2024",
+          "doi": "10.4324/9781003365815-25"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00143",
+        "name": "Live API (Crossref): Overcrowding of tourism destinations",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Overcrowding of tourism destinations (Egon Smeral, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 143,
+          "paper_title": "Overcrowding of tourism destinations",
+          "authors": "Egon Smeral",
+          "year": "2019",
+          "doi": "10.4324/9780429197987-12"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00144",
+        "name": "Live API (Crossref): Excursus",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Excursus (Hans Müller, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 144,
+          "paper_title": "Excursus",
+          "authors": "Hans Müller",
+          "year": "2024",
+          "doi": "10.4324/9781003365815-6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00145",
+        "name": "Live API (Crossref): How to manage the threatening phenomenon of ‘overtourism’?",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: How to manage the threatening phenomenon of ‘overtourism’? (Petra Tschöll, Clemens Költringer, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 145,
+          "paper_title": "How to manage the threatening phenomenon of ‘overtourism’?",
+          "authors": "Petra Tschöll, Clemens Költringer",
+          "year": "2019",
+          "doi": "10.4324/9780429197987-13"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00146",
+        "name": "Live API (Crossref): From Overtourism to Sustainability Governance",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: From Overtourism to Sustainability Governance (Harald Pechlaner, Elisa Innerhofer, Julian Philipp, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 146,
+          "paper_title": "From Overtourism to Sustainability Governance",
+          "authors": "Harald Pechlaner, Elisa Innerhofer, Julian Philipp",
+          "year": "2024",
+          "doi": "10.4324/9781003365815"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00147",
+        "name": "Live API (Crossref): Destination Design for Sustainable Tourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Destination Design for Sustainable Tourism (Greta Erschbamer, Natalie Olbrich, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 147,
+          "paper_title": "Destination Design for Sustainable Tourism",
+          "authors": "Greta Erschbamer, Natalie Olbrich",
+          "year": "2024",
+          "doi": "10.4324/9781003365815-22"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00148",
+        "name": "Live API (Crossref): Problem and solution awareness in overtourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Problem and solution awareness in overtourism (Martin Fontanari, Berit Berger-Risthaus, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 148,
+          "paper_title": "Problem and solution awareness in overtourism",
+          "authors": "Martin Fontanari, Berit Berger-Risthaus",
+          "year": "2019",
+          "doi": "10.4324/9780429197987-4"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00149",
+        "name": "Live API (Crossref): Sustainability Analysis of Coastal Eco-tourism Management of Bawean Is",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sustainability Analysis of Coastal Eco-tourism Management of Bawean Island, East Java (Haryo Armono, Zainul Hidayah, Nike Nuzula, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 149,
+          "paper_title": "Sustainability Analysis of Coastal Eco-tourism Management of Bawean Island, East Java",
+          "authors": "Haryo Armono, Zainul Hidayah, Nike Nuzula",
+          "year": "2018",
+          "doi": "10.5220/0008653801760183"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00150",
+        "name": "Live API (Crossref): Acting Responsibly for Sustainable Tourism Development",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Acting Responsibly for Sustainable Tourism Development (Sarah Schönherr, Mike Peters, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 150,
+          "paper_title": "Acting Responsibly for Sustainable Tourism Development",
+          "authors": "Sarah Schönherr, Mike Peters",
+          "year": "2024",
+          "doi": "10.4324/9781003365815-15"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00151",
+        "name": "Live API (Crossref): Addressing the Limits to Growth in Tourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Addressing the Limits to Growth in Tourism (Felix Windegger, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 151,
+          "paper_title": "Addressing the Limits to Growth in Tourism",
+          "authors": "Felix Windegger",
+          "year": "2024",
+          "doi": "10.4324/9781003365815-14"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00152",
+        "name": "Live API (Crossref): Key themes for tourism development management",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Key themes for tourism development management (Damiano De Marchi, Mara Manente, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 152,
+          "paper_title": "Key themes for tourism development management",
+          "authors": "Damiano De Marchi, Mara Manente",
+          "year": "2019",
+          "doi": "10.4324/9780429197987-9"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00153",
+        "name": "Live API (Crossref): Spotting Overtourism and Identifying Actions to Address It with the He",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Spotting Overtourism and Identifying Actions to Address It with the Help of the Visitor Flow Approach (Pietro Beritelli, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 153,
+          "paper_title": "Spotting Overtourism and Identifying Actions to Address It with the Help of the Visitor Flow Approach",
+          "authors": "Pietro Beritelli",
+          "year": "2024",
+          "doi": "10.4324/9781003365815-20"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00154",
+        "name": "Live API (Crossref): Benefits of an Integrative Tourism Policy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Benefits of an Integrative Tourism Policy (Mirjam Gruber, Elisa Innerhofer, Maximilian Walder, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 154,
+          "paper_title": "Benefits of an Integrative Tourism Policy",
+          "authors": "Mirjam Gruber, Elisa Innerhofer, Maximilian Walder",
+          "year": "2024",
+          "doi": "10.4324/9781003365815-24"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00155",
+        "name": "Live API (Crossref): UNESCO, cultural heritage sites and tourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: UNESCO, cultural heritage sites and tourism (Marilena Vecco, Josephine Caust, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 155,
+          "paper_title": "UNESCO, cultural heritage sites and tourism",
+          "authors": "Marilena Vecco, Josephine Caust",
+          "year": "2019",
+          "doi": "10.4324/9780429197987-5"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00156",
+        "name": "Live API (Crossref): Who is the city for? Overtourism, lifestyle migration and social susta",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Who is the city for? Overtourism, lifestyle migration and social sustainability (Jaime Jover, Ibán Díaz-Parra, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 156,
+          "paper_title": "Who is the city for? Overtourism, lifestyle migration and social sustainability",
+          "authors": "Jaime Jover, Ibán Díaz-Parra",
+          "year": "2023",
+          "doi": "10.4324/9781003358282-2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00157",
+        "name": "Live API (Crossref): Culture, Tourism and Future Risks of Overtourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Culture, Tourism and Future Risks of Overtourism (Polyxeni Moira, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 157,
+          "paper_title": "Culture, Tourism and Future Risks of Overtourism",
+          "authors": "Polyxeni Moira",
+          "year": "2026",
+          "doi": "10.1007/978-3-032-14082-1_2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00158",
+        "name": "Live API (Crossref): Visitor management in world heritage sites: Does overtourism-driven tr",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Visitor management in world heritage sites: Does overtourism-driven traffic management affect tourist targets, behaviour (Anna Scuttari, Giulia Isetti, Daria Habicher, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 158,
+          "paper_title": "Visitor management in world heritage sites: Does overtourism-driven traffic management affect tourist targets, behaviour",
+          "authors": "Anna Scuttari, Giulia Isetti, Daria Habicher",
+          "year": "2019",
+          "doi": "10.4324/9780429197987-14"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00159",
+        "name": "Live API (Crossref): Beyond Sun and Sand",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Beyond Sun and Sand (Paulo Martins, Antonia Correia, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 159,
+          "paper_title": "Beyond Sun and Sand",
+          "authors": "Paulo Martins, Antonia Correia",
+          "year": "2024",
+          "doi": "10.4324/9781003365815-8"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00160",
+        "name": "Live API (Crossref): Between seasonality and overtourism in seaside destinations",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Between seasonality and overtourism in seaside destinations (Marika Gon, Luca Grassetti, Francesco Marangon, Laura Rizzi,, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 160,
+          "paper_title": "Between seasonality and overtourism in seaside destinations",
+          "authors": "Marika Gon, Luca Grassetti, Francesco Marangon, Laura Rizzi, Stefania Troiano",
+          "year": "2019",
+          "doi": "10.4324/9780429197987-10"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00161",
+        "name": "Live API (Crossref): Demarketing overtourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Demarketing overtourism (Maximiliano Korstanje, Babu George, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 161,
+          "paper_title": "Demarketing overtourism",
+          "authors": "Maximiliano Korstanje, Babu George",
+          "year": "2020",
+          "doi": "10.4324/9781003031765-8"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00162",
+        "name": "Live API (Crossref): Visitor management in highly-visited attractions",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Visitor management in highly-visited attractions (Ady Milman, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 162,
+          "paper_title": "Visitor management in highly-visited attractions",
+          "authors": "Ady Milman",
+          "year": "2019",
+          "doi": "10.4324/9780429197987-8"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00163",
+        "name": "Live API (Crossref): Overtourism in Coastal Territories in the Perspective of Cruise Touris",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Overtourism in Coastal Territories in the Perspective of Cruise Tourism (Mónica Morais de Brito, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 163,
+          "paper_title": "Overtourism in Coastal Territories in the Perspective of Cruise Tourism",
+          "authors": "Mónica Morais de Brito",
+          "year": "2021",
+          "doi": "10.4018/978-1-7998-4318-4.ch017"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00164",
+        "name": "Live API (Crossref): Overtourism and Tourism Sustainable Management in the Komodo National",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Overtourism and Tourism Sustainable Management in the Komodo National Park, Indonesia (Reiza Miftah Wirakusuma, Sarah Gardiner, Alexandra Coghlan, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 164,
+          "paper_title": "Overtourism and Tourism Sustainable Management in the Komodo National Park, Indonesia",
+          "authors": "Reiza Miftah Wirakusuma, Sarah Gardiner, Alexandra Coghlan",
+          "year": "2024",
+          "doi": "10.1079/tourism.2024.0026"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00165",
+        "name": "Live API (Crossref): The impact of tourism education on tourism destination performance and",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The impact of tourism education on tourism destination performance and sustainability (Ovidiu I. Moisescu, Oana A. Gică, Monica M. Coroş, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 165,
+          "paper_title": "The impact of tourism education on tourism destination performance and sustainability",
+          "authors": "Ovidiu I. Moisescu, Oana A. Gică, Monica M. Coroş",
+          "year": "2020",
+          "doi": "10.4324/9781003031765-10"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00166",
+        "name": "Live API (Crossref): Focusing at the Very Local Scale to Measure, Understand and Manage Ove",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Focusing at the Very Local Scale to Measure, Understand and Manage Overtourism (Raúl Hernández-Martín, Julia Schiemann, Hugo Padrón-Ávila, Y, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 166,
+          "paper_title": "Focusing at the Very Local Scale to Measure, Understand and Manage Overtourism",
+          "authors": "Raúl Hernández-Martín, Julia Schiemann, Hugo Padrón-Ávila, Yurena Rodríguez-Rodríguez",
+          "year": "2024",
+          "doi": "10.4324/9781003365815-12"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00167",
+        "name": "Live API (Crossref): Education as a Strategy to Tackle Over Tourism for Overtourism and Inc",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Education as a Strategy to Tackle Over Tourism for Overtourism and Inclusive Sustainability in the Twenty-First Century (Maximiliano E. Korstanje, Babu P. George, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 167,
+          "paper_title": "Education as a Strategy to Tackle Over Tourism for Overtourism and Inclusive Sustainability in the Twenty-First Century",
+          "authors": "Maximiliano E. Korstanje, Babu P. George",
+          "year": "2020",
+          "doi": "10.1007/978-3-030-42458-9_18"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00168",
+        "name": "Live API (Crossref): Conceptualising overtourism: A sustainability approach",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Conceptualising overtourism: A sustainability approach (Tanja Mihalic, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 168,
+          "paper_title": "Conceptualising overtourism: A sustainability approach",
+          "authors": "Tanja Mihalic",
+          "year": "2020",
+          "doi": "10.1016/j.annals.2020.103025"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00169",
+        "name": "Live API (Crossref): Residents’ Attitudes towards Overtourism from the Perspective of Touri",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Residents’ Attitudes towards Overtourism from the Perspective of Tourism Impacts and Cooperation—The Case of Ljubljana (Kir Kuščer, Tanja Mihalič, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 169,
+          "paper_title": "Residents’ Attitudes towards Overtourism from the Perspective of Tourism Impacts and Cooperation—The Case of Ljubljana",
+          "authors": "Kir Kuščer, Tanja Mihalič",
+          "year": "2019",
+          "doi": "10.3390/su11061823"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00170",
+        "name": "Live API (Crossref): Overtourism, education, and the tourism area life cycle model",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Overtourism, education, and the tourism area life cycle model (Richard W. Butler, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 170,
+          "paper_title": "Overtourism, education, and the tourism area life cycle model",
+          "authors": "Richard W. Butler",
+          "year": "2020",
+          "doi": "10.4324/9781003031765-3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00171",
+        "name": "Live API (Crossref): Destinations During and After the Lockdown",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Destinations During and After the Lockdown (Jan van der Borg, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 171,
+          "paper_title": "Destinations During and After the Lockdown",
+          "authors": "Jan van der Borg",
+          "year": "2024",
+          "doi": "10.4324/9781003365815-4"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00172",
+        "name": "Live API (Crossref): Last Chance to Behave Badly at Uluṟu, Australia",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Last Chance to Behave Badly at Uluṟu, Australia (Christof Pforr, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 172,
+          "paper_title": "Last Chance to Behave Badly at Uluṟu, Australia",
+          "authors": "Christof Pforr",
+          "year": "2024",
+          "doi": "10.4324/9781003365815-19"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00173",
+        "name": "Live API (Crossref): Overtourism and its Impact on Transport and Sustainability in Coastal",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Overtourism and its Impact on Transport and Sustainability in Coastal Destinations: Evidence From Southern Europe (Joanna Kizielewicz, Agnieszka Niezgoda, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 173,
+          "paper_title": "Overtourism and its Impact on Transport and Sustainability in Coastal Destinations: Evidence From Southern Europe",
+          "authors": "Joanna Kizielewicz, Agnieszka Niezgoda",
+          "year": "2025",
+          "doi": "10.2478/ijcm-2025-0017"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00174",
+        "name": "Live API (Crossref): The Link between Sustainable Tourism, Tourism Carrying Capacity and Ov",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Link between Sustainable Tourism, Tourism Carrying Capacity and Overtourism (Lino Briguglio, Marie Avellino, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 174,
+          "paper_title": "The Link between Sustainable Tourism, Tourism Carrying Capacity and Overtourism",
+          "authors": "Lino Briguglio, Marie Avellino",
+          "year": "2026",
+          "doi": "10.4324/9781003609940-18"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00175",
+        "name": "Live API (Crossref): Tourism, Sustainability, and the Resilience of Greenlandic Coastal Com",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Tourism, Sustainability, and the Resilience of Greenlandic Coastal Communities (Gestur Hovgaard, Heidi Vorre, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 175,
+          "paper_title": "Tourism, Sustainability, and the Resilience of Greenlandic Coastal Communities",
+          "authors": "Gestur Hovgaard, Heidi Vorre",
+          "year": "2024",
+          "doi": "10.1007/978-3-031-73187-7_3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00176",
+        "name": "Live API (Crossref): Accidental oil spills and pipeline leakages threaten marine livelihood",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Accidental oil spills and pipeline leakages threaten marine livelihoods and blue economy development in the Niger Delta (Tamaramiebi Timidi, Benedict UGBOMAH, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 176,
+          "paper_title": "Accidental oil spills and pipeline leakages threaten marine livelihoods and blue economy development in the Niger Delta",
+          "authors": "Tamaramiebi Timidi, Benedict UGBOMAH",
+          "year": "2026",
+          "doi": "10.21203/rs.3.rs-8627153/v1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00177",
+        "name": "Live API (Crossref): Achieving sustainable fisheries and livelihoods from Sasi Laut in a bl",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Achieving sustainable fisheries and livelihoods from Sasi Laut in a blue economy in Indonesia (Arnoldus S. Ananta, Reniel B. Cabral, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 177,
+          "paper_title": "Achieving sustainable fisheries and livelihoods from Sasi Laut in a blue economy in Indonesia",
+          "authors": "Arnoldus S. Ananta, Reniel B. Cabral",
+          "year": "2026",
+          "doi": "10.1016/j.marpol.2026.107032"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00178",
+        "name": "Live API (Crossref): Between the Devil and the Deep Blue Sea:",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Between the Devil and the Deep Blue Sea: (ERLET CATER, 2003).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 178,
+          "paper_title": "Between the Devil and the Deep Blue Sea:",
+          "authors": "ERLET CATER",
+          "year": "2003",
+          "doi": "10.2307/jj.27195476.9"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00179",
+        "name": "Live API (Crossref): Marine ecotourism resources",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine ecotourism resources. (C. Cater, E. Cater, 2007).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 179,
+          "paper_title": "Marine ecotourism resources.",
+          "authors": "C. Cater, E. Cater",
+          "year": "2007",
+          "doi": "10.1079/9781845932596.0046"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00180",
+        "name": "Live API (Crossref): Marine ecotourism in context",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine ecotourism in context. (C. Cater, E. Cater, 2007).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 180,
+          "paper_title": "Marine ecotourism in context.",
+          "authors": "C. Cater, E. Cater",
+          "year": "2007",
+          "doi": "10.1079/9781845932596.0025"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00181",
+        "name": "Live API (Crossref): The marine ecotourism industry",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The marine ecotourism industry. (C. Cater, E. Cater, 2007).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 181,
+          "paper_title": "The marine ecotourism industry.",
+          "authors": "C. Cater, E. Cater",
+          "year": "2007",
+          "doi": "10.1079/9781845932596.0178"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00182",
+        "name": "Live API (Crossref): Marine Pollution Risk Management in Marine Resources Governance and Im",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Pollution Risk Management in Marine Resources Governance and Implications for the Blue Economy (Triyani Triyani, Lukman  Yudho Prakoso, Panji Suwarno, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 182,
+          "paper_title": "Marine Pollution Risk Management in Marine Resources Governance and Implications for the Blue Economy",
+          "authors": "Triyani Triyani, Lukman  Yudho Prakoso, Panji Suwarno",
+          "year": "2025",
+          "doi": "10.2139/ssrn.5074161"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00183",
+        "name": "Live API (Crossref): 2. Between the Devil and the Deep Blue Sea: Dilemmas for Marine Ecotou",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: 2. Between the Devil and the Deep Blue Sea: Dilemmas for Marine Ecotourism (Erlet Cater, 2003).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 183,
+          "paper_title": "2. Between the Devil and the Deep Blue Sea: Dilemmas for Marine Ecotourism",
+          "authors": "Erlet Cater",
+          "year": "2003",
+          "doi": "10.21832/9781873150436-006"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00184",
+        "name": "Live API (Crossref): Marine ecotourism attractions and activities",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine ecotourism attractions and activities. (C. Cater, E. Cater, 2007).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 184,
+          "paper_title": "Marine ecotourism attractions and activities.",
+          "authors": "C. Cater, E. Cater",
+          "year": "2007",
+          "doi": "10.1079/9781845932596.0077"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00185",
+        "name": "Live API (Crossref): Jobs and Livelihoods in the Blue Economy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Jobs and Livelihoods in the Blue Economy (Unknown, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 185,
+          "paper_title": "Jobs and Livelihoods in the Blue Economy",
+          "authors": "Unknown",
+          "year": "2025",
+          "doi": "10.1596/42996"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00186",
+        "name": "Live API (Crossref): The Role of Local Community in Ecotourism Governance: A Step towards t",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Role of Local Community in Ecotourism Governance: A Step towards the Blue Economy (M. Husni Tamrin, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 186,
+          "paper_title": "The Role of Local Community in Ecotourism Governance: A Step towards the Blue Economy",
+          "authors": "M. Husni Tamrin",
+          "year": "2024",
+          "doi": "10.57239/pjlss-2024-22.2.001395"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00187",
+        "name": "Live API (Crossref): The science, social science and governance of marine extremes",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The science, social science and governance of marine extremes (Erika J. Techera, Gundula Winter, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 187,
+          "paper_title": "The science, social science and governance of marine extremes",
+          "authors": "Erika J. Techera, Gundula Winter",
+          "year": "2019",
+          "doi": "10.4324/9780429491023-2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00188",
+        "name": "Live API (Crossref): Strengthening Fisheries Governance for Kenya’s Blue Economy: Policy Pr",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Strengthening Fisheries Governance for Kenya’s Blue Economy: Policy Priorities for Sustainable Growth and Livelihoods (Anne Mokoro, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 188,
+          "paper_title": "Strengthening Fisheries Governance for Kenya’s Blue Economy: Policy Priorities for Sustainable Growth and Livelihoods",
+          "authors": "Anne Mokoro",
+          "year": "2026",
+          "doi": "10.11648/j.jppa.20261001.21"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00189",
+        "name": "Live API (Crossref): Shark ecotourism in Mexico: Scientific research, conservation, and con",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Shark ecotourism in Mexico: Scientific research, conservation, and contribution to a Blue Economy (Unknown, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 189,
+          "paper_title": "Shark ecotourism in Mexico: Scientific research, conservation, and contribution to a Blue Economy",
+          "authors": "Unknown",
+          "year": "2020",
+          "doi": "10.1016/bs.amb.2019.08.003"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00190",
+        "name": "Live API (Crossref): Blue Economy Governance: Marine Spatial Planning",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy Governance: Marine Spatial Planning (Nusrat Tasnim Fariha, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 190,
+          "paper_title": "Blue Economy Governance: Marine Spatial Planning",
+          "authors": "Nusrat Tasnim Fariha",
+          "year": "2024",
+          "doi": "10.71391/sbv1i2_0003"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00191",
+        "name": "Live API (Crossref): Blue Economy and Livelihoods in Indian Sundarbans",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy and Livelihoods in Indian Sundarbans (Abhijit Mitra, Sufia Zaman, Prosenjit Pramanick, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 191,
+          "paper_title": "Blue Economy and Livelihoods in Indian Sundarbans",
+          "authors": "Abhijit Mitra, Sufia Zaman, Prosenjit Pramanick",
+          "year": "2022",
+          "doi": "10.1007/978-3-031-07908-5_3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00192",
+        "name": "Live API (Crossref): Engendering the blue economy : offshore oil extraction and the livelih",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Engendering the blue economy : offshore oil extraction and the livelihoods of women in Ghana (Sangra Amongin, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 192,
+          "paper_title": "Engendering the blue economy : offshore oil extraction and the livelihoods of women in Ghana",
+          "authors": "Sangra Amongin",
+          "year": "",
+          "doi": "10.24124/2020/59026"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00193",
+        "name": "Live API (Crossref): Sustainable development of marine macroalgae production: Policy and go",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sustainable development of marine macroalgae production: Policy and governance considerations (David Benson, Burcin Demirbilek, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 193,
+          "paper_title": "Sustainable development of marine macroalgae production: Policy and governance considerations",
+          "authors": "David Benson, Burcin Demirbilek",
+          "year": "2026",
+          "doi": "10.1016/b978-0-443-33492-4.00012-7"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00195",
+        "name": "Live API (Crossref): Behavioral barriers to blue economy reform: A policy synthesis on ESG",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Behavioral barriers to blue economy reform: A policy synthesis on ESG, emissions, and governance (Muniza Askari, Subhasree Ray, Shoba Suri, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 195,
+          "paper_title": "Behavioral barriers to blue economy reform: A policy synthesis on ESG, emissions, and governance",
+          "authors": "Muniza Askari, Subhasree Ray, Shoba Suri",
+          "year": "2026",
+          "doi": "10.1016/j.marpol.2025.106938"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00197",
+        "name": "Live API (Crossref): Economy, Livelihoods, and People",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Economy, Livelihoods, and People (K.C. Sivaramakrishnan, 2014).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 197,
+          "paper_title": "Economy, Livelihoods, and People",
+          "authors": "K.C. Sivaramakrishnan",
+          "year": "2014",
+          "doi": "10.1093/acprof:oso/9780199454136.003.0007"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00198",
+        "name": "Live API (Crossref): Marine ecotourists",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine ecotourists. (C. Cater, E. Cater, 2007).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 198,
+          "paper_title": "Marine ecotourists.",
+          "authors": "C. Cater, E. Cater",
+          "year": "2007",
+          "doi": "10.1079/9781845932596.0130"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00199",
+        "name": "Live API (Crossref): Blue Economy Implementation and Marine Resource Governance in Zanzibar",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy Implementation and Marine Resource Governance in Zanzibar: Institutional Dynamics and Conservation Outcomes (Mohamed Said, Iddi Mwanyoka, Kalista Higinia, Abiud Kaswamil, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 199,
+          "paper_title": "Blue Economy Implementation and Marine Resource Governance in Zanzibar: Institutional Dynamics and Conservation Outcomes",
+          "authors": "Mohamed Said, Iddi Mwanyoka, Kalista Higinia, Abiud Kaswamila",
+          "year": "2025",
+          "doi": "10.21203/rs.3.rs-8239015/v1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00200",
+        "name": "Live API (Crossref): Marine nature",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine nature. (C. Cater, E. Cater, 2007).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 200,
+          "paper_title": "Marine nature.",
+          "authors": "C. Cater, E. Cater",
+          "year": "2007",
+          "doi": "10.1079/9781845932596.0155"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00201",
+        "name": "Live API (Crossref): Towards defining the Blue Economy: Practical lessons from pacific ocea",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Towards defining the Blue Economy: Practical lessons from pacific ocean governance (Meg R. Keen, Anne-Maree Schwarz, Lysa Wini-Simeon, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 201,
+          "paper_title": "Towards defining the Blue Economy: Practical lessons from pacific ocean governance",
+          "authors": "Meg R. Keen, Anne-Maree Schwarz, Lysa Wini-Simeon",
+          "year": "2018",
+          "doi": "10.1016/j.marpol.2017.03.002"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00202",
+        "name": "Live API (Crossref): Strategy for utilizing local wisdom in the development of Blue Economy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Strategy for utilizing local wisdom in the development of Blue Economy in marine ecotourism on Gili Genting Island, Sume (Moh. Musleh, Deasy Arieffiani, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 202,
+          "paper_title": "Strategy for utilizing local wisdom in the development of Blue Economy in marine ecotourism on Gili Genting Island, Sume",
+          "authors": "Moh. Musleh, Deasy Arieffiani",
+          "year": "2026",
+          "doi": "10.35308/jpp.v12i1.11261"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00203",
+        "name": "Live API (Crossref): Blue Economy Governance: Evidence of Marine Tourism Development on Blu",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy Governance: Evidence of Marine Tourism Development on Blue Justice for Small-scale Fishermen in The Mandeh  (Idris Idris, Novya Riani, Joan Marta, Maizul Rahmizal, Indah, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 203,
+          "paper_title": "Blue Economy Governance: Evidence of Marine Tourism Development on Blue Justice for Small-scale Fishermen in The Mandeh ",
+          "authors": "Idris Idris, Novya Riani, Joan Marta, Maizul Rahmizal, Indah Susilowati, Puji Handayati",
+          "year": "2026",
+          "doi": "10.2139/ssrn.6338971"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00204",
+        "name": "Live API (Crossref): Smart Governance for a Sustainable Blue Economy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Governance for a Sustainable Blue Economy (Nitin Agarwala, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 204,
+          "paper_title": "Smart Governance for a Sustainable Blue Economy",
+          "authors": "Nitin Agarwala",
+          "year": "2026",
+          "doi": "10.1007/978-3-032-19927-0_37"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00205",
+        "name": "Live API (Crossref): Ecotourism impact on livelihoods and wellbeing",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Ecotourism impact on livelihoods and wellbeing (Ian E. Munanura, Edwin Sabuhoro, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 205,
+          "paper_title": "Ecotourism impact on livelihoods and wellbeing",
+          "authors": "Ian E. Munanura, Edwin Sabuhoro",
+          "year": "2021",
+          "doi": "10.4324/9781003001768-13"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00206",
+        "name": "Live API (Crossref): Marine ecotourism: between the devil and the deep blue sea",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine ecotourism: between the devil and the deep blue sea (Unknown, 2007).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 206,
+          "paper_title": "Marine ecotourism: between the devil and the deep blue sea",
+          "authors": "Unknown",
+          "year": "2007",
+          "doi": "10.1079/9781845932596.0000"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00207",
+        "name": "Live API (Crossref): Transitioning from blue growth to the sustainable blue economy: A revi",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Transitioning from blue growth to the sustainable blue economy: A review of Ireland’s new marine governance in the aquac (María Del Camino Troya, Joseph Onwona Ansong, Anne Marie O’H, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 207,
+          "paper_title": "Transitioning from blue growth to the sustainable blue economy: A review of Ireland’s new marine governance in the aquac",
+          "authors": "María Del Camino Troya, Joseph Onwona Ansong, Anne Marie O’Hagan",
+          "year": "2023",
+          "doi": "10.3389/fmars.2023.1075803"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00208",
+        "name": "Live API (Crossref): Institutions and policy in the Blue Nile Basin",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Institutions and policy in the Blue Nile Basin (Unknown, 2013).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 208,
+          "paper_title": "Institutions and policy in the Blue Nile Basin",
+          "authors": "Unknown",
+          "year": "2013",
+          "doi": "10.4324/9780203128497-17"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00209",
+        "name": "Live API (Crossref): Blue Economy and Marine Biorefinery",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy and Marine Biorefinery (Unknown, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 209,
+          "paper_title": "Blue Economy and Marine Biorefinery",
+          "authors": "Unknown",
+          "year": "2020",
+          "doi": "10.1142/9789811224294_0002"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00210",
+        "name": "Live API (Crossref): Stakeholder perceptions of blue economy governance networks and their",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Stakeholder perceptions of blue economy governance networks and their equity implications in Bangladesh (Jewel Das, Maheshwaran Govender, Haseeb Md. Irfanullah, Sami, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 210,
+          "paper_title": "Stakeholder perceptions of blue economy governance networks and their equity implications in Bangladesh",
+          "authors": "Jewel Das, Maheshwaran Govender, Haseeb Md. Irfanullah, Samiya Ahmed Selim, Marion Glaser",
+          "year": "2024",
+          "doi": "10.1016/j.marpol.2024.106359"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00211",
+        "name": "Live API (Crossref): The blue nexus unveiled: Interlinking marine pollution, circular econo",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The blue nexus unveiled: Interlinking marine pollution, circular economy, and the blue economy in ocean sustainability (Mallika Roy, Delwar Akbar, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 211,
+          "paper_title": "The blue nexus unveiled: Interlinking marine pollution, circular economy, and the blue economy in ocean sustainability",
+          "authors": "Mallika Roy, Delwar Akbar",
+          "year": "2026",
+          "doi": "10.1016/j.marpolbul.2025.119028"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00212",
+        "name": "Live API (Crossref): Conclusion",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Conclusion. (C. Cater, E. Cater, 2007).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 212,
+          "paper_title": "Conclusion.",
+          "authors": "C. Cater, E. Cater",
+          "year": "2007",
+          "doi": "10.1079/9781845932596.0256"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00213",
+        "name": "Live API (Crossref): Employment Potential in the Marine Sector: Advancing Marginalized Part",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Employment Potential in the Marine Sector: Advancing Marginalized Participation Through the Blue Economy (Preeti Tarkar, Asif Mohammad, Himanshu Pandey, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 213,
+          "paper_title": "Employment Potential in the Marine Sector: Advancing Marginalized Participation Through the Blue Economy",
+          "authors": "Preeti Tarkar, Asif Mohammad, Himanshu Pandey",
+          "year": "2026",
+          "doi": "10.1007/978-3-032-13638-1_23"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00214",
+        "name": "Live API (Crossref): A Review Of The Blue Economy Of Bangladesh Through The Marine And Coas",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A Review Of The Blue Economy Of Bangladesh Through The Marine And Coastal Tourism Lens (Unknown, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 214,
+          "paper_title": "A Review Of The Blue Economy Of Bangladesh Through The Marine And Coastal Tourism Lens",
+          "authors": "Unknown",
+          "year": "",
+          "doi": "10.70279/bmj-v7-1051"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00215",
+        "name": "Live API (Crossref): Marine Pollution and Its Impact on Blue Economy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Pollution and Its Impact on Blue Economy (Nitin Agarwala, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 215,
+          "paper_title": "Marine Pollution and Its Impact on Blue Economy",
+          "authors": "Nitin Agarwala",
+          "year": "2024",
+          "doi": "10.1007/978-3-031-32671-4_35-1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00216",
+        "name": "Live API (Crossref): Eco-labelling of marine recreation services: the case of Blue Flag pri",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Eco-labelling of marine recreation services: the case of Blue Flag price premium in Croatia (Toni Sipic, 2016).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 216,
+          "paper_title": "Eco-labelling of marine recreation services: the case of Blue Flag price premium in Croatia",
+          "authors": "Toni Sipic",
+          "year": "2016",
+          "doi": "10.1080/14724049.2016.1194848"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00217",
+        "name": "Live API (Crossref): Change among the Wannilaeto of Sri Lanka",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Change among the Wannilaeto of Sri Lanka (Wiveca Stegeborn, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 217,
+          "paper_title": "Change among the Wannilaeto of Sri Lanka",
+          "authors": "Wiveca Stegeborn",
+          "year": "2024",
+          "doi": "10.5040/9798881887759.ch-10"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00218",
+        "name": "Live API (Crossref): Cities and regions for a blue economy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cities and regions for a blue economy (Oriana Romano, Juliette Lassman, Georges Laimé, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 218,
+          "paper_title": "Cities and regions for a blue economy",
+          "authors": "Oriana Romano, Juliette Lassman, Georges Laimé",
+          "year": "2023",
+          "doi": "10.24241/notesint.2023/296/en"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00219",
+        "name": "Live API (Crossref): Oil Spills Impact and Toxicological Stress on Fisheries-Dependent Live",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Oil Spills Impact and Toxicological Stress on Fisheries-Dependent Livelihoods in the Coastal and Marine Environment: Imp (M.O. Ojile, F.T. Disi, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 219,
+          "paper_title": "Oil Spills Impact and Toxicological Stress on Fisheries-Dependent Livelihoods in the Coastal and Marine Environment: Imp",
+          "authors": "M.O. Ojile, F.T. Disi",
+          "year": "2026",
+          "doi": "10.37745/ijepr.13/vol14n11529"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00220",
+        "name": "Live API (Crossref): The environmental challenges of cruise tourism: impacts and governance",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The environmental challenges of cruise tourism: impacts and governance (Unknown, 2015).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 220,
+          "paper_title": "The environmental challenges of cruise tourism: impacts and governance",
+          "authors": "Unknown",
+          "year": "2015",
+          "doi": "10.4324/9780203072332-48"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00221",
+        "name": "Live API (Crossref): Tourism Impact on Environmental Sustainability: A Focus on the Cruise",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Tourism Impact on Environmental Sustainability: A Focus on the Cruise Industry (Kirkland Robert Anderson, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 221,
+          "paper_title": "Tourism Impact on Environmental Sustainability: A Focus on the Cruise Industry",
+          "authors": "Kirkland Robert Anderson",
+          "year": "2021",
+          "doi": "10.5772/intechopen.93922"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00222",
+        "name": "Live API (Crossref): Cruise Tourism Environmental Risks",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cruise Tourism Environmental Risks (Hrvoje Caric, 2012).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 222,
+          "paper_title": "Cruise Tourism Environmental Risks",
+          "authors": "Hrvoje Caric",
+          "year": "2012",
+          "doi": "10.1007/978-3-642-32992-0_5"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00223",
+        "name": "Live API (Crossref): Cruise tourism in a remote small island - high yield and low impact?",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cruise tourism in a remote small island - high yield and low impact? (J. M. Cheer, 2017).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 223,
+          "paper_title": "Cruise tourism in a remote small island - high yield and low impact?",
+          "authors": "J. M. Cheer",
+          "year": "2017",
+          "doi": "10.1079/9781780646084.0408"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00224",
+        "name": "Live API (Crossref): Environmental “Footprint” of the Cruise Industry",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental “Footprint” of the Cruise Industry (Martha Honey, Samantha Bray, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 224,
+          "paper_title": "Environmental “Footprint” of the Cruise Industry",
+          "authors": "Martha Honey, Samantha Bray",
+          "year": "2019",
+          "doi": "10.4324/9780429203282-4"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00225",
+        "name": "Live API (Crossref): Review: A decade of ‘blue tourism’ sustainability research: Exploring",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Review: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal areas — R0 (Unknown, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 225,
+          "paper_title": "Review: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal areas — R0",
+          "authors": "Unknown",
+          "year": "2022",
+          "doi": "10.1017/cft.2023.2.pr2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00226",
+        "name": "Live API (Crossref): Responsible Tourism and the Cruise Industry by Harold Goodwin",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Responsible Tourism and the Cruise Industry by Harold Goodwin (Harold Goodwin, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 226,
+          "paper_title": "Responsible Tourism and the Cruise Industry by Harold Goodwin",
+          "authors": "Harold Goodwin",
+          "year": "2020",
+          "doi": "10.23912/9781911635574-4440"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00227",
+        "name": "Live API (Crossref): The Cruise Industry",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Cruise Industry (Unknown, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 227,
+          "paper_title": "The Cruise Industry",
+          "authors": "Unknown",
+          "year": "2020",
+          "doi": "10.2307/jj.28209986.6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00228",
+        "name": "Live API (Crossref): Environmental reporting in the cruise industry",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental reporting in the cruise industry. (C. M. Hall, H. Wood, S. Wilson, 2017).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 228,
+          "paper_title": "Environmental reporting in the cruise industry.",
+          "authors": "C. M. Hall, H. Wood, S. Wilson",
+          "year": "2017",
+          "doi": "10.1079/9781780646084.0441"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00229",
+        "name": "Live API (Crossref): Decision: A decade of ‘blue tourism’ sustainability research: Explorin",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decision: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal areas —  (Unknown, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 229,
+          "paper_title": "Decision: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal areas — ",
+          "authors": "Unknown",
+          "year": "2023",
+          "doi": "10.1017/cft.2023.2.pr7"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00230",
+        "name": "Live API (Crossref): Recommendation: A decade of ‘blue tourism’ sustainability research: Ex",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Recommendation: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal ar (Unknown, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 230,
+          "paper_title": "Recommendation: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal ar",
+          "authors": "Unknown",
+          "year": "2022",
+          "doi": "10.1017/cft.2023.2.pr3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00231",
+        "name": "Live API (Crossref): Decision: A decade of ‘blue tourism’ sustainability research: Explorin",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decision: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal areas —  (Unknown, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 231,
+          "paper_title": "Decision: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal areas — ",
+          "authors": "Unknown",
+          "year": "2022",
+          "doi": "10.1017/cft.2023.2.pr4"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00232",
+        "name": "Live API (Crossref): Recommendation: A decade of ‘blue tourism’ sustainability research: Ex",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Recommendation: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal ar (Unknown, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 232,
+          "paper_title": "Recommendation: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal ar",
+          "authors": "Unknown",
+          "year": "2023",
+          "doi": "10.1017/cft.2023.2.pr6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00233",
+        "name": "Live API (Crossref): The economic, social, and environmental impacts of cruise tourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The economic, social, and environmental impacts of cruise tourism (Timothy MacNeill, David Wozniak, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 233,
+          "paper_title": "The economic, social, and environmental impacts of cruise tourism",
+          "authors": "Timothy MacNeill, David Wozniak",
+          "year": "2018",
+          "doi": "10.1016/j.tourman.2017.11.002"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00234",
+        "name": "Live API (Crossref): Environmental Sustainability and Cruise Tourism in Arctic Canada",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental Sustainability and Cruise Tourism in Arctic Canada (Unknown, 2016).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 234,
+          "paper_title": "Environmental Sustainability and Cruise Tourism in Arctic Canada",
+          "authors": "Unknown",
+          "year": "2016",
+          "doi": "10.4324/9781315578767-17"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00235",
+        "name": "Live API (Crossref): Author comment: A decade of ‘blue tourism’ sustainability research: Ex",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Author comment: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal ar (Alexis Papathanassis, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 235,
+          "paper_title": "Author comment: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal ar",
+          "authors": "Alexis Papathanassis",
+          "year": "2022",
+          "doi": "10.1017/cft.2023.2.pr1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00236",
+        "name": "Live API (Crossref): Environmental Analysis on Cruise Tourism: Case Study of Penang",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental Analysis on Cruise Tourism: Case Study of Penang (Unknown, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 236,
+          "paper_title": "Environmental Analysis on Cruise Tourism: Case Study of Penang",
+          "authors": "Unknown",
+          "year": "2025",
+          "doi": "10.47263/jrtm.05-01-06"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00237",
+        "name": "Live API (Crossref): Author comment: A decade of ‘blue tourism’ sustainability research: Ex",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Author comment: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal ar (Alexis Papathanassis, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 237,
+          "paper_title": "Author comment: A decade of ‘blue tourism’ sustainability research: Exploring the impact of cruise tourism on coastal ar",
+          "authors": "Alexis Papathanassis",
+          "year": "2022",
+          "doi": "10.1017/cft.2023.2.pr5"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00238",
+        "name": "Live API (Crossref): COVID-19 Anchor for Cruise Tourism. An analysis of Gdańsk’s and Gdynia",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: COVID-19 Anchor for Cruise Tourism. An analysis of Gdańsk’s and Gdynia's Cruise Tourism in the 2017-2020 Period (Joanna PIOCH, Mariusz CHMIELEWSKI, Renata PŁOSKA, Karol ŚLED, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 238,
+          "paper_title": "COVID-19 Anchor for Cruise Tourism. An analysis of Gdańsk’s and Gdynia's Cruise Tourism in the 2017-2020 Period",
+          "authors": "Joanna PIOCH, Mariusz CHMIELEWSKI, Renata PŁOSKA, Karol ŚLEDZIK",
+          "year": "2022",
+          "doi": "10.14505/jemt.v13.1(57).24"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00239",
+        "name": "Live API (Crossref): Generated Economic Impact on Cruise Destinations: The Piraeus Case",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Generated Economic Impact on Cruise Destinations: The Piraeus Case (Stefanidaki Evangelia, Lekakou Maria, 2012).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 239,
+          "paper_title": "Generated Economic Impact on Cruise Destinations: The Piraeus Case",
+          "authors": "Stefanidaki Evangelia, Lekakou Maria",
+          "year": "2012",
+          "doi": "10.1007/978-3-642-32992-0_6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00240",
+        "name": "Live API (Crossref): Chapter 6 The cruise sector and its environmental impact",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Chapter 6 The cruise sector and its environmental impact (Ross A. Klein, 2010).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 240,
+          "paper_title": "Chapter 6 The cruise sector and its environmental impact",
+          "authors": "Ross A. Klein",
+          "year": "2010",
+          "doi": "10.1108/s2042-1443(2010)0000003009"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00241",
+        "name": "Live API (Crossref): A shifting tide: environmental challenges and cruise industry response",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A shifting tide: environmental challenges and cruise industry responses. (J. E. N. Sweeting, S. L. Wayne, 2006).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 241,
+          "paper_title": "A shifting tide: environmental challenges and cruise industry responses.",
+          "authors": "J. E. N. Sweeting, S. L. Wayne",
+          "year": "2006",
+          "doi": "10.1079/9781845930486.0327"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00242",
+        "name": "Live API (Crossref): Environmental policy challenges for the cruise industry: case studies",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental policy challenges for the cruise industry: case studies from Australia and the USA. (S. Dobson, A. Gill, 2006).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 242,
+          "paper_title": "Environmental policy challenges for the cruise industry: case studies from Australia and the USA.",
+          "authors": "S. Dobson, A. Gill",
+          "year": "2006",
+          "doi": "10.1079/9781845930486.0338"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00243",
+        "name": "Live API (Crossref): ENVIRONMENTAL IMPACT OF CRUISE TOURISM: EXPLORING MITIGATION CASE STUD",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: ENVIRONMENTAL IMPACT OF CRUISE TOURISM: EXPLORING MITIGATION CASE STUDIES IN MAJOR PORTS (ALEXANDRA ALEXANDROPOULOU, NATALIA CHATZIFOTI, KONSTANTINA K, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 243,
+          "paper_title": "ENVIRONMENTAL IMPACT OF CRUISE TOURISM: EXPLORING MITIGATION CASE STUDIES IN MAJOR PORTS",
+          "authors": "ALEXANDRA ALEXANDROPOULOU, NATALIA CHATZIFOTI, KONSTANTINA K. AGORAKI, ANDREAS FOUSTERIS, DIMITRIOS A. GEORGAKELLOS",
+          "year": "2024",
+          "doi": "10.2495/st240171"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00244",
+        "name": "Live API (Crossref): Cozumel: the challenges of cruise tourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cozumel: the challenges of cruise tourism. (H. Sorensen, 2006).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 244,
+          "paper_title": "Cozumel: the challenges of cruise tourism.",
+          "authors": "H. Sorensen",
+          "year": "2006",
+          "doi": "10.1079/9781845930486.0350"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00245",
+        "name": "Live API (Crossref): Overstating Cruise Passenger Spending: Sources of Error in Cruise Indu",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Overstating Cruise Passenger Spending: Sources of Error in Cruise Industry Studies of Economic Impact (Burc Kayahan, Brian Vanblarcom, Ross A. Klein, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 245,
+          "paper_title": "Overstating Cruise Passenger Spending: Sources of Error in Cruise Industry Studies of Economic Impact",
+          "authors": "Burc Kayahan, Brian Vanblarcom, Ross A. Klein",
+          "year": "2018",
+          "doi": "10.3727/154427318x15417941357251"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00246",
+        "name": "Live API (Crossref): Improving sustainable management of expedition cruise destinations in",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Improving sustainable management of expedition cruise destinations in Australia: governance and management lessons from  (C. Ellis, P. Scherrer, K. Walker, 2017).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 246,
+          "paper_title": "Improving sustainable management of expedition cruise destinations in Australia: governance and management lessons from ",
+          "authors": "C. Ellis, P. Scherrer, K. Walker",
+          "year": "2017",
+          "doi": "10.1079/9781780646084.0465"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00247",
+        "name": "Live API (Crossref): Assessment of the Economic Impact of Cruise Tourism in Papua New Guine",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Assessment of the Economic Impact of Cruise Tourism in Papua New Guinea and Solomon Islands (Unknown, 2016).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 247,
+          "paper_title": "Assessment of the Economic Impact of Cruise Tourism in Papua New Guinea and Solomon Islands",
+          "authors": "Unknown",
+          "year": "2016",
+          "doi": "10.1596/25394"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00248",
+        "name": "Live API (Crossref): History and Growth of Cruise Tourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: History and Growth of Cruise Tourism (Martha Honey, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 248,
+          "paper_title": "History and Growth of Cruise Tourism",
+          "authors": "Martha Honey",
+          "year": "2019",
+          "doi": "10.4324/9780429203282-2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00249",
+        "name": "Live API (Crossref): The Economic Impact of Hawaii's Cruise Industry",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Economic Impact of Hawaii's Cruise Industry (Stephen Pratt, Adam Blake, 2009).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 249,
+          "paper_title": "The Economic Impact of Hawaii's Cruise Industry",
+          "authors": "Stephen Pratt, Adam Blake",
+          "year": "2009",
+          "doi": "10.3727/108354209789704977"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00250",
+        "name": "Live API (Crossref): The Norwegian Coastal Express: moving towards cruise tourism?",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Norwegian Coastal Express: moving towards cruise tourism? (O. Sletvold, 2006).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 250,
+          "paper_title": "The Norwegian Coastal Express: moving towards cruise tourism?",
+          "authors": "O. Sletvold",
+          "year": "2006",
+          "doi": "10.1079/9781845930486.0223"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00251",
+        "name": "Live API (Crossref): Factors influencing cruise vacations: the impact of online reviews and",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Factors influencing cruise vacations: the impact of online reviews and environmental friendliness (Frida Bahja, Cihan Cobanoglu, Katerina Berezina, Carolin Lus, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 251,
+          "paper_title": "Factors influencing cruise vacations: the impact of online reviews and environmental friendliness",
+          "authors": "Frida Bahja, Cihan Cobanoglu, Katerina Berezina, Carolin Lusby",
+          "year": "2019",
+          "doi": "10.1108/tr-12-2017-0207"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00252",
+        "name": "Live API (Crossref): Cruise tourism: a paradigmatic case of globalization?",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cruise tourism: a paradigmatic case of globalization? (R. E. Wood, 2006).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 252,
+          "paper_title": "Cruise tourism: a paradigmatic case of globalization?",
+          "authors": "R. E. Wood",
+          "year": "2006",
+          "doi": "10.1079/9781845930486.0397"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00253",
+        "name": "Live API (Crossref): Wildlife tourism in Assam: Assessing environmental impact and governan",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Wildlife tourism in Assam: Assessing environmental impact and governance for sustainable development (Kirtika Uzir, Monoj Kumar Chowdhury, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 253,
+          "paper_title": "Wildlife tourism in Assam: Assessing environmental impact and governance for sustainable development",
+          "authors": "Kirtika Uzir, Monoj Kumar Chowdhury",
+          "year": "2025",
+          "doi": "10.22271/27069583.2025.v7.i1b.135"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00254",
+        "name": "Live API (Crossref): Cruise Tourism Impacts on Historic Cities",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cruise Tourism Impacts on Historic Cities (Jannelle Wilkins, Martha Honey, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 254,
+          "paper_title": "Cruise Tourism Impacts on Historic Cities",
+          "authors": "Jannelle Wilkins, Martha Honey",
+          "year": "2019",
+          "doi": "10.4324/9780429203282-5"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00255",
+        "name": "Live API (Crossref): The Economic Model and Impacts of Cruise Tourism",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Economic Model and Impacts of Cruise Tourism (Martha Honey, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 255,
+          "paper_title": "The Economic Model and Impacts of Cruise Tourism",
+          "authors": "Martha Honey",
+          "year": "2019",
+          "doi": "10.4324/9780429203282-3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00256",
+        "name": "Live API (Crossref): Collective self-governance in a marine community: expedition cruise to",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Collective self-governance in a marine community: expedition cruise tourism at Svalbard (Linde K.J. Van Bets, Machiel A.J. Lamers, Jan P.M. van Taten, 2017).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 256,
+          "paper_title": "Collective self-governance in a marine community: expedition cruise tourism at Svalbard",
+          "authors": "Linde K.J. Van Bets, Machiel A.J. Lamers, Jan P.M. van Tatenhove",
+          "year": "2017",
+          "doi": "10.1080/09669582.2017.1291653"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00257",
+        "name": "Live API (Crossref): Taxing Cruise Tourism: Alaska's Head Tax on Cruise Ship Passengers",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Taxing Cruise Tourism: Alaska's Head Tax on Cruise Ship Passengers (James Mak, 2008).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 257,
+          "paper_title": "Taxing Cruise Tourism: Alaska's Head Tax on Cruise Ship Passengers",
+          "authors": "James Mak",
+          "year": "2008",
+          "doi": "10.5367/000000008785633613"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00258",
+        "name": "Live API (Crossref): The changing geography of cruise tourism in the Caribbean",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The changing geography of cruise tourism in the Caribbean. (P. F. Wilkinson, 2006).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 258,
+          "paper_title": "The changing geography of cruise tourism in the Caribbean.",
+          "authors": "P. F. Wilkinson",
+          "year": "2006",
+          "doi": "10.1079/9781845930486.0170"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00259",
+        "name": "Live API (Crossref): Cruise tourism and the cruise industry",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cruise tourism and the cruise industry. (P. Morgan, L. Power, 2011).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 259,
+          "paper_title": "Cruise tourism and the cruise industry.",
+          "authors": "P. Morgan, L. Power",
+          "year": "2011",
+          "doi": "10.1079/9781845936846.0276"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00260",
+        "name": "Live API (Crossref): Development of cruise tourism in Saudi Arabia",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Development of cruise tourism in Saudi Arabia. (E. Monshi, N. Scott, 2017).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 260,
+          "paper_title": "Development of cruise tourism in Saudi Arabia.",
+          "authors": "E. Monshi, N. Scott",
+          "year": "2017",
+          "doi": "10.1079/9781780646084.0507"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00261",
+        "name": "Live API (Crossref): Sustainable tourism governance and Caribbean SIDS",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sustainable tourism governance and Caribbean SIDS (Unknown, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 261,
+          "paper_title": "Sustainable tourism governance and Caribbean SIDS",
+          "authors": "Unknown",
+          "year": "2019",
+          "doi": "10.4337/9781786437273.00008"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00262",
+        "name": "Live API (Crossref): Governance of Expedition Cruise Ship Tourism in the Arctic: A Comparis",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Governance of Expedition Cruise Ship Tourism in the Arctic: A Comparison of the Canadian and Russian Arctic (Albina Pashkevich, Jackie Dawson, Emma J. Stewart, 2015).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 262,
+          "paper_title": "Governance of Expedition Cruise Ship Tourism in the Arctic: A Comparison of the Canadian and Russian Arctic",
+          "authors": "Albina Pashkevich, Jackie Dawson, Emma J. Stewart",
+          "year": "2015",
+          "doi": "10.3727/154427315x14181438892883"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00263",
+        "name": "Live API (Crossref): Responsible Cruise Tourism: Issues of Cruise Tourism and Sustainabilit",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Responsible Cruise Tourism: Issues of Cruise Tourism and Sustainability (Ross A. Klein, 2011).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 263,
+          "paper_title": "Responsible Cruise Tourism: Issues of Cruise Tourism and Sustainability",
+          "authors": "Ross A. Klein",
+          "year": "2011",
+          "doi": "10.1375/jhtm.18.1.107"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00265",
+        "name": "Live API (Crossref): Cruise tourism and organizational culture: the case for occupational c",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cruise tourism and organizational culture: the case for occupational communities. (D. Lee-Ross, 2006).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 265,
+          "paper_title": "Cruise tourism and organizational culture: the case for occupational communities.",
+          "authors": "D. Lee-Ross",
+          "year": "2006",
+          "doi": "10.1079/9781845930486.0041"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00266",
+        "name": "Live API (Crossref): Cruise tourism: economic, socio-cultural and environmental impacts",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cruise tourism: economic, socio-cultural and environmental impacts (Juan Gabriel Brida, Sandra Zapata, 2010).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 266,
+          "paper_title": "Cruise tourism: economic, socio-cultural and environmental impacts",
+          "authors": "Juan Gabriel Brida, Sandra Zapata",
+          "year": "2010",
+          "doi": "10.1504/ijltm.2010.029585"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00267",
+        "name": "Live API (Crossref): Discussion on the Nature and Governance Mode of Cruise Ship Environmen",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Discussion on the Nature and Governance Mode of Cruise Ship Environmental Pollution from the Perspective of Marine Right (Ruihong Sun, Hong Wang, Xinde Chen, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 267,
+          "paper_title": "Discussion on the Nature and Governance Mode of Cruise Ship Environmental Pollution from the Perspective of Marine Right",
+          "authors": "Ruihong Sun, Hong Wang, Xinde Chen",
+          "year": "2018",
+          "doi": "10.1007/978-981-10-8165-1_11"
+        }
       }
     ],
-    "HYDRONIZATION": []
+    "HYDRONIZATION": [
+      {
+        "id": "lit_live_crossref_00196",
+        "name": "Live API (Crossref): Hydrological processes in the Blue Nile",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Hydrological processes in the Blue Nile (Unknown, 2013).",
+        "axis": "HYDRONIZATION",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 196,
+          "paper_title": "Hydrological processes in the Blue Nile",
+          "authors": "Unknown",
+          "year": "2013",
+          "doi": "10.4324/9780203128497-10"
+        }
+      }
+    ]
   }
 }

@@ -52,6 +52,20 @@
           "year": "2022",
           "doi": "10.1017/cft.2022.10.pr7"
         }
+      },
+      {
+        "id": "lit_live_crossref_01285",
+        "name": "Live API (Crossref): Romanian Maritime Ports in the Digital Transformation Era: The Shift f",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Romanian Maritime Ports in the Digital Transformation Era: The Shift from Fourth-Generation to Smart Ports and the Impac (Alev Burmambet, 2025).",
+        "axis": "MARINE",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1285,
+          "paper_title": "Romanian Maritime Ports in the Digital Transformation Era: The Shift from Fourth-Generation to Smart Ports and the Impac",
+          "authors": "Alev Burmambet",
+          "year": "2025",
+          "doi": "10.12716/1001.19.01.15"
+        }
       }
     ],
     "MARITIME": [
@@ -1271,6 +1285,1364 @@
           "authors": "Esha Shah\nRutgerd Boelens\nBert Bruins",
           "year": "2019",
           "doi": "10.3390/W11030417"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01188",
+        "name": "Live API (Crossref): Port and Maritime Security and Sustainability",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port and Maritime Security and Sustainability (Michael Edgerton, 2021).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1188,
+          "paper_title": "Port and Maritime Security and Sustainability",
+          "authors": "Michael Edgerton",
+          "year": "2021",
+          "doi": "10.1007/978-3-030-69325-1_8"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01189",
+        "name": "Live API (Crossref): Guest editorial: Maritime and port logistics: sustainable and smart ma",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Guest editorial: Maritime and port logistics: sustainable and smart maritime and port logistics (Branislav Dragović, Zhongzheng Yang, Stratos Papadimitriou, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1189,
+          "paper_title": "Guest editorial: Maritime and port logistics: sustainable and smart maritime and port logistics",
+          "authors": "Branislav Dragović, Zhongzheng Yang, Stratos Papadimitriou",
+          "year": "2025",
+          "doi": "10.1108/mabr-09-2025-096"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01190",
+        "name": "Live API (Crossref): A quantitative analysis of European port governance",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A quantitative analysis of European port governance (Patrick Verhoeven, Thomas Vanoutrive, 2012).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1190,
+          "paper_title": "A quantitative analysis of European port governance",
+          "authors": "Patrick Verhoeven, Thomas Vanoutrive",
+          "year": "2012",
+          "doi": "10.1057/mel.2012.6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01191",
+        "name": "Live API (Crossref): A new governance perspective on port–hinterland relationships: The Por",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A new governance perspective on port–hinterland relationships: The Port Hinterland Impact (PHI) matrix (Elvira Haezendonck, Michael Dooms, Alain Verbeke, 2014).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1191,
+          "paper_title": "A new governance perspective on port–hinterland relationships: The Port Hinterland Impact (PHI) matrix",
+          "authors": "Elvira Haezendonck, Michael Dooms, Alain Verbeke",
+          "year": "2014",
+          "doi": "10.1057/mel.2014.10"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01192",
+        "name": "Live API (Crossref): Port Congestion and Implications to Maritime Logistics",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port Congestion and Implications to Maritime Logistics (Hilde Meersman, Eddy Van de Voorde, Thierry Vanelslander, 2012).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1192,
+          "paper_title": "Port Congestion and Implications to Maritime Logistics",
+          "authors": "Hilde Meersman, Eddy Van de Voorde, Thierry Vanelslander",
+          "year": "2012",
+          "doi": "10.1108/9781780523415-004"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01193",
+        "name": "Live API (Crossref): Performance Evaluation of Fishery Logistics Systems at the Port of the",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Performance Evaluation of Fishery Logistics Systems at the Port of the Marine Toll Network Dobo Port, Maluku (Hadi sholekhan Arif, Mustaruddin Mustaruddin, Hoetomo Lembit, 2024).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1193,
+          "paper_title": "Performance Evaluation of Fishery Logistics Systems at the Port of the Marine Toll Network Dobo Port, Maluku",
+          "authors": "Hadi sholekhan Arif, Mustaruddin Mustaruddin, Hoetomo Lembito",
+          "year": "2024",
+          "doi": "10.47191/etj/v9i07.05"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01194",
+        "name": "Live API (Crossref): Strategies in maritime and port logistics",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Strategies in maritime and port logistics (Pierre Cariou, Claudio Ferrari, Francesco Parola, 2015).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1194,
+          "paper_title": "Strategies in maritime and port logistics",
+          "authors": "Pierre Cariou, Claudio Ferrari, Francesco Parola",
+          "year": "2015",
+          "doi": "10.1057/mel.2014.30"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01195",
+        "name": "Live API (Crossref): Green Maritime Logistics and Sustainability",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Green Maritime Logistics and Sustainability (Haakon Lindstad, Bjørn E. Asbjørnslett, Jan Tore Pedersen, 2012).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1195,
+          "paper_title": "Green Maritime Logistics and Sustainability",
+          "authors": "Haakon Lindstad, Bjørn E. Asbjørnslett, Jan Tore Pedersen",
+          "year": "2012",
+          "doi": "10.1108/9781780523415-012"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01196",
+        "name": "Live API (Crossref): Sustainability-Oriented Port Management: Biomass Gasification as a Str",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sustainability-Oriented Port Management: Biomass Gasification as a Strategic Tool for Green and Circular Maritime Logist (Seyedeh Azadeh Alavi-Borazjani, Shahzada Adeel, Valentina Ch, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1196,
+          "paper_title": "Sustainability-Oriented Port Management: Biomass Gasification as a Strategic Tool for Green and Circular Maritime Logist",
+          "authors": "Seyedeh Azadeh Alavi-Borazjani, Shahzada Adeel, Valentina Chkoniya, Luís A. C. Tarelho",
+          "year": "2025",
+          "doi": "10.3390/su17062634"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01197",
+        "name": "Live API (Crossref): Flexibility in Port Logistics by Adaptive Planning",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Flexibility in Port Logistics by Adaptive Planning (Majid Eskafi, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1197,
+          "paper_title": "Flexibility in Port Logistics by Adaptive Planning",
+          "authors": "Majid Eskafi",
+          "year": "2025",
+          "doi": "10.24018/maritime.2025.4.2.33"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01198",
+        "name": "Live API (Crossref): Port institutional responses and sustainability performance: a moderat",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port institutional responses and sustainability performance: a moderated mediation model (Hsu-Li Tsai, Chin-Shan Lu, 2021).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1198,
+          "paper_title": "Port institutional responses and sustainability performance: a moderated mediation model",
+          "authors": "Hsu-Li Tsai, Chin-Shan Lu",
+          "year": "2021",
+          "doi": "10.1080/03088839.2021.1946608"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01199",
+        "name": "Live API (Crossref): Port state control and the sustainability of space: a maritime enforce",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port state control and the sustainability of space: a maritime enforcement paradigm for orbital debris governance (Ahmed Hany M. Abuelenin, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1199,
+          "paper_title": "Port state control and the sustainability of space: a maritime enforcement paradigm for orbital debris governance",
+          "authors": "Ahmed Hany M. Abuelenin",
+          "year": "2025",
+          "doi": "10.1007/s11038-025-09579-7"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01200",
+        "name": "Live API (Crossref): Design of port regulation mechanisms for multilayer governance: A shan",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Design of port regulation mechanisms for multilayer governance: A shanghai case study (Shiyuan Zheng, Rudy R Negenborn, 2017).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1200,
+          "paper_title": "Design of port regulation mechanisms for multilayer governance: A shanghai case study",
+          "authors": "Shiyuan Zheng, Rudy R Negenborn",
+          "year": "2017",
+          "doi": "10.1057/mel.2016.14"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01201",
+        "name": "Live API (Crossref): Maritime Governance, Security Measures and Port Competition in the EU",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Governance, Security Measures and Port Competition in the EU (Xufan Zhang, Michael Roe, 2019).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1201,
+          "paper_title": "Maritime Governance, Security Measures and Port Competition in the EU",
+          "authors": "Xufan Zhang, Michael Roe",
+          "year": "2019",
+          "doi": "10.1007/978-3-030-03825-0_9"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01202",
+        "name": "Live API (Crossref): Port management and governance in a post-COVID-19 era: quo vadis?",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port management and governance in a post-COVID-19 era: quo vadis? (Theo E. Notteboom, Hercules E. Haralambides, 2020).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1202,
+          "paper_title": "Port management and governance in a post-COVID-19 era: quo vadis?",
+          "authors": "Theo E. Notteboom, Hercules E. Haralambides",
+          "year": "2020",
+          "doi": "10.1057/s41278-020-00162-7"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01203",
+        "name": "Live API (Crossref): Sustainability issues in maritime transport",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sustainability issues in maritime transport (Dong-Ping Song, 2021).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1203,
+          "paper_title": "Sustainability issues in maritime transport",
+          "authors": "Dong-Ping Song",
+          "year": "2021",
+          "doi": "10.4324/9780429320996-7"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01204",
+        "name": "Live API (Crossref): Port and terminal operations management",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port and terminal operations management (Dong-Ping Song, 2021).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1204,
+          "paper_title": "Port and terminal operations management",
+          "authors": "Dong-Ping Song",
+          "year": "2021",
+          "doi": "10.4324/9780429320996-6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01205",
+        "name": "Live API (Crossref): Offshore upstream logistics for operations in arctic environment",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Offshore upstream logistics for operations in arctic environment (Unknown, 2014).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1205,
+          "paper_title": "Offshore upstream logistics for operations in arctic environment",
+          "authors": "Unknown",
+          "year": "2014",
+          "doi": "10.1201/b17517-21"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01206",
+        "name": "Live API (Crossref): Assessing Port Governance, Devolution and Terminal Performance in Nige",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Assessing Port Governance, Devolution and Terminal Performance in Nigeria (D. Onwuegbuchunam, 2018).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1206,
+          "paper_title": "Assessing Port Governance, Devolution and Terminal Performance in Nigeria",
+          "authors": "D. Onwuegbuchunam",
+          "year": "2018",
+          "doi": "10.3390/logistics2010006"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01207",
+        "name": "Live API (Crossref): Port sustainability and institutional governance: a comparative analys",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port sustainability and institutional governance: a comparative analysis between Brazil and Spain (Regis Alfredo Weber, Clandia Maffini Gomes, Guilherme Costa , 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1207,
+          "paper_title": "Port sustainability and institutional governance: a comparative analysis between Brazil and Spain",
+          "authors": "Regis Alfredo Weber, Clandia Maffini Gomes, Guilherme Costa Wiedenhöft, Roberto Schoproni Bichueti, Kamila Frizzo",
+          "year": "2026",
+          "doi": "10.1080/03088839.2026.2663893"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01208",
+        "name": "Live API (Crossref): IS PORT THROUGHPUT A PORT OUTPUT?",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: IS PORT THROUGHPUT A PORT OUTPUT? (Wayne K. Talley, 2011).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1208,
+          "paper_title": "IS PORT THROUGHPUT A PORT OUTPUT?",
+          "authors": "Wayne K. Talley",
+          "year": "2011",
+          "doi": "10.1142/9789814329866_0005"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01209",
+        "name": "Live API (Crossref): Mind the Gap: Women in the Boardroom, on Board and in the Port",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Mind the Gap: Women in the Boardroom, on Board and in the Port (Aspasia Pastra, Mona Swoboda, 2021).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1209,
+          "paper_title": "Mind the Gap: Women in the Boardroom, on Board and in the Port",
+          "authors": "Aspasia Pastra, Mona Swoboda",
+          "year": "2021",
+          "doi": "10.1007/978-3-030-69325-1_19"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01210",
+        "name": "Live API (Crossref): Harnessing the Environment of Maritime Transport and Port Logistics Se",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Harnessing the Environment of Maritime Transport and Port Logistics Sector in the Management of Covid-19 Pandemic (Theophilus Chinonyerem Nwokedi, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1210,
+          "paper_title": "Harnessing the Environment of Maritime Transport and Port Logistics Sector in the Management of Covid-19 Pandemic",
+          "authors": "Theophilus Chinonyerem Nwokedi",
+          "year": "2022",
+          "doi": "10.5772/intechopen.101587"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01211",
+        "name": "Live API (Crossref): Developing sustainable port areas",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Developing sustainable port areas (Marie-Laure Baron, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1211,
+          "paper_title": "Developing sustainable port areas",
+          "authors": "Marie-Laure Baron",
+          "year": "2023",
+          "doi": "10.4324/9781003365013-21"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01212",
+        "name": "Live API (Crossref): Redefining Port Logistics: A Focus on Integration, Regionalization, an",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Redefining Port Logistics: A Focus on Integration, Regionalization, and Economic Growth in Maritime Enterprises (Yashkumar Vyas, Raghav Acharya, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1212,
+          "paper_title": "Redefining Port Logistics: A Focus on Integration, Regionalization, and Economic Growth in Maritime Enterprises",
+          "authors": "Yashkumar Vyas, Raghav Acharya",
+          "year": "2023",
+          "doi": "10.21275/sr23825104808"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01213",
+        "name": "Live API (Crossref): The Framework for Measuring Port Resilience in Korean Port Case",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Framework for Measuring Port Resilience in Korean Port Case (Sungki Kim, Sanggyun Choi, Chanho Kim, 2021).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1213,
+          "paper_title": "The Framework for Measuring Port Resilience in Korean Port Case",
+          "authors": "Sungki Kim, Sanggyun Choi, Chanho Kim",
+          "year": "2021",
+          "doi": "10.3390/su132111883"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01214",
+        "name": "Live API (Crossref): Examining sustainability performance at ports: port managers’ perspect",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Examining sustainability performance at ports: port managers’ perspectives on developing sustainable supply chains (Chin-Shan Lu, Kuo-Chung Shang, Chi-Chang Lin, 2016).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1214,
+          "paper_title": "Examining sustainability performance at ports: port managers’ perspectives on developing sustainable supply chains",
+          "authors": "Chin-Shan Lu, Kuo-Chung Shang, Chi-Chang Lin",
+          "year": "2016",
+          "doi": "10.1080/03088839.2016.1199918"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01215",
+        "name": "Live API (Crossref): Logistics capability, maritime connectivity, and container port system",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Logistics capability, maritime connectivity, and container port system growth: Global evidence and transport policy impl (Muhammad Subhan, 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1215,
+          "paper_title": "Logistics capability, maritime connectivity, and container port system growth: Global evidence and transport policy impl",
+          "authors": "Muhammad Subhan",
+          "year": "2026",
+          "doi": "10.2139/ssrn.6026635"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01217",
+        "name": "Live API (Crossref): Marine Reporting and Maritime Security",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Reporting and Maritime Security (Unknown, 2013).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1217,
+          "paper_title": "Marine Reporting and Maritime Security",
+          "authors": "Unknown",
+          "year": "2013",
+          "doi": "10.4324/9781315850504-11"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01218",
+        "name": "Live API (Crossref): MARITIME MUSEUMS VS SEAPORT MUSEUMS NAVIGATING THE EVOLUTION FROM MARI",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: MARITIME MUSEUMS VS SEAPORT MUSEUMS NAVIGATING THE EVOLUTION FROM MARITIME PORT BUSINESS TO THE MARITIME TOURISM INDUSTR (Mahendrran Selvaduray, Yapa Mahinda Bandara, Norhaslinda Yun, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1218,
+          "paper_title": "MARITIME MUSEUMS VS SEAPORT MUSEUMS NAVIGATING THE EVOLUTION FROM MARITIME PORT BUSINESS TO THE MARITIME TOURISM INDUSTR",
+          "authors": "Mahendrran Selvaduray, Yapa Mahinda Bandara, Norhaslinda Yunus",
+          "year": "2023",
+          "doi": "10.46754/jml.2023.08.004"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01219",
+        "name": "Live API (Crossref): Port-centric logistics, dry ports and offshore logistics hubs: strateg",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port-centric logistics, dry ports and offshore logistics hubs: strategies to overcome double peripherality? (Jason Monios, Gordon Wilmsmeier, 2012).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1219,
+          "paper_title": "Port-centric logistics, dry ports and offshore logistics hubs: strategies to overcome double peripherality?",
+          "authors": "Jason Monios, Gordon Wilmsmeier",
+          "year": "2012",
+          "doi": "10.1080/03088839.2011.650720"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01220",
+        "name": "Live API (Crossref): Case Study (UK): Intermodal Logistics",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Case Study (UK): Intermodal Logistics (Unknown, 2016).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1220,
+          "paper_title": "Case Study (UK): Intermodal Logistics",
+          "authors": "Unknown",
+          "year": "2016",
+          "doi": "10.4324/9781315588834-12"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01221",
+        "name": "Live API (Crossref): The Role of Port Authority in Port Governance and Port Community Syste",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Role of Port Authority in Port Governance and Port Community System Implementation (Edvard Tijan, Marija Jović, Ana Panjako, Dražen Žgaljić, 2021).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1221,
+          "paper_title": "The Role of Port Authority in Port Governance and Port Community System Implementation",
+          "authors": "Edvard Tijan, Marija Jović, Ana Panjako, Dražen Žgaljić",
+          "year": "2021",
+          "doi": "10.3390/su13052795"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01222",
+        "name": "Live API (Crossref): China’s Growing Engagement in the Emerging Maritime Logistics Market i",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: China’s Growing Engagement in the Emerging Maritime Logistics Market in Africa (Paul Tae-Woo Lee, 2016).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1222,
+          "paper_title": "China’s Growing Engagement in the Emerging Maritime Logistics Market in Africa",
+          "authors": "Paul Tae-Woo Lee",
+          "year": "2016",
+          "doi": "10.1057/9781137514233_3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01223",
+        "name": "Live API (Crossref): Addressing special challenges in maritime and port logistics",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Addressing special challenges in maritime and port logistics (Pierre Cariou, Claudio Ferrari, Francesco Parola, 2014).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1223,
+          "paper_title": "Addressing special challenges in maritime and port logistics",
+          "authors": "Pierre Cariou, Claudio Ferrari, Francesco Parola",
+          "year": "2014",
+          "doi": "10.1080/03088839.2014.932557"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01224",
+        "name": "Live API (Crossref): Port and maritime governance and regulation: emerging issues",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port and maritime governance and regulation: emerging issues (Thierry Vanelslander, 2011).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1224,
+          "paper_title": "Port and maritime governance and regulation: emerging issues",
+          "authors": "Thierry Vanelslander",
+          "year": "2011",
+          "doi": "10.1080/03088839.2011.572711"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01225",
+        "name": "Live API (Crossref): Contextual Comparative Analysis of Dar es Salaam and Mombasa Port Perf",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Contextual Comparative Analysis of Dar es Salaam and Mombasa Port Performance by Using a Hybrid DEA(CVA) Model (Majid Mohammed Kunambi, Hongxing Zheng, 2024).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1225,
+          "paper_title": "Contextual Comparative Analysis of Dar es Salaam and Mombasa Port Performance by Using a Hybrid DEA(CVA) Model",
+          "authors": "Majid Mohammed Kunambi, Hongxing Zheng",
+          "year": "2024",
+          "doi": "10.3390/logistics8010002"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01226",
+        "name": "Live API (Crossref): Big AIS data based spatial-temporal analyses of ship traffic in Singap",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Big AIS data based spatial-temporal analyses of ship traffic in Singapore port waters (Liye Zhang, Qiang Meng, Tien Fang Fwa, 2019).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1226,
+          "paper_title": "Big AIS data based spatial-temporal analyses of ship traffic in Singapore port waters",
+          "authors": "Liye Zhang, Qiang Meng, Tien Fang Fwa",
+          "year": "2019",
+          "doi": "10.1016/j.tre.2017.07.011"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01227",
+        "name": "Live API (Crossref): Container Liner Shipping, Port Development and Competition",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Container Liner Shipping, Port Development and Competition (Adolf K. Y. Ng, 2012).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1227,
+          "paper_title": "Container Liner Shipping, Port Development and Competition",
+          "authors": "Adolf K. Y. Ng",
+          "year": "2012",
+          "doi": "10.1108/9781780523415-002"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01228",
+        "name": "Live API (Crossref): Advancing Corporate Governance through SBSC: Navigating Compliance wit",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Advancing Corporate Governance through SBSC: Navigating Compliance with IFRS S2 in Port Logistics (HeLing Wu, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1228,
+          "paper_title": "Advancing Corporate Governance through SBSC: Navigating Compliance with IFRS S2 in Port Logistics",
+          "authors": "HeLing Wu",
+          "year": "2025",
+          "doi": "10.5194/egusphere-egu24-6989"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01229",
+        "name": "Live API (Crossref): Cooperation or competition? Factors and conditions affecting regional",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Cooperation or competition? Factors and conditions affecting regional port governance in South China (Kun Wang, Adolf K Y Ng, Jasmine Siu Lee Lam, Xiaowen Fu, 2012).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1229,
+          "paper_title": "Cooperation or competition? Factors and conditions affecting regional port governance in South China",
+          "authors": "Kun Wang, Adolf K Y Ng, Jasmine Siu Lee Lam, Xiaowen Fu",
+          "year": "2012",
+          "doi": "10.1057/mel.2012.13"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01230",
+        "name": "Live API (Crossref): Maritime Container Security: A Cargo Interest Perspective",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Container Security: A Cargo Interest Perspective (Unknown, 2013).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1230,
+          "paper_title": "Maritime Container Security: A Cargo Interest Perspective",
+          "authors": "Unknown",
+          "year": "2013",
+          "doi": "10.4324/9781315850504-25"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01231",
+        "name": "Live API (Crossref): Study on the Relationship between Port Governance and Terminal Operati",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Study on the Relationship between Port Governance and Terminal Operation System for Smart Port: Japan Case (Hideyo Inutsuka, Kinya Ichimura, Yoshihisa Sugimura, Muneo Y, 2024).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1231,
+          "paper_title": "Study on the Relationship between Port Governance and Terminal Operation System for Smart Port: Japan Case",
+          "authors": "Hideyo Inutsuka, Kinya Ichimura, Yoshihisa Sugimura, Muneo Yoshie, Takeshi Shinoda",
+          "year": "2024",
+          "doi": "10.3390/logistics8020059"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01232",
+        "name": "Live API (Crossref): Integrated port governance and digitalization system: A model for boos",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Integrated port governance and digitalization system: A model for boosting port logistics performance (Sirajuddin, Yeni Januarsi, Ade Irman, Asep Ridwan, 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1232,
+          "paper_title": "Integrated port governance and digitalization system: A model for boosting port logistics performance",
+          "authors": "Sirajuddin, Yeni Januarsi, Ade Irman, Asep Ridwan",
+          "year": "2026",
+          "doi": "10.1016/j.ajsl.2025.12.002"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01233",
+        "name": "Live API (Crossref): Port Logistics and Hinterland Development",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port Logistics and Hinterland Development (Khalid Bichou, 2018).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1233,
+          "paper_title": "Port Logistics and Hinterland Development",
+          "authors": "Khalid Bichou",
+          "year": "2018",
+          "doi": "10.1002/9781118476406.emoe200"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01234",
+        "name": "Live API (Crossref): Institutional Challenges to Intermodal Transport and Logistics",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Institutional Challenges to Intermodal Transport and Logistics (Unknown, 2016).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1234,
+          "paper_title": "Institutional Challenges to Intermodal Transport and Logistics",
+          "authors": "Unknown",
+          "year": "2016",
+          "doi": "10.4324/9781315588834-14"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01235",
+        "name": "Live API (Crossref): Competitiveness and geopolitics of port corridors",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Competitiveness and geopolitics of port corridors (Laurent Livolsi, Christelle Camman, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1235,
+          "paper_title": "Competitiveness and geopolitics of port corridors",
+          "authors": "Laurent Livolsi, Christelle Camman",
+          "year": "2023",
+          "doi": "10.4324/9781003365013-10"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01236",
+        "name": "Live API (Crossref): The Geography of Intermodal Transport and Logistics",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Geography of Intermodal Transport and Logistics (Unknown, 2016).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1236,
+          "paper_title": "The Geography of Intermodal Transport and Logistics",
+          "authors": "Unknown",
+          "year": "2016",
+          "doi": "10.4324/9781315588834-9"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01237",
+        "name": "Live API (Crossref): Defining maritime logistics hub and its implication for container port",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Defining maritime logistics hub and its implication for container port (Hyung-Sik Nam, Dong-Wook Song, 2011).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1237,
+          "paper_title": "Defining maritime logistics hub and its implication for container port",
+          "authors": "Hyung-Sik Nam, Dong-Wook Song",
+          "year": "2011",
+          "doi": "10.1080/03088839.2011.572705"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01238",
+        "name": "Live API (Crossref): Digital Transformation in Port Management",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Transformation in Port Management (Murat Selçuk Solmaz, 2021).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1238,
+          "paper_title": "Digital Transformation in Port Management",
+          "authors": "Murat Selçuk Solmaz",
+          "year": "2021",
+          "doi": "10.4018/978-1-7998-2402-2.ch012"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01239",
+        "name": "Live API (Crossref): Port-Centric Information Management in Smart Ports",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port-Centric Information Management in Smart Ports (Leonard Heilig, Stefan Voß, 2017).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1239,
+          "paper_title": "Port-Centric Information Management in Smart Ports",
+          "authors": "Leonard Heilig, Stefan Voß",
+          "year": "2017",
+          "doi": "10.4324/9781315601540-15"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01240",
+        "name": "Live API (Crossref): Smart Port and Digital Monitoring and Diagnosis",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Port and Digital Monitoring and Diagnosis (Weijian Mi, Yuan Liu, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1240,
+          "paper_title": "Smart Port and Digital Monitoring and Diagnosis",
+          "authors": "Weijian Mi, Yuan Liu",
+          "year": "2022",
+          "doi": "10.1007/978-981-16-9889-7_10"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01241",
+        "name": "Live API (Crossref): Optimizing Port Operations to Cope with Shipping Congestion in South A",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Optimizing Port Operations to Cope with Shipping Congestion in South American Countries (Unknown, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1241,
+          "paper_title": "Optimizing Port Operations to Cope with Shipping Congestion in South American Countries",
+          "authors": "Unknown",
+          "year": "2022",
+          "doi": "10.1287/orms.2022.02.09"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01242",
+        "name": "Live API (Crossref): Peer Review Report For: Enhancing Port Performance through Digital Tra",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Peer Review Report For: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and (Unknown, 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1242,
+          "paper_title": "Peer Review Report For: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and",
+          "authors": "Unknown",
+          "year": "2026",
+          "doi": "10.5256/f1000research.198827.r480269"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01243",
+        "name": "Live API (Crossref): Ecology of Smart Port",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Ecology of Smart Port (Weijian Mi, Yuan Liu, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1243,
+          "paper_title": "Ecology of Smart Port",
+          "authors": "Weijian Mi, Yuan Liu",
+          "year": "2022",
+          "doi": "10.1007/978-981-16-9889-7_2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01245",
+        "name": "Live API (Crossref): Smart Port and Artificial Intelligence",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Port and Artificial Intelligence (Weijian Mi, Yuan Liu, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1245,
+          "paper_title": "Smart Port and Artificial Intelligence",
+          "authors": "Weijian Mi, Yuan Liu",
+          "year": "2022",
+          "doi": "10.1007/978-981-16-9889-7_6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01246",
+        "name": "Live API (Crossref): Smart Port and Blockchain Technology",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Port and Blockchain Technology (Weijian Mi, Yuan Liu, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1246,
+          "paper_title": "Smart Port and Blockchain Technology",
+          "authors": "Weijian Mi, Yuan Liu",
+          "year": "2022",
+          "doi": "10.1007/978-981-16-9889-7_5"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01247",
+        "name": "Live API (Crossref): Smart Port and Machine Vision",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Port and Machine Vision (Weijian Mi, Yuan Liu, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1247,
+          "paper_title": "Smart Port and Machine Vision",
+          "authors": "Weijian Mi, Yuan Liu",
+          "year": "2022",
+          "doi": "10.1007/978-981-16-9889-7_7"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01248",
+        "name": "Live API (Crossref): The Future of Ports",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Future of Ports (Maria G. Burns, 2018).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1248,
+          "paper_title": "The Future of Ports",
+          "authors": "Maria G. Burns",
+          "year": "2018",
+          "doi": "10.4324/9781315275215-12"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01249",
+        "name": "Live API (Crossref): Peer Review Report For: Enhancing Port Performance through Digital Tra",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Peer Review Report For: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and (Unknown, 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1249,
+          "paper_title": "Peer Review Report For: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and",
+          "authors": "Unknown",
+          "year": "2026",
+          "doi": "10.5256/f1000research.197091.r467160"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01250",
+        "name": "Live API (Crossref): Peer Review Report For: Enhancing Port Performance through Digital Tra",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Peer Review Report For: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and (Unknown, 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1250,
+          "paper_title": "Peer Review Report For: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and",
+          "authors": "Unknown",
+          "year": "2026",
+          "doi": "10.5256/f1000research.197091.r467159"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01251",
+        "name": "Live API (Crossref): Enhancing Port Performance through Digital Transformation: The Role of",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and Organizational transfor (Buyung Pramitra, Mochammad Al Musadieq, Tri Wulida Afrianty,, 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1251,
+          "paper_title": "Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and Organizational transfor",
+          "authors": "Buyung Pramitra, Mochammad Al Musadieq, Tri Wulida Afrianty, Teuku Noerman",
+          "year": "2026",
+          "doi": "10.12688/f1000research.176261.3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01252",
+        "name": "Live API (Crossref): THE ADOPTION OF SMART PORT TRANSFORMATION IN EGYPTIAN PORTS: CONCEPTUA",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: THE ADOPTION OF SMART PORT TRANSFORMATION IN EGYPTIAN PORTS: CONCEPTUAL FRAMEWORK (Yosra Farahat, Sara Elgazzar, Mai Salaheldin, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1252,
+          "paper_title": "THE ADOPTION OF SMART PORT TRANSFORMATION IN EGYPTIAN PORTS: CONCEPTUAL FRAMEWORK",
+          "authors": "Yosra Farahat, Sara Elgazzar, Mai Salaheldin",
+          "year": "2025",
+          "doi": "10.21622/marlog.2025.14.1.37"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01253",
+        "name": "Live API (Crossref): Peer Review Report For: Enhancing Port Performance through Digital Tra",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Peer Review Report For: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and (Unknown, 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1253,
+          "paper_title": "Peer Review Report For: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and",
+          "authors": "Unknown",
+          "year": "2026",
+          "doi": "10.5256/f1000research.197091.r467632"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01254",
+        "name": "Live API (Crossref): Smart Port and Cyber-Physical System",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Port and Cyber-Physical System (Weijian Mi, Yuan Liu, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1254,
+          "paper_title": "Smart Port and Cyber-Physical System",
+          "authors": "Weijian Mi, Yuan Liu",
+          "year": "2022",
+          "doi": "10.1007/978-981-16-9889-7_3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01255",
+        "name": "Live API (Crossref): Smart Port and System Simulation/Emulation",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Port and System Simulation/Emulation (Weijian Mi, Yuan Liu, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1255,
+          "paper_title": "Smart Port and System Simulation/Emulation",
+          "authors": "Weijian Mi, Yuan Liu",
+          "year": "2022",
+          "doi": "10.1007/978-981-16-9889-7_9"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01256",
+        "name": "Live API (Crossref): Smart Port and Middle-Office System",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Port and Middle-Office System (Weijian Mi, Yuan Liu, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1256,
+          "paper_title": "Smart Port and Middle-Office System",
+          "authors": "Weijian Mi, Yuan Liu",
+          "year": "2022",
+          "doi": "10.1007/978-981-16-9889-7_4"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01257",
+        "name": "Live API (Crossref): Automated Port Operations: The Future of Port Governance",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Automated Port Operations: The Future of Port Governance (Andrew Baskin, Mona Swoboda, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1257,
+          "paper_title": "Automated Port Operations: The Future of Port Governance",
+          "authors": "Andrew Baskin, Mona Swoboda",
+          "year": "2023",
+          "doi": "10.1007/978-3-031-25296-9_8"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01258",
+        "name": "Live API (Crossref): Development Trend and Target of Smart Port",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Development Trend and Target of Smart Port (Weijian Mi, Yuan Liu, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1258,
+          "paper_title": "Development Trend and Target of Smart Port",
+          "authors": "Weijian Mi, Yuan Liu",
+          "year": "2022",
+          "doi": "10.1007/978-981-16-9889-7_11"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01259",
+        "name": "Live API (Crossref): Port Security",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port Security (Changqian Guan, Shmuel Yahalom, 2017).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1259,
+          "paper_title": "Port Security",
+          "authors": "Changqian Guan, Shmuel Yahalom",
+          "year": "2017",
+          "doi": "10.4324/9781315601540-20"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01260",
+        "name": "Live API (Crossref): Smart and Sustainable Ports: Tools for Implementing Port Community Sys",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart and Sustainable Ports: Tools for Implementing Port Community Systems (Unknown, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1260,
+          "paper_title": "Smart and Sustainable Ports: Tools for Implementing Port Community Systems",
+          "authors": "Unknown",
+          "year": "2023",
+          "doi": "10.18235/0005053"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01261",
+        "name": "Live API (Crossref): Port Performance",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port Performance (Shmuel Yahalom, Changqian Guan, 2017).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1261,
+          "paper_title": "Port Performance",
+          "authors": "Shmuel Yahalom, Changqian Guan",
+          "year": "2017",
+          "doi": "10.4324/9781315601540-8"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01262",
+        "name": "Live API (Crossref): Digital Transformation in Spanish Port System",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Transformation in Spanish Port System (Nicoletta González-Cancelas, Alberto Camarero Orive, Javier , 2024).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1262,
+          "paper_title": "Digital Transformation in Spanish Port System",
+          "authors": "Nicoletta González-Cancelas, Alberto Camarero Orive, Javier Vaca Cabrero, Francisco Soler Flores",
+          "year": "2024",
+          "doi": "10.5772/intechopen.1004329"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01263",
+        "name": "Live API (Crossref): The Port-City Interface",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Port-City Interface (Olaf Merk, 2017).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1263,
+          "paper_title": "The Port-City Interface",
+          "authors": "Olaf Merk",
+          "year": "2017",
+          "doi": "10.4324/9781315601540-7"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01264",
+        "name": "Live API (Crossref): Smart Port and Virtual Reality/Augmented Reality Technology",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Port and Virtual Reality/Augmented Reality Technology (Weijian Mi, Yuan Liu, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1264,
+          "paper_title": "Smart Port and Virtual Reality/Augmented Reality Technology",
+          "authors": "Weijian Mi, Yuan Liu",
+          "year": "2022",
+          "doi": "10.1007/978-981-16-9889-7_8"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01265",
+        "name": "Live API (Crossref): Port Development Company",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port Development Company (Larissa van der Lugt, 2017).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1265,
+          "paper_title": "Port Development Company",
+          "authors": "Larissa van der Lugt",
+          "year": "2017",
+          "doi": "10.4324/9781315601540-5"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01266",
+        "name": "Live API (Crossref): Port Management and Institutional Reform",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port Management and Institutional Reform (Hercules Haralambides, 2017).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1266,
+          "paper_title": "Port Management and Institutional Reform",
+          "authors": "Hercules Haralambides",
+          "year": "2017",
+          "doi": "10.4324/9781315601540-6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01267",
+        "name": "Live API (Crossref): Digital Transformation, Infrastructure and the Paradox of Risk Managem",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Transformation, Infrastructure and the Paradox of Risk Management: Drivers of Port Logistics Service Performance (Okafor, Cajethan Onyekachi Okafor, Byungin Park, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1267,
+          "paper_title": "Digital Transformation, Infrastructure and the Paradox of Risk Management: Drivers of Port Logistics Service Performance",
+          "authors": "Okafor, Cajethan Onyekachi Okafor, Byungin Park",
+          "year": "2025",
+          "doi": "10.17825/klr.2025.35.5.29"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01268",
+        "name": "Live API (Crossref): Port Hinterland Relations",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port Hinterland Relations (Christa Sys, Thierry Vanelslander, 2017).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1268,
+          "paper_title": "Port Hinterland Relations",
+          "authors": "Christa Sys, Thierry Vanelslander",
+          "year": "2017",
+          "doi": "10.4324/9781315601540-10"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01269",
+        "name": "Live API (Crossref): Port Definition, Concepts and the Role of Ports in Supply Chains",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port Definition, Concepts and the Role of Ports in Supply Chains (Michiel Nijdam, Martijn van der Horst, 2017).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1269,
+          "paper_title": "Port Definition, Concepts and the Role of Ports in Supply Chains",
+          "authors": "Michiel Nijdam, Martijn van der Horst",
+          "year": "2017",
+          "doi": "10.4324/9781315601540-2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01270",
+        "name": "Live API (Crossref): Peer Review Report For: Enhancing Port Performance through Digital Tra",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Peer Review Report For: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and (Unknown, 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1270,
+          "paper_title": "Peer Review Report For: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and",
+          "authors": "Unknown",
+          "year": "2026",
+          "doi": "10.5256/f1000research.194303.r460975"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01271",
+        "name": "Live API (Crossref): Peer Review Report For: Enhancing Port Performance through Digital Tra",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Peer Review Report For: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and (Unknown, 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1271,
+          "paper_title": "Peer Review Report For: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and",
+          "authors": "Unknown",
+          "year": "2026",
+          "doi": "10.5256/f1000research.194303.r455641"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01272",
+        "name": "Live API (Crossref): Strategic Risk Management in Ports",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Strategic Risk Management in Ports (Unknown, 2013).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1272,
+          "paper_title": "Strategic Risk Management in Ports",
+          "authors": "Unknown",
+          "year": "2013",
+          "doi": "10.4324/9781315850504-32"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01273",
+        "name": "Live API (Crossref): Ships’ Size, Ports’ Size: A New Era Ahead",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Ships’ Size, Ports’ Size: A New Era Ahead (Maria G. Burns, 2018).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1273,
+          "paper_title": "Ships’ Size, Ports’ Size: A New Era Ahead",
+          "authors": "Maria G. Burns",
+          "year": "2018",
+          "doi": "10.4324/9781315275215-6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01274",
+        "name": "Live API (Crossref): Smart and Sustainable Ports: Tools for Implementing Port Community Sys",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart and Sustainable Ports: Tools for Implementing Port Community Systems: Appendices (Unknown, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1274,
+          "paper_title": "Smart and Sustainable Ports: Tools for Implementing Port Community Systems: Appendices",
+          "authors": "Unknown",
+          "year": "2023",
+          "doi": "10.18235/0005042"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01275",
+        "name": "Live API (Crossref): Enhancing Port Performance through Digital Transformation: The Role of",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and Transformational Organi (Buyung Pramitra, Mochammad Al Musadieq, Tri Wulida Afrianty,, 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1275,
+          "paper_title": "Enhancing Port Performance through Digital Transformation: The Role of Networking Capability and Transformational Organi",
+          "authors": "Buyung Pramitra, Mochammad Al Musadieq, Tri Wulida Afrianty, Teuku Noerman",
+          "year": "2026",
+          "doi": "10.12688/f1000research.176261.1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01276",
+        "name": "Live API (Crossref): Ports as a Bridge to Maritime and Offshore Energy Activities",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Ports as a Bridge to Maritime and Offshore Energy Activities (Maria G. Burns, 2018).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1276,
+          "paper_title": "Ports as a Bridge to Maritime and Offshore Energy Activities",
+          "authors": "Maria G. Burns",
+          "year": "2018",
+          "doi": "10.4324/9781315275215-11"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01277",
+        "name": "Live API (Crossref): Smart ports in Poland: The digital transformation of maritime logistic",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart ports in Poland: The digital transformation of maritime logistics on the example of the ports of Gdańsk, Gdynia, a (Weronika Kosek, Norbert Chamier-Gliszczynski, Tomasz Króliko, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1277,
+          "paper_title": "Smart ports in Poland: The digital transformation of maritime logistics on the example of the ports of Gdańsk, Gdynia, a",
+          "authors": "Weronika Kosek, Norbert Chamier-Gliszczynski, Tomasz Królikowski",
+          "year": "2025",
+          "doi": "10.1016/j.procs.2025.09.659"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01278",
+        "name": "Live API (Crossref): Port Competition in Historical Perspective, 1648–2000",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port Competition in Historical Perspective, 1648–2000 (Hein A. M. Klemann, 2017).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1278,
+          "paper_title": "Port Competition in Historical Perspective, 1648–2000",
+          "authors": "Hein A. M. Klemann",
+          "year": "2017",
+          "doi": "10.4324/9781315601540-18"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01279",
+        "name": "Live API (Crossref): Smart Ports: Exploring the Role of Ai and Iot in Port Sustainability",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Ports: Exploring the Role of Ai and Iot in Port Sustainability (Charilaos Christodoulou Raftis, Edwin van Hassel, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1279,
+          "paper_title": "Smart Ports: Exploring the Role of Ai and Iot in Port Sustainability",
+          "authors": "Charilaos Christodoulou Raftis, Edwin van Hassel",
+          "year": "2025",
+          "doi": "10.2139/ssrn.5382301"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01280",
+        "name": "Live API (Crossref): Smart Port Breakwater Design and Construction",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Port Breakwater Design and Construction (Reece F. Shaw, Thomas J. Goreau, 2016).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1280,
+          "paper_title": "Smart Port Breakwater Design and Construction",
+          "authors": "Reece F. Shaw, Thomas J. Goreau",
+          "year": "2016",
+          "doi": "10.1061/9780784479919.089"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01281",
+        "name": "Live API (Crossref): ISPS Code Implementation in Ports: Costs and Related Financing",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: ISPS Code Implementation in Ports: Costs and Related Financing (Unknown, 2013).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1281,
+          "paper_title": "ISPS Code Implementation in Ports: Costs and Related Financing",
+          "authors": "Unknown",
+          "year": "2013",
+          "doi": "10.4324/9781315850504-30"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01282",
+        "name": "Live API (Crossref): The Labour Market of Port-Cities",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Labour Market of Port-Cities (Jaap de Koning, Kees Zandvliet, Arie Gelderblom, 2017).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1282,
+          "paper_title": "The Labour Market of Port-Cities",
+          "authors": "Jaap de Koning, Kees Zandvliet, Arie Gelderblom",
+          "year": "2017",
+          "doi": "10.4324/9781315601540-22"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01284",
+        "name": "Live API (Crossref): Evaluating Factors Affecting Digital Transformation Towards Smart Port",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Evaluating Factors Affecting Digital Transformation Towards Smart Port in Hai Phong Using CFPR (Unknown, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1284,
+          "paper_title": "Evaluating Factors Affecting Digital Transformation Towards Smart Port in Hai Phong Using CFPR",
+          "authors": "Unknown",
+          "year": "2025",
+          "doi": "10.55228/jtst.14(3).14-24"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01289",
+        "name": "Live API (Crossref): The Challenge of Climate Change for Future Port Cities: Considering th",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Challenge of Climate Change for Future Port Cities: Considering the Precautionary Principle in Adaptation to Sea-Lev (Nick Osbaldiston, 2024).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1289,
+          "paper_title": "The Challenge of Climate Change for Future Port Cities: Considering the Precautionary Principle in Adaptation to Sea-Lev",
+          "authors": "Nick Osbaldiston",
+          "year": "2024",
+          "doi": "10.1163/9789004711174_003"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01290",
+        "name": "Live API (Crossref): Assessing Climate Change Impacts, Sea Level Rise and Storm Surge Risk",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Assessing Climate Change Impacts, Sea Level Rise and Storm Surge Risk in Port Cities (Unknown, 2008).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1290,
+          "paper_title": "Assessing Climate Change Impacts, Sea Level Rise and Storm Surge Risk in Port Cities",
+          "authors": "Unknown",
+          "year": "2008",
+          "doi": "10.1787/236018165623"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01332",
+        "name": "Live API (Crossref): Port of Los Angeles Sea Level Rise Adaptation Plan",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port of Los Angeles Sea Level Rise Adaptation Plan (Adrienne Fedrick Newbold, Bettina Kaes, Jeff Khouri, Richard, 2019).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1332,
+          "paper_title": "Port of Los Angeles Sea Level Rise Adaptation Plan",
+          "authors": "Adrienne Fedrick Newbold, Bettina Kaes, Jeff Khouri, Richard Mast, Justin Vandever",
+          "year": "2019",
+          "doi": "10.1061/9780784482629.009"
         }
       }
     ],
@@ -3234,8 +4606,667 @@
           "year": "2022",
           "doi": "10.1080/02508060.2022.2131156"
         }
+      },
+      {
+        "id": "lit_live_crossref_01216",
+        "name": "Live API (Crossref): Maritime Governance and International Maritime Organization Instrument",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Governance and International Maritime Organization Instruments Focused on Sustainability in the Light of United (Anastasia Christodoulou, Jonatan Echebarria Fernández, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1216,
+          "paper_title": "Maritime Governance and International Maritime Organization Instruments Focused on Sustainability in the Light of United",
+          "authors": "Anastasia Christodoulou, Jonatan Echebarria Fernández",
+          "year": "2021",
+          "doi": "10.1007/978-3-030-69325-1_20"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01244",
+        "name": "Live API (Crossref): Digital Business Transformation in Ports",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Business Transformation in Ports (Murat Selçuk Solmaz, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1244,
+          "paper_title": "Digital Business Transformation in Ports",
+          "authors": "Murat Selçuk Solmaz",
+          "year": "2021",
+          "doi": "10.4018/978-1-7998-8587-0.ch012"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01283",
+        "name": "Live API (Crossref): Digital Transformation in Hospitality Operations: Evaluating the Effec",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Transformation in Hospitality Operations: Evaluating the Effectiveness of Smart Service Technologies in Urban Ho (Fakhri Ahmad Zainunnuri, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1283,
+          "paper_title": "Digital Transformation in Hospitality Operations: Evaluating the Effectiveness of Smart Service Technologies in Urban Ho",
+          "authors": "Fakhri Ahmad Zainunnuri",
+          "year": "2025",
+          "doi": "10.59261/hmoj.v2i2.49"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01286",
+        "name": "Live API (Crossref): Sea-Level Rise and Climate Adaptation in Aruba",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sea-Level Rise and Climate Adaptation in Aruba (Emanuele Massetti, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1286,
+          "paper_title": "Sea-Level Rise and Climate Adaptation in Aruba",
+          "authors": "Emanuele Massetti",
+          "year": "",
+          "doi": "10.5089/9798229034920.018.a001"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01287",
+        "name": "Live API (Crossref): Building-level adaptation analysis under uncertain sea-level rise",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Building-level adaptation analysis under uncertain sea-level rise (Yu Han, Pallab Mozumder, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1287,
+          "paper_title": "Building-level adaptation analysis under uncertain sea-level rise",
+          "authors": "Yu Han, Pallab Mozumder",
+          "year": "2021",
+          "doi": "10.1016/j.crm.2021.100305"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01288",
+        "name": "Live API (Crossref): Sea-Level Change in the Pacific Islands Region",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sea-Level Change in the Pacific Islands Region (Unknown, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1288,
+          "paper_title": "Sea-Level Change in the Pacific Islands Region",
+          "authors": "Unknown",
+          "year": "2022",
+          "doi": "10.22617/tcs220312-2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01291",
+        "name": "Live API (Crossref): Sea-Level Rise Risk and Adaptation in Estuaries",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sea-Level Rise Risk and Adaptation in Estuaries (Jochen Hinkel, Mark Schuerch, Jon French, Robert J. Nicholls, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1291,
+          "paper_title": "Sea-Level Rise Risk and Adaptation in Estuaries",
+          "authors": "Jochen Hinkel, Mark Schuerch, Jon French, Robert J. Nicholls",
+          "year": "2023",
+          "doi": "10.1201/9781003126096-32"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01293",
+        "name": "Live API (Crossref): Administrative Draft: Sea-Level Rise &amp; Climate Adaptation Plan for",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Administrative Draft: Sea-Level Rise &amp; Climate Adaptation Plan for the City of Carpinteria (Jean Long, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1293,
+          "paper_title": "Administrative Draft: Sea-Level Rise &amp; Climate Adaptation Plan for the City of Carpinteria",
+          "authors": "Jean Long",
+          "year": "",
+          "doi": "10.15368/theses.2013.86"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01294",
+        "name": "Live API (Crossref): Adaptation:",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Adaptation: (Unknown, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1294,
+          "paper_title": "Adaptation:",
+          "authors": "Unknown",
+          "year": "2025",
+          "doi": "10.2307/jj.25968899.6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01295",
+        "name": "Live API (Crossref): Flood-Prone Areas Due to Heavy Rains and Sea Level Rise in the Municip",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Flood-Prone Areas Due to Heavy Rains and Sea Level Rise in the Municipality of Maputo (Sarah Braccio, 2014).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1295,
+          "paper_title": "Flood-Prone Areas Due to Heavy Rains and Sea Level Rise in the Municipality of Maputo",
+          "authors": "Sarah Braccio",
+          "year": "2014",
+          "doi": "10.1007/978-3-319-00672-7_11"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01296",
+        "name": "Live API (Crossref): Sea-Level Rise Due to Climate Change",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sea-Level Rise Due to Climate Change (Brij Bhushan, Abhishek Sharma, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1296,
+          "paper_title": "Sea-Level Rise Due to Climate Change",
+          "authors": "Brij Bhushan, Abhishek Sharma",
+          "year": "2022",
+          "doi": "10.1201/9780429463938-16"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01298",
+        "name": "Live API (Crossref): Floods of movement",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Floods of movement (Sem Jacobus Duijndam, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1298,
+          "paper_title": "Floods of movement",
+          "authors": "Sem Jacobus Duijndam",
+          "year": "",
+          "doi": "10.5463/thesis.705"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01299",
+        "name": "Live API (Crossref): Climate Change and Sea Level Rise: Fiji",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Climate Change and Sea Level Rise: Fiji (Emanuele Massetti, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1299,
+          "paper_title": "Climate Change and Sea Level Rise: Fiji",
+          "authors": "Emanuele Massetti",
+          "year": "",
+          "doi": "10.5089/9798229014304.018.a001"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01300",
+        "name": "Live API (Crossref): COREDAR for Cities: Developing a Capacity Building Tool for Sea-Level",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: COREDAR for Cities: Developing a Capacity Building Tool for Sea-Level Rise Risk Communication and Urban Community-Based  (A. Saleem Khan, 2017).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1300,
+          "paper_title": "COREDAR for Cities: Developing a Capacity Building Tool for Sea-Level Rise Risk Communication and Urban Community-Based ",
+          "authors": "A. Saleem Khan",
+          "year": "2017",
+          "doi": "10.1007/978-3-319-53742-9_9"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01301",
+        "name": "Live API (Crossref): Sea Level Rise: Risk and Resilience in Coastal Cities",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sea Level Rise: Risk and Resilience in Coastal Cities (Unknown, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1301,
+          "paper_title": "Sea Level Rise: Risk and Resilience in Coastal Cities",
+          "authors": "Unknown",
+          "year": "",
+          "doi": "10.1163/9789004322714_cclc_2016-0002-006"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01302",
+        "name": "Live API (Crossref): Under Water:",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Under Water: (Unknown, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1302,
+          "paper_title": "Under Water:",
+          "authors": "Unknown",
+          "year": "2019",
+          "doi": "10.1215/9781478005124-010"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01304",
+        "name": "Live API (Crossref): Developing Climate Adaptation Pathways with Communities impacted by Se",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Developing Climate Adaptation Pathways with Communities impacted by Sea-level Rise and Industrial Development (Oswald Jenewein, Michelle A., 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1304,
+          "paper_title": "Developing Climate Adaptation Pathways with Communities impacted by Sea-level Rise and Industrial Development",
+          "authors": "Oswald Jenewein, Michelle A.",
+          "year": "2022",
+          "doi": "10.26226/m.634060653701db4fe3530391"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01306",
+        "name": "Live API (Crossref): Long-term sea-level rise necessitates a commitment to adaptation: A fi",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Long-term sea-level rise necessitates a commitment to adaptation: A first order assessment (Marjolijn Haasnoot, Gundula Winter, Sally Brown, Richard J. , 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1306,
+          "paper_title": "Long-term sea-level rise necessitates a commitment to adaptation: A first order assessment",
+          "authors": "Marjolijn Haasnoot, Gundula Winter, Sally Brown, Richard J. Dawson, Philip J. Ward, Dirk Eilander",
+          "year": "2021",
+          "doi": "10.1016/j.crm.2021.100355"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01307",
+        "name": "Live API (Crossref): 10. Under water: national flood insurance and climate gentrification",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: 10. Under water: national flood insurance and climate gentrification (Unknown, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1307,
+          "paper_title": "10. Under water: national flood insurance and climate gentrification",
+          "authors": "Unknown",
+          "year": "2020",
+          "doi": "10.1515/9781478005124-012"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01308",
+        "name": "Live API (Crossref): Probabilistic Retreat and Population Risk in Subsiding Bangkok: Multi-",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Probabilistic Retreat and Population Risk in Subsiding Bangkok: Multi-Scenario Sea-Level Rise and Flood Modeling (Malay Pramanik, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1308,
+          "paper_title": "Probabilistic Retreat and Population Risk in Subsiding Bangkok: Multi-Scenario Sea-Level Rise and Flood Modeling",
+          "authors": "Malay Pramanik",
+          "year": "2026",
+          "doi": "10.5194/egusphere-egu26-21082"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01309",
+        "name": "Live API (Crossref): Adaptation to an increase in typhoon intensity and sea level rise by J",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Adaptation to an increase in typhoon intensity and sea level rise by Japanese ports (Unknown, 2015).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1309,
+          "paper_title": "Adaptation to an increase in typhoon intensity and sea level rise by Japanese ports",
+          "authors": "Unknown",
+          "year": "2015",
+          "doi": "10.4324/9781315756813-18"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01312",
+        "name": "Live API (Crossref): Bangladesh’s dynamic coastal regions and sea-level rise",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Bangladesh’s dynamic coastal regions and sea-level rise (Hugh Brammer, 2014).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1312,
+          "paper_title": "Bangladesh’s dynamic coastal regions and sea-level rise",
+          "authors": "Hugh Brammer",
+          "year": "2014",
+          "doi": "10.1016/j.crm.2013.10.001"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01313",
+        "name": "Live API (Crossref): Uncertainty Analysis and Risk Quantification for Adaptation to Sea Lev",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Uncertainty Analysis and Risk Quantification for Adaptation to Sea Level Rise (Bilal Ayyub, 2012).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1313,
+          "paper_title": "Uncertainty Analysis and Risk Quantification for Adaptation to Sea Level Rise",
+          "authors": "Bilal Ayyub",
+          "year": "2012",
+          "doi": "10.7122/153151-ms"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01314",
+        "name": "Live API (Crossref): Flood exposure in Rotterdam’s unembanked areas from 1970 to 2150: sens",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Flood exposure in Rotterdam’s unembanked areas from 1970 to 2150: sensitivities to urban development, sea level rise and (Cees Oerlemans, Martine van den Boomen, Ties Rijcken, Matthi, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1314,
+          "paper_title": "Flood exposure in Rotterdam’s unembanked areas from 1970 to 2150: sensitivities to urban development, sea level rise and",
+          "authors": "Cees Oerlemans, Martine van den Boomen, Ties Rijcken, Matthijs Kok",
+          "year": "2025",
+          "doi": "10.5194/egusphere-2024-2910"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01316",
+        "name": "Live API (Crossref): AFFORDABLE HOUSING AT RISK: Threats from Coastal Floods and Sea Level",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: AFFORDABLE HOUSING AT RISK: Threats from Coastal Floods and Sea Level Rise (Unknown, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1316,
+          "paper_title": "AFFORDABLE HOUSING AT RISK: Threats from Coastal Floods and Sea Level Rise",
+          "authors": "Unknown",
+          "year": "",
+          "doi": "10.1163/9789004322714_cclc_2022-0267-0963"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01317",
+        "name": "Live API (Crossref): Alarming Sea Level Rise Along Texas Coast",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Alarming Sea Level Rise Along Texas Coast (Jiabi Du, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1317,
+          "paper_title": "Alarming Sea Level Rise Along Texas Coast",
+          "authors": "Jiabi Du",
+          "year": "2026",
+          "doi": "10.1201/9781003406600-4"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01318",
+        "name": "Live API (Crossref): COREDAR: A Coastal Climate Service Framework on Sea-Level Rise Risk Co",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: COREDAR: A Coastal Climate Service Framework on Sea-Level Rise Risk Communication for Adaptation Policy Planning (A. Saleem Khan, Robert S. Chen, Alex de Sherbinin, 2020).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1318,
+          "paper_title": "COREDAR: A Coastal Climate Service Framework on Sea-Level Rise Risk Communication for Adaptation Policy Planning",
+          "authors": "A. Saleem Khan, Robert S. Chen, Alex de Sherbinin",
+          "year": "2020",
+          "doi": "10.1007/978-3-030-36875-3_6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01319",
+        "name": "Live API (Crossref): 2 Adaptation: Heatwaves and Sea Level Rise",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: 2 Adaptation: Heatwaves and Sea Level Rise (Saffron O’Neill, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1319,
+          "paper_title": "2 Adaptation: Heatwaves and Sea Level Rise",
+          "authors": "Saffron O’Neill",
+          "year": "2025",
+          "doi": "10.56687/9781529250046-004"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01320",
+        "name": "Live API (Crossref): Adaptation: Heatwaves and Sea Level Rise",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Adaptation: Heatwaves and Sea Level Rise (Saffron O’Neill, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1320,
+          "paper_title": "Adaptation: Heatwaves and Sea Level Rise",
+          "authors": "Saffron O’Neill",
+          "year": "2025",
+          "doi": "10.51952/9781529250046.ch002"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01321",
+        "name": "Live API (Crossref): Patterns in Reported Adaptation Constraints: Insights from Peer-Review",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Patterns in Reported Adaptation Constraints: Insights from Peer-Reviewed Literature on Flood and Sea-Level Rise (Soﬁa Gil-Clavel, Thorid Wagenblast, Joos Akkerman, Tatiana F, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1321,
+          "paper_title": "Patterns in Reported Adaptation Constraints: Insights from Peer-Reviewed Literature on Flood and Sea-Level Rise",
+          "authors": "Soﬁa Gil-Clavel, Thorid Wagenblast, Joos Akkerman, Tatiana Filatova",
+          "year": "2024",
+          "doi": "10.31235/osf.io/3cqvn"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01323",
+        "name": "Live API (Crossref): Mitigation and adaptation to sea level rise 9",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Mitigation and adaptation to sea level rise 9 (Zahrah Naankwat Musa, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1323,
+          "paper_title": "Mitigation and adaptation to sea level rise 9",
+          "authors": "Zahrah Naankwat Musa",
+          "year": "2018",
+          "doi": "10.1201/9780429467264-7"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01324",
+        "name": "Live API (Crossref): The Vulnerability of Coastal Zones Towards Climate Change and Sea Leve",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Vulnerability of Coastal Zones Towards Climate Change and Sea Level Rise (Sebastian Weissenberger, Omer Chouinard, 2015).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1324,
+          "paper_title": "The Vulnerability of Coastal Zones Towards Climate Change and Sea Level Rise",
+          "authors": "Sebastian Weissenberger, Omer Chouinard",
+          "year": "2015",
+          "doi": "10.1007/978-94-017-9888-4_2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01326",
+        "name": "Live API (Crossref): Pricing climate risk: Are flooding and sea level rise risk capitalised",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Pricing climate risk: Are flooding and sea level rise risk capitalised in Australian residential property? (Franz Fuerst, Georgia Warren-Myers, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1326,
+          "paper_title": "Pricing climate risk: Are flooding and sea level rise risk capitalised in Australian residential property?",
+          "authors": "Franz Fuerst, Georgia Warren-Myers",
+          "year": "2021",
+          "doi": "10.1016/j.crm.2021.100361"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01327",
+        "name": "Live API (Crossref): Climate risks in the commercial mortgage portfolios of life insurers:",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Climate risks in the commercial mortgage portfolios of life insurers: A focus on sea level rise and flood risks (Kyeonghee Kim, Xiao Lin, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1327,
+          "paper_title": "Climate risks in the commercial mortgage portfolios of life insurers: A focus on sea level rise and flood risks",
+          "authors": "Kyeonghee Kim, Xiao Lin",
+          "year": "2023",
+          "doi": "10.52227/26565.2023"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01328",
+        "name": "Live API (Crossref): Coastal Adaptation to Climate Change and Sea-Level Rise",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Coastal Adaptation to Climate Change and Sea-Level Rise (Gary Griggs, Borja G. Reguero, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1328,
+          "paper_title": "Coastal Adaptation to Climate Change and Sea-Level Rise",
+          "authors": "Gary Griggs, Borja G. Reguero",
+          "year": "2021",
+          "doi": "10.3390/w13162151"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01329",
+        "name": "Live API (Crossref): 9 Confronting Sea Level Rise through Adaptation",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: 9 Confronting Sea Level Rise through Adaptation (Harun Rasid, Bimal Paul, 2013).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1329,
+          "paper_title": "9 Confronting Sea Level Rise through Adaptation",
+          "authors": "Harun Rasid, Bimal Paul",
+          "year": "2013",
+          "doi": "10.5771/9780739183540-167"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01330",
+        "name": "Live API (Crossref): Forests for Coastal Resilience and Sea Level Rise Climate-Induced Adap",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Forests for Coastal Resilience and Sea Level Rise Climate-Induced Adaptation - Part A (Oladokun Sulaiman Olanrewaju, Umberto Lazzaro, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1330,
+          "paper_title": "Forests for Coastal Resilience and Sea Level Rise Climate-Induced Adaptation - Part A",
+          "authors": "Oladokun Sulaiman Olanrewaju, Umberto Lazzaro",
+          "year": "2023",
+          "doi": "10.20944/preprints202305.0812.v1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01331",
+        "name": "Live API (Crossref): Shaping Sea-Level Rise Adaptation Policy through Science: The North Ca",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Shaping Sea-Level Rise Adaptation Policy through Science: The North Carolina Sea Level Rise Risk Management Study (John K. Dorman, Brian K. Batten, Adam Hosking, 2011).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1331,
+          "paper_title": "Shaping Sea-Level Rise Adaptation Policy through Science: The North Carolina Sea Level Rise Risk Management Study",
+          "authors": "John K. Dorman, Brian K. Batten, Adam Hosking",
+          "year": "2011",
+          "doi": "10.1061/41185(417)45"
+        }
       }
     ],
-    "HYDRONIZATION": []
+    "HYDRONIZATION": [
+      {
+        "id": "lit_live_crossref_01292",
+        "name": "Live API (Crossref): Wanqingsha : agriculture, urbanization, sea level rise : climate chang",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Wanqingsha : agriculture, urbanization, sea level rise : climate change adaptation in estuarine urbanizing area (Xiwei Chen, ).",
+        "axis": "HYDRONIZATION",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1292,
+          "paper_title": "Wanqingsha : agriculture, urbanization, sea level rise : climate change adaptation in estuarine urbanizing area",
+          "authors": "Xiwei Chen",
+          "year": "",
+          "doi": "10.5353/th_b5325146"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01297",
+        "name": "Live API (Crossref): Conclusion: flood management and adaptation - viewing flood events in",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Conclusion: flood management and adaptation - viewing flood events in context (E. Carina H. Keskitalo, 2013).",
+        "axis": "HYDRONIZATION",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1297,
+          "paper_title": "Conclusion: flood management and adaptation - viewing flood events in context",
+          "authors": "E. Carina H. Keskitalo",
+          "year": "2013",
+          "doi": "10.4337/9781781006672.00015"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01303",
+        "name": "Live API (Crossref): Introduction. Local organisation to address flood risks: possibilities",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Introduction. Local organisation to address flood risks: possibilities for adaptation to climate change? (E. Carina H. Keskitalo, 2013).",
+        "axis": "HYDRONIZATION",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1303,
+          "paper_title": "Introduction. Local organisation to address flood risks: possibilities for adaptation to climate change?",
+          "authors": "E. Carina H. Keskitalo",
+          "year": "2013",
+          "doi": "10.4337/9781781006672.00006"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01305",
+        "name": "Live API (Crossref): Using subsidence scenarios to assess flood risk to delta cities under",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Using subsidence scenarios to assess flood risk to delta cities under future sea level rise. (Luke Jackson, 2020).",
+        "axis": "HYDRONIZATION",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1305,
+          "paper_title": "Using subsidence scenarios to assess flood risk to delta cities under future sea level rise.",
+          "authors": "Luke Jackson",
+          "year": "2020",
+          "doi": "10.5194/egusphere-egu2020-19378"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01310",
+        "name": "Live API (Crossref): Adaptation strategies for the Thames Estuary in the context of acceler",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Adaptation strategies for the Thames Estuary in the context of accelerated sea level rise (H Harvey, L Manning, J Hall, 2012).",
+        "axis": "HYDRONIZATION",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1310,
+          "paper_title": "Adaptation strategies for the Thames Estuary in the context of accelerated sea level rise",
+          "authors": "H Harvey, L Manning, J Hall",
+          "year": "2012",
+          "doi": "10.1201/b13715-140"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01311",
+        "name": "Live API (Crossref): Coastal Flooding &amp; Sea-Level Rise: Calculation of Flood Risk Using",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Coastal Flooding &amp; Sea-Level Rise: Calculation of Flood Risk Using Tide-Gauge Measurements (Stephen Taylor, 2022).",
+        "axis": "HYDRONIZATION",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1311,
+          "paper_title": "Coastal Flooding &amp; Sea-Level Rise: Calculation of Flood Risk Using Tide-Gauge Measurements",
+          "authors": "Stephen Taylor",
+          "year": "2022",
+          "doi": "10.20944/preprints202206.0006.v1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01315",
+        "name": "Live API (Crossref): An assessment of the optimum timing of coastal flood adaptation given",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: An assessment of the optimum timing of coastal flood adaptation given sea‐level rise using real options analysis (Myung‐Jin Kim, Robert J. Nicholls, John M. Preston, Gustavo , 2018).",
+        "axis": "HYDRONIZATION",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1315,
+          "paper_title": "An assessment of the optimum timing of coastal flood adaptation given sea‐level rise using real options analysis",
+          "authors": "Myung‐Jin Kim, Robert J. Nicholls, John M. Preston, Gustavo A. M. de Almeida",
+          "year": "2018",
+          "doi": "10.1111/jfr3.12494"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01322",
+        "name": "Live API (Crossref): Flood risk under sea-level rise and lessons on adaptation policies in",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Flood risk under sea-level rise and lessons on adaptation policies in coastal urban management: A case study in Hai Phon (Bui Thi Ngoc Lan, Nguyen Manh Hung, Dao Truong Thanh, Dinh T, 2025).",
+        "axis": "HYDRONIZATION",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1322,
+          "paper_title": "Flood risk under sea-level rise and lessons on adaptation policies in coastal urban management: A case study in Hai Phon",
+          "authors": "Bui Thi Ngoc Lan, Nguyen Manh Hung, Dao Truong Thanh, Dinh Tuan Hai",
+          "year": "2025",
+          "doi": "10.21203/rs.3.rs-7369796/v1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01325",
+        "name": "Live API (Crossref): Climate Change and Flood Risk Management",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Climate Change and Flood Risk Management (Unknown, 2013).",
+        "axis": "HYDRONIZATION",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1325,
+          "paper_title": "Climate Change and Flood Risk Management",
+          "authors": "Unknown",
+          "year": "2013",
+          "doi": "10.4337/9781781006672"
+        }
+      }
+    ]
   }
 }

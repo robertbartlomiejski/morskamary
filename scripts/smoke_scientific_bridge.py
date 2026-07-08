@@ -20,6 +20,9 @@ Exit codes:
 import json
 import os
 import sys
+from argparse import ArgumentParser
+from datetime import datetime, timezone
+from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -28,12 +31,13 @@ from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
 PASS = "PASS"
 FAIL = "FAIL"
 SKIP = "SKIP"
+STATUS_LABELS = {PASS: "[PASS]", FAIL: "[FAIL]", SKIP: "[SKIP]"}
 
 
 def _result_line(label: str, status: str, detail: str = "") -> None:
-    marker = {"PASS": "✓", "FAIL": "✗", "SKIP": "○"}.get(status, "?")
+    marker = STATUS_LABELS.get(status, "[?]")
     suffix = f" — {detail}" if detail else ""
-    print(f"  [{marker}] {label}{suffix}")
+    print(f"  {marker} {label}{suffix}")
 
 
 def run_offline_checks() -> list:
@@ -170,10 +174,61 @@ def run_live_checks() -> list:
     return failures
 
 
-def main() -> int:
+def _parse_args(argv: list[str] | None = None):
+    parser = ArgumentParser(description="Run scientific bridge smoke checks.")
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Run only offline checks (default when no mode provided).",
+    )
+    parser.add_argument(
+        "--live-if-secrets-present",
+        action="store_true",
+        help=(
+            "Run live checks for providers with configured credentials when "
+            "LIVE_RESEARCH_API_TESTS=true."
+        ),
+    )
+    parser.add_argument(
+        "--output",
+        default=os.path.join("outputs", "research_api_smoke_report.json"),
+        help="Path for smoke report JSON output.",
+    )
+    return parser.parse_args(argv)
+
+
+def _write_smoke_report(
+    *,
+    output_path: Path,
+    mode: str,
+    failures: list[str],
+    live_tests_requested: bool,
+) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "generated_at_utc": datetime.now(timezone.utc)
+        .replace(microsecond=0)
+        .isoformat(),
+        "mode": mode,
+        "live_research_api_tests_env": os.getenv("LIVE_RESEARCH_API_TESTS", ""),
+        "live_tests_requested": live_tests_requested,
+        "status": "failed" if failures else "passed",
+        "failure_count": len(failures),
+        "failures": failures,
+    }
+    output_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def main(argv: list[str] | None = None) -> int:
     """Run smoke checks based on CLI arguments."""
-    args = sys.argv[1:]
-    live_mode = "--live-if-secrets-present" in args
+    args = _parse_args(argv)
+    live_mode = bool(args.live_if_secrets_present)
+    if not live_mode and not args.offline:
+        # Preserve legacy behavior: default to offline checks when no mode flag is supplied.
+        args.offline = True
 
     print("=== Scientific Bridge Smoke Test ===\n")
     print("Offline checks:")
@@ -188,11 +243,20 @@ def main() -> int:
         print(f"FAILED: {len(failures)} check(s) failed.")
         for f in failures:
             print(f"  - {f}")
-        return 1
+        exit_code = 1
     else:
         print("All smoke checks passed.")
-        return 0
+        exit_code = 0
+
+    run_mode = "live-if-secrets-present" if live_mode else "offline"
+    _write_smoke_report(
+        output_path=Path(args.output),
+        mode=run_mode,
+        failures=failures,
+        live_tests_requested=live_mode,
+    )
+    return exit_code
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main(sys.argv[1:]))

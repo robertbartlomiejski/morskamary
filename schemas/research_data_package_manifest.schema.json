@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/research_data_package_manifest.schema.json",
+  "title": "Research data package release manifest",
+  "type": "object",
+  "required": [
+    "package_name",
+    "version_tag",
+    "release_tag",
+    "commit_sha",
+    "access_date",
+    "created_at_utc",
+    "schema_validation",
+    "exports",
+    "notes"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "package_name": { "type": "string", "minLength": 1 },
+    "version_tag": { "type": "string", "minLength": 1 },
+    "release_tag": { "type": "string", "minLength": 1 },
+    "commit_sha": { "type": "string", "minLength": 1 },
+    "access_date": { "type": "string", "minLength": 1 },
+    "created_at_utc": { "type": "string", "minLength": 1 },
+    "schema_validation": {
+      "type": "object",
+      "required": ["validated_tables", "errors"],
+      "properties": {
+        "validated_tables": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        },
+        "errors": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "exports": {
+      "type": "object",
+      "required": ["csv_utf8", "xlsx_written", "sav_written", "jsonl"],
+      "properties": {
+        "csv_utf8": { "type": "boolean" },
+        "xlsx_written": { "type": "boolean" },
+        "sav_written": { "type": "boolean" },
+        "jsonl": { "type": "boolean" }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    }
+  }
+}

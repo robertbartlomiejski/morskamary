@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/historical_revalidation_report.schema.json",
+  "title": "Historical Revalidation Report",
+  "type": "object",
+  "required": [
+    "captured_at_utc",
+    "inputs_total",
+    "compatible_bundles",
+    "incompatible_bundles",
+    "records_scanned",
+    "records_inserted",
+    "records_skipped_duplicates",
+    "compatibility_csv",
+    "historical_cumulative_jsonl"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "captured_at_utc": {
+      "type": "string",
+      "minLength": 1
+    },
+    "inputs_total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "compatible_bundles": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "incompatible_bundles": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "records_scanned": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "records_inserted": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "records_skipped_duplicates": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "compatibility_csv": {
+      "type": "string",
+      "minLength": 1
+    },
+    "historical_cumulative_jsonl": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

@@ -8,6 +8,7 @@
     "requested_run_id",
     "run_id",
     "timestamp_utc",
+    "analysis_timestamp_utc",
     "archived_at",
     "archive_root",
     "run_path",
@@ -15,6 +16,11 @@
     "file_count",
     "total_bytes",
     "workflow",
+    "analysis_input_mode",
+    "is_static_recovery_mode",
+    "static_recovery_reason",
+    "allow_static_recovery_mode_env",
+    "provider_set",
     "workflow_name",
     "event_name",
     "commit_sha",
@@ -54,6 +60,10 @@
       "minLength": 1
     },
     "timestamp_utc": {
+      "type": "string",
+      "minLength": 1
+    },
+    "analysis_timestamp_utc": {
       "type": "string",
       "minLength": 1
     },
@@ -127,6 +137,11 @@
         }
       }
     },
+    "analysis_input_mode": { "type": "string" },
+    "is_static_recovery_mode": { "type": "boolean" },
+    "static_recovery_reason": { "type": "string" },
+    "allow_static_recovery_mode_env": { "type": "string" },
+    "provider_set": { "type": "string" },
     "workflow_name": { "type": "string" },
     "event_name": { "type": "string" },
     "commit_sha": { "type": "string" },
@@ -181,6 +196,12 @@
     "raw_api_payloads_count": {
       "type": "integer",
       "minimum": 0
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "files": {
       "type": "array",
