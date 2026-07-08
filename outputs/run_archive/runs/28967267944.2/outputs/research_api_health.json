@@ -1,0 +1,25 @@
+{
+  "statuses": [
+    {
+      "provider": "crossref",
+      "status": "ok",
+      "detail": "request succeeded",
+      "http_status": 200
+    },
+    {
+      "provider": "scopus",
+      "status": "ok",
+      "detail": "request succeeded",
+      "http_status": 200
+    },
+    {
+      "provider": "wos",
+      "status": "present-but-invalid",
+      "detail": "HTTP 401",
+      "http_status": 401
+    }
+  ],
+  "summary": {
+    "ok": 2
+  }
+}

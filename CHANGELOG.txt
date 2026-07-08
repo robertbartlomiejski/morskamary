@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-08 (feat: PR-187 merge with PR-189 hardened main and live-enriched smoke execution)
+  Change type feat
+  Scope outputs governance analysis archive
+  Files affected outputs/cumulative_qmbd_records.json outputs/run_archive/runs/28967267944.2/* outputs/run_archive/_index/runs_index.jsonl outputs/run_archive/cumulative_runs_index.csv outputs/run_archive/cross_run_evidence_index.csv outputs/run_archive/cross_run_evidence_occurrences.csv outputs/run_archive/cross_run_run_summary.csv MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Merged PR-189 hardened main into PR-187 (merge commit dcade8c). Preserves all PR-189 deterministic safeguards: math.fsum, competence_id sort, _STATIC_RECOVERY_REASON_ENV, ALLOW_STATIC_RECOVERY_MODE env guard, cumulative_run_metadata provenance, repo-relative paths in build report, test isolation. Executed full live-enriched analysis: 2052 competences (15 baseline + 2037 literature), 26 dynamic evidence-first credentials, 132 sector pathways. All outputs validated (validate_generated_outputs PASSED). Run 28967267944.2 archived and cross-run evidence index updated. MANIFEST_SOURCES.csv regenerated (1165 entries).
+  Reason PR-187 was stacked on pre-PR-189 base. Merge onto hardened main inherits sync-gate hardening, versioned data provenance, and deterministic output generation before publication-step execution.
+  Impact All PR-189 hardening preserved; live-enriched outputs regenerated deterministically; run archived and indexed; PR-187 branch now forward-compatible with main via merge commit.
+  Quality checks 846 tests pass; validate_generated_outputs PASSED; analysis exit code 0; MANIFEST_SOURCES.csv deterministic (1165 entries).
+  Reviewer @robertbartlomiejski
+
 - 2026-07-08 (fix: use math.fsum for deterministic Average_Confidence across Python versions)
   Change type fix
   Scope scripts tests
