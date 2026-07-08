@@ -29,10 +29,12 @@ import argparse
 import html as _html_module
 import json
 import logging
+import os
 import re
 import sys
 from collections import defaultdict
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import (
@@ -76,6 +78,8 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 _TOKEN_PATTERN = re.compile(r"\w+")
+_ALLOW_STATIC_RECOVERY_ENV = "ALLOW_STATIC_RECOVERY_MODE"
+_STATIC_RECOVERY_REASON_ENV = "STATIC_RECOVERY_REASON"
 
 # ---------------------------------------------------------------------------
 # Repository constants
@@ -434,7 +438,10 @@ class LocalizedQMBDRecordRepository:
 
 
 def enrich_and_store_records(
-    records_iterator: Iterable[Dict[str, Any]], output_filepath: Path
+    records_iterator: Iterable[Dict[str, Any]],
+    output_filepath: Path,
+    *,
+    metadata: Optional[Dict[str, Any]] = None,
 ) -> List[Dict[str, Any]]:
     """
     Enrich records with full-sentence QMBD analysis and store cumulatively.
@@ -459,9 +466,70 @@ def enrich_and_store_records(
 
     output_filepath.parent.mkdir(parents=True, exist_ok=True)
     with open(output_filepath, "w", encoding="utf-8") as f:
-        json.dump(enriched_outputs, f, indent=4, ensure_ascii=False)
+        payload: Dict[str, Any] = {
+            "metadata": dict(metadata or {}),
+            "records": enriched_outputs,
+        }
+        json.dump(payload, f, indent=4, ensure_ascii=False)
 
     return enriched_outputs
+
+
+def _now_utc_iso() -> str:
+    """Return current UTC timestamp without microseconds."""
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
+def _get_git_head_sha() -> str:
+    """Return current HEAD SHA, or empty string when unavailable."""
+    try:
+        import subprocess
+
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return ""
+    if result.returncode != 0:
+        return ""
+    return result.stdout.strip()
+
+
+def _build_cumulative_run_metadata(
+    *,
+    analysis_input_mode: str,
+    static_recovery_enabled: bool,
+) -> Dict[str, Any]:
+    """Build explicit metadata for cumulative ledger provenance and recovery state."""
+    static_recovery_reason = os.getenv(_STATIC_RECOVERY_REASON_ENV, "").strip()
+    warning_message = (
+        "STATIC recovery mode active: deterministic recovery artifacts only; "
+        "not cumulative live evidence."
+    )
+    metadata = {
+        "analysis_input_mode": analysis_input_mode,
+        "is_static_recovery_mode": static_recovery_enabled,
+        "static_recovery_reason": (
+            static_recovery_reason
+            if static_recovery_enabled
+            else ""
+        ),
+        "allow_static_recovery_mode_env": _ALLOW_STATIC_RECOVERY_ENV,
+        "provider_set": os.getenv("REQUESTED_PROVIDERS", "").strip(),
+        "github_run_id": os.getenv("GITHUB_RUN_ID", "").strip(),
+        "commit_sha": os.getenv("GITHUB_SHA", "").strip() or _get_git_head_sha(),
+        "timestamp_utc": _now_utc_iso(),
+        "warnings": [warning_message] if static_recovery_enabled else [],
+    }
+    if static_recovery_enabled and not metadata["static_recovery_reason"]:
+        metadata["static_recovery_reason"] = (
+            "Static recovery mode explicitly enabled; no reason supplied."
+        )
+    return metadata
 
 
 def _serialize_subject_terms(subject_terms: Any) -> str:
@@ -3457,7 +3525,7 @@ def generate_literature_html(
 
 def main(
     selected_sectors: Optional[List[str]] = None,
-    analysis_input_mode: str = "static",
+    analysis_input_mode: str = "live-enriched",
     live_records_path: Optional[Path] = None,
 ) -> int:
     """
@@ -3475,8 +3543,41 @@ def main(
     Returns:
         Exit code (0 = success, 1 = error)
     """
+    requested_mode = str(analysis_input_mode or "").strip().lower()
+    static_recovery_enabled = os.getenv(
+        _ALLOW_STATIC_RECOVERY_ENV, ""
+    ).strip().lower() in {"1", "true", "yes", "y", "on"}
+    if requested_mode == "static" and not static_recovery_enabled:
+        log.error(
+            "Static analysis mode is disabled for normal execution. "
+            "Use --analysis-input-mode live-enriched."
+        )
+        log.error(
+            "Emergency local recovery only: set %s=true to permit static mode.",
+            _ALLOW_STATIC_RECOVERY_ENV,
+        )
+        return 1
+    if requested_mode not in {"static", "live-enriched"}:
+        log.error(
+            "Unsupported analysis input mode: %s (supported: live-enriched%s).",
+            requested_mode or "<empty>",
+            ", static with recovery override" if static_recovery_enabled else "",
+        )
+        return 1
+    analysis_input_mode = requested_mode
+    cumulative_run_metadata = _build_cumulative_run_metadata(
+        analysis_input_mode=analysis_input_mode,
+        static_recovery_enabled=(
+            analysis_input_mode == "static" and static_recovery_enabled
+        ),
+    )
+    for warning_message in cumulative_run_metadata["warnings"]:
+        log.warning(warning_message)
+
     target_sectors = selected_sectors or SECTORS
-    live_path = live_records_path or DEFAULT_LIVE_RECORDS_JSON
+    live_path = live_records_path or (
+        OUTPUTS_DIR / "research_sources" / "live_records_triangulated.json"
+    )
 
     log.info("=" * 65)
     log.info("Blue Economy Full Analysis — morskamary")
@@ -3522,6 +3623,7 @@ def main(
     qmbd_enriched_records = enrich_and_store_records(
         qmbd_repository.iter_records(),
         cumulative_qmbd_records_path,
+        metadata=cumulative_run_metadata,
     )
     log.info(
         "QMBD cumulative output generated: %s (%d records)",
@@ -3681,9 +3783,12 @@ def parse_cli_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--analysis-input-mode",
-        choices=["static", "live-enriched"],
-        default="static",
-        help="Use static literature inputs only, or enrich with live API exports.",
+        choices=["live-enriched", "static"],
+        default="live-enriched",
+        help=(
+            "Use live-enriched inputs. Static mode is reserved for local emergency "
+            f"recovery with {_ALLOW_STATIC_RECOVERY_ENV}=true."
+        ),
     )
     parser.add_argument(
         "--live-records-path",

@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/gap_clusters.schema.json",
+  "title": "Gap clusters row",
+  "type": "object",
+  "required": [
+    "gap_cluster_pk",
+    "run_pk",
+    "sector_code",
+    "sector_label",
+    "qmbd_axis_code",
+    "qmbd_axis_label",
+    "priority_tier_code",
+    "priority_tier_label",
+    "review_required_code",
+    "review_required_label",
+    "gap_ratio",
+    "priority_score"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "gap_cluster_pk": { "type": "string", "minLength": 1 },
+    "run_pk": { "type": "string", "minLength": 1 },
+    "sector_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "sector_label",
+      "x-value-labels": {
+        "1": "Blue Biotech",
+        "2": "Coastal Tourism",
+        "3": "Desalination",
+        "4": "Infra & Robotics",
+        "5": "Living Res.",
+        "6": "Non-living Res.",
+        "7": "Renewable Energy",
+        "8": "Maritime Defence",
+        "9": "Maritime Transport",
+        "10": "Port Activities",
+        "11": "R&I",
+        "12": "Ship Repair",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -99, -98, -97, -96, -95]
+    },
+    "sector_label": { "type": "string", "minLength": 1 },
+    "qmbd_axis_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, 4, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "qmbd_axis_label",
+      "x-value-labels": {
+        "1": "Marine",
+        "2": "Maritime",
+        "3": "Oceanic",
+        "4": "Multi-axis",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [1, 2, 3, 4, -99, -98, -97, -96, -95]
+    },
+    "qmbd_axis_label": { "type": "string", "minLength": 1 },
+    "priority_tier_code": {
+      "type": "integer",
+      "enum": [1, 2, 3, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "priority_tier_label",
+      "x-value-labels": {
+        "1": "high",
+        "2": "medium",
+        "3": "low",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "ordinal",
+      "x-allowed-values": [1, 2, 3, -99, -98, -97, -96, -95]
+    },
+    "priority_tier_label": { "type": "string", "minLength": 1 },
+    "review_required_code": {
+      "type": "integer",
+      "enum": [0, 1, -99, -98, -97, -96, -95],
+      "x-categorical": true,
+      "x-label-field": "review_required_label",
+      "x-value-labels": {
+        "0": "No",
+        "1": "Yes",
+        "-99": "Unknown",
+        "-98": "Not extracted",
+        "-97": "Not applicable",
+        "-96": "Restricted",
+        "-95": "Validation error"
+      },
+      "x-missing-codes": [-99, -98, -97, -96, -95],
+      "x-measurement-level": "nominal",
+      "x-allowed-values": [0, 1, -99, -98, -97, -96, -95]
+    },
+    "review_required_label": { "type": "string", "minLength": 1 },
+    "gap_ratio": { "type": "number", "minimum": 0 },
+    "priority_score": { "type": "number", "minimum": 0 }
+  }
+}

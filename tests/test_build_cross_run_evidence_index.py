@@ -3,16 +3,18 @@ from __future__ import annotations
 import csv
 import importlib.util
 import json
+import subprocess
 import sys
 from pathlib import Path
-
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATH = REPO_ROOT / "scripts" / "build_cross_run_evidence_index.py"
 
 
 def _load_module():
-    spec = importlib.util.spec_from_file_location("build_cross_run_evidence_index", SCRIPT_PATH)
+    spec = importlib.util.spec_from_file_location(
+        "build_cross_run_evidence_index", SCRIPT_PATH
+    )
     module = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
     assert spec.loader is not None
     sys.modules[spec.name] = module
@@ -58,7 +60,12 @@ def _seed_run_archive(root: Path) -> None:
     _write_json(
         run_a / "research_sources" / "live_records.json",
         [
-            {"doi": "10.1000/abc", "source_id": "SRC-A-1", "title": "Alpha", "axis_name": "M"},
+            {
+                "doi": "10.1000/abc",
+                "source_id": "SRC-A-1",
+                "title": "Alpha",
+                "axis_name": "M",
+            },
             {"source_id": "SRC-A-2", "title": "Beta", "record_origin": "live-crossref"},
         ],
     )
@@ -128,7 +135,9 @@ def test_build_cross_run_evidence_index_builds_tables_and_skips_invalid_run(
     occurrence_rows = _read_csv(output_dir / "cross_run_evidence_occurrences.csv")
     index_rows = _read_csv(output_dir / "cross_run_evidence_index.csv")
     report = json.loads(
-        (output_dir / "cross_run_evidence_build_report.json").read_text(encoding="utf-8")
+        (output_dir / "cross_run_evidence_build_report.json").read_text(
+            encoding="utf-8"
+        )
     )
 
     assert [row["run_id"] for row in summary_rows] == ["run-a", "run-b"]
@@ -141,7 +150,10 @@ def test_build_cross_run_evidence_index_builds_tables_and_skips_invalid_run(
     assert alpha_rows[0]["run_count"] == "2"
     assert alpha_rows[0]["occurrence_count"] == "3"
 
-    assert any(row["dedupe_field_used"] == "title" and row["title"] == "Gamma" for row in occurrence_rows)
+    assert any(
+        row["dedupe_field_used"] == "title" and row["title"] == "Gamma"
+        for row in occurrence_rows
+    )
 
 
 def test_build_cross_run_evidence_index_fails_on_invalid_when_enabled(
@@ -179,3 +191,97 @@ def test_build_cross_run_evidence_index_fails_when_cumulative_index_is_missing(
         ]
     )
     assert exit_code == 1
+
+
+def test_build_cross_run_evidence_index_includes_manual_ledger_occurrences(
+    tmp_path: Path,
+) -> None:
+    module = _load_module()
+    _seed_run_archive(tmp_path)
+
+    manual_dir = tmp_path / "outputs" / "manual_sources"
+    _write_text(
+        manual_dir / "manual_sources_ledger.jsonl",
+        "\n".join(
+            [
+                json.dumps(
+                    {
+                        "source_id": "manual_src_abc123",
+                        "file_name": "manual-report.pdf",
+                        "title": "Manual Report",
+                        "ingested_at_utc": "2026-07-01T00:00:00+00:00",
+                    }
+                ),
+                json.dumps(
+                    {
+                        "source_id": "manual_src_def456",
+                        "title": "Second Manual",
+                        "ingested_at_utc": "2026-07-02T00:00:00+00:00",
+                    }
+                ),
+            ]
+        )
+        + "\n",
+    )
+
+    exit_code = module.main(
+        [
+            "--archive-root",
+            str(tmp_path / "outputs" / "run_archive"),
+            "--output-dir",
+            str(tmp_path / "outputs" / "run_archive"),
+            "--fail-on-invalid",
+            "false",
+            "--manual-ledger",
+            str(manual_dir / "manual_sources_ledger.jsonl"),
+        ]
+    )
+    assert exit_code == 0
+
+    rows = _read_csv(
+        tmp_path / "outputs" / "run_archive" / "cross_run_evidence_occurrences.csv"
+    )
+    manual_rows = [row for row in rows if row["dataset"] == "manual_supporting_sources"]
+    assert len(manual_rows) == 2
+
+
+def test_build_cross_run_evidence_index_cli_entrypoint_receives_manual_ledger_flag(
+    tmp_path: Path,
+) -> None:
+    _seed_run_archive(tmp_path)
+    manual_dir = tmp_path / "outputs" / "manual_sources"
+    _write_text(
+        manual_dir / "manual_sources_ledger.jsonl",
+        json.dumps(
+            {
+                "source_id": "manual_src_cli_001",
+                "title": "CLI Manual",
+                "ingested_at_utc": "2026-07-01T00:00:00+00:00",
+            }
+        )
+        + "\n",
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT_PATH),
+            "--archive-root",
+            str(tmp_path / "outputs" / "run_archive"),
+            "--output-dir",
+            str(tmp_path / "outputs" / "run_archive"),
+            "--fail-on-invalid",
+            "false",
+            "--manual-ledger",
+            str(manual_dir / "manual_sources_ledger.jsonl"),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    rows = _read_csv(
+        tmp_path / "outputs" / "run_archive" / "cross_run_evidence_occurrences.csv"
+    )
+    assert any(row["dataset"] == "manual_supporting_sources" for row in rows)

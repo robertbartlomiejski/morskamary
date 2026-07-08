@@ -53,8 +53,14 @@ ANALYSIS_VIEW_TARGETS: tuple[str, ...] = (
 
 INDEX_CSV_COLUMNS: tuple[str, ...] = (
     "timestamp_utc",
+    "analysis_timestamp_utc",
     "run_id",
     "run_path",
+    "analysis_input_mode",
+    "is_static_recovery_mode",
+    "static_recovery_reason",
+    "allow_static_recovery_mode_env",
+    "provider_set",
     "github_run_id",
     "github_run_attempt",
     "github_run_number",
@@ -79,6 +85,17 @@ INDEX_CSV_COLUMNS: tuple[str, ...] = (
     "credentials_count",
     "file_count",
     "total_bytes",
+)
+
+REQUIRED_CUMULATIVE_METADATA_FIELDS: tuple[str, ...] = (
+    "analysis_input_mode",
+    "is_static_recovery_mode",
+    "static_recovery_reason",
+    "allow_static_recovery_mode_env",
+    "provider_set",
+    "github_run_id",
+    "commit_sha",
+    "timestamp_utc",
 )
 
 
@@ -297,6 +314,20 @@ def _write_checksums(run_dir: Path, archived_files: list[ArchivedFile]) -> None:
     checksum_path.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
 
 
+def _load_cumulative_metadata(repo_root: Path) -> dict[str, Any]:
+    """Load top-level cumulative ledger metadata when present."""
+    cumulative_path = repo_root / "outputs/cumulative_qmbd_records.json"
+    payload = json.loads(cumulative_path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        return {}
+    metadata = payload.get("metadata", {})
+    if not isinstance(metadata, dict):
+        return {}
+    normalized = dict(metadata)
+    normalized.setdefault("warnings", [])
+    return normalized
+
+
 def _append_jsonl_index(
     archive_root: Path,
     run_id: str,
@@ -322,8 +353,18 @@ def _append_csv_index(archive_root: Path, manifest_payload: dict[str, Any]) -> N
     csv_path = archive_root / "cumulative_runs_index.csv"
     row = {
         "timestamp_utc": manifest_payload["timestamp_utc"],
+        "analysis_timestamp_utc": manifest_payload["analysis_timestamp_utc"],
         "run_id": manifest_payload["run_id"],
         "run_path": manifest_payload["run_path"],
+        "analysis_input_mode": manifest_payload["analysis_input_mode"],
+        "is_static_recovery_mode": str(
+            manifest_payload["is_static_recovery_mode"]
+        ).lower(),
+        "static_recovery_reason": manifest_payload["static_recovery_reason"],
+        "allow_static_recovery_mode_env": manifest_payload[
+            "allow_static_recovery_mode_env"
+        ],
+        "provider_set": manifest_payload["provider_set"],
         "github_run_id": manifest_payload["github_run_id"],
         "github_run_attempt": manifest_payload["github_run_attempt"],
         "github_run_number": manifest_payload["github_run_number"],
@@ -400,6 +441,7 @@ def archive_run_outputs(
     query_file = str(workflow_metadata["query_file"])
     try:
         metrics = _collect_methodological_metrics(repo_root, query_file)
+        cumulative_metadata = _load_cumulative_metadata(repo_root)
     except (FileNotFoundError, OSError, json.JSONDecodeError, ValueError) as exc:
         print(f"ERROR: could not compute methodological metrics: {exc}", file=sys.stderr)
         return 1
@@ -420,11 +462,13 @@ def archive_run_outputs(
     _write_checksums(run_dir, archived_files)
 
     timestamp_utc = _now_utc_iso()
+    manifest_warnings = list(cumulative_metadata.get("warnings", []))
     manifest_payload: dict[str, Any] = {
         "manifest_schema": MANIFEST_SCHEMA_PATH,
         "requested_run_id": run_id,
         "run_id": resolved_run_id,
         "timestamp_utc": timestamp_utc,
+        "analysis_timestamp_utc": str(cumulative_metadata.get("timestamp_utc", "")),
         "archived_at": timestamp_utc,
         "archive_root": archive_root.as_posix(),
         "run_path": _archive_relative_run_path(resolved_run_id),
@@ -432,11 +476,27 @@ def archive_run_outputs(
         "file_count": len(archived_files),
         "total_bytes": sum(item.size_bytes for item in archived_files),
         "workflow": workflow_metadata,
+        "analysis_input_mode": str(cumulative_metadata.get("analysis_input_mode", "")),
+        "is_static_recovery_mode": bool(
+            cumulative_metadata.get("is_static_recovery_mode", False)
+        ),
+        "static_recovery_reason": str(
+            cumulative_metadata.get("static_recovery_reason", "")
+        ),
+        "allow_static_recovery_mode_env": str(
+            cumulative_metadata.get("allow_static_recovery_mode_env", "")
+        ),
+        "provider_set": str(cumulative_metadata.get("provider_set", "")),
+        "warnings": manifest_warnings,
         "workflow_name": str(workflow_metadata["name"]),
         "event_name": str(workflow_metadata["event"]),
-        "commit_sha": str(workflow_metadata["git_sha"]),
+        "commit_sha": str(
+            cumulative_metadata.get("commit_sha", workflow_metadata["git_sha"])
+        ),
         "branch_ref": str(workflow_metadata["git_ref"]),
-        "github_run_id": str(workflow_metadata["github_run_id"]),
+        "github_run_id": str(
+            cumulative_metadata.get("github_run_id", workflow_metadata["github_run_id"])
+        ),
         "github_run_attempt": str(workflow_metadata["github_run_attempt"]),
         "github_run_number": str(workflow_metadata["github_run_number"]),
         "github_job": str(workflow_metadata["github_job"]),
@@ -466,6 +526,14 @@ def archive_run_outputs(
             for item in archived_files
         ],
     }
+    for field in REQUIRED_CUMULATIVE_METADATA_FIELDS:
+        if field not in cumulative_metadata:
+            print(
+                f"ERROR: cumulative_qmbd_records.json metadata missing required field "
+                f"'{field}'",
+                file=sys.stderr,
+            )
+            return 1
 
     manifest_json = json.dumps(manifest_payload, indent=2, ensure_ascii=False) + "\n"
     (run_dir / CANONICAL_MANIFEST_FILENAME).write_text(manifest_json, encoding="utf-8")

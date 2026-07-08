@@ -838,6 +838,622 @@
           "year": "2020",
           "doi": "10.1386/JCS_00022_1"
         }
+      },
+      {
+        "id": "lit_live_crossref_00945",
+        "name": "Live API (Crossref): Coastal and Port Security",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Coastal and Port Security (Girish Chandrakant Gujar, Adolf K. Y. Ng, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 945,
+          "paper_title": "Coastal and Port Security",
+          "authors": "Girish Chandrakant Gujar, Adolf K. Y. Ng",
+          "year": "2023",
+          "doi": "10.1007/978-3-031-21634-3_4"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01007",
+        "name": "Live API (Crossref): Advancing coordination in critical maritime infrastructure protection:",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Advancing coordination in critical maritime infrastructure protection: Lessons from maritime piracy and cybersecurity (Tobias Liebetrau, Christian Bueger, 2024).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1007,
+          "paper_title": "Advancing coordination in critical maritime infrastructure protection: Lessons from maritime piracy and cybersecurity",
+          "authors": "Tobias Liebetrau, Christian Bueger",
+          "year": "2024",
+          "doi": "10.1016/j.ijcip.2024.100683"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01008",
+        "name": "Live API (Crossref): Private security services - Protection of critical infrastructure",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Private security services - Protection of critical infrastructure (Unknown, ).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1008,
+          "paper_title": "Private security services - Protection of critical infrastructure",
+          "authors": "Unknown",
+          "year": "",
+          "doi": "10.3403/30457294u"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01009",
+        "name": "Live API (Crossref): Public–Private Partnerships are no silver bullet: An expanded governan",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Public–Private Partnerships are no silver bullet: An expanded governance model for Critical Infrastructure Protection (Myriam Dunn-Cavelty, Manuel Suter, 2009).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1009,
+          "paper_title": "Public–Private Partnerships are no silver bullet: An expanded governance model for Critical Infrastructure Protection",
+          "authors": "Myriam Dunn-Cavelty, Manuel Suter",
+          "year": "2009",
+          "doi": "10.1016/j.ijcip.2009.08.006"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01010",
+        "name": "Live API (Crossref): Black Sea Offshore Energy Infrastructure Protection and Defense",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Black Sea Offshore Energy Infrastructure Protection and Defense (Mihai Știr, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1010,
+          "paper_title": "Black Sea Offshore Energy Infrastructure Protection and Defense",
+          "authors": "Mihai Știr",
+          "year": "2025",
+          "doi": "10.1007/978-94-024-2300-6_11"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01011",
+        "name": "Live API (Crossref): Digital transformation of the maritime industry: A cybersecurity syste",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital transformation of the maritime industry: A cybersecurity systemic approach (Evripidis P. Kechagias, Georgios Chatzistelios, Georgios A. , 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1011,
+          "paper_title": "Digital transformation of the maritime industry: A cybersecurity systemic approach",
+          "authors": "Evripidis P. Kechagias, Georgios Chatzistelios, Georgios A. Papadopoulos, Panagiotis Apostolou",
+          "year": "2022",
+          "doi": "10.1016/j.ijcip.2022.100526"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01012",
+        "name": "Live API (Crossref): Valuable and Vulnerable: Protecting Maritime Infrastructure",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Valuable and Vulnerable: Protecting Maritime Infrastructure (Wilson Brian, 2014).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1012,
+          "paper_title": "Valuable and Vulnerable: Protecting Maritime Infrastructure",
+          "authors": "Wilson Brian",
+          "year": "2014",
+          "doi": "10.3233/978-1-61499-357-5-83"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01013",
+        "name": "Live API (Crossref): National and international maritime situational awareness model exampl",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: National and international maritime situational awareness model examples and the effects of North Stream Pipelines sabot (Tolga Ahmet Gülcan, Kadir Emrah Erginer, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1013,
+          "paper_title": "National and international maritime situational awareness model examples and the effects of North Stream Pipelines sabot",
+          "authors": "Tolga Ahmet Gülcan, Kadir Emrah Erginer",
+          "year": "2023",
+          "doi": "10.1016/j.ijcip.2023.100624"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01014",
+        "name": "Live API (Crossref): On Critical Infrastructure",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: On Critical Infrastructure (Sergiu Mitrescu, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1014,
+          "paper_title": "On Critical Infrastructure",
+          "authors": "Sergiu Mitrescu",
+          "year": "2025",
+          "doi": "10.1007/978-94-024-2300-6_1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01015",
+        "name": "Live API (Crossref): Critical maritime infrastructure protection: What’s the trouble?",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical maritime infrastructure protection: What’s the trouble? (Christian Bueger, Tobias Liebetrau, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1015,
+          "paper_title": "Critical maritime infrastructure protection: What’s the trouble?",
+          "authors": "Christian Bueger, Tobias Liebetrau",
+          "year": "2023",
+          "doi": "10.1016/j.marpol.2023.105772"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01016",
+        "name": "Live API (Crossref): Critical infrastructure protection",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical infrastructure protection (Richard George, 2008).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1016,
+          "paper_title": "Critical infrastructure protection",
+          "authors": "Richard George",
+          "year": "2008",
+          "doi": "10.1016/j.ijcip.2008.08.010"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01017",
+        "name": "Live API (Crossref): Critical Maritime Infrastructure in the North and Norwegian Seas: Navi",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical Maritime Infrastructure in the North and Norwegian Seas: Navigating Security Challenges in the Green Energy Tra (Andrew W. Neal, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1017,
+          "paper_title": "Critical Maritime Infrastructure in the North and Norwegian Seas: Navigating Security Challenges in the Green Energy Tra",
+          "authors": "Andrew W. Neal",
+          "year": "2025",
+          "doi": "10.1007/978-94-024-2300-6_10"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01018",
+        "name": "Live API (Crossref): Models of critical information infrastructure protection",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Models of critical information infrastructure protection (Dan Assaf, 2008).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1018,
+          "paper_title": "Models of critical information infrastructure protection",
+          "authors": "Dan Assaf",
+          "year": "2008",
+          "doi": "10.1016/j.ijcip.2008.08.004"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01019",
+        "name": "Live API (Crossref): In the Crosshairs: Hybrid Threats and the Challenge to Maritime Infras",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: In the Crosshairs: Hybrid Threats and the Challenge to Maritime Infrastructure (Sergiu Mitrescu, Martin Sokolov, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1019,
+          "paper_title": "In the Crosshairs: Hybrid Threats and the Challenge to Maritime Infrastructure",
+          "authors": "Sergiu Mitrescu, Martin Sokolov",
+          "year": "2025",
+          "doi": "10.1007/978-94-024-2300-6_6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01020",
+        "name": "Live API (Crossref): Developments and research directions in maritime cybersecurity: A syst",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Developments and research directions in maritime cybersecurity: A systematic literature review and bibliometric analysis (Victor Bolbot, Ketki Kulkarni, Päivi Brunou, Osiris Valdez B, 2022).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1020,
+          "paper_title": "Developments and research directions in maritime cybersecurity: A systematic literature review and bibliometric analysis",
+          "authors": "Victor Bolbot, Ketki Kulkarni, Päivi Brunou, Osiris Valdez Banda, Mashrura Musharraf",
+          "year": "2022",
+          "doi": "10.1016/j.ijcip.2022.100571"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01021",
+        "name": "Live API (Crossref): Securing Digital Corridors Under Hybrid Threats:Extending SDAF to Cybe",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Securing Digital Corridors Under Hybrid Threats:Extending SDAF to Cybersecurity Governance of Critical Maritime Infrastr (Rahid Zahid Alekberli, Hikmat Karimov, 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1021,
+          "paper_title": "Securing Digital Corridors Under Hybrid Threats:Extending SDAF to Cybersecurity Governance of Critical Maritime Infrastr",
+          "authors": "Rahid Zahid Alekberli, Hikmat Karimov",
+          "year": "2026",
+          "doi": "10.20944/preprints202605.0307.v1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01022",
+        "name": "Live API (Crossref): Shipping as a critical infrastructure",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Shipping as a critical infrastructure (Magdalena Bogalecka, 2020).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1022,
+          "paper_title": "Shipping as a critical infrastructure",
+          "authors": "Magdalena Bogalecka",
+          "year": "2020",
+          "doi": "10.1016/b978-0-12-819675-5.00002-4"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01023",
+        "name": "Live API (Crossref): There’s infrastructure and …critical infrastructure",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: There’s infrastructure and …critical infrastructure (Robert A. Miller, 2009).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1023,
+          "paper_title": "There’s infrastructure and …critical infrastructure",
+          "authors": "Robert A. Miller",
+          "year": "2009",
+          "doi": "10.1016/j.ijcip.2009.02.003"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01024",
+        "name": "Live API (Crossref): After Nord Stream: four security dilemmas in critical maritime infrast",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: After Nord Stream: four security dilemmas in critical maritime infrastructure protection (Andrew W Neal, 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1024,
+          "paper_title": "After Nord Stream: four security dilemmas in critical maritime infrastructure protection",
+          "authors": "Andrew W Neal",
+          "year": "2026",
+          "doi": "10.1093/ia/iiaf229"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01025",
+        "name": "Live API (Crossref): Critical thinking: exploring the expansion of critical infrastructure",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical thinking: exploring the expansion of critical infrastructure (Russell Lundberg, 2026).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1025,
+          "paper_title": "Critical thinking: exploring the expansion of critical infrastructure",
+          "authors": "Russell Lundberg",
+          "year": "2026",
+          "doi": "10.1016/j.ijcip.2025.100814"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01026",
+        "name": "Live API (Crossref): Two securities: How contemporary cyber geopolitics impacts critical in",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Two securities: How contemporary cyber geopolitics impacts critical infrastructure protection (Chris Bronk, 2015).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1026,
+          "paper_title": "Two securities: How contemporary cyber geopolitics impacts critical infrastructure protection",
+          "authors": "Chris Bronk",
+          "year": "2015",
+          "doi": "10.1016/j.ijcip.2014.12.001"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01027",
+        "name": "Live API (Crossref): Modeling critical infrastructure accident consequences",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Modeling critical infrastructure accident consequences (Magdalena Bogalecka, 2020).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1027,
+          "paper_title": "Modeling critical infrastructure accident consequences",
+          "authors": "Magdalena Bogalecka",
+          "year": "2020",
+          "doi": "10.1016/b978-0-12-819675-5.00003-6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01028",
+        "name": "Live API (Crossref): Modeling critical infrastructure accident losses",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Modeling critical infrastructure accident losses (Magdalena Bogalecka, 2020).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1028,
+          "paper_title": "Modeling critical infrastructure accident losses",
+          "authors": "Magdalena Bogalecka",
+          "year": "2020",
+          "doi": "10.1016/b978-0-12-819675-5.00006-1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01029",
+        "name": "Live API (Crossref): Optimization of critical infrastructure accident losses",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Optimization of critical infrastructure accident losses (Magdalena Bogalecka, 2020).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1029,
+          "paper_title": "Optimization of critical infrastructure accident losses",
+          "authors": "Magdalena Bogalecka",
+          "year": "2020",
+          "doi": "10.1016/b978-0-12-819675-5.00007-3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01030",
+        "name": "Live API (Crossref): The Telecoms Inclusion Principle",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Telecoms Inclusion Principle (Chris W. Johnson, 2013).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1030,
+          "paper_title": "The Telecoms Inclusion Principle",
+          "authors": "Chris W. Johnson",
+          "year": "2013",
+          "doi": "10.4018/978-1-4666-2964-6.ch014"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01031",
+        "name": "Live API (Crossref): Identification of critical infrastructure accident consequences",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Identification of critical infrastructure accident consequences (Magdalena Bogalecka, 2020).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1031,
+          "paper_title": "Identification of critical infrastructure accident consequences",
+          "authors": "Magdalena Bogalecka",
+          "year": "2020",
+          "doi": "10.1016/b978-0-12-819675-5.00004-8"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01032",
+        "name": "Live API (Crossref): Cyber risk assessment of cyber-enabled autonomous cargo vessel",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cyber risk assessment of cyber-enabled autonomous cargo vessel (Awais Yousaf, Ahmed Amro, Philip Teow Huat Kwa, Meixuan Li, , 2024).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1032,
+          "paper_title": "Cyber risk assessment of cyber-enabled autonomous cargo vessel",
+          "authors": "Awais Yousaf, Ahmed Amro, Philip Teow Huat Kwa, Meixuan Li, Jianying Zhou",
+          "year": "2024",
+          "doi": "10.1016/j.ijcip.2024.100695"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01033",
+        "name": "Live API (Crossref): Unmanned Surface Vehicles in Maritime Critical Infrastructure Protecti",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Unmanned Surface Vehicles in Maritime Critical Infrastructure Protection Applications — LNG Terminal in Świnoujście (Rafał Miętkiewicz, 2018).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1033,
+          "paper_title": "Unmanned Surface Vehicles in Maritime Critical Infrastructure Protection Applications — LNG Terminal in Świnoujście",
+          "authors": "Rafał Miętkiewicz",
+          "year": "2018",
+          "doi": "10.2478/sjpna-2018-0012"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01034",
+        "name": "Live API (Crossref): Mitigation of critical infrastructure accident losses",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Mitigation of critical infrastructure accident losses (Magdalena Bogalecka, 2020).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1034,
+          "paper_title": "Mitigation of critical infrastructure accident losses",
+          "authors": "Magdalena Bogalecka",
+          "year": "2020",
+          "doi": "10.1016/b978-0-12-819675-5.00008-5"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01035",
+        "name": "Live API (Crossref): Prediction of critical infrastructure accident consequences",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Prediction of critical infrastructure accident consequences (Magdalena Bogalecka, 2020).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1035,
+          "paper_title": "Prediction of critical infrastructure accident consequences",
+          "authors": "Magdalena Bogalecka",
+          "year": "2020",
+          "doi": "10.1016/b978-0-12-819675-5.00005-x"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01036",
+        "name": "Live API (Crossref): Legally critical: Defining critical infrastructure in an interconnecte",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Legally critical: Defining critical infrastructure in an interconnected world (Jakub Harašta, 2018).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1036,
+          "paper_title": "Legally critical: Defining critical infrastructure in an interconnected world",
+          "authors": "Jakub Harašta",
+          "year": "2018",
+          "doi": "10.1016/j.ijcip.2018.05.007"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01037",
+        "name": "Live API (Crossref): GIS-based Command and Control Infrastructure for Critical Infrastructu",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: GIS-based Command and Control Infrastructure for Critical Infrastructure Protection (S.D. Wolthusen, ).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1037,
+          "paper_title": "GIS-based Command and Control Infrastructure for Critical Infrastructure Protection",
+          "authors": "S.D. Wolthusen",
+          "year": "",
+          "doi": "10.1109/iwcip.2005.12"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01038",
+        "name": "Live API (Crossref): Vulnerability analysis of critical infrastructure network",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Vulnerability analysis of critical infrastructure network (A. Kizhakkedath, K. Tai, 2021).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1038,
+          "paper_title": "Vulnerability analysis of critical infrastructure network",
+          "authors": "A. Kizhakkedath, K. Tai",
+          "year": "2021",
+          "doi": "10.1016/j.ijcip.2021.100472"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01039",
+        "name": "Live API (Crossref): Critical infrastructure protection under imperfect attacker perception",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical infrastructure protection under imperfect attacker perception (Erik Jenelius, Jonas Westin, Åke J. Holmgren, 2010).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1039,
+          "paper_title": "Critical infrastructure protection under imperfect attacker perception",
+          "authors": "Erik Jenelius, Jonas Westin, Åke J. Holmgren",
+          "year": "2010",
+          "doi": "10.1016/j.ijcip.2009.10.002"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01040",
+        "name": "Live API (Crossref): New threats and research problems for critical infrastructure",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: New threats and research problems for critical infrastructure (Roberto Setola, 2023).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1040,
+          "paper_title": "New threats and research problems for critical infrastructure",
+          "authors": "Roberto Setola",
+          "year": "2023",
+          "doi": "10.1016/s1874-5482(23)00042-2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01041",
+        "name": "Live API (Crossref): Consequences of Maritime Critical Infrastructure Accidents",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Consequences of Maritime Critical Infrastructure Accidents (Unknown, 2020).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1041,
+          "paper_title": "Consequences of Maritime Critical Infrastructure Accidents",
+          "authors": "Unknown",
+          "year": "2020",
+          "doi": "10.1016/c2019-0-00396-2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01042",
+        "name": "Live API (Crossref): Editorial",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Editorial (Unknown, 2020).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1042,
+          "paper_title": "Editorial",
+          "authors": "Unknown",
+          "year": "2020",
+          "doi": "10.1016/j.ijcip.2020.100386"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01043",
+        "name": "Live API (Crossref): Proceedings. First IEEE International Workshop on Critical Infrastruct",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Proceedings. First IEEE International Workshop on Critical Infrastructure Protection (Unknown, 2005).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1043,
+          "paper_title": "Proceedings. First IEEE International Workshop on Critical Infrastructure Protection",
+          "authors": "Unknown",
+          "year": "2005",
+          "doi": "10.1109/iwcip.2005.11"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01044",
+        "name": "Live API (Crossref): Protecting Critical Infrastructure: Methods and Techniques",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Protecting Critical Infrastructure: Methods and Techniques (Krzysztof Wysocki, 2024).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1044,
+          "paper_title": "Protecting Critical Infrastructure: Methods and Techniques",
+          "authors": "Krzysztof Wysocki",
+          "year": "2024",
+          "doi": "10.1007/978-3-031-60167-5_3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01045",
+        "name": "Live API (Crossref): Protection of critical infrastructure facilities in Southern Ukraine a",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Protection of critical infrastructure facilities in Southern Ukraine as an important element of ensuring maritime securi (Oleksandr Yuriyovych Konev, 2025).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1045,
+          "paper_title": "Protection of critical infrastructure facilities in Southern Ukraine as an important element of ensuring maritime securi",
+          "authors": "Oleksandr Yuriyovych Konev",
+          "year": "2025",
+          "doi": "10.30525/978-9934-26-645-4-27"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01046",
+        "name": "Live API (Crossref): Interactive visualizations for critical infrastructure analysis",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Interactive visualizations for critical infrastructure analysis (William J. Tolone, 2009).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1046,
+          "paper_title": "Interactive visualizations for critical infrastructure analysis",
+          "authors": "William J. Tolone",
+          "year": "2009",
+          "doi": "10.1016/j.ijcip.2009.07.004"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01047",
+        "name": "Live API (Crossref): Critical Entities Resilience",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical Entities Resilience (Roberto Setola, 2024).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1047,
+          "paper_title": "Critical Entities Resilience",
+          "authors": "Roberto Setola",
+          "year": "2024",
+          "doi": "10.1016/s1874-5482(24)00029-5"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01048",
+        "name": "Live API (Crossref): SafeCI: Avoiding process anomalies in critical infrastructure",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: SafeCI: Avoiding process anomalies in critical infrastructure (Sridhar adepu, Aditya Mathur, 2021).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1048,
+          "paper_title": "SafeCI: Avoiding process anomalies in critical infrastructure",
+          "authors": "Sridhar adepu, Aditya Mathur",
+          "year": "2021",
+          "doi": "10.1016/j.ijcip.2021.100435"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01049",
+        "name": "Live API (Crossref): European Reference Network for Critical Infrastructure Protection",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: European Reference Network for Critical Infrastructure Protection (Adam M. Lewis, David Ward, Lukasz Cyra, Naouma Kourti, 2013).",
+        "axis": "MARITIME",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1049,
+          "paper_title": "European Reference Network for Critical Infrastructure Protection",
+          "authors": "Adam M. Lewis, David Ward, Lukasz Cyra, Naouma Kourti",
+          "year": "2013",
+          "doi": "10.1016/j.ijcip.2013.02.004"
+        }
       }
     ],
     "OCEANIC": [
@@ -2673,6 +3289,1238 @@
           "authors": "Christina Walter\nMatthias Schmidt",
           "year": "2022",
           "doi": "10.1080/02508060.2022.2131156"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00204",
+        "name": "Live API (Crossref): Smart Governance for a Sustainable Blue Economy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Governance for a Sustainable Blue Economy (Nitin Agarwala, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 204,
+          "paper_title": "Smart Governance for a Sustainable Blue Economy",
+          "authors": "Nitin Agarwala",
+          "year": "2026",
+          "doi": "10.1007/978-3-032-19927-0_37"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00218",
+        "name": "Live API (Crossref): Cities and regions for a blue economy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cities and regions for a blue economy (Oriana Romano, Juliette Lassman, Georges Laimé, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 218,
+          "paper_title": "Cities and regions for a blue economy",
+          "authors": "Oriana Romano, Juliette Lassman, Georges Laimé",
+          "year": "2023",
+          "doi": "10.24241/notesint.2023/296/en"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00920",
+        "name": "Live API (Crossref): Maritime Security and the Blue Economy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Security and the Blue Economy (Anja Menzel, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 920,
+          "paper_title": "Maritime Security and the Blue Economy",
+          "authors": "Anja Menzel",
+          "year": "2022",
+          "doi": "10.4324/9781003001324-25"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00921",
+        "name": "Live API (Crossref): IORA, The Blue Economy and Ocean Governance",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: IORA, The Blue Economy and Ocean Governance (V. N. Attri, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 921,
+          "paper_title": "IORA, The Blue Economy and Ocean Governance",
+          "authors": "V. N. Attri",
+          "year": "2018",
+          "doi": "10.1142/9789813238237_0011"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00922",
+        "name": "Live API (Crossref): Maritime Security in Ghana’s Blue Economy: Exploring Socio-Economic Re",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Security in Ghana’s Blue Economy: Exploring Socio-Economic Realities and Governance (Elsie Amelia Tachie-Menson, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 922,
+          "paper_title": "Maritime Security in Ghana’s Blue Economy: Exploring Socio-Economic Realities and Governance",
+          "authors": "Elsie Amelia Tachie-Menson",
+          "year": "2026",
+          "doi": "10.63990/afsol.v6i2.13168"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00923",
+        "name": "Live API (Crossref): The Blue Economy Beckons",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Blue Economy Beckons (James Alix Michel, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 923,
+          "paper_title": "The Blue Economy Beckons",
+          "authors": "James Alix Michel",
+          "year": "2018",
+          "doi": "10.1142/9789813238237_0016"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00924",
+        "name": "Live API (Crossref): Ocean governance and the blue economy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Ocean governance and the blue economy (Peter B. Myles, 2017).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 924,
+          "paper_title": "Ocean governance and the blue economy",
+          "authors": "Peter B. Myles",
+          "year": "2017",
+          "doi": "10.4324/9781315646152-9"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00925",
+        "name": "Live API (Crossref): Maritime Safety and Security and Development of the Blue Economy in th",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Safety and Security and Development of the Blue Economy in the Indian Ocean Rim Association (IORA) (K. V. Bhagirath, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 925,
+          "paper_title": "Maritime Safety and Security and Development of the Blue Economy in the Indian Ocean Rim Association (IORA)",
+          "authors": "K. V. Bhagirath",
+          "year": "2018",
+          "doi": "10.1142/9789813238237_0004"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00926",
+        "name": "Live API (Crossref): Legal Pluralism, Maritime Security, and the Blue Economy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Legal Pluralism, Maritime Security, and the Blue Economy (Benson Nyamweno Nyamweno, Nyamira Enock Nyamira, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 926,
+          "paper_title": "Legal Pluralism, Maritime Security, and the Blue Economy",
+          "authors": "Benson Nyamweno Nyamweno, Nyamira Enock Nyamira",
+          "year": "2026",
+          "doi": "10.64403/a58mpr23"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00927",
+        "name": "Live API (Crossref): Blockchain Technology in Maritime Supply Chains: A Review of Transpare",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blockchain Technology in Maritime Supply Chains: A Review of Transparency, Traceability, and Governance Impacts (Kim Corbin, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 927,
+          "paper_title": "Blockchain Technology in Maritime Supply Chains: A Review of Transparency, Traceability, and Governance Impacts",
+          "authors": "Kim Corbin",
+          "year": "2026",
+          "doi": "10.61424/jmbem.v1i1.892"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00928",
+        "name": "Live API (Crossref): Role of sustainable development in BIMSTEC maritime security and blue",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Role of sustainable development in BIMSTEC maritime security and blue economy framework (Swati Ganeshan, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 928,
+          "paper_title": "Role of sustainable development in BIMSTEC maritime security and blue economy framework",
+          "authors": "Swati Ganeshan",
+          "year": "2021",
+          "doi": "10.4324/9781003230687-13"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00929",
+        "name": "Live API (Crossref): Maritime Security: Call of the Seas",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Security: Call of the Seas (Girish Chandrakant Gujar, Adolf K. Y. Ng, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 929,
+          "paper_title": "Maritime Security: Call of the Seas",
+          "authors": "Girish Chandrakant Gujar, Adolf K. Y. Ng",
+          "year": "2023",
+          "doi": "10.1007/978-3-031-21634-3_2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00930",
+        "name": "Live API (Crossref): Maritime Security and the Blue Economy in Southeast Asia",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Security and the Blue Economy in Southeast Asia (Rosalie Arcala Hall, Alexander C Tan, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 930,
+          "paper_title": "Maritime Security and the Blue Economy in Southeast Asia",
+          "authors": "Rosalie Arcala Hall, Alexander C Tan",
+          "year": "2026",
+          "doi": "10.1142/14822"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00931",
+        "name": "Live API (Crossref): Synchronizing India’s Maritime Security and Blue Economy: A Sustainabl",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Synchronizing India’s Maritime Security and Blue Economy: A Sustainable Development Approach (Mukund Narvenkar, Rahul Tripathi, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 931,
+          "paper_title": "Synchronizing India’s Maritime Security and Blue Economy: A Sustainable Development Approach",
+          "authors": "Mukund Narvenkar, Rahul Tripathi",
+          "year": "2026",
+          "doi": "10.22429/euc2026.jmr23.1.17"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00932",
+        "name": "Live API (Crossref): Blue Economy and Smart Sea Transport Systems",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy and Smart Sea Transport Systems (Girish Chandrakant Gujar, Adolf K. Y. Ng, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 932,
+          "paper_title": "Blue Economy and Smart Sea Transport Systems",
+          "authors": "Girish Chandrakant Gujar, Adolf K. Y. Ng",
+          "year": "2023",
+          "doi": "10.1007/978-3-031-21634-3_5"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00933",
+        "name": "Live API (Crossref): Maritime safety and security",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime safety and security (Jade Lindley, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 933,
+          "paper_title": "Maritime safety and security",
+          "authors": "Jade Lindley",
+          "year": "2021",
+          "doi": "10.4324/9780367822729-5"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00934",
+        "name": "Live API (Crossref): Building Industries at Sea: 'Blue Growth' and the New Maritime Economy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Building Industries at Sea: 'Blue Growth' and the New Maritime Economy (Kate Johnson, Gordon Dalton, Ian Masters, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 934,
+          "paper_title": "Building Industries at Sea: 'Blue Growth' and the New Maritime Economy",
+          "authors": "Kate Johnson, Gordon Dalton, Ian Masters",
+          "year": "2018",
+          "doi": "10.13052/rp-9788793609259"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00935",
+        "name": "Live API (Crossref): Maritime governance laws in Nigeria: catalyst for advancement of blue",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime governance laws in Nigeria: catalyst for advancement of blue finance and blue economy (Andrew Aondohemba Chenge, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 935,
+          "paper_title": "Maritime governance laws in Nigeria: catalyst for advancement of blue finance and blue economy",
+          "authors": "Andrew Aondohemba Chenge",
+          "year": "2025",
+          "doi": "10.1504/ijplap.2025.10072767"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00936",
+        "name": "Live API (Crossref): Maritime Clusters",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Clusters (Girish Chandrakant Gujar, Adolf K. Y. Ng, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 936,
+          "paper_title": "Maritime Clusters",
+          "authors": "Girish Chandrakant Gujar, Adolf K. Y. Ng",
+          "year": "2023",
+          "doi": "10.1007/978-3-031-21634-3_7"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00937",
+        "name": "Live API (Crossref): The Pandemic, the Blue Economy, and the Way Forward",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Pandemic, the Blue Economy, and the Way Forward (Girish Chandrakant Gujar, Adolf K. Y. Ng, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 937,
+          "paper_title": "The Pandemic, the Blue Economy, and the Way Forward",
+          "authors": "Girish Chandrakant Gujar, Adolf K. Y. Ng",
+          "year": "2023",
+          "doi": "10.1007/978-3-031-21634-3_9"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00938",
+        "name": "Live API (Crossref): Global Maritime Security Governance",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Global Maritime Security Governance (James Sperling, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 938,
+          "paper_title": "Global Maritime Security Governance",
+          "authors": "James Sperling",
+          "year": "2022",
+          "doi": "10.4324/9781003001324-8"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00939",
+        "name": "Live API (Crossref): Journal of Maritime and Blue Economy Management",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Journal of Maritime and Blue Economy Management (Unknown, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 939,
+          "paper_title": "Journal of Maritime and Blue Economy Management",
+          "authors": "Unknown",
+          "year": "",
+          "doi": "10.61424/jmbem"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00940",
+        "name": "Live API (Crossref): Safeguarding the Seas and Promoting a Sustainable Blue Economy Through",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Safeguarding the Seas and Promoting a Sustainable Blue Economy Through Maritime Security (Burak Şakir Şeker, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 940,
+          "paper_title": "Safeguarding the Seas and Promoting a Sustainable Blue Economy Through Maritime Security",
+          "authors": "Burak Şakir Şeker",
+          "year": "2026",
+          "doi": "10.4018/979-8-3373-5238-1.ch010"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00941",
+        "name": "Live API (Crossref): NAVIGATING THE DARK SIDE OF THE BLUE ECONOMY: INTEGRATING BLUE CRIME G",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: NAVIGATING THE DARK SIDE OF THE BLUE ECONOMY: INTEGRATING BLUE CRIME GOVERNANCE INTO SUSTAINABLE OCEAN DEVELOPMENT (ALI UMAR AHMAD, MARHAINI MOHD NOOR, JAGAN JEEVAN, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 941,
+          "paper_title": "NAVIGATING THE DARK SIDE OF THE BLUE ECONOMY: INTEGRATING BLUE CRIME GOVERNANCE INTO SUSTAINABLE OCEAN DEVELOPMENT",
+          "authors": "ALI UMAR AHMAD, MARHAINI MOHD NOOR, JAGAN JEEVAN",
+          "year": "2025",
+          "doi": "10.46754/jml.2025.12.003"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00942",
+        "name": "Live API (Crossref): India’s Maritime Security and Policy: An Imperative for the Blue Econo",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: India’s Maritime Security and Policy: An Imperative for the Blue Economy (Rashmi Singh, 2019).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 942,
+          "paper_title": "India’s Maritime Security and Policy: An Imperative for the Blue Economy",
+          "authors": "Rashmi Singh",
+          "year": "2019",
+          "doi": "10.1007/978-981-13-2020-0_17"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00943",
+        "name": "Live API (Crossref): Irrationality in Politics and Governance of Maritime Affairs: The Coll",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Irrationality in Politics and Governance of Maritime Affairs: The Collapse of Sovereign Maritime Governance (Okan Duru, 2014).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 943,
+          "paper_title": "Irrationality in Politics and Governance of Maritime Affairs: The Collapse of Sovereign Maritime Governance",
+          "authors": "Okan Duru",
+          "year": "2014",
+          "doi": "10.1016/j.enavi.2014.12.006"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00944",
+        "name": "Live API (Crossref): The Blue Economy and Chinese Maritime Power",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Blue Economy and Chinese Maritime Power (Kathleen A. Walsh, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 944,
+          "paper_title": "The Blue Economy and Chinese Maritime Power",
+          "authors": "Kathleen A. Walsh",
+          "year": "2024",
+          "doi": "10.1201/9781003396116-4"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00946",
+        "name": "Live API (Crossref): Maritime governance and the blue economy: Between strategic ambitions",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime governance and the blue economy: Between strategic ambitions and implementation constraints (a systematic revie (Rajae Idrissi, Youssef Pheniqi, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 946,
+          "paper_title": "Maritime governance and the blue economy: Between strategic ambitions and implementation constraints (a systematic revie",
+          "authors": "Rajae Idrissi, Youssef Pheniqi",
+          "year": "2026",
+          "doi": "10.5937/imcsm26693j"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00947",
+        "name": "Live API (Crossref): Private Military and Security Companies in Maritime Security Governanc",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Private Military and Security Companies in Maritime Security Governance (Carolin Liss, ).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 947,
+          "paper_title": "Private Military and Security Companies in Maritime Security Governance",
+          "authors": "Carolin Liss",
+          "year": "",
+          "doi": "10.1057/9781137334428.0018"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00948",
+        "name": "Live API (Crossref): Maritime security and blue economy development in Nigeria: A structura",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime security and blue economy development in Nigeria: A structural equation model (Emenyonu Martin Uchenna, Chinedum Onyemechi, G. C. Emeaghara, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 948,
+          "paper_title": "Maritime security and blue economy development in Nigeria: A structural equation model",
+          "authors": "Emenyonu Martin Uchenna, Chinedum Onyemechi, G. C. Emeaghara, I. C. Nze, O. B. Ndikom",
+          "year": "2024",
+          "doi": "10.33175/mtr.2025.272954"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00949",
+        "name": "Live API (Crossref): Global Political Ethnography: A Methodological Approach to Studying Ma",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Global Political Ethnography: A Methodological Approach to Studying Maritime Security Governance (Jessica Larsen, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 949,
+          "paper_title": "Global Political Ethnography: A Methodological Approach to Studying Maritime Security Governance",
+          "authors": "Jessica Larsen",
+          "year": "2022",
+          "doi": "10.4324/9781003001324-12"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00950",
+        "name": "Live API (Crossref): Integrating Technology, Sustainability, and the Blue Economy to Streng",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Integrating Technology, Sustainability, and the Blue Economy to Strengthen Maritime Security and Climate Resilience unde (Unknown, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 950,
+          "paper_title": "Integrating Technology, Sustainability, and the Blue Economy to Strengthen Maritime Security and Climate Resilience unde",
+          "authors": "Unknown",
+          "year": "2025",
+          "doi": "10.55463/hkjss.issn.1021-3619.66.9"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00951",
+        "name": "Live API (Crossref): Blue Economy Beyond Maritime Economics",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy Beyond Maritime Economics (Thauan Santos, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 951,
+          "paper_title": "Blue Economy Beyond Maritime Economics",
+          "authors": "Thauan Santos",
+          "year": "2022",
+          "doi": "10.4324/9781003298984-18"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00952",
+        "name": "Live API (Crossref): International ocean governance framework shaping European maritime pla",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: International ocean governance framework shaping European maritime planning and innovations for sustainable blue economy (Patrycja Enet, 2026).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 952,
+          "paper_title": "International ocean governance framework shaping European maritime planning and innovations for sustainable blue economy",
+          "authors": "Patrycja Enet",
+          "year": "2026",
+          "doi": "10.3389/focsu.2026.1820278"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00953",
+        "name": "Live API (Crossref): Blue Governance in the Arctic and Antarctic",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Governance in the Arctic and Antarctic (Geir Hønneland, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 953,
+          "paper_title": "Blue Governance in the Arctic and Antarctic",
+          "authors": "Geir Hønneland",
+          "year": "2021",
+          "doi": "10.1007/978-3-030-72585-3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00954",
+        "name": "Live API (Crossref): 952.1 A Green-Blue Economy? The case of offshore wind power",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: 952.1 A Green-Blue Economy? The case of offshore wind power (Espen Moe, Mathias Shabanaj Jankila, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 954,
+          "paper_title": "952.1 A Green-Blue Economy? The case of offshore wind power",
+          "authors": "Espen Moe, Mathias Shabanaj Jankila",
+          "year": "2025",
+          "doi": "10.1515/9783111195544-009"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00955",
+        "name": "Live API (Crossref): Privatized Maritime Security Governance In War- torn Sierra Leone",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Privatized Maritime Security Governance In War- torn Sierra Leone (Unknown, 2012).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 955,
+          "paper_title": "Privatized Maritime Security Governance In War- torn Sierra Leone",
+          "authors": "Unknown",
+          "year": "2012",
+          "doi": "10.4324/9780203126608-18"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00956",
+        "name": "Live API (Crossref): Assessing the Impact of Somalia's Maritime Policy on Blue Economy Deve",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Assessing the Impact of Somalia's Maritime Policy on Blue Economy Development (Abdalla Ahmed Abdalla, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 956,
+          "paper_title": "Assessing the Impact of Somalia's Maritime Policy on Blue Economy Development",
+          "authors": "Abdalla Ahmed Abdalla",
+          "year": "2024",
+          "doi": "10.21275/sr241125124852"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00957",
+        "name": "Live API (Crossref): Lusophone Geopolitics: Blue Economy and Maritime Security in Contempor",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Lusophone Geopolitics: Blue Economy and Maritime Security in Contemporary Mozambique’s Geopolitics (Francisco Proença Garcia, Sónia Ribeiro, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 957,
+          "paper_title": "Lusophone Geopolitics: Blue Economy and Maritime Security in Contemporary Mozambique’s Geopolitics",
+          "authors": "Francisco Proença Garcia, Sónia Ribeiro",
+          "year": "2023",
+          "doi": "10.1007/978-981-99-0455-6_19"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00958",
+        "name": "Live API (Crossref): Integrating Artificial Intelligence and Immersive Technologies into Ma",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Integrating Artificial Intelligence and Immersive Technologies into Maritime Education and Training (Zouheir Abd El Fattah Abd El Salam Badawy, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 958,
+          "paper_title": "Integrating Artificial Intelligence and Immersive Technologies into Maritime Education and Training",
+          "authors": "Zouheir Abd El Fattah Abd El Salam Badawy",
+          "year": "2025",
+          "doi": "10.57241/2805-2994.1039"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00959",
+        "name": "Live API (Crossref): Maritime space",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime space (Natalie Klein, 2014).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 959,
+          "paper_title": "Maritime space",
+          "authors": "Natalie Klein",
+          "year": "2014",
+          "doi": "10.4337/9781781953174.00032"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00960",
+        "name": "Live API (Crossref): Maritime security",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime security (Kenneth Button, 2016).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 960,
+          "paper_title": "Maritime security",
+          "authors": "Kenneth Button",
+          "year": "2016",
+          "doi": "10.4337/9781785367779.00015"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00961",
+        "name": "Live API (Crossref): The Emerging ‘Shadow Fleet’ as a Maritime Security and Ocean Governanc",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Emerging ‘Shadow Fleet’ as a Maritime Security and Ocean Governance Challenge (Iva Parlov, Ulf Sverdrup, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 961,
+          "paper_title": "The Emerging ‘Shadow Fleet’ as a Maritime Security and Ocean Governance Challenge",
+          "authors": "Iva Parlov, Ulf Sverdrup",
+          "year": "2024",
+          "doi": "10.1163/9789004707993_010"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00962",
+        "name": "Live API (Crossref): Spain's Fight Against Maritime Piracy: The Legitimacy of Maritime Secu",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Spain's Fight Against Maritime Piracy: The Legitimacy of Maritime Security Governance (Annina Cristina Bürgin, 2014).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 962,
+          "paper_title": "Spain's Fight Against Maritime Piracy: The Legitimacy of Maritime Security Governance",
+          "authors": "Annina Cristina Bürgin",
+          "year": "2014",
+          "doi": "10.1080/13523260.2014.884339"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00963",
+        "name": "Live API (Crossref): Maritime Dynamics and Energy Security in the Eastern Mediterranean: An",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Dynamics and Energy Security in the Eastern Mediterranean: Analyzing the Blue Homeland Doctrine (Gökçe Çiçek Ceyhun, 2023).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 963,
+          "paper_title": "Maritime Dynamics and Energy Security in the Eastern Mediterranean: Analyzing the Blue Homeland Doctrine",
+          "authors": "Gökçe Çiçek Ceyhun",
+          "year": "2023",
+          "doi": "10.56578/jcgirm100205"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00964",
+        "name": "Live API (Crossref): Framing Australia's Maritime Domain",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Framing Australia's Maritime Domain (Sean A. G. Andrews, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 964,
+          "paper_title": "Framing Australia's Maritime Domain",
+          "authors": "Sean A. G. Andrews",
+          "year": "2024",
+          "doi": "10.4324/9781032641928-2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00965",
+        "name": "Live API (Crossref): Trends in the Maritime Domain",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Trends in the Maritime Domain (Sean A. G. Andrews, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 965,
+          "paper_title": "Trends in the Maritime Domain",
+          "authors": "Sean A. G. Andrews",
+          "year": "2024",
+          "doi": "10.4324/9781032641928-4"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00966",
+        "name": "Live API (Crossref): Naval Constabulary Operations and Fisheries Governance",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Naval Constabulary Operations and Fisheries Governance (Sean A. G. Andrews, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 966,
+          "paper_title": "Naval Constabulary Operations and Fisheries Governance",
+          "authors": "Sean A. G. Andrews",
+          "year": "2024",
+          "doi": "10.4324/9781032641928"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00967",
+        "name": "Live API (Crossref): A Network-Centric Approach to Maritime Domain Awareness",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A Network-Centric Approach to Maritime Domain Awareness (Michael Anderson, Bruce Winterstine, 2005).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 967,
+          "paper_title": "A Network-Centric Approach to Maritime Domain Awareness",
+          "authors": "Michael Anderson, Bruce Winterstine",
+          "year": "2005",
+          "doi": "10.1111/j.1559-3584.2005.tb00323.x"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00968",
+        "name": "Live API (Crossref): Fishing Vessels",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Fishing Vessels (Sean A. G. Andrews, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 968,
+          "paper_title": "Fishing Vessels",
+          "authors": "Sean A. G. Andrews",
+          "year": "2024",
+          "doi": "10.4324/9781032641928-3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00969",
+        "name": "Live API (Crossref): Introduction: Maritime Interception and the Law of Naval Operations",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Introduction: Maritime Interception and the Law of Naval Operations (Martin Fink, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 969,
+          "paper_title": "Introduction: Maritime Interception and the Law of Naval Operations",
+          "authors": "Martin Fink",
+          "year": "2018",
+          "doi": "10.1007/978-94-6265-249-1_1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00970",
+        "name": "Live API (Crossref): The Western Ocean",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Western Ocean (Sean A. G. Andrews, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 970,
+          "paper_title": "The Western Ocean",
+          "authors": "Sean A. G. Andrews",
+          "year": "2024",
+          "doi": "10.4324/9781032641928-5"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00971",
+        "name": "Live API (Crossref): The Eastern Ocean",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Eastern Ocean (Sean A. G. Andrews, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 971,
+          "paper_title": "The Eastern Ocean",
+          "authors": "Sean A. G. Andrews",
+          "year": "2024",
+          "doi": "10.4324/9781032641928-6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00972",
+        "name": "Live API (Crossref): The Southern Ocean",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Southern Ocean (Sean A. G. Andrews, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 972,
+          "paper_title": "The Southern Ocean",
+          "authors": "Sean A. G. Andrews",
+          "year": "2024",
+          "doi": "10.4324/9781032641928-7"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00973",
+        "name": "Live API (Crossref): The Northern Ocean",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Northern Ocean (Sean A. G. Andrews, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 973,
+          "paper_title": "The Northern Ocean",
+          "authors": "Sean A. G. Andrews",
+          "year": "2024",
+          "doi": "10.4324/9781032641928-8"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00974",
+        "name": "Live API (Crossref): Keynote: Multi-domain situational awareness - From the underwater to t",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Keynote: Multi-domain situational awareness - From the underwater to the space domain to improve maritime surveillance (Paolo Braca, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 974,
+          "paper_title": "Keynote: Multi-domain situational awareness - From the underwater to the space domain to improve maritime surveillance",
+          "authors": "Paolo Braca",
+          "year": "2022",
+          "doi": "10.1109/cogsima54611.2022.9830685"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00975",
+        "name": "Live API (Crossref): Some Introductory Remarks on Naval Operations",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Some Introductory Remarks on Naval Operations (Martin Fink, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 975,
+          "paper_title": "Some Introductory Remarks on Naval Operations",
+          "authors": "Martin Fink",
+          "year": "2018",
+          "doi": "10.1007/978-94-6265-249-1_2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00976",
+        "name": "Live API (Crossref): Concientización del dominio marítimo y la logística naval",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Concientización del dominio marítimo y la logística naval (Gustavo Andrés Guerra La Rotta, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 976,
+          "paper_title": "Concientización del dominio marítimo y la logística naval",
+          "authors": "Gustavo Andrés Guerra La Rotta",
+          "year": "2024",
+          "doi": "10.25062/2500-4735.4896"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00977",
+        "name": "Live API (Crossref): Responding to Asymmetric Threats in the Maritime Domain: Diplomacy, La",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Responding to Asymmetric Threats in the Maritime Domain: Diplomacy, Law and Naval Operations (Brian Wilson, 2010).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 977,
+          "paper_title": "Responding to Asymmetric Threats in the Maritime Domain: Diplomacy, Law and Naval Operations",
+          "authors": "Brian Wilson",
+          "year": "2010",
+          "doi": "10.1080/09733150903429551"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00978",
+        "name": "Live API (Crossref): NATO Maritime Strategies and Naval Operations since 1985: Multilateral",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: NATO Maritime Strategies and Naval Operations since 1985: Multilateral Naval Arrangements in the “Tanker War” (Tom Duffy, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 978,
+          "paper_title": "NATO Maritime Strategies and Naval Operations since 1985: Multilateral Naval Arrangements in the “Tanker War”",
+          "authors": "Tom Duffy",
+          "year": "2025",
+          "doi": "10.5771/9783748962991-99"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00979",
+        "name": "Live API (Crossref): Situational Awareness Enhancement using Radar Systems for Maritime and",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Situational Awareness Enhancement using Radar Systems for Maritime and Naval Operations (Jesper Lidh, Jonna Nilsson, Saleh Javadi, 2025).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 979,
+          "paper_title": "Situational Awareness Enhancement using Radar Systems for Maritime and Naval Operations",
+          "authors": "Jesper Lidh, Jonna Nilsson, Saleh Javadi",
+          "year": "2025",
+          "doi": "10.1109/igarss55030.2025.11242687"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00980",
+        "name": "Live API (Crossref): India’s Evolving Maritime Domain Awareness Strategy in the Indian Ocea",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: India’s Evolving Maritime Domain Awareness Strategy in the Indian Ocean (Darshana M. Baruah, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 980,
+          "paper_title": "India’s Evolving Maritime Domain Awareness Strategy in the Indian Ocean",
+          "authors": "Darshana M. Baruah",
+          "year": "2018",
+          "doi": "10.1093/oso/9780199479337.003.0010"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00981",
+        "name": "Live API (Crossref): Analytic Support for Maritime Domain Awareness and Counter-Piracy. Wor",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Analytic Support for Maritime Domain Awareness and Counter-Piracy. Working Group 3: Maritime Domain Awareness in the Int (Mark McIntyre, Wayne Renaud, Steve Stephens, Julie Seton, Da, 2009).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 981,
+          "paper_title": "Analytic Support for Maritime Domain Awareness and Counter-Piracy. Working Group 3: Maritime Domain Awareness in the Int",
+          "authors": "Mark McIntyre, Wayne Renaud, Steve Stephens, Julie Seton, Dale Reding",
+          "year": "2009",
+          "doi": "10.21236/ada535589"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00982",
+        "name": "Live API (Crossref): Maritime Militias: Disrupting Naval Operations in the Pacific Theater",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Militias: Disrupting Naval Operations in the Pacific Theater and the Case for Intermediate Force Capabilities i (Peter Dobias, 2024).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 982,
+          "paper_title": "Maritime Militias: Disrupting Naval Operations in the Pacific Theater and the Case for Intermediate Force Capabilities i",
+          "authors": "Peter Dobias",
+          "year": "2024",
+          "doi": "10.21140/mcuj.20241502001"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00983",
+        "name": "Live API (Crossref): Strategic Maritime Domain Awareness: Supporting the National Strategy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Strategic Maritime Domain Awareness: Supporting the National Strategy for Maritime Security (Francis J. Campion, 2008).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 983,
+          "paper_title": "Strategic Maritime Domain Awareness: Supporting the National Strategy for Maritime Security",
+          "authors": "Francis J. Campion",
+          "year": "2008",
+          "doi": "10.21236/ada478473"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00984",
+        "name": "Live API (Crossref): A Short History of Maritime Interception Operations",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A Short History of Maritime Interception Operations (Martin Fink, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 984,
+          "paper_title": "A Short History of Maritime Interception Operations",
+          "authors": "Martin Fink",
+          "year": "2018",
+          "doi": "10.1007/978-94-6265-249-1_3"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00985",
+        "name": "Live API (Crossref): INTEGRATED MARITIME DOMAIN INFORMATION AWARENESS",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: INTEGRATED MARITIME DOMAIN INFORMATION AWARENESS (Sumali Morapitiya, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 985,
+          "paper_title": "INTEGRATED MARITIME DOMAIN INFORMATION AWARENESS",
+          "authors": "Sumali Morapitiya",
+          "year": "2021",
+          "doi": "10.36375/prepare_u.iei.a175"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00986",
+        "name": "Live API (Crossref): The Application of Force in Maritime Interception Operations",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Application of Force in Maritime Interception Operations (Martin Fink, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 986,
+          "paper_title": "The Application of Force in Maritime Interception Operations",
+          "authors": "Martin Fink",
+          "year": "2018",
+          "doi": "10.1007/978-94-6265-249-1_10"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00987",
+        "name": "Live API (Crossref): The UN Collective Security System and Maritime Interception Operations",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The UN Collective Security System and Maritime Interception Operations (Martin Fink, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 987,
+          "paper_title": "The UN Collective Security System and Maritime Interception Operations",
+          "authors": "Martin Fink",
+          "year": "2018",
+          "doi": "10.1007/978-94-6265-249-1_5"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00988",
+        "name": "Live API (Crossref): Maritime Interception and the Law of Naval Operations",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Interception and the Law of Naval Operations (Martin Fink, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 988,
+          "paper_title": "Maritime Interception and the Law of Naval Operations",
+          "authors": "Martin Fink",
+          "year": "2018",
+          "doi": "10.1007/978-94-6265-249-1"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00989",
+        "name": "Live API (Crossref): Detention and Maritime Interception",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Detention and Maritime Interception (Martin Fink, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 989,
+          "paper_title": "Detention and Maritime Interception",
+          "authors": "Martin Fink",
+          "year": "2018",
+          "doi": "10.1007/978-94-6265-249-1_11"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00990",
+        "name": "Live API (Crossref): Maritime Domain Awareness: the Key to Maritime Security",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Domain Awareness: the Key to Maritime Security (Dana a. Goward, 2008).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 990,
+          "paper_title": "Maritime Domain Awareness: the Key to Maritime Security",
+          "authors": "Dana a. Goward",
+          "year": "2008",
+          "doi": "10.1163/ej.9789004164277.v-594.75"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00991",
+        "name": "Live API (Crossref): Risk-driven intent assessment and response generation in maritime surv",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Risk-driven intent assessment and response generation in maritime surveillance operations (Rafael Falcon, Rami Abielmona, Sean Billings, 2015).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 991,
+          "paper_title": "Risk-driven intent assessment and response generation in maritime surveillance operations",
+          "authors": "Rafael Falcon, Rami Abielmona, Sean Billings",
+          "year": "2015",
+          "doi": "10.1109/cogsima.2015.7108191"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00992",
+        "name": "Live API (Crossref): Non-military Naval Operations",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Non-military Naval Operations (Unknown, 2022).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 992,
+          "paper_title": "Non-military Naval Operations",
+          "authors": "Unknown",
+          "year": "2022",
+          "doi": "10.5040/9798881813840.ch-7"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00993",
+        "name": "Live API (Crossref): Self-Defence and Maritime Interception",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Self-Defence and Maritime Interception (Martin Fink, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 993,
+          "paper_title": "Self-Defence and Maritime Interception",
+          "authors": "Martin Fink",
+          "year": "2018",
+          "doi": "10.1007/978-94-6265-249-1_6"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00994",
+        "name": "Live API (Crossref): International Agreements on Maritime Interception",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: International Agreements on Maritime Interception (Martin Fink, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 994,
+          "paper_title": "International Agreements on Maritime Interception",
+          "authors": "Martin Fink",
+          "year": "2018",
+          "doi": "10.1007/978-94-6265-249-1_8"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00995",
+        "name": "Live API (Crossref): Naval Operations Concept 2010: Implementing the Maritime Strategy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Naval Operations Concept 2010: Implementing the Maritime Strategy (US Department of the Navy, 2010).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 995,
+          "paper_title": "Naval Operations Concept 2010: Implementing the Maritime Strategy",
+          "authors": "US Department of the Navy",
+          "year": "2010",
+          "doi": "10.21236/ada522333"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00996",
+        "name": "Live API (Crossref): Naval Operations Concept: Implementing the Maritime Strategy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Naval Operations Concept: Implementing the Maritime Strategy (DEPARTMENT OF THE NAVY WASHINGTON DC, 2010).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 996,
+          "paper_title": "Naval Operations Concept: Implementing the Maritime Strategy",
+          "authors": "DEPARTMENT OF THE NAVY WASHINGTON DC",
+          "year": "2010",
+          "doi": "10.21236/ada522268"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00997",
+        "name": "Live API (Crossref): Naval Operations and Grand Strategy in a New Security Environment",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Naval Operations and Grand Strategy in a New Security Environment (Simon Reich, Peter Dombrowski, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 997,
+          "paper_title": "Naval Operations and Grand Strategy in a New Security Environment",
+          "authors": "Simon Reich, Peter Dombrowski",
+          "year": "2018",
+          "doi": "10.7591/cornell/9781501714627.003.0002"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00998",
+        "name": "Live API (Crossref): Attack on Maritime Trade",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Attack on Maritime Trade (Unknown, 2013).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 998,
+          "paper_title": "Attack on Maritime Trade",
+          "authors": "Unknown",
+          "year": "2013",
+          "doi": "10.4324/9780203044667-20"
+        }
+      },
+      {
+        "id": "lit_live_crossref_00999",
+        "name": "Live API (Crossref): A Study on the ROK’s Maritime Domain Awareness - Focusing on the Chang",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A Study on the ROK’s Maritime Domain Awareness - Focusing on the Change of Maritime Domain - (백병선, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 999,
+          "paper_title": "A Study on the ROK’s Maritime Domain Awareness - Focusing on the Change of Maritime Domain -",
+          "authors": "백병선",
+          "year": "2018",
+          "doi": "10.35372/kmiopr.2018.33.1.006"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01000",
+        "name": "Live API (Crossref): Department of Defense Responsibility for Maritime Domain Awareness",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Department of Defense Responsibility for Maritime Domain Awareness (David E. Eyler, Ivan Luke, 2005).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1000,
+          "paper_title": "Department of Defense Responsibility for Maritime Domain Awareness",
+          "authors": "David E. Eyler, Ivan Luke",
+          "year": "2005",
+          "doi": "10.21236/ada463254"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01001",
+        "name": "Live API (Crossref): (Ad Hoc) Consent",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: (Ad Hoc) Consent (Martin Fink, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1001,
+          "paper_title": "(Ad Hoc) Consent",
+          "authors": "Martin Fink",
+          "year": "2018",
+          "doi": "10.1007/978-94-6265-249-1_7"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01002",
+        "name": "Live API (Crossref): Maritime Domain Awareness Architecture Management Hub Strategy",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Domain Awareness Architecture Management Hub Strategy (NORTH CAROLINA STATE UNIV AT RALEIGH, 2008).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1002,
+          "paper_title": "Maritime Domain Awareness Architecture Management Hub Strategy",
+          "authors": "NORTH CAROLINA STATE UNIV AT RALEIGH",
+          "year": "2008",
+          "doi": "10.21236/ada489766"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01003",
+        "name": "Live API (Crossref): INTEGRATED MARITIME DOMAIN INFORMATIONS AWARENESS",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: INTEGRATED MARITIME DOMAIN INFORMATIONS AWARENESS (Sumali Morapitiya, Wiraj Leelarathna, Ruwan Bolongho, 2021).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1003,
+          "paper_title": "INTEGRATED MARITIME DOMAIN INFORMATIONS AWARENESS",
+          "authors": "Sumali Morapitiya, Wiraj Leelarathna, Ruwan Bolongho",
+          "year": "2021",
+          "doi": "10.36375/prepare_u.iei.a188"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01004",
+        "name": "Live API (Crossref): Improving Situation Awareness in the Maritime Domain",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Improving Situation Awareness in the Maritime Domain (Maurice Glandrup, 2013).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1004,
+          "paper_title": "Improving Situation Awareness in the Maritime Domain",
+          "authors": "Maurice Glandrup",
+          "year": "2013",
+          "doi": "10.1007/978-1-4614-6230-9_2"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01005",
+        "name": "Live API (Crossref): Multinational Maritime Operations (MMOPS) for Naval Doctrine Command",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Multinational Maritime Operations (MMOPS) for Naval Doctrine Command (Michael T. Johnson, 1995).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1005,
+          "paper_title": "Multinational Maritime Operations (MMOPS) for Naval Doctrine Command",
+          "authors": "Michael T. Johnson",
+          "year": "1995",
+          "doi": "10.21236/ada362370"
+        }
+      },
+      {
+        "id": "lit_live_crossref_01006",
+        "name": "Live API (Crossref): The Right of Visit",
+        "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Right of Visit (Martin Fink, 2018).",
+        "axis": "OCEANIC",
+        "source": {
+          "file": "outputs/research_sources/live_records_triangulated.json",
+          "row": 1006,
+          "paper_title": "The Right of Visit",
+          "authors": "Martin Fink",
+          "year": "2018",
+          "doi": "10.1007/978-94-6265-249-1_9"
         }
       }
     ],
