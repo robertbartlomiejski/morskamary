@@ -929,7 +929,6 @@ outputs/run_archive/runs/28625632237-1/research_sources/triangulation_thematic_l
 outputs/run_archive/runs/28625632237-1/run_manifest.json,other,,,,,,run_manifest,yes
 outputs/run_archive/runs/28967267944.2/_checksums.sha256,other,,,,,,checksums,no
 outputs/run_archive/runs/28967267944.2/analysis_outputs/competences_full_database.json,other,,,,,,competences_full_database,yes
-outputs/run_archive/runs/28967267944.2/analysis_outputs/credentials_database.json,other,,,,,,credentials_database,yes
 outputs/run_archive/runs/28967267944.2/analysis_outputs/credentials_matrix.html,other,,,,,,credentials_matrix,no
 outputs/run_archive/runs/28967267944.2/analysis_outputs/cumulative_qmbd_records.json,other,,,,,,cumulative_qmbd_records,yes
 outputs/run_archive/runs/28967267944.2/analysis_outputs/gaps_by_sector.html,other,,,,,,gaps_by_sector,no
@@ -951,7 +950,6 @@ outputs/run_archive/runs/28967267944.2/analysis_outputs/sector_dictionaries/ship
 outputs/run_archive/runs/28967267944.2/manifest.json,other,,,,,,manifest,yes
 outputs/run_archive/runs/28967267944.2/MANIFEST_SOURCES.csv,dataset_derived,,,,,,MANIFEST_SOURCES,yes
 outputs/run_archive/runs/28967267944.2/outputs/competences_full_database.json,other,,,,,,competences_full_database,yes
-outputs/run_archive/runs/28967267944.2/outputs/credentials_database.json,other,,,,,,credentials_database,yes
 outputs/run_archive/runs/28967267944.2/outputs/credentials_matrix.html,other,,,,,,credentials_matrix,no
 outputs/run_archive/runs/28967267944.2/outputs/cumulative_qmbd_records.json,other,,,,,,cumulative_qmbd_records,yes
 outputs/run_archive/runs/28967267944.2/outputs/gaps_by_sector.html,other,,,,,,gaps_by_sector,no
@@ -996,8 +994,6 @@ outputs/run_archive/runs/28967267944.2/research_sources/raw_provider_records.jso
 outputs/run_archive/runs/28967267944.2/research_sources/triangulation_identity_loop.json,other,,,,,,triangulation_identity_loop,yes
 outputs/run_archive/runs/28967267944.2/research_sources/triangulation_thematic_loop.json,other,,,,,,triangulation_thematic_loop,yes
 outputs/run_archive/runs/28967267944.2/run_manifest.json,other,,,,,,run_manifest,yes
-outputs/run_archive/runs/28967267944/analysis_outputs/credentials_database.json,other,,,,,,credentials_database,yes
-outputs/run_archive/runs/28967267944/outputs/credentials_database.json,other,,,,,,credentials_database,yes
 outputs/sector_pathways.json,other,,,,,,sector_pathways,yes
 outputs/sector_qmbd_learning_pathways.json,other,,,,,,sector_qmbd_learning_pathways,yes
 outputs/validation_state.json,other,,,,,,validation_state,yes
