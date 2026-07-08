@@ -23,8 +23,8 @@
     "outputs/research_source_capabilities.json",
     "outputs/validation_state.json"
   ],
-  "file_count": 66,
-  "total_bytes": 45979054,
+  "file_count": 64,
+  "total_bytes": 45636058,
   "workflow": {
     "name": "PR-187-live-enriched-smoke",
     "event": "manual",
@@ -81,11 +81,6 @@
       "path": "analysis_outputs/competences_full_database.json",
       "size_bytes": 2577916,
       "sha256": "c92b87d2404d5fc09e9d9ff333e36e02a022f68e305f77ea55e79bafb64633f1"
-    },
-    {
-      "path": "analysis_outputs/credentials_database.json",
-      "size_bytes": 171498,
-      "sha256": "a344906977cf048dd70ee09ffc5d23f0680c1ceb71937f763e6b5e08bcf155bf"
     },
     {
       "path": "analysis_outputs/credentials_matrix.html",
@@ -181,11 +176,6 @@
       "path": "outputs/competences_full_database.json",
       "size_bytes": 2577916,
       "sha256": "c92b87d2404d5fc09e9d9ff333e36e02a022f68e305f77ea55e79bafb64633f1"
-    },
-    {
-      "path": "outputs/credentials_database.json",
-      "size_bytes": 171498,
-      "sha256": "a344906977cf048dd70ee09ffc5d23f0680c1ceb71937f763e6b5e08bcf155bf"
     },
     {
       "path": "outputs/credentials_matrix.html",
