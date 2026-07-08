@@ -1,15 +1,15 @@
 {
   "archive_root": "outputs/run_archive",
   "output_dir": "outputs/run_archive",
-  "runs_total": 1,
-  "runs_processed": 1,
+  "runs_total": 2,
+  "runs_processed": 2,
   "runs_skipped_invalid": 0,
   "dedupe_keys": [
     "doi",
     "source_id",
     "title"
   ],
-  "occurrences_total": 5242,
+  "occurrences_total": 10484,
   "manual_occurrences_total": 0,
   "dedupe_groups_total": 2052
 }
