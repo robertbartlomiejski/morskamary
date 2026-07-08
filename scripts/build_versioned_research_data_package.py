@@ -54,9 +54,11 @@ class PackageConfig:
     version_tag: str
     release_tag: str
     access_date: str
-    commit_sha: str
+    source_commit_sha: str
+    package_commit_sha: str
     include_xlsx: bool
     include_sav: bool
+    bootstrap_empty_manual_sources: bool = False
 
 
 def status_label(level: str) -> str:
@@ -282,9 +284,114 @@ def _write_sav_exports(
     return True, ""
 
 
+# ---------------------------------------------------------------------------
+# Preflight helpers
+# ---------------------------------------------------------------------------
+
+REQUIRED_CROSS_RUN_FILES: tuple[str, ...] = (
+    "outputs/run_archive/cross_run_run_summary.csv",
+    "outputs/run_archive/cross_run_evidence_occurrences.csv",
+    "outputs/run_archive/cross_run_evidence_build_report.json",
+)
+REQUIRED_ANALYSIS_FILES: tuple[str, ...] = (
+    "outputs/credentials_dynamic_database.json",
+    "outputs/gaps_detailed.json",
+)
+MANUAL_SOURCE_FILES: tuple[str, ...] = (
+    "outputs/manual_sources/historical_compatibility.csv",
+    "outputs/manual_sources/manual_sources_index.csv",
+)
+
+HISTORICAL_COMPAT_HEADER = (
+    "bundle_id,source_path,extracted_dir,status,reason,"
+    "live_records_count,triangulated_records_count,cumulative_qmbd_records_count\n"
+)
+MANUAL_INDEX_HEADER = (
+    "source_id,ingested_at_utc,source_kind,file_name,extension,size_bytes,sha256,"
+    "text_available,original_path,zip_member_path,stored_path,archive_sha256\n"
+)
+
+
+def _check_preflight(repo_root: Path, bootstrap_empty_manual_sources: bool) -> int:
+    """Verify all required input files exist.
+
+    When *bootstrap_empty_manual_sources* is ``True``, header-only manual
+    source files are created if absent (explicit opt-in only).
+
+    Returns 0 on success, 1 on failure (missing required files).
+    """
+    missing: list[str] = []
+
+    for rel in (*REQUIRED_CROSS_RUN_FILES, *REQUIRED_ANALYSIS_FILES):
+        if not (repo_root / rel).is_file():
+            missing.append(rel)
+
+    # Manual-source files can be bootstrapped explicitly.
+    manual_missing: list[str] = []
+    for rel in MANUAL_SOURCE_FILES:
+        if not (repo_root / rel).is_file():
+            manual_missing.append(rel)
+
+    if manual_missing:
+        if bootstrap_empty_manual_sources:
+            headers = {
+                "outputs/manual_sources/historical_compatibility.csv": HISTORICAL_COMPAT_HEADER,
+                "outputs/manual_sources/manual_sources_index.csv": MANUAL_INDEX_HEADER,
+            }
+            for rel in manual_missing:
+                dest = repo_root / rel
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_text(headers[rel], encoding="utf-8")
+                print(
+                    f"{status_label('info')} Bootstrapped empty manual source file: {rel}"
+                )
+        else:
+            missing.extend(manual_missing)
+
+    if missing:
+        print(
+            f"{status_label('error')} Missing required prerequisite files. "
+            "Run the following commands first:"
+        )
+        if any(
+            rel.startswith("outputs/run_archive/cross_run")
+            for rel in missing
+        ):
+            print(
+                "  python scripts/build_cross_run_evidence_index.py "
+                "--archive-root outputs/run_archive --output-dir outputs/run_archive"
+            )
+        if any("manual_sources" in rel for rel in missing):
+            print(
+                "  python scripts/validate_manual_sources_gatekeeper.py "
+                "--root outputs/manual_sources --fail-on-issues true"
+                "\n  OR pass --bootstrap-empty-manual-sources true to create "
+                "empty header-only files."
+            )
+        if any(
+            rel in missing
+            for rel in (
+                "outputs/credentials_dynamic_database.json",
+                "outputs/gaps_detailed.json",
+            )
+        ):
+            print("  python run_full_analysis.py")
+        for rel in missing:
+            print(f"    missing: {rel}")
+        return 1
+    return 0
+
+
 def build_versioned_research_data_package(config: PackageConfig) -> int:
     """Build package directory, validate rows by schema, and emit checksums."""
     repo_root = config.repo_root.resolve()
+
+    preflight_code = _check_preflight(
+        repo_root, config.bootstrap_empty_manual_sources
+    )
+    if preflight_code != 0:
+        return preflight_code
+
     package_dir = (
         config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}"
     )
@@ -329,7 +436,7 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
                 "workflow_event_code": MISSING_CODE,
                 "workflow_event_label": MISSING_LABEL,
                 "provider_set": "",
-                "commit_sha": config.commit_sha,
+                "commit_sha": config.source_commit_sha,
                 "github_run_id": "",
             }
         )
@@ -697,13 +804,17 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         "Repository dataset citation template (APA-like)\n\n"
         f"Repository: robertbartlomiejski/morskamary\n"
         f"Release tag: {config.release_tag}\n"
-        f"Commit hash: {config.commit_sha}\n"
+        f"Source commit (data inputs): {config.source_commit_sha}\n"
+        f"Package commit: {config.package_commit_sha}\n"
         f"Access date: {config.access_date}\n\n"
         "Template:\n"
         "Bartlomiejski, R. (2026). morskamary cumulative evidence package "
         f"({config.version_tag}) [Dataset]. GitHub Release ({config.release_tag}). "
-        f"Commit {config.commit_sha}. Accessed {config.access_date}. "
+        f"Source commit {config.source_commit_sha}. Accessed {config.access_date}. "
         "Provenance: derived cumulative package from repository-managed pipelines.\n\n"
+        "Note: 'Source commit' identifies the data inputs used to generate this package.\n"
+        "'Package commit' identifies the commit that stores the generated package "
+        "(may be 'pending_until_merge' if the package has not yet been merged).\n\n"
         "For dataset-file level references include exact relative path and checksum.\n"
     )
     (package_dir / "CITATION_APA.txt").write_text(citation_text, encoding="utf-8")
@@ -712,7 +823,8 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         "package_name": f"morskamary_cumulative_evidence_{config.version_tag}",
         "version_tag": config.version_tag,
         "release_tag": config.release_tag,
-        "commit_sha": config.commit_sha,
+        "source_commit_sha": config.source_commit_sha,
+        "package_commit_sha": config.package_commit_sha,
         "access_date": config.access_date,
         "created_at_utc": _utc_now(),
         "codebook_path": "docs/CROSS_RUN_EVIDENCE_CODEBOOK.md",
@@ -803,9 +915,25 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Access date for citation metadata (YYYY-MM-DD).",
     )
     parser.add_argument(
+        "--source-commit-sha",
+        default="",
+        help=(
+            "Commit SHA of the data inputs used to generate this package. "
+            "Defaults to git HEAD when omitted."
+        ),
+    )
+    parser.add_argument(
         "--commit-sha",
         default="",
-        help="Explicit commit SHA; defaults to git HEAD when omitted.",
+        help="Deprecated alias for --source-commit-sha; --source-commit-sha takes precedence.",
+    )
+    parser.add_argument(
+        "--package-commit-sha",
+        default="pending_until_merge",
+        help=(
+            "Commit SHA of the commit that stores the generated package. "
+            "Use 'pending_until_merge' (default) when the package has not yet been merged."
+        ),
     )
     parser.add_argument(
         "--include-xlsx",
@@ -816,6 +944,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--include-sav",
         default="false",
         help="Write SAV exports when pyreadstat/pandas are available (true/false).",
+    )
+    parser.add_argument(
+        "--bootstrap-empty-manual-sources",
+        default="false",
+        help=(
+            "Create empty (header-only) manual-source files when absent (true/false). "
+            "Only use when no real manual sources have been ingested yet."
+        ),
     )
     return parser.parse_args(argv)
 
@@ -832,16 +968,23 @@ def _to_bool(value: str) -> bool:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     repo_root = Path(args.repo_root).resolve()
-    commit_sha = args.commit_sha.strip() or _get_git_sha(repo_root)
+    # --source-commit-sha takes precedence over deprecated --commit-sha alias
+    source_commit_sha = (
+        args.source_commit_sha.strip()
+        or args.commit_sha.strip()
+        or _get_git_sha(repo_root)
+    )
     config = PackageConfig(
         repo_root=repo_root,
         output_dir=Path(args.output_dir).resolve(),
         version_tag=args.version_tag.strip(),
         release_tag=args.release_tag.strip() or "draft",
         access_date=args.access_date.strip(),
-        commit_sha=commit_sha,
+        source_commit_sha=source_commit_sha,
+        package_commit_sha=args.package_commit_sha.strip() or "pending_until_merge",
         include_xlsx=_to_bool(args.include_xlsx),
         include_sav=_to_bool(args.include_sav),
+        bootstrap_empty_manual_sources=_to_bool(args.bootstrap_empty_manual_sources),
     )
     if not config.version_tag:
         print(f"{status_label('error')} --version-tag must be non-empty")

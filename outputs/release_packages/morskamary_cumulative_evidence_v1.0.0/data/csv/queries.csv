@@ -1,0 +1,2 @@
+query_pk,run_pk,query_id,query_text,query_status_code,query_status_label,provider_code,provider_label
+query_pk_placeholder,run_pk_latest,not_extracted,Not extracted in this package build.,-98,Not extracted,-98,Not extracted

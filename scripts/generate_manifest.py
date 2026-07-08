@@ -52,6 +52,8 @@ IGNORED_FILE_BASENAMES = {
     ".git",
     ".coverage",
     "coverage.json",
+    # Transient smoke-test artifact — runtime-only, not committed to git.
+    "research_api_smoke_report.json",
 }
 IGNORED_FILE_PREFIXES = {
     ".coverage.",

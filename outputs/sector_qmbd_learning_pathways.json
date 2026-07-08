@@ -1072,12 +1072,12 @@
       ],
       "evidence_provenance_summary": {
         "top_providers": [
-          "unknown",
-          "crossref"
+          "crossref",
+          "unknown"
         ],
         "top_origins": [
-          "static_literature",
-          "live"
+          "live",
+          "static_literature"
         ],
         "demand_evidence_ids": [
           "lit_blue_sociology_0009",

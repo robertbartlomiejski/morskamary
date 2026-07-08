@@ -384,5 +384,11 @@
       "size_bytes": 1562863,
       "sha256": "08562aadd48a9243700cb4da4e87d6dac4f0a15330bdb70656a85ea301e9965b"
     }
-  ]
+  ],
+  "analysis_timestamp_utc": "2026-07-02T22:32:01+00:00",
+  "analysis_input_mode": "live",
+  "is_static_recovery_mode": false,
+  "static_recovery_reason": "",
+  "allow_static_recovery_mode_env": "",
+  "provider_set": "crossref,scopus,wos"
 }

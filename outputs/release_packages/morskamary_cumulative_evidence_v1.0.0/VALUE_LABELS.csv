@@ -1,0 +1,302 @@
+schema_file,variable_name,code,label
+coding_assignments.schema.json,code_family_code,-95,Validation error
+coding_assignments.schema.json,code_family_code,-96,Restricted
+coding_assignments.schema.json,code_family_code,-97,Not applicable
+coding_assignments.schema.json,code_family_code,-98,Not extracted
+coding_assignments.schema.json,code_family_code,-99,Unknown
+coding_assignments.schema.json,code_family_code,1,sector
+coding_assignments.schema.json,code_family_code,2,qmbd_axis
+coding_assignments.schema.json,code_family_code,3,provider_source_type
+coding_assignments.schema.json,code_family_code,4,gap_type
+coding_assignments.schema.json,code_family_code,5,review_status
+coding_assignments.schema.json,coder_type_code,-95,Validation error
+coding_assignments.schema.json,coder_type_code,-96,Restricted
+coding_assignments.schema.json,coder_type_code,-97,Not applicable
+coding_assignments.schema.json,coder_type_code,-98,Not extracted
+coding_assignments.schema.json,coder_type_code,-99,Unknown
+coding_assignments.schema.json,coder_type_code,1,machine
+coding_assignments.schema.json,coder_type_code,2,human
+coding_assignments.schema.json,coder_type_code,3,machine_human_review
+coding_assignments.schema.json,validation_status_code,-95,Validation error
+coding_assignments.schema.json,validation_status_code,-96,Restricted
+coding_assignments.schema.json,validation_status_code,-97,Not applicable
+coding_assignments.schema.json,validation_status_code,-98,Not extracted
+coding_assignments.schema.json,validation_status_code,-99,Unknown
+coding_assignments.schema.json,validation_status_code,1,accepted
+coding_assignments.schema.json,validation_status_code,2,review_required
+coding_assignments.schema.json,validation_status_code,3,rejected
+data_quality_indicators.schema.json,indicator_family_code,-95,Validation error
+data_quality_indicators.schema.json,indicator_family_code,-96,Restricted
+data_quality_indicators.schema.json,indicator_family_code,-97,Not applicable
+data_quality_indicators.schema.json,indicator_family_code,-98,Not extracted
+data_quality_indicators.schema.json,indicator_family_code,-99,Unknown
+data_quality_indicators.schema.json,indicator_family_code,1,missingness
+data_quality_indicators.schema.json,indicator_family_code,2,duplicate_rate
+data_quality_indicators.schema.json,indicator_family_code,3,provider_bias
+data_quality_indicators.schema.json,indicator_family_code,4,gap_priority_stability
+data_quality_indicators.schema.json,indicator_family_code,5,review_required_rate
+data_quality_indicators.schema.json,indicator_code,-95,Validation error
+data_quality_indicators.schema.json,indicator_code,-96,Restricted
+data_quality_indicators.schema.json,indicator_code,-97,Not applicable
+data_quality_indicators.schema.json,indicator_code,-98,Not extracted
+data_quality_indicators.schema.json,indicator_code,-99,Unknown
+data_quality_indicators.schema.json,indicator_code,1,missingness_rate
+data_quality_indicators.schema.json,indicator_code,2,duplicate_rate
+data_quality_indicators.schema.json,indicator_code,3,provider_concentration_index
+data_quality_indicators.schema.json,indicator_code,4,validation_error_rate
+data_quality_indicators.schema.json,indicator_code,5,restricted_content_rate
+data_quality_indicators.schema.json,indicator_code,6,review_required_rate
+data_quality_indicators.schema.json,status_code,-95,Validation error
+data_quality_indicators.schema.json,status_code,-96,Restricted
+data_quality_indicators.schema.json,status_code,-97,Not applicable
+data_quality_indicators.schema.json,status_code,-98,Not extracted
+data_quality_indicators.schema.json,status_code,-99,Unknown
+data_quality_indicators.schema.json,status_code,1,pass
+data_quality_indicators.schema.json,status_code,2,warning
+data_quality_indicators.schema.json,status_code,3,fail
+dynamic_credentials.schema.json,sector_code,-95,Validation error
+dynamic_credentials.schema.json,sector_code,-96,Restricted
+dynamic_credentials.schema.json,sector_code,-97,Not applicable
+dynamic_credentials.schema.json,sector_code,-98,Not extracted
+dynamic_credentials.schema.json,sector_code,-99,Unknown
+dynamic_credentials.schema.json,sector_code,1,Blue Biotech
+dynamic_credentials.schema.json,sector_code,10,Port Activities
+dynamic_credentials.schema.json,sector_code,11,R&I
+dynamic_credentials.schema.json,sector_code,12,Ship Repair
+dynamic_credentials.schema.json,sector_code,2,Coastal Tourism
+dynamic_credentials.schema.json,sector_code,3,Desalination
+dynamic_credentials.schema.json,sector_code,4,Infra & Robotics
+dynamic_credentials.schema.json,sector_code,5,Living Res.
+dynamic_credentials.schema.json,sector_code,6,Non-living Res.
+dynamic_credentials.schema.json,sector_code,7,Renewable Energy
+dynamic_credentials.schema.json,sector_code,8,Maritime Defence
+dynamic_credentials.schema.json,sector_code,9,Maritime Transport
+dynamic_credentials.schema.json,eqf_level_code,-95,Validation error
+dynamic_credentials.schema.json,eqf_level_code,-96,Restricted
+dynamic_credentials.schema.json,eqf_level_code,-97,Not applicable
+dynamic_credentials.schema.json,eqf_level_code,-98,Not extracted
+dynamic_credentials.schema.json,eqf_level_code,-99,Unknown
+dynamic_credentials.schema.json,eqf_level_code,5,EQF 5
+dynamic_credentials.schema.json,eqf_level_code,6,EQF 6
+dynamic_credentials.schema.json,eqf_level_code,7,EQF 7
+dynamic_credentials.schema.json,credential_status_code,-95,Validation error
+dynamic_credentials.schema.json,credential_status_code,-96,Restricted
+dynamic_credentials.schema.json,credential_status_code,-97,Not applicable
+dynamic_credentials.schema.json,credential_status_code,-98,Not extracted
+dynamic_credentials.schema.json,credential_status_code,-99,Unknown
+dynamic_credentials.schema.json,credential_status_code,1,generated
+dynamic_credentials.schema.json,credential_status_code,2,review_required
+dynamic_credentials.schema.json,credential_status_code,3,archived
+dynamic_credentials.schema.json,supply_origin_code,-95,Validation error
+dynamic_credentials.schema.json,supply_origin_code,-96,Restricted
+dynamic_credentials.schema.json,supply_origin_code,-97,Not applicable
+dynamic_credentials.schema.json,supply_origin_code,-98,Not extracted
+dynamic_credentials.schema.json,supply_origin_code,-99,Unknown
+dynamic_credentials.schema.json,supply_origin_code,1,static_baseline
+dynamic_credentials.schema.json,supply_origin_code,2,literature_verified
+dynamic_credentials.schema.json,supply_origin_code,3,existing_microcredential
+dynamic_credentials.schema.json,supply_origin_code,4,generated_credential_previous_run
+dynamic_credentials.schema.json,supply_origin_code,5,supply_file_unparsed
+dynamic_credentials.schema.json,supply_verification_status_code,-95,Validation error
+dynamic_credentials.schema.json,supply_verification_status_code,-96,Restricted
+dynamic_credentials.schema.json,supply_verification_status_code,-97,Not applicable
+dynamic_credentials.schema.json,supply_verification_status_code,-98,Not extracted
+dynamic_credentials.schema.json,supply_verification_status_code,-99,Unknown
+dynamic_credentials.schema.json,supply_verification_status_code,1,verified_supply
+dynamic_credentials.schema.json,supply_verification_status_code,2,review_required
+dynamic_credentials.schema.json,supply_verification_status_code,3,generated_supply_candidate
+dynamic_credentials.schema.json,review_required_code,-95,Validation error
+dynamic_credentials.schema.json,review_required_code,-96,Restricted
+dynamic_credentials.schema.json,review_required_code,-97,Not applicable
+dynamic_credentials.schema.json,review_required_code,-98,Not extracted
+dynamic_credentials.schema.json,review_required_code,-99,Unknown
+dynamic_credentials.schema.json,review_required_code,0,No
+dynamic_credentials.schema.json,review_required_code,1,Yes
+evidence_occurrences.schema.json,dataset_code,-95,Validation error
+evidence_occurrences.schema.json,dataset_code,-96,Restricted
+evidence_occurrences.schema.json,dataset_code,-97,Not applicable
+evidence_occurrences.schema.json,dataset_code,-98,Not extracted
+evidence_occurrences.schema.json,dataset_code,-99,Unknown
+evidence_occurrences.schema.json,dataset_code,1,live_records
+evidence_occurrences.schema.json,dataset_code,2,live_records_triangulated
+evidence_occurrences.schema.json,dataset_code,3,cumulative_qmbd_records
+evidence_occurrences.schema.json,dataset_code,4,manual_supporting_sources
+evidence_occurrences.schema.json,provider_code,-95,Validation error
+evidence_occurrences.schema.json,provider_code,-96,Restricted
+evidence_occurrences.schema.json,provider_code,-97,Not applicable
+evidence_occurrences.schema.json,provider_code,-98,Not extracted
+evidence_occurrences.schema.json,provider_code,-99,Unknown
+evidence_occurrences.schema.json,provider_code,1,crossref
+evidence_occurrences.schema.json,provider_code,2,scopus
+evidence_occurrences.schema.json,provider_code,3,wos
+evidence_occurrences.schema.json,provider_code,4,manual
+evidence_occurrences.schema.json,provider_code,5,historical_bundle
+evidence_occurrences.schema.json,occurrence_type_code,-95,Validation error
+evidence_occurrences.schema.json,occurrence_type_code,-96,Restricted
+evidence_occurrences.schema.json,occurrence_type_code,-97,Not applicable
+evidence_occurrences.schema.json,occurrence_type_code,-98,Not extracted
+evidence_occurrences.schema.json,occurrence_type_code,-99,Unknown
+evidence_occurrences.schema.json,occurrence_type_code,1,run_observation
+evidence_occurrences.schema.json,occurrence_type_code,2,manual_ledger_entry
+evidence_occurrences.schema.json,occurrence_type_code,3,historical_bundle_recount
+evidence_records.schema.json,source_type_code,-95,Validation error
+evidence_records.schema.json,source_type_code,-96,Restricted
+evidence_records.schema.json,source_type_code,-97,Not applicable
+evidence_records.schema.json,source_type_code,-98,Not extracted
+evidence_records.schema.json,source_type_code,-99,Unknown
+evidence_records.schema.json,source_type_code,1,literature_record
+evidence_records.schema.json,source_type_code,2,live_api_record
+evidence_records.schema.json,source_type_code,3,manual_supporting_source
+evidence_records.schema.json,source_type_code,4,historical_revalidated_record
+evidence_records.schema.json,qmbd_axis_code,-95,Validation error
+evidence_records.schema.json,qmbd_axis_code,-96,Restricted
+evidence_records.schema.json,qmbd_axis_code,-97,Not applicable
+evidence_records.schema.json,qmbd_axis_code,-98,Not extracted
+evidence_records.schema.json,qmbd_axis_code,-99,Unknown
+evidence_records.schema.json,qmbd_axis_code,1,Marine
+evidence_records.schema.json,qmbd_axis_code,2,Maritime
+evidence_records.schema.json,qmbd_axis_code,3,Oceanic
+evidence_records.schema.json,qmbd_axis_code,4,Multi-axis
+evidence_records.schema.json,record_origin_code,-95,Validation error
+evidence_records.schema.json,record_origin_code,-96,Restricted
+evidence_records.schema.json,record_origin_code,-97,Not applicable
+evidence_records.schema.json,record_origin_code,-98,Not extracted
+evidence_records.schema.json,record_origin_code,-99,Unknown
+evidence_records.schema.json,record_origin_code,1,STATIC_BASELINE
+evidence_records.schema.json,record_origin_code,2,STATIC_LITERATURE
+evidence_records.schema.json,record_origin_code,3,LIVE_API
+evidence_records.schema.json,record_origin_code,4,LIVE_TRIANGULATED
+evidence_records.schema.json,record_origin_code,5,MANUAL_SUPPORTING_SOURCE
+evidence_segments.schema.json,segment_unit_code,-95,Validation error
+evidence_segments.schema.json,segment_unit_code,-96,Restricted
+evidence_segments.schema.json,segment_unit_code,-97,Not applicable
+evidence_segments.schema.json,segment_unit_code,-98,Not extracted
+evidence_segments.schema.json,segment_unit_code,-99,Unknown
+evidence_segments.schema.json,segment_unit_code,1,sentence
+evidence_segments.schema.json,segment_unit_code,2,phrase
+evidence_segments.schema.json,segment_unit_code,3,cluster_excerpt
+evidence_segments.schema.json,text_scope_code,-95,Validation error
+evidence_segments.schema.json,text_scope_code,-96,Restricted
+evidence_segments.schema.json,text_scope_code,-97,Not applicable
+evidence_segments.schema.json,text_scope_code,-98,Not extracted
+evidence_segments.schema.json,text_scope_code,-99,Unknown
+evidence_segments.schema.json,text_scope_code,1,full_sentence
+evidence_segments.schema.json,text_scope_code,2,paragraph
+evidence_segments.schema.json,text_scope_code,3,document_level
+gap_clusters.schema.json,sector_code,-95,Validation error
+gap_clusters.schema.json,sector_code,-96,Restricted
+gap_clusters.schema.json,sector_code,-97,Not applicable
+gap_clusters.schema.json,sector_code,-98,Not extracted
+gap_clusters.schema.json,sector_code,-99,Unknown
+gap_clusters.schema.json,sector_code,1,Blue Biotech
+gap_clusters.schema.json,sector_code,10,Port Activities
+gap_clusters.schema.json,sector_code,11,R&I
+gap_clusters.schema.json,sector_code,12,Ship Repair
+gap_clusters.schema.json,sector_code,2,Coastal Tourism
+gap_clusters.schema.json,sector_code,3,Desalination
+gap_clusters.schema.json,sector_code,4,Infra & Robotics
+gap_clusters.schema.json,sector_code,5,Living Res.
+gap_clusters.schema.json,sector_code,6,Non-living Res.
+gap_clusters.schema.json,sector_code,7,Renewable Energy
+gap_clusters.schema.json,sector_code,8,Maritime Defence
+gap_clusters.schema.json,sector_code,9,Maritime Transport
+gap_clusters.schema.json,qmbd_axis_code,-95,Validation error
+gap_clusters.schema.json,qmbd_axis_code,-96,Restricted
+gap_clusters.schema.json,qmbd_axis_code,-97,Not applicable
+gap_clusters.schema.json,qmbd_axis_code,-98,Not extracted
+gap_clusters.schema.json,qmbd_axis_code,-99,Unknown
+gap_clusters.schema.json,qmbd_axis_code,1,Marine
+gap_clusters.schema.json,qmbd_axis_code,2,Maritime
+gap_clusters.schema.json,qmbd_axis_code,3,Oceanic
+gap_clusters.schema.json,qmbd_axis_code,4,Multi-axis
+gap_clusters.schema.json,priority_tier_code,-95,Validation error
+gap_clusters.schema.json,priority_tier_code,-96,Restricted
+gap_clusters.schema.json,priority_tier_code,-97,Not applicable
+gap_clusters.schema.json,priority_tier_code,-98,Not extracted
+gap_clusters.schema.json,priority_tier_code,-99,Unknown
+gap_clusters.schema.json,priority_tier_code,1,high
+gap_clusters.schema.json,priority_tier_code,2,medium
+gap_clusters.schema.json,priority_tier_code,3,low
+gap_clusters.schema.json,review_required_code,-95,Validation error
+gap_clusters.schema.json,review_required_code,-96,Restricted
+gap_clusters.schema.json,review_required_code,-97,Not applicable
+gap_clusters.schema.json,review_required_code,-98,Not extracted
+gap_clusters.schema.json,review_required_code,-99,Unknown
+gap_clusters.schema.json,review_required_code,0,No
+gap_clusters.schema.json,review_required_code,1,Yes
+reliability_metrics.schema.json,code_family_code,-95,Validation error
+reliability_metrics.schema.json,code_family_code,-96,Restricted
+reliability_metrics.schema.json,code_family_code,-97,Not applicable
+reliability_metrics.schema.json,code_family_code,-98,Not extracted
+reliability_metrics.schema.json,code_family_code,-99,Unknown
+reliability_metrics.schema.json,code_family_code,1,sector
+reliability_metrics.schema.json,code_family_code,2,qmbd_axis
+reliability_metrics.schema.json,code_family_code,3,provider_source_type
+reliability_metrics.schema.json,code_family_code,4,gap_type
+reliability_metrics.schema.json,code_family_code,5,review_status
+reliability_metrics.schema.json,metric_code,-95,Validation error
+reliability_metrics.schema.json,metric_code,-96,Restricted
+reliability_metrics.schema.json,metric_code,-97,Not applicable
+reliability_metrics.schema.json,metric_code,-98,Not extracted
+reliability_metrics.schema.json,metric_code,-99,Unknown
+reliability_metrics.schema.json,metric_code,1,cohen_kappa
+reliability_metrics.schema.json,metric_code,2,krippendorff_alpha
+reliability_metrics.schema.json,metric_code,3,precision
+reliability_metrics.schema.json,metric_code,4,recall
+reliability_metrics.schema.json,metric_code,5,f1
+reliability_metrics.schema.json,metric_code,6,percent_agreement
+reliability_metrics.schema.json,sample_type_code,-95,Validation error
+reliability_metrics.schema.json,sample_type_code,-96,Restricted
+reliability_metrics.schema.json,sample_type_code,-97,Not applicable
+reliability_metrics.schema.json,sample_type_code,-98,Not extracted
+reliability_metrics.schema.json,sample_type_code,-99,Unknown
+reliability_metrics.schema.json,sample_type_code,1,human_validation_sample
+reliability_metrics.schema.json,sample_type_code,2,machine_human_comparison
+reliability_metrics.schema.json,sample_type_code,3,full_run_metric
+reliability_metrics.schema.json,status_code,-95,Validation error
+reliability_metrics.schema.json,status_code,-96,Restricted
+reliability_metrics.schema.json,status_code,-97,Not applicable
+reliability_metrics.schema.json,status_code,-98,Not extracted
+reliability_metrics.schema.json,status_code,-99,Unknown
+reliability_metrics.schema.json,status_code,1,pass
+reliability_metrics.schema.json,status_code,2,warning
+reliability_metrics.schema.json,status_code,3,fail
+runs.schema.json,analysis_input_mode_code,-95,Validation error
+runs.schema.json,analysis_input_mode_code,-96,Restricted
+runs.schema.json,analysis_input_mode_code,-97,Not applicable
+runs.schema.json,analysis_input_mode_code,-98,Not extracted
+runs.schema.json,analysis_input_mode_code,-99,Unknown
+runs.schema.json,analysis_input_mode_code,1,live-enriched
+runs.schema.json,analysis_input_mode_code,2,static recovery
+runs.schema.json,is_static_recovery_mode_code,-95,Validation error
+runs.schema.json,is_static_recovery_mode_code,-96,Restricted
+runs.schema.json,is_static_recovery_mode_code,-97,Not applicable
+runs.schema.json,is_static_recovery_mode_code,-98,Not extracted
+runs.schema.json,is_static_recovery_mode_code,-99,Unknown
+runs.schema.json,is_static_recovery_mode_code,0,No
+runs.schema.json,is_static_recovery_mode_code,1,Yes
+runs.schema.json,workflow_event_code,-95,Validation error
+runs.schema.json,workflow_event_code,-96,Restricted
+runs.schema.json,workflow_event_code,-97,Not applicable
+runs.schema.json,workflow_event_code,-98,Not extracted
+runs.schema.json,workflow_event_code,-99,Unknown
+runs.schema.json,workflow_event_code,1,workflow_dispatch
+runs.schema.json,workflow_event_code,2,schedule
+runs.schema.json,workflow_event_code,3,manual_local
+source_bundles.schema.json,bundle_type_code,-95,Validation error
+source_bundles.schema.json,bundle_type_code,-96,Restricted
+source_bundles.schema.json,bundle_type_code,-97,Not applicable
+source_bundles.schema.json,bundle_type_code,-98,Not extracted
+source_bundles.schema.json,bundle_type_code,-99,Unknown
+source_bundles.schema.json,bundle_type_code,1,historical_zip
+source_bundles.schema.json,bundle_type_code,2,historical_directory
+source_bundles.schema.json,bundle_type_code,3,manual_source_bundle
+source_bundles.schema.json,compatibility_status_code,-95,Validation error
+source_bundles.schema.json,compatibility_status_code,-96,Restricted
+source_bundles.schema.json,compatibility_status_code,-97,Not applicable
+source_bundles.schema.json,compatibility_status_code,-98,Not extracted
+source_bundles.schema.json,compatibility_status_code,-99,Unknown
+source_bundles.schema.json,compatibility_status_code,1,compatible
+source_bundles.schema.json,compatibility_status_code,2,incompatible
+source_bundles.schema.json,compatibility_status_code,3,invalid
+source_bundles.schema.json,compatibility_status_code,4,missing

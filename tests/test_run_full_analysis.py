@@ -323,6 +323,7 @@ def test_main_static_recovery_emits_cumulative_metadata(tmp_path: Path) -> None:
                 "STATIC_RECOVERY_REASON": "offline-ci",
                 "REQUESTED_PROVIDERS": "crossref,scopus",
                 "GITHUB_RUN_ID": "123456",
+                "GITHUB_SHA": "",
             },
             clear=False,
         ),
@@ -1636,7 +1637,12 @@ class TestCLIAndEdgeCases:
             patch("run_full_analysis.OUTPUTS_DIR", output_dir),
             patch("run_full_analysis.LITERATURE_FILES", []),
             patch("run_full_analysis.REPO_ROOT", tmp_path),
-            patch.dict("os.environ", {}, clear=False),
+            # Explicitly unset ALLOW_STATIC_RECOVERY_MODE so CI env cannot leak in
+            patch.dict(
+                "os.environ",
+                {"ALLOW_STATIC_RECOVERY_MODE": ""},
+                clear=False,
+            ),
         ):
             exit_code = main(analysis_input_mode="static")
 
