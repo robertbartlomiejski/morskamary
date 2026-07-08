@@ -809,6 +809,10 @@ outputs/gaps_by_sector_axis.csv,dataset_derived,,,,,,gaps_by_sector_axis,yes
 outputs/gaps_detailed.json,other,,,,,,gaps_detailed,yes
 outputs/gaps_summary.csv,dataset_derived,,,,,,gaps_summary,yes
 outputs/literature_integration.html,other,,,,,,literature_integration,no
+outputs/manual_sources/gatekeeper_checksum_mismatches.json,other,,,,,,gatekeeper_checksum_mismatches,yes
+outputs/manual_sources/gatekeeper_compatibility_summary.json,other,,,,,,gatekeeper_compatibility_summary,yes
+outputs/manual_sources/gatekeeper_cumulative_growth_delta.json,other,,,,,,gatekeeper_cumulative_growth_delta,yes
+outputs/manual_sources/gatekeeper_duplicate_ids.json,other,,,,,,gatekeeper_duplicate_ids,yes
 outputs/manual_sources/historical_compatibility.csv,dataset_derived,,,,,,historical_compatibility,yes
 outputs/manual_sources/manual_sources_index.csv,dataset_derived,,,,,,manual_sources_index,yes
 outputs/release_packages/morskamary_cumulative_evidence_v1.0.0.zip,other,,,,,,morskamary_cumulative_evidence_v1_0_0,no

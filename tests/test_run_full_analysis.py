@@ -1637,7 +1637,12 @@ class TestCLIAndEdgeCases:
             patch("run_full_analysis.OUTPUTS_DIR", output_dir),
             patch("run_full_analysis.LITERATURE_FILES", []),
             patch("run_full_analysis.REPO_ROOT", tmp_path),
-            patch.dict("os.environ", {}, clear=False),
+            # Explicitly unset ALLOW_STATIC_RECOVERY_MODE so CI env cannot leak in
+            patch.dict(
+                "os.environ",
+                {"ALLOW_STATIC_RECOVERY_MODE": ""},
+                clear=False,
+            ),
         ):
             exit_code = main(analysis_input_mode="static")
 

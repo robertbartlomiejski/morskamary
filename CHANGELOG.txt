@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-08 (hardening: PR #189 publication-grade provenance and reproducibility patch)
+  Change type fix update add
+  Scope scripts governance tests schemas outputs
+  Files affected scripts/build_cross_run_evidence_index.py scripts/build_versioned_research_data_package.py schemas/research_data_package_manifest.schema.json tests/test_build_cross_run_evidence_index.py tests/test_build_versioned_research_data_package.py tests/test_run_full_analysis.py outputs/run_archive/cross_run_evidence_build_report.json outputs/release_packages/morskamary_cumulative_evidence_v1.0.0/*
+  Summary Five hardening changes applied: (1) Removed absolute CI/local paths from cross_run_evidence_build_report.json — build_cross_run_evidence_index.py now stores repo-relative POSIX paths and redacts any paths outside the repository root. (2) Added explicit preflight check to build_versioned_research_data_package.py that fails early with a clear message listing prerequisite commands; manual-source bootstrap only occurs when --bootstrap-empty-manual-sources true is explicitly passed. (3) Split release manifest commit_sha into source_commit_sha (data inputs) and package_commit_sha (pending_until_merge), updated schema, citation template, and RELEASE_MANIFEST.json accordingly. (4) Hardened test_main_blocks_static_mode_without_recovery_override to explicitly unset ALLOW_STATIC_RECOVERY_MODE so CI env vars cannot leak into the test. (5) Added regression tests: absolute-path checks in build report, missing-prerequisite failure, explicit bootstrap, and provenance-field checks.
+  Reason Comment 4916215915 on PR #189 requested publication-grade hardening before final merge: no absolute paths in tracked outputs, deterministic preflight, provenance metadata clarity, and protected live-enriched-default policy.
+  Impact cross_run_evidence_build_report.json now contains relative paths; RELEASE_MANIFEST.json uses source_commit_sha/package_commit_sha; package builder fails loudly on missing inputs; static mode guard test is CI-safe.
+  Quality checks All tests pass; generate_manifest.py and sync_audit.py --strict clean after manifest regeneration.
+  Reviewer @robertbartlomiejski
+
 - 2026-07-08 (feat: build versioned research data package v1.0.0)
   Change type add
   Scope outputs scripts governance

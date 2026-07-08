@@ -2,10 +2,14 @@ Repository dataset citation template (APA-like)
 
 Repository: robertbartlomiejski/morskamary
 Release tag: v1.0.0
-Commit hash: adb4ae7762d849d8344de464f206ab1f10e8850c
+Source commit (data inputs): 5d758bae8aa2ae1e2ef270f56c8fdcdb6706f4e0
+Package commit: pending_until_merge
 Access date: 2026-07-08
 
 Template:
-Bartlomiejski, R. (2026). morskamary cumulative evidence package (v1.0.0) [Dataset]. GitHub Release (v1.0.0). Commit adb4ae7762d849d8344de464f206ab1f10e8850c. Accessed 2026-07-08. Provenance: derived cumulative package from repository-managed pipelines.
+Bartlomiejski, R. (2026). morskamary cumulative evidence package (v1.0.0) [Dataset]. GitHub Release (v1.0.0). Source commit 5d758bae8aa2ae1e2ef270f56c8fdcdb6706f4e0. Accessed 2026-07-08. Provenance: derived cumulative package from repository-managed pipelines.
+
+Note: 'Source commit' identifies the data inputs used to generate this package.
+'Package commit' identifies the commit that stores the generated package (may be 'pending_until_merge' if the package has not yet been merged).
 
 For dataset-file level references include exact relative path and checksum.

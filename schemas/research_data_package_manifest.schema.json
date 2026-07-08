@@ -7,7 +7,8 @@
     "package_name",
     "version_tag",
     "release_tag",
-    "commit_sha",
+    "source_commit_sha",
+    "package_commit_sha",
     "access_date",
     "created_at_utc",
     "schema_validation",
@@ -19,7 +20,16 @@
     "package_name": { "type": "string", "minLength": 1 },
     "version_tag": { "type": "string", "minLength": 1 },
     "release_tag": { "type": "string", "minLength": 1 },
-    "commit_sha": { "type": "string", "minLength": 1 },
+    "source_commit_sha": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Commit SHA of the data inputs used to generate this package."
+    },
+    "package_commit_sha": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Commit SHA containing the generated package files, or 'pending_until_merge'."
+    },
     "access_date": { "type": "string", "minLength": 1 },
     "created_at_utc": { "type": "string", "minLength": 1 },
     "schema_validation": {

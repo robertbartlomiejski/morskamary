@@ -1,6 +1,6 @@
 {
-  "archive_root": "/home/runner/work/morskamary/morskamary/outputs/run_archive",
-  "output_dir": "/home/runner/work/morskamary/morskamary/outputs/run_archive",
+  "archive_root": "outputs/run_archive",
+  "output_dir": "outputs/run_archive",
   "runs_total": 1,
   "runs_processed": 1,
   "runs_skipped_invalid": 0,

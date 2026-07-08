@@ -285,3 +285,129 @@ def test_build_cross_run_evidence_index_cli_entrypoint_receives_manual_ledger_fl
         tmp_path / "outputs" / "run_archive" / "cross_run_evidence_occurrences.csv"
     )
     assert any(row["dataset"] == "manual_supporting_sources" for row in rows)
+
+
+# ---------------------------------------------------------------------------
+# Regression tests: no absolute paths in tracked generated reports
+# ---------------------------------------------------------------------------
+
+def _contains_absolute_path(value: str) -> bool:
+    """Return True if *value* looks like an absolute filesystem path."""
+    if not value:
+        return False
+    p = Path(value)
+    if p.is_absolute():
+        return True
+    # Windows drive-letter paths such as C:\... or C:/...
+    if len(value) >= 3 and value[1] == ":" and value[2] in ("/", "\\"):
+        return True
+    # Backslash separators imply Windows absolute paths
+    if "\\" in value:
+        return True
+    # Well-known Unix runner prefixes
+    for prefix in ("/home/", "/Users/", "/runner/", "/tmp/"):
+        if value.startswith(prefix):
+            return True
+    return False
+
+
+def test_build_report_contains_no_absolute_paths(tmp_path: Path) -> None:
+    """cross_run_evidence_build_report.json must use repo-relative POSIX paths."""
+    module = _load_module()
+    _seed_run_archive(tmp_path)
+
+    archive_root = tmp_path / "outputs" / "run_archive"
+    output_dir = tmp_path / "outputs" / "run_archive"
+
+    exit_code = module.build_cross_run_evidence_index(
+        archive_root=archive_root,
+        output_dir=output_dir,
+        dedupe_keys=("doi", "source_id", "title"),
+        fail_on_invalid=False,
+        repo_root=tmp_path,
+    )
+    assert exit_code == 0
+
+    report = json.loads(
+        (output_dir / "cross_run_evidence_build_report.json").read_text(encoding="utf-8")
+    )
+    for field in ("archive_root", "output_dir"):
+        value = report.get(field, "")
+        assert not _contains_absolute_path(value), (
+            f"Field '{field}' in cross_run_evidence_build_report.json contains "
+            f"an absolute path: {value!r}. It must be a repo-relative POSIX path."
+        )
+
+
+def test_build_report_path_outside_repo_is_redacted(tmp_path: Path) -> None:
+    """When archive_root is outside repo_root, the build report stores a redacted path."""
+    module = _load_module()
+
+    # Use a separate directory as the repo root (does NOT contain the archive)
+    fake_repo_root = tmp_path / "my_repo"
+    fake_repo_root.mkdir()
+
+    # Archive lives outside the fake repo root
+    external_root = tmp_path / "external_archive"
+    _seed_run_archive(tmp_path)
+    # Reuse the seeded archive but move it outside
+    import shutil
+    seeded_archive = tmp_path / "outputs" / "run_archive"
+    if external_root.exists():
+        shutil.rmtree(external_root)
+    shutil.copytree(seeded_archive, external_root)
+
+    output_dir = tmp_path / "report_out"
+    exit_code = module.build_cross_run_evidence_index(
+        archive_root=external_root,
+        output_dir=output_dir,
+        dedupe_keys=("doi", "source_id", "title"),
+        fail_on_invalid=False,
+        repo_root=fake_repo_root,
+    )
+    assert exit_code == 0
+
+    report = json.loads(
+        (output_dir / "cross_run_evidence_build_report.json").read_text(encoding="utf-8")
+    )
+    for field in ("archive_root", "output_dir"):
+        value = report.get(field, "")
+        assert not _contains_absolute_path(value), (
+            f"Field '{field}' must not contain an absolute path even when outside repo: {value!r}"
+        )
+        assert "[redacted]" in value, (
+            f"Field '{field}' should be redacted when outside repo root, got: {value!r}"
+        )
+
+
+def test_cli_build_report_no_absolute_paths(tmp_path: Path) -> None:
+    """The CLI entrypoint must also produce repo-relative paths in the build report."""
+    _seed_run_archive(tmp_path)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT_PATH),
+            "--archive-root",
+            "outputs/run_archive",
+            "--output-dir",
+            "outputs/run_archive",
+            "--fail-on-invalid",
+            "false",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=str(tmp_path),
+    )
+    assert result.returncode == 0, result.stderr
+
+    report = json.loads(
+        (tmp_path / "outputs" / "run_archive" / "cross_run_evidence_build_report.json")
+        .read_text(encoding="utf-8")
+    )
+    for field in ("archive_root", "output_dir"):
+        value = report.get(field, "")
+        assert not _contains_absolute_path(value), (
+            f"CLI: field '{field}' must be a repo-relative POSIX path, got: {value!r}"
+        )
