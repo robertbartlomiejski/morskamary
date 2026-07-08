@@ -167,7 +167,8 @@ def test_build_versioned_research_data_package_creates_manifest_checksums_and_vi
         (package_dir / "RELEASE_MANIFEST.json").read_text(encoding="utf-8")
     )
     assert manifest["version_tag"] == "v0.1.0"
-    assert manifest["commit_sha"] == "abc1234"
+    assert manifest["source_commit_sha"] == "abc1234"
+    assert manifest["package_commit_sha"] == "pending_until_merge"
     assert manifest["exports"]["csv_utf8"] is True
 
     with (package_dir / "data" / "csv" / "runs.csv").open(
@@ -215,3 +216,177 @@ def test_build_versioned_research_data_package_cli_entrypoint_forwards_argv(
     assert result.returncode == 0, result.stderr
     assert "[OK]" in result.stdout
     assert (output_dir / "morskamary_cumulative_evidence_v0.2.0").exists()
+
+
+def test_build_versioned_package_fails_on_missing_prerequisites(
+    tmp_path: Path,
+) -> None:
+    """Package builder must exit non-zero with a clear message when inputs are missing."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    # Deliberately do NOT seed outputs - simulate missing prerequisites.
+
+    output_dir = tmp_path / "release_out"
+    import io
+    from contextlib import redirect_stdout
+
+    stdout_capture = io.StringIO()
+    with redirect_stdout(stdout_capture):
+        exit_code = module.main(
+            [
+                "--repo-root",
+                str(repo_root),
+                "--output-dir",
+                str(output_dir),
+                "--version-tag",
+                "v0.3.0",
+                "--include-xlsx",
+                "false",
+                "--include-sav",
+                "false",
+            ]
+        )
+
+    assert exit_code != 0, "Should fail with missing prerequisites"
+    output = stdout_capture.getvalue()
+    assert "[ERROR]" in output, f"Expected error message in stdout, got: {output!r}"
+    # Must mention at least one prerequisite command
+    assert "python" in output.lower() or "scripts/" in output, (
+        f"Should mention prerequisite commands, got: {output!r}"
+    )
+
+
+def test_build_versioned_package_bootstrap_creates_empty_manual_sources(
+    tmp_path: Path,
+) -> None:
+    """--bootstrap-empty-manual-sources true must create header-only manual source files."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    # Seed only cross-run and analysis outputs (not manual sources).
+    _seed_minimal_outputs(repo_root)
+    # Remove manual source files to simulate missing state.
+    for rel in (
+        "outputs/manual_sources/historical_compatibility.csv",
+        "outputs/manual_sources/manual_sources_index.csv",
+    ):
+        p = repo_root / rel
+        if p.exists():
+            p.unlink()
+
+    output_dir = tmp_path / "release_out"
+    exit_code = module.main(
+        [
+            "--repo-root",
+            str(repo_root),
+            "--output-dir",
+            str(output_dir),
+            "--version-tag",
+            "v0.4.0",
+            "--source-commit-sha",
+            "bootstrap_sha_test",
+            "--bootstrap-empty-manual-sources",
+            "true",
+            "--include-xlsx",
+            "false",
+            "--include-sav",
+            "false",
+        ]
+    )
+    assert exit_code == 0, "Bootstrap mode should succeed"
+    # Files must have been created (header-only)
+    for rel in (
+        "outputs/manual_sources/historical_compatibility.csv",
+        "outputs/manual_sources/manual_sources_index.csv",
+    ):
+        p = repo_root / rel
+        assert p.exists(), f"Bootstrap should have created {rel}"
+        content = p.read_text(encoding="utf-8")
+        assert content.strip(), f"Bootstrapped file {rel} should have a header row"
+
+
+def test_build_versioned_package_no_implicit_bootstrap_without_flag(
+    tmp_path: Path,
+) -> None:
+    """Without --bootstrap-empty-manual-sources, missing manual sources must cause failure."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+    # Remove manual source files
+    for rel in (
+        "outputs/manual_sources/historical_compatibility.csv",
+        "outputs/manual_sources/manual_sources_index.csv",
+    ):
+        p = repo_root / rel
+        if p.exists():
+            p.unlink()
+
+    output_dir = tmp_path / "release_out"
+    exit_code = module.main(
+        [
+            "--repo-root",
+            str(repo_root),
+            "--output-dir",
+            str(output_dir),
+            "--version-tag",
+            "v0.5.0",
+            "--include-xlsx",
+            "false",
+            "--include-sav",
+            "false",
+        ]
+    )
+    assert exit_code != 0, (
+        "Should fail when manual sources are missing and bootstrap flag is not set"
+    )
+
+
+def test_build_versioned_package_manifest_uses_source_and_package_commit_sha(
+    tmp_path: Path,
+) -> None:
+    """RELEASE_MANIFEST.json must contain source_commit_sha and package_commit_sha."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+
+    output_dir = tmp_path / "release_out"
+    exit_code = module.main(
+        [
+            "--repo-root",
+            str(repo_root),
+            "--output-dir",
+            str(output_dir),
+            "--version-tag",
+            "v0.6.0",
+            "--source-commit-sha",
+            "source_abc123",
+            "--package-commit-sha",
+            "pending_until_merge",
+            "--include-xlsx",
+            "false",
+            "--include-sav",
+            "false",
+        ]
+    )
+    assert exit_code == 0
+
+    package_dir = output_dir / "morskamary_cumulative_evidence_v0.6.0"
+    manifest = json.loads(
+        (package_dir / "RELEASE_MANIFEST.json").read_text(encoding="utf-8")
+    )
+    assert manifest["source_commit_sha"] == "source_abc123"
+    assert manifest["package_commit_sha"] == "pending_until_merge"
+    assert "commit_sha" not in manifest, (
+        "Manifest must not contain the deprecated 'commit_sha' key"
+    )
+
+    citation = (package_dir / "CITATION_APA.txt").read_text(encoding="utf-8")
+    assert "source_abc123" in citation
+    assert "Source commit" in citation

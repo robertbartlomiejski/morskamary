@@ -1,0 +1,3 @@
+indicator_pk,run_pk,indicator_family_code,indicator_family_label,indicator_code,indicator_label,status_code,status_label,indicator_value,notes
+dq_pk_missingness,run_pk_latest,1,missingness,1,missingness_rate,1,pass,0.0,Derived rows carry explicit missing-value codes.
+dq_pk_duplicate_rate,run_pk_latest,2,duplicate_rate,2,duplicate_rate,1,pass,0.0,cross_run_dedupe_groups=2052

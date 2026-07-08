@@ -70,10 +70,13 @@ jobs:
 
       - name: Check committed outputs are in sync with generator
         run: |
-          git diff --exit-code -- outputs || {
+          git diff --exit-code -- outputs \
+            ':!outputs/cumulative_qmbd_records.json' || {
             echo ""
             echo "ERROR: Committed outputs/ are out of sync with the generator."
             echo "Run 'python run_full_analysis.py' locally and commit the updated outputs/."
+            echo "Note: outputs/cumulative_qmbd_records.json is excluded (it contains"
+            echo "non-reproducible per-run metadata: commit_sha, timestamp_utc, github_run_id)."
             exit 1
           }
 

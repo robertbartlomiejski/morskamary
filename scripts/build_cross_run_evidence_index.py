@@ -97,6 +97,36 @@ class EvidenceOccurrence:
     axis_name: str
 
 
+def _to_relative_posix(path: Path, repo_root: Path | None) -> str:
+    """Return a repo-relative POSIX path string.
+
+    If *path* is inside *repo_root* the relative path is returned (e.g.
+    ``outputs/run_archive``).  If *path* is outside the repository, or
+    *repo_root* is ``None``, only the last path component is kept and a
+    warning is emitted to stderr so that absolute CI/local paths are never
+    committed to tracked outputs.
+    """
+    if repo_root is not None:
+        try:
+            return path.relative_to(repo_root).as_posix()
+        except ValueError:
+            print(
+                f"WARNING: path {path} is outside the repository root "
+                f"({repo_root}); storing only basename to avoid exposing "
+                "absolute CI paths.",
+                file=sys.stderr,
+            )
+            return f"[redacted]/{path.name}"
+    # repo_root unknown: emit a warning if the path looks absolute
+    if path.is_absolute():
+        print(
+            f"WARNING: repo root unknown; storing basename only for absolute path {path}.",
+            file=sys.stderr,
+        )
+        return f"[redacted]/{path.name}"
+    return path.as_posix()
+
+
 def _to_bool(value: str) -> bool:
     normalized = value.strip().lower()
     if normalized in {"1", "true", "yes", "y"}:
@@ -216,6 +246,7 @@ def build_cross_run_evidence_index(
     dedupe_keys: tuple[str, ...],
     fail_on_invalid: bool,
     manual_ledger_path: Path | None = None,
+    repo_root: Path | None = None,
 ) -> int:
     """Build longitudinal run/evidence tables from archived runs."""
     index_path = archive_root / INDEX_CSV_FILENAME
@@ -493,8 +524,8 @@ def build_cross_run_evidence_index(
     )
 
     report_payload = {
-        "archive_root": archive_root.as_posix(),
-        "output_dir": output_dir.as_posix(),
+        "archive_root": _to_relative_posix(archive_root, repo_root),
+        "output_dir": _to_relative_posix(output_dir, repo_root),
         "runs_total": len(contexts),
         "runs_processed": len(run_summaries_sorted),
         "runs_skipped_invalid": invalid_runs,
@@ -575,6 +606,7 @@ def main(argv: list[str] | None = None) -> int:
         dedupe_keys=dedupe_keys,
         fail_on_invalid=fail_on_invalid,
         manual_ledger_path=manual_ledger_path,
+        repo_root=repo_root,
     )
 
 

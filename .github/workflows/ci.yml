@@ -163,6 +163,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      ALLOW_STATIC_RECOVERY_MODE: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -190,13 +191,6 @@ jobs:
         run: |
           python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive
 
-      - name: Verify outputs are in sync with generator
-        run: |
-          git diff --exit-code -- outputs/ || {
-            echo "ERROR: outputs/ drifted after regeneration."
-            echo "Run 'python run_full_analysis.py' locally and commit outputs/."
-            exit 1
-          }
 
   static-quality:
     needs: [conflict-marker-check]

@@ -1,0 +1,49 @@
+gap_cluster_pk,run_pk,sector_code,sector_label,qmbd_axis_code,qmbd_axis_label,priority_tier_code,priority_tier_label,review_required_code,review_required_label,gap_ratio,priority_score
+gap_pk_334cd00e1ce2f7b2,run_pk_latest,1,Blue Biotech,1,Marine,2,medium,1,Yes,1.0,0.5627
+gap_pk_b4ded61a8761bd13,run_pk_latest,1,Blue Biotech,2,Maritime,2,medium,1,Yes,1.0,0.5432
+gap_pk_aa16149179abdaad,run_pk_latest,1,Blue Biotech,3,Oceanic,1,high,1,Yes,1.0,0.8057
+gap_pk_6bc7da7808f1e919,run_pk_latest,1,Blue Biotech,4,Hydronization,3,low,0,No,0.0,0.1429
+gap_pk_1baa6d38968117c3,run_pk_latest,2,Coastal Tourism,1,Marine,2,medium,1,Yes,1.0,0.5473
+gap_pk_1f9bf956f8bf6737,run_pk_latest,2,Coastal Tourism,2,Maritime,2,medium,1,Yes,1.0,0.5549
+gap_pk_738f5d91dd284d8e,run_pk_latest,2,Coastal Tourism,3,Oceanic,1,high,1,Yes,1.0,0.8102
+gap_pk_a81bca0ed57e903b,run_pk_latest,2,Coastal Tourism,4,Hydronization,2,medium,1,Yes,1.0,0.4509
+gap_pk_e32b39b978c9aa43,run_pk_latest,3,Desalination,1,Marine,2,medium,1,Yes,1.0,0.536
+gap_pk_5bcbbd5a15a6b9cd,run_pk_latest,3,Desalination,2,Maritime,2,medium,1,Yes,1.0,0.5417
+gap_pk_2ff68d6c485464d2,run_pk_latest,3,Desalination,3,Oceanic,1,high,1,Yes,1.0,0.7618
+gap_pk_081e5164133a811a,run_pk_latest,3,Desalination,4,Hydronization,2,medium,1,Yes,1.0,0.4922
+gap_pk_85853ce13365e9ee,run_pk_latest,4,Infra & Robotics,1,Marine,2,medium,1,Yes,1.0,0.5239
+gap_pk_7d4d94a226110ba3,run_pk_latest,4,Infra & Robotics,2,Maritime,2,medium,1,Yes,1.0,0.5814
+gap_pk_a0754daa8cc2b6ad,run_pk_latest,4,Infra & Robotics,3,Oceanic,1,high,1,Yes,1.0,0.7176
+gap_pk_ef14240f49ff53cd,run_pk_latest,4,Infra & Robotics,4,Hydronization,2,medium,1,Yes,1.0,0.5013
+gap_pk_22c27dd85b520424,run_pk_latest,5,Living Res.,1,Marine,2,medium,1,Yes,1.0,0.5784
+gap_pk_e8533babe358caed,run_pk_latest,5,Living Res.,2,Maritime,2,medium,1,Yes,1.0,0.5605
+gap_pk_43deb60582b82bb5,run_pk_latest,5,Living Res.,3,Oceanic,1,high,1,Yes,1.0,0.8141
+gap_pk_d98e45a4b3cc6750,run_pk_latest,5,Living Res.,4,Hydronization,3,low,0,No,0.0,0.1429
+gap_pk_7424fe7d644330ad,run_pk_latest,6,Non-living Res.,1,Marine,2,medium,1,Yes,1.0,0.5559
+gap_pk_55866f3ca66cd5c7,run_pk_latest,6,Non-living Res.,2,Maritime,2,medium,1,Yes,1.0,0.5408
+gap_pk_41ddbfc0a10d94e2,run_pk_latest,6,Non-living Res.,3,Oceanic,1,high,1,Yes,1.0,0.8053
+gap_pk_3cfbb36e00fc1cfd,run_pk_latest,6,Non-living Res.,4,Hydronization,2,medium,1,Yes,1.0,0.3438
+gap_pk_c5f3cb53c3c5b575,run_pk_latest,7,Renewable Energy,1,Marine,2,medium,1,Yes,1.0,0.5443
+gap_pk_2223699c7942e68a,run_pk_latest,7,Renewable Energy,2,Maritime,2,medium,1,Yes,1.0,0.549
+gap_pk_054ff706ca9e604a,run_pk_latest,7,Renewable Energy,3,Oceanic,1,high,1,Yes,1.0,0.7745
+gap_pk_98f414f777c13465,run_pk_latest,7,Renewable Energy,4,Hydronization,3,low,0,No,0.0,0.1429
+gap_pk_fc56b9ed9fdb3b3b,run_pk_latest,8,Maritime Defence,1,Marine,2,medium,1,Yes,1.0,0.5239
+gap_pk_515730f37e4e81f4,run_pk_latest,8,Maritime Defence,2,Maritime,2,medium,1,Yes,1.0,0.6203
+gap_pk_36dadaa11b1d4f50,run_pk_latest,8,Maritime Defence,3,Oceanic,1,high,1,Yes,1.0,0.7337
+gap_pk_e4ba59bc0d3433b2,run_pk_latest,8,Maritime Defence,4,Hydronization,3,low,0,No,0.0,0.1429
+gap_pk_675a7a783d76b6f0,run_pk_latest,9,Maritime Transport,1,Marine,2,medium,1,Yes,1.0,0.5239
+gap_pk_541220b1d4b9de6a,run_pk_latest,9,Maritime Transport,2,Maritime,1,high,1,Yes,1.0,0.6799
+gap_pk_d1a7a2813665de35,run_pk_latest,9,Maritime Transport,3,Oceanic,1,high,1,Yes,1.0,0.7402
+gap_pk_5598c2e99c6fbc10,run_pk_latest,9,Maritime Transport,4,Hydronization,3,low,0,No,0.0,0.1429
+gap_pk_8317e12d8776ff80,run_pk_latest,10,Port Activities,1,Marine,2,medium,1,Yes,1.0,0.5331
+gap_pk_4ddf2376b5c44d7d,run_pk_latest,10,Port Activities,2,Maritime,1,high,1,Yes,1.0,0.7014
+gap_pk_b3ad1f9dbe5fce5b,run_pk_latest,10,Port Activities,3,Oceanic,1,high,1,Yes,1.0,0.6928
+gap_pk_40f1be8400c10762,run_pk_latest,10,Port Activities,4,Hydronization,2,medium,1,Yes,1.0,0.4694
+gap_pk_4139fe4c04869313,run_pk_latest,11,R&I,1,Marine,2,medium,1,Yes,1.0,0.5689
+gap_pk_18e2adbe83903651,run_pk_latest,11,R&I,2,Maritime,2,medium,1,Yes,1.0,0.5562
+gap_pk_d681a928945d5f94,run_pk_latest,11,R&I,3,Oceanic,1,high,1,Yes,0.9932,0.8022
+gap_pk_fb46dfcfb40df128,run_pk_latest,11,R&I,4,Hydronization,3,low,0,No,0.0,0.1429
+gap_pk_2411a6cc0f553441,run_pk_latest,12,Ship Repair,1,Marine,2,medium,1,Yes,1.0,0.5239
+gap_pk_05cf1538cf693773,run_pk_latest,12,Ship Repair,2,Maritime,2,medium,1,Yes,1.0,0.5958
+gap_pk_0a9b076fa675c902,run_pk_latest,12,Ship Repair,3,Oceanic,1,high,1,Yes,1.0,0.7691
+gap_pk_ec52da335c8d8da3,run_pk_latest,12,Ship Repair,4,Hydronization,2,medium,1,Yes,1.0,0.4839

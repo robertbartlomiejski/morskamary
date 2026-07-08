@@ -19,6 +19,64 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-08 (fix: use math.fsum for deterministic Average_Confidence across Python versions)
+  Change type fix
+  Scope scripts tests
+  Files affected run_full_analysis.py tests/test_gap_model.py
+  Summary Replaced sum() with math.fsum() in export_gap_priority_ranking_csv() for computing Average_Confidence. Python 3.11's sum() on generator expressions accumulates floats with slightly less precision than Python 3.12, causing the Infra & Robotics / MARITIME cluster (20×0.75 + 28×0.90 = 40.2/48 = 0.8375) to round to "0.837" in CI (Python 3.11) vs "0.838" locally (Python 3.12). math.fsum() uses the Shewchuk compensated-summation algorithm which always returns the nearest IEEE 754 double to the true mathematical sum, giving "0.838" consistently on both versions. Added regression test test_gap_priority_ranking_avg_confidence_midpoint_rounds_up that asserts the exact "0.838" result for this cluster shape.
+  Reason full-analysis.yml sync check failed because gap_priority_ranking.csv row 17 Average_Confidence differed between committed output (0.838, Python 3.12) and CI-generated output (0.837, Python 3.11). Committed CSV is already correct and unchanged.
+  Impact gap_priority_ranking.csv Average_Confidence is now reproducible across Python 3.11 and 3.12. No change to committed CSV files.
+  Quality checks: CI #525 and Full Analysis #427 passed on current PR head cfdc723f6bff360b2d81ac1ca21c1b0e361d9f56. Regression test for Average_Confidence midpoint rounding passes.
+  Reviewer @robertbartlomiejski
+
+- 2026-07-08 (fix: deterministic gap_priority_ranking.csv aggregation)
+  Change type fix
+  Scope scripts tests outputs
+  Files affected run_full_analysis.py tests/test_gap_model.py outputs/gap_priority_ranking.csv outputs/credentials_dynamic_database.json outputs/sector_qmbd_learning_pathways.json
+  Summary Hardened export_gap_priority_ranking_csv() to sort missing_items by competence_id before computing Average_Confidence, removing floating-point summation-order drift between runs. Fixed _top_values() to break frequency ties alphabetically (-count, value) so Top_Origins, Top_Providers, Top_DOIs, and Top_Titles fields are also stable across runs. Added regression test test_gap_priority_ranking_csv_is_deterministic_across_runs that calls the export twice on identical input and asserts identical CSV output and correct Average_Confidence value. Regenerated affected outputs: gap_priority_ranking.csv, credentials_dynamic_database.json, sector_qmbd_learning_pathways.json.
+  Reason Full-analysis sync check (git diff --exit-code -- outputs) failed because Infra & Robotics / MARITIME Average_Confidence drifted between 0.838 and 0.837 across CI runs due to nondeterministic item ordering from live API responses. _top_values tie-breaking was also order-dependent and caused text field drift in gap_priority_ranking.csv and related outputs.
+  Impact gap_priority_ranking.csv is now publication-stable: Average_Confidence and all text-aggregation fields are deterministic regardless of live-API response ordering.
+  Quality checks All 851 tests pass; two new tests pass; git diff --exit-code clean for tracked outputs after regeneration; sync_audit.py --strict reports no errors.
+  Reviewer @robertbartlomiejski
+
+- 2026-07-08 (hardening: PR #189 publication-grade provenance and reproducibility patch)
+  Change type fix update add
+  Scope scripts governance tests schemas outputs
+  Files affected scripts/build_cross_run_evidence_index.py scripts/build_versioned_research_data_package.py schemas/research_data_package_manifest.schema.json tests/test_build_cross_run_evidence_index.py tests/test_build_versioned_research_data_package.py tests/test_run_full_analysis.py outputs/run_archive/cross_run_evidence_build_report.json outputs/release_packages/morskamary_cumulative_evidence_v1.0.0/*
+  Summary Five hardening changes applied: (1) Removed absolute CI/local paths from cross_run_evidence_build_report.json — build_cross_run_evidence_index.py now stores repo-relative POSIX paths and redacts any paths outside the repository root. (2) Added explicit preflight check to build_versioned_research_data_package.py that fails early with a clear message listing prerequisite commands; manual-source bootstrap only occurs when --bootstrap-empty-manual-sources true is explicitly passed. (3) Split release manifest commit_sha into source_commit_sha (data inputs) and package_commit_sha (pending_until_merge), updated schema, citation template, and RELEASE_MANIFEST.json accordingly. (4) Hardened test_main_blocks_static_mode_without_recovery_override to explicitly unset ALLOW_STATIC_RECOVERY_MODE so CI env vars cannot leak into the test. (5) Added regression tests: absolute-path checks in build report, missing-prerequisite failure, explicit bootstrap, and provenance-field checks.
+  Reason Comment 4916215915 on PR #189 requested publication-grade hardening before final merge: no absolute paths in tracked outputs, deterministic preflight, provenance metadata clarity, and protected live-enriched-default policy.
+  Impact cross_run_evidence_build_report.json now contains relative paths; RELEASE_MANIFEST.json uses source_commit_sha/package_commit_sha; package builder fails loudly on missing inputs; static mode guard test is CI-safe.
+  Quality checks All tests pass; generate_manifest.py and sync_audit.py --strict clean after manifest regeneration.
+  Reviewer @robertbartlomiejski
+
+- 2026-07-08 (feat: build versioned research data package v1.0.0)
+  Change type add
+  Scope outputs scripts governance
+  Files affected outputs/release_packages/morskamary_cumulative_evidence_v1.0.0/* outputs/manual_sources/historical_compatibility.csv outputs/manual_sources/manual_sources_index.csv outputs/run_archive/cross_run_*.csv outputs/run_archive/cross_run_evidence_build_report.json
+  Summary Generated the versioned cumulative evidence data package (v1.0.0) using build_versioned_research_data_package.py. Prerequisites (cross-run evidence index and manual sources ledger) were bootstrapped first via build_cross_run_evidence_index.py and empty header-only CSVs for manual_sources. Package contains 7,371 schema-validated rows across CSV, JSONL exports with APA citation metadata and SHA-256 checksums.
+  Reason User requested compilation of the versioned research data package as part of PR #189 finalisation workflow (comment 4916019719).
+  Impact outputs/release_packages/morskamary_cumulative_evidence_v1.0.0/ and .zip are now committed. Manual sources ledger initialised (empty) for future ingestion. Cross-run evidence index populated from one archived run.
+  Quality checks build_versioned_research_data_package.py exited 0; schema_validation errors=[]; validated_tables=7 tables.
+  Reviewer @robertbartlomiejski
+
+- 2026-07-08 (sync-audit: exclude transient smoke-test artifact from manifest scan and git tracking)
+  Change type fix
+  Scope governance scripts
+  Files affected .gitignore scripts/generate_manifest.py
+  Summary Added outputs/research_api_smoke_report.json to .gitignore (transient CI artifact uploaded by research-api-smoke.yml, never committed) and to IGNORED_FILE_BASENAMES in generate_manifest.py so the file is skipped during manifest scans. This prevents the local sync audit from reporting manifest drift when the smoke report exists on the developer's filesystem after a test run.
+  Reason Local sync audit (python scripts/sync_audit.py --strict) failed with manifest drift when outputs/research_api_smoke_report.json was present from a local test run. The file was not ignored by git or by generate_manifest.py, causing a spurious extra row in the regenerated manifest.
+  Impact sync_audit --strict now passes cleanly on a local checkout even after running the full test suite. No committed outputs change.
+  Quality checks python scripts/sync_audit.py --strict; git diff MANIFEST_SOURCES.csv (no diff); python -m pytest tests/ -q (837 passed).
+
+- 2026-07-08 (CI fix: test isolation, quick-mode-gate env, manifest sync, run-analysis exclusion)
+  Change type fix
+  Scope governance scripts tests ci
+  Files affected tests/test_run_full_analysis.py .github/workflows/ci.yml .github/workflows/full-analysis.yml MANIFEST_SOURCES.csv
+  Summary Fixed test_main_static_recovery_emits_cumulative_metadata leaking the CI GITHUB_SHA environment variable (added GITHUB_SHA="" to patch.dict). Added ALLOW_STATIC_RECOVERY_MODE="true" to quick-mode-gate env and removed the outputs sync check from that job (static-mode outputs intentionally differ from committed live-enriched outputs; canonical sync is in full-analysis.yml). Excluded outputs/cumulative_qmbd_records.json from the full-analysis.yml sync check because it contains non-reproducible per-run metadata (commit_sha, timestamp_utc, github_run_id). Regenerated MANIFEST_SOURCES.csv removing stale entries for outputs/manual_sources/ and outputs/run_archive/cross_run_* files that are not tracked in git.
+  Reason CI failures on PR-189: test-suite (GITHUB_SHA leakage), governance (stale manifest entries), run-analysis (cumulative metadata drift).
+  Impact CI checks now correctly isolate per-run metadata; manifest stays deterministic; static-mode gate no longer errors on missing recovery env var.
+  Quality checks python -m pytest tests/test_run_full_analysis.py::test_main_static_recovery_emits_cumulative_metadata -xvs; python3 scripts/generate_manifest.py; git diff MANIFEST_SOURCES.csv (verified stale entries removed).
+
 - 2026-07-07 (dynamic-only execution default, manual source ledger, historical output revalidation, gatekeeper reports)
   Change type add update fix
   Scope scripts analysis tests governance outputs
@@ -715,4 +773,14 @@ Reason Authors ("Smith, J.; Jones, K.") are bibliographic metadata, not data pro
 Impact _extract_provider_from_comp now returns (1) a live-API provider slug from a lit_live_<provider>_NNNNN ID (e.g. "scopus"), or (2) an explicit provider:/source_provider:/data_provider: keyword value, otherwise "unknown"—bibliographic authors, support: keywords, and thematic keywords (labor_justice, research_gaps, oceanic, etc.) are never used as provider. CSV parsing is robust to BOM rows, shifted headers, and extra introductory rows. Covered demand items now carry matched_supply_id, matched_supply_origin, match_method, and match_score.
 Provenance PR addressing review comment #4608688805 on PR #182.
 Quality checks pytest tests/ passes (757/757).
+Reviewer GitHub Copilot Coding Agent
+
+2026-07-08
+Change type fix
+Scope governance CI run-archive
+Files affected outputs/run_archive/runs/28625632237-1/manifest.json
+Summary Backfilled archived run manifest with six required fields introduced by PR-186 (analysis_timestamp_utc, analysis_input_mode, is_static_recovery_mode, static_recovery_reason, allow_static_recovery_mode_env, provider_set). The manifest was generated before PR-186 added these fields to the schema, causing validate_run_archive_integrity.py to fail in CI.
+Reason Schema validation in CI (validate_run_archive_integrity.py) uses a strict required-properties list. The archived manifest was created before the live-enriched-default policy fields were added. Backfilling with correct values (live mode, no static recovery) restores CI integrity without altering the provenance of archived data.
+Impact CI governance-and-repro job passes; run archive integrity check passes.
+Quality checks python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive → passed.
 Reviewer GitHub Copilot Coding Agent
