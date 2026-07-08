@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-08 (feat: build versioned research data package v1.0.0)
+  Change type add
+  Scope outputs scripts governance
+  Files affected outputs/release_packages/morskamary_cumulative_evidence_v1.0.0/* outputs/manual_sources/historical_compatibility.csv outputs/manual_sources/manual_sources_index.csv outputs/run_archive/cross_run_*.csv outputs/run_archive/cross_run_evidence_build_report.json
+  Summary Generated the versioned cumulative evidence data package (v1.0.0) using build_versioned_research_data_package.py. Prerequisites (cross-run evidence index and manual sources ledger) were bootstrapped first via build_cross_run_evidence_index.py and empty header-only CSVs for manual_sources. Package contains 7,371 schema-validated rows across CSV, JSONL exports with APA citation metadata and SHA-256 checksums.
+  Reason User requested compilation of the versioned research data package as part of PR #189 finalisation workflow (comment 4916019719).
+  Impact outputs/release_packages/morskamary_cumulative_evidence_v1.0.0/ and .zip are now committed. Manual sources ledger initialised (empty) for future ingestion. Cross-run evidence index populated from one archived run.
+  Quality checks build_versioned_research_data_package.py exited 0; schema_validation errors=[]; validated_tables=7 tables.
+  Reviewer @robertbartlomiejski
+
 - 2026-07-08 (sync-audit: exclude transient smoke-test artifact from manifest scan and git tracking)
   Change type fix
   Scope governance scripts

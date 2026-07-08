@@ -1,0 +1,11 @@
+Repository dataset citation template (APA-like)
+
+Repository: robertbartlomiejski/morskamary
+Release tag: v1.0.0
+Commit hash: adb4ae7762d849d8344de464f206ab1f10e8850c
+Access date: 2026-07-08
+
+Template:
+Bartlomiejski, R. (2026). morskamary cumulative evidence package (v1.0.0) [Dataset]. GitHub Release (v1.0.0). Commit adb4ae7762d849d8344de464f206ab1f10e8850c. Accessed 2026-07-08. Provenance: derived cumulative package from repository-managed pipelines.
+
+For dataset-file level references include exact relative path and checksum.
