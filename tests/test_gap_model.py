@@ -577,6 +577,57 @@ class TestExportFunctions:
         # Coverage_Method must be a meaningful value (not empty)
         assert row["Coverage_Method"]  # non-empty string
 
+    def _make_result_multi_item(self) -> GapModelResult:
+        """Build a GapModelResult with multiple missing items having varying confidence scores.
+
+        Items are provided in reverse competence_id order to verify that sorting
+        (not insertion order) drives deterministic aggregation.
+        """
+        items = [
+            _make_evidence("z_comp", "Blue Biotech", "MARINE", confidence_score=0.90),
+            _make_evidence("a_comp", "Blue Biotech", "MARINE", confidence_score=0.70),
+            _make_evidence("m_comp", "Blue Biotech", "MARINE", confidence_score=0.80),
+        ]
+        cluster = GapCluster(
+            sector="Blue Biotech",
+            qmbd_axis="MARINE",
+            demand_items=items,
+            supply_items=[],
+            missing_items=items,
+            priority_score=0.75,
+        )
+        return GapModelResult(
+            demand_evidence={"Blue Biotech": items},
+            supply_evidence={},
+            generated_supply_evidence={},
+            all_clusters=[cluster],
+            missing_clusters=[cluster],
+        )
+
+    def test_gap_priority_ranking_csv_is_deterministic_across_runs(
+        self, tmp_path: Path
+    ) -> None:
+        """Calling export_gap_priority_ranking_csv twice must produce identical CSV output.
+
+        This is a regression test for nondeterministic floating-point summation and
+        _top_values tie-breaking that caused Average_Confidence to drift between runs.
+        """
+        result = self._make_result_multi_item()
+        out1 = tmp_path / "run1.csv"
+        out2 = tmp_path / "run2.csv"
+        export_gap_priority_ranking_csv(result, out1)
+        export_gap_priority_ranking_csv(result, out2)
+        text1 = out1.read_text(encoding="utf-8")
+        text2 = out2.read_text(encoding="utf-8")
+        assert text1 == text2, (
+            "gap_priority_ranking.csv produced different content on two consecutive runs; "
+            "the generator is nondeterministic."
+        )
+        rows = list(csv.DictReader(out1.open(encoding="utf-8")))
+        assert len(rows) == 1
+        # Average_Confidence must equal the mean of 0.90, 0.70, 0.80 = 0.800
+        assert rows[0]["Average_Confidence"] == "0.800"
+
 
 # ---------------------------------------------------------------------------
 # Tests: axis-sensitive coverage (Fix 3)

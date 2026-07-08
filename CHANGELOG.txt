@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-08 (fix: deterministic gap_priority_ranking.csv aggregation)
+  Change type fix
+  Scope scripts tests outputs
+  Files affected run_full_analysis.py tests/test_gap_model.py outputs/gap_priority_ranking.csv outputs/credentials_dynamic_database.json outputs/sector_qmbd_learning_pathways.json
+  Summary Hardened export_gap_priority_ranking_csv() to sort missing_items by competence_id before computing Average_Confidence, removing floating-point summation-order drift between runs. Fixed _top_values() to break frequency ties alphabetically (-count, value) so Top_Origins, Top_Providers, Top_DOIs, and Top_Titles fields are also stable across runs. Added regression test test_gap_priority_ranking_csv_is_deterministic_across_runs that calls the export twice on identical input and asserts identical CSV output and correct Average_Confidence value. Regenerated affected outputs: gap_priority_ranking.csv, credentials_dynamic_database.json, sector_qmbd_learning_pathways.json.
+  Reason Full-analysis sync check (git diff --exit-code -- outputs) failed because Infra & Robotics / MARITIME Average_Confidence drifted between 0.838 and 0.837 across CI runs due to nondeterministic item ordering from live API responses. _top_values tie-breaking was also order-dependent and caused text field drift in gap_priority_ranking.csv and related outputs.
+  Impact gap_priority_ranking.csv is now publication-stable: Average_Confidence and all text-aggregation fields are deterministic regardless of live-API response ordering.
+  Quality checks All 851 tests pass; two new tests pass; git diff --exit-code clean for tracked outputs after regeneration; sync_audit.py --strict reports no errors.
+  Reviewer @robertbartlomiejski
+
 - 2026-07-08 (hardening: PR #189 publication-grade provenance and reproducibility patch)
   Change type fix update add
   Scope scripts governance tests schemas outputs

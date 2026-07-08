@@ -2019,7 +2019,9 @@ def export_gap_priority_ranking_csv(
             ]
         )
         for rank, cluster in enumerate(ranked, start=1):
-            missing = cluster.missing_items
+            # Sort missing items by competence_id for deterministic aggregation
+            # order across runs (floating-point summation is order-dependent).
+            missing = sorted(cluster.missing_items, key=lambda i: i.competence_id)
             rep_names = "; ".join(item.name[:60] for item in missing[:3])
 
             # Audit: aggregate provenance fields from missing items
@@ -2062,11 +2064,17 @@ def export_gap_priority_ranking_csv(
 
 
 def _top_values(values: List[str], n: int = 3) -> List[str]:
-    """Return the top-*n* most frequent non-empty values from *values*."""
+    """Return the top-*n* most frequent non-empty values from *values*.
+
+    Ties in frequency are broken alphabetically so the result is stable
+    across runs regardless of the input ordering.
+    """
     from collections import Counter
 
     counts = Counter(v for v in values if v)
-    return [v for v, _ in counts.most_common(n)]
+    # Sort by (-count, value) so ties are resolved alphabetically.
+    ranked = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    return [v for v, _ in ranked[:n]]
 
 
 _EQF_RULE_KEYWORDS: Dict[int, Dict[str, Set[str]]] = {
