@@ -323,6 +323,7 @@ def test_main_static_recovery_emits_cumulative_metadata(tmp_path: Path) -> None:
                 "STATIC_RECOVERY_REASON": "offline-ci",
                 "REQUESTED_PROVIDERS": "crossref,scopus",
                 "GITHUB_RUN_ID": "123456",
+                "GITHUB_SHA": "",
             },
             clear=False,
         ),

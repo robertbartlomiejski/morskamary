@@ -19,6 +19,15 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-08 (CI fix: test isolation, quick-mode-gate env, manifest sync, run-analysis exclusion)
+  Change type fix
+  Scope governance scripts tests ci
+  Files affected tests/test_run_full_analysis.py .github/workflows/ci.yml .github/workflows/full-analysis.yml MANIFEST_SOURCES.csv
+  Summary Fixed test_main_static_recovery_emits_cumulative_metadata leaking the CI GITHUB_SHA environment variable (added GITHUB_SHA="" to patch.dict). Added ALLOW_STATIC_RECOVERY_MODE="true" to quick-mode-gate env and removed the outputs sync check from that job (static-mode outputs intentionally differ from committed live-enriched outputs; canonical sync is in full-analysis.yml). Excluded outputs/cumulative_qmbd_records.json from the full-analysis.yml sync check because it contains non-reproducible per-run metadata (commit_sha, timestamp_utc, github_run_id). Regenerated MANIFEST_SOURCES.csv removing stale entries for outputs/manual_sources/ and outputs/run_archive/cross_run_* files that are not tracked in git.
+  Reason CI failures on PR-189: test-suite (GITHUB_SHA leakage), governance (stale manifest entries), run-analysis (cumulative metadata drift).
+  Impact CI checks now correctly isolate per-run metadata; manifest stays deterministic; static-mode gate no longer errors on missing recovery env var.
+  Quality checks python -m pytest tests/test_run_full_analysis.py::test_main_static_recovery_emits_cumulative_metadata -xvs; python3 scripts/generate_manifest.py; git diff MANIFEST_SOURCES.csv (verified stale entries removed).
+
 - 2026-07-07 (dynamic-only execution default, manual source ledger, historical output revalidation, gatekeeper reports)
   Change type add update fix
   Scope scripts analysis tests governance outputs
