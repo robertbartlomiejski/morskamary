@@ -29,6 +29,7 @@ import argparse
 import html as _html_module
 import json
 import logging
+import math
 import os
 import re
 import sys
@@ -2032,7 +2033,7 @@ def export_gap_priority_ranking_csv(
             years = [i.year for i in missing if i.year]
             year_range = f"{min(years)}–{max(years)}" if years else ""
             avg_conf = (
-                sum(i.confidence_score for i in missing) / len(missing)
+                math.fsum(i.confidence_score for i in missing) / len(missing)
                 if missing
                 else 0.0
             )

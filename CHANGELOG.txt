@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-08 (fix: use math.fsum for deterministic Average_Confidence across Python versions)
+  Change type fix
+  Scope scripts tests
+  Files affected run_full_analysis.py tests/test_gap_model.py
+  Summary Replaced sum() with math.fsum() in export_gap_priority_ranking_csv() for computing Average_Confidence. Python 3.11's sum() on generator expressions accumulates floats with slightly less precision than Python 3.12, causing the Infra & Robotics / MARITIME cluster (20×0.75 + 28×0.90 = 40.2/48 = 0.8375) to round to "0.837" in CI (Python 3.11) vs "0.838" locally (Python 3.12). math.fsum() uses the Shewchuk compensated-summation algorithm which always returns the nearest IEEE 754 double to the true mathematical sum, giving "0.838" consistently on both versions. Added regression test test_gap_priority_ranking_avg_confidence_midpoint_rounds_up that asserts the exact "0.838" result for this cluster shape.
+  Reason full-analysis.yml sync check failed because gap_priority_ranking.csv row 17 Average_Confidence differed between committed output (0.838, Python 3.12) and CI-generated output (0.837, Python 3.11). Committed CSV is already correct and unchanged.
+  Impact gap_priority_ranking.csv Average_Confidence is now reproducible across Python 3.11 and 3.12. No change to committed CSV files.
+  Quality checks 810 tests pass (8 pre-existing pandas failures unrelated); new regression test passes on Python 3.12 and will pass on Python 3.11 with math.fsum.
+  Reviewer @robertbartlomiejski
+
 - 2026-07-08 (fix: deterministic gap_priority_ranking.csv aggregation)
   Change type fix
   Scope scripts tests outputs
