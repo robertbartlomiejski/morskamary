@@ -1034,6 +1034,7 @@ scripts/bootstrap_research_secrets.sh,script,,,,,,bootstrap_research_secrets,no
 scripts/Breguła Weird Szczecin_250412_101024.txt,script,,,,,,Breguła_Weird_Szczecin_250412_101024,yes
 scripts/build_cross_run_evidence_index.py,script,,,,,,build_cross_run_evidence_index,yes
 scripts/build_derived.py,script,,,,,,build_derived,yes
+scripts/build_live_run_audit.py,script,,,,,,build_live_run_audit,yes
 scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,yes
 scripts/build_versioned_research_data_package.py,script,,,,,,build_versioned_research_data_package,yes
 scripts/changelog_guard.py,script,,,,,,changelog_guard,yes
@@ -1100,6 +1101,7 @@ src/scientific_sources/crossref.py,script,,,,,,crossref,yes
 src/scientific_sources/elsevier_scopus.py,script,,,,,,elsevier_scopus,yes
 src/scientific_sources/google_drive.py,script,,,,,,google_drive,yes
 src/scientific_sources/live_query_protocol.py,script,,,,,,live_query_protocol,yes
+src/scientific_sources/live_run_audit.py,script,,,,,,live_run_audit,yes
 src/scientific_sources/microsoft_graph.py,script,,,,,,microsoft_graph,yes
 src/scientific_sources/models.py,script,,,,,,models,yes
 src/scientific_sources/provenance.py,script,,,,,,provenance,yes
@@ -1145,6 +1147,7 @@ tests/test_generate_manifest.py,script,,,,,,test_generate_manifest,yes
 tests/test_ingest_manual_supporting_sources.py,script,,,,,,test_ingest_manual_supporting_sources,yes
 tests/test_literature_extraction.py,script,,,,,,test_literature_extraction,yes
 tests/test_live_query_protocol.py,script,,,,,,test_live_query_protocol,yes
+tests/test_live_run_audit.py,script,,,,,,test_live_run_audit,yes
 tests/test_load_real_competences.py,script,,,,,,test_load_real_competences,yes
 tests/test_main_entrypoints.py,script,,,,,,test_main_entrypoints,yes
 tests/test_nlp_reliability.py,script,,,,,,test_nlp_reliability,yes
