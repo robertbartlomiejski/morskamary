@@ -719,6 +719,7 @@ docs/literature/WG3 Meeting  - 2025_12_12 10_57 GMT - Notes by Gemini.docx,liter
 docs/literature/WG3_PACT_WG3_Sensory_Walk_Methodology_Slides_EN-UK rob.pptx,literature,,,,,,WG3_PACT_WG3_Sensory_Walk_Methodology_Sl,no
 docs/literature/WG_applications_export_05-01-2026 (1).xlsx,literature,,,,,,WG_applications_export_05_01_2026__1,yes
 docs/literature/Wyrzucone przez morze_250521_002507.txt,literature,,,,,,Wyrzucone_przez_morze_250521_002507,yes
+docs/LIVE_CUMULATIVE_SCIENTIFIC_DATABASE.md,text,,,,,,LIVE_CUMULATIVE_SCIENTIFIC_DATABASE,yes
 docs/onboarding_new_provider.md,text,,,,,,onboarding_new_provider,yes
 docs/ONE_CLICK_RESEARCH_RUNBOOK.md,text,,,,,,ONE_CLICK_RESEARCH_RUNBOOK,yes
 docs/overview.md,text,,,,,,overview,yes
@@ -1033,6 +1034,7 @@ scripts/bootstrap_research_secrets.ps1,script,,,,,,bootstrap_research_secrets,no
 scripts/bootstrap_research_secrets.sh,script,,,,,,bootstrap_research_secrets,no
 scripts/Breguła Weird Szczecin_250412_101024.txt,script,,,,,,Breguła_Weird_Szczecin_250412_101024,yes
 scripts/build_cross_run_evidence_index.py,script,,,,,,build_cross_run_evidence_index,yes
+scripts/build_cumulative_scientific_database.py,script,,,,,,build_cumulative_scientific_database,yes
 scripts/build_derived.py,script,,,,,,build_derived,yes
 scripts/build_live_run_audit.py,script,,,,,,build_live_run_audit,yes
 scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,yes
@@ -1098,6 +1100,7 @@ src/nlp_reliability/triangulation.py,script,,,,,,triangulation,yes
 src/scientific_sources/__init__.py,script,,,,,,init,yes
 src/scientific_sources/base.py,script,,,,,,base,yes
 src/scientific_sources/crossref.py,script,,,,,,crossref,yes
+src/scientific_sources/cumulative_scientific_database.py,script,,,,,,cumulative_scientific_database,yes
 src/scientific_sources/elsevier_scopus.py,script,,,,,,elsevier_scopus,yes
 src/scientific_sources/google_drive.py,script,,,,,,google_drive,yes
 src/scientific_sources/live_query_protocol.py,script,,,,,,live_query_protocol,yes
@@ -1134,6 +1137,7 @@ tests/test_convert_pdfs_to_txt.py,script,,,,,,test_convert_pdfs_to_txt,yes
 tests/test_core.py,script,,,,,,test_core,yes
 tests/test_cumulative_evidence_schemas.py,script,,,,,,test_cumulative_evidence_schemas,yes
 tests/test_cumulative_fragment_analysis.py,script,,,,,,test_cumulative_fragment_analysis,yes
+tests/test_cumulative_scientific_database.py,script,,,,,,test_cumulative_scientific_database,yes
 tests/test_cumulative_triangulator.py,script,,,,,,test_cumulative_triangulator,yes
 tests/test_cumulative_triangulator_dynamic_priority.py,script,,,,,,test_cumulative_triangulator_dynamic_pri,yes
 tests/test_dynamic_credentials_generation.py,script,,,,,,test_dynamic_credentials_generation,yes
