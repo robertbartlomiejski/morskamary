@@ -125,6 +125,15 @@ jobs:
             python scripts/validate_research_source_outputs.py
           fi
 
+      - name: Build Layer 1 live-run audit bundle
+        run: |
+          set -euo pipefail
+          python scripts/build_live_run_audit.py \
+            --run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --research-sources-dir outputs/research_sources \
+            --output-root outputs/live_runs \
+            --protocol-path config/live_query_protocol.yml
+
       - name: Run full analysis
         run: |
           set -euo pipefail
@@ -201,6 +210,7 @@ jobs:
           path: |
             outputs/
             outputs/run_archive/
+            outputs/live_runs/
             data/derived/
           if-no-files-found: warn
           retention-days: 30
@@ -233,7 +243,7 @@ jobs:
           git config user.name "morskamary-bot"
           git config user.email "actions@github.com"
 
-          git add outputs/ outputs/run_archive/
+          git add outputs/ outputs/run_archive/ outputs/live_runs/
           if git diff --cached --quiet; then
             echo "No output changes to commit."
             exit 0

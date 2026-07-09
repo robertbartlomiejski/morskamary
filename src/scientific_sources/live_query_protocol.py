@@ -26,7 +26,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Sequence, Union
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from src.core import BlueDynamicsAxis
 

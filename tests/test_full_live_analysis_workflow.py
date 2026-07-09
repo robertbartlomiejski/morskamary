@@ -45,3 +45,34 @@ def test_workflow_archives_full_run_outputs_into_run_archive() -> None:
     assert "--require-present" in WORKFLOW_TEXT
     assert "validation_state.json" in WORKFLOW_TEXT
     assert "outputs/run_archive/" in WORKFLOW_TEXT
+
+
+def test_workflow_builds_layer1_live_run_audit_bundle() -> None:
+    assert "python scripts/build_live_run_audit.py" in WORKFLOW_TEXT
+    assert "--research-sources-dir outputs/research_sources" in WORKFLOW_TEXT
+    assert "--output-root outputs/live_runs" in WORKFLOW_TEXT
+    assert "--protocol-path config/live_query_protocol.yml" in WORKFLOW_TEXT
+
+
+def test_layer1_run_id_matches_archive_run_id_convention() -> None:
+    build_index = WORKFLOW_TEXT.index("python scripts/build_live_run_audit.py")
+    build_step = WORKFLOW_TEXT[build_index : build_index + 500]
+    assert (
+        '--run-id "${{ github.run_id }}-${{ github.run_attempt }}"'
+        in build_step
+    )
+
+
+def test_workflow_uploads_live_runs_directory_as_artifact() -> None:
+    upload_index = WORKFLOW_TEXT.index("name: live-enriched-analysis-outputs")
+    upload_block = WORKFLOW_TEXT[upload_index : upload_index + 500]
+    assert "outputs/live_runs/" in upload_block
+
+
+def test_commit_outputs_job_stages_live_runs_directory() -> None:
+    commit_index = WORKFLOW_TEXT.index("commit-outputs:")
+    commit_block = WORKFLOW_TEXT[commit_index:]
+    assert "git add" in commit_block
+    git_add_index = commit_block.index("git add")
+    git_add_line = commit_block[git_add_index : git_add_index + 200]
+    assert "outputs/live_runs/" in git_add_line
