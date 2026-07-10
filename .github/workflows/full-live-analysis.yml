@@ -214,6 +214,40 @@ jobs:
             --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
             --emit-summary
 
+      - name: Build derived competence demand and gap model (Layers 4 and 5)
+        run: |
+          set -euo pipefail
+          python scripts/build_layer4_5_scientific_analysis.py \
+            --database-dir outputs/cumulative_database \
+            --output-dir outputs/cumulative_database \
+            --stats-dir outputs/layer4_statistics \
+            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}"
+
+      - name: Evaluate live novelty gates (A-E)
+        run: |
+          set -euo pipefail
+          python scripts/compute_live_novelty_metrics.py \
+            --metrics outputs/cumulative_database/run_novelty_metrics.json \
+            --provider-health outputs/research_api_health.json \
+            --current-run outputs \
+            --output outputs/cumulative_database/novelty_gate_report.json
+
+      - name: Build statistical research report (HTML + PDF)
+        run: |
+          set -euo pipefail
+          python scripts/build_statistical_research_report.py \
+            --database-dir outputs/cumulative_database \
+            --output-dir reports
+
+      - name: Build live cumulative release package (single ZIP)
+        run: |
+          set -euo pipefail
+          python scripts/build_live_cumulative_release_package.py \
+            --database-dir outputs/cumulative_database \
+            --reports-dir reports \
+            --version-tag "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --output outputs/release_packages/morskamary_live_cumulative_latest.zip
+
       - name: Upload live-enriched analysis outputs
         if: always()
         uses: actions/upload-artifact@v4
@@ -224,6 +258,9 @@ jobs:
             outputs/run_archive/
             outputs/live_runs/
             outputs/cumulative_database/
+            outputs/layer4_statistics/
+            outputs/release_packages/
+            reports/
             data/derived/
           if-no-files-found: warn
           retention-days: 30
@@ -256,7 +293,7 @@ jobs:
           git config user.name "morskamary-bot"
           git config user.email "actions@github.com"
 
-          git add outputs/ outputs/run_archive/ outputs/live_runs/ outputs/cumulative_database/
+          git add outputs/ outputs/run_archive/ outputs/live_runs/ outputs/cumulative_database/ outputs/layer4_statistics/ outputs/release_packages/ reports/
           if git diff --cached --quiet; then
             echo "No output changes to commit."
             exit 0

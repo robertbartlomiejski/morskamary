@@ -735,6 +735,7 @@ docs/providers.md,text,,,,,,providers,yes
 docs/RESEARCH_API_CICD_SETUP.md,text,,,,,,RESEARCH_API_CICD_SETUP,yes
 docs/RESEARCH_SOURCE_GOVERNANCE.md,text,,,,,,RESEARCH_SOURCE_GOVERNANCE,yes
 docs/STATISTICAL_ANALYSIS_PLAN.md,text,,,,,,STATISTICAL_ANALYSIS_PLAN,yes
+docs/STATISTICAL_REPORT_METHODOLOGY.md,text,,,,,,STATISTICAL_REPORT_METHODOLOGY,yes
 examples/add_coastal_resilience_competence.py,script,,,,,,add_coastal_resilience_competence,yes
 fix_all_md.py,script,,,,,,fix_all_md,yes
 fix_markdown.py,script,,,,,,fix_markdown,yes
@@ -1036,12 +1037,16 @@ scripts/Breguła Weird Szczecin_250412_101024.txt,script,,,,,,Breguła_Weird_Szc
 scripts/build_cross_run_evidence_index.py,script,,,,,,build_cross_run_evidence_index,yes
 scripts/build_cumulative_scientific_database.py,script,,,,,,build_cumulative_scientific_database,yes
 scripts/build_derived.py,script,,,,,,build_derived,yes
+scripts/build_layer4_5_scientific_analysis.py,script,,,,,,build_layer4_5_scientific_analysis,yes
+scripts/build_live_cumulative_release_package.py,script,,,,,,build_live_cumulative_release_package,yes
 scripts/build_live_run_audit.py,script,,,,,,build_live_run_audit,yes
+scripts/build_statistical_research_report.py,script,,,,,,build_statistical_research_report,yes
 scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,yes
 scripts/build_versioned_research_data_package.py,script,,,,,,build_versioned_research_data_package,yes
 scripts/changelog_guard.py,script,,,,,,changelog_guard,yes
 scripts/check_research_api_health.py,script,,,,,,check_research_api_health,yes
 scripts/check_research_env.py,script,,,,,,check_research_env,yes
+scripts/compute_live_novelty_metrics.py,script,,,,,,compute_live_novelty_metrics,yes
 scripts/convert_pdfs_to_txt.py,script,,,,,,convert_pdfs_to_txt,yes
 scripts/cumulative_fragment_analysis.py,script,,,,,,cumulative_fragment_analysis,yes
 scripts/cumulative_update_merge_full_live_enriched_and_static_all_outputs_fragmented_analysis.py,script,,,,,,cumulative_update_merge_full_live_enrich,yes
@@ -1101,6 +1106,7 @@ src/scientific_sources/__init__.py,script,,,,,,init,yes
 src/scientific_sources/base.py,script,,,,,,base,yes
 src/scientific_sources/crossref.py,script,,,,,,crossref,yes
 src/scientific_sources/cumulative_scientific_database.py,script,,,,,,cumulative_scientific_database,yes
+src/scientific_sources/derived_competence_analysis.py,script,,,,,,derived_competence_analysis,yes
 src/scientific_sources/elsevier_scopus.py,script,,,,,,elsevier_scopus,yes
 src/scientific_sources/google_drive.py,script,,,,,,google_drive,yes
 src/scientific_sources/live_query_protocol.py,script,,,,,,live_query_protocol,yes
@@ -1133,6 +1139,7 @@ tests/test_changelog_guard.py,script,,,,,,test_changelog_guard,yes
 tests/test_check_research_api_health.py,script,,,,,,test_check_research_api_health,yes
 tests/test_ci_workflow.py,script,,,,,,test_ci_workflow,yes
 tests/test_competence_repository.py,script,,,,,,test_competence_repository,yes
+tests/test_compute_live_novelty_metrics.py,script,,,,,,test_compute_live_novelty_metrics,yes
 tests/test_convert_pdfs_to_txt.py,script,,,,,,test_convert_pdfs_to_txt,yes
 tests/test_core.py,script,,,,,,test_core,yes
 tests/test_cumulative_evidence_schemas.py,script,,,,,,test_cumulative_evidence_schemas,yes
@@ -1140,6 +1147,7 @@ tests/test_cumulative_fragment_analysis.py,script,,,,,,test_cumulative_fragment_
 tests/test_cumulative_scientific_database.py,script,,,,,,test_cumulative_scientific_database,yes
 tests/test_cumulative_triangulator.py,script,,,,,,test_cumulative_triangulator,yes
 tests/test_cumulative_triangulator_dynamic_priority.py,script,,,,,,test_cumulative_triangulator_dynamic_pri,yes
+tests/test_derived_competence_analysis.py,script,,,,,,test_derived_competence_analysis,yes
 tests/test_dynamic_credentials_generation.py,script,,,,,,test_dynamic_credentials_generation,yes
 tests/test_e2e_workflows.py,script,,,,,,test_e2e_workflows,yes
 tests/test_edge_cases.py,script,,,,,,test_edge_cases,yes
@@ -1150,6 +1158,7 @@ tests/test_gap_model.py,script,,,,,,test_gap_model,yes
 tests/test_generate_manifest.py,script,,,,,,test_generate_manifest,yes
 tests/test_ingest_manual_supporting_sources.py,script,,,,,,test_ingest_manual_supporting_sources,yes
 tests/test_literature_extraction.py,script,,,,,,test_literature_extraction,yes
+tests/test_live_cumulative_release_package.py,script,,,,,,test_live_cumulative_release_package,yes
 tests/test_live_query_protocol.py,script,,,,,,test_live_query_protocol,yes
 tests/test_live_run_audit.py,script,,,,,,test_live_run_audit,yes
 tests/test_load_real_competences.py,script,,,,,,test_load_real_competences,yes

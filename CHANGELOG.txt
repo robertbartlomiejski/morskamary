@@ -848,3 +848,13 @@ Reason Schema validation in CI (validate_run_archive_integrity.py) uses a strict
 Impact CI governance-and-repro job passes; run archive integrity check passes.
 Quality checks python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive → passed.
 Reviewer GitHub Copilot Coding Agent
+
+2026-07-10
+Change type add
+Scope scripts source-modules documentation tests workflow
+Files affected src/scientific_sources/derived_competence_analysis.py scripts/build_layer4_5_scientific_analysis.py scripts/compute_live_novelty_metrics.py scripts/build_statistical_research_report.py scripts/build_live_cumulative_release_package.py docs/STATISTICAL_REPORT_METHODOLOGY.md docs/LIVE_CUMULATIVE_SCIENTIFIC_DATABASE.md tests/test_derived_competence_analysis.py tests/test_compute_live_novelty_metrics.py tests/test_live_cumulative_release_package.py
+Summary PR-190 Task C: added Layer 4 derived competence-demand model, Layer 5 sector gap model + EQF 4-7 credential translation + learning outcomes, novelty gates A-E evaluator, statistical HTML report + methodological audit, and browser-downloadable release ZIP package with deterministic SQLite. Applied the mandated demand-strength formula (0.30/0.20/0.20/0.15/0.15 weights) and enforced the growth-eligibility reliability rule (duplicate_only excluded from growth metrics). Separated static-baseline availability from live availability in the gap model (Gate D fails on contamination).
+Reason Complete the live cumulative scientific database with statistical validity, credential translation, and a reproducible downloadable package so that the pipeline delivers auditable Blue Economy competence-demand evidence end to end.
+Impact `outputs/cumulative_database/` now contains derived_competence_demands, sector_axis_gap_model, credential_translation_eqf4_7, learning_outcomes, layer4/5_manifest, layer_readiness_report, and VARIABLE_LABELS/VALUE_LABELS; `reports/` contains morskamary_statistical_report.{html,pdf} and morskamary_methodological_audit.html; `outputs/release_packages/morskamary_live_cumulative_latest.zip` is the single-file consumer bundle.
+Quality checks pytest tests/test_derived_competence_analysis.py tests/test_compute_live_novelty_metrics.py tests/test_live_cumulative_release_package.py → 15/15 passed. End-to-end smoke: L2-3 → L4-5 → gates (pass) → report (HTML+audit) → package (20 files, SQLite generated, byte-identical rebuild).
+Reviewer GitHub Copilot Coding Agent
