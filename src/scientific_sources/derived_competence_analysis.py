@@ -1247,7 +1247,7 @@ def _test_hypotheses(
         assoc = missing_67 / hydro_signal_count
         if assoc >= 0.5:
             h2_interp = "supported"
-        elif assoc >= 0.2:
+        elif assoc >= 0.25:
             h2_interp = "partially_supported"
         else:
             h2_interp = "not_supported"
