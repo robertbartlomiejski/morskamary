@@ -65,8 +65,19 @@ def evaluate_gates(
     crossref_dom = float(metrics.get("crossref_dominance_ratio", 0.0) or 0.0)
 
     # Gate A
+    provider_counts_normalized = {
+        str(name).strip().lower(): int(count or 0)
+        for name, count in provider_counts.items()
+    }
     provider_health_map: Dict[str, Any] = {}
-    if isinstance(provider_health, dict):
+    statuses = provider_health.get("statuses")
+    if isinstance(statuses, list):
+        for health in statuses:
+            if isinstance(health, dict):
+                provider = str(health.get("provider", "")).strip().lower()
+                if provider:
+                    provider_health_map[provider] = health
+    else:
         entries = provider_health.get("providers") or provider_health
         if isinstance(entries, dict):
             provider_health_map = entries
@@ -77,7 +88,7 @@ def evaluate_gates(
             status = str(health.get("status", "")).lower()
         elif isinstance(health, str):
             status = health.lower()
-        prov_count = int(provider_counts.get(prov, 0) or 0)
+        prov_count = provider_counts_normalized.get(str(prov).lower(), 0)
         if status == "ok" and prov_count == 0:
             zero_but_ok.append(prov)
     gate_a_status = "pass" if not zero_but_ok else ("fail" if strict else "warn")
