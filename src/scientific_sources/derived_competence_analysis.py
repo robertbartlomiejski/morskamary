@@ -425,15 +425,18 @@ def build_layer4(
         groups.setdefault((label, sector, axis), []).append(sig)
 
     demands: List[DerivedCompetenceDemand] = []
-    all_providers: set = set()
-    all_families: set = set()
-    for signals in groups.values():
-        for sig in signals:
-            for p in _split_list(sig.get("providers_seen", "")):
-                all_providers.add(p)
-            fam = str(sig.get("query_family", "")).strip()
-            if fam:
-                all_families.add(fam)
+    all_providers: set[str] = {
+        provider
+        for evidence in growth_evidence
+        for provider in _split_list(evidence.get("providers_seen", ""))
+    }
+    all_families: set[str] = {
+        family
+        for signals in groups.values()
+        for signal in signals
+        for family in [str(signal.get("query_family", "")).strip()]
+        if family
+    }
 
     for (label, sector, axis), signals in sorted(groups.items()):
         ev_ids = sorted({str(s.get("evidence_id", "")) for s in signals if s.get("evidence_id")})
