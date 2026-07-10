@@ -155,6 +155,18 @@ def test_build_layer4_layer5_end_to_end(tmp_path: Path) -> None:
     assert ports_row, "expected a ports gap row"
     assert int(ports_row[0]["static_baseline_available_count"]) == 15
 
+    with lo_csv.open() as fh:
+        outcome_rows = list(csv.DictReader(fh))
+    assert outcome_rows
+    first_statement = outcome_rows[0]["outcome_statement"]
+    assert "evidence=" in first_statement
+    assert "demand=" in first_statement
+    assert "confidence=" in first_statement
+    assert any(
+        first_statement.startswith(verb)
+        for verb in ("Operate", "Apply", "Analyse", "Evaluate")
+    )
+
     # Hypothesis interpretations are within allowed set.
     allowed = {"supported", "partially_supported", "not_supported",
                "not_computable"}

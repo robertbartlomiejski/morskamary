@@ -211,7 +211,7 @@ def _require_int(value: Any, ctx: str) -> int:
     # Reject booleans explicitly (bool is a subclass of int in Python).
     if isinstance(value, bool) or not isinstance(value, int):
         raise LiveQueryProtocolError(f"{ctx}: expected an integer, got {type(value).__name__}")
-    return value
+    return int(value)
 
 
 def _parse_axis(value: Any, ctx: str) -> BlueDynamicsAxis:

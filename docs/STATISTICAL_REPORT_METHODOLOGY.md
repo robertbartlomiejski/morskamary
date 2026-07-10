@@ -4,7 +4,10 @@ Reference documentation for the live cumulative Blue Economy competence
 demand analysis pipeline (Layers 4 and 5). This file explains every
 formula, index, hypothesis, and classification rule used by
 `src/scientific_sources/derived_competence_analysis.py` and the CLI
-scripts under `scripts/`.
+scripts under `scripts/`. PR-190 Stage A-C wires a full pipeline scaffold;
+it must not be described as a completed professor-level scientific-statistical
+validation until the follow-up work replaces the heuristic coverage model with
+evidence-based credential coverage and richer inferential tests.
 
 ## 1. Layers at a glance
 
@@ -94,7 +97,10 @@ package version bumps and re-runs cannot inflate the corpus size.
 
 Both hypotheses attach a `validity_warning = small_cell_stability`
 whenever the sample size falls below the reliable threshold (n < 5).
-CI **must not** fail on `not_supported` or `not_computable`.
+CI **must not** fail on `not_supported` or `not_computable`. These are
+preliminary diagnostic tests, not final inferential validation; follow-up work
+should add sector × axis correspondence analysis and sentence-fragment
+association models for hydronization lag.
 
 ## 7. Multivariate induction
 
@@ -110,8 +116,12 @@ unavailable. This is a deterministic behaviour, not a silent failure.
 
 ## 8. EQF 4-7 credential translation
 
-For each derived demand, credential rows are generated per matching EQF
-level using keyword mapping:
+For each derived demand, credential rows are generated as **candidate** EQF
+translations per matching EQF level using keyword mapping. Unless a future run
+passes a validated `existing_credential_coverage` map, these rows are generated
+candidate credential translations, not empirically validated coverage against
+the existing 48-credential network.
+
 
 * EQF 4 — operational skills (execute, operate, monitor).
 * EQF 5 — technician / supervisory skills.
@@ -119,7 +129,10 @@ level using keyword mapping:
 * EQF 7 — master / governance / research skills.
 
 The mapping is defined in `EQF_KEYWORD_MAP` and applied deterministically
-to `competence_label`, `competence_description`, and axis metadata.
+to `competence_label`, `competence_description`, and axis metadata. Learning
+outcome statements now include a Bloom-style action phrase, EQF level, evidence
+ID, demand ID, and confidence score so reviewers can trace each candidate back
+to Layer 2-4 evidence.
 
 ## 9. Static-baseline separation
 
@@ -133,5 +146,7 @@ they do (see `scripts/compute_live_novelty_metrics.py`).
 
 Every CSV/JSONL is written with `newline=""`, `lineterminator="\n"`,
 `sort_keys=True`, and pre-sorted rows. Package ZIPs use a fixed
-`ZipInfo(date_time=(1980,1,1,0,0,0))` so repeat builds are byte-identical
-and SHA-256 stable.
+`ZipInfo(date_time=(1980,1,1,0,0,0))` so archive member timestamps are stable.
+For byte-identical package rebuilds, call
+`scripts/build_live_cumulative_release_package.py --generated-at-utc <ISO8601>`
+so README, citation, and manifest timestamps are also frozen.

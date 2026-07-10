@@ -184,13 +184,24 @@ def main(argv: Optional[List[str]] = None) -> int:
         "--output",
         default="outputs/release_packages/morskamary_live_cumulative_latest.zip",
     )
+    parser.add_argument(
+        "--generated-at-utc",
+        default=None,
+        help=(
+            "Optional ISO-8601 UTC timestamp embedded in README, citation, "
+            "and manifest. Pass a frozen value for byte-identical rebuilds."
+        ),
+    )
     args = parser.parse_args(argv)
 
     database_dir = Path(args.database_dir)
     reports_dir = Path(args.reports_dir)
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    generated_at = (
+        args.generated_at_utc
+        or datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    )
 
     entries: List[Tuple[str, bytes]] = []
 

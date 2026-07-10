@@ -23,6 +23,27 @@ python main_real_data.py
 python demo_workspace_instructions.py
 ```
 
+## PR-190 live cumulative pipeline scope
+
+PR-190 / Stage A-C now wires a live cumulative scientific pipeline scaffold:
+Layer 0 query protocol, Layer 1 live-run acquisition audit, Layers 2-3
+deduplicated cumulative evidence + metadata-derived semantic signals, Layer 4
+derived diagnostic indices, Layer 5 sector-axis gap and candidate EQF 4-7
+translation, novelty gates, statistical report, and a browser-downloadable ZIP
+package. The scaffold is not yet a final professor-level validation: credential
+coverage remains generated candidate translation unless a validated coverage map
+is supplied, and H1/H2 tests are preliminary diagnostics rather than final
+inferential proof.
+
+`config/research_queries.yml` remains the backward-compatible `query_groups`
+legacy input for the live exporter. `config/live_query_protocol.yml` is the
+authoritative rich protocol for query metadata. `outputs/live_runs/` and
+`outputs/cumulative_database/` are uploaded by the full live-enriched workflow;
+`raw_api_payloads/` should be read as exporter-level acquisition envelopes, not
+necessarily byte-for-byte provider HTTP payloads. Semantic competence-demand
+signals are metadata-derived unless abstracts or legally available full text are
+present, and query intent alone is never treated as scientific evidence.
+
 ## Dynamic mode and cumulative evidence ledger
 
 - Default research execution uses live-enriched inputs.

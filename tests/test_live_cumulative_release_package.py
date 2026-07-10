@@ -45,6 +45,7 @@ def test_package_is_deterministic(tmp_path: Path) -> None:
             "--reports-dir", str(reports),
             "--output", str(out),
             "--version-tag", "test",
+            "--generated-at-utc", "2026-07-10T00:00:00+00:00",
         ])
         assert rc == 0
     assert out1.read_bytes() == out2.read_bytes()
@@ -60,6 +61,7 @@ def test_package_contains_required_files(tmp_path: Path) -> None:
         "--reports-dir", str(reports),
         "--output", str(out),
         "--version-tag", "test",
+        "--generated-at-utc", "2026-07-10T00:00:00+00:00",
     ])
     assert rc == 0
     with zipfile.ZipFile(out) as zf:

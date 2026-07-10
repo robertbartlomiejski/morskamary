@@ -654,7 +654,7 @@ def build_layer5(
             conf_avg = sum(confs) / max(1, len(confs))
             coverage = "covered" if coverage_map.get((sector, axis), 0) >= len(ds) else "uncovered"
             outcomes_list = [
-                f"Apply {d.competence_label} in {sector} contexts at EQF {lvl}"
+                _learning_outcome_statement(d, sector, lvl)
                 for d in ds
             ]
             warns = sorted({
@@ -685,9 +685,7 @@ def build_layer5(
                     sector=sector,
                     axis_group=axis,
                     eqf_level=lvl,
-                    outcome_statement=(
-                        f"Apply {d.competence_label} in {sector} contexts at EQF {lvl}"
-                    ),
+                    outcome_statement=_learning_outcome_statement(d, sector, lvl),
                     evidence_id=_first_evidence_id_for_demand(d, evidence_records),
                     competence_demand_id=d.competence_demand_id,
                     signal_type=_dominant_signal_type_for_demand(d, []),
@@ -1145,6 +1143,31 @@ def _evidence_dois_for_demand(
         for e in evidence_records
         if e.get("canonical_doi") and d.sector in str(e.get("sector_candidates", ""))
     }
+
+
+def _learning_outcome_statement(
+    demand: DerivedCompetenceDemand, sector: str, eqf_level: int
+) -> str:
+    """Return an evidence-linked, EQF-aware learning-outcome statement."""
+    if eqf_level <= 4:
+        verb = "Operate and monitor"
+        dimension = "skills"
+    elif eqf_level == 5:
+        verb = "Apply and coordinate"
+        dimension = "skills and social competence"
+    elif eqf_level == 6:
+        verb = "Analyse and design"
+        dimension = "knowledge and skills"
+    else:
+        verb = "Evaluate and justify"
+        dimension = "advanced knowledge and social competence"
+    evidence_ref = "see_learning_outcomes_evidence_id"
+    return (
+        f"{verb} {demand.competence_label} for {sector} contexts at EQF "
+        f"{eqf_level}, demonstrating {dimension}; evidence={evidence_ref}; "
+        f"demand={demand.competence_demand_id}; "
+        f"confidence={demand.semantic_confidence_mean:.2f}"
+    )
 
 
 def _first_evidence_id_for_demand(

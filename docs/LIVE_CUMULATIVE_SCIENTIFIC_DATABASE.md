@@ -8,11 +8,12 @@ and Layer 1 evidence pipeline. It is intentionally a strict consumer of Layer
 0-1 outputs — it never modifies, weakens, or replaces them.
 
 The bundle is a deterministic, provenance-traceable snapshot suitable for
-downstream cross-run analysis, gap detection, and competence-demand review. It
-does **not** attempt to produce publication-grade statistical reports or
-release ZIPs; that responsibility remains with the versioned release pipeline
-(see `docs/CUMULATIVE_DATABASE_METHODOLOGY.md` and
-`docs/DATA_RELEASE_POLICY.md`).
+downstream cross-run analysis, gap detection, and competence-demand review. In
+PR-190 Stage A-C this Layer 2-3 substrate now feeds the downstream Layer 4-5
+scaffold, novelty gates, statistical report, and browser-downloadable ZIP
+package. Those downstream outputs are intentionally labelled as scaffolded /
+preliminary where they use deterministic heuristics rather than professor-level
+validated coverage modelling.
 
 ## Layer stack context
 
@@ -22,6 +23,8 @@ release ZIPs; that responsibility remains with the versioned release pipeline
 | Layer 1 | `scripts/build_live_run_audit.py` | Per-run raw acquisition audit bundle at `outputs/live_runs/<run_id>/` |
 | Layer 2 | `scripts/build_cumulative_scientific_database.py` | Cumulative evidence records (this document) |
 | Layer 3 | `scripts/build_cumulative_scientific_database.py` | Deterministic semantic competence-demand signals (this document) |
+| Layer 4 | `scripts/build_layer4_5_scientific_analysis.py` | Derived demand statistics and diagnostic indices |
+| Layer 5 | `scripts/build_layer4_5_scientific_analysis.py` | Sector-axis gap scaffold, EQF 4-7 candidate translation, and learning outcomes |
 
 Layers 2 and 3 are packaged together because both derive from the same
 deduplicated evidence backbone, share the same manifest, and must be
@@ -117,6 +120,26 @@ abstract nor structured subject terms — i.e., when semantic scanning must
 operate solely on the title and query text. This warning is propagated into
 any Layer 3 signals derived from that record so downstream consumers can
 distinguish weak from strong evidence.
+
+
+## Raw payload provenance note
+
+`outputs/live_runs/<run_id>/raw/raw_api_payloads/` preserves the exporter-level
+raw payload envelopes captured by `scripts/export_live_research_records.py`.
+These files are not guaranteed to be byte-for-byte provider HTTP responses for
+every source: depending on provider capability and cache path they may be
+provider-normalized raw rows wrapped by the exporter with query/run metadata.
+Reviewers should therefore treat them as the auditable acquisition envelope, not
+as a legal substitute for re-querying proprietary provider APIs.
+
+## Evidence-strength note
+
+Layer 3 semantic competence-demand signals are metadata-derived unless an
+abstract or legally available full-text field is present in the source record.
+When only title, subject terms, source query, or provenance metadata are
+available, the signal carries `metadata_only_limitation` / `review_required`
+warnings and must not be interpreted as full-text evidence. Query intent is not
+scientific evidence; matched semantic fragments are evidence candidates.
 
 ## Competence-demand signals (Layer 3)
 

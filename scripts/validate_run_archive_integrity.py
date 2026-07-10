@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
 
 MANIFEST_SCHEMA_PATH = "schemas/run_archive_manifest.schema.json"
 CANONICAL_MANIFEST_FILENAME = "manifest.json"
