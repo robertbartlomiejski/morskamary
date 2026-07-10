@@ -1203,11 +1203,11 @@ def _test_hypotheses(
     mean_m = sum(maritime_scores) / n_m if n_m else 0.0
     mean_o = sum(oceanic_scores) / n_o if n_o else 0.0
     diff = mean_m - mean_o
-    all_scores = maritime_scores + oceanic_scores
-    if len(all_scores) > 1:
-        m = sum(all_scores) / len(all_scores)
-        var = sum((x - m) ** 2 for x in all_scores) / max(1, len(all_scores) - 1)
-        sd = math.sqrt(var) if var > 0 else 0.0
+    if n_m > 1 and n_o > 1:
+        var_m = sum((x - mean_m) ** 2 for x in maritime_scores) / (n_m - 1)
+        var_o = sum((x - mean_o) ** 2 for x in oceanic_scores) / (n_o - 1)
+        pooled_var = (((n_m - 1) * var_m) + ((n_o - 1) * var_o)) / (n_m + n_o - 2)
+        sd = math.sqrt(pooled_var) if pooled_var > 0 else 0.0
     else:
         sd = 0.0
     cohens_d = (diff / sd) if sd > 0 else 0.0
