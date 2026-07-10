@@ -202,6 +202,15 @@ jobs:
             --archive-root outputs/run_archive \
             --require-present
 
+      - name: Preserve previous novelty metrics for Gate B
+        run: |
+          set -euo pipefail
+          previous_metrics="outputs/cumulative_database/run_novelty_metrics.json"
+          preserved_metrics="outputs/previous_run_novelty_metrics.json"
+          if [ -f "$previous_metrics" ]; then
+            cp "$previous_metrics" "$preserved_metrics"
+          fi
+
       - name: Build cumulative scientific database (Layers 2 and 3)
         run: |
           set -euo pipefail
@@ -229,6 +238,7 @@ jobs:
           python scripts/compute_live_novelty_metrics.py \
             --metrics outputs/cumulative_database/run_novelty_metrics.json \
             --provider-health outputs/research_api_health.json \
+            --previous-metrics outputs/previous_run_novelty_metrics.json \
             --current-run outputs \
             --output outputs/cumulative_database/novelty_gate_report.json
 
