@@ -90,6 +90,8 @@ EVIDENCE_RECORDS_CSV = "evidence_records.csv"
 EVIDENCE_RECORDS_JSONL = "evidence_records.jsonl"
 COMPETENCE_DEMAND_SIGNALS_CSV = "competence_demand_signals.csv"
 COMPETENCE_DEMAND_SIGNALS_JSONL = "competence_demand_signals.jsonl"
+HYPOTHESIS_SEMANTIC_FRAGMENTS_CSV = "hypothesis_semantic_fragments.csv"
+HYPOTHESIS_SEMANTIC_FRAGMENTS_JSONL = "hypothesis_semantic_fragments.jsonl"
 RUN_NOVELTY_METRICS_CSV = "run_novelty_metrics.csv"
 RUN_NOVELTY_METRICS_JSON = "run_novelty_metrics.json"
 DATABASE_MANIFEST_FILENAME = "cumulative_database_manifest.json"
@@ -137,6 +139,24 @@ COMPETENCE_DEMAND_SIGNAL_COLUMNS: Tuple[str, ...] = (
     "evidence_text_scope",
     "evidence_text_hash",
     "confidence_score",
+    "classifier_version",
+    "manual_review_status",
+    "validity_warning",
+)
+
+HYPOTHESIS_SEMANTIC_FRAGMENT_COLUMNS: Tuple[str, ...] = (
+    "fragment_id",
+    "hypothesis_ids",
+    "signal_id",
+    "evidence_id",
+    "run_id",
+    "sector",
+    "axis_group",
+    "axis_code",
+    "signal_type",
+    "demand_phrase",
+    "semantic_scope",
+    "evidence_text_hash",
     "classifier_version",
     "manual_review_status",
     "validity_warning",
@@ -2019,6 +2039,43 @@ def _run_jaccard_similarity(
 # Serialization + manifest
 # ---------------------------------------------------------------------------
 
+def _hypothesis_fragment_rows(
+    signals: Sequence[CompetenceDemandSignal],
+) -> List[Dict[str, Any]]:
+    """Project evidence-bound signals into an auditable hypothesis ledger."""
+    rows: List[Dict[str, Any]] = []
+    for signal in signals:
+        hypothesis_ids: List[str] = []
+        if signal.axis_group in ("MARITIME", "OCEANIC"):
+            hypothesis_ids.append("H1")
+        if signal.axis_group == "HYDRONIZATION":
+            hypothesis_ids.append("H2")
+        if signal.axis_group in ("MARINE", "OCEANIC"):
+            hypothesis_ids.append("H3")
+        if not hypothesis_ids:
+            continue
+        rows.append(
+            {
+                "fragment_id": f"fragment:{signal.signal_id}",
+                "hypothesis_ids": "|".join(hypothesis_ids),
+                "signal_id": signal.signal_id,
+                "evidence_id": signal.evidence_id,
+                "run_id": signal.run_id,
+                "sector": signal.sector,
+                "axis_group": signal.axis_group,
+                "axis_code": signal.axis_code,
+                "signal_type": signal.signal_type,
+                "demand_phrase": signal.demand_phrase,
+                "semantic_scope": signal.semantic_scope,
+                "evidence_text_hash": signal.evidence_text_hash,
+                "classifier_version": signal.classifier_version,
+                "manual_review_status": signal.manual_review_status,
+                "validity_warning": signal.validity_warning,
+            }
+        )
+    return sorted(rows, key=lambda row: str(row["fragment_id"]))
+
+
 def _write_bundle(
     *,
     output_dir: Path,
@@ -2035,6 +2092,7 @@ def _write_bundle(
 ) -> List[Path]:
     evidence_rows = [r.to_dict() for r in evidence_records]
     signal_rows = [s.to_dict() for s in competence_demand_signals]
+    fragment_rows = _hypothesis_fragment_rows(competence_demand_signals)
     metrics_row = novelty_metrics.to_dict()
 
     files: List[Path] = []
@@ -2054,6 +2112,18 @@ def _write_bundle(
     signals_jsonl = output_dir / COMPETENCE_DEMAND_SIGNALS_JSONL
     _write_jsonl(signals_jsonl, signal_rows)
     files.append(signals_jsonl)
+
+    fragments_csv = output_dir / HYPOTHESIS_SEMANTIC_FRAGMENTS_CSV
+    _write_csv(
+        fragments_csv,
+        HYPOTHESIS_SEMANTIC_FRAGMENT_COLUMNS,
+        fragment_rows,
+    )
+    files.append(fragments_csv)
+
+    fragments_jsonl = output_dir / HYPOTHESIS_SEMANTIC_FRAGMENTS_JSONL
+    _write_jsonl(fragments_jsonl, fragment_rows)
+    files.append(fragments_jsonl)
 
     metrics_json = output_dir / RUN_NOVELTY_METRICS_JSON
     _write_json_sorted(metrics_json, metrics_row)
@@ -2076,6 +2146,7 @@ def _write_bundle(
         current_run_dir=current_run_dir,
         evidence_row_count=len(evidence_records),
         signal_row_count=len(competence_demand_signals),
+        hypothesis_fragment_count=len(fragment_rows),
     )
     _write_json_sorted(manifest_path, manifest)
     files.append(manifest_path)
@@ -2112,6 +2183,7 @@ def _build_manifest(
     current_run_dir: Path,
     evidence_row_count: int,
     signal_row_count: int,
+    hypothesis_fragment_count: int,
 ) -> Dict[str, Any]:
     return {
         "schema_version": DATABASE_SCHEMA_VERSION,
@@ -2134,6 +2206,7 @@ def _build_manifest(
         "counts": {
             "evidence_records": evidence_row_count,
             "competence_demand_signals": signal_row_count,
+            "hypothesis_semantic_fragments": hypothesis_fragment_count,
         },
         "workflow_context": dict(sorted(workflow_context.items())),
         "allowed_record_novelty_status": list(ALLOWED_RECORD_NOVELTY_STATUS),
