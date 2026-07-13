@@ -104,6 +104,11 @@ _DEFAULT_PROVIDER_POLICY: Dict[str, Any] = {
     "primary_identity_providers": ["crossref", "scopus", "wos"],
 }
 
+DEFAULT_QUERY_FILE_PATH = Path("config/research_queries.yml")
+DEFAULT_QUERY_CONSTRAINTS_PATH = Path(
+    "outputs/research_sources/query_protocol_constraints.json"
+)
+
 
 @dataclass(frozen=True)
 class _ScopedTextSegment:
@@ -286,6 +291,31 @@ def _load_query_constraints(path: Path) -> Dict[str, Dict[str, Any]]:
             f"constraint query_count={declared_count} but indexed {len(indexed)}"
         )
     return indexed
+
+
+def _build_ad_hoc_constraints_from_query_groups(
+    query_groups: Mapping[str, Mapping[str, Any]],
+) -> Dict[str, Dict[str, Any]]:
+    """Build deterministic fallback constraints for ad-hoc query files."""
+    constraints: Dict[str, Dict[str, Any]] = {}
+    for sector_slug, sector_data in query_groups.items():
+        queries = sector_data.get("queries", [])
+        if not isinstance(queries, list):
+            continue
+        for index, query_text in enumerate(queries, start=1):
+            normalized_query = str(query_text).strip()
+            if not normalized_query:
+                continue
+            constraints[normalized_query.lower()] = {
+                "query_id": f"ad_hoc:{sector_slug}:{index:03d}",
+                "query_text": normalized_query,
+                "sector_slug": str(sector_slug),
+                "query_family": "ad_hoc",
+                "time_window": {},
+                "sort_strategy": {},
+                "sampling_strategy": {},
+            }
+    return constraints
 
 
 def _record_year(record: LiteratureRecord) -> Optional[int]:
@@ -1171,19 +1201,29 @@ def main() -> int:
         for group_name, sector_data in query_groups.items()
         for query in sector_data["queries"]
     }
+    should_fallback_to_ad_hoc_constraints = (
+        query_file_path != DEFAULT_QUERY_FILE_PATH
+        and constraints_path == DEFAULT_QUERY_CONSTRAINTS_PATH
+        and "--query-constraints-file" not in sys.argv[1:]
+    )
     if set(projected_sector_by_query) != set(constraints_by_query):
-        missing_constraints = sorted(
-            set(projected_sector_by_query) - set(constraints_by_query)
-        )
-        extra_constraints = sorted(
-            set(constraints_by_query) - set(projected_sector_by_query)
-        )
-        print(
-            "Error: authoritative protocol projection and constraints differ; "
-            f"missing={missing_constraints}, extra={extra_constraints}",
-            file=sys.stderr,
-        )
-        return 1
+        if should_fallback_to_ad_hoc_constraints:
+            constraints_by_query = _build_ad_hoc_constraints_from_query_groups(
+                query_groups
+            )
+        else:
+            missing_constraints = sorted(
+                set(projected_sector_by_query) - set(constraints_by_query)
+            )
+            extra_constraints = sorted(
+                set(constraints_by_query) - set(projected_sector_by_query)
+            )
+            print(
+                "Error: authoritative protocol projection and constraints differ; "
+                f"missing={missing_constraints}, extra={extra_constraints}",
+                file=sys.stderr,
+            )
+            return 1
     sector_mismatches = sorted(
         query_text
         for query_text, sector_slug in projected_sector_by_query.items()
