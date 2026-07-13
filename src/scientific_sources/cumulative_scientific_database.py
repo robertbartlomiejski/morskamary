@@ -1294,7 +1294,7 @@ def _collect_observations(
     preferred_records = _iter_live_records(_triangulated)
     if not preferred_records:
         preferred_records = _iter_live_records(_fallback)
-    current_records = []
+    current_records: List[Mapping[str, Any]] = []
     run_timestamps[current_run_id] = current_run_timestamp
     layer1_current = _load_layer1_bindings(live_runs_root, current_run_id)
     for source_record in preferred_records:

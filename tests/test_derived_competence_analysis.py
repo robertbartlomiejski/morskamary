@@ -523,7 +523,6 @@ def test_triangulated_records_preferred_over_live_records(
     )
 
 
-
 def test_layer4_honors_stats_dir_and_fixed_timestamp(tmp_path: Path) -> None:
     evidence = [
         _mk_evidence(

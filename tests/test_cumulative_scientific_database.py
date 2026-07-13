@@ -1465,7 +1465,6 @@ class TestScientificValidityHardening:
         }
 
 
-
 def test_hypothesis_fragment_ledger_is_evidence_bound(tmp_path: Path) -> None:
     current = tmp_path / "outputs"
     output = tmp_path / "database"

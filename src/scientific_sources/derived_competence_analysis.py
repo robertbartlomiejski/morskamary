@@ -1370,12 +1370,14 @@ def _test_hypotheses(
             if levels & {6, 7}:
                 validated_covered_ids.add(str(demand_id))
     validated_covered_count = len(hydro_ids & validated_covered_ids)
+    missing_ratio: Optional[float]
     if supply_map_provided and hydro_ids:
         validated_missing_count = len(hydro_ids) - validated_covered_count
-        missing_ratio: Optional[float] = validated_missing_count / len(hydro_ids)
-        if missing_ratio >= 0.5:
+        ratio = validated_missing_count / len(hydro_ids)
+        missing_ratio = ratio
+        if ratio >= 0.5:
             h2_interpretation = "supported"
-        elif missing_ratio >= 0.2:
+        elif ratio >= 0.2:
             h2_interpretation = "partially_supported"
         else:
             h2_interpretation = "not_supported"
@@ -1481,4 +1483,3 @@ def _test_hypotheses(
         "validity_warning": "|".join(h3_warnings),
     }
     return {"H1": h1, "H2": h2, "H3": h3}
-
