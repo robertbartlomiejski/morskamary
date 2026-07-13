@@ -45,7 +45,15 @@ jobs:
           import re
           from importlib.metadata import version
 
-          packages_to_check = {"black", "flake8", "jsonschema", "mypy", "pytest"}
+          packages_to_check = {
+              "black",
+              "flake8",
+              "jsonschema",
+              "mypy",
+              "pandas-stubs",
+              "pytest",
+              "types-jsonschema",
+          }
           expected = {}
           with open("requirements.txt") as fh:
               for line in fh:
