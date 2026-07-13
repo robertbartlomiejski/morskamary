@@ -32,13 +32,34 @@ jobs:
       - name: Install repository and validation dependencies
         run: |
           set -euo pipefail
-          python -m pip install --disable-pip-version-check -e ".[dev]"
+          python -m pip install --disable-pip-version-check -r requirements.txt
+          python -m pip check
 
       - name: Verify deterministic development environment
         run: |
           set -euo pipefail
           python --version
-          python -m flake8 --version
-          python -m mypy --version
-          python -m pytest --version
+          python - <<'PY'
+          from importlib.metadata import version
+
+          expected = {
+              "black": "26.3.1",
+              "flake8": "7.3.0",
+              "jsonschema": "4.10.3",
+              "mypy": "1.20.2",
+              "pytest": "9.0.3",
+          }
+
+          mismatches = []
+          for package_name, expected_version in expected.items():
+              actual_version = version(package_name)
+              print(f"{package_name}=={actual_version}")
+              if actual_version != expected_version:
+                  mismatches.append(
+                      f"{package_name}: expected {expected_version}, got {actual_version}"
+                  )
+
+          if mismatches:
+              raise SystemExit("Pinned tool version mismatch: " + "; ".join(mismatches))
+          PY
           python -c "import jsonschema, openpyxl, pandas, yaml; print('[OK] scientific dependencies available')"
