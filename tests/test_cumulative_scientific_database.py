@@ -160,6 +160,8 @@ class TestBundleShape:
             EVIDENCE_RECORDS_JSONL,
             COMPETENCE_DEMAND_SIGNALS_CSV,
             COMPETENCE_DEMAND_SIGNALS_JSONL,
+            HYPOTHESIS_SEMANTIC_FRAGMENTS_CSV,
+            HYPOTHESIS_SEMANTIC_FRAGMENTS_JSONL,
             RUN_NOVELTY_METRICS_CSV,
             RUN_NOVELTY_METRICS_JSON,
             DATABASE_MANIFEST_FILENAME,
@@ -341,7 +343,7 @@ class TestDeduplication:
         row = result.evidence_records[0]
         # With no DOI or title, the review_required status is emitted.
         assert row.record_novelty_status == "review_required"
-        assert row.validity_warning == "no_stable_dedupe_key"
+        assert row.validity_warning == "no_stable_dedupe_key|triangulation_fallback"
 
     def test_distinct_dois_stay_separate(self, tmp_path: Path) -> None:
         current = tmp_path / "outputs"
@@ -825,7 +827,7 @@ class TestSemanticSignals:
             built_at_utc=FROZEN_TS,
         )
         row = result.evidence_records[0]
-        assert row.record_novelty_status == "semantic_enriched"
+        assert row.record_novelty_status == "repeated_record"
 
 
 # ---------------------------------------------------------------------------
