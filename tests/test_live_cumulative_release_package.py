@@ -97,7 +97,6 @@ def test_package_is_deterministic(tmp_path: Path) -> None:
             "--output", str(out),
             "--version-tag", "test",
             "--generated-at-utc", "2026-07-10T00:00:00+00:00",
-        *_required_source_args(db),
             *_required_source_args(db),
         ])
         assert rc == 0
