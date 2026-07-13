@@ -7,6 +7,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/add-competence.prompt.md,text,,,,,,add_competence_prompt,yes
 .github/competence-domain.instructions.md,text,,,,,,competence_domain_instructions,yes
 .github/copilot-instructions.md,text,,,,,,copilot_instructions,yes
+.github/instructions/data-pipeline.instructions.md,text,,,,,,data_pipeline_instructions,yes
 .github/integrate-literature.skill.md,text,,,,,,integrate_literature_skill,yes
 .github/ISSUE_TEMPLATE/bug_report.md,text,,,,,,bug_report,yes
 .github/ISSUE_TEMPLATE/custom.md,text,,,,,,custom,yes
@@ -15,7 +16,11 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/repository-guardrails.instructions.md,text,,,,,,repository_guardrails_instructions,yes
 .github/workflows/blank.yml,other,,,,,,blank,no
 .github/workflows/ci.yml,other,,,,,,ci,no
+<<<<<<< HEAD
 .github/workflows/codeql.yml,other,,,,,,codeql,no
+=======
+.github/workflows/copilot-setup-steps.yml,other,,,,,,copilot_setup_steps,no
+>>>>>>> origin/main
 .github/workflows/dependency-submission.yml,other,,,,,,dependency_submission,no
 .github/workflows/export-research-records.yml,other,,,,,,export_research_records,no
 .github/workflows/full-analysis.yml,other,,,,,,full_analysis,no
@@ -668,6 +673,7 @@ Dockerfile.txt,text,,,,,,Dockerfile,yes
 docs/AGENT_WORKING_AGREEMENT.md,text,,,,,,AGENT_WORKING_AGREEMENT,yes
 docs/BASELINE_VALIDATION.md,text,,,,,,BASELINE_VALIDATION,yes
 docs/CONTENT_ANALYSIS_PROTOCOL.md,text,,,,,,CONTENT_ANALYSIS_PROTOCOL,yes
+docs/COPILOT_CLOUD_AGENT_SETUP.md,text,,,,,,COPILOT_CLOUD_AGENT_SETUP,yes
 docs/CROSS_RUN_EVIDENCE_CODEBOOK.md,text,,,,,,CROSS_RUN_EVIDENCE_CODEBOOK,yes
 docs/CUMULATIVE_DATABASE_METHODOLOGY.md,text,,,,,,CUMULATIVE_DATABASE_METHODOLOGY,yes
 docs/DATA_RELEASE_POLICY.md,text,,,,,,DATA_RELEASE_POLICY,yes
