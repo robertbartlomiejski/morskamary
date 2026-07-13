@@ -118,3 +118,8 @@ deep_update_patch/outputs/
 *token*.json
 config/research_sources.local.yml
 src/morskamary/
+
+# Browser automation authentication state (bearer credentials)
+playwright/.auth/
+.auth/
+outputs/playwright_storage_state.json
