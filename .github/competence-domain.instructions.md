@@ -14,8 +14,8 @@ When modifying competence loading or analysis workflows, follow these domain-spe
 - Handle missing or malformed data gracefully with informative error messages
 - Log data quality issues (missing IDs, empty names, invalid axis mappings)
 
-### Dimension → TMBD Axis Mapping
-Test dimension→axis mapping changes with all 4 dimensions:
+### Dimension → QMBD Axis Mapping
+Test dimension→axis mapping changes against the four-axis QMBD contract. The current four source dimensions do not, by themselves, prove representation of all four axes:
 
 ```python
 # Standard mapping (from load_real_competences.py)
@@ -28,9 +28,9 @@ dimension_to_axis = {
 ```
 
 **Before changing mappings:**
-1. Document rationale with reference to TMBD framework definition
+1. Document rationale with reference to the four-axis QMBD framework definition
 2. Test with full University of Szczecin dataset (16 competences)
-3. Verify axis distribution remains balanced (avoid >80% in one axis)
+3. Verify the distribution across `MARINE`, `MARITIME`, `OCEANIC`, and `HYDRONIZATION`; if the source baseline contains no hydronization evidence, report zero explicitly rather than inventing an assignment
 4. Update tests in `tests/test_core.py` to reflect new mapping
 
 ### Source Management
@@ -49,7 +49,7 @@ When adding **new data sources**:
 Every new competence must include:
 - **Description with evidence**: Quote source document directly in description field
 - **Source locator**: Include file name, row/section number in description
-- **TMBD axis justification**: Document why competence belongs to Marine/Maritime/Oceanic
+- **QMBD axis justification**: Document why the competence belongs to `MARINE`, `MARITIME`, `OCEANIC`, or `HYDRONIZATION`; an absent axis must be reported as a source limitation
 
 Example:
 ```python
@@ -61,14 +61,14 @@ Competence(
         "Evidence: 'Direct quote from source document' "
         "[Source: filename.csv, row X, dimension Y.Z]"
     ),
-    axis=BlueDynamicsAxis.MARINE,  # Biophysical focus per TMBD
+    axis=BlueDynamicsAxis.MARINE,  # Biophysical focus per QMBD
     # ... other fields
 )
 ```
 
 ### Prohibited Practices
 - ❌ **No invented competences**: Must trace to repository source or baseline dataset
-- ❌ **No unsupported axis assignments**: Always justify with TMBD framework reference
+- ❌ **No unsupported axis assignments**: Always justify with the four-axis QMBD framework reference; do not force `HYDRONIZATION` without retained evidence
 - ❌ **No unverified sector mappings**: Cross-reference against Blue Social Competences sector matrices
 
 ## Testing Requirements
@@ -79,9 +79,13 @@ Competence(
 3. Check axis distribution:
    ```python
    summary = mapper.get_summary()
-   assert summary['competences_by_axis']['MARINE'] >= 3
-   assert summary['competences_by_axis']['MARITIME'] >= 6
-   assert summary['competences_by_axis']['OCEANIC'] >= 3
+   counts = summary['competences_by_axis']
+   assert counts.get('MARINE', 0) >= 3
+   assert counts.get('MARITIME', 0) >= 6
+   assert counts.get('OCEANIC', 0) >= 3
+   # HYDRONIZATION is a canonical axis even when this baseline has no
+   # evidence-backed assignment; report zero explicitly rather than omitting it.
+   assert 'HYDRONIZATION' in counts
    ```
 4. Validate all IDs are prefixed correctly (`blue_comp_`)
 
@@ -125,7 +129,7 @@ missing_ids = set(gaps['missing'])
 
 When suggesting sector-to-sector transitions:
 1. Identify shared competences across sectors
-2. Highlight cross-axis requirements (e.g., renewable energy needs M+T+O)
+2. Highlight evidence-backed cross-axis requirements using the canonical name/code pairs `MARINE/M`, `MARITIME/T`, `OCEANIC/O`, and `HYDRONIZATION/H`
 3. Document rationale for sector associations in competence metadata
 4. Reference Blue Social Competences sector matrix for validation:
    - File: `Blue Social Competences Univ Szczecin - Blue competences x blue economy sector.csv`
