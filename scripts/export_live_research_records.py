@@ -37,7 +37,7 @@ import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Set, Tuple
 
 import yaml  # type: ignore[import-untyped]
 
@@ -58,6 +58,31 @@ from src.cumulative_analysis.triangulator import (  # noqa: E402
 from src.literature_extraction import extract_sentence_records  # noqa: E402
 
 DEFAULT_PROVIDER_POLICY_PATH = REPO_ROOT / "config" / "research_provider_policy.yml"
+
+QUERY_EXECUTION_FIELDS: Tuple[str, ...] = (
+    "query_id",
+    "sector_slug",
+    "query_family",
+    "query_text",
+    "provider",
+    "execution_status",
+    "raw_record_count",
+    "accepted_record_count",
+    "excluded_outside_time_window_count",
+    "excluded_missing_year_count",
+    "from_year",
+    "to_year",
+    "declared_sort_strategy",
+    "sort_status",
+    "declared_sampling_mode",
+    "declared_pages",
+    "declared_rows_per_page",
+    "sampling_status",
+    "time_window_status",
+    "validity_warnings",
+    "errors",
+    "warnings",
+)
 
 _DEFAULT_PROVIDER_POLICY: Dict[str, Any] = {
     "precedence": [
@@ -236,6 +261,152 @@ def load_provider_policy(path: Path) -> Dict[str, Any]:
     merged = dict(_DEFAULT_PROVIDER_POLICY)
     merged.update({k: v for k, v in section.items() if v})
     return merged
+
+
+def _load_query_constraints(path: Path) -> Dict[str, Dict[str, Any]]:
+    """Load and index the authoritative per-query acquisition constraints."""
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict) or not isinstance(payload.get("queries"), list):
+        raise ValueError("query constraints must contain a queries list")
+    indexed: Dict[str, Dict[str, Any]] = {}
+    for raw in payload["queries"]:
+        if not isinstance(raw, dict):
+            raise ValueError("each query constraint must be an object")
+        query_text = str(raw.get("query_text", "")).strip()
+        query_id = str(raw.get("query_id", "")).strip()
+        if not query_text or not query_id:
+            raise ValueError("each query constraint requires query_id and query_text")
+        key = query_text.lower()
+        if key in indexed:
+            raise ValueError(f"duplicate query constraint: {query_text}")
+        indexed[key] = dict(raw)
+    declared_count = int(payload.get("query_count", len(indexed)))
+    if declared_count != len(indexed):
+        raise ValueError(
+            f"constraint query_count={declared_count} but indexed {len(indexed)}"
+        )
+    return indexed
+
+
+def _record_year(record: LiteratureRecord) -> Optional[int]:
+    raw_year = str(getattr(record, "year", "") or "").strip()
+    if not raw_year:
+        return None
+    match = re.search(r"\b(\d{4})\b", raw_year)
+    return int(match.group(1)) if match else None
+
+
+def _apply_query_constraint(
+    records: Sequence[LiteratureRecord],
+    constraint: Mapping[str, Any],
+    provider_name: str,
+    max_results: int,
+) -> Tuple[List[LiteratureRecord], Dict[str, Any]]:
+    """Apply auditable post-fetch time, sort, and sampling constraints."""
+    time_window = constraint.get("time_window", {})
+    if not isinstance(time_window, Mapping):
+        time_window = {}
+    from_year = int(time_window.get("from_year", 0) or 0)
+    to_year = int(time_window.get("to_year", 9999) or 9999)
+
+    accepted: List[LiteratureRecord] = []
+    excluded_outside = 0
+    excluded_missing_year = 0
+    for record in records:
+        year = _record_year(record)
+        if year is None:
+            excluded_missing_year += 1
+            continue
+        if year < from_year or year > to_year:
+            excluded_outside += 1
+            continue
+        accepted.append(record)
+
+    sort_strategy = constraint.get("sort_strategy", {})
+    if not isinstance(sort_strategy, Mapping):
+        sort_strategy = {}
+    provider_key = normalize_provider_name(provider_name)
+    declared_sort = str(sort_strategy.get(provider_key, "")).strip()
+    if declared_sort in ("published-desc", "date-desc"):
+        accepted.sort(
+            key=lambda record: (
+                -(_record_year(record) or 0),
+                normalize_title(record.title),
+                record.doi.lower(),
+                record.source_id,
+            )
+        )
+        sort_status = "applied_post_fetch"
+    elif declared_sort:
+        sort_status = "unsupported_strategy"
+    else:
+        sort_status = "not_declared_for_provider"
+
+    sampling = constraint.get("sampling_strategy", {})
+    if not isinstance(sampling, Mapping):
+        sampling = {}
+    mode = str(sampling.get("mode", "")).strip()
+    pages = int(sampling.get("pages", 1) or 1)
+    rows_per_page = int(sampling.get("rows_per_page", max_results) or max_results)
+    declared_capacity = max(1, pages) * max(1, rows_per_page)
+    applied_limit = min(max_results, declared_capacity)
+    accepted = accepted[:applied_limit]
+    sampling_status = (
+        "applied_single_request_limit"
+        if pages <= 1 and applied_limit >= declared_capacity
+        else "partially_applied_registry_has_no_page_cursor"
+    )
+
+    validity_warnings: List[str] = []
+    if sort_status.startswith("unsupported") or sort_status.startswith("not_declared"):
+        validity_warnings.append("filter_not_applied:sort_strategy")
+    if sampling_status.startswith("partially"):
+        validity_warnings.append("filter_not_applied:multi_page_sampling")
+
+    return accepted, {
+        "raw_record_count": len(records),
+        "accepted_record_count": len(accepted),
+        "excluded_outside_time_window_count": excluded_outside,
+        "excluded_missing_year_count": excluded_missing_year,
+        "from_year": from_year,
+        "to_year": to_year,
+        "declared_sort_strategy": declared_sort,
+        "sort_status": sort_status,
+        "declared_sampling_mode": mode,
+        "declared_pages": pages,
+        "declared_rows_per_page": rows_per_page,
+        "sampling_status": sampling_status,
+        "time_window_status": "applied_post_fetch",
+        "validity_warnings": "|".join(validity_warnings),
+    }
+
+
+def export_query_execution_log(
+    rows: Sequence[Mapping[str, Any]],
+    output_path: Path,
+) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=QUERY_EXECUTION_FIELDS,
+            lineterminator="\n",
+            extrasaction="ignore",
+        )
+        writer.writeheader()
+        for row in sorted(
+            rows,
+            key=lambda item: (
+                str(item.get("query_id", "")),
+                str(item.get("provider", "")),
+            ),
+        ):
+            writer.writerow(
+                {
+                    field: row.get(field, "")
+                    for field in QUERY_EXECUTION_FIELDS
+                }
+            )
 
 
 def _identity_key_from_record(rec: LiteratureRecord) -> str:
@@ -870,6 +1041,11 @@ def main() -> int:
         default=str(DEFAULT_PROVIDER_POLICY_PATH),
         help="Path to provider precedence/class policy YAML.",
     )
+    parser.add_argument(
+        "--query-constraints-file",
+        default="outputs/research_sources/query_protocol_constraints.json",
+        help="Authoritative per-query acquisition constraints JSON.",
+    )
 
     args = parser.parse_args()
 
@@ -977,6 +1153,51 @@ def main() -> int:
     query_groups = validated_query_groups
     query_config["query_groups"] = query_groups
 
+    constraints_path = Path(args.query_constraints_file)
+    if not constraints_path.is_file():
+        print(
+            f"Error: Query constraints file not found: {constraints_path}",
+            file=sys.stderr,
+        )
+        return 1
+    try:
+        constraints_by_query = _load_query_constraints(constraints_path)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(f"Error: Invalid query constraints: {exc}", file=sys.stderr)
+        return 1
+
+    projected_sector_by_query = {
+        query.lower(): str(group_name)
+        for group_name, sector_data in query_groups.items()
+        for query in sector_data["queries"]
+    }
+    if set(projected_sector_by_query) != set(constraints_by_query):
+        missing_constraints = sorted(
+            set(projected_sector_by_query) - set(constraints_by_query)
+        )
+        extra_constraints = sorted(
+            set(constraints_by_query) - set(projected_sector_by_query)
+        )
+        print(
+            "Error: authoritative protocol projection and constraints differ; "
+            f"missing={missing_constraints}, extra={extra_constraints}",
+            file=sys.stderr,
+        )
+        return 1
+    sector_mismatches = sorted(
+        query_text
+        for query_text, sector_slug in projected_sector_by_query.items()
+        if str(constraints_by_query[query_text].get("sector_slug", ""))
+        != sector_slug
+    )
+    if sector_mismatches:
+        print(
+            "Error: projected sector/query bindings differ from constraints: "
+            f"{sector_mismatches}",
+            file=sys.stderr,
+        )
+        return 1
+
     # Initialize registry
     registry = SourceRegistry()
     provider_policy = load_provider_policy(Path(args.provider_policy_file))
@@ -1010,14 +1231,50 @@ def main() -> int:
     sectors_by_identity_key: Dict[str, Set[str]] = defaultdict(set)
     # Raw API payloads for cold-cache archiving — stored before any normalisation.
     raw_api_payload_triples: List[Dict[str, Any]] = []
+    query_execution_rows: List[Dict[str, Any]] = []
 
-    # Offline mode: skip all queries
+    # Execute exactly the authoritative projected query universe.
     if offline:
         print("Offline mode enabled. Skipping all network calls.")
+        for sector_key, sector_data in query_groups.items():
+            for query in sector_data.get("queries", []):
+                constraint = constraints_by_query[query.lower()]
+                for provider_name in ordered_provider_names:
+                    query_execution_rows.append(
+                        {
+                            "query_id": constraint["query_id"],
+                            "sector_slug": sector_key,
+                            "query_family": constraint.get("query_family", ""),
+                            "query_text": query,
+                            "provider": provider_name,
+                            "execution_status": "offline_not_executed",
+                            "from_year": constraint.get("time_window", {}).get(
+                                "from_year", ""
+                            ),
+                            "to_year": constraint.get("time_window", {}).get(
+                                "to_year", ""
+                            ),
+                            "declared_sort_strategy": constraint.get(
+                                "sort_strategy", {}
+                            ).get(provider_name, ""),
+                            "declared_sampling_mode": constraint.get(
+                                "sampling_strategy", {}
+                            ).get("mode", ""),
+                            "declared_pages": constraint.get(
+                                "sampling_strategy", {}
+                            ).get("pages", ""),
+                            "declared_rows_per_page": constraint.get(
+                                "sampling_strategy", {}
+                            ).get("rows_per_page", ""),
+                            "sampling_status": "offline_not_executed",
+                            "time_window_status": "offline_not_executed",
+                            "sort_status": "offline_not_executed",
+                        }
+                    )
     else:
-        # Execute queries
         print(
-            f"Fetching records for {len(query_groups)} sectors with providers: {ordered_provider_names}"
+            f"Fetching records for {len(query_groups)} sectors with providers: "
+            f"{ordered_provider_names}"
         )
         for sector_key, sector_data in query_groups.items():
             sector_label = sector_data.get("label", sector_key)
@@ -1025,6 +1282,7 @@ def main() -> int:
             print(f"\nSector: {sector_label} ({len(queries)} queries)")
 
             for query in queries:
+                constraint = constraints_by_query[query.lower()]
                 print(f"  Query: {query}")
                 results = registry.search(
                     query,
@@ -1032,10 +1290,10 @@ def main() -> int:
                     providers=provider_list,
                 )
 
-                for i, result in enumerate(results):
+                for index, result in enumerate(results):
                     provider_name = (
-                        ordered_provider_names[i]
-                        if i < len(ordered_provider_names)
+                        ordered_provider_names[index]
+                        if index < len(ordered_provider_names)
                         else (
                             result.records[0].provider
                             if result.records
@@ -1046,28 +1304,51 @@ def main() -> int:
                             )
                         )
                     )
+                    accepted_records, constraint_audit = _apply_query_constraint(
+                        result.records,
+                        constraint,
+                        provider_name,
+                        args.max_results_per_query,
+                    )
                     if result.errors:
                         print(f"    Errors: {result.errors}", file=sys.stderr)
                     if result.warnings:
                         print(f"    Warnings: {result.warnings}")
 
+                    execution_row: Dict[str, Any] = {
+                        "query_id": constraint["query_id"],
+                        "sector_slug": sector_key,
+                        "query_family": constraint.get("query_family", ""),
+                        "query_text": query,
+                        "provider": provider_name,
+                        "execution_status": (
+                            "completed_with_errors"
+                            if result.errors
+                            else "completed"
+                        ),
+                        "errors": "|".join(str(error) for error in result.errors),
+                        "warnings": "|".join(
+                            str(warning) for warning in result.warnings
+                        ),
+                        **constraint_audit,
+                    }
+                    query_execution_rows.append(execution_row)
                     all_coverage_items.append(
                         {
                             "sector": sector_label,
                             "provider": provider_name,
                             "query": query,
-                            "record_count": len(result.records),
+                            "record_count": len(accepted_records),
                         }
                     )
 
-                    for record in result.records:
-                        sectors_by_identity_key[_identity_key_from_record(record)].add(
-                            str(sector_label)
-                        )
-                    all_records.extend(result.records)
+                    for record in accepted_records:
+                        sectors_by_identity_key[
+                            _identity_key_from_record(record)
+                        ].add(str(sector_label))
+                    all_records.extend(accepted_records)
                     all_provenance.extend(result.provenance)
 
-                    # Collect raw API payload for cold-cache archiving.
                     if result.raw_payload is not None:
                         raw_api_payload_triples.append(
                             {
@@ -1077,7 +1358,10 @@ def main() -> int:
                             }
                         )
 
-                    print(f"    Fetched {len(result.records)} records")
+                    print(
+                        "    Accepted "
+                        f"{len(accepted_records)}/{len(result.records)} records"
+                    )
 
     # Loop 1: identity triangulation with explicit provider priority policy
     print(f"\nLoop 1 identity triangulation for {len(all_records)} records...")
@@ -1190,6 +1474,10 @@ def main() -> int:
     export_records_json(crossref_records, output_dir / "crossref_records.json")
     export_provenance_json(all_provenance, output_dir / "live_provenance.json")
     export_coverage_csv(coverage, output_dir / "live_source_coverage.csv")
+    export_query_execution_log(
+        query_execution_rows,
+        output_dir / "query_execution_log.csv",
+    )
     export_records_json(
         low_confidence_records, output_dir / "low_confidence_live_records.json"
     )
