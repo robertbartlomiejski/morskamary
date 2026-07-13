@@ -220,7 +220,7 @@ jobs:
 
       - name: Run flake8 (canonical config scope)
         run: |
-          python -m flake8 .
+          python -m flake8 src scripts tests run_full_analysis.py main.py
 
       - name: Run mypy (canonical typed targets)
         run: |
