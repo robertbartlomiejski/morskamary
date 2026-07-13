@@ -326,12 +326,18 @@ def test_h2_generated_credentials_not_treated_as_validated_supply(
 def test_h1_signed_direction_controls_interpretation(
     tmp_path: Path,
 ) -> None:
-    """Regression test: H1 must use signed Cohen's d for directional interpretation.
+    """Regression test: H1 (Maritimisation Shift) uses signed Cohen's d.
 
-    When MARITIME demand > OCEANIC demand, the interpretation must reflect
-    MARITIME dominance (not just 'supported').  When OCEANIC > MARITIME, it
-    must reflect OCEANIC dominance.  Using abs(cohens_d) would suppress
-    direction and mis-classify the direction of the effect.
+    The declared H1 hypothesis is *Maritimisation Shift*: MARITIME demand
+    exceeds OCEANIC demand.  It can only be "supported" in one direction.
+
+    - When MARITIME > OCEANIC (positive d) → supported_maritime_dominance
+      (or partially_supported_maritime for 0.2 ≤ d < 0.5).
+    - When OCEANIC > MARITIME (negative d) → not_supported.
+
+    Using abs(cohens_d) or labelling negative d as "oceanic_dominance" would
+    be a different hypothesis — the declared H1 must return not_supported
+    when the shift is not observed.
     """
     from src.scientific_sources.derived_competence_analysis import (
         DerivedCompetenceDemand, build_layer5,
@@ -391,6 +397,8 @@ def test_h1_signed_direction_controls_interpretation(
     )
 
     # OCEANIC dominance scenario: OCEANIC scores >> MARITIME scores (with variance).
+    # The declared H1 is the *Maritimisation Shift* — it can only be supported in
+    # one direction.  When OCEANIC > MARITIME the outcome must be not_supported.
     oceanic_dominant = (
         [_mk_demand("MARITIME", 0.1 + 0.01 * i, i) for i in range(5)]
         + [_mk_demand("OCEANIC", 0.9 + 0.01 * i, i + 10) for i in range(5)]
@@ -407,8 +415,8 @@ def test_h1_signed_direction_controls_interpretation(
     )
     h1_o = l5_o.hypothesis_results["H1"]
     assert h1_o["effect_size_cohens_d"] < 0, "OCEANIC > MARITIME must yield negative cohens_d"
-    assert "oceanic" in h1_o["interpretation"].lower(), (
-        f"OCEANIC-dominant scenario must include 'oceanic' in interpretation; "
+    assert h1_o["interpretation"] == "not_supported", (
+        f"When OCEANIC > MARITIME the Maritimisation Shift is not_supported; "
         f"got {h1_o['interpretation']!r}"
     )
 
@@ -416,7 +424,11 @@ def test_h1_signed_direction_controls_interpretation(
 def test_h3_always_emitted_including_not_computable(
     tmp_path: Path,
 ) -> None:
-    """Regression test: H3 must always be serialized, even when not_computable."""
+    """Regression test: H3 (MARINE vs OCEANIC Differential Coverage) must always
+    be serialized, even when not_computable. The declared H3 hypothesis tests
+    marine/oceanic fragment counts, balance, sector distributions and semantic
+    bridges — not Cross-Sector Recurrence.
+    """
     from src.scientific_sources.derived_competence_analysis import build_layer5
     # Empty demands → H3 should be not_computable.
     out = tmp_path / "db_h3"
@@ -432,7 +444,19 @@ def test_h3_always_emitted_including_not_computable(
     assert "H3" in l5.hypothesis_results, "H3 must always be present in hypothesis_results"
     h3 = l5.hypothesis_results["H3"]
     assert h3.get("hypothesis_id") == "H3"
+    assert h3.get("hypothesis_label") == "MARINE vs OCEANIC Differential Coverage", (
+        f"H3 must use the declared label, not 'Cross-Sector Recurrence'; "
+        f"got {h3.get('hypothesis_label')!r}"
+    )
     assert h3.get("interpretation") == "not_computable"
+    # Structural fields required by the declared H3 hypothesis.
+    for field in (
+        "sample_size_marine", "sample_size_oceanic",
+        "marine_fragment_count", "oceanic_fragment_count",
+        "balance_score", "marine_sector_count", "oceanic_sector_count",
+        "marine_sectors", "oceanic_sectors", "semantic_bridge_count",
+    ):
+        assert field in h3, f"H3 must contain field {field!r}"
     # H1 and H2 must also always be present.
     assert "H1" in l5.hypothesis_results
     assert "H2" in l5.hypothesis_results

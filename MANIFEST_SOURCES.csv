@@ -1187,3 +1187,4 @@ tests/test_sync_audit.py,script,,,,,,test_sync_audit,yes
 tests/test_validate_generated_outputs.py,script,,,,,,test_validate_generated_outputs,yes
 tests/test_validate_manual_sources_gatekeeper.py,script,,,,,,test_validate_manual_sources_gatekeeper,yes
 tests/test_validate_run_archive_integrity.py,script,,,,,,test_validate_run_archive_integrity,yes
+tests/test_workflow_security.py,script,,,,,,test_workflow_security,yes

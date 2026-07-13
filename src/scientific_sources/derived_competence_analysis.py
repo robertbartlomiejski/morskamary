@@ -1231,15 +1231,16 @@ def _test_hypotheses(
     else:
         sd = 0.0
     cohens_d = (diff / sd) if sd > 0 else 0.0
-    # Direction: positive cohens_d → MARITIME dominates; negative → OCEANIC dominates.
-    # The magnitude threshold for effect size uses |cohens_d|, but interpretation
-    # must also reflect direction.
+    # H1 is the *Maritimisation Shift* hypothesis: MARITIME demand exceeds OCEANIC.
+    # The hypothesis can only be "supported" when MARITIME > OCEANIC (cohens_d > 0).
+    # A non-positive d means the shift does not hold — the correct outcome is
+    # not_supported, never "oceanic_dominance", which would be a different hypothesis.
     if n_m == 0 or n_o == 0:
         h1_interp = "not_computable"
-    elif abs(cohens_d) >= 0.5:
-        h1_interp = "supported_maritime_dominance" if cohens_d > 0 else "supported_oceanic_dominance"
-    elif abs(cohens_d) >= 0.2:
-        h1_interp = "partially_supported_maritime" if cohens_d > 0 else "partially_supported_oceanic"
+    elif cohens_d >= 0.5:
+        h1_interp = "supported_maritime_dominance"
+    elif cohens_d >= 0.2:
+        h1_interp = "partially_supported_maritime"
     else:
         h1_interp = "not_supported"
     h1 = {
@@ -1247,8 +1248,8 @@ def _test_hypotheses(
         "hypothesis_label": "Maritimisation Shift",
         "test_used": "Cohen's d (signed) on demand_strength_score by axis group",
         "direction_note": (
-            "positive cohens_d = MARITIME > OCEANIC; "
-            "negative cohens_d = OCEANIC > MARITIME"
+            "positive cohens_d = MARITIME > OCEANIC (supported); "
+            "non-positive cohens_d = shift not observed (not_supported)"
         ),
         "sample_size_maritime": n_m,
         "sample_size_oceanic": n_o,
@@ -1308,32 +1309,69 @@ def _test_hypotheses(
         ),
     }
 
-    # H3 — Cross-sector Recurrence: evidence of a competence label appearing
-    # across multiple sectors.  Always emitted, including when not_computable.
-    recurrence_scores = [d.cross_sector_recurrence_score for d in demands]
-    n_h3 = len(recurrence_scores)
-    if n_h3 == 0:
-        h3_interp = "not_computable"
-        h3_mean = 0.0
-        h3_high_count = 0
+    # H3 — MARINE vs OCEANIC Differential Coverage: the declared H3 tests whether
+    # MARINE and OCEANIC axes show meaningfully different competence-demand coverage
+    # (fragment counts, balance, sector distributions and semantic bridges).
+    # Always emitted, including when not_computable.
+    marine_demands = [d for d in demands if d.axis_group == "MARINE"]
+    oceanic_demands = [d for d in demands if d.axis_group == "OCEANIC"]
+    n_marine = len(marine_demands)
+    n_oceanic = len(oceanic_demands)
+
+    # Axis-level fragment counts (evidence records, not unique DOIs, to capture
+    # multi-provider coverage breadth).
+    marine_fragment_count = sum(d.evidence_record_count for d in marine_demands)
+    oceanic_fragment_count = sum(d.evidence_record_count for d in oceanic_demands)
+    total_fragments = marine_fragment_count + oceanic_fragment_count
+
+    # Balance score: 1.0 = perfectly equal; 0.0 = entirely one axis.
+    if total_fragments > 0:
+        h3_balance = 1.0 - abs(marine_fragment_count - oceanic_fragment_count) / total_fragments
     else:
-        h3_mean = sum(recurrence_scores) / n_h3
-        h3_high_count = sum(1 for s in recurrence_scores if s >= 0.5)
-        high_ratio = h3_high_count / n_h3
-        if high_ratio >= 0.3:
-            h3_interp = "supported"
-        elif high_ratio >= 0.1:
-            h3_interp = "partially_supported"
-        else:
-            h3_interp = "not_supported"
+        h3_balance = 0.0
+
+    # Sector distribution: how many distinct sectors each axis covers.
+    marine_sectors = {d.sector for d in marine_demands}
+    oceanic_sectors = {d.sector for d in oceanic_demands}
+
+    # Semantic bridges: demands present in both MARINE and OCEANIC axes
+    # (shared competence label, case-insensitive).
+    marine_labels = {d.competence_label.lower() for d in marine_demands}
+    oceanic_labels = {d.competence_label.lower() for d in oceanic_demands}
+    semantic_bridge_count = len(marine_labels & oceanic_labels)
+
+    if n_marine == 0 and n_oceanic == 0:
+        h3_interp = "not_computable"
+    elif n_marine == 0 or n_oceanic == 0:
+        # One axis entirely absent — differential is maximal but unbalanced.
+        h3_interp = "not_supported"
+    elif h3_balance >= 0.6:
+        h3_interp = "supported"
+    elif h3_balance >= 0.3:
+        h3_interp = "partially_supported"
+    else:
+        h3_interp = "not_supported"
+
     h3 = {
         "hypothesis_id": "H3",
-        "hypothesis_label": "Cross-Sector Recurrence",
-        "test_used": "share of demands with cross_sector_recurrence_score >= 0.5",
-        "sample_size": n_h3,
-        "mean_cross_sector_recurrence_score": round(h3_mean, 6),
-        "high_recurrence_demand_count": h3_high_count,
+        "hypothesis_label": "MARINE vs OCEANIC Differential Coverage",
+        "test_used": (
+            "axis balance on evidence_record_count; "
+            "sector distributions; semantic bridge labels"
+        ),
+        "sample_size_marine": n_marine,
+        "sample_size_oceanic": n_oceanic,
+        "marine_fragment_count": marine_fragment_count,
+        "oceanic_fragment_count": oceanic_fragment_count,
+        "balance_score": round(h3_balance, 6),
+        "marine_sector_count": len(marine_sectors),
+        "oceanic_sector_count": len(oceanic_sectors),
+        "marine_sectors": sorted(marine_sectors),
+        "oceanic_sectors": sorted(oceanic_sectors),
+        "semantic_bridge_count": semantic_bridge_count,
         "interpretation": h3_interp,
-        "validity_warning": "small_cell_stability" if n_h3 < 5 else "",
+        "validity_warning": (
+            "small_cell_stability" if min(n_marine, n_oceanic) < 5 else ""
+        ),
     }
     return {"H1": h1, "H2": h2, "H3": h3}
