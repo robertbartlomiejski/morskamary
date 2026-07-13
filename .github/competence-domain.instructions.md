@@ -80,12 +80,12 @@ Competence(
    ```python
    summary = mapper.get_summary()
    counts = summary['competences_by_axis']
-   assert counts.get('MARINE', 0) >= 3
-   assert counts.get('MARITIME', 0) >= 6
-   assert counts.get('OCEANIC', 0) >= 3
-   # HYDRONIZATION is a canonical axis even when this baseline has no
-   # evidence-backed assignment; report zero explicitly rather than omitting it.
-   assert 'HYDRONIZATION' in counts
+   # Source-derived baseline: A=3 -> O, B=4 -> T, C=4 -> M, D=4 -> T.
+   assert counts.get('MARINE') == 4
+   assert counts.get('MARITIME') == 8
+   assert counts.get('OCEANIC') == 3
+   # This baseline has no evidence-backed H assignment. Report zero explicitly.
+   assert counts.get('HYDRONIZATION') == 0
    ```
 4. Validate all IDs are prefixed correctly (`blue_comp_`)
 
