@@ -3,4 +3,6 @@ black==26.3.1
 flake8==7.3.0
 jsonschema==4.10.3
 mypy==1.20.2
+pandas-stubs==2.2.2.240909
 pytest==9.0.3
+types-jsonschema==4.24.0.20250528
