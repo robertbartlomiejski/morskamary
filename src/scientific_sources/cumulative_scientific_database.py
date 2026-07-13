@@ -740,7 +740,7 @@ def _load_json(path: Path) -> Any:
 
 def _iter_live_records(path: Path) -> List[Mapping[str, Any]]:
     """Return the list of records from a live_records.json, coercing shapes."""
-    if not path.is_file():
+    if not path.is_file() or path.stat().st_size == 0:
         return []
     payload = _load_json(path)
     if isinstance(payload, list):
@@ -1023,8 +1023,9 @@ def _scan_semantic_signals(
 ) -> List[Tuple[_SignalPattern, str]]:
     """Return `(pattern, matched_phrase)` tuples for every matching pattern.
 
-    The scan is case-insensitive and inspects title and subject_terms ONLY.
-    ``source_query`` is provenance metadata and must NOT contribute to positive
+    The scan is case-insensitive and inspects retained evidence surfaces:
+    title, subject terms, and legally stored abstract/full text. ``source_query``
+    is provenance metadata and must NOT contribute to positive
     semantic matching: query-only matches are not empirical evidence and must
     not produce competence signals, hypothesis fragments, demand scores, or gap
     evidence.  The ``source_query`` parameter is accepted (and retained) for
@@ -1271,17 +1272,13 @@ def _collect_observations(
     _triangulated = current_run_path / "research_sources" / "live_records_triangulated.json"
     _fallback = current_run_path / "research_sources" / "live_records.json"
     preferred_records = _iter_live_records(_triangulated)
-    used_current_fallback = False
     if not preferred_records:
         preferred_records = _iter_live_records(_fallback)
-        used_current_fallback = bool(preferred_records)
     current_records = []
     run_timestamps[current_run_id] = current_run_timestamp
     layer1_current = _load_layer1_bindings(live_runs_root, current_run_id)
     for source_record in preferred_records:
         record = dict(source_record)
-        if used_current_fallback:
-            record["_triangulation_fallback"] = True
         current_records.append(record)
         binding = _bind_record(record, protocol_index, layer1_current)
         observations.append(
