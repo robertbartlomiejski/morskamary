@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-13 (fix: PR-191 semantic-enrichment recurrence guard + release-package workflow args)
+  Change type fix
+  Scope src workflows tests governance
+  Files affected src/scientific_sources/cumulative_scientific_database.py .github/workflows/full-live-analysis.yml tests/test_full_live_analysis_workflow.py CHANGELOG.txt
+  Summary Removed early novelty-stage semantic-enrichment upgrades from `_classify_novelty`/`_upgrade_if_enriched` so repeated records remain `repeated_record` until stable signal-ID reconciliation confirms genuinely new cross-run semantic identities. Updated full-live package invocation to pass required `--stats-dir` and Layer 1 `--raw-acquisition-index` arguments.
+  Reason Review feedback identified two current-head publication blockers: recurrence rows could still be semantically upgraded before identity-difference reconciliation, and the full-live package step omitted a mandatory `--raw-acquisition-index` argument required by the release builder.
+  Impact Repeated identical signals cannot be upgraded by pre-reconciliation novelty classification, and the full-live workflow now invokes package generation with the required Layer 4 stats path and exact Layer 1 raw acquisition index path.
+  Quality checks python -m pytest tests/test_cumulative_scientific_database.py tests/test_full_live_analysis_workflow.py -v; python -m flake8 src scripts tests run_full_analysis.py main.py; python -m mypy src scripts run_full_analysis.py main.py; python -m pytest tests/ -v; python scripts/validate_generated_outputs.py; python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present.
+  Reviewer @copilot
+
 - 2026-07-13 (fix: scope canonical flake8 targets to source tree)
   Change type fix
   Scope workflows tests docs governance

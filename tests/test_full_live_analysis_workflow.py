@@ -196,3 +196,17 @@ def test_commit_outputs_job_stages_cumulative_database_directory() -> None:
     git_add_index = commit_block.index("git add")
     git_add_line = commit_block[git_add_index : git_add_index + 200]
     assert "outputs/cumulative_database/" in git_add_line
+
+
+def test_release_package_step_passes_stats_dir_and_raw_acquisition_index() -> None:
+    package_index = WORKFLOW_TEXT.index(
+        "python scripts/build_live_cumulative_release_package.py"
+    )
+    package_block = WORKFLOW_TEXT[package_index : package_index + 700]
+    assert "--stats-dir outputs/layer4_statistics" in package_block
+    assert (
+        '--raw-acquisition-index "outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}/raw/raw_acquisition_index.csv"'
+        in package_block
+    )
+    layer1_index = WORKFLOW_TEXT.index("python scripts/build_live_run_audit.py")
+    assert layer1_index < package_index

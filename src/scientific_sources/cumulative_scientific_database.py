@@ -976,12 +976,9 @@ def _make_evidence_id(bucket: Tuple[str, str]) -> str:
 def _classify_novelty(
     run_ids: Sequence[str],
     providers: Sequence[str],
-    query_ids: Sequence[str],
     current_run_id: str,
-    previous_run_id: str,
     canonical_doi: str,
     canonical_title: str,
-    query_ids_seen_semantic: bool,
 ) -> Tuple[str, str]:
     """Return ``(record_novelty_status, validity_warning)`` for one evidence row.
 
@@ -995,8 +992,8 @@ def _classify_novelty(
     * upgrades to ``updated_metadata`` when both DOI and title are present but
       previous runs saw the same evidence without a DOI (i.e. this run added
       a DOI to a previously title-only record);
-    * upgrades to ``semantic_enriched`` when the record was already known but
-      the current run also produced a semantic competence-demand signal;
+    * leaves repeated records as ``repeated_record`` at this stage; semantic
+      enrichment is reconciled later only for genuinely new stable signal IDs;
     * downgrades to ``review_required`` when neither DOI nor title is present.
     """
     warning = ""
@@ -1014,11 +1011,7 @@ def _classify_novelty(
         return _upgrade_if_enriched(
             run_ids,
             providers,
-            query_ids,
             current_run_id,
-            previous_run_id,
-            canonical_doi,
-            query_ids_seen_semantic,
         )
 
     # seen_previous only — repeated record.
@@ -1028,11 +1021,7 @@ def _classify_novelty(
 def _upgrade_if_enriched(
     run_ids: Sequence[str],
     providers: Sequence[str],
-    query_ids: Sequence[str],
     current_run_id: str,
-    previous_run_id: str,
-    canonical_doi: str,
-    query_ids_seen_semantic: bool,
 ) -> Tuple[str, str]:
     """Return a possibly-upgraded status for a record seen in both runs."""
     # If only one provider ever saw the record and it was the current run, and
@@ -1043,16 +1032,6 @@ def _upgrade_if_enriched(
     new_providers = curr_providers - prev_providers
     if new_providers:
         return "provider_enriched", ""
-
-    if query_ids_seen_semantic:
-        return "semantic_enriched", ""
-
-    if canonical_doi and previous_run_id:
-        # Check whether previous runs had the same DOI or only saw the title.
-        # We can't observe historical DOIs here without extra state, so we
-        # conservatively return repeated_record; the caller sets
-        # updated_metadata upstream if it detected a DOI upgrade.
-        return "repeated_record", ""
 
     return "repeated_record", ""
 
@@ -1432,16 +1411,12 @@ def _make_evidence_records(
         citation_count_str = _pick_latest_nonempty_str(obs_sorted, "citation_count")
         citation_count = _coerce_int(citation_count_str) if citation_count_str else 0
 
-        previous_run_id = _previous_run_id(run_timestamps, current_run_id)
         status, warning = _classify_novelty(
             run_ids_ordered,
             providers_ordered,
-            query_ids,
             current_run_id,
-            previous_run_id,
             canonical_doi,
             canonical_title,
-            query_ids_seen_semantic=False,
         )
 
         prior_title_only = any(

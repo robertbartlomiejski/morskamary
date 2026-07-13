@@ -274,6 +274,8 @@ jobs:
           python scripts/build_live_cumulative_release_package.py \
             --database-dir outputs/cumulative_database \
             --reports-dir reports \
+            --stats-dir outputs/layer4_statistics \
+            --raw-acquisition-index "outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}/raw/raw_acquisition_index.csv" \
             --version-tag "${{ github.run_id }}-${{ github.run_attempt }}" \
             --output outputs/release_packages/morskamary_live_cumulative_latest.zip
 
