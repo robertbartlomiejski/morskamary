@@ -887,6 +887,13 @@ def _dedupe_key(record: Mapping[str, Any]) -> Tuple[str, str, str]:
     doi_key = _normalize_doi(record.get("doi"))
     normalized_title = _normalize_title(record.get("title"))
     source_id = _normalize_source_id(record.get("source_id"))
+    if source_id:
+        provider = re.sub(
+            r"[^a-z0-9]+",
+            "_",
+            str(record.get("provider") or "unknown").strip().lower(),
+        ).strip("_") or "unknown"
+        source_id = f"{provider}:{source_id}"
     return doi_key, normalized_title, source_id
 
 
@@ -1033,16 +1040,37 @@ def _scan_semantic_signals(
     return results
 
 
-def _make_signal_id(evidence_id: str, run_id: str, signal_type: str) -> str:
-    """Return a deterministic signal_id from evidence + run + signal type."""
-    return f"signal:{evidence_id}:{run_id}:{signal_type}"
+def _make_signal_id(
+    evidence_id: str,
+    signal_type: str,
+    matched_phrase: str,
+    evidence_text_hash: str,
+    classifier_version: str,
+) -> str:
+    """Return a stable cross-run semantic signal identity.
+
+    Run identifiers and query metadata are deliberately excluded: recurrence
+    of the same evidence-bound semantic signal must retain the same identity.
+    """
+    normalized_phrase = re.sub(r"\s+", " ", matched_phrase).strip().lower()
+    payload = "\x1f".join(
+        (
+            evidence_id,
+            signal_type,
+            normalized_phrase,
+            evidence_text_hash,
+            classifier_version,
+        )
+    )
+    return f"signal:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
 
 def _text_hash(text: str) -> str:
-    """SHA-256 hex digest of a UTF-8 text scope (empty text → empty hash)."""
-    if not text:
+    """SHA-256 of normalized retained evidence text (empty text → empty hash)."""
+    normalized = re.sub(r"\s+", " ", text).strip().lower()
+    if not normalized:
         return ""
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
 # ---------------------------------------------------------------------------
@@ -1126,8 +1154,20 @@ def build_cumulative_scientific_database(
         current_run_id=resolved_run_id,
         current_records=current_records,
     )
+    historical_signal_ids = _historical_signal_ids(
+        buckets=buckets,
+        evidence_index=evidence_index,
+        current_run_id=resolved_run_id,
+    )
+    new_signal_ids = {
+        signal.signal_id for signal in competence_demand_signals
+    } - historical_signal_ids
 
-    _reconcile_semantic_enrichment(evidence_records, competence_demand_signals)
+    _reconcile_semantic_enrichment(
+        evidence_records,
+        competence_demand_signals,
+        new_signal_ids,
+    )
 
     novelty_metrics = _compute_novelty_metrics(
         evidence_records=evidence_records,
@@ -1135,6 +1175,7 @@ def build_cumulative_scientific_database(
         current_run_id=resolved_run_id,
         buckets=buckets,
         run_timestamps=run_timestamps,
+        historical_signal_ids=historical_signal_ids,
     )
 
     written = _write_bundle(
@@ -1196,12 +1237,23 @@ def _collect_observations(
             # The current run is inserted from live outputs, not from the archive
             # copy, so we skip an archived twin to avoid double-counting.
             continue
-        records = _iter_live_records(_resolve_records_path(run_dir))
+        triangulated_path = (
+            run_dir / "research_sources" / "live_records_triangulated.json"
+        )
+        fallback_path = run_dir / "research_sources" / "live_records.json"
+        records = _iter_live_records(triangulated_path)
+        used_fallback = False
+        if not records:
+            records = _iter_live_records(fallback_path)
+            used_fallback = bool(records)
         if not records:
             continue
         run_timestamps[run_id] = timestamp_utc or current_run_timestamp
         layer1_index = _load_layer1_bindings(live_runs_root, run_id)
-        for record in records:
+        for source_record in records:
+            record = dict(source_record)
+            if used_fallback:
+                record["_triangulation_fallback"] = True
             binding = _bind_record(record, protocol_index, layer1_index)
             observations.append(
                 _RunObservation(
@@ -1218,11 +1270,19 @@ def _collect_observations(
     # when the cumulative database is built immediately after acquisition.
     _triangulated = current_run_path / "research_sources" / "live_records_triangulated.json"
     _fallback = current_run_path / "research_sources" / "live_records.json"
-    current_records_path = _triangulated if _triangulated.is_file() else _fallback
-    current_records = _iter_live_records(current_records_path)
+    preferred_records = _iter_live_records(_triangulated)
+    used_current_fallback = False
+    if not preferred_records:
+        preferred_records = _iter_live_records(_fallback)
+        used_current_fallback = bool(preferred_records)
+    current_records = []
     run_timestamps[current_run_id] = current_run_timestamp
     layer1_current = _load_layer1_bindings(live_runs_root, current_run_id)
-    for record in current_records:
+    for source_record in preferred_records:
+        record = dict(source_record)
+        if used_current_fallback:
+            record["_triangulation_fallback"] = True
+        current_records.append(record)
         binding = _bind_record(record, protocol_index, layer1_current)
         observations.append(
             _RunObservation(
@@ -1239,10 +1299,27 @@ def _collect_observations(
 def _group_observations(
     observations: Sequence[_RunObservation],
 ) -> Dict[Tuple[str, str], List[_RunObservation]]:
-    """Group observations by their dedupe bucket."""
+    """Group observations with deterministic DOI-upgrade reconciliation.
+
+    A DOI-less title is upgraded into a DOI bucket only when that normalized
+    title maps to exactly one DOI across the corpus. Ambiguous same-title
+    records with distinct DOIs remain separate.
+    """
+    dois_by_title: Dict[str, Set[str]] = {}
+    for obs in observations:
+        doi_key, title_key, _ = _dedupe_key(obs.record)
+        if doi_key and title_key:
+            dois_by_title.setdefault(title_key, set()).add(doi_key)
+
     grouped: Dict[Tuple[str, str], List[_RunObservation]] = {}
     for obs in observations:
-        bucket = _dedupe_bucket(_dedupe_key(obs.record))
+        triple = _dedupe_key(obs.record)
+        doi_key, title_key, _ = triple
+        title_dois = dois_by_title.get(title_key, set()) if title_key else set()
+        if not doi_key and len(title_dois) == 1:
+            bucket = ("doi", next(iter(title_dois)))
+        else:
+            bucket = _dedupe_bucket(triple)
         grouped.setdefault(bucket, []).append(obs)
     return grouped
 
@@ -1298,7 +1375,13 @@ def _make_evidence_records(
         )
         axes = sorted({o.binding.axis_code for o in obs_sorted if o.binding.axis_code})
 
-        providers = sorted({p for p in providers_ordered if p})
+        providers = sorted(
+            {
+                provider
+                for observation in obs_sorted
+                for provider in _providers_for_record(observation.record)
+            }
+        )
         provider_count = len(providers)
 
         # Fix 6: prefer the latest non-empty value for enrichable metadata.
@@ -1318,6 +1401,28 @@ def _make_evidence_records(
             canonical_title,
             query_ids_seen_semantic=False,
         )
+
+        prior_title_only = any(
+            observation.run_id != current_run_id
+            and bool(_normalize_title(observation.record.get("title")))
+            and not bool(_normalize_doi(observation.record.get("doi")))
+            for observation in obs_sorted
+        )
+        current_has_doi = any(
+            observation.run_id == current_run_id
+            and bool(_normalize_doi(observation.record.get("doi")))
+            for observation in obs_sorted
+        )
+        if prior_title_only and current_has_doi:
+            status = "updated_metadata"
+
+        if any(
+            bool(observation.record.get("_triangulation_fallback"))
+            for observation in obs_sorted
+        ):
+            warning = "|".join(
+                item for item in (warning, "triangulation_fallback") if item
+            )
 
         # Fix 7: non-root Jaccard members become duplicate_only so they
         # cannot inflate scientific-growth or demand-strength scores.
@@ -1475,24 +1580,51 @@ def _make_signals(
     current_run_id: str,
     current_records: Sequence[Mapping[str, Any]],
 ) -> List[CompetenceDemandSignal]:
-    """Return semantic competence-demand signals for the current run only."""
-    signals: List[CompetenceDemandSignal] = []
+    """Return de-duplicated semantic signals for the current run only."""
+    del current_records  # retained for backward-compatible public call shape
+    signals_by_id: Dict[str, CompetenceDemandSignal] = {}
 
-    for bucket, observations in buckets.items():
-        current_obs = [o for o in observations if o.run_id == current_run_id]
-        if not current_obs:
-            continue
+    for bucket, observations in sorted(buckets.items(), key=lambda item: item[0]):
+        current_obs = sorted(
+            (o for o in observations if o.run_id == current_run_id),
+            key=lambda o: (
+                o.binding.query_id,
+                str(o.record.get("provider") or ""),
+                o.timestamp_utc,
+            ),
+        )
         evidence_id = evidence_index[bucket]
         for obs in current_obs:
-            signals.extend(
-                _build_signals_for_observation(
+            for signal in _build_signals_for_observation(
+                obs=obs,
+                evidence_id=evidence_id,
+            ):
+                signals_by_id.setdefault(signal.signal_id, signal)
+
+    return [signals_by_id[key] for key in sorted(signals_by_id)]
+
+
+def _historical_signal_ids(
+    *,
+    buckets: Dict[Tuple[str, str], List[_RunObservation]],
+    evidence_index: Mapping[Tuple[str, str], str],
+    current_run_id: str,
+) -> Set[str]:
+    """Reconstruct stable signal identities from every prior observation."""
+    signal_ids: Set[str] = set()
+    for bucket, observations in buckets.items():
+        evidence_id = evidence_index[bucket]
+        for obs in observations:
+            if obs.run_id == current_run_id:
+                continue
+            signal_ids.update(
+                signal.signal_id
+                for signal in _build_signals_for_observation(
                     obs=obs,
                     evidence_id=evidence_id,
                 )
             )
-
-    signals.sort(key=lambda s: s.signal_id)
-    return signals
+    return signal_ids
 
 
 def _build_signals_for_observation(
@@ -1502,15 +1634,27 @@ def _build_signals_for_observation(
 ) -> List[CompetenceDemandSignal]:
     record = obs.record
     title = str(record.get("title") or "").strip()
-    journal = str(record.get("journal") or "").strip()
     subject_terms = _flatten_subject_terms(record.get("subject_terms"))
+    abstract = _flatten_text_surface(record.get("abstract"))
+    full_text = _flatten_text_surface(record.get("full_text"))
     source_query = str(record.get("source_query") or "").strip()
 
-    text_scope = " || ".join(part for part in (title, journal, subject_terms) if part)
+    surfaces = [
+        ("title", title),
+        ("subject", subject_terms),
+        ("abstract", abstract),
+        ("full_text", full_text),
+    ]
+    text_scope = " || ".join(text for _, text in surfaces if text)
+    semantic_scope = "+".join(name for name, text in surfaces if text)
     if not text_scope:
         return []
 
-    matches = _scan_semantic_signals(title, subject_terms, source_query)
+    matches = _scan_semantic_signals(
+        " || ".join(part for part in (title, abstract, full_text) if part),
+        subject_terms,
+        source_query,
+    )
     if not matches:
         return []
 
@@ -1524,12 +1668,20 @@ def _build_signals_for_observation(
             pattern=pattern,
             title=title,
             subject_terms=subject_terms,
+            abstract=abstract,
+            full_text=full_text,
             source_query=source_query,
             metadata_only=is_metadata_only,
         )
         signals.append(
             CompetenceDemandSignal(
-                signal_id=_make_signal_id(evidence_id, obs.run_id, pattern.signal_type),
+                signal_id=_make_signal_id(
+                    evidence_id,
+                    pattern.signal_type,
+                    matched_phrase,
+                    evidence_text_hash,
+                    CLASSIFIER_VERSION,
+                ),
                 evidence_id=evidence_id,
                 run_id=obs.run_id,
                 sector=obs.binding.sector_slug,
@@ -1537,7 +1689,7 @@ def _build_signals_for_observation(
                 axis_code=obs.binding.axis_code,
                 query_id=obs.binding.query_id,
                 query_family=obs.binding.query_family,
-                semantic_scope="title+subject",
+                semantic_scope=semantic_scope,
                 signal_type=pattern.signal_type,
                 competence_label=pattern.label,
                 competence_description=pattern.description,
@@ -1564,9 +1716,40 @@ def _flatten_subject_terms(value: Any) -> str:
     return ""
 
 
+def _flatten_text_surface(value: Any) -> str:
+    if isinstance(value, list):
+        return " ".join(str(item).strip() for item in value if str(item).strip())
+    if isinstance(value, Mapping):
+        return " ".join(
+            str(value[key]).strip()
+            for key in sorted(value)
+            if str(value[key]).strip()
+        )
+    return str(value or "").strip()
+
+
+def _providers_for_record(record: Mapping[str, Any]) -> Set[str]:
+    providers: Set[str] = set()
+    primary = str(record.get("provider") or "").strip()
+    if primary:
+        providers.add(primary)
+    supporting = record.get("supporting_providers")
+    if isinstance(supporting, Mapping):
+        values: Iterable[Any] = supporting.keys()
+    elif isinstance(supporting, (list, tuple, set)):
+        values = supporting
+    elif isinstance(supporting, str):
+        values = re.split(r"[|;,]", supporting)
+    else:
+        values = ()
+    providers.update(str(value).strip() for value in values if str(value).strip())
+    return providers
+
+
 def _is_metadata_only(record: Mapping[str, Any]) -> bool:
-    abstract = str(record.get("abstract") or "").strip()
-    return abstract == ""
+    abstract = _flatten_text_surface(record.get("abstract"))
+    full_text = _flatten_text_surface(record.get("full_text"))
+    return not abstract and not full_text
 
 
 def _score_confidence(
@@ -1574,6 +1757,8 @@ def _score_confidence(
     pattern: _SignalPattern,
     title: str,
     subject_terms: str,
+    abstract: str,
+    full_text: str,
     source_query: str,
     metadata_only: bool,
 ) -> Tuple[float, str]:
@@ -1584,15 +1769,23 @@ def _score_confidence(
     """
     title_lc = title.lower()
     subject_lc = subject_terms.lower()
+    abstract_lc = abstract.lower()
+    full_text_lc = full_text.lower()
 
     matched_in_title = any(phrase in title_lc for phrase in pattern.phrases)
     matched_in_subject = any(phrase in subject_lc for phrase in pattern.phrases)
+    matched_in_abstract = any(phrase in abstract_lc for phrase in pattern.phrases)
+    matched_in_full_text = any(phrase in full_text_lc for phrase in pattern.phrases)
 
     score = 0.0
     if matched_in_title:
         score += 0.55
     if matched_in_subject:
         score += 0.20
+    if matched_in_abstract:
+        score += 0.20
+    if matched_in_full_text:
+        score += 0.25
 
     if metadata_only:
         score -= 0.10
@@ -1618,11 +1811,16 @@ def _learning_outcome_candidate(
 def _reconcile_semantic_enrichment(
     evidence_records: List[EvidenceRecord],
     competence_demand_signals: Sequence[CompetenceDemandSignal],
+    new_signal_ids: Set[str],
 ) -> None:
-    """Upgrade `repeated_record` → `semantic_enriched` when signals were emitted."""
-    if not competence_demand_signals:
+    """Upgrade recurrence only when a genuinely new stable signal was emitted."""
+    if not new_signal_ids:
         return
-    signals_by_evidence: Set[str] = {s.evidence_id for s in competence_demand_signals}
+    signals_by_evidence: Set[str] = {
+        signal.evidence_id
+        for signal in competence_demand_signals
+        if signal.signal_id in new_signal_ids
+    }
     for idx, record in enumerate(evidence_records):
         if (
             record.record_novelty_status == "repeated_record"
@@ -1668,6 +1866,7 @@ def _compute_novelty_metrics(
     current_run_id: str,
     buckets: Dict[Tuple[str, str], List[_RunObservation]],
     run_timestamps: Mapping[str, str],
+    historical_signal_ids: Set[str],
 ) -> RunNoveltyMetrics:
     previous_run_id = _previous_run_id(run_timestamps, current_run_id)
 
@@ -1687,24 +1886,25 @@ def _compute_novelty_metrics(
         if record.record_novelty_status == "provider_enriched":
             provider_enriched += 1
 
-    seen_evidence_ids = {s.evidence_id for s in competence_demand_signals}
-    for record in evidence_records:
-        if (
-            record.record_novelty_status
-            in ("new_record", "semantic_enriched")
-            and record.evidence_id in seen_evidence_ids
-        ):
-            semantic_new_signal += 1
+    growth_eligible_evidence_ids = {
+        record.evidence_id
+        for record in evidence_records
+        if record.record_novelty_status != "duplicate_only"
+    }
+    current_signal_ids = {
+        signal.signal_id
+        for signal in competence_demand_signals
+        if signal.evidence_id in growth_eligible_evidence_ids
+    }
+    semantic_new_signal = len(current_signal_ids - historical_signal_ids)
 
     provider_counts: Dict[str, int] = {}
     for observations in buckets.values():
         for obs in observations:
             if obs.run_id != current_run_id:
                 continue
-            provider = str(obs.record.get("provider") or "").strip()
-            if not provider:
-                continue
-            provider_counts[provider] = provider_counts.get(provider, 0) + 1
+            for provider in _providers_for_record(obs.record):
+                provider_counts[provider] = provider_counts.get(provider, 0) + 1
 
     # provider_health_ok_zero_records: providers not present in the current run.
     active_providers = set(provider_counts.keys())
@@ -1755,9 +1955,7 @@ def _known_providers_from_bindings(
     providers: Set[str] = set()
     for observations in buckets.values():
         for obs in observations:
-            provider = str(obs.record.get("provider") or "").strip()
-            if provider:
-                providers.add(provider)
+            providers.update(_providers_for_record(obs.record))
     return providers
 
 
