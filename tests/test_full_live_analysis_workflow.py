@@ -27,9 +27,64 @@ def test_schedule_commit_gate_uses_explicit_repo_variable_not_dispatch_input() -
 
 def test_permissions_are_least_privilege_for_analysis_and_commit_jobs() -> None:
     assert "permissions:\n  contents: read" in WORKFLOW_TEXT
+    # The publication job requires exactly one `contents: write` and exactly
+    # one `pull-requests: write` because it creates a bot branch and opens a
+    # PR against main instead of pushing to main directly.
     assert WORKFLOW_TEXT.count("contents: write") == 1
+    assert WORKFLOW_TEXT.count("pull-requests: write") == 1
     assert "commit-outputs:" in WORKFLOW_TEXT
-    assert "permissions:\n      contents: write" in WORKFLOW_TEXT
+    commit_index = WORKFLOW_TEXT.index("commit-outputs:")
+    commit_block = WORKFLOW_TEXT[commit_index:]
+    assert "contents: write" in commit_block
+    assert "pull-requests: write" in commit_block
+
+
+def test_all_checkouts_disable_persist_credentials() -> None:
+    """Regression test for Fix 9: every actions/checkout in the live-analysis
+    workflow must set persist-credentials: false so no reusable Git credential
+    is left on a runner that also handles proprietary provider secrets."""
+    checkout_count = WORKFLOW_TEXT.count("uses: actions/checkout@")
+    # Both the live-analysis and commit-outputs jobs check out the repo.
+    assert checkout_count >= 2
+    assert WORKFLOW_TEXT.count("persist-credentials: false") == checkout_count
+
+
+def test_commit_outputs_job_uses_bot_branch_and_pull_request_not_direct_push() -> None:
+    """Regression test for Fix 10: the publication path must never push
+    generated outputs directly to `main`.  It must create a uniquely named
+    bot branch and open a pull request against main."""
+    commit_index = WORKFLOW_TEXT.index("commit-outputs:")
+    commit_block = WORKFLOW_TEXT[commit_index:]
+    # Uniquely named bot branch per run/attempt.
+    assert "bot/live-research/" in commit_block
+    assert "${RUN_ID}" in commit_block and "${RUN_ATTEMPT}" in commit_block
+    # Opens a PR against main via `gh pr create` (no third-party action).
+    assert "gh pr create" in commit_block
+    assert "--base main" in commit_block
+    # No direct `git push` to `main` (only pushes the bot branch).
+    assert "HEAD:refs/heads/${BOT_BRANCH}" in commit_block
+    assert "git push origin main" not in commit_block
+    assert "git push origin HEAD:main" not in commit_block
+    # Explicit failure to open PR is required, not silent success.
+    assert "Failed to open pull request" in commit_block
+
+
+def test_commit_outputs_job_runs_under_live_research_environment() -> None:
+    """Regression test for Fix 10: the publication job must be gated behind
+    the same reviewer-approved environment as the live-analysis job."""
+    commit_index = WORKFLOW_TEXT.index("commit-outputs:")
+    commit_block = WORKFLOW_TEXT[commit_index:]
+    assert "environment: live-research" in commit_block
+
+
+def test_commit_outputs_job_preserves_double_publication_gate() -> None:
+    """Regression test for Fix 10: publication remains disabled-by-default via
+    the existing double (workflow_dispatch) / triple (schedule) gate."""
+    commit_index = WORKFLOW_TEXT.index("commit-outputs:")
+    commit_block = WORKFLOW_TEXT[commit_index:]
+    assert "vars.ALLOW_BOT_COMMITS == 'true'" in commit_block
+    assert "github.event.inputs.commit_outputs == 'true'" in commit_block
+    assert "vars.LIVE_OUTPUTS_AUTOCOMMIT == 'true'" in commit_block
 
 
 def test_commit_job_downloads_artifact_before_committing() -> None:

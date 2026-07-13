@@ -75,6 +75,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          # Fix 9: never leave a reusable Git credential on the live-analysis
+          # runner where proprietary provider secrets are also exposed.
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -290,10 +294,23 @@ jobs:
           retention-days: 30
 
   commit-outputs:
+    # Fix 10: publication path is disabled-by-default and never pushes generated
+    # outputs directly to main.  A uniquely named bot branch is created and a
+    # pull request is opened against main instead.  Repository/organization
+    # Actions policy must allow the chosen bot identity (default: GITHUB_TOKEN
+    # via `gh pr create`) to create PRs; note that GITHUB_TOKEN-created PRs may
+    # require an explicit follow-up trigger for CI checks to run.  No PAT or
+    # proprietary provider secret is introduced or exposed here.
     needs: live-analysis
     runs-on: ubuntu-latest
+    # Gate publication behind the same reviewer-approved environment as the
+    # live-analysis job so any credential use is auditable.
+    environment: live-research
     permissions:
+      # Least privilege: contents:write to create the bot branch, and
+      # pull-requests:write so `gh pr create` can open the PR against main.
       contents: write
+      pull-requests: write
     if: >
       github.ref == 'refs/heads/main' &&
       vars.ALLOW_BOT_COMMITS == 'true' &&
@@ -304,6 +321,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          # Fix 9: do not leave a reusable Git credential in the runner.  We
+          # authenticate the single push explicitly using GITHUB_TOKEN below.
+          persist-credentials: false
 
       - name: Download analysis outputs
         uses: actions/download-artifact@v4
@@ -311,17 +332,74 @@ jobs:
           name: live-enriched-analysis-outputs
           path: .
 
-      - name: Commit refreshed outputs
+      - name: Create bot branch and open pull request against main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
+
+          # Fix 10: never push generated outputs directly to main.  Stage only
+          # the validated allowlisted output paths onto a uniquely named
+          # bot/live-research/<run_id>/<run_attempt> branch and open a PR.
+          BOT_BRANCH="bot/live-research/${RUN_ID}/${RUN_ATTEMPT}"
+
           git config user.name "morskamary-bot"
           git config user.email "actions@github.com"
 
-          git add outputs/ outputs/run_archive/ outputs/live_runs/ outputs/cumulative_database/ outputs/layer4_statistics/ outputs/release_packages/ reports/
+          git checkout -b "$BOT_BRANCH"
+
+          # Allowlisted output paths only.  Anything outside this list is not
+          # staged, so drift in the artifact download cannot leak unrelated
+          # files into the PR.
+          git add \
+            outputs/ \
+            outputs/run_archive/ \
+            outputs/live_runs/ \
+            outputs/cumulative_database/ \
+            outputs/layer4_statistics/ \
+            outputs/release_packages/ \
+            reports/
+
           if git diff --cached --quiet; then
-            echo "No output changes to commit."
+            echo "[INFO] No output changes to publish; skipping PR creation."
             exit 0
           fi
 
-          git commit -m "chore: refresh live-enriched outputs"
-          git push
+          git commit -m "chore: refresh live-enriched outputs (run ${RUN_ID}/${RUN_ATTEMPT})"
+
+          # Push the bot branch using GITHUB_TOKEN explicitly for this single
+          # operation, then unset the remote credential.  No PAT is used.
+          REMOTE_URL="https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git"
+          git push "$REMOTE_URL" "HEAD:refs/heads/${BOT_BRANCH}"
+
+          PR_TITLE="chore(live-research): refresh outputs from run ${RUN_ID}/${RUN_ATTEMPT}"
+          PR_BODY_FILE="$(mktemp)"
+          {
+            echo "Automated publication of live-enriched analysis outputs."
+            echo
+            echo "- Workflow run: ${RUN_ID}, attempt ${RUN_ATTEMPT}"
+            echo "- Source branch: \`${BOT_BRANCH}\`"
+            echo "- Target branch: \`main\`"
+            echo
+            echo "This PR was opened by the live-analysis workflow because the"
+            echo "double publication gate (\`commit_outputs\`/\`ALLOW_BOT_COMMITS\`,"
+            echo "and \`LIVE_OUTPUTS_AUTOCOMMIT\` for scheduled runs) was enabled."
+            echo "No generated outputs are pushed directly to \`main\`."
+          } > "$PR_BODY_FILE"
+
+          # Fix 10: failure to open the PR must be explicit; do not swallow the
+          # error and do not fall back to a direct push to main.
+          if ! gh pr create \
+                --repo "$REPO" \
+                --base main \
+                --head "$BOT_BRANCH" \
+                --title "$PR_TITLE" \
+                --body-file "$PR_BODY_FILE"; then
+            echo "[ERROR] Failed to open pull request for ${BOT_BRANCH}." >&2
+            echo "[ERROR] Repository/organization Actions policy must allow" >&2
+            echo "[ERROR] the bot identity to create pull requests." >&2
+            exit 1
+          fi
