@@ -1285,3 +1285,179 @@ class TestJaccardDuplicateOnly:
         assert "duplicate_only" not in statuses, (
             f"dissimilar titles should not produce duplicate_only records; got {statuses}"
         )
+
+
+class TestScientificValidityHardening:
+    """Regression coverage for evidence boundaries and stable novelty."""
+
+    def test_abstract_and_full_text_are_scanned_without_query_intent(
+        self, tmp_path: Path
+    ) -> None:
+        current = tmp_path / "outputs"
+        _write_current_run(
+            current,
+            [
+                {
+                    "title": "Neutral bibliographic title",
+                    "abstract": "The study identifies workforce skills shortages.",
+                    "doi": "10.1000/abstract-signal",
+                    "provider": "Crossref",
+                    "source_query": "neutral query",
+                },
+                {
+                    "title": "Another neutral bibliographic title",
+                    "full_text": "Professional training is required for operators.",
+                    "doi": "10.1000/full-text-signal",
+                    "provider": "Crossref",
+                    "source_query": "neutral query",
+                },
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "database",
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+        )
+        scopes = {signal.semantic_scope for signal in result.competence_demand_signals}
+        assert any("abstract" in scope for scope in scopes)
+        assert any("full_text" in scope for scope in scopes)
+
+    def test_stable_signal_recurrence_is_not_semantic_growth(
+        self, tmp_path: Path
+    ) -> None:
+        current = tmp_path / "outputs"
+        archive = tmp_path / "archive"
+        record = {
+            "title": "Workforce skills for safe marine operations",
+            "doi": "10.1000/stable-signal",
+            "provider": "Crossref",
+            "source_query": "neutral query",
+            "retrieval_timestamp": "2026-06-01T00:00:00+00:00",
+        }
+        _write_run_archive(
+            archive,
+            [
+                {
+                    "run_id": "R1",
+                    "timestamp_utc": "2026-06-01T00:00:00+00:00",
+                    "records": [record],
+                }
+            ],
+        )
+        _write_current_run(
+            current,
+            [
+                dict(
+                    record,
+                    retrieval_timestamp="2026-07-01T00:00:00+00:00",
+                )
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "database",
+            archive_root=archive,
+            current_run_id="R2",
+            built_at_utc=FROZEN_TS,
+        )
+        assert result.run_novelty_metrics.semantic_new_signal_count == 0
+        assert result.evidence_records[0].record_novelty_status == "repeated_record"
+        assert result.competence_demand_signals
+        assert ":R2:" not in result.competence_demand_signals[0].signal_id
+
+    def test_provider_source_id_fallback_is_provider_scoped(
+        self, tmp_path: Path
+    ) -> None:
+        current = tmp_path / "outputs"
+        _write_current_run(
+            current,
+            [
+                {"source_id": "shared-1", "provider": "Crossref"},
+                {"source_id": "shared-1", "provider": "Scopus"},
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "database",
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+        )
+        assert len(result.evidence_records) == 2
+        ids = {record.evidence_id for record in result.evidence_records}
+        assert "evidence:source:crossref:shared-1" in ids
+        assert "evidence:source:scopus:shared-1" in ids
+
+    def test_title_only_history_upgrades_to_unique_doi_bucket(
+        self, tmp_path: Path
+    ) -> None:
+        current = tmp_path / "outputs"
+        archive = tmp_path / "archive"
+        title = "Unique title for DOI enrichment"
+        _write_run_archive(
+            archive,
+            [
+                {
+                    "run_id": "R1",
+                    "timestamp_utc": "2026-06-01T00:00:00+00:00",
+                    "records": [
+                        {
+                            "title": title,
+                            "provider": "Crossref",
+                            "retrieval_timestamp": "2026-06-01T00:00:00+00:00",
+                        }
+                    ],
+                }
+            ],
+        )
+        _write_current_run(
+            current,
+            [
+                {
+                    "title": title,
+                    "doi": "https://doi.org/10.1000/doi-upgrade",
+                    "provider": "Scopus",
+                    "retrieval_timestamp": "2026-07-01T00:00:00+00:00",
+                }
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "database",
+            archive_root=archive,
+            current_run_id="R2",
+            built_at_utc=FROZEN_TS,
+        )
+        assert len(result.evidence_records) == 1
+        evidence = result.evidence_records[0]
+        assert evidence.evidence_id == "evidence:doi:10.1000/doi-upgrade"
+        assert evidence.record_novelty_status == "updated_metadata"
+
+    def test_supporting_providers_are_folded_into_provenance(
+        self, tmp_path: Path
+    ) -> None:
+        current = tmp_path / "outputs"
+        _write_current_run(
+            current,
+            [
+                {
+                    "title": "Triangulated record",
+                    "doi": "10.1000/triangulated",
+                    "provider": "Crossref",
+                    "supporting_providers": ["Crossref", "Scopus", "wos"],
+                }
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "database",
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+        )
+        evidence = result.evidence_records[0]
+        assert evidence.provider_count == 3
+        assert set(evidence.providers_seen.split("|")) == {
+            "Crossref",
+            "Scopus",
+            "wos",
+        }
