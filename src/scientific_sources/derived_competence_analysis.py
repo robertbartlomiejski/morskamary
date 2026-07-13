@@ -100,6 +100,8 @@ DERIVED_DEMAND_COLUMNS: Tuple[str, ...] = (
     "status",
     "manual_review_status",
     "validity_warning",
+    "evidence_ids",
+    "signal_types",
 )
 
 GAP_MODEL_COLUMNS: Tuple[str, ...] = (
@@ -245,6 +247,8 @@ class DerivedCompetenceDemand:
     status: str
     manual_review_status: str
     validity_warning: str
+    evidence_ids: str = ""
+    signal_types: str = ""
 
 
 @dataclass
@@ -399,12 +403,14 @@ def build_layer4(
     competence_signals: Sequence[Mapping[str, Any]],
     output_dir: Union[str, Path],
     current_run_id: str = "",
+    stats_dir: Optional[Union[str, Path]] = None,
+    analysis_timestamp_utc: Optional[str] = None,
 ) -> Layer4Result:
-    """Build the Layer 4 derived competence-demand database + statistics."""
+    """Build Layer 4 with an explicit reproducible analysis timestamp."""
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
-    stats_dir = out.parent / LAYER4_STATS_DIR
-    stats_dir.mkdir(parents=True, exist_ok=True)
+    stats_path = Path(stats_dir) if stats_dir is not None else out.parent / LAYER4_STATS_DIR
+    stats_path.mkdir(parents=True, exist_ok=True)
 
     evidence_by_id: Dict[str, Mapping[str, Any]] = {
         str(r.get("evidence_id", "")): r for r in evidence_records
@@ -475,7 +481,7 @@ def build_layer4(
 
         provider_div = _diversity(len(providers), len(all_providers) or 1)
         query_div = _diversity(len(families), len(all_families) or 1)
-        recency = _recency_score(latest_at)
+        recency = _recency_score(latest_at, analysis_timestamp_utc)
         norm_doi = min(1.0, len(dois) / 10.0)
         # cross-sector recurrence: same label appears in how many distinct sectors
         sector_set = {k[1] for k in groups.keys() if k[0] == label}
@@ -544,6 +550,22 @@ def build_layer4(
             status=status,
             manual_review_status=review,
             validity_warning="|".join(warnings),
+            evidence_ids="|".join(
+                sorted(
+                    str(e.get("evidence_id", ""))
+                    for e in evs
+                    if e.get("evidence_id")
+                )
+            ),
+            signal_types="|".join(
+                sorted(
+                    {
+                        str(signal.get("signal_type", "")).strip()
+                        for signal in signals
+                        if str(signal.get("signal_type", "")).strip()
+                    }
+                )
+            ),
         ))
 
     demands.sort(key=lambda d: (d.sector, d.axis_group, d.competence_label))
@@ -559,15 +581,15 @@ def build_layer4(
     files.append(_write_derived_demands_csv(out / DERIVED_DEMANDS_CSV, demands))
     files.append(_write_derived_demands_jsonl(out / DERIVED_DEMANDS_JSONL, demands))
     files.append(_write_csv_rows(
-        stats_dir / QMBD_CROSS_TABLES_CSV,
+        stats_path / QMBD_CROSS_TABLES_CSV,
         header=("sector", "axis_group", "demand_row_count", "mean_score"),
         rows=[(k[0], k[1], v["count"], round(v["mean_score"], 6))
               for k, v in sorted(qmbd_cross.items())],
     ))
-    files.append(_write_json(stats_dir / SECTOR_GAP_MATRICES_JSON, sector_gap))
-    files.append(_write_json(stats_dir / MULTIVARIATE_RESULTS_JSON, multivariate))
+    files.append(_write_json(stats_path / SECTOR_GAP_MATRICES_JSON, sector_gap))
+    files.append(_write_json(stats_path / MULTIVARIATE_RESULTS_JSON, multivariate))
     files.append(_write_csv_rows(
-        stats_dir / TAXONOMIC_CLUSTERS_CSV,
+        stats_path / TAXONOMIC_CLUSTERS_CSV,
         header=("category_label", "axis_group", "axis_code", "matched_signal_count",
                 "matched_evidence_count"),
         rows=[(t["category_label"], t["axis_group"], t["axis_code"],
@@ -576,7 +598,8 @@ def build_layer4(
     ))
     manifest = {
         "schema_version": LAYER4_SCHEMA_VERSION,
-        "built_at_utc": _utc_now_iso(),
+        "built_at_utc": analysis_timestamp_utc or _utc_now_iso(),
+        "analysis_timestamp_utc": analysis_timestamp_utc or "",
         "current_run_id": current_run_id,
         "demand_strength_formula": (
             "0.30*normalized_unique_doi_count + 0.20*provider_diversity_score "
@@ -591,7 +614,7 @@ def build_layer4(
 
     return Layer4Result(
         output_dir=out,
-        stats_dir=stats_dir,
+        stats_dir=stats_path,
         derived_demands=demands,
         qmbd_cross_tables=_kv(qmbd_cross),
         sector_gap_matrices=sector_gap,
@@ -612,8 +635,10 @@ def build_layer5(
     evidence_records: Sequence[Mapping[str, Any]],
     static_baseline_count_by_sector: Optional[Mapping[str, int]] = None,
     existing_credential_coverage: Optional[Mapping[Tuple[str, str], int]] = None,
+    validated_credential_supply: Optional[Mapping[str, Sequence[int]]] = None,
     output_dir: Union[str, Path],
     current_run_id: str = "",
+    built_at_utc: Optional[str] = None,
 ) -> Layer5Result:
     """Build the Layer 5 gap model, credential translation, and outcomes."""
     out = Path(output_dir)
@@ -627,7 +652,14 @@ def build_layer5(
         buckets.setdefault((d.sector, d.axis_group), []).append(d)
 
     gap_rows: List[SectorAxisGapRow] = []
-    for (sector, axis), demands in sorted(buckets.items()):
+    gap_cells = set(buckets) | set(coverage_map)
+    gap_cells.update(
+        (sector, axis)
+        for sector in baseline_map
+        for axis in ("MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION")
+    )
+    for sector, axis in sorted(gap_cells):
+        demands = buckets.get((sector, axis), [])
         live_demand = len(demands)
         validated = sum(1 for d in demands if d.status not in ("review_required", "duplicate_artifact"))
         covered = int(coverage_map.get((sector, axis), 0))
@@ -638,6 +670,8 @@ def build_layer5(
         warns: List[str] = []
         if baseline_val == 0 and live_demand == 0:
             warns.append("empty_cell")
+        if baseline_val > 0 and live_demand == 0:
+            warns.append("static_baseline_only")
         if live_demand > 0 and all(d.status == "review_required" for d in demands):
             warns.append("all_review_required")
         gap_rows.append(SectorAxisGapRow(
@@ -716,7 +750,12 @@ def build_layer5(
     credentials.sort(key=lambda c: (c.sector, c.axis_group, c.eqf_level, c.credential_id))
     outcomes.sort(key=lambda o: (o.sector, o.axis_group, o.eqf_level, o.outcome_id))
 
-    hyp = _test_hypotheses(derived_demands, gap_rows, credentials)
+    hyp = _test_hypotheses(
+        derived_demands,
+        gap_rows,
+        credentials,
+        validated_credential_supply=validated_credential_supply,
+    )
 
     files: List[Path] = []
     files.append(_write_csv_dataclass(
@@ -730,8 +769,9 @@ def build_layer5(
     ))
     manifest = {
         "schema_version": LAYER5_SCHEMA_VERSION,
-        "built_at_utc": _utc_now_iso(),
+        "built_at_utc": built_at_utc or _utc_now_iso(),
         "current_run_id": current_run_id,
+        "validated_supply_map_provided": validated_credential_supply is not None,
         "gap_row_count": len(gap_rows),
         "credential_count": len(credentials),
         "learning_outcome_count": len(outcomes),
@@ -880,17 +920,26 @@ def _diversity(count: int, universe: int) -> float:
     return max(0.0, min(1.0, count / universe))
 
 
-def _recency_score(latest_at: str) -> float:
+def _recency_score(
+    latest_at: str,
+    analysis_timestamp_utc: Optional[str] = None,
+) -> float:
     if not latest_at:
         return 0.0
     try:
         dt = datetime.fromisoformat(latest_at.replace("Z", "+00:00"))
+        reference = (
+            datetime.fromisoformat(analysis_timestamp_utc.replace("Z", "+00:00"))
+            if analysis_timestamp_utc
+            else datetime.now(timezone.utc)
+        )
     except ValueError:
         return 0.0
-    now = datetime.now(timezone.utc)
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)
-    delta_days = max(0.0, (now - dt).total_seconds() / 86400.0)
+    if reference.tzinfo is None:
+        reference = reference.replace(tzinfo=timezone.utc)
+    delta_days = max(0.0, (reference - dt).total_seconds() / 86400.0)
     # exponential decay: 1.0 at 0 days, ~0.37 at 365 days, ~0.14 at 730 days
     return math.exp(-delta_days / 365.0)
 
@@ -1158,10 +1207,16 @@ def _evidence_dois_for_demand(
     d: DerivedCompetenceDemand,
     evidence_records: Sequence[Mapping[str, Any]],
 ) -> set:
+    demand_evidence_ids = set(_split_list(d.evidence_ids))
     return {
         str(e.get("canonical_doi", "")).strip()
         for e in evidence_records
-        if e.get("canonical_doi") and d.sector in str(e.get("sector_candidates", ""))
+        if e.get("canonical_doi")
+        and (
+            str(e.get("evidence_id", "")) in demand_evidence_ids
+            if demand_evidence_ids
+            else d.sector in _split_list(e.get("sector_candidates", ""))
+        )
     }
 
 
@@ -1194,9 +1249,12 @@ def _first_evidence_id_for_demand(
     d: DerivedCompetenceDemand,
     evidence_records: Sequence[Mapping[str, Any]],
 ) -> str:
-    for e in evidence_records:
-        if d.sector in str(e.get("sector_candidates", "")):
-            return str(e.get("evidence_id", ""))
+    linked = sorted(set(_split_list(d.evidence_ids)))
+    if linked:
+        return linked[0]
+    for evidence in evidence_records:
+        if d.sector in _split_list(evidence.get("sector_candidates", "")):
+            return str(evidence.get("evidence_id", ""))
     return ""
 
 
@@ -1204,174 +1262,223 @@ def _dominant_signal_type_for_demand(
     d: DerivedCompetenceDemand,
     signals: Sequence[Mapping[str, Any]],
 ) -> str:
-    # Fallback to a generic type when we don't have direct access to signals here.
-    return "implicit_competence_demand"
+    signal_types = _split_list(d.signal_types)
+    if not signal_types and signals:
+        signal_types = [
+            str(signal.get("signal_type", "")).strip()
+            for signal in signals
+            if str(signal.get("signal_type", "")).strip()
+        ]
+    if not signal_types:
+        return "implicit_competence_demand"
+    counts = {
+        signal_type: signal_types.count(signal_type)
+        for signal_type in set(signal_types)
+    }
+    return sorted(counts, key=lambda item: (-counts[item], item))[0]
 
 
 def _test_hypotheses(
     demands: Sequence[DerivedCompetenceDemand],
     gap_rows: Sequence[SectorAxisGapRow],
     credentials: Sequence[CredentialTranslation],
+    *,
+    validated_credential_supply: Optional[Mapping[str, Sequence[int]]] = None,
 ) -> Dict[str, Any]:
-    # H1 — Maritimisation Shift: signed separation of MARITIME vs OCEANIC.
-    # The signed Cohen's d controls directional interpretation: positive values
-    # mean MARITIME demand is stronger; negative means OCEANIC is stronger.
-    # Using abs(cohens_d) would suppress direction and mis-classify effect sign.
-    maritime_scores = [d.demand_strength_score for d in demands if d.axis_group == "MARITIME"]
-    oceanic_scores = [d.demand_strength_score for d in demands if d.axis_group == "OCEANIC"]
+    del gap_rows  # retained in the signature for stable downstream integrations
+
+    # H1 — Maritimisation Shift is directional: only MARITIME > OCEANIC
+    # supports the declared hypothesis.
+    maritime_scores = [
+        demand.demand_strength_score
+        for demand in demands
+        if demand.axis_group == "MARITIME"
+    ]
+    oceanic_scores = [
+        demand.demand_strength_score
+        for demand in demands
+        if demand.axis_group == "OCEANIC"
+    ]
     n_m, n_o = len(maritime_scores), len(oceanic_scores)
     mean_m = sum(maritime_scores) / n_m if n_m else 0.0
     mean_o = sum(oceanic_scores) / n_o if n_o else 0.0
-    diff = mean_m - mean_o
+    difference = mean_m - mean_o
     if n_m > 1 and n_o > 1:
-        var_m = sum((x - mean_m) ** 2 for x in maritime_scores) / (n_m - 1)
-        var_o = sum((x - mean_o) ** 2 for x in oceanic_scores) / (n_o - 1)
-        pooled_var = (((n_m - 1) * var_m) + ((n_o - 1) * var_o)) / (n_m + n_o - 2)
-        sd = math.sqrt(pooled_var) if pooled_var > 0 else 0.0
+        var_m = sum((value - mean_m) ** 2 for value in maritime_scores) / (n_m - 1)
+        var_o = sum((value - mean_o) ** 2 for value in oceanic_scores) / (n_o - 1)
+        pooled_var = (
+            ((n_m - 1) * var_m) + ((n_o - 1) * var_o)
+        ) / (n_m + n_o - 2)
+        pooled_sd = math.sqrt(pooled_var) if pooled_var > 0 else 0.0
     else:
-        sd = 0.0
-    cohens_d = (diff / sd) if sd > 0 else 0.0
-    # H1 is the *Maritimisation Shift* hypothesis: MARITIME demand exceeds OCEANIC.
-    # The hypothesis can only be "supported" when MARITIME > OCEANIC (cohens_d > 0).
-    # A non-positive d means the shift does not hold — the correct outcome is
-    # not_supported, never "oceanic_dominance", which would be a different hypothesis.
+        pooled_sd = 0.0
+    cohens_d = difference / pooled_sd if pooled_sd > 0 else 0.0
     if n_m == 0 or n_o == 0:
-        h1_interp = "not_computable"
+        h1_interpretation = "not_computable"
     elif cohens_d >= 0.5:
-        h1_interp = "supported_maritime_dominance"
+        h1_interpretation = "supported_maritime_dominance"
     elif cohens_d >= 0.2:
-        h1_interp = "partially_supported_maritime"
+        h1_interpretation = "partially_supported_maritime"
     else:
-        h1_interp = "not_supported"
+        h1_interpretation = "not_supported"
     h1 = {
         "hypothesis_id": "H1",
         "hypothesis_label": "Maritimisation Shift",
         "test_used": "Cohen's d (signed) on demand_strength_score by axis group",
         "direction_note": (
-            "positive cohens_d = MARITIME > OCEANIC (supported); "
-            "non-positive cohens_d = shift not observed (not_supported)"
+            "positive cohens_d = MARITIME > OCEANIC; "
+            "negative cohens_d does not support H1"
         ),
         "sample_size_maritime": n_m,
         "sample_size_oceanic": n_o,
         "mean_maritime": round(mean_m, 6),
         "mean_oceanic": round(mean_o, 6),
         "effect_size_cohens_d": round(cohens_d, 6),
-        "interpretation": h1_interp,
+        "interpretation": h1_interpretation,
         "validity_warning": "small_cell_stability" if min(n_m, n_o) < 5 else "",
     }
 
-    # H2 — Hydronization Lag: fraction of HYDRONIZATION demand IDs that lack
-    # an EQF 6/7 credential pathway in a *validated* external supply map.
-    #
-    # IMPORTANT: The generated `credentials` list is a candidate-translation
-    # artifact derived deterministically from the demands themselves; using it
-    # to populate `covered_demand_ids` is circular and forces missing coverage
-    # toward zero regardless of actual credential availability.  Without an
-    # externally validated supply map, validated coverage is not available and
-    # must be serialized as not_computable.  Candidate-translation coverage is
-    # reported separately for transparency.
-    hydro_demands = [d for d in demands if d.axis_group == "HYDRONIZATION"]
-    all_hydro_demand_ids = {d.competence_demand_id for d in hydro_demands}
-    hydro_total = len(all_hydro_demand_ids)
-
-    # Candidate-translation coverage (informational only — not validated supply).
-    candidate_covered_ids: set[str] = {
-        did.strip()
-        for c in credentials
-        if c.axis_group == "HYDRONIZATION" and c.eqf_level in (6, 7)
-        for did in c.competence_demand_ids.split("|")
-        if did.strip()
+    # H2 — Hydronization Lag uses an independently validated, demand-level
+    # credential supply map. Generated candidate credentials are informational.
+    hydro_demands = [
+        demand for demand in demands if demand.axis_group == "HYDRONIZATION"
+    ]
+    hydro_ids = {demand.competence_demand_id for demand in hydro_demands}
+    candidate_covered_ids = {
+        demand_id.strip()
+        for credential in credentials
+        if credential.axis_group == "HYDRONIZATION"
+        and credential.eqf_level in (6, 7)
+        for demand_id in credential.competence_demand_ids.split("|")
+        if demand_id.strip()
     }
-    candidate_covered_67 = len(all_hydro_demand_ids & candidate_covered_ids)
+    candidate_covered_count = len(hydro_ids & candidate_covered_ids)
 
-    # Validated supply is always not_computable until an external map is
-    # provided.  Do not infer validated coverage from generated credentials.
-    h2_interp = "not_computable"
+    supply_map_provided = validated_credential_supply is not None
+    validated_covered_ids: set[str] = set()
+    if validated_credential_supply is not None:
+        for demand_id, raw_levels in validated_credential_supply.items():
+            if isinstance(raw_levels, (str, int)):
+                level_values: Sequence[Any] = [raw_levels]
+            else:
+                level_values = raw_levels
+            levels = {
+                int(level)
+                for level in level_values
+                if str(level).strip().isdigit()
+            }
+            if levels & {6, 7}:
+                validated_covered_ids.add(str(demand_id))
+    validated_covered_count = len(hydro_ids & validated_covered_ids)
+    if supply_map_provided and hydro_ids:
+        validated_missing_count = len(hydro_ids) - validated_covered_count
+        missing_ratio: Optional[float] = validated_missing_count / len(hydro_ids)
+        if missing_ratio >= 0.5:
+            h2_interpretation = "supported"
+        elif missing_ratio >= 0.2:
+            h2_interpretation = "partially_supported"
+        else:
+            h2_interpretation = "not_supported"
+    else:
+        validated_missing_count = len(hydro_ids)
+        missing_ratio = None
+        h2_interpretation = "not_computable"
+
+    h2_warnings: List[str] = []
+    if not supply_map_provided:
+        h2_warnings.append("no_validated_supply_map")
+    if len(hydro_ids) < 5:
+        h2_warnings.append("small_cell_stability")
     h2 = {
         "hypothesis_id": "H2",
         "hypothesis_label": "Hydronization Lag",
         "unit_of_analysis": "competence_demand_id",
-        "hydronization_demand_count": hydro_total,
-        "validated_covered_demand_count": 0,
-        "validated_missing_demand_count": hydro_total,
-        "candidate_covered_demand_count": candidate_covered_67,
-        "association_metric_missing_ratio": 1.0 if hydro_total > 0 else 0.0,
-        "effect_size": 1.0 if hydro_total > 0 else 0.0,
-        "interpretation": h2_interp,
+        "validated_supply_map_provided": supply_map_provided,
+        "hydronization_demand_count": len(hydro_ids),
+        "validated_covered_demand_count": validated_covered_count,
+        "validated_missing_demand_count": validated_missing_count,
+        "candidate_covered_demand_count": candidate_covered_count,
+        "association_metric_missing_ratio": (
+            round(missing_ratio, 6) if missing_ratio is not None else None
+        ),
+        "effect_size": (
+            round(missing_ratio, 6) if missing_ratio is not None else None
+        ),
+        "interpretation": h2_interpretation,
         "coverage_note": (
-            "not_computable — no externally validated EQF 6/7 credential supply "
-            "map is available; candidate_covered_demand_count shows generated "
-            "candidate translations only and must not be treated as validated coverage"
+            "Validated coverage is computed only from the separately supplied "
+            "demand-level EQF map; candidate_covered_demand_count reports "
+            "generated candidate translations and is never validated supply."
         ),
-        "validity_warning": (
-            "no_validated_supply_map"
-            + ("|small_cell_stability" if hydro_total < 5 else "")
-        ),
+        "validity_warning": "|".join(h2_warnings),
     }
 
-    # H3 — MARINE vs OCEANIC Differential Coverage: the declared H3 tests whether
-    # MARINE and OCEANIC axes show meaningfully different competence-demand coverage
-    # (fragment counts, balance, sector distributions and semantic bridges).
-    # Always emitted, including when not_computable.
-    marine_demands = [d for d in demands if d.axis_group == "MARINE"]
-    oceanic_demands = [d for d in demands if d.axis_group == "OCEANIC"]
-    n_marine = len(marine_demands)
-    n_oceanic = len(oceanic_demands)
-
-    # Axis-level fragment counts (evidence records, not unique DOIs, to capture
-    # multi-provider coverage breadth).
-    marine_fragment_count = sum(d.evidence_record_count for d in marine_demands)
-    oceanic_fragment_count = sum(d.evidence_record_count for d in oceanic_demands)
-    total_fragments = marine_fragment_count + oceanic_fragment_count
-
-    # Balance score: 1.0 = perfectly equal; 0.0 = entirely one axis.
-    if total_fragments > 0:
-        h3_balance = 1.0 - abs(marine_fragment_count - oceanic_fragment_count) / total_fragments
-    else:
-        h3_balance = 0.0
-
-    # Sector distribution: how many distinct sectors each axis covers.
-    marine_sectors = {d.sector for d in marine_demands}
-    oceanic_sectors = {d.sector for d in oceanic_demands}
-
-    # Semantic bridges: demands present in both MARINE and OCEANIC axes
-    # (shared competence label, case-insensitive).
-    marine_labels = {d.competence_label.lower() for d in marine_demands}
-    oceanic_labels = {d.competence_label.lower() for d in oceanic_demands}
+    # H3 — MARINE vs OCEANIC Differential Coverage.
+    marine_demands = [
+        demand for demand in demands if demand.axis_group == "MARINE"
+    ]
+    oceanic_demands = [
+        demand for demand in demands if demand.axis_group == "OCEANIC"
+    ]
+    marine_fragments = sum(
+        max(0, demand.evidence_record_count) for demand in marine_demands
+    )
+    oceanic_fragments = sum(
+        max(0, demand.evidence_record_count) for demand in oceanic_demands
+    )
+    total_fragments = marine_fragments + oceanic_fragments
+    balance_score = (
+        1.0 - abs(marine_fragments - oceanic_fragments) / total_fragments
+        if total_fragments
+        else 0.0
+    )
+    marine_sectors = sorted({demand.sector for demand in marine_demands})
+    oceanic_sectors = sorted({demand.sector for demand in oceanic_demands})
+    marine_labels = {demand.competence_label for demand in marine_demands}
+    oceanic_labels = {demand.competence_label for demand in oceanic_demands}
     semantic_bridge_count = len(marine_labels & oceanic_labels)
-
-    if n_marine == 0 and n_oceanic == 0:
-        h3_interp = "not_computable"
-    elif n_marine == 0 or n_oceanic == 0:
-        # One axis entirely absent — differential is maximal but unbalanced.
-        h3_interp = "not_supported"
-    elif h3_balance >= 0.6:
-        h3_interp = "supported"
-    elif h3_balance >= 0.3:
-        h3_interp = "partially_supported"
+    normalized_difference = (
+        (marine_fragments - oceanic_fragments) / total_fragments
+        if total_fragments
+        else 0.0
+    )
+    if not marine_demands or not oceanic_demands:
+        h3_interpretation = "not_computable"
+    elif balance_score >= 0.8 and semantic_bridge_count > 0:
+        h3_interpretation = "supported"
+    elif balance_score >= 0.5 or semantic_bridge_count > 0:
+        h3_interpretation = "partially_supported"
     else:
-        h3_interp = "not_supported"
-
+        h3_interpretation = "not_supported"
+    h3_warnings: List[str] = []
+    if min(len(marine_demands), len(oceanic_demands)) < 5:
+        h3_warnings.append("small_cell_stability")
+    if marine_demands and oceanic_demands and semantic_bridge_count == 0:
+        h3_warnings.append("no_semantic_bridges")
     h3 = {
         "hypothesis_id": "H3",
         "hypothesis_label": "MARINE vs OCEANIC Differential Coverage",
         "test_used": (
-            "axis balance on evidence_record_count; "
-            "sector distributions; semantic bridge labels"
+            "normalized MARINE-OCEANIC fragment difference, balance, "
+            "sector coverage, and shared competence labels"
         ),
-        "sample_size_marine": n_marine,
-        "sample_size_oceanic": n_oceanic,
-        "marine_fragment_count": marine_fragment_count,
-        "oceanic_fragment_count": oceanic_fragment_count,
-        "balance_score": round(h3_balance, 6),
+        "sample_size_marine": len(marine_demands),
+        "sample_size_oceanic": len(oceanic_demands),
+        "marine_fragment_count": marine_fragments,
+        "oceanic_fragment_count": oceanic_fragments,
+        "balance_score": round(balance_score, 6),
         "marine_sector_count": len(marine_sectors),
         "oceanic_sector_count": len(oceanic_sectors),
-        "marine_sectors": sorted(marine_sectors),
-        "oceanic_sectors": sorted(oceanic_sectors),
+        "marine_sectors": marine_sectors,
+        "oceanic_sectors": oceanic_sectors,
+        "axis_distribution": {
+            "MARINE": marine_fragments,
+            "OCEANIC": oceanic_fragments,
+        },
         "semantic_bridge_count": semantic_bridge_count,
-        "interpretation": h3_interp,
-        "validity_warning": (
-            "small_cell_stability" if min(n_marine, n_oceanic) < 5 else ""
-        ),
+        "effect_size_normalized_difference": round(normalized_difference, 6),
+        "interpretation": h3_interpretation,
+        "validity_warning": "|".join(h3_warnings),
     }
     return {"H1": h1, "H2": h2, "H3": h3}
+
