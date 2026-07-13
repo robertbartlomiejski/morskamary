@@ -122,4 +122,8 @@ src/morskamary/
 # Browser automation authentication state (bearer credentials)
 playwright/.auth/
 .auth/
-outputs/playwright_storage_state.json
+outputs/**/.auth/
+outputs/**/*storage_state*.json
+outputs/**/*storage-state*.json
+outputs/**/*auth_state*.json
+outputs/**/*auth-state*.json
