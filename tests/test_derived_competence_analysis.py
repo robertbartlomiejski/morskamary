@@ -521,3 +521,79 @@ def test_triangulated_records_preferred_over_live_records(
     assert not any(fallback_doi in str(eid) for eid in doi_ids), (
         "live_records.json fallback-only DOI must not be loaded when triangulated file exists"
     )
+
+
+
+def test_layer4_honors_stats_dir_and_fixed_timestamp(tmp_path: Path) -> None:
+    evidence = [
+        _mk_evidence(
+            1,
+            doi="10.1000/reproducible",
+            provider="crossref",
+            year=2025,
+        )
+    ]
+    signals = [_mk_signal(1)]
+    timestamp = "2026-07-13T12:00:00+00:00"
+    first = build_layer4(
+        evidence_records=evidence,
+        competence_signals=signals,
+        output_dir=tmp_path / "db-first",
+        stats_dir=tmp_path / "stats-first",
+        analysis_timestamp_utc=timestamp,
+    )
+    second = build_layer4(
+        evidence_records=evidence,
+        competence_signals=signals,
+        output_dir=tmp_path / "db-second",
+        stats_dir=tmp_path / "stats-second",
+        analysis_timestamp_utc=timestamp,
+    )
+    assert first.stats_dir == tmp_path / "stats-first"
+    assert (first.stats_dir / "qmbd_cross_tables.csv").is_file()
+    assert first.derived_demands[0].temporal_recency_score == (
+        second.derived_demands[0].temporal_recency_score
+    )
+    assert first.derived_demands[0].evidence_ids == "E-0001"
+    assert first.derived_demands[0].signal_types == "competence_demand"
+
+
+def test_h2_consumes_only_validated_demand_level_supply(tmp_path: Path) -> None:
+    demands = [_mk_hydro_demand(index) for index in range(1, 4)]
+    validated_supply = {
+        demands[0].competence_demand_id: [6],
+        demands[1].competence_demand_id: [5],
+    }
+    result = build_layer5(
+        derived_demands=demands,
+        evidence_records=[],
+        validated_credential_supply=validated_supply,
+        output_dir=tmp_path / "db-validated-supply",
+    )
+    h2 = result.hypothesis_results["H2"]
+    assert h2["validated_supply_map_provided"] is True
+    assert h2["validated_covered_demand_count"] == 1
+    assert h2["validated_missing_demand_count"] == 2
+    assert h2["candidate_covered_demand_count"] == 3
+    assert h2["interpretation"] == "supported"
+
+
+def test_static_baseline_only_cells_are_serialized(tmp_path: Path) -> None:
+    result = build_layer5(
+        derived_demands=[],
+        evidence_records=[],
+        static_baseline_count_by_sector={"ports": 15},
+        output_dir=tmp_path / "db-baseline-only",
+    )
+    assert len(result.gap_rows) == 4
+    assert {row.axis_group for row in result.gap_rows} == {
+        "MARINE",
+        "MARITIME",
+        "OCEANIC",
+        "HYDRONIZATION",
+    }
+    assert all(row.live_literature_demand_count == 0 for row in result.gap_rows)
+    assert all(
+        "static_baseline_only" in row.validity_warning
+        for row in result.gap_rows
+    )
