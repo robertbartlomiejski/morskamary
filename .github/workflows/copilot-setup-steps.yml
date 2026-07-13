@@ -1,0 +1,80 @@
+name: Copilot Setup Steps
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+      - pyproject.toml
+      - requirements.txt
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+      - pyproject.toml
+      - requirements.txt
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install repository and validation dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check -r requirements.txt
+          python -m pip check
+
+      - name: Verify pinned development toolchain
+        run: |
+          set -euo pipefail
+          python --version
+          python - <<'PY'
+          import re
+          from importlib.metadata import version
+
+          packages_to_check = {
+              "black",
+              "flake8",
+              "jsonschema",
+              "mypy",
+              "pandas-stubs",
+              "pytest",
+              "types-jsonschema",
+          }
+          expected = {}
+          with open("requirements.txt") as fh:
+              for line in fh:
+                  m = re.match(r"^([A-Za-z0-9_-]+)==([^\s;#]+)", line.strip())
+                  if m and m.group(1).lower() in packages_to_check:
+                      expected[m.group(1).lower()] = m.group(2)
+
+          missing = packages_to_check - expected.keys()
+          if missing:
+              raise SystemExit("Packages not pinned in requirements.txt: " + ", ".join(sorted(missing)))
+
+          mismatches = []
+          for package_name, expected_version in sorted(expected.items()):
+              actual_version = version(package_name)
+              print(f"{package_name}=={actual_version}")
+              if actual_version != expected_version:
+                  mismatches.append(
+                      f"{package_name}: expected {expected_version}, got {actual_version}"
+                  )
+
+          if mismatches:
+              raise SystemExit("Pinned tool version mismatch: " + "; ".join(mismatches))
+          PY
+          python -c "import jsonschema, openpyxl, pandas, yaml; print('[OK] scientific dependencies available')"
