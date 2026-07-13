@@ -22,11 +22,11 @@ Use this section for changes in progress that are not yet merged into the main b
 - 2026-07-13 (governance: align Copilot cloud agent with four-axis scientific pipeline)
   Change type update add
   Scope governance workflows documentation
-  Files affected .github/copilot-instructions.md .github/instructions/data-pipeline.instructions.md .github/workflows/copilot-setup-steps.yml docs/COPILOT_CLOUD_AGENT_SETUP.md .gitignore CHANGELOG.txt
+  Files affected .github/copilot-instructions.md .github/competence-domain.instructions.md .github/instructions/data-pipeline.instructions.md .github/workflows/copilot-setup-steps.yml docs/COPILOT_CLOUD_AGENT_SETUP.md .gitignore requirements.txt MANIFEST_SOURCES.csv CHANGELOG.txt
   Summary Replaced stale three-axis agent context with the canonical four-axis name/code contract, added Layer 0-5 evidence and structural validity rules, created a least-privilege deterministic Copilot setup workflow, documented cloud-agent/MCP/secret separation, and excluded browser authentication state.
   Reason Prevent agent instructions, query intent, fixtures, credentials or browser sessions from being mistaken for scientific evidence or safe live-provider execution.
   Impact Agent code generation is separated from controlled live API acquisition; no scientific outputs or empirical records are changed.
-  Quality checks Configuration and documentation only; setup workflow must pass on the pull request before merge.
+  Quality checks At commit 084a2a988a19c6515ddc5de993337b879e29e87d, GitHub Actions Copilot Setup Steps #7 PASSED (`python -m pip install --disable-pip-version-check -r requirements.txt`, `python -m pip check`, pinned-version verification, and scientific dependency imports); CI #547 PASSED; Full Analysis #449 PASSED. No local scientific test run or live-provider acquisition was claimed for this governance change.
   Reviewer @robertbartlomiejski
 
 - 2026-07-08 (feat: PR-187 publication step — rebuild cumulative cross-run evidence index and versioned data package v1.0.0 for both runs)
