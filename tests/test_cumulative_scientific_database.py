@@ -650,6 +650,65 @@ class TestLayer1Binding:
         assert row.sector_candidates == ""
         assert row.axis_candidates == ""
 
+    def test_layer1_axis_code_bindings_decode_to_canonical_axis_identity(
+        self, tmp_path: Path
+    ) -> None:
+        current = tmp_path / "outputs"
+        live_runs = tmp_path / "live_runs"
+        records = [
+            {
+                "title": f"Axis record {axis_code}",
+                "doi": f"10.1000/axis.{axis_code.lower()}",
+                "provider": "Crossref",
+                "source_query": f"query {axis_code.lower()}",
+                "retrieval_timestamp": "2026-07-01T00:00:00+00:00",
+            }
+            for axis_code in ("M", "T", "O", "H")
+        ]
+        _write_current_run(current, records)
+        _write_layer1_audit(
+            live_runs,
+            run_id="R1",
+            rows=[
+                {
+                    "query_id": f"Q_TEST_{axis_code}",
+                    "sector_slug": f"sector_{axis_code.lower()}",
+                    "sector_label": f"Sector {axis_code}",
+                    "axis_target": axis_code,
+                    "query_family": "core_sector",
+                    "provider": "Crossref",
+                    "query_text": f"query {axis_code.lower()}",
+                    "raw_record_count": "1",
+                    "normalized_record_count": "1",
+                    "unique_source_ids": "1",
+                    "coverage_record_count": "1",
+                    "has_raw_payload_envelope": "false",
+                    "raw_payload_sha256": "",
+                    "raw_payload_captured_at": "",
+                    "protocol_binding": "bound",
+                }
+                for axis_code in ("M", "T", "O", "H")
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "out",
+            live_runs_root=live_runs,
+            protocol_path=None,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+        )
+        axis_by_doi = {
+            row.canonical_doi: row.axis_candidates
+            for row in result.evidence_records
+        }
+        assert axis_by_doi == {
+            "10.1000/axis.h": "H",
+            "10.1000/axis.m": "M",
+            "10.1000/axis.o": "O",
+            "10.1000/axis.t": "T",
+        }
+
 
 # ---------------------------------------------------------------------------
 # Semantic (Layer 3)

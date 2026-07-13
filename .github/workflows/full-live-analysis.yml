@@ -258,7 +258,8 @@ jobs:
             --provider-health outputs/research_api_health.json \
             --previous-metrics outputs/previous_run_novelty_metrics.json \
             --current-run outputs \
-            --output outputs/cumulative_database/novelty_gate_report.json
+            --output outputs/cumulative_database/novelty_gate_report.json \
+            --strict
 
       - name: Build statistical research report (HTML + PDF)
         run: |

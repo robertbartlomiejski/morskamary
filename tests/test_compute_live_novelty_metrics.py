@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 from typing import Any, Dict
 
@@ -15,6 +16,7 @@ assert _SPEC and _SPEC.loader
 _MOD = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(_MOD)
 evaluate_gates = _MOD.evaluate_gates
+main = _MOD.main
 
 
 def _base_metrics(**overrides: Any) -> Dict[str, Any]:
@@ -117,3 +119,70 @@ def test_gate_e_warns_on_single_provider() -> None:
     r = evaluate_gates(metrics=m)
     e = next(g for g in r["gates"] if g["gate_id"] == "E")
     assert e["status"] == "warn"
+
+
+def test_cli_gate_d_failure_exits_nonzero_without_strict(tmp_path: Path) -> None:
+    metrics_path = tmp_path / "metrics.json"
+    metrics_path.write_text(json.dumps(_base_metrics()), encoding="utf-8")
+    run_root = tmp_path / "outputs"
+    live_records_path = run_root / "research_sources" / "live_records.json"
+    live_records_path.parent.mkdir(parents=True, exist_ok=True)
+    live_records_path.write_text(
+        json.dumps([{"record_origin": "static_baseline"}]),
+        encoding="utf-8",
+    )
+    report_path = tmp_path / "report.json"
+
+    exit_code = main(
+        [
+            "--metrics",
+            str(metrics_path),
+            "--provider-health",
+            str(tmp_path / "missing-provider-health.json"),
+            "--current-run",
+            str(run_root),
+            "--output",
+            str(report_path),
+        ]
+    )
+
+    assert exit_code == 1
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    gate_d = next(g for g in report["gates"] if g["gate_id"] == "D")
+    assert gate_d["status"] == "fail"
+
+
+def test_cli_gate_b_consecutive_zero_failure_exits_nonzero_without_strict(
+    tmp_path: Path,
+) -> None:
+    metrics_path = tmp_path / "metrics.json"
+    metrics_path.write_text(
+        json.dumps(_base_metrics(new_unique_doi_count=0, semantic_new_signal_count=0)),
+        encoding="utf-8",
+    )
+    previous_metrics_path = tmp_path / "previous_metrics.json"
+    previous_metrics_path.write_text(
+        json.dumps({"new_unique_doi_count": 0, "semantic_new_signal_count": 0}),
+        encoding="utf-8",
+    )
+    report_path = tmp_path / "report.json"
+
+    exit_code = main(
+        [
+            "--metrics",
+            str(metrics_path),
+            "--provider-health",
+            str(tmp_path / "missing-provider-health.json"),
+            "--previous-metrics",
+            str(previous_metrics_path),
+            "--current-run",
+            str(tmp_path / "outputs"),
+            "--output",
+            str(report_path),
+        ]
+    )
+
+    assert exit_code == 1
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    gate_b = next(g for g in report["gates"] if g["gate_id"] == "B")
+    assert gate_b["status"] == "fail"

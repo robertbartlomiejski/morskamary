@@ -833,6 +833,38 @@ def _load_layer1_bindings(
     audit_csv = bundle_dir / "raw" / "raw_acquisition_index.csv"
     if not audit_csv.is_file():
         return {}
+
+    def _decode_axis_fields(row: Mapping[str, str]) -> Tuple[str, str]:
+        raw_axis_group = str(row.get("axis_group") or "").strip().upper()
+        raw_axis_code = str(row.get("axis_code") or "").strip().upper()
+        raw_axis_target = str(row.get("axis_target") or "").strip()
+        raw_axis_target_upper = raw_axis_target.upper()
+
+        axis_group = raw_axis_group
+        axis_code = raw_axis_code
+
+        if axis_group in BlueDynamicsAxis.__members__:
+            if not axis_code:
+                axis_code = BlueDynamicsAxis[axis_group].value
+            return axis_group, axis_code
+
+        if raw_axis_target_upper in BlueDynamicsAxis.__members__:
+            axis_group = raw_axis_target_upper
+            axis_code = BlueDynamicsAxis[axis_group].value
+            return axis_group, axis_code
+
+        if raw_axis_target_upper:
+            for axis in BlueDynamicsAxis:
+                if axis.value == raw_axis_target_upper:
+                    return axis.name, axis.value
+
+        if axis_code:
+            for axis in BlueDynamicsAxis:
+                if axis.value == axis_code:
+                    return axis.name, axis.value
+
+        return "", ""
+
     lookup: Dict[str, _ProtocolBinding] = {}
     with audit_csv.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
@@ -842,14 +874,7 @@ def _load_layer1_bindings(
             query_text = (row.get("query_text") or "").strip().lower()
             if not query_text:
                 continue
-            axis_name = (row.get("axis_target") or "").strip()
-            axis_code = ""
-            axis_group = axis_name
-            if axis_name:
-                try:
-                    axis_code = BlueDynamicsAxis[axis_name].value
-                except KeyError:
-                    axis_code = ""
+            axis_group, axis_code = _decode_axis_fields(row)
             binding = _ProtocolBinding(
                 query_id=(row.get("query_id") or "").strip(),
                 sector_slug=(row.get("sector_slug") or "").strip(),

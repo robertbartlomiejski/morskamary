@@ -7,8 +7,8 @@ and evaluates deterministic quality gates over the current run:
 * Gate A — Provider contribution: warn/fail if a requested provider is
   ``health.status == ok`` but returned zero records.
 * Gate B — Novelty: warn if both ``new_unique_doi_count == 0`` and
-  ``semantic_new_signal_count == 0``. Fail only in strict mode or after
-  two consecutive zero-novelty runs.
+  ``semantic_new_signal_count == 0``. Fail after two consecutive
+  zero-novelty runs (or immediately in strict mode).
 * Gate C — Jaccard repetition: warn when Jaccard > 0.90; fail in strict
   mode when Jaccard > 0.98 AND ``semantic_new_signal_count == 0``.
 * Gate D — Static baseline contamination: fail if a run reports static
@@ -17,8 +17,7 @@ and evaluates deterministic quality gates over the current run:
   one provider or one query family unless ``provider_bias_warning`` is
   explicit.
 
-Gate failures return a non-zero exit code only when ``--strict`` is passed
-or when the workflow already enforces failure. Warnings are always
+Gate failures always return a non-zero exit code. Warnings are always
 written to the report.
 """
 
@@ -243,7 +242,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         encoding="utf-8",
     )
     print(json.dumps({"overall_status": report["overall_status"]}, sort_keys=True))
-    if report["overall_status"] == "fail" and args.strict:
+    if report["overall_status"] == "fail":
         return 1
     return 0
 

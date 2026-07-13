@@ -184,6 +184,12 @@ def test_workflow_uploads_cumulative_database_directory_as_artifact() -> None:
     assert "outputs/cumulative_database/" in upload_block
 
 
+def test_workflow_evaluates_novelty_gates_in_strict_mode() -> None:
+    step_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
+    step_block = WORKFLOW_TEXT[step_index : step_index + 400]
+    assert "--strict" in step_block
+
+
 def test_commit_outputs_job_stages_cumulative_database_directory() -> None:
     commit_index = WORKFLOW_TEXT.index("commit-outputs:")
     commit_block = WORKFLOW_TEXT[commit_index:]

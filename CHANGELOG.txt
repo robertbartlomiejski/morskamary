@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-13 (fix: PR-191 pass — Layer 1 axis decode + hard novelty gate exits)
+  Change type fix
+  Scope src scripts tests workflows governance
+  Files affected src/scientific_sources/cumulative_scientific_database.py scripts/compute_live_novelty_metrics.py .github/workflows/full-live-analysis.yml tests/test_cumulative_scientific_database.py tests/test_compute_live_novelty_metrics.py tests/test_full_live_analysis_workflow.py CHANGELOG.txt
+  Summary Fixed Layer 1->Layer 2 axis identity decoding for live-path audit rows that serialize axis values (`M/T/O/H`) by decoding axis_target/axis_code into canonical axis_group + display axis_code during binding. Hardened novelty gate CLI failure contract so any Gate fail returns non-zero, and updated full-live-analysis workflow to run novelty evaluation with `--strict`.
+  Reason PR #191 review comment 4962953678 reported two remaining blockers at head 82d6065: broken axis identity decoding in `_load_layer1_bindings` for value-form axis_target, and novelty gate failures exiting zero without strict workflow invocation.
+  Impact Layer 2 evidence rows now keep correct axis candidates when Layer 1 audit contains value-form axis identifiers, and hard novelty failures (including Gate D and consecutive-zero Gate B) now fail CI deterministically.
+  Quality checks Targeted pytest suites passed (TestLayer1Binding, test_compute_live_novelty_metrics, test_full_live_analysis_workflow). Full pytest passed (1001 passed, 5 skipped). mypy passed. validate_generated_outputs and validate_run_archive_integrity passed. `python -m flake8 .` failed locally due fetched `.git/logs/.../*.py` ref-log filenames; canonical source-tree flake8 (`python -m flake8 src scripts tests run_full_analysis.py main.py`) passed.
+  Reviewer @copilot
+
 - 2026-07-13 (fix: PR-191 scientific-validity hardening — 8 evidence-boundary and pipeline correctness fixes)
   Change type fix
   Scope src scripts tests workflows
