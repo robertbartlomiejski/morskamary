@@ -1,5 +1,5 @@
 ---
-applyTo: "scripts/**/*.py,src/**/*.py,run_full_analysis.py,.github/workflows/**/*.yml,config/**/*.yml"
+applyTo: "main.py,scripts/**/*.py,src/**/*.py,run_full_analysis.py,.github/workflows/**/*.yml,config/**/*.yml"
 ---
 
 # Scientific pipeline implementation instructions
