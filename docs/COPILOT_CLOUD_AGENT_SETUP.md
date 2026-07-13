@@ -23,16 +23,15 @@ Do not disable the firewall merely to make a provider request succeed. Provider 
 
 ## MCP configuration
 
-Keep the repository-level JSON minimal:
+Keep the GitHub Copilot cloud agent repository-level JSON minimal:
 
 ```json
 {
-  "inputs": [],
-  "servers": {}
+  "mcpServers": {}
 }
 ```
 
-GitHub and Playwright MCP servers are already enabled by default. MCP tools execute autonomously, so add a custom server only for a documented use case, with an explicit read-only `tools` allowlist. Never use `"*"` for an authenticated scientific database server.
+This is GitHub Copilot's repository MCP schema. Do not copy the VS Code workspace `.vscode/mcp.json` shape (`inputs` + `servers`) into this setting. GitHub and Playwright MCP servers are already enabled by default. MCP tools execute autonomously, so add a custom server only for a documented use case, with an explicit read-only `tools` allowlist. Never use `"*"` for an authenticated scientific database server.
 
 Do not configure Scopus, Web of Science, SciVal, Microsoft Graph, Google Drive or OpenAI credentials as Copilot Agents secrets merely to run the live pipeline. If a future read-only MCP server is approved, use a dedicated least-privilege credential prefixed `COPILOT_MCP_`, never the production Actions credential.
 
