@@ -48,6 +48,16 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         default="outputs/research_sources/research_queries_from_protocol_summary.json",
         help="JSON summary output path for protocol/projection counts.",
     )
+    parser.add_argument(
+        "--emit-constraints-path",
+        default="outputs/research_sources/query_protocol_constraints.json",
+        help=(
+            "JSON path for the per-query protocol constraints log "
+            "(time_window, sort_strategy, sampling_strategy).  "
+            "Consumed by the Layer 1 audit bundle to record applied vs "
+            "unsupported filters."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -89,6 +99,25 @@ def main(argv: Optional[list[str]] = None) -> int:
     summary_path = Path(args.emit_summary_path)
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+
+    # Fix 1: write per-query protocol constraints so downstream audit bundles
+    # can record which time_window / sort_strategy / sampling_strategy values
+    # were declared vs applied.  Provider adapters that do not support a given
+    # filter should emit validity_warning = "filter_not_applied:<constraint>".
+    constraints = protocol.to_query_constraints()
+    constraints_payload = {
+        "protocol_version": protocol.protocol_version,
+        "query_count": len(constraints),
+        "queries": constraints,
+    }
+    constraints_path = Path(args.emit_constraints_path)
+    constraints_path.parent.mkdir(parents=True, exist_ok=True)
+    constraints_path.write_text(
+        json.dumps(constraints_payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    summary["constraints_path"] = str(constraints_path)
     print(json.dumps(summary, sort_keys=True))
     return 0
 

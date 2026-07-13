@@ -48,6 +48,12 @@ concurrency:
 jobs:
   live-analysis:
     runs-on: ubuntu-latest
+    # Fix 8: gate all proprietary-provider secrets and live-package publication
+    # behind a GitHub Environments approval so production credentials require
+    # maintainer review before use.  ALLOW_BOT_COMMITS and
+    # LIVE_OUTPUTS_AUTOCOMMIT remain false-by-default; direct-push publication
+    # is not added here.
+    environment: live-research
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 

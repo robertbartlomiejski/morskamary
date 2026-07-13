@@ -414,9 +414,21 @@ def build_layer4(
         if str(r.get("record_novelty_status", "")) in GROWTH_ELIGIBLE_STATUSES
     ]
 
-    # Group signals by (competence_label, sector, axis_group)
+    # Fix 2: build a set of duplicate_only evidence IDs so we can exclude
+    # them from per-demand aggregation, demand-strength numerators, and
+    # downstream hypothesis calculations.
+    duplicate_only_ids: set[str] = {
+        str(r.get("evidence_id", ""))
+        for r in evidence_records
+        if str(r.get("record_novelty_status", "")) == "duplicate_only"
+    }
+
+    # Group signals by (competence_label, sector, axis_group), skipping
+    # signals whose evidence is classified as duplicate_only.
     groups: Dict[Tuple[str, str, str], List[Mapping[str, Any]]] = {}
     for sig in competence_signals:
+        if str(sig.get("evidence_id", "")) in duplicate_only_ids:
+            continue
         label = str(sig.get("competence_label", "")).strip()
         sector = str(sig.get("sector", "")).strip() or "_unassigned"
         axis = str(sig.get("axis_group", "")).strip() or "UNASSIGNED"
@@ -441,7 +453,12 @@ def build_layer4(
     for (label, sector, axis), signals in sorted(groups.items()):
         ev_ids = sorted({str(s.get("evidence_id", "")) for s in signals if s.get("evidence_id")})
         evs = [evidence_by_id.get(eid, {}) for eid in ev_ids]
-        evs = [e for e in evs if e]
+        # Fix 2: exclude duplicate_only evidence from per-demand aggregation
+        # and demand-strength numerators.
+        evs = [
+            e for e in evs
+            if e and str(e.get("record_novelty_status", "")) != "duplicate_only"
+        ]
         dois = sorted({str(e.get("canonical_doi", "")).strip() for e in evs if e.get("canonical_doi")})
         providers = sorted({
             p for e in evs for p in _split_list(e.get("providers_seen", ""))
@@ -1232,19 +1249,35 @@ def _test_hypotheses(
         "validity_warning": "small_cell_stability" if min(n_m, n_o) < 5 else "",
     }
 
-    # H2 — Hydronization Lag: HYDRONIZATION signals + missing EQF 6/7 outcomes.
+    # H2 — Hydronization Lag: fraction of HYDRONIZATION demand IDs that lack
+    # an EQF 6/7 credential pathway.
+    #
+    # Fix 3: the unit of analysis is competence_demand_id (not credential-row
+    # count).  We collect the set of all HYDRONIZATION demand IDs, then subtract
+    # those that appear in at least one EQF 6/7 credential's
+    # `competence_demand_ids` field.  Candidate translations are flagged as such
+    # and are not counted as externally validated coverage.
     hydro_demands = [d for d in demands if d.axis_group == "HYDRONIZATION"]
-    hydro_signal_count = len(hydro_demands)
-    hydro_creds_67 = [
-        c for c in credentials
+    all_hydro_demand_ids = {d.competence_demand_id for d in hydro_demands}
+    hydro_total = len(all_hydro_demand_ids)
+
+    # Collect demand IDs that appear in at least one EQF 6/7 credential for
+    # HYDRONIZATION (all are candidate translations — flagged in the output).
+    covered_demand_ids: set[str] = {
+        did.strip()
+        for c in credentials
         if c.axis_group == "HYDRONIZATION" and c.eqf_level in (6, 7)
-    ]
-    missing_67 = hydro_signal_count - len(hydro_creds_67)
-    if hydro_signal_count == 0:
+        for did in c.competence_demand_ids.split("|")
+        if did.strip()
+    }
+    covered_67 = len(all_hydro_demand_ids & covered_demand_ids)
+    missing_67 = hydro_total - covered_67
+
+    if hydro_total == 0:
         h2_interp = "not_computable"
         assoc = 0.0
     else:
-        assoc = missing_67 / hydro_signal_count
+        assoc = missing_67 / hydro_total
         if assoc >= 0.5:
             h2_interp = "supported"
         elif assoc >= 0.25:
@@ -1254,11 +1287,17 @@ def _test_hypotheses(
     h2 = {
         "hypothesis_id": "H2",
         "hypothesis_label": "Hydronization Lag",
-        "hydronization_signal_count": hydro_signal_count,
+        "unit_of_analysis": "competence_demand_id",
+        "hydronization_demand_count": hydro_total,
+        "covered_by_candidate_eqf6_7_demand_count": covered_67,
         "missing_eqf6_7_outcome_count": max(0, missing_67),
         "association_metric_missing_ratio": round(assoc, 6),
         "effect_size": round(assoc, 6),
         "interpretation": h2_interp,
-        "validity_warning": "small_cell_stability" if hydro_signal_count < 5 else "",
+        "coverage_note": (
+            "candidate_translation_only — no externally validated EQF 6/7 "
+            "credential coverage has been confirmed"
+        ),
+        "validity_warning": "small_cell_stability" if hydro_total < 5 else "",
     }
     return {"H1": h1, "H2": h2}

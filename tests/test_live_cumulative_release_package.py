@@ -17,12 +17,15 @@ _MOD = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(_MOD)
 build_main = _MOD.main
 DEMAND_STRENGTH_FORMULA = _MOD.DEMAND_STRENGTH_FORMULA
+CSV_FILES = _MOD.CSV_FILES
 
 
 def _write_min_bundle(db: Path, reports: Path) -> None:
     db.mkdir(parents=True, exist_ok=True)
     reports.mkdir(parents=True, exist_ok=True)
-    (db / "evidence_records.csv").write_text("evidence_id\nE-0001\n", encoding="utf-8")
+    # Write all required CSV files so the pre-flight check passes.
+    for name in CSV_FILES:
+        (db / name).write_text("col_a\nval_1\n", encoding="utf-8")
     (db / "evidence_records.jsonl").write_text(
         json.dumps({"evidence_id": "E-0001"}) + "\n", encoding="utf-8"
     )
@@ -73,3 +76,23 @@ def test_package_contains_required_files(tmp_path: Path) -> None:
         assert required in names, f"missing {required}"
     assert manifest["demand_strength_formula"] == DEMAND_STRENGTH_FORMULA
     assert manifest["version_tag"] == "test"
+
+
+def test_package_fails_when_required_csv_missing(tmp_path: Path) -> None:
+    """Fix 4 regression test: missing required artifacts must fail non-zero."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    # Remove two required CSVs to simulate incomplete Layer 5 build.
+    (db / "learning_outcomes.csv").unlink()
+    (db / "credential_translation_eqf4_7.csv").unlink()
+    out = tmp_path / "pkg_fail.zip"
+    rc = build_main([
+        "--database-dir", str(db),
+        "--reports-dir", str(reports),
+        "--output", str(out),
+        "--version-tag", "test",
+        "--generated-at-utc", "2026-07-10T00:00:00+00:00",
+    ])
+    assert rc == 1, "expected non-zero exit when required artifacts are missing"
+    assert not out.exists(), "ZIP must not be written when pre-flight fails"

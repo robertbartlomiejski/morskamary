@@ -66,6 +66,7 @@ from typing import (
     Tuple,
     Union,
 )
+from urllib.parse import unquote as _url_unquote
 
 from src.core import BlueDynamicsAxis
 from src.scientific_sources.live_query_protocol import (
@@ -541,10 +542,29 @@ _TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
 def _normalize_doi(doi: Any) -> str:
-    """Return a stripped lowercased DOI or '' if the value is empty."""
+    """Return a canonicalized DOI payload or '' if the value is empty.
+
+    Strips common resolver prefixes (``doi:``, ``https://doi.org/``,
+    ``http://doi.org/``, ``https://dx.doi.org/``, ``http://dx.doi.org/``),
+    URL-decodes the resulting payload, trims surrounding whitespace, and
+    lowercases so that URL-form and bare-form DOIs collapse to a single
+    stable identity key.
+    """
     if not isinstance(doi, str):
         return ""
-    return doi.strip().lower()
+    s = doi.strip()
+    _DOI_PREFIXES = (
+        "https://dx.doi.org/",
+        "http://dx.doi.org/",
+        "https://doi.org/",
+        "http://doi.org/",
+        "doi:",
+    )
+    for prefix in _DOI_PREFIXES:
+        if s.lower().startswith(prefix.lower()):
+            s = s[len(prefix):]
+            break
+    return _url_unquote(s).strip().lower()
 
 
 def _normalize_title(title: Any) -> str:
@@ -1218,7 +1238,20 @@ def _make_evidence_records(
     current_run_id: str,
     run_timestamps: Mapping[str, str],
 ) -> Tuple[List[EvidenceRecord], Dict[Tuple[str, str], str]]:
-    """Return sorted evidence records plus a bucket→evidence_id index."""
+    """Return sorted evidence records plus a bucket→evidence_id index.
+
+    Fixes applied in this implementation:
+
+    * **Fix 6** — year, journal, and citation_count are taken from the
+      *latest* non-empty observation (not the first), preserving first-seen
+      provenance timestamps while preferring richer later enrichment.
+    * **Fix 7** — buckets whose Jaccard root differs from their own
+      evidence_id are designated non-root duplicates and receive
+      ``record_novelty_status = duplicate_only``.  This prevents them from
+      inflating scientific-growth counts or demand scores.  The
+      ``jaccard_group_id`` field retains the root evidence_id for the full
+      duplicate crosswalk so auditors can trace every non-root member.
+    """
     jaccard_group_index = _compute_jaccard_groups(buckets)
     records: List[EvidenceRecord] = []
     index: Dict[Tuple[str, str], str] = {}
@@ -1253,9 +1286,11 @@ def _make_evidence_records(
         providers = sorted({p for p in providers_ordered if p})
         provider_count = len(providers)
 
-        year = str(first_obs.record.get("year") or "").strip()
-        journal = str(first_obs.record.get("journal") or "").strip()
-        citation_count = _coerce_int(first_obs.record.get("citation_count", 0))
+        # Fix 6: prefer the latest non-empty value for enrichable metadata.
+        year = _pick_latest_nonempty_str(obs_sorted, "year")
+        journal = _pick_latest_nonempty_str(obs_sorted, "journal")
+        citation_count_str = _pick_latest_nonempty_str(obs_sorted, "citation_count")
+        citation_count = _coerce_int(citation_count_str) if citation_count_str else 0
 
         previous_run_id = _previous_run_id(run_timestamps, current_run_id)
         status, warning = _classify_novelty(
@@ -1268,6 +1303,16 @@ def _make_evidence_records(
             canonical_title,
             query_ids_seen_semantic=False,
         )
+
+        # Fix 7: non-root Jaccard members become duplicate_only so they
+        # cannot inflate scientific-growth or demand-strength scores.
+        jaccard_gid = jaccard_group_index.get(bucket, "")
+        if jaccard_gid and jaccard_gid != evidence_id:
+            status = "duplicate_only"
+            if warning:
+                warning = f"{warning}|jaccard_nonroot"
+            else:
+                warning = "jaccard_nonroot"
 
         records.append(
             EvidenceRecord(
@@ -1290,7 +1335,7 @@ def _make_evidence_records(
                 citation_count=citation_count,
                 record_novelty_status=status,
                 record_recurrence_count=len(observations),
-                jaccard_group_id=jaccard_group_index.get(bucket, ""),
+                jaccard_group_id=jaccard_gid,
                 validity_warning=warning,
             )
         )
@@ -1321,6 +1366,22 @@ def _pick_canonical_title(observations: Sequence[_RunObservation]) -> str:
         title = str(obs.record.get("title") or "").strip()
         if title:
             return title
+    return ""
+
+
+def _pick_latest_nonempty_str(
+    observations: Sequence[_RunObservation], field: str
+) -> str:
+    """Return the latest (most-recent) non-empty string value for *field*.
+
+    Observations are expected to be sorted ascending by timestamp; this
+    function iterates in reverse to find the most-recently-enriched value,
+    preserving first-seen provenance while preferring richer later records.
+    """
+    for obs in reversed(list(observations)):
+        val = str(obs.record.get(field) or "").strip()
+        if val:
+            return val
     return ""
 
 

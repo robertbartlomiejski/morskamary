@@ -1063,3 +1063,218 @@ class TestCliWrapper:
         )
         assert proc.returncode == 0
         assert "Build the PR-190 live cumulative scientific database" in proc.stdout
+
+
+# ---------------------------------------------------------------------------
+# Regression tests for hardening fixes (PR-191)
+# ---------------------------------------------------------------------------
+
+
+class TestDOICanonicalization:
+    """Fix 5: URL-form and bare-form DOIs must collapse to the same evidence_id."""
+
+    def test_url_and_bare_doi_dedupe_to_one_record(self, tmp_path: Path) -> None:
+        current = tmp_path / "outputs"
+        output = tmp_path / "cumulative_database"
+        # One record with a URL-form DOI, another with the bare form of the same DOI.
+        _write_current_run(
+            current,
+            [
+                {
+                    "title": "Same paper via URL doi",
+                    "doi": "https://doi.org/10.1234/test.2026",
+                    "provider": "crossref",
+                    "source_id": "url-form",
+                },
+                {
+                    "title": "Same paper via bare doi",
+                    "doi": "10.1234/test.2026",
+                    "provider": "scopus",
+                    "source_id": "bare-form",
+                },
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=str(current),
+            output_dir=str(output),
+            current_run_id="RUN-DOI-001",
+        )
+        # Both forms must resolve to a single evidence record.
+        assert len(result.evidence_records) == 1, (
+            f"expected 1 evidence record, got {len(result.evidence_records)}: "
+            f"{[r.evidence_id for r in result.evidence_records]}"
+        )
+        record = result.evidence_records[0]
+        # Canonical DOI must be the bare lowercased form.
+        assert record.canonical_doi == "10.1234/test.2026"
+        # Both providers must be listed.
+        assert "crossref" in record.providers_seen
+        assert "scopus" in record.providers_seen
+
+    def test_dx_doi_prefix_stripped(self, tmp_path: Path) -> None:
+        """https://dx.doi.org/ prefix must also be stripped."""
+        current = tmp_path / "outputs"
+        output = tmp_path / "cumulative_database"
+        _write_current_run(
+            current,
+            [
+                {"doi": "https://dx.doi.org/10.9999/dx.form", "provider": "crossref"},
+                {"doi": "10.9999/dx.form", "provider": "wos"},
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=str(current),
+            output_dir=str(output),
+            current_run_id="RUN-DOI-002",
+        )
+        assert len(result.evidence_records) == 1
+        assert result.evidence_records[0].canonical_doi == "10.9999/dx.form"
+
+    def test_doi_prefix_stripped(self, tmp_path: Path) -> None:
+        """'doi:' prefix must be stripped."""
+        current = tmp_path / "outputs"
+        output = tmp_path / "cumulative_database"
+        _write_current_run(
+            current,
+            [
+                {"doi": "doi:10.5678/prefix.test", "provider": "crossref"},
+                {"doi": "10.5678/prefix.test", "provider": "scopus"},
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=str(current),
+            output_dir=str(output),
+            current_run_id="RUN-DOI-003",
+        )
+        assert len(result.evidence_records) == 1
+        assert result.evidence_records[0].canonical_doi == "10.5678/prefix.test"
+
+
+class TestLatestEnrichedMetadata:
+    """Fix 6: year/journal/citation_count use the latest non-empty value."""
+
+    def test_latest_enriched_year_preferred_over_sparse_first(
+        self, tmp_path: Path
+    ) -> None:
+        """An older sparse record followed by a richer later record must use
+        the later year and journal, while first_seen timestamps reflect the
+        earliest observation.
+        """
+        archive = tmp_path / "archive"
+        current = tmp_path / "outputs"
+        output = tmp_path / "cumulative_database"
+
+        # Run 1: sparse metadata (no year/journal).
+        _write_run_archive(
+            archive,
+            [
+                {
+                    "timestamp_utc": "2026-01-01T00:00:00+00:00",
+                    "run_id": "RUN-ENRICH-001",
+                    "records": [
+                        {
+                            "doi": "10.4321/enrich.test",
+                            "title": "Enrichment test paper",
+                            "year": "",
+                            "journal": "",
+                            "citation_count": 0,
+                            "provider": "crossref",
+                        }
+                    ],
+                }
+            ],
+        )
+        # Current run: same DOI, richer metadata.
+        _write_current_run(
+            current,
+            [
+                {
+                    "doi": "10.4321/enrich.test",
+                    "title": "Enrichment test paper",
+                    "year": "2025",
+                    "journal": "Ocean Science Journal",
+                    "citation_count": 42,
+                    "provider": "scopus",
+                }
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=str(current),
+            output_dir=str(output),
+            archive_root=archive,
+            current_run_id="RUN-ENRICH-002",
+        )
+        assert len(result.evidence_records) == 1
+        rec = result.evidence_records[0]
+        # Latest enriched values must be preferred.
+        assert rec.year == "2025", f"expected '2025', got {rec.year!r}"
+        assert rec.journal == "Ocean Science Journal", f"got {rec.journal!r}"
+        assert rec.citation_count == 42, f"got {rec.citation_count!r}"
+        # First-seen provenance must still reflect run 1.
+        assert rec.first_seen_run_id == "RUN-ENRICH-001"
+
+
+class TestJaccardDuplicateOnly:
+    """Fix 7: Jaccard non-root members receive duplicate_only status."""
+
+    def test_near_duplicate_titles_non_root_marked_duplicate_only(
+        self, tmp_path: Path
+    ) -> None:
+        current = tmp_path / "outputs"
+        output = tmp_path / "cumulative_database"
+        # Two records without DOI but very similar titles (high Jaccard sim.).
+        title_a = "maritime blue economy competence development skills training"
+        title_b = "maritime blue economy competence development skills training review"
+        _write_current_run(
+            current,
+            [
+                {"title": title_a, "provider": "crossref"},
+                {"title": title_b, "provider": "scopus"},
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=str(current),
+            output_dir=str(output),
+            current_run_id="RUN-JACCARD-001",
+        )
+        statuses = {r.record_novelty_status for r in result.evidence_records}
+        # At least one record should be duplicate_only (the non-root member).
+        assert "duplicate_only" in statuses, (
+            f"expected at least one duplicate_only record; got statuses: {statuses}"
+        )
+        # The root record should NOT be duplicate_only.
+        non_duplicate = [
+            r for r in result.evidence_records
+            if r.record_novelty_status != "duplicate_only"
+        ]
+        assert non_duplicate, "expected at least one non-duplicate_only record"
+        # Crosswalk: non-root members must have jaccard_group_id equal to root.
+        for rec in result.evidence_records:
+            if rec.record_novelty_status == "duplicate_only":
+                assert rec.jaccard_group_id, (
+                    "duplicate_only record must have a jaccard_group_id for audit"
+                )
+                assert rec.jaccard_group_id != rec.evidence_id, (
+                    "non-root member's jaccard_group_id must differ from its own evidence_id"
+                )
+
+    def test_dissimilar_titles_not_marked_duplicate(self, tmp_path: Path) -> None:
+        current = tmp_path / "outputs"
+        output = tmp_path / "cumulative_database"
+        _write_current_run(
+            current,
+            [
+                {"title": "ocean governance hydrosocial theory", "provider": "crossref"},
+                {"title": "marine biotechnology blue bioeconomy innovation", "provider": "scopus"},
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=str(current),
+            output_dir=str(output),
+            current_run_id="RUN-JACCARD-002",
+        )
+        # Dissimilar titles must not be merged.
+        statuses = {r.record_novelty_status for r in result.evidence_records}
+        assert "duplicate_only" not in statuses, (
+            f"dissimilar titles should not produce duplicate_only records; got {statuses}"
+        )

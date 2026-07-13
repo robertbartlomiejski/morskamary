@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-13 (fix: PR-191 scientific-validity hardening — 8 evidence-boundary and pipeline correctness fixes)
+  Change type fix
+  Scope src scripts tests workflows
+  Files affected src/scientific_sources/cumulative_scientific_database.py src/scientific_sources/derived_competence_analysis.py src/scientific_sources/live_query_protocol.py scripts/build_live_cumulative_release_package.py scripts/export_live_query_protocol_projection.py .github/workflows/full-live-analysis.yml tests/test_cumulative_scientific_database.py tests/test_derived_competence_analysis.py tests/test_live_cumulative_release_package.py CHANGELOG.txt MANIFEST_SOURCES.csv
+  Summary Eight scientific-validity and pipeline-correctness fixes: (1) protocol projection now exports per-query time_window/sort_strategy/sampling_strategy constraints for Layer 1 audit; (2) duplicate_only evidence excluded from demand aggregation, demand-strength numerators, gap evidence, credential translation, hypothesis fragments, and hypothesis statistics; (3) H2 corrected to compute covered/missing demand IDs (not credential-row counts) and flags candidate-translation coverage explicitly; (4) release package fails non-zero before ZIP when any required Layer 0-5 artifact is missing; (5) DOI canonicalization strips URL prefixes (https://doi.org/, http://doi.org/, https://dx.doi.org/, doi:) and URL-decodes payloads so bare and URL-form DOIs deduplicate to one evidence ID; (6) year/journal/citation_count metadata prefers the latest non-empty enriched value rather than the first (sparse) observation; (7) Jaccard near-duplicate non-root title buckets are marked duplicate_only to prevent growth-metric and demand-score inflation, with jaccard_group_id retained as full crosswalk; (8) environment: live-research added to full-live-analysis.yml so proprietary-secret jobs require a gated environment before running.
+  Reason PR-191 review comment #4960594945 listed 8 required fixes with negative regression tests before merge.
+  Impact DOI-form records that previously duplicated the corpus now correctly merge; demand-strength scores are no longer inflated by duplicate_only evidence; H2 Hydronization Lag metric is now per competence_demand_id as specified; release package cannot be built without all Layer 0-5 tables; live acquisition is gated behind the live-research environment; protocol constraints are traceable in the Layer 1 audit bundle.
+  Quality checks flake8 clean; mypy clean (no issues in 5 source files); 82 focused pytest tests pass (including 10 new regression tests).
+  Reviewer @copilot
+
 - 2026-07-10 (fix: PR-190 review follow-up — clarify Layer 0-5 scaffold scope, evidence limits, and package determinism)
   Change type fix
   Scope src scripts tests workflows docs governance

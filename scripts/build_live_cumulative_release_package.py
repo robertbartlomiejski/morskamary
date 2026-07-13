@@ -205,6 +205,25 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     entries: List[Tuple[str, bytes]] = []
 
+    # Fix 4: Fail non-zero before ZIP publication when any required Layer 0-5
+    # artifact is missing.  List all missing paths in one actionable error so
+    # the operator can see the full gap at once rather than discovering issues
+    # one file at a time.
+    missing_required = [
+        str(database_dir / name)
+        for name in CSV_FILES
+        if not (database_dir / name).exists()
+    ]
+    if missing_required:
+        print(
+            f"error: {len(missing_required)} required Layer 0-5 artifact(s) "
+            f"missing from {database_dir!s}:",
+            file=sys.stderr,
+        )
+        for m in missing_required:
+            print(f"  {m}", file=sys.stderr)
+        return 1
+
     # Collect CSVs (required + optional if present).
     for name in CSV_FILES:
         blob = _read_bytes_if_exists(database_dir / name)

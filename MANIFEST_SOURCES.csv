@@ -859,6 +859,7 @@ outputs/research_sources/live_records.json,dataset_derived,,,,,,live_records,yes
 outputs/research_sources/live_records_triangulated.json,dataset_derived,,,,,,live_records_triangulated,yes
 outputs/research_sources/live_source_coverage.csv,dataset_derived,,,,,,live_source_coverage,yes
 outputs/research_sources/low_confidence_live_records.json,dataset_derived,,,,,,low_confidence_live_records,yes
+outputs/research_sources/query_protocol_constraints.json,dataset_derived,,,,,,query_protocol_constraints,yes
 outputs/research_sources/raw_provider_records.json,dataset_derived,,,,,,raw_provider_records,yes
 outputs/research_sources/triangulation_identity_loop.json,dataset_derived,,,,,,triangulation_identity_loop,yes
 outputs/research_sources/triangulation_thematic_loop.json,dataset_derived,,,,,,triangulation_thematic_loop,yes

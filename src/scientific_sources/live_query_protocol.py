@@ -198,6 +198,67 @@ class LiveQueryProtocol:
             }
         return {"query_groups": query_groups}
 
+    def to_query_constraints(self) -> List[Dict[str, Any]]:
+        """Return a per-query list of protocol constraints for the audit log.
+
+        Each entry carries the full acquisition parameters declared in the
+        authoritative protocol (``time_window``, ``sort_strategy``,
+        ``sampling_strategy``, ``query_family``, ``evidence_intent``) so
+        that the Layer 1 audit bundle can record which constraints were
+        *declared* versus which were *applied* by each provider adapter.
+        Providers that do not support a given constraint should record it
+        in their validity warning as ``filter_not_applied:<constraint>``.
+
+        Returns a list (one dict per query) sorted deterministically by
+        ``(sector_slug, query_id)``::
+
+            [
+                {
+                    "query_id":        str,
+                    "sector_slug":     str,
+                    "query_family":    str,
+                    "evidence_intent": str,
+                    "query_text":      str,
+                    "time_window":     {"from_year": int, "to_year": int},
+                    "sort_strategy":   {"crossref": str, "scopus": str, "wos": str},
+                    "sampling_strategy": {
+                        "mode":          str,
+                        "pages":         int,
+                        "rows_per_page": int,
+                        "dedupe_key":    str,
+                    },
+                },
+                ...
+            ]
+        """
+        constraints: List[Dict[str, Any]] = []
+        for slug, sector in self.sectors.items():
+            for q in sector.queries:
+                constraints.append({
+                    "query_id": q.query_id,
+                    "sector_slug": slug,
+                    "query_family": q.query_family.value,
+                    "evidence_intent": q.evidence_intent,
+                    "query_text": q.query_text,
+                    "time_window": {
+                        "from_year": q.time_window.from_year,
+                        "to_year": q.time_window.to_year,
+                    },
+                    "sort_strategy": {
+                        "crossref": q.sort_strategy.crossref,
+                        "scopus": q.sort_strategy.scopus,
+                        "wos": q.sort_strategy.wos,
+                    },
+                    "sampling_strategy": {
+                        "mode": q.sampling_strategy.mode,
+                        "pages": q.sampling_strategy.pages,
+                        "rows_per_page": q.sampling_strategy.rows_per_page,
+                        "dedupe_key": q.sampling_strategy.dedupe_key,
+                    },
+                })
+        constraints.sort(key=lambda c: (c["sector_slug"], c["query_id"]))
+        return constraints
+
 
 def _require_mapping(value: Any, ctx: str) -> Mapping[str, Any]:
     if not isinstance(value, Mapping):

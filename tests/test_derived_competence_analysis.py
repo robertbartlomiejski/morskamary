@@ -183,3 +183,105 @@ def test_variable_and_value_labels_written(tmp_path: Path) -> None:
     assert var.exists() and val.exists()
     assert var.read_text(encoding="utf-8").strip() != ""
     assert val.read_text(encoding="utf-8").strip() != ""
+
+
+# ---------------------------------------------------------------------------
+# Regression tests for hardening fixes (PR-191)
+# ---------------------------------------------------------------------------
+
+
+def _mk_hydro_demand(idx: int, *, sector: str = "ports") -> "Dict[str, Any]":
+    """Build a minimal HYDRONIZATION DerivedCompetenceDemand-like dict."""
+    from src.scientific_sources.derived_competence_analysis import DerivedCompetenceDemand
+    return DerivedCompetenceDemand(
+        competence_demand_id=f"cd:hydro:{sector}:HYDRONIZATION:demand{idx}",
+        competence_label=f"hydro demand {idx}",
+        competence_definition=f"definition {idx}",
+        sector=sector,
+        axis_group="HYDRONIZATION",
+        axis_code="H",
+        eqf_relevance="5|6",
+        demand_strength_score=0.5,
+        evidence_record_count=1,
+        unique_doi_count=1,
+        record_occurrence_count=1,
+        provider_count=1,
+        providers_seen="crossref",
+        provider_diversity_score=0.5,
+        query_count=1,
+        query_families_seen="core_sector",
+        query_diversity_score=0.5,
+        temporal_recency_score=0.8,
+        cross_sector_recurrence_score=0.1,
+        semantic_confidence_mean=0.7,
+        first_seen_run_id="RUN-001",
+        latest_seen_run_id="RUN-001",
+        first_seen_at_utc="2025-01-01T00:00:00+00:00",
+        latest_seen_at_utc="2025-01-01T00:00:00+00:00",
+        status="active",
+        manual_review_status="auto_accepted",
+        validity_warning="",
+    )
+
+
+def test_duplicate_only_evidence_excluded_from_demand_aggregation(
+    tmp_path: Path,
+) -> None:
+    """Fix 2: duplicate_only evidence must not inflate demand-strength scores."""
+    evidence = [
+        _mk_evidence(1, doi="10.1000/a", provider="crossref", year=2024),
+        _mk_evidence(2, doi="10.1000/b", provider="scopus", year=2023,
+                     novelty="duplicate_only"),
+    ]
+    # Signal 1 from real evidence, signal 2 from duplicate_only evidence.
+    signals = [_mk_signal(1), _mk_signal(2)]
+
+    out = tmp_path / "cumulative_database"
+    out.mkdir()
+    l4 = build_layer4(
+        evidence_records=evidence,
+        competence_signals=signals,
+        output_dir=out,
+        current_run_id="RUN-FIX2",
+    )
+    # Signal from duplicate_only evidence (E-0002) must not contribute a demand.
+    # Only signal from E-0001 (new_record) should be reflected in demands.
+    demand = l4.derived_demands[0] if l4.derived_demands else None
+    assert demand is not None, "expected at least one derived demand"
+    # The duplicate DOI (10.1000/b) must NOT appear in demand DOI counts.
+    assert demand.unique_doi_count <= 1, (
+        f"duplicate_only DOI must be excluded; unique_doi_count={demand.unique_doi_count}"
+    )
+
+
+def test_h2_computed_at_demand_id_unit_not_credential_row_count(
+    tmp_path: Path,
+) -> None:
+    """Fix 3: H2 missing_eqf6_7_outcome_count is per demand_id, not credential rows."""
+    from src.scientific_sources.derived_competence_analysis import build_layer5
+    # Create 3 HYDRONIZATION demands.
+    demands = [_mk_hydro_demand(i) for i in range(1, 4)]
+
+    out = tmp_path / "cumulative_database"
+    out.mkdir()
+    l5 = build_layer5(
+        derived_demands=demands,
+        evidence_records=[],
+        static_baseline_count_by_sector={},
+        existing_credential_coverage=None,
+        output_dir=out,
+        current_run_id="RUN-FIX3",
+    )
+    h2 = l5.hypothesis_results.get("H2", {})
+    assert h2, "H2 must always be serialized"
+    assert h2["hypothesis_id"] == "H2"
+    assert "unit_of_analysis" in h2, "H2 must declare its unit_of_analysis"
+    assert h2["unit_of_analysis"] == "competence_demand_id"
+    assert "hydronization_demand_count" in h2, "H2 must report total demand count"
+    assert h2["hydronization_demand_count"] == len(demands)
+    assert "coverage_note" in h2, "H2 must include coverage_note distinguishing candidate from validated"
+    assert "candidate" in h2["coverage_note"].lower()
+    # The interpretation must be in the allowed set.
+    assert h2["interpretation"] in {
+        "supported", "partially_supported", "not_supported", "not_computable"
+    }
