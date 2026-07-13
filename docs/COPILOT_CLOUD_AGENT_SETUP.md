@@ -27,7 +27,8 @@ Keep the repository-level JSON minimal:
 
 ```json
 {
-  "mcpServers": {}
+  "inputs": [],
+  "servers": {}
 }
 ```
 
@@ -59,8 +60,8 @@ Enable either only after the controlled two-run validation passes and branch/rul
 ## Actions and branch protection
 
 1. Keep **Actions -> General -> Workflow permissions** at read-only by default.
-2. Grant `contents: write` only inside the dedicated output-publishing job.
-3. Create a `live-research` environment with required reviewer approval for jobs that use proprietary provider secrets or publish releases.
+2. Keep `.github/workflows/copilot-setup-steps.yml` at `contents: read` only. The `contents: write` exception applies exclusively to a separately controlled output-publishing job.
+3. Create a `live-research` environment with required reviewer approval. An environment protects a job only after that job declares `environment: live-research`; creating it alone does not gate the current live workflows. Wire the environment and move provider secrets on the canonical workflow-owning branch (currently draft PR #191 for `full-live-analysis.yml`) before claiming reviewer-gated live acquisition. Do not modify that overlapping Layer 0-5 workflow from PR #193.
 4. Protect `main`: require PRs, conversation resolution, a current branch, and the stable CI/governance checks observed on a successful PR.
 5. Do not require a scheduled/manual live workflow as a PR check.
 6. Use exactly one CodeQL setup. If an advanced `.github/workflows/codeql*.yml` exists, do not also enable default CodeQL setup.
