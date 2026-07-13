@@ -37,7 +37,7 @@ jobs:
           python -m pip install --disable-pip-version-check -r requirements.txt
           python -m pip check
 
-      - name: Verify deterministic development environment
+      - name: Verify pinned development toolchain
         run: |
           set -euo pipefail
           python --version
