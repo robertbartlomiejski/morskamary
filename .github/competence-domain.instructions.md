@@ -80,10 +80,11 @@ Competence(
    ```python
    summary = mapper.get_summary()
    counts = summary['competences_by_axis']
-   # Source-derived baseline: A=3 -> O, B=4 -> T, C=4 -> M, D=4 -> T.
+   # Source-derived baseline after loader de-duplicates repeated section marker IDs:
+   # A=3 plus retained section marker fallback -> O=4, B=4 + D=4 -> T=8, C=4 -> M=4.
    assert counts.get('MARINE') == 4
    assert counts.get('MARITIME') == 8
-   assert counts.get('OCEANIC') == 3
+   assert counts.get('OCEANIC') == 4
    # This baseline has no evidence-backed H assignment. Report zero explicitly.
    assert counts.get('HYDRONIZATION') == 0
    ```

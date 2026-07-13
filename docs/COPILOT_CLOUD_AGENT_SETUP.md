@@ -27,12 +27,11 @@ Keep the repository-level JSON minimal:
 
 ```json
 {
-  "inputs": [],
-  "servers": {}
+  "mcpServers": {}
 }
 ```
 
-GitHub and Playwright MCP servers are already enabled by default. MCP tools execute autonomously, so add a custom server only for a documented use case, with an explicit read-only `tools` allowlist. Never use `"*"` for an authenticated scientific database server.
+GitHub repository-level Copilot MCP configuration uses the `mcpServers` object. GitHub and Playwright MCP servers are already enabled by default, so keep it empty until a custom server is approved. MCP tools execute autonomously, so add a custom server only for a documented use case, with an explicit read-only `tools` allowlist. Never use `"*"` for an authenticated scientific database server.
 
 Do not configure Scopus, Web of Science, SciVal, Microsoft Graph, Google Drive or OpenAI credentials as Copilot Agents secrets merely to run the live pipeline. If a future read-only MCP server is approved, use a dedicated least-privilege credential prefixed `COPILOT_MCP_`, never the production Actions credential.
 
