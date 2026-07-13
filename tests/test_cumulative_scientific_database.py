@@ -36,6 +36,8 @@ from src.scientific_sources.cumulative_scientific_database import (
     EVIDENCE_RECORDS_CSV,
     EVIDENCE_RECORDS_JSONL,
     EVIDENCE_RECORD_COLUMNS,
+    HYPOTHESIS_SEMANTIC_FRAGMENTS_CSV,
+    HYPOTHESIS_SEMANTIC_FRAGMENTS_JSONL,
     RUN_NOVELTY_METRICS_CSV,
     RUN_NOVELTY_METRICS_JSON,
     build_cumulative_scientific_database,
@@ -1461,3 +1463,43 @@ class TestScientificValidityHardening:
             "Scopus",
             "wos",
         }
+
+
+
+def test_hypothesis_fragment_ledger_is_evidence_bound(tmp_path: Path) -> None:
+    current = tmp_path / "outputs"
+    output = tmp_path / "database"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance skills for marine professionals",
+                "doi": "10.1000/hypothesis-fragment",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=output,
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    assert result.competence_demand_signals
+    csv_path = output / HYPOTHESIS_SEMANTIC_FRAGMENTS_CSV
+    jsonl_path = output / HYPOTHESIS_SEMANTIC_FRAGMENTS_JSONL
+    assert csv_path.is_file() and jsonl_path.is_file()
+    fragments = [
+        json.loads(line)
+        for line in jsonl_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert fragments
+    assert all(fragment["evidence_text_hash"] for fragment in fragments)
+    assert all(fragment["hypothesis_ids"] for fragment in fragments)
+    assert all(
+        "source_query" not in fragment["semantic_scope"]
+        for fragment in fragments
+    )
