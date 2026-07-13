@@ -702,7 +702,13 @@ class TestSemanticSignals:
         )
         assert result.competence_demand_signals == []
 
-    def test_review_required_for_weak_evidence(self, tmp_path: Path) -> None:
+    def test_source_query_only_match_produces_no_signals(self, tmp_path: Path) -> None:
+        """Regression test: source_query is provenance metadata only.
+
+        A record whose title and subject_terms do NOT match any semantic
+        pattern must produce zero competence signals even if the source_query
+        text would match — query intent is not empirical evidence.
+        """
         current = tmp_path / "outputs"
         # Only source_query mentions "governance" (no title / subject term match).
         _write_current_run(
@@ -727,10 +733,11 @@ class TestSemanticSignals:
         gov_signals = [
             s for s in result.competence_demand_signals if s.signal_type == "governance_skill"
         ]
-        assert gov_signals, "expected a governance skill signal from source_query"
-        for s in gov_signals:
-            assert s.manual_review_status == "review_required"
-            assert s.validity_warning == "metadata_only_limitation"
+        # source_query-only matches must never produce signals.
+        assert gov_signals == [], (
+            "source_query-only records must not produce semantic signals; "
+            f"got {gov_signals}"
+        )
 
     def test_metadata_only_flag_absent_when_abstract_present(self, tmp_path: Path) -> None:
         current = tmp_path / "outputs"

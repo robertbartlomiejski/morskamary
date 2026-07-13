@@ -285,3 +285,215 @@ def test_h2_computed_at_demand_id_unit_not_credential_row_count(
     assert h2["interpretation"] in {
         "supported", "partially_supported", "not_supported", "not_computable"
     }
+
+
+def test_h2_generated_credentials_not_treated_as_validated_supply(
+    tmp_path: Path,
+) -> None:
+    """Regression test: H2 must be not_computable when no external supply map exists.
+
+    Using generated candidate credentials to compute covered_demand_ids is
+    circular — it forces missing coverage toward zero because every demand
+    receives a generated credential.  The validated coverage must be 0 and
+    interpretation must be not_computable when no validated supply map is provided.
+    """
+    from src.scientific_sources.derived_competence_analysis import build_layer5
+    demands = [_mk_hydro_demand(i) for i in range(1, 4)]
+    out = tmp_path / "db"
+    out.mkdir()
+    l5 = build_layer5(
+        derived_demands=demands,
+        evidence_records=[],
+        static_baseline_count_by_sector={},
+        existing_credential_coverage=None,
+        output_dir=out,
+        current_run_id="RUN-H2-NEG",
+    )
+    h2 = l5.hypothesis_results.get("H2", {})
+    assert h2.get("interpretation") == "not_computable", (
+        "H2 must be not_computable when no validated supply map is available; "
+        f"got interpretation={h2.get('interpretation')!r}"
+    )
+    assert h2.get("validated_covered_demand_count") == 0, (
+        "validated_covered_demand_count must be 0 — generated candidates are not validated supply"
+    )
+    assert "no_validated_supply_map" in h2.get("validity_warning", ""), (
+        "H2 validity_warning must include 'no_validated_supply_map'"
+    )
+    assert "H3" in l5.hypothesis_results, "H3 must always be serialized alongside H1 and H2"
+
+
+def test_h1_signed_direction_controls_interpretation(
+    tmp_path: Path,
+) -> None:
+    """Regression test: H1 must use signed Cohen's d for directional interpretation.
+
+    When MARITIME demand > OCEANIC demand, the interpretation must reflect
+    MARITIME dominance (not just 'supported').  When OCEANIC > MARITIME, it
+    must reflect OCEANIC dominance.  Using abs(cohens_d) would suppress
+    direction and mis-classify the direction of the effect.
+    """
+    from src.scientific_sources.derived_competence_analysis import (
+        DerivedCompetenceDemand, build_layer5,
+    )
+
+    def _mk_demand(axis: str, score: float, idx: int) -> DerivedCompetenceDemand:
+        return DerivedCompetenceDemand(
+            competence_demand_id=f"cd:{axis}:sector:{idx}",
+            competence_label=f"{axis} demand {idx}",
+            competence_definition="",
+            sector="ports",
+            axis_group=axis,
+            axis_code=axis[0],
+            eqf_relevance="6",
+            demand_strength_score=score,
+            evidence_record_count=1,
+            unique_doi_count=1,
+            record_occurrence_count=1,
+            provider_count=1,
+            providers_seen="crossref",
+            provider_diversity_score=0.5,
+            query_count=1,
+            query_families_seen="core",
+            query_diversity_score=0.5,
+            temporal_recency_score=0.8,
+            cross_sector_recurrence_score=0.1,
+            semantic_confidence_mean=0.7,
+            first_seen_run_id="R1",
+            latest_seen_run_id="R1",
+            first_seen_at_utc="2025-01-01T00:00:00+00:00",
+            latest_seen_at_utc="2025-01-01T00:00:00+00:00",
+            status="active",
+            manual_review_status="auto_accepted",
+            validity_warning="",
+        )
+
+    # MARITIME dominance scenario: MARITIME scores >> OCEANIC scores (with variance).
+    maritime_dominant = (
+        [_mk_demand("MARITIME", 0.9 + 0.01 * i, i) for i in range(5)]
+        + [_mk_demand("OCEANIC", 0.1 + 0.01 * i, i + 10) for i in range(5)]
+    )
+    out1 = tmp_path / "db1"
+    out1.mkdir()
+    l5_m = build_layer5(
+        derived_demands=maritime_dominant,
+        evidence_records=[],
+        static_baseline_count_by_sector={},
+        existing_credential_coverage=None,
+        output_dir=out1,
+        current_run_id="R-H1-M",
+    )
+    h1_m = l5_m.hypothesis_results["H1"]
+    assert h1_m["effect_size_cohens_d"] > 0, "MARITIME > OCEANIC must yield positive cohens_d"
+    assert "maritime" in h1_m["interpretation"].lower(), (
+        f"MARITIME-dominant scenario must include 'maritime' in interpretation; "
+        f"got {h1_m['interpretation']!r}"
+    )
+
+    # OCEANIC dominance scenario: OCEANIC scores >> MARITIME scores (with variance).
+    oceanic_dominant = (
+        [_mk_demand("MARITIME", 0.1 + 0.01 * i, i) for i in range(5)]
+        + [_mk_demand("OCEANIC", 0.9 + 0.01 * i, i + 10) for i in range(5)]
+    )
+    out2 = tmp_path / "db2"
+    out2.mkdir()
+    l5_o = build_layer5(
+        derived_demands=oceanic_dominant,
+        evidence_records=[],
+        static_baseline_count_by_sector={},
+        existing_credential_coverage=None,
+        output_dir=out2,
+        current_run_id="R-H1-O",
+    )
+    h1_o = l5_o.hypothesis_results["H1"]
+    assert h1_o["effect_size_cohens_d"] < 0, "OCEANIC > MARITIME must yield negative cohens_d"
+    assert "oceanic" in h1_o["interpretation"].lower(), (
+        f"OCEANIC-dominant scenario must include 'oceanic' in interpretation; "
+        f"got {h1_o['interpretation']!r}"
+    )
+
+
+def test_h3_always_emitted_including_not_computable(
+    tmp_path: Path,
+) -> None:
+    """Regression test: H3 must always be serialized, even when not_computable."""
+    from src.scientific_sources.derived_competence_analysis import build_layer5
+    # Empty demands → H3 should be not_computable.
+    out = tmp_path / "db_h3"
+    out.mkdir()
+    l5 = build_layer5(
+        derived_demands=[],
+        evidence_records=[],
+        static_baseline_count_by_sector={},
+        existing_credential_coverage=None,
+        output_dir=out,
+        current_run_id="RUN-H3-EMPTY",
+    )
+    assert "H3" in l5.hypothesis_results, "H3 must always be present in hypothesis_results"
+    h3 = l5.hypothesis_results["H3"]
+    assert h3.get("hypothesis_id") == "H3"
+    assert h3.get("interpretation") == "not_computable"
+    # H1 and H2 must also always be present.
+    assert "H1" in l5.hypothesis_results
+    assert "H2" in l5.hypothesis_results
+
+
+def test_triangulated_records_preferred_over_live_records(
+    tmp_path: Path,
+) -> None:
+    """Regression test: cumulative DB build must prefer live_records_triangulated.json
+    over live_records.json so triangulated supporting-provider metadata is not lost.
+    """
+    import json
+    from src.scientific_sources.cumulative_scientific_database import (
+        build_cumulative_scientific_database,
+    )
+
+    current = tmp_path / "outputs"
+    rs = current / "research_sources"
+    rs.mkdir(parents=True)
+
+    triangulated_doi = "10.1000/triangulated-preferred"
+    fallback_doi = "10.1000/fallback-only"
+
+    # Write live_records_triangulated.json with one record.
+    (rs / "live_records_triangulated.json").write_text(
+        json.dumps([{
+            "title": "Triangulated record",
+            "doi": triangulated_doi,
+            "provider": "crossref",
+            "source_query": "maritime governance",
+            "retrieval_timestamp": "2026-07-01T00:00:00+00:00",
+        }]),
+        encoding="utf-8",
+    )
+    # Write live_records.json with a *different* DOI so we can tell which was read.
+    (rs / "live_records.json").write_text(
+        json.dumps([{
+            "title": "Fallback record",
+            "doi": fallback_doi,
+            "provider": "crossref",
+            "source_query": "maritime governance",
+            "retrieval_timestamp": "2026-07-01T00:00:00+00:00",
+        }]),
+        encoding="utf-8",
+    )
+
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "out",
+        current_run_id="R-TRI",
+        built_at_utc="2026-07-01T00:00:00+00:00",
+    )
+    doi_ids = {r.get("canonical_doi") or r.get("evidence_id", "") for r in
+               [er.__dict__ if hasattr(er, "__dict__") else er
+                for er in result.evidence_records]}
+    # The triangulated record's DOI must be present.
+    assert any(triangulated_doi in str(eid) for eid in doi_ids), (
+        "live_records_triangulated.json must be preferred over live_records.json; "
+        f"DOI {triangulated_doi!r} not found in evidence; found: {doi_ids}"
+    )
+    # The fallback DOI must NOT be loaded (triangulated takes precedence).
+    assert not any(fallback_doi in str(eid) for eid in doi_ids), (
+        "live_records.json fallback-only DOI must not be loaded when triangulated file exists"
+    )

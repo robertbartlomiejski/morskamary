@@ -785,7 +785,15 @@ def _enumerate_archived_runs(
 
 
 def _resolve_records_path(run_dir: Path) -> Path:
-    """Return the live_records.json path inside an archived run directory."""
+    """Return the canonical live-records path inside an archived run directory.
+
+    Prefers ``live_records_triangulated.json`` (which includes supporting
+    provider provenance) over the legacy ``live_records.json`` fallback so
+    that cross-run deduplication retains triangulated provider metadata.
+    """
+    triangulated = run_dir / "research_sources" / "live_records_triangulated.json"
+    if triangulated.is_file():
+        return triangulated
     return run_dir / "research_sources" / "live_records.json"
 
 
@@ -1008,12 +1016,14 @@ def _scan_semantic_signals(
 ) -> List[Tuple[_SignalPattern, str]]:
     """Return `(pattern, matched_phrase)` tuples for every matching pattern.
 
-    The scan is case-insensitive and inspects the concatenation of the
-    provided text, subject_terms, and source_query. Each pattern contributes
-    at most one row; the *first* phrase that matches wins so downstream
-    reviewers see a stable substring.
+    The scan is case-insensitive and inspects title and subject_terms ONLY.
+    ``source_query`` is provenance metadata and must NOT contribute to positive
+    semantic matching: query-only matches are not empirical evidence and must
+    not produce competence signals, hypothesis fragments, demand scores, or gap
+    evidence.  The ``source_query`` parameter is accepted (and retained) for
+    provenance logging only.
     """
-    haystack = f"{text} || {subject_terms} || {source_query}".lower()
+    haystack = f"{text} || {subject_terms}".lower()
     results: List[Tuple[_SignalPattern, str]] = []
     for pattern in _SIGNAL_PATTERNS:
         for phrase in pattern.phrases:
@@ -1202,8 +1212,13 @@ def _collect_observations(
                 )
             )
 
-    # Then the current run.
-    current_records_path = current_run_path / "research_sources" / "live_records.json"
+    # Then the current run.  Prefer live_records_triangulated.json (includes
+    # supporting-provider provenance from multi-provider triangulation) over
+    # the legacy live_records.json so that triangulated metadata is not lost
+    # when the cumulative database is built immediately after acquisition.
+    _triangulated = current_run_path / "research_sources" / "live_records_triangulated.json"
+    _fallback = current_run_path / "research_sources" / "live_records.json"
+    current_records_path = _triangulated if _triangulated.is_file() else _fallback
     current_records = _iter_live_records(current_records_path)
     run_timestamps[current_run_id] = current_run_timestamp
     layer1_current = _load_layer1_bindings(live_runs_root, current_run_id)
@@ -1522,7 +1537,7 @@ def _build_signals_for_observation(
                 axis_code=obs.binding.axis_code,
                 query_id=obs.binding.query_id,
                 query_family=obs.binding.query_family,
-                semantic_scope="title+subject+source_query",
+                semantic_scope="title+subject",
                 signal_type=pattern.signal_type,
                 competence_label=pattern.label,
                 competence_description=pattern.description,
@@ -1562,22 +1577,22 @@ def _score_confidence(
     source_query: str,
     metadata_only: bool,
 ) -> Tuple[float, str]:
-    """Score signal confidence deterministically from where the match landed."""
+    """Score signal confidence deterministically from where the match landed.
+
+    Only title and subject_terms contribute to the positive evidence score.
+    ``source_query`` is provenance-only and must not award confidence points.
+    """
     title_lc = title.lower()
     subject_lc = subject_terms.lower()
-    query_lc = source_query.lower()
 
     matched_in_title = any(phrase in title_lc for phrase in pattern.phrases)
     matched_in_subject = any(phrase in subject_lc for phrase in pattern.phrases)
-    matched_in_query = any(phrase in query_lc for phrase in pattern.phrases)
 
     score = 0.0
     if matched_in_title:
         score += 0.55
     if matched_in_subject:
         score += 0.20
-    if matched_in_query:
-        score += 0.15
 
     if metadata_only:
         score -= 0.10

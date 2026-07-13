@@ -1213,7 +1213,10 @@ def _test_hypotheses(
     gap_rows: Sequence[SectorAxisGapRow],
     credentials: Sequence[CredentialTranslation],
 ) -> Dict[str, Any]:
-    # H1 — Maritimisation Shift: separation of MARITIME vs OCEANIC sectors.
+    # H1 — Maritimisation Shift: signed separation of MARITIME vs OCEANIC.
+    # The signed Cohen's d controls directional interpretation: positive values
+    # mean MARITIME demand is stronger; negative means OCEANIC is stronger.
+    # Using abs(cohens_d) would suppress direction and mis-classify effect sign.
     maritime_scores = [d.demand_strength_score for d in demands if d.axis_group == "MARITIME"]
     oceanic_scores = [d.demand_strength_score for d in demands if d.axis_group == "OCEANIC"]
     n_m, n_o = len(maritime_scores), len(oceanic_scores)
@@ -1228,18 +1231,25 @@ def _test_hypotheses(
     else:
         sd = 0.0
     cohens_d = (diff / sd) if sd > 0 else 0.0
+    # Direction: positive cohens_d → MARITIME dominates; negative → OCEANIC dominates.
+    # The magnitude threshold for effect size uses |cohens_d|, but interpretation
+    # must also reflect direction.
     if n_m == 0 or n_o == 0:
         h1_interp = "not_computable"
     elif abs(cohens_d) >= 0.5:
-        h1_interp = "supported"
+        h1_interp = "supported_maritime_dominance" if cohens_d > 0 else "supported_oceanic_dominance"
     elif abs(cohens_d) >= 0.2:
-        h1_interp = "partially_supported"
+        h1_interp = "partially_supported_maritime" if cohens_d > 0 else "partially_supported_oceanic"
     else:
         h1_interp = "not_supported"
     h1 = {
         "hypothesis_id": "H1",
         "hypothesis_label": "Maritimisation Shift",
-        "test_used": "Cohen's d on demand_strength_score by axis group",
+        "test_used": "Cohen's d (signed) on demand_strength_score by axis group",
+        "direction_note": (
+            "positive cohens_d = MARITIME > OCEANIC; "
+            "negative cohens_d = OCEANIC > MARITIME"
+        ),
         "sample_size_maritime": n_m,
         "sample_size_oceanic": n_o,
         "mean_maritime": round(mean_m, 6),
@@ -1250,54 +1260,80 @@ def _test_hypotheses(
     }
 
     # H2 — Hydronization Lag: fraction of HYDRONIZATION demand IDs that lack
-    # an EQF 6/7 credential pathway.
+    # an EQF 6/7 credential pathway in a *validated* external supply map.
     #
-    # Fix 3: the unit of analysis is competence_demand_id (not credential-row
-    # count).  We collect the set of all HYDRONIZATION demand IDs, then subtract
-    # those that appear in at least one EQF 6/7 credential's
-    # `competence_demand_ids` field.  Candidate translations are flagged as such
-    # and are not counted as externally validated coverage.
+    # IMPORTANT: The generated `credentials` list is a candidate-translation
+    # artifact derived deterministically from the demands themselves; using it
+    # to populate `covered_demand_ids` is circular and forces missing coverage
+    # toward zero regardless of actual credential availability.  Without an
+    # externally validated supply map, validated coverage is not available and
+    # must be serialized as not_computable.  Candidate-translation coverage is
+    # reported separately for transparency.
     hydro_demands = [d for d in demands if d.axis_group == "HYDRONIZATION"]
     all_hydro_demand_ids = {d.competence_demand_id for d in hydro_demands}
     hydro_total = len(all_hydro_demand_ids)
 
-    # Collect demand IDs that appear in at least one EQF 6/7 credential for
-    # HYDRONIZATION (all are candidate translations — flagged in the output).
-    covered_demand_ids: set[str] = {
+    # Candidate-translation coverage (informational only — not validated supply).
+    candidate_covered_ids: set[str] = {
         did.strip()
         for c in credentials
         if c.axis_group == "HYDRONIZATION" and c.eqf_level in (6, 7)
         for did in c.competence_demand_ids.split("|")
         if did.strip()
     }
-    covered_67 = len(all_hydro_demand_ids & covered_demand_ids)
-    missing_67 = hydro_total - covered_67
+    candidate_covered_67 = len(all_hydro_demand_ids & candidate_covered_ids)
 
-    if hydro_total == 0:
-        h2_interp = "not_computable"
-        assoc = 0.0
-    else:
-        assoc = missing_67 / hydro_total
-        if assoc >= 0.5:
-            h2_interp = "supported"
-        elif assoc >= 0.25:
-            h2_interp = "partially_supported"
-        else:
-            h2_interp = "not_supported"
+    # Validated supply is always not_computable until an external map is
+    # provided.  Do not infer validated coverage from generated credentials.
+    h2_interp = "not_computable"
     h2 = {
         "hypothesis_id": "H2",
         "hypothesis_label": "Hydronization Lag",
         "unit_of_analysis": "competence_demand_id",
         "hydronization_demand_count": hydro_total,
-        "covered_by_candidate_eqf6_7_demand_count": covered_67,
-        "missing_eqf6_7_outcome_count": max(0, missing_67),
-        "association_metric_missing_ratio": round(assoc, 6),
-        "effect_size": round(assoc, 6),
+        "validated_covered_demand_count": 0,
+        "validated_missing_demand_count": hydro_total,
+        "candidate_covered_demand_count": candidate_covered_67,
+        "association_metric_missing_ratio": 1.0 if hydro_total > 0 else 0.0,
+        "effect_size": 1.0 if hydro_total > 0 else 0.0,
         "interpretation": h2_interp,
         "coverage_note": (
-            "candidate_translation_only — no externally validated EQF 6/7 "
-            "credential coverage has been confirmed"
+            "not_computable — no externally validated EQF 6/7 credential supply "
+            "map is available; candidate_covered_demand_count shows generated "
+            "candidate translations only and must not be treated as validated coverage"
         ),
-        "validity_warning": "small_cell_stability" if hydro_total < 5 else "",
+        "validity_warning": (
+            "no_validated_supply_map"
+            + ("|small_cell_stability" if hydro_total < 5 else "")
+        ),
     }
-    return {"H1": h1, "H2": h2}
+
+    # H3 — Cross-sector Recurrence: evidence of a competence label appearing
+    # across multiple sectors.  Always emitted, including when not_computable.
+    recurrence_scores = [d.cross_sector_recurrence_score for d in demands]
+    n_h3 = len(recurrence_scores)
+    if n_h3 == 0:
+        h3_interp = "not_computable"
+        h3_mean = 0.0
+        h3_high_count = 0
+    else:
+        h3_mean = sum(recurrence_scores) / n_h3
+        h3_high_count = sum(1 for s in recurrence_scores if s >= 0.5)
+        high_ratio = h3_high_count / n_h3
+        if high_ratio >= 0.3:
+            h3_interp = "supported"
+        elif high_ratio >= 0.1:
+            h3_interp = "partially_supported"
+        else:
+            h3_interp = "not_supported"
+    h3 = {
+        "hypothesis_id": "H3",
+        "hypothesis_label": "Cross-Sector Recurrence",
+        "test_used": "share of demands with cross_sector_recurrence_score >= 0.5",
+        "sample_size": n_h3,
+        "mean_cross_sector_recurrence_score": round(h3_mean, 6),
+        "high_recurrence_demand_count": h3_high_count,
+        "interpretation": h3_interp,
+        "validity_warning": "small_cell_stability" if n_h3 < 5 else "",
+    }
+    return {"H1": h1, "H2": h2, "H3": h3}
