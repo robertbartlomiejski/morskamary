@@ -84,6 +84,54 @@ def _load_static_baseline_by_sector(path: Optional[Path]) -> Dict[str, int]:
     return {str(k): int(v or 0) for k, v in data.items()}
 
 
+def _load_validated_supply_map(
+    path: Optional[Path],
+) -> Optional[Dict[str, List[int]]]:
+    """Load an explicitly validated demand-level EQF supply map."""
+    if path is None:
+        return None
+    if not path.is_file():
+        raise ValueError(f"validated supply map does not exist: {path}")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("validated supply map must be a JSON object")
+    if str(payload.get("validation_status", "")).lower() != "validated":
+        raise ValueError(
+            "validated supply map must declare validation_status='validated'"
+        )
+    rows = payload.get("validated_supply_by_demand_id")
+    if not isinstance(rows, dict):
+        raise ValueError(
+            "validated supply map must contain validated_supply_by_demand_id"
+        )
+
+    validated: Dict[str, List[int]] = {}
+    for demand_id, raw_entry in rows.items():
+        if isinstance(raw_entry, dict):
+            if str(raw_entry.get("validation_status", "")).lower() != "validated":
+                raise ValueError(
+                    f"supply entry {demand_id!r} is not explicitly validated"
+                )
+            raw_levels = raw_entry.get("eqf_levels", [])
+        else:
+            raw_levels = raw_entry
+        if isinstance(raw_levels, (str, int)):
+            raw_levels = [raw_levels]
+        if not isinstance(raw_levels, list):
+            raise ValueError(f"supply entry {demand_id!r} has invalid eqf_levels")
+        levels = sorted(
+            {
+                int(level)
+                for level in raw_levels
+                if str(level).strip().isdigit()
+            }
+        )
+        if any(level < 4 or level > 8 for level in levels):
+            raise ValueError(f"supply entry {demand_id!r} has invalid EQF level")
+        validated[str(demand_id)] = levels
+    return validated
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--database-dir",
@@ -101,6 +149,16 @@ def main(argv: Optional[List[str]] = None) -> int:
                    help="Outputs root (for layer readiness audit).")
     p.add_argument("--static-baseline-by-sector", default=None,
                    help="Optional JSON mapping of sector → static baseline count.")
+    p.add_argument(
+        "--validated-supply-map",
+        default=None,
+        help="Optional explicitly validated demand-level EQF supply JSON.",
+    )
+    p.add_argument(
+        "--analysis-timestamp-utc",
+        default=None,
+        help="Fixed ISO-8601 timestamp used for deterministic recency scoring.",
+    )
     p.add_argument("--current-run-id", default="")
     args = p.parse_args(argv)
 
@@ -131,18 +189,25 @@ def main(argv: Optional[List[str]] = None) -> int:
         competence_signals=signals,
         output_dir=out_dir,
         current_run_id=args.current_run_id,
+        stats_dir=stats_dir,
+        analysis_timestamp_utc=args.analysis_timestamp_utc,
     )
 
     baseline_map = _load_static_baseline_by_sector(
         Path(args.static_baseline_by_sector) if args.static_baseline_by_sector else None
+    )
+    validated_supply = _load_validated_supply_map(
+        Path(args.validated_supply_map) if args.validated_supply_map else None
     )
     layer5 = build_layer5(
         derived_demands=layer4.derived_demands,
         evidence_records=evidence,
         static_baseline_count_by_sector=baseline_map,
         existing_credential_coverage=None,
+        validated_credential_supply=validated_supply,
         output_dir=out_dir,
         current_run_id=args.current_run_id,
+        built_at_utc=args.analysis_timestamp_utc,
     )
 
     write_variable_and_value_labels(out_dir)
@@ -154,6 +219,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         "learning_outcome_count": len(layer5.learning_outcomes),
         "hypothesis_results": layer5.hypothesis_results,
         "indices": layer4.indices,
+        "analysis_timestamp_utc": args.analysis_timestamp_utc or "",
+        "validated_supply_map_provided": validated_supply is not None,
     }
     print(json.dumps(summary, sort_keys=True))
     return 0
