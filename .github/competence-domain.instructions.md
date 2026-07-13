@@ -80,10 +80,12 @@ Competence(
    ```python
    summary = mapper.get_summary()
    counts = summary['competences_by_axis']
-   # Source-derived baseline: A=3 -> O, B=4 -> T, C=4 -> M, D=4 -> T.
+   # Current loaded baseline: A=3 -> O, B=4 -> T, C=4 -> M, D=4 -> T.
+   # The four section rows share ID "—" and collapse to one legacy fallback-O
+   # entry, producing 16 stored IDs. Do not silently reinterpret that row.
    assert counts.get('MARINE') == 4
    assert counts.get('MARITIME') == 8
-   assert counts.get('OCEANIC') == 3
+   assert counts.get('OCEANIC') == 4
    # This baseline has no evidence-backed H assignment. Report zero explicitly.
    assert counts.get('HYDRONIZATION') == 0
    ```
