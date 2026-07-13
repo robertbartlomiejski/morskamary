@@ -143,6 +143,7 @@ LEARNING_OUTCOME_COLUMNS: Tuple[str, ...] = (
     "outcome_statement",
     "evidence_id",
     "competence_demand_id",
+    "hypothesis_ids",
     "signal_type",
     "confidence_score",
     "validity_warning",
@@ -293,6 +294,7 @@ class LearningOutcome:
     outcome_statement: str
     evidence_id: str
     competence_demand_id: str
+    hypothesis_ids: str
     signal_type: str
     confidence_score: float
     validity_warning: str
@@ -574,7 +576,12 @@ def build_layer4(
     qmbd_cross = _build_qmbd_cross_tables(demands)
     sector_gap = _build_sector_gap_matrices(demands, growth_evidence)
     multivariate = _build_multivariate_induction(demands, growth_evidence)
-    taxonomy = _induce_taxonomic_clusters(competence_signals)
+    taxonomy_signals = [
+        signal
+        for signal in competence_signals
+        if str(signal.get("evidence_id", "")) not in duplicate_only_ids
+    ]
+    taxonomy = _induce_taxonomic_clusters(taxonomy_signals)
     indices = _compute_global_indices(demands, evidence_records)
 
     files: List[Path] = []
@@ -590,11 +597,31 @@ def build_layer4(
     files.append(_write_json(stats_path / MULTIVARIATE_RESULTS_JSON, multivariate))
     files.append(_write_csv_rows(
         stats_path / TAXONOMIC_CLUSTERS_CSV,
-        header=("category_label", "axis_group", "axis_code", "matched_signal_count",
-                "matched_evidence_count"),
-        rows=[(t["category_label"], t["axis_group"], t["axis_code"],
-               t["matched_signal_count"], t["matched_evidence_count"])
-              for t in taxonomy],
+        header=(
+            "category_label",
+            "primary_axis",
+            "primary_axis_code",
+            "secondary_axes",
+            "secondary_axis_codes",
+            "axis_bridge_score",
+            "matched_hypothesis_ids",
+            "matched_signal_count",
+            "matched_evidence_count",
+        ),
+        rows=[
+            (
+                t["category_label"],
+                t["primary_axis"],
+                t["primary_axis_code"],
+                t["secondary_axes"],
+                t["secondary_axis_codes"],
+                t["axis_bridge_score"],
+                t["matched_hypothesis_ids"],
+                t["matched_signal_count"],
+                t["matched_evidence_count"],
+            )
+            for t in taxonomy
+        ],
     ))
     manifest = {
         "schema_version": LAYER4_SCHEMA_VERSION,
@@ -706,7 +733,11 @@ def build_layer5(
                 confs.append(d.semantic_confidence_mean)
                 dois.update(_evidence_dois_for_demand(d, evidence_records))
             conf_avg = sum(confs) / max(1, len(confs))
-            coverage = "covered" if coverage_map.get((sector, axis), 0) >= len(ds) else "uncovered"
+            coverage = _coverage_status_for_credential(
+                demands=ds,
+                eqf_level=lvl,
+                validated_credential_supply=validated_credential_supply,
+            )
             outcomes_list = [
                 _learning_outcome_statement(d, sector, lvl)
                 for d in ds
@@ -742,6 +773,7 @@ def build_layer5(
                     outcome_statement=_learning_outcome_statement(d, sector, lvl),
                     evidence_id=_first_evidence_id_for_demand(d, evidence_records),
                     competence_demand_id=d.competence_demand_id,
+                    hypothesis_ids="|".join(_hypothesis_ids_for_axis(d.axis_group)),
                     signal_type=_dominant_signal_type_for_demand(d, []),
                     confidence_score=d.semantic_confidence_mean,
                     validity_warning=d.validity_warning,
@@ -816,8 +848,26 @@ def write_variable_and_value_labels(output_dir: Union[str, Path]) -> Tuple[Path,
         ("status", "review_required", "Insufficient evidence, ambiguous provenance, or thin metadata."),
         ("status", "duplicate_artifact", "Row exists only because of Jaccard duplicate merging."),
         ("status", "provider_bias_warning", "All evidence sourced from a single provider."),
-        ("coverage_status", "covered", "Existing credential coverage >= demand row count."),
-        ("coverage_status", "uncovered", "Existing credential coverage < demand row count."),
+        (
+            "coverage_status",
+            "candidate_translation",
+            "Coverage proposed from generated candidate translations; not externally validated.",
+        ),
+        (
+            "coverage_status",
+            "review_required",
+            "Credential row requires manual review due to low-confidence or review-required demand inputs.",
+        ),
+        (
+            "coverage_status",
+            "validated_covered",
+            "At least one competence_demand_id is externally validated as covered at this EQF level.",
+        ),
+        (
+            "coverage_status",
+            "validated_uncovered",
+            "No competence_demand_id is externally validated as covered at this EQF level.",
+        ),
         ("axis_group", "MARINE", "Biophysical / ecological agency and constraints."),
         ("axis_group", "MARITIME", "Techno-economic, infrastructural, labour, institutional mediation."),
         ("axis_group", "OCEANIC", "Planetary coupling, multi-level governance, hydrosocial subjectivity."),
@@ -990,6 +1040,11 @@ def _axis_group_to_code(axis: str) -> str:
     return mapping.get(axis.upper(), "")
 
 
+def _axis_code_to_group(code: str) -> str:
+    mapping = {"M": "MARINE", "T": "MARITIME", "O": "OCEANIC", "H": "HYDRONIZATION"}
+    return mapping.get(str(code or "").strip().upper(), "UNASSIGNED")
+
+
 def _first_nonempty(iterable: Iterable[str], default: str = "") -> str:
     for v in iterable:
         if v:
@@ -1151,15 +1206,49 @@ def _induce_taxonomic_clusters(
                 matched_signals.append(s)
         matched_evidence = {str(s.get("evidence_id", "")) for s in matched_signals}
         matched_evidence.discard("")
+        primary_axis_code = codes[0] if codes else _axis_group_to_code(axis)
+        secondary_axis_codes = list(codes[1:])
+        secondary_axes = [
+            _axis_code_to_group(code)
+            for code in secondary_axis_codes
+            if _axis_code_to_group(code) != "UNASSIGNED"
+        ]
+        axis_groups = [axis, *secondary_axes]
+        hypothesis_ids = sorted(
+            {
+                hypothesis_id
+                for axis_group in axis_groups
+                for hypothesis_id in _hypothesis_ids_for_axis(axis_group)
+            }
+        )
+        bridge_score = (
+            round(len(secondary_axes) / 3.0, 6) if secondary_axes else 0.0
+        )
         out.append({
             "category_label": label,
-            "axis_group": axis,
-            "axis_code": ",".join(codes),
+            "primary_axis": axis,
+            "primary_axis_code": primary_axis_code,
+            "secondary_axes": "|".join(secondary_axes),
+            "secondary_axis_codes": "|".join(secondary_axis_codes),
+            "axis_bridge_score": bridge_score,
+            "matched_hypothesis_ids": "|".join(hypothesis_ids),
             "matched_signal_count": len(matched_signals),
             "matched_evidence_count": len(matched_evidence),
         })
     out.sort(key=lambda t: t["category_label"])
     return out
+
+
+def _hypothesis_ids_for_axis(axis_group: str) -> Tuple[str, ...]:
+    if axis_group == "MARITIME":
+        return ("H1",)
+    if axis_group == "HYDRONIZATION":
+        return ("H2",)
+    if axis_group == "MARINE":
+        return ("H3",)
+    if axis_group == "OCEANIC":
+        return ("H1", "H3")
+    return ()
 
 
 def _compute_global_indices(
@@ -1236,7 +1325,7 @@ def _learning_outcome_statement(
     else:
         verb = "Evaluate and justify"
         dimension = "advanced knowledge and social competence"
-    evidence_ref = "see_learning_outcomes_evidence_id"
+    evidence_ref = demand.evidence_ids or "see_learning_outcomes_evidence_id"
     return (
         f"{verb} {demand.competence_label} for {sector} contexts at EQF "
         f"{eqf_level}, demonstrating {dimension}; evidence={evidence_ref}; "
@@ -1276,6 +1365,30 @@ def _dominant_signal_type_for_demand(
         for signal_type in set(signal_types)
     }
     return sorted(counts, key=lambda item: (-counts[item], item))[0]
+
+
+def _coverage_status_for_credential(
+    *,
+    demands: Sequence[DerivedCompetenceDemand],
+    eqf_level: int,
+    validated_credential_supply: Optional[Mapping[str, Sequence[int]]],
+) -> str:
+    if any(demand.status == "review_required" for demand in demands):
+        return "review_required"
+    if validated_credential_supply is None:
+        return "candidate_translation"
+
+    for demand in demands:
+        levels = {
+            int(level)
+            for level in validated_credential_supply.get(
+                demand.competence_demand_id, []
+            )
+            if str(level).strip().isdigit()
+        }
+        if eqf_level in levels:
+            return "validated_covered"
+    return "validated_uncovered"
 
 
 def _test_hypotheses(

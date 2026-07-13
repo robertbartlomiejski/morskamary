@@ -254,6 +254,65 @@ def test_duplicate_only_evidence_excluded_from_demand_aggregation(
     )
 
 
+def test_taxonomy_uses_duplicate_filtered_signals_and_multi_axis_columns(
+    tmp_path: Path,
+) -> None:
+    evidence = [
+        _mk_evidence(1, doi="10.1000/safety-live", provider="crossref", year=2024),
+        _mk_evidence(
+            2,
+            doi="10.1000/safety-dup",
+            provider="scopus",
+            year=2024,
+            novelty="duplicate_only",
+        ),
+    ]
+    signals = [
+        {
+            **_mk_signal(1),
+            "competence_label": "occupational safety planning",
+            "competence_description": "risk assessment and emergency response",
+            "demand_phrase": "risk assessment",
+        },
+        {
+            **_mk_signal(2),
+            "competence_label": "occupational safety planning",
+            "competence_description": "risk assessment and emergency response",
+            "demand_phrase": "risk assessment",
+        },
+    ]
+    out = tmp_path / "db"
+    stats = tmp_path / "stats"
+    out.mkdir()
+    stats.mkdir()
+
+    build_layer4(
+        evidence_records=evidence,
+        competence_signals=signals,
+        output_dir=out,
+        stats_dir=stats,
+        current_run_id="RUN-TAXONOMY",
+    )
+    rows = list(csv.DictReader((stats / "taxonomic_clusters.csv").open()))
+    assert rows
+    header = rows[0].keys()
+    for column in (
+        "primary_axis",
+        "secondary_axes",
+        "axis_bridge_score",
+        "matched_hypothesis_ids",
+        "primary_axis_code",
+    ):
+        assert column in header
+
+    safety = next(row for row in rows if row["category_label"] == "Safety and risk")
+    assert safety["primary_axis"] == "MARITIME"
+    assert safety["primary_axis_code"] == "T"
+    assert safety["matched_hypothesis_ids"] == "H1"
+    assert int(safety["matched_signal_count"]) == 1
+    assert int(safety["matched_evidence_count"]) == 1
+
+
 def test_h2_computed_at_demand_id_unit_not_credential_row_count(
     tmp_path: Path,
 ) -> None:
