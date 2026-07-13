@@ -49,7 +49,7 @@ Create live-provider credentials under **Settings -> Secrets and variables -> Ac
 
 Never paste secret values into issues, PRs, prompts, logs, screenshots, committed files or Playwright storage state.
 
-Recommended Actions variables during PR #191 hardening:
+Recommended Actions variables during PR #193 hardening:
 
 - `ALLOW_BOT_COMMITS=false`
 - `LIVE_OUTPUTS_AUTOCOMMIT=false`
@@ -79,7 +79,7 @@ Every delegated implementation must specify:
 - prohibition on fixtures as evidence of live-provider success;
 - exact blocker reporting for credentials, firewall or network access.
 
-For PR #191, continue only on `claude/pr-190-build-live-cumulative-database`. Do not create another Layer 0-5 implementation branch.
+Use one canonical branch and one PR per coherent objective. Before editing any path, reconcile the current base SHA, open PRs and overlapping paths. Do not start a parallel Layer 0-5 implementation while another is active.
 
 ## Windows local workstation
 

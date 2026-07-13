@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -40,18 +42,23 @@ jobs:
           set -euo pipefail
           python --version
           python - <<'PY'
+          import re
           from importlib.metadata import version
 
-          expected = {
-              "black": "26.3.1",
-              "flake8": "7.3.0",
-              "jsonschema": "4.10.3",
-              "mypy": "1.20.2",
-              "pytest": "9.0.3",
-          }
+          packages_to_check = {"black", "flake8", "jsonschema", "mypy", "pytest"}
+          expected = {}
+          with open("requirements.txt") as fh:
+              for line in fh:
+                  m = re.match(r"^([A-Za-z0-9_-]+)==([^\s;#]+)", line.strip())
+                  if m and m.group(1).lower() in packages_to_check:
+                      expected[m.group(1).lower()] = m.group(2)
+
+          missing = packages_to_check - expected.keys()
+          if missing:
+              raise SystemExit("Packages not pinned in requirements.txt: " + ", ".join(sorted(missing)))
 
           mismatches = []
-          for package_name, expected_version in expected.items():
+          for package_name, expected_version in sorted(expected.items()):
               actual_version = version(package_name)
               print(f"{package_name}=={actual_version}")
               if actual_version != expected_version:
