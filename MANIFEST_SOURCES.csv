@@ -7,6 +7,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/add-competence.prompt.md,text,,,,,,add_competence_prompt,yes
 .github/competence-domain.instructions.md,text,,,,,,competence_domain_instructions,yes
 .github/copilot-instructions.md,text,,,,,,copilot_instructions,yes
+.github/instructions/data-pipeline.instructions.md,text,,,,,,data_pipeline_instructions,yes
 .github/integrate-literature.skill.md,text,,,,,,integrate_literature_skill,yes
 .github/ISSUE_TEMPLATE/bug_report.md,text,,,,,,bug_report,yes
 .github/ISSUE_TEMPLATE/custom.md,text,,,,,,custom,yes
@@ -15,6 +16,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/repository-guardrails.instructions.md,text,,,,,,repository_guardrails_instructions,yes
 .github/workflows/blank.yml,other,,,,,,blank,no
 .github/workflows/ci.yml,other,,,,,,ci,no
+.github/workflows/copilot-setup-steps.yml,other,,,,,,copilot_setup_steps,no
 .github/workflows/dependency-submission.yml,other,,,,,,dependency_submission,no
 .github/workflows/export-research-records.yml,other,,,,,,export_research_records,no
 .github/workflows/full-analysis.yml,other,,,,,,full_analysis,no
@@ -668,6 +670,7 @@ Dockerfile.txt,text,,,,,,Dockerfile,yes
 docs/AGENT_WORKING_AGREEMENT.md,text,,,,,,AGENT_WORKING_AGREEMENT,yes
 docs/BASELINE_VALIDATION.md,text,,,,,,BASELINE_VALIDATION,yes
 docs/CONTENT_ANALYSIS_PROTOCOL.md,text,,,,,,CONTENT_ANALYSIS_PROTOCOL,yes
+docs/COPILOT_CLOUD_AGENT_SETUP.md,text,,,,,,COPILOT_CLOUD_AGENT_SETUP,yes
 docs/CROSS_RUN_EVIDENCE_CODEBOOK.md,text,,,,,,CROSS_RUN_EVIDENCE_CODEBOOK,yes
 docs/CUMULATIVE_DATABASE_METHODOLOGY.md,text,,,,,,CUMULATIVE_DATABASE_METHODOLOGY,yes
 docs/DATA_RELEASE_POLICY.md,text,,,,,,DATA_RELEASE_POLICY,yes
@@ -811,6 +814,8 @@ outputs/gaps_by_sector.html,other,,,,,,gaps_by_sector,no
 outputs/gaps_by_sector_axis.csv,dataset_derived,,,,,,gaps_by_sector_axis,yes
 outputs/gaps_detailed.json,other,,,,,,gaps_detailed,yes
 outputs/gaps_summary.csv,dataset_derived,,,,,,gaps_summary,yes
+outputs/governance/pr191_session_reconciliation.json,other,,,,,,pr191_session_reconciliation,yes
+outputs/governance/pr191_session_reconciliation.md,text,,,,,,pr191_session_reconciliation,yes
 outputs/literature_integration.html,other,,,,,,literature_integration,no
 outputs/manual_sources/gatekeeper_checksum_mismatches.json,other,,,,,,gatekeeper_checksum_mismatches,yes
 outputs/manual_sources/gatekeeper_compatibility_summary.json,other,,,,,,gatekeeper_compatibility_summary,yes
@@ -1052,6 +1057,7 @@ scripts/cumulative_fragment_analysis.py,script,,,,,,cumulative_fragment_analysis
 scripts/cumulative_update_merge_full_live_enriched_and_static_all_outputs_fragmented_analysis.py,script,,,,,,cumulative_update_merge_full_live_enrich,yes
 scripts/Delft wyjazd_241017_170643.txt,script,,,,,,Delft_wyjazd_241017_170643,yes
 scripts/Do hab_250403_204509.txt,script,,,,,,Do_hab_250403_204509,yes
+scripts/export_live_query_protocol_projection.py,script,,,,,,export_live_query_protocol_projection,yes
 scripts/export_live_research_records.py,script,,,,,,export_live_research_records,yes
 scripts/export_research_source_capabilities.py,script,,,,,,export_research_source_capabilities,yes
 scripts/generate_manifest.py,script,,,,,,generate_manifest,yes
@@ -1151,6 +1157,7 @@ tests/test_derived_competence_analysis.py,script,,,,,,test_derived_competence_an
 tests/test_dynamic_credentials_generation.py,script,,,,,,test_dynamic_credentials_generation,yes
 tests/test_e2e_workflows.py,script,,,,,,test_e2e_workflows,yes
 tests/test_edge_cases.py,script,,,,,,test_edge_cases,yes
+tests/test_export_live_query_protocol_projection.py,script,,,,,,test_export_live_query_protocol_projecti,yes
 tests/test_export_live_research_records.py,script,,,,,,test_export_live_research_records,yes
 tests/test_export_research_records_workflow.py,script,,,,,,test_export_research_records_workflow,yes
 tests/test_full_live_analysis_workflow.py,script,,,,,,test_full_live_analysis_workflow,yes
