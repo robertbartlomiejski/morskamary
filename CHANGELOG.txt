@@ -19,17 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
-<<<<<<< HEAD
 - 2026-07-13 (fix: replace dynamic CodeQL setup with repo-managed workflow)
   Change type fix add
   Scope governance CI tests
-  Files affected .github/workflows/codeql.yml tests/test_codeql_workflow.py CHANGELOG.txt
+  Files affected .github/workflows/codeql.yml tests/test_codeql_workflow.py CHANGELOG.txt MANIFEST_SOURCES.csv
   Summary Added an explicit repository-managed CodeQL workflow for the `actions` and `python` languages with `build-mode: none`, replacing reliance on GitHub's generated `dynamic/github-code-scanning/codeql` configuration. Added regression tests to keep the workflow checked into source control and to assert that Python analysis stays on the no-build path without an `autobuild` step.
   Reason Code scanning job `Analyze (python)` in run `29253074083` failed during job setup while resolving the generated dynamic workflow actions (`Service Unavailable`) before any repository step ran. Moving CodeQL configuration into the repository makes the Python analysis path explicit, reviewable, and less dependent on opaque generated workflow behavior.
   Impact Code scanning for Python and Actions is now source-controlled and reproducible from the repository itself; future workflow changes can be validated by tests in normal CI.
   Provenance GitHub Actions run `29253074083`, job `86826081347`; repository workflow pattern in `.github/workflows/dependency-submission.yml`.
   Quality checks python -m pytest tests/test_codeql_workflow.py tests/test_ci_workflow.py -q; python scripts/generate_manifest.py; python -m flake8 tests/test_codeql_workflow.py; python -m pytest tests/ -q.
-=======
+
 - 2026-07-13 (governance: align Copilot cloud agent with four-axis scientific pipeline)
   Change type update add
   Scope governance workflows documentation
@@ -39,7 +38,6 @@ Use this section for changes in progress that are not yet merged into the main b
   Impact Agent code generation is separated from controlled live API acquisition; no scientific outputs or empirical records are changed.
   Quality checks At commit 084a2a988a19c6515ddc5de993337b879e29e87d, GitHub Actions Copilot Setup Steps #7 PASSED (`python -m pip install --disable-pip-version-check -r requirements.txt`, `python -m pip check`, pinned-version verification, and scientific dependency imports); CI #547 PASSED; Full Analysis #449 PASSED. No local scientific test run or live-provider acquisition was claimed for this governance change.
   Reviewer @robertbartlomiejski
->>>>>>> origin/main
 
 - 2026-07-08 (feat: PR-187 publication step — rebuild cumulative cross-run evidence index and versioned data package v1.0.0 for both runs)
   Change type feat
