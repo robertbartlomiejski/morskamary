@@ -41,6 +41,7 @@ from typing import Dict, List, Optional, Tuple
 CSV_FILES = (
     "evidence_records.csv",
     "competence_demand_signals.csv",
+    "hypothesis_semantic_fragments.csv",
     "derived_competence_demands.csv",
     "sector_axis_gap_model.csv",
     "credential_translation_eqf4_7.csv",
@@ -57,7 +58,25 @@ OPTIONAL_CSV_FILES = (
 JSONL_FILES = (
     "evidence_records.jsonl",
     "competence_demand_signals.jsonl",
+    "hypothesis_semantic_fragments.jsonl",
     "derived_competence_demands.jsonl",
+)
+
+DATABASE_METADATA_FILES = (
+    "run_novelty_metrics.json",
+    "novelty_gate_report.json",
+    "cumulative_database_manifest.json",
+    "_checksums.sha256",
+    "layer4_manifest.json",
+    "layer5_manifest.json",
+    "layer_readiness_report.json",
+)
+
+LAYER4_STAT_FILES = (
+    "qmbd_cross_tables.csv",
+    "sector_gap_matrices.json",
+    "multivariate_induction_results.json",
+    "taxonomic_clusters.csv",
 )
 
 REPORT_FILES = (
@@ -151,7 +170,14 @@ def _readme_text(version_tag: str, generated_at: str) -> str:
         "value/variable dictionaries.\n"
         "- `data/csv/` — deterministic CSV tables (evidence, signals, "
         "derived demands, gap model, credentials, outcomes, novelty).\n"
-        "- `data/jsonl/` — canonical JSONL audit records.\n"
+        "- `data/jsonl/` — canonical JSONL audit records and evidence-bound "
+        "hypothesis fragments.\n"
+        "- `protocol/` — authoritative protocol, executable projection, and "
+        "declared acquisition constraints.\n"
+        "- `provenance/` — query execution log and Layer 1 raw acquisition "
+        "index for the packaged run.\n"
+        "- `statistics/` — Layer 4 cross-tables, matrices, multivariate "
+        "results, and taxonomic clusters.\n"
         "- `data/sqlite/` — portable SQLite database (may be skipped; see "
         "`RELEASE_MANIFEST.json`).\n"
         "- `reports/` — HTML statistical report, methodological audit, "
@@ -179,6 +205,28 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--database-dir", default="outputs/cumulative_database")
     parser.add_argument("--reports-dir", default="reports")
+    parser.add_argument("--stats-dir", default="outputs/layer4_statistics")
+    parser.add_argument(
+        "--protocol-path",
+        default="config/live_query_protocol.yml",
+    )
+    parser.add_argument(
+        "--projection-path",
+        default="outputs/research_sources/research_queries_from_protocol.yml",
+    )
+    parser.add_argument(
+        "--constraints-path",
+        default="outputs/research_sources/query_protocol_constraints.json",
+    )
+    parser.add_argument(
+        "--query-execution-log",
+        default="outputs/research_sources/query_execution_log.csv",
+    )
+    parser.add_argument(
+        "--raw-acquisition-index",
+        default=None,
+        help="Layer 1 raw_acquisition_index.csv for this exact run.",
+    )
     parser.add_argument("--version-tag", default="latest")
     parser.add_argument(
         "--output",
@@ -196,6 +244,16 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     database_dir = Path(args.database_dir)
     reports_dir = Path(args.reports_dir)
+    stats_dir = Path(args.stats_dir)
+    protocol_path = Path(args.protocol_path)
+    projection_path = Path(args.projection_path)
+    constraints_path = Path(args.constraints_path)
+    query_execution_log = Path(args.query_execution_log)
+    raw_acquisition_index = (
+        Path(args.raw_acquisition_index)
+        if args.raw_acquisition_index
+        else None
+    )
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     generated_at = (
@@ -205,23 +263,38 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     entries: List[Tuple[str, bytes]] = []
 
-    # Fix 4: Fail non-zero before ZIP publication when any required Layer 0-5
-    # artifact is missing.  List all missing paths in one actionable error so
-    # the operator can see the full gap at once rather than discovering issues
-    # one file at a time.
-    missing_required = [
-        str(database_dir / name)
-        for name in CSV_FILES
-        if not (database_dir / name).exists()
+    # Fail non-zero before ZIP publication if any Layer 0-5, provenance,
+    # statistical, or report artifact is absent.
+    required_paths = [
+        *(database_dir / name for name in CSV_FILES),
+        *(database_dir / name for name in JSONL_FILES),
+        *(database_dir / name for name in DATABASE_METADATA_FILES),
+        database_dir / "VARIABLE_LABELS.csv",
+        database_dir / "VALUE_LABELS.csv",
+        *(stats_dir / name for name in LAYER4_STAT_FILES),
+        *(reports_dir / name for name in REPORT_FILES),
+        protocol_path,
+        projection_path,
+        constraints_path,
+        query_execution_log,
     ]
+    if raw_acquisition_index is None:
+        missing_required = ["--raw-acquisition-index was not provided"]
+    else:
+        required_paths.append(raw_acquisition_index)
+        missing_required = [
+            str(required_path)
+            for required_path in required_paths
+            if not required_path.is_file()
+        ]
     if missing_required:
         print(
             f"error: {len(missing_required)} required Layer 0-5 artifact(s) "
-            f"missing from {database_dir!s}:",
+            "missing; release ZIP was not created:",
             file=sys.stderr,
         )
-        for m in missing_required:
-            print(f"  {m}", file=sys.stderr)
+        for missing_path in missing_required:
+            print(f"  {missing_path}", file=sys.stderr)
         return 1
 
     # Collect CSVs (required + optional if present).
@@ -239,6 +312,33 @@ def main(argv: Optional[List[str]] = None) -> int:
         blob = _read_bytes_if_exists(database_dir / name)
         if blob is not None:
             entries.append((f"data/jsonl/{name}", blob))
+
+    # Database manifests, novelty results, and internal checksums.
+    for name in DATABASE_METADATA_FILES:
+        blob = _read_bytes_if_exists(database_dir / name)
+        if blob is not None:
+            entries.append((f"metadata/{name}", blob))
+
+    # Layer 4 statistical tables.
+    for name in LAYER4_STAT_FILES:
+        blob = _read_bytes_if_exists(stats_dir / name)
+        if blob is not None:
+            entries.append((f"statistics/{name}", blob))
+
+    # Authoritative protocol, executable projection, and acquisition provenance.
+    source_files = (
+        (protocol_path, "protocol/live_query_protocol.yml"),
+        (projection_path, "protocol/research_queries_from_protocol.yml"),
+        (constraints_path, "protocol/query_protocol_constraints.json"),
+        (query_execution_log, "provenance/query_execution_log.csv"),
+        (
+            raw_acquisition_index,
+            "provenance/raw_acquisition_index.csv",
+        ),
+    )
+    for source_path, archive_name in source_files:
+        if source_path is not None:
+            entries.append((archive_name, source_path.read_bytes()))
 
     # Reports
     for name in REPORT_FILES:
@@ -263,26 +363,42 @@ def main(argv: Optional[List[str]] = None) -> int:
     entries.append(("CITATION_APA.txt",
                     _citation_text(args.version_tag, generated_at).encode("utf-8")))
 
-    # Sort deterministically before hashing so CHECKSUMS.sha256 order is stable.
-    entries.sort(key=lambda e: e[0])
-    checksums_text = "".join(
-        f"{_sha256_bytes(blob)}  {name}\n" for name, blob in entries
+    # Finalize the manifest, then checksum every package member except the
+    # checksum file itself. This makes RELEASE_MANIFEST.json verifiable.
+    entries.sort(key=lambda entry: entry[0])
+    final_names = sorted(
+        [name for name, _ in entries]
+        + ["RELEASE_MANIFEST.json", "CHECKSUMS.sha256"]
     )
     manifest = {
         "package_name": "morskamary_live_cumulative",
         "version_tag": args.version_tag,
         "generated_at_utc": generated_at,
         "demand_strength_formula": DEMAND_STRENGTH_FORMULA,
-        "file_count": len(entries) + 2,  # + manifest + checksums
-        "files": sorted(name for name, _ in entries),
+        "file_count": len(final_names),
+        "files": final_names,
+        "checksum_scope": (
+            "all package members including RELEASE_MANIFEST.json; "
+            "CHECKSUMS.sha256 explicitly excluded"
+        ),
         **sqlite_status,
     }
-    manifest_text = json.dumps(manifest, sort_keys=True, ensure_ascii=False,
-                               indent=2) + "\n"
-    # Append manifest + checksums entries after they're finalized.
-    entries.append(("RELEASE_MANIFEST.json", manifest_text.encode("utf-8")))
-    entries.append(("CHECKSUMS.sha256", checksums_text.encode("utf-8")))
-    entries.sort(key=lambda e: e[0])
+    manifest_text = (
+        json.dumps(manifest, sort_keys=True, ensure_ascii=False, indent=2)
+        + "\n"
+    )
+    entries.append(
+        ("RELEASE_MANIFEST.json", manifest_text.encode("utf-8"))
+    )
+    entries.sort(key=lambda entry: entry[0])
+    checksums_text = "".join(
+        f"{_sha256_bytes(blob)}  {name}\n"
+        for name, blob in entries
+    )
+    entries.append(
+        ("CHECKSUMS.sha256", checksums_text.encode("utf-8"))
+    )
+    entries.sort(key=lambda entry: entry[0])
 
     # Write ZIP with a fixed timestamp so repeated builds are byte-identical.
     fixed_ts = (1980, 1, 1, 0, 0, 0)
