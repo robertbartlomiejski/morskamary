@@ -62,6 +62,8 @@ class LiveQueryFamily(str, Enum):
     COMPETENCE_DEMAND = "competence_demand"
     EMERGING_DEMAND = "emerging_demand"
     VALIDATION_EQF_TRANSLATION = "validation_eqf_translation"
+    HYPOTHESIS_VERIFICATION = "hypothesis_verification"
+    THEORY_TRANSLATION = "theory_translation"
 
 
 # Per-family minimums a sector must satisfy. PR-190 specification:
@@ -69,11 +71,15 @@ class LiveQueryFamily(str, Enum):
 #   - at least 2 competence-demand queries
 #   - at least 2 emerging-demand queries
 #   - at least 1 validation/EQF translation query
+#   - at least 1 hypothesis-verification query
+#   - at least 1 theory-translation query
 FAMILY_MINIMUMS: Dict[LiveQueryFamily, int] = {
     LiveQueryFamily.CORE_SECTOR: 3,
     LiveQueryFamily.COMPETENCE_DEMAND: 2,
     LiveQueryFamily.EMERGING_DEMAND: 2,
     LiveQueryFamily.VALIDATION_EQF_TRANSLATION: 1,
+    LiveQueryFamily.HYPOTHESIS_VERIFICATION: 1,
+    LiveQueryFamily.THEORY_TRANSLATION: 1,
 }
 
 
@@ -158,6 +164,10 @@ class LiveQueryProtocol:
     def all_queries(self) -> List[LiveQuery]:
         """Return every query across every sector as a flat list."""
         return [q for sector in self.sectors.values() for q in sector.queries]
+
+    def flattened_query_texts(self) -> List[str]:
+        """Return flattened query text list in deterministic protocol order."""
+        return [q.query_text for q in self.all_queries()]
 
     def to_legacy_query_groups(self) -> Dict[str, Dict[str, Any]]:
         """Render the protocol into the shape consumed by
@@ -443,3 +453,34 @@ def load_live_query_protocol(path: Union[str, Path]) -> LiveQueryProtocol:
         query_families=families,
         sectors=sectors,
     )
+
+
+def validate_legacy_projection_matches_protocol(
+    protocol: LiveQueryProtocol,
+    projection: Mapping[str, Any],
+) -> None:
+    """Fail when a legacy query_groups projection diverges from protocol queries."""
+    query_groups = projection.get("query_groups")
+    if not isinstance(query_groups, Mapping):
+        raise LiveQueryProtocolError("projection must contain mapping key 'query_groups'")
+
+    protocol_texts = protocol.flattened_query_texts()
+    projected_texts: List[str] = []
+    for _slug, group in query_groups.items():
+        if not isinstance(group, Mapping):
+            raise LiveQueryProtocolError("projection.query_groups entries must be mappings")
+        queries = group.get("queries")
+        if not isinstance(queries, Sequence) or isinstance(queries, (str, bytes)):
+            raise LiveQueryProtocolError("projection.query_groups.*.queries must be a sequence")
+        projected_texts.extend([_require_non_empty_str(q, "projection.query_text") for q in queries])
+
+    if len(projected_texts) != len(protocol_texts):
+        raise LiveQueryProtocolError(
+            "projection query count mismatch: "
+            f"{len(projected_texts)} projected != {len(protocol_texts)} protocol"
+        )
+    if projected_texts != protocol_texts:
+        raise LiveQueryProtocolError(
+            "projection query-text mismatch: projected query order/text does not "
+            "exactly match config/live_query_protocol.yml"
+        )

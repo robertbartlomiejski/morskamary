@@ -49,12 +49,14 @@ def _minimal_valid_sector(
 
 
 def _minimal_valid_queries(slug: str) -> list:
-    """Produce the minimum set of queries per sector: 3/2/2/1 = 8 queries."""
+    """Produce the minimum set of queries per sector: 3/2/2/1/1/1 = 10 queries."""
     plan = [
         (LiveQueryFamily.CORE_SECTOR, 3),
         (LiveQueryFamily.COMPETENCE_DEMAND, 2),
         (LiveQueryFamily.EMERGING_DEMAND, 2),
         (LiveQueryFamily.VALIDATION_EQF_TRANSLATION, 1),
+        (LiveQueryFamily.HYPOTHESIS_VERIFICATION, 1),
+        (LiveQueryFamily.THEORY_TRANSLATION, 1),
     ]
     queries = []
     for family, count in plan:
@@ -131,7 +133,7 @@ class TestShippedProtocol:
             "live_query_protocol.yml labels must match run_full_analysis.SECTORS exactly"
         )
 
-    def test_all_four_families_declared(
+    def test_all_six_families_declared(
         self, loaded_protocol: LiveQueryProtocol
     ) -> None:
         assert set(loaded_protocol.query_families) == set(LiveQueryFamily)
@@ -150,8 +152,8 @@ class TestShippedProtocol:
     def test_minimum_query_count_across_all_sectors(
         self, loaded_protocol: LiveQueryProtocol
     ) -> None:
-        # 12 sectors * (3 core + 2 comp + 2 emerging + 1 val) = 96 minimum
-        assert len(loaded_protocol.all_queries()) >= 96
+        # 12 sectors * (3 core + 2 comp + 2 emerging + 1 val + 1 hyp + 1 theory) = 120 minimum
+        assert len(loaded_protocol.all_queries()) >= 120
 
     def test_all_query_ids_unique(self, loaded_protocol: LiveQueryProtocol) -> None:
         ids = [q.query_id for q in loaded_protocol.all_queries()]
@@ -228,6 +230,30 @@ class TestShippedProtocol:
             ), (
                 f"validation_eqf_translation query {query.query_id} must reference "
                 f"EQF or micro-credential; got: {text!r}"
+            )
+
+    def test_hypothesis_queries_reference_hypothesis_or_indicator_terms(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        for query in loaded_protocol.all_queries():
+            if query.query_family is not LiveQueryFamily.HYPOTHESIS_VERIFICATION:
+                continue
+            text = query.query_text.lower()
+            assert ("hypothesis" in text) or ("indicator" in text), (
+                f"hypothesis_verification query {query.query_id} must reference "
+                f"hypothesis/indicator terms; got: {text!r}"
+            )
+
+    def test_theory_translation_queries_reference_axis_or_theory_terms(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        for query in loaded_protocol.all_queries():
+            if query.query_family is not LiveQueryFamily.THEORY_TRANSLATION:
+                continue
+            text = query.query_text.lower()
+            assert ("theory" in text) or ("axis" in text) or ("translation" in text), (
+                f"theory_translation query {query.query_id} must reference theory/axis "
+                f"terms; got: {text!r}"
             )
 
 
@@ -425,13 +451,15 @@ class TestSuccessfulParse:
         sector = protocol.sectors["blue_biotech"]
         assert isinstance(sector, LiveQuerySector)
         assert sector.axis_primary is BlueDynamicsAxis.MARINE
-        assert len(sector.queries) == 8
-        # 3 + 2 + 2 + 1 grouping
+        assert len(sector.queries) == 10
+        # 3 + 2 + 2 + 1 + 1 + 1 grouping
         grouped = sector.queries_by_family()
         assert len(grouped[LiveQueryFamily.CORE_SECTOR]) == 3
         assert len(grouped[LiveQueryFamily.COMPETENCE_DEMAND]) == 2
         assert len(grouped[LiveQueryFamily.EMERGING_DEMAND]) == 2
         assert len(grouped[LiveQueryFamily.VALIDATION_EQF_TRANSLATION]) == 1
+        assert len(grouped[LiveQueryFamily.HYPOTHESIS_VERIFICATION]) == 1
+        assert len(grouped[LiveQueryFamily.THEORY_TRANSLATION]) == 1
 
     def test_query_records_have_typed_fields(self, tmp_path: Path) -> None:
         payload = _minimal_valid_document()

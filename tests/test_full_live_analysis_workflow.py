@@ -54,6 +54,22 @@ def test_workflow_builds_layer1_live_run_audit_bundle() -> None:
     assert "--protocol-path config/live_query_protocol.yml" in WORKFLOW_TEXT
 
 
+def test_workflow_projects_protocol_before_exporting_live_records() -> None:
+    assert "python scripts/export_live_query_protocol_projection.py" in WORKFLOW_TEXT
+    assert "--output-path outputs/research_sources/research_queries_from_protocol.yml" in (
+        WORKFLOW_TEXT
+    )
+    projection_index = WORKFLOW_TEXT.index(
+        "python scripts/export_live_query_protocol_projection.py"
+    )
+    export_index = WORKFLOW_TEXT.index("python scripts/export_live_research_records.py")
+    assert projection_index < export_index
+    export_block = WORKFLOW_TEXT[export_index : export_index + 300]
+    assert "--query-file outputs/research_sources/research_queries_from_protocol.yml" in (
+        export_block
+    )
+
+
 def test_layer1_run_id_matches_archive_run_id_convention() -> None:
     build_index = WORKFLOW_TEXT.index("python scripts/build_live_run_audit.py")
     build_step = WORKFLOW_TEXT[build_index : build_index + 500]

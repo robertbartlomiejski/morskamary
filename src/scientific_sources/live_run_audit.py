@@ -665,8 +665,11 @@ class LiveRunAuditBuilder:
                 "path": None,
                 "protocol_version": None,
                 "declared_query_count": 0,
+                "projected_query_count": 0,
                 "observed_query_count": 0,
                 "bound_query_ids": [],
+                "family_counts": {},
+                "sector_counts": {},
                 "unbound_observations": [
                     row.query_text
                     for row in acquisition_rows
@@ -675,6 +678,16 @@ class LiveRunAuditBuilder:
             }
         else:
             declared_ids = {q.query_id for q in protocol_index.protocol.all_queries()}
+            family_counts: Dict[str, int] = {}
+            sector_counts: Dict[str, int] = {}
+            for family in protocol_index.protocol.query_families:
+                family_counts[family.value] = 0
+            for slug, sector in protocol_index.protocol.sectors.items():
+                sector_counts[slug] = len(sector.queries)
+                for query in sector.queries:
+                    family_counts[query.query_family.value] = (
+                        family_counts.get(query.query_family.value, 0) + 1
+                    )
             protocol_summary = {
                 "loaded": True,
                 "path": (
@@ -682,8 +695,11 @@ class LiveRunAuditBuilder:
                 ),
                 "protocol_version": protocol_index.protocol.protocol_version,
                 "declared_query_count": len(declared_ids),
+                "projected_query_count": len(protocol_index.protocol.flattened_query_texts()),
                 "observed_query_count": len(bound_query_ids),
                 "bound_query_ids": bound_query_ids,
+                "family_counts": dict(sorted(family_counts.items())),
+                "sector_counts": dict(sorted(sector_counts.items())),
                 "unbound_observations": sorted(
                     {
                         row.query_text

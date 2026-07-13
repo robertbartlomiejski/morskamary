@@ -1,1267 +1,1611 @@
-# config/live_query_protocol.yml
-#
-# Live query protocol registry (PR-190 / Layer 0).
-#
-# This file is the richer, structured successor to `config/research_queries.yml`.
-# The legacy file MUST remain in place for backward compatibility with
-# `scripts/export_live_research_records.py`; this protocol layer is additive.
-#
-# Design principles
-# -----------------
-# Each query is a first-class research protocol record with a stable
-# `query_id`, an explicit `query_family`, a target QMBD axis, a documented
-# sampling/sort strategy, and a declared expected evidence signal. This
-# structure exists so that live API runs can be audited scientifically: what
-# was asked, why, from which family, against which axis, with what expected
-# yield of competence-demand evidence.
-#
-# Sector coverage
-# ---------------
-# The 12 canonical blue economy sectors (see `run_full_analysis.SECTORS`) are
-# each represented with FOUR query families:
-#
-#   - core_sector                 : >=3 queries per sector
-#   - competence_demand           : >=2 queries per sector, must include
-#                                   competence/workforce/education vocabulary
-#   - emerging_demand             : >=2 queries per sector, must include
-#                                   forward-looking / cross-cutting signals
-#   - validation_eqf_translation  : >=1 query per sector, targeting EQF /
-#                                   micro-credential validation literature
-#
-# Minimum total queries across all sectors: 12 * (3 + 2 + 2 + 1) = 96.
-#
-# QMBD axis assignments
-# ---------------------
-# Sector-primary axis assignments follow the domain reasoning in
-# src/core.py::BlueDynamicsAxis and src/axis_classifier.py:
-#
-#   MARINE         : Blue Biotech, Living Res., Non-living Res.
-#   MARITIME       : Infra & Robotics, Renewable Energy, Maritime Defence,
-#                    Maritime Transport, Port Activities, Ship Repair
-#   OCEANIC        : Coastal Tourism, R&I
-#   HYDRONIZATION  : Desalination
-#
-# Individual queries within a sector MAY declare a different `axis_target`
-# from the sector-primary axis when the query explicitly targets literature
-# governed by a different axis (e.g. a Port Activities query about port
-# governance may target OCEANIC).
-#
-# Backward compatibility
-# ----------------------
-# `src/scientific_sources/live_query_protocol.py::LiveQueryProtocol
-# .to_legacy_query_groups()` renders this protocol into the exact shape of
-# `config/research_queries.yml` (i.e. `{query_groups: {sector_slug: {label,
-# description, queries: [text, ...]}}}`) so the current exporter continues
-# to work unchanged.
-#
-# Schema
-# ------
-# Top-level:
-#
-#   protocol_version: string (semver)
-#   query_families: [core_sector, competence_demand, emerging_demand,
-#                    validation_eqf_translation]
-#   sectors:
-#     <sector_slug>:
-#       label:        canonical sector label (matches run_full_analysis.SECTORS)
-#       description:  short human-readable sector description
-#       axis_primary: default axis for the sector (MARINE|MARITIME|OCEANIC|HYDRONIZATION)
-#       queries:
-#         - query_id:          stable slug (e.g. Q_BLUE_BIOTECH_CORE_001)
-#           sector:            canonical sector label
-#           sector_slug:       sector slug in this file
-#           axis_target:       axis this specific query targets
-#           query_text:        provider-agnostic search string
-#           query_family:      one of the four families
-#           evidence_intent:   dominant expected evidence intent
-#           time_window:
-#             from_year: int
-#             to_year:   int
-#           sort_strategy:
-#             crossref: string
-#             scopus:   string
-#             wos:      string
-#           sampling_strategy:
-#             mode:          e.g. stratified
-#             pages:         int
-#             rows_per_page: int
-#             dedupe_key:    e.g. doi|normalized_title
-#           expected_signal: [...]
-
-protocol_version: "1.0.0"
-
+protocol_version: 1.1.0
 query_families:
-  - core_sector
-  - competence_demand
-  - emerging_demand
-  - validation_eqf_translation
-
-# Shared defaults referenced via YAML anchors keep per-query records short
-# while remaining valid stand-alone YAML.
+- core_sector
+- competence_demand
+- emerging_demand
+- validation_eqf_translation
+- hypothesis_verification
+- theory_translation
 _defaults:
-  time_window: &default_time_window
+  time_window: &id001
     from_year: 2019
     to_year: 2026
-  sort_strategy: &default_sort_strategy
+  sort_strategy: &id002
     crossref: published-desc
     scopus: date-desc
     wos: date-desc
-  sampling_strategy: &default_sampling_strategy
+  sampling_strategy: &id003
     mode: stratified
     pages: 3
     rows_per_page: 50
     dedupe_key: doi|normalized_title
-  expected_signal_core: &expected_signal_core
-    - competence_demand
-    - workforce_skill
-    - education_training
-    - governance
-    - sustainability
-  expected_signal_competence: &expected_signal_competence
-    - competence_demand
-    - workforce_skill
-    - education_training
-    - curriculum
-    - qualification
-  expected_signal_emerging: &expected_signal_emerging
-    - emerging_demand
-    - technology_adoption
-    - resilience
-    - just_transition
-    - sustainability
-  expected_signal_validation: &expected_signal_validation
-    - qualification
-    - eqf_translation
-    - micro_credential
-    - assessment
-    - learning_outcomes
-
+  expected_signal_core: &id004
+  - competence_demand
+  - workforce_skill
+  - education_training
+  - governance
+  - sustainability
+  expected_signal_competence: &id005
+  - competence_demand
+  - workforce_skill
+  - education_training
+  - curriculum
+  - qualification
+  expected_signal_emerging: &id006
+  - emerging_demand
+  - technology_adoption
+  - resilience
+  - just_transition
+  - sustainability
+  expected_signal_validation: &id007
+  - qualification
+  - eqf_translation
+  - micro_credential
+  - assessment
+  - learning_outcomes
 sectors:
-
   blue_biotech:
-    label: "Blue Biotech"
-    description: "Marine biotechnology, bioeconomy, bioprospecting, biomaterials, and blue innovation pathways."
+    label: Blue Biotech
+    description: Marine biotechnology, bioeconomy, bioprospecting, biomaterials, and
+      blue innovation pathways.
     axis_primary: MARINE
     queries:
-      - query_id: Q_BLUE_BIOTECH_CORE_001
-        sector: "Blue Biotech"
-        sector_slug: blue_biotech
-        axis_target: MARINE
-        query_text: "marine biotechnology blue bioeconomy innovation governance"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_BLUE_BIOTECH_CORE_002
-        sector: "Blue Biotech"
-        sector_slug: blue_biotech
-        axis_target: MARINE
-        query_text: "bioprospecting marine genetic resources benefit sharing"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_BLUE_BIOTECH_CORE_003
-        sector: "Blue Biotech"
-        sector_slug: blue_biotech
-        axis_target: MARINE
-        query_text: "marine biomaterials pharmaceuticals bioremediation sustainability"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_BLUE_BIOTECH_COMP_001
-        sector: "Blue Biotech"
-        sector_slug: blue_biotech
-        axis_target: MARINE
-        query_text: "marine biotechnology workforce skills competences training"
-        query_family: competence_demand
-        evidence_intent: workforce_skill
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_BLUE_BIOTECH_COMP_002
-        sector: "Blue Biotech"
-        sector_slug: blue_biotech
-        axis_target: MARINE
-        query_text: "blue bioeconomy education learning outcomes curriculum qualification"
-        query_family: competence_demand
-        evidence_intent: education_training
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_BLUE_BIOTECH_EMRG_001
-        sector: "Blue Biotech"
-        sector_slug: blue_biotech
-        axis_target: MARINE
-        query_text: "marine biotechnology AI digital twin sustainability just transition"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_BLUE_BIOTECH_EMRG_002
-        sector: "Blue Biotech"
-        sector_slug: blue_biotech
-        axis_target: OCEANIC
-        query_text: "marine genetic resources ocean literacy governance climate adaptation"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_BLUE_BIOTECH_VAL_001
-        sector: "Blue Biotech"
-        sector_slug: blue_biotech
-        axis_target: MARINE
-        query_text: "marine biotechnology EQF qualification framework micro-credential professional development"
-        query_family: validation_eqf_translation
-        evidence_intent: qualification
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_validation
-
+    - query_id: Q_BLUE_BIOTECH_CORE_001
+      sector: Blue Biotech
+      sector_slug: blue_biotech
+      axis_target: MARINE
+      query_text: marine biotechnology blue bioeconomy innovation governance
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_BLUE_BIOTECH_CORE_002
+      sector: Blue Biotech
+      sector_slug: blue_biotech
+      axis_target: MARINE
+      query_text: bioprospecting marine genetic resources benefit sharing
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_BLUE_BIOTECH_CORE_003
+      sector: Blue Biotech
+      sector_slug: blue_biotech
+      axis_target: MARINE
+      query_text: marine biomaterials pharmaceuticals bioremediation sustainability
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_BLUE_BIOTECH_COMP_001
+      sector: Blue Biotech
+      sector_slug: blue_biotech
+      axis_target: MARINE
+      query_text: marine biotechnology workforce skills competences training
+      query_family: competence_demand
+      evidence_intent: workforce_skill
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_BLUE_BIOTECH_COMP_002
+      sector: Blue Biotech
+      sector_slug: blue_biotech
+      axis_target: MARINE
+      query_text: blue bioeconomy education learning outcomes curriculum qualification
+      query_family: competence_demand
+      evidence_intent: education_training
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_BLUE_BIOTECH_EMRG_001
+      sector: Blue Biotech
+      sector_slug: blue_biotech
+      axis_target: MARINE
+      query_text: marine biotechnology AI digital twin sustainability just transition
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_BLUE_BIOTECH_EMRG_002
+      sector: Blue Biotech
+      sector_slug: blue_biotech
+      axis_target: OCEANIC
+      query_text: marine genetic resources ocean literacy governance climate adaptation
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_BLUE_BIOTECH_VAL_001
+      sector: Blue Biotech
+      sector_slug: blue_biotech
+      axis_target: MARINE
+      query_text: marine biotechnology EQF qualification framework micro-credential
+        professional development
+      query_family: validation_eqf_translation
+      evidence_intent: qualification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id007
+    - query_id: Q_BLUE_BIOTECH_HYP_001
+      sector: Blue Biotech
+      sector_slug: blue_biotech
+      axis_target: MARINE
+      query_text: blue biotech maritimisation marinization oceanisation hydrosocial
+        de-base-re hypothesis verification indicators
+      query_family: hypothesis_verification
+      evidence_intent: hypothesis_verification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - hypothesis_verification
+      - maritimisation_shift
+      - eqf_gap
+      - omniocean_translation
+      - axis_bridge
+    - query_id: Q_BLUE_BIOTECH_THY_001
+      sector: Blue Biotech
+      sector_slug: blue_biotech
+      axis_target: OCEANIC
+      query_text: blue biotech qmbd axis translation marine maritime oceanic hydronization
+        theory terms taxonomy mapping
+      query_family: theory_translation
+      evidence_intent: theory_translation
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - theory_translation
+      - taxonomy_mapping
+      - axis_translation
+      - de_base_re_dimension
+      - omniocean_framework
   coastal_tourism:
-    label: "Coastal Tourism"
-    description: "Coastal and marine tourism, cruise tourism, ecotourism, and tourism governance."
+    label: Coastal Tourism
+    description: Coastal and marine tourism, cruise tourism, ecotourism, and tourism
+      governance.
     axis_primary: OCEANIC
     queries:
-      - query_id: Q_COASTAL_TOURISM_CORE_001
-        sector: "Coastal Tourism"
-        sector_slug: coastal_tourism
-        axis_target: OCEANIC
-        query_text: "coastal tourism sustainability overtourism management"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_COASTAL_TOURISM_CORE_002
-        sector: "Coastal Tourism"
-        sector_slug: coastal_tourism
-        axis_target: OCEANIC
-        query_text: "marine ecotourism blue economy livelihoods governance"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_COASTAL_TOURISM_CORE_003
-        sector: "Coastal Tourism"
-        sector_slug: coastal_tourism
-        axis_target: OCEANIC
-        query_text: "cruise tourism environmental impact governance"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_COASTAL_TOURISM_COMP_001
-        sector: "Coastal Tourism"
-        sector_slug: coastal_tourism
-        axis_target: OCEANIC
-        query_text: "coastal tourism workforce skills competences training professional development"
-        query_family: competence_demand
-        evidence_intent: workforce_skill
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_COASTAL_TOURISM_COMP_002
-        sector: "Coastal Tourism"
-        sector_slug: coastal_tourism
-        axis_target: OCEANIC
-        query_text: "marine ecotourism education learning outcomes curriculum qualification"
-        query_family: competence_demand
-        evidence_intent: education_training
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_COASTAL_TOURISM_EMRG_001
-        sector: "Coastal Tourism"
-        sector_slug: coastal_tourism
-        axis_target: OCEANIC
-        query_text: "coastal tourism climate adaptation resilience just transition safety"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_COASTAL_TOURISM_EMRG_002
-        sector: "Coastal Tourism"
-        sector_slug: coastal_tourism
-        axis_target: OCEANIC
-        query_text: "coastal tourism AI digital twin ocean literacy hydrosocial"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_COASTAL_TOURISM_VAL_001
-        sector: "Coastal Tourism"
-        sector_slug: coastal_tourism
-        axis_target: OCEANIC
-        query_text: "coastal tourism EQF qualification framework micro-credential learning outcomes"
-        query_family: validation_eqf_translation
-        evidence_intent: qualification
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_validation
-
+    - query_id: Q_COASTAL_TOURISM_CORE_001
+      sector: Coastal Tourism
+      sector_slug: coastal_tourism
+      axis_target: OCEANIC
+      query_text: coastal tourism sustainability overtourism management
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_COASTAL_TOURISM_CORE_002
+      sector: Coastal Tourism
+      sector_slug: coastal_tourism
+      axis_target: OCEANIC
+      query_text: marine ecotourism blue economy livelihoods governance
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_COASTAL_TOURISM_CORE_003
+      sector: Coastal Tourism
+      sector_slug: coastal_tourism
+      axis_target: OCEANIC
+      query_text: cruise tourism environmental impact governance
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_COASTAL_TOURISM_COMP_001
+      sector: Coastal Tourism
+      sector_slug: coastal_tourism
+      axis_target: OCEANIC
+      query_text: coastal tourism workforce skills competences training professional
+        development
+      query_family: competence_demand
+      evidence_intent: workforce_skill
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_COASTAL_TOURISM_COMP_002
+      sector: Coastal Tourism
+      sector_slug: coastal_tourism
+      axis_target: OCEANIC
+      query_text: marine ecotourism education learning outcomes curriculum qualification
+      query_family: competence_demand
+      evidence_intent: education_training
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_COASTAL_TOURISM_EMRG_001
+      sector: Coastal Tourism
+      sector_slug: coastal_tourism
+      axis_target: OCEANIC
+      query_text: coastal tourism climate adaptation resilience just transition safety
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_COASTAL_TOURISM_EMRG_002
+      sector: Coastal Tourism
+      sector_slug: coastal_tourism
+      axis_target: OCEANIC
+      query_text: coastal tourism AI digital twin ocean literacy hydrosocial
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_COASTAL_TOURISM_VAL_001
+      sector: Coastal Tourism
+      sector_slug: coastal_tourism
+      axis_target: OCEANIC
+      query_text: coastal tourism EQF qualification framework micro-credential learning
+        outcomes
+      query_family: validation_eqf_translation
+      evidence_intent: qualification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id007
+    - query_id: Q_COASTAL_TOURISM_HYP_001
+      sector: Coastal Tourism
+      sector_slug: coastal_tourism
+      axis_target: OCEANIC
+      query_text: coastal tourism maritimisation marinization oceanisation hydrosocial
+        de-base-re hypothesis verification indicators
+      query_family: hypothesis_verification
+      evidence_intent: hypothesis_verification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - hypothesis_verification
+      - maritimisation_shift
+      - eqf_gap
+      - omniocean_translation
+      - axis_bridge
+    - query_id: Q_COASTAL_TOURISM_THY_001
+      sector: Coastal Tourism
+      sector_slug: coastal_tourism
+      axis_target: OCEANIC
+      query_text: coastal tourism qmbd axis translation marine maritime oceanic hydronization
+        theory terms taxonomy mapping
+      query_family: theory_translation
+      evidence_intent: theory_translation
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - theory_translation
+      - taxonomy_mapping
+      - axis_translation
+      - de_base_re_dimension
+      - omniocean_framework
   desalination:
-    label: "Desalination"
-    description: "Desalination systems, brine management, water-energy nexus, and hydrosocial governance."
+    label: Desalination
+    description: Desalination systems, brine management, water-energy nexus, and hydrosocial
+      governance.
     axis_primary: HYDRONIZATION
     queries:
-      - query_id: Q_DESALINATION_CORE_001
-        sector: "Desalination"
-        sector_slug: desalination
-        axis_target: HYDRONIZATION
-        query_text: "desalination brine management environmental impact governance"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_DESALINATION_CORE_002
-        sector: "Desalination"
-        sector_slug: desalination
-        axis_target: HYDRONIZATION
-        query_text: "desalination water energy nexus sustainability"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_DESALINATION_CORE_003
-        sector: "Desalination"
-        sector_slug: desalination
-        axis_target: HYDRONIZATION
-        query_text: "desalination hydrosocial water justice governance"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_DESALINATION_COMP_001
-        sector: "Desalination"
-        sector_slug: desalination
-        axis_target: HYDRONIZATION
-        query_text: "desalination workforce skills competences training professional development"
-        query_family: competence_demand
-        evidence_intent: workforce_skill
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_DESALINATION_COMP_002
-        sector: "Desalination"
-        sector_slug: desalination
-        axis_target: HYDRONIZATION
-        query_text: "desalination operator education learning outcomes curriculum qualification"
-        query_family: competence_demand
-        evidence_intent: education_training
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_DESALINATION_EMRG_001
-        sector: "Desalination"
-        sector_slug: desalination
-        axis_target: HYDRONIZATION
-        query_text: "desalination AI digital twin autonomous systems resilience"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_DESALINATION_EMRG_002
-        sector: "Desalination"
-        sector_slug: desalination
-        axis_target: HYDRONIZATION
-        query_text: "desalination climate adaptation just transition hydrosocial safety"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_DESALINATION_VAL_001
-        sector: "Desalination"
-        sector_slug: desalination
-        axis_target: HYDRONIZATION
-        query_text: "desalination EQF qualification framework micro-credential learning outcomes"
-        query_family: validation_eqf_translation
-        evidence_intent: qualification
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_validation
-
+    - query_id: Q_DESALINATION_CORE_001
+      sector: Desalination
+      sector_slug: desalination
+      axis_target: HYDRONIZATION
+      query_text: desalination brine management environmental impact governance
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_DESALINATION_CORE_002
+      sector: Desalination
+      sector_slug: desalination
+      axis_target: HYDRONIZATION
+      query_text: desalination water energy nexus sustainability
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_DESALINATION_CORE_003
+      sector: Desalination
+      sector_slug: desalination
+      axis_target: HYDRONIZATION
+      query_text: desalination hydrosocial water justice governance
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_DESALINATION_COMP_001
+      sector: Desalination
+      sector_slug: desalination
+      axis_target: HYDRONIZATION
+      query_text: desalination workforce skills competences training professional
+        development
+      query_family: competence_demand
+      evidence_intent: workforce_skill
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_DESALINATION_COMP_002
+      sector: Desalination
+      sector_slug: desalination
+      axis_target: HYDRONIZATION
+      query_text: desalination operator education learning outcomes curriculum qualification
+      query_family: competence_demand
+      evidence_intent: education_training
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_DESALINATION_EMRG_001
+      sector: Desalination
+      sector_slug: desalination
+      axis_target: HYDRONIZATION
+      query_text: desalination AI digital twin autonomous systems resilience
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_DESALINATION_EMRG_002
+      sector: Desalination
+      sector_slug: desalination
+      axis_target: HYDRONIZATION
+      query_text: desalination climate adaptation just transition hydrosocial safety
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_DESALINATION_VAL_001
+      sector: Desalination
+      sector_slug: desalination
+      axis_target: HYDRONIZATION
+      query_text: desalination EQF qualification framework micro-credential learning
+        outcomes
+      query_family: validation_eqf_translation
+      evidence_intent: qualification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id007
+    - query_id: Q_DESALINATION_HYP_001
+      sector: Desalination
+      sector_slug: desalination
+      axis_target: HYDRONIZATION
+      query_text: desalination maritimisation marinization oceanisation hydrosocial
+        de-base-re hypothesis verification indicators
+      query_family: hypothesis_verification
+      evidence_intent: hypothesis_verification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - hypothesis_verification
+      - maritimisation_shift
+      - eqf_gap
+      - omniocean_translation
+      - axis_bridge
+    - query_id: Q_DESALINATION_THY_001
+      sector: Desalination
+      sector_slug: desalination
+      axis_target: OCEANIC
+      query_text: desalination qmbd axis translation marine maritime oceanic hydronization
+        theory terms taxonomy mapping
+      query_family: theory_translation
+      evidence_intent: theory_translation
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - theory_translation
+      - taxonomy_mapping
+      - axis_translation
+      - de_base_re_dimension
+      - omniocean_framework
   infra_robotics:
-    label: "Infra & Robotics"
-    description: "Blue infrastructure, offshore/coastal robotics, monitoring systems, and cyber-physical maritime systems."
+    label: Infra & Robotics
+    description: Blue infrastructure, offshore/coastal robotics, monitoring systems,
+      and cyber-physical maritime systems.
     axis_primary: MARITIME
     queries:
-      - query_id: Q_INFRA_ROBOTICS_CORE_001
-        sector: "Infra & Robotics"
-        sector_slug: infra_robotics
-        axis_target: MARITIME
-        query_text: "maritime infrastructure cyber physical systems digital twin"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_INFRA_ROBOTICS_CORE_002
-        sector: "Infra & Robotics"
-        sector_slug: infra_robotics
-        axis_target: MARITIME
-        query_text: "offshore robotics marine monitoring autonomous systems"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_INFRA_ROBOTICS_CORE_003
-        sector: "Infra & Robotics"
-        sector_slug: infra_robotics
-        axis_target: MARITIME
-        query_text: "smart coastal infrastructure flood risk adaptation"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_INFRA_ROBOTICS_COMP_001
-        sector: "Infra & Robotics"
-        sector_slug: infra_robotics
-        axis_target: MARITIME
-        query_text: "offshore robotics workforce skills competences training professional development"
-        query_family: competence_demand
-        evidence_intent: workforce_skill
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_INFRA_ROBOTICS_COMP_002
-        sector: "Infra & Robotics"
-        sector_slug: infra_robotics
-        axis_target: MARITIME
-        query_text: "maritime robotics engineer education learning outcomes curriculum qualification"
-        query_family: competence_demand
-        evidence_intent: education_training
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_INFRA_ROBOTICS_EMRG_001
-        sector: "Infra & Robotics"
-        sector_slug: infra_robotics
-        axis_target: MARITIME
-        query_text: "offshore robotics AI digital twin autonomous systems resilience"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_INFRA_ROBOTICS_EMRG_002
-        sector: "Infra & Robotics"
-        sector_slug: infra_robotics
-        axis_target: MARITIME
-        query_text: "maritime cyber-physical systems climate adaptation safety port-city"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_INFRA_ROBOTICS_VAL_001
-        sector: "Infra & Robotics"
-        sector_slug: infra_robotics
-        axis_target: MARITIME
-        query_text: "offshore robotics EQF qualification framework micro-credential learning outcomes"
-        query_family: validation_eqf_translation
-        evidence_intent: qualification
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_validation
-
+    - query_id: Q_INFRA_ROBOTICS_CORE_001
+      sector: Infra & Robotics
+      sector_slug: infra_robotics
+      axis_target: MARITIME
+      query_text: maritime infrastructure cyber physical systems digital twin
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_INFRA_ROBOTICS_CORE_002
+      sector: Infra & Robotics
+      sector_slug: infra_robotics
+      axis_target: MARITIME
+      query_text: offshore robotics marine monitoring autonomous systems
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_INFRA_ROBOTICS_CORE_003
+      sector: Infra & Robotics
+      sector_slug: infra_robotics
+      axis_target: MARITIME
+      query_text: smart coastal infrastructure flood risk adaptation
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_INFRA_ROBOTICS_COMP_001
+      sector: Infra & Robotics
+      sector_slug: infra_robotics
+      axis_target: MARITIME
+      query_text: offshore robotics workforce skills competences training professional
+        development
+      query_family: competence_demand
+      evidence_intent: workforce_skill
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_INFRA_ROBOTICS_COMP_002
+      sector: Infra & Robotics
+      sector_slug: infra_robotics
+      axis_target: MARITIME
+      query_text: maritime robotics engineer education learning outcomes curriculum
+        qualification
+      query_family: competence_demand
+      evidence_intent: education_training
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_INFRA_ROBOTICS_EMRG_001
+      sector: Infra & Robotics
+      sector_slug: infra_robotics
+      axis_target: MARITIME
+      query_text: offshore robotics AI digital twin autonomous systems resilience
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_INFRA_ROBOTICS_EMRG_002
+      sector: Infra & Robotics
+      sector_slug: infra_robotics
+      axis_target: MARITIME
+      query_text: maritime cyber-physical systems climate adaptation safety port-city
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_INFRA_ROBOTICS_VAL_001
+      sector: Infra & Robotics
+      sector_slug: infra_robotics
+      axis_target: MARITIME
+      query_text: offshore robotics EQF qualification framework micro-credential learning
+        outcomes
+      query_family: validation_eqf_translation
+      evidence_intent: qualification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id007
+    - query_id: Q_INFRA_ROBOTICS_HYP_001
+      sector: Infra & Robotics
+      sector_slug: infra_robotics
+      axis_target: MARITIME
+      query_text: infra & robotics maritimisation marinization oceanisation hydrosocial
+        de-base-re hypothesis verification indicators
+      query_family: hypothesis_verification
+      evidence_intent: hypothesis_verification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - hypothesis_verification
+      - maritimisation_shift
+      - eqf_gap
+      - omniocean_translation
+      - axis_bridge
+    - query_id: Q_INFRA_ROBOTICS_THY_001
+      sector: Infra & Robotics
+      sector_slug: infra_robotics
+      axis_target: OCEANIC
+      query_text: infra & robotics qmbd axis translation marine maritime oceanic hydronization
+        theory terms taxonomy mapping
+      query_family: theory_translation
+      evidence_intent: theory_translation
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - theory_translation
+      - taxonomy_mapping
+      - axis_translation
+      - de_base_re_dimension
+      - omniocean_framework
   living_res:
-    label: "Living Res."
-    description: "Living marine resources: fisheries, aquaculture, mariculture, and coastal livelihoods."
+    label: Living Res.
+    description: 'Living marine resources: fisheries, aquaculture, mariculture, and
+      coastal livelihoods.'
     axis_primary: MARINE
     queries:
-      - query_id: Q_LIVING_RES_CORE_001
-        sector: "Living Res."
-        sector_slug: living_res
-        axis_target: MARINE
-        query_text: "small scale fisheries livelihoods blue economy governance"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_LIVING_RES_CORE_002
-        sector: "Living Res."
-        sector_slug: living_res
-        axis_target: MARINE
-        query_text: "fisheries management sustainability marine protected areas"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_LIVING_RES_CORE_003
-        sector: "Living Res."
-        sector_slug: living_res
-        axis_target: MARINE
-        query_text: "aquaculture social licence environmental impact governance"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_LIVING_RES_COMP_001
-        sector: "Living Res."
-        sector_slug: living_res
-        axis_target: MARINE
-        query_text: "fisheries workforce skills competences training professional development"
-        query_family: competence_demand
-        evidence_intent: workforce_skill
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_LIVING_RES_COMP_002
-        sector: "Living Res."
-        sector_slug: living_res
-        axis_target: MARINE
-        query_text: "aquaculture education learning outcomes curriculum qualification"
-        query_family: competence_demand
-        evidence_intent: education_training
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_LIVING_RES_EMRG_001
-        sector: "Living Res."
-        sector_slug: living_res
-        axis_target: MARINE
-        query_text: "fisheries AI digital twin resilience climate adaptation just transition"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_LIVING_RES_EMRG_002
-        sector: "Living Res."
-        sector_slug: living_res
-        axis_target: OCEANIC
-        query_text: "small scale fisheries blue economy labour ocean literacy marine governance"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_LIVING_RES_VAL_001
-        sector: "Living Res."
-        sector_slug: living_res
-        axis_target: MARINE
-        query_text: "fisheries aquaculture EQF qualification framework micro-credential learning outcomes"
-        query_family: validation_eqf_translation
-        evidence_intent: qualification
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_validation
-
+    - query_id: Q_LIVING_RES_CORE_001
+      sector: Living Res.
+      sector_slug: living_res
+      axis_target: MARINE
+      query_text: small scale fisheries livelihoods blue economy governance
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_LIVING_RES_CORE_002
+      sector: Living Res.
+      sector_slug: living_res
+      axis_target: MARINE
+      query_text: fisheries management sustainability marine protected areas
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_LIVING_RES_CORE_003
+      sector: Living Res.
+      sector_slug: living_res
+      axis_target: MARINE
+      query_text: aquaculture social licence environmental impact governance
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_LIVING_RES_COMP_001
+      sector: Living Res.
+      sector_slug: living_res
+      axis_target: MARINE
+      query_text: fisheries workforce skills competences training professional development
+      query_family: competence_demand
+      evidence_intent: workforce_skill
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_LIVING_RES_COMP_002
+      sector: Living Res.
+      sector_slug: living_res
+      axis_target: MARINE
+      query_text: aquaculture education learning outcomes curriculum qualification
+      query_family: competence_demand
+      evidence_intent: education_training
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_LIVING_RES_EMRG_001
+      sector: Living Res.
+      sector_slug: living_res
+      axis_target: MARINE
+      query_text: fisheries AI digital twin resilience climate adaptation just transition
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_LIVING_RES_EMRG_002
+      sector: Living Res.
+      sector_slug: living_res
+      axis_target: OCEANIC
+      query_text: small scale fisheries blue economy labour ocean literacy marine
+        governance
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_LIVING_RES_VAL_001
+      sector: Living Res.
+      sector_slug: living_res
+      axis_target: MARINE
+      query_text: fisheries aquaculture EQF qualification framework micro-credential
+        learning outcomes
+      query_family: validation_eqf_translation
+      evidence_intent: qualification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id007
+    - query_id: Q_LIVING_RES_HYP_001
+      sector: Living Res.
+      sector_slug: living_res
+      axis_target: MARINE
+      query_text: living res. maritimisation marinization oceanisation hydrosocial
+        de-base-re hypothesis verification indicators
+      query_family: hypothesis_verification
+      evidence_intent: hypothesis_verification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - hypothesis_verification
+      - maritimisation_shift
+      - eqf_gap
+      - omniocean_translation
+      - axis_bridge
+    - query_id: Q_LIVING_RES_THY_001
+      sector: Living Res.
+      sector_slug: living_res
+      axis_target: OCEANIC
+      query_text: living res. qmbd axis translation marine maritime oceanic hydronization
+        theory terms taxonomy mapping
+      query_family: theory_translation
+      evidence_intent: theory_translation
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - theory_translation
+      - taxonomy_mapping
+      - axis_translation
+      - de_base_re_dimension
+      - omniocean_framework
   non_living_res:
-    label: "Non-living Res."
-    description: "Non-living marine resources: seabed resources, aggregates, critical raw materials, and extraction governance."
+    label: Non-living Res.
+    description: 'Non-living marine resources: seabed resources, aggregates, critical
+      raw materials, and extraction governance.'
     axis_primary: MARINE
     queries:
-      - query_id: Q_NON_LIVING_RES_CORE_001
-        sector: "Non-living Res."
-        sector_slug: non_living_res
-        axis_target: MARINE
-        query_text: "seabed mining governance environmental impact social licence"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_NON_LIVING_RES_CORE_002
-        sector: "Non-living Res."
-        sector_slug: non_living_res
-        axis_target: MARINE
-        query_text: "marine aggregates extraction coastal governance sustainability"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_NON_LIVING_RES_CORE_003
-        sector: "Non-living Res."
-        sector_slug: non_living_res
-        axis_target: MARINE
-        query_text: "critical raw materials offshore extraction governance"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_NON_LIVING_RES_COMP_001
-        sector: "Non-living Res."
-        sector_slug: non_living_res
-        axis_target: MARINE
-        query_text: "seabed mining workforce skills competences training professional development"
-        query_family: competence_demand
-        evidence_intent: workforce_skill
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_NON_LIVING_RES_COMP_002
-        sector: "Non-living Res."
-        sector_slug: non_living_res
-        axis_target: MARINE
-        query_text: "marine aggregates education learning outcomes curriculum qualification"
-        query_family: competence_demand
-        evidence_intent: education_training
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_NON_LIVING_RES_EMRG_001
-        sector: "Non-living Res."
-        sector_slug: non_living_res
-        axis_target: MARINE
-        query_text: "seabed mining AI autonomous systems safety climate adaptation"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_NON_LIVING_RES_EMRG_002
-        sector: "Non-living Res."
-        sector_slug: non_living_res
-        axis_target: OCEANIC
-        query_text: "critical raw materials just transition marine governance blue economy labour"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_NON_LIVING_RES_VAL_001
-        sector: "Non-living Res."
-        sector_slug: non_living_res
-        axis_target: MARINE
-        query_text: "seabed extraction EQF qualification framework micro-credential learning outcomes"
-        query_family: validation_eqf_translation
-        evidence_intent: qualification
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_validation
-
+    - query_id: Q_NON_LIVING_RES_CORE_001
+      sector: Non-living Res.
+      sector_slug: non_living_res
+      axis_target: MARINE
+      query_text: seabed mining governance environmental impact social licence
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_NON_LIVING_RES_CORE_002
+      sector: Non-living Res.
+      sector_slug: non_living_res
+      axis_target: MARINE
+      query_text: marine aggregates extraction coastal governance sustainability
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_NON_LIVING_RES_CORE_003
+      sector: Non-living Res.
+      sector_slug: non_living_res
+      axis_target: MARINE
+      query_text: critical raw materials offshore extraction governance
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_NON_LIVING_RES_COMP_001
+      sector: Non-living Res.
+      sector_slug: non_living_res
+      axis_target: MARINE
+      query_text: seabed mining workforce skills competences training professional
+        development
+      query_family: competence_demand
+      evidence_intent: workforce_skill
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_NON_LIVING_RES_COMP_002
+      sector: Non-living Res.
+      sector_slug: non_living_res
+      axis_target: MARINE
+      query_text: marine aggregates education learning outcomes curriculum qualification
+      query_family: competence_demand
+      evidence_intent: education_training
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_NON_LIVING_RES_EMRG_001
+      sector: Non-living Res.
+      sector_slug: non_living_res
+      axis_target: MARINE
+      query_text: seabed mining AI autonomous systems safety climate adaptation
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_NON_LIVING_RES_EMRG_002
+      sector: Non-living Res.
+      sector_slug: non_living_res
+      axis_target: OCEANIC
+      query_text: critical raw materials just transition marine governance blue economy
+        labour
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_NON_LIVING_RES_VAL_001
+      sector: Non-living Res.
+      sector_slug: non_living_res
+      axis_target: MARINE
+      query_text: seabed extraction EQF qualification framework micro-credential learning
+        outcomes
+      query_family: validation_eqf_translation
+      evidence_intent: qualification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id007
+    - query_id: Q_NON_LIVING_RES_HYP_001
+      sector: Non-living Res.
+      sector_slug: non_living_res
+      axis_target: MARINE
+      query_text: non-living res. maritimisation marinization oceanisation hydrosocial
+        de-base-re hypothesis verification indicators
+      query_family: hypothesis_verification
+      evidence_intent: hypothesis_verification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - hypothesis_verification
+      - maritimisation_shift
+      - eqf_gap
+      - omniocean_translation
+      - axis_bridge
+    - query_id: Q_NON_LIVING_RES_THY_001
+      sector: Non-living Res.
+      sector_slug: non_living_res
+      axis_target: OCEANIC
+      query_text: non-living res. qmbd axis translation marine maritime oceanic hydronization
+        theory terms taxonomy mapping
+      query_family: theory_translation
+      evidence_intent: theory_translation
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - theory_translation
+      - taxonomy_mapping
+      - axis_translation
+      - de_base_re_dimension
+      - omniocean_framework
   renewable_energy:
-    label: "Renewable Energy"
-    description: "Offshore renewable energy: wind, wave, tidal, and related spatial planning and social acceptance."
+    label: Renewable Energy
+    description: 'Offshore renewable energy: wind, wave, tidal, and related spatial
+      planning and social acceptance.'
     axis_primary: MARITIME
     queries:
-      - query_id: Q_RENEWABLE_ENERGY_CORE_001
-        sector: "Renewable Energy"
-        sector_slug: renewable_energy
-        axis_target: MARITIME
-        query_text: "offshore wind energy marine spatial planning governance"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_RENEWABLE_ENERGY_CORE_002
-        sector: "Renewable Energy"
-        sector_slug: renewable_energy
-        axis_target: MARITIME
-        query_text: "ocean renewable energy governance sustainability"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_RENEWABLE_ENERGY_CORE_003
-        sector: "Renewable Energy"
-        sector_slug: renewable_energy
-        axis_target: MARITIME
-        query_text: "tidal energy wave energy environmental impact"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_RENEWABLE_ENERGY_COMP_001
-        sector: "Renewable Energy"
-        sector_slug: renewable_energy
-        axis_target: MARITIME
-        query_text: "offshore wind workforce skills competences training professional development"
-        query_family: competence_demand
-        evidence_intent: workforce_skill
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_RENEWABLE_ENERGY_COMP_002
-        sector: "Renewable Energy"
-        sector_slug: renewable_energy
-        axis_target: MARITIME
-        query_text: "ocean renewable energy education learning outcomes curriculum qualification"
-        query_family: competence_demand
-        evidence_intent: education_training
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_RENEWABLE_ENERGY_EMRG_001
-        sector: "Renewable Energy"
-        sector_slug: renewable_energy
-        axis_target: MARITIME
-        query_text: "offshore wind AI digital twin autonomous systems resilience"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_RENEWABLE_ENERGY_EMRG_002
-        sector: "Renewable Energy"
-        sector_slug: renewable_energy
-        axis_target: OCEANIC
-        query_text: "offshore wind just transition climate adaptation marine governance safety"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_RENEWABLE_ENERGY_VAL_001
-        sector: "Renewable Energy"
-        sector_slug: renewable_energy
-        axis_target: MARITIME
-        query_text: "offshore renewable energy EQF qualification framework micro-credential learning outcomes"
-        query_family: validation_eqf_translation
-        evidence_intent: qualification
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_validation
-
+    - query_id: Q_RENEWABLE_ENERGY_CORE_001
+      sector: Renewable Energy
+      sector_slug: renewable_energy
+      axis_target: MARITIME
+      query_text: offshore wind energy marine spatial planning governance
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_RENEWABLE_ENERGY_CORE_002
+      sector: Renewable Energy
+      sector_slug: renewable_energy
+      axis_target: MARITIME
+      query_text: ocean renewable energy governance sustainability
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_RENEWABLE_ENERGY_CORE_003
+      sector: Renewable Energy
+      sector_slug: renewable_energy
+      axis_target: MARITIME
+      query_text: tidal energy wave energy environmental impact
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_RENEWABLE_ENERGY_COMP_001
+      sector: Renewable Energy
+      sector_slug: renewable_energy
+      axis_target: MARITIME
+      query_text: offshore wind workforce skills competences training professional
+        development
+      query_family: competence_demand
+      evidence_intent: workforce_skill
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_RENEWABLE_ENERGY_COMP_002
+      sector: Renewable Energy
+      sector_slug: renewable_energy
+      axis_target: MARITIME
+      query_text: ocean renewable energy education learning outcomes curriculum qualification
+      query_family: competence_demand
+      evidence_intent: education_training
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_RENEWABLE_ENERGY_EMRG_001
+      sector: Renewable Energy
+      sector_slug: renewable_energy
+      axis_target: MARITIME
+      query_text: offshore wind AI digital twin autonomous systems resilience
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_RENEWABLE_ENERGY_EMRG_002
+      sector: Renewable Energy
+      sector_slug: renewable_energy
+      axis_target: OCEANIC
+      query_text: offshore wind just transition climate adaptation marine governance
+        safety
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_RENEWABLE_ENERGY_VAL_001
+      sector: Renewable Energy
+      sector_slug: renewable_energy
+      axis_target: MARITIME
+      query_text: offshore renewable energy EQF qualification framework micro-credential
+        learning outcomes
+      query_family: validation_eqf_translation
+      evidence_intent: qualification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id007
+    - query_id: Q_RENEWABLE_ENERGY_HYP_001
+      sector: Renewable Energy
+      sector_slug: renewable_energy
+      axis_target: MARITIME
+      query_text: renewable energy maritimisation marinization oceanisation hydrosocial
+        de-base-re hypothesis verification indicators
+      query_family: hypothesis_verification
+      evidence_intent: hypothesis_verification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - hypothesis_verification
+      - maritimisation_shift
+      - eqf_gap
+      - omniocean_translation
+      - axis_bridge
+    - query_id: Q_RENEWABLE_ENERGY_THY_001
+      sector: Renewable Energy
+      sector_slug: renewable_energy
+      axis_target: OCEANIC
+      query_text: renewable energy qmbd axis translation marine maritime oceanic hydronization
+        theory terms taxonomy mapping
+      query_family: theory_translation
+      evidence_intent: theory_translation
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - theory_translation
+      - taxonomy_mapping
+      - axis_translation
+      - de_base_re_dimension
+      - omniocean_framework
   maritime_defence:
-    label: "Maritime Defence"
-    description: "Maritime security, naval operations, surveillance, and defence governance in blue spaces."
+    label: Maritime Defence
+    description: Maritime security, naval operations, surveillance, and defence governance
+      in blue spaces.
     axis_primary: MARITIME
     queries:
-      - query_id: Q_MARITIME_DEFENCE_CORE_001
-        sector: "Maritime Defence"
-        sector_slug: maritime_defence
-        axis_target: MARITIME
-        query_text: "maritime security governance blue economy"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_MARITIME_DEFENCE_CORE_002
-        sector: "Maritime Defence"
-        sector_slug: maritime_defence
-        axis_target: MARITIME
-        query_text: "naval operations maritime domain awareness surveillance"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_MARITIME_DEFENCE_CORE_003
-        sector: "Maritime Defence"
-        sector_slug: maritime_defence
-        axis_target: MARITIME
-        query_text: "critical maritime infrastructure protection governance"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_MARITIME_DEFENCE_COMP_001
-        sector: "Maritime Defence"
-        sector_slug: maritime_defence
-        axis_target: MARITIME
-        query_text: "maritime security workforce skills competences training professional development"
-        query_family: competence_demand
-        evidence_intent: workforce_skill
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_MARITIME_DEFENCE_COMP_002
-        sector: "Maritime Defence"
-        sector_slug: maritime_defence
-        axis_target: MARITIME
-        query_text: "naval operations education learning outcomes curriculum qualification"
-        query_family: competence_demand
-        evidence_intent: education_training
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_MARITIME_DEFENCE_EMRG_001
-        sector: "Maritime Defence"
-        sector_slug: maritime_defence
-        axis_target: MARITIME
-        query_text: "maritime domain awareness AI autonomous systems digital twin resilience"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_MARITIME_DEFENCE_EMRG_002
-        sector: "Maritime Defence"
-        sector_slug: maritime_defence
-        axis_target: OCEANIC
-        query_text: "maritime security climate adaptation marine governance safety port-city"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_MARITIME_DEFENCE_VAL_001
-        sector: "Maritime Defence"
-        sector_slug: maritime_defence
-        axis_target: MARITIME
-        query_text: "maritime defence EQF qualification framework micro-credential learning outcomes"
-        query_family: validation_eqf_translation
-        evidence_intent: qualification
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_validation
-
+    - query_id: Q_MARITIME_DEFENCE_CORE_001
+      sector: Maritime Defence
+      sector_slug: maritime_defence
+      axis_target: MARITIME
+      query_text: maritime security governance blue economy
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_MARITIME_DEFENCE_CORE_002
+      sector: Maritime Defence
+      sector_slug: maritime_defence
+      axis_target: MARITIME
+      query_text: naval operations maritime domain awareness surveillance
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_MARITIME_DEFENCE_CORE_003
+      sector: Maritime Defence
+      sector_slug: maritime_defence
+      axis_target: MARITIME
+      query_text: critical maritime infrastructure protection governance
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_MARITIME_DEFENCE_COMP_001
+      sector: Maritime Defence
+      sector_slug: maritime_defence
+      axis_target: MARITIME
+      query_text: maritime security workforce skills competences training professional
+        development
+      query_family: competence_demand
+      evidence_intent: workforce_skill
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_MARITIME_DEFENCE_COMP_002
+      sector: Maritime Defence
+      sector_slug: maritime_defence
+      axis_target: MARITIME
+      query_text: naval operations education learning outcomes curriculum qualification
+      query_family: competence_demand
+      evidence_intent: education_training
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_MARITIME_DEFENCE_EMRG_001
+      sector: Maritime Defence
+      sector_slug: maritime_defence
+      axis_target: MARITIME
+      query_text: maritime domain awareness AI autonomous systems digital twin resilience
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_MARITIME_DEFENCE_EMRG_002
+      sector: Maritime Defence
+      sector_slug: maritime_defence
+      axis_target: OCEANIC
+      query_text: maritime security climate adaptation marine governance safety port-city
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_MARITIME_DEFENCE_VAL_001
+      sector: Maritime Defence
+      sector_slug: maritime_defence
+      axis_target: MARITIME
+      query_text: maritime defence EQF qualification framework micro-credential learning
+        outcomes
+      query_family: validation_eqf_translation
+      evidence_intent: qualification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id007
+    - query_id: Q_MARITIME_DEFENCE_HYP_001
+      sector: Maritime Defence
+      sector_slug: maritime_defence
+      axis_target: MARITIME
+      query_text: maritime defence maritimisation marinization oceanisation hydrosocial
+        de-base-re hypothesis verification indicators
+      query_family: hypothesis_verification
+      evidence_intent: hypothesis_verification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - hypothesis_verification
+      - maritimisation_shift
+      - eqf_gap
+      - omniocean_translation
+      - axis_bridge
+    - query_id: Q_MARITIME_DEFENCE_THY_001
+      sector: Maritime Defence
+      sector_slug: maritime_defence
+      axis_target: OCEANIC
+      query_text: maritime defence qmbd axis translation marine maritime oceanic hydronization
+        theory terms taxonomy mapping
+      query_family: theory_translation
+      evidence_intent: theory_translation
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - theory_translation
+      - taxonomy_mapping
+      - axis_translation
+      - de_base_re_dimension
+      - omniocean_framework
   maritime_transport:
-    label: "Maritime Transport"
-    description: "Shipping, freight/passenger transport, maritime safety, labour conditions, and decarbonization."
+    label: Maritime Transport
+    description: Shipping, freight/passenger transport, maritime safety, labour conditions,
+      and decarbonization.
     axis_primary: MARITIME
     queries:
-      - query_id: Q_MARITIME_TRANSPORT_CORE_001
-        sector: "Maritime Transport"
-        sector_slug: maritime_transport
-        axis_target: MARITIME
-        query_text: "maritime transport decarbonization emissions reduction"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_MARITIME_TRANSPORT_CORE_002
-        sector: "Maritime Transport"
-        sector_slug: maritime_transport
-        axis_target: MARITIME
-        query_text: "shipping governance international regulations IMO"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_MARITIME_TRANSPORT_CORE_003
-        sector: "Maritime Transport"
-        sector_slug: maritime_transport
-        axis_target: MARITIME
-        query_text: "maritime safety maritime labour conditions"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_MARITIME_TRANSPORT_COMP_001
-        sector: "Maritime Transport"
-        sector_slug: maritime_transport
-        axis_target: MARITIME
-        query_text: "seafarer workforce skills competences training professional development"
-        query_family: competence_demand
-        evidence_intent: workforce_skill
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_MARITIME_TRANSPORT_COMP_002
-        sector: "Maritime Transport"
-        sector_slug: maritime_transport
-        axis_target: MARITIME
-        query_text: "maritime officer education learning outcomes curriculum qualification"
-        query_family: competence_demand
-        evidence_intent: education_training
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_MARITIME_TRANSPORT_EMRG_001
-        sector: "Maritime Transport"
-        sector_slug: maritime_transport
-        axis_target: MARITIME
-        query_text: "shipping AI digital twin autonomous systems decarbonization resilience"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_MARITIME_TRANSPORT_EMRG_002
-        sector: "Maritime Transport"
-        sector_slug: maritime_transport
-        axis_target: OCEANIC
-        query_text: "shipping just transition blue economy labour ocean literacy marine governance safety"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_MARITIME_TRANSPORT_VAL_001
-        sector: "Maritime Transport"
-        sector_slug: maritime_transport
-        axis_target: MARITIME
-        query_text: "maritime transport EQF qualification framework micro-credential STCW learning outcomes"
-        query_family: validation_eqf_translation
-        evidence_intent: qualification
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_validation
-
+    - query_id: Q_MARITIME_TRANSPORT_CORE_001
+      sector: Maritime Transport
+      sector_slug: maritime_transport
+      axis_target: MARITIME
+      query_text: maritime transport decarbonization emissions reduction
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_MARITIME_TRANSPORT_CORE_002
+      sector: Maritime Transport
+      sector_slug: maritime_transport
+      axis_target: MARITIME
+      query_text: shipping governance international regulations IMO
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_MARITIME_TRANSPORT_CORE_003
+      sector: Maritime Transport
+      sector_slug: maritime_transport
+      axis_target: MARITIME
+      query_text: maritime safety maritime labour conditions
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_MARITIME_TRANSPORT_COMP_001
+      sector: Maritime Transport
+      sector_slug: maritime_transport
+      axis_target: MARITIME
+      query_text: seafarer workforce skills competences training professional development
+      query_family: competence_demand
+      evidence_intent: workforce_skill
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_MARITIME_TRANSPORT_COMP_002
+      sector: Maritime Transport
+      sector_slug: maritime_transport
+      axis_target: MARITIME
+      query_text: maritime officer education learning outcomes curriculum qualification
+      query_family: competence_demand
+      evidence_intent: education_training
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_MARITIME_TRANSPORT_EMRG_001
+      sector: Maritime Transport
+      sector_slug: maritime_transport
+      axis_target: MARITIME
+      query_text: shipping AI digital twin autonomous systems decarbonization resilience
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_MARITIME_TRANSPORT_EMRG_002
+      sector: Maritime Transport
+      sector_slug: maritime_transport
+      axis_target: OCEANIC
+      query_text: shipping just transition blue economy labour ocean literacy marine
+        governance safety
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_MARITIME_TRANSPORT_VAL_001
+      sector: Maritime Transport
+      sector_slug: maritime_transport
+      axis_target: MARITIME
+      query_text: maritime transport EQF qualification framework micro-credential
+        STCW learning outcomes
+      query_family: validation_eqf_translation
+      evidence_intent: qualification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id007
+    - query_id: Q_MARITIME_TRANSPORT_HYP_001
+      sector: Maritime Transport
+      sector_slug: maritime_transport
+      axis_target: MARITIME
+      query_text: maritime transport maritimisation marinization oceanisation hydrosocial
+        de-base-re hypothesis verification indicators
+      query_family: hypothesis_verification
+      evidence_intent: hypothesis_verification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - hypothesis_verification
+      - maritimisation_shift
+      - eqf_gap
+      - omniocean_translation
+      - axis_bridge
+    - query_id: Q_MARITIME_TRANSPORT_THY_001
+      sector: Maritime Transport
+      sector_slug: maritime_transport
+      axis_target: OCEANIC
+      query_text: maritime transport qmbd axis translation marine maritime oceanic
+        hydronization theory terms taxonomy mapping
+      query_family: theory_translation
+      evidence_intent: theory_translation
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - theory_translation
+      - taxonomy_mapping
+      - axis_translation
+      - de_base_re_dimension
+      - omniocean_framework
   port_activities:
-    label: "Port Activities"
-    description: "Port operations, logistics, port governance, and coastal urban-port interfaces."
+    label: Port Activities
+    description: Port operations, logistics, port governance, and coastal urban-port
+      interfaces.
     axis_primary: MARITIME
     queries:
-      - query_id: Q_PORT_ACTIVITIES_CORE_001
-        sector: "Port Activities"
-        sector_slug: port_activities
-        axis_target: MARITIME
-        query_text: "port governance maritime logistics sustainability"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_PORT_ACTIVITIES_CORE_002
-        sector: "Port Activities"
-        sector_slug: port_activities
-        axis_target: MARITIME
-        query_text: "smart ports digital transformation port operations"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_PORT_ACTIVITIES_CORE_003
-        sector: "Port Activities"
-        sector_slug: port_activities
-        axis_target: MARITIME
-        query_text: "port climate adaptation sea level rise flood risk"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_PORT_ACTIVITIES_COMP_001
-        sector: "Port Activities"
-        sector_slug: port_activities
-        axis_target: MARITIME
-        query_text: "port worker workforce skills competences training professional development"
-        query_family: competence_demand
-        evidence_intent: workforce_skill
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_PORT_ACTIVITIES_COMP_002
-        sector: "Port Activities"
-        sector_slug: port_activities
-        axis_target: MARITIME
-        query_text: "port operations education learning outcomes curriculum qualification"
-        query_family: competence_demand
-        evidence_intent: education_training
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_PORT_ACTIVITIES_EMRG_001
-        sector: "Port Activities"
-        sector_slug: port_activities
-        axis_target: MARITIME
-        query_text: "smart port AI digital twin autonomous systems resilience"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_PORT_ACTIVITIES_EMRG_002
-        sector: "Port Activities"
-        sector_slug: port_activities
-        axis_target: OCEANIC
-        query_text: "port-city climate adaptation just transition ocean literacy marine governance hydrosocial"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_PORT_ACTIVITIES_VAL_001
-        sector: "Port Activities"
-        sector_slug: port_activities
-        axis_target: MARITIME
-        query_text: "port operations EQF qualification framework micro-credential learning outcomes"
-        query_family: validation_eqf_translation
-        evidence_intent: qualification
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_validation
-
+    - query_id: Q_PORT_ACTIVITIES_CORE_001
+      sector: Port Activities
+      sector_slug: port_activities
+      axis_target: MARITIME
+      query_text: port governance maritime logistics sustainability
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_PORT_ACTIVITIES_CORE_002
+      sector: Port Activities
+      sector_slug: port_activities
+      axis_target: MARITIME
+      query_text: smart ports digital transformation port operations
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_PORT_ACTIVITIES_CORE_003
+      sector: Port Activities
+      sector_slug: port_activities
+      axis_target: MARITIME
+      query_text: port climate adaptation sea level rise flood risk
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_PORT_ACTIVITIES_COMP_001
+      sector: Port Activities
+      sector_slug: port_activities
+      axis_target: MARITIME
+      query_text: port worker workforce skills competences training professional development
+      query_family: competence_demand
+      evidence_intent: workforce_skill
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_PORT_ACTIVITIES_COMP_002
+      sector: Port Activities
+      sector_slug: port_activities
+      axis_target: MARITIME
+      query_text: port operations education learning outcomes curriculum qualification
+      query_family: competence_demand
+      evidence_intent: education_training
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_PORT_ACTIVITIES_EMRG_001
+      sector: Port Activities
+      sector_slug: port_activities
+      axis_target: MARITIME
+      query_text: smart port AI digital twin autonomous systems resilience
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_PORT_ACTIVITIES_EMRG_002
+      sector: Port Activities
+      sector_slug: port_activities
+      axis_target: OCEANIC
+      query_text: port-city climate adaptation just transition ocean literacy marine
+        governance hydrosocial
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_PORT_ACTIVITIES_VAL_001
+      sector: Port Activities
+      sector_slug: port_activities
+      axis_target: MARITIME
+      query_text: port operations EQF qualification framework micro-credential learning
+        outcomes
+      query_family: validation_eqf_translation
+      evidence_intent: qualification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id007
+    - query_id: Q_PORT_ACTIVITIES_HYP_001
+      sector: Port Activities
+      sector_slug: port_activities
+      axis_target: MARITIME
+      query_text: port activities maritimisation marinization oceanisation hydrosocial
+        de-base-re hypothesis verification indicators
+      query_family: hypothesis_verification
+      evidence_intent: hypothesis_verification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - hypothesis_verification
+      - maritimisation_shift
+      - eqf_gap
+      - omniocean_translation
+      - axis_bridge
+    - query_id: Q_PORT_ACTIVITIES_THY_001
+      sector: Port Activities
+      sector_slug: port_activities
+      axis_target: OCEANIC
+      query_text: port activities qmbd axis translation marine maritime oceanic hydronization
+        theory terms taxonomy mapping
+      query_family: theory_translation
+      evidence_intent: theory_translation
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - theory_translation
+      - taxonomy_mapping
+      - axis_translation
+      - de_base_re_dimension
+      - omniocean_framework
   r_i:
-    label: "R&I"
-    description: "Blue research and innovation ecosystems, ocean observation, data infrastructure, and research governance."
+    label: R&I
+    description: Blue research and innovation ecosystems, ocean observation, data
+      infrastructure, and research governance.
     axis_primary: OCEANIC
     queries:
-      - query_id: Q_R_I_CORE_001
-        sector: "R&I"
-        sector_slug: r_i
-        axis_target: OCEANIC
-        query_text: "ocean observation marine monitoring data infrastructure"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_R_I_CORE_002
-        sector: "R&I"
-        sector_slug: r_i
-        axis_target: OCEANIC
-        query_text: "ocean data governance FAIR CARE principles"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_R_I_CORE_003
-        sector: "R&I"
-        sector_slug: r_i
-        axis_target: OCEANIC
-        query_text: "blue economy research innovation policy governance"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_R_I_COMP_001
-        sector: "R&I"
-        sector_slug: r_i
-        axis_target: OCEANIC
-        query_text: "blue economy researcher workforce skills competences training professional development"
-        query_family: competence_demand
-        evidence_intent: workforce_skill
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_R_I_COMP_002
-        sector: "R&I"
-        sector_slug: r_i
-        axis_target: OCEANIC
-        query_text: "ocean science education learning outcomes curriculum qualification"
-        query_family: competence_demand
-        evidence_intent: education_training
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_R_I_EMRG_001
-        sector: "R&I"
-        sector_slug: r_i
-        axis_target: OCEANIC
-        query_text: "ocean observation AI digital twin autonomous systems resilience climate adaptation"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_R_I_EMRG_002
-        sector: "R&I"
-        sector_slug: r_i
-        axis_target: OCEANIC
-        query_text: "blue economy research just transition ocean literacy marine governance hydrosocial"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_R_I_VAL_001
-        sector: "R&I"
-        sector_slug: r_i
-        axis_target: OCEANIC
-        query_text: "ocean science EQF qualification framework micro-credential learning outcomes"
-        query_family: validation_eqf_translation
-        evidence_intent: qualification
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_validation
-
+    - query_id: Q_R_I_CORE_001
+      sector: R&I
+      sector_slug: r_i
+      axis_target: OCEANIC
+      query_text: ocean observation marine monitoring data infrastructure
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_R_I_CORE_002
+      sector: R&I
+      sector_slug: r_i
+      axis_target: OCEANIC
+      query_text: ocean data governance FAIR CARE principles
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_R_I_CORE_003
+      sector: R&I
+      sector_slug: r_i
+      axis_target: OCEANIC
+      query_text: blue economy research innovation policy governance
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_R_I_COMP_001
+      sector: R&I
+      sector_slug: r_i
+      axis_target: OCEANIC
+      query_text: blue economy researcher workforce skills competences training professional
+        development
+      query_family: competence_demand
+      evidence_intent: workforce_skill
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_R_I_COMP_002
+      sector: R&I
+      sector_slug: r_i
+      axis_target: OCEANIC
+      query_text: ocean science education learning outcomes curriculum qualification
+      query_family: competence_demand
+      evidence_intent: education_training
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_R_I_EMRG_001
+      sector: R&I
+      sector_slug: r_i
+      axis_target: OCEANIC
+      query_text: ocean observation AI digital twin autonomous systems resilience
+        climate adaptation
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_R_I_EMRG_002
+      sector: R&I
+      sector_slug: r_i
+      axis_target: OCEANIC
+      query_text: blue economy research just transition ocean literacy marine governance
+        hydrosocial
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_R_I_VAL_001
+      sector: R&I
+      sector_slug: r_i
+      axis_target: OCEANIC
+      query_text: ocean science EQF qualification framework micro-credential learning
+        outcomes
+      query_family: validation_eqf_translation
+      evidence_intent: qualification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id007
+    - query_id: Q_R_I_HYP_001
+      sector: R&I
+      sector_slug: r_i
+      axis_target: OCEANIC
+      query_text: r&i maritimisation marinization oceanisation hydrosocial de-base-re
+        hypothesis verification indicators
+      query_family: hypothesis_verification
+      evidence_intent: hypothesis_verification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - hypothesis_verification
+      - maritimisation_shift
+      - eqf_gap
+      - omniocean_translation
+      - axis_bridge
+    - query_id: Q_R_I_THY_001
+      sector: R&I
+      sector_slug: r_i
+      axis_target: OCEANIC
+      query_text: r&i qmbd axis translation marine maritime oceanic hydronization
+        theory terms taxonomy mapping
+      query_family: theory_translation
+      evidence_intent: theory_translation
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - theory_translation
+      - taxonomy_mapping
+      - axis_translation
+      - de_base_re_dimension
+      - omniocean_framework
   ship_repair:
-    label: "Ship Repair"
-    description: "Ship repair, maintenance, shipyards, retrofit/decarbonization, and workforce competences."
+    label: Ship Repair
+    description: Ship repair, maintenance, shipyards, retrofit/decarbonization, and
+      workforce competences.
     axis_primary: MARITIME
     queries:
-      - query_id: Q_SHIP_REPAIR_CORE_001
-        sector: "Ship Repair"
-        sector_slug: ship_repair
-        axis_target: MARITIME
-        query_text: "ship repair shipyard workforce skills training"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_SHIP_REPAIR_CORE_002
-        sector: "Ship Repair"
-        sector_slug: ship_repair
-        axis_target: MARITIME
-        query_text: "ship retrofit decarbonization maintenance governance"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_SHIP_REPAIR_CORE_003
-        sector: "Ship Repair"
-        sector_slug: ship_repair
-        axis_target: MARITIME
-        query_text: "maritime repair supply chain safety standards"
-        query_family: core_sector
-        evidence_intent: competence_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_core
-      - query_id: Q_SHIP_REPAIR_COMP_001
-        sector: "Ship Repair"
-        sector_slug: ship_repair
-        axis_target: MARITIME
-        query_text: "shipyard worker workforce skills competences training professional development"
-        query_family: competence_demand
-        evidence_intent: workforce_skill
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_SHIP_REPAIR_COMP_002
-        sector: "Ship Repair"
-        sector_slug: ship_repair
-        axis_target: MARITIME
-        query_text: "ship repair engineer education learning outcomes curriculum qualification"
-        query_family: competence_demand
-        evidence_intent: education_training
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_competence
-      - query_id: Q_SHIP_REPAIR_EMRG_001
-        sector: "Ship Repair"
-        sector_slug: ship_repair
-        axis_target: MARITIME
-        query_text: "ship repair AI digital twin autonomous systems resilience"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_SHIP_REPAIR_EMRG_002
-        sector: "Ship Repair"
-        sector_slug: ship_repair
-        axis_target: OCEANIC
-        query_text: "ship retrofit just transition climate adaptation marine governance safety"
-        query_family: emerging_demand
-        evidence_intent: emerging_demand
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_emerging
-      - query_id: Q_SHIP_REPAIR_VAL_001
-        sector: "Ship Repair"
-        sector_slug: ship_repair
-        axis_target: MARITIME
-        query_text: "ship repair EQF qualification framework micro-credential learning outcomes"
-        query_family: validation_eqf_translation
-        evidence_intent: qualification
-        time_window: *default_time_window
-        sort_strategy: *default_sort_strategy
-        sampling_strategy: *default_sampling_strategy
-        expected_signal: *expected_signal_validation
+    - query_id: Q_SHIP_REPAIR_CORE_001
+      sector: Ship Repair
+      sector_slug: ship_repair
+      axis_target: MARITIME
+      query_text: ship repair shipyard workforce skills training
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_SHIP_REPAIR_CORE_002
+      sector: Ship Repair
+      sector_slug: ship_repair
+      axis_target: MARITIME
+      query_text: ship retrofit decarbonization maintenance governance
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_SHIP_REPAIR_CORE_003
+      sector: Ship Repair
+      sector_slug: ship_repair
+      axis_target: MARITIME
+      query_text: maritime repair supply chain safety standards
+      query_family: core_sector
+      evidence_intent: competence_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id004
+    - query_id: Q_SHIP_REPAIR_COMP_001
+      sector: Ship Repair
+      sector_slug: ship_repair
+      axis_target: MARITIME
+      query_text: shipyard worker workforce skills competences training professional
+        development
+      query_family: competence_demand
+      evidence_intent: workforce_skill
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_SHIP_REPAIR_COMP_002
+      sector: Ship Repair
+      sector_slug: ship_repair
+      axis_target: MARITIME
+      query_text: ship repair engineer education learning outcomes curriculum qualification
+      query_family: competence_demand
+      evidence_intent: education_training
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id005
+    - query_id: Q_SHIP_REPAIR_EMRG_001
+      sector: Ship Repair
+      sector_slug: ship_repair
+      axis_target: MARITIME
+      query_text: ship repair AI digital twin autonomous systems resilience
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_SHIP_REPAIR_EMRG_002
+      sector: Ship Repair
+      sector_slug: ship_repair
+      axis_target: OCEANIC
+      query_text: ship retrofit just transition climate adaptation marine governance
+        safety
+      query_family: emerging_demand
+      evidence_intent: emerging_demand
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id006
+    - query_id: Q_SHIP_REPAIR_VAL_001
+      sector: Ship Repair
+      sector_slug: ship_repair
+      axis_target: MARITIME
+      query_text: ship repair EQF qualification framework micro-credential learning
+        outcomes
+      query_family: validation_eqf_translation
+      evidence_intent: qualification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal: *id007
+    - query_id: Q_SHIP_REPAIR_HYP_001
+      sector: Ship Repair
+      sector_slug: ship_repair
+      axis_target: MARITIME
+      query_text: ship repair maritimisation marinization oceanisation hydrosocial
+        de-base-re hypothesis verification indicators
+      query_family: hypothesis_verification
+      evidence_intent: hypothesis_verification
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - hypothesis_verification
+      - maritimisation_shift
+      - eqf_gap
+      - omniocean_translation
+      - axis_bridge
+    - query_id: Q_SHIP_REPAIR_THY_001
+      sector: Ship Repair
+      sector_slug: ship_repair
+      axis_target: OCEANIC
+      query_text: ship repair qmbd axis translation marine maritime oceanic hydronization
+        theory terms taxonomy mapping
+      query_family: theory_translation
+      evidence_intent: theory_translation
+      time_window: *id001
+      sort_strategy: *id002
+      sampling_strategy: *id003
+      expected_signal:
+      - theory_translation
+      - taxonomy_mapping
+      - axis_translation
+      - de_base_re_dimension
+      - omniocean_framework

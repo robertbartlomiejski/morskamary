@@ -102,12 +102,20 @@ jobs:
           set -euo pipefail
           python scripts/export_research_source_capabilities.py
 
+      - name: Project live query protocol into legacy query_groups
+        run: |
+          set -euo pipefail
+          python scripts/export_live_query_protocol_projection.py \
+            --protocol-path config/live_query_protocol.yml \
+            --output-path outputs/research_sources/research_queries_from_protocol.yml \
+            --emit-summary-path outputs/research_sources/research_queries_from_protocol_summary.json
+
       - name: Export live research records
         run: |
           set -euo pipefail
           python scripts/export_live_research_records.py \
             --providers "$REQUESTED_PROVIDERS" \
-            --query-file config/research_queries.yml \
+            --query-file outputs/research_sources/research_queries_from_protocol.yml \
             --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
             --output-dir outputs/research_sources \
             --offline "$OFFLINE_MODE"
@@ -193,7 +201,7 @@ jobs:
             --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
             --offline "$OFFLINE_MODE" \
             --require-live-records "$REQUIRE_LIVE_RECORDS" \
-            --query-file config/research_queries.yml
+            --query-file outputs/research_sources/research_queries_from_protocol.yml
 
       - name: Validate archived run integrity
         run: |
