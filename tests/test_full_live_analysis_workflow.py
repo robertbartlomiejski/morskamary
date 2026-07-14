@@ -210,3 +210,34 @@ def test_release_package_step_passes_stats_dir_and_raw_acquisition_index() -> No
     )
     layer1_index = WORKFLOW_TEXT.index("python scripts/build_live_run_audit.py")
     assert layer1_index < package_index
+
+
+def test_workflow_captures_single_analysis_timestamp_before_layer45() -> None:
+    """Recency-sensitive Layer 4-5 outputs must be deterministic within a run.
+    The workflow must capture one workflow-level UTC timestamp into
+    ANALYSIS_TIMESTAMP_UTC before invoking the Layer 4-5 build, so no
+    downstream published-recency calculation calls wall-clock ``datetime.now()``
+    independently."""
+    assert "ANALYSIS_TIMESTAMP_UTC=" in WORKFLOW_TEXT
+    capture_index = WORKFLOW_TEXT.index("ANALYSIS_TIMESTAMP_UTC=")
+    layer45_index = WORKFLOW_TEXT.index(
+        "python scripts/build_layer4_5_scientific_analysis.py"
+    )
+    assert capture_index < layer45_index, (
+        "ANALYSIS_TIMESTAMP_UTC must be captured before the Layer 4-5 build step."
+    )
+    # The capture step must derive the timestamp exactly once via `date -u`
+    # so all downstream consumers share the identical value.
+    assert 'ANALYSIS_TS="$(date -u' in WORKFLOW_TEXT
+
+
+def test_layer45_step_passes_fixed_analysis_timestamp_utc() -> None:
+    """The Layer 4-5 build step must pass ``--analysis-timestamp-utc`` bound to
+    the single workflow-level ``ANALYSIS_TIMESTAMP_UTC`` env var captured
+    earlier in the same job."""
+    layer45_index = WORKFLOW_TEXT.index(
+        "python scripts/build_layer4_5_scientific_analysis.py"
+    )
+    layer45_block = WORKFLOW_TEXT[layer45_index : layer45_index + 600]
+    assert "--analysis-timestamp-utc" in layer45_block
+    assert '"$ANALYSIS_TIMESTAMP_UTC"' in layer45_block

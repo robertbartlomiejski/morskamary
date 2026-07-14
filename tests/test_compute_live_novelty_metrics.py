@@ -66,6 +66,82 @@ def test_gate_a_fails_in_strict_mode() -> None:
     assert r["overall_status"] == "fail"
 
 
+def test_gate_a_reconciles_wos_alias_when_health_uses_long_label() -> None:
+    """Gate A must canonicalise provider aliases so a healthy provider
+    reported as ``Web of Science (Clarivate)`` in health, but as ``wos`` in
+    contribution counts, is not falsely flagged as zero-contribution."""
+    m = _base_metrics(
+        provider_record_count_by_provider={"crossref": 10, "wos": 7},
+    )
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={
+            "crossref": {"status": "ok"},
+            "Web of Science (Clarivate)": {"status": "ok"},
+        },
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "pass"
+    assert gate_a["detail"]["providers_ok_zero_records"] == []
+
+
+def test_gate_a_reconciles_wos_alias_when_counts_use_long_label() -> None:
+    """The inverse: contribution counts use ``Web of Science`` while health
+    reports the short ``wos`` slug.  Both sides must canonicalise to the same
+    slug so Gate A passes."""
+    m = _base_metrics(
+        provider_record_count_by_provider={"crossref": 10, "Web of Science": 4},
+    )
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={"crossref": {"status": "ok"}, "wos": {"status": "ok"}},
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "pass"
+
+
+def test_gate_a_flags_zero_wos_even_when_health_uses_alias() -> None:
+    """Negative control: a healthy WoS provider that contributed zero
+    records must still be flagged, regardless of the alias used in either
+    the health report or the contribution counts."""
+    m = _base_metrics(
+        provider_record_count_by_provider={"crossref": 10, "wos": 0},
+    )
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={
+            "crossref": {"status": "ok"},
+            "Web of Science (Clarivate)": {"status": "ok"},
+        },
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "warn"
+    assert "wos" in gate_a["detail"]["providers_ok_zero_records"]
+
+
+def test_gate_a_accumulates_counts_across_alias_labels() -> None:
+    """When the same canonical provider is reported under multiple raw
+    labels (e.g. ``wos`` and ``Web of Science``), the counts must be summed
+    for Gate A comparison so a healthy provider with any contribution
+    passes."""
+    m = _base_metrics(
+        provider_record_count_by_provider={
+            "crossref": 10,
+            "wos": 3,
+            "Web of Science": 2,
+        },
+    )
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={
+            "crossref": {"status": "ok"},
+            "Clarivate WoS": {"status": "ok"},
+        },
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "pass"
+
+
 def test_gate_b_warn_on_zero_novelty() -> None:
     m = _base_metrics(new_unique_doi_count=0, semantic_new_signal_count=0)
     r = evaluate_gates(metrics=m)

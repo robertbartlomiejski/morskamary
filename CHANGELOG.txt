@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-14 (fix: PR-191 deterministic Layer 4-5 recency timestamp + Gate A provider-alias canonicalisation)
+  Change type fix
+  Scope workflows scripts tests governance
+  Files affected .github/workflows/full-live-analysis.yml scripts/compute_live_novelty_metrics.py tests/test_full_live_analysis_workflow.py tests/test_compute_live_novelty_metrics.py CHANGELOG.txt
+  Summary Full-live workflow now captures a single job-level `ANALYSIS_TIMESTAMP_UTC` via one `date -u` call and passes it to the Layer 4-5 build as `--analysis-timestamp-utc`, so recency-sensitive Layer 4-5 outputs are deterministic within a run and do not drift across steps. Gate A in `compute_live_novelty_metrics.py` now canonicalises provider aliases on both the provider-health and contribution-count sides through a shared `_canonical_provider` map (reconciling `wos`, `Web of Science`, `Web of Science (Clarivate)`, `Clarivate WoS`, and variants) and accumulates counts across alias labels, so a healthy WoS provider with contributed records is not falsely flagged as zero-contribution while still failing correctly when it truly returned zero records.
+  Reason Reviewer identified that Layer 4-5 recency published values could vary within a single run because independent steps otherwise call wall-clock `datetime.now()`, and that Gate A could raise false zero-contribution failures when provider labels differed between the health report and the contribution counts.
+  Impact Layer 4-5 published recency values are reproducible for a given run; two identical Full Live-Enriched Analysis runs can be compared without wall-clock drift. Gate A no longer produces false positives or false negatives caused solely by provider label variation between the health preflight and the Layer 2-3 contribution counts.
+  Quality checks python -m pytest tests/test_full_live_analysis_workflow.py tests/test_compute_live_novelty_metrics.py -v; python -m flake8 src scripts tests run_full_analysis.py main.py; python -m mypy src scripts run_full_analysis.py main.py.
+  Reviewer @copilot
+
 - 2026-07-13 (fix: PR-191 semantic-enrichment guard + executable package invocation + taxonomy/provenance hardening)
   Change type fix
   Scope src workflows tests governance

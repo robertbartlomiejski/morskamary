@@ -91,6 +91,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
 
+      - name: Capture single workflow-level analysis timestamp (UTC)
+        # Recency-sensitive Layer 4-5 outputs must be deterministic across
+        # steps within a single run.  Capture one ISO-8601 UTC timestamp here
+        # and reuse it for the Layer 4-5 build so no downstream step calls
+        # wall-clock `datetime.now()` independently for recency scoring.
+        run: |
+          set -euo pipefail
+          ANALYSIS_TS="$(date -u +%Y-%m-%dT%H:%M:%S+00:00)"
+          echo "ANALYSIS_TIMESTAMP_UTC=${ANALYSIS_TS}" >> "$GITHUB_ENV"
+          echo "Captured analysis timestamp: ${ANALYSIS_TS}"
+
       - name: Provider health preflight
         if: ${{ env.OFFLINE_MODE != 'true' }}
         run: |
@@ -248,7 +259,8 @@ jobs:
             --database-dir outputs/cumulative_database \
             --output-dir outputs/cumulative_database \
             --stats-dir outputs/layer4_statistics \
-            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}"
+            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC"
 
       - name: Evaluate live novelty gates (A-E)
         run: |

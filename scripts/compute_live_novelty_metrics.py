@@ -43,6 +43,44 @@ def _load_optional_json(path: Optional[Path]) -> Dict[str, Any]:
     return _load_json(path)
 
 
+# Canonical provider aliases used for Gate A cross-referencing between the
+# provider-health report and per-provider contribution counts.  Real-world
+# provider labels vary ("wos", "Web of Science", "Web of Science
+# (Clarivate)", "Clarivate WoS", ...); normalising both sides through the
+# same map is required so a healthy provider with contributed records is
+# never falsely flagged as zero-contribution.
+_PROVIDER_ALIASES: Dict[str, str] = {
+    "crossref": "crossref",
+    "cr": "crossref",
+    "scopus": "scopus",
+    "elsevier scopus": "scopus",
+    "wos": "wos",
+    "web of science": "wos",
+    "web of science (clarivate)": "wos",
+    "clarivate": "wos",
+    "clarivate wos": "wos",
+    "clarivate web of science": "wos",
+    "scival": "scival",
+    "microsoft_graph": "microsoft_graph",
+    "microsoft graph": "microsoft_graph",
+    "google_drive": "google_drive",
+    "google drive": "google_drive",
+}
+
+
+def _canonical_provider(name: Any) -> str:
+    """Return the canonical provider slug for Gate A alias reconciliation.
+
+    Normalisation lower-cases, strips whitespace, and looks up in
+    ``_PROVIDER_ALIASES``.  Unknown labels fall through as their trimmed
+    lower-cased form so they still compare correctly to themselves.
+    """
+    token = str(name or "").strip().lower()
+    if not token:
+        return ""
+    return _PROVIDER_ALIASES.get(token, token)
+
+
 def evaluate_gates(
     *,
     metrics: Dict[str, Any],
@@ -64,22 +102,34 @@ def evaluate_gates(
     crossref_dom = float(metrics.get("crossref_dominance_ratio", 0.0) or 0.0)
 
     # Gate A
-    provider_counts_normalized = {
-        str(name).strip().lower(): int(count or 0)
-        for name, count in provider_counts.items()
-    }
+    # Canonicalise provider aliases on both sides so a healthy provider
+    # (e.g. "Web of Science (Clarivate)") whose contribution counts are
+    # reported under an alias (e.g. "wos") is not falsely flagged as
+    # zero-contribution.  Accumulate counts because several raw labels may
+    # canonicalise to the same slug.
+    provider_counts_normalized: Dict[str, int] = {}
+    for name, count in provider_counts.items():
+        slug = _canonical_provider(name)
+        if not slug:
+            continue
+        provider_counts_normalized[slug] = (
+            provider_counts_normalized.get(slug, 0) + int(count or 0)
+        )
     provider_health_map: Dict[str, Any] = {}
     statuses = provider_health.get("statuses")
     if isinstance(statuses, list):
         for health in statuses:
             if isinstance(health, dict):
-                provider = str(health.get("provider", "")).strip().lower()
+                provider = _canonical_provider(health.get("provider", ""))
                 if provider:
                     provider_health_map[provider] = health
     else:
         entries = provider_health.get("providers") or provider_health
         if isinstance(entries, dict):
-            provider_health_map = entries
+            for raw_name, health in entries.items():
+                slug = _canonical_provider(raw_name)
+                if slug:
+                    provider_health_map[slug] = health
     zero_but_ok = []
     for prov, health in provider_health_map.items():
         status = ""
@@ -87,7 +137,7 @@ def evaluate_gates(
             status = str(health.get("status", "")).lower()
         elif isinstance(health, str):
             status = health.lower()
-        prov_count = provider_counts_normalized.get(str(prov).lower(), 0)
+        prov_count = provider_counts_normalized.get(prov, 0)
         if status == "ok" and prov_count == 0:
             zero_but_ok.append(prov)
     gate_a_status = "pass" if not zero_but_ok else ("fail" if strict else "warn")
