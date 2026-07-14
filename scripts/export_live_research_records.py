@@ -14,6 +14,7 @@ Outputs:
   - outputs/research_sources/enrichment_records.json (non-identity provider rows)
   - outputs/research_sources/live_provenance.json (provenance metadata)
   - outputs/research_sources/live_source_coverage.csv (coverage by sector/provider)
+  - outputs/research_sources/scopus_query_diagnostics.json (per-query Scopus returned/normalized/contributed diagnostics)
   - outputs/research_sources/low_confidence_live_records.json (records with confidence < 0.8)
   - outputs/research_sources/triangulation_identity_loop.json (loop-1 identity audit)
   - outputs/research_sources/triangulation_thematic_loop.json (loop-2 QMBD audit)
@@ -65,7 +66,11 @@ QUERY_EXECUTION_FIELDS: Tuple[str, ...] = (
     "query_family",
     "query_text",
     "provider",
+    "provider_canonical",
     "execution_status",
+    "returned_record_count",
+    "normalized_record_count",
+    "contributed_record_count",
     "raw_record_count",
     "accepted_record_count",
     "excluded_outside_time_window_count",
@@ -1272,6 +1277,7 @@ def main() -> int:
     # Raw API payloads for cold-cache archiving — stored before any normalisation.
     raw_api_payload_triples: List[Dict[str, Any]] = []
     query_execution_rows: List[Dict[str, Any]] = []
+    query_provider_identity_keys: Dict[Tuple[str, str], Set[str]] = defaultdict(set)
 
     # Execute exactly the authoritative projected query universe.
     if offline:
@@ -1287,7 +1293,11 @@ def main() -> int:
                             "query_family": constraint.get("query_family", ""),
                             "query_text": query,
                             "provider": provider_name,
+                            "provider_canonical": normalize_provider_name(provider_name),
                             "execution_status": "offline_not_executed",
+                            "returned_record_count": 0,
+                            "normalized_record_count": 0,
+                            "contributed_record_count": 0,
                             "from_year": constraint.get("time_window", {}).get(
                                 "from_year", ""
                             ),
@@ -1361,11 +1371,15 @@ def main() -> int:
                         "query_family": constraint.get("query_family", ""),
                         "query_text": query,
                         "provider": provider_name,
+                        "provider_canonical": normalize_provider_name(provider_name),
                         "execution_status": (
                             "completed_with_errors"
                             if result.errors
                             else "completed"
                         ),
+                        "returned_record_count": len(result.records),
+                        "normalized_record_count": len(accepted_records),
+                        "contributed_record_count": 0,
                         "errors": "|".join(str(error) for error in result.errors),
                         "warnings": "|".join(
                             str(warning) for warning in result.warnings
@@ -1383,6 +1397,12 @@ def main() -> int:
                     )
 
                     for record in accepted_records:
+                        query_provider_identity_keys[
+                            (
+                                constraint["query_id"],
+                                normalize_provider_name(provider_name),
+                            )
+                        ].add(_identity_key_from_record(record))
                         sectors_by_identity_key[
                             _identity_key_from_record(record)
                         ].add(str(sector_label))
@@ -1417,6 +1437,18 @@ def main() -> int:
         f"(removed {dedup_stats['doi_duplicates']} DOI duplicates, "
         f"{dedup_stats['title_duplicates']} title duplicates)"
     )
+
+    deduped_identity_keys = {_identity_key_from_record(rec) for rec in deduped_records}
+    for row in query_execution_rows:
+        query_id = str(row.get("query_id", "")).strip()
+        provider_key = normalize_provider_name(row.get("provider_canonical") or row.get("provider", ""))
+        identity_keys = query_provider_identity_keys.get((query_id, provider_key), set())
+        row["provider_canonical"] = provider_key
+        row["contributed_record_count"] = len(identity_keys & deduped_identity_keys)
+        if row.get("normalized_record_count", "") == "":
+            row["normalized_record_count"] = row.get("accepted_record_count", 0)
+        if row.get("returned_record_count", "") == "":
+            row["returned_record_count"] = row.get("raw_record_count", 0)
 
     # Filter by provider for provider-specific exports
     crossref_records = [r for r in deduped_records if r.provider == "Crossref"]
@@ -1518,6 +1550,22 @@ def main() -> int:
         query_execution_rows,
         output_dir / "query_execution_log.csv",
     )
+    scopus_rows = [
+        row for row in query_execution_rows
+        if str(row.get("provider_canonical", "")).strip() == "scopus"
+    ]
+    with open(
+        output_dir / "scopus_query_diagnostics.json", "w", encoding="utf-8"
+    ) as f:
+        json.dump(
+            sorted(
+                scopus_rows,
+                key=lambda row: (str(row.get("query_id", "")), str(row.get("provider", ""))),
+            ),
+            f,
+            indent=2,
+            ensure_ascii=False,
+        )
     export_records_json(
         low_confidence_records, output_dir / "low_confidence_live_records.json"
     )

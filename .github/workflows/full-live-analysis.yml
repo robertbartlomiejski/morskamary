@@ -278,7 +278,8 @@ jobs:
           set -euo pipefail
           python scripts/build_statistical_research_report.py \
             --database-dir outputs/cumulative_database \
-            --output-dir reports
+            --output-dir reports \
+            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}"
 
       - name: Build live cumulative release package (single ZIP)
         run: |
@@ -288,6 +289,7 @@ jobs:
             --reports-dir reports \
             --stats-dir outputs/layer4_statistics \
             --raw-acquisition-index "outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}/raw/raw_acquisition_index.csv" \
+            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
             --version-tag "${{ github.run_id }}-${{ github.run_attempt }}" \
             --output outputs/release_packages/morskamary_live_cumulative_latest.zip
 

@@ -11,6 +11,7 @@ from unittest.mock import MagicMock, patch
 
 from scripts.export_live_research_records import (
     LiveContextClassificationRepository,
+    QUERY_EXECUTION_FIELDS,
     STAGE1_CSV_FIELDS,
     _to_stage1_compliant_dict,
     build_thematic_loop_audit,
@@ -1155,6 +1156,76 @@ query_groups:
             assert len(rows) == 2
             assert rows[0]["provider"] == "crossref"
             assert rows[1]["provider"] == "scopus"
+
+    def test_query_execution_log_includes_scopus_diagnostics_columns(
+        self, tmp_path, monkeypatch
+    ):
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text("""
+query_groups:
+  test_sector:
+    label: "Test Sector"
+    queries:
+      - "blue economy"
+""")
+        output_dir = tmp_path / "outputs"
+        scopus_rec = _make_record(
+            provider="Scopus",
+            doi="10.1000/scopus.1",
+            source_id="scopus:10.1000/scopus.1",
+        )
+        scopus_result = ProviderResult(records=[scopus_rec], provenance=[])
+
+        def mock_search(query, max_results, providers):
+            assert providers == ["scopus"]
+            return [scopus_result]
+
+        with patch("scripts.export_live_research_records.SourceRegistry") as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search = mock_search
+            mock_instance.list_capabilities.return_value = _make_capability("scopus")
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "scopus",
+                ],
+            )
+            result = main()
+            assert result == 0
+
+        import csv as csv_module
+
+        with open(output_dir / "query_execution_log.csv", newline="") as f:
+            rows = list(csv_module.DictReader(f))
+        assert rows
+        row = rows[0]
+        for field in (
+            "provider_canonical",
+            "returned_record_count",
+            "normalized_record_count",
+            "contributed_record_count",
+        ):
+            assert field in QUERY_EXECUTION_FIELDS
+            assert field in row
+        assert row["provider_canonical"] == "scopus"
+        assert row["returned_record_count"] == "1"
+        assert row["normalized_record_count"] == "1"
+        assert row["contributed_record_count"] == "1"
+
+        diagnostics = json.loads((output_dir / "scopus_query_diagnostics.json").read_text())
+        assert len(diagnostics) == 1
+        assert diagnostics[0]["provider_canonical"] == "scopus"
+        assert diagnostics[0]["contributed_record_count"] == 1
 
     def test_unknown_provider_returns_error(self, tmp_path, monkeypatch, capsys):
         """An unrecognised provider name must return error code 1 with a clear message."""

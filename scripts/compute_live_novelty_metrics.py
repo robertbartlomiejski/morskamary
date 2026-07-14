@@ -202,12 +202,29 @@ def evaluate_gates(
         fail = True
 
     # Gate E
-    active_providers = [p for p, c in provider_counts.items() if int(c or 0) > 0]
-    active_families = metrics.get("query_families_seen") or []
-    if isinstance(active_families, str):
-        active_families = [f for f in active_families.split("|") if f]
-    single_provider = len(active_providers) <= 1 and sum(provider_counts.values()) > 0
-    single_family = len(active_families) <= 1 and metrics.get("query_diversity_score", 0) == 0
+    active_provider_set = {
+        _canonical_provider(provider)
+        for provider, count in provider_counts.items()
+        if int(count or 0) > 0 and _canonical_provider(provider)
+    }
+    active_providers = sorted(active_provider_set)
+    raw_families = metrics.get("query_families_seen")
+    family_data_available = "query_families_seen" in metrics
+    if isinstance(raw_families, str):
+        family_tokens: List[Any] = [item for item in raw_families.split("|")]
+    elif isinstance(raw_families, list):
+        family_tokens = raw_families
+    else:
+        family_tokens = []
+    active_families = sorted(
+        {
+            str(family).strip()
+            for family in family_tokens
+            if str(family).strip()
+        }
+    )
+    single_provider = len(active_providers) <= 1 and sum(int(c or 0) for c in provider_counts.values()) > 0
+    single_family = family_data_available and len(active_families) == 1
     single_bias = single_provider or single_family or crossref_dom >= 0.98
     explicit_flag = any("provider_bias_warning" in str(w)
                         for w in metrics.get("validity_warnings", []) or [])
@@ -221,6 +238,9 @@ def evaluate_gates(
         "status": gate_e_status,
         "detail": {
             "active_providers": sorted(active_providers),
+            "active_families": active_families,
+            "query_family_distribution_available": family_data_available,
+            "warnings": ([] if family_data_available else ["query_family_distribution_unavailable"]),
             "crossref_dominance_ratio": crossref_dom,
         },
     })

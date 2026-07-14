@@ -197,6 +197,46 @@ def test_gate_e_warns_on_single_provider() -> None:
     assert e["status"] == "warn"
 
 
+def test_gate_e_warns_on_single_query_family_even_with_query_id_diversity() -> None:
+    m = _base_metrics(
+        provider_record_count_by_provider={"crossref": 10, "scopus": 8},
+        query_families_seen=["core_sector"],
+        query_diversity_score=0.9,
+    )
+    r = evaluate_gates(metrics=m)
+    e = next(g for g in r["gates"] if g["gate_id"] == "E")
+    assert e["status"] == "warn"
+    assert e["detail"]["active_families"] == ["core_sector"]
+
+
+def test_gate_e_deduplicates_query_family_aliases() -> None:
+    m = _base_metrics(
+        provider_record_count_by_provider={"crossref": 10, "scopus": 5},
+        query_families_seen=["core_sector", " core_sector ", "core_sector"],
+    )
+    r = evaluate_gates(metrics=m)
+    e = next(g for g in r["gates"] if g["gate_id"] == "E")
+    assert e["detail"]["active_families"] == ["core_sector"]
+
+
+def test_gate_e_reports_missing_query_family_distribution() -> None:
+    m = _base_metrics()
+    m.pop("query_families_seen")
+    r = evaluate_gates(metrics=m)
+    e = next(g for g in r["gates"] if g["gate_id"] == "E")
+    assert e["detail"]["query_family_distribution_available"] is False
+    assert "query_family_distribution_unavailable" in e["detail"]["warnings"]
+
+
+def test_gate_e_canonicalizes_provider_aliases() -> None:
+    m = _base_metrics(
+        provider_record_count_by_provider={"Crossref": 10, "crossref": 4, "Scopus": 3},
+    )
+    r = evaluate_gates(metrics=m)
+    e = next(g for g in r["gates"] if g["gate_id"] == "E")
+    assert e["detail"]["active_providers"] == ["crossref", "scopus"]
+
+
 def test_cli_gate_d_failure_exits_nonzero_without_strict(tmp_path: Path) -> None:
     metrics_path = tmp_path / "metrics.json"
     metrics_path.write_text(json.dumps(_base_metrics()), encoding="utf-8")

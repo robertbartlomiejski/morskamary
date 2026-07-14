@@ -36,7 +36,7 @@ import sys
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 CSV_FILES = (
     "evidence_records.csv",
@@ -105,6 +105,18 @@ def _read_bytes_if_exists(path: Path) -> Optional[bytes]:
     if not path.exists():
         return None
     return path.read_bytes()
+
+
+def _load_json_required(path: Path) -> Optional[Dict[str, Any]]:
+    if not path.is_file():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if isinstance(payload, dict):
+        return payload
+    return None
 
 
 def _build_sqlite_from_csvs(csv_dir: Path) -> Tuple[Optional[bytes], Dict[str, str]]:
@@ -229,6 +241,14 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     parser.add_argument("--version-tag", default="latest")
     parser.add_argument(
+        "--current-run-id",
+        default="",
+        help=(
+            "Optional run id guard (e.g. <github.run_id>-<run_attempt>). "
+            "When set, package assembly fails if manifests/metrics are stale."
+        ),
+    )
+    parser.add_argument(
         "--output",
         default="outputs/release_packages/morskamary_live_cumulative_latest.zip",
     )
@@ -256,6 +276,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
+    expected_run_id = str(args.current_run_id or "").strip()
     generated_at = (
         args.generated_at_utc
         or datetime.now(timezone.utc).replace(microsecond=0).isoformat()
@@ -287,6 +308,30 @@ def main(argv: Optional[List[str]] = None) -> int:
             for required_path in required_paths
             if not required_path.is_file()
         ]
+    if expected_run_id:
+        run_guard_failures: List[str] = []
+        for name in (
+            "run_novelty_metrics.json",
+            "layer4_manifest.json",
+            "layer5_manifest.json",
+        ):
+            payload = _load_json_required(database_dir / name)
+            run_id = str(payload.get("current_run_id", "")).strip() if payload else ""
+            if not run_id:
+                run_guard_failures.append(f"{name}:missing_current_run_id")
+            elif run_id != expected_run_id:
+                run_guard_failures.append(f"{name}:{run_id}")
+        if raw_acquisition_index is not None:
+            normalized_raw_path = str(raw_acquisition_index).replace("\\", "/")
+            if expected_run_id not in normalized_raw_path:
+                run_guard_failures.append(
+                    "raw_acquisition_index_path_missing_expected_run_id"
+                )
+        if run_guard_failures:
+            missing_required.extend(
+                f"current-run-guard:{entry}" for entry in run_guard_failures
+            )
+
     if missing_required:
         print(
             f"error: {len(missing_required)} required Layer 0-5 artifact(s) "

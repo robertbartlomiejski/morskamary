@@ -250,6 +250,16 @@ Use this section for changes in progress that are not yet merged into the main b
   Quality checks python -m pytest tests/ -q (779 baseline + new tests); python -m flake8 src/ tests/ scripts/; python -m mypy src/.
   Reviewer GitHub Copilot Coding Agent
 
+  2026-07-14
+  Change type fix update
+  Scope novelty-gates provider-canonicalization diagnostics packaging reporting tests workflow
+  Files affected src/scientific_sources/cumulative_scientific_database.py scripts/compute_live_novelty_metrics.py src/scientific_sources/derived_competence_analysis.py scripts/export_live_research_records.py scripts/build_statistical_research_report.py scripts/build_live_cumulative_release_package.py .github/workflows/full-live-analysis.yml tests/test_cumulative_scientific_database.py tests/test_compute_live_novelty_metrics.py tests/test_derived_competence_analysis.py tests/test_export_live_research_records.py tests/test_full_live_analysis_workflow.py tests/test_live_cumulative_release_package.py CHANGELOG.txt
+  Summary PR-191 follow-up: canonicalized provider identity for cumulative novelty/provider concentration metrics (Crossref/crossref/WoS aliases collapse deterministically), added producer-side run_novelty_metrics query_families_seen serialization from current-run provenance, tightened Gate E to evaluate single-family concentration directly from query_families_seen with explicit query_family_distribution_unavailable warning when provenance is missing, propagated review_required signals conservatively into derived demand status/validation counts, added Scopus per-query returned/normalized/contributed diagnostics outputs, and enforced current-run-only report/package assembly guards to block stale manifests.
+  Reason Address remaining scientific-validity blockers from Request Changes without weakening Gates A-E or reinterpretation of negative-control runs.
+  Impact Gate A/E now operate on canonical provider slugs end-to-end, query-family concentration no longer relies on query_diversity_score fallback, metadata-limited review_required signals cannot auto-promote into validated demand counts, Scopus diagnostics are exported per query for auditability, and report/package steps fail fast when current_run_id mismatches indicate stale assembly inputs.
+  Quality checks python -m pytest tests/test_cumulative_scientific_database.py tests/test_compute_live_novelty_metrics.py tests/test_derived_competence_analysis.py tests/test_export_live_research_records.py tests/test_live_cumulative_release_package.py tests/test_full_live_analysis_workflow.py -v.
+  Reviewer GitHub Copilot Coding Agent
+
 - 2026-07-02 (PR-3B: evidence-first dynamic EQF micro-credential generation and validation)
   Change type add update fix
   Scope analysis pipeline scripts tests outputs governance

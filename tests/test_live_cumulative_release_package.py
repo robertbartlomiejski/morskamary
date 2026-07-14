@@ -112,6 +112,16 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
     )
 
 
+def _stamp_current_run_id(db: Path, run_id: str) -> None:
+    for name in ("run_novelty_metrics.json", "layer4_manifest.json", "layer5_manifest.json"):
+        path = db / name
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(payload, dict):
+            payload = {}
+        payload["current_run_id"] = run_id
+        path.write_text(json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8")
+
+
 def test_package_is_deterministic(tmp_path: Path) -> None:
     db = tmp_path / "db"
     reports = tmp_path / "reports"
@@ -224,3 +234,36 @@ def test_package_fails_when_required_csv_missing(tmp_path: Path) -> None:
     ])
     assert rc == 1, "expected non-zero exit when required artifacts are missing"
     assert not out.exists(), "ZIP must not be written when pre-flight fails"
+
+
+def test_package_rejects_stale_current_run_id(tmp_path: Path) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _stamp_current_run_id(db, "RUN-OLDER")
+    out = tmp_path / "pkg.zip"
+    rc = build_main([
+        "--database-dir", str(db),
+        "--reports-dir", str(reports),
+        "--output", str(out),
+        "--version-tag", "test",
+        "--generated-at-utc", "2026-07-10T00:00:00+00:00",
+        "--current-run-id", "RUN-NEW",
+        *_required_source_args(db),
+    ])
+    assert rc == 1
+    assert not out.exists()
+
+
+def test_report_rejects_stale_current_run_id(tmp_path: Path) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _stamp_current_run_id(db, "RUN-OLDER")
+    rc = _REPORT.main([
+        "--database-dir", str(db),
+        "--output-dir", str(reports),
+        "--formats", "html",
+        "--current-run-id", "RUN-NEW",
+    ])
+    assert rc == 1

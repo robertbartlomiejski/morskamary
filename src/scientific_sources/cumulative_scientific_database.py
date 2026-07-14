@@ -512,6 +512,7 @@ class RunNoveltyMetrics:
     jaccard_similarity_with_previous_run: float
     provider_diversity_score: float
     query_diversity_score: float
+    query_families_seen: List[str]
     crossref_dominance_ratio: float
     validity_warnings: List[str]
 
@@ -536,6 +537,13 @@ class RunNoveltyMetrics:
             ),
             "provider_diversity_score": self.provider_diversity_score,
             "query_diversity_score": self.query_diversity_score,
+            "query_families_seen": sorted(
+                {
+                    str(query_family).strip()
+                    for query_family in self.query_families_seen
+                    if str(query_family).strip()
+                }
+            ),
             "crossref_dominance_ratio": self.crossref_dominance_ratio,
             "validity_warnings": sorted(self.validity_warnings),
         }
@@ -559,6 +567,24 @@ class CumulativeDatabaseResult:
 _WHITESPACE_RE = re.compile(r"\s+")
 _TITLE_KEEP_RE = re.compile(r"[^a-z0-9 ]+")
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
+
+_PROVIDER_ALIAS_TO_CANONICAL: Dict[str, str] = {
+    "crossref": "crossref",
+    "cr": "crossref",
+    "scopus": "scopus",
+    "elsevier scopus": "scopus",
+    "wos": "wos",
+    "web of science": "wos",
+    "web of science (clarivate)": "wos",
+    "clarivate": "wos",
+    "clarivate wos": "wos",
+    "clarivate web of science": "wos",
+    "scival": "scival",
+    "microsoft graph": "microsoft_graph",
+    "microsoft_graph": "microsoft_graph",
+    "google drive": "google_drive",
+    "google_drive": "google_drive",
+}
 
 
 def _normalize_doi(doi: Any) -> str:
@@ -613,6 +639,20 @@ def _normalize_source_id(source_id: Any) -> str:
     if not isinstance(source_id, str):
         return ""
     return source_id.strip().lower()
+
+
+def _canonical_provider_name(value: Any) -> str:
+    """Return canonical provider slug for stable cross-layer comparisons."""
+    token = str(value or "").strip().lower()
+    if not token:
+        return ""
+    normalized = re.sub(r"\s+", " ", token)
+    if normalized in _PROVIDER_ALIAS_TO_CANONICAL:
+        return _PROVIDER_ALIAS_TO_CANONICAL[normalized]
+    fallback = re.sub(r"[^a-z0-9]+", "_", normalized).strip("_")
+    if fallback in _PROVIDER_ALIAS_TO_CANONICAL:
+        return _PROVIDER_ALIAS_TO_CANONICAL[fallback]
+    return fallback
 
 
 def _title_tokens(normalized_title: str) -> Set[str]:
@@ -933,11 +973,7 @@ def _dedupe_key(record: Mapping[str, Any]) -> Tuple[str, str, str]:
     normalized_title = _normalize_title(record.get("title"))
     source_id = _normalize_source_id(record.get("source_id"))
     if source_id:
-        provider = re.sub(
-            r"[^a-z0-9]+",
-            "_",
-            str(record.get("provider") or "unknown").strip().lower(),
-        ).strip("_") or "unknown"
+        provider = _canonical_provider_name(record.get("provider")) or "unknown"
         source_id = f"{provider}:{source_id}"
     return doi_key, normalized_title, source_id
 
@@ -1747,7 +1783,7 @@ def _flatten_text_surface(value: Any) -> str:
 
 def _providers_for_record(record: Mapping[str, Any]) -> Set[str]:
     providers: Set[str] = set()
-    primary = str(record.get("provider") or "").strip()
+    primary = _canonical_provider_name(record.get("provider"))
     if primary:
         providers.add(primary)
     supporting = record.get("supporting_providers")
@@ -1759,7 +1795,12 @@ def _providers_for_record(record: Mapping[str, Any]) -> Set[str]:
         values = re.split(r"[|;,]", supporting)
     else:
         values = ()
-    providers.update(str(value).strip() for value in values if str(value).strip())
+    providers.update(
+        canonical
+        for value in values
+        for canonical in [_canonical_provider_name(value)]
+        if canonical
+    )
     return providers
 
 
@@ -1929,7 +1970,7 @@ def _compute_novelty_metrics(
     provider_health_ok_zero_records = sorted(known_providers - active_providers)
 
     total_current = sum(provider_counts.values())
-    crossref_count = provider_counts.get("Crossref", 0)
+    crossref_count = provider_counts.get("crossref", 0)
     crossref_dominance_ratio = (
         crossref_count / total_current if total_current else 0.0
     )
@@ -1937,6 +1978,7 @@ def _compute_novelty_metrics(
     provider_diversity_score = _diversity_score(provider_counts)
     query_counts = _current_query_counts(buckets, current_run_id)
     query_diversity_score = _diversity_score(query_counts)
+    query_families_seen = _current_query_families(buckets, current_run_id)
 
     jaccard = _run_jaccard_similarity(buckets, current_run_id, previous_run_id)
 
@@ -1961,6 +2003,7 @@ def _compute_novelty_metrics(
         jaccard_similarity_with_previous_run=jaccard,
         provider_diversity_score=provider_diversity_score,
         query_diversity_score=query_diversity_score,
+        query_families_seen=query_families_seen,
         crossref_dominance_ratio=round(crossref_dominance_ratio, 4),
         validity_warnings=validity_warnings,
     )
@@ -1987,6 +2030,21 @@ def _current_query_counts(
                 continue
             counts[obs.binding.query_id] = counts.get(obs.binding.query_id, 0) + 1
     return counts
+
+
+def _current_query_families(
+    buckets: Dict[Tuple[str, str], List[_RunObservation]],
+    current_run_id: str,
+) -> List[str]:
+    families: Set[str] = set()
+    for observations in buckets.values():
+        for obs in observations:
+            if obs.run_id != current_run_id:
+                continue
+            family = str(obs.binding.query_family or "").strip()
+            if family:
+                families.add(family)
+    return sorted(families)
 
 
 def _diversity_score(counts: Mapping[str, int]) -> float:

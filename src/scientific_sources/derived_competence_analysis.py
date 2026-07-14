@@ -511,10 +511,18 @@ def build_layer4(
             provider_count=len(providers),
             confidences=confidences,
         )
+        signal_review_required = any(
+            str(signal.get("manual_review_status", "")).strip() == "review_required"
+            for signal in signals
+        )
+        if signal_review_required:
+            status = "review_required"
         review = "review_required" if status == "review_required" else "auto_accepted"
         warnings = sorted({
             w for s in signals for w in _split_list(s.get("validity_warning", ""))
         })
+        if signal_review_required and "propagated_review_required" not in warnings:
+            warnings.append("propagated_review_required")
         if any(e.get("validity_warning") == "metadata_only_limitation" for e in evs):
             if "metadata_only_limitation" not in warnings:
                 warnings.append("metadata_only_limitation")

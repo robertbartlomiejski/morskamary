@@ -97,6 +97,38 @@ def _fmt_hypothesis(result: Dict[str, Any]) -> str:
     return _kv_list([[key, value] for key, value in sorted(result.items())])
 
 
+def _assert_current_run_consistency(
+    *,
+    expected_run_id: str,
+    novelty: Any,
+    layer4: Any,
+    layer5: Any,
+) -> None:
+    """Fail when report inputs do not all belong to the same current run."""
+    if not expected_run_id:
+        return
+    mismatches: List[str] = []
+    sources = {
+        "run_novelty_metrics.json": novelty,
+        "layer4_manifest.json": layer4,
+        "layer5_manifest.json": layer5,
+    }
+    for name, payload in sources.items():
+        if not isinstance(payload, dict):
+            mismatches.append(f"{name}:missing_or_invalid")
+            continue
+        run_id = str(payload.get("current_run_id", "")).strip()
+        if not run_id:
+            mismatches.append(f"{name}:missing_current_run_id")
+        elif run_id != expected_run_id:
+            mismatches.append(f"{name}:{run_id}")
+    if mismatches:
+        raise ValueError(
+            "current-run-only report assembly failed: expected "
+            f"{expected_run_id}; mismatches={mismatches}"
+        )
+
+
 def build_html_report(
     *,
     database_dir: Path,
@@ -551,6 +583,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         default="html,pdf",
         help="Comma-separated: html, pdf.",
     )
+    parser.add_argument(
+        "--current-run-id",
+        default="",
+        help=(
+            "Optional run id guard (e.g. <github.run_id>-<run_attempt>). "
+            "When set, report assembly fails if novelty/layer manifests do not match."
+        ),
+    )
     args = parser.parse_args(argv)
 
     database_dir = Path(args.database_dir)
@@ -560,6 +600,18 @@ def main(argv: Optional[List[str]] = None) -> int:
         for item in args.formats.split(",")
         if item.strip()
     }
+
+    try:
+        _assert_current_run_consistency(
+            expected_run_id=str(args.current_run_id or "").strip(),
+            novelty=_load_json(database_dir / "run_novelty_metrics.json"),
+            layer4=_load_json(database_dir / "layer4_manifest.json"),
+            layer5=_load_json(database_dir / "layer5_manifest.json"),
+        )
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
+
     generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
     html_path = build_html_report(

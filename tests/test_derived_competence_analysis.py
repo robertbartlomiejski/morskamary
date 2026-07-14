@@ -254,6 +254,43 @@ def test_duplicate_only_evidence_excluded_from_demand_aggregation(
     )
 
 
+def test_review_required_signals_propagate_to_demand_and_validated_counts(
+    tmp_path: Path,
+) -> None:
+    evidence = [_mk_evidence(1, doi="10.1000/review", provider="crossref", year=2024)]
+    signals = [
+        {
+            **_mk_signal(1, confidence=0.95),
+            "manual_review_status": "review_required",
+            "validity_warning": "metadata_only_limitation",
+        }
+    ]
+
+    out = tmp_path / "db"
+    out.mkdir()
+    l4 = build_layer4(
+        evidence_records=evidence,
+        competence_signals=signals,
+        output_dir=out,
+        current_run_id="RUN-REVIEW",
+    )
+    assert l4.derived_demands
+    demand = l4.derived_demands[0]
+    assert demand.status == "review_required"
+    assert demand.manual_review_status == "review_required"
+    assert "propagated_review_required" in demand.validity_warning
+
+    l5 = build_layer5(
+        derived_demands=l4.derived_demands,
+        evidence_records=evidence,
+        output_dir=out,
+        current_run_id="RUN-REVIEW",
+    )
+    gap_rows = [row for row in l5.gap_rows if row.sector == demand.sector and row.axis_group == demand.axis_group]
+    assert gap_rows
+    assert gap_rows[0].validated_demand_count == 0
+
+
 def test_taxonomy_uses_duplicate_filtered_signals_and_multi_axis_columns(
     tmp_path: Path,
 ) -> None:

@@ -1013,10 +1013,86 @@ class TestNoveltyMetrics:
             "jaccard_similarity_with_previous_run",
             "provider_diversity_score",
             "query_diversity_score",
+            "query_families_seen",
             "crossref_dominance_ratio",
             "validity_warnings",
         ):
             assert field_name in d
+
+    def test_provider_counts_are_canonicalized_for_novelty_metrics(self, tmp_path: Path) -> None:
+        current = tmp_path / "outputs"
+        _write_current_run(
+            current,
+            [
+                {
+                    "title": "P1",
+                    "doi": "10.1000/m.1",
+                    "provider": "Crossref",
+                    "source_query": BOUND_QUERY_TEXT,
+                    "retrieval_timestamp": "2026-07-01T00:00:00+00:00",
+                },
+                {
+                    "title": "P2",
+                    "doi": "10.1000/m.2",
+                    "provider": "crossref",
+                    "source_query": BOUND_QUERY_TEXT,
+                    "retrieval_timestamp": "2026-07-01T00:00:01+00:00",
+                },
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "out",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+        )
+        metrics = result.run_novelty_metrics.to_dict()
+        assert metrics["provider_record_count_by_provider"] == {"crossref": 2}
+
+    def test_query_families_seen_uses_current_run_only(self, tmp_path: Path) -> None:
+        archive = tmp_path / "archive"
+        _write_run_archive(
+            archive,
+            [
+                {
+                    "run_id": "R0",
+                    "timestamp_utc": "2026-06-01T00:00:00+00:00",
+                    "records": [
+                        {
+                            "title": "Old query family",
+                            "doi": "10.1000/old.1",
+                            "provider": "Crossref",
+                            "source_query": "coastal tourism sustainability overtourism management",
+                            "retrieval_timestamp": "2026-06-01T00:00:00+00:00",
+                        }
+                    ],
+                }
+            ],
+        )
+        current = tmp_path / "outputs"
+        _write_current_run(
+            current,
+            [
+                {
+                    "title": "Current query family",
+                    "doi": "10.1000/new.1",
+                    "provider": "Crossref",
+                    "source_query": BOUND_QUERY_TEXT,
+                    "retrieval_timestamp": "2026-07-01T00:00:00+00:00",
+                }
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "out",
+            archive_root=archive,
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+        )
+        metrics = result.run_novelty_metrics.to_dict()
+        assert metrics["query_families_seen"] == ["core_sector"]
 
     def test_jaccard_zero_when_no_previous(self, tmp_path: Path) -> None:
         current = tmp_path / "outputs"
@@ -1520,8 +1596,8 @@ class TestScientificValidityHardening:
         evidence = result.evidence_records[0]
         assert evidence.provider_count == 3
         assert set(evidence.providers_seen.split("|")) == {
-            "Crossref",
-            "Scopus",
+            "crossref",
+            "scopus",
             "wos",
         }
 

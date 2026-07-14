@@ -208,8 +208,15 @@ def test_release_package_step_passes_stats_dir_and_raw_acquisition_index() -> No
         '--raw-acquisition-index "outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}/raw/raw_acquisition_index.csv"'
         in package_block
     )
+    assert '--current-run-id "${{ github.run_id }}-${{ github.run_attempt }}"' in package_block
     layer1_index = WORKFLOW_TEXT.index("python scripts/build_live_run_audit.py")
     assert layer1_index < package_index
+
+
+def test_statistical_report_step_is_current_run_scoped() -> None:
+    report_index = WORKFLOW_TEXT.index("python scripts/build_statistical_research_report.py")
+    report_block = WORKFLOW_TEXT[report_index : report_index + 400]
+    assert '--current-run-id "${{ github.run_id }}-${{ github.run_attempt }}"' in report_block
 
 
 def test_workflow_captures_single_analysis_timestamp_before_layer45() -> None:
