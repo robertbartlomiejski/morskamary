@@ -22,6 +22,9 @@ def test_codeql_workflow_matrix_pairs_are_exact() -> None:
     matrix_includes = WORKFLOW["jobs"]["analyze"]["strategy"]["matrix"]["include"]
     pairs = {(entry["language"], entry["build-mode"]) for entry in matrix_includes}
     expected = {("actions", "none"), ("python", "none")}
+    assert len(matrix_includes) == len(expected), (
+        f"expected exactly {len(expected)} matrix entries, got {len(matrix_includes)}"
+    )
     assert pairs == expected, f"expected exact matrix pairs {expected}, got {pairs}"
 
 
