@@ -2,7 +2,7 @@
 """Build reports while preserving executable H1-H3 hypothesis serialization.
 
 The original report implementation is retained in
-``_build_statistical_research_report_base.py``.  This entrypoint adds the
+``_build_statistical_research_report_base.py``. This entrypoint adds the
 required H3 Omniocean Axis Translation section to the statistical HTML/PDF
 and methodological audit without recomputing any scientific result.
 """
@@ -13,6 +13,7 @@ import argparse
 import importlib.util
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -23,13 +24,13 @@ _SPEC = importlib.util.spec_from_file_location(
 )
 if _SPEC is None or _SPEC.loader is None:  # pragma: no cover - import guard
     raise RuntimeError(f"Unable to load report implementation: {_CORE_PATH}")
-_CORE = importlib.util.module_from_spec(_SPEC)
+_CORE: Any = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(_CORE)
 
-REPORT_TITLE = _CORE.REPORT_TITLE
-DEMAND_STRENGTH_FORMULA = _CORE.DEMAND_STRENGTH_FORMULA
-REQUIRED_VALIDITY_THREATS = _CORE.REQUIRED_VALIDITY_THREATS
-maybe_build_pdf = _CORE.maybe_build_pdf
+REPORT_TITLE: str = _CORE.REPORT_TITLE
+DEMAND_STRENGTH_FORMULA: str = _CORE.DEMAND_STRENGTH_FORMULA
+REQUIRED_VALIDITY_THREATS: List[str] = _CORE.REQUIRED_VALIDITY_THREATS
+maybe_build_pdf: Any = _CORE.maybe_build_pdf
 
 
 def __getattr__(name: str) -> Any:
@@ -77,10 +78,7 @@ def _inject_h3_into_methodological_audit(path: Path, database_dir: Path) -> None
     text = path.read_text(encoding="utf-8")
     if "H3 — Omniocean Axis Translation" in text:
         return
-    section = (
-        "<h2>Executable hypothesis result</h2>"
-        + _h3_html(database_dir)
-    )
+    section = "<h2>Executable hypothesis result</h2>" + _h3_html(database_dir)
     text = text.replace("</body></html>", section + "</body></html>", 1)
     path.write_text(text, encoding="utf-8")
 
@@ -133,9 +131,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         for item in args.formats.split(",")
         if item.strip()
     }
-    generated_at = _CORE.datetime.now(_CORE.timezone.utc).replace(
-        microsecond=0
-    ).isoformat()
+    generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
     html_path = build_html_report(
         database_dir=database_dir,
@@ -156,11 +152,16 @@ def main(argv: Optional[List[str]] = None) -> int:
         pdf_path = reports_dir / "morskamary_statistical_report.pdf"
         pdf_status = maybe_build_pdf(html_path, pdf_path)
 
-    print(json.dumps({
-        "html_report": str(html_path),
-        "methodological_audit": str(audit_path),
-        **pdf_status,
-    }, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "html_report": str(html_path),
+                "methodological_audit": str(audit_path),
+                **pdf_status,
+            },
+            sort_keys=True,
+        )
+    )
     return 0
 
 
