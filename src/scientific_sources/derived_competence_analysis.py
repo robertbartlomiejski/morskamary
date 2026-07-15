@@ -1451,9 +1451,9 @@ def _first_evidence_id_for_demand(
     if linked:
         return linked[0]
     # Do not fabricate provenance by attaching an arbitrary record from the
-    # same sector. Leave the evidence ID empty; the demand remains
+    # same sector. Serialize explicit unavailability; the demand remains
     # review_required until genuine provenance is established.
-    return ""
+    return "unavailable"
 
 
 def _dominant_signal_type_for_demand(

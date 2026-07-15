@@ -58,7 +58,7 @@ CSV_REQUIRED_COLUMNS: Dict[str, Tuple[str, ...]] = {
     ),
     "derived_competence_demands.csv": (
         "competence_demand_id", "competence_label", "sector",
-        "axis_group", "demand_strength_score",
+        "axis_group", "demand_strength_score", "evidence_ids",
     ),
     "sector_axis_gap_model.csv": (
         "sector", "axis_group", "live_literature_demand_count",
@@ -364,6 +364,14 @@ def main(argv: Optional[List[str]] = None) -> int:
                 _HEX64 = re.compile(r"^[0-9a-fA-F]{64}$")
                 text = candidate.read_text(encoding="utf-8")
                 seen_refs: Set[str] = set()
+                expected_checksum_refs = set(
+                    list(CSV_FILES)
+                    + list(JSONL_FILES)
+                    + [
+                        n for n in DATABASE_METADATA_FILES
+                        if not n.endswith(".sha256")
+                    ]
+                )
                 for lineno, line in enumerate(
                     text.strip().splitlines(), start=1
                 ):
@@ -393,6 +401,12 @@ def main(argv: Optional[List[str]] = None) -> int:
                         missing_required.append(
                             f"checksum_mismatch:{name}:{ref_path}"
                         )
+                missing_refs = sorted(expected_checksum_refs - seen_refs)
+                if missing_refs:
+                    missing_required.append(
+                        "checksum_missing_required_refs:"
+                        + ",".join(missing_refs)
+                    )
             except OSError as exc:
                 missing_required.append(f"unreadable_checksum:{name}:{exc}")
     for name in CSV_FILES:
@@ -416,6 +430,18 @@ def main(argv: Optional[List[str]] = None) -> int:
                         f"csv_missing_columns:{name}:"
                         + ",".join(missing_cols)
                     )
+            if name == "derived_competence_demands.csv":
+                dict_reader = csv.DictReader(text.splitlines())
+                for row_index, row in enumerate(dict_reader, start=2):
+                    evidence_ids = str(row.get("evidence_ids", "")).strip()
+                    if evidence_ids and evidence_ids.lower() != "unavailable":
+                        continue
+                    demand_id = str(
+                        row.get("competence_demand_id", "")
+                    ).strip() or f"row_{row_index}"
+                    missing_required.append(
+                        f"derived_demand_missing_supporting_evidence_ids:{demand_id}"
+                    )
         except (OSError, csv.Error) as exc:
             missing_required.append(f"malformed_csv:{name}:{exc}")
     if expected_run_id:
@@ -437,14 +463,15 @@ def main(argv: Optional[List[str]] = None) -> int:
             # the sequence live_runs/<run_id>/raw/raw_acquisition_index.csv
             # as contiguous directory components.
             expected_suffix = (
-                f"live_runs/{expected_run_id}/raw/raw_acquisition_index.csv"
+                f"outputs/live_runs/{expected_run_id}/raw/raw_acquisition_index.csv"
             )
-            if not normalized_raw_path.endswith(expected_suffix):
-                # Also accept when the suffix appears after a separator
-                if f"/{expected_suffix}" not in normalized_raw_path:
-                    run_guard_failures.append(
-                        "raw_acquisition_index_path_contract_violation"
-                    )
+            if (
+                normalized_raw_path != expected_suffix
+                and not normalized_raw_path.endswith(f"/{expected_suffix}")
+            ):
+                run_guard_failures.append(
+                    "raw_acquisition_index_path_contract_violation"
+                )
         if run_guard_failures:
             missing_required.extend(
                 f"current-run-guard:{entry}" for entry in run_guard_failures

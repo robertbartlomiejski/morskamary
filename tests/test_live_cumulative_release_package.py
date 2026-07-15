@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import csv
 import hashlib
 import importlib.util
 import json
@@ -349,6 +350,32 @@ def test_package_rejects_missing_csv_columns(tmp_path: Path) -> None:
     (db / "evidence_records.csv").write_text(
         "wrong_col\nval\n", encoding="utf-8"
     )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    rc = build_main([
+        "--database-dir", str(db),
+        "--reports-dir", str(reports),
+        "--output", str(out),
+        "--version-tag", "test",
+        "--generated-at-utc", "2026-07-10T00:00:00+00:00",
+        *_required_source_args(db),
+    ])
+    assert rc == 1
+    assert not out.exists()
+
+
+def test_package_rejects_demand_without_supporting_evidence_ids(tmp_path: Path) -> None:
+    """Derived demands without supporting evidence IDs must fail preflight."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    rows = list(csv.DictReader((db / "derived_competence_demands.csv").open(encoding="utf-8")))
+    assert rows
+    rows[0]["evidence_ids"] = ""
+    with (db / "derived_competence_demands.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
     _rewrite_checksums(db)
     out = tmp_path / "pkg.zip"
     rc = build_main([

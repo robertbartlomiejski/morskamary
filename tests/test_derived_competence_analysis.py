@@ -381,7 +381,7 @@ def test_learning_outcome_statement_does_not_use_placeholder_evidence_id(
     assert "see_learning_outcomes_evidence_id" not in l5.credentials[0].learning_outcomes
     assert "evidence=unavailable;" in l5.credentials[0].learning_outcomes
     assert l5.learning_outcomes
-    assert l5.learning_outcomes[0].evidence_id == ""
+    assert l5.learning_outcomes[0].evidence_id == "unavailable"
 
 
 def test_taxonomy_uses_duplicate_filtered_signals_and_multi_axis_columns(

@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-15 (fix: harden package preflight checksum/path/evidence controls)
+  Change type fix
+  Scope scripts src tests governance
+  Files affected scripts/build_live_cumulative_release_package.py src/scientific_sources/derived_competence_analysis.py tests/test_live_cumulative_release_package.py tests/test_derived_competence_analysis.py CHANGELOG.txt
+  Summary Strengthened release-package preflight by requiring checksum coverage for all required Layer 0-5 inputs, enforcing the exact `outputs/live_runs/<run_id>/raw/raw_acquisition_index.csv` run-path contract, and rejecting derived-demand rows missing supporting `evidence_ids`. Layer 5 learning outcomes now serialize explicit `unavailable` evidence IDs instead of an ambiguous empty value.
+  Reason PR-191 follow-up review identified remaining blockers where package preflight could pass incomplete checksum declarations, accept weaker raw-index path patterns, and preserve ambiguous provenance when demand evidence links were absent.
+  Impact Packaging now fails non-zero for checksum coverage gaps, wrong raw-acquisition-index directory contracts, and demands without supporting evidence IDs; learning-outcome provenance serialization is explicit for unavailable evidence.
+  Quality checks pending
+  Reviewer @copilot
+
 - 2026-07-15 (fix: enforce protocol-projection constraints and growth-ineligible negative controls)
   Change type fix
   Scope scripts tests governance
