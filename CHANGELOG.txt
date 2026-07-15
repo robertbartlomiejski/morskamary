@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-15 (fix: enforce protocol-projection constraints and growth-ineligible negative controls)
+  Change type fix
+  Scope scripts tests governance
+  Files affected scripts/export_live_research_records.py tests/test_export_live_research_records.py tests/test_derived_competence_analysis.py CHANGELOG.txt
+  Summary Tightened query-constraints fallback so generated protocol projections (`research_queries_from_protocol.yml`) fail non-zero on constraints mismatches instead of silently switching to ad-hoc constraints. Added explicit per-query/provider constraint audit exports (`requested/applied/unsupported/unapplied`) into `query_execution_log.csv`. Added negative regressions proving repeated-only and duplicate-only evidence create no Layer 4 demands and do not contribute Layer 5 credentials, gap rows, or H1/H2/H3 support.
+  Reason Remaining PR-191 review blockers required stricter authoritative-constraints enforcement and stronger proof that growth-ineligible evidence cannot produce scientific-growth outputs.
+  Impact Live acquisition audit output now distinguishes requested versus applied versus unsupported/unapplied filters per provider/query, and growth-ineligible evidence is contract-tested to stay out of scientific-growth demand/hypothesis paths.
+  Quality checks python -m pytest tests/test_export_live_research_records.py tests/test_derived_competence_analysis.py -q; python -m flake8 src scripts tests run_full_analysis.py main.py; python -m mypy src scripts run_full_analysis.py main.py; python -m pytest tests/ -q; python scripts/validate_generated_outputs.py; python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present.
+  Reviewer @copilot
+
 - 2026-07-15 (fix: tighten growth/query-family gates and Layer 1 axis/count serialization contracts)
   Change type fix
   Scope src scripts tests governance

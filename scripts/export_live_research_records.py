@@ -84,6 +84,10 @@ QUERY_EXECUTION_FIELDS: Tuple[str, ...] = (
     "declared_rows_per_page",
     "sampling_status",
     "time_window_status",
+    "requested_constraint_filters",
+    "applied_constraint_filters",
+    "unsupported_constraint_filters",
+    "unapplied_constraint_filters",
     "validity_warnings",
     "errors",
     "warnings",
@@ -113,6 +117,7 @@ DEFAULT_QUERY_FILE_PATH = Path("config/research_queries.yml")
 DEFAULT_QUERY_CONSTRAINTS_PATH = Path(
     "outputs/research_sources/query_protocol_constraints.json"
 )
+PROTOCOL_PROJECTED_QUERY_FILE_NAME = "research_queries_from_protocol.yml"
 
 
 @dataclass(frozen=True)
@@ -398,6 +403,22 @@ def _apply_query_constraint(
     if sampling_status.startswith("partially"):
         validity_warnings.append("filter_not_applied:multi_page_sampling")
 
+    requested_filters: List[str] = ["time_window", "sampling_strategy"]
+    if declared_sort:
+        requested_filters.append("sort_strategy")
+    applied_filters: List[str] = ["time_window"]
+    unsupported_filters: List[str] = []
+    unapplied_filters: List[str] = []
+    if sort_status == "applied_post_fetch":
+        applied_filters.append("sort_strategy")
+    elif sort_status == "unsupported_strategy":
+        unsupported_filters.append("sort_strategy")
+    elif sort_status == "not_declared_for_provider":
+        unapplied_filters.append("sort_strategy")
+    if sampling_status == "applied_single_request_limit":
+        applied_filters.append("sampling_strategy")
+    elif sampling_status.startswith("partially"):
+        unapplied_filters.append("sampling_strategy")
     return accepted, {
         "raw_record_count": len(records),
         "accepted_record_count": len(accepted),
@@ -412,6 +433,10 @@ def _apply_query_constraint(
         "declared_rows_per_page": rows_per_page,
         "sampling_status": sampling_status,
         "time_window_status": "applied_post_fetch",
+        "requested_constraint_filters": "|".join(sorted(set(requested_filters))),
+        "applied_constraint_filters": "|".join(sorted(set(applied_filters))),
+        "unsupported_constraint_filters": "|".join(sorted(set(unsupported_filters))),
+        "unapplied_constraint_filters": "|".join(sorted(set(unapplied_filters))),
         "validity_warnings": "|".join(validity_warnings),
     }
 
@@ -1207,8 +1232,12 @@ def main() -> int:
         for query in sector_data["queries"]
     }
     is_legacy_default = query_file_path.name == "research_queries.yml"
+    protocol_projected_query = (
+        query_file_path.name == PROTOCOL_PROJECTED_QUERY_FILE_NAME
+    )
     should_fallback_to_ad_hoc_constraints = (
-        (query_file_path != DEFAULT_QUERY_FILE_PATH or is_legacy_default)
+        not protocol_projected_query
+        and (query_file_path != DEFAULT_QUERY_FILE_PATH or is_legacy_default)
         and constraints_path == DEFAULT_QUERY_CONSTRAINTS_PATH
         and "--query-constraints-file" not in sys.argv[1:]
     )
@@ -1287,6 +1316,13 @@ def main() -> int:
             for query in sector_data.get("queries", []):
                 constraint = constraints_by_query[query.lower()]
                 for provider_name in ordered_provider_names:
+                    provider_key = normalize_provider_name(provider_name)
+                    declared_sort = str(
+                        constraint.get("sort_strategy", {}).get(provider_key, "")
+                    ).strip()
+                    requested_filters = ["time_window", "sampling_strategy"]
+                    if declared_sort:
+                        requested_filters.append("sort_strategy")
                     query_execution_rows.append(
                         {
                             "query_id": constraint["query_id"],
@@ -1294,7 +1330,7 @@ def main() -> int:
                             "query_family": constraint.get("query_family", ""),
                             "query_text": query,
                             "provider": provider_name,
-                            "provider_canonical": normalize_provider_name(provider_name),
+                            "provider_canonical": provider_key,
                             "execution_status": "offline_not_executed",
                             "returned_record_count": 0,
                             "normalized_record_count": 0,
@@ -1307,7 +1343,7 @@ def main() -> int:
                             ),
                             "declared_sort_strategy": constraint.get(
                                 "sort_strategy", {}
-                            ).get(provider_name, ""),
+                            ).get(provider_key, ""),
                             "declared_sampling_mode": constraint.get(
                                 "sampling_strategy", {}
                             ).get("mode", ""),
@@ -1320,6 +1356,14 @@ def main() -> int:
                             "sampling_status": "offline_not_executed",
                             "time_window_status": "offline_not_executed",
                             "sort_status": "offline_not_executed",
+                            "requested_constraint_filters": "|".join(
+                                sorted(set(requested_filters))
+                            ),
+                            "applied_constraint_filters": "",
+                            "unsupported_constraint_filters": "",
+                            "unapplied_constraint_filters": "|".join(
+                                sorted(set(requested_filters))
+                            ),
                         }
                     )
     else:

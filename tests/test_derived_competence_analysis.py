@@ -277,6 +277,52 @@ def test_non_growth_evidence_is_excluded_from_demand_aggregation(
     assert demand.evidence_ids == "E-0001"
 
 
+def test_repeated_and_duplicate_only_evidence_creates_no_growth_demands_or_hypothesis_signal(
+    tmp_path: Path,
+) -> None:
+    evidence = [
+        _mk_evidence(
+            1,
+            doi="10.1000/repeated",
+            provider="crossref",
+            year=2024,
+            novelty="repeated_record",
+        ),
+        _mk_evidence(
+            2,
+            doi="10.1000/duplicate",
+            provider="scopus",
+            year=2024,
+            novelty="duplicate_only",
+        ),
+    ]
+    signals = [_mk_signal(1), _mk_signal(2)]
+    out = tmp_path / "db-non-growth-only"
+    out.mkdir()
+
+    l4 = build_layer4(
+        evidence_records=evidence,
+        competence_signals=signals,
+        output_dir=out,
+        current_run_id="RUN-NON-GROWTH-ONLY",
+    )
+    assert l4.derived_demands == []
+
+    l5 = build_layer5(
+        derived_demands=l4.derived_demands,
+        evidence_records=evidence,
+        output_dir=out,
+        current_run_id="RUN-NON-GROWTH-ONLY",
+    )
+    assert l5.gap_rows == []
+    assert l5.credentials == []
+    assert l5.learning_outcomes == []
+    assert l5.hypothesis_results["H1"]["interpretation"] == "not_computable"
+    assert l5.hypothesis_results["H2"]["interpretation"] == "not_computable"
+    assert l5.hypothesis_results["H3"]["interpretation"] == "not_computable"
+    assert l5.hypothesis_results["H2"]["validated_covered_demand_count"] == 0
+
+
 def test_review_required_signals_propagate_to_demand_and_validated_counts(
     tmp_path: Path,
 ) -> None:

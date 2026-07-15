@@ -552,6 +552,67 @@ query_groups:
         assert result == 0
         assert fallback_called
 
+    def test_protocol_projected_query_never_falls_back_to_ad_hoc_constraints(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        """Protocol projections must fail on constraints mismatch instead of fallback."""
+        query_file = (
+            tmp_path
+            / "outputs"
+            / "research_sources"
+            / "research_queries_from_protocol.yml"
+        )
+        query_file.parent.mkdir(parents=True, exist_ok=True)
+        query_file.write_text(
+            """
+query_groups:
+  maritime_transport:
+    label: "Maritime Transport"
+    queries:
+      - "port decarbonization maritime workforce"
+"""
+        )
+        constraints_file = (
+            tmp_path / "outputs" / "research_sources" / "query_protocol_constraints.json"
+        )
+        constraints_file.parent.mkdir(parents=True, exist_ok=True)
+        constraints_file.write_text(
+            json.dumps(
+                {
+                    "query_count": 1,
+                    "queries": [
+                        {
+                            "query_id": "OTHER",
+                            "query_text": "other query",
+                            "sector_slug": "other_sector",
+                            "query_family": "discovery",
+                        }
+                    ],
+                }
+            )
+        )
+        output_dir = tmp_path / "out"
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "export_live_research_records.py",
+                "--query-file",
+                str(query_file),
+                "--output-dir",
+                str(output_dir),
+                "--offline",
+                "true",
+            ],
+        )
+
+        result = main()
+        captured = capsys.readouterr()
+
+        assert result == 1
+        assert "authoritative protocol projection and constraints differ" in captured.err
+
     def test_offline_mode_skips_network_calls(self, tmp_path, monkeypatch):
         """Test that offline mode produces empty outputs without network calls."""
         # Create minimal query file
@@ -1285,6 +1346,10 @@ query_groups:
             "returned_record_count",
             "normalized_record_count",
             "contributed_record_count",
+            "requested_constraint_filters",
+            "applied_constraint_filters",
+            "unsupported_constraint_filters",
+            "unapplied_constraint_filters",
         ):
             assert field in QUERY_EXECUTION_FIELDS
             assert field in row
@@ -1292,6 +1357,11 @@ query_groups:
         assert row["returned_record_count"] == "1"
         assert row["normalized_record_count"] == "1"
         assert row["contributed_record_count"] == "1"
+        assert "time_window" in row["requested_constraint_filters"]
+        assert "sampling_strategy" in row["requested_constraint_filters"]
+        assert "time_window" in row["applied_constraint_filters"]
+        assert row["unsupported_constraint_filters"] == ""
+        assert "sort_strategy" in row["unapplied_constraint_filters"]
 
         diagnostics = json.loads((output_dir / "scopus_query_diagnostics.json").read_text())
         assert len(diagnostics) == 1
