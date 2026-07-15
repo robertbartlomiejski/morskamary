@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-15 (fix: remove placeholder learning-outcome evidence reference)
+  Change type fix
+  Scope src tests governance
+  Files affected src/scientific_sources/derived_competence_analysis.py tests/test_derived_competence_analysis.py CHANGELOG.txt
+  Summary Removed the `see_learning_outcomes_evidence_id` placeholder fallback in Layer 5 learning-outcome prose. When evidence linkage is unavailable, the `evidence=` field is now empty rather than emitting a fabricated placeholder token.
+  Reason Follow-up PR feedback identified placeholder evidence references as fabricated provenance in published learning-outcome statements.
+  Impact Learning outcomes no longer serialize synthetic placeholder evidence IDs; provenance remains explicit and non-fabricated.
+  Quality checks python -m pytest tests/test_derived_competence_analysis.py -v; python -m flake8 src scripts tests run_full_analysis.py main.py; python -m mypy src scripts run_full_analysis.py main.py.
+  Reviewer @copilot
+
 - 2026-07-15 (fix: PR-191 review-findings scientific-validity, provenance, packaging, and workflow-contract hardening)
   Change type fix
   Scope scripts src tests config docs workflows

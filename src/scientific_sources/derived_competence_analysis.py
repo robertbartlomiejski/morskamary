@@ -1386,7 +1386,7 @@ def _learning_outcome_statement(
     else:
         verb = "Evaluate and justify"
         dimension = "advanced knowledge and social competence"
-    evidence_ref = demand.evidence_ids or "see_learning_outcomes_evidence_id"
+    evidence_ref = demand.evidence_ids.strip()
     return (
         f"{verb} {demand.competence_label} for {sector} contexts at EQF "
         f"{eqf_level}, demonstrating {dimension}; evidence={evidence_ref}; "

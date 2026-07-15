@@ -291,6 +291,30 @@ def test_review_required_signals_propagate_to_demand_and_validated_counts(
     assert gap_rows[0].validated_demand_count == 0
 
 
+def test_learning_outcome_statement_does_not_use_placeholder_evidence_id(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "db"
+    out.mkdir()
+    demand = _mk_hydro_demand(1, sector="ports")
+    demand.status = "review_required"
+    demand.manual_review_status = "review_required"
+    demand.evidence_ids = ""
+
+    l5 = build_layer5(
+        derived_demands=[demand],
+        evidence_records=[],
+        output_dir=out,
+        current_run_id="RUN-LO-PROV",
+    )
+
+    assert l5.credentials
+    assert "see_learning_outcomes_evidence_id" not in l5.credentials[0].learning_outcomes
+    assert "evidence=;" in l5.credentials[0].learning_outcomes
+    assert l5.learning_outcomes
+    assert l5.learning_outcomes[0].evidence_id == ""
+
+
 def test_taxonomy_uses_duplicate_filtered_signals_and_multi_axis_columns(
     tmp_path: Path,
 ) -> None:
