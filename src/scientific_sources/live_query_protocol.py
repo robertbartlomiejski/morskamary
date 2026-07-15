@@ -24,7 +24,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Sequence, Union
+from typing import Any, Dict, List, Mapping, Sequence, Tuple, Union
 
 import yaml  # type: ignore[import-untyped]
 
@@ -52,6 +52,14 @@ REQUIRED_SAMPLING_STRATEGY_FIELDS = (
     "pages",
     "rows_per_page",
     "dedupe_key",
+)
+REQUIRED_HYPOTHESIS_FIELDS = (
+    "label",
+    "definition",
+    "test",
+    "direction",
+    "required_axes",
+    "declared_outcomes",
 )
 
 
@@ -129,6 +137,10 @@ class LiveQuery:
     sort_strategy: SortStrategy
     sampling_strategy: SamplingStrategy
     expected_signal: List[str] = field(default_factory=list)
+    hypothesis_targets: Tuple[str, ...] = ()
+    theory_terms: Tuple[str, ...] = ()
+    taxonomic_mapping: Tuple[str, ...] = ()
+    processual_dimensions: Tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -154,12 +166,29 @@ class LiveQuerySector:
 
 
 @dataclass(frozen=True)
+class HypothesisDeclaration:
+    """Authoritative hypothesis declaration loaded from the Layer 0 protocol."""
+
+    hypothesis_id: str
+    label: str
+    definition: str
+    test: str
+    direction: str
+    required_axes: Tuple[BlueDynamicsAxis, ...]
+    declared_outcomes: Tuple[str, ...]
+    indicator_registry: Dict[str, Tuple[str, ...]] = field(default_factory=dict)
+    theory_registry: Dict[str, Tuple[str, ...]] = field(default_factory=dict)
+    required_result_fields: Tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class LiveQueryProtocol:
     """Parsed and validated live query protocol registry."""
 
     protocol_version: str
     query_families: List[LiveQueryFamily]
     sectors: Dict[str, LiveQuerySector]
+    hypotheses: Dict[str, HypothesisDeclaration] = field(default_factory=dict)
 
     def all_queries(self) -> List[LiveQuery]:
         """Return every query across every sector as a flat list."""
@@ -379,6 +408,13 @@ def _parse_query(payload: Any, ctx: str, sector_slug: str) -> LiveQuery:
             f"sector '{sector_slug}'"
         )
 
+    expected_signal = _parse_expected_signal(
+        mapping["expected_signal"], f"{ctx}.expected_signal"
+    )
+    hypothesis_targets, theory_terms, taxonomic_mapping, processual_dimensions = (
+        _derive_query_semantic_metadata(expected_signal)
+    )
+
     return LiveQuery(
         query_id=_require_non_empty_str(mapping["query_id"], f"{ctx}.query_id"),
         sector=_require_non_empty_str(mapping["sector"], f"{ctx}.sector"),
@@ -394,9 +430,11 @@ def _parse_query(payload: Any, ctx: str, sector_slug: str) -> LiveQuery:
         sampling_strategy=_parse_sampling_strategy(
             mapping["sampling_strategy"], f"{ctx}.sampling_strategy"
         ),
-        expected_signal=_parse_expected_signal(
-            mapping["expected_signal"], f"{ctx}.expected_signal"
-        ),
+        expected_signal=expected_signal,
+        hypothesis_targets=hypothesis_targets,
+        theory_terms=theory_terms,
+        taxonomic_mapping=taxonomic_mapping,
+        processual_dimensions=processual_dimensions,
     )
 
 
@@ -446,6 +484,129 @@ def _validate_unique_query_ids(sectors: Dict[str, LiveQuerySector]) -> None:
             seen[query.query_id] = slug
 
 
+def _parse_axis_sequence(payload: Any, ctx: str) -> Tuple[BlueDynamicsAxis, ...]:
+    seq = _require_sequence(payload, ctx)
+    axes: List[BlueDynamicsAxis] = []
+    for idx, item in enumerate(seq):
+        axes.append(_parse_axis(item, f"{ctx}[{idx}]"))
+    if not axes:
+        raise LiveQueryProtocolError(f"{ctx}: must contain at least one axis")
+    return tuple(axes)
+
+
+def _parse_string_sequence(payload: Any, ctx: str) -> Tuple[str, ...]:
+    seq = _require_sequence(payload, ctx)
+    items = tuple(
+        _require_non_empty_str(item, f"{ctx}[{idx}]")
+        for idx, item in enumerate(seq)
+    )
+    if not items:
+        raise LiveQueryProtocolError(f"{ctx}: must not be empty")
+    return items
+
+
+def _parse_registry_mapping(
+    payload: Any,
+    ctx: str,
+) -> Dict[str, Tuple[str, ...]]:
+    if payload in (None, ""):
+        return {}
+    mapping = _require_mapping(payload, ctx)
+    parsed: Dict[str, Tuple[str, ...]] = {}
+    for family, phrases in mapping.items():
+        family_name = _require_non_empty_str(family, f"{ctx}.family")
+        parsed[family_name] = _parse_string_sequence(
+            phrases, f"{ctx}.{family_name}"
+        )
+    return parsed
+
+
+def _parse_hypothesis_declaration(
+    hypothesis_id: str,
+    payload: Any,
+    ctx: str,
+) -> HypothesisDeclaration:
+    mapping = _require_mapping(payload, ctx)
+    for field_name in REQUIRED_HYPOTHESIS_FIELDS:
+        if field_name not in mapping:
+            raise LiveQueryProtocolError(
+                f"{ctx}: missing required hypothesis field '{field_name}'"
+            )
+    required_result_fields: Tuple[str, ...] = ()
+    if "required_result_fields" in mapping:
+        required_result_fields = _parse_string_sequence(
+            mapping["required_result_fields"],
+            f"{ctx}.required_result_fields",
+        )
+    return HypothesisDeclaration(
+        hypothesis_id=hypothesis_id,
+        label=_require_non_empty_str(mapping["label"], f"{ctx}.label"),
+        definition=_require_non_empty_str(mapping["definition"], f"{ctx}.definition"),
+        test=_require_non_empty_str(mapping["test"], f"{ctx}.test"),
+        direction=_require_non_empty_str(mapping["direction"], f"{ctx}.direction"),
+        required_axes=_parse_axis_sequence(
+            mapping["required_axes"], f"{ctx}.required_axes"
+        ),
+        declared_outcomes=_parse_string_sequence(
+            mapping["declared_outcomes"], f"{ctx}.declared_outcomes"
+        ),
+        indicator_registry=_parse_registry_mapping(
+            mapping.get("indicator_registry"), f"{ctx}.indicator_registry"
+        ),
+        theory_registry=_parse_registry_mapping(
+            mapping.get("theory_registry"), f"{ctx}.theory_registry"
+        ),
+        required_result_fields=required_result_fields,
+    )
+
+
+def _derive_query_semantic_metadata(
+    expected_signal: Sequence[str],
+) -> Tuple[Tuple[str, ...], Tuple[str, ...], Tuple[str, ...], Tuple[str, ...]]:
+    token_map = {
+        "maritimisation_shift": "H1",
+        "hydronization_lag": "H2",
+        "eqf_gap": "H2",
+        "omniocean_translation": "H3",
+        "axis_bridge": "H3",
+    }
+    hypothesis_targets = sorted(
+        {
+            token_map[token]
+            for token in expected_signal
+            if token in token_map
+        }
+    )
+    theory_terms = sorted(
+        {
+            token
+            for token in expected_signal
+            if token in {
+                "theory_translation",
+                "axis_translation",
+                "de_base_re_dimension",
+                "omniocean_framework",
+            }
+        }
+    )
+    taxonomic_mapping = sorted(
+        {token for token in expected_signal if "taxonomy" in token}
+    )
+    processual_dimensions = sorted(
+        {
+            token
+            for token in expected_signal
+            if "de_base_re" in token or "translation" in token
+        }
+    )
+    return (
+        tuple(hypothesis_targets),
+        tuple(theory_terms),
+        tuple(taxonomic_mapping),
+        tuple(processual_dimensions),
+    )
+
+
 def load_live_query_protocol(path: Union[str, Path]) -> LiveQueryProtocol:
     """Parse and validate a live query protocol YAML file.
 
@@ -477,7 +638,7 @@ def load_live_query_protocol(path: Union[str, Path]) -> LiveQueryProtocol:
             f"{protocol_path}: top-level YAML must be a mapping"
         )
 
-    for field_name in ("protocol_version", "query_families", "sectors"):
+    for field_name in ("protocol_version", "query_families", "sectors", "hypotheses"):
         if field_name not in payload:
             raise LiveQueryProtocolError(
                 f"{protocol_path}: missing top-level field '{field_name}'"
@@ -507,12 +668,27 @@ def load_live_query_protocol(path: Union[str, Path]) -> LiveQueryProtocol:
             raise LiveQueryProtocolError(f"sectors: invalid sector slug '{slug!r}'")
         sectors[slug] = _parse_sector(slug, sector_payload)
 
+    hypotheses_payload = _require_mapping(payload["hypotheses"], "hypotheses")
+    if not hypotheses_payload:
+        raise LiveQueryProtocolError(
+            "hypotheses: must contain at least one declaration"
+        )
+    hypotheses: Dict[str, HypothesisDeclaration] = {}
+    for hypothesis_id, declaration_payload in hypotheses_payload.items():
+        hid = _require_non_empty_str(hypothesis_id, "hypotheses.hypothesis_id")
+        hypotheses[hid] = _parse_hypothesis_declaration(
+            hid,
+            declaration_payload,
+            f"hypotheses.{hid}",
+        )
+
     _validate_unique_query_ids(sectors)
 
     return LiveQueryProtocol(
         protocol_version=protocol_version,
         query_families=families,
         sectors=sectors,
+        hypotheses=hypotheses,
     )
 
 

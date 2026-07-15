@@ -52,6 +52,8 @@ def _h1_payload() -> dict[str, object]:
     return {
         "hypothesis_id": "H1",
         "hypothesis_label": "Maritimisation Shift",
+        "sample_size_maritime": 7,
+        "sample_size_oceanic": 6,
         "effect_size_cohens_d": 0.3,
         "interpretation": "partially_supported_maritime",
         "validity_warning": "",
@@ -62,6 +64,9 @@ def _h2_payload() -> dict[str, object]:
     return {
         "hypothesis_id": "H2",
         "hypothesis_label": "Hydronization Lag",
+        "hydronization_demand_count": 8,
+        "validated_covered_demand_count": 2,
+        "validated_missing_demand_count": 6,
         "missing_ratio": 0.5,
         "interpretation": "not_computable",
         "validity_warning": "no_validated_supply_map",
@@ -100,11 +105,55 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
             (db / name).write_text(f"{header}\n{values}\n", encoding="utf-8")
         else:
             (db / name).write_text("col_a\nval_1\n", encoding="utf-8")
+    # Ensure cross-file evidence/demand links are scientifically coherent.
+    (db / "derived_competence_demands.csv").write_text(
+        ",".join(CSV_REQUIRED_COLUMNS["derived_competence_demands.csv"])
+        + "\ncd:test,marine skill,ports,MARINE,0.55,E-0001\n",
+        encoding="utf-8",
+    )
+    (db / "learning_outcomes.csv").write_text(
+        ",".join(CSV_REQUIRED_COLUMNS["learning_outcomes.csv"])
+        + "\nlo:test,cred:test,ports,6,Outcome statement,cd:test,E-0001\n",
+        encoding="utf-8",
+    )
     for name in JSONL_FILES:
-        (db / name).write_text(
-            json.dumps({"evidence_id": "E-0001"}) + "\n",
-            encoding="utf-8",
-        )
+        if name == "hypothesis_semantic_fragments.jsonl":
+            payload = {
+                "fragment_id": "fragment:S-0001:H3:test",
+                "hypothesis_id": "H3",
+                "hypothesis_ids": "H3",
+                "signal_id": "S-0001",
+                "evidence_id": "E-0001",
+                "run_id": "RUN-1",
+                "sector": "ports",
+                "axis_group": "MARINE",
+                "axis_code": "M",
+                "signal_type": "competence_demand",
+                "demand_phrase": "marine",
+                "matched_hypothesis_phrase": "marine",
+                "theory_term_family": "bridge_semantics",
+                "indicator_family": "marine_ecological",
+                "semantic_fragment": "marine",
+                "evidence_surface": "title+subject",
+                "semantic_scope": "title+subject",
+                "evidence_text_hash": "abc",
+                "classifier_version": "v1",
+                "manual_review_status": "auto_accepted",
+                "validity_warning": "",
+            }
+        elif name == "derived_competence_demands.jsonl":
+            payload = {
+                "competence_demand_id": "cd:test",
+                "evidence_ids": "E-0001",
+            }
+        elif name == "competence_demand_signals.jsonl":
+            payload = {
+                "signal_id": "S-0001",
+                "evidence_id": "E-0001",
+            }
+        else:
+            payload = {"evidence_id": "E-0001"}
+        (db / name).write_text(json.dumps(payload) + "\n", encoding="utf-8")
     # Write all metadata files except _checksums.sha256 first, so we can
     # compute real SHA-256 digests for the checksum file.
     for name in DATABASE_METADATA_FILES:
@@ -142,7 +191,15 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
         encoding="utf-8",
     )
     for name in REPORT_FILES:
-        (reports / name).write_bytes(b"<html>fixture</html>")
+        (reports / name).write_text(
+            (
+                "<html><body>"
+                "Scientific hypothesis verification H1 H2 H3 "
+                "Validity threats Reproducibility appendix"
+                "</body></html>"
+            ),
+            encoding="utf-8",
+        )
     for name in LAYER4_STAT_FILES:
         if name.endswith(".json"):
             (stats / name).write_text("{}\n", encoding="utf-8")
@@ -434,3 +491,31 @@ def _rewrite_checksums(db: Path) -> None:
     (db / "_checksums.sha256").write_text(
         "\n".join(checksum_lines) + "\n", encoding="utf-8"
     )
+
+
+def test_report_rejects_missing_declared_hypothesis_required_fields(tmp_path: Path) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    db.mkdir()
+    (db / "layer5_manifest.json").write_text(
+        json.dumps(
+            {
+                "hypothesis_results": {
+                    "H1": {"hypothesis_id": "H1", "hypothesis_label": "Maritimisation Shift"},
+                    "H2": _h2_payload(),
+                    "H3": _h3_payload(),
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    try:
+        _REPORT.build_html_report(
+            database_dir=db,
+            reports_dir=reports,
+            generated_at="2026-07-14T00:00:00+00:00",
+        )
+    except ValueError as exc:
+        assert "Declared hypothesis result fields missing" in str(exc)
+    else:
+        raise AssertionError("Expected report build to fail on missing required hypothesis fields")

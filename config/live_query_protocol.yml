@@ -17,6 +17,20 @@ hypotheses:
     direction: positive cohens_d = MARITIME > OCEANIC supports H1
     required_axes: [MARITIME, OCEANIC]
     declared_outcomes: [supported_maritime_dominance, partially_supported_maritime, not_supported, not_computable]
+    indicator_registry:
+      maritime_dominance: [maritimisation, maritime labour, maritime infrastructure, techno-economic]
+      oceanic_governance: [ocean governance, hydrosocial responsibility, transboundary governance, oceanic]
+    theory_registry:
+      qmbd_translation: [qmbd, axis translation, de-base-re, theory translation]
+    required_result_fields:
+      [
+        hypothesis_id,
+        hypothesis_label,
+        sample_size_maritime,
+        sample_size_oceanic,
+        effect_size_cohens_d,
+        interpretation,
+      ]
   H2:
     label: Hydronization Lag
     definition: >-
@@ -27,6 +41,20 @@ hypotheses:
     direction: high missing ratio supports H2
     required_axes: [HYDRONIZATION]
     declared_outcomes: [supported, partially_supported, not_supported, not_computable]
+    indicator_registry:
+      hydronization_gap: [hydronization, hydrosocial governance, water-body coupling, eqf gap]
+      validated_supply: [validated credential, eqf 6, eqf 7, micro-credential]
+    theory_registry:
+      lag_semantics: [lag, mismatch, supply gap, temporal lag]
+    required_result_fields:
+      [
+        hypothesis_id,
+        hypothesis_label,
+        hydronization_demand_count,
+        validated_covered_demand_count,
+        validated_missing_demand_count,
+        interpretation,
+      ]
   H3:
     label: MARINE vs OCEANIC Differential Coverage
     definition: >-
@@ -39,6 +67,20 @@ hypotheses:
     direction: high balance and semantic bridges support H3
     required_axes: [MARINE, OCEANIC]
     declared_outcomes: [supported, partially_supported, not_supported, not_computable]
+    indicator_registry:
+      marine_ecological: [marine, ecological, biophysical, more-than-human]
+      oceanic_planetary: [oceanic, planetary, transboundary governance, hydrosocial responsibility]
+    theory_registry:
+      bridge_semantics: [axis bridge, omniocean translation, knowledge transfer, qmbd translation]
+    required_result_fields:
+      [
+        hypothesis_id,
+        hypothesis_label,
+        marine_fragment_count,
+        oceanic_fragment_count,
+        semantic_bridge_count,
+        interpretation,
+      ]
 _defaults:
   time_window: &id001
     from_year: 2019

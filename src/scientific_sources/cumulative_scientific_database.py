@@ -146,6 +146,8 @@ COMPETENCE_DEMAND_SIGNAL_COLUMNS: Tuple[str, ...] = (
 
 HYPOTHESIS_SEMANTIC_FRAGMENT_COLUMNS: Tuple[str, ...] = (
     "fragment_id",
+    "hypothesis_id",
+    "hypothesis_label",
     "hypothesis_ids",
     "signal_id",
     "evidence_id",
@@ -155,6 +157,11 @@ HYPOTHESIS_SEMANTIC_FRAGMENT_COLUMNS: Tuple[str, ...] = (
     "axis_code",
     "signal_type",
     "demand_phrase",
+    "matched_hypothesis_phrase",
+    "theory_term_family",
+    "indicator_family",
+    "semantic_fragment",
+    "evidence_surface",
     "semantic_scope",
     "evidence_text_hash",
     "classifier_version",
@@ -1250,6 +1257,7 @@ def build_cumulative_scientific_database(
         archive_root=archive_root_path,
         live_runs_root=live_runs_root_path,
         protocol_path=protocol_path_obj,
+        protocol=protocol,
         current_run_dir=current_run_path,
     )
 
@@ -2093,44 +2101,96 @@ def _run_jaccard_similarity(
     return round(intersection / union, 4)
 
 
+def _match_registry_phrase(
+    text_scope: str,
+    registry: Mapping[str, Sequence[str]],
+) -> Optional[Tuple[str, str]]:
+    for family in sorted(registry):
+        phrases = registry.get(family, ())
+        for raw_phrase in phrases:
+            phrase = str(raw_phrase or "").strip().lower()
+            if not phrase:
+                continue
+            if phrase in text_scope:
+                return family, phrase
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Serialization + manifest
 # ---------------------------------------------------------------------------
 
 def _hypothesis_fragment_rows(
     signals: Sequence[CompetenceDemandSignal],
+    protocol: Optional[LiveQueryProtocol],
 ) -> List[Dict[str, Any]]:
-    """Project evidence-bound signals into an auditable hypothesis ledger."""
+    """Project evidence-bound signals into an auditable hypothesis-fragment ledger."""
+    hypothesis_registry = protocol.hypotheses if protocol is not None else {}
+    if not hypothesis_registry:
+        return []
+
     rows: List[Dict[str, Any]] = []
     for signal in signals:
-        hypothesis_ids: List[str] = []
-        if signal.axis_group in ("MARITIME", "OCEANIC"):
-            hypothesis_ids.append("H1")
-        if signal.axis_group == "HYDRONIZATION":
-            hypothesis_ids.append("H2")
-        if signal.axis_group in ("MARINE", "OCEANIC"):
-            hypothesis_ids.append("H3")
-        if not hypothesis_ids:
+        text_scope = str(signal.evidence_text_scope or "").strip().lower()
+        if not text_scope:
             continue
-        rows.append(
-            {
-                "fragment_id": f"fragment:{signal.signal_id}",
-                "hypothesis_ids": "|".join(hypothesis_ids),
-                "signal_id": signal.signal_id,
-                "evidence_id": signal.evidence_id,
-                "run_id": signal.run_id,
-                "sector": signal.sector,
-                "axis_group": signal.axis_group,
-                "axis_code": signal.axis_code,
-                "signal_type": signal.signal_type,
-                "demand_phrase": signal.demand_phrase,
-                "semantic_scope": signal.semantic_scope,
-                "evidence_text_hash": signal.evidence_text_hash,
-                "classifier_version": signal.classifier_version,
-                "manual_review_status": signal.manual_review_status,
-                "validity_warning": signal.validity_warning,
-            }
+        semantic_fragment = (
+            str(signal.demand_phrase or "").strip()
+            or str(signal.competence_label or "").strip()
         )
+        evidence_surface = str(signal.semantic_scope or "").strip()
+        for hypothesis_id, declaration in sorted(hypothesis_registry.items()):
+            matched_indicator = _match_registry_phrase(
+                text_scope,
+                declaration.indicator_registry,
+            )
+            if matched_indicator is None:
+                continue
+            indicator_family, matched_phrase = matched_indicator
+            matched_theory = _match_registry_phrase(
+                text_scope,
+                declaration.theory_registry,
+            )
+            theory_term_family = matched_theory[0] if matched_theory is not None else ""
+            fragment_suffix = hashlib.sha256(
+                "|".join(
+                    (
+                        signal.signal_id,
+                        hypothesis_id,
+                        indicator_family,
+                        matched_phrase,
+                        theory_term_family,
+                    )
+                ).encode("utf-8")
+            ).hexdigest()[:12]
+            rows.append(
+                {
+                    "fragment_id": (
+                        f"fragment:{signal.signal_id}:{hypothesis_id}:{fragment_suffix}"
+                    ),
+                    "hypothesis_id": hypothesis_id,
+                    "hypothesis_label": declaration.label,
+                    "hypothesis_ids": hypothesis_id,
+                    "signal_id": signal.signal_id,
+                    "evidence_id": signal.evidence_id,
+                    "run_id": signal.run_id,
+                    "sector": signal.sector,
+                    "axis_group": signal.axis_group,
+                    "axis_code": signal.axis_code,
+                    "signal_type": signal.signal_type,
+                    "demand_phrase": signal.demand_phrase,
+                    "matched_hypothesis_phrase": matched_phrase,
+                    "theory_term_family": theory_term_family,
+                    "indicator_family": indicator_family,
+                    "semantic_fragment": semantic_fragment,
+                    "evidence_surface": evidence_surface,
+                    "semantic_scope": signal.semantic_scope,
+                    "evidence_text_hash": signal.evidence_text_hash,
+                    "classifier_version": signal.classifier_version,
+                    "manual_review_status": signal.manual_review_status,
+                    "validity_warning": signal.validity_warning,
+                }
+            )
     return sorted(rows, key=lambda row: str(row["fragment_id"]))
 
 
@@ -2146,11 +2206,12 @@ def _write_bundle(
     archive_root: Optional[Path],
     live_runs_root: Optional[Path],
     protocol_path: Optional[Path],
+    protocol: Optional[LiveQueryProtocol],
     current_run_dir: Path,
 ) -> List[Path]:
     evidence_rows = [r.to_dict() for r in evidence_records]
     signal_rows = [s.to_dict() for s in competence_demand_signals]
-    fragment_rows = _hypothesis_fragment_rows(competence_demand_signals)
+    fragment_rows = _hypothesis_fragment_rows(competence_demand_signals, protocol)
     metrics_row = novelty_metrics.to_dict()
 
     files: List[Path] = []

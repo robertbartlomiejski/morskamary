@@ -821,3 +821,100 @@ def test_static_baseline_only_cells_are_serialized(tmp_path: Path) -> None:
         "static_baseline_only" in row.validity_warning
         for row in result.gap_rows
     )
+
+
+def test_h3_uses_matched_fragments_and_evidence_level_bridges(tmp_path: Path) -> None:
+    from src.scientific_sources.derived_competence_analysis import (
+        DerivedCompetenceDemand,
+        build_layer5,
+    )
+
+    marine_demand = DerivedCompetenceDemand(
+        competence_demand_id="cd:marine:1",
+        competence_label="marine skill",
+        competence_definition="marine",
+        sector="ports",
+        axis_group="MARINE",
+        axis_code="M",
+        eqf_relevance="6",
+        demand_strength_score=0.9,
+        evidence_record_count=20,
+        unique_doi_count=20,
+        record_occurrence_count=20,
+        provider_count=1,
+        providers_seen="crossref",
+        provider_diversity_score=0.1,
+        query_count=1,
+        query_families_seen="hypothesis_verification",
+        query_diversity_score=0.1,
+        temporal_recency_score=0.8,
+        cross_sector_recurrence_score=0.2,
+        semantic_confidence_mean=0.8,
+        first_seen_run_id="R1",
+        latest_seen_run_id="R1",
+        first_seen_at_utc="2026-01-01T00:00:00+00:00",
+        latest_seen_at_utc="2026-01-01T00:00:00+00:00",
+        status="high_demand",
+        manual_review_status="auto_accepted",
+        validity_warning="",
+        evidence_ids="E-BRIDGE",
+        signal_types="competence_demand",
+    )
+    oceanic_demand = DerivedCompetenceDemand(
+        competence_demand_id="cd:oceanic:1",
+        competence_label="oceanic skill",
+        competence_definition="oceanic",
+        sector="ports",
+        axis_group="OCEANIC",
+        axis_code="O",
+        eqf_relevance="6",
+        demand_strength_score=0.2,
+        evidence_record_count=1,
+        unique_doi_count=1,
+        record_occurrence_count=1,
+        provider_count=1,
+        providers_seen="crossref",
+        provider_diversity_score=0.1,
+        query_count=1,
+        query_families_seen="hypothesis_verification",
+        query_diversity_score=0.1,
+        temporal_recency_score=0.8,
+        cross_sector_recurrence_score=0.2,
+        semantic_confidence_mean=0.8,
+        first_seen_run_id="R1",
+        latest_seen_run_id="R1",
+        first_seen_at_utc="2026-01-01T00:00:00+00:00",
+        latest_seen_at_utc="2026-01-01T00:00:00+00:00",
+        status="high_demand",
+        manual_review_status="auto_accepted",
+        validity_warning="",
+        evidence_ids="E-BRIDGE",
+        signal_types="competence_demand",
+    )
+    fragments = [
+        {
+            "hypothesis_id": "H3",
+            "signal_id": "S-M",
+            "evidence_id": "E-BRIDGE",
+            "axis_group": "MARINE",
+            "sector": "ports",
+        },
+        {
+            "hypothesis_id": "H3",
+            "signal_id": "S-O",
+            "evidence_id": "E-BRIDGE",
+            "axis_group": "OCEANIC",
+            "sector": "ports",
+        },
+    ]
+    result = build_layer5(
+        derived_demands=[marine_demand, oceanic_demand],
+        evidence_records=[],
+        hypothesis_fragments=fragments,
+        output_dir=tmp_path / "db-h3-fragments",
+    )
+    h3 = result.hypothesis_results["H3"]
+    assert h3["marine_fragment_count"] == 1
+    assert h3["oceanic_fragment_count"] == 1
+    assert h3["semantic_bridge_count"] == 1
+    assert h3["interpretation"] in {"supported", "partially_supported"}

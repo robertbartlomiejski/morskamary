@@ -1709,6 +1709,11 @@ def test_hypothesis_fragment_ledger_is_evidence_bound(tmp_path: Path) -> None:
     assert fragments
     assert all(fragment["evidence_text_hash"] for fragment in fragments)
     assert all(fragment["hypothesis_ids"] for fragment in fragments)
+    assert all(fragment["hypothesis_id"] for fragment in fragments)
+    assert all(fragment["matched_hypothesis_phrase"] for fragment in fragments)
+    assert all(fragment["indicator_family"] for fragment in fragments)
+    assert all(fragment["semantic_fragment"] for fragment in fragments)
+    assert all(fragment["evidence_surface"] for fragment in fragments)
     assert all(
         "source_query" not in fragment["semantic_scope"]
         for fragment in fragments

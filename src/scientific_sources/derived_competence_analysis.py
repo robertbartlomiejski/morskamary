@@ -752,6 +752,7 @@ def build_layer5(
     static_baseline_count_by_sector: Optional[Mapping[str, int]] = None,
     existing_credential_coverage: Optional[Mapping[Tuple[str, str], int]] = None,
     validated_credential_supply: Optional[Mapping[str, Sequence[int]]] = None,
+    hypothesis_fragments: Optional[Sequence[Mapping[str, Any]]] = None,
     output_dir: Union[str, Path],
     current_run_id: str = "",
     built_at_utc: Optional[str] = None,
@@ -875,6 +876,7 @@ def build_layer5(
         derived_demands,
         gap_rows,
         credentials,
+        hypothesis_fragments=hypothesis_fragments,
         validated_credential_supply=validated_credential_supply,
     )
 
@@ -1510,9 +1512,23 @@ def _test_hypotheses(
     gap_rows: Sequence[SectorAxisGapRow],
     credentials: Sequence[CredentialTranslation],
     *,
+    hypothesis_fragments: Optional[Sequence[Mapping[str, Any]]] = None,
     validated_credential_supply: Optional[Mapping[str, Sequence[int]]] = None,
 ) -> Dict[str, Any]:
     del gap_rows  # retained in the signature for stable downstream integrations
+    fragment_rows = list(hypothesis_fragments or [])
+    h1_fragments = [
+        row for row in fragment_rows
+        if str(row.get("hypothesis_id", "")).strip() == "H1"
+    ]
+    h2_fragments = [
+        row for row in fragment_rows
+        if str(row.get("hypothesis_id", "")).strip() == "H2"
+    ]
+    h3_fragments = [
+        row for row in fragment_rows
+        if str(row.get("hypothesis_id", "")).strip() == "H3"
+    ]
 
     # H1 — Maritimisation Shift is directional: only MARITIME > OCEANIC
     # supports the declared hypothesis.
@@ -1573,6 +1589,7 @@ def _test_hypotheses(
         ),
         "sample_size_maritime": n_m,
         "sample_size_oceanic": n_o,
+        "matched_fragment_count": len(h1_fragments),
         "mean_maritime": round(mean_m, 6),
         "mean_oceanic": round(mean_o, 6),
         "effect_size_cohens_d": cohens_d,
@@ -1638,6 +1655,7 @@ def _test_hypotheses(
         "hypothesis_label": "Hydronization Lag",
         "unit_of_analysis": "competence_demand_id",
         "validated_supply_map_provided": supply_map_provided,
+        "matched_fragment_count": len(h2_fragments),
         "hydronization_demand_count": len(hydro_ids),
         "validated_covered_demand_count": validated_covered_count,
         "validated_missing_demand_count": validated_missing_count,
@@ -1657,36 +1675,56 @@ def _test_hypotheses(
         "validity_warning": "|".join(h2_warnings),
     }
 
-    # H3 — MARINE vs OCEANIC Differential Coverage.
-    marine_demands = [
-        demand for demand in demands if demand.axis_group == "MARINE"
+    # H3 — MARINE vs OCEANIC Differential Coverage from matched fragments.
+    marine_fragment_rows = [
+        row for row in h3_fragments
+        if str(row.get("axis_group", "")).strip() == "MARINE"
     ]
-    oceanic_demands = [
-        demand for demand in demands if demand.axis_group == "OCEANIC"
+    oceanic_fragment_rows = [
+        row for row in h3_fragments
+        if str(row.get("axis_group", "")).strip() == "OCEANIC"
     ]
-    marine_fragments = sum(
-        max(0, demand.evidence_record_count) for demand in marine_demands
-    )
-    oceanic_fragments = sum(
-        max(0, demand.evidence_record_count) for demand in oceanic_demands
-    )
+    marine_fragments = len(marine_fragment_rows)
+    oceanic_fragments = len(oceanic_fragment_rows)
     total_fragments = marine_fragments + oceanic_fragments
     balance_score = (
         1.0 - abs(marine_fragments - oceanic_fragments) / total_fragments
         if total_fragments
         else 0.0
     )
-    marine_sectors = sorted({demand.sector for demand in marine_demands})
-    oceanic_sectors = sorted({demand.sector for demand in oceanic_demands})
-    marine_labels = {demand.competence_label for demand in marine_demands}
-    oceanic_labels = {demand.competence_label for demand in oceanic_demands}
-    semantic_bridge_count = len(marine_labels & oceanic_labels)
+    marine_sectors = sorted(
+        {str(row.get("sector", "")).strip() for row in marine_fragment_rows if str(row.get("sector", "")).strip()}
+    )
+    oceanic_sectors = sorted(
+        {str(row.get("sector", "")).strip() for row in oceanic_fragment_rows if str(row.get("sector", "")).strip()}
+    )
+    marine_evidence = {
+        str(row.get("evidence_id", "")).strip()
+        for row in marine_fragment_rows
+        if str(row.get("evidence_id", "")).strip()
+    }
+    oceanic_evidence = {
+        str(row.get("evidence_id", "")).strip()
+        for row in oceanic_fragment_rows
+        if str(row.get("evidence_id", "")).strip()
+    }
+    marine_signals = {
+        str(row.get("signal_id", "")).strip()
+        for row in marine_fragment_rows
+        if str(row.get("signal_id", "")).strip()
+    }
+    oceanic_signals = {
+        str(row.get("signal_id", "")).strip()
+        for row in oceanic_fragment_rows
+        if str(row.get("signal_id", "")).strip()
+    }
+    semantic_bridge_count = len((marine_evidence & oceanic_evidence) | (marine_signals & oceanic_signals))
     normalized_difference = (
         (marine_fragments - oceanic_fragments) / total_fragments
         if total_fragments
         else 0.0
     )
-    if not marine_demands or not oceanic_demands:
+    if not marine_fragment_rows or not oceanic_fragment_rows:
         h3_interpretation = "not_computable"
     elif balance_score >= 0.8 and semantic_bridge_count > 0:
         h3_interpretation = "supported"
@@ -1695,19 +1733,19 @@ def _test_hypotheses(
     else:
         h3_interpretation = "not_supported"
     h3_warnings: List[str] = []
-    if min(len(marine_demands), len(oceanic_demands)) < 5:
+    if min(len(marine_fragment_rows), len(oceanic_fragment_rows)) < 5:
         h3_warnings.append("small_cell_stability")
-    if marine_demands and oceanic_demands and semantic_bridge_count == 0:
+    if marine_fragment_rows and oceanic_fragment_rows and semantic_bridge_count == 0:
         h3_warnings.append("no_semantic_bridges")
     h3 = {
         "hypothesis_id": "H3",
         "hypothesis_label": "MARINE vs OCEANIC Differential Coverage",
         "test_used": (
-            "normalized MARINE-OCEANIC fragment difference, balance, "
-            "sector coverage, and shared competence labels"
+            "normalized MARINE-OCEANIC matched-fragment difference, balance, "
+            "sector coverage, and evidence/signal-level bridge overlap"
         ),
-        "sample_size_marine": len(marine_demands),
-        "sample_size_oceanic": len(oceanic_demands),
+        "sample_size_marine": len(marine_fragment_rows),
+        "sample_size_oceanic": len(oceanic_fragment_rows),
         "marine_fragment_count": marine_fragments,
         "oceanic_fragment_count": oceanic_fragments,
         "balance_score": round(balance_score, 6),
@@ -1720,6 +1758,7 @@ def _test_hypotheses(
             "OCEANIC": oceanic_fragments,
         },
         "semantic_bridge_count": semantic_bridge_count,
+        "matched_fragment_count": len(h3_fragments),
         "effect_size_normalized_difference": round(normalized_difference, 6),
         "interpretation": h3_interpretation,
         "validity_warning": "|".join(h3_warnings),

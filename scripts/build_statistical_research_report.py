@@ -14,7 +14,12 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Mapping, Optional, Sequence
+
+from src.scientific_sources.live_query_protocol import (
+    LiveQueryProtocolError,
+    load_live_query_protocol,
+)
 
 REPORT_TITLE = (
     "Live-Enriched Literature-Based Blue Economy Competence Demand, "
@@ -101,6 +106,55 @@ def _fmt_hypothesis(result: Dict[str, Any]) -> str:
     return _kv_list([[key, value] for key, value in sorted(result.items())])
 
 
+def _load_hypothesis_contract(
+    protocol_path: Optional[Path] = None,
+) -> Dict[str, Sequence[str]]:
+    path = protocol_path or Path("config/live_query_protocol.yml")
+    if not path.is_file():
+        return {hypothesis_id: () for hypothesis_id in DECLARED_HYPOTHESIS_IDS}
+    try:
+        protocol = load_live_query_protocol(path)
+    except (LiveQueryProtocolError, FileNotFoundError):
+        return {hypothesis_id: () for hypothesis_id in DECLARED_HYPOTHESIS_IDS}
+    contract: Dict[str, Sequence[str]] = {}
+    for hypothesis_id, declaration in sorted(protocol.hypotheses.items()):
+        contract[hypothesis_id] = tuple(declaration.required_result_fields)
+    return contract
+
+
+def _validate_hypothesis_results(
+    hypotheses: Mapping[str, Any],
+    *,
+    protocol_path: Optional[Path] = None,
+) -> None:
+    contract = _load_hypothesis_contract(protocol_path)
+    declared_hypotheses = tuple(contract.keys()) or DECLARED_HYPOTHESIS_IDS
+    missing_hypotheses = [
+        hid for hid in declared_hypotheses if hid not in hypotheses
+    ]
+    if missing_hypotheses:
+        raise ValueError(
+            f"Declared hypothesis outputs missing from Layer 5: "
+            f"{', '.join(missing_hypotheses)}. "
+            "This is a structural pipeline defect, not a scientific result."
+        )
+    missing_fields: List[str] = []
+    for hypothesis_id in declared_hypotheses:
+        required_fields = tuple(contract.get(hypothesis_id, ()))
+        payload = hypotheses.get(hypothesis_id, {})
+        if not isinstance(payload, dict):
+            missing_fields.append(f"{hypothesis_id}:not_an_object")
+            continue
+        for field_name in required_fields:
+            if field_name not in payload:
+                missing_fields.append(f"{hypothesis_id}:{field_name}")
+    if missing_fields:
+        raise ValueError(
+            "Declared hypothesis result fields missing from Layer 5: "
+            + ", ".join(missing_fields)
+        )
+
+
 def _assert_current_run_consistency(
     *,
     expected_run_id: str,
@@ -157,18 +211,10 @@ def build_html_report(
     )
     if not isinstance(hypotheses, dict):
         hypotheses = {}
+    _validate_hypothesis_results(hypotheses)
 
-    # Validate declared hypothesis set — missing outputs are structural
-    # pipeline defects, not scientific not_computable results.
-    missing_hypotheses = [
-        hid for hid in DECLARED_HYPOTHESIS_IDS if hid not in hypotheses
-    ]
-    if missing_hypotheses:
-        raise ValueError(
-            f"Declared hypothesis outputs missing from Layer 5: "
-            f"{', '.join(missing_hypotheses)}. "
-            "This is a structural pipeline defect, not a scientific result."
-        )
+    # Validate declared hypothesis set and required result fields.
+    _validate_hypothesis_results(hypotheses)
 
     provenance = _kv_list([
         ["Generated at (UTC)", generated_at],

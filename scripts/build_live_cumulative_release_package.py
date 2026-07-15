@@ -55,6 +55,8 @@ CSV_REQUIRED_COLUMNS: Dict[str, Tuple[str, ...]] = {
     "hypothesis_semantic_fragments.csv": (
         "fragment_id", "hypothesis_ids", "signal_id",
         "evidence_id", "run_id", "sector", "axis_group",
+        "matched_hypothesis_phrase", "indicator_family",
+        "semantic_fragment", "evidence_surface",
     ),
     "derived_competence_demands.csv": (
         "competence_demand_id", "competence_label", "sector",
@@ -71,6 +73,7 @@ CSV_REQUIRED_COLUMNS: Dict[str, Tuple[str, ...]] = {
     "learning_outcomes.csv": (
         "outcome_id", "credential_id", "sector",
         "eqf_level", "outcome_statement",
+        "competence_demand_id", "evidence_id",
     ),
 }
 
@@ -153,6 +156,42 @@ def _load_json_required(path: Path) -> Optional[Dict[str, Any]]:
     if isinstance(payload, dict):
         return payload
     return None
+
+
+def _load_jsonl_rows(path: Path) -> Tuple[List[Dict[str, Any]], List[str]]:
+    rows: List[Dict[str, Any]] = []
+    errors: List[str] = []
+    if not path.is_file():
+        return rows, errors
+    for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        try:
+            payload = json.loads(stripped)
+        except json.JSONDecodeError as exc:
+            errors.append(f"malformed_jsonl:{path.name}:L{line_no}:{exc}")
+            continue
+        if not isinstance(payload, dict):
+            errors.append(f"jsonl_not_object:{path.name}:L{line_no}")
+            continue
+        rows.append(payload)
+    if not rows and not errors:
+        errors.append(f"empty_jsonl:{path.name}")
+    return rows, errors
+
+
+def _report_has_required_sections(path: Path) -> List[str]:
+    required_tokens = [
+        "scientific hypothesis verification",
+        "h1",
+        "h2",
+        "h3",
+        "validity threats",
+        "reproducibility appendix",
+    ]
+    text = path.read_text(encoding="utf-8").lower()
+    return [token for token in required_tokens if token not in text]
 
 
 def _build_sqlite_from_csvs(csv_dir: Path) -> Tuple[Optional[bytes], Dict[str, str]]:
@@ -444,6 +483,106 @@ def main(argv: Optional[List[str]] = None) -> int:
                     )
         except (OSError, csv.Error) as exc:
             missing_required.append(f"malformed_csv:{name}:{exc}")
+
+    # JSONL scientific-content checks (non-empty, parseable, and structurally linked).
+    jsonl_rows: Dict[str, List[Dict[str, Any]]] = {}
+    for name in JSONL_FILES:
+        rows, errors = _load_jsonl_rows(database_dir / name)
+        jsonl_rows[name] = rows
+        missing_required.extend(errors)
+
+    fragment_rows = jsonl_rows.get("hypothesis_semantic_fragments.jsonl", [])
+    for row_index, row in enumerate(fragment_rows, start=1):
+        for field_name in (
+            "hypothesis_id",
+            "signal_id",
+            "evidence_id",
+            "matched_hypothesis_phrase",
+            "indicator_family",
+            "semantic_fragment",
+            "evidence_surface",
+        ):
+            if str(row.get(field_name, "")).strip():
+                continue
+            missing_required.append(
+                f"hypothesis_fragment_missing_field:L{row_index}:{field_name}"
+            )
+
+    evidence_ids_from_fragments = {
+        str(row.get("evidence_id", "")).strip()
+        for row in fragment_rows
+        if str(row.get("evidence_id", "")).strip()
+    }
+
+    demand_rows: List[Dict[str, str]] = []
+    try:
+        with (database_dir / "derived_competence_demands.csv").open(
+            "r", encoding="utf-8", newline=""
+        ) as handle:
+            demand_rows = list(csv.DictReader(handle))
+    except OSError as exc:
+        missing_required.append(f"unreadable_csv:derived_competence_demands.csv:{exc}")
+
+    learning_rows: List[Dict[str, str]] = []
+    try:
+        with (database_dir / "learning_outcomes.csv").open(
+            "r", encoding="utf-8", newline=""
+        ) as handle:
+            learning_rows = list(csv.DictReader(handle))
+    except OSError as exc:
+        missing_required.append(f"unreadable_csv:learning_outcomes.csv:{exc}")
+
+    demand_ids = {
+        str(row.get("competence_demand_id", "")).strip()
+        for row in demand_rows
+        if str(row.get("competence_demand_id", "")).strip()
+    }
+    linked_outcomes = {
+        str(row.get("competence_demand_id", "")).strip()
+        for row in learning_rows
+        if str(row.get("competence_demand_id", "")).strip()
+    }
+    missing_outcome_links = sorted(demand_ids - linked_outcomes)
+    if missing_outcome_links:
+        missing_required.append(
+            "learning_outcome_missing_demand_links:"
+            + ",".join(missing_outcome_links[:20])
+        )
+
+    for row in demand_rows:
+        demand_id = str(row.get("competence_demand_id", "")).strip()
+        for evidence_id in [
+            item.strip()
+            for item in str(row.get("evidence_ids", "")).split("|")
+            if item.strip()
+        ]:
+            if evidence_id.lower() == "unavailable":
+                continue
+            if evidence_id in evidence_ids_from_fragments:
+                continue
+            missing_required.append(
+                f"demand_evidence_not_in_hypothesis_fragments:{demand_id}:{evidence_id}"
+            )
+
+    # Report structural checks (required sections + declared hypothesis completeness).
+    report_path = reports_dir / "morskamary_statistical_report.html"
+    if report_path.is_file():
+        missing_sections = _report_has_required_sections(report_path)
+        if missing_sections:
+            missing_required.append(
+                "report_missing_sections:" + ",".join(sorted(missing_sections))
+            )
+
+    layer5_manifest = _load_json_required(database_dir / "layer5_manifest.json") or {}
+    hypotheses = layer5_manifest.get("hypothesis_results", {})
+    if not isinstance(hypotheses, dict):
+        missing_required.append("layer5_manifest_missing_hypothesis_results")
+    else:
+        for hypothesis_id in ("H1", "H2", "H3"):
+            if hypothesis_id not in hypotheses:
+                missing_required.append(
+                    f"layer5_manifest_missing_declared_hypothesis:{hypothesis_id}"
+                )
     if expected_run_id:
         run_guard_failures: List[str] = []
         for name in (

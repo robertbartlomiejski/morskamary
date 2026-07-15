@@ -204,6 +204,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     layer5 = build_layer5(
         derived_demands=layer4.derived_demands,
         evidence_records=evidence,
+        hypothesis_fragments=_load_jsonl(db_dir / "hypothesis_semantic_fragments.jsonl"),
         static_baseline_count_by_sector=baseline_map,
         existing_credential_coverage=None,
         validated_credential_supply=validated_supply,

@@ -99,6 +99,25 @@ def _minimal_valid_document(
     return {
         "protocol_version": "1.0.0",
         "query_families": [f.value for f in LiveQueryFamily],
+        "hypotheses": {
+            "H1": {
+                "label": "Maritimisation Shift",
+                "definition": "Test definition",
+                "test": "cohens_d",
+                "direction": "positive",
+                "required_axes": ["MARITIME", "OCEANIC"],
+                "declared_outcomes": [
+                    "supported_maritime_dominance",
+                    "partially_supported_maritime",
+                    "not_supported",
+                    "not_computable",
+                ],
+                "required_result_fields": [
+                    "hypothesis_id",
+                    "interpretation",
+                ],
+            }
+        },
         "sectors": sectors,
     }
 
@@ -123,6 +142,7 @@ class TestShippedProtocol:
     def test_loads_without_error(self, loaded_protocol: LiveQueryProtocol) -> None:
         assert loaded_protocol.protocol_version
         assert loaded_protocol.sectors
+        assert loaded_protocol.hypotheses
 
     def test_covers_twelve_canonical_sectors(
         self, loaded_protocol: LiveQueryProtocol
@@ -137,6 +157,12 @@ class TestShippedProtocol:
         self, loaded_protocol: LiveQueryProtocol
     ) -> None:
         assert set(loaded_protocol.query_families) == set(LiveQueryFamily)
+
+    def test_hypothesis_registry_loaded(self, loaded_protocol: LiveQueryProtocol) -> None:
+        assert {"H1", "H2", "H3"} <= set(loaded_protocol.hypotheses)
+        h1 = loaded_protocol.hypotheses["H1"]
+        assert h1.label
+        assert h1.required_axes
 
     def test_per_sector_family_minimums(
         self, loaded_protocol: LiveQueryProtocol
@@ -334,6 +360,13 @@ class TestLoaderValidation:
         with pytest.raises(LiveQueryProtocolError, match="sectors"):
             load_live_query_protocol(path)
 
+    def test_missing_hypotheses_rejected(self, tmp_path: Path) -> None:
+        payload = _minimal_valid_document()
+        del payload["hypotheses"]
+        path = _write_yaml(tmp_path, payload)
+        with pytest.raises(LiveQueryProtocolError, match="hypotheses"):
+            load_live_query_protocol(path)
+
     def test_empty_sectors_rejected(self, tmp_path: Path) -> None:
         payload = _minimal_valid_document(sectors={})
         path = _write_yaml(tmp_path, payload)
@@ -474,6 +507,8 @@ class TestSuccessfulParse:
         assert query.sort_strategy.crossref == "published-desc"
         assert query.sampling_strategy.pages == 3
         assert query.expected_signal == ["competence_demand"]
+        assert query.hypothesis_targets == ()
+        assert query.theory_terms == ()
 
     def test_load_accepts_string_path(self, tmp_path: Path) -> None:
         payload = _minimal_valid_document()
