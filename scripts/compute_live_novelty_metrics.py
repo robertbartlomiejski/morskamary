@@ -209,7 +209,7 @@ def evaluate_gates(
     }
     active_providers = sorted(active_provider_set)
     raw_families = metrics.get("query_families_seen")
-    family_data_available = "query_families_seen" in metrics
+    family_field_present = "query_families_seen" in metrics
     if isinstance(raw_families, str):
         family_tokens: List[Any] = [item for item in raw_families.split("|")]
     elif isinstance(raw_families, list):
@@ -223,6 +223,7 @@ def evaluate_gates(
             if str(family).strip()
         }
     )
+    family_data_available = family_field_present and len(active_families) > 0
     single_provider = len(active_providers) <= 1 and sum(int(c or 0) for c in provider_counts.values()) > 0
     single_family = family_data_available and len(active_families) == 1
     single_bias = single_provider or single_family or crossref_dom >= 0.98

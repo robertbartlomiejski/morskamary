@@ -254,6 +254,29 @@ def test_duplicate_only_evidence_excluded_from_demand_aggregation(
     )
 
 
+def test_non_growth_evidence_is_excluded_from_demand_aggregation(
+    tmp_path: Path,
+) -> None:
+    evidence = [
+        _mk_evidence(1, doi="10.1000/a", provider="crossref", year=2024, novelty="new_record"),
+        _mk_evidence(2, doi="10.1000/b", provider="scopus", year=2024, novelty="repeated_record"),
+    ]
+    signals = [_mk_signal(1), _mk_signal(2)]
+    out = tmp_path / "cumulative_database"
+    out.mkdir()
+    l4 = build_layer4(
+        evidence_records=evidence,
+        competence_signals=signals,
+        output_dir=out,
+        current_run_id="RUN-GROWTH-ONLY",
+    )
+    assert len(l4.derived_demands) == 1
+    demand = l4.derived_demands[0]
+    assert demand.evidence_record_count == 1
+    assert demand.unique_doi_count == 1
+    assert demand.evidence_ids == "E-0001"
+
+
 def test_review_required_signals_propagate_to_demand_and_validated_counts(
     tmp_path: Path,
 ) -> None:
@@ -310,7 +333,7 @@ def test_learning_outcome_statement_does_not_use_placeholder_evidence_id(
 
     assert l5.credentials
     assert "see_learning_outcomes_evidence_id" not in l5.credentials[0].learning_outcomes
-    assert "evidence=;" in l5.credentials[0].learning_outcomes
+    assert "evidence=unavailable;" in l5.credentials[0].learning_outcomes
     assert l5.learning_outcomes
     assert l5.learning_outcomes[0].evidence_id == ""
 
@@ -695,6 +718,42 @@ def test_h2_consumes_only_validated_demand_level_supply(tmp_path: Path) -> None:
     assert h2["validated_missing_demand_count"] == 2
     assert h2["candidate_covered_demand_count"] == 3
     assert h2["interpretation"] == "supported"
+
+
+def test_h2_partial_support_threshold_is_0_25(tmp_path: Path) -> None:
+    demands = [_mk_hydro_demand(index) for index in range(1, 5)]
+    validated_supply = {
+        demands[0].competence_demand_id: [6],
+        demands[1].competence_demand_id: [7],
+        demands[2].competence_demand_id: [5],
+    }
+    result = build_layer5(
+        derived_demands=demands,
+        evidence_records=[],
+        validated_credential_supply=validated_supply,
+        output_dir=tmp_path / "db-h2-partial",
+    )
+    h2 = result.hypothesis_results["H2"]
+    assert h2["validated_supply_map_provided"] is True
+    assert h2["validated_covered_demand_count"] == 2
+    assert h2["validated_missing_demand_count"] == 2
+    assert h2["association_metric_missing_ratio"] == 0.5
+    assert h2["interpretation"] == "supported"
+
+    validated_supply = {
+        demands[0].competence_demand_id: [6],
+        demands[1].competence_demand_id: [7],
+        demands[2].competence_demand_id: [6],
+    }
+    result_partial = build_layer5(
+        derived_demands=demands,
+        evidence_records=[],
+        validated_credential_supply=validated_supply,
+        output_dir=tmp_path / "db-h2-partial-025",
+    )
+    h2_partial = result_partial.hypothesis_results["H2"]
+    assert h2_partial["association_metric_missing_ratio"] == 0.25
+    assert h2_partial["interpretation"] == "partially_supported"
 
 
 def test_static_baseline_only_cells_are_serialized(tmp_path: Path) -> None:

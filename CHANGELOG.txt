@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-15 (fix: tighten growth/query-family gates and Layer 1 axis/count serialization contracts)
+  Change type fix
+  Scope src scripts tests governance
+  Files affected src/scientific_sources/derived_competence_analysis.py src/scientific_sources/live_run_audit.py scripts/compute_live_novelty_metrics.py tests/test_derived_competence_analysis.py tests/test_live_run_audit.py tests/test_compute_live_novelty_metrics.py CHANGELOG.txt
+  Summary Layer 4 demand aggregation now enforces growth-eligible novelty statuses for per-demand evidence metrics; learning-outcome prose now emits explicit `evidence=unavailable` when provenance links are absent; H2 partial-support threshold is aligned to the documented 0.25 boundary. Gate E now treats empty `query_families_seen` as unavailable and emits the explicit availability warning. Layer 1 raw acquisition index now serializes canonical axis identity split (`axis_group`, `axis_code`) and prefers exporter query-execution counts for raw/normalized record-count semantics.
+  Reason PR #191 follow-up review identified remaining contract gaps around growth filtering clarity, explicit provenance absence signaling, Gate E family-availability semantics, Layer 1 axis serialization, and raw-count semantics.
+  Impact Derived-demand and novelty-gate outputs better match scientific validity contracts; Layer 1 acquisition rows carry explicit canonical axis name/code fields and more faithful per-query count semantics from exporter diagnostics.
+  Quality checks python -m pytest tests/test_derived_competence_analysis.py tests/test_compute_live_novelty_metrics.py tests/test_live_run_audit.py -q; python -m flake8 src scripts tests run_full_analysis.py main.py; python -m mypy src scripts run_full_analysis.py main.py; python -m pytest tests/ -q.
+  Reviewer @copilot
+
 - 2026-07-15 (fix: remove placeholder learning-outcome evidence reference)
   Change type fix
   Scope src tests governance

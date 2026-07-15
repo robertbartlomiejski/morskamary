@@ -228,6 +228,14 @@ def test_gate_e_reports_missing_query_family_distribution() -> None:
     assert "query_family_distribution_unavailable" in e["detail"]["warnings"]
 
 
+def test_gate_e_treats_empty_query_family_list_as_unavailable() -> None:
+    r = evaluate_gates(metrics=_base_metrics(query_families_seen=[]))
+    e = next(g for g in r["gates"] if g["gate_id"] == "E")
+    assert e["detail"]["query_family_distribution_available"] is False
+    assert e["detail"]["active_families"] == []
+    assert "query_family_distribution_unavailable" in e["detail"]["warnings"]
+
+
 def test_gate_e_canonicalizes_provider_aliases() -> None:
     m = _base_metrics(
         provider_record_count_by_provider={"Crossref": 10, "crossref": 4, "Scopus": 3},

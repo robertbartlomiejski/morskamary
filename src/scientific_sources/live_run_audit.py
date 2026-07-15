@@ -87,6 +87,8 @@ RAW_ACQUISITION_INDEX_COLUMNS: Tuple[str, ...] = (
     "sector_slug",
     "sector_label",
     "axis_target",
+    "axis_group",
+    "axis_code",
     "query_family",
     "provider",
     "query_text",
@@ -119,6 +121,8 @@ class RawAcquisitionRow:
     sector_slug: str
     sector_label: str
     axis_target: str
+    axis_group: str
+    axis_code: str
     query_family: str
     provider: str
     query_text: str
@@ -137,6 +141,8 @@ class RawAcquisitionRow:
             "sector_slug": self.sector_slug,
             "sector_label": self.sector_label,
             "axis_target": self.axis_target,
+            "axis_group": self.axis_group,
+            "axis_code": self.axis_code,
             "query_family": self.query_family,
             "provider": self.provider,
             "query_text": self.query_text,
@@ -226,6 +232,34 @@ def _read_coverage_csv(path: Path) -> List[Dict[str, str]]:
         rows: List[Dict[str, str]] = []
         for raw in reader:
             rows.append({k: (v or "").strip() for k, v in raw.items()})
+    return rows
+
+
+def _read_query_execution_counts(path: Path) -> Dict[Tuple[str, str], Tuple[int, int]]:
+    """Return (provider, query_text) -> (returned_count, normalized_count)."""
+    if not path.is_file():
+        return {}
+    rows: Dict[Tuple[str, str], Tuple[int, int]] = {}
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        for raw in reader:
+            provider = (
+                (raw.get("provider_canonical") or raw.get("provider") or "")
+                .strip()
+                .lower()
+            )
+            query_text = (raw.get("query_text") or "").strip()
+            if not provider or not query_text:
+                continue
+            try:
+                returned = int((raw.get("returned_record_count") or "0").strip() or "0")
+            except ValueError:
+                returned = 0
+            try:
+                normalized = int((raw.get("normalized_record_count") or "0").strip() or "0")
+            except ValueError:
+                normalized = 0
+            rows[(provider, query_text)] = (max(0, returned), max(0, normalized))
     return rows
 
 
@@ -337,6 +371,9 @@ class LiveRunAuditBuilder:
         coverage_rows = _read_coverage_csv(
             self.research_sources_dir / _COVERAGE_FILENAME
         )
+        query_execution_counts = _read_query_execution_counts(
+            self.research_sources_dir / "query_execution_log.csv"
+        )
 
         protocol_index = self._load_protocol_index()
         payload_envelopes = self._load_payload_envelope_index()
@@ -345,6 +382,7 @@ class LiveRunAuditBuilder:
             raw_records=raw_records,
             normalized_records=normalized_records,
             coverage_rows=coverage_rows,
+            query_execution_counts=query_execution_counts,
             protocol_index=protocol_index,
             payload_envelopes=payload_envelopes,
         )
@@ -432,6 +470,7 @@ class LiveRunAuditBuilder:
         raw_records: Sequence[Mapping[str, Any]],
         normalized_records: Sequence[Mapping[str, Any]],
         coverage_rows: Sequence[Mapping[str, str]],
+        query_execution_counts: Mapping[Tuple[str, str], Tuple[int, int]],
         protocol_index: Optional[_ProtocolIndex],
         payload_envelopes: Mapping[Tuple[str, str], Mapping[str, Any]],
     ) -> List[RawAcquisitionRow]:
@@ -507,7 +546,9 @@ class LiveRunAuditBuilder:
                 query_id = protocol_query.query_id
                 sector_slug = protocol_query.sector_slug
                 sector_label = protocol_query.sector
-                axis_target = protocol_query.axis_target.value
+                axis_group = protocol_query.axis_target.name
+                axis_code = protocol_query.axis_target.value
+                axis_target = axis_code
                 query_family = protocol_query.query_family.value
                 protocol_binding = "bound"
             else:
@@ -515,8 +556,15 @@ class LiveRunAuditBuilder:
                 sector_slug = ""
                 sector_label = ""
                 axis_target = ""
+                axis_group = ""
+                axis_code = ""
                 query_family = ""
                 protocol_binding = "unbound" if protocol_index is not None else "no_protocol"
+            counts = query_execution_counts.get((provider, query_text))
+            raw_record_count = counts[0] if counts is not None else len(raw_bucket)
+            normalized_record_count = (
+                counts[1] if counts is not None else len(normalized_bucket)
+            )
 
             rows.append(
                 RawAcquisitionRow(
@@ -524,11 +572,13 @@ class LiveRunAuditBuilder:
                     sector_slug=sector_slug,
                     sector_label=sector_label,
                     axis_target=axis_target,
+                    axis_group=axis_group,
+                    axis_code=axis_code,
                     query_family=query_family,
                     provider=provider,
                     query_text=query_text,
-                    raw_record_count=len(raw_bucket),
-                    normalized_record_count=len(normalized_bucket),
+                    raw_record_count=raw_record_count,
+                    normalized_record_count=normalized_record_count,
                     unique_source_ids=unique_source_ids,
                     coverage_record_count=coverage_count,
                     has_raw_payload_envelope=envelope is not None,

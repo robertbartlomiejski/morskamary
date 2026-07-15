@@ -543,11 +543,10 @@ def build_layer4(
     for (label, sector, axis), signals in sorted(groups.items()):
         ev_ids = sorted({str(s.get("evidence_id", "")) for s in signals if s.get("evidence_id")})
         evs = [evidence_by_id.get(eid, {}) for eid in ev_ids]
-        # Fix 2: exclude duplicate_only evidence from per-demand aggregation
-        # and demand-strength numerators.
+        # Aggregate only growth-eligible evidence in per-demand metrics.
         evs = [
             e for e in evs
-            if e and str(e.get("record_novelty_status", "")) != "duplicate_only"
+            if e and str(e.get("record_novelty_status", "")) in GROWTH_ELIGIBLE_STATUSES
         ]
         dois = sorted({str(e.get("canonical_doi", "")).strip() for e in evs if e.get("canonical_doi")})
         providers = sorted({
@@ -1435,7 +1434,7 @@ def _learning_outcome_statement(
     else:
         verb = "Evaluate and justify"
         dimension = "advanced knowledge and social competence"
-    evidence_ref = demand.evidence_ids.strip()
+    evidence_ref = demand.evidence_ids.strip() or "unavailable"
     return (
         f"{verb} {demand.competence_label} for {sector} contexts at EQF "
         f"{eqf_level}, demonstrating {dimension}; evidence={evidence_ref}; "
@@ -1620,7 +1619,7 @@ def _test_hypotheses(
         missing_ratio = ratio
         if ratio >= 0.5:
             h2_interpretation = "supported"
-        elif ratio >= 0.2:
+        elif ratio >= 0.25:
             h2_interpretation = "partially_supported"
         else:
             h2_interpretation = "not_supported"

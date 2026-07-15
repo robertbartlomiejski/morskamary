@@ -132,6 +132,19 @@ def _write_sample_research_sources(base: Path) -> None:
     (base / "live_source_coverage.csv").write_text(
         _sample_coverage_rows(), encoding="utf-8"
     )
+    (base / "query_execution_log.csv").write_text(
+        (
+            "query_id,sector_slug,query_family,query_text,provider,provider_canonical,"
+            "execution_status,returned_record_count,normalized_record_count,"
+            "contributed_record_count,raw_record_count,accepted_record_count\n"
+            "Q_BLUE_BIOTECH_CORE_001,blue_biotech,core_sector,"
+            "marine biotechnology blue bioeconomy innovation governance,"
+            "Crossref,crossref,completed,4,2,2,4,2\n"
+            "Q_UNBOUND_SCOPUS,blue_biotech,core_sector,"
+            "unknown query never declared in protocol,Scopus,scopus,completed,3,1,1,3,1\n"
+        ),
+        encoding="utf-8",
+    )
 
 
 @pytest.fixture()
@@ -260,8 +273,10 @@ class TestAcquisitionIndex:
         row = bound_bio[0]
         assert row["sector_slug"] == "blue_biotech"
         assert row["axis_target"] == "M"
+        assert row["axis_group"] == "MARINE"
+        assert row["axis_code"] == "M"
         assert row["query_family"] == "core_sector"
-        assert row["raw_record_count"] == "2"
+        assert row["raw_record_count"] == "4"
         assert row["normalized_record_count"] == "2"
         assert row["unique_source_ids"] == "2"
         assert row["coverage_record_count"] == "2"
@@ -284,6 +299,8 @@ class TestAcquisitionIndex:
             assert r["query_id"].startswith("unbound:")
             assert r["sector_slug"] == ""
             assert r["axis_target"] == ""
+            assert r["axis_group"] == ""
+            assert r["axis_code"] == ""
             assert r["query_family"] == ""
 
     def test_evidence_only_query_produces_row_with_zero_raw(
