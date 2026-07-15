@@ -216,15 +216,41 @@ class TestBundleShape:
         assert manifest["schema_version"] == "1.0.0"
         assert manifest["run_id"] == "R1"
         assert manifest["built_at_utc"] == FROZEN_TS
-        assert manifest["counts"]["raw_records"] == 3
-        assert manifest["counts"]["normalized_records"] == 2
+        assert manifest["counts"]["raw_records"] == 7
+        assert manifest["counts"]["normalized_records"] == 3
         assert manifest["counts"]["acquisition_rows"] >= 2
+        assert manifest["counts"]["raw_records_with_normalized_descendants"] == 7
         # files[] excludes the manifest itself; it is listed only in
         # _checksums.sha256 to keep the manifest hash stable.
         file_paths = {entry["path"] for entry in manifest["files"]}
         assert AUDIT_MANIFEST_FILENAME not in file_paths
         assert "raw/raw_acquisition_index.csv" in file_paths
         assert "normalized/live_records.json" in file_paths
+
+    def test_manifest_counts_sum_query_level_raw_totals(
+        self, research_sources_dir: Path, output_root: Path
+    ) -> None:
+        (research_sources_dir / "query_execution_log.csv").write_text(
+            (
+                "query_id,sector_slug,query_family,query_text,provider,provider_canonical,"
+                "execution_status,returned_record_count,normalized_record_count,"
+                "contributed_record_count,raw_record_count,accepted_record_count\n"
+                "Q1,blue_biotech,core_sector,q1,Crossref,crossref,completed,5,2,2,5,2\n"
+                "Q2,blue_biotech,core_sector,q2,Scopus,scopus,completed,7,3,3,7,3\n"
+            ),
+            encoding="utf-8",
+        )
+        result = build_live_run_audit(
+            run_id="R1",
+            research_sources_dir=research_sources_dir,
+            output_root=output_root,
+            protocol_path=PROTOCOL_PATH,
+            built_at_utc=FROZEN_TS,
+        )
+        manifest = json.loads(
+            (result.bundle_dir / AUDIT_MANIFEST_FILENAME).read_text(encoding="utf-8")
+        )
+        assert manifest["counts"]["raw_records"] == 12
 
 
 # ---------------------------------------------------------------------------

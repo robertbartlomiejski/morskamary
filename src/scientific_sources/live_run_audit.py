@@ -134,6 +134,7 @@ class RawAcquisitionRow:
     raw_payload_sha256: str
     raw_payload_captured_at: str
     protocol_binding: str
+    query_execution_counts_applied: bool = False
 
     def as_csv_row(self) -> Dict[str, str]:
         return {
@@ -523,6 +524,7 @@ class LiveRunAuditBuilder:
         keys.update(raw_buckets.keys())
         keys.update(normalized_buckets.keys())
         keys.update(coverage_buckets.keys())
+        keys.update(query_execution_counts.keys())
 
         rows: List[RawAcquisitionRow] = []
         for provider, query_text in sorted(keys):
@@ -561,10 +563,14 @@ class LiveRunAuditBuilder:
                 query_family = ""
                 protocol_binding = "unbound" if protocol_index is not None else "no_protocol"
             counts = query_execution_counts.get((provider, query_text))
-            raw_record_count = counts[0] if counts is not None else len(raw_bucket)
-            normalized_record_count = (
-                counts[1] if counts is not None else len(normalized_bucket)
-            )
+            if counts is not None:
+                counts_applied = True
+                raw_record_count = counts[0]
+                normalized_record_count = counts[1]
+            else:
+                counts_applied = False
+                raw_record_count = len(raw_bucket)
+                normalized_record_count = len(normalized_bucket)
 
             rows.append(
                 RawAcquisitionRow(
@@ -589,6 +595,7 @@ class LiveRunAuditBuilder:
                         str(envelope.get("captured_at", "")) if envelope else ""
                     ),
                     protocol_binding=protocol_binding,
+                    query_execution_counts_applied=counts_applied,
                 )
             )
         return rows
@@ -759,6 +766,22 @@ class LiveRunAuditBuilder:
                 ),
             }
 
+        rows_for_totals = [
+            row
+            for row in acquisition_rows
+            if row.query_execution_counts_applied
+        ] or list(acquisition_rows)
+
+        raw_record_total = sum(max(0, int(row.raw_record_count)) for row in rows_for_totals)
+        normalized_record_total = sum(
+            max(0, int(row.normalized_record_count)) for row in rows_for_totals
+        )
+        raw_records_with_normalized_descendants = sum(
+            max(0, int(row.raw_record_count))
+            for row in rows_for_totals
+            if int(row.normalized_record_count) > 0
+        )
+
         return {
             "schema_version": AUDIT_SCHEMA_VERSION,
             "run_id": self.run_id,
@@ -767,11 +790,11 @@ class LiveRunAuditBuilder:
                 "research_sources_dir": str(self.research_sources_dir),
             },
             "counts": {
-                "raw_records": len(raw_records),
-                "normalized_records": len(normalized_records),
+                "raw_records": raw_record_total,
+                "normalized_records": normalized_record_total,
                 "acquisition_rows": len(acquisition_rows),
-                "raw_records_with_normalized_descendants": sum(
-                    1 for row in acquisition_rows if row.normalized_record_count > 0
+                "raw_records_with_normalized_descendants": (
+                    raw_records_with_normalized_descendants
                 ),
             },
             "protocol": protocol_summary,

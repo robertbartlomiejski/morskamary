@@ -42,6 +42,10 @@ from src.scientific_sources.cumulative_scientific_database import (
     RUN_NOVELTY_METRICS_JSON,
     build_cumulative_scientific_database,
 )
+from src.scientific_sources.derived_competence_analysis import (
+    build_layer4,
+    build_layer5,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL_PATH = REPO_ROOT / "config" / "live_query_protocol.yml"
@@ -105,6 +109,8 @@ def _write_layer1_audit(
         "sector_slug",
         "sector_label",
         "axis_target",
+        "axis_group",
+        "axis_code",
         "query_family",
         "provider",
         "query_text",
@@ -708,6 +714,74 @@ class TestLayer1Binding:
             "10.1000/axis.o": "O",
             "10.1000/axis.t": "T",
         }
+
+    def test_axis_group_and_code_propagate_from_layer1_to_layer5(self, tmp_path: Path) -> None:
+        current = tmp_path / "outputs"
+        live_runs = tmp_path / "live_runs"
+        _write_current_run(
+            current,
+            [
+                {
+                    "title": "Marine governance competence and skills",
+                    "doi": "10.1000/axis.flow.1",
+                    "provider": "Crossref",
+                    "source_query": "axis flow query",
+                    "retrieval_timestamp": "2026-07-01T00:00:00+00:00",
+                }
+            ],
+        )
+        _write_layer1_audit(
+            live_runs,
+            run_id="R1",
+            rows=[
+                {
+                    "query_id": "Q_AXIS_FLOW_001",
+                    "sector_slug": "axis_flow_sector",
+                    "sector_label": "Axis Flow Sector",
+                    "axis_target": "T",
+                    "axis_group": "MARINE",
+                    "axis_code": "M",
+                    "query_family": "core_sector",
+                    "provider": "Crossref",
+                    "query_text": "axis flow query",
+                    "raw_record_count": "1",
+                    "normalized_record_count": "1",
+                    "unique_source_ids": "1",
+                    "coverage_record_count": "1",
+                    "has_raw_payload_envelope": "false",
+                    "raw_payload_sha256": "",
+                    "raw_payload_captured_at": "",
+                    "protocol_binding": "bound",
+                }
+            ],
+        )
+        cumulative = build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "layer2_3",
+            live_runs_root=live_runs,
+            protocol_path=None,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+        )
+        layer4 = build_layer4(
+            evidence_records=[row.to_dict() for row in cumulative.evidence_records],
+            competence_signals=[row.to_dict() for row in cumulative.competence_demand_signals],
+            output_dir=tmp_path / "layer4_5",
+            current_run_id="R1",
+            analysis_timestamp_utc=FROZEN_TS,
+        )
+        layer5 = build_layer5(
+            derived_demands=layer4.derived_demands,
+            evidence_records=[row.to_dict() for row in cumulative.evidence_records],
+            output_dir=tmp_path / "layer4_5",
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+        )
+        assert layer4.derived_demands
+        assert layer5.learning_outcomes
+        assert layer4.derived_demands[0].axis_group == "MARINE"
+        assert layer4.derived_demands[0].axis_code == "M"
+        assert layer5.learning_outcomes[0].axis_group == "MARINE"
 
 
 # ---------------------------------------------------------------------------
