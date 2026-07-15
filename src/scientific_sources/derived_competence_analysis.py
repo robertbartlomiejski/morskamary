@@ -327,6 +327,18 @@ class Layer5Result:
 # Readiness audit (Layers 0-3)
 # ---------------------------------------------------------------------------
 
+# Minimum required columns for each CSV checked by the readiness validator.
+_READINESS_CSV_REQUIRED_COLUMNS: Dict[str, Tuple[str, ...]] = {
+    "evidence_records.csv": (
+        "evidence_id", "canonical_doi", "canonical_title",
+        "record_novelty_status",
+    ),
+    "competence_demand_signals.csv": (
+        "signal_id", "evidence_id", "run_id", "sector",
+        "axis_group", "signal_type",
+    ),
+}
+
 LAYER0_EXPECTED = ("config/live_query_protocol.yml",)
 LAYER1_EXPECTED = ("live_runs/",)  # per-run subdirs
 LAYER2_EXPECTED = (
@@ -378,14 +390,36 @@ def build_layer_readiness_report(
                         validation_errors.append(f"{rel}:malformed_json:{exc}")
                 elif rel.endswith(".sha256"):
                     try:
+                        _HEX64 = re.compile(r"^[0-9a-fA-F]{64}$")
                         text = candidate.read_text(encoding="utf-8")
+                        seen_refs: set[str] = set()
                         for line in text.strip().splitlines():
                             parts = line.split("  ", 1)
-                            if len(parts) != 2 or len(parts[0]) != 64:
+                            if len(parts) != 2 or not _HEX64.match(parts[0]):
                                 validation_errors.append(
                                     f"{rel}:malformed_checksum_line"
                                 )
                                 break
+                            declared_digest, ref_path = parts
+                            if ref_path in seen_refs:
+                                validation_errors.append(
+                                    f"{rel}:duplicate_entry:{ref_path}"
+                                )
+                                break
+                            seen_refs.add(ref_path)
+                            ref_file = root / ref_path
+                            if not ref_file.is_file():
+                                validation_errors.append(
+                                    f"{rel}:ref_missing:{ref_path}"
+                                )
+                                continue
+                            actual = hashlib.sha256(
+                                ref_file.read_bytes()
+                            ).hexdigest()
+                            if actual != declared_digest.lower():
+                                validation_errors.append(
+                                    f"{rel}:checksum_mismatch:{ref_path}"
+                                )
                     except OSError as exc:
                         validation_errors.append(f"{rel}:unreadable:{exc}")
                 elif rel.endswith(".csv"):
@@ -395,6 +429,21 @@ def build_layer_readiness_report(
                         header = next(reader, None)
                         if not header:
                             validation_errors.append(f"{rel}:empty_csv")
+                        else:
+                            basename = rel.rsplit("/", 1)[-1]
+                            req = _READINESS_CSV_REQUIRED_COLUMNS.get(
+                                basename
+                            )
+                            if req is not None:
+                                header_set = set(header)
+                                missing_cols = sorted(
+                                    c for c in req if c not in header_set
+                                )
+                                if missing_cols:
+                                    validation_errors.append(
+                                        f"{rel}:missing_columns:"
+                                        + ",".join(missing_cols)
+                                    )
                     except (OSError, csv.Error) as exc:
                         validation_errors.append(f"{rel}:malformed_csv:{exc}")
             else:

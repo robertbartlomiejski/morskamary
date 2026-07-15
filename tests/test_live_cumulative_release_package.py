@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 import zipfile
@@ -19,6 +20,7 @@ _PACKAGE_SPEC.loader.exec_module(_PACKAGE)
 build_main = _PACKAGE.main
 DEMAND_STRENGTH_FORMULA = _PACKAGE.DEMAND_STRENGTH_FORMULA
 CSV_FILES = _PACKAGE.CSV_FILES
+CSV_REQUIRED_COLUMNS = _PACKAGE.CSV_REQUIRED_COLUMNS
 JSONL_FILES = _PACKAGE.JSONL_FILES
 DATABASE_METADATA_FILES = _PACKAGE.DATABASE_METADATA_FILES
 LAYER4_STAT_FILES = _PACKAGE.LAYER4_STAT_FILES
@@ -90,13 +92,23 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
     stats.mkdir(parents=True, exist_ok=True)
 
     for name in CSV_FILES:
-        (db / name).write_text("col_a\nval_1\n", encoding="utf-8")
+        req = CSV_REQUIRED_COLUMNS.get(name)
+        if req:
+            header = ",".join(req)
+            values = ",".join("x" for _ in req)
+            (db / name).write_text(f"{header}\n{values}\n", encoding="utf-8")
+        else:
+            (db / name).write_text("col_a\nval_1\n", encoding="utf-8")
     for name in JSONL_FILES:
         (db / name).write_text(
             json.dumps({"evidence_id": "E-0001"}) + "\n",
             encoding="utf-8",
         )
+    # Write all metadata files except _checksums.sha256 first, so we can
+    # compute real SHA-256 digests for the checksum file.
     for name in DATABASE_METADATA_FILES:
+        if name.endswith(".sha256"):
+            continue
         if name == "layer5_manifest.json":
             payload = {"hypothesis_results": _all_hypotheses()}
             (db / name).write_text(
@@ -105,13 +117,21 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
             )
         elif name.endswith(".json"):
             (db / name).write_text("{}\n", encoding="utf-8")
-        elif name.endswith(".sha256"):
-            dummy_hash = "a" * 64
-            (db / name).write_text(
-                f"{dummy_hash}  evidence_records.csv\n", encoding="utf-8"
-            )
         else:
             (db / name).write_text("fixture data\n", encoding="utf-8")
+    # Build a real _checksums.sha256 with actual digests.
+    checksum_lines: list[str] = []
+    for name in sorted(
+        list(CSV_FILES) + list(JSONL_FILES)
+        + [n for n in DATABASE_METADATA_FILES if not n.endswith(".sha256")]
+    ):
+        fp = db / name
+        if fp.is_file():
+            digest = hashlib.sha256(fp.read_bytes()).hexdigest()
+            checksum_lines.append(f"{digest}  {name}")
+    (db / "_checksums.sha256").write_text(
+        "\n".join(checksum_lines) + "\n", encoding="utf-8"
+    )
     (db / "VARIABLE_LABELS.csv").write_text(
         "variable,label\nx,y\n",
         encoding="utf-8",
@@ -296,3 +316,94 @@ def test_report_rejects_stale_current_run_id(tmp_path: Path) -> None:
         "--current-run-id", "RUN-NEW",
     ])
     assert rc == 1
+
+
+def test_package_rejects_false_checksum(tmp_path: Path) -> None:
+    """A syntactically valid but incorrect checksum must fail preflight."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    # Corrupt the checksum file with a wrong digest.
+    (db / "_checksums.sha256").write_text(
+        "0" * 64 + "  evidence_records.csv\n", encoding="utf-8"
+    )
+    out = tmp_path / "pkg.zip"
+    rc = build_main([
+        "--database-dir", str(db),
+        "--reports-dir", str(reports),
+        "--output", str(out),
+        "--version-tag", "test",
+        "--generated-at-utc", "2026-07-10T00:00:00+00:00",
+        *_required_source_args(db),
+    ])
+    assert rc == 1
+    assert not out.exists()
+
+
+def test_package_rejects_missing_csv_columns(tmp_path: Path) -> None:
+    """CSVs with wrong headers must fail preflight."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    # Overwrite a required CSV with a wrong header and recompute checksums.
+    (db / "evidence_records.csv").write_text(
+        "wrong_col\nval\n", encoding="utf-8"
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    rc = build_main([
+        "--database-dir", str(db),
+        "--reports-dir", str(reports),
+        "--output", str(out),
+        "--version-tag", "test",
+        "--generated-at-utc", "2026-07-10T00:00:00+00:00",
+        *_required_source_args(db),
+    ])
+    assert rc == 1
+    assert not out.exists()
+
+
+def test_package_rejects_wrong_path_contract(tmp_path: Path) -> None:
+    """A raw-acquisition-index path that doesn't match the contract fails."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _stamp_current_run_id(db, "RUN-NEW")
+    # Create a path that has run ID as a substring but wrong structure.
+    bad_path = tmp_path / "live_runs" / "RUN-NEW-old" / "raw"
+    bad_path.mkdir(parents=True)
+    idx = bad_path / "raw_acquisition_index.csv"
+    idx.write_text("query_id,provider\nQ1,Crossref\n", encoding="utf-8")
+    out = tmp_path / "pkg.zip"
+    rc = build_main([
+        "--database-dir", str(db),
+        "--reports-dir", str(reports),
+        "--output", str(out),
+        "--version-tag", "test",
+        "--generated-at-utc", "2026-07-10T00:00:00+00:00",
+        "--current-run-id", "RUN-NEW",
+        "--stats-dir", str(tmp_path / "stats"),
+        "--protocol-path", str(tmp_path / "protocol.yml"),
+        "--projection-path", str(tmp_path / "projection.yml"),
+        "--constraints-path", str(tmp_path / "constraints.json"),
+        "--query-execution-log", str(tmp_path / "query_execution_log.csv"),
+        "--raw-acquisition-index", str(idx),
+    ])
+    assert rc == 1
+    assert not out.exists()
+
+
+def _rewrite_checksums(db: Path) -> None:
+    """Recompute _checksums.sha256 from current file contents."""
+    checksum_lines: list[str] = []
+    for name in sorted(
+        list(CSV_FILES) + list(JSONL_FILES)
+        + [n for n in DATABASE_METADATA_FILES if not n.endswith(".sha256")]
+    ):
+        fp = db / name
+        if fp.is_file():
+            digest = hashlib.sha256(fp.read_bytes()).hexdigest()
+            checksum_lines.append(f"{digest}  {name}")
+    (db / "_checksums.sha256").write_text(
+        "\n".join(checksum_lines) + "\n", encoding="utf-8"
+    )

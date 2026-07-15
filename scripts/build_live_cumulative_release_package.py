@@ -31,12 +31,48 @@ import argparse
 import csv
 import hashlib
 import json
+import re
 import sqlite3
 import sys
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
+
+# Required minimum columns per CSV file.  Imports are deferred to avoid
+# circular-import issues; the constants are duplicated intentionally so
+# the package builder has zero coupling to analysis internals.
+CSV_REQUIRED_COLUMNS: Dict[str, Tuple[str, ...]] = {
+    "evidence_records.csv": (
+        "evidence_id", "canonical_doi", "canonical_title",
+        "first_seen_run_id", "latest_seen_run_id",
+        "providers_seen", "record_novelty_status",
+    ),
+    "competence_demand_signals.csv": (
+        "signal_id", "evidence_id", "run_id", "sector",
+        "axis_group", "signal_type", "competence_label",
+    ),
+    "hypothesis_semantic_fragments.csv": (
+        "fragment_id", "hypothesis_ids", "signal_id",
+        "evidence_id", "run_id", "sector", "axis_group",
+    ),
+    "derived_competence_demands.csv": (
+        "competence_demand_id", "competence_label", "sector",
+        "axis_group", "demand_strength_score",
+    ),
+    "sector_axis_gap_model.csv": (
+        "sector", "axis_group", "live_literature_demand_count",
+        "gap_ratio",
+    ),
+    "credential_translation_eqf4_7.csv": (
+        "credential_id", "credential_title", "sector",
+        "eqf_level", "coverage_status",
+    ),
+    "learning_outcomes.csv": (
+        "outcome_id", "credential_id", "sector",
+        "eqf_level", "outcome_statement",
+    ),
+}
 
 CSV_FILES = (
     "evidence_records.csv",
@@ -325,12 +361,38 @@ def main(argv: Optional[List[str]] = None) -> int:
                 missing_required.append(f"malformed_json:{name}:{exc}")
         elif name.endswith(".sha256"):
             try:
+                _HEX64 = re.compile(r"^[0-9a-fA-F]{64}$")
                 text = candidate.read_text(encoding="utf-8")
-                for line in text.strip().splitlines():
+                seen_refs: Set[str] = set()
+                for lineno, line in enumerate(
+                    text.strip().splitlines(), start=1
+                ):
                     parts = line.split("  ", 1)
-                    if len(parts) != 2 or len(parts[0]) != 64:
-                        missing_required.append(f"malformed_checksum_line:{name}")
+                    if len(parts) != 2 or not _HEX64.match(parts[0]):
+                        missing_required.append(
+                            f"malformed_checksum_line:{name}:L{lineno}"
+                        )
                         break
+                    declared_digest, ref_path = parts
+                    if ref_path in seen_refs:
+                        missing_required.append(
+                            f"duplicate_checksum_entry:{name}:{ref_path}"
+                        )
+                        break
+                    seen_refs.add(ref_path)
+                    ref_file = database_dir / ref_path
+                    if not ref_file.is_file():
+                        missing_required.append(
+                            f"checksum_ref_missing:{name}:{ref_path}"
+                        )
+                        continue
+                    actual_digest = hashlib.sha256(
+                        ref_file.read_bytes()
+                    ).hexdigest()
+                    if actual_digest != declared_digest.lower():
+                        missing_required.append(
+                            f"checksum_mismatch:{name}:{ref_path}"
+                        )
             except OSError as exc:
                 missing_required.append(f"unreadable_checksum:{name}:{exc}")
     for name in CSV_FILES:
@@ -343,6 +405,17 @@ def main(argv: Optional[List[str]] = None) -> int:
             header = next(reader, None)
             if not header:
                 missing_required.append(f"empty_csv:{name}")
+            elif name in CSV_REQUIRED_COLUMNS:
+                header_set = set(header)
+                missing_cols = sorted(
+                    col for col in CSV_REQUIRED_COLUMNS[name]
+                    if col not in header_set
+                )
+                if missing_cols:
+                    missing_required.append(
+                        f"csv_missing_columns:{name}:"
+                        + ",".join(missing_cols)
+                    )
         except (OSError, csv.Error) as exc:
             missing_required.append(f"malformed_csv:{name}:{exc}")
     if expected_run_id:
@@ -360,14 +433,18 @@ def main(argv: Optional[List[str]] = None) -> int:
                 run_guard_failures.append(f"{name}:{run_id}")
         if raw_acquisition_index is not None:
             normalized_raw_path = str(raw_acquisition_index).replace("\\", "/")
-            # Validate exact path component match: the run ID must appear as
-            # a complete directory segment (e.g. live_runs/<run_id>/raw/) to
-            # prevent false positives from partial substring matches.
-            path_segments = normalized_raw_path.split("/")
-            if expected_run_id not in path_segments:
-                run_guard_failures.append(
-                    "raw_acquisition_index_path_missing_expected_run_id"
-                )
+            # Validate the exact path contract: the path must contain
+            # the sequence live_runs/<run_id>/raw/raw_acquisition_index.csv
+            # as contiguous directory components.
+            expected_suffix = (
+                f"live_runs/{expected_run_id}/raw/raw_acquisition_index.csv"
+            )
+            if not normalized_raw_path.endswith(expected_suffix):
+                # Also accept when the suffix appears after a separator
+                if f"/{expected_suffix}" not in normalized_raw_path:
+                    run_guard_failures.append(
+                        "raw_acquisition_index_path_contract_violation"
+                    )
         if run_guard_failures:
             missing_required.extend(
                 f"current-run-guard:{entry}" for entry in run_guard_failures
