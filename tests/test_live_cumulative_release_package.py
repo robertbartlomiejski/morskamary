@@ -45,6 +45,26 @@ def _required_source_args(db: Path) -> list[str]:
     ]
 
 
+def _h1_payload() -> dict[str, object]:
+    return {
+        "hypothesis_id": "H1",
+        "hypothesis_label": "Maritimisation Shift",
+        "effect_size_cohens_d": 0.3,
+        "interpretation": "partially_supported_maritime",
+        "validity_warning": "",
+    }
+
+
+def _h2_payload() -> dict[str, object]:
+    return {
+        "hypothesis_id": "H2",
+        "hypothesis_label": "Hydronization Lag",
+        "missing_ratio": 0.5,
+        "interpretation": "not_computable",
+        "validity_warning": "no_validated_supply_map",
+    }
+
+
 def _h3_payload() -> dict[str, object]:
     return {
         "hypothesis_id": "H3",
@@ -56,6 +76,10 @@ def _h3_payload() -> dict[str, object]:
         "interpretation": "supported",
         "validity_warning": "",
     }
+
+
+def _all_hypotheses() -> dict[str, object]:
+    return {"H1": _h1_payload(), "H2": _h2_payload(), "H3": _h3_payload()}
 
 
 def _write_min_bundle(db: Path, reports: Path) -> None:
@@ -74,15 +98,20 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
         )
     for name in DATABASE_METADATA_FILES:
         if name == "layer5_manifest.json":
-            payload = {"hypothesis_results": {"H3": _h3_payload()}}
+            payload = {"hypothesis_results": _all_hypotheses()}
             (db / name).write_text(
                 json.dumps(payload, sort_keys=True) + "\n",
                 encoding="utf-8",
             )
         elif name.endswith(".json"):
             (db / name).write_text("{}\n", encoding="utf-8")
+        elif name.endswith(".sha256"):
+            dummy_hash = "a" * 64
+            (db / name).write_text(
+                f"{dummy_hash}  evidence_records.csv\n", encoding="utf-8"
+            )
         else:
-            (db / name).write_text("fixture checksum\n", encoding="utf-8")
+            (db / name).write_text("fixture data\n", encoding="utf-8")
     (db / "VARIABLE_LABELS.csv").write_text(
         "variable,label\nx,y\n",
         encoding="utf-8",
@@ -193,7 +222,7 @@ def test_reports_render_executable_h3(tmp_path: Path) -> None:
     reports = tmp_path / "reports"
     db.mkdir()
     (db / "layer5_manifest.json").write_text(
-        json.dumps({"hypothesis_results": {"H3": _h3_payload()}}),
+        json.dumps({"hypothesis_results": _all_hypotheses()}),
         encoding="utf-8",
     )
 

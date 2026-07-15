@@ -1,5 +1,5 @@
 {
-  "protocol_version": "1.1.0",
+  "protocol_version": "1.2.0",
   "queries": [
     {
       "evidence_intent": "workforce_skill",

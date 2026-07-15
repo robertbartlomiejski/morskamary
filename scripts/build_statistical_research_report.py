@@ -48,6 +48,10 @@ REQUIRED_VALIDITY_THREATS: List[str] = [
     "Non-computable advanced statistics",
 ]
 
+# Declared hypothesis IDs that must each appear in Layer 5 output.
+# A missing entry is a structural pipeline defect, not a scientific result.
+DECLARED_HYPOTHESIS_IDS = ("H1", "H2", "H3")
+
 
 def _load_json(path: Path) -> Any:
     if not path.exists():
@@ -153,6 +157,18 @@ def build_html_report(
     )
     if not isinstance(hypotheses, dict):
         hypotheses = {}
+
+    # Validate declared hypothesis set — missing outputs are structural
+    # pipeline defects, not scientific not_computable results.
+    missing_hypotheses = [
+        hid for hid in DECLARED_HYPOTHESIS_IDS if hid not in hypotheses
+    ]
+    if missing_hypotheses:
+        raise ValueError(
+            f"Declared hypothesis outputs missing from Layer 5: "
+            f"{', '.join(missing_hypotheses)}. "
+            "This is a structural pipeline defect, not a scientific result."
+        )
 
     provenance = _kv_list([
         ["Generated at (UTC)", generated_at],

@@ -19,7 +19,7 @@ validated coverage modelling.
 
 | Layer | Owner | Purpose |
 | --- | --- | --- |
-| Layer 0 | `config/live_query_protocol.yml` | Frozen registry of 12 sectors × 8 queries × 4 families |
+| Layer 0 | `config/live_query_protocol.yml` | Frozen registry of 12 sectors × 10 queries × 6 families |
 | Layer 1 | `scripts/build_live_run_audit.py` | Per-run raw acquisition audit bundle at `outputs/live_runs/<run_id>/` |
 | Layer 2 | `scripts/build_cumulative_scientific_database.py` | Cumulative evidence records (this document) |
 | Layer 3 | `scripts/build_cumulative_scientific_database.py` | Deterministic semantic competence-demand signals (this document) |
@@ -117,7 +117,7 @@ map to this record.
 
 `metadata_only_limitation` is stamped whenever the record has neither an
 abstract nor structured subject terms — i.e., when semantic scanning must
-operate solely on the title and query text. This warning is propagated into
+operate solely on the title. This warning is propagated into
 any Layer 3 signals derived from that record so downstream consumers can
 distinguish weak from strong evidence.
 
@@ -136,10 +136,12 @@ as a legal substitute for re-querying proprietary provider APIs.
 
 Layer 3 semantic competence-demand signals are metadata-derived unless an
 abstract or legally available full-text field is present in the source record.
-When only title, subject terms, source query, or provenance metadata are
-available, the signal carries `metadata_only_limitation` / `review_required`
-warnings and must not be interpreted as full-text evidence. Query intent is not
-scientific evidence; matched semantic fragments are evidence candidates.
+When only title or subject terms are available, the signal carries
+`metadata_only_limitation` / `review_required` warnings and must not be
+interpreted as full-text evidence. `source_query` is retained for provenance
+tracking only and never contributes to positive semantic matching or
+confidence scoring. Query intent is not scientific evidence; matched semantic
+fragments are evidence candidates.
 
 ## Competence-demand signals (Layer 3)
 
@@ -213,8 +215,10 @@ The scorer sums additive weights per matched evidence scope:
 
 - title match: `+0.55`
 - subject term match: `+0.20`
-- source query match: `+0.15`
+- abstract match: `+0.20`
+- full-text match: `+0.25`
 
+`source_query` is excluded from positive matching and awards no points.
 `metadata_only_limitation` subtracts `-0.10`. The final score is clamped to
 the interval `[0.05, 0.95]`. Signals below the acceptance threshold `0.50`
 are stamped `manual_review_status='review_required'`; signals at or above

@@ -126,8 +126,10 @@ def _load_validated_supply_map(
                 if str(level).strip().isdigit()
             }
         )
-        if any(level < 4 or level > 8 for level in levels):
-            raise ValueError(f"supply entry {demand_id!r} has invalid EQF level")
+        if any(level < 4 or level > 7 for level in levels):
+            raise ValueError(
+                f"supply entry {demand_id!r} has EQF level outside 4-7 scope"
+            )
         validated[str(demand_id)] = levels
     return validated
 

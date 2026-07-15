@@ -1,4 +1,4 @@
-protocol_version: 1.1.0
+protocol_version: 1.2.0
 query_families:
 - core_sector
 - competence_demand
@@ -6,6 +6,39 @@ query_families:
 - validation_eqf_translation
 - hypothesis_verification
 - theory_translation
+hypotheses:
+  H1:
+    label: Maritimisation Shift
+    definition: >-
+      Blue-economy competence demand is structurally concentrated in the
+      MARITIME (techno-economic, labour, infrastructure) axis relative to the
+      OCEANIC (planetary governance, hydrosocial responsibility) axis.
+    test: Cohen's d (signed) on demand_strength_score by axis group
+    direction: positive cohens_d = MARITIME > OCEANIC supports H1
+    required_axes: [MARITIME, OCEANIC]
+    declared_outcomes: [supported_maritime_dominance, partially_supported_maritime, not_supported, not_computable]
+  H2:
+    label: Hydronization Lag
+    definition: >-
+      Competence demands in the HYDRONIZATION (hydrosocial governance,
+      water-body coupling) axis lack corresponding EQF 6-7 validated
+      credential supply relative to other axes.
+    test: missing-ratio of HYDRONIZATION demands without validated EQF 6-7 supply
+    direction: high missing ratio supports H2
+    required_axes: [HYDRONIZATION]
+    declared_outcomes: [supported, partially_supported, not_supported, not_computable]
+  H3:
+    label: MARINE vs OCEANIC Differential Coverage
+    definition: >-
+      The MARINE (biophysical, ecological) and OCEANIC (planetary, governance)
+      axes show balanced evidence coverage and shared competence labels
+      indicating cross-axis knowledge transfer.
+    test: >-
+      normalized MARINE-OCEANIC fragment difference, balance score,
+      sector coverage, and shared competence labels
+    direction: high balance and semantic bridges support H3
+    required_axes: [MARINE, OCEANIC]
+    declared_outcomes: [supported, partially_supported, not_supported, not_computable]
 _defaults:
   time_window: &id001
     from_year: 2019

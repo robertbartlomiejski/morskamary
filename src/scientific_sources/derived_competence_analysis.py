@@ -357,6 +357,7 @@ def build_layer_readiness_report(
     def _check(name: str, expected: Sequence[str], root: Path) -> Dict[str, Any]:
         present: List[str] = []
         missing: List[str] = []
+        validation_errors: List[str] = []
         for rel in expected:
             candidate = root / rel
             # Directory pattern with trailing slash: presence via any child
@@ -365,14 +366,46 @@ def build_layer_readiness_report(
                     present.append(rel)
                 else:
                     missing.append(rel)
+            elif candidate.exists():
+                present.append(rel)
+                # Content validation for JSON, CSV, and checksum files.
+                if candidate.is_dir():
+                    validation_errors.append(f"{rel}:is_directory_not_file")
+                elif rel.endswith(".json"):
+                    try:
+                        json.loads(candidate.read_text(encoding="utf-8"))
+                    except (OSError, json.JSONDecodeError) as exc:
+                        validation_errors.append(f"{rel}:malformed_json:{exc}")
+                elif rel.endswith(".sha256"):
+                    try:
+                        text = candidate.read_text(encoding="utf-8")
+                        for line in text.strip().splitlines():
+                            parts = line.split("  ", 1)
+                            if len(parts) != 2 or len(parts[0]) != 64:
+                                validation_errors.append(
+                                    f"{rel}:malformed_checksum_line"
+                                )
+                                break
+                    except OSError as exc:
+                        validation_errors.append(f"{rel}:unreadable:{exc}")
+                elif rel.endswith(".csv"):
+                    try:
+                        text = candidate.read_text(encoding="utf-8")
+                        reader = csv.reader(text.splitlines())
+                        header = next(reader, None)
+                        if not header:
+                            validation_errors.append(f"{rel}:empty_csv")
+                    except (OSError, csv.Error) as exc:
+                        validation_errors.append(f"{rel}:malformed_csv:{exc}")
             else:
-                (present if candidate.exists() else missing).append(rel)
-        schema_valid = not missing
+                missing.append(rel)
+        schema_valid = not missing and not validation_errors
         return {
             "layer_name": name,
             "expected_files": list(expected),
             "files_present": sorted(present),
             "files_missing": sorted(missing),
+            "validation_errors": sorted(validation_errors),
             "schema_valid": schema_valid,
             "usable_for_layer4": schema_valid,
             "action_taken": (
@@ -422,20 +455,20 @@ def build_layer4(
         if str(r.get("record_novelty_status", "")) in GROWTH_ELIGIBLE_STATUSES
     ]
 
-    # Fix 2: build a set of duplicate_only evidence IDs so we can exclude
-    # them from per-demand aggregation, demand-strength numerators, and
-    # downstream hypothesis calculations.
-    duplicate_only_ids: set[str] = {
+    # Build a set of growth-eligible evidence IDs — only these evidence
+    # records should feed demand aggregation and hypothesis calculations.
+    growth_eligible_ids: set[str] = {
         str(r.get("evidence_id", ""))
         for r in evidence_records
-        if str(r.get("record_novelty_status", "")) == "duplicate_only"
+        if str(r.get("record_novelty_status", "")) in GROWTH_ELIGIBLE_STATUSES
     }
 
     # Group signals by (competence_label, sector, axis_group), skipping
-    # signals whose evidence is classified as duplicate_only.
+    # signals whose evidence is not growth-eligible.
     groups: Dict[Tuple[str, str, str], List[Mapping[str, Any]]] = {}
     for sig in competence_signals:
-        if str(sig.get("evidence_id", "")) in duplicate_only_ids:
+        eid = str(sig.get("evidence_id", ""))
+        if eid not in growth_eligible_ids:
             continue
         label = str(sig.get("competence_label", "")).strip()
         sector = str(sig.get("sector", "")).strip() or "_unassigned"
@@ -587,7 +620,7 @@ def build_layer4(
     taxonomy_signals = [
         signal
         for signal in competence_signals
-        if str(signal.get("evidence_id", "")) not in duplicate_only_ids
+        if str(signal.get("evidence_id", "")) in growth_eligible_ids
     ]
     taxonomy = _induce_taxonomic_clusters(taxonomy_signals)
     indices = _compute_global_indices(demands, evidence_records)
@@ -869,7 +902,12 @@ def write_variable_and_value_labels(output_dir: Union[str, Path]) -> Tuple[Path,
         (
             "coverage_status",
             "validated_covered",
-            "At least one competence_demand_id is externally validated as covered at this EQF level.",
+            "All competence_demand_ids are externally validated as covered at this EQF level.",
+        ),
+        (
+            "coverage_status",
+            "validated_partial",
+            "Some but not all competence_demand_ids are externally validated as covered at this EQF level.",
         ),
         (
             "coverage_status",
@@ -1262,25 +1300,39 @@ def _hypothesis_ids_for_axis(axis_group: str) -> Tuple[str, ...]:
 def _compute_global_indices(
     demands: Sequence[DerivedCompetenceDemand],
     evidence_records: Sequence[Mapping[str, Any]],
-) -> Dict[str, float]:
+    *,
+    validated_credential_supply_provided: bool = False,
+) -> Dict[str, Any]:
     # Blue Capability Gap Index — fraction of demands not meeting high/medium demand.
     if demands:
         gap = sum(1 for d in demands if d.status in ("review_required", "low_demand")) / len(demands)
     else:
         gap = 0.0
     # QMBD Skewness — Gini-like inequality of axis distribution.
-    axis_counts: Dict[str, int] = {}
+    # Initialize all four canonical axes to zero so that missing axes
+    # correctly contribute to the skewness calculation.
+    canonical_axes = ("MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION")
+    axis_counts: Dict[str, int] = {a: 0 for a in canonical_axes}
     for d in demands:
-        axis_counts[d.axis_group] = axis_counts.get(d.axis_group, 0) + 1
+        if d.axis_group in axis_counts:
+            axis_counts[d.axis_group] += 1
     total = sum(axis_counts.values())
-    if total > 0 and len(axis_counts) > 1:
-        expected = total / len(axis_counts)
+    if total > 0:
+        expected = total / len(canonical_axes)
         skew = sum(abs(c - expected) for c in axis_counts.values()) / (2 * total)
     else:
         skew = 0.0
-    # Micro-credential coverage — share of demands with EQF level assigned.
-    covered = sum(1 for d in demands if d.eqf_relevance)
-    coverage = covered / len(demands) if demands else 0.0
+    # Micro-credential coverage — this index is not computable without an
+    # independently validated credential supply map, because _infer_eqf_relevance
+    # always assigns at least a default EQF level so EQF assignment alone does
+    # not constitute validated coverage.
+    coverage: Any = None
+    coverage_note = "not_computable_no_validated_supply_map"
+    if validated_credential_supply_provided:
+        non_review = [d for d in demands if d.status != "review_required"]
+        covered = sum(1 for d in non_review if d.eqf_relevance)
+        coverage = round(covered / len(non_review), 6) if non_review else 0.0
+        coverage_note = ""
     # Provider diversity — mean of per-demand provider_diversity_score.
     prov_div = sum(d.provider_diversity_score for d in demands) / len(demands) if demands else 0.0
     # Query diversity — mean of per-demand query_diversity_score.
@@ -1292,7 +1344,8 @@ def _compute_global_indices(
     return {
         "blue_capability_gap_index": round(gap, 6),
         "qmbd_skewness_index": round(skew, 6),
-        "micro_credential_coverage_index": round(coverage, 6),
+        "micro_credential_coverage_index": coverage,
+        "micro_credential_coverage_note": coverage_note,
         "provider_diversity_index": round(prov_div, 6),
         "query_diversity_index": round(q_div, 6),
         "temporal_recency_index": round(recency, 6),
@@ -1349,9 +1402,9 @@ def _first_evidence_id_for_demand(
     linked = sorted(set(_split_list(d.evidence_ids)))
     if linked:
         return linked[0]
-    for evidence in evidence_records:
-        if d.sector in _split_list(evidence.get("sector_candidates", "")):
-            return str(evidence.get("evidence_id", ""))
+    # Do not fabricate provenance by attaching an arbitrary record from the
+    # same sector. Leave the evidence ID empty; the demand remains
+    # review_required until genuine provenance is established.
     return ""
 
 
@@ -1386,6 +1439,7 @@ def _coverage_status_for_credential(
     if validated_credential_supply is None:
         return "candidate_translation"
 
+    covered_count = 0
     for demand in demands:
         levels = {
             int(level)
@@ -1395,7 +1449,11 @@ def _coverage_status_for_credential(
             if str(level).strip().isdigit()
         }
         if eqf_level in levels:
-            return "validated_covered"
+            covered_count += 1
+    if covered_count == len(demands):
+        return "validated_covered"
+    if covered_count > 0:
+        return "validated_partial"
     return "validated_uncovered"
 
 
@@ -1433,15 +1491,30 @@ def _test_hypotheses(
         pooled_sd = math.sqrt(pooled_var) if pooled_var > 0 else 0.0
     else:
         pooled_sd = 0.0
-    cohens_d = difference / pooled_sd if pooled_sd > 0 else 0.0
+    # When pooled_sd is zero, Cohen's d is undefined — report not_computable
+    # rather than converting to 0.0 which would misreport a structural
+    # statistical failure as a negative scientific result.
+    if pooled_sd > 0:
+        cohens_d: Any = round(difference / pooled_sd, 6)
+    else:
+        cohens_d = None
+    h1_validity_extra = ""
     if n_m == 0 or n_o == 0:
         h1_interpretation = "not_computable"
+    elif cohens_d is None:
+        h1_interpretation = "not_computable"
+        h1_validity_extra = "zero_pooled_sd"
     elif cohens_d >= 0.5:
         h1_interpretation = "supported_maritime_dominance"
     elif cohens_d >= 0.2:
         h1_interpretation = "partially_supported_maritime"
     else:
         h1_interpretation = "not_supported"
+    h1_warnings: List[str] = []
+    if min(n_m, n_o) < 5:
+        h1_warnings.append("small_cell_stability")
+    if h1_validity_extra:
+        h1_warnings.append(h1_validity_extra)
     h1 = {
         "hypothesis_id": "H1",
         "hypothesis_label": "Maritimisation Shift",
@@ -1454,9 +1527,9 @@ def _test_hypotheses(
         "sample_size_oceanic": n_o,
         "mean_maritime": round(mean_m, 6),
         "mean_oceanic": round(mean_o, 6),
-        "effect_size_cohens_d": round(cohens_d, 6),
+        "effect_size_cohens_d": cohens_d,
         "interpretation": h1_interpretation,
-        "validity_warning": "small_cell_stability" if min(n_m, n_o) < 5 else "",
+        "validity_warning": "|".join(h1_warnings) if h1_warnings else "",
     }
 
     # H2 — Hydronization Lag uses an independently validated, demand-level

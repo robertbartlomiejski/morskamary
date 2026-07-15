@@ -252,3 +252,15 @@ def test_layer45_step_passes_fixed_analysis_timestamp_utc() -> None:
     layer45_block = WORKFLOW_TEXT[layer45_index : layer45_index + 600]
     assert "--analysis-timestamp-utc" in layer45_block
     assert '"$ANALYSIS_TIMESTAMP_UTC"' in layer45_block
+
+
+def test_export_step_passes_generated_constraints_path() -> None:
+    """The export step must explicitly pass ``--query-constraints-file`` so that
+    authoritative constraints from the protocol projection are enforced rather
+    than falling back silently to ad-hoc defaults."""
+    export_index = WORKFLOW_TEXT.index(
+        "python scripts/export_live_research_records.py"
+    )
+    export_block = WORKFLOW_TEXT[export_index : export_index + 600]
+    assert "--query-constraints-file" in export_block
+    assert "query_protocol_constraints.json" in export_block

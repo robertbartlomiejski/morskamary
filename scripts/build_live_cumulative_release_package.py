@@ -276,6 +276,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
+    # Remove any stale release ZIP so that a failed preflight cannot leave an
+    # old package for downstream `if: always()` artifact uploads to publish.
+    if output.exists():
+        output.unlink()
     expected_run_id = str(args.current_run_id or "").strip()
     generated_at = (
         args.generated_at_utc
@@ -308,6 +312,39 @@ def main(argv: Optional[List[str]] = None) -> int:
             for required_path in required_paths
             if not required_path.is_file()
         ]
+
+    # Schema/content validation for manifests, checksums, and CSVs.
+    for name in DATABASE_METADATA_FILES:
+        candidate = database_dir / name
+        if not candidate.is_file():
+            continue
+        if name.endswith(".json"):
+            try:
+                json.loads(candidate.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as exc:
+                missing_required.append(f"malformed_json:{name}:{exc}")
+        elif name.endswith(".sha256"):
+            try:
+                text = candidate.read_text(encoding="utf-8")
+                for line in text.strip().splitlines():
+                    parts = line.split("  ", 1)
+                    if len(parts) != 2 or len(parts[0]) != 64:
+                        missing_required.append(f"malformed_checksum_line:{name}")
+                        break
+            except OSError as exc:
+                missing_required.append(f"unreadable_checksum:{name}:{exc}")
+    for name in CSV_FILES:
+        candidate = database_dir / name
+        if not candidate.is_file():
+            continue
+        try:
+            text = candidate.read_text(encoding="utf-8")
+            reader = csv.reader(text.splitlines())
+            header = next(reader, None)
+            if not header:
+                missing_required.append(f"empty_csv:{name}")
+        except (OSError, csv.Error) as exc:
+            missing_required.append(f"malformed_csv:{name}:{exc}")
     if expected_run_id:
         run_guard_failures: List[str] = []
         for name in (
@@ -323,7 +360,11 @@ def main(argv: Optional[List[str]] = None) -> int:
                 run_guard_failures.append(f"{name}:{run_id}")
         if raw_acquisition_index is not None:
             normalized_raw_path = str(raw_acquisition_index).replace("\\", "/")
-            if expected_run_id not in normalized_raw_path:
+            # Validate exact path component match: the run ID must appear as
+            # a complete directory segment (e.g. live_runs/<run_id>/raw/) to
+            # prevent false positives from partial substring matches.
+            path_segments = normalized_raw_path.split("/")
+            if expected_run_id not in path_segments:
                 run_guard_failures.append(
                     "raw_acquisition_index_path_missing_expected_run_id"
                 )
@@ -451,6 +492,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         for name, blob in entries:
             info = zipfile.ZipInfo(name, date_time=fixed_ts)
             info.external_attr = (0o644 & 0xFFFF) << 16
+            info.compress_type = zipfile.ZIP_DEFLATED
             zf.writestr(info, blob)
 
     package_bytes = output.read_bytes()

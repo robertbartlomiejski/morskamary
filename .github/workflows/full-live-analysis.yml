@@ -137,6 +137,7 @@ jobs:
           python scripts/export_live_research_records.py \
             --providers "$REQUESTED_PROVIDERS" \
             --query-file outputs/research_sources/research_queries_from_protocol.yml \
+            --query-constraints-file outputs/research_sources/query_protocol_constraints.json \
             --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
             --output-dir outputs/research_sources \
             --offline "$OFFLINE_MODE"

@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-15 (fix: PR-191 review-findings scientific-validity, provenance, packaging, and workflow-contract hardening)
+  Change type fix
+  Scope scripts src tests config docs workflows
+  Files affected .github/workflows/full-live-analysis.yml scripts/build_live_cumulative_release_package.py scripts/build_layer4_5_scientific_analysis.py scripts/build_statistical_research_report.py src/scientific_sources/derived_competence_analysis.py config/live_query_protocol.yml docs/LIVE_CUMULATIVE_SCIENTIFIC_DATABASE.md tests/test_full_live_analysis_workflow.py tests/test_live_cumulative_release_package.py tests/test_workflow_security.py CHANGELOG.txt
+  Summary Addresses all blocking review findings from PR-191: (1) pass generated constraints path explicitly to acquisition exporter; (2) release package removes stale ZIP, validates manifest/checksum/CSV schemas before packaging; (3) ZipInfo entries use ZIP_DEFLATED compress_type; (4) run-id path validation uses exact path-segment matching; (5) Layer 4 demand aggregation filters signals by growth-eligible evidence IDs; (6) micro_credential_coverage_index reports not_computable without validated supply map; (7) QMBD skewness initializes all 4 canonical axes; (8) removes fabricated evidence fallback; (9) Cohen's d reports not_computable on zero pooled SD; (10) rejects EQF levels above 7; (11) adds versioned hypothesis declarations to protocol; (12) missing hypothesis outputs are structural defects; (13) fixes stale scoring formula and metadata_only description in docs; (14) credential coverage distinguishes validated_partial from validated_covered; (15) workflow security test evaluates effective permissions (workflow+job scopes); (16) layer readiness report validates file content schemas.
+  Reason Reviewer identified multiple scientific-validity, provenance-integrity, packaging-correctness, and security-contract defects that required resolution before merge.
+  Impact All review blocking findings resolved; scientific indices, hypothesis verification, credential coverage, and release packaging now enforce correct contracts.
+  Quality checks python -m flake8 src scripts tests run_full_analysis.py main.py; python -m mypy src scripts run_full_analysis.py main.py; python -m pytest tests/ -v (1026 passed); python scripts/validate_generated_outputs.py; python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present.
+  Reviewer @copilot
+
 - 2026-07-14 (fix: PR-191 deterministic Layer 4-5 recency timestamp + Gate A provider-alias canonicalisation)
   Change type fix
   Scope workflows scripts tests governance

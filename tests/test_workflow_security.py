@@ -83,6 +83,35 @@ def _job_write_permissions(job: Dict[str, Any]) -> Dict[str, str]:
     return dict(job.get("permissions") or {})
 
 
+def _effective_write_permissions(
+    wf: Dict[str, Any], job: Dict[str, Any],
+) -> Dict[str, str]:
+    """Return effective permissions by combining workflow and job scopes.
+
+    Job-level permissions override workflow-level when present.  Workflow-level
+    ``permissions: write-all`` or string forms are expanded.
+    """
+    wf_perms: Any = wf.get("permissions") or {}
+    job_perms: Any = job.get("permissions") or {}
+
+    # Handle string shorthand forms.
+    if isinstance(wf_perms, str):
+        if wf_perms == "write-all":
+            wf_perms = {"contents": "write", "pull-requests": "write"}
+        else:
+            wf_perms = {}
+    if isinstance(job_perms, str):
+        if job_perms == "write-all":
+            job_perms = {"contents": "write", "pull-requests": "write"}
+        else:
+            job_perms = {}
+
+    # Job-level overrides workflow-level when present; otherwise inherit.
+    if job_perms:
+        return dict(job_perms)
+    return dict(wf_perms)
+
+
 # ---------------------------------------------------------------------------
 # Test 1 — every checkout disables persisted credentials
 # ---------------------------------------------------------------------------
@@ -164,7 +193,7 @@ def test_only_allowlisted_jobs_have_write_permissions() -> None:
     for wf_stem, wf in workflows.items():
         allowed_jobs = ALLOWED_WRITE_JOBS.get(wf_stem, set())
         for job_id, job in (wf.get("jobs") or {}).items():
-            perms = _job_write_permissions(job)
+            perms = _effective_write_permissions(wf, job)
             for perm_key in ("contents", "pull-requests"):
                 if perms.get(perm_key) == "write" and job_id not in allowed_jobs:
                     violations.append(
