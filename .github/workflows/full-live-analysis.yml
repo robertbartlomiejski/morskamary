@@ -372,13 +372,17 @@ jobs:
           # staged, so drift in the artifact download cannot leak unrelated
           # files into the PR.
           git add \
-            outputs/ \
+            outputs/research_sources/ \
+            outputs/research_api_health.json \
             outputs/run_archive/ \
             outputs/live_runs/ \
             outputs/cumulative_database/ \
             outputs/layer4_statistics/ \
             outputs/release_packages/ \
             reports/
+
+          # Compliance guard: never stage proprietary raw provider payloads.
+          git reset --quiet -- ':(glob)outputs/**/raw_api_payloads/**' ':(glob)raw_api_payloads/**' || true
 
           if git diff --cached --quiet; then
             echo "[INFO] No output changes to publish; skipping PR creation."

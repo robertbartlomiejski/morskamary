@@ -144,9 +144,7 @@ def test_commit_outputs_job_stages_live_runs_directory() -> None:
     commit_index = WORKFLOW_TEXT.index("commit-outputs:")
     commit_block = WORKFLOW_TEXT[commit_index:]
     assert "git add" in commit_block
-    git_add_index = commit_block.index("git add")
-    git_add_line = commit_block[git_add_index : git_add_index + 200]
-    assert "outputs/live_runs/" in git_add_line
+    assert "outputs/live_runs/" in commit_block
 
 
 def test_workflow_builds_layer23_cumulative_scientific_database() -> None:
@@ -193,9 +191,15 @@ def test_workflow_evaluates_novelty_gates_in_strict_mode() -> None:
 def test_commit_outputs_job_stages_cumulative_database_directory() -> None:
     commit_index = WORKFLOW_TEXT.index("commit-outputs:")
     commit_block = WORKFLOW_TEXT[commit_index:]
-    git_add_index = commit_block.index("git add")
-    git_add_line = commit_block[git_add_index : git_add_index + 200]
-    assert "outputs/cumulative_database/" in git_add_line
+    assert "outputs/cumulative_database/" in commit_block
+
+
+def test_commit_outputs_job_avoids_broad_outputs_staging_and_unstages_raw_payloads() -> None:
+    commit_index = WORKFLOW_TEXT.index("commit-outputs:")
+    commit_block = WORKFLOW_TEXT[commit_index:]
+    assert "git add \\\n            outputs/ \\" not in commit_block
+    assert "outputs/research_sources/" in commit_block
+    assert "git reset --quiet -- ':(glob)outputs/**/raw_api_payloads/**'" in commit_block
 
 
 def test_release_package_step_passes_stats_dir_and_raw_acquisition_index() -> None:

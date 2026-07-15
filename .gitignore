@@ -96,6 +96,9 @@ __tablestorage__/
 # outputs/*.html
 # outputs/*.json
 # outputs/*.csv
+# Proprietary raw API payloads (compliance exclusion)
+outputs/**/raw_api_payloads/
+raw_api_payloads/
 outputs/sectors/
 # Transient smoke-test artifact — generated at runtime, uploaded as CI artifact,
 # not committed; exclude so generate_manifest.py and sync_audit see a clean tree.
