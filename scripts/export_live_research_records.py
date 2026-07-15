@@ -1206,8 +1206,9 @@ def main() -> int:
         for group_name, sector_data in query_groups.items()
         for query in sector_data["queries"]
     }
+    is_legacy_default = query_file_path.name == "research_queries.yml"
     should_fallback_to_ad_hoc_constraints = (
-        query_file_path != DEFAULT_QUERY_FILE_PATH
+        (query_file_path != DEFAULT_QUERY_FILE_PATH or is_legacy_default)
         and constraints_path == DEFAULT_QUERY_CONSTRAINTS_PATH
         and "--query-constraints-file" not in sys.argv[1:]
     )

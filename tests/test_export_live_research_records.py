@@ -481,6 +481,77 @@ class TestExportFunctions:
 
 
 class TestMainIntegration:
+    def test_legacy_default_query_file_falls_back_to_ad_hoc_constraints(
+        self, tmp_path, monkeypatch
+    ):
+        """Legacy research_queries.yml should trigger ad-hoc constraints fallback."""
+        query_file = tmp_path / "config" / "research_queries.yml"
+        query_file.parent.mkdir(parents=True, exist_ok=True)
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test Sector"
+    queries:
+      - "test query"
+"""
+        )
+        constraints_file = (
+            tmp_path / "outputs" / "research_sources" / "query_protocol_constraints.json"
+        )
+        constraints_file.parent.mkdir(parents=True, exist_ok=True)
+        constraints_file.write_text(
+            json.dumps(
+                {
+                    "query_count": 1,
+                    "queries": [
+                        {
+                            "query_id": "OTHER",
+                            "query_text": "other query",
+                            "sector_slug": "other_sector",
+                            "query_family": "discovery",
+                        }
+                    ],
+                }
+            )
+        )
+        output_dir = tmp_path / "out"
+        fallback_called = False
+
+        def _spy_build_ad_hoc_constraints(query_groups):
+            nonlocal fallback_called
+            fallback_called = True
+            return {
+                query_text.lower(): {
+                    "query_id": f"{group_name}_Q{idx + 1}",
+                    "sector_slug": group_name,
+                    "query_family": "legacy_projection",
+                }
+                for group_name, sector_data in query_groups.items()
+                for idx, query_text in enumerate(sector_data["queries"])
+            }
+
+        monkeypatch.setattr(
+            "scripts.export_live_research_records._build_ad_hoc_constraints_from_query_groups",
+            _spy_build_ad_hoc_constraints,
+        )
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "export_live_research_records.py",
+                "--output-dir",
+                str(output_dir),
+                "--offline",
+                "true",
+            ],
+        )
+
+        result = main()
+
+        assert result == 0
+        assert fallback_called
+
     def test_offline_mode_skips_network_calls(self, tmp_path, monkeypatch):
         """Test that offline mode produces empty outputs without network calls."""
         # Create minimal query file
