@@ -235,8 +235,12 @@ class TestBundleShape:
                 "query_id,sector_slug,query_family,query_text,provider,provider_canonical,"
                 "execution_status,returned_record_count,normalized_record_count,"
                 "contributed_record_count,raw_record_count,accepted_record_count\n"
-                "Q1,blue_biotech,core_sector,q1,Crossref,crossref,completed,5,2,2,5,2\n"
-                "Q2,blue_biotech,core_sector,q2,Scopus,scopus,completed,7,3,3,7,3\n"
+                "Q_BLUE_BIOTECH_CORE_001,blue_biotech,core_sector,"
+                "marine biotechnology blue bioeconomy innovation governance,"
+                "Crossref,crossref,completed,5,2,2,5,2\n"
+                "Q_UNBOUND_SCOPUS,blue_biotech,core_sector,"
+                "unknown query never declared in protocol,"
+                "Scopus,scopus,completed,7,3,3,7,3\n"
             ),
             encoding="utf-8",
         )
@@ -251,6 +255,57 @@ class TestBundleShape:
             (result.bundle_dir / AUDIT_MANIFEST_FILENAME).read_text(encoding="utf-8")
         )
         assert manifest["counts"]["raw_records"] == 12
+
+    def test_manifest_counts_mix_query_totals_with_raw_bucket_fallback(
+        self, research_sources_dir: Path, output_root: Path
+    ) -> None:
+        mixed_raw_records = _sample_raw_records() + [
+            {
+                "title": "Sample paper E",
+                "authors": "Noe, J.",
+                "year": 2021,
+                "doi": "10.1000/xyz.005",
+                "source_id": "scopus:10.1000/xyz.005",
+                "provider": "Scopus",
+                "source_query": "unknown query never declared in protocol",
+                "retrieval_timestamp": "2026-07-02T22:30:10.838173+00:00",
+            },
+            {
+                "title": "Sample paper F",
+                "authors": "Poe, J.",
+                "year": 2020,
+                "doi": "10.1000/xyz.006",
+                "source_id": "scopus:10.1000/xyz.006",
+                "provider": "Scopus",
+                "source_query": "unknown query never declared in protocol",
+                "retrieval_timestamp": "2026-07-02T22:30:10.838173+00:00",
+            },
+        ]
+        (research_sources_dir / "raw_provider_records.json").write_text(
+            json.dumps(mixed_raw_records, indent=2), encoding="utf-8"
+        )
+        (research_sources_dir / "query_execution_log.csv").write_text(
+            (
+                "query_id,sector_slug,query_family,query_text,provider,provider_canonical,"
+                "execution_status,returned_record_count,normalized_record_count,"
+                "contributed_record_count,raw_record_count,accepted_record_count\n"
+                "Q_BLUE_BIOTECH_CORE_001,blue_biotech,core_sector,"
+                "marine biotechnology blue bioeconomy innovation governance,"
+                "Crossref,crossref,completed,5,2,2,5,2\n"
+            ),
+            encoding="utf-8",
+        )
+        result = build_live_run_audit(
+            run_id="R1",
+            research_sources_dir=research_sources_dir,
+            output_root=output_root,
+            protocol_path=PROTOCOL_PATH,
+            built_at_utc=FROZEN_TS,
+        )
+        manifest = json.loads(
+            (result.bundle_dir / AUDIT_MANIFEST_FILENAME).read_text(encoding="utf-8")
+        )
+        assert manifest["counts"]["raw_records"] == 8
 
 
 # ---------------------------------------------------------------------------

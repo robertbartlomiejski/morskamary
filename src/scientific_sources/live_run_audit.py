@@ -769,8 +769,8 @@ class LiveRunAuditBuilder:
         rows_for_totals = [
             row
             for row in acquisition_rows
-            if row.query_execution_counts_applied
-        ] or list(acquisition_rows)
+            if row.query_execution_counts_applied or int(row.raw_record_count) > 0
+        ]
 
         raw_record_total = sum(max(0, int(row.raw_record_count)) for row in rows_for_totals)
         normalized_record_total = sum(
