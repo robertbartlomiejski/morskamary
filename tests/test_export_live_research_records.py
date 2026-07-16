@@ -245,7 +245,7 @@ class TestApplyQueryConstraint:
             max_results=10,
         )
         assert len(accepted) == 2
-        assert audit["excluded_missing_year"] == 0
+        assert audit["excluded_missing_year_count"] == 0
 
     def test_missing_year_excluded_when_time_window_declared(self):
         records = [
@@ -260,7 +260,7 @@ class TestApplyQueryConstraint:
         )
         assert len(accepted) == 1
         assert accepted[0].year == "2024"
-        assert audit["excluded_missing_year"] == 1
+        assert audit["excluded_missing_year_count"] == 1
 
 
 class TestSentenceLevelClassification:
