@@ -1,0 +1,450 @@
+{
+  "generated_at_utc": "2026-07-13T07:42:48.004571Z",
+  "canonical_branch": "claude/pr-190-build-live-cumulative-database",
+  "canonical_head_sha": "efb1a080846a3c57220afb3a516cb29765d51502",
+  "main_sha": "b46f407d3436c7c09d9610c441f96bb8cf7e4408",
+  "merge_base_sha": "b46f407d3436c7c09d9610c441f96bb8cf7e4408",
+  "ahead_behind_vs_main": {
+    "ahead": 11,
+    "behind": 0
+  },
+  "base_on_main_history_check": {
+    "status": "confirmed",
+    "detail": "merge-base equals origin/main SHA"
+  },
+  "current_pr_commits": [
+    {
+      "sha": "5d72cc1120c879a8d02c92a373b874f917eaa113",
+      "short_sha": "5d72cc1",
+      "subject": "feat(PR-190/Layer0): add live query protocol registry with typed loader, legacy-view shim, and 36 unit tests"
+    },
+    {
+      "sha": "9aa026f71800082b7ae584cf230fd8b7b5c9b02c",
+      "short_sha": "9aa026f",
+      "subject": "feat(PR-190/Layer1): raw provider acquisition audit bundle with deterministic manifest and Layer 0 protocol binding"
+    },
+    {
+      "sha": "031f30c041fc09cba1b6b1e096e6ddbf9bd2ba8a",
+      "short_sha": "031f30c",
+      "subject": "feat(PR-190/Layer0-1): wire live-run audit into full-live-analysis workflow and fix mypy yaml import"
+    },
+    {
+      "sha": "89fb54ea15f4ff872dcf1e46a786b62413d83d10",
+      "short_sha": "89fb54e",
+      "subject": "feat(PR-190/Layer2-3): live cumulative scientific database bundle with deterministic dedup and semantic signals"
+    },
+    {
+      "sha": "369ff100df322acd96022e82b544b51616bbc3c5",
+      "short_sha": "369ff10",
+      "subject": "feat(PR-190/Layer4-5): derived demand model, gap model, EQF 4-7 translation, novelty gates, statistical report, and downloadable release ZIP"
+    },
+    {
+      "sha": "f9e380008d7dc8eced97ad846b430c95110c637d",
+      "short_sha": "f9e3800",
+      "subject": "fix(PR-190): clarify pipeline scope and release determinism"
+    },
+    {
+      "sha": "db1418ac035665d7f6723bab0ae66ae1671ac142",
+      "short_sha": "db1418a",
+      "subject": "Potential fix for pull request finding"
+    },
+    {
+      "sha": "3abf66570e177241c5e995167e023c1088b09258",
+      "short_sha": "3abf665",
+      "subject": "Potential fix for pull request finding"
+    },
+    {
+      "sha": "d90214d9fb320c051215bc02abbedd5d0074cb20",
+      "short_sha": "d90214d",
+      "subject": "Potential fix for pull request finding"
+    },
+    {
+      "sha": "dcf14f6ac17411aea76ea1ee5bf9be06d4e8b213",
+      "short_sha": "dcf14f6",
+      "subject": "fix: supply previous metrics for Gate B novelty checks"
+    },
+    {
+      "sha": "efb1a080846a3c57220afb3a516cb29765d51502",
+      "short_sha": "efb1a08",
+      "subject": "Fix Cohen's d to use pooled within-group SD"
+    }
+  ],
+  "claimed_session_commit_absence_report": [],
+  "unresolved_review_threads_snapshot": [
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P0YLK",
+      "is_outdated": false,
+      "file": "docs/STATISTICAL_REPORT_METHODOLOGY.md",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "### Summary\n* Clarified PR-190 Stage A-C scope in the README: it now describes the branch as a full live cumulative pipeline scaffold while explicitly noting that credential coverage and H1/H2 inference remain preliminar"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9SdU",
+      "is_outdated": false,
+      "file": "src/scientific_sources/cumulative_scientific_database.py",
+      "last_author": "robertbartlomiejski",
+      "last_comment_excerpt": "No - this would revert and weaken the Layers and Scientific Hypothesis Verification Standard:\r\nThe repository must mathematically verify hypotheses grounded in advanced maritime sociology, the hydrosocial cycle, and the "
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sdv",
+      "is_outdated": false,
+      "file": "src/scientific_sources/cumulative_scientific_database.py",
+      "last_author": "robertbartlomiejski",
+      "last_comment_excerpt": "Yes because frequencies of the evidence is valuable - @actions-user please dive deep into Layer 4 and 5 to ensureb if counters frequencies and percentage of sum is introduced in output reporting. If not available please "
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9SeG",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "robertbartlomiejski",
+      "last_comment_excerpt": "No \ud83d\udc4e "
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Se8",
+      "is_outdated": false,
+      "file": "scripts/compute_live_novelty_metrics.py",
+      "last_author": "copilot-pull-request-reviewer",
+      "last_comment_excerpt": "`evaluate_gates` can produce an unconditional failure (for example Gate D contamination or consecutive zero-novelty runs), but the CLI still exits successfully unless `--strict` was supplied. The workflow does not pass `"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9SfM",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "copilot-pull-request-reviewer",
+      "last_comment_excerpt": "This evidence link is not tied to the demand being translated: `_first_evidence_id_for_demand` returns the first record whose sector string matches. Multiple demands in one sector can therefore cite an unrelated paper, b"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sfa",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "copilot-pull-request-reviewer",
+      "last_comment_excerpt": "H1 is directional (`Maritime` demand greater than `Oceanic`), but taking `abs(cohens_d)` marks a large negative effect as supporting the Maritimisation Shift. Negative effects should be `not_supported`; apply the thresho"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sfs",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "copilot-pull-request-reviewer",
+      "last_comment_excerpt": "This subtracts the number of aggregated credential rows from the number of demands. A credential row can contain many `competence_demand_ids`, so ten fully covered demands represented by two EQF rows are incorrectly repo"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9SgA",
+      "is_outdated": false,
+      "file": "scripts/build_live_cumulative_release_package.py",
+      "last_author": "copilot-pull-request-reviewer",
+      "last_comment_excerpt": "All files described as package contents are silently optional here: missing core CSV/JSONL/report files are skipped and the command still returns success. A failed upstream stage can therefore publish a valid-looking ZIP"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9SgO",
+      "is_outdated": false,
+      "file": "scripts/build_layer4_5_scientific_analysis.py",
+      "last_author": "copilot-pull-request-reviewer",
+      "last_comment_excerpt": "`--stats-dir` is parsed and created, but it is never passed to `build_layer4`; the library always writes to `output_dir.parent / \"layer4_statistics\"`. Any caller selecting a custom stats directory gets an empty requested"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sgf",
+      "is_outdated": false,
+      "file": "src/scientific_sources/live_run_audit.py",
+      "last_author": "copilot-pull-request-reviewer",
+      "last_comment_excerpt": "This field is named as a raw-record count but counts acquisition buckets with normalized rows. An evidence-only bucket with zero raw records increments it, while a bucket containing multiple raw records increments it onl"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sgy",
+      "is_outdated": false,
+      "file": ".github/workflows/full-live-analysis.yml",
+      "last_author": "copilot-pull-request-reviewer",
+      "last_comment_excerpt": "The PR description explicitly lists Layers 2-5, novelty gates, the cumulative database, report, and publication as non-goals, but this workflow now executes and publishes all of them. The implementation and review scope "
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sg9",
+      "is_outdated": false,
+      "file": ".github/workflows/full-live-analysis.yml",
+      "last_author": "copilot-pull-request-reviewer",
+      "last_comment_excerpt": "The evaluator supports failing after two consecutive zero-novelty runs only when `--previous-metrics` is supplied, but the workflow never supplies or preserves a previous report. Consequently Gate B can never exercise it"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9ShO",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "copilot-pull-request-reviewer",
+      "last_comment_excerpt": "The demand score depends on `datetime.now()` inside `_recency_score`, so identical evidence produces different scores and classifications as wall-clock time advances. This contradicts the deterministic/reproducible outpu"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sh9",
+      "is_outdated": true,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "copilot-swe-agent",
+      "last_comment_excerpt": "Addressed in commit efb1a08 by switching Cohen\u2019s d denominator to the pooled within-group standard deviation (instead of variance around the combined grand mean)."
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9SiZ",
+      "is_outdated": false,
+      "file": "src/scientific_sources/cumulative_scientific_database.py",
+      "last_author": "robertbartlomiejski",
+      "last_comment_excerpt": "@agents addresses that feedback to introduce this highly relevant issue with exact guidelines:\r\n\r\nhardening: stop using query text as semantic evidence.\r\n\r\nProblem:\r\n`src/scientific_sources/cumulative_scientific_database"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sia",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Return H3 from hypothesis testing**\n\nLayer 5 now serializes `hypothesis_results` into the manifest, report, and package, but this re"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sic",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "robertbartlomiejski",
+      "last_comment_excerpt": "This comment is valid and should be fixed before PR #191 leaves draft.\r\n\r\nLayer 5 serializes `hypothesis_results` into the manifest/report/package, but `_test_hypotheses()` currently returns only `{\"H1\": h1, \"H2\": h2}`. "
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sie",
+      "is_outdated": false,
+      "file": ".github/workflows/full-live-analysis.yml",
+      "last_author": "robertbartlomiejski",
+      "last_comment_excerpt": "@agents addresses The clean fix is to extend the package builder:\r\npython scripts/build_live_cumulative_release_package.py \\\r\n  --database-dir outputs/cumulative_database \\\r\n  --stats-dir outputs/layer4_statistics \\\r\n  -"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sig",
+      "is_outdated": false,
+      "file": "scripts/build_live_cumulative_release_package.py",
+      "last_author": "robertbartlomiejski",
+      "last_comment_excerpt": "@agents the comment is valid and useful.\r\n\r\nThe package builder currently computes checksums_text from entries before RELEASE_MANIFEST.json is appended.  Then it appends both RELEASE_MANIFEST.json and CHECKSUMS.sha256 af"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sii",
+      "is_outdated": false,
+      "file": "src/scientific_sources/cumulative_scientific_database.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Scan available abstracts for semantic signals**\n\nThe builder checks `abstract` only to decide whether to add a metadata-only warning"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sim",
+      "is_outdated": false,
+      "file": "src/scientific_sources/live_query_protocol.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Support the hypothesis/theory query families**\n\nThe protocol loader only permits these four families, so adding `hypothesis_verifica"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sip",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Separate candidate from validated coverage**\n\nWhen a caller supplies any coverage count meeting the number of generated demand rows,"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Sis",
+      "is_outdated": false,
+      "file": "scripts/compute_live_novelty_metrics.py",
+      "last_author": "robertbartlomiejski",
+      "last_comment_excerpt": "@agents addresses that feedback "
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Siv",
+      "is_outdated": false,
+      "file": "src/scientific_sources/cumulative_scientific_database.py",
+      "last_author": "robertbartlomiejski",
+      "last_comment_excerpt": "Yes it is relevant and demand to be updated "
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Six",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "robertbartlomiejski",
+      "last_comment_excerpt": "Yes but avoid revert from the hardening standard, do not weaken the rigour and standards adopted in PR."
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Si4",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "robertbartlomiejski",
+      "last_comment_excerpt": "@agents addresses that feedback and fix"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Si8",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "robertbartlomiejski",
+      "last_comment_excerpt": "Yes @actions-user addresses that feedback to contribute update commit that ensure the pipeline workflows results in publishing primary/secondary axes or an axis bridge score. Downstream reports and packages therefore col"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Uuo",
+      "is_outdated": false,
+      "file": "src/scientific_sources/cumulative_scientific_database.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Exclude source_query from semantic evidence matching**\n\nWhen a retrieved record has no matching phrase in its title or subject terms"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Uuu",
+      "is_outdated": false,
+      "file": ".github/workflows/full-live-analysis.yml",
+      "last_author": "robertbartlomiejski",
+      "last_comment_excerpt": "React \ud83d\udc4d. This is a valid and important P1 hardening issue.\r\n\r\nThe workflow still dispatches live acquisition through:\r\n\r\npython scripts/export_live_research_records.py \\\r\n  --providers \"$REQUESTED_PROVIDERS\" \\\r\n  --query"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Uu2",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Add H3 to executable hypothesis results**\n\nFor every Layer 5 run this returns only H1 and H2, so the Layer 5 manifest, statistical r"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Uu6",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Write real evidence IDs in outcome statements**\n\nEvery generated credential row embeds the literal `evidence=see_learning_outcomes_e"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Uu8",
+      "is_outdated": false,
+      "file": "scripts/build_live_cumulative_release_package.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Include the manifest in package checksums**\n\n`CHECKSUMS.sha256` is finalized before `RELEASE_MANIFEST.json` is appended, so the ZIP "
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9UvB",
+      "is_outdated": false,
+      "file": "src/scientific_sources/live_query_protocol.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Accept the required hypothesis query families**\n\nThe rich protocol schema can only parse the original four query families, so any pr"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9UvF",
+      "is_outdated": true,
+      "file": "scripts/compute_live_novelty_metrics.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Parse provider health statuses from the preflight output**\n\n`check_research_api_health.py` writes provider results under a `statuses"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9UvK",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Preserve the real signal type on learning outcomes**\n\nEvery learning outcome calls `_dominant_signal_type_for_demand` with an empty "
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9UvO",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Keep coverage status diagnostic unless validated**\n\nThis binary `covered`/`uncovered` label treats the optional count map as authori"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9UvV",
+      "is_outdated": false,
+      "file": "scripts/build_live_cumulative_release_package.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Export the Layer 4 statistics in the release ZIP**\n\nThe workflow writes Layer 4 statistical outputs to `outputs/layer4_statistics`, "
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9UvY",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Retain secondary axes in taxonomic clusters**\n\nEach induced taxonomic cluster is collapsed to a single `axis_group`/`axis_code`, so "
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Uva",
+      "is_outdated": false,
+      "file": "src/scientific_sources/cumulative_scientific_database.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Emit hypothesis semantic fragment outputs**\n\nI searched for `hypothesis_semantic_fragments`, `semantic_fragments`, and `hypothesis_i"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Uve",
+      "is_outdated": false,
+      "file": "src/scientific_sources/cumulative_scientific_database.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Include available abstracts in semantic scans**\n\nFor records that include a legally redistributable abstract, the semantic scope is "
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Uvh",
+      "is_outdated": false,
+      "file": "src/scientific_sources/cumulative_scientific_database.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Count semantic novelty per signal row**\n\nThis converts `competence_demand_signals` into a set of evidence IDs, so a new paper produc"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Uvk",
+      "is_outdated": true,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Derive provider diversity from evidence rows**\n\nReal `CompetenceDemandSignal` rows do not include `providers_seen`, so `all_provider"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9Uvr",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Add hypothesis IDs to learning outcome rows**\n\n`learning_outcomes.csv` has no `hypothesis_id` column, so outcomes generated from H1/"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9_Tx",
+      "is_outdated": false,
+      "file": "src/scientific_sources/cumulative_scientific_database.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Preserve triangulated supporting providers**\n\nIn full live runs, `export_live_research_records.py` writes multi-source support (`sup"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9_T1",
+      "is_outdated": false,
+      "file": "src/scientific_sources/cumulative_scientific_database.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Scope source IDs by provider**\n\nWhen a record lacks both DOI and title, this uses the raw `source_id` as a global dedupe key. Provid"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9_T2",
+      "is_outdated": false,
+      "file": "src/scientific_sources/live_run_audit.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Write axis names in the audit index**\n\nThis writes the axis code (`M`, `T`, `O`, `H`) into `raw_acquisition_index.csv`, but the Laye"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9_T5",
+      "is_outdated": false,
+      "file": ".github/workflows/full-live-analysis.yml",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Feed previous novelty metrics into Gate B**\n\nIn the workflow path I checked, this gate invocation never passes `--previous-metrics`;"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9_T-",
+      "is_outdated": false,
+      "file": "scripts/compute_live_novelty_metrics.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Export query families before checking Gate E**\n\nThe `run_novelty_metrics.json` produced by `RunNoveltyMetrics.to_dict()` does not in"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9_T_",
+      "is_outdated": false,
+      "file": "scripts/compute_live_novelty_metrics.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Normalize provider aliases for Gate A**\n\nGate A compares health provider IDs directly against lowercased evidence provider labels, b"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9_UC",
+      "is_outdated": false,
+      "file": "scripts/compute_live_novelty_metrics.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Return non-zero when any gate fails**\n\nThe evaluator can set `overall_status` to `fail` for Gate D static-baseline contamination, bu"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9_UG",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Emit gap rows for baseline-only sectors**\n\nLayer 5 only iterates sectors/axes that already have derived live demands, so a sector pr"
+    },
+    {
+      "thread_id": "PRRT_kwDORS_RKM6P9_UJ",
+      "is_outdated": false,
+      "file": "src/scientific_sources/derived_competence_analysis.py",
+      "last_author": "chatgpt-codex-connector",
+      "last_comment_excerpt": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Use a fixed build timestamp for recency scoring**\n\n`temporal_recency_score` is part of the published demand-strength formula, but it"
+    }
+  ],
+  "duplicate_parallel_session_risks": [
+    "No missing referenced SHAs and branch is not behind main in this snapshot."
+  ],
+  "historical_pr186_statement": "Historical merged PR #186 remains provenance/policy history only and is not modified or resumed."
+}

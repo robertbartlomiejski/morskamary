@@ -74,7 +74,7 @@ Use one canonical branch and one PR per coherent objective. Before editing, reco
 Minimum validation for code changes:
 
 ```bash
-python -m flake8 .
+python -m flake8 src scripts tests run_full_analysis.py main.py
 python -m mypy src scripts run_full_analysis.py main.py
 python -m pytest tests/ -v
 python scripts/validate_generated_outputs.py

@@ -16,6 +16,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/repository-guardrails.instructions.md,text,,,,,,repository_guardrails_instructions,yes
 .github/workflows/blank.yml,other,,,,,,blank,no
 .github/workflows/ci.yml,other,,,,,,ci,no
+.github/workflows/codeql.yml,other,,,,,,codeql,no
 .github/workflows/copilot-setup-steps.yml,other,,,,,,copilot_setup_steps,no
 .github/workflows/dependency-submission.yml,other,,,,,,dependency_submission,no
 .github/workflows/export-research-records.yml,other,,,,,,export_research_records,no
@@ -36,6 +37,7 @@ cloudbuild.live.yaml,other,,,,,,cloudbuild_live,no
 cloudbuild.yaml,other,,,,,,cloudbuild,no
 compose.debug.yaml,other,,,,,,compose_debug,no
 compose.yaml,other,,,,,,compose,no
+config/live_query_protocol.yml,other,,,,,,live_query_protocol,no
 config/research_provider_policy.yml,other,,,,,,research_provider_policy,no
 config/research_queries.yml,other,,,,,,research_queries,no
 config/research_sources.example.yml,other,,,,,,research_sources_example,no
@@ -721,6 +723,7 @@ docs/literature/WG3 Meeting  - 2025_12_12 10_57 GMT - Notes by Gemini.docx,liter
 docs/literature/WG3_PACT_WG3_Sensory_Walk_Methodology_Slides_EN-UK rob.pptx,literature,,,,,,WG3_PACT_WG3_Sensory_Walk_Methodology_Sl,no
 docs/literature/WG_applications_export_05-01-2026 (1).xlsx,literature,,,,,,WG_applications_export_05_01_2026__1,yes
 docs/literature/Wyrzucone przez morze_250521_002507.txt,literature,,,,,,Wyrzucone_przez_morze_250521_002507,yes
+docs/LIVE_CUMULATIVE_SCIENTIFIC_DATABASE.md,text,,,,,,LIVE_CUMULATIVE_SCIENTIFIC_DATABASE,yes
 docs/onboarding_new_provider.md,text,,,,,,onboarding_new_provider,yes
 docs/ONE_CLICK_RESEARCH_RUNBOOK.md,text,,,,,,ONE_CLICK_RESEARCH_RUNBOOK,yes
 docs/overview.md,text,,,,,,overview,yes
@@ -736,6 +739,7 @@ docs/providers.md,text,,,,,,providers,yes
 docs/RESEARCH_API_CICD_SETUP.md,text,,,,,,RESEARCH_API_CICD_SETUP,yes
 docs/RESEARCH_SOURCE_GOVERNANCE.md,text,,,,,,RESEARCH_SOURCE_GOVERNANCE,yes
 docs/STATISTICAL_ANALYSIS_PLAN.md,text,,,,,,STATISTICAL_ANALYSIS_PLAN,yes
+docs/STATISTICAL_REPORT_METHODOLOGY.md,text,,,,,,STATISTICAL_REPORT_METHODOLOGY,yes
 examples/add_coastal_resilience_competence.py,script,,,,,,add_coastal_resilience_competence,yes
 fix_all_md.py,script,,,,,,fix_all_md,yes
 fix_markdown.py,script,,,,,,fix_markdown,yes
@@ -811,6 +815,8 @@ outputs/gaps_by_sector.html,other,,,,,,gaps_by_sector,no
 outputs/gaps_by_sector_axis.csv,dataset_derived,,,,,,gaps_by_sector_axis,yes
 outputs/gaps_detailed.json,other,,,,,,gaps_detailed,yes
 outputs/gaps_summary.csv,dataset_derived,,,,,,gaps_summary,yes
+outputs/governance/pr191_session_reconciliation.json,other,,,,,,pr191_session_reconciliation,yes
+outputs/governance/pr191_session_reconciliation.md,text,,,,,,pr191_session_reconciliation,yes
 outputs/literature_integration.html,other,,,,,,literature_integration,no
 outputs/manual_sources/gatekeeper_checksum_mismatches.json,other,,,,,,gatekeeper_checksum_mismatches,yes
 outputs/manual_sources/gatekeeper_compatibility_summary.json,other,,,,,,gatekeeper_compatibility_summary,yes
@@ -854,6 +860,7 @@ outputs/research_sources/live_records.json,dataset_derived,,,,,,live_records,yes
 outputs/research_sources/live_records_triangulated.json,dataset_derived,,,,,,live_records_triangulated,yes
 outputs/research_sources/live_source_coverage.csv,dataset_derived,,,,,,live_source_coverage,yes
 outputs/research_sources/low_confidence_live_records.json,dataset_derived,,,,,,low_confidence_live_records,yes
+outputs/research_sources/query_protocol_constraints.json,dataset_derived,,,,,,query_protocol_constraints,yes
 outputs/research_sources/raw_provider_records.json,dataset_derived,,,,,,raw_provider_records,yes
 outputs/research_sources/triangulation_identity_loop.json,dataset_derived,,,,,,triangulation_identity_loop,yes
 outputs/research_sources/triangulation_thematic_loop.json,dataset_derived,,,,,,triangulation_thematic_loop,yes
@@ -1035,17 +1042,24 @@ scripts/bootstrap_research_secrets.ps1,script,,,,,,bootstrap_research_secrets,no
 scripts/bootstrap_research_secrets.sh,script,,,,,,bootstrap_research_secrets,no
 scripts/Breguła Weird Szczecin_250412_101024.txt,script,,,,,,Breguła_Weird_Szczecin_250412_101024,yes
 scripts/build_cross_run_evidence_index.py,script,,,,,,build_cross_run_evidence_index,yes
+scripts/build_cumulative_scientific_database.py,script,,,,,,build_cumulative_scientific_database,yes
 scripts/build_derived.py,script,,,,,,build_derived,yes
+scripts/build_layer4_5_scientific_analysis.py,script,,,,,,build_layer4_5_scientific_analysis,yes
+scripts/build_live_cumulative_release_package.py,script,,,,,,build_live_cumulative_release_package,yes
+scripts/build_live_run_audit.py,script,,,,,,build_live_run_audit,yes
+scripts/build_statistical_research_report.py,script,,,,,,build_statistical_research_report,yes
 scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,yes
 scripts/build_versioned_research_data_package.py,script,,,,,,build_versioned_research_data_package,yes
 scripts/changelog_guard.py,script,,,,,,changelog_guard,yes
 scripts/check_research_api_health.py,script,,,,,,check_research_api_health,yes
 scripts/check_research_env.py,script,,,,,,check_research_env,yes
+scripts/compute_live_novelty_metrics.py,script,,,,,,compute_live_novelty_metrics,yes
 scripts/convert_pdfs_to_txt.py,script,,,,,,convert_pdfs_to_txt,yes
 scripts/cumulative_fragment_analysis.py,script,,,,,,cumulative_fragment_analysis,yes
 scripts/cumulative_update_merge_full_live_enriched_and_static_all_outputs_fragmented_analysis.py,script,,,,,,cumulative_update_merge_full_live_enrich,yes
 scripts/Delft wyjazd_241017_170643.txt,script,,,,,,Delft_wyjazd_241017_170643,yes
 scripts/Do hab_250403_204509.txt,script,,,,,,Do_hab_250403_204509,yes
+scripts/export_live_query_protocol_projection.py,script,,,,,,export_live_query_protocol_projection,yes
 scripts/export_live_research_records.py,script,,,,,,export_live_research_records,yes
 scripts/export_research_source_capabilities.py,script,,,,,,export_research_source_capabilities,yes
 scripts/generate_manifest.py,script,,,,,,generate_manifest,yes
@@ -1099,8 +1113,12 @@ src/nlp_reliability/triangulation.py,script,,,,,,triangulation,yes
 src/scientific_sources/__init__.py,script,,,,,,init,yes
 src/scientific_sources/base.py,script,,,,,,base,yes
 src/scientific_sources/crossref.py,script,,,,,,crossref,yes
+src/scientific_sources/cumulative_scientific_database.py,script,,,,,,cumulative_scientific_database,yes
+src/scientific_sources/derived_competence_analysis.py,script,,,,,,derived_competence_analysis,yes
 src/scientific_sources/elsevier_scopus.py,script,,,,,,elsevier_scopus,yes
 src/scientific_sources/google_drive.py,script,,,,,,google_drive,yes
+src/scientific_sources/live_query_protocol.py,script,,,,,,live_query_protocol,yes
+src/scientific_sources/live_run_audit.py,script,,,,,,live_run_audit,yes
 src/scientific_sources/microsoft_graph.py,script,,,,,,microsoft_graph,yes
 src/scientific_sources/models.py,script,,,,,,models,yes
 src/scientific_sources/provenance.py,script,,,,,,provenance,yes
@@ -1128,16 +1146,21 @@ tests/test_build_versioned_research_data_package.py,script,,,,,,test_build_versi
 tests/test_changelog_guard.py,script,,,,,,test_changelog_guard,yes
 tests/test_check_research_api_health.py,script,,,,,,test_check_research_api_health,yes
 tests/test_ci_workflow.py,script,,,,,,test_ci_workflow,yes
+tests/test_codeql_workflow.py,script,,,,,,test_codeql_workflow,yes
 tests/test_competence_repository.py,script,,,,,,test_competence_repository,yes
+tests/test_compute_live_novelty_metrics.py,script,,,,,,test_compute_live_novelty_metrics,yes
 tests/test_convert_pdfs_to_txt.py,script,,,,,,test_convert_pdfs_to_txt,yes
 tests/test_core.py,script,,,,,,test_core,yes
 tests/test_cumulative_evidence_schemas.py,script,,,,,,test_cumulative_evidence_schemas,yes
 tests/test_cumulative_fragment_analysis.py,script,,,,,,test_cumulative_fragment_analysis,yes
+tests/test_cumulative_scientific_database.py,script,,,,,,test_cumulative_scientific_database,yes
 tests/test_cumulative_triangulator.py,script,,,,,,test_cumulative_triangulator,yes
 tests/test_cumulative_triangulator_dynamic_priority.py,script,,,,,,test_cumulative_triangulator_dynamic_pri,yes
+tests/test_derived_competence_analysis.py,script,,,,,,test_derived_competence_analysis,yes
 tests/test_dynamic_credentials_generation.py,script,,,,,,test_dynamic_credentials_generation,yes
 tests/test_e2e_workflows.py,script,,,,,,test_e2e_workflows,yes
 tests/test_edge_cases.py,script,,,,,,test_edge_cases,yes
+tests/test_export_live_query_protocol_projection.py,script,,,,,,test_export_live_query_protocol_projecti,yes
 tests/test_export_live_research_records.py,script,,,,,,test_export_live_research_records,yes
 tests/test_export_research_records_workflow.py,script,,,,,,test_export_research_records_workflow,yes
 tests/test_full_live_analysis_workflow.py,script,,,,,,test_full_live_analysis_workflow,yes
@@ -1145,6 +1168,9 @@ tests/test_gap_model.py,script,,,,,,test_gap_model,yes
 tests/test_generate_manifest.py,script,,,,,,test_generate_manifest,yes
 tests/test_ingest_manual_supporting_sources.py,script,,,,,,test_ingest_manual_supporting_sources,yes
 tests/test_literature_extraction.py,script,,,,,,test_literature_extraction,yes
+tests/test_live_cumulative_release_package.py,script,,,,,,test_live_cumulative_release_package,yes
+tests/test_live_query_protocol.py,script,,,,,,test_live_query_protocol,yes
+tests/test_live_run_audit.py,script,,,,,,test_live_run_audit,yes
 tests/test_load_real_competences.py,script,,,,,,test_load_real_competences,yes
 tests/test_main_entrypoints.py,script,,,,,,test_main_entrypoints,yes
 tests/test_nlp_reliability.py,script,,,,,,test_nlp_reliability,yes
@@ -1163,3 +1189,4 @@ tests/test_sync_audit.py,script,,,,,,test_sync_audit,yes
 tests/test_validate_generated_outputs.py,script,,,,,,test_validate_generated_outputs,yes
 tests/test_validate_manual_sources_gatekeeper.py,script,,,,,,test_validate_manual_sources_gatekeeper,yes
 tests/test_validate_run_archive_integrity.py,script,,,,,,test_validate_run_archive_integrity,yes
+tests/test_workflow_security.py,script,,,,,,test_workflow_security,yes
