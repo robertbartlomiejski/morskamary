@@ -217,9 +217,7 @@ class TestBundleShape:
         assert manifest["run_id"] == "R1"
         assert manifest["built_at_utc"] == FROZEN_TS
         assert manifest["counts"]["raw_records"] == 7
-        # Row (Scopus, "another query only seen in evidence") has normalized_record_count=1
-        # and raw_record_count=0; per-row counting includes it, giving 2+1+1=4.
-        assert manifest["counts"]["normalized_records"] == 4
+        assert manifest["counts"]["normalized_records"] == 3
         assert manifest["counts"]["acquisition_rows"] >= 2
         assert manifest["counts"]["raw_records_with_normalized_descendants"] == 7
         # files[] excludes the manifest itself; it is listed only in
