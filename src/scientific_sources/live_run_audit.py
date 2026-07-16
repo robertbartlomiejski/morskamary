@@ -766,11 +766,11 @@ class LiveRunAuditBuilder:
                 ),
             }
 
-        # Each row already carries the best available count for its (provider, query) pair:
-        # diagnostic counts when query_execution_counts_applied is True, or len(raw_bucket)
-        # otherwise.  Sum all rows directly so that diagnostic-backed queries and
-        # raw-bucket-only queries both contribute their counts without any global filter
-        # that would exclude one subset when the other is present.
+        # Each row carries the best available counts for its (provider, query) pair:
+        # query-execution diagnostics when available, otherwise len(raw_bucket) for
+        # raw records and len(normalized_bucket) for normalized records. Sum every row
+        # so diagnostic-backed and bucket-only queries both contribute without a global
+        # filter excluding either subset.
         raw_record_total = sum(max(0, int(row.raw_record_count)) for row in acquisition_rows)
         normalized_record_total = sum(
             max(0, int(row.normalized_record_count)) for row in acquisition_rows

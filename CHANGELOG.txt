@@ -19,7 +19,6 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
-<<<<<<< HEAD
 - 2026-07-13 (fix: replace dynamic CodeQL setup with repo-managed workflow)
   Change type fix add
   Scope governance CI tests
@@ -30,7 +29,6 @@ Use this section for changes in progress that are not yet merged into the main b
   Provenance GitHub Actions run `29253074083`, job `86826081347`; repository workflow pattern in `.github/workflows/dependency-submission.yml`.
   Quality checks python -m pytest tests/test_codeql_workflow.py tests/test_ci_workflow.py -q; python scripts/generate_manifest.py; python -m flake8 tests/test_codeql_workflow.py; python -m pytest tests/ -q.
 
-=======
 - 2026-07-15 (fix: harden package preflight checksum/path/evidence controls)
   Change type fix
   Scope scripts src tests governance
@@ -183,7 +181,7 @@ Use this section for changes in progress that are not yet merged into the main b
   Impact New protocol registry is available for consumption by follow-up PRs implementing Layers 1-5; legacy exporter contract is preserved verbatim via the backward-compat shim; run_full_analysis default execution, archive integrity validation, deterministic output generation, and manifest/checksum discipline are unaffected.
   Provenance Registry sector labels are pinned to run_full_analysis.SECTORS (12 canonical blue economy sectors); axis assignments use src.core.BlueDynamicsAxis (MARINE/MARITIME/OCEANIC/HYDRONIZATION); competence and emerging vocabularies follow the PR-190 specification.
   Quality checks 36/36 new tests pass (tests/test_live_query_protocol.py); MANIFEST_SOURCES.csv regenerated deterministically (1164 entries; +3 for the new files); config/research_queries.yml unchanged.
->>>>>>> origin/claude/pr-190-build-live-cumulative-database
+
 - 2026-07-13 (governance: align Copilot cloud agent with four-axis scientific pipeline)
   Change type update add
   Scope governance workflows documentation
