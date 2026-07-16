@@ -16,6 +16,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/repository-guardrails.instructions.md,text,,,,,,repository_guardrails_instructions,yes
 .github/workflows/blank.yml,other,,,,,,blank,no
 .github/workflows/ci.yml,other,,,,,,ci,no
+.github/workflows/codeql.yml,other,,,,,,codeql,no
 .github/workflows/copilot-setup-steps.yml,other,,,,,,copilot_setup_steps,no
 .github/workflows/dependency-submission.yml,other,,,,,,dependency_submission,no
 .github/workflows/export-research-records.yml,other,,,,,,export_research_records,no
@@ -1145,6 +1146,7 @@ tests/test_build_versioned_research_data_package.py,script,,,,,,test_build_versi
 tests/test_changelog_guard.py,script,,,,,,test_changelog_guard,yes
 tests/test_check_research_api_health.py,script,,,,,,test_check_research_api_health,yes
 tests/test_ci_workflow.py,script,,,,,,test_ci_workflow,yes
+tests/test_codeql_workflow.py,script,,,,,,test_codeql_workflow,yes
 tests/test_competence_repository.py,script,,,,,,test_competence_repository,yes
 tests/test_compute_live_novelty_metrics.py,script,,,,,,test_compute_live_novelty_metrics,yes
 tests/test_convert_pdfs_to_txt.py,script,,,,,,test_convert_pdfs_to_txt,yes

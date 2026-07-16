@@ -766,6 +766,14 @@ class LiveRunAuditBuilder:
                 ),
             }
 
+        # Each row carries the best available counts for its (provider, query) pair:
+        # query-execution diagnostics when available, otherwise len(raw_bucket) for
+        # raw records and len(normalized_bucket) for normalized records.
+        #
+        # Filter rows for raw-related totals to exclude evidence-only rows (those with
+        # normalized_record_count > 0 but no raw bucket or execution-log counts), since
+        # they represent downstream triangulation and should not inflate raw totals.
+        # Normalized totals sum all rows so evidence-only contributions are never under-reported.
         rows_for_raw_totals = [
             row
             for row in acquisition_rows
@@ -773,8 +781,6 @@ class LiveRunAuditBuilder:
         ]
 
         raw_record_total = sum(max(0, int(row.raw_record_count)) for row in rows_for_raw_totals)
-        # Include all rows (including evidence-only rows with no raw bucket) so that
-        # normalized evidence is never under-reported in the manifest.
         normalized_record_total = sum(
             max(0, int(row.normalized_record_count)) for row in acquisition_rows
         )
