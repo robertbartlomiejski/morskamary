@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-16 (docs: add implementation audit and controlled contextual benchmark reports)
+  Change type add
+  Scope governance reports
+  Files affected reports/scientific_report.md reports/scientific_report.csv CHANGELOG.txt MANIFEST_SOURCES.csv
+  Summary Added two report artifacts documenting a source-code implementation audit at main commit `786586b5c27aae6f82daaede80c305500d9b83b2` and a controlled benchmark plan for evaluating paid contextual extraction as a candidate-annotation augmentation.
+  Reason PR governance follow-up requires changelog coverage and deterministic manifest registration for newly tracked report artifacts.
+  Impact Governance traceability now records that the report is an implementation audit and pre-registered comparison plan (not a new live-provider empirical run), with explicit H1/H2/H3 alignment contracts: H1 MARITIME versus OCEANIC signed shift, H2 HYDRONIZATION lag using independently validated EQF 6-7 supply only, and H3 MARINE/OCEANIC matched-fragment plus shared evidence/signal bridge logic.
+  Quality checks pending
+  Reviewer @copilot
+
 - 2026-07-16 (fix: resolve PR-191 post-merge regressions across Layer 1/3/5 hypothesis and provider contracts)
   Change type fix
   Scope scripts tests governance
