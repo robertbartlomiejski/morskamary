@@ -13,6 +13,7 @@ from scripts.export_live_research_records import (
     LiveContextClassificationRepository,
     QUERY_EXECUTION_FIELDS,
     STAGE1_CSV_FIELDS,
+    _apply_query_constraint,
     _to_stage1_compliant_dict,
     build_thematic_loop_audit,
     build_coverage_report,
@@ -229,6 +230,37 @@ class TestBuildCoverageReport:
         assert len(coverage) == 2
         assert coverage[0]["sector"] == "Offshore Energy"
         assert coverage[1]["record_count"] == 5
+
+
+class TestApplyQueryConstraint:
+    def test_missing_year_kept_without_time_window(self):
+        records = [
+            _make_record(year=""),
+            _make_record(year="2024", doi="10.1234/y", source_id="crossref:y"),
+        ]
+        accepted, audit = _apply_query_constraint(
+            records=records,
+            constraint={"time_window": {}},
+            provider_name="Crossref",
+            max_results=10,
+        )
+        assert len(accepted) == 2
+        assert audit["excluded_missing_year"] == 0
+
+    def test_missing_year_excluded_when_time_window_declared(self):
+        records = [
+            _make_record(year=""),
+            _make_record(year="2024", doi="10.1234/y", source_id="crossref:y"),
+        ]
+        accepted, audit = _apply_query_constraint(
+            records=records,
+            constraint={"time_window": {"from_year": 2020, "to_year": 2026}},
+            provider_name="Crossref",
+            max_results=10,
+        )
+        assert len(accepted) == 1
+        assert accepted[0].year == "2024"
+        assert audit["excluded_missing_year"] == 1
 
 
 class TestSentenceLevelClassification:

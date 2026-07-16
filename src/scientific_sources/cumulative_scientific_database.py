@@ -582,10 +582,14 @@ _PROVIDER_ALIAS_TO_CANONICAL: Dict[str, str] = {
     "elsevier scopus": "scopus",
     "wos": "wos",
     "web of science": "wos",
+    "web of science clarivate": "wos",
     "web of science (clarivate)": "wos",
+    "web_of_science": "wos",
+    "web_of_science_clarivate": "wos",
     "clarivate": "wos",
     "clarivate wos": "wos",
     "clarivate web of science": "wos",
+    "clarivate_web_of_science": "wos",
     "scival": "scival",
     "microsoft graph": "microsoft_graph",
     "microsoft_graph": "microsoft_graph",
@@ -1427,10 +1431,15 @@ def _make_evidence_records(
         normalized_title = _normalize_title(canonical_title)
         normalized_title_hash = _title_hash(normalized_title)
 
-        run_ids_ordered = [o.run_id for o in obs_sorted]
-        providers_ordered = [
-            str(o.record.get("provider") or "").strip() for o in obs_sorted
-        ]
+        run_ids_ordered: List[str] = []
+        providers_ordered: List[str] = []
+        for observation in obs_sorted:
+            normalized_providers = sorted(_providers_for_record(observation.record))
+            if not normalized_providers:
+                continue
+            for provider in normalized_providers:
+                run_ids_ordered.append(observation.run_id)
+                providers_ordered.append(provider)
         query_ids = sorted({o.binding.query_id for o in obs_sorted if o.binding.query_id})
         query_families = sorted(
             {o.binding.query_family for o in obs_sorted if o.binding.query_family}
@@ -2134,12 +2143,16 @@ def _hypothesis_fragment_rows(
         text_scope = str(signal.evidence_text_scope or "").strip().lower()
         if not text_scope:
             continue
+        signal_axis = str(signal.axis_group or "").strip().upper()
         semantic_fragment = (
             str(signal.demand_phrase or "").strip()
             or str(signal.competence_label or "").strip()
         )
         evidence_surface = str(signal.semantic_scope or "").strip()
         for hypothesis_id, declaration in sorted(hypothesis_registry.items()):
+            required_axes = {axis.name for axis in declaration.required_axes}
+            if required_axes and signal_axis not in required_axes:
+                continue
             matched_indicator = _match_registry_phrase(
                 text_scope,
                 declaration.indicator_registry,

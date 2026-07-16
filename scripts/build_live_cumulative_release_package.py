@@ -551,6 +551,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     for row in demand_rows:
         demand_id = str(row.get("competence_demand_id", "")).strip()
+        declares_hypothesis = bool(str(row.get("hypothesis_ids", "")).strip())
         for evidence_id in [
             item.strip()
             for item in str(row.get("evidence_ids", "")).split("|")
@@ -558,7 +559,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         ]:
             if evidence_id.lower() == "unavailable":
                 continue
-            if evidence_id in evidence_ids_from_fragments:
+            if not declares_hypothesis or evidence_id in evidence_ids_from_fragments:
                 continue
             missing_required.append(
                 f"demand_evidence_not_in_hypothesis_fragments:{demand_id}:{evidence_id}"

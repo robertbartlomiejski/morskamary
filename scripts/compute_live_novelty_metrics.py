@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -56,10 +57,14 @@ _PROVIDER_ALIASES: Dict[str, str] = {
     "elsevier scopus": "scopus",
     "wos": "wos",
     "web of science": "wos",
+    "web of science clarivate": "wos",
     "web of science (clarivate)": "wos",
+    "web_of_science": "wos",
+    "web_of_science_clarivate": "wos",
     "clarivate": "wos",
     "clarivate wos": "wos",
     "clarivate web of science": "wos",
+    "clarivate_web_of_science": "wos",
     "scival": "scival",
     "microsoft_graph": "microsoft_graph",
     "microsoft graph": "microsoft_graph",
@@ -78,7 +83,14 @@ def _canonical_provider(name: Any) -> str:
     token = str(name or "").strip().lower()
     if not token:
         return ""
-    return _PROVIDER_ALIASES.get(token, token)
+    normalized_space = re.sub(r"[^a-z0-9]+", " ", token).strip()
+    normalized_underscore = re.sub(r"[^a-z0-9]+", "_", token).strip("_")
+    for candidate in (token, normalized_space, normalized_underscore):
+        if not candidate:
+            continue
+        if candidate in _PROVIDER_ALIASES:
+            return _PROVIDER_ALIASES[candidate]
+    return normalized_underscore or normalized_space or token
 
 
 def evaluate_gates(

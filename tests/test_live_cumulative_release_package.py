@@ -447,6 +447,49 @@ def test_package_rejects_demand_without_supporting_evidence_ids(tmp_path: Path) 
     assert not out.exists()
 
 
+def test_package_allows_non_hypothesis_demand_evidence_not_in_fragments(
+    tmp_path: Path,
+) -> None:
+    """Non-hypothesis demand rows should not require fragment-backed evidence."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    rows = list(
+        csv.DictReader((db / "derived_competence_demands.csv").open(encoding="utf-8"))
+    )
+    assert rows
+    rows[0]["evidence_ids"] = "E-NONH"
+    rows[0]["hypothesis_ids"] = ""
+    fieldnames = list(rows[0].keys())
+    if "hypothesis_ids" not in fieldnames:
+        fieldnames.append("hypothesis_ids")
+    with (db / "derived_competence_demands.csv").open(
+        "w", encoding="utf-8", newline=""
+    ) as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+    learning_rows = list(csv.DictReader((db / "learning_outcomes.csv").open(encoding="utf-8")))
+    assert learning_rows
+    learning_rows[0]["evidence_id"] = "E-NONH"
+    with (db / "learning_outcomes.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(learning_rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(learning_rows)
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    rc = build_main([
+        "--database-dir", str(db),
+        "--reports-dir", str(reports),
+        "--output", str(out),
+        "--version-tag", "test",
+        "--generated-at-utc", "2026-07-10T00:00:00+00:00",
+        *_required_source_args(db),
+    ])
+    assert rc == 0
+    assert out.exists()
+
+
 def test_package_rejects_wrong_path_contract(tmp_path: Path) -> None:
     """A raw-acquisition-index path that doesn't match the contract fails."""
     db = tmp_path / "db"
