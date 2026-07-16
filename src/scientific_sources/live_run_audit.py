@@ -766,19 +766,21 @@ class LiveRunAuditBuilder:
                 ),
             }
 
-        rows_for_totals = [
+        rows_for_raw_totals = [
             row
             for row in acquisition_rows
             if row.query_execution_counts_applied or int(row.raw_record_count) > 0
         ]
 
-        raw_record_total = sum(max(0, int(row.raw_record_count)) for row in rows_for_totals)
+        raw_record_total = sum(max(0, int(row.raw_record_count)) for row in rows_for_raw_totals)
+        # Include all rows (including evidence-only rows with no raw bucket) so that
+        # normalized evidence is never under-reported in the manifest.
         normalized_record_total = sum(
-            max(0, int(row.normalized_record_count)) for row in rows_for_totals
+            max(0, int(row.normalized_record_count)) for row in acquisition_rows
         )
         raw_records_with_normalized_descendants = sum(
             max(0, int(row.raw_record_count))
-            for row in rows_for_totals
+            for row in rows_for_raw_totals
             if int(row.normalized_record_count) > 0
         )
 
