@@ -142,6 +142,18 @@ def test_gate_a_accumulates_counts_across_alias_labels() -> None:
     assert gate_a["status"] == "pass"
 
 
+def test_gate_a_reconciles_punctuation_variants_of_wos_aliases() -> None:
+    m = _base_metrics(
+        provider_record_count_by_provider={"web-of-science (clarivate)": 3},
+    )
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={"Web_of_Science_Clarivate": {"status": "ok"}},
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "pass"
+
+
 def test_gate_b_warn_on_zero_novelty() -> None:
     m = _base_metrics(new_unique_doi_count=0, semantic_new_signal_count=0)
     r = evaluate_gates(metrics=m)

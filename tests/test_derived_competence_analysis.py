@@ -174,6 +174,31 @@ def test_build_layer4_layer5_end_to_end(tmp_path: Path) -> None:
         assert h["interpretation"] in allowed
 
 
+def test_learning_outcomes_use_fragment_matched_hypothesis_ids(tmp_path: Path) -> None:
+    evidence = [_mk_evidence(1, doi="10.1000/a", provider="crossref", year=2024)]
+    signals = [_mk_signal(1, axis="MARINE")]
+    out = tmp_path / "cumulative_database"
+    out.mkdir()
+    l4 = build_layer4(
+        evidence_records=evidence,
+        competence_signals=signals,
+        output_dir=out,
+        current_run_id="RUN-001",
+    )
+    l5 = build_layer5(
+        derived_demands=l4.derived_demands,
+        evidence_records=evidence,
+        hypothesis_fragments=[
+            {"hypothesis_id": "H1", "evidence_id": "E-0001"},
+            {"hypothesis_id": "H3", "evidence_id": "E-9999"},
+        ],
+        output_dir=out,
+        current_run_id="RUN-001",
+    )
+    assert l5.learning_outcomes
+    assert l5.learning_outcomes[0].hypothesis_ids == "H1"
+
+
 def test_variable_and_value_labels_written(tmp_path: Path) -> None:
     out = tmp_path / "cumulative_database"
     out.mkdir()

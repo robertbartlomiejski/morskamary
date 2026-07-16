@@ -44,6 +44,7 @@ from typing import (
     Mapping,
     Optional,
     Sequence,
+    Set,
     Tuple,
     Union,
 )
@@ -863,7 +864,9 @@ def build_layer5(
                     outcome_statement=_learning_outcome_statement(d, sector, lvl),
                     evidence_id=_first_evidence_id_for_demand(d, evidence_records),
                     competence_demand_id=d.competence_demand_id,
-                    hypothesis_ids="|".join(_hypothesis_ids_for_axis(d.axis_group)),
+                    hypothesis_ids="|".join(
+                        _matched_hypothesis_ids(d.evidence_ids, hypothesis_fragments)
+                    ),
                     signal_type=_dominant_signal_type_for_demand(d, []),
                     confidence_score=d.semantic_confidence_mean,
                     validity_warning=d.validity_warning,
@@ -1345,6 +1348,29 @@ def _hypothesis_ids_for_axis(axis_group: str) -> Tuple[str, ...]:
     if axis_group == "OCEANIC":
         return ("H1", "H3")
     return ()
+
+
+def _matched_hypothesis_ids(
+    evidence_ids: str, fragments: Optional[Sequence[Mapping[str, Any]]]
+) -> Tuple[str, ...]:
+    fragment_rows = list(fragments or [])
+    if not fragment_rows:
+        return ()
+    evidence_id_set = set(_split_list(evidence_ids))
+    if not evidence_id_set:
+        return ()
+    matched: Set[str] = set()
+    for row in fragment_rows:
+        row_evidence_id = str(row.get("evidence_id", "")).strip()
+        if not row_evidence_id or row_evidence_id not in evidence_id_set:
+            continue
+        hypothesis_id = str(row.get("hypothesis_id", "")).strip()
+        if hypothesis_id:
+            matched.add(hypothesis_id)
+            continue
+        for token in _split_list(str(row.get("hypothesis_ids", ""))):
+            matched.add(token)
+    return tuple(sorted(matched))
 
 
 def _compute_global_indices(

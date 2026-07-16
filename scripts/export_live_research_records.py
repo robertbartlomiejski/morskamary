@@ -355,7 +355,10 @@ def _apply_query_constraint(
     for record in records:
         year = _record_year(record)
         if year is None:
-            excluded_missing_year += 1
+            if time_window:
+                excluded_missing_year += 1
+                continue
+            accepted.append(record)
             continue
         if year < from_year or year > to_year:
             excluded_outside += 1

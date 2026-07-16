@@ -502,6 +502,54 @@ class TestNovelty:
         assert row.record_novelty_status == "provider_enriched"
         assert row.provider_count == 2
 
+    def test_provider_enriched_when_current_adds_supporting_provider(
+        self, tmp_path: Path
+    ) -> None:
+        current = tmp_path / "outputs"
+        archive = tmp_path / "archive"
+        _write_run_archive(
+            archive,
+            [
+                {
+                    "run_id": "prev",
+                    "timestamp_utc": "2026-06-01T00:00:00+00:00",
+                    "records": [
+                        {
+                            "title": "Triangulated multi-provider",
+                            "doi": "10.1000/multi.2",
+                            "provider": "Crossref",
+                            "source_query": BOUND_QUERY_TEXT,
+                            "retrieval_timestamp": "2026-06-01T00:00:00+00:00",
+                        }
+                    ],
+                }
+            ],
+        )
+        _write_current_run(
+            current,
+            [
+                {
+                    "title": "Triangulated multi-provider",
+                    "doi": "10.1000/multi.2",
+                    "provider": "Crossref",
+                    "supporting_providers": ["Crossref", "Web of Science"],
+                    "source_query": BOUND_QUERY_TEXT,
+                    "retrieval_timestamp": "2026-07-01T00:00:00+00:00",
+                }
+            ],
+        )
+        result = build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "out",
+            archive_root=archive,
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R2",
+            built_at_utc=FROZEN_TS,
+        )
+        row = result.evidence_records[0]
+        assert row.record_novelty_status == "provider_enriched"
+        assert set(row.providers_seen.split("|")) == {"crossref", "wos"}
+
     def test_repeated_records_not_counted_as_new(self, tmp_path: Path) -> None:
         current = tmp_path / "outputs"
         archive = tmp_path / "archive"
@@ -1714,6 +1762,15 @@ def test_hypothesis_fragment_ledger_is_evidence_bound(tmp_path: Path) -> None:
     assert all(fragment["indicator_family"] for fragment in fragments)
     assert all(fragment["semantic_fragment"] for fragment in fragments)
     assert all(fragment["evidence_surface"] for fragment in fragments)
+    required_axes = {
+        "H1": {"MARITIME", "OCEANIC"},
+        "H2": {"HYDRONIZATION"},
+        "H3": {"MARINE", "OCEANIC"},
+    }
+    assert all(
+        fragment["axis_group"] in required_axes.get(fragment["hypothesis_id"], set())
+        for fragment in fragments
+    )
     assert all(
         "source_query" not in fragment["semantic_scope"]
         for fragment in fragments
