@@ -19,6 +19,14 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-16 (fix: resolve PR-191 post-merge regressions across Layer 1/3/5 hypothesis and provider contracts)
+  Change type fix
+  Scope scripts tests governance
+  Files affected MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Resolved PR-191 post-merge regressions affecting Layer 1/3/5 hypothesis and provider contracts. Regenerated MANIFEST_SOURCES.csv for reproducibility gate compliance.
+  Reason Post-merge regressions from PR-191 caused CI governance checks to fail due to stale manifest and missing changelog entry.
+  Impact CI governance and reproducibility gates now pass on the fix branch.
+
 - 2026-07-13 (fix: replace dynamic CodeQL setup with repo-managed workflow)
   Change type fix add
   Scope governance CI tests
