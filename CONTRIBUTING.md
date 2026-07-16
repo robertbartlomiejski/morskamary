@@ -95,7 +95,7 @@ black src/ tests/
 ### Lint
 
 ```bash
-python -m flake8 .
+python -m flake8 src scripts tests run_full_analysis.py main.py
 ```
 
 ### Type-check

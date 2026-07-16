@@ -27,6 +27,6 @@ def test_blank_workflow_installs_and_runs_flake8_via_python_module() -> None:
 def test_ci_static_quality_job_runs_module_based_flake8_and_mypy() -> None:
     assert "static-quality:" in WORKFLOW_TEXT
     assert 'python-version: "3.10"' in WORKFLOW_TEXT
-    assert "python -m flake8 ." in WORKFLOW_TEXT
+    assert "python -m flake8 src scripts tests run_full_analysis.py main.py" in WORKFLOW_TEXT
     assert 'python -m flake8 $(git ls-files "*.py")' not in WORKFLOW_TEXT
     assert "python -m mypy src scripts run_full_analysis.py main.py" in WORKFLOW_TEXT

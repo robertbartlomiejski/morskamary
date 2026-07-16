@@ -22,6 +22,9 @@ permissions:
 jobs:
   export-research-records:
     runs-on: ubuntu-latest
+    # Proprietary provider secrets (Elsevier, Scopus, WoS, SciVal) require a
+    # reviewer-approved environment before they are exposed to the runner.
+    environment: live-research
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
@@ -33,6 +36,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Setup Python
         uses: actions/setup-python@v6
