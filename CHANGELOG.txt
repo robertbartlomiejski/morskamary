@@ -29,6 +29,16 @@ Use this section for changes in progress that are not yet merged into the main b
   Quality checks pending
   Reviewer @copilot
 
+- 2026-07-17 (docs: address scientific methodology review feedback)
+  Change type update
+  Scope governance reports
+  Files affected reports/scientific_report.md reports/scientific_report.csv
+  Summary Strengthened the benchmark design with six critical scientific methodology improvements: (1) reframed cross-sentence synthesis as a capability requiring validation rather than an established property; (2) added a fully reproducible stratified sampling protocol with deterministic selection method and fixed seed; (3) added hard eligibility gates for third-party text processing rights including vendor retention, training, deletion, and data-residency terms; (4) required development/evaluation split to prevent reference-standard leakage during system tuning; (5) added stratified bootstrap 95% confidence intervals and lower-bound purchase gates for precision, F1, and recall; (6) separated fabricated evidence links (0% hard gate) from ordinary unsupported links (<1% threshold).
+  Reason Addressed six substantive review comments from @copilot-pull-request-reviewer identifying reproducibility, leakage, licensing, uncertainty, and fabrication risks that could compromise benchmark validity or violate repository governance.
+  Impact The benchmark protocol is now pre-registered at a level suitable for a purchase decision, with explicit sampling determinism, licensing compliance aligned with docs/licensing_and_compliance.md, uncertainty quantification, and zero-fabrication enforcement aligned with repository scientific contract.
+  Quality checks validation pending
+  Reviewer @copilot
+
 - 2026-07-16 (fix: resolve PR-191 post-merge regressions across Layer 1/3/5 hypothesis and provider contracts)
   Change type fix
   Scope scripts tests governance
