@@ -132,7 +132,7 @@ The current pipeline does not fully model relations such as:
 
 ### 3.5 Document-level synthesis
 
-Evidence may be distributed across multiple sentences or sections. A full contextual layer can connect a method, population, result, limitation, and conclusion; a phrase scanner generally treats the retained text as a searchable surface rather than a structured argument.
+Evidence may be distributed across multiple sentences or sections. A full contextual layer would need to demonstrate the ability to connect a method, population, result, limitation, and conclusion; a phrase scanner generally treats the retained text as a searchable surface rather than a structured argument. The benchmark should test whether a contextual layer can reliably perform this synthesis without fabricating connections.
 
 ### 3.6 Calibration remains empirical
 
@@ -170,7 +170,31 @@ Create a stratified benchmark of at least **300 evidence records**:
 - repeated, duplicate, enriched, and new records;
 - positive, negative, ambiguous, and no-signal controls.
 
-The benchmark must be sampled from legally retained text and frozen by evidence ID and text hash.
+**Sampling protocol (pre-registered):**
+
+1. **Sampling frame:** All records in the cross-run evidence index with `is_candidate_for_layer4=true` as of a frozen snapshot date.
+2. **Stratification:** Define primary strata by (sector × axis). For records appearing in multiple strata, assign to the stratum with the lowest current sample count to balance coverage.
+3. **Allocation:** Minimum 2 records per stratum; remaining slots allocated proportional to stratum size in the frame, up to 300 total.
+4. **Selection method:** Within each stratum, sort records by evidence_id (deterministic), then select every N-th record where N = floor(stratum_size / allocated_count). If fewer than allocated_count remain, take all.
+5. **Reproducibility seed:** Use a fixed random seed (e.g., 20260717) for any tie-breaking or supplemental random sampling.
+6. **Freezing:** Record evidence_id, text_hash (SHA-256 of retained title+abstract+subject), provider, and snapshot_date for each selected record.
+
+The benchmark must be sampled from legally retained text with explicit permission for third-party transmission (see §5.1.1 below) and frozen by evidence ID and text hash before any system tuning begins.
+
+#### 5.1.1 Third-party processing eligibility
+
+Before any record is sent to a paid contextual extraction service, it must pass these hard licensing gates:
+
+1. **Redistribution permission:** The record's licence explicitly permits redistribution of abstracts or full text (e.g., CC-BY, CC-0, publisher open-access terms), OR the vendor contract includes institutional text-mining rights that cover transmission for analysis.
+2. **Vendor data handling:** The service contract must specify:
+   - whether transmitted text is retained by the vendor;
+   - whether retained text may be used for model training;
+   - data residency requirements (e.g., EU-only processing for GDPR compliance);
+   - deletion policy and timeline after contract termination.
+3. **No institutional full-text without explicit rights:** Records accessed under institutional subscriptions (Scopus, Web of Science abstracts; paywalled full text) may NOT be transmitted unless the vendor contract explicitly permits it and the institutional licence includes text-mining redistribution.
+4. **Local inference alternative:** If vendor terms are unacceptable, require local deployment of an open-weight model with no external transmission.
+
+Any record that fails these gates is excluded from System C evaluation, even if it is legally retained for internal phrase-matching.
 
 ### 5.2 Human reference standard
 
@@ -194,6 +218,14 @@ Disagreements are adjudicated. Inter-coder agreement is reported before the adju
 - **C — Paid contextual layer:** same frozen records and output schema.
 - **D — Hybrid:** contextual candidates accepted only after deterministic constraints and provenance validation.
 
+**Development/evaluation split to prevent leakage:**
+
+1. **Development partition (150 records):** Used for System B registry tuning, System C prompt engineering, and System D hybrid-rule development. Gold labels are accessible during this phase.
+2. **Evaluation partition (150 records, held out):** All systems (A, B, C, D) and prompts must be frozen before accessing this partition's gold labels. Reported metrics come only from the evaluation partition.
+3. **Alternative:** If an external development corpus (e.g., 100 additional records from a prior run) is used for tuning, the full 300-record benchmark may serve as the evaluation set, but the external development set and all tuning decisions must be documented and frozen before evaluation begins.
+
+No system configuration, registry entry, or prompt may be changed after evaluation-partition gold labels are first accessed.
+
 ### 5.4 Primary metrics
 
 Report at record, signal, span, relation, and hypothesis levels:
@@ -211,20 +243,37 @@ Report at record, signal, span, relation, and hypothesis levels:
 
 ### 5.5 Proposed acceptance thresholds
 
-The thresholds below are decision gates, not claims about current performance:
+The thresholds below are decision gates, not claims about current performance. All gates apply to the evaluation partition only.
+
+**Point estimates (computed from evaluation partition):**
 
 - accepted-signal precision at least **0.90**;
 - macro-F1 improvement over the current deterministic baseline at least **0.10**;
 - recall improvement at least **0.15 absolute**, unless the expanded deterministic registry performs similarly;
 - evidence-span presence **100%** for any output entering Layer 4–5;
-- unsupported or fabricated evidence links below **1%**;
+- **fabricated evidence links exactly 0%** (hard rejection gate; see definition below);
+- unsupported evidence links (non-fabricated) below **1%**;
 - negation/modality accuracy at least **0.90**;
 - H1/H2/H3 direction agreement at least **0.90**;
 - reproducibility agreement at least **0.95** on frozen inputs;
 - at least **30% reduction** in human adjudication time per accepted signal;
 - cost remains below a pre-approved project budget ceiling.
 
-Failure on evidence grounding, hypothesis directionality, or non-fabrication is an automatic rejection regardless of aggregate F1.
+**Uncertainty procedure (stratified bootstrap):**
+
+1. Resample the evaluation partition 1,000 times with replacement, preserving stratum proportions.
+2. Compute precision, recall, macro-F1, and other metrics on each bootstrap sample.
+3. Report the 95% confidence interval (2.5th and 97.5th percentiles) for each metric.
+4. **Lower-bound gate:** The **lower 95% confidence bound** (not the point estimate) must meet the precision (≥0.90), macro-F1 improvement (≥0.10), and recall improvement (≥0.15) thresholds for the contextual system to be recommended for adoption.
+
+**Fabrication definition:**
+
+- **Fabricated link:** An evidence_id, span, or citation that does not exist in the retained record text, or a paraphrased claim that materially contradicts the source.
+- **Unsupported link (non-fabricated):** A claim that is not directly supported by the retained text but is a plausible inference or overgeneralization, without fabrication.
+
+**Automatic rejection conditions:**
+
+Failure on evidence grounding (span presence < 100%), hypothesis directionality (H1/H2/H3 agreement < 0.90), or fabrication (fabricated links > 0%) is an automatic rejection regardless of aggregate F1 or other metrics.
 
 ## 6. Cost-benefit decision matrix
 
