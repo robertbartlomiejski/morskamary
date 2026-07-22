@@ -373,6 +373,39 @@ def test_cli_strict_fails_gate_a_when_execution_log_absent(tmp_path: Path) -> No
         )
 
 
+def test_cli_strict_fails_gate_a_when_execution_log_has_no_usable_outcomes(tmp_path: Path) -> None:
+    """CLI in strict mode must fatally abort when the execution log yields no provider outcomes."""
+    metrics_path = tmp_path / "metrics.json"
+    metrics_path.write_text(
+        json.dumps(_base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 5})),
+        encoding="utf-8",
+    )
+    run_root = tmp_path / "outputs"
+    log_dir = run_root / "research_sources"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    (log_dir / "query_execution_log.csv").write_text(
+        "provider,execution_status,contributed_record_count\n",
+        encoding="utf-8",
+    )
+    report_path = tmp_path / "report.json"
+
+    import pytest
+    with pytest.raises(ValueError, match="empty, malformed, or contains no usable provider outcomes"):
+        main(
+            [
+                "--metrics",
+                str(metrics_path),
+                "--provider-health",
+                str(tmp_path / "missing-provider-health.json"),
+                "--current-run",
+                str(run_root),
+                "--output",
+                str(report_path),
+                "--strict",
+            ]
+        )
+
+
 def test_cli_gate_d_failure_exits_nonzero_without_strict(tmp_path: Path) -> None:
     metrics_path = tmp_path / "metrics.json"
     metrics_path.write_text(json.dumps(_base_metrics()), encoding="utf-8")
