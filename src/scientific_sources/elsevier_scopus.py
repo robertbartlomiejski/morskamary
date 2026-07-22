@@ -23,6 +23,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -59,6 +60,7 @@ _SCOPUS_FIELDS = (
     "dc:title,dc:creator,author,prism:doi,prism:coverDate,"
     "prism:publicationName,prism:url,citedby-count,authkeywords,eid"
 )
+_SCOPUS_MAX_COUNT = 25
 
 _LICENCE_NOTE = (
     "Elsevier/Scopus institutional metadata (Stage 1 compliant). "
@@ -100,6 +102,35 @@ class ElsevierScopusProvider(BaseProvider):
         with urllib.request.urlopen(req, timeout=12) as resp:
             payload = json.loads(resp.read().decode())
         return cast(Dict[str, Any], payload)
+
+    @staticmethod
+    def _project_protocol_query(query: str) -> Optional[str]:
+        """Project protocol free-text query into Scopus TITLE-ABS-KEY syntax.
+
+        Returns ``None`` when the query contains no extractable searchable tokens so
+        that callers can reject the request with a structured provider error rather
+        than substituting unrelated fallback terms that would contaminate provenance.
+        """
+        normalized = (
+            query.replace("&amp;", " and ")  # resolve HTML entity before raw ampersand
+            .replace("&", " and ")
+            .replace("/", " ")
+            .replace("(", " ")
+            .replace(")", " ")
+        )
+        tokens = [
+            token
+            for token in re.findall(r"[A-Za-z0-9][A-Za-z0-9\\-\\.]*", normalized)
+            if token and token not in {"and", "or", "not"}
+        ]
+        if not tokens:
+            return None
+        scoped_terms = " AND ".join(f'"{token}"' for token in tokens)
+        return f"TITLE-ABS-KEY({scoped_terms})"
+
+    @staticmethod
+    def _scopus_count(max_results: int) -> int:
+        return max(1, min(int(max_results), _SCOPUS_MAX_COUNT))
 
     @staticmethod
     def _parse_year(entry: Dict[str, Any]) -> str:
@@ -316,16 +347,22 @@ class ElsevierScopusProvider(BaseProvider):
 
     @staticmethod
     def _http_error_result(action: str, exc: urllib.error.HTTPError) -> ProviderResult:
+        body_snippet = ""
+        try:
+            body_snippet = exc.read(240).decode("utf-8", errors="ignore").strip()
+        except Exception:
+            body_snippet = ""
+        snippet = f" body={body_snippet[:180]!r}" if body_snippet else ""
         if exc.code == 429:
             return ProviderResult(
-                warnings=[f"Scopus {action} rate limited (HTTP 429)."],
+                warnings=[f"Scopus {action} rate limited (HTTP 429).{snippet}"],
                 rate_limit_status="rate-limited",
             )
         if exc.code in (401, 403):
             return ProviderResult(
-                errors=[f"Scopus {action} unauthorized (HTTP {exc.code})."]
+                errors=[f"Scopus {action} unauthorized (HTTP {exc.code}).{snippet}"]
             )
-        return ProviderResult(errors=[f"Scopus {action} failed (HTTP {exc.code})."])
+        return ProviderResult(errors=[f"Scopus {action} failed (HTTP {exc.code}).{snippet}"])
 
     # ------------------------------------------------------------------
     # Public API (BaseProvider contract)
@@ -335,9 +372,20 @@ class ElsevierScopusProvider(BaseProvider):
         """Search Scopus."""
         if not self._api_key:
             return self._not_configured_result()
-        encoded_query = urllib.parse.quote(query)
+        projected_query = self._project_protocol_query(query)
+        if projected_query is None:
+            return ProviderResult(
+                errors=[
+                    f"Scopus query projection failed: no searchable tokens in query {query!r}. "
+                    "Query rejected to prevent provenance contamination."
+                ]
+            )
+        requested_count = int(max_results)
+        applied_count = self._scopus_count(requested_count)
+        encoded_query = urllib.parse.quote(projected_query, safe="()\"")
         url = (
-            f"{self._api_base}?query={encoded_query}&count={max_results}&view=STANDARD"
+            f"{self._api_base}?query={encoded_query}&count={applied_count}&view=STANDARD"
+            f"&field={urllib.parse.quote(_SCOPUS_FIELDS)}"
         )
         try:
             payload = self._request_json(url)
@@ -345,15 +393,26 @@ class ElsevierScopusProvider(BaseProvider):
             if not isinstance(items, list):
                 items = []
             records = self._parse_items(items, query)
+            warnings: List[str] = [
+                (
+                    f"Scopus diagnostics: projected_query={projected_query!r}; "
+                    f"requested_count={requested_count}; applied_count={applied_count}"
+                )
+            ]
             return ProviderResult(
                 records=records,
+                warnings=warnings,
                 provenance=self._make_evidence(query, "scopus/search", records),
                 raw_payload=payload,
             )
         except urllib.error.HTTPError as exc:
-            return self._http_error_result("search", exc)
+            return self._http_error_result(
+                f"search projected_query={projected_query!r}", exc
+            )
         except Exception as exc:
-            return ProviderResult(errors=[f"Scopus search error: {exc}"])
+            return ProviderResult(
+                errors=[f"Scopus search error: {exc} (projected_query={projected_query!r})"]
+            )
 
     def verify_doi(self, doi: str) -> ProviderResult:
         """Verify DOI via Scopus."""
