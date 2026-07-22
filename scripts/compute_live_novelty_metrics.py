@@ -145,8 +145,16 @@ def evaluate_gates(
     static_baseline_field_in_live: bool = False,
     strict: bool = False,
     query_execution_summary: Optional[Dict[str, Dict[str, int]]] = None,
+    execution_log_available: Optional[bool] = None,
 ) -> Dict[str, Any]:
-    """Evaluate quality gates and return a serializable report."""
+    """Evaluate quality gates and return a serializable report.
+
+    ``execution_log_available`` signals whether the per-query execution log
+    was present and readable.  When ``strict=True`` and this is explicitly
+    ``False``, Gate A fails closed: contribution evidence is required for
+    strict publication gating and the gate cannot fall back to cumulative
+    provider counts when the log is absent.
+    """
     provider_health = provider_health or {}
     previous_metrics = previous_metrics or {}
     query_execution_summary = query_execution_summary or {}
@@ -215,7 +223,10 @@ def evaluate_gates(
             else:
                 zero_but_ok_required.append(prov)
     gate_a_status = "pass"
-    if zero_but_ok_required:
+    execution_log_missing_in_strict = strict and execution_log_available is False
+    if execution_log_missing_in_strict:
+        gate_a_status = "fail"
+    elif zero_but_ok_required:
         gate_a_status = "fail" if strict else "warn"
     elif zero_but_ok_optional:
         gate_a_status = "warn"
@@ -229,6 +240,7 @@ def evaluate_gates(
             "providers_ok_zero_records_optional": sorted(zero_but_ok_optional),
             "optional_non_blocking_providers": sorted(_OPTIONAL_NON_BLOCKING_PROVIDERS),
             "contribution_outcomes": provider_outcomes,
+            "execution_log_available": execution_log_available,
         },
     })
     if gate_a_status == "fail":
@@ -408,7 +420,10 @@ def main(argv: Optional[List[str]] = None) -> int:
         Path(args.previous_metrics) if args.previous_metrics else None
     )
     baseline_leak = _detect_static_baseline_leak(Path(args.current_run))
-    query_execution_summary = _load_query_execution_summary(Path(args.current_run))
+    current_run_dir = Path(args.current_run)
+    log_path = current_run_dir / "research_sources" / "query_execution_log.csv"
+    execution_log_available: Optional[bool] = log_path.is_file()
+    query_execution_summary = _load_query_execution_summary(current_run_dir)
     report = evaluate_gates(
         metrics=metrics,
         provider_health=provider_health,
@@ -416,6 +431,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         static_baseline_field_in_live=baseline_leak,
         strict=args.strict,
         query_execution_summary=query_execution_summary,
+        execution_log_available=execution_log_available,
     )
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)

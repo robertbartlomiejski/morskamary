@@ -302,6 +302,81 @@ def test_gate_a_uses_query_execution_contribution_outcomes() -> None:
     assert gate_a["detail"]["contribution_outcomes"]["scopus"]["contributed_records"] == 0
 
 
+def test_gate_a_strict_fails_closed_when_execution_log_missing() -> None:
+    """In strict mode, a missing execution log must fail Gate A rather than silently
+    falling back to cumulative provider counts as contribution evidence."""
+    m = _base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 5})
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={"crossref": {"status": "ok"}, "scopus": {"status": "ok"}},
+        strict=True,
+        execution_log_available=False,
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "fail"
+    assert r["overall_status"] == "fail"
+    assert gate_a["detail"]["execution_log_available"] is False
+
+
+def test_gate_a_non_strict_does_not_fail_closed_when_execution_log_missing() -> None:
+    """Outside strict mode a missing execution log is not a Gate A failure."""
+    m = _base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 5})
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={"crossref": {"status": "ok"}, "scopus": {"status": "ok"}},
+        strict=False,
+        execution_log_available=False,
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "pass"
+
+
+def test_gate_a_strict_passes_when_execution_log_available() -> None:
+    """execution_log_available=True with no zero-contribution providers passes Gate A."""
+    m = _base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 5})
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={"crossref": {"status": "ok"}, "scopus": {"status": "ok"}},
+        strict=True,
+        execution_log_available=True,
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "pass"
+
+
+def test_cli_strict_fails_gate_a_when_execution_log_absent(tmp_path: Path) -> None:
+    """CLI in strict mode must fail Gate A when the query execution log is absent."""
+    metrics_path = tmp_path / "metrics.json"
+    metrics_path.write_text(
+        json.dumps(_base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 5})),
+        encoding="utf-8",
+    )
+    run_root = tmp_path / "outputs"
+    run_root.mkdir(parents=True, exist_ok=True)
+    # Do NOT create the execution log file.
+    report_path = tmp_path / "report.json"
+
+    exit_code = main(
+        [
+            "--metrics",
+            str(metrics_path),
+            "--provider-health",
+            str(tmp_path / "missing-provider-health.json"),
+            "--current-run",
+            str(run_root),
+            "--output",
+            str(report_path),
+            "--strict",
+        ]
+    )
+
+    assert exit_code == 1
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    gate_a = next(g for g in report["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "fail"
+    assert gate_a["detail"]["execution_log_available"] is False
+
+
 def test_cli_gate_d_failure_exits_nonzero_without_strict(tmp_path: Path) -> None:
     metrics_path = tmp_path / "metrics.json"
     metrics_path.write_text(json.dumps(_base_metrics()), encoding="utf-8")

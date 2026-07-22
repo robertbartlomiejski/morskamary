@@ -104,10 +104,16 @@ class ElsevierScopusProvider(BaseProvider):
         return cast(Dict[str, Any], payload)
 
     @staticmethod
-    def _project_protocol_query(query: str) -> str:
-        """Project protocol free-text query into Scopus TITLE-ABS-KEY syntax."""
+    def _project_protocol_query(query: str) -> Optional[str]:
+        """Project protocol free-text query into Scopus TITLE-ABS-KEY syntax.
+
+        Returns ``None`` when the query contains no extractable searchable tokens so
+        that callers can reject the request with a structured provider error rather
+        than substituting unrelated fallback terms that would contaminate provenance.
+        """
         normalized = (
-            query.replace("&", " and ")
+            query.replace("&amp;", " and ")  # resolve HTML entity before raw ampersand
+            .replace("&", " and ")
             .replace("/", " ")
             .replace("(", " ")
             .replace(")", " ")
@@ -118,7 +124,7 @@ class ElsevierScopusProvider(BaseProvider):
             if token and token not in {"and", "or", "not"}
         ]
         if not tokens:
-            return 'TITLE-ABS-KEY("blue economy")'
+            return None
         scoped_terms = " AND ".join(f'"{token}"' for token in tokens)
         return f"TITLE-ABS-KEY({scoped_terms})"
 
@@ -367,6 +373,13 @@ class ElsevierScopusProvider(BaseProvider):
         if not self._api_key:
             return self._not_configured_result()
         projected_query = self._project_protocol_query(query)
+        if projected_query is None:
+            return ProviderResult(
+                errors=[
+                    f"Scopus query projection failed: no searchable tokens in query {query!r}. "
+                    "Query rejected to prevent provenance contamination."
+                ]
+            )
         requested_count = int(max_results)
         applied_count = self._scopus_count(requested_count)
         encoded_query = urllib.parse.quote(projected_query, safe="()\"")
