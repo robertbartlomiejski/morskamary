@@ -5,10 +5,10 @@ the Layer 2-3 cumulative scientific database.
 
 CLI::
 
-    python scripts/build_layer4_5_scientific_analysis.py \\
-      --database-dir outputs/cumulative_database \\
-      --output-dir outputs/cumulative_database \\
-      --stats-dir outputs/layer4_statistics \\
+    python scripts/build_layer4_5_scientific_analysis.py \
+      --database-dir outputs/cumulative_database \
+      --output-dir outputs/cumulative_database \
+      --stats-dir outputs/layer4_statistics \
       --current-run-id RUN-XYZ
 
 Reads:
@@ -25,6 +25,7 @@ Writes:
     <output-dir>/layer4_manifest.json
     <output-dir>/layer5_manifest.json
     <output-dir>/layer_readiness_report.json
+    <output-dir>/_checksums_layer45.sha256
     <stats-dir>/qmbd_cross_tables.csv
     <stats-dir>/sector_gap_matrices.json
     <stats-dir>/multivariate_induction_results.json
@@ -34,7 +35,10 @@ Writes:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import os
+import re
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -48,8 +52,11 @@ from src.scientific_sources.derived_competence_analysis import (  # noqa: E402
     build_layer5,
     build_layer_readiness_report,
     write_variable_and_value_labels,
-    write_layer45_checksums,
 )
+
+LAYER45_CHECKSUMS_FILENAME = "_checksums_layer45.sha256"
+CANONICAL_CHECKSUMS_FILENAME = "_checksums.sha256"
+_CHECKSUM_LINE_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 
 
 def _load_jsonl(path: Path) -> List[Dict[str, Any]]:
@@ -135,6 +142,136 @@ def _load_validated_supply_map(
     return validated
 
 
+def _resolve_classifier_version(database_dir: Path) -> str:
+    """Resolve authoritative classifier provenance for Layer 4-5 manifests.
+
+    The upstream cumulative database manifest is authoritative when it exists.
+    Only an absent manifest permits fallback to the module-level classifier
+    constant used by isolated tests.
+    """
+    upstream_manifest_path = database_dir / "cumulative_database_manifest.json"
+    if not upstream_manifest_path.exists():
+        from src.scientific_sources.cumulative_scientific_database import (  # noqa: E402
+            CLASSIFIER_VERSION as _CLASSIFIER_VERSION,
+        )
+
+        return _CLASSIFIER_VERSION
+
+    try:
+        upstream_manifest = json.loads(
+            upstream_manifest_path.read_text(encoding="utf-8")
+        )
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(
+            "cumulative_database_manifest.json exists but is unreadable or malformed; "
+            "refusing to stamp Layer 4-5 with guessed classifier provenance"
+        ) from exc
+
+    if not isinstance(upstream_manifest, dict):
+        raise ValueError(
+            "cumulative_database_manifest.json must be a JSON object when present"
+        )
+    if "classifier_version" not in upstream_manifest:
+        raise ValueError(
+            "cumulative_database_manifest.json exists but classifier_version is missing"
+        )
+
+    classifier_version = upstream_manifest.get("classifier_version")
+    if not isinstance(classifier_version, str):
+        raise ValueError(
+            "cumulative_database_manifest.json classifier_version must be a string"
+        )
+
+    classifier_version = classifier_version.strip()
+    if not classifier_version:
+        raise ValueError(
+            "cumulative_database_manifest.json classifier_version must be non-empty"
+        )
+    return classifier_version
+
+
+def _sha256_file(path: Path) -> str:
+    sha = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            sha.update(chunk)
+    return sha.hexdigest()
+
+
+def _normalize_emitted_files(files: List[Path]) -> List[Path]:
+    normalized: List[Path] = []
+    seen: set[str] = set()
+    errors: List[str] = []
+    for raw_path in files:
+        candidate = Path(raw_path)
+        key = str(candidate)
+        if key in seen:
+            continue
+        seen.add(key)
+        if not candidate.exists():
+            errors.append(f"missing_emitted_artifact:{candidate}")
+            continue
+        if not candidate.is_file():
+            errors.append(f"non_file_emitted_artifact:{candidate}")
+            continue
+        normalized.append(candidate)
+    if errors:
+        raise FileNotFoundError("; ".join(errors))
+    return normalized
+
+
+def _relative_checksum_path(path: Path, output_dir: Path) -> str:
+    rel = os.path.relpath(path, start=output_dir).replace("\\", "/")
+    if rel in {".", ""}:
+        raise ValueError(f"cannot compute checksum path relative to output_dir: {path}")
+    return rel
+
+
+def _parse_checksum_manifest(path: Path) -> Dict[str, str]:
+    entries: Dict[str, str] = {}
+    if not path.is_file():
+        return entries
+    for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        parts = stripped.split("  ", 1)
+        if len(parts) != 2 or not _CHECKSUM_LINE_RE.match(parts[0]):
+            raise ValueError(f"malformed_checksum_line:{path.name}:L{line_no}")
+        digest, relpath = parts[0].lower(), parts[1]
+        if relpath in entries:
+            raise ValueError(f"duplicate_checksum_entry:{path.name}:{relpath}")
+        entries[relpath] = digest
+    return entries
+
+
+def _write_checksum_manifest(path: Path, entries: Dict[str, str]) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        for relpath in sorted(entries):
+            handle.write(f"{entries[relpath]}  {relpath}\n")
+    return path
+
+
+def _write_layer45_checksums(files: List[Path], output_dir: Path) -> Path:
+    emitted_files = _normalize_emitted_files(files)
+    layer45_entries = {
+        _relative_checksum_path(path, output_dir): _sha256_file(path)
+        for path in emitted_files
+    }
+    checksum_path = _write_checksum_manifest(
+        output_dir / LAYER45_CHECKSUMS_FILENAME,
+        layer45_entries,
+    )
+
+    canonical_path = output_dir / CANONICAL_CHECKSUMS_FILENAME
+    if canonical_path.is_file():
+        canonical_entries = _parse_checksum_manifest(canonical_path)
+        canonical_entries.update(layer45_entries)
+        _write_checksum_manifest(canonical_path, canonical_entries)
+    return checksum_path
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--database-dir",
@@ -171,34 +308,21 @@ def main(argv: Optional[List[str]] = None) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     stats_dir.mkdir(parents=True, exist_ok=True)
 
-    # Resolve classifier_version from the upstream cumulative database manifest
-    # so that Layer 4-5 provenance traces back to the exact classifier that
-    # produced the Layer 2-3 signals.  Fall back to the module constant when
-    # the manifest is absent (e.g. during isolated testing).
-    classifier_version: str = ""
-    upstream_manifest_path = db_dir / "cumulative_database_manifest.json"
-    if upstream_manifest_path.is_file():
-        try:
-            upstream_manifest = json.loads(
-                upstream_manifest_path.read_text(encoding="utf-8")
-            )
-            classifier_version = str(upstream_manifest.get("classifier_version", ""))
-        except (OSError, json.JSONDecodeError):
-            pass
-    if not classifier_version:
-        from src.scientific_sources.cumulative_scientific_database import (  # noqa: E402
-            CLASSIFIER_VERSION as _CLASSIFIER_VERSION,
-        )
-        classifier_version = _CLASSIFIER_VERSION
+    try:
+        classifier_version = _resolve_classifier_version(db_dir)
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
 
     evidence = _load_jsonl(db_dir / "evidence_records.jsonl")
     signals = _load_jsonl(db_dir / "competence_demand_signals.jsonl")
 
     # Layer readiness audit written first — captures the state before build.
+    readiness_report_path = out_dir / "layer_readiness_report.json"
     build_layer_readiness_report(
         repository_root=args.repository_root,
         outputs_root=args.outputs_root,
-        output_path=out_dir / "layer_readiness_report.json",
+        output_path=readiness_report_path,
     )
 
     if not evidence:
@@ -236,11 +360,19 @@ def main(argv: Optional[List[str]] = None) -> int:
         classifier_version=classifier_version,
     )
 
-    write_variable_and_value_labels(out_dir)
+    label_paths = list(write_variable_and_value_labels(out_dir))
 
-    # Write Layer 4-5 checksum file covering all emitted analytical files.
-    all_layer45_files = list(layer4.files) + list(layer5.files)
-    write_layer45_checksums(all_layer45_files, out_dir)
+    try:
+        checksum_path = _write_layer45_checksums(
+            list(layer4.files)
+            + list(layer5.files)
+            + label_paths
+            + [readiness_report_path],
+            out_dir,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
 
     summary = {
         "derived_demand_count": len(layer4.derived_demands),
@@ -251,6 +383,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         "indices": layer4.indices,
         "analysis_timestamp_utc": args.analysis_timestamp_utc or "",
         "validated_supply_map_provided": validated_supply is not None,
+        "classifier_version": classifier_version,
+        "layer45_checksums": str(checksum_path),
     }
     print(json.dumps(summary, sort_keys=True))
     return 0
