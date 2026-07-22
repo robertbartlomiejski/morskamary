@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import Any
 
@@ -273,6 +274,58 @@ class TestCrossrefProvider:
         assert result.errors
         assert "Crossref search error" in result.errors[0]
 
+    def test_search_retries_http_429_with_retry_after_then_succeeds(self, monkeypatch):
+        import time
+        import urllib.request
+
+        throttled = urllib.error.HTTPError(
+            "https://api.crossref.org/works",
+            429,
+            "Too Many Requests",
+            {"Retry-After": "3"},
+            None,
+        )
+        responses = [throttled, _DummyResponse(_CROSSREF_PAYLOAD)]
+
+        def fake_urlopen(req, timeout=10):
+            response = responses.pop(0)
+            if isinstance(response, Exception):
+                raise response
+            return response
+
+        sleep_calls = []
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        monkeypatch.setattr(time, "sleep", lambda seconds: sleep_calls.append(seconds))
+
+        provider = CrossrefProvider()
+        result = provider.search("blue economy", max_results=1)
+
+        assert len(result.records) == 1
+        assert sleep_calls == [3.0]
+        assert any("attempt=1 http_status=429" in warning for warning in result.warnings)
+        assert any("terminal_status=success" in warning for warning in result.warnings)
+
+    def test_search_retries_http_429_with_bounded_attempts(self, monkeypatch):
+        import time
+        import urllib.request
+
+        throttled = urllib.error.HTTPError(
+            "https://api.crossref.org/works",
+            429,
+            "Too Many Requests",
+            {},
+            None,
+        )
+        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=10: (_ for _ in ()).throw(throttled))
+        monkeypatch.setattr(time, "sleep", lambda _seconds: None)
+
+        provider = CrossrefProvider()
+        result = provider.search("blue economy", max_results=1)
+
+        assert result.rate_limit_status == "rate-limited"
+        assert "failed after 4 attempts" in result.errors[0]
+        assert len([w for w in result.warnings if "http_status=429" in w]) == 4
+
     def test_verify_doi_parses_result(self, monkeypatch):
         doi_payload = {
             "message": {
@@ -359,6 +412,58 @@ class TestCrossrefProvider:
         monkeypatch.setenv("LIVE_RESEARCH_API_TESTS", "true")
         provider = CrossrefProvider()
         assert provider.capability.live_test_allowed is True
+
+    def test_retry_after_seconds_http_date_future(self):
+        """A valid HTTP-date far in the future returns a positive bounded delay."""
+        # A date guaranteed to be in the future for decades to come.
+        result = CrossrefProvider._retry_after_seconds("Thu, 01 Jan 2099 00:00:00 GMT")
+        assert result is not None
+        assert result > 0.0
+        assert result <= 120.0  # bounded to _MAX_RETRY_AFTER_SECONDS
+
+    def test_retry_after_seconds_http_date_expired(self):
+        """An HTTP-date already in the past returns 0.0 (no extra wait needed)."""
+        result = CrossrefProvider._retry_after_seconds("Mon, 01 Jan 2024 00:00:00 GMT")
+        assert result == 0.0
+
+    def test_retry_after_seconds_http_date_invalid(self):
+        """An unparseable Retry-After value returns None so the caller uses backoff."""
+        result = CrossrefProvider._retry_after_seconds("not-a-valid-http-date")
+        assert result is None
+
+    def test_search_retries_http_429_with_http_date_retry_after(self, monkeypatch):
+        """Retry-After with an HTTP-date (future) value must be honoured in the retry flow."""
+        import time
+        import urllib.request
+
+        throttled = urllib.error.HTTPError(
+            "https://api.crossref.org/works",
+            429,
+            "Too Many Requests",
+            {"Retry-After": "Thu, 01 Jan 2099 00:00:00 GMT"},
+            None,
+        )
+        responses = [throttled, _DummyResponse(_CROSSREF_PAYLOAD)]
+
+        def fake_urlopen(req, timeout=10):
+            response = responses.pop(0)
+            if isinstance(response, Exception):
+                raise response
+            return response
+
+        sleep_calls = []
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        monkeypatch.setattr(time, "sleep", lambda seconds: sleep_calls.append(seconds))
+
+        provider = CrossrefProvider()
+        result = provider.search("blue economy", max_results=1)
+
+        assert len(result.records) == 1
+        # sleep must have been called with the HTTP-date derived delay (bounded to 120s)
+        assert len(sleep_calls) == 1
+        assert sleep_calls[0] <= 120.0
+        assert any("attempt=1 http_status=429" in w for w in result.warnings)
+        assert any("terminal_status=success" in w for w in result.warnings)
 
 
 # ---------------------------------------------------------------------------
@@ -470,6 +575,50 @@ class TestElsevierScopusProvider:
         )
         result = provider.search("blue economy")
         assert result.records == []
+
+    def test_search_projects_protocol_query_and_clamps_count(self, monkeypatch):
+        monkeypatch.setenv("ELSEVIER_API_KEY", "abc")
+        provider = ElsevierScopusProvider()
+        captured = {}
+
+        def fake_request_json(url: str):
+            captured["url"] = url
+            return {"search-results": {"entry": []}}
+
+        monkeypatch.setattr(provider, "_request_json", fake_request_json)
+
+        result = provider.search("infra & robotics qmbd axis translation", max_results=50)
+
+        assert result.records == []
+        assert "count=25" in captured["url"]
+        decoded_url = urllib.parse.unquote(captured["url"])
+        assert 'TITLE-ABS-KEY("infra" AND "robotics" AND "qmbd" AND "axis" AND "translation")' in decoded_url
+        assert any("projected_query=" in warning for warning in result.warnings)
+
+    def test_project_protocol_query_normalises_html_amp_before_raw_amp(self):
+        """HTML entity &amp; must be resolved before raw & so 'amp' is not injected as a Scopus term."""
+        result = ElsevierScopusProvider._project_protocol_query("Infra &amp; Robotics")
+        assert result is not None
+        assert '"amp"' not in result
+        assert '"Infra"' in result or '"infra"' in result.lower()
+        assert '"Robotics"' in result or '"robotics"' in result.lower()
+
+    def test_project_protocol_query_rejects_no_searchable_tokens(self):
+        """Query with no extractable tokens must return None, not a fallback query."""
+        # A query consisting only of stop-word-class tokens or punctuation
+        result = ElsevierScopusProvider._project_protocol_query("& / ( )")
+        assert result is None
+
+    def test_search_returns_structured_error_on_empty_token_query(self, monkeypatch):
+        """search() must return a ProviderResult with an error when projection yields no tokens."""
+        monkeypatch.setenv("ELSEVIER_API_KEY", "abc")
+        provider = ElsevierScopusProvider()
+
+        result = provider.search("& / ( )")
+
+        assert result.records == []
+        assert result.errors
+        assert "no searchable tokens" in result.errors[0].lower()
 
 
 class TestWebOfScienceProvider:

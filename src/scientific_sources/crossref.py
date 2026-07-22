@@ -15,9 +15,11 @@ import hashlib
 import json
 import os
 import re
+import time
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from typing import Any, Dict, List
 
 from src.scientific_sources.base import BaseProvider
@@ -42,6 +44,10 @@ _ALLOWED_FIELDS = [
 ]
 
 _API_BASE = "https://api.crossref.org"
+_MAX_RETRY_ATTEMPTS = 4
+_BASE_BACKOFF_SECONDS = 1.0
+_MAX_BACKOFF_SECONDS = 30.0
+_MAX_RETRY_AFTER_SECONDS = 120.0
 
 
 class CrossrefProvider(BaseProvider):
@@ -168,6 +174,76 @@ class CrossrefProvider(BaseProvider):
             )
         return evidence
 
+    @staticmethod
+    def _retry_after_seconds(raw_retry_after: str) -> float | None:
+        value = str(raw_retry_after or "").strip()
+        if not value:
+            return None
+        if value.isdigit():
+            return min(float(value), _MAX_RETRY_AFTER_SECONDS)
+        try:
+            retry_after_at = parsedate_to_datetime(value)
+        except (TypeError, ValueError, OverflowError):
+            return None
+        now = datetime.now(timezone.utc)
+        if retry_after_at.tzinfo is None:
+            retry_after_at = retry_after_at.replace(tzinfo=timezone.utc)
+        delta = (retry_after_at - now).total_seconds()
+        if delta <= 0:
+            return 0.0
+        return min(delta, _MAX_RETRY_AFTER_SECONDS)
+
+    @staticmethod
+    def _deterministic_jitter_seconds(seed: str, attempt: int) -> float:
+        digest = hashlib.sha256(f"{seed}|{attempt}".encode("utf-8")).hexdigest()
+        jitter_unit = int(digest[:6], 16) / float(0xFFFFFF)
+        return round(jitter_unit * 0.5, 3)
+
+    def _request_json_with_backoff(
+        self,
+        *,
+        url: str,
+        context_label: str,
+        jitter_seed: str,
+    ) -> tuple[Dict[str, Any] | None, List[str], str | None]:
+        warnings: List[str] = []
+        for attempt in range(1, _MAX_RETRY_ATTEMPTS + 1):
+            req = urllib.request.Request(url, headers={"User-Agent": self._user_agent()})
+            try:
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    data = json.loads(resp.read().decode())
+                if warnings:
+                    warnings.append(
+                        f"Crossref retry terminal_status=success attempt={attempt}"
+                    )
+                return data, warnings, None
+            except urllib.error.HTTPError as exc:
+                if exc.code != 429:
+                    raise
+                retry_after = self._retry_after_seconds(exc.headers.get("Retry-After", ""))
+                backoff = min(
+                    _BASE_BACKOFF_SECONDS * (2 ** (attempt - 1)),
+                    _MAX_BACKOFF_SECONDS,
+                )
+                jitter = self._deterministic_jitter_seconds(jitter_seed, attempt)
+                wait_seconds = retry_after if retry_after is not None else backoff + jitter
+                warnings.append(
+                    f"Crossref retry {context_label}: attempt={attempt} http_status=429 "
+                    f"retry_after_seconds={retry_after!r} backoff_seconds={round(backoff, 3)} "
+                    f"jitter_seconds={round(jitter, 3)} wait_seconds={round(wait_seconds, 3)}"
+                )
+                if attempt >= _MAX_RETRY_ATTEMPTS:
+                    terminal = (
+                        f"Crossref {context_label} failed after {_MAX_RETRY_ATTEMPTS} attempts "
+                        "(terminal_status=rate_limited)"
+                    )
+                    return None, warnings, terminal
+                time.sleep(max(wait_seconds, 0.0))
+        return None, warnings, (
+            f"Crossref {context_label} failed after {_MAX_RETRY_ATTEMPTS} attempts "
+            "(terminal_status=rate_limited)"
+        )
+
     def search(self, query: str, max_results: int = 5) -> ProviderResult:
         """Search Crossref for records matching *query*."""
         url = (
@@ -177,15 +253,27 @@ class CrossrefProvider(BaseProvider):
             f"&rows={max_results}"
         )
         try:
-            req = urllib.request.Request(
-                url, headers={"User-Agent": self._user_agent()}
+            data, retry_warnings, terminal_error = self._request_json_with_backoff(
+                url=url,
+                context_label="search",
+                jitter_seed=query,
             )
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                data = json.loads(resp.read().decode())
+            if terminal_error:
+                return ProviderResult(
+                    errors=[terminal_error],
+                    warnings=retry_warnings,
+                    rate_limit_status="rate-limited",
+                )
+            assert data is not None
             items = data.get("message", {}).get("items", [])
             records = self._parse_items(items, query)
             evidence = self._make_evidence(query, "crossref/works", records)
-            return ProviderResult(records=records, provenance=evidence, raw_payload=data)
+            return ProviderResult(
+                records=records,
+                warnings=retry_warnings,
+                provenance=evidence,
+                raw_payload=data,
+            )
         except Exception as exc:
             return ProviderResult(errors=[f"Crossref search error: {exc}"])
 
@@ -193,14 +281,26 @@ class CrossrefProvider(BaseProvider):
         """Verify a specific DOI via Crossref."""
         url = f"{_API_BASE}/works/{urllib.parse.quote(doi)}"
         try:
-            req = urllib.request.Request(
-                url, headers={"User-Agent": self._user_agent()}
+            data, retry_warnings, terminal_error = self._request_json_with_backoff(
+                url=url,
+                context_label="DOI verification",
+                jitter_seed=doi,
             )
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                data = json.loads(resp.read().decode())
+            if terminal_error:
+                return ProviderResult(
+                    errors=[terminal_error],
+                    warnings=retry_warnings,
+                    rate_limit_status="rate-limited",
+                )
+            assert data is not None
             item = data.get("message", {})
             records = self._parse_items([item], doi)
             evidence = self._make_evidence(doi, f"crossref/works/{doi}", records)
-            return ProviderResult(records=records, provenance=evidence, raw_payload=data)
+            return ProviderResult(
+                records=records,
+                warnings=retry_warnings,
+                provenance=evidence,
+                raw_payload=data,
+            )
         except Exception as exc:
             return ProviderResult(errors=[f"Crossref DOI verification error: {exc}"])

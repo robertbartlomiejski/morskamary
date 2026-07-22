@@ -117,6 +117,23 @@ def test_gate_a_flags_zero_wos_even_when_health_uses_alias() -> None:
     gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
     assert gate_a["status"] == "warn"
     assert "wos" in gate_a["detail"]["providers_ok_zero_records"]
+    assert "wos" in gate_a["detail"]["providers_ok_zero_records_optional"]
+
+
+def test_gate_a_keeps_optional_wos_non_blocking_in_strict_mode() -> None:
+    m = _base_metrics(
+        provider_record_count_by_provider={"crossref": 10, "scopus": 2, "wos": 0}
+    )
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={"crossref": {"status": "ok"}, "wos": {"status": "ok"}},
+        strict=True,
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "warn"
+    assert gate_a["detail"]["providers_ok_zero_records_required"] == []
+    assert gate_a["detail"]["providers_ok_zero_records_optional"] == ["wos"]
+    assert r["overall_status"] == "pass"
 
 
 def test_gate_a_accumulates_counts_across_alias_labels() -> None:
@@ -209,6 +226,18 @@ def test_gate_e_warns_on_single_provider() -> None:
     assert e["status"] == "warn"
 
 
+def test_gate_e_fails_on_single_provider_in_strict_mode() -> None:
+    m = _base_metrics(
+        provider_record_count_by_provider={"crossref": 20, "scopus": 0},
+        crossref_dominance_ratio=1.0,
+    )
+    r = evaluate_gates(metrics=m, strict=True)
+    e = next(g for g in r["gates"] if g["gate_id"] == "E")
+    assert e["status"] == "fail"
+    assert "single_provider_contribution" in e["detail"]["concentration_reasons"]
+    assert r["overall_status"] == "fail"
+
+
 def test_gate_e_warns_on_single_query_family_even_with_query_id_diversity() -> None:
     m = _base_metrics(
         provider_record_count_by_provider={"crossref": 10, "scopus": 8},
@@ -255,6 +284,126 @@ def test_gate_e_canonicalizes_provider_aliases() -> None:
     r = evaluate_gates(metrics=m)
     e = next(g for g in r["gates"] if g["gate_id"] == "E")
     assert e["detail"]["active_providers"] == ["crossref", "scopus"]
+
+
+def test_gate_a_uses_query_execution_contribution_outcomes() -> None:
+    m = _base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 2})
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={"crossref": {"status": "ok"}, "scopus": {"status": "ok"}},
+        strict=True,
+        query_execution_summary={
+            "crossref": {"attempted_queries": 5, "contributed_records": 10, "queries_with_errors": 0},
+            "scopus": {"attempted_queries": 5, "contributed_records": 0, "queries_with_errors": 5},
+        },
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "fail"
+    assert gate_a["detail"]["contribution_outcomes"]["scopus"]["contributed_records"] == 0
+
+
+def test_gate_a_strict_fails_closed_when_execution_log_missing() -> None:
+    """In strict mode, a missing execution log must fail Gate A rather than silently
+    falling back to cumulative provider counts as contribution evidence."""
+    m = _base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 5})
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={"crossref": {"status": "ok"}, "scopus": {"status": "ok"}},
+        strict=True,
+        execution_log_available=False,
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "fail"
+    assert r["overall_status"] == "fail"
+    assert gate_a["detail"]["execution_log_available"] is False
+
+
+def test_gate_a_non_strict_does_not_fail_closed_when_execution_log_missing() -> None:
+    """Outside strict mode a missing execution log is not a Gate A failure."""
+    m = _base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 5})
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={"crossref": {"status": "ok"}, "scopus": {"status": "ok"}},
+        strict=False,
+        execution_log_available=False,
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "pass"
+
+
+def test_gate_a_strict_passes_when_execution_log_available() -> None:
+    """execution_log_available=True with no zero-contribution providers passes Gate A."""
+    m = _base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 5})
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={"crossref": {"status": "ok"}, "scopus": {"status": "ok"}},
+        strict=True,
+        execution_log_available=True,
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "pass"
+
+
+def test_cli_strict_fails_gate_a_when_execution_log_absent(tmp_path: Path) -> None:
+    """CLI in strict mode must fatally abort when the query execution log is absent."""
+    metrics_path = tmp_path / "metrics.json"
+    metrics_path.write_text(
+        json.dumps(_base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 5})),
+        encoding="utf-8",
+    )
+    run_root = tmp_path / "outputs"
+    run_root.mkdir(parents=True, exist_ok=True)
+    # Do NOT create the execution log file.
+    report_path = tmp_path / "report.json"
+
+    import pytest
+    with pytest.raises(FileNotFoundError, match="Strict full-live path failed"):
+        main(
+            [
+                "--metrics",
+                str(metrics_path),
+                "--provider-health",
+                str(tmp_path / "missing-provider-health.json"),
+                "--current-run",
+                str(run_root),
+                "--output",
+                str(report_path),
+                "--strict",
+            ]
+        )
+
+
+def test_cli_strict_fails_gate_a_when_execution_log_has_no_usable_outcomes(tmp_path: Path) -> None:
+    """CLI in strict mode must fatally abort when the execution log yields no provider outcomes."""
+    metrics_path = tmp_path / "metrics.json"
+    metrics_path.write_text(
+        json.dumps(_base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 5})),
+        encoding="utf-8",
+    )
+    run_root = tmp_path / "outputs"
+    log_dir = run_root / "research_sources"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    (log_dir / "query_execution_log.csv").write_text(
+        "provider,execution_status,contributed_record_count\n",
+        encoding="utf-8",
+    )
+    report_path = tmp_path / "report.json"
+
+    import pytest
+    with pytest.raises(ValueError, match="empty, malformed, or contains no usable provider outcomes"):
+        main(
+            [
+                "--metrics",
+                str(metrics_path),
+                "--provider-health",
+                str(tmp_path / "missing-provider-health.json"),
+                "--current-run",
+                str(run_root),
+                "--output",
+                str(report_path),
+                "--strict",
+            ]
+        )
 
 
 def test_cli_gate_d_failure_exits_nonzero_without_strict(tmp_path: Path) -> None:

@@ -1012,6 +1012,7 @@ push_output.txt,text,,,,,,push_output,yes
 pyproject.toml,other,,,,,,pyproject,no
 readme,other,,,,,,readme,no
 README.md,governance,,,,,,README,yes
+reports/live_enriched_statistical_analysis_plan.md,text,,,,,,live_enriched_statistical_analysis_plan,yes
 reports/scientific_report.csv,dataset_derived,,,,,,scientific_report,yes
 reports/scientific_report.md,text,,,,,,scientific_report,yes
 requirements.txt,script,,,,,,requirements,yes
