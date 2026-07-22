@@ -24,6 +24,7 @@ written to the report.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import re
 import sys
@@ -71,6 +72,7 @@ _PROVIDER_ALIASES: Dict[str, str] = {
     "google_drive": "google_drive",
     "google drive": "google_drive",
 }
+_OPTIONAL_NON_BLOCKING_PROVIDERS = {"wos"}
 
 
 def _canonical_provider(name: Any) -> str:
@@ -93,6 +95,48 @@ def _canonical_provider(name: Any) -> str:
     return normalized_underscore or normalized_space or token
 
 
+def _load_query_execution_summary(current_run_dir: Path) -> Dict[str, Dict[str, int]]:
+    """Aggregate per-provider contribution outcomes from query_execution_log.csv."""
+    summary: Dict[str, Dict[str, int]] = {}
+    log_path = current_run_dir / "research_sources" / "query_execution_log.csv"
+    if not log_path.is_file():
+        return summary
+    try:
+        with log_path.open("r", encoding="utf-8-sig", newline="") as handle:
+            rows = csv.DictReader(handle)
+            for row in rows:
+                provider = _canonical_provider(
+                    row.get("provider_canonical") or row.get("provider") or ""
+                )
+                if not provider:
+                    continue
+                slot = summary.setdefault(
+                    provider,
+                    {
+                        "attempted_queries": 0,
+                        "contributed_records": 0,
+                        "returned_records": 0,
+                        "queries_with_errors": 0,
+                    },
+                )
+                slot["attempted_queries"] += 1
+                try:
+                    slot["contributed_records"] += int(row.get("contributed_record_count") or 0)
+                except (TypeError, ValueError):
+                    pass
+                try:
+                    slot["returned_records"] += int(row.get("returned_record_count") or 0)
+                except (TypeError, ValueError):
+                    pass
+                status = str(row.get("execution_status", "")).strip().lower()
+                errors = str(row.get("errors", "")).strip()
+                if "error" in status or errors:
+                    slot["queries_with_errors"] += 1
+    except OSError:
+        return {}
+    return summary
+
+
 def evaluate_gates(
     *,
     metrics: Dict[str, Any],
@@ -100,10 +144,12 @@ def evaluate_gates(
     previous_metrics: Optional[Dict[str, Any]] = None,
     static_baseline_field_in_live: bool = False,
     strict: bool = False,
+    query_execution_summary: Optional[Dict[str, Dict[str, int]]] = None,
 ) -> Dict[str, Any]:
     """Evaluate quality gates and return a serializable report."""
     provider_health = provider_health or {}
     previous_metrics = previous_metrics or {}
+    query_execution_summary = query_execution_summary or {}
     gates: List[Dict[str, Any]] = []
     fail = False
 
@@ -142,22 +188,48 @@ def evaluate_gates(
                 slug = _canonical_provider(raw_name)
                 if slug:
                     provider_health_map[slug] = health
-    zero_but_ok = []
+    zero_but_ok_required = []
+    zero_but_ok_optional = []
+    provider_outcomes: Dict[str, Dict[str, Any]] = {}
     for prov, health in provider_health_map.items():
         status = ""
         if isinstance(health, dict):
             status = str(health.get("status", "")).lower()
         elif isinstance(health, str):
             status = health.lower()
-        prov_count = provider_counts_normalized.get(prov, 0)
-        if status == "ok" and prov_count == 0:
-            zero_but_ok.append(prov)
-    gate_a_status = "pass" if not zero_but_ok else ("fail" if strict else "warn")
+        outcome = query_execution_summary.get(prov, {})
+        contributed_records = int(
+            outcome.get("contributed_records", provider_counts_normalized.get(prov, 0)) or 0
+        )
+        attempted_queries = int(outcome.get("attempted_queries", 0) or 0)
+        queries_with_errors = int(outcome.get("queries_with_errors", 0) or 0)
+        provider_outcomes[prov] = {
+            "health_status": status,
+            "attempted_queries": attempted_queries,
+            "contributed_records": contributed_records,
+            "queries_with_errors": queries_with_errors,
+        }
+        if status == "ok" and contributed_records == 0:
+            if prov in _OPTIONAL_NON_BLOCKING_PROVIDERS:
+                zero_but_ok_optional.append(prov)
+            else:
+                zero_but_ok_required.append(prov)
+    gate_a_status = "pass"
+    if zero_but_ok_required:
+        gate_a_status = "fail" if strict else "warn"
+    elif zero_but_ok_optional:
+        gate_a_status = "warn"
     gates.append({
         "gate_id": "A",
         "name": "Provider contribution",
         "status": gate_a_status,
-        "detail": {"providers_ok_zero_records": sorted(zero_but_ok)},
+        "detail": {
+            "providers_ok_zero_records": sorted(zero_but_ok_required + zero_but_ok_optional),
+            "providers_ok_zero_records_required": sorted(zero_but_ok_required),
+            "providers_ok_zero_records_optional": sorted(zero_but_ok_optional),
+            "optional_non_blocking_providers": sorted(_OPTIONAL_NON_BLOCKING_PROVIDERS),
+            "contribution_outcomes": provider_outcomes,
+        },
     })
     if gate_a_status == "fail":
         fail = True
@@ -214,10 +286,23 @@ def evaluate_gates(
         fail = True
 
     # Gate E
+    contributed_by_provider: Dict[str, int] = {}
+    for provider, count in provider_counts.items():
+        slug = _canonical_provider(provider)
+        if not slug:
+            continue
+        contributed_by_provider[slug] = contributed_by_provider.get(slug, 0) + int(count or 0)
+    for provider, outcome in query_execution_summary.items():
+        slug = _canonical_provider(provider)
+        if not slug:
+            continue
+        contributed_by_provider[slug] = int(
+            outcome.get("contributed_records", contributed_by_provider.get(slug, 0)) or 0
+        )
     active_provider_set = {
-        _canonical_provider(provider)
-        for provider, count in provider_counts.items()
-        if int(count or 0) > 0 and _canonical_provider(provider)
+        provider
+        for provider, count in contributed_by_provider.items()
+        if int(count or 0) > 0
     }
     active_providers = sorted(active_provider_set)
     raw_families = metrics.get("query_families_seen")
@@ -236,13 +321,19 @@ def evaluate_gates(
         }
     )
     family_data_available = family_field_present and len(active_families) > 0
-    single_provider = len(active_providers) <= 1 and sum(int(c or 0) for c in provider_counts.values()) > 0
+    total_contributed = sum(int(count or 0) for count in contributed_by_provider.values())
+    single_provider = len(active_providers) <= 1 and total_contributed > 0
     single_family = family_data_available and len(active_families) == 1
     single_bias = single_provider or single_family or crossref_dom >= 0.98
-    explicit_flag = any("provider_bias_warning" in str(w)
-                        for w in metrics.get("validity_warnings", []) or [])
-    if single_bias and not explicit_flag:
-        gate_e_status = "warn"
+    concentration_reasons: List[str] = []
+    if single_provider:
+        concentration_reasons.append("single_provider_contribution")
+    if single_family:
+        concentration_reasons.append("single_query_family_contribution")
+    if crossref_dom >= 0.98:
+        concentration_reasons.append("crossref_dominance_ratio>=0.98")
+    if single_bias:
+        gate_e_status = "fail" if strict else "warn"
     else:
         gate_e_status = "pass"
     gates.append({
@@ -255,8 +346,14 @@ def evaluate_gates(
             "query_family_distribution_available": family_data_available,
             "warnings": ([] if family_data_available else ["query_family_distribution_unavailable"]),
             "crossref_dominance_ratio": crossref_dom,
+            "provider_contributed_record_count_by_provider": dict(
+                sorted(contributed_by_provider.items())
+            ),
+            "concentration_reasons": concentration_reasons,
         },
     })
+    if gate_e_status == "fail":
+        fail = True
 
     return {
         "current_run_id": str(metrics.get("current_run_id", "")),
@@ -311,12 +408,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         Path(args.previous_metrics) if args.previous_metrics else None
     )
     baseline_leak = _detect_static_baseline_leak(Path(args.current_run))
+    query_execution_summary = _load_query_execution_summary(Path(args.current_run))
     report = evaluate_gates(
         metrics=metrics,
         provider_health=provider_health,
         previous_metrics=previous_metrics,
         static_baseline_field_in_live=baseline_leak,
         strict=args.strict,
+        query_execution_summary=query_execution_summary,
     )
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)

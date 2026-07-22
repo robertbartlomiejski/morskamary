@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-22 (fix: unblock full-live provider acquisition and strict gate semantics)
+  Change type fix
+  Scope scripts src tests governance
+  Files affected src/scientific_sources/elsevier_scopus.py src/scientific_sources/crossref.py scripts/compute_live_novelty_metrics.py tests/test_scientific_sources.py tests/test_compute_live_novelty_metrics.py CHANGELOG.txt
+  Summary Added provider-specific Scopus query projection (`TITLE-ABS-KEY`) with safe token normalization and Scopus-compatible count clamping, then emitted explicit per-request diagnostics (projected query and count normalization). Added bounded Crossref HTTP 429 retry/backoff with deterministic jitter, Retry-After support, and terminal audit traces. Tightened Gate A to evaluate contributed-record outcomes (from query_execution_log) and kept WoS as explicit optional non-blocking in strict mode; tightened Gate E so strict runs fail monoculture provider/query concentration.
+  Reason Full live workflow runs were blocked by Scopus HTTP 400 query incompatibilities, Crossref throttling retries were not implemented, and strict gate semantics did not fully enforce contribution/diversity contracts while keeping optional WoS behavior explicit.
+  Impact Full-live-analysis can now project protocol queries to valid Scopus API syntax, survive bounded Crossref throttling bursts with audit traces, fail strict runs on provider monoculture, and report optional WoS zero-contribution transparently without converting it into a blocking failure.
+  Quality checks pending
+  Reviewer @copilot
+
 - 2026-07-16 (docs: add implementation audit and controlled contextual benchmark reports)
   Change type add
   Scope governance reports

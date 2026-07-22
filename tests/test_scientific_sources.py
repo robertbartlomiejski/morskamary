@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import Any
 
@@ -273,6 +274,58 @@ class TestCrossrefProvider:
         assert result.errors
         assert "Crossref search error" in result.errors[0]
 
+    def test_search_retries_http_429_with_retry_after_then_succeeds(self, monkeypatch):
+        import time
+        import urllib.request
+
+        throttled = urllib.error.HTTPError(
+            "https://api.crossref.org/works",
+            429,
+            "Too Many Requests",
+            {"Retry-After": "3"},
+            None,
+        )
+        responses = [throttled, _DummyResponse(_CROSSREF_PAYLOAD)]
+
+        def fake_urlopen(req, timeout=10):
+            response = responses.pop(0)
+            if isinstance(response, Exception):
+                raise response
+            return response
+
+        sleep_calls = []
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        monkeypatch.setattr(time, "sleep", lambda seconds: sleep_calls.append(seconds))
+
+        provider = CrossrefProvider()
+        result = provider.search("blue economy", max_results=1)
+
+        assert len(result.records) == 1
+        assert sleep_calls == [3.0]
+        assert any("attempt=1 http_status=429" in warning for warning in result.warnings)
+        assert any("terminal_status=success" in warning for warning in result.warnings)
+
+    def test_search_retries_http_429_with_bounded_attempts(self, monkeypatch):
+        import time
+        import urllib.request
+
+        throttled = urllib.error.HTTPError(
+            "https://api.crossref.org/works",
+            429,
+            "Too Many Requests",
+            {},
+            None,
+        )
+        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=10: (_ for _ in ()).throw(throttled))
+        monkeypatch.setattr(time, "sleep", lambda _seconds: None)
+
+        provider = CrossrefProvider()
+        result = provider.search("blue economy", max_results=1)
+
+        assert result.rate_limit_status == "rate-limited"
+        assert "failed after 4 attempts" in result.errors[0]
+        assert len([w for w in result.warnings if "http_status=429" in w]) == 4
+
     def test_verify_doi_parses_result(self, monkeypatch):
         doi_payload = {
             "message": {
@@ -470,6 +523,25 @@ class TestElsevierScopusProvider:
         )
         result = provider.search("blue economy")
         assert result.records == []
+
+    def test_search_projects_protocol_query_and_clamps_count(self, monkeypatch):
+        monkeypatch.setenv("ELSEVIER_API_KEY", "abc")
+        provider = ElsevierScopusProvider()
+        captured = {}
+
+        def fake_request_json(url: str):
+            captured["url"] = url
+            return {"search-results": {"entry": []}}
+
+        monkeypatch.setattr(provider, "_request_json", fake_request_json)
+
+        result = provider.search("infra & robotics qmbd axis translation", max_results=50)
+
+        assert result.records == []
+        assert "count=25" in captured["url"]
+        decoded_url = urllib.parse.unquote(captured["url"])
+        assert 'TITLE-ABS-KEY("infra" AND "robotics" AND "qmbd" AND "axis" AND "translation")' in decoded_url
+        assert any("projected_query=" in warning for warning in result.warnings)
 
 
 class TestWebOfScienceProvider:
