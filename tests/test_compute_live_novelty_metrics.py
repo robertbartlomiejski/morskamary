@@ -345,7 +345,7 @@ def test_gate_a_strict_passes_when_execution_log_available() -> None:
 
 
 def test_cli_strict_fails_gate_a_when_execution_log_absent(tmp_path: Path) -> None:
-    """CLI in strict mode must fail Gate A when the query execution log is absent."""
+    """CLI in strict mode must fatally abort when the query execution log is absent."""
     metrics_path = tmp_path / "metrics.json"
     metrics_path.write_text(
         json.dumps(_base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 5})),
@@ -356,25 +356,21 @@ def test_cli_strict_fails_gate_a_when_execution_log_absent(tmp_path: Path) -> No
     # Do NOT create the execution log file.
     report_path = tmp_path / "report.json"
 
-    exit_code = main(
-        [
-            "--metrics",
-            str(metrics_path),
-            "--provider-health",
-            str(tmp_path / "missing-provider-health.json"),
-            "--current-run",
-            str(run_root),
-            "--output",
-            str(report_path),
-            "--strict",
-        ]
-    )
-
-    assert exit_code == 1
-    report = json.loads(report_path.read_text(encoding="utf-8"))
-    gate_a = next(g for g in report["gates"] if g["gate_id"] == "A")
-    assert gate_a["status"] == "fail"
-    assert gate_a["detail"]["execution_log_available"] is False
+    import pytest
+    with pytest.raises(FileNotFoundError, match="Strict full-live path failed"):
+        main(
+            [
+                "--metrics",
+                str(metrics_path),
+                "--provider-health",
+                str(tmp_path / "missing-provider-health.json"),
+                "--current-run",
+                str(run_root),
+                "--output",
+                str(report_path),
+                "--strict",
+            ]
+        )
 
 
 def test_cli_gate_d_failure_exits_nonzero_without_strict(tmp_path: Path) -> None:
