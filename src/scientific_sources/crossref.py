@@ -239,6 +239,10 @@ class CrossrefProvider(BaseProvider):
                     )
                     return None, warnings, terminal
                 time.sleep(max(wait_seconds, 0.0))
+        return None, warnings, (
+            f"Crossref {context_label} failed after {_MAX_RETRY_ATTEMPTS} attempts "
+            "(terminal_status=rate_limited)"
+        )
 
     def search(self, query: str, max_results: int = 5) -> ProviderResult:
         """Search Crossref for records matching *query*."""
