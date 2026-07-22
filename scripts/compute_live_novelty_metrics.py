@@ -423,7 +423,18 @@ def main(argv: Optional[List[str]] = None) -> int:
     current_run_dir = Path(args.current_run)
     log_path = current_run_dir / "research_sources" / "query_execution_log.csv"
     execution_log_available: Optional[bool] = log_path.is_file()
+    if args.strict and not execution_log_available:
+        raise FileNotFoundError(
+            f"Strict full-live path failed: Required query_execution_log.csv not found at {log_path}. "
+            "Cannot evaluate Gate A without run-level contribution evidence."
+        )
     query_execution_summary = _load_query_execution_summary(current_run_dir)
+    if args.strict and not query_execution_summary:
+        raise ValueError(
+            f"Strict full-live path failed: query_execution_log.csv at {log_path} "
+            "is empty, malformed, or contains no usable provider outcomes. "
+            "Cannot evaluate Gate A without valid run-level contribution evidence."
+        )
     report = evaluate_gates(
         metrics=metrics,
         provider_health=provider_health,
