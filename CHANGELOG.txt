@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-22 (governance: Layer 4-5 manifest classifier_version and checksum provenance fixes)
+  Change type fix
+  Scope governance scripts
+  Files affected src/scientific_sources/derived_competence_analysis.py scripts/build_layer4_5_scientific_analysis.py tests/test_derived_competence_analysis.py CHANGELOG.txt
+  Summary Injected classifier_version into layer4_manifest.json and layer5_manifest.json, sourced from the upstream cumulative_database_manifest.json without hardcoding. Added write_layer45_checksums() using 1 MB chunked SHA-256 reads to enumerate and hash all Layer 4-5 emitted analytical files. Added regression tests asserting provenance fields and checksum coverage.
+  Reason layer4_manifest.json and layer5_manifest.json were missing classifier_version, breaking downstream provenance traceability. No checksum file existed for Layer 4-5 outputs, leaving derived_competence_demands.csv, sector_axis_gap_model.csv, credential_translation_eqf4_7.csv, and learning_outcomes.csv unverified.
+  Impact Layer 4-5 manifests now carry classifier_version matching the Layer 2-3 classifier. A new _checksums_layer45.sha256 is emitted on every build_layer4_5_scientific_analysis.py run.
+  Provenance CLASSIFIER_VERSION sourced from cumulative_database_manifest.json at runtime; falls back to cumulative_scientific_database.CLASSIFIER_VERSION.
+  Quality checks python -m flake8 src scripts tests (0 issues); python -m mypy (0 issues); python -m pytest tests/ (1060 passed)
+  Reviewer @copilot
+
 - 2026-07-16 (docs: add implementation audit and controlled contextual benchmark reports)
   Change type add
   Scope governance reports

@@ -48,6 +48,7 @@ from src.scientific_sources.derived_competence_analysis import (  # noqa: E402
     build_layer5,
     build_layer_readiness_report,
     write_variable_and_value_labels,
+    write_layer45_checksums,
 )
 
 
@@ -170,6 +171,26 @@ def main(argv: Optional[List[str]] = None) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     stats_dir.mkdir(parents=True, exist_ok=True)
 
+    # Resolve classifier_version from the upstream cumulative database manifest
+    # so that Layer 4-5 provenance traces back to the exact classifier that
+    # produced the Layer 2-3 signals.  Fall back to the module constant when
+    # the manifest is absent (e.g. during isolated testing).
+    classifier_version: str = ""
+    upstream_manifest_path = db_dir / "cumulative_database_manifest.json"
+    if upstream_manifest_path.is_file():
+        try:
+            upstream_manifest = json.loads(
+                upstream_manifest_path.read_text(encoding="utf-8")
+            )
+            classifier_version = str(upstream_manifest.get("classifier_version", ""))
+        except (OSError, json.JSONDecodeError):
+            pass
+    if not classifier_version:
+        from src.scientific_sources.cumulative_scientific_database import (  # noqa: E402
+            CLASSIFIER_VERSION as _CLASSIFIER_VERSION,
+        )
+        classifier_version = _CLASSIFIER_VERSION
+
     evidence = _load_jsonl(db_dir / "evidence_records.jsonl")
     signals = _load_jsonl(db_dir / "competence_demand_signals.jsonl")
 
@@ -193,6 +214,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         current_run_id=args.current_run_id,
         stats_dir=stats_dir,
         analysis_timestamp_utc=args.analysis_timestamp_utc,
+        classifier_version=classifier_version,
     )
 
     baseline_map = _load_static_baseline_by_sector(
@@ -211,9 +233,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         output_dir=out_dir,
         current_run_id=args.current_run_id,
         built_at_utc=args.analysis_timestamp_utc,
+        classifier_version=classifier_version,
     )
 
     write_variable_and_value_labels(out_dir)
+
+    # Write Layer 4-5 checksum file covering all emitted analytical files.
+    all_layer45_files = list(layer4.files) + list(layer5.files)
+    write_layer45_checksums(all_layer45_files, out_dir)
 
     summary = {
         "derived_demand_count": len(layer4.derived_demands),
