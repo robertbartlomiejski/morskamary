@@ -35,10 +35,7 @@ Writes:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
-import os
-import re
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -51,12 +48,14 @@ from src.scientific_sources.derived_competence_analysis import (  # noqa: E402
     build_layer4,
     build_layer5,
     build_layer_readiness_report,
+    write_layer45_checksums,
     write_variable_and_value_labels,
+    _parse_checksum_manifest,
+    _write_checksum_manifest,
 )
 
 LAYER45_CHECKSUMS_FILENAME = "_checksums_layer45.sha256"
 CANONICAL_CHECKSUMS_FILENAME = "_checksums.sha256"
-_CHECKSUM_LINE_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 
 
 def _load_jsonl(path: Path) -> List[Dict[str, Any]]:
@@ -190,86 +189,32 @@ def _resolve_classifier_version(database_dir: Path) -> str:
     return classifier_version
 
 
-def _sha256_file(path: Path) -> str:
-    sha = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            sha.update(chunk)
-    return sha.hexdigest()
-
-
-def _normalize_emitted_files(files: List[Path]) -> List[Path]:
-    normalized: List[Path] = []
-    seen: set[str] = set()
-    errors: List[str] = []
-    for raw_path in files:
-        candidate = Path(raw_path)
-        key = str(candidate)
-        if key in seen:
-            continue
-        seen.add(key)
-        if not candidate.exists():
-            errors.append(f"missing_emitted_artifact:{candidate}")
-            continue
-        if not candidate.is_file():
-            errors.append(f"non_file_emitted_artifact:{candidate}")
-            continue
-        normalized.append(candidate)
-    if errors:
-        raise FileNotFoundError("; ".join(errors))
-    return normalized
-
-
-def _relative_checksum_path(path: Path, output_dir: Path) -> str:
-    rel = os.path.relpath(path, start=output_dir).replace("\\", "/")
-    if rel in {".", ""}:
-        raise ValueError(f"cannot compute checksum path relative to output_dir: {path}")
-    return rel
-
-
-def _parse_checksum_manifest(path: Path) -> Dict[str, str]:
-    entries: Dict[str, str] = {}
-    if not path.is_file():
-        return entries
-    for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
-        stripped = line.strip()
-        if not stripped:
-            continue
-        parts = stripped.split("  ", 1)
-        if len(parts) != 2 or not _CHECKSUM_LINE_RE.match(parts[0]):
-            raise ValueError(f"malformed_checksum_line:{path.name}:L{line_no}")
-        digest, relpath = parts[0].lower(), parts[1]
-        if relpath in entries:
-            raise ValueError(f"duplicate_checksum_entry:{path.name}:{relpath}")
-        entries[relpath] = digest
-    return entries
-
-
-def _write_checksum_manifest(path: Path, entries: Dict[str, str]) -> Path:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="\n") as handle:
-        for relpath in sorted(entries):
-            handle.write(f"{entries[relpath]}  {relpath}\n")
-    return path
-
-
-def _write_layer45_checksums(files: List[Path], output_dir: Path) -> Path:
-    emitted_files = _normalize_emitted_files(files)
-    layer45_entries = {
-        _relative_checksum_path(path, output_dir): _sha256_file(path)
-        for path in emitted_files
-    }
-    checksum_path = _write_checksum_manifest(
-        output_dir / LAYER45_CHECKSUMS_FILENAME,
-        layer45_entries,
-    )
-
+def _merge_layer45_checksums_into_canonical(
+    *,
+    output_dir: Path,
+    managed_files: List[Path],
+    previous_layer45_entries: Dict[str, str],
+) -> None:
     canonical_path = output_dir / CANONICAL_CHECKSUMS_FILENAME
-    if canonical_path.is_file():
-        canonical_entries = _parse_checksum_manifest(canonical_path)
-        canonical_entries.update(layer45_entries)
-        _write_checksum_manifest(canonical_path, canonical_entries)
-    return checksum_path
+    if not canonical_path.is_file():
+        return
+
+    current_layer45_entries = _parse_checksum_manifest(
+        output_dir / LAYER45_CHECKSUMS_FILENAME
+    )
+    canonical_entries = _parse_checksum_manifest(canonical_path)
+    managed_names = {Path(path).name for path in managed_files}
+    stale_relpaths = {
+        relpath
+        for relpath in canonical_entries
+        if Path(relpath).name in managed_names
+    }
+    stale_relpaths.update(previous_layer45_entries)
+    stale_relpaths.update(current_layer45_entries)
+    for relpath in stale_relpaths:
+        canonical_entries.pop(relpath, None)
+    canonical_entries.update(current_layer45_entries)
+    _write_checksum_manifest(canonical_path, canonical_entries)
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -361,14 +306,22 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
 
     label_paths = list(write_variable_and_value_labels(out_dir))
+    checksum_inputs = (
+        list(layer4.files)
+        + list(layer5.files)
+        + label_paths
+        + [readiness_report_path]
+    )
 
     try:
-        checksum_path = _write_layer45_checksums(
-            list(layer4.files)
-            + list(layer5.files)
-            + label_paths
-            + [readiness_report_path],
-            out_dir,
+        previous_layer45_entries = _parse_checksum_manifest(
+            out_dir / LAYER45_CHECKSUMS_FILENAME
+        )
+        checksum_path = write_layer45_checksums(checksum_inputs, out_dir)
+        _merge_layer45_checksums_into_canonical(
+            output_dir=out_dir,
+            managed_files=checksum_inputs,
+            previous_layer45_entries=previous_layer45_entries,
         )
     except (FileNotFoundError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

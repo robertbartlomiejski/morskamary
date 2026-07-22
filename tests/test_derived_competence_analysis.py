@@ -22,6 +22,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -1046,7 +1047,9 @@ def test_write_layer45_checksums_covers_emitted_files(tmp_path: Path) -> None:
         current_run_id="RUN-CHKSUM",
         classifier_version="v-chksum",
     )
-    all_files = list(l4.files) + list(l5.files)
+    readiness = out / "layer_readiness_report.json"
+    readiness.write_text('{"status":"ok"}\n', encoding="utf-8")
+    all_files = list(l4.files) + list(l5.files) + list(write_variable_and_value_labels(out)) + [readiness]
     chk_path = write_layer45_checksums(all_files, out)
 
     assert chk_path == out / LAYER45_CHECKSUMS_FILENAME
@@ -1054,31 +1057,53 @@ def test_write_layer45_checksums_covers_emitted_files(tmp_path: Path) -> None:
 
     text = chk_path.read_text(encoding="utf-8")
     covered = {line.split("  ", 1)[1] for line in text.strip().splitlines()}
-
-    # Required Layer 4-5 analytical files must all be covered.
-    required = {
-        "derived_competence_demands.csv",
-        "sector_axis_gap_model.csv",
-        "credential_translation_eqf4_7.csv",
-        "learning_outcomes.csv",
-        "layer4_manifest.json",
-        "layer5_manifest.json",
+    expected = {
+        os.path.relpath(path, start=out).replace("\\", "/")
+        for path in all_files
     }
-    missing = required - covered
-    assert not missing, f"checksum file is missing coverage for: {missing}"
+    assert covered == expected
 
 
-def test_write_layer45_checksums_digest_uses_chunked_1mb_reads(tmp_path: Path) -> None:
-    """Behavioral test: digests must match a reference chunked-read computation."""
+def test_write_layer45_checksums_digest_uses_chunked_1mb_reads(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """Checksum hashing must read via repeated 1 MB chunks."""
     out = tmp_path / "db"
     out.mkdir()
-    # Write a synthetic file large enough to conceptually exercise chunking.
     test_file = out / "test_large.csv"
     test_file.write_bytes(b"header\n" + b"x" * (2 * 1024 * 1024))  # 2 MB of data
+    read_sizes: List[int] = []
+    original_open = Path.open
+
+    class _RecordingReader:
+        def __init__(self, handle) -> None:
+            self._handle = handle
+
+        def read(self, size: int = -1) -> bytes:
+            read_sizes.append(size)
+            return self._handle.read(size)
+
+        def __enter__(self):
+            self._handle.__enter__()
+            return self
+
+        def __exit__(self, exc_type, exc, tb) -> None:
+            self._handle.__exit__(exc_type, exc, tb)
+
+        def __getattr__(self, name: str):
+            return getattr(self._handle, name)
+
+    def _patched_open(path_obj: Path, *args, **kwargs):
+        handle = original_open(path_obj, *args, **kwargs)
+        if path_obj == test_file and args and args[0] == "rb":
+            return _RecordingReader(handle)
+        return handle
+
+    monkeypatch.setattr(Path, "open", _patched_open)
 
     chk_path = write_layer45_checksums([test_file], out)
 
-    # Compute the reference digest using explicit 1 MB chunked reads.
     sha = hashlib.sha256()
     with test_file.open("rb") as fh:
         for chunk in iter(lambda: fh.read(1024 * 1024), b""):
@@ -1088,10 +1113,21 @@ def test_write_layer45_checksums_digest_uses_chunked_1mb_reads(tmp_path: Path) -
     text = chk_path.read_text(encoding="utf-8").strip()
     assert text != "", "checksum file must not be empty"
     recorded_digest = text.split("  ", 1)[0]
-    assert recorded_digest == expected_digest, (
-        "write_layer45_checksums must use 1 MB chunked reads; "
-        f"recorded={recorded_digest!r}, expected={expected_digest!r}"
-    )
+    assert recorded_digest == expected_digest
+    assert len(read_sizes) >= 3
+    assert set(read_sizes) == {1024 * 1024}
+
+
+def test_write_layer45_checksums_fails_for_missing_requested_artifact(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "db"
+    out.mkdir()
+    missing = out / "missing.csv"
+
+    import pytest
+    with pytest.raises(FileNotFoundError, match="missing_emitted_artifact"):
+        write_layer45_checksums([missing], out)
 
 
 def test_write_layer45_checksums_format_is_sha256sum_compatible(tmp_path: Path) -> None:
