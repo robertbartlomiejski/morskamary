@@ -30,6 +30,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .vscode/settings.json,other,,,,,,settings,yes
 .vscode/tasks.json,other,,,,,,tasks,yes
 .vscode/test_launch.json,other,,,,,,test_launch,yes
+AGENTS.md,text,,,,,,AGENTS,yes
 branch_reconciliation_2026-04-30.md,text,,,,,,branch_reconciliation_2026_04_30,yes
 CHANGELOG.txt,governance,,,,,,CHANGELOG,yes
 CITATION.txt,governance,,,,,,CITATION,yes
@@ -1171,6 +1172,7 @@ tests/test_export_research_records_workflow.py,script,,,,,,test_export_research_
 tests/test_full_live_analysis_workflow.py,script,,,,,,test_full_live_analysis_workflow,yes
 tests/test_gap_model.py,script,,,,,,test_gap_model,yes
 tests/test_generate_manifest.py,script,,,,,,test_generate_manifest,yes
+tests/test_governance_task_contract.py,script,,,,,,test_governance_task_contract,yes
 tests/test_ingest_manual_supporting_sources.py,script,,,,,,test_ingest_manual_supporting_sources,yes
 tests/test_literature_extraction.py,script,,,,,,test_literature_extraction,yes
 tests/test_live_cumulative_release_package.py,script,,,,,,test_live_cumulative_release_package,yes
