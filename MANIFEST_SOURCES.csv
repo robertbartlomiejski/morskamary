@@ -1162,6 +1162,7 @@ tests/test_cumulative_triangulator.py,script,,,,,,test_cumulative_triangulator,y
 tests/test_cumulative_triangulator_dynamic_priority.py,script,,,,,,test_cumulative_triangulator_dynamic_pri,yes
 tests/test_derived_competence_analysis.py,script,,,,,,test_derived_competence_analysis,yes
 tests/test_dynamic_credentials_generation.py,script,,,,,,test_dynamic_credentials_generation,yes
+tests/test_e2e_checksum_pipeline.py,script,,,,,,test_e2e_checksum_pipeline,yes
 tests/test_e2e_workflows.py,script,,,,,,test_e2e_workflows,yes
 tests/test_edge_cases.py,script,,,,,,test_edge_cases,yes
 tests/test_export_live_query_protocol_projection.py,script,,,,,,test_export_live_query_protocol_projecti,yes

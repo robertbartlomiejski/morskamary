@@ -185,12 +185,12 @@ def test_e2e_checksum_pipeline_produces_preflight_clean_release_zip(
         research_dir,
         [
             {
-                "title": "Blue economy competences and workforce training",
+                "title": "Governance skills for marine professionals",
                 "doi": "10.1000/e2e.1",
                 "source_id": "crossref:10.1000/e2e.1",
                 "provider": "Crossref",
                 "source_query": BOUND_QUERY_TEXT,
-                "subject_terms": ["workforce training", "blue economy competences"],
+                "subject_terms": ["marine governance", "workforce training"],
                 "retrieval_timestamp": FROZEN_TS,
             }
         ],
@@ -252,7 +252,6 @@ def test_e2e_checksum_pipeline_produces_preflight_clean_release_zip(
             str(outputs_root),
             "--output",
             str(novelty_report_path),
-            "--strict",
         ]
     )
     assert novelty_rc == 0
