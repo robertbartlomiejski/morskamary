@@ -4,6 +4,8 @@ import hashlib
 import importlib.util
 from pathlib import Path
 
+import pytest
+
 from src.scientific_sources.derived_competence_analysis import (
     write_layer45_checksums,
 )
@@ -76,3 +78,41 @@ def test_canonical_checksum_merge_removes_stale_layer45_entries(tmp_path: Path) 
     assert canonical_entries["../layer4_statistics/qmbd_cross_tables.csv"] == hashlib.sha256(
         new_stat.read_bytes()
     ).hexdigest()
+
+
+def test_write_layer45_checksums_excludes_checksum_manifests_from_inputs(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "db"
+    out.mkdir()
+
+    payload = out / "derived_competence_demands.csv"
+    payload.write_text("competence_demand_id\nD-1\n", encoding="utf-8")
+    layer45_manifest = out / LAYER45_CHECKSUMS_FILENAME
+    layer45_manifest.write_text("stale\n", encoding="utf-8")
+    canonical_manifest = out / "_checksums.sha256"
+    canonical_manifest.write_text("stale\n", encoding="utf-8")
+
+    write_layer45_checksums(
+        [payload, layer45_manifest, canonical_manifest],
+        out,
+    )
+
+    entries = _parse_checksum_manifest(layer45_manifest)
+    assert entries == {
+        "derived_competence_demands.csv": hashlib.sha256(
+            payload.read_bytes()
+        ).hexdigest()
+    }
+    assert LAYER45_CHECKSUMS_FILENAME not in entries
+    assert "_checksums.sha256" not in entries
+
+
+def test_write_layer45_checksums_rejects_non_file_inputs(tmp_path: Path) -> None:
+    out = tmp_path / "db"
+    out.mkdir()
+    non_file = out / "layer4_statistics"
+    non_file.mkdir()
+
+    with pytest.raises(FileNotFoundError, match="non_file_emitted_artifact"):
+        write_layer45_checksums([non_file], out)
