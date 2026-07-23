@@ -32,6 +32,7 @@ import csv
 import hashlib
 import json
 import math
+import os
 import re
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
@@ -66,6 +67,9 @@ VARIABLE_LABELS_CSV = "VARIABLE_LABELS.csv"
 VALUE_LABELS_CSV = "VALUE_LABELS.csv"
 LAYER4_MANIFEST = "layer4_manifest.json"
 LAYER5_MANIFEST = "layer5_manifest.json"
+LAYER45_CHECKSUMS_FILENAME = "_checksums_layer45.sha256"
+CANONICAL_CHECKSUMS_FILENAME = "_checksums.sha256"
+_CHECKSUM_LINE_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 
 LAYER4_STATS_DIR = "layer4_statistics"
 QMBD_CROSS_TABLES_CSV = "qmbd_cross_tables.csv"
@@ -490,6 +494,7 @@ def build_layer4(
     current_run_id: str = "",
     stats_dir: Optional[Union[str, Path]] = None,
     analysis_timestamp_utc: Optional[str] = None,
+    classifier_version: str = "",
 ) -> Layer4Result:
     """Build Layer 4 with an explicit reproducible analysis timestamp."""
     out = Path(output_dir)
@@ -715,6 +720,7 @@ def build_layer4(
     ))
     manifest = {
         "schema_version": LAYER4_SCHEMA_VERSION,
+        "classifier_version": classifier_version,
         "built_at_utc": analysis_timestamp_utc or _utc_now_iso(),
         "analysis_timestamp_utc": analysis_timestamp_utc or "",
         "current_run_id": current_run_id,
@@ -757,6 +763,7 @@ def build_layer5(
     output_dir: Union[str, Path],
     current_run_id: str = "",
     built_at_utc: Optional[str] = None,
+    classifier_version: str = "",
 ) -> Layer5Result:
     """Build the Layer 5 gap model, credential translation, and outcomes."""
     out = Path(output_dir)
@@ -895,6 +902,7 @@ def build_layer5(
     ))
     manifest = {
         "schema_version": LAYER5_SCHEMA_VERSION,
+        "classifier_version": classifier_version,
         "built_at_utc": built_at_utc or _utc_now_iso(),
         "current_run_id": current_run_id,
         "validated_supply_map_provided": validated_credential_supply is not None,
@@ -985,12 +993,110 @@ def write_variable_and_value_labels(output_dir: Union[str, Path]) -> Tuple[Path,
     return var_path, val_path
 
 
+def write_layer45_checksums(
+    files: Sequence[Path],
+    output_dir: Union[str, Path],
+) -> Path:
+    """Write ``_checksums_layer45.sha256`` for every Layer 4-5 emitted file.
+
+    Uses deterministic 1 MB chunked reads so large files are hashed without
+    loading them fully into memory.  The output is a sorted, newline-terminated
+    file in the same ``<sha256>  <relpath>`` format used by the Layer 2-3
+    ``_checksums.sha256``.
+
+    Returns the path to the written checksum file.
+    """
+    out = Path(output_dir)
+    checksum_path = out / LAYER45_CHECKSUMS_FILENAME
+    entries = _build_checksum_entries(
+        files,
+        output_dir=out,
+        excluded_paths=(checksum_path, out / CANONICAL_CHECKSUMS_FILENAME),
+    )
+    return _write_checksum_manifest(checksum_path, entries)
+
+
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
+def _build_checksum_entries(
+    files: Sequence[Path],
+    output_dir: Union[str, Path],
+    *,
+    excluded_paths: Sequence[Path] = (),
+) -> Dict[str, str]:
+    out = Path(output_dir)
+    excluded = {Path(path).resolve(strict=False) for path in excluded_paths}
+    entries: Dict[str, str] = {}
+    missing_errors: List[str] = []
+    validation_errors: List[str] = []
+    seen_paths: Set[Path] = set()
+
+    for raw_path in files:
+        file_path = Path(raw_path)
+        resolved_path = file_path.resolve(strict=False)
+        if resolved_path in excluded or resolved_path in seen_paths:
+            continue
+        seen_paths.add(resolved_path)
+        if not file_path.exists():
+            missing_errors.append(f"missing_emitted_artifact:{file_path}")
+            continue
+        if not file_path.is_file():
+            missing_errors.append(f"non_file_emitted_artifact:{file_path}")
+            continue
+        relpath = os.path.relpath(file_path, start=out).replace("\\", "/")
+        if relpath in {"", "."}:
+            validation_errors.append(f"invalid_checksum_relpath:{file_path}")
+            continue
+        if relpath in entries:
+            validation_errors.append(f"duplicate_checksum_entry:{relpath}")
+            continue
+        entries[relpath] = _sha256_file(file_path)
+
+    if missing_errors:
+        raise FileNotFoundError("; ".join(missing_errors))
+    if validation_errors:
+        raise ValueError("; ".join(validation_errors))
+    return dict(sorted(entries.items()))
+
+
+def _parse_checksum_manifest(path: Path) -> Dict[str, str]:
+    entries: Dict[str, str] = {}
+    if not path.is_file():
+        return entries
+    for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        parts = stripped.split("  ", 1)
+        if len(parts) != 2 or not _CHECKSUM_LINE_RE.match(parts[0]):
+            raise ValueError(f"malformed_checksum_line:{path.name}:L{line_no}")
+        digest, relpath = parts[0].lower(), parts[1]
+        if relpath in entries:
+            raise ValueError(f"duplicate_checksum_entry:{path.name}:{relpath}")
+        entries[relpath] = digest
+    return entries
+
+
+def _write_checksum_manifest(path: Path, entries: Mapping[str, str]) -> Path:
+    with path.open("w", encoding="utf-8", newline="\n") as fh:
+        for relpath in sorted(entries):
+            fh.write(f"{entries[relpath]}  {relpath}\n")
+    return path
+
+
+def _sha256_file(path: Path) -> str:
+    """Deterministic chunked SHA-256 of a file (1 MB reads)."""
+    sha = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+            sha.update(chunk)
+    return sha.hexdigest()
 
 
 def _write_json(path: Path, obj: Any) -> Path:

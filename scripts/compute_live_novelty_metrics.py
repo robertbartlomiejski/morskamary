@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import re
 import sys
@@ -396,6 +397,32 @@ def _detect_static_baseline_leak(current_run_dir: Path) -> bool:
     return False
 
 
+def _refresh_checksum_entry_for_output(output_path: Path) -> None:
+    checksum_path = output_path.parent / "_checksums.sha256"
+    if not checksum_path.is_file():
+        return
+
+    entries: Dict[str, str] = {}
+    hex64 = re.compile(r"^[0-9a-fA-F]{64}$")
+    for line_no, line in enumerate(checksum_path.read_text(encoding="utf-8").splitlines(), start=1):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        parts = stripped.split("  ", 1)
+        if len(parts) != 2 or not hex64.match(parts[0]):
+            raise ValueError(f"malformed_checksum_line:{checksum_path.name}:L{line_no}")
+        digest, relpath = parts[0].lower(), parts[1]
+        if relpath in entries:
+            raise ValueError(f"duplicate_checksum_entry:{checksum_path.name}:{relpath}")
+        entries[relpath] = digest
+
+    relpath = output_path.name
+    entries[relpath] = hashlib.sha256(output_path.read_bytes()).hexdigest()
+    with checksum_path.open("w", encoding="utf-8", newline="\n") as handle:
+        for name in sorted(entries):
+            handle.write(f"{entries[name]}  {name}\n")
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--metrics",
@@ -450,6 +477,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         json.dumps(report, sort_keys=True, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    _refresh_checksum_entry_for_output(out_path)
     print(json.dumps({"overall_status": report["overall_status"]}, sort_keys=True))
     if report["overall_status"] == "fail":
         return 1

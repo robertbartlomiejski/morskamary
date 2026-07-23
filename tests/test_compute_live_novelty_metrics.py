@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 from typing import Any, Dict
@@ -435,6 +436,48 @@ def test_cli_gate_d_failure_exits_nonzero_without_strict(tmp_path: Path) -> None
     report = json.loads(report_path.read_text(encoding="utf-8"))
     gate_d = next(g for g in report["gates"] if g["gate_id"] == "D")
     assert gate_d["status"] == "fail"
+
+
+def test_cli_refreshes_canonical_checksum_for_novelty_report(tmp_path: Path) -> None:
+    metrics_path = tmp_path / "metrics.json"
+    metrics_path.write_text(json.dumps(_base_metrics()), encoding="utf-8")
+    database_dir = tmp_path / "db"
+    database_dir.mkdir()
+    checksum_path = database_dir / "_checksums.sha256"
+    checksum_path.write_text(
+        "\n".join(
+            [
+                "a" * 64 + "  evidence_records.csv",
+                "b" * 64 + "  novelty_gate_report.json",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    report_path = database_dir / "novelty_gate_report.json"
+
+    exit_code = main(
+        [
+            "--metrics",
+            str(metrics_path),
+            "--provider-health",
+            str(tmp_path / "missing-provider-health.json"),
+            "--current-run",
+            str(tmp_path / "outputs"),
+            "--output",
+            str(report_path),
+        ]
+    )
+
+    assert exit_code == 0
+    entries = {}
+    for line in checksum_path.read_text(encoding="utf-8").splitlines():
+        digest, relpath = line.split("  ", 1)
+        entries[relpath] = digest
+    assert entries["evidence_records.csv"] == "a" * 64
+    assert entries["novelty_gate_report.json"] == hashlib.sha256(
+        report_path.read_bytes()
+    ).hexdigest()
 
 
 def test_cli_gate_b_consecutive_zero_failure_exits_nonzero_without_strict(

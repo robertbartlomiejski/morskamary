@@ -5,10 +5,10 @@ the Layer 2-3 cumulative scientific database.
 
 CLI::
 
-    python scripts/build_layer4_5_scientific_analysis.py \\
-      --database-dir outputs/cumulative_database \\
-      --output-dir outputs/cumulative_database \\
-      --stats-dir outputs/layer4_statistics \\
+    python scripts/build_layer4_5_scientific_analysis.py \
+      --database-dir outputs/cumulative_database \
+      --output-dir outputs/cumulative_database \
+      --stats-dir outputs/layer4_statistics \
       --current-run-id RUN-XYZ
 
 Reads:
@@ -25,6 +25,7 @@ Writes:
     <output-dir>/layer4_manifest.json
     <output-dir>/layer5_manifest.json
     <output-dir>/layer_readiness_report.json
+    <output-dir>/_checksums_layer45.sha256
     <stats-dir>/qmbd_cross_tables.csv
     <stats-dir>/sector_gap_matrices.json
     <stats-dir>/multivariate_induction_results.json
@@ -47,8 +48,14 @@ from src.scientific_sources.derived_competence_analysis import (  # noqa: E402
     build_layer4,
     build_layer5,
     build_layer_readiness_report,
+    write_layer45_checksums,
     write_variable_and_value_labels,
+    _parse_checksum_manifest,
+    _write_checksum_manifest,
 )
+
+LAYER45_CHECKSUMS_FILENAME = "_checksums_layer45.sha256"
+CANONICAL_CHECKSUMS_FILENAME = "_checksums.sha256"
 
 
 def _load_jsonl(path: Path) -> List[Dict[str, Any]]:
@@ -134,6 +141,82 @@ def _load_validated_supply_map(
     return validated
 
 
+def _resolve_classifier_version(database_dir: Path) -> str:
+    """Resolve authoritative classifier provenance for Layer 4-5 manifests.
+
+    The upstream cumulative database manifest is authoritative when it exists.
+    Only an absent manifest permits fallback to the module-level classifier
+    constant used by isolated tests.
+    """
+    upstream_manifest_path = database_dir / "cumulative_database_manifest.json"
+    if not upstream_manifest_path.exists():
+        from src.scientific_sources.cumulative_scientific_database import (  # noqa: E402
+            CLASSIFIER_VERSION as _CLASSIFIER_VERSION,
+        )
+
+        return _CLASSIFIER_VERSION
+
+    try:
+        upstream_manifest = json.loads(
+            upstream_manifest_path.read_text(encoding="utf-8")
+        )
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(
+            "cumulative_database_manifest.json exists but is unreadable or malformed; "
+            "refusing to stamp Layer 4-5 with guessed classifier provenance"
+        ) from exc
+
+    if not isinstance(upstream_manifest, dict):
+        raise ValueError(
+            "cumulative_database_manifest.json must be a JSON object when present"
+        )
+    if "classifier_version" not in upstream_manifest:
+        raise ValueError(
+            "cumulative_database_manifest.json exists but classifier_version is missing"
+        )
+
+    classifier_version = upstream_manifest.get("classifier_version")
+    if not isinstance(classifier_version, str):
+        raise ValueError(
+            "cumulative_database_manifest.json classifier_version must be a string"
+        )
+
+    classifier_version = classifier_version.strip()
+    if not classifier_version:
+        raise ValueError(
+            "cumulative_database_manifest.json classifier_version must be non-empty"
+        )
+    return classifier_version
+
+
+def _merge_layer45_checksums_into_canonical(
+    *,
+    output_dir: Path,
+    managed_files: List[Path],
+    previous_layer45_entries: Dict[str, str],
+) -> None:
+    canonical_path = output_dir / CANONICAL_CHECKSUMS_FILENAME
+    if not canonical_path.is_file():
+        return
+
+    current_layer45_entries = _parse_checksum_manifest(
+        output_dir / LAYER45_CHECKSUMS_FILENAME
+    )
+    canonical_entries = _parse_checksum_manifest(canonical_path)
+    managed_names = {Path(path).name for path in managed_files}
+    stale_relpaths = {
+        relpath
+        for relpath in canonical_entries
+        if Path(relpath).name in managed_names
+    }
+    stale_relpaths.update(previous_layer45_entries)
+    stale_relpaths.update(current_layer45_entries)
+    for relpath in stale_relpaths:
+        canonical_entries.pop(relpath, None)
+    canonical_entries.update(current_layer45_entries)
+    _write_checksum_manifest(canonical_path, canonical_entries)
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--database-dir",
@@ -170,14 +253,21 @@ def main(argv: Optional[List[str]] = None) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     stats_dir.mkdir(parents=True, exist_ok=True)
 
+    try:
+        classifier_version = _resolve_classifier_version(db_dir)
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
+
     evidence = _load_jsonl(db_dir / "evidence_records.jsonl")
     signals = _load_jsonl(db_dir / "competence_demand_signals.jsonl")
 
     # Layer readiness audit written first — captures the state before build.
+    readiness_report_path = out_dir / "layer_readiness_report.json"
     build_layer_readiness_report(
         repository_root=args.repository_root,
         outputs_root=args.outputs_root,
-        output_path=out_dir / "layer_readiness_report.json",
+        output_path=readiness_report_path,
     )
 
     if not evidence:
@@ -193,6 +283,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         current_run_id=args.current_run_id,
         stats_dir=stats_dir,
         analysis_timestamp_utc=args.analysis_timestamp_utc,
+        classifier_version=classifier_version,
     )
 
     baseline_map = _load_static_baseline_by_sector(
@@ -211,9 +302,30 @@ def main(argv: Optional[List[str]] = None) -> int:
         output_dir=out_dir,
         current_run_id=args.current_run_id,
         built_at_utc=args.analysis_timestamp_utc,
+        classifier_version=classifier_version,
     )
 
-    write_variable_and_value_labels(out_dir)
+    label_paths = list(write_variable_and_value_labels(out_dir))
+    checksum_inputs = (
+        list(layer4.files)
+        + list(layer5.files)
+        + label_paths
+        + [readiness_report_path]
+    )
+
+    try:
+        previous_layer45_entries = _parse_checksum_manifest(
+            out_dir / LAYER45_CHECKSUMS_FILENAME
+        )
+        checksum_path = write_layer45_checksums(checksum_inputs, out_dir)
+        _merge_layer45_checksums_into_canonical(
+            output_dir=out_dir,
+            managed_files=checksum_inputs,
+            previous_layer45_entries=previous_layer45_entries,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
 
     summary = {
         "derived_demand_count": len(layer4.derived_demands),
@@ -224,6 +336,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         "indices": layer4.indices,
         "analysis_timestamp_utc": args.analysis_timestamp_utc or "",
         "validated_supply_map_provided": validated_supply is not None,
+        "classifier_version": classifier_version,
+        "layer45_checksums": str(checksum_path),
     }
     print(json.dumps(summary, sort_keys=True))
     return 0

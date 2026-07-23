@@ -1145,6 +1145,7 @@ tests/test_axis_classifier.py,script,,,,,,test_axis_classifier,yes
 tests/test_bootstrap_ps1_syntax.py,script,,,,,,test_bootstrap_ps1_syntax,yes
 tests/test_build_cross_run_evidence_index.py,script,,,,,,test_build_cross_run_evidence_index,yes
 tests/test_build_derived.py,script,,,,,,test_build_derived,yes
+tests/test_build_layer4_5_scientific_analysis.py,script,,,,,,test_build_layer4_5_scientific_analysis,yes
 tests/test_build_tmbd_dictionary.py,script,,,,,,test_build_tmbd_dictionary,yes
 tests/test_build_versioned_research_data_package.py,script,,,,,,test_build_versioned_research_data_packa,yes
 tests/test_changelog_guard.py,script,,,,,,test_changelog_guard,yes
@@ -1162,6 +1163,7 @@ tests/test_cumulative_triangulator.py,script,,,,,,test_cumulative_triangulator,y
 tests/test_cumulative_triangulator_dynamic_priority.py,script,,,,,,test_cumulative_triangulator_dynamic_pri,yes
 tests/test_derived_competence_analysis.py,script,,,,,,test_derived_competence_analysis,yes
 tests/test_dynamic_credentials_generation.py,script,,,,,,test_dynamic_credentials_generation,yes
+tests/test_e2e_checksum_pipeline.py,script,,,,,,test_e2e_checksum_pipeline,yes
 tests/test_e2e_workflows.py,script,,,,,,test_e2e_workflows,yes
 tests/test_edge_cases.py,script,,,,,,test_edge_cases,yes
 tests/test_export_live_query_protocol_projection.py,script,,,,,,test_export_live_query_protocol_projecti,yes

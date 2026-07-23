@@ -12,11 +12,17 @@ Covers:
 * Hypothesis testing returns interpretation strings from the allowed set
   even when sample is too small (``not_computable``).
 * VARIABLE_LABELS.csv / VALUE_LABELS.csv are written and non-empty.
+* layer4_manifest.json and layer5_manifest.json include classifier_version.
+* _checksums_layer45.sha256 covers all Layer 4-5 emitted files.
+* Hashing uses 1 MB chunked reads.
 """
 
 from __future__ import annotations
 
 import csv
+import hashlib
+import json
+import os
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -24,8 +30,10 @@ from src.scientific_sources.derived_competence_analysis import (
     ALLOWED_DEMAND_STATUS,
     DERIVED_DEMAND_COLUMNS,
     GROWTH_ELIGIBLE_STATUSES,
+    LAYER45_CHECKSUMS_FILENAME,
     build_layer4,
     build_layer5,
+    write_layer45_checksums,
     write_variable_and_value_labels,
 )
 
@@ -943,3 +951,199 @@ def test_h3_uses_matched_fragments_and_evidence_level_bridges(tmp_path: Path) ->
     assert h3["oceanic_fragment_count"] == 1
     assert h3["semantic_bridge_count"] == 1
     assert h3["interpretation"] in {"supported", "partially_supported"}
+
+
+# ---------------------------------------------------------------------------
+# Provenance / governance tests (Layer 4-5 manifest and checksum fixes)
+# ---------------------------------------------------------------------------
+
+
+def test_layer4_manifest_includes_classifier_version(tmp_path: Path) -> None:
+    """layer4_manifest.json must include classifier_version."""
+    out = tmp_path / "db"
+    out.mkdir()
+    build_layer4(
+        evidence_records=[_mk_evidence(1, doi="10.1000/a", provider="crossref", year=2024)],
+        competence_signals=[_mk_signal(1)],
+        output_dir=out,
+        current_run_id="RUN-PROV",
+        classifier_version="test-classifier-v1",
+    )
+    manifest = json.loads((out / "layer4_manifest.json").read_text(encoding="utf-8"))
+    assert "classifier_version" in manifest, "layer4_manifest.json must include classifier_version"
+    assert manifest["classifier_version"] == "test-classifier-v1"
+
+
+def test_layer4_manifest_classifier_version_defaults_to_empty_string(tmp_path: Path) -> None:
+    """classifier_version defaults to empty string when not supplied."""
+    out = tmp_path / "db"
+    out.mkdir()
+    build_layer4(
+        evidence_records=[],
+        competence_signals=[],
+        output_dir=out,
+        current_run_id="RUN-EMPTY",
+    )
+    manifest = json.loads((out / "layer4_manifest.json").read_text(encoding="utf-8"))
+    assert "classifier_version" in manifest
+    assert manifest["classifier_version"] == ""
+
+
+def test_layer5_manifest_includes_classifier_version(tmp_path: Path) -> None:
+    """layer5_manifest.json must include classifier_version."""
+    out = tmp_path / "db"
+    out.mkdir()
+    l4 = build_layer4(
+        evidence_records=[_mk_evidence(1, doi="10.1000/a", provider="crossref", year=2024)],
+        competence_signals=[_mk_signal(1)],
+        output_dir=out,
+        current_run_id="RUN-PROV",
+        classifier_version="test-classifier-v2",
+    )
+    build_layer5(
+        derived_demands=l4.derived_demands,
+        evidence_records=[],
+        output_dir=out,
+        current_run_id="RUN-PROV",
+        classifier_version="test-classifier-v2",
+    )
+    manifest = json.loads((out / "layer5_manifest.json").read_text(encoding="utf-8"))
+    assert "classifier_version" in manifest, "layer5_manifest.json must include classifier_version"
+    assert manifest["classifier_version"] == "test-classifier-v2"
+
+
+def test_layer5_manifest_classifier_version_defaults_to_empty_string(tmp_path: Path) -> None:
+    """classifier_version defaults to empty string when not supplied."""
+    out = tmp_path / "db"
+    out.mkdir()
+    build_layer5(
+        derived_demands=[],
+        evidence_records=[],
+        output_dir=out,
+        current_run_id="RUN-EMPTY",
+    )
+    manifest = json.loads((out / "layer5_manifest.json").read_text(encoding="utf-8"))
+    assert "classifier_version" in manifest
+    assert manifest["classifier_version"] == ""
+
+
+def test_write_layer45_checksums_covers_emitted_files(tmp_path: Path) -> None:
+    """_checksums_layer45.sha256 must cover all Layer 4-5 emitted files."""
+    out = tmp_path / "db"
+    out.mkdir()
+    evidence = [_mk_evidence(1, doi="10.1000/a", provider="crossref", year=2024)]
+    signals = [_mk_signal(1)]
+    l4 = build_layer4(
+        evidence_records=evidence,
+        competence_signals=signals,
+        output_dir=out,
+        current_run_id="RUN-CHKSUM",
+        classifier_version="v-chksum",
+    )
+    l5 = build_layer5(
+        derived_demands=l4.derived_demands,
+        evidence_records=evidence,
+        output_dir=out,
+        current_run_id="RUN-CHKSUM",
+        classifier_version="v-chksum",
+    )
+    readiness = out / "layer_readiness_report.json"
+    readiness.write_text('{"status":"ok"}\n', encoding="utf-8")
+    all_files = list(l4.files) + list(l5.files) + list(write_variable_and_value_labels(out)) + [readiness]
+    chk_path = write_layer45_checksums(all_files, out)
+
+    assert chk_path == out / LAYER45_CHECKSUMS_FILENAME
+    assert chk_path.exists()
+
+    text = chk_path.read_text(encoding="utf-8")
+    covered = {line.split("  ", 1)[1] for line in text.strip().splitlines()}
+    expected = {
+        os.path.relpath(path, start=out).replace("\\", "/")
+        for path in all_files
+    }
+    assert covered == expected
+
+
+def test_write_layer45_checksums_digest_uses_chunked_1mb_reads(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """Checksum hashing must read via repeated 1 MB chunks."""
+    out = tmp_path / "db"
+    out.mkdir()
+    test_file = out / "test_large.csv"
+    test_file.write_bytes(b"header\n" + b"x" * (2 * 1024 * 1024))  # 2 MB of data
+    read_sizes: List[int] = []
+    original_open = Path.open
+
+    class _RecordingReader:
+        def __init__(self, handle) -> None:
+            self._handle = handle
+
+        def read(self, size: int = -1) -> bytes:
+            read_sizes.append(size)
+            return self._handle.read(size)
+
+        def __enter__(self):
+            self._handle.__enter__()
+            return self
+
+        def __exit__(self, exc_type, exc, tb) -> None:
+            self._handle.__exit__(exc_type, exc, tb)
+
+        def __getattr__(self, name: str):
+            return getattr(self._handle, name)
+
+    def _patched_open(path_obj: Path, *args, **kwargs):
+        handle = original_open(path_obj, *args, **kwargs)
+        if path_obj == test_file and args and args[0] == "rb":
+            return _RecordingReader(handle)
+        return handle
+
+    monkeypatch.setattr(Path, "open", _patched_open)
+
+    chk_path = write_layer45_checksums([test_file], out)
+
+    sha = hashlib.sha256()
+    with test_file.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+            sha.update(chunk)
+    expected_digest = sha.hexdigest()
+
+    text = chk_path.read_text(encoding="utf-8").strip()
+    assert text != "", "checksum file must not be empty"
+    recorded_digest = text.split("  ", 1)[0]
+    assert recorded_digest == expected_digest
+    assert len(read_sizes) >= 3
+    assert set(read_sizes) == {1024 * 1024}
+
+
+def test_write_layer45_checksums_fails_for_missing_requested_artifact(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "db"
+    out.mkdir()
+    missing = out / "missing.csv"
+
+    import pytest
+    with pytest.raises(FileNotFoundError, match="missing_emitted_artifact"):
+        write_layer45_checksums([missing], out)
+
+
+def test_write_layer45_checksums_format_is_sha256sum_compatible(tmp_path: Path) -> None:
+    """Each line must be exactly '<64-hex>  <relpath>' (sha256sum -c compatible)."""
+    import re
+    out = tmp_path / "db"
+    out.mkdir()
+    f1 = out / "file_a.csv"
+    f2 = out / "file_b.json"
+    f1.write_text("a,b\n1,2\n", encoding="utf-8")
+    f2.write_text('{"k": "v"}\n', encoding="utf-8")
+
+    chk_path = write_layer45_checksums([f1, f2], out)
+    hex64 = re.compile(r"^[0-9a-f]{64}$")
+    for line in chk_path.read_text(encoding="utf-8").strip().splitlines():
+        parts = line.split("  ", 1)
+        assert len(parts) == 2, f"malformed checksum line: {line!r}"
+        assert hex64.match(parts[0]), f"digest is not 64 hex chars: {parts[0]!r}"
+        assert (out / parts[1]).is_file(), f"checksum references non-existent file: {parts[1]!r}"
