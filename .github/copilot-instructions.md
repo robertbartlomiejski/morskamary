@@ -69,7 +69,9 @@ Report provider failure, throttling, invalid credentials and zero contribution s
 
 ## Agent work discipline
 
-Use one canonical branch and one PR per coherent objective. Before editing, reconcile the current base SHA, open PRs and overlapping paths. Do not start a parallel implementation of active PR work. State objective, source basis, axis logic, expected artifact, acceptance criteria and validation commands in the PR.
+Start every task by reading `.github/copilot-instructions.md`, `docs/AGENT_WORKING_AGREEMENT.md`, `config/live_query_protocol.yml`, the nearest `AGENTS.md`, and applicable `.github/instructions/*.instructions.md`.
+
+Use one canonical branch and one PR per coherent objective. Before editing, reconcile the current base SHA, open PRs and overlapping paths. Record the current branch/base SHA, objective, paths in scope, authoritative scientific/configuration source, acceptance criteria, and validation commands before proceeding. Do not start a parallel implementation of active PR work. State objective, source basis, axis logic, expected artifact, acceptance criteria and validation commands in the PR.
 
 Minimum validation for code changes:
 
@@ -82,3 +84,7 @@ python scripts/validate_run_archive_integrity.py --archive-root outputs/run_arch
 ```
 
 Run only the subset relevant to documentation/configuration-only changes, and report exactly what was and was not executed.
+
+Never print `.env` contents. Secret checks may report only present, absent, invalid, rate-limited or configured. Do not merge, resolve substantive review threads, rotate/delete secrets, publish releases, run costly proprietary API operations, or enable automatic commits without explicit maintainer approval.
+
+A fix is incomplete until a negative regression test demonstrates the previous failure, the relevant integration path is exercised, generated artifacts/manifests/checksums remain complete, and the PR description reports exactly what was and was not validated.

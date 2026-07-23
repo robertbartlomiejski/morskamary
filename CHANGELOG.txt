@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-23 (governance: codify task-start contract for agents and PRs)
+  Change type update add
+  Scope governance docs tests
+  Files affected AGENTS.md .github/copilot-instructions.md .github/PULL_REQUEST_TEMPLATE.md docs/AGENT_WORKING_AGREEMENT.md tests/test_governance_task_contract.py CHANGELOG.txt MANIFEST_SOURCES.csv
+  Summary Added a root AGENTS.md task contract, expanded the shared working agreement and Copilot instructions with mandatory pre-edit/task-start declarations, and updated the PR template to require branch/base SHA, overlap review, scope, acceptance criteria, validation commands, regression coverage, and exact validation reporting. Added focused tests to prevent these governance requirements from silently regressing.
+  Reason The repository already carried most scientific and security guardrails, but the required task-start declaration and PR reporting fields were not enforced from a nearest AGENTS.md entry point or the PR template used by contributors.
+  Impact Future contributions now have a repo-local AGENTS entry point and stronger PR/governance prompts, reducing the chance of undocumented overlap, incomplete validation reporting, or silent regression of the required start-of-task workflow.
+  Provenance Problem statement dated 2026-07-23; `.github/copilot-instructions.md`; `docs/AGENT_WORKING_AGREEMENT.md`; `config/live_query_protocol.yml`; `.github/instructions/data-pipeline.instructions.md`.
+  Quality checks python scripts/generate_manifest.py (passed); python -m pytest tests/test_governance_task_contract.py tests/test_generate_manifest.py tests/test_changelog_guard.py -q (56 passed); python scripts/sync_audit.py (passed); python scripts/sync_audit.py --strict (expected failure: uncommitted working tree warning)
+
 - 2026-07-22 (fix: unblock full-live provider acquisition and strict gate semantics)
   Change type fix
   Scope scripts src tests governance
