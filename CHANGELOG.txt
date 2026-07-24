@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-23 (docs: codify operator closure checklist for issue #198 and PR #208)
+  Change type update
+  Scope governance docs
+  Files affected docs/COPILOT_CLOUD_AGENT_SETUP.md CHANGELOG.txt
+  Summary Updated the Copilot cloud-agent setup guide to reflect the current live-workflow state already present on `main` and added an exact operator checklist for advancing PR #208, confirming protected `live-research`/CodeQL/ruleset settings, running the controlled two-run live validation, and deciding when issue #198 may be closed.
+  Reason The repository already contains the previously reported code-side fixes, but the remaining work is a precise operator-side audit and closure procedure spanning GitHub settings, required check names, and controlled live-validation steps.
+  Impact Maintainers now have a repository-tracked runbook for the manual GitHub operations that remain after the workflow and Gate A fixes landed, reducing ambiguity about what still blocks PR #208 advancement and issue #198 closure.
+  Provenance `/home/runner/work/morskamary/morskamary/.github/workflows/full-live-analysis.yml`; `/home/runner/work/morskamary/morskamary/.github/workflows/export-research-records.yml`; `/home/runner/work/morskamary/morskamary/.github/workflows/research-api-smoke.yml`; `/home/runner/work/morskamary/morskamary/.github/workflows/codeql.yml`; `/home/runner/work/morskamary/morskamary/.github/workflows/copilot-setup-steps.yml`.
+  Quality checks validation pending
+
 - 2026-07-23 (governance: codify task-start contract for agents and PRs)
   Change type update add
   Scope governance docs tests
