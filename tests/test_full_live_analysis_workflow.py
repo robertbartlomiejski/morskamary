@@ -264,3 +264,108 @@ def test_export_step_passes_generated_constraints_path() -> None:
     export_block = WORKFLOW_TEXT[export_index : export_index + 600]
     assert "--query-constraints-file" in export_block
     assert "query_protocol_constraints.json" in export_block
+
+
+def test_workflow_dispatch_declares_allow_minimum_provider_contribution_input() -> None:
+    """Regression test for the controlled-acquisition input: the workflow must
+    expose ``allow_minimum_provider_contribution`` as a boolean-style choice
+    input so operators can opt out of the minimum-provider-contribution gate
+    relaxation from the workflow_dispatch UI."""
+    assert "allow_minimum_provider_contribution:" in WORKFLOW_TEXT
+    input_index = WORKFLOW_TEXT.index("allow_minimum_provider_contribution:")
+    input_block = WORKFLOW_TEXT[input_index : input_index + 260]
+    assert (
+        "description: \"Controlled acquisition: allow package build when at "
+        "least one required provider contributes\""
+        in input_block
+    )
+    assert "required: false" in input_block
+    assert 'default: "true"' in input_block
+    assert "type: choice" in input_block
+    assert 'options: ["true", "false"]' in input_block
+
+
+def test_allow_minimum_provider_contribution_input_declared_between_require_live_records_and_commit_outputs() -> None:
+    """The new input must live alongside the other live-run gating inputs and
+    before the (unrelated) publication-gating ``commit_outputs`` input, matching
+    the declaration order introduced for this feature."""
+    require_live_index = WORKFLOW_TEXT.index("require_live_records:")
+    allow_minimum_index = WORKFLOW_TEXT.index("allow_minimum_provider_contribution:")
+    commit_outputs_index = WORKFLOW_TEXT.index("commit_outputs:")
+    assert require_live_index < allow_minimum_index < commit_outputs_index
+
+
+def test_allow_minimum_provider_contribution_env_var_defaults_to_true() -> None:
+    """The job-level env var must be wired to the workflow_dispatch input and
+    fall back to ``'true'`` for scheduled runs (which have no dispatch
+    inputs), matching the other gating env vars in this job."""
+    assert (
+        "ALLOW_MINIMUM_PROVIDER_CONTRIBUTION: "
+        "${{ github.event.inputs.allow_minimum_provider_contribution || 'true' }}"
+        in WORKFLOW_TEXT
+    )
+
+
+def test_novelty_gate_step_conditionally_forwards_minimum_provider_contribution_flag() -> None:
+    """Regression test: the 'Evaluate live novelty gates (A-E)' step must build
+    a ``GATE_ARGS`` array and only append
+    ``--allow-minimum-provider-contribution`` when the env var is exactly
+    ``'true'``, then forward that array (expanded) to the gate script instead
+    of hardcoding the flag unconditionally."""
+    step_index = WORKFLOW_TEXT.index("Evaluate live novelty gates (A-E)")
+    step_block = WORKFLOW_TEXT[step_index : step_index + 700]
+
+    assert "GATE_ARGS=()" in step_block
+    assert 'if [ "$ALLOW_MINIMUM_PROVIDER_CONTRIBUTION" = "true" ]; then' in step_block
+    assert "GATE_ARGS+=(--allow-minimum-provider-contribution)" in step_block
+    assert '"${GATE_ARGS[@]}"' in step_block
+    assert "python scripts/compute_live_novelty_metrics.py" in step_block
+
+
+def test_novelty_gate_step_declares_gate_args_before_branching_and_invocation() -> None:
+    """The GATE_ARGS array must be declared before the conditional check, and
+    the conditional check must resolve before the python invocation consumes
+    the array, so the flag is never referenced unset under ``set -u``."""
+    step_index = WORKFLOW_TEXT.index("Evaluate live novelty gates (A-E)")
+    step_block = WORKFLOW_TEXT[step_index : step_index + 700]
+
+    gate_args_decl_index = step_block.index("GATE_ARGS=()")
+    conditional_index = step_block.index(
+        'if [ "$ALLOW_MINIMUM_PROVIDER_CONTRIBUTION" = "true" ]; then'
+    )
+    invocation_index = step_block.index(
+        "python scripts/compute_live_novelty_metrics.py"
+    )
+    assert gate_args_decl_index < conditional_index < invocation_index
+
+
+def test_novelty_gate_step_retains_strict_flag_and_forwards_gate_args_after_it() -> None:
+    """The pre-existing ``--strict`` flag must be preserved, and the expanded
+    ``GATE_ARGS`` array must be forwarded after it, matching the intended CLI
+    argument order for scripts/compute_live_novelty_metrics.py."""
+    step_index = WORKFLOW_TEXT.index("Evaluate live novelty gates (A-E)")
+    step_block = WORKFLOW_TEXT[step_index : step_index + 700]
+
+    strict_index = step_block.index("--strict")
+    gate_args_forward_index = step_block.index('"${GATE_ARGS[@]}"')
+    assert strict_index < gate_args_forward_index
+
+
+def test_novelty_gate_step_only_appends_allow_minimum_flag_once_and_conditionally() -> None:
+    """The flag must be appended at most once, and only inside the guarding
+    conditional (never unconditionally elsewhere in the step), so disabling
+    the input via 'false' actually omits the flag from the CLI invocation."""
+    step_index = WORKFLOW_TEXT.index("Evaluate live novelty gates (A-E)")
+    step_block = WORKFLOW_TEXT[step_index : step_index + 700]
+
+    assert step_block.count("--allow-minimum-provider-contribution") == 1
+    flag_index = step_block.index("--allow-minimum-provider-contribution")
+    conditional_index = step_block.index(
+        'if [ "$ALLOW_MINIMUM_PROVIDER_CONTRIBUTION" = "true" ]; then'
+    )
+    # The flag must appear strictly inside the conditional body, i.e. after
+    # the `if` line opens and before the invocation starts.
+    invocation_index = step_block.index(
+        "python scripts/compute_live_novelty_metrics.py"
+    )
+    assert conditional_index < flag_index < invocation_index
