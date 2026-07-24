@@ -96,9 +96,15 @@ def _canonical_provider(name: Any) -> str:
     return normalized_underscore or normalized_space or token
 
 
-def _load_query_execution_summary(current_run_dir: Path) -> Dict[str, Dict[str, int]]:
-    """Aggregate per-provider contribution outcomes from query_execution_log.csv."""
-    summary: Dict[str, Dict[str, int]] = {}
+def _load_query_execution_summary(current_run_dir: Path) -> Dict[str, Dict[str, Any]]:
+    """Aggregate per-provider contribution outcomes from query_execution_log.csv.
+
+    Returns a dict keyed by canonical provider name with contribution metrics.
+    Also stores ``_query_family_counts`` as a special key for Gate E analysis.
+    Returns empty dict if the log file doesn't exist or cannot be parsed.
+    """
+    summary: Dict[str, Dict[str, Any]] = {}
+    family_counts: Dict[str, int] = {}
     log_path = current_run_dir / "research_sources" / "query_execution_log.csv"
     if not log_path.is_file():
         return summary
@@ -133,8 +139,17 @@ def _load_query_execution_summary(current_run_dir: Path) -> Dict[str, Dict[str, 
                 errors = str(row.get("errors", "")).strip()
                 if "error" in status or errors:
                     slot["queries_with_errors"] += 1
+                family = str(row.get("query_family", "")).strip()
+                if family:
+                    try:
+                        family_contribution = int(row.get("contributed_record_count") or 0)
+                    except (TypeError, ValueError):
+                        family_contribution = 0
+                    family_counts[family] = family_counts.get(family, 0) + family_contribution
     except OSError:
         return {}
+    if summary:
+        summary["_query_family_counts"] = family_counts
     return summary
 
 
@@ -145,8 +160,11 @@ def evaluate_gates(
     previous_metrics: Optional[Dict[str, Any]] = None,
     static_baseline_field_in_live: bool = False,
     strict: bool = False,
-    query_execution_summary: Optional[Dict[str, Dict[str, int]]] = None,
+    query_execution_summary: Optional[Dict[str, Dict[str, Any]]] = None,
     execution_log_available: Optional[bool] = None,
+    allow_minimum_provider_contribution: bool = False,
+    minimum_required_contributing_providers: int = 1,
+    concentration_threshold: float = 0.85,
 ) -> Dict[str, Any]:
     """Evaluate quality gates and return a serializable report.
 
@@ -155,6 +173,13 @@ def evaluate_gates(
     ``False``, Gate A fails closed: contribution evidence is required for
     strict publication gating and the gate cannot fall back to cumulative
     provider counts when the log is absent.
+
+    When ``allow_minimum_provider_contribution=True``, Gate A in strict mode
+    downgrades from FAIL to WARN when at least
+    ``minimum_required_contributing_providers`` required providers contributed
+    records. Gate E also downgrades to WARN (instead of FAIL) to maintain
+    coherence — concentration is a scientific diagnostic, not a technical
+    blocker for controlled acquisition runs.
     """
     provider_health = provider_health or {}
     previous_metrics = previous_metrics or {}
@@ -200,6 +225,7 @@ def evaluate_gates(
     zero_but_ok_required = []
     zero_but_ok_optional = []
     provider_outcomes: Dict[str, Dict[str, Any]] = {}
+    required_contributing_providers = 0
     for prov, health in provider_health_map.items():
         status = ""
         if isinstance(health, dict):
@@ -207,16 +233,28 @@ def evaluate_gates(
         elif isinstance(health, str):
             status = health.lower()
         outcome = query_execution_summary.get(prov, {})
+        log_has_provider_outcome = bool(outcome)
+        # In strict mode with an authoritative execution log present,
+        # do NOT fall back to cumulative metrics for providers absent from log
+        strict_run_log_is_authoritative = strict and bool(
+            {k for k in query_execution_summary if not k.startswith("_")}
+        )
+        fallback_contributed_records = (
+            0 if strict_run_log_is_authoritative else provider_counts_normalized.get(prov, 0)
+        )
         contributed_records = int(
-            outcome.get("contributed_records", provider_counts_normalized.get(prov, 0)) or 0
+            outcome.get("contributed_records", fallback_contributed_records) or 0
         )
         attempted_queries = int(outcome.get("attempted_queries", 0) or 0)
         queries_with_errors = int(outcome.get("queries_with_errors", 0) or 0)
+        if prov not in _OPTIONAL_NON_BLOCKING_PROVIDERS and contributed_records > 0:
+            required_contributing_providers += 1
         provider_outcomes[prov] = {
             "health_status": status,
             "attempted_queries": attempted_queries,
             "contributed_records": contributed_records,
             "queries_with_errors": queries_with_errors,
+            "present_in_execution_log": log_has_provider_outcome,
         }
         if status == "ok" and contributed_records == 0:
             if prov in _OPTIONAL_NON_BLOCKING_PROVIDERS:
@@ -225,10 +263,18 @@ def evaluate_gates(
                 zero_but_ok_required.append(prov)
     gate_a_status = "pass"
     execution_log_missing_in_strict = strict and execution_log_available is False
+    minimum_provider_contribution_met = (
+        required_contributing_providers >= max(1, int(minimum_required_contributing_providers))
+    )
     if execution_log_missing_in_strict:
         gate_a_status = "fail"
     elif zero_but_ok_required:
-        gate_a_status = "fail" if strict else "warn"
+        if strict and not (
+            allow_minimum_provider_contribution and minimum_provider_contribution_met
+        ):
+            gate_a_status = "fail"
+        else:
+            gate_a_status = "warn"
     elif zero_but_ok_optional:
         gate_a_status = "warn"
     gates.append({
@@ -242,6 +288,10 @@ def evaluate_gates(
             "optional_non_blocking_providers": sorted(_OPTIONAL_NON_BLOCKING_PROVIDERS),
             "contribution_outcomes": provider_outcomes,
             "execution_log_available": execution_log_available,
+            "allow_minimum_provider_contribution": allow_minimum_provider_contribution,
+            "minimum_required_contributing_providers": minimum_required_contributing_providers,
+            "required_contributing_provider_count": required_contributing_providers,
+            "minimum_provider_contribution_met": minimum_provider_contribution_met,
         },
     })
     if gate_a_status == "fail":
@@ -306,6 +356,8 @@ def evaluate_gates(
             continue
         contributed_by_provider[slug] = contributed_by_provider.get(slug, 0) + int(count or 0)
     for provider, outcome in query_execution_summary.items():
+        if provider.startswith("_"):
+            continue
         slug = _canonical_provider(provider)
         if not slug:
             continue
@@ -320,8 +372,16 @@ def evaluate_gates(
     active_providers = sorted(active_provider_set)
     raw_families = metrics.get("query_families_seen")
     family_field_present = "query_families_seen" in metrics
-    if isinstance(raw_families, str):
-        family_tokens: List[Any] = [item for item in raw_families.split("|")]
+    # Prefer real query family counts from execution log when available
+    query_family_counts = query_execution_summary.get("_query_family_counts", {})
+    family_tokens_from_log = [
+        name for name, count in query_family_counts.items() if int(count or 0) > 0
+    ] if isinstance(query_family_counts, dict) else []
+    if family_tokens_from_log:
+        family_tokens = family_tokens_from_log
+        family_field_present = True
+    elif isinstance(raw_families, str):
+        family_tokens = [item for item in raw_families.split("|")]
     elif isinstance(raw_families, list):
         family_tokens = raw_families
     else:
@@ -335,9 +395,34 @@ def evaluate_gates(
     )
     family_data_available = family_field_present and len(active_families) > 0
     total_contributed = sum(int(count or 0) for count in contributed_by_provider.values())
+    # Quantitative contribution shares for scientific reporting (H5 diagnostic)
+    provider_share_by_provider = {
+        provider: round(int(count or 0) / total_contributed, 6)
+        for provider, count in sorted(contributed_by_provider.items())
+        if total_contributed > 0
+    }
+    family_counts_clean = {
+        str(family).strip(): int(count or 0)
+        for family, count in query_family_counts.items()
+        if str(family).strip() and int(count or 0) > 0
+    } if isinstance(query_family_counts, dict) else {}
+    total_family_contributed = sum(family_counts_clean.values())
+    query_family_share_by_family = {
+        family: round(count / total_family_contributed, 6)
+        for family, count in sorted(family_counts_clean.items())
+        if total_family_contributed > 0
+    }
+    max_provider_share = max(provider_share_by_provider.values(), default=0.0)
+    max_query_family_share = max(query_family_share_by_family.values(), default=0.0)
     single_provider = len(active_providers) <= 1 and total_contributed > 0
     single_family = family_data_available and len(active_families) == 1
-    single_bias = single_provider or single_family or crossref_dom >= 0.98
+    single_bias = (
+        single_provider
+        or single_family
+        or crossref_dom >= 0.98
+        or max_provider_share > concentration_threshold
+        or max_query_family_share > concentration_threshold
+    )
     concentration_reasons: List[str] = []
     if single_provider:
         concentration_reasons.append("single_provider_contribution")
@@ -345,8 +430,19 @@ def evaluate_gates(
         concentration_reasons.append("single_query_family_contribution")
     if crossref_dom >= 0.98:
         concentration_reasons.append("crossref_dominance_ratio>=0.98")
+    if max_provider_share > concentration_threshold:
+        concentration_reasons.append(f"provider_concentration_ratio>{concentration_threshold}")
+    if max_query_family_share > concentration_threshold:
+        concentration_reasons.append(f"query_family_concentration_ratio>{concentration_threshold}")
     if single_bias:
-        gate_e_status = "fail" if strict else "warn"
+        # CRITICAL COHERENCE FIX: When allow_minimum_provider_contribution is active,
+        # Gate E must NOT block the controlled run. Concentration is a scientific
+        # diagnostic for H5, not a technical blocker when Gate A already permits
+        # a partial-provider run. Report as WARN with full quantitative detail.
+        if strict and not allow_minimum_provider_contribution:
+            gate_e_status = "fail"
+        else:
+            gate_e_status = "warn"
     else:
         gate_e_status = "pass"
     gates.append({
@@ -359,6 +455,14 @@ def evaluate_gates(
             "query_family_distribution_available": family_data_available,
             "warnings": ([] if family_data_available else ["query_family_distribution_unavailable"]),
             "crossref_dominance_ratio": crossref_dom,
+            "concentration_threshold": concentration_threshold,
+            "max_provider_contribution_share": max_provider_share,
+            "max_query_family_contribution_share": max_query_family_share,
+            "provider_contribution_share_by_provider": provider_share_by_provider,
+            "query_family_contributed_record_count_by_family": dict(
+                sorted(family_counts_clean.items())
+            ),
+            "query_family_contribution_share_by_family": query_family_share_by_family,
             "provider_contributed_record_count_by_provider": dict(
                 sorted(contributed_by_provider.items())
             ),
@@ -435,6 +539,29 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--output",
                         default="outputs/cumulative_database/novelty_gate_report.json")
     parser.add_argument("--strict", action="store_true")
+    parser.add_argument(
+        "--allow-minimum-provider-contribution",
+        action="store_true",
+        help=(
+            "Controlled acquisition mode: in strict runs, downgrade Gate A "
+            "healthy-provider zero contribution to warn when the configured "
+            "minimum number of required providers contributed records. "
+            "Also makes Gate E coherent: concentration becomes WARN diagnostic "
+            "rather than a run-blocking FAIL."
+        ),
+    )
+    parser.add_argument(
+        "--minimum-required-contributing-providers",
+        type=int,
+        default=1,
+        help="Minimum required-provider contributors for controlled acquisition mode.",
+    )
+    parser.add_argument(
+        "--concentration-threshold",
+        type=float,
+        default=0.85,
+        help="Provider/query-family contribution share above which Gate E flags concentration.",
+    )
     args = parser.parse_args(argv)
 
     metrics_path = Path(args.metrics)
@@ -470,6 +597,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         strict=args.strict,
         query_execution_summary=query_execution_summary,
         execution_log_available=execution_log_available,
+        allow_minimum_provider_contribution=args.allow_minimum_provider_contribution,
+        minimum_required_contributing_providers=args.minimum_required_contributing_providers,
+        concentration_threshold=args.concentration_threshold,
     )
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)

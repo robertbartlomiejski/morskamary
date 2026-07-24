@@ -514,3 +514,110 @@ def test_cli_gate_b_consecutive_zero_failure_exits_nonzero_without_strict(
     report = json.loads(report_path.read_text(encoding="utf-8"))
     gate_b = next(g for g in report["gates"] if g["gate_id"] == "B")
     assert gate_b["status"] == "fail"
+
+
+# ---------------------------------------------------------------------------
+# PR-A regression tests: controlled acquisition mode
+# ---------------------------------------------------------------------------
+
+
+def test_gate_a_strict_does_not_borrow_counts_for_partial_execution_log() -> None:
+    """A provider missing from the strict run log must not borrow cumulative counts."""
+    m = _base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 9})
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={"crossref": {"status": "ok"}, "scopus": {"status": "ok"}},
+        strict=True,
+        execution_log_available=True,
+        query_execution_summary={
+            "crossref": {"attempted_queries": 5, "contributed_records": 10, "queries_with_errors": 0},
+        },
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    scopus = gate_a["detail"]["contribution_outcomes"]["scopus"]
+    assert gate_a["status"] == "fail"
+    assert scopus["contributed_records"] == 0
+    assert scopus["present_in_execution_log"] is False
+
+
+def test_gate_a_controlled_minimum_contribution_downgrades_required_zero_to_warning() -> None:
+    """With allow_minimum_provider_contribution, Gate A downgrades to warn if min providers met."""
+    m = _base_metrics(provider_record_count_by_provider={"crossref": 10, "scopus": 9})
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={"crossref": {"status": "ok"}, "scopus": {"status": "ok"}},
+        strict=True,
+        execution_log_available=True,
+        allow_minimum_provider_contribution=True,
+        minimum_required_contributing_providers=1,
+        query_execution_summary={
+            "crossref": {"attempted_queries": 5, "contributed_records": 10, "queries_with_errors": 0},
+            "scopus": {"attempted_queries": 5, "contributed_records": 0, "queries_with_errors": 5},
+        },
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    assert gate_a["status"] == "warn"
+    assert gate_a["detail"]["minimum_provider_contribution_met"] is True
+
+
+def test_gate_e_coherent_with_gate_a_controlled_mode() -> None:
+    """Gate E must WARN (not FAIL) when allow_minimum_provider_contribution is active.
+
+    This is the critical A/E coherence fix: concentration is a scientific diagnostic
+    for H5 Provider Bias Shift, not a technical blocker for controlled acquisition.
+    """
+    m = _base_metrics(
+        provider_record_count_by_provider={"crossref": 100, "scopus": 0},
+        crossref_dominance_ratio=1.0,
+    )
+    r = evaluate_gates(
+        metrics=m,
+        provider_health={"crossref": {"status": "ok"}, "scopus": {"status": "ok"}},
+        strict=True,
+        execution_log_available=True,
+        allow_minimum_provider_contribution=True,
+        query_execution_summary={
+            "crossref": {"attempted_queries": 10, "contributed_records": 100, "queries_with_errors": 0},
+            "scopus": {"attempted_queries": 10, "contributed_records": 0, "queries_with_errors": 10},
+        },
+    )
+    gate_a = next(g for g in r["gates"] if g["gate_id"] == "A")
+    gate_e = next(g for g in r["gates"] if g["gate_id"] == "E")
+    # Gate A should warn (controlled mode)
+    assert gate_a["status"] == "warn"
+    # Gate E should WARN, not FAIL — coherent with controlled mode
+    assert gate_e["status"] == "warn"
+    # Concentration IS reported as a scientific finding
+    assert len(gate_e["detail"]["concentration_reasons"]) > 0
+    # The overall run should NOT be blocked
+    assert r["overall_status"] == "pass"
+
+
+def test_gate_e_uses_execution_log_contribution_distributions() -> None:
+    """Gate E computes quantitative shares from actual contributed_record_count."""
+    r = evaluate_gates(
+        metrics=_base_metrics(
+            provider_record_count_by_provider={"crossref": 1, "scopus": 1},
+            query_families_seen=[],
+            crossref_dominance_ratio=0.0,
+        ),
+        query_execution_summary={
+            "crossref": {"attempted_queries": 3, "contributed_records": 17, "queries_with_errors": 0},
+            "scopus": {"attempted_queries": 3, "contributed_records": 3, "queries_with_errors": 0},
+            "_query_family_counts": {
+                "core_sector": 18,
+                "hypothesis_verification": 2,
+            },
+        },
+    )
+    gate_e = next(g for g in r["gates"] if g["gate_id"] == "E")
+    assert gate_e["status"] == "warn"
+    assert gate_e["detail"]["provider_contribution_share_by_provider"] == {
+        "crossref": 0.85,
+        "scopus": 0.15,
+    }
+    assert gate_e["detail"]["query_family_contribution_share_by_family"] == {
+        "core_sector": 0.9,
+        "hypothesis_verification": 0.1,
+    }
+    assert "query_family_concentration_ratio>0.85" in gate_e["detail"]["concentration_reasons"]

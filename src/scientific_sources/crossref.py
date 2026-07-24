@@ -219,7 +219,19 @@ class CrossrefProvider(BaseProvider):
                 return data, warnings, None
             except urllib.error.HTTPError as exc:
                 if exc.code != 429:
-                    raise
+                    body_snippet = ""
+                    try:
+                        body_snippet = exc.read(240).decode(
+                            "utf-8", errors="ignore"
+                        ).strip()
+                    except Exception:
+                        body_snippet = ""
+                    snippet = f" body={body_snippet[:180]!r}" if body_snippet else ""
+                    terminal = (
+                        f"Crossref {context_label} failed after attempt={attempt} "
+                        f"(terminal_status=http_{exc.code}).{snippet}"
+                    )
+                    return None, warnings, terminal
                 retry_after = self._retry_after_seconds(exc.headers.get("Retry-After", ""))
                 backoff = min(
                     _BASE_BACKOFF_SECONDS * (2 ** (attempt - 1)),
@@ -259,10 +271,13 @@ class CrossrefProvider(BaseProvider):
                 jitter_seed=query,
             )
             if terminal_error:
+                rate_limit_status = (
+                    "rate-limited" if "terminal_status=rate_limited" in terminal_error else None
+                )
                 return ProviderResult(
                     errors=[terminal_error],
                     warnings=retry_warnings,
-                    rate_limit_status="rate-limited",
+                    rate_limit_status=rate_limit_status,
                 )
             assert data is not None
             items = data.get("message", {}).get("items", [])
@@ -287,10 +302,13 @@ class CrossrefProvider(BaseProvider):
                 jitter_seed=doi,
             )
             if terminal_error:
+                rate_limit_status = (
+                    "rate-limited" if "terminal_status=rate_limited" in terminal_error else None
+                )
                 return ProviderResult(
                     errors=[terminal_error],
                     warnings=retry_warnings,
-                    rate_limit_status="rate-limited",
+                    rate_limit_status=rate_limit_status,
                 )
             assert data is not None
             item = data.get("message", {})

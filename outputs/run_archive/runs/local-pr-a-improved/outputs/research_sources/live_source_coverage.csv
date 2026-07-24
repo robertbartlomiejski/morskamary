@@ -1,0 +1,109 @@
+sector,provider,query,record_count
+Blue Biotech,crossref,marine biotechnology blue bioeconomy innovation governance,50
+Blue Biotech,scopus,marine biotechnology blue bioeconomy innovation governance,0
+Blue Biotech,wos,marine biotechnology blue bioeconomy innovation governance,0
+Blue Biotech,crossref,bioprospecting marine genetic resources benefit sharing,50
+Blue Biotech,scopus,bioprospecting marine genetic resources benefit sharing,0
+Blue Biotech,wos,bioprospecting marine genetic resources benefit sharing,0
+Blue Biotech,crossref,marine biomaterials pharmaceuticals bioremediation sustainability,50
+Blue Biotech,scopus,marine biomaterials pharmaceuticals bioremediation sustainability,0
+Blue Biotech,wos,marine biomaterials pharmaceuticals bioremediation sustainability,0
+Coastal Tourism,crossref,coastal tourism sustainability overtourism management,50
+Coastal Tourism,scopus,coastal tourism sustainability overtourism management,0
+Coastal Tourism,wos,coastal tourism sustainability overtourism management,0
+Coastal Tourism,crossref,marine ecotourism blue economy livelihoods governance,50
+Coastal Tourism,scopus,marine ecotourism blue economy livelihoods governance,0
+Coastal Tourism,wos,marine ecotourism blue economy livelihoods governance,0
+Coastal Tourism,crossref,cruise tourism environmental impact governance,50
+Coastal Tourism,scopus,cruise tourism environmental impact governance,0
+Coastal Tourism,wos,cruise tourism environmental impact governance,0
+Desalination,crossref,desalination brine management environmental impact governance,50
+Desalination,scopus,desalination brine management environmental impact governance,0
+Desalination,wos,desalination brine management environmental impact governance,0
+Desalination,crossref,desalination water energy nexus sustainability,50
+Desalination,scopus,desalination water energy nexus sustainability,0
+Desalination,wos,desalination water energy nexus sustainability,0
+Desalination,crossref,desalination hydrosocial water justice governance,50
+Desalination,scopus,desalination hydrosocial water justice governance,0
+Desalination,wos,desalination hydrosocial water justice governance,0
+Infra & Robotics,crossref,maritime infrastructure cyber physical systems digital twin,50
+Infra & Robotics,scopus,maritime infrastructure cyber physical systems digital twin,0
+Infra & Robotics,wos,maritime infrastructure cyber physical systems digital twin,0
+Infra & Robotics,crossref,offshore robotics marine monitoring autonomous systems,50
+Infra & Robotics,scopus,offshore robotics marine monitoring autonomous systems,0
+Infra & Robotics,wos,offshore robotics marine monitoring autonomous systems,0
+Infra & Robotics,crossref,smart coastal infrastructure flood risk adaptation,50
+Infra & Robotics,scopus,smart coastal infrastructure flood risk adaptation,0
+Infra & Robotics,wos,smart coastal infrastructure flood risk adaptation,0
+Living Res.,crossref,small scale fisheries livelihoods blue economy governance,50
+Living Res.,scopus,small scale fisheries livelihoods blue economy governance,0
+Living Res.,wos,small scale fisheries livelihoods blue economy governance,0
+Living Res.,crossref,fisheries management sustainability marine protected areas,50
+Living Res.,scopus,fisheries management sustainability marine protected areas,0
+Living Res.,wos,fisheries management sustainability marine protected areas,0
+Living Res.,crossref,aquaculture social licence environmental impact governance,50
+Living Res.,scopus,aquaculture social licence environmental impact governance,0
+Living Res.,wos,aquaculture social licence environmental impact governance,0
+Non-living Res.,crossref,seabed mining governance environmental impact social licence,50
+Non-living Res.,scopus,seabed mining governance environmental impact social licence,0
+Non-living Res.,wos,seabed mining governance environmental impact social licence,0
+Non-living Res.,crossref,marine aggregates extraction coastal governance sustainability,50
+Non-living Res.,scopus,marine aggregates extraction coastal governance sustainability,0
+Non-living Res.,wos,marine aggregates extraction coastal governance sustainability,0
+Non-living Res.,crossref,critical raw materials offshore extraction governance,50
+Non-living Res.,scopus,critical raw materials offshore extraction governance,0
+Non-living Res.,wos,critical raw materials offshore extraction governance,0
+Renewable Energy,crossref,offshore wind energy marine spatial planning governance,50
+Renewable Energy,scopus,offshore wind energy marine spatial planning governance,0
+Renewable Energy,wos,offshore wind energy marine spatial planning governance,0
+Renewable Energy,crossref,ocean renewable energy governance sustainability,50
+Renewable Energy,scopus,ocean renewable energy governance sustainability,0
+Renewable Energy,wos,ocean renewable energy governance sustainability,0
+Renewable Energy,crossref,tidal energy wave energy environmental impact,50
+Renewable Energy,scopus,tidal energy wave energy environmental impact,0
+Renewable Energy,wos,tidal energy wave energy environmental impact,0
+Maritime Defence,crossref,maritime security governance blue economy,50
+Maritime Defence,scopus,maritime security governance blue economy,0
+Maritime Defence,wos,maritime security governance blue economy,0
+Maritime Defence,crossref,naval operations maritime domain awareness surveillance,50
+Maritime Defence,scopus,naval operations maritime domain awareness surveillance,0
+Maritime Defence,wos,naval operations maritime domain awareness surveillance,0
+Maritime Defence,crossref,critical maritime infrastructure protection governance,50
+Maritime Defence,scopus,critical maritime infrastructure protection governance,0
+Maritime Defence,wos,critical maritime infrastructure protection governance,0
+Maritime Transport,crossref,maritime transport decarbonization emissions reduction,50
+Maritime Transport,scopus,maritime transport decarbonization emissions reduction,0
+Maritime Transport,wos,maritime transport decarbonization emissions reduction,0
+Maritime Transport,crossref,shipping governance international regulations IMO,50
+Maritime Transport,scopus,shipping governance international regulations IMO,0
+Maritime Transport,wos,shipping governance international regulations IMO,0
+Maritime Transport,crossref,maritime safety maritime labour conditions,50
+Maritime Transport,scopus,maritime safety maritime labour conditions,0
+Maritime Transport,wos,maritime safety maritime labour conditions,0
+Port Activities,crossref,port governance maritime logistics sustainability,50
+Port Activities,scopus,port governance maritime logistics sustainability,0
+Port Activities,wos,port governance maritime logistics sustainability,0
+Port Activities,crossref,smart ports digital transformation port operations,50
+Port Activities,scopus,smart ports digital transformation port operations,0
+Port Activities,wos,smart ports digital transformation port operations,0
+Port Activities,crossref,port climate adaptation sea level rise flood risk,50
+Port Activities,scopus,port climate adaptation sea level rise flood risk,0
+Port Activities,wos,port climate adaptation sea level rise flood risk,0
+R&I,crossref,ocean observation marine monitoring data infrastructure,50
+R&I,scopus,ocean observation marine monitoring data infrastructure,0
+R&I,wos,ocean observation marine monitoring data infrastructure,0
+R&I,crossref,ocean data governance FAIR CARE principles,50
+R&I,scopus,ocean data governance FAIR CARE principles,0
+R&I,wos,ocean data governance FAIR CARE principles,0
+R&I,crossref,blue economy research innovation policy governance,50
+R&I,scopus,blue economy research innovation policy governance,0
+R&I,wos,blue economy research innovation policy governance,0
+Ship Repair,crossref,ship repair shipyard workforce skills training,50
+Ship Repair,scopus,ship repair shipyard workforce skills training,0
+Ship Repair,wos,ship repair shipyard workforce skills training,0
+Ship Repair,crossref,ship retrofit decarbonization maintenance governance,50
+Ship Repair,scopus,ship retrofit decarbonization maintenance governance,0
+Ship Repair,wos,ship retrofit decarbonization maintenance governance,0
+Ship Repair,crossref,maritime repair supply chain safety standards,50
+Ship Repair,scopus,maritime repair supply chain safety standards,0
+Ship Repair,wos,maritime repair supply chain safety standards,0

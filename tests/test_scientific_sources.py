@@ -465,10 +465,43 @@ class TestCrossrefProvider:
         assert any("attempt=1 http_status=429" in w for w in result.warnings)
         assert any("terminal_status=success" in w for w in result.warnings)
 
+    def test_search_preserves_429_retry_warnings_when_later_http_error_occurs(self, monkeypatch):
+        """A 429 retry followed by a terminal non-429 HTTP error must keep retry provenance."""
+        import time
+        import urllib.request
 
-# ---------------------------------------------------------------------------
-# Stub provider tests (not-configured behavior)
-# ---------------------------------------------------------------------------
+        throttled = urllib.error.HTTPError(
+            "https://api.crossref.org/works",
+            429,
+            "Too Many Requests",
+            {"Retry-After": "0"},
+            None,
+        )
+        server_error = urllib.error.HTTPError(
+            "https://api.crossref.org/works",
+            500,
+            "Server Error",
+            {},
+            None,
+        )
+        responses = [throttled, server_error]
+
+        def fake_urlopen(req, timeout=10):
+            response = responses.pop(0)
+            raise response
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        monkeypatch.setattr(time, "sleep", lambda _seconds: None)
+
+        provider = CrossrefProvider()
+        result = provider.search("blue economy", max_results=1)
+
+        assert result.records == []
+        assert result.errors
+        assert "terminal_status=http_500" in result.errors[0]
+        assert any("attempt=1 http_status=429" in warning for warning in result.warnings)
+        # rate_limit_status must NOT be "rate-limited" because terminal cause was HTTP 500
+        assert result.rate_limit_status != "rate-limited"
 
 
 class TestElsevierScopusProvider:
@@ -608,6 +641,39 @@ class TestElsevierScopusProvider:
         # A query consisting only of stop-word-class tokens or punctuation
         result = ElsevierScopusProvider._project_protocol_query("& / ( )")
         assert result is None
+
+    def test_project_protocol_query_preserves_only_requested_hyphen_terms(self):
+        """Only port-city and de-base-re keep hyphens; others are split."""
+        result = ElsevierScopusProvider._project_protocol_query(
+            "port-city cyber-physical micro-credential de-base-re"
+        )
+        assert result is not None
+        assert '"port-city"' in result
+        assert '"de-base-re"' in result
+        assert '"cyber"' in result
+        assert '"physical"' in result
+        assert '"micro"' in result
+        assert '"credential"' in result
+        assert '"cyber-physical"' not in result
+        assert '"micro-credential"' not in result
+
+    def test_search_url_percent_encodes_scopus_term_quotes(self, monkeypatch):
+        """Quotes in projected query must be percent-encoded as %22."""
+        monkeypatch.setenv("ELSEVIER_API_KEY", "abc")
+        provider = ElsevierScopusProvider()
+        captured = {}
+
+        def fake_request_json(url: str):
+            captured["url"] = url
+            return {"search-results": {"entry": []}}
+
+        monkeypatch.setattr(provider, "_request_json", fake_request_json)
+
+        provider.search("port-city blue economy", max_results=1)
+
+        query_param = urllib.parse.urlsplit(captured["url"]).query.split("&", 1)[0]
+        assert "%22port-city%22" in query_param
+        assert '"port-city"' not in query_param
 
     def test_search_returns_structured_error_on_empty_token_query(self, monkeypatch):
         """search() must return a ProviderResult with an error when projection yields no tokens."""
