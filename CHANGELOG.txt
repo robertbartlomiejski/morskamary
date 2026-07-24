@@ -1073,3 +1073,13 @@ Reason Complete the live cumulative scientific database with statistical validit
 Impact `outputs/cumulative_database/` now contains derived_competence_demands, sector_axis_gap_model, credential_translation_eqf4_7, learning_outcomes, layer4/5_manifest, layer_readiness_report, and VARIABLE_LABELS/VALUE_LABELS; `reports/` contains morskamary_statistical_report.{html,pdf} and morskamary_methodological_audit.html; `outputs/release_packages/morskamary_live_cumulative_latest.zip` is the single-file consumer bundle.
 Quality checks pytest tests/test_derived_competence_analysis.py tests/test_compute_live_novelty_metrics.py tests/test_live_cumulative_release_package.py → 15/15 passed. End-to-end smoke: L2-3 → L4-5 → gates (pass) → report (HTML+audit) → package (20 files, SQLite generated, byte-identical rebuild).
 Reviewer GitHub Copilot Coding Agent
+
+2026-07-24
+Change type refresh
+Scope outputs run-archive governance
+Files affected outputs/cumulative_database/*.csv outputs/live_runs/30090903921-1/ outputs/run_archive/runs/30090903921-1/ MANIFEST_SOURCES.csv
+Summary Live-enriched run 30090903921-1: refreshed cumulative database (Layer 4-5 outputs), live_runs normalised acquisition artifacts, and run_archive snapshot. Regenerated MANIFEST_SOURCES.csv to include 117 new files added by the run, fixing the governance-and-repro CI job failure caused by manifest drift.
+Reason The live-enriched outputs commit (run 30090903921/1) added new output files under outputs/cumulative_database/, outputs/live_runs/, outputs/run_archive/, outputs/layer4_statistics/, and reports/ but did not regenerate MANIFEST_SOURCES.csv, causing the governance CI determinism check to fail.
+Impact governance-and-repro CI job passes; MANIFEST_SOURCES.csv now reflects all 1315 tracked repository files.
+Quality checks python3 scripts/generate_manifest.py → Wrote MANIFEST_SOURCES.csv with 1315 entries; git diff --exit-code MANIFEST_SOURCES.csv → clean.
+Reviewer GitHub Copilot Coding Agent
