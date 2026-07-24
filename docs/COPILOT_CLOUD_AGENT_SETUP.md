@@ -68,17 +68,17 @@ Enable either only after the controlled two-run validation passes and branch/rul
 
 ## Current workflow state to preserve
 
-- `/home/runner/work/morskamary/morskamary/.github/workflows/full-live-analysis.yml`
+- `.github/workflows/full-live-analysis.yml`
   - runs under `live-research`
   - keeps `commit_outputs` default `false`
   - keeps publication behind `ALLOW_BOT_COMMITS` and `LIVE_OUTPUTS_AUTOCOMMIT`
   - captures one `ANALYSIS_TIMESTAMP_UTC`
   - passes that timestamp into Layer 4/5
   - passes the current-run raw acquisition index into the release package
-- `/home/runner/work/morskamary/morskamary/.github/workflows/export-research-records.yml` runs under `live-research`
-- `/home/runner/work/morskamary/morskamary/.github/workflows/research-api-smoke.yml` runs under `live-research`
-- `/home/runner/work/morskamary/morskamary/.github/workflows/codeql.yml` is the repo-managed CodeQL workflow with stable checks `Analyze (actions)` and `Analyze (python)`
-- `/home/runner/work/morskamary/morskamary/.github/workflows/copilot-setup-steps.yml` keeps `contents: read`
+- `.github/workflows/export-research-records.yml` runs under `live-research`
+- `.github/workflows/research-api-smoke.yml` runs under `live-research`
+- `.github/workflows/codeql.yml` is the repo-managed CodeQL workflow with stable checks `Analyze (actions)` and `Analyze (python)`
+- `.github/workflows/copilot-setup-steps.yml` keeps `contents: read`
 
 ## Operator closure checklist for issue #198 and PR #208
 
