@@ -19,6 +19,15 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-24 (fix: document PR-A live acquisition gate/workflow/archive updates)
+  Change type fix update
+  Scope scripts src workflows tests governance
+  Files affected scripts/compute_live_novelty_metrics.py src/scientific_sources/crossref.py src/scientific_sources/elsevier_scopus.py .github/workflows/full-live-analysis.yml tests/test_compute_live_novelty_metrics.py tests/test_scientific_sources.py outputs/run_archive/runs/local-pr-a-improved/* MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Aligned Gate A and Gate E handling for controlled minimum-provider-contribution mode, added quantitative provider/query-family concentration metrics, hardened Crossref terminal HTTP handling, corrected Scopus query projection/encoding for preserved-hyphen terms, and recorded the corresponding local PR archive outputs plus manifest refresh.
+  Reason PR-A fixes changed tracked scripts, workflow behavior, tests, and archived reproducibility artifacts, which requires an explicit changelog entry for governance traceability.
+  Impact Governance-and-repro checks now have the required changelog provenance for the PR-A code path and its archived run outputs; the scientific/provider-gating behavior remains documented for downstream review.
+  Quality checks python scripts/changelog_guard.py with PR changed files plus CHANGELOG.txt (passed)
+
 - 2026-07-23 (governance: codify task-start contract for agents and PRs)
   Change type update add
   Scope governance docs tests
