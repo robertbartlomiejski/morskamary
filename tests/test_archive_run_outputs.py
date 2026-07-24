@@ -184,7 +184,9 @@ def test_archive_run_outputs_creates_full_run_archive(tmp_path: Path) -> None:
     assert (run_dir / "run_manifest.json").exists()
     assert (run_dir / "analysis_outputs").is_dir()
     assert (run_dir / "analysis_outputs" / "gaps_summary.csv").exists()
+    assert (run_dir / "analysis_outputs" / "credentials_database.json").exists()
     assert (run_dir / "analysis_outputs" / "cumulative_qmbd_records.json").exists()
+    assert (run_dir / "outputs" / "credentials_database.json").exists()
     assert (run_dir / "research_sources").is_dir()
     assert (run_dir / "research_sources" / "live_records.json").exists()
     assert (run_dir / "MANIFEST_SOURCES.csv").exists()
@@ -307,6 +309,35 @@ def test_archive_checksums_match_archived_files(tmp_path: Path) -> None:
         assert archived_path.exists()
         assert digest == _sha256(archived_path)
 
+
+def test_archive_excludes_raw_api_payloads_from_committed_run_archive(
+    tmp_path: Path,
+) -> None:
+    module = _load_archive_module()
+    _seed_required_targets(tmp_path)
+    _write_json(
+        tmp_path / "outputs/research_sources/raw_api_payloads/crossref_query_01.json",
+        {"provider": "crossref", "query": "marine governance"},
+    )
+
+    result = module.main(
+        [
+            "--repo-root",
+            str(tmp_path),
+            "--archive-root",
+            "outputs/run_archive",
+            "--run-id",
+            "run-no-raw-payloads",
+        ]
+    )
+    assert result == 0
+
+    run_dir = tmp_path / "outputs" / "run_archive" / "runs" / "run-no-raw-payloads"
+    assert not (run_dir / "outputs" / "research_sources" / "raw_api_payloads").exists()
+    assert not (run_dir / "research_sources" / "raw_api_payloads").exists()
+
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert all("raw_api_payloads/" not in item["path"] for item in manifest["files"])
 
 def test_repeated_archive_creation_does_not_overwrite_previous_run(tmp_path: Path) -> None:
     module = _load_archive_module()

@@ -51,6 +51,11 @@ ANALYSIS_VIEW_TARGETS: tuple[str, ...] = (
     "outputs/sector_dictionaries",
 )
 
+COMPLIANCE_EXCLUDED_ARCHIVE_PATHS: tuple[str, ...] = (
+    "outputs/research_sources/raw_api_payloads",
+    "research_sources/raw_api_payloads",
+)
+
 INDEX_CSV_COLUMNS: tuple[str, ...] = (
     "timestamp_utc",
     "analysis_timestamp_utc",
@@ -308,6 +313,13 @@ def _copy_methodological_views(repo_root: Path, run_dir: Path) -> None:
             shutil.copy2(source, destination)
 
 
+def _remove_compliance_excluded_paths(run_dir: Path) -> None:
+    for rel_path in COMPLIANCE_EXCLUDED_ARCHIVE_PATHS:
+        target = run_dir / rel_path
+        if target.is_dir():
+            shutil.rmtree(target)
+
+
 def _write_checksums(run_dir: Path, archived_files: list[ArchivedFile]) -> None:
     checksum_path = run_dir / "_checksums.sha256"
     lines = [f"{item.sha256}  {item.relative_path}" for item in archived_files]
@@ -457,6 +469,7 @@ def archive_run_outputs(
         _copy_target(repo_root, run_dir, rel_target)
 
     _copy_methodological_views(repo_root, run_dir)
+    _remove_compliance_excluded_paths(run_dir)
 
     archived_files = _collect_archived_files(run_dir)
     _write_checksums(run_dir, archived_files)
