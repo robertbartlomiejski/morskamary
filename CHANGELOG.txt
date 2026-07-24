@@ -19,6 +19,15 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-24 (fix: address PR-A review follow-ups for controlled acquisition and archive hygiene)
+  Change type fix update
+  Scope scripts src workflows tests governance
+  Files affected scripts/compute_live_novelty_metrics.py src/scientific_sources/elsevier_scopus.py .github/workflows/full-live-analysis.yml tests/test_compute_live_novelty_metrics.py tests/test_scientific_sources.py outputs/run_archive/runs/local-pr-a-improved/ (entire directory removed: manifest.json run_manifest.json _checksums.sha256 MANIFEST_SOURCES.csv plus analysis_outputs/ outputs/ research_sources/ subdirectories) outputs/run_archive/_index/runs_index.jsonl outputs/run_archive/cumulative_runs_index.csv MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Switched controlled minimum-provider-contribution to explicit opt-in in the live workflow, made Scopus preserved-hyphen placeholders token-bounded, kept strict Gate E provider counts authoritative to the current-run execution log, renamed premature provider-bias hypothesis framing to neutral provider concentration diagnostics, and removed the invalid local PR archive plus its index entries.
+  Reason PR-A review identified that strict mode should remain default-on, Scopus placeholder replacement could over-match nested tokens, strict partial execution logs could leak cumulative provider counts into Gate E, and the checked-in local smoke archive violated provenance and archive hygiene requirements.
+  Impact Controlled acquisition now requires explicit dispatch opt-in, Scopus query projection preserves only whole configured hyphen tokens, strict Gate E reflects only current-run provider contributions, and the invalid local recovery run is removed while archive indexes remain free of stale references.
+  Quality checks python scripts/generate_manifest.py (passed); python -m flake8 scripts/compute_live_novelty_metrics.py src/scientific_sources/elsevier_scopus.py --max-line-length 120 (passed); python -c "import pathlib, yaml; yaml.safe_load(pathlib.Path('.github/workflows/full-live-analysis.yml').read_text(encoding='utf-8'))" (passed); python -m mypy scripts/compute_live_novelty_metrics.py src/scientific_sources/elsevier_scopus.py --ignore-missing-imports (passed); python -m pytest tests/test_compute_live_novelty_metrics.py tests/test_scientific_sources.py -v --tb=short (149 passed); python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present (expected failure: no archived runs remain after removing invalid local archive)
+
 - 2026-07-23 (governance: codify task-start contract for agents and PRs)
   Change type update add
   Scope governance docs tests

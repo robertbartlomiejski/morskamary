@@ -29,6 +29,12 @@ on:
         default: "true"
         type: choice
         options: ["true", "false"]
+      allow_minimum_provider_contribution:
+        description: "Controlled acquisition: allow package build when at least one required provider contributes"
+        required: false
+        default: "false"
+        type: choice
+        options: ["true", "false"]
       commit_outputs:
         description: "Commit updated outputs/ back to main (requires vars.ALLOW_BOT_COMMITS=true)"
         required: false
@@ -62,6 +68,7 @@ jobs:
       OFFLINE_MODE: ${{ github.event.inputs.offline || 'false' }}
       REQUIRE_VALID_CREDENTIALS: ${{ github.event.inputs.require_valid_credentials || 'false' }}
       REQUIRE_LIVE_RECORDS: ${{ github.event.inputs.require_live_records || 'true' }}
+      ALLOW_MINIMUM_PROVIDER_CONTRIBUTION: ${{ github.event.inputs.allow_minimum_provider_contribution || 'false' }}
 
       CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
       ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
@@ -266,13 +273,18 @@ jobs:
       - name: Evaluate live novelty gates (A-E)
         run: |
           set -euo pipefail
+          GATE_ARGS=()
+          if [ "$ALLOW_MINIMUM_PROVIDER_CONTRIBUTION" = "true" ]; then
+            GATE_ARGS+=(--allow-minimum-provider-contribution)
+          fi
           python scripts/compute_live_novelty_metrics.py \
             --metrics outputs/cumulative_database/run_novelty_metrics.json \
             --provider-health outputs/research_api_health.json \
             --previous-metrics outputs/previous_run_novelty_metrics.json \
             --current-run outputs \
             --output outputs/cumulative_database/novelty_gate_report.json \
-            --strict
+            --strict \
+            "${GATE_ARGS[@]}"
 
       - name: Build statistical research report (HTML + PDF)
         run: |
