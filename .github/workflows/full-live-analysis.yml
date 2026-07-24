@@ -32,7 +32,7 @@ on:
       allow_minimum_provider_contribution:
         description: "Controlled acquisition: allow package build when at least one required provider contributes"
         required: false
-        default: "true"
+        default: "false"
         type: choice
         options: ["true", "false"]
       commit_outputs:
@@ -68,7 +68,7 @@ jobs:
       OFFLINE_MODE: ${{ github.event.inputs.offline || 'false' }}
       REQUIRE_VALID_CREDENTIALS: ${{ github.event.inputs.require_valid_credentials || 'false' }}
       REQUIRE_LIVE_RECORDS: ${{ github.event.inputs.require_live_records || 'true' }}
-      ALLOW_MINIMUM_PROVIDER_CONTRIBUTION: ${{ github.event.inputs.allow_minimum_provider_contribution || 'true' }}
+      ALLOW_MINIMUM_PROVIDER_CONTRIBUTION: ${{ github.event.inputs.allow_minimum_provider_contribution || 'false' }}
 
       CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
       ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}

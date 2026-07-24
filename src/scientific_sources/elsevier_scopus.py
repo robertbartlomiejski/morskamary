@@ -122,8 +122,9 @@ class ElsevierScopusProvider(BaseProvider):
         preserved: Dict[str, str] = {}
         for index, term in enumerate(sorted(_SCOPUS_PRESERVED_HYPHEN_TERMS)):
             placeholder = f" SCOPUSPRESERVEDHYPHEN{index} "
+            pattern = rf"\b{re.escape(term)}\b"
             normalized = re.sub(
-                re.escape(term),
+                pattern,
                 placeholder,
                 normalized,
                 flags=re.IGNORECASE,

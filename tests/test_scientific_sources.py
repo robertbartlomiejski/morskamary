@@ -657,6 +657,15 @@ class TestElsevierScopusProvider:
         assert '"cyber-physical"' not in result
         assert '"micro-credential"' not in result
 
+    def test_project_protocol_query_preserves_hyphen_terms_only_as_full_tokens(self):
+        """Preserved Scopus hyphen terms must not match inside larger hyphenated tokens."""
+        result = ElsevierScopusProvider._project_protocol_query("airport-city port-city")
+        assert result is not None
+        assert '"port-city"' in result
+        assert '"airport"' in result
+        assert '"city"' in result
+        assert '"airport-city"' not in result
+
     def test_search_url_percent_encodes_scopus_term_quotes(self, monkeypatch):
         """Quotes in projected query must be percent-encoded as %22."""
         monkeypatch.setenv("ELSEVIER_API_KEY", "abc")

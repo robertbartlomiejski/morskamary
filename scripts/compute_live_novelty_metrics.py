@@ -184,6 +184,10 @@ def evaluate_gates(
     provider_health = provider_health or {}
     previous_metrics = previous_metrics or {}
     query_execution_summary = query_execution_summary or {}
+    provider_outcome_slugs = {
+        slug for slug in query_execution_summary if isinstance(slug, str) and not slug.startswith("_")
+    }
+    strict_run_log_is_authoritative = strict and bool(provider_outcome_slugs)
     gates: List[Dict[str, Any]] = []
     fail = False
 
@@ -234,11 +238,6 @@ def evaluate_gates(
             status = health.lower()
         outcome = query_execution_summary.get(prov, {})
         log_has_provider_outcome = bool(outcome)
-        # In strict mode with an authoritative execution log present,
-        # do NOT fall back to cumulative metrics for providers absent from log
-        strict_run_log_is_authoritative = strict and bool(
-            {k for k in query_execution_summary if not k.startswith("_")}
-        )
         fallback_contributed_records = (
             0 if strict_run_log_is_authoritative else provider_counts_normalized.get(prov, 0)
         )
@@ -350,11 +349,14 @@ def evaluate_gates(
 
     # Gate E
     contributed_by_provider: Dict[str, int] = {}
-    for provider, count in provider_counts.items():
-        slug = _canonical_provider(provider)
-        if not slug:
-            continue
-        contributed_by_provider[slug] = contributed_by_provider.get(slug, 0) + int(count or 0)
+    if strict_run_log_is_authoritative:
+        contributed_by_provider.update({provider: 0 for provider in provider_outcome_slugs})
+    else:
+        for provider, count in provider_counts.items():
+            slug = _canonical_provider(provider)
+            if not slug:
+                continue
+            contributed_by_provider[slug] = contributed_by_provider.get(slug, 0) + int(count or 0)
     for provider, outcome in query_execution_summary.items():
         if provider.startswith("_"):
             continue
@@ -395,7 +397,7 @@ def evaluate_gates(
     )
     family_data_available = family_field_present and len(active_families) > 0
     total_contributed = sum(int(count or 0) for count in contributed_by_provider.values())
-    # Quantitative contribution shares for scientific reporting (H5 diagnostic)
+    # Quantitative contribution shares for provider concentration diagnostics.
     provider_share_by_provider = {
         provider: round(int(count or 0) / total_contributed, 6)
         for provider, count in sorted(contributed_by_provider.items())
@@ -437,8 +439,9 @@ def evaluate_gates(
     if single_bias:
         # CRITICAL COHERENCE FIX: When allow_minimum_provider_contribution is active,
         # Gate E must NOT block the controlled run. Concentration is a scientific
-        # diagnostic for H5, not a technical blocker when Gate A already permits
-        # a partial-provider run. Report as WARN with full quantitative detail.
+        # provider concentration diagnostic, not a technical blocker when Gate A
+        # already permits a partial-provider run. Report as WARN with full
+        # quantitative detail.
         if strict and not allow_minimum_provider_contribution:
             gate_e_status = "fail"
         else:

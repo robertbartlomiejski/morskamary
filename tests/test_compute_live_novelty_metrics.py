@@ -564,7 +564,8 @@ def test_gate_e_coherent_with_gate_a_controlled_mode() -> None:
     """Gate E must WARN (not FAIL) when allow_minimum_provider_contribution is active.
 
     This is the critical A/E coherence fix: concentration is a scientific diagnostic
-    for H5 Provider Bias Shift, not a technical blocker for controlled acquisition.
+    for provider concentration diagnostics, not a technical blocker for controlled
+    acquisition.
     """
     m = _base_metrics(
         provider_record_count_by_provider={"crossref": 100, "scopus": 0},
@@ -591,6 +592,32 @@ def test_gate_e_coherent_with_gate_a_controlled_mode() -> None:
     assert len(gate_e["detail"]["concentration_reasons"]) > 0
     # The overall run should NOT be blocked
     assert r["overall_status"] == "pass"
+
+
+def test_gate_e_strict_uses_only_current_run_execution_log_counts() -> None:
+    """Strict Gate E must ignore cumulative provider counts absent from the current run log."""
+    r = evaluate_gates(
+        metrics=_base_metrics(
+            provider_record_count_by_provider={"crossref": 20, "scopus": 8},
+            crossref_dominance_ratio=1.0,
+        ),
+        strict=True,
+        execution_log_available=True,
+        query_execution_summary={
+            "crossref": {"attempted_queries": 4, "contributed_records": 20, "queries_with_errors": 0},
+            "_query_family_counts": {"core_sector": 20},
+        },
+    )
+    gate_e = next(g for g in r["gates"] if g["gate_id"] == "E")
+    assert gate_e["status"] == "fail"
+    assert gate_e["detail"]["active_providers"] == ["crossref"]
+    assert gate_e["detail"]["provider_contributed_record_count_by_provider"] == {
+        "crossref": 20,
+    }
+    assert gate_e["detail"]["provider_contribution_share_by_provider"] == {
+        "crossref": 1.0,
+    }
+    assert "single_provider_contribution" in gate_e["detail"]["concentration_reasons"]
 
 
 def test_gate_e_uses_execution_log_contribution_distributions() -> None:
