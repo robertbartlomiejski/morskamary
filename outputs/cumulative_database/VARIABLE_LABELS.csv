@@ -1,0 +1,10 @@
+variable_name,variable_label
+cross_sector_recurrence_score,Share of the 12 sectors in which the same competence label recurs.
+demand_strength_score,"Deterministic weighted composite of DOI, provider diversity, recency, query diversity, and semantic confidence."
+ects,European Credit Transfer and Accumulation System points.
+eqf_level,European Qualifications Framework level (4-7).
+gap_ratio,"uncovered_demand_count / max(1, validated_demand_count)."
+provider_diversity_score,Share of distinct providers per record set relative to total providers.
+query_diversity_score,Share of distinct query families per record set relative to all families.
+semantic_confidence_mean,Mean confidence_score of all Layer 3 signals for the demand.
+temporal_recency_score,Exponential decay score of latest_seen_at_utc relative to today.

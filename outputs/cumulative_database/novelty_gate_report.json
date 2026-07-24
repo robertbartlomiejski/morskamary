@@ -1,0 +1,119 @@
+{
+  "current_run_id": "30090903921-1",
+  "gates": [
+    {
+      "detail": {
+        "allow_minimum_provider_contribution": true,
+        "contribution_outcomes": {
+          "crossref": {
+            "attempted_queries": 120,
+            "contributed_records": 3546,
+            "health_status": "ok",
+            "present_in_execution_log": true,
+            "queries_with_errors": 0
+          },
+          "scopus": {
+            "attempted_queries": 120,
+            "contributed_records": 452,
+            "health_status": "ok",
+            "present_in_execution_log": true,
+            "queries_with_errors": 0
+          }
+        },
+        "execution_log_available": true,
+        "minimum_provider_contribution_met": true,
+        "minimum_required_contributing_providers": 1,
+        "optional_non_blocking_providers": [
+          "wos"
+        ],
+        "providers_ok_zero_records": [],
+        "providers_ok_zero_records_optional": [],
+        "providers_ok_zero_records_required": [],
+        "required_contributing_provider_count": 2
+      },
+      "gate_id": "A",
+      "name": "Provider contribution",
+      "status": "pass"
+    },
+    {
+      "detail": {
+        "current_zero_novelty": false,
+        "previous_zero_novelty": false
+      },
+      "gate_id": "B",
+      "name": "Novelty",
+      "status": "pass"
+    },
+    {
+      "detail": {
+        "jaccard": 0.2956,
+        "semantic_new_signal_count": 1450
+      },
+      "gate_id": "C",
+      "name": "Jaccard repetition",
+      "status": "pass"
+    },
+    {
+      "detail": {
+        "static_baseline_reported_as_live_availability": false
+      },
+      "gate_id": "D",
+      "name": "Static baseline contamination",
+      "status": "pass"
+    },
+    {
+      "detail": {
+        "active_families": [
+          "competence_demand",
+          "core_sector",
+          "emerging_demand",
+          "hypothesis_verification",
+          "theory_translation",
+          "validation_eqf_translation"
+        ],
+        "active_providers": [
+          "crossref",
+          "scopus"
+        ],
+        "concentration_reasons": [
+          "provider_concentration_ratio>0.85"
+        ],
+        "concentration_threshold": 0.85,
+        "crossref_dominance_ratio": 0.8224,
+        "max_provider_contribution_share": 0.886943,
+        "max_query_family_contribution_share": 0.364932,
+        "provider_contributed_record_count_by_provider": {
+          "crossref": 3546,
+          "scopus": 452
+        },
+        "provider_contribution_share_by_provider": {
+          "crossref": 0.886943,
+          "scopus": 0.113057
+        },
+        "query_family_contributed_record_count_by_family": {
+          "competence_demand": 661,
+          "core_sector": 1459,
+          "emerging_demand": 867,
+          "hypothesis_verification": 228,
+          "theory_translation": 329,
+          "validation_eqf_translation": 454
+        },
+        "query_family_contribution_share_by_family": {
+          "competence_demand": 0.165333,
+          "core_sector": 0.364932,
+          "emerging_demand": 0.216858,
+          "hypothesis_verification": 0.057029,
+          "theory_translation": 0.082291,
+          "validation_eqf_translation": 0.113557
+        },
+        "query_family_distribution_available": true,
+        "warnings": []
+      },
+      "gate_id": "E",
+      "name": "Provider/query concentration",
+      "status": "warn"
+    }
+  ],
+  "overall_status": "pass",
+  "previous_run_id": "28967267944.2"
+}

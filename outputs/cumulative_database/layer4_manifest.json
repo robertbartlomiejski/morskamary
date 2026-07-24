@@ -1,0 +1,27 @@
+{
+  "analysis_timestamp_utc": "2026-07-24T11:50:15+00:00",
+  "built_at_utc": "2026-07-24T11:50:15+00:00",
+  "classifier_version": "cumulative-db-semantic-v1",
+  "current_run_id": "30090903921-1",
+  "demand_strength_formula": "0.30*normalized_unique_doi_count + 0.20*provider_diversity_score + 0.20*temporal_recency_score + 0.15*query_diversity_score + 0.15*semantic_confidence_mean",
+  "derived_demand_count": 157,
+  "files": [
+    "cumulative_database/derived_competence_demands.csv",
+    "cumulative_database/derived_competence_demands.jsonl",
+    "layer4_statistics/multivariate_induction_results.json",
+    "layer4_statistics/qmbd_cross_tables.csv",
+    "layer4_statistics/sector_gap_matrices.json",
+    "layer4_statistics/taxonomic_clusters.csv"
+  ],
+  "indices": {
+    "blue_capability_gap_index": 1.0,
+    "cross_sector_recurrence_index": 0.881104,
+    "micro_credential_coverage_index": null,
+    "micro_credential_coverage_note": "not_computable_no_validated_supply_map",
+    "provider_diversity_index": 0.700637,
+    "qmbd_skewness_index": 0.251592,
+    "query_diversity_index": 0.329087,
+    "temporal_recency_index": 1.0
+  },
+  "schema_version": "1.0.0"
+}

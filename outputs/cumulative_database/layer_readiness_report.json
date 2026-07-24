@@ -1,0 +1,66 @@
+{
+  "generated_at_utc": "2026-07-24T11:52:38+00:00",
+  "layers": [
+    {
+      "action_taken": "consumed_unchanged",
+      "expected_files": [
+        "config/live_query_protocol.yml"
+      ],
+      "files_missing": [],
+      "files_present": [
+        "config/live_query_protocol.yml"
+      ],
+      "layer_name": "Layer 0",
+      "schema_valid": true,
+      "usable_for_layer4": true,
+      "validation_errors": []
+    },
+    {
+      "action_taken": "consumed_unchanged",
+      "expected_files": [
+        "live_runs/"
+      ],
+      "files_missing": [],
+      "files_present": [
+        "live_runs/"
+      ],
+      "layer_name": "Layer 1",
+      "schema_valid": true,
+      "usable_for_layer4": true,
+      "validation_errors": []
+    },
+    {
+      "action_taken": "consumed_unchanged",
+      "expected_files": [
+        "cumulative_database/evidence_records.csv",
+        "cumulative_database/evidence_records.jsonl"
+      ],
+      "files_missing": [],
+      "files_present": [
+        "cumulative_database/evidence_records.csv",
+        "cumulative_database/evidence_records.jsonl"
+      ],
+      "layer_name": "Layer 2",
+      "schema_valid": true,
+      "usable_for_layer4": true,
+      "validation_errors": []
+    },
+    {
+      "action_taken": "consumed_unchanged",
+      "expected_files": [
+        "cumulative_database/competence_demand_signals.csv",
+        "cumulative_database/competence_demand_signals.jsonl"
+      ],
+      "files_missing": [],
+      "files_present": [
+        "cumulative_database/competence_demand_signals.csv",
+        "cumulative_database/competence_demand_signals.jsonl"
+      ],
+      "layer_name": "Layer 3",
+      "schema_valid": true,
+      "usable_for_layer4": true,
+      "validation_errors": []
+    }
+  ],
+  "schema_version": "1.0.0"
+}
