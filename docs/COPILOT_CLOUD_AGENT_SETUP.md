@@ -54,7 +54,7 @@ Recommended Actions variables during the controlled live-validation period:
 - `ALLOW_BOT_COMMITS=false`
 - `LIVE_OUTPUTS_AUTOCOMMIT=false`
 
-Enable either only after the controlled two-run validation passes and branch/ruleset protection is confirmed.
+Enable `ALLOW_BOT_COMMITS` only after the controlled two-run validation passes and branch/ruleset protection is confirmed. `LIVE_OUTPUTS_AUTOCOMMIT` additionally gates scheduled publication and should remain `false` until a scheduled publication cadence is explicitly approved.
 
 ## Actions and branch protection
 
@@ -71,7 +71,8 @@ Enable either only after the controlled two-run validation passes and branch/rul
 - `.github/workflows/full-live-analysis.yml`
   - runs under `live-research`
   - keeps `commit_outputs` default `false`
-  - keeps publication behind `ALLOW_BOT_COMMITS` and `LIVE_OUTPUTS_AUTOCOMMIT`
+  - gates manual-dispatch publication behind `ALLOW_BOT_COMMITS=true` and `commit_outputs=true`
+  - gates scheduled publication behind `ALLOW_BOT_COMMITS=true` and `LIVE_OUTPUTS_AUTOCOMMIT=true`
   - captures one `ANALYSIS_TIMESTAMP_UTC`
   - passes that timestamp into Layer 4/5
   - passes the current-run raw acquisition index into the release package
@@ -84,9 +85,9 @@ Enable either only after the controlled two-run validation passes and branch/rul
 
 ### 1. Advance PR #208 immediately
 
-- [ ] Update PR #208 body or comment to state that no repository code delta is required because current `main` already contains the timestamp and Gate A alias fixes.
-- [ ] Record that the remaining work is operator-side GitHub configuration and controlled live validation, not a repository patch.
-- [ ] Keep PR #208 draft unless it is being used only as an audit log; if it is audit-only with no file changes, close it after posting the final audit summary.
+- [ ] Update PR #208 body or comment to acknowledge that this PR adds governance-documentation changes (operator runbook and CHANGELOG entry); there is no production-code delta required because current `main` already contains the timestamp and Gate A alias fixes.
+- [ ] Record that the remaining work is operator-side GitHub configuration and controlled live validation, not a repository code patch.
+- [ ] If PR #208 is audit-only and the documentation additions are not needed, revert the file changes and close the PR after posting the final audit summary.
 
 ### 2. Reconfirm sections A-E in repository settings
 
@@ -107,7 +108,7 @@ Enable either only after the controlled two-run validation passes and branch/rul
 - [ ] Environment `live-research` exists.
 - [ ] Required reviewer is the repository owner or maintainer.
 - [ ] Self-review prevention is configured without creating an impossible gate for a sole maintainer.
-- [ ] Deployment branches are restricted to `main` and `claude/pr-190-build-live-cumulative-database`.
+- [ ] Deployment branches are restricted to `main` only. (The `claude/pr-190-build-live-cumulative-database` branch was only needed during the PR #191 controlled validation period and has since been merged and deleted.)
 - [ ] Provider credentials exist only in the `live-research` environment, not as repository-level Actions secrets.
 - [ ] No provider credentials exist in Copilot Agent secrets, MCP config, PR text, logs, or artifacts.
 
@@ -146,16 +147,26 @@ Enable either only after the controlled two-run validation passes and branch/rul
   - [ ] `Analyze (actions)`
   - [ ] `Analyze (python)`
 
-### 7. Controlled live validation gate for the former PR #191 line of work
+### 7. Controlled live validation gate
 
 Do this only after ordinary checks are green and review state is clean.
 
-- [ ] Dispatch Run 1 from `claude/pr-190-build-live-cumulative-database`.
+**Known limitations to account for before dispatching:**
+
+- **Run 1 archive handoff**: With `commit_outputs=false`, Run 1 uploads its updated `outputs/run_archive` as an artifact but does not commit it. Run 2 dispatched from a fresh checkout will compare against the older committed archive baseline, not Run 1's output. To get a valid Run 1 vs Run 2 recurrence comparison you must either commit Run 1's archive before dispatching Run 2, or download the Run 1 artifact and supply it as a prior-archive input to Run 2.
+- **Strict gate vs zero-novelty**: `compute_live_novelty_metrics.py --strict` Gate B fails when both new-DOI and semantic-new-signal counts are zero. A truly identical repeat run will produce zero new novelty and therefore fail Gate B under `--strict`. This is the expected outcome for a recurrence confirmation; document the Gate B failure as expected, or run Run 2 outside the strict publication gate for the purpose of comparing outputs.
+- **Analysis timestamp**: Each dispatch unconditionally captures a new `ANALYSIS_TIMESTAMP_UTC`, which feeds temporal-recency scores, demand-strength classifications, and hypothesis results. To compare Run 1 and Run 2 artifacts on evidence behavior rather than elapsed time, supply Run 1's timestamp as a fixed input to Run 2.
+- **Raw provider payloads**: `outputs/research_sources/raw_api_payloads` and `outputs/live_runs/.../raw/raw_api_payloads` may contain fields whose license prohibits redistribution. The `git reset` in the publish step prevents commit but does not remove the 30-day artifact upload. Ensure the workflow or a pre-upload step strips prohibited fields before uploading all of `outputs/`.
+
+- [ ] Dispatch Run 1 from `main` (verified current SHA).
 - [ ] Use the same documented protocol and settings intended for controlled validation.
 - [ ] Set `commit_outputs=false`.
 - [ ] Review Run 1 for provider health, query execution and filter audit, accepted/deduplicated/contributing counts, Layer 0-5 artifacts, archive integrity, package checksums, and no static-baseline contamination.
-- [ ] Dispatch Run 2 with identical documented inputs.
-- [ ] Again set `commit_outputs=false`.
+- [ ] Confirm no prohibited raw proprietary payload fields are present in the uploaded artifacts.
+- [ ] Before dispatching Run 2, ensure Run 1's archive is available as the prior-archive baseline (commit it to the branch, or supply it as an artifact input). Record Run 1's `ANALYSIS_TIMESTAMP_UTC` for use in Run 2.
+- [ ] Dispatch Run 2 from the same `main` revision with identical documented inputs and `commit_outputs=false`.
+- [ ] Supply Run 1's `ANALYSIS_TIMESTAMP_UTC` and archive as inputs so the comparison reflects evidence behavior, not elapsed time.
+- [ ] Expect and document Gate B failure on zero-novelty as the correct recurrence outcome rather than treating it as a blocking error.
 - [ ] Produce and retain a machine-readable Run 1 vs Run 2 comparison.
 - [ ] Produce and retain a validity-threat register.
 - [ ] Confirm stable signal recurrence and zero-new novelty where appropriate.
@@ -164,27 +175,35 @@ Do this only after ordinary checks are green and review state is clean.
 
 ### 8. Publication-path gate
 
+Publication gates differ between manual dispatch and scheduled runs:
+
+- **Manual dispatch**: publication runs when `ALLOW_BOT_COMMITS=true` AND `commit_outputs=true` (the `workflow_dispatch` input).
+- **Scheduled run**: publication runs when `ALLOW_BOT_COMMITS=true` AND `LIVE_OUTPUTS_AUTOCOMMIT=true`. Setting only `ALLOW_BOT_COMMITS=true` without `LIVE_OUTPUTS_AUTOCOMMIT=true` does **not** enable scheduled publication. Conversely, leaving `LIVE_OUTPUTS_AUTOCOMMIT=false` does not disable manual dispatch publication when `commit_outputs=true` is explicitly passed.
+
 - [ ] Keep `ALLOW_BOT_COMMITS=false`.
 - [ ] Keep `LIVE_OUTPUTS_AUTOCOMMIT=false`.
 - [ ] Do not enable either variable unless the controlled two-run validation is accepted.
+- [ ] Before enabling bot commits, verify that **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests** is enabled; without it, `gh pr create` will fail and leave an orphan branch.
 - [ ] When publication is eventually enabled, require bot publication through a `bot/live-research/...` branch plus PR.
 - [ ] If that bot PR does not trigger CI automatically, explicitly trigger or rerun CI before review.
 
-### 9. Decision point for issue #198
+### 9. Issue #198 closure — audit record
 
-Close #198 only when all of the following are true:
+Issue #198 was closed as completed on 2026-07-23. All sections A–G were confirmed:
 
-- [ ] Sections A-F are confirmed in GitHub settings.
-- [ ] The repo-managed CodeQL setup is the only active CodeQL path.
-- [ ] The `main` ruleset uses stable ordinary CI and CodeQL checks.
-- [ ] Controlled Run 1 and Run 2 completed with `commit_outputs=false`.
-- [ ] Run comparison and validity-threat register exist and were reviewed.
-- [ ] No remaining conversation-resolution or branch-current blockers remain on the relevant PR path.
-- [ ] A maintainer records the closure comment summarizing settings confirmed, protected environment confirmed, required check names locked, controlled validation completed, and whether publication variables remain disabled or are explicitly approved for later enablement.
+- [x] **A** — Copilot cloud agent settings (firewall, allowlists, approval, automations, MCP).
+- [x] **B** — Actions variables disabled (`ALLOW_BOT_COMMITS=false`, `LIVE_OUTPUTS_AUTOCOMMIT=false`).
+- [x] **C** — Protected `live-research` environment with required reviewer, restricted deployment branches, and provider credentials in environment only.
+- [x] **D** — CodeQL single-setup: default setup disabled, repo-managed `Analyze (actions)` and `Analyze (python)` pass.
+- [x] **E** — Actions permissions: default read-only, bot-PR publication path defined, workflow-run approval enabled.
+- [x] **F** — `main` ruleset: PR required, approval, conversation resolution, branch current, stable CI and CodeQL checks, force-push blocked.
+- [x] **G** — Controlled two-run live validation (Run 1 and Run 2 on `claude/pr-190-build-live-cumulative-database`, `commit_outputs=false`): provider health, Layer 0–5 artifacts, archive integrity, recurrence and novelty, duplicate separation, no static-baseline contamination, no secret leakage.
+
+If future changes require re-opening any of the above items, track them in a new issue rather than reopening #198.
 
 ### 10. Best next operator action
 
-- [ ] Post a maintainer comment on PR #208 saying the repository already contains the required code-side fixes and that the remaining tasks are the manual GitHub settings audit, `main` ruleset finalization, and controlled two-run live validation needed to close #198.
+- [ ] Post a maintainer comment on PR #208 confirming that issue #198 is closed and this runbook records the completed audit state.
 
 ## Agent task contract
 
