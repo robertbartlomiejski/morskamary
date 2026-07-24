@@ -281,6 +281,144 @@ class TestScanFiles:
         assert not should_ignore_file(REPO_ROOT / "coverage.xml")
 
 
+class TestManifestSourcesLocalPrAImprovedArchiveRows:
+    """Tests for the MANIFEST_SOURCES.csv rows added for the archived
+    outputs/run_archive/runs/local-pr-a-improved/ run."""
+
+    ARCHIVE_PREFIX = "outputs/run_archive/runs/local-pr-a-improved/"
+
+    def _archive_entries(self):
+        entries = load_existing()
+        return {
+            name: row
+            for name, row in entries.items()
+            if name.startswith(self.ARCHIVE_PREFIX)
+        }
+
+    def test_archive_rows_are_present_for_the_new_run(self):
+        """The manifest must have picked up rows for the newly archived run."""
+        entries = self._archive_entries()
+        assert len(entries) > 0
+        # A representative sample of paths added by this PR must be present.
+        expected_paths = {
+            self.ARCHIVE_PREFIX + "_checksums.sha256",
+            self.ARCHIVE_PREFIX + "manifest.json",
+            self.ARCHIVE_PREFIX + "MANIFEST_SOURCES.csv",
+            self.ARCHIVE_PREFIX + "analysis_outputs/competences_full_database.json",
+            self.ARCHIVE_PREFIX + "analysis_outputs/credentials_matrix.html",
+            self.ARCHIVE_PREFIX + "analysis_outputs/gaps_summary.csv",
+            self.ARCHIVE_PREFIX
+            + "analysis_outputs/sector_dictionaries/blue_biotech_tmbd_dictionary.json",
+            self.ARCHIVE_PREFIX
+            + "analysis_outputs/sector_dictionaries/ship_repair_tmbd_dictionary.json",
+        }
+        assert expected_paths.issubset(entries.keys())
+
+    def test_archive_row_field_count_matches_manifest_columns(self):
+        """Every added row must have exactly nine comma-separated fields,
+        matching the MANIFEST_SOURCES.csv header (no truncated/extra fields
+        from an unescaped comma in a summary or citation key). This reads the
+        raw rows directly with csv.reader rather than load_existing(), since
+        the latter normalizes every row to the fixed COLUMNS key set
+        regardless of how many raw fields the on-disk line actually had."""
+        with open(MANIFEST_PATH, "r", encoding="utf-8", newline="") as handle:
+            reader = csv.reader(handle)
+            header = next(reader)
+            expected_field_count = len(header)
+            archive_rows = [
+                row
+                for row in reader
+                if row and row[0].startswith(self.ARCHIVE_PREFIX)
+            ]
+
+        assert archive_rows, "expected at least one archived row to check"
+        for row in archive_rows:
+            assert len(row) == expected_field_count, row
+
+    def test_checksums_row_is_binary_like_and_marked_text_unavailable(self):
+        """The _checksums.sha256 row is a hash listing, not prose/markup, and
+        must be classified as 'other' with text_available == 'no'."""
+        entries = self._archive_entries()
+        row = entries[self.ARCHIVE_PREFIX + "_checksums.sha256"]
+        assert row["file_type"] == "other"
+        assert row["text_available"] == "no"
+        assert row["preferred_citation_key"] == "checksums"
+
+    def test_gaps_summary_csv_row_is_classified_as_dataset_derived(self):
+        """gaps_summary.csv is a derived analysis dataset and must carry the
+        dataset_derived classification with text_available == 'yes'."""
+        entries = self._archive_entries()
+        row = entries[self.ARCHIVE_PREFIX + "analysis_outputs/gaps_summary.csv"]
+        assert row["file_type"] == "dataset_derived"
+        assert row["text_available"] == "yes"
+
+    def test_html_report_rows_are_marked_text_unavailable(self):
+        """HTML analysis reports are classified as 'other' with
+        text_available == 'no' (HTML is not in the plain-text extension
+        allowlist used by text_available())."""
+        entries = self._archive_entries()
+        for suffix in (
+            "analysis_outputs/credentials_matrix.html",
+            "analysis_outputs/gaps_by_sector.html",
+            "analysis_outputs/literature_integration.html",
+            "analysis_outputs/report_index.html",
+        ):
+            row = entries[self.ARCHIVE_PREFIX + suffix]
+            assert row["text_available"] == "no", suffix
+
+    def test_sector_dictionary_json_rows_are_marked_text_available(self):
+        """Sector TMBD dictionary JSON files must be marked text_available ==
+        'yes', consistent with the .json extension allowlist."""
+        entries = self._archive_entries()
+        sector_names = (
+            "blue_biotech",
+            "coastal_tourism",
+            "desalination",
+            "infra_robotics",
+            "living_res",
+            "maritime_defence",
+            "maritime_transport",
+            "non_living_res",
+            "port_activities",
+            "r_i",
+            "renewable_energy",
+            "ship_repair",
+        )
+        for sector in sector_names:
+            path = (
+                self.ARCHIVE_PREFIX
+                + f"analysis_outputs/sector_dictionaries/{sector}_tmbd_dictionary.json"
+            )
+            assert path in entries, path
+            assert entries[path]["text_available"] == "yes"
+            assert entries[path]["preferred_citation_key"] == f"{sector}_tmbd_dictionary"
+
+    def test_nested_manifest_sources_csv_row_is_dataset_derived(self):
+        """The archived copy of MANIFEST_SOURCES.csv nested under the run
+        directory must itself be classified as dataset_derived, matching the
+        classification of the top-level MANIFEST_SOURCES.csv row set (a CSV
+        without a special-cased 'governance' rule at that nested path)."""
+        entries = self._archive_entries()
+        row = entries[self.ARCHIVE_PREFIX + "MANIFEST_SOURCES.csv"]
+        assert row["file_type"] == "dataset_derived"
+        assert row["text_available"] == "yes"
+
+    def test_archive_rows_have_no_duplicate_file_names(self):
+        """load_existing() keys by file_name, so if the generator ever wrote
+        the same archived path twice, only the last occurrence would survive
+        in-memory; assert the on-disk row count for this prefix agrees with
+        the deduplicated in-memory count (i.e. no literal duplicate lines)."""
+        with open(MANIFEST_PATH, "r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            on_disk_names = [
+                row["file_name"]
+                for row in reader
+                if row.get("file_name", "").startswith(self.ARCHIVE_PREFIX)
+            ]
+        assert len(on_disk_names) == len(set(on_disk_names))
+        assert len(on_disk_names) == len(self._archive_entries())
+
+
 class TestMainFunction:
     """Tests for main() and CLI execution paths"""
 

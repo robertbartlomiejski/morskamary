@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import os
+import subprocess
+import textwrap
 from pathlib import Path
 
 
@@ -264,3 +267,129 @@ def test_export_step_passes_generated_constraints_path() -> None:
     export_block = WORKFLOW_TEXT[export_index : export_index + 600]
     assert "--query-constraints-file" in export_block
     assert "query_protocol_constraints.json" in export_block
+
+
+def test_workflow_dispatch_declares_allow_minimum_provider_contribution_input() -> None:
+    """The controlled-acquisition input must be declared as a workflow_dispatch
+    choice input, defaulting to 'true', so Gate A/E coherence behavior in
+    scripts/compute_live_novelty_metrics.py can be toggled per run."""
+    assert "allow_minimum_provider_contribution:" in WORKFLOW_TEXT
+    input_index = WORKFLOW_TEXT.index("allow_minimum_provider_contribution:")
+    input_block = WORKFLOW_TEXT[input_index : input_index + 320]
+    assert 'required: false' in input_block
+    assert 'default: "true"' in input_block
+    assert "type: choice" in input_block
+    assert 'options: ["true", "false"]' in input_block
+    # This input must be declared before the publication (commit_outputs) input.
+    commit_index = WORKFLOW_TEXT.index("commit_outputs:")
+    assert input_index < commit_index
+
+
+def test_allow_minimum_provider_contribution_env_var_defaults_true() -> None:
+    """The job-level env var must be wired from the dispatch input with a
+    'true' fallback, matching the input's own default so scheduled (non
+    workflow_dispatch) runs still get controlled-acquisition behavior."""
+    assert (
+        "ALLOW_MINIMUM_PROVIDER_CONTRIBUTION: "
+        "${{ github.event.inputs.allow_minimum_provider_contribution || 'true' }}"
+        in WORKFLOW_TEXT
+    )
+
+
+def test_novelty_gate_step_conditionally_builds_allow_minimum_provider_contribution_flag() -> None:
+    """The 'Evaluate live novelty gates (A-E)' step must build a GATE_ARGS
+    array and only append --allow-minimum-provider-contribution when the env
+    var is exactly 'true', then pass GATE_ARGS alongside --strict."""
+    step_index = WORKFLOW_TEXT.index("Evaluate live novelty gates (A-E)")
+    step_block = WORKFLOW_TEXT[step_index : step_index + 800]
+
+    assert "GATE_ARGS=()" in step_block
+    assert 'if [ "$ALLOW_MINIMUM_PROVIDER_CONTRIBUTION" = "true" ]; then' in step_block
+    assert "GATE_ARGS+=(--allow-minimum-provider-contribution)" in step_block
+    assert "python scripts/compute_live_novelty_metrics.py" in step_block
+    assert "--strict" in step_block
+    assert '"${GATE_ARGS[@]}"' in step_block
+
+    # GATE_ARGS must be computed before the python invocation, and the
+    # conditional flag must be appended after --strict so strict enforcement
+    # is never silently disabled by the optional gate args.
+    build_index = step_block.index("GATE_ARGS=()")
+    strict_index = step_block.index("--strict")
+    invocation_index = step_block.index("python scripts/compute_live_novelty_metrics.py")
+    gate_args_usage_index = step_block.index('"${GATE_ARGS[@]}"')
+    assert build_index < invocation_index < strict_index < gate_args_usage_index
+
+
+def test_novelty_gate_step_runs_after_layer45_build() -> None:
+    """Novelty gate evaluation consumes run_novelty_metrics.json, which is
+    only produced once the Layer 4-5 competence/gap model has been built."""
+    layer45_index = WORKFLOW_TEXT.index(
+        "python scripts/build_layer4_5_scientific_analysis.py"
+    )
+    gate_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
+    assert layer45_index < gate_index
+
+
+def _extract_gate_args_bash_snippet() -> str:
+    """Extract and dedent the GATE_ARGS-building bash snippet (up to and
+    including the closing 'fi') from the 'Evaluate live novelty gates (A-E)'
+    step, without the Python invocation that follows it."""
+    step_index = WORKFLOW_TEXT.index("Evaluate live novelty gates (A-E)")
+    fi_index = WORKFLOW_TEXT.index("fi\n", step_index)
+    python_index = WORKFLOW_TEXT.index(
+        "python scripts/compute_live_novelty_metrics.py", step_index
+    )
+    assert fi_index < python_index, (
+        "Expected the GATE_ARGS conditional to close before the python "
+        "invocation in the workflow step."
+    )
+    snippet = WORKFLOW_TEXT[step_index : fi_index + len("fi\n")]
+    run_marker = "run: |\n"
+    assert run_marker in snippet
+    body = snippet.split(run_marker, 1)[1]
+    return textwrap.dedent(body)
+
+
+def _run_gate_args_snippet(allow_value: str) -> str:
+    """Execute the real GATE_ARGS bash snippet from the workflow with
+    ALLOW_MINIMUM_PROVIDER_CONTRIBUTION set to ``allow_value``, and return the
+    resulting GATE_ARGS array contents (one element per line)."""
+    body = _extract_gate_args_bash_snippet()
+    script = body + '\nprintf "%s\\n" "${GATE_ARGS[@]}"\n'
+    env = dict(os.environ)
+    env["ALLOW_MINIMUM_PROVIDER_CONTRIBUTION"] = allow_value
+    result = subprocess.run(
+        ["bash", "-c", script],
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert result.returncode == 0, result.stderr
+    return result.stdout
+
+
+def test_gate_args_bash_logic_adds_flag_when_allowed() -> None:
+    """Regression test: executing the actual bash conditional extracted from
+    the workflow with the env var set to 'true' must produce a GATE_ARGS
+    array containing exactly --allow-minimum-provider-contribution."""
+    stdout = _run_gate_args_snippet("true")
+    assert stdout.strip() == "--allow-minimum-provider-contribution"
+
+
+def test_gate_args_bash_logic_omits_flag_when_disallowed() -> None:
+    """Negative/boundary case: when the env var is 'false' the GATE_ARGS array
+    must remain empty, so no --allow-minimum-provider-contribution flag is
+    ever passed to scripts/compute_live_novelty_metrics.py."""
+    stdout = _run_gate_args_snippet("false")
+    assert stdout.strip() == ""
+
+
+def test_gate_args_bash_logic_omits_flag_for_unrecognized_value() -> None:
+    """Boundary case: any value other than the literal string 'true' (e.g. an
+    empty string, or an unexpected value) must not enable the controlled
+    acquisition flag, since the bash comparison is a strict string equality
+    check rather than a truthy/falsy coercion."""
+    for value in ("", "TRUE", "1", "yes"):
+        stdout = _run_gate_args_snippet(value)
+        assert stdout.strip() == "", f"unexpected flag for value={value!r}"
