@@ -61,6 +61,7 @@ _SCOPUS_FIELDS = (
     "prism:publicationName,prism:url,citedby-count,authkeywords,eid"
 )
 _SCOPUS_MAX_COUNT = 25
+_SCOPUS_PRESERVED_HYPHEN_TERMS = frozenset({"port-city", "de-base-re"})
 
 _LICENCE_NOTE = (
     "Elsevier/Scopus institutional metadata (Stage 1 compliant). "
@@ -110,19 +111,36 @@ class ElsevierScopusProvider(BaseProvider):
         Returns ``None`` when the query contains no extractable searchable tokens so
         that callers can reject the request with a structured provider error rather
         than substituting unrelated fallback terms that would contaminate provenance.
+
+        Hyphen policy: only terms in ``_SCOPUS_PRESERVED_HYPHEN_TERMS`` (currently
+        ``port-city`` and ``de-base-re``) are kept hyphenated. All other hyphens are
+        split into mandatory AND-joined tokens (e.g. ``cyber-physical`` becomes
+        ``"cyber" AND "physical"``).
         """
+        normalized = query.replace("&amp;", " and ")
+        # Protect preserved hyphen terms with placeholders before splitting
+        preserved: Dict[str, str] = {}
+        for index, term in enumerate(sorted(_SCOPUS_PRESERVED_HYPHEN_TERMS)):
+            placeholder = f" SCOPUSPRESERVEDHYPHEN{index} "
+            pattern = rf"\b{re.escape(term)}\b"
+            normalized = re.sub(
+                pattern,
+                placeholder,
+                normalized,
+                flags=re.IGNORECASE,
+            )
+            preserved[placeholder.strip()] = term
         normalized = (
-            query.replace("&amp;", " and ")  # resolve HTML entity before raw ampersand
-            .replace("&", " and ")
+            normalized.replace("&", " and ")
             .replace("/", " ")
             .replace("(", " ")
             .replace(")", " ")
+            .replace("-", " ")
         )
-        tokens = [
-            token
-            for token in re.findall(r"[A-Za-z0-9][A-Za-z0-9\\-\\.]*", normalized)
-            if token and token not in {"and", "or", "not"}
-        ]
+        tokens = []
+        for token in re.findall(r"[A-Za-z0-9][A-Za-z0-9\\-\\.]*", normalized):
+            if token and token.lower() not in {"and", "or", "not"}:
+                tokens.append(preserved.get(token, token))
         if not tokens:
             return None
         scoped_terms = " AND ".join(f'"{token}"' for token in tokens)
@@ -382,7 +400,7 @@ class ElsevierScopusProvider(BaseProvider):
             )
         requested_count = int(max_results)
         applied_count = self._scopus_count(requested_count)
-        encoded_query = urllib.parse.quote(projected_query, safe="()\"")
+        encoded_query = urllib.parse.quote(projected_query, safe="()")
         url = (
             f"{self._api_base}?query={encoded_query}&count={applied_count}&view=STANDARD"
             f"&field={urllib.parse.quote(_SCOPUS_FIELDS)}"
