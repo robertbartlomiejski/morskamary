@@ -339,6 +339,7 @@ def test_archive_excludes_raw_api_payloads_from_committed_run_archive(
     manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
     assert all("raw_api_payloads/" not in item["path"] for item in manifest["files"])
 
+
 def test_repeated_archive_creation_does_not_overwrite_previous_run(tmp_path: Path) -> None:
     module = _load_archive_module()
     _seed_required_targets(tmp_path)
