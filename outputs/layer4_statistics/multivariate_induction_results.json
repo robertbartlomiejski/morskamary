@@ -1,0 +1,478 @@
+{
+  "chi_square_statistic": 284.933674,
+  "contingency_sector_axis": {
+    "blue_biotech": {
+      "MARINE": 12,
+      "OCEANIC": 10
+    },
+    "coastal_tourism": {
+      "OCEANIC": 12
+    },
+    "desalination": {
+      "HYDRONIZATION": 12,
+      "OCEANIC": 2
+    },
+    "infra_robotics": {
+      "MARITIME": 9,
+      "OCEANIC": 2
+    },
+    "living_res": {
+      "MARINE": 9,
+      "OCEANIC": 1
+    },
+    "maritime_defence": {
+      "MARITIME": 10,
+      "OCEANIC": 3
+    },
+    "maritime_transport": {
+      "MARITIME": 9,
+      "OCEANIC": 4
+    },
+    "non_living_res": {
+      "MARINE": 6,
+      "OCEANIC": 4
+    },
+    "port_activities": {
+      "MARITIME": 9,
+      "OCEANIC": 5
+    },
+    "r_i": {
+      "OCEANIC": 11
+    },
+    "renewable_energy": {
+      "MARITIME": 10,
+      "OCEANIC": 5
+    },
+    "ship_repair": {
+      "MARITIME": 6,
+      "OCEANIC": 6
+    }
+  },
+  "cramers_v": 0.777788,
+  "frequency_axis_counts": {
+    "HYDRONIZATION": 12,
+    "MARINE": 27,
+    "MARITIME": 53,
+    "OCEANIC": 65
+  },
+  "frequency_sector_counts": {
+    "blue_biotech": 22,
+    "coastal_tourism": 12,
+    "desalination": 14,
+    "infra_robotics": 11,
+    "living_res": 10,
+    "maritime_defence": 13,
+    "maritime_transport": 13,
+    "non_living_res": 10,
+    "port_activities": 14,
+    "r_i": 11,
+    "renewable_energy": 15,
+    "ship_repair": 12
+  },
+  "jaccard_provider_overlap": [
+    {
+      "jaccard": 1.0,
+      "sector_a": "blue_biotech",
+      "sector_b": "coastal_tourism"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "blue_biotech",
+      "sector_b": "desalination"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "blue_biotech",
+      "sector_b": "infra_robotics"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "blue_biotech",
+      "sector_b": "living_res"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "blue_biotech",
+      "sector_b": "maritime_defence"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "blue_biotech",
+      "sector_b": "maritime_transport"
+    },
+    {
+      "jaccard": 0.5,
+      "sector_a": "blue_biotech",
+      "sector_b": "non_living_res"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "blue_biotech",
+      "sector_b": "port_activities"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "blue_biotech",
+      "sector_b": "r_i"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "blue_biotech",
+      "sector_b": "renewable_energy"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "blue_biotech",
+      "sector_b": "ship_repair"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "coastal_tourism",
+      "sector_b": "desalination"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "coastal_tourism",
+      "sector_b": "infra_robotics"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "coastal_tourism",
+      "sector_b": "living_res"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "coastal_tourism",
+      "sector_b": "maritime_defence"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "coastal_tourism",
+      "sector_b": "maritime_transport"
+    },
+    {
+      "jaccard": 0.5,
+      "sector_a": "coastal_tourism",
+      "sector_b": "non_living_res"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "coastal_tourism",
+      "sector_b": "port_activities"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "coastal_tourism",
+      "sector_b": "r_i"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "coastal_tourism",
+      "sector_b": "renewable_energy"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "coastal_tourism",
+      "sector_b": "ship_repair"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "desalination",
+      "sector_b": "infra_robotics"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "desalination",
+      "sector_b": "living_res"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "desalination",
+      "sector_b": "maritime_defence"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "desalination",
+      "sector_b": "maritime_transport"
+    },
+    {
+      "jaccard": 0.5,
+      "sector_a": "desalination",
+      "sector_b": "non_living_res"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "desalination",
+      "sector_b": "port_activities"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "desalination",
+      "sector_b": "r_i"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "desalination",
+      "sector_b": "renewable_energy"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "desalination",
+      "sector_b": "ship_repair"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "infra_robotics",
+      "sector_b": "living_res"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "infra_robotics",
+      "sector_b": "maritime_defence"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "infra_robotics",
+      "sector_b": "maritime_transport"
+    },
+    {
+      "jaccard": 0.5,
+      "sector_a": "infra_robotics",
+      "sector_b": "non_living_res"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "infra_robotics",
+      "sector_b": "port_activities"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "infra_robotics",
+      "sector_b": "r_i"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "infra_robotics",
+      "sector_b": "renewable_energy"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "infra_robotics",
+      "sector_b": "ship_repair"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "living_res",
+      "sector_b": "maritime_defence"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "living_res",
+      "sector_b": "maritime_transport"
+    },
+    {
+      "jaccard": 0.5,
+      "sector_a": "living_res",
+      "sector_b": "non_living_res"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "living_res",
+      "sector_b": "port_activities"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "living_res",
+      "sector_b": "r_i"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "living_res",
+      "sector_b": "renewable_energy"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "living_res",
+      "sector_b": "ship_repair"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "maritime_defence",
+      "sector_b": "maritime_transport"
+    },
+    {
+      "jaccard": 0.5,
+      "sector_a": "maritime_defence",
+      "sector_b": "non_living_res"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "maritime_defence",
+      "sector_b": "port_activities"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "maritime_defence",
+      "sector_b": "r_i"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "maritime_defence",
+      "sector_b": "renewable_energy"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "maritime_defence",
+      "sector_b": "ship_repair"
+    },
+    {
+      "jaccard": 0.5,
+      "sector_a": "maritime_transport",
+      "sector_b": "non_living_res"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "maritime_transport",
+      "sector_b": "port_activities"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "maritime_transport",
+      "sector_b": "r_i"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "maritime_transport",
+      "sector_b": "renewable_energy"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "maritime_transport",
+      "sector_b": "ship_repair"
+    },
+    {
+      "jaccard": 0.5,
+      "sector_a": "non_living_res",
+      "sector_b": "port_activities"
+    },
+    {
+      "jaccard": 0.5,
+      "sector_a": "non_living_res",
+      "sector_b": "r_i"
+    },
+    {
+      "jaccard": 0.5,
+      "sector_a": "non_living_res",
+      "sector_b": "renewable_energy"
+    },
+    {
+      "jaccard": 0.5,
+      "sector_a": "non_living_res",
+      "sector_b": "ship_repair"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "port_activities",
+      "sector_b": "r_i"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "port_activities",
+      "sector_b": "renewable_energy"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "port_activities",
+      "sector_b": "ship_repair"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "r_i",
+      "sector_b": "renewable_energy"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "r_i",
+      "sector_b": "ship_repair"
+    },
+    {
+      "jaccard": 1.0,
+      "sector_a": "renewable_energy",
+      "sector_b": "ship_repair"
+    }
+  ],
+  "method_status": {
+    "chi_square": {
+      "note": "Computed via numpy fallback; see standardized residuals.",
+      "status": "computed"
+    },
+    "correspondence_analysis": {
+      "reason": "scipy/prince not installed as required dependency.",
+      "status": "skipped"
+    },
+    "cramers_v": {
+      "note": "Computed as sqrt(chi2 / (n * (min(r,c) - 1))) with numpy.",
+      "status": "computed_scalar"
+    },
+    "hierarchical_clustering": {
+      "reason": "scipy not installed as required dependency.",
+      "status": "skipped"
+    },
+    "kmeans": {
+      "reason": "scikit-learn not installed; deterministic taxonomic induction used instead.",
+      "status": "skipped"
+    },
+    "pca": {
+      "reason": "scikit-learn not installed as required dependency.",
+      "status": "skipped"
+    }
+  },
+  "standardized_residuals": {
+    "blue_biotech": {
+      "MARINE": 4.224221,
+      "OCEANIC": 0.295468
+    },
+    "coastal_tourism": {
+      "OCEANIC": 3.154801
+    },
+    "desalination": {
+      "HYDRONIZATION": 10.566054,
+      "OCEANIC": -1.576797
+    },
+    "infra_robotics": {
+      "MARITIME": 2.743431,
+      "OCEANIC": -1.196855
+    },
+    "living_res": {
+      "MARINE": 5.551553,
+      "OCEANIC": -1.543265
+    },
+    "maritime_defence": {
+      "MARITIME": 2.678653,
+      "OCEANIC": -1.026818
+    },
+    "maritime_transport": {
+      "MARITIME": 2.201299,
+      "OCEANIC": -0.595774
+    },
+    "non_living_res": {
+      "MARINE": 3.263905,
+      "OCEANIC": -0.068868
+    },
+    "port_activities": {
+      "MARITIME": 1.965942,
+      "OCEANIC": -0.330704
+    },
+    "r_i": {
+      "OCEANIC": 3.020492
+    },
+    "renewable_energy": {
+      "MARITIME": 2.193655,
+      "OCEANIC": -0.485625
+    },
+    "ship_repair": {
+      "MARITIME": 0.968374,
+      "OCEANIC": 0.462933
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "built_at_utc": "2026-07-24T11:50:15+00:00",
+  "classifier_version": "cumulative-db-semantic-v1",
+  "credential_count": 79,
+  "current_run_id": "30090903921-1",
+  "gap_row_count": 22,
+  "hypothesis_results": {
+    "H1": {
+      "direction_note": "positive cohens_d = MARITIME > OCEANIC; negative cohens_d does not support H1",
+      "effect_size_cohens_d": 0.616339,
+      "hypothesis_id": "H1",
+      "hypothesis_label": "Maritimisation Shift",
+      "interpretation": "supported_maritime_dominance",
+      "matched_fragment_count": 31,
+      "mean_maritime": 0.669748,
+      "mean_oceanic": 0.574577,
+      "sample_size_maritime": 53,
+      "sample_size_oceanic": 65,
+      "test_used": "Cohen's d (signed) on demand_strength_score by axis group",
+      "validity_warning": ""
+    },
+    "H2": {
+      "association_metric_missing_ratio": null,
+      "candidate_covered_demand_count": 11,
+      "coverage_note": "Validated coverage is computed only from the separately supplied demand-level EQF map; candidate_covered_demand_count reports generated candidate translations and is never validated supply.",
+      "effect_size": null,
+      "hydronization_demand_count": 12,
+      "hypothesis_id": "H2",
+      "hypothesis_label": "Hydronization Lag",
+      "interpretation": "not_computable",
+      "matched_fragment_count": 10,
+      "unit_of_analysis": "competence_demand_id",
+      "validated_covered_demand_count": 0,
+      "validated_missing_demand_count": 12,
+      "validated_supply_map_provided": false,
+      "validity_warning": "no_validated_supply_map"
+    },
+    "H3": {
+      "axis_distribution": {
+        "MARINE": 64,
+        "OCEANIC": 67
+      },
+      "balance_score": 0.977099,
+      "effect_size_normalized_difference": -0.022901,
+      "hypothesis_id": "H3",
+      "hypothesis_label": "MARINE vs OCEANIC Differential Coverage",
+      "interpretation": "partially_supported",
+      "marine_fragment_count": 64,
+      "marine_sector_count": 3,
+      "marine_sectors": [
+        "blue_biotech",
+        "living_res",
+        "non_living_res"
+      ],
+      "matched_fragment_count": 131,
+      "oceanic_fragment_count": 67,
+      "oceanic_sector_count": 9,
+      "oceanic_sectors": [
+        "blue_biotech",
+        "coastal_tourism",
+        "desalination",
+        "maritime_defence",
+        "maritime_transport",
+        "port_activities",
+        "r_i",
+        "renewable_energy",
+        "ship_repair"
+      ],
+      "sample_size_marine": 64,
+      "sample_size_oceanic": 67,
+      "semantic_bridge_count": 0,
+      "test_used": "normalized MARINE-OCEANIC matched-fragment difference, balance, sector coverage, and evidence/signal-level bridge overlap",
+      "validity_warning": "no_semantic_bridges"
+    }
+  },
+  "learning_outcome_count": 290,
+  "schema_version": "1.0.0",
+  "validated_supply_map_provided": false
+}

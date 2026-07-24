@@ -1,0 +1,211 @@
+query_groups:
+  blue_biotech:
+    label: Blue Biotech
+    description: Marine biotechnology, bioeconomy, bioprospecting, biomaterials, and
+      blue innovation pathways.
+    queries:
+    - marine biotechnology blue bioeconomy innovation governance
+    - bioprospecting marine genetic resources benefit sharing
+    - marine biomaterials pharmaceuticals bioremediation sustainability
+    - marine biotechnology workforce skills competences training
+    - blue bioeconomy education learning outcomes curriculum qualification
+    - marine biotechnology AI digital twin sustainability just transition
+    - marine genetic resources ocean literacy governance climate adaptation
+    - marine biotechnology EQF qualification framework micro-credential professional
+      development
+    - blue biotech maritimisation marinization oceanisation hydrosocial de-base-re
+      hypothesis verification indicators
+    - blue biotech qmbd axis translation marine maritime oceanic hydronization theory
+      terms taxonomy mapping
+  coastal_tourism:
+    label: Coastal Tourism
+    description: Coastal and marine tourism, cruise tourism, ecotourism, and tourism
+      governance.
+    queries:
+    - coastal tourism sustainability overtourism management
+    - marine ecotourism blue economy livelihoods governance
+    - cruise tourism environmental impact governance
+    - coastal tourism workforce skills competences training professional development
+    - marine ecotourism education learning outcomes curriculum qualification
+    - coastal tourism climate adaptation resilience just transition safety
+    - coastal tourism AI digital twin ocean literacy hydrosocial
+    - coastal tourism EQF qualification framework micro-credential learning outcomes
+    - coastal tourism maritimisation marinization oceanisation hydrosocial de-base-re
+      hypothesis verification indicators
+    - coastal tourism qmbd axis translation marine maritime oceanic hydronization
+      theory terms taxonomy mapping
+  desalination:
+    label: Desalination
+    description: Desalination systems, brine management, water-energy nexus, and hydrosocial
+      governance.
+    queries:
+    - desalination brine management environmental impact governance
+    - desalination water energy nexus sustainability
+    - desalination hydrosocial water justice governance
+    - desalination workforce skills competences training professional development
+    - desalination operator education learning outcomes curriculum qualification
+    - desalination AI digital twin autonomous systems resilience
+    - desalination climate adaptation just transition hydrosocial safety
+    - desalination EQF qualification framework micro-credential learning outcomes
+    - desalination maritimisation marinization oceanisation hydrosocial de-base-re
+      hypothesis verification indicators
+    - desalination qmbd axis translation marine maritime oceanic hydronization theory
+      terms taxonomy mapping
+  infra_robotics:
+    label: Infra & Robotics
+    description: Blue infrastructure, offshore/coastal robotics, monitoring systems,
+      and cyber-physical maritime systems.
+    queries:
+    - maritime infrastructure cyber physical systems digital twin
+    - offshore robotics marine monitoring autonomous systems
+    - smart coastal infrastructure flood risk adaptation
+    - offshore robotics workforce skills competences training professional development
+    - maritime robotics engineer education learning outcomes curriculum qualification
+    - offshore robotics AI digital twin autonomous systems resilience
+    - maritime cyber-physical systems climate adaptation safety port-city
+    - offshore robotics EQF qualification framework micro-credential learning outcomes
+    - infra & robotics maritimisation marinization oceanisation hydrosocial de-base-re
+      hypothesis verification indicators
+    - infra & robotics qmbd axis translation marine maritime oceanic hydronization
+      theory terms taxonomy mapping
+  living_res:
+    label: Living Res.
+    description: 'Living marine resources: fisheries, aquaculture, mariculture, and
+      coastal livelihoods.'
+    queries:
+    - small scale fisheries livelihoods blue economy governance
+    - fisheries management sustainability marine protected areas
+    - aquaculture social licence environmental impact governance
+    - fisheries workforce skills competences training professional development
+    - aquaculture education learning outcomes curriculum qualification
+    - fisheries AI digital twin resilience climate adaptation just transition
+    - small scale fisheries blue economy labour ocean literacy marine governance
+    - fisheries aquaculture EQF qualification framework micro-credential learning
+      outcomes
+    - living res. maritimisation marinization oceanisation hydrosocial de-base-re
+      hypothesis verification indicators
+    - living res. qmbd axis translation marine maritime oceanic hydronization theory
+      terms taxonomy mapping
+  non_living_res:
+    label: Non-living Res.
+    description: 'Non-living marine resources: seabed resources, aggregates, critical
+      raw materials, and extraction governance.'
+    queries:
+    - seabed mining governance environmental impact social licence
+    - marine aggregates extraction coastal governance sustainability
+    - critical raw materials offshore extraction governance
+    - seabed mining workforce skills competences training professional development
+    - marine aggregates education learning outcomes curriculum qualification
+    - seabed mining AI autonomous systems safety climate adaptation
+    - critical raw materials just transition marine governance blue economy labour
+    - seabed extraction EQF qualification framework micro-credential learning outcomes
+    - non-living res. maritimisation marinization oceanisation hydrosocial de-base-re
+      hypothesis verification indicators
+    - non-living res. qmbd axis translation marine maritime oceanic hydronization
+      theory terms taxonomy mapping
+  renewable_energy:
+    label: Renewable Energy
+    description: 'Offshore renewable energy: wind, wave, tidal, and related spatial
+      planning and social acceptance.'
+    queries:
+    - offshore wind energy marine spatial planning governance
+    - ocean renewable energy governance sustainability
+    - tidal energy wave energy environmental impact
+    - offshore wind workforce skills competences training professional development
+    - ocean renewable energy education learning outcomes curriculum qualification
+    - offshore wind AI digital twin autonomous systems resilience
+    - offshore wind just transition climate adaptation marine governance safety
+    - offshore renewable energy EQF qualification framework micro-credential learning
+      outcomes
+    - renewable energy maritimisation marinization oceanisation hydrosocial de-base-re
+      hypothesis verification indicators
+    - renewable energy qmbd axis translation marine maritime oceanic hydronization
+      theory terms taxonomy mapping
+  maritime_defence:
+    label: Maritime Defence
+    description: Maritime security, naval operations, surveillance, and defence governance
+      in blue spaces.
+    queries:
+    - maritime security governance blue economy
+    - naval operations maritime domain awareness surveillance
+    - critical maritime infrastructure protection governance
+    - maritime security workforce skills competences training professional development
+    - naval operations education learning outcomes curriculum qualification
+    - maritime domain awareness AI autonomous systems digital twin resilience
+    - maritime security climate adaptation marine governance safety port-city
+    - maritime defence EQF qualification framework micro-credential learning outcomes
+    - maritime defence maritimisation marinization oceanisation hydrosocial de-base-re
+      hypothesis verification indicators
+    - maritime defence qmbd axis translation marine maritime oceanic hydronization
+      theory terms taxonomy mapping
+  maritime_transport:
+    label: Maritime Transport
+    description: Shipping, freight/passenger transport, maritime safety, labour conditions,
+      and decarbonization.
+    queries:
+    - maritime transport decarbonization emissions reduction
+    - shipping governance international regulations IMO
+    - maritime safety maritime labour conditions
+    - seafarer workforce skills competences training professional development
+    - maritime officer education learning outcomes curriculum qualification
+    - shipping AI digital twin autonomous systems decarbonization resilience
+    - shipping just transition blue economy labour ocean literacy marine governance
+      safety
+    - maritime transport EQF qualification framework micro-credential STCW learning
+      outcomes
+    - maritime transport maritimisation marinization oceanisation hydrosocial de-base-re
+      hypothesis verification indicators
+    - maritime transport qmbd axis translation marine maritime oceanic hydronization
+      theory terms taxonomy mapping
+  port_activities:
+    label: Port Activities
+    description: Port operations, logistics, port governance, and coastal urban-port
+      interfaces.
+    queries:
+    - port governance maritime logistics sustainability
+    - smart ports digital transformation port operations
+    - port climate adaptation sea level rise flood risk
+    - port worker workforce skills competences training professional development
+    - port operations education learning outcomes curriculum qualification
+    - smart port AI digital twin autonomous systems resilience
+    - port-city climate adaptation just transition ocean literacy marine governance
+      hydrosocial
+    - port operations EQF qualification framework micro-credential learning outcomes
+    - port activities maritimisation marinization oceanisation hydrosocial de-base-re
+      hypothesis verification indicators
+    - port activities qmbd axis translation marine maritime oceanic hydronization
+      theory terms taxonomy mapping
+  r_i:
+    label: R&I
+    description: Blue research and innovation ecosystems, ocean observation, data
+      infrastructure, and research governance.
+    queries:
+    - ocean observation marine monitoring data infrastructure
+    - ocean data governance FAIR CARE principles
+    - blue economy research innovation policy governance
+    - blue economy researcher workforce skills competences training professional development
+    - ocean science education learning outcomes curriculum qualification
+    - ocean observation AI digital twin autonomous systems resilience climate adaptation
+    - blue economy research just transition ocean literacy marine governance hydrosocial
+    - ocean science EQF qualification framework micro-credential learning outcomes
+    - r&i maritimisation marinization oceanisation hydrosocial de-base-re hypothesis
+      verification indicators
+    - r&i qmbd axis translation marine maritime oceanic hydronization theory terms
+      taxonomy mapping
+  ship_repair:
+    label: Ship Repair
+    description: Ship repair, maintenance, shipyards, retrofit/decarbonization, and
+      workforce competences.
+    queries:
+    - ship repair shipyard workforce skills training
+    - ship retrofit decarbonization maintenance governance
+    - maritime repair supply chain safety standards
+    - shipyard worker workforce skills competences training professional development
+    - ship repair engineer education learning outcomes curriculum qualification
+    - ship repair AI digital twin autonomous systems resilience
+    - ship retrofit just transition climate adaptation marine governance safety
+    - ship repair EQF qualification framework micro-credential learning outcomes
+    - ship repair maritimisation marinization oceanisation hydrosocial de-base-re
+      hypothesis verification indicators
+    - ship repair qmbd axis translation marine maritime oceanic hydronization theory
+      terms taxonomy mapping

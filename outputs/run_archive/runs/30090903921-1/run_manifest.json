@@ -1,0 +1,456 @@
+{
+  "manifest_schema": "schemas/run_archive_manifest.schema.json",
+  "requested_run_id": "30090903921-1",
+  "run_id": "30090903921-1",
+  "timestamp_utc": "2026-07-24T11:52:31+00:00",
+  "analysis_timestamp_utc": "2026-07-24T11:52:25+00:00",
+  "archived_at": "2026-07-24T11:52:31+00:00",
+  "archive_root": "/home/runner/work/morskamary/morskamary/outputs/run_archive",
+  "run_path": "runs/30090903921-1",
+  "copied_targets": [
+    "outputs/research_sources",
+    "outputs/gaps_summary.csv",
+    "outputs/credentials_database.json",
+    "outputs/competences_full_database.json",
+    "outputs/cumulative_qmbd_records.json",
+    "outputs/report_index.html",
+    "outputs/gaps_by_sector.html",
+    "outputs/credentials_matrix.html",
+    "outputs/literature_integration.html",
+    "outputs/sector_dictionaries",
+    "MANIFEST_SOURCES.csv",
+    "outputs/research_api_health.json",
+    "outputs/research_source_capabilities.json",
+    "outputs/validation_state.json"
+  ],
+  "file_count": 76,
+  "total_bytes": 74314641,
+  "workflow": {
+    "name": "Full Live-Enriched Analysis",
+    "event": "workflow_dispatch",
+    "git_sha": "4eb044988659e51219a2ad62137091f0cb0f97c4",
+    "git_ref": "refs/heads/main",
+    "github_run_id": "30090903921",
+    "github_run_attempt": "1",
+    "github_run_number": "39",
+    "github_job": "live-analysis",
+    "query_file": "outputs/research_sources/research_queries_from_protocol.yml",
+    "inputs": {
+      "providers": "crossref,scopus",
+      "max_results_per_query": "50",
+      "offline": "false",
+      "require_live_records": "true"
+    }
+  },
+  "analysis_input_mode": "live-enriched",
+  "is_static_recovery_mode": false,
+  "static_recovery_reason": "",
+  "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
+  "provider_set": "crossref,scopus",
+  "warnings": [],
+  "workflow_name": "Full Live-Enriched Analysis",
+  "event_name": "workflow_dispatch",
+  "commit_sha": "4eb044988659e51219a2ad62137091f0cb0f97c4",
+  "branch_ref": "refs/heads/main",
+  "github_run_id": "30090903921",
+  "github_run_attempt": "1",
+  "github_run_number": "39",
+  "github_job": "live-analysis",
+  "providers": "crossref,scopus",
+  "max_results_per_query": "50",
+  "offline": "false",
+  "require_live_records": "true",
+  "query_file_sha256": "9ef7a95bd2cc1ea15ebe1bb9917e1b00136a6b3f20a613d3aaa07414c0083a0c",
+  "live_records_count": 2462,
+  "triangulated_records_count": 2462,
+  "cumulative_qmbd_records_count": 2928,
+  "competences_total": 2917,
+  "baseline_count": 15,
+  "static_literature_count": 2902,
+  "live_enrichment_count": 2462,
+  "gaps_summary_available": true,
+  "credentials_count": 26,
+  "raw_api_payloads_count": 240,
+  "files": [
+    {
+      "path": "MANIFEST_SOURCES.csv",
+      "size_bytes": 138643,
+      "sha256": "82dc190a8c53943fb1ef2509663a5309589b6fe35a645dd26d484b07f831244d"
+    },
+    {
+      "path": "analysis_outputs/competences_full_database.json",
+      "size_bytes": 3912655,
+      "sha256": "9f8e670fbdefa3d6cb16c167d6455d8b942c823ee86c3d9f53ee4797b471c161"
+    },
+    {
+      "path": "analysis_outputs/credentials_database.json",
+      "size_bytes": 171498,
+      "sha256": "a344906977cf048dd70ee09ffc5d23f0680c1ceb71937f763e6b5e08bcf155bf"
+    },
+    {
+      "path": "analysis_outputs/credentials_matrix.html",
+      "size_bytes": 31319,
+      "sha256": "b0fdd80390e96f5e064b13f7953ed32678200e2d17ffe03e5cd79aaf8d668c02"
+    },
+    {
+      "path": "analysis_outputs/cumulative_qmbd_records.json",
+      "size_bytes": 11179814,
+      "sha256": "28ec29a32fcd3d3ddddfb7b85777e762113b3450713552a10c67a991eaff9635"
+    },
+    {
+      "path": "analysis_outputs/gaps_by_sector.html",
+      "size_bytes": 78711,
+      "sha256": "d149cbc815180c5297b1cfe4ec98a10166ea088d683ec6a0cff0c95ed475fe68"
+    },
+    {
+      "path": "analysis_outputs/gaps_summary.csv",
+      "size_bytes": 582,
+      "sha256": "51071a3e4e1291841f35a837c4dfa017bf5cd3a53627745ab3078fdbab9d847f"
+    },
+    {
+      "path": "analysis_outputs/literature_integration.html",
+      "size_bytes": 298072,
+      "sha256": "7c39b1db72feaf2ec6a3eccd487e8b27e8b9820f0826971fc05222fe290f4c39"
+    },
+    {
+      "path": "analysis_outputs/report_index.html",
+      "size_bytes": 7757,
+      "sha256": "6bc5ac56954e9e387d35c186962cac830dcc480131546ff9952a64999a83d3fd"
+    },
+    {
+      "path": "analysis_outputs/sector_dictionaries/blue_biotech_tmbd_dictionary.json",
+      "size_bytes": 466882,
+      "sha256": "d7879fd195dbc1888fac0b8a6f61a231331b6a02d8245db4aa94c75362a6ed38"
+    },
+    {
+      "path": "analysis_outputs/sector_dictionaries/coastal_tourism_tmbd_dictionary.json",
+      "size_bytes": 467458,
+      "sha256": "c0793c8466500fb5bdc2d9258ccd9ffb728f114dc76941f7dec6b3934f53b459"
+    },
+    {
+      "path": "analysis_outputs/sector_dictionaries/desalination_tmbd_dictionary.json",
+      "size_bytes": 433097,
+      "sha256": "574c0eb58f70e227322866a5709a2361bb8ad9aa95f902110c79f1be9074f4eb"
+    },
+    {
+      "path": "analysis_outputs/sector_dictionaries/infra_robotics_tmbd_dictionary.json",
+      "size_bytes": 459394,
+      "sha256": "edef67b7222898af914489e36a773014d62202d6e6853ae8f23bc3c508336454"
+    },
+    {
+      "path": "analysis_outputs/sector_dictionaries/living_res_tmbd_dictionary.json",
+      "size_bytes": 548697,
+      "sha256": "540b7ad546a072dbdf0084bb88ce85f8953c93f652e9503a33ac68ac325f2ca3"
+    },
+    {
+      "path": "analysis_outputs/sector_dictionaries/maritime_defence_tmbd_dictionary.json",
+      "size_bytes": 442828,
+      "sha256": "61c37b5ce606f2d2fd06f9866baabb9d87d1564ffa3fc40496256e985577cedc"
+    },
+    {
+      "path": "analysis_outputs/sector_dictionaries/maritime_transport_tmbd_dictionary.json",
+      "size_bytes": 549972,
+      "sha256": "b11fe6ac7e6f547e7d80d2a5e92f0eae61c2ae465231bfe9dc8ede01513507c3"
+    },
+    {
+      "path": "analysis_outputs/sector_dictionaries/non_living_res_tmbd_dictionary.json",
+      "size_bytes": 467408,
+      "sha256": "bd424f01a22d7e745315ed3fc5618c2b72534bbcd3a73981920a541c681c2065"
+    },
+    {
+      "path": "analysis_outputs/sector_dictionaries/port_activities_tmbd_dictionary.json",
+      "size_bytes": 527464,
+      "sha256": "f2c96a9b056db4aa4ec54b47531030e3b0a03ec3795e27728abb0cc9a0b57530"
+    },
+    {
+      "path": "analysis_outputs/sector_dictionaries/r_i_tmbd_dictionary.json",
+      "size_bytes": 539339,
+      "sha256": "08c57f8f0f53d950eadd86c242ac07abf6f06486aac59a4e1864aaac7f69c45c"
+    },
+    {
+      "path": "analysis_outputs/sector_dictionaries/renewable_energy_tmbd_dictionary.json",
+      "size_bytes": 457078,
+      "sha256": "9f042658c08b777823016bf7bcf5e3cb8e3a9a808a94744826a41e2efa6c63c9"
+    },
+    {
+      "path": "analysis_outputs/sector_dictionaries/ship_repair_tmbd_dictionary.json",
+      "size_bytes": 442330,
+      "sha256": "e6fa19cfea41e0cbe82459dcca41e6bfdc043f2f6a96788411372798abf3f98d"
+    },
+    {
+      "path": "outputs/competences_full_database.json",
+      "size_bytes": 3912655,
+      "sha256": "9f8e670fbdefa3d6cb16c167d6455d8b942c823ee86c3d9f53ee4797b471c161"
+    },
+    {
+      "path": "outputs/credentials_database.json",
+      "size_bytes": 171498,
+      "sha256": "a344906977cf048dd70ee09ffc5d23f0680c1ceb71937f763e6b5e08bcf155bf"
+    },
+    {
+      "path": "outputs/credentials_matrix.html",
+      "size_bytes": 31319,
+      "sha256": "b0fdd80390e96f5e064b13f7953ed32678200e2d17ffe03e5cd79aaf8d668c02"
+    },
+    {
+      "path": "outputs/cumulative_qmbd_records.json",
+      "size_bytes": 11179814,
+      "sha256": "28ec29a32fcd3d3ddddfb7b85777e762113b3450713552a10c67a991eaff9635"
+    },
+    {
+      "path": "outputs/gaps_by_sector.html",
+      "size_bytes": 78711,
+      "sha256": "d149cbc815180c5297b1cfe4ec98a10166ea088d683ec6a0cff0c95ed475fe68"
+    },
+    {
+      "path": "outputs/gaps_summary.csv",
+      "size_bytes": 582,
+      "sha256": "51071a3e4e1291841f35a837c4dfa017bf5cd3a53627745ab3078fdbab9d847f"
+    },
+    {
+      "path": "outputs/literature_integration.html",
+      "size_bytes": 298072,
+      "sha256": "7c39b1db72feaf2ec6a3eccd487e8b27e8b9820f0826971fc05222fe290f4c39"
+    },
+    {
+      "path": "outputs/report_index.html",
+      "size_bytes": 7757,
+      "sha256": "6bc5ac56954e9e387d35c186962cac830dcc480131546ff9952a64999a83d3fd"
+    },
+    {
+      "path": "outputs/research_api_health.json",
+      "size_bytes": 306,
+      "sha256": "ca2fb2fe9e48092f4b217672e4b30c3c84c37ebeac8448e2f757b4a0c1f6b914"
+    },
+    {
+      "path": "outputs/research_source_capabilities.json",
+      "size_bytes": 3477,
+      "sha256": "8532a240d1fa1af6fb6e1b83818a3b048df9306670d7f95a5c0bb08cc03ad698"
+    },
+    {
+      "path": "outputs/research_sources/crossref_records.json",
+      "size_bytes": 1347350,
+      "sha256": "bb79ddea84e4d6a2831f59985c7aee9845f69f9f453265eceb39281e7b3d9e44"
+    },
+    {
+      "path": "outputs/research_sources/enrichment_records.json",
+      "size_bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "outputs/research_sources/live_provenance.json",
+      "size_bytes": 2511520,
+      "sha256": "9c075d5bf19b8b0fdc4e9844373ec2d082f45babbb42c400baf3e55b2a839dcc"
+    },
+    {
+      "path": "outputs/research_sources/live_records.csv",
+      "size_bytes": 996696,
+      "sha256": "9c9d834408e9af39a1bcce09bfe9976608d4894b1387e65072debac85127591b"
+    },
+    {
+      "path": "outputs/research_sources/live_records.json",
+      "size_bytes": 1635968,
+      "sha256": "811d3af2310617b61bd6ce6f4313e6c35e70ee0bdd986a14c2d2f6d19182e0d3"
+    },
+    {
+      "path": "outputs/research_sources/live_records_triangulated.json",
+      "size_bytes": 3284055,
+      "sha256": "bc8db4b64ea650902a3e9d60992b2b81525fb5483ffe1ab3c95dd9c636635db8"
+    },
+    {
+      "path": "outputs/research_sources/live_source_coverage.csv",
+      "size_bytes": 24191,
+      "sha256": "099efff0e5cfe70ca4ae7ecfcaef79de6df64a7fca3cd57e0c8f16c04237c800"
+    },
+    {
+      "path": "outputs/research_sources/low_confidence_live_records.json",
+      "size_bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "outputs/research_sources/query_execution_log.csv",
+      "size_bytes": 135752,
+      "sha256": "17236c33e370f302fd5ecb4c66c5a6bb3e580e1da2ab403ba34f45815070c085"
+    },
+    {
+      "path": "outputs/research_sources/query_protocol_constraints.json",
+      "size_bytes": 78871,
+      "sha256": "4114630e7949446c370c3155b015d7fb4e05c8575799eeb2473b75c9bd36cb2e"
+    },
+    {
+      "path": "outputs/research_sources/raw_provider_records.json",
+      "size_bytes": 2797608,
+      "sha256": "8bbc6069c5aba6e20973861690156d6d458b8d051bc0f77414ca1f3b82f2248b"
+    },
+    {
+      "path": "outputs/research_sources/research_queries_from_protocol.yml",
+      "size_bytes": 11952,
+      "sha256": "9ef7a95bd2cc1ea15ebe1bb9917e1b00136a6b3f20a613d3aaa07414c0083a0c"
+    },
+    {
+      "path": "outputs/research_sources/research_queries_from_protocol_summary.json",
+      "size_bytes": 735,
+      "sha256": "a052e4586fe40e1358b52469ce54621b4268ed2298f466e1f3dbc995c59f5f0c"
+    },
+    {
+      "path": "outputs/research_sources/scopus_query_diagnostics.json",
+      "size_bytes": 179238,
+      "sha256": "087d3136180cfe8a40227210caaccb01b4c1ce752a3e044bcff2b1a4aeccf921"
+    },
+    {
+      "path": "outputs/research_sources/triangulation_identity_loop.json",
+      "size_bytes": 146227,
+      "sha256": "a6b8dea59c37b6ce6791aecee6eeaee2e3ee3171cc982e1f6e993527620430ad"
+    },
+    {
+      "path": "outputs/research_sources/triangulation_thematic_loop.json",
+      "size_bytes": 2453522,
+      "sha256": "8428f09d6230d026dda072aa831ac02d8368991c6bcb229c110478bcc6f007a9"
+    },
+    {
+      "path": "outputs/sector_dictionaries/blue_biotech_tmbd_dictionary.json",
+      "size_bytes": 466882,
+      "sha256": "d7879fd195dbc1888fac0b8a6f61a231331b6a02d8245db4aa94c75362a6ed38"
+    },
+    {
+      "path": "outputs/sector_dictionaries/coastal_tourism_tmbd_dictionary.json",
+      "size_bytes": 467458,
+      "sha256": "c0793c8466500fb5bdc2d9258ccd9ffb728f114dc76941f7dec6b3934f53b459"
+    },
+    {
+      "path": "outputs/sector_dictionaries/desalination_tmbd_dictionary.json",
+      "size_bytes": 433097,
+      "sha256": "574c0eb58f70e227322866a5709a2361bb8ad9aa95f902110c79f1be9074f4eb"
+    },
+    {
+      "path": "outputs/sector_dictionaries/infra_robotics_tmbd_dictionary.json",
+      "size_bytes": 459394,
+      "sha256": "edef67b7222898af914489e36a773014d62202d6e6853ae8f23bc3c508336454"
+    },
+    {
+      "path": "outputs/sector_dictionaries/living_res_tmbd_dictionary.json",
+      "size_bytes": 548697,
+      "sha256": "540b7ad546a072dbdf0084bb88ce85f8953c93f652e9503a33ac68ac325f2ca3"
+    },
+    {
+      "path": "outputs/sector_dictionaries/maritime_defence_tmbd_dictionary.json",
+      "size_bytes": 442828,
+      "sha256": "61c37b5ce606f2d2fd06f9866baabb9d87d1564ffa3fc40496256e985577cedc"
+    },
+    {
+      "path": "outputs/sector_dictionaries/maritime_transport_tmbd_dictionary.json",
+      "size_bytes": 549972,
+      "sha256": "b11fe6ac7e6f547e7d80d2a5e92f0eae61c2ae465231bfe9dc8ede01513507c3"
+    },
+    {
+      "path": "outputs/sector_dictionaries/non_living_res_tmbd_dictionary.json",
+      "size_bytes": 467408,
+      "sha256": "bd424f01a22d7e745315ed3fc5618c2b72534bbcd3a73981920a541c681c2065"
+    },
+    {
+      "path": "outputs/sector_dictionaries/port_activities_tmbd_dictionary.json",
+      "size_bytes": 527464,
+      "sha256": "f2c96a9b056db4aa4ec54b47531030e3b0a03ec3795e27728abb0cc9a0b57530"
+    },
+    {
+      "path": "outputs/sector_dictionaries/r_i_tmbd_dictionary.json",
+      "size_bytes": 539339,
+      "sha256": "08c57f8f0f53d950eadd86c242ac07abf6f06486aac59a4e1864aaac7f69c45c"
+    },
+    {
+      "path": "outputs/sector_dictionaries/renewable_energy_tmbd_dictionary.json",
+      "size_bytes": 457078,
+      "sha256": "9f042658c08b777823016bf7bcf5e3cb8e3a9a808a94744826a41e2efa6c63c9"
+    },
+    {
+      "path": "outputs/sector_dictionaries/ship_repair_tmbd_dictionary.json",
+      "size_bytes": 442330,
+      "sha256": "e6fa19cfea41e0cbe82459dcca41e6bfdc043f2f6a96788411372798abf3f98d"
+    },
+    {
+      "path": "outputs/validation_state.json",
+      "size_bytes": 127,
+      "sha256": "de098ca13c2adf2730f3145d1242e8d4215eece45a1602a5886001152a83fb78"
+    },
+    {
+      "path": "research_sources/crossref_records.json",
+      "size_bytes": 1347350,
+      "sha256": "bb79ddea84e4d6a2831f59985c7aee9845f69f9f453265eceb39281e7b3d9e44"
+    },
+    {
+      "path": "research_sources/enrichment_records.json",
+      "size_bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "research_sources/live_provenance.json",
+      "size_bytes": 2511520,
+      "sha256": "9c075d5bf19b8b0fdc4e9844373ec2d082f45babbb42c400baf3e55b2a839dcc"
+    },
+    {
+      "path": "research_sources/live_records.csv",
+      "size_bytes": 996696,
+      "sha256": "9c9d834408e9af39a1bcce09bfe9976608d4894b1387e65072debac85127591b"
+    },
+    {
+      "path": "research_sources/live_records.json",
+      "size_bytes": 1635968,
+      "sha256": "811d3af2310617b61bd6ce6f4313e6c35e70ee0bdd986a14c2d2f6d19182e0d3"
+    },
+    {
+      "path": "research_sources/live_records_triangulated.json",
+      "size_bytes": 3284055,
+      "sha256": "bc8db4b64ea650902a3e9d60992b2b81525fb5483ffe1ab3c95dd9c636635db8"
+    },
+    {
+      "path": "research_sources/live_source_coverage.csv",
+      "size_bytes": 24191,
+      "sha256": "099efff0e5cfe70ca4ae7ecfcaef79de6df64a7fca3cd57e0c8f16c04237c800"
+    },
+    {
+      "path": "research_sources/low_confidence_live_records.json",
+      "size_bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "research_sources/query_execution_log.csv",
+      "size_bytes": 135752,
+      "sha256": "17236c33e370f302fd5ecb4c66c5a6bb3e580e1da2ab403ba34f45815070c085"
+    },
+    {
+      "path": "research_sources/query_protocol_constraints.json",
+      "size_bytes": 78871,
+      "sha256": "4114630e7949446c370c3155b015d7fb4e05c8575799eeb2473b75c9bd36cb2e"
+    },
+    {
+      "path": "research_sources/raw_provider_records.json",
+      "size_bytes": 2797608,
+      "sha256": "8bbc6069c5aba6e20973861690156d6d458b8d051bc0f77414ca1f3b82f2248b"
+    },
+    {
+      "path": "research_sources/research_queries_from_protocol.yml",
+      "size_bytes": 11952,
+      "sha256": "9ef7a95bd2cc1ea15ebe1bb9917e1b00136a6b3f20a613d3aaa07414c0083a0c"
+    },
+    {
+      "path": "research_sources/research_queries_from_protocol_summary.json",
+      "size_bytes": 735,
+      "sha256": "a052e4586fe40e1358b52469ce54621b4268ed2298f466e1f3dbc995c59f5f0c"
+    },
+    {
+      "path": "research_sources/scopus_query_diagnostics.json",
+      "size_bytes": 179238,
+      "sha256": "087d3136180cfe8a40227210caaccb01b4c1ce752a3e044bcff2b1a4aeccf921"
+    },
+    {
+      "path": "research_sources/triangulation_identity_loop.json",
+      "size_bytes": 146227,
+      "sha256": "a6b8dea59c37b6ce6791aecee6eeaee2e3ee3171cc982e1f6e993527620430ad"
+    },
+    {
+      "path": "research_sources/triangulation_thematic_loop.json",
+      "size_bytes": 2453522,
+      "sha256": "8428f09d6230d026dda072aa831ac02d8368991c6bcb229c110478bcc6f007a9"
+    }
+  ]
+}

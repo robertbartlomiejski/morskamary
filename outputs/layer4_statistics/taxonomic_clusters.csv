@@ -1,0 +1,11 @@
+category_label,primary_axis,primary_axis_code,secondary_axes,secondary_axis_codes,axis_bridge_score,matched_hypothesis_ids,matched_signal_count,matched_evidence_count
+Blue digitalization,MARITIME,T,,,0.0,H1,7,7
+Blue justice,OCEANIC,O,,,0.0,H1|H3,26,26
+Climate adaptation,OCEANIC,O,,,0.0,H1|H3,0,0
+Education and training,MARITIME,T,,,0.0,H1,248,202
+Hydrosocial governance,HYDRONIZATION,H,,,0.0,H2,0,0
+Marine technical operations,MARINE,M,,,0.0,H3,0,0
+Port-city interface,MARITIME,T,,,0.0,H1,0,0
+Research and innovation,OCEANIC,O,,,0.0,H1|H3,0,0
+Safety and risk,MARITIME,T,,,0.0,H1,146,141
+Seafaring culture,MARITIME,T,,,0.0,H1,0,0

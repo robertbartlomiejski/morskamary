@@ -1,0 +1,97 @@
+{
+  "axes": [
+    "MARINE",
+    "MARITIME",
+    "OCEANIC",
+    "HYDRONIZATION"
+  ],
+  "demand_row_matrix": {
+    "blue_biotech": {
+      "HYDRONIZATION": 0,
+      "MARINE": 12,
+      "MARITIME": 0,
+      "OCEANIC": 10
+    },
+    "coastal_tourism": {
+      "HYDRONIZATION": 0,
+      "MARINE": 0,
+      "MARITIME": 0,
+      "OCEANIC": 12
+    },
+    "desalination": {
+      "HYDRONIZATION": 12,
+      "MARINE": 0,
+      "MARITIME": 0,
+      "OCEANIC": 2
+    },
+    "infra_robotics": {
+      "HYDRONIZATION": 0,
+      "MARINE": 0,
+      "MARITIME": 9,
+      "OCEANIC": 2
+    },
+    "living_res": {
+      "HYDRONIZATION": 0,
+      "MARINE": 9,
+      "MARITIME": 0,
+      "OCEANIC": 1
+    },
+    "maritime_defence": {
+      "HYDRONIZATION": 0,
+      "MARINE": 0,
+      "MARITIME": 10,
+      "OCEANIC": 3
+    },
+    "maritime_transport": {
+      "HYDRONIZATION": 0,
+      "MARINE": 0,
+      "MARITIME": 9,
+      "OCEANIC": 4
+    },
+    "non_living_res": {
+      "HYDRONIZATION": 0,
+      "MARINE": 6,
+      "MARITIME": 0,
+      "OCEANIC": 4
+    },
+    "port_activities": {
+      "HYDRONIZATION": 0,
+      "MARINE": 0,
+      "MARITIME": 9,
+      "OCEANIC": 5
+    },
+    "r_i": {
+      "HYDRONIZATION": 0,
+      "MARINE": 0,
+      "MARITIME": 0,
+      "OCEANIC": 11
+    },
+    "renewable_energy": {
+      "HYDRONIZATION": 0,
+      "MARINE": 0,
+      "MARITIME": 10,
+      "OCEANIC": 5
+    },
+    "ship_repair": {
+      "HYDRONIZATION": 0,
+      "MARINE": 0,
+      "MARITIME": 6,
+      "OCEANIC": 6
+    }
+  },
+  "growth_eligible_evidence_count": 1520,
+  "sectors": [
+    "blue_biotech",
+    "coastal_tourism",
+    "desalination",
+    "infra_robotics",
+    "living_res",
+    "maritime_defence",
+    "maritime_transport",
+    "non_living_res",
+    "port_activities",
+    "r_i",
+    "renewable_energy",
+    "ship_repair"
+  ]
+}

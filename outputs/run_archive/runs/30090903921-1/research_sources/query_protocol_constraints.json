@@ -1,0 +1,2646 @@
+{
+  "protocol_version": "1.2.0",
+  "queries": [
+    {
+      "evidence_intent": "workforce_skill",
+      "query_family": "competence_demand",
+      "query_id": "Q_BLUE_BIOTECH_COMP_001",
+      "query_text": "marine biotechnology workforce skills competences training",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "blue_biotech",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "education_training",
+      "query_family": "competence_demand",
+      "query_id": "Q_BLUE_BIOTECH_COMP_002",
+      "query_text": "blue bioeconomy education learning outcomes curriculum qualification",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "blue_biotech",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_BLUE_BIOTECH_CORE_001",
+      "query_text": "marine biotechnology blue bioeconomy innovation governance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "blue_biotech",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_BLUE_BIOTECH_CORE_002",
+      "query_text": "bioprospecting marine genetic resources benefit sharing",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "blue_biotech",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_BLUE_BIOTECH_CORE_003",
+      "query_text": "marine biomaterials pharmaceuticals bioremediation sustainability",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "blue_biotech",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_BLUE_BIOTECH_EMRG_001",
+      "query_text": "marine biotechnology AI digital twin sustainability just transition",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "blue_biotech",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_BLUE_BIOTECH_EMRG_002",
+      "query_text": "marine genetic resources ocean literacy governance climate adaptation",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "blue_biotech",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "hypothesis_verification",
+      "query_family": "hypothesis_verification",
+      "query_id": "Q_BLUE_BIOTECH_HYP_001",
+      "query_text": "blue biotech maritimisation marinization oceanisation hydrosocial de-base-re hypothesis verification indicators",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "blue_biotech",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "theory_translation",
+      "query_family": "theory_translation",
+      "query_id": "Q_BLUE_BIOTECH_THY_001",
+      "query_text": "blue biotech qmbd axis translation marine maritime oceanic hydronization theory terms taxonomy mapping",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "blue_biotech",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "qualification",
+      "query_family": "validation_eqf_translation",
+      "query_id": "Q_BLUE_BIOTECH_VAL_001",
+      "query_text": "marine biotechnology EQF qualification framework micro-credential professional development",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "blue_biotech",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "workforce_skill",
+      "query_family": "competence_demand",
+      "query_id": "Q_COASTAL_TOURISM_COMP_001",
+      "query_text": "coastal tourism workforce skills competences training professional development",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "coastal_tourism",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "education_training",
+      "query_family": "competence_demand",
+      "query_id": "Q_COASTAL_TOURISM_COMP_002",
+      "query_text": "marine ecotourism education learning outcomes curriculum qualification",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "coastal_tourism",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_COASTAL_TOURISM_CORE_001",
+      "query_text": "coastal tourism sustainability overtourism management",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "coastal_tourism",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_COASTAL_TOURISM_CORE_002",
+      "query_text": "marine ecotourism blue economy livelihoods governance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "coastal_tourism",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_COASTAL_TOURISM_CORE_003",
+      "query_text": "cruise tourism environmental impact governance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "coastal_tourism",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_COASTAL_TOURISM_EMRG_001",
+      "query_text": "coastal tourism climate adaptation resilience just transition safety",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "coastal_tourism",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_COASTAL_TOURISM_EMRG_002",
+      "query_text": "coastal tourism AI digital twin ocean literacy hydrosocial",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "coastal_tourism",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "hypothesis_verification",
+      "query_family": "hypothesis_verification",
+      "query_id": "Q_COASTAL_TOURISM_HYP_001",
+      "query_text": "coastal tourism maritimisation marinization oceanisation hydrosocial de-base-re hypothesis verification indicators",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "coastal_tourism",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "theory_translation",
+      "query_family": "theory_translation",
+      "query_id": "Q_COASTAL_TOURISM_THY_001",
+      "query_text": "coastal tourism qmbd axis translation marine maritime oceanic hydronization theory terms taxonomy mapping",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "coastal_tourism",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "qualification",
+      "query_family": "validation_eqf_translation",
+      "query_id": "Q_COASTAL_TOURISM_VAL_001",
+      "query_text": "coastal tourism EQF qualification framework micro-credential learning outcomes",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "coastal_tourism",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "workforce_skill",
+      "query_family": "competence_demand",
+      "query_id": "Q_DESALINATION_COMP_001",
+      "query_text": "desalination workforce skills competences training professional development",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "desalination",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "education_training",
+      "query_family": "competence_demand",
+      "query_id": "Q_DESALINATION_COMP_002",
+      "query_text": "desalination operator education learning outcomes curriculum qualification",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "desalination",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_DESALINATION_CORE_001",
+      "query_text": "desalination brine management environmental impact governance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "desalination",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_DESALINATION_CORE_002",
+      "query_text": "desalination water energy nexus sustainability",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "desalination",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_DESALINATION_CORE_003",
+      "query_text": "desalination hydrosocial water justice governance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "desalination",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_DESALINATION_EMRG_001",
+      "query_text": "desalination AI digital twin autonomous systems resilience",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "desalination",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_DESALINATION_EMRG_002",
+      "query_text": "desalination climate adaptation just transition hydrosocial safety",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "desalination",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "hypothesis_verification",
+      "query_family": "hypothesis_verification",
+      "query_id": "Q_DESALINATION_HYP_001",
+      "query_text": "desalination maritimisation marinization oceanisation hydrosocial de-base-re hypothesis verification indicators",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "desalination",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "theory_translation",
+      "query_family": "theory_translation",
+      "query_id": "Q_DESALINATION_THY_001",
+      "query_text": "desalination qmbd axis translation marine maritime oceanic hydronization theory terms taxonomy mapping",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "desalination",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "qualification",
+      "query_family": "validation_eqf_translation",
+      "query_id": "Q_DESALINATION_VAL_001",
+      "query_text": "desalination EQF qualification framework micro-credential learning outcomes",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "desalination",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "workforce_skill",
+      "query_family": "competence_demand",
+      "query_id": "Q_INFRA_ROBOTICS_COMP_001",
+      "query_text": "offshore robotics workforce skills competences training professional development",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "infra_robotics",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "education_training",
+      "query_family": "competence_demand",
+      "query_id": "Q_INFRA_ROBOTICS_COMP_002",
+      "query_text": "maritime robotics engineer education learning outcomes curriculum qualification",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "infra_robotics",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_INFRA_ROBOTICS_CORE_001",
+      "query_text": "maritime infrastructure cyber physical systems digital twin",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "infra_robotics",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_INFRA_ROBOTICS_CORE_002",
+      "query_text": "offshore robotics marine monitoring autonomous systems",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "infra_robotics",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_INFRA_ROBOTICS_CORE_003",
+      "query_text": "smart coastal infrastructure flood risk adaptation",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "infra_robotics",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_INFRA_ROBOTICS_EMRG_001",
+      "query_text": "offshore robotics AI digital twin autonomous systems resilience",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "infra_robotics",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_INFRA_ROBOTICS_EMRG_002",
+      "query_text": "maritime cyber-physical systems climate adaptation safety port-city",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "infra_robotics",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "hypothesis_verification",
+      "query_family": "hypothesis_verification",
+      "query_id": "Q_INFRA_ROBOTICS_HYP_001",
+      "query_text": "infra & robotics maritimisation marinization oceanisation hydrosocial de-base-re hypothesis verification indicators",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "infra_robotics",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "theory_translation",
+      "query_family": "theory_translation",
+      "query_id": "Q_INFRA_ROBOTICS_THY_001",
+      "query_text": "infra & robotics qmbd axis translation marine maritime oceanic hydronization theory terms taxonomy mapping",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "infra_robotics",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "qualification",
+      "query_family": "validation_eqf_translation",
+      "query_id": "Q_INFRA_ROBOTICS_VAL_001",
+      "query_text": "offshore robotics EQF qualification framework micro-credential learning outcomes",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "infra_robotics",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "workforce_skill",
+      "query_family": "competence_demand",
+      "query_id": "Q_LIVING_RES_COMP_001",
+      "query_text": "fisheries workforce skills competences training professional development",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "education_training",
+      "query_family": "competence_demand",
+      "query_id": "Q_LIVING_RES_COMP_002",
+      "query_text": "aquaculture education learning outcomes curriculum qualification",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_LIVING_RES_CORE_001",
+      "query_text": "small scale fisheries livelihoods blue economy governance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_LIVING_RES_CORE_002",
+      "query_text": "fisheries management sustainability marine protected areas",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_LIVING_RES_CORE_003",
+      "query_text": "aquaculture social licence environmental impact governance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_LIVING_RES_EMRG_001",
+      "query_text": "fisheries AI digital twin resilience climate adaptation just transition",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_LIVING_RES_EMRG_002",
+      "query_text": "small scale fisheries blue economy labour ocean literacy marine governance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "hypothesis_verification",
+      "query_family": "hypothesis_verification",
+      "query_id": "Q_LIVING_RES_HYP_001",
+      "query_text": "living res. maritimisation marinization oceanisation hydrosocial de-base-re hypothesis verification indicators",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "theory_translation",
+      "query_family": "theory_translation",
+      "query_id": "Q_LIVING_RES_THY_001",
+      "query_text": "living res. qmbd axis translation marine maritime oceanic hydronization theory terms taxonomy mapping",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "qualification",
+      "query_family": "validation_eqf_translation",
+      "query_id": "Q_LIVING_RES_VAL_001",
+      "query_text": "fisheries aquaculture EQF qualification framework micro-credential learning outcomes",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "workforce_skill",
+      "query_family": "competence_demand",
+      "query_id": "Q_MARITIME_DEFENCE_COMP_001",
+      "query_text": "maritime security workforce skills competences training professional development",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_defence",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "education_training",
+      "query_family": "competence_demand",
+      "query_id": "Q_MARITIME_DEFENCE_COMP_002",
+      "query_text": "naval operations education learning outcomes curriculum qualification",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_defence",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_MARITIME_DEFENCE_CORE_001",
+      "query_text": "maritime security governance blue economy",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_defence",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_MARITIME_DEFENCE_CORE_002",
+      "query_text": "naval operations maritime domain awareness surveillance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_defence",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_MARITIME_DEFENCE_CORE_003",
+      "query_text": "critical maritime infrastructure protection governance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_defence",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_MARITIME_DEFENCE_EMRG_001",
+      "query_text": "maritime domain awareness AI autonomous systems digital twin resilience",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_defence",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_MARITIME_DEFENCE_EMRG_002",
+      "query_text": "maritime security climate adaptation marine governance safety port-city",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_defence",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "hypothesis_verification",
+      "query_family": "hypothesis_verification",
+      "query_id": "Q_MARITIME_DEFENCE_HYP_001",
+      "query_text": "maritime defence maritimisation marinization oceanisation hydrosocial de-base-re hypothesis verification indicators",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_defence",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "theory_translation",
+      "query_family": "theory_translation",
+      "query_id": "Q_MARITIME_DEFENCE_THY_001",
+      "query_text": "maritime defence qmbd axis translation marine maritime oceanic hydronization theory terms taxonomy mapping",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_defence",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "qualification",
+      "query_family": "validation_eqf_translation",
+      "query_id": "Q_MARITIME_DEFENCE_VAL_001",
+      "query_text": "maritime defence EQF qualification framework micro-credential learning outcomes",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_defence",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "workforce_skill",
+      "query_family": "competence_demand",
+      "query_id": "Q_MARITIME_TRANSPORT_COMP_001",
+      "query_text": "seafarer workforce skills competences training professional development",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_transport",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "education_training",
+      "query_family": "competence_demand",
+      "query_id": "Q_MARITIME_TRANSPORT_COMP_002",
+      "query_text": "maritime officer education learning outcomes curriculum qualification",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_transport",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_MARITIME_TRANSPORT_CORE_001",
+      "query_text": "maritime transport decarbonization emissions reduction",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_transport",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_MARITIME_TRANSPORT_CORE_002",
+      "query_text": "shipping governance international regulations IMO",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_transport",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_MARITIME_TRANSPORT_CORE_003",
+      "query_text": "maritime safety maritime labour conditions",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_transport",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_MARITIME_TRANSPORT_EMRG_001",
+      "query_text": "shipping AI digital twin autonomous systems decarbonization resilience",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_transport",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_MARITIME_TRANSPORT_EMRG_002",
+      "query_text": "shipping just transition blue economy labour ocean literacy marine governance safety",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_transport",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "hypothesis_verification",
+      "query_family": "hypothesis_verification",
+      "query_id": "Q_MARITIME_TRANSPORT_HYP_001",
+      "query_text": "maritime transport maritimisation marinization oceanisation hydrosocial de-base-re hypothesis verification indicators",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_transport",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "theory_translation",
+      "query_family": "theory_translation",
+      "query_id": "Q_MARITIME_TRANSPORT_THY_001",
+      "query_text": "maritime transport qmbd axis translation marine maritime oceanic hydronization theory terms taxonomy mapping",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_transport",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "qualification",
+      "query_family": "validation_eqf_translation",
+      "query_id": "Q_MARITIME_TRANSPORT_VAL_001",
+      "query_text": "maritime transport EQF qualification framework micro-credential STCW learning outcomes",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "maritime_transport",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "workforce_skill",
+      "query_family": "competence_demand",
+      "query_id": "Q_NON_LIVING_RES_COMP_001",
+      "query_text": "seabed mining workforce skills competences training professional development",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "non_living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "education_training",
+      "query_family": "competence_demand",
+      "query_id": "Q_NON_LIVING_RES_COMP_002",
+      "query_text": "marine aggregates education learning outcomes curriculum qualification",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "non_living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_NON_LIVING_RES_CORE_001",
+      "query_text": "seabed mining governance environmental impact social licence",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "non_living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_NON_LIVING_RES_CORE_002",
+      "query_text": "marine aggregates extraction coastal governance sustainability",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "non_living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_NON_LIVING_RES_CORE_003",
+      "query_text": "critical raw materials offshore extraction governance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "non_living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_NON_LIVING_RES_EMRG_001",
+      "query_text": "seabed mining AI autonomous systems safety climate adaptation",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "non_living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_NON_LIVING_RES_EMRG_002",
+      "query_text": "critical raw materials just transition marine governance blue economy labour",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "non_living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "hypothesis_verification",
+      "query_family": "hypothesis_verification",
+      "query_id": "Q_NON_LIVING_RES_HYP_001",
+      "query_text": "non-living res. maritimisation marinization oceanisation hydrosocial de-base-re hypothesis verification indicators",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "non_living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "theory_translation",
+      "query_family": "theory_translation",
+      "query_id": "Q_NON_LIVING_RES_THY_001",
+      "query_text": "non-living res. qmbd axis translation marine maritime oceanic hydronization theory terms taxonomy mapping",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "non_living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "qualification",
+      "query_family": "validation_eqf_translation",
+      "query_id": "Q_NON_LIVING_RES_VAL_001",
+      "query_text": "seabed extraction EQF qualification framework micro-credential learning outcomes",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "non_living_res",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "workforce_skill",
+      "query_family": "competence_demand",
+      "query_id": "Q_PORT_ACTIVITIES_COMP_001",
+      "query_text": "port worker workforce skills competences training professional development",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "port_activities",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "education_training",
+      "query_family": "competence_demand",
+      "query_id": "Q_PORT_ACTIVITIES_COMP_002",
+      "query_text": "port operations education learning outcomes curriculum qualification",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "port_activities",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_PORT_ACTIVITIES_CORE_001",
+      "query_text": "port governance maritime logistics sustainability",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "port_activities",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_PORT_ACTIVITIES_CORE_002",
+      "query_text": "smart ports digital transformation port operations",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "port_activities",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_PORT_ACTIVITIES_CORE_003",
+      "query_text": "port climate adaptation sea level rise flood risk",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "port_activities",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_PORT_ACTIVITIES_EMRG_001",
+      "query_text": "smart port AI digital twin autonomous systems resilience",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "port_activities",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_PORT_ACTIVITIES_EMRG_002",
+      "query_text": "port-city climate adaptation just transition ocean literacy marine governance hydrosocial",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "port_activities",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "hypothesis_verification",
+      "query_family": "hypothesis_verification",
+      "query_id": "Q_PORT_ACTIVITIES_HYP_001",
+      "query_text": "port activities maritimisation marinization oceanisation hydrosocial de-base-re hypothesis verification indicators",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "port_activities",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "theory_translation",
+      "query_family": "theory_translation",
+      "query_id": "Q_PORT_ACTIVITIES_THY_001",
+      "query_text": "port activities qmbd axis translation marine maritime oceanic hydronization theory terms taxonomy mapping",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "port_activities",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "qualification",
+      "query_family": "validation_eqf_translation",
+      "query_id": "Q_PORT_ACTIVITIES_VAL_001",
+      "query_text": "port operations EQF qualification framework micro-credential learning outcomes",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "port_activities",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "workforce_skill",
+      "query_family": "competence_demand",
+      "query_id": "Q_R_I_COMP_001",
+      "query_text": "blue economy researcher workforce skills competences training professional development",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "r_i",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "education_training",
+      "query_family": "competence_demand",
+      "query_id": "Q_R_I_COMP_002",
+      "query_text": "ocean science education learning outcomes curriculum qualification",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "r_i",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_R_I_CORE_001",
+      "query_text": "ocean observation marine monitoring data infrastructure",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "r_i",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_R_I_CORE_002",
+      "query_text": "ocean data governance FAIR CARE principles",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "r_i",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_R_I_CORE_003",
+      "query_text": "blue economy research innovation policy governance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "r_i",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_R_I_EMRG_001",
+      "query_text": "ocean observation AI digital twin autonomous systems resilience climate adaptation",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "r_i",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_R_I_EMRG_002",
+      "query_text": "blue economy research just transition ocean literacy marine governance hydrosocial",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "r_i",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "hypothesis_verification",
+      "query_family": "hypothesis_verification",
+      "query_id": "Q_R_I_HYP_001",
+      "query_text": "r&i maritimisation marinization oceanisation hydrosocial de-base-re hypothesis verification indicators",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "r_i",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "theory_translation",
+      "query_family": "theory_translation",
+      "query_id": "Q_R_I_THY_001",
+      "query_text": "r&i qmbd axis translation marine maritime oceanic hydronization theory terms taxonomy mapping",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "r_i",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "qualification",
+      "query_family": "validation_eqf_translation",
+      "query_id": "Q_R_I_VAL_001",
+      "query_text": "ocean science EQF qualification framework micro-credential learning outcomes",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "r_i",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "workforce_skill",
+      "query_family": "competence_demand",
+      "query_id": "Q_RENEWABLE_ENERGY_COMP_001",
+      "query_text": "offshore wind workforce skills competences training professional development",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "renewable_energy",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "education_training",
+      "query_family": "competence_demand",
+      "query_id": "Q_RENEWABLE_ENERGY_COMP_002",
+      "query_text": "ocean renewable energy education learning outcomes curriculum qualification",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "renewable_energy",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_RENEWABLE_ENERGY_CORE_001",
+      "query_text": "offshore wind energy marine spatial planning governance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "renewable_energy",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_RENEWABLE_ENERGY_CORE_002",
+      "query_text": "ocean renewable energy governance sustainability",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "renewable_energy",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_RENEWABLE_ENERGY_CORE_003",
+      "query_text": "tidal energy wave energy environmental impact",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "renewable_energy",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_RENEWABLE_ENERGY_EMRG_001",
+      "query_text": "offshore wind AI digital twin autonomous systems resilience",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "renewable_energy",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_RENEWABLE_ENERGY_EMRG_002",
+      "query_text": "offshore wind just transition climate adaptation marine governance safety",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "renewable_energy",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "hypothesis_verification",
+      "query_family": "hypothesis_verification",
+      "query_id": "Q_RENEWABLE_ENERGY_HYP_001",
+      "query_text": "renewable energy maritimisation marinization oceanisation hydrosocial de-base-re hypothesis verification indicators",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "renewable_energy",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "theory_translation",
+      "query_family": "theory_translation",
+      "query_id": "Q_RENEWABLE_ENERGY_THY_001",
+      "query_text": "renewable energy qmbd axis translation marine maritime oceanic hydronization theory terms taxonomy mapping",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "renewable_energy",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "qualification",
+      "query_family": "validation_eqf_translation",
+      "query_id": "Q_RENEWABLE_ENERGY_VAL_001",
+      "query_text": "offshore renewable energy EQF qualification framework micro-credential learning outcomes",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "renewable_energy",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "workforce_skill",
+      "query_family": "competence_demand",
+      "query_id": "Q_SHIP_REPAIR_COMP_001",
+      "query_text": "shipyard worker workforce skills competences training professional development",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "ship_repair",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "education_training",
+      "query_family": "competence_demand",
+      "query_id": "Q_SHIP_REPAIR_COMP_002",
+      "query_text": "ship repair engineer education learning outcomes curriculum qualification",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "ship_repair",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_SHIP_REPAIR_CORE_001",
+      "query_text": "ship repair shipyard workforce skills training",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "ship_repair",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_SHIP_REPAIR_CORE_002",
+      "query_text": "ship retrofit decarbonization maintenance governance",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "ship_repair",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "competence_demand",
+      "query_family": "core_sector",
+      "query_id": "Q_SHIP_REPAIR_CORE_003",
+      "query_text": "maritime repair supply chain safety standards",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "ship_repair",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_SHIP_REPAIR_EMRG_001",
+      "query_text": "ship repair AI digital twin autonomous systems resilience",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "ship_repair",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "emerging_demand",
+      "query_family": "emerging_demand",
+      "query_id": "Q_SHIP_REPAIR_EMRG_002",
+      "query_text": "ship retrofit just transition climate adaptation marine governance safety",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "ship_repair",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "hypothesis_verification",
+      "query_family": "hypothesis_verification",
+      "query_id": "Q_SHIP_REPAIR_HYP_001",
+      "query_text": "ship repair maritimisation marinization oceanisation hydrosocial de-base-re hypothesis verification indicators",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "ship_repair",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "theory_translation",
+      "query_family": "theory_translation",
+      "query_id": "Q_SHIP_REPAIR_THY_001",
+      "query_text": "ship repair qmbd axis translation marine maritime oceanic hydronization theory terms taxonomy mapping",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "ship_repair",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    },
+    {
+      "evidence_intent": "qualification",
+      "query_family": "validation_eqf_translation",
+      "query_id": "Q_SHIP_REPAIR_VAL_001",
+      "query_text": "ship repair EQF qualification framework micro-credential learning outcomes",
+      "sampling_strategy": {
+        "dedupe_key": "doi|normalized_title",
+        "mode": "stratified",
+        "pages": 3,
+        "rows_per_page": 50
+      },
+      "sector_slug": "ship_repair",
+      "sort_strategy": {
+        "crossref": "published-desc",
+        "scopus": "date-desc",
+        "wos": "date-desc"
+      },
+      "time_window": {
+        "from_year": 2019,
+        "to_year": 2026
+      }
+    }
+  ],
+  "query_count": 120
+}
