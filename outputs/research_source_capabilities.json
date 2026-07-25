@@ -42,6 +42,27 @@
       ],
       "licence_note": "Store only title, authors, year, DOI, journal, URL, citation count, and subject terms unless institutional licence permits additional fields."
     },
+    "openalex": {
+      "provider": "OpenAlex",
+      "requires_secret": false,
+      "configured": true,
+      "live_test_allowed": false,
+      "allowed_metadata_fields": [
+        "title",
+        "authors",
+        "year",
+        "doi",
+        "journal",
+        "url",
+        "citation_count",
+        "subject_terms",
+        "source_id",
+        "provider",
+        "source_query",
+        "retrieval_timestamp"
+      ],
+      "licence_note": "OpenAlex open scholarly metadata. OpenAlex is an aggregator; provider-level diversity does not imply upstream bibliographic-source independence."
+    },
     "wos": {
       "provider": "Web of Science (Clarivate)",
       "requires_secret": true,
