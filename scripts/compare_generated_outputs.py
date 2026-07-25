@@ -61,13 +61,29 @@ def compare_json_payloads(
 
 
 def _changed_output_paths(root: Path) -> list[Path]:
-    completed = subprocess.run(
+    tracked = subprocess.run(
         ["git", "diff", "--name-only", "--", str(root)],
         check=True,
         capture_output=True,
         text=True,
     )
-    return [Path(line.strip()) for line in completed.stdout.splitlines() if line.strip()]
+    untracked = subprocess.run(
+        ["git", "ls-files", "--others", "--exclude-standard", "--", str(root)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    changed = {
+        Path(line.strip())
+        for line in tracked.stdout.splitlines()
+        if line.strip()
+    }
+    changed.update(
+        Path(line.strip())
+        for line in untracked.stdout.splitlines()
+        if line.strip()
+    )
+    return sorted(changed)
 
 
 def _committed_bytes(path: Path) -> bytes:
@@ -115,7 +131,7 @@ def compare_outputs(root: Path) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default="outputs")
-    args = parser.parse_args([] if argv is None else argv)
+    args = parser.parse_args(argv)
 
     errors = compare_outputs(Path(args.root))
     if errors:

@@ -123,25 +123,6 @@ def probe_wos() -> ProbeResult:
     return result
 
 
-def probe_openalex() -> ProbeResult:
-    key = os.getenv("OPENALEX_API_KEY", "")
-    if not key:
-        return ProbeResult("openalex", "missing", "OPENALEX_API_KEY not set")
-    url = (
-        "https://api.openalex.org/works?"
-        f"search={urllib.parse.quote('ocean')}&per_page=1&api_key={urllib.parse.quote(key)}"
-    )
-    result = _request(
-        url,
-        {
-            "Accept": "application/json",
-            "User-Agent": "morskamary-openalex-healthcheck/1.0",
-        },
-    )
-    result.provider = "openalex"
-    return result
-
-
 def probe_scival() -> ProbeResult:
     key = os.getenv("SCIVAL_API_KEY", "")
     if not key:
@@ -227,7 +208,6 @@ def _probe_functions() -> dict[str, Callable[[], ProbeResult]]:
         "crossref": probe_crossref,
         "scopus": probe_scopus,
         "wos": probe_wos,
-        "openalex": probe_openalex,
         "scival": probe_scival,
         "microsoft_graph": probe_microsoft_graph,
         "google_drive": probe_google_drive,

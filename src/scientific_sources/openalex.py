@@ -46,6 +46,7 @@ _OPENALEX_API_BASE = "https://api.openalex.org/works"
 _MAX_RETRY_ATTEMPTS = 3
 _BASE_BACKOFF_SECONDS = 1.0
 _MAX_RETRY_AFTER_SECONDS = 60.0
+_TRANSIENT_SERVER_HTTP_STATUSES = {500, 502, 503}
 
 _LICENCE_NOTE = (
     "OpenAlex bibliographic metadata and topic labels. OpenAlex improves "
@@ -252,16 +253,38 @@ class OpenAlexProvider(BaseProvider):
             try:
                 return self._request_json(url), warnings, None, None
             except urllib.error.HTTPError as exc:
-                if exc.code != 429:
-                    return None, warnings, f"OpenAlex {context_label} failed (HTTP {exc.code})", None
-                retry_after = self._retry_after_seconds(exc.headers.get("Retry-After", ""))
-                wait_seconds = retry_after if retry_after is not None else _BASE_BACKOFF_SECONDS * attempt
+                if exc.code == 429:
+                    retry_after = self._retry_after_seconds(exc.headers.get("Retry-After", ""))
+                    wait_seconds = (
+                        retry_after if retry_after is not None else _BASE_BACKOFF_SECONDS * attempt
+                    )
+                    warnings.append(
+                        f"OpenAlex retry {context_label}: attempt={attempt} http_status=429 "
+                        f"wait_seconds={round(wait_seconds, 3)}"
+                    )
+                    if attempt >= _MAX_RETRY_ATTEMPTS:
+                        return None, warnings, "OpenAlex rate limited after retries", "rate-limited"
+                    time.sleep(max(wait_seconds, 0.0))
+                    continue
+                if exc.code not in _TRANSIENT_SERVER_HTTP_STATUSES:
+                    return (
+                        None,
+                        warnings,
+                        f"OpenAlex {context_label} failed (HTTP {exc.code})",
+                        None,
+                    )
+                wait_seconds = _BASE_BACKOFF_SECONDS * attempt
                 warnings.append(
-                    f"OpenAlex retry {context_label}: attempt={attempt} http_status=429 "
+                    f"OpenAlex retry {context_label}: attempt={attempt} http_status={exc.code} "
                     f"wait_seconds={round(wait_seconds, 3)}"
                 )
                 if attempt >= _MAX_RETRY_ATTEMPTS:
-                    return None, warnings, "OpenAlex rate limited after retries", "rate-limited"
+                    return (
+                        None,
+                        warnings,
+                        f"OpenAlex {context_label} failed after retries (HTTP {exc.code})",
+                        None,
+                    )
                 time.sleep(max(wait_seconds, 0.0))
             except Exception as exc:
                 return None, warnings, f"OpenAlex {context_label} error: {exc}", None

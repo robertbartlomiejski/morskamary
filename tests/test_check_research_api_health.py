@@ -174,7 +174,7 @@ def test_probe_scopus_missing_and_configured_paths(monkeypatch) -> None:
 
 
 def test_probe_wos_openalex_and_scival_missing_keys(monkeypatch) -> None:
-    """probe_wos/probe_openalex/probe_scival should report missing when required keys are absent."""
+    """OpenAlex stays probeable without a key; WOS/SciVal still fail closed."""
     import check_research_api_health
 
     monkeypatch.delenv("WOS_API_KEY", raising=False)
@@ -182,13 +182,20 @@ def test_probe_wos_openalex_and_scival_missing_keys(monkeypatch) -> None:
     monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
 
     wos_result = check_research_api_health.probe_wos()
-    openalex_result = check_research_api_health.probe_openalex()
+    with patch(
+        "check_research_api_health._request",
+        return_value=check_research_api_health.ProbeResult(
+            "", "ok", "request succeeded", 200
+        ),
+    ):
+        openalex_result = check_research_api_health.probe_openalex()
     scival_result = check_research_api_health.probe_scival()
 
     assert wos_result.status == "missing"
     assert wos_result.provider == "wos"
-    assert openalex_result.status == "missing"
+    assert openalex_result.status == "ok"
     assert openalex_result.provider == "openalex"
+    assert "unauthenticated" in openalex_result.detail
     assert scival_result.status == "missing"
     assert scival_result.provider == "scival"
 
@@ -243,12 +250,13 @@ def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
         patch("check_research_api_health.probe_crossref", return_value=fake_results[0]),
         patch("check_research_api_health.probe_scopus", return_value=fake_results[1]),
         patch("check_research_api_health.probe_wos", return_value=fake_results[2]),
-        patch("check_research_api_health.probe_scival", return_value=fake_results[3]),
+        patch("check_research_api_health.probe_openalex", return_value=fake_results[3]),
         patch(
             "check_research_api_health.probe_microsoft_graph",
-            return_value=fake_results[4],
+            return_value=fake_results[5],
         ),
-        patch("check_research_api_health.probe_google_drive", return_value=fake_results[5]),
+        patch("check_research_api_health.probe_scival", return_value=fake_results[4]),
+        patch("check_research_api_health.probe_google_drive", return_value=fake_results[6]),
     ):
         exit_code = check_research_api_health.main()
 

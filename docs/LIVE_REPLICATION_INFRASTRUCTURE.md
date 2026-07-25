@@ -77,22 +77,21 @@ The Crossref-excluded subset is deliberately not named Crossref-independent beca
 
 `scripts/build_run_stability_report.py` computes comparability and saturation diagnostics across run directories.
 
-Runs are comparable only when their fingerprint matches on protocol version, query-ID hash, classifier version, provider profile, sampling mode, logical pages, rows per page, time-window contract, and sort-strategy contract.
+Runs are comparable only when their fingerprint matches on protocol version, provider set, classifier version, requested and contributing provider profiles, logical pages, rows per page, time-window contract, sampling-strategy contract, and sort-strategy contract.
 
 Default provisional saturation thresholds are:
 
-- new unique DOI growth below 5%;
-- new semantic-signal growth below 5%;
-- maximum sector-axis share delta below 0.05;
-- absolute H1 Cohen d delta below 0.10;
-- H3 balance delta below 0.05 with stable bridge status;
-- all of the above for two consecutive comparable transitions.
+- DOI Jaccard similarity above the configured threshold (default `0.90`);
+- new DOI ratio below the configured diminishing-return threshold (default `0.05`);
+- axis-stability score above the configured threshold (default `0.95`);
+- the same comparable transition thresholds sustained for two consecutive transitions to claim provisional saturation, and three to claim saturation.
 
 The output status is one of:
 
-- `insufficient_comparable_runs`;
-- `continue_sampling`;
+- `not_assessable`;
+- `not_saturated`;
 - `provisional_saturation`.
+- `saturated`.
 
 Lack of saturation is not a pipeline failure. It is a scientific stopping diagnostic.
 

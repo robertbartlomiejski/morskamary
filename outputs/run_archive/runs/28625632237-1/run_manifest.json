@@ -4,7 +4,7 @@
   "run_id": "28625632237-1",
   "timestamp_utc": "2026-07-02T22:32:01+00:00",
   "archived_at": "2026-07-02T22:32:01+00:00",
-  "archive_root": "/home/runner/work/morskamary/morskamary/outputs/run_archive",
+  "archive_root": "outputs/run_archive",
   "run_path": "runs/28625632237-1",
   "copied_targets": [
     "outputs/research_sources",

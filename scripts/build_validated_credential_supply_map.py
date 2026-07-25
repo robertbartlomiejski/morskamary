@@ -46,6 +46,7 @@ REGISTRY_FIELDS: Sequence[str] = (
     "validation_status",
     "validated_by",
     "validation_date",
+    "validation_evidence_ids",
     "notes",
 )
 
@@ -66,6 +67,7 @@ VALIDATED_REQUIRED_FIELDS: Sequence[str] = (
     "validation_status",
     "validated_by",
     "validation_date",
+    "validation_evidence_ids",
 )
 
 _ALLOWED_VALIDATION_STATUSES = {
@@ -83,6 +85,10 @@ def _utc_now_iso() -> str:
 
 def _clean(value: Any) -> str:
     return str(value or "").strip()
+
+
+def _split_pipe(value: Any) -> list[str]:
+    return [item.strip() for item in str(value or "").split("|") if item.strip()]
 
 
 def load_derived_demand_ids(path: Path) -> Set[str]:
@@ -164,6 +170,7 @@ def _validated_entry(row: Mapping[str, str], eqf_level: int) -> Dict[str, Any]:
         "mapping_confidence": _clean(row.get("mapping_confidence")),
         "validated_by": _clean(row.get("validated_by")),
         "validation_date": _clean(row.get("validation_date")),
+        "validation_evidence_ids": _clean(row.get("validation_evidence_ids")),
         "notes": _clean(row.get("notes")),
     }
 
@@ -236,6 +243,14 @@ def build_validated_supply_map(
                 {str(row["credential_supply_id"]) for row in rows}
             ),
             "programme_titles": sorted({str(row["programme_title"]) for row in rows}),
+            "validation_evidence_ids": sorted(
+                {
+                    evidence_id
+                    for row in rows
+                    for evidence_id in _split_pipe(row.get("validation_evidence_ids"))
+                    if evidence_id
+                }
+            ),
             "mapping_count": len(rows),
         }
 

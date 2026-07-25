@@ -46,6 +46,7 @@ def _registry_row(**overrides: str) -> dict[str, str]:
         "validation_status": "validated",
         "validated_by": "reviewer-a",
         "validation_date": "2026-07-25",
+        "validation_evidence_ids": "E-1|E-2",
         "notes": "",
     }
     row.update(overrides)
@@ -107,6 +108,7 @@ def test_builder_emits_only_validated_mappings_and_audits_candidates(
     assert entry["validation_status"] == "validated"
     assert entry["eqf_levels"] == [6]
     assert entry["credential_supply_ids"] == ["SUP-001"]
+    assert entry["validation_evidence_ids"] == ["E-1", "E-2"]
     assert audit["validated_mapping_rows"] == 1
     assert audit["excluded_row_count"] == 1
     assert audit["excluded_rows"][0]["reason"] == "not_explicitly_validated"
@@ -158,6 +160,21 @@ def test_validated_mapping_requires_source_and_validation_provenance(
     _write_registry(registry_path, [_registry_row(programme_url="")])
 
     with pytest.raises(ValueError, match="missing required field"):
+        build_validated_supply_map(
+            registry_path=registry_path,
+            derived_demands_path=demands_path,
+            output_path=tmp_path / "map.json",
+            audit_output_path=tmp_path / "audit.json",
+        )
+
+
+def test_validated_mapping_requires_validation_evidence_ids(tmp_path: Path) -> None:
+    demands_path = tmp_path / "derived_competence_demands.csv"
+    registry_path = tmp_path / "credential_supply_registry.csv"
+    _write_demands(demands_path, ["cd:hydro:1"])
+    _write_registry(registry_path, [_registry_row(validation_evidence_ids="")])
+
+    with pytest.raises(ValueError, match="validation_evidence_ids"):
         build_validated_supply_map(
             registry_path=registry_path,
             derived_demands_path=demands_path,

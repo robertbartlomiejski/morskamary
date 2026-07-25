@@ -197,7 +197,7 @@ def test_workflow_builds_cross_run_stability_report_after_novelty() -> None:
         "python scripts/validate_run_archive_integrity.py"
     )
     stability_index = WORKFLOW_TEXT.index("python scripts/build_run_stability_report.py")
-    assert novelty_index < archive_index < integrity_index < stability_index
+    assert novelty_index < stability_index < archive_index < integrity_index
     stability_block = WORKFLOW_TEXT[stability_index - 120 : stability_index + 300]
     assert "continue-on-error: true" not in stability_block
     assert "--archive-root outputs/run_archive" in stability_block
@@ -353,9 +353,9 @@ def test_workflow_builds_provider_sensitivity_and_stability_artifacts() -> None:
         layer45_index
         < sensitivity_index
         < novelty_index
+        < stability_index
         < archive_index
         < integrity_index
-        < stability_index
     )
     assert "provider_sensitivity_analysis.json" in WORKFLOW_TEXT
     assert "run_stability_report.json" in WORKFLOW_TEXT

@@ -256,6 +256,9 @@ def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
     queries = constraints.get("queries")
     time_windows: set[str] = set()
     sampling_strategies: set[str] = set()
+    sort_strategies: set[str] = set()
+    logical_pages: set[int] = set()
+    rows_per_page: set[int] = set()
     if isinstance(queries, list):
         for query in queries:
             if not isinstance(query, dict):
@@ -268,11 +271,60 @@ def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
                 sampling_strategies.add(
                     json.dumps(sampling_strategy, sort_keys=True, separators=(",", ":"))
                 )
+                pages = sampling_strategy.get("pages")
+                rows = sampling_strategy.get("rows_per_page")
+                if isinstance(pages, int):
+                    logical_pages.add(pages)
+                if isinstance(rows, int):
+                    rows_per_page.add(rows)
+            sort_strategy = query.get("sort_strategy")
+            if isinstance(sort_strategy, dict):
+                sort_strategies.add(
+                    json.dumps(sort_strategy, sort_keys=True, separators=(",", ":"))
+                )
     return {
         "query_protocol_version": protocol_version or "unknown",
         "time_windows": sorted(time_windows),
         "sampling_strategies": sorted(sampling_strategies),
+        "sort_strategy_contract": sorted(sort_strategies),
+        "logical_pages": next(iter(logical_pages)) if len(logical_pages) == 1 else None,
+        "rows_per_page": next(iter(rows_per_page)) if len(rows_per_page) == 1 else None,
     }
+
+
+def _split_provider_list(raw_value: Any) -> list[str]:
+    providers: set[str] = set()
+    for item in _normalize_string(raw_value).replace("|", ",").split(","):
+        token = item.strip().lower()
+        if token:
+            providers.add(token)
+    return sorted(providers)
+
+
+def _extract_classifier_version(
+    qmbd_records: list[dict[str, Any]],
+    manifest: dict[str, Any],
+) -> str:
+    for record in qmbd_records:
+        analyses = record.get("qmbd_analysis")
+        if isinstance(analyses, list):
+            for analysis in analyses:
+                if not isinstance(analysis, dict):
+                    continue
+                provenance = analysis.get("provenance")
+                if isinstance(provenance, dict):
+                    classifier_version = _normalize_string(provenance.get("classifier_version"))
+                    if classifier_version:
+                        return classifier_version
+        classifier_version = _normalize_string(record.get("classifier_version"))
+        if classifier_version:
+            return classifier_version
+    workflow = manifest.get("workflow")
+    if isinstance(workflow, dict):
+        classifier_version = _normalize_string(workflow.get("classifier_version"))
+        if classifier_version:
+            return classifier_version
+    return _normalize_string(manifest.get("classifier_version")) or "unknown"
 
 
 def build_comparability_fingerprint(
@@ -425,6 +477,18 @@ def load_run_snapshot(
         query_protocol_version=str(constraint_payload["query_protocol_version"]),
         time_windows=list(constraint_payload["time_windows"]),
         sampling_strategies=list(constraint_payload["sampling_strategies"]),
+        classifier_version=_extract_classifier_version(qmbd_records, manifest),
+        requested_provider_profile=_split_provider_list(
+            manifest.get("workflow", {}).get("inputs", {}).get("providers", "")
+            if isinstance(manifest.get("workflow"), dict)
+            else ""
+        ),
+        contributing_provider_profile=_split_provider_list(
+            manifest.get("provider_set") or manifest.get("providers") or ""
+        ),
+        logical_pages=constraint_payload.get("logical_pages"),
+        rows_per_page=constraint_payload.get("rows_per_page"),
+        sort_strategy_contract=list(constraint_payload.get("sort_strategy_contract", [])),
     )
 
     timestamp_utc = (

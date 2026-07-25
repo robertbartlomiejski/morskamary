@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import urllib.error
 import urllib.parse
 from unittest.mock import patch
 
@@ -134,6 +135,39 @@ def test_verify_doi_uses_api_key_and_normalizes_doi(monkeypatch) -> None:
 
     assert result.records[0].doi == "10.5555/test.1"
     assert "api_key=test-key" in captured[0]
+
+
+def test_transient_server_errors_are_retried(monkeypatch) -> None:
+    provider = _provider(monkeypatch)
+    http_error = urllib.error.HTTPError(
+        "https://api.openalex.org/works",
+        503,
+        "Service Unavailable",
+        hdrs=None,
+        fp=None,
+    )
+    calls = iter([http_error, {"results": []}])
+
+    def mocked_request(url: str):
+        result = next(calls)
+        if isinstance(result, Exception):
+            raise result
+        return result
+
+    with patch.object(provider, "_request_json", side_effect=mocked_request) as mocked, patch(
+        "src.scientific_sources.openalex.time.sleep"
+    ) as mocked_sleep:
+        payload, warnings, error, rate_limit = provider._request_json_with_backoff(
+            url="https://api.openalex.org/works",
+            context_label="search",
+        )
+
+    assert payload == {"results": []}
+    assert error is None
+    assert rate_limit is None
+    assert mocked.call_count == 2
+    mocked_sleep.assert_called_once()
+    assert any("http_status=503" in warning for warning in warnings)
 
 
 def test_registry_and_sort_normalization_include_openalex(monkeypatch) -> None:

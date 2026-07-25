@@ -41,6 +41,7 @@ def _row(**overrides: str) -> dict[str, str]:
         "validation_status": "validated",
         "validated_by": "reviewer-a",
         "validation_date": "2026-07-25",
+        "validation_evidence_ids": "E-1|E-2",
         "notes": "",
     }
     row.update(overrides)
@@ -103,6 +104,10 @@ def test_validated_supply_is_keyed_by_demand_id_and_eqf(tmp_path: Path) -> None:
     assert result["validation_status"] == "validated"
     assert result["unit_of_analysis"] == "competence_demand_id"
     assert result["validated_supply_by_demand_id"]["cd:hydro:1"]["eqf_levels"] == [6, 7]
+    assert result["validated_supply_by_demand_id"]["cd:hydro:1"]["validation_evidence_ids"] == [
+        "E-1",
+        "E-2",
+    ]
     assert "cd:hydro:2" not in result["validated_supply_by_demand_id"]
     assert json.loads(audit.read_text(encoding="utf-8"))["excluded_row_count"] == 1
 

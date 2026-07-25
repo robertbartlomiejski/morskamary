@@ -212,6 +212,43 @@ class TestShippedProtocol:
                 loaded_protocol, projection
             )
 
+    @pytest.mark.parametrize(
+        ("match_text", "mutator"),
+        [
+            ("protocol-version", lambda projection: projection.__setitem__("protocol_version", "0.0.0")),
+            (
+                "time-window",
+                lambda projection: projection["queries"][0]["time_window"].__setitem__("from_year", 1900),
+            ),
+            (
+                "sort-strategy",
+                lambda projection: projection["queries"][0]["sort_strategy"].__setitem__("crossref", "relevance"),
+            ),
+            (
+                "sampling-strategy",
+                lambda projection: projection["queries"][0]["sampling_strategy"].__setitem__("pages", 99),
+            ),
+        ],
+        ids=["protocol-version", "time-window", "sort-strategy", "sampling-strategy"],
+    )
+    def test_complete_authoritative_projection_rejects_stale_acquisition_fields(
+        self,
+        loaded_protocol: LiveQueryProtocol,
+        match_text: str,
+        mutator,
+    ) -> None:
+        projection = {
+            "protocol_version": loaded_protocol.protocol_version,
+            "query_count": len(loaded_protocol.to_query_constraints()),
+            "queries": loaded_protocol.to_query_constraints(),
+        }
+        mutator(projection)
+
+        with pytest.raises(LiveQueryProtocolError, match=match_text):
+            validate_complete_authoritative_protocol_projection(
+                loaded_protocol, projection
+            )
+
     def test_axis_targets_are_valid(
         self, loaded_protocol: LiveQueryProtocol
     ) -> None:

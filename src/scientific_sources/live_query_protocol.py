@@ -763,6 +763,14 @@ def validate_complete_authoritative_protocol_projection(
             f"constraints projection must contain exactly {expected_query_count} queries; "
             f"found {len(rows)}"
         )
+    projected_protocol_version = str(
+        constraints_projection.get("protocol_version", "")
+    ).strip()
+    if projected_protocol_version != protocol.protocol_version:
+        raise LiveQueryProtocolError(
+            "protocol/projection protocol-version mismatch: "
+            f"protocol={protocol.protocol_version!r}, projection={projected_protocol_version!r}"
+        )
 
     projection_by_id: Dict[str, Mapping[str, Any]] = {}
     duplicate_projection_ids: List[str] = []
@@ -796,6 +804,9 @@ def validate_complete_authoritative_protocol_projection(
     query_text_mismatches: List[str] = []
     sector_mismatches: List[str] = []
     family_mismatches: List[str] = []
+    time_window_mismatches: List[str] = []
+    sort_strategy_mismatches: List[str] = []
+    sampling_strategy_mismatches: List[str] = []
     for query_id, query in protocol_by_id.items():
         row = projection_by_id[query_id]
         projection_sector_counts[str(row.get("sector_slug", "")).strip()] += 1
@@ -806,6 +817,27 @@ def validate_complete_authoritative_protocol_projection(
             sector_mismatches.append(query_id)
         if str(row.get("query_family", "")).strip() != query.query_family.value:
             family_mismatches.append(query_id)
+        expected_time_window = {
+            "from_year": query.time_window.from_year,
+            "to_year": query.time_window.to_year,
+        }
+        if row.get("time_window") != expected_time_window:
+            time_window_mismatches.append(query_id)
+        expected_sort_strategy = {
+            "crossref": query.sort_strategy.crossref,
+            "scopus": query.sort_strategy.scopus,
+            "wos": query.sort_strategy.wos,
+        }
+        if row.get("sort_strategy") != expected_sort_strategy:
+            sort_strategy_mismatches.append(query_id)
+        expected_sampling_strategy = {
+            "mode": query.sampling_strategy.mode,
+            "pages": query.sampling_strategy.pages,
+            "rows_per_page": query.sampling_strategy.rows_per_page,
+            "dedupe_key": query.sampling_strategy.dedupe_key,
+        }
+        if row.get("sampling_strategy") != expected_sampling_strategy:
+            sampling_strategy_mismatches.append(query_id)
     if query_text_mismatches:
         raise LiveQueryProtocolError(
             f"protocol/projection query-text mismatch IDs: {query_text_mismatches}"
@@ -817,6 +849,19 @@ def validate_complete_authoritative_protocol_projection(
     if family_mismatches:
         raise LiveQueryProtocolError(
             f"protocol/projection family mismatch IDs: {family_mismatches}"
+        )
+    if time_window_mismatches:
+        raise LiveQueryProtocolError(
+            f"protocol/projection time-window mismatch IDs: {time_window_mismatches}"
+        )
+    if sort_strategy_mismatches:
+        raise LiveQueryProtocolError(
+            f"protocol/projection sort-strategy mismatch IDs: {sort_strategy_mismatches}"
+        )
+    if sampling_strategy_mismatches:
+        raise LiveQueryProtocolError(
+            "protocol/projection sampling-strategy mismatch IDs: "
+            f"{sampling_strategy_mismatches}"
         )
     if dict(projection_family_counts) != dict(protocol_family_counts):
         raise LiveQueryProtocolError(

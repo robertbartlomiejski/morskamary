@@ -13,12 +13,15 @@ import json
 import math
 import sys
 from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Sequence, Set
 
 DEFAULT_SUBSETS = {
     "all_canonical": ("crossref", "scopus", "openalex"),
     "direct_crossref_excluded": ("scopus", "openalex"),
+    "scopus_excluded": ("crossref", "openalex"),
+    "openalex_excluded": ("crossref", "scopus"),
     "scopus_only": ("scopus",),
     "openalex_only": ("openalex",),
 }
@@ -113,6 +116,46 @@ def _share_map(counts: Mapping[str, int]) -> Dict[str, float]:
     if total <= 0:
         return {}
     return {key: round(value / total, 6) for key, value in sorted(counts.items())}
+
+
+def _safe_float(value: Any) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _diversity(count: int, universe: int) -> float:
+    if universe <= 0:
+        return 0.0
+    return max(0.0, min(1.0, count / universe))
+
+
+def _recency_score(latest_at: str, analysis_timestamp_utc: str | None) -> float:
+    if not latest_at:
+        return 0.0
+    try:
+        dt = datetime.fromisoformat(latest_at.replace("Z", "+00:00"))
+        reference = (
+            datetime.fromisoformat(analysis_timestamp_utc.replace("Z", "+00:00"))
+            if analysis_timestamp_utc
+            else datetime.now(timezone.utc)
+        )
+    except ValueError:
+        return 0.0
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    if reference.tzinfo is None:
+        reference = reference.replace(tzinfo=timezone.utc)
+    delta_days = max(0.0, (reference - dt).total_seconds() / 86400.0)
+    return math.exp(-delta_days / 365.0)
+
+
+def _analysis_timestamp_for_demands(derived_demands_path: Path) -> str | None:
+    manifest_path = derived_demands_path.parent / "layer4_manifest.json"
+    payload = _read_json(manifest_path)
+    value = str(payload.get("analysis_timestamp_utc", "")).strip()
+    return value or None
 
 
 def _cohens_d(maritime_scores: List[float], oceanic_scores: List[float]) -> float | None:
@@ -246,6 +289,163 @@ def _filter_rows_by_provider(
     return [row for row in rows if _providers_for_row(row) & providers]
 
 
+def _recompute_demands_for_subset(
+    *,
+    original_demands: Sequence[Mapping[str, Any]],
+    subset_evidence: Sequence[Mapping[str, Any]],
+    subset_signals: Sequence[Mapping[str, Any]],
+    analysis_timestamp_utc: str | None,
+    active_providers: Set[str],
+) -> List[Dict[str, Any]]:
+    def _normalized_evidence_id(value: Any) -> str:
+        return str(value or "").strip().lower()
+
+    evidence_by_id = {
+        _normalized_evidence_id(_evidence_id(row)): row
+        for row in subset_evidence
+        if _evidence_id(row)
+    }
+    all_providers = {
+        provider
+        for row in subset_evidence
+        for provider in _providers_for_row(row)
+        if provider in active_providers
+    }
+    signal_groups: Dict[tuple[str, str, str], List[Mapping[str, Any]]] = {}
+    for signal in subset_signals:
+        label = str(signal.get("competence_label", "")).strip()
+        sector = _sector(signal)
+        axis = _axis(signal)
+        if label:
+            signal_groups.setdefault((label, sector, axis), []).append(signal)
+    all_families = {
+        str(signal.get("query_family", "")).strip()
+        for signal in subset_signals
+        if str(signal.get("query_family", "")).strip()
+    }
+    recomputed: List[Dict[str, Any]] = []
+    for row in original_demands:
+        label = str(row.get("competence_label", "")).strip()
+        sector = _sector(row)
+        axis = _axis(row)
+        if not label:
+            continue
+        demand_evidence_ids = {
+            _normalized_evidence_id(evidence_id)
+            for evidence_id in _split(row.get("evidence_ids"))
+            if evidence_id
+        }
+        matched_signals = list(signal_groups.get((label, sector, axis), []))
+        if demand_evidence_ids:
+            matched_signals = [
+                signal
+                for signal in matched_signals
+                if _normalized_evidence_id(signal.get("evidence_id", ""))
+                in demand_evidence_ids
+            ]
+        evs = [
+            evidence_by_id[evidence_id]
+            for evidence_id in sorted(demand_evidence_ids)
+            if evidence_id in evidence_by_id
+        ]
+        if not evs and not matched_signals:
+            continue
+        dois = sorted({_doi_for_row(evidence) for evidence in evs if _doi_for_row(evidence)})
+        providers = sorted({
+            provider
+            for evidence in evs
+            for provider in _providers_for_row(evidence)
+            if provider in active_providers
+        })
+        families = sorted({
+            str(signal.get("query_family", "")).strip()
+            for signal in matched_signals
+            if str(signal.get("query_family", "")).strip()
+        })
+        if not families:
+            families = sorted({family for family in _split(row.get("query_families_seen")) if family})
+        confidences = [
+            _safe_float(signal.get("confidence_score", 0.0))
+            for signal in matched_signals
+            if signal.get("confidence_score") is not None
+        ]
+        conf_mean = (
+            sum(confidences) / len(confidences)
+            if confidences
+            else _safe_float(row.get("semantic_confidence_mean", 0.0))
+        )
+        first_run = min(
+            (
+                str(evidence.get("first_seen_run_id", "")).strip()
+                for evidence in evs
+                if str(evidence.get("first_seen_run_id", "")).strip()
+            ),
+            default=str(row.get("first_seen_run_id", "")).strip(),
+        )
+        latest_run = max(
+            (
+                str(evidence.get("latest_seen_run_id", "")).strip()
+                for evidence in evs
+                if str(evidence.get("latest_seen_run_id", "")).strip()
+            ),
+            default=str(row.get("latest_seen_run_id", "")).strip(),
+        )
+        first_at = min(
+            (
+                str(evidence.get("first_seen_at_utc", "")).strip()
+                for evidence in evs
+                if str(evidence.get("first_seen_at_utc", "")).strip()
+            ),
+            default=str(row.get("first_seen_at_utc", "")).strip(),
+        )
+        latest_at = max(
+            (
+                str(evidence.get("latest_seen_at_utc", "")).strip()
+                for evidence in evs
+                if str(evidence.get("latest_seen_at_utc", "")).strip()
+            ),
+            default=str(row.get("latest_seen_at_utc", "")).strip(),
+        )
+        provider_div = _diversity(len(providers), len(all_providers) or 1)
+        query_div = _diversity(len(families), len(all_families) or 1)
+        recency = _recency_score(latest_at, analysis_timestamp_utc)
+        norm_doi = min(1.0, len(dois) / 10.0)
+        score = round(
+            0.30 * norm_doi
+            + 0.20 * provider_div
+            + 0.20 * recency
+            + 0.15 * query_div
+            + 0.15 * conf_mean,
+            6,
+        )
+        recomputed.append(
+            {
+                "competence_demand_id": str(row.get("competence_demand_id", "")).strip(),
+                "competence_label": label,
+                "sector": sector,
+                "axis_group": axis,
+                "demand_strength_score": score,
+                "unique_doi_count": len(dois),
+                "provider_count": len(providers),
+                "providers_seen": "|".join(providers),
+                "query_families_seen": "|".join(families),
+                "semantic_confidence_mean": round(conf_mean, 6),
+                "first_seen_run_id": first_run,
+                "latest_seen_run_id": latest_run,
+                "first_seen_at_utc": first_at,
+                "latest_seen_at_utc": latest_at,
+                "evidence_ids": "|".join(sorted(demand_evidence_ids & set(evidence_by_id))),
+            }
+        )
+    sector_sets: Dict[str, Set[str]] = {}
+    for row in recomputed:
+        sector_sets.setdefault(str(row["competence_label"]), set()).add(str(row["sector"]))
+    for row in recomputed:
+        sectors = sector_sets.get(str(row["competence_label"]), set())
+        row["cross_sector_recurrence_score"] = round(min(1.0, len(sectors) / 12.0), 6)
+    return recomputed
+
+
 def build_provider_sensitivity_analysis(
     *,
     evidence_path: Path,
@@ -262,6 +462,7 @@ def build_provider_sensitivity_analysis(
     demands = _read_csv(derived_demands_path)
     fragments = _read_jsonl(hypothesis_fragments_path) if hypothesis_fragments_path else []
     validated_supply = _load_validated_supply(validated_supply_map_path)
+    analysis_timestamp_utc = _analysis_timestamp_for_demands(derived_demands_path)
     subset_config = subsets or DEFAULT_SUBSETS
     subset_results: Dict[str, Any] = {}
 
@@ -274,11 +475,13 @@ def build_provider_sensitivity_analysis(
             if str(row.get("evidence_id", "")).strip() in evidence_ids
             or _providers_for_row(row) & providers
         ]
-        subset_demands = [
-            row for row in demands
-            if set(_split(row.get("evidence_ids"))) & evidence_ids
-            or _providers_for_row(row) & providers
-        ]
+        subset_demands = _recompute_demands_for_subset(
+            original_demands=demands,
+            subset_evidence=subset_evidence,
+            subset_signals=subset_signals,
+            analysis_timestamp_utc=analysis_timestamp_utc,
+            active_providers=providers,
+        )
         subset_fragments = [
             row for row in fragments
             if str(row.get("evidence_id", "")).strip() in evidence_ids
@@ -308,6 +511,13 @@ def build_provider_sensitivity_analysis(
             "unique_doi_count": doi_count,
             "semantic_signal_count": len(subset_signals),
             "derived_demand_count": len(subset_demands),
+            "top_demands": sorted(
+                subset_demands,
+                key=lambda row: (
+                    -_safe_float(row.get("demand_strength_score", 0.0)),
+                    str(row.get("competence_demand_id", "")),
+                ),
+            )[:10],
             "qmbd_axis_shares": _share_map(axis_counts),
             "sector_axis_distribution": dict(sorted(sector_axis_counts.items())),
             "competence_family_shares": _share_map(competence_counts),

@@ -436,6 +436,13 @@ def _archive_relative_run_path(run_id: str) -> str:
     return (Path("runs") / run_id).as_posix()
 
 
+def _repo_relative_posix(path: Path, repo_root: Path) -> str:
+    try:
+        return path.resolve().relative_to(repo_root.resolve()).as_posix()
+    except ValueError:
+        return path.name
+
+
 def archive_run_outputs(
     *,
     repo_root: Path,
@@ -488,7 +495,7 @@ def archive_run_outputs(
         "timestamp_utc": timestamp_utc,
         "analysis_timestamp_utc": str(cumulative_metadata.get("timestamp_utc", "")),
         "archived_at": timestamp_utc,
-        "archive_root": archive_root.as_posix(),
+        "archive_root": _repo_relative_posix(archive_root, repo_root),
         "run_path": _archive_relative_run_path(resolved_run_id),
         "copied_targets": copy_targets,
         "file_count": len(archived_files),

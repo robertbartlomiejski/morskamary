@@ -201,6 +201,7 @@ def test_archive_run_outputs_creates_full_run_archive(tmp_path: Path) -> None:
     assert manifest["run_id"] == "run-123-1"
     assert manifest["requested_run_id"] == "run-123-1"
     assert manifest["run_path"] == "runs/run-123-1"
+    assert manifest["archive_root"] == "outputs/run_archive"
     assert manifest["manifest_schema"] == "schemas/run_archive_manifest.schema.json"
     assert manifest["analysis_input_mode"] == "static"
     assert manifest["is_static_recovery_mode"] is True

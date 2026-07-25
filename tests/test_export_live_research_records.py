@@ -18,6 +18,8 @@ from scripts.export_live_research_records import (
     PROTOCOL_PROJECTED_QUERY_FILE_NAME,
     STAGE1_CSV_FIELDS,
     _apply_query_constraint,
+    _resolve_provider_sort_strategies,
+    _search_registry_paginated,
     _to_stage1_compliant_dict,
     build_thematic_loop_audit,
     build_coverage_report,
@@ -266,6 +268,68 @@ class TestApplyQueryConstraint:
         assert len(accepted) == 1
         assert accepted[0].year == "2024"
         assert audit["excluded_missing_year_count"] == 1
+
+    def test_records_actual_attempted_pages_when_max_results_caps_sampling(self):
+        accepted, audit = _apply_query_constraint(
+            records=[_make_record(year="2024") for _ in range(60)],
+            constraint={
+                "time_window": {"from_year": 2020, "to_year": 2026},
+                "sampling_strategy": {
+                    "mode": "stratified",
+                    "pages": 3,
+                    "rows_per_page": 50,
+                },
+            },
+            provider_name="Crossref",
+            max_results=20,
+            attempted_logical_pages=1,
+        )
+
+        assert len(accepted) == 20
+        assert audit["logical_pages_attempted"] == 1
+
+
+def test_resolve_provider_sort_strategies_includes_openalex_fallback() -> None:
+    resolved = _resolve_provider_sort_strategies(
+        {"crossref": "published-desc", "scopus": "date-desc"},
+        ["Crossref", "OpenAlex"],
+    )
+
+    assert resolved == {
+        "crossref": "published-desc",
+        "openalex": "date-desc",
+    }
+
+
+def test_search_registry_paginated_propagates_provider_typeerror() -> None:
+    class Registry:
+        def search_paginated(
+            self,
+            query: str,
+            *,
+            pages: int,
+            rows_per_page: int,
+            providers: list[str],
+            sort_strategy_by_provider: dict[str, str],
+            time_window: dict[str, int],
+        ):
+            del query, pages, rows_per_page, providers, sort_strategy_by_provider, time_window
+            raise TypeError("provider-side failure")
+
+    try:
+        _search_registry_paginated(
+            Registry(),
+            query="blue economy",
+            pages=2,
+            rows_per_page=50,
+            providers=["crossref"],
+            sort_strategy_by_provider={"crossref": "published-desc"},
+            time_window={"from_year": 2020, "to_year": 2026},
+        )
+    except TypeError as exc:
+        assert "provider-side failure" in str(exc)
+    else:
+        raise AssertionError("provider TypeError must not be masked as legacy signature handling")
 
 
 class TestSentenceLevelClassification:
