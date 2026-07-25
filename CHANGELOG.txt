@@ -19,6 +19,15 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-23 (docs: codify operator closure checklist for issue #198 and PR #208)
+  Change type update
+  Scope governance docs
+  Files affected docs/COPILOT_CLOUD_AGENT_SETUP.md CHANGELOG.txt
+  Summary Updated the Copilot cloud-agent setup guide to reflect the current live-workflow state already present on `main` and added an exact operator checklist for advancing PR #208, confirming protected `live-research`/CodeQL/ruleset settings, running the controlled two-run live validation, and deciding when issue #198 may be closed.
+  Reason The repository already contains the previously reported code-side fixes, but the remaining work is a precise operator-side audit and closure procedure spanning GitHub settings, required check names, and controlled live-validation steps.
+  Impact Maintainers now have a repository-tracked runbook for the manual GitHub operations that remain after the workflow and Gate A fixes landed, reducing ambiguity about what still blocks PR #208 advancement and issue #198 closure.
+  Provenance `.github/workflows/full-live-analysis.yml`; `.github/workflows/export-research-records.yml`; `.github/workflows/research-api-smoke.yml`; `.github/workflows/codeql.yml`; `.github/workflows/copilot-setup-steps.yml`.
+  Quality checks python -m pytest tests/test_full_live_analysis_workflow.py tests/test_codeql_workflow.py -q (29 passed); manual diff review of docs/COPILOT_CLOUD_AGENT_SETUP.md and CHANGELOG.txt (completed)
 - 2026-07-24 (fix: address PR-A review follow-ups for controlled acquisition and archive hygiene)
   Change type fix update
   Scope scripts src workflows tests governance
@@ -1063,4 +1072,14 @@ Summary PR-190 Task C: added Layer 4 derived competence-demand model, Layer 5 se
 Reason Complete the live cumulative scientific database with statistical validity, credential translation, and a reproducible downloadable package so that the pipeline delivers auditable Blue Economy competence-demand evidence end to end.
 Impact `outputs/cumulative_database/` now contains derived_competence_demands, sector_axis_gap_model, credential_translation_eqf4_7, learning_outcomes, layer4/5_manifest, layer_readiness_report, and VARIABLE_LABELS/VALUE_LABELS; `reports/` contains morskamary_statistical_report.{html,pdf} and morskamary_methodological_audit.html; `outputs/release_packages/morskamary_live_cumulative_latest.zip` is the single-file consumer bundle.
 Quality checks pytest tests/test_derived_competence_analysis.py tests/test_compute_live_novelty_metrics.py tests/test_live_cumulative_release_package.py → 15/15 passed. End-to-end smoke: L2-3 → L4-5 → gates (pass) → report (HTML+audit) → package (20 files, SQLite generated, byte-identical rebuild).
+Reviewer GitHub Copilot Coding Agent
+
+2026-07-24
+Change type refresh
+Scope outputs run-archive governance
+Files affected outputs/cumulative_database/*.csv outputs/live_runs/30090903921-1/ outputs/run_archive/runs/30090903921-1/ MANIFEST_SOURCES.csv
+Summary Live-enriched run 30090903921-1: refreshed cumulative database (Layer 4-5 outputs), live_runs normalised acquisition artifacts, and run_archive snapshot. Regenerated MANIFEST_SOURCES.csv to include 117 new files added by the run, fixing the governance-and-repro CI job failure caused by manifest drift.
+Reason The live-enriched outputs commit (run 30090903921/1) added new output files under outputs/cumulative_database/, outputs/live_runs/, outputs/run_archive/, outputs/layer4_statistics/, and reports/ but did not regenerate MANIFEST_SOURCES.csv, causing the governance CI determinism check to fail.
+Impact governance-and-repro CI job passes; MANIFEST_SOURCES.csv now reflects all 1315 tracked repository files.
+Quality checks python3 scripts/generate_manifest.py → Wrote MANIFEST_SOURCES.csv with 1315 entries; git diff --exit-code MANIFEST_SOURCES.csv → clean.
 Reviewer GitHub Copilot Coding Agent
