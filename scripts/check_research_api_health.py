@@ -207,6 +207,21 @@ def probe_microsoft_graph() -> ProbeResult:
         return ProbeResult("microsoft_graph", "present-but-invalid", str(exc))
 
 
+def probe_openalex() -> ProbeResult:
+    """OpenAlex is free/open; API key is optional (increases rate limits)."""
+    url = "https://api.openalex.org/works?filter=title.search:ocean&per_page=1"
+    headers: dict[str, str] = {}
+    api_key = os.getenv("OPENALEX_API_KEY", "")
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    result = _request(url, headers)
+    result.provider = "openalex"
+    # OpenAlex works without a key; treat missing key as ok if endpoint responds
+    if not api_key and result.status == "ok":
+        result.detail = "ok (unauthenticated, lower rate limits)"
+    return result
+
+
 def probe_google_drive() -> ProbeResult:
     credentials_path = os.getenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", "")
     if not credentials_path:
@@ -229,6 +244,7 @@ def _probe_functions() -> dict[str, Callable[[], ProbeResult]]:
         "wos": probe_wos,
         "openalex": probe_openalex,
         "scival": probe_scival,
+        "openalex": probe_openalex,
         "microsoft_graph": probe_microsoft_graph,
         "google_drive": probe_google_drive,
     }
