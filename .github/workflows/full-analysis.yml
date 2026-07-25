@@ -72,15 +72,23 @@ jobs:
 
       - name: Check committed outputs are in sync with generator
         run: |
-          git diff --exit-code -- outputs \
-            ':!outputs/cumulative_qmbd_records.json' || {
+          if git diff --quiet -- outputs \
+               ':!outputs/cumulative_qmbd_records.json'; then
+            echo "Committed outputs/ are in sync with the generator."
+          else
             echo ""
             echo "ERROR: Committed outputs/ are out of sync with the generator."
             echo "Run 'python run_full_analysis.py' locally and commit the updated outputs/."
             echo "Note: outputs/cumulative_qmbd_records.json is excluded (it contains"
             echo "non-reproducible per-run metadata: commit_sha, timestamp_utc, github_run_id)."
+            echo ""
+            echo "--- Changed files (stat) ---"
+            git diff --stat -- outputs ':!outputs/cumulative_qmbd_records.json' || true
+            echo ""
+            echo "--- Diff preview (first 200 lines) ---"
+            git diff -- outputs ':!outputs/cumulative_qmbd_records.json' | head -200 || true
             exit 1
-          }
+          fi
 
       - name: Upload analysis outputs
         if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
