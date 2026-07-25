@@ -37,6 +37,11 @@ ARCHIVE_OPTIONAL_TARGETS: tuple[str, ...] = (
     "outputs/research_api_health.json",
     "outputs/research_source_capabilities.json",
     "outputs/validation_state.json",
+    "outputs/cumulative_database/validated_credential_supply_map.json",
+    "outputs/cumulative_database/validated_credential_supply_audit.json",
+    "outputs/cumulative_database/provider_sensitivity_analysis.json",
+    "outputs/cumulative_database/provider_sensitivity_analysis.md",
+    "outputs/cumulative_database/run_stability_report.json",
 )
 
 ANALYSIS_VIEW_TARGETS: tuple[str, ...] = (

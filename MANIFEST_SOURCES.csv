@@ -727,6 +727,7 @@ docs/literature/WG3_PACT_WG3_Sensory_Walk_Methodology_Slides_EN-UK rob.pptx,lite
 docs/literature/WG_applications_export_05-01-2026 (1).xlsx,literature,,,,,,WG_applications_export_05_01_2026__1,yes
 docs/literature/Wyrzucone przez morze_250521_002507.txt,literature,,,,,,Wyrzucone_przez_morze_250521_002507,yes
 docs/LIVE_CUMULATIVE_SCIENTIFIC_DATABASE.md,text,,,,,,LIVE_CUMULATIVE_SCIENTIFIC_DATABASE,yes
+docs/LIVE_REPLICATION_INFRASTRUCTURE.md,text,,,,,,LIVE_REPLICATION_INFRASTRUCTURE,yes
 docs/onboarding_new_provider.md,text,,,,,,onboarding_new_provider,yes
 docs/ONE_CLICK_RESEARCH_RUNBOOK.md,text,,,,,,ONE_CLICK_RESEARCH_RUNBOOK,yes
 docs/overview.md,text,,,,,,overview,yes
@@ -1039,6 +1040,7 @@ scripts/build_derived.py,script,,,,,,build_derived,yes
 scripts/build_layer4_5_scientific_analysis.py,script,,,,,,build_layer4_5_scientific_analysis,yes
 scripts/build_live_cumulative_release_package.py,script,,,,,,build_live_cumulative_release_package,yes
 scripts/build_live_run_audit.py,script,,,,,,build_live_run_audit,yes
+scripts/build_provider_sensitivity_analysis.py,script,,,,,,build_provider_sensitivity_analysis,yes
 scripts/build_run_stability_report.py,script,,,,,,build_run_stability_report,yes
 scripts/build_statistical_research_report.py,script,,,,,,build_statistical_research_report,yes
 scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,yes
@@ -1139,6 +1141,7 @@ tests/test_build_cross_run_evidence_index.py,script,,,,,,test_build_cross_run_ev
 tests/test_build_derived.py,script,,,,,,test_build_derived,yes
 tests/test_build_layer4_5_scientific_analysis.py,script,,,,,,test_build_layer4_5_scientific_analysis,yes
 tests/test_build_tmbd_dictionary.py,script,,,,,,test_build_tmbd_dictionary,yes
+tests/test_build_validated_credential_supply_map.py,script,,,,,,test_build_validated_credential_supply_m,yes
 tests/test_build_versioned_research_data_package.py,script,,,,,,test_build_versioned_research_data_packa,yes
 tests/test_changelog_guard.py,script,,,,,,test_changelog_guard,yes
 tests/test_check_research_api_health.py,script,,,,,,test_check_research_api_health,yes
@@ -1179,12 +1182,14 @@ tests/test_pagination.py,script,,,,,,test_pagination,yes
 tests/test_pipeline_matrix.py,script,,,,,,test_pipeline_matrix,yes
 tests/test_pre_acquisition_assertion.py,script,,,,,,test_pre_acquisition_assertion,yes
 tests/test_provider_sensitivity.py,script,,,,,,test_provider_sensitivity,yes
+tests/test_provider_sensitivity_analysis.py,script,,,,,,test_provider_sensitivity_analysis,yes
 tests/test_publication_cumulative_database.py,script,,,,,,test_publication_cumulative_database,yes
 tests/test_research_queries_config.py,script,,,,,,test_research_queries_config,yes
 tests/test_research_support_scripts.py,script,,,,,,test_research_support_scripts,yes
 tests/test_revalidate_historical_outputs.py,script,,,,,,test_revalidate_historical_outputs,yes
 tests/test_run_full_analysis.py,script,,,,,,test_run_full_analysis,yes
 tests/test_run_stability.py,script,,,,,,test_run_stability,yes
+tests/test_run_stability_report.py,script,,,,,,test_run_stability_report,yes
 tests/test_scientific_bridge.py,script,,,,,,test_scientific_bridge,yes
 tests/test_scientific_sources.py,script,,,,,,test_scientific_sources,yes
 tests/test_script_cli.py,script,,,,,,test_script_cli,yes

@@ -10,7 +10,7 @@ on:
       max_results_per_query:
         description: "Maximum results per query"
         required: false
-        default: "50"
+        default: "150"
       offline:
         description: "Run in offline mode (true/false)"
         required: false
@@ -64,7 +64,7 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
       REQUESTED_PROVIDERS: ${{ github.event.inputs.providers || 'crossref,scopus,openalex' }}
-      MAX_RESULTS_PER_QUERY: ${{ github.event.inputs.max_results_per_query || '50' }}
+      MAX_RESULTS_PER_QUERY: ${{ github.event.inputs.max_results_per_query || '150' }}
       OFFLINE_MODE: ${{ github.event.inputs.offline || 'false' }}
       REQUIRE_VALID_CREDENTIALS: ${{ github.event.inputs.require_valid_credentials || 'false' }}
       REQUIRE_LIVE_RECORDS: ${{ github.event.inputs.require_live_records || 'true' }}
@@ -146,6 +146,7 @@ jobs:
             --providers "$REQUESTED_PROVIDERS" \
             --query-file outputs/research_sources/research_queries_from_protocol.yml \
             --query-constraints-file outputs/research_sources/query_protocol_constraints.json \
+            --protocol-path config/live_query_protocol.yml \
             --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
             --output-dir outputs/research_sources \
             --offline "$OFFLINE_MODE"
@@ -212,34 +213,6 @@ jobs:
           print(f"Validation state captured: {output_path}")
           PY
 
-      - name: Archive full run outputs
-        run: |
-          set -euo pipefail
-          python scripts/archive_run_outputs.py \
-            --repo-root . \
-            --archive-root outputs/run_archive \
-            --run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
-            --workflow-name "${{ github.workflow }}" \
-            --event-name "${{ github.event_name }}" \
-            --git-sha "${{ github.sha }}" \
-            --git-ref "${{ github.ref }}" \
-            --github-run-id "${{ github.run_id }}" \
-            --github-run-attempt "${{ github.run_attempt }}" \
-            --github-run-number "${{ github.run_number }}" \
-            --github-job "$GITHUB_JOB" \
-            --providers "$REQUESTED_PROVIDERS" \
-            --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
-            --offline "$OFFLINE_MODE" \
-            --require-live-records "$REQUIRE_LIVE_RECORDS" \
-            --query-file outputs/research_sources/research_queries_from_protocol.yml
-
-      - name: Validate archived run integrity
-        run: |
-          set -euo pipefail
-          python scripts/validate_run_archive_integrity.py \
-            --archive-root outputs/run_archive \
-            --require-present
-
       - name: Preserve previous novelty metrics for Gate B
         run: |
           set -euo pipefail
@@ -271,18 +244,54 @@ jobs:
             --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
             --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC"
 
-      - name: Build preliminary H2 credential supply map
+      - name: Build validated external H2 credential supply map
         continue-on-error: true
         run: |
           set -euo pipefail
-          if [ -f data/validated/credential_supply_registry.csv ]; then
-            python scripts/build_validated_credential_supply_map.py \
-              --registry-path data/validated/credential_supply_registry.csv \
-              --demand-signals outputs/cumulative_database/competence_demand_signals.jsonl \
-              --output-dir outputs
-          else
-            echo "[WARN] Skipping H2 credential supply map; registry file not found."
-          fi
+          python scripts/build_validated_credential_supply_map.py \
+            --registry data/validated/credential_supply_registry.csv \
+            --derived-demands outputs/cumulative_database/derived_competence_demands.csv \
+            --output outputs/cumulative_database/validated_credential_supply_map.json \
+            --audit-output outputs/cumulative_database/validated_credential_supply_audit.json
+
+      - name: Build provider sensitivity diagnostics
+        run: |
+          set -euo pipefail
+          python scripts/build_provider_sensitivity_analysis.py \
+            --evidence-records outputs/cumulative_database/evidence_records.jsonl \
+            --signals outputs/cumulative_database/competence_demand_signals.jsonl \
+            --derived-demands outputs/cumulative_database/derived_competence_demands.csv \
+            --hypothesis-fragments outputs/cumulative_database/hypothesis_semantic_fragments.jsonl \
+            --output-json outputs/cumulative_database/provider_sensitivity_analysis.json \
+            --output-markdown outputs/cumulative_database/provider_sensitivity_analysis.md
+
+      - name: Archive complete scientific run outputs
+        run: |
+          set -euo pipefail
+          python scripts/archive_run_outputs.py \
+            --repo-root . \
+            --archive-root outputs/run_archive \
+            --run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --workflow-name "${{ github.workflow }}" \
+            --event-name "${{ github.event_name }}" \
+            --git-sha "${{ github.sha }}" \
+            --git-ref "${{ github.ref }}" \
+            --github-run-id "${{ github.run_id }}" \
+            --github-run-attempt "${{ github.run_attempt }}" \
+            --github-run-number "${{ github.run_number }}" \
+            --github-job "$GITHUB_JOB" \
+            --providers "$REQUESTED_PROVIDERS" \
+            --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
+            --offline "$OFFLINE_MODE" \
+            --require-live-records "$REQUIRE_LIVE_RECORDS" \
+            --query-file outputs/research_sources/research_queries_from_protocol.yml
+
+      - name: Validate archived run integrity
+        run: |
+          set -euo pipefail
+          python scripts/validate_run_archive_integrity.py \
+            --archive-root outputs/run_archive \
+            --require-present
 
       - name: Evaluate live novelty gates (A-E)
         run: |
@@ -301,11 +310,11 @@ jobs:
             "${GATE_ARGS[@]}"
 
       - name: Build cross-run stability report
-        continue-on-error: true
         run: |
           set -euo pipefail
           python scripts/build_run_stability_report.py \
-            --archive-root outputs/run_archive
+            --archive-root outputs/run_archive \
+            --output-path outputs/cumulative_database/run_stability_report.json
 
       - name: Build statistical research report (HTML + PDF)
         run: |

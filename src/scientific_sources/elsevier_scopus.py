@@ -436,119 +436,159 @@ class ElsevierScopusProvider(BaseProvider):
         self,
         query: str,
         *,
-        logical_pages: int = 1,
+        pages: int = 1,
         rows_per_page: int = 50,
-        time_window: dict | None = None,
         sort_strategy: str = "",
-    ) -> tuple[ProviderResult, list[dict]]:
-        """Paginated Scopus search using start/count batches."""
-        del time_window
+        time_window: Dict[str, int] | None = None,
+    ) -> ProviderResult:
+        """Search Scopus using protocol logical pages composed from physical calls."""
         if not self._api_key:
-            return self._not_configured_result(), []
-
+            return self._not_configured_result()
         projected_query = self._project_protocol_query(query)
         if projected_query is None:
-            return (
-                ProviderResult(
-                    errors=[
-                        "Scopus query projection failed: "
-                        f"no searchable tokens in query {query!r}. "
-                        "Query rejected to prevent provenance contamination."
-                    ]
-                ),
-                [],
+            return ProviderResult(
+                errors=[
+                    f"Scopus query projection failed: no searchable tokens in query {query!r}. "
+                    "Query rejected to prevent provenance contamination."
+                ]
             )
+        if time_window:
+            from_year = int(time_window.get("from_year", 0) or 0)
+            to_year = int(time_window.get("to_year", 9999) or 9999)
+            year_clauses: List[str] = []
+            if from_year > 0:
+                year_clauses.append(f"PUBYEAR > {from_year - 1}")
+            if to_year < 9999:
+                year_clauses.append(f"PUBYEAR < {to_year + 1}")
+            if year_clauses:
+                projected_query = f"({projected_query}) AND {' AND '.join(year_clauses)}"
+        safe_pages = max(1, int(pages or 1))
+        safe_rows = max(1, int(rows_per_page or 1))
+        encoded_query = urllib.parse.quote(projected_query, safe="()")
+        field_param = urllib.parse.quote(_SCOPUS_FIELDS)
+        sort_clause = ""
+        if sort_strategy == "date-desc":
+            sort_clause = "&sort=-coverDate"
 
-        all_records: List[LiteratureRecord] = []
-        all_errors: List[str] = []
-        all_warnings: List[str] = []
-        all_provenance: List[SourceEvidence] = []
-        raw_pages: List[Dict[str, Any]] = []
+        records: List[LiteratureRecord] = []
+        provenance: List[SourceEvidence] = []
+        warnings: List[str] = [
+            (
+                f"Scopus diagnostics: projected_query={projected_query!r}; "
+                f"logical_pages={safe_pages}; rows_per_page={safe_rows}; "
+                f"physical_max_count={_SCOPUS_MAX_COUNT}"
+            )
+        ]
         page_diagnostics: List[Dict[str, Any]] = []
-        rate_limit_status: Optional[str] = None
+        raw_pages: List[Dict[str, Any]] = []
+        physical_request_index = 0
 
-        for page_num in range(logical_pages):
-            page_records: List[LiteratureRecord] = []
-            physical_requests = 0
-            page_start = page_num * rows_per_page
-            rows_remaining = rows_per_page
-
-            while rows_remaining > 0:
-                batch_size = min(rows_remaining, _SCOPUS_MAX_COUNT)
-                start_index = page_start + (rows_per_page - rows_remaining)
-                encoded_query = urllib.parse.quote(projected_query, safe="()")
+        for logical_page in range(1, safe_pages + 1):
+            logical_offset = (logical_page - 1) * safe_rows
+            page_returned = 0
+            page_normalized = 0
+            remaining = safe_rows
+            chunk_index = 0
+            while remaining > 0:
+                chunk_index += 1
+                physical_request_index += 1
+                count = min(_SCOPUS_MAX_COUNT, remaining)
+                start = logical_offset + (chunk_index - 1) * _SCOPUS_MAX_COUNT
                 url = (
-                    f"{self._api_base}?query={encoded_query}"
-                    f"&count={batch_size}&start={start_index}&view=STANDARD"
-                    f"&field={urllib.parse.quote(_SCOPUS_FIELDS)}"
+                    f"{self._api_base}?query={encoded_query}&count={count}&start={start}"
+                    f"&view=STANDARD&field={field_param}{sort_clause}"
                 )
-                if sort_strategy == "date-desc":
-                    url += "&sort=-coverDate"
-
-                physical_requests += 1
                 try:
                     payload = self._request_json(url)
-                    raw_pages.append(payload)
-                    items = payload.get("search-results", {}).get("entry", [])
-                    if not isinstance(items, list):
-                        items = []
-                    records = self._parse_items(items, query)
-                    page_records.extend(records)
-                    rows_remaining -= batch_size
-
-                    if len(records) < batch_size:
-                        rows_remaining = 0
                 except urllib.error.HTTPError as exc:
                     result = self._http_error_result(
-                        f"search_page_{page_num + 1}_start_{start_index}", exc
+                        f"search projected_query={projected_query!r}", exc
                     )
-                    all_warnings.extend(result.warnings)
-                    all_errors.extend(result.errors)
-                    if result.rate_limit_status:
-                        rate_limit_status = result.rate_limit_status
-                    rows_remaining = 0
-                    break
+                    page_diagnostics.append(
+                        {
+                            "provider": "scopus",
+                            "query": query,
+                            "logical_page": logical_page,
+                            "physical_request_index": physical_request_index,
+                            "cursor_or_offset": f"start:{start}",
+                            "requested_rows": count,
+                            "returned_rows": 0,
+                            "normalized_rows": 0,
+                            "pagination_status": "failed",
+                            "errors": "|".join(result.errors),
+                            "warnings": "|".join(result.warnings),
+                        }
+                    )
+                    result.records = records
+                    result.provenance = provenance
+                    result.page_diagnostics = page_diagnostics
+                    result.raw_payload = {"physical_requests": raw_pages} if raw_pages else None
+                    result.warnings = warnings + result.warnings
+                    return result
                 except Exception as exc:
-                    all_errors.append(
-                        f"Scopus page {page_num + 1} physical request error: {exc}"
+                    return ProviderResult(
+                        records=records,
+                        errors=[
+                            f"Scopus search error: {exc} (projected_query={projected_query!r})"
+                        ],
+                        warnings=warnings,
+                        provenance=provenance,
+                        raw_payload={"physical_requests": raw_pages} if raw_pages else None,
+                        page_diagnostics=page_diagnostics,
                     )
-                    rows_remaining = 0
+                items = payload.get("search-results", {}).get("entry", [])
+                if not isinstance(items, list):
+                    items = []
+                page_records = self._parse_items(items, query)
+                records.extend(page_records)
+                provenance.extend(self._make_evidence(query, "scopus/search", page_records))
+                raw_pages.append(
+                    {
+                        "logical_page": logical_page,
+                        "physical_request_index": physical_request_index,
+                        "start": start,
+                        "count": count,
+                        "payload": payload,
+                    }
+                )
+                page_returned += len(items)
+                page_normalized += len(page_records)
+                remaining -= count
+                status = "applied"
+                if len(items) < count:
+                    status = "end_of_results"
+                page_diagnostics.append(
+                    {
+                        "provider": "scopus",
+                        "query": query,
+                        "logical_page": logical_page,
+                        "physical_request_index": physical_request_index,
+                        "cursor_or_offset": f"start:{start}",
+                        "requested_rows": count,
+                        "returned_rows": len(items),
+                        "normalized_rows": len(page_records),
+                        "pagination_status": status,
+                    }
+                )
+                if status == "end_of_results":
+                    remaining = 0
                     break
-
-            page_diagnostics.append(
-                {
-                    "logical_page": page_num + 1,
-                    "physical_requests": physical_requests,
-                    "requested_rows": rows_per_page,
-                    "returned_rows": len(page_records),
-                    "pagination_method": "scopus_start_count",
-                    "start_index": page_start,
-                }
-            )
-
-            all_records.extend(page_records)
-            all_provenance.extend(
-                self._make_evidence(query, "scopus/search/paginated", page_records)
-            )
-
-            if len(page_records) < rows_per_page:
+            if page_returned < safe_rows:
+                warnings.append(
+                    f"Scopus logical_page={logical_page} returned {page_returned}/{safe_rows}; end_of_results"
+                )
                 break
+            if page_normalized == 0:
+                warnings.append(
+                    f"Scopus logical_page={logical_page} produced zero normalized records"
+                )
 
-        all_warnings.append(
-            f"Scopus pagination: projected_query={projected_query!r}; "
-            f"logical_pages_attempted={len(page_diagnostics)}"
-        )
-
-        return (
-            ProviderResult(
-                records=all_records,
-                errors=all_errors,
-                warnings=all_warnings,
-                provenance=all_provenance,
-                raw_payload={"pages": raw_pages} if raw_pages else None,
-                rate_limit_status=rate_limit_status,
-            ),
-            page_diagnostics,
+        return ProviderResult(
+            records=records,
+            warnings=warnings,
+            provenance=provenance,
+            raw_payload={"physical_requests": raw_pages},
+            page_diagnostics=page_diagnostics,
         )
 
     def verify_doi(self, doi: str) -> ProviderResult:

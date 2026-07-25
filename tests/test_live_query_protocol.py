@@ -19,6 +19,7 @@ from src.scientific_sources.live_query_protocol import (
     LiveQueryProtocolError,
     LiveQuerySector,
     load_live_query_protocol,
+    validate_complete_authoritative_protocol_projection,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -184,6 +185,32 @@ class TestShippedProtocol:
     def test_all_query_ids_unique(self, loaded_protocol: LiveQueryProtocol) -> None:
         ids = [q.query_id for q in loaded_protocol.all_queries()]
         assert len(ids) == len(set(ids)), "query_id values must be globally unique"
+
+    def test_complete_authoritative_projection_accepts_shipped_constraints(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        projection = {
+            "protocol_version": loaded_protocol.protocol_version,
+            "query_count": len(loaded_protocol.to_query_constraints()),
+            "queries": loaded_protocol.to_query_constraints(),
+        }
+
+        validate_complete_authoritative_protocol_projection(loaded_protocol, projection)
+
+    def test_complete_authoritative_projection_rejects_119_queries(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = loaded_protocol.to_query_constraints()[:-1]
+        projection = {
+            "protocol_version": loaded_protocol.protocol_version,
+            "query_count": len(constraints),
+            "queries": constraints,
+        }
+
+        with pytest.raises(LiveQueryProtocolError, match="exactly 120 queries"):
+            validate_complete_authoritative_protocol_projection(
+                loaded_protocol, projection
+            )
 
     def test_axis_targets_are_valid(
         self, loaded_protocol: LiveQueryProtocol

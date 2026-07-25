@@ -218,7 +218,9 @@ def test_release_package_step_passes_stats_dir_and_raw_acquisition_index() -> No
     package_block = WORKFLOW_TEXT[package_index : package_index + 700]
     assert "--stats-dir outputs/layer4_statistics" in package_block
     assert (
-        '--raw-acquisition-index "outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}/raw/raw_acquisition_index.csv"'
+        '--raw-acquisition-index '
+        '"outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}'
+        '/raw/raw_acquisition_index.csv"'
         in package_block
     )
     assert '--current-run-id "${{ github.run_id }}-${{ github.run_attempt }}"' in package_block
@@ -291,3 +293,40 @@ def test_export_step_passes_generated_constraints_path() -> None:
     export_block = WORKFLOW_TEXT[export_index : export_index + 600]
     assert "--query-constraints-file" in export_block
     assert "query_protocol_constraints.json" in export_block
+
+
+def test_controlled_live_profile_defaults_to_openalex_and_full_depth() -> None:
+    assert 'default: "crossref,scopus,openalex"' in WORKFLOW_TEXT
+    assert (
+        "REQUESTED_PROVIDERS: "
+        "${{ github.event.inputs.providers || 'crossref,scopus,openalex' }}"
+        in WORKFLOW_TEXT
+    )
+    assert 'default: "150"' in WORKFLOW_TEXT
+    assert (
+        "MAX_RESULTS_PER_QUERY: "
+        "${{ github.event.inputs.max_results_per_query || '150' }}"
+        in WORKFLOW_TEXT
+    )
+    assert "OPENALEX_API_KEY" in WORKFLOW_TEXT
+
+
+def test_export_step_passes_authoritative_protocol_path() -> None:
+    export_index = WORKFLOW_TEXT.index("python scripts/export_live_research_records.py")
+    export_block = WORKFLOW_TEXT[export_index : export_index + 700]
+    assert "--protocol-path config/live_query_protocol.yml" in export_block
+
+
+def test_workflow_builds_provider_sensitivity_and_stability_artifacts() -> None:
+    sensitivity_index = WORKFLOW_TEXT.index(
+        "python scripts/build_provider_sensitivity_analysis.py"
+    )
+    stability_index = WORKFLOW_TEXT.index(
+        "python scripts/build_run_stability_report.py"
+    )
+    layer45_index = WORKFLOW_TEXT.index("python scripts/build_layer4_5_scientific_analysis.py")
+    novelty_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
+    assert layer45_index < sensitivity_index < novelty_index
+    assert layer45_index < stability_index < novelty_index
+    assert "provider_sensitivity_analysis.json" in WORKFLOW_TEXT
+    assert "run_stability_report.json" in WORKFLOW_TEXT

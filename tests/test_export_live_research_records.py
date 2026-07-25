@@ -7,11 +7,15 @@ All tests use mocked Crossref responses — no network access required.
 from __future__ import annotations
 
 import json
+from pathlib import Path
+
+import yaml
 from unittest.mock import MagicMock, patch
 
 from scripts.export_live_research_records import (
     LiveContextClassificationRepository,
     QUERY_EXECUTION_FIELDS,
+    PROTOCOL_PROJECTED_QUERY_FILE_NAME,
     STAGE1_CSV_FIELDS,
     _apply_query_constraint,
     _to_stage1_compliant_dict,
@@ -26,6 +30,7 @@ from scripts.export_live_research_records import (
     normalize_title,
     triangulate_identity_loop,
 )
+from src.scientific_sources.live_query_protocol import load_live_query_protocol
 from src.scientific_sources.models import (
     LiteratureRecord,
     ProviderResult,
@@ -693,6 +698,245 @@ query_groups:
         # Check that outputs are empty
         records = json.loads((output_dir / "live_records.json").read_text())
         assert len(records) == 0
+
+    def test_protocol_projection_119_queries_fails_before_provider_setup(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        repo_root = Path(__file__).resolve().parents[1]
+        protocol_path = repo_root / "config" / "live_query_protocol.yml"
+        protocol = load_live_query_protocol(protocol_path)
+        constraints = protocol.to_query_constraints()[:-1]
+        dropped_query_text = protocol.to_query_constraints()[-1]["query_text"]
+        legacy_projection = protocol.to_legacy_query_groups()
+        for group in legacy_projection["query_groups"].values():
+            group["queries"] = [
+                query for query in group["queries"] if query != dropped_query_text
+            ]
+        query_file = tmp_path / PROTOCOL_PROJECTED_QUERY_FILE_NAME
+        query_file.write_text(
+            yaml.safe_dump(legacy_projection, sort_keys=False), encoding="utf-8"
+        )
+        constraints_file = tmp_path / "query_protocol_constraints.json"
+        constraints_file.write_text(
+            json.dumps(
+                {
+                    "protocol_version": protocol.protocol_version,
+                    "query_count": len(constraints),
+                    "queries": constraints,
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+
+        with patch("scripts.export_live_research_records.SourceRegistry") as registry:
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--query-constraints-file",
+                    str(constraints_file),
+                    "--protocol-path",
+                    str(protocol_path),
+                    "--output-dir",
+                    str(tmp_path / "out"),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                ],
+            )
+
+            result = main()
+
+        captured = capsys.readouterr()
+        assert result == 1
+        registry.assert_not_called()
+        assert "exactly 120 queries" in captured.err
+
+    def test_live_mode_uses_paginated_registry_search(self, tmp_path, monkeypatch):
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  offshore_energy:
+    label: "Offshore Energy"
+    queries:
+      - "offshore wind"
+""",
+            encoding="utf-8",
+        )
+        constraints_file = tmp_path / "constraints.json"
+        constraints_file.write_text(
+            json.dumps(
+                {
+                    "query_count": 1,
+                    "queries": [
+                        {
+                            "query_id": "Q_TEST_001",
+                            "query_text": "offshore wind",
+                            "sector_slug": "offshore_energy",
+                            "query_family": "core_sector",
+                            "time_window": {"from_year": 2019, "to_year": 2026},
+                            "sort_strategy": {"crossref": "published-desc"},
+                            "sampling_strategy": {
+                                "mode": "stratified",
+                                "pages": 3,
+                                "rows_per_page": 1,
+                            },
+                        }
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        output_dir = tmp_path / "outputs"
+        mock_record = _make_record(
+            title="Offshore Wind Energy",
+            doi="10.1234/wind",
+            source_id="crossref:10.1234/wind",
+        )
+        mock_evidence = _make_evidence(
+            record_id="crossref:10.1234/wind", query="offshore wind"
+        )
+        mock_result = ProviderResult(
+            records=[mock_record],
+            provenance=[mock_evidence],
+            page_diagnostics=[
+                {
+                    "provider": "crossref",
+                    "query": "offshore wind",
+                    "logical_page": 1,
+                    "physical_request_index": 1,
+                    "cursor_or_offset": "*",
+                    "requested_rows": 1,
+                    "returned_rows": 1,
+                    "normalized_rows": 1,
+                    "pagination_status": "applied",
+                },
+                {
+                    "provider": "crossref",
+                    "query": "offshore wind",
+                    "logical_page": 2,
+                    "physical_request_index": 2,
+                    "cursor_or_offset": "sha256:two",
+                    "requested_rows": 1,
+                    "returned_rows": 1,
+                    "normalized_rows": 1,
+                    "pagination_status": "applied",
+                },
+                {
+                    "provider": "crossref",
+                    "query": "offshore wind",
+                    "logical_page": 3,
+                    "physical_request_index": 3,
+                    "cursor_or_offset": "sha256:three",
+                    "requested_rows": 1,
+                    "returned_rows": 1,
+                    "normalized_rows": 1,
+                    "pagination_status": "applied",
+                },
+            ],
+        )
+        seen: dict[str, object] = {}
+
+        def mock_search_paginated(
+            query,
+            *,
+            pages,
+            rows_per_page,
+            providers,
+            sort_strategy_by_provider,
+            time_window,
+        ):
+            seen.update(
+                {
+                    "query": query,
+                    "pages": pages,
+                    "rows_per_page": rows_per_page,
+                    "providers": providers,
+                    "sort_strategy_by_provider": sort_strategy_by_provider,
+                    "time_window": time_window,
+                }
+            )
+            return [mock_result]
+
+        with patch("scripts.export_live_research_records.SourceRegistry") as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search_paginated = mock_search_paginated
+            mock_instance.search.side_effect = AssertionError("old search path used")
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
+            MockRegistry.return_value = mock_instance
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--query-constraints-file",
+                    str(constraints_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                ],
+            )
+
+            result = main()
+
+        assert result == 0
+        assert seen["pages"] == 3
+        assert seen["rows_per_page"] == 1
+        assert seen["providers"] == ["crossref"]
+        rows = json.loads(
+            (output_dir / "provider_pagination_diagnostics.json").read_text()
+        )
+        assert [row["logical_page"] for row in rows] == [1, 2, 3]
+        execution_log = (output_dir / "query_execution_log.csv").read_text()
+        assert "applied_logical_pagination" in execution_log
+
+    def test_apply_query_constraint_rejects_replayed_page_tokens(self):
+        records = [
+            _make_record(title=f"Record {idx}", doi=f"10.1234/{idx}")
+            for idx in range(3)
+        ]
+        constraint = {
+            "time_window": {"from_year": 2019, "to_year": 2026},
+            "sort_strategy": {"crossref": "published-desc"},
+            "sampling_strategy": {
+                "mode": "stratified",
+                "pages": 3,
+                "rows_per_page": 1,
+            },
+        }
+        page_diagnostics = [
+            {
+                "logical_page": page,
+                "physical_request_index": page,
+                "cursor_or_offset": "*",
+                "requested_rows": 1,
+                "returned_rows": 1,
+                "normalized_rows": 1,
+                "pagination_status": "applied",
+            }
+            for page in (1, 2, 3)
+        ]
+
+        _accepted, audit = _apply_query_constraint(
+            records,
+            constraint,
+            "crossref",
+            max_results=50,
+            page_diagnostics=page_diagnostics,
+        )
+
+        assert audit["sampling_status"] == "invalid_replayed_page"
+        assert "invalid_sampling:replayed_page" in audit["validity_warnings"]
+        assert "sampling_strategy" in audit["unapplied_constraint_filters"]
 
     def test_live_mode_with_mocked_registry(self, tmp_path, monkeypatch):
         """Test live mode with mocked SourceRegistry returning synthetic records."""

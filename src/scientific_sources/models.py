@@ -149,6 +149,7 @@ class ProviderResult:
     errors: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
     rate_limit_status: Optional[str] = None
+    page_diagnostics: List[Dict[str, Any]] = field(default_factory=list)
     provenance: List[SourceEvidence] = field(default_factory=list)
     raw_payload: Optional[Dict[str, Any]] = field(default=None)
 
@@ -166,5 +167,6 @@ class ProviderResult:
             "errors": self.errors,
             "warnings": self.warnings,
             "rate_limit_status": self.rate_limit_status,
+            "page_diagnostics": self.page_diagnostics,
             "provenance": [p.to_dict() for p in self.provenance],
         }

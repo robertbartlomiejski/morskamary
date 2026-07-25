@@ -28,6 +28,7 @@ from src.scientific_sources.web_of_science import WebOfScienceProvider
 from src.scientific_sources.scival import SciValProvider
 from src.scientific_sources.google_drive import GoogleDriveProvider
 from src.scientific_sources.microsoft_graph import MicrosoftGraphProvider
+from src.scientific_sources.openalex import OpenAlexProvider
 from src.scientific_sources.source_registry import SourceRegistry
 from src.scientific_sources.provenance import (
     compute_record_hash,
@@ -696,6 +697,189 @@ class TestElsevierScopusProvider:
         assert "no searchable tokens" in result.errors[0].lower()
 
 
+class TestProviderPagination:
+    def test_crossref_search_paginated_traverses_distinct_cursor_pages(
+        self, monkeypatch
+    ):
+        provider = CrossrefProvider()
+        payloads = [
+            {
+                "message": {
+                    "items": [
+                        {
+                            "title": ["Blue Page One"],
+                            "author": [{"given": "A", "family": "One"}],
+                            "URL": "https://example.org/one",
+                            "DOI": "10.1000/page1",
+                            "published": {"date-parts": [[2024]]},
+                            "container-title": ["Journal"],
+                        }
+                    ],
+                    "next-cursor": "cursor-page-2",
+                }
+            },
+            {
+                "message": {
+                    "items": [
+                        {
+                            "title": ["Blue Page Two"],
+                            "author": [{"given": "A", "family": "Two"}],
+                            "URL": "https://example.org/two",
+                            "DOI": "10.1000/page2",
+                            "published": {"date-parts": [[2024]]},
+                            "container-title": ["Journal"],
+                        }
+                    ],
+                    "next-cursor": "cursor-page-3",
+                }
+            },
+        ]
+        urls: list[str] = []
+
+        def fake_request_json_with_backoff(*, url, context_label, jitter_seed):
+            urls.append(url)
+            assert context_label.startswith("search page")
+            assert jitter_seed
+            return payloads.pop(0), [], None
+
+        monkeypatch.setattr(
+            provider, "_request_json_with_backoff", fake_request_json_with_backoff
+        )
+
+        result = provider.search_paginated(
+            "blue economy", pages=2, rows_per_page=1, sort_strategy="published-desc"
+        )
+
+        assert [record.doi for record in result.records] == [
+            "10.1000/page1",
+            "10.1000/page2",
+        ]
+        assert [row["logical_page"] for row in result.page_diagnostics] == [1, 2]
+        assert all(
+            row["pagination_status"] == "applied"
+            for row in result.page_diagnostics
+        )
+        assert "cursor=%2A" in urls[0]
+        assert "cursor-page-2" in urllib.parse.unquote(urls[1])
+        assert "sort=published" in urls[0]
+
+    def test_scopus_protocol_logical_pages_compose_physical_requests(
+        self, monkeypatch
+    ):
+        monkeypatch.setenv("SCOPUS_API_KEY", "test-key")
+        provider = ElsevierScopusProvider()
+        urls: list[str] = []
+
+        def fake_request_json(url: str) -> dict:
+            urls.append(url)
+            parsed = urllib.parse.urlparse(url)
+            params = urllib.parse.parse_qs(parsed.query)
+            start = int(params["start"][0])
+            count = int(params["count"][0])
+            entries = [
+                {
+                    "dc:title": f"Blue competence result {start + offset}",
+                    "dc:creator": "Ada Lovelace",
+                    "prism:doi": f"10.2000/{start + offset}",
+                    "prism:coverDate": "2024-01-01",
+                    "prism:publicationName": "Scopus Journal",
+                    "prism:url": f"https://example.org/{start + offset}",
+                    "eid": f"2-s2.0-{start + offset}",
+                }
+                for offset in range(count)
+            ]
+            return {"search-results": {"entry": entries}}
+
+        monkeypatch.setattr(provider, "_request_json", fake_request_json)
+
+        result = provider.search_paginated(
+            "blue economy skills", pages=3, rows_per_page=50, sort_strategy="date-desc"
+        )
+
+        starts = [
+            int(urllib.parse.parse_qs(urllib.parse.urlparse(url).query)["start"][0])
+            for url in urls
+        ]
+        assert starts == [0, 25, 50, 75, 100, 125]
+        assert len(result.records) == 150
+        assert len(result.page_diagnostics) == 6
+        assert {row["logical_page"] for row in result.page_diagnostics} == {1, 2, 3}
+        assert all(row["requested_rows"] == 25 for row in result.page_diagnostics)
+        assert all(row["pagination_status"] == "applied" for row in result.page_diagnostics)
+
+    def test_openalex_search_paginated_normalizes_records_and_provenance(
+        self, monkeypatch
+    ):
+        monkeypatch.setenv("OPENALEX_API_KEY", "test-openalex-key")
+        provider = OpenAlexProvider()
+        payloads = [
+            {
+                "meta": {"next_cursor": "cursor-two"},
+                "results": [
+                    {
+                        "id": "https://openalex.org/W1",
+                        "display_name": "Open blue competence",
+                        "doi": "https://doi.org/10.3000/oa1",
+                        "publication_year": 2025,
+                        "authorships": [
+                            {"author": {"display_name": "Ada Lovelace"}}
+                        ],
+                        "primary_location": {
+                            "source": {"display_name": "OpenAlex Journal"}
+                        },
+                        "topics": [{"display_name": "Blue economy"}],
+                        "abstract_inverted_index": {"blue": [0]},
+                        "cited_by_count": 3,
+                    }
+                ],
+            },
+            {
+                "meta": {"next_cursor": "cursor-three"},
+                "results": [
+                    {
+                        "id": "https://openalex.org/W2",
+                        "display_name": "Open maritime competence",
+                        "doi": "https://doi.org/10.3000/oa2",
+                        "publication_year": 2025,
+                    }
+                ],
+            },
+        ]
+        urls: list[str] = []
+
+        def fake_request_json_with_backoff(*, url, context_label):
+            urls.append(url)
+            assert context_label.startswith("search page")
+            return payloads.pop(0), [], None, None
+
+        monkeypatch.setattr(
+            provider, "_request_json_with_backoff", fake_request_json_with_backoff
+        )
+
+        result = provider.search_paginated(
+            "blue economy",
+            pages=2,
+            rows_per_page=1,
+            sort_strategy="date-desc",
+            time_window={"from_year": 2020, "to_year": 2026},
+        )
+
+        assert [record.doi for record in result.records] == [
+            "10.3000/oa1",
+            "10.3000/oa2",
+        ]
+        assert result.records[0].provider == "OpenAlex"
+        assert result.records[0].abstract_available is True
+        assert result.records[0].abstract_stored is False
+        assert result.records[0].subject_terms == ["Blue economy"]
+        assert len(result.provenance) == 2
+        assert [row["logical_page"] for row in result.page_diagnostics] == [1, 2]
+        assert "cursor=%2A" in urls[0]
+        assert "cursor-two" in urllib.parse.unquote(urls[1])
+        assert "from_publication_date%3A2020-01-01" in urls[0]
+        assert "sort=publication_date%3Adesc" in urls[0]
+
+
 class TestWebOfScienceProvider:
     def test_not_configured_without_key(self, monkeypatch):
         monkeypatch.delenv("WOS_API_KEY", raising=False)
@@ -850,6 +1034,7 @@ class TestSourceRegistry:
         names = {c.name for c in caps}
         assert "crossref" in names
         assert "scopus" in names
+        assert "openalex" in names
         assert "wos" in names
         assert "scival" in names
         assert "google_drive" in names

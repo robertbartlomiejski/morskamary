@@ -218,6 +218,18 @@ def _load_optional_object(path: Path) -> dict[str, Any]:
     return payload if isinstance(payload, dict) else {}
 
 
+def _is_live_like_record(record: dict[str, Any]) -> bool:
+    """Exclude explicit static baseline/literature rows from live stability."""
+
+    origin = _normalize_string(record.get("record_origin")).lower()
+    if origin in {"static_baseline", "static_literature", "baseline", "literature"}:
+        return False
+    if origin.startswith("live") or origin.startswith("dynamic_api_"):
+        return True
+    source_id = _normalize_string(record.get("source_id")).lower()
+    return source_id.startswith(("crossref:", "scopus:", "openalex:", "wos:"))
+
+
 def _providers_from_manifest(manifest: dict[str, Any]) -> list[str]:
     raw_values = [
         manifest.get("provider_set"),
@@ -265,6 +277,12 @@ def build_comparability_fingerprint(
     query_protocol_version: str,
     time_windows: list[str],
     sampling_strategies: list[str],
+    classifier_version: str = "unknown",
+    requested_provider_profile: list[str] | None = None,
+    contributing_provider_profile: list[str] | None = None,
+    logical_pages: int | None = None,
+    rows_per_page: int | None = None,
+    sort_strategy_contract: list[str] | None = None,
 ) -> tuple[str, dict[str, Any]]:
     """Return the canonical comparability fingerprint and its source payload."""
 
@@ -273,6 +291,18 @@ def build_comparability_fingerprint(
         "query_protocol_version": _normalize_string(query_protocol_version) or "unknown",
         "time_windows": sorted({item for item in time_windows if item}),
         "sampling_strategies": sorted({item for item in sampling_strategies if item}),
+        "classifier_version": _normalize_string(classifier_version) or "unknown",
+        "requested_provider_profile": sorted(
+            {item.strip().lower() for item in (requested_provider_profile or []) if item}
+        ),
+        "contributing_provider_profile": sorted(
+            {item.strip().lower() for item in (contributing_provider_profile or []) if item}
+        ),
+        "logical_pages": logical_pages,
+        "rows_per_page": rows_per_page,
+        "sort_strategy_contract": sorted(
+            {item for item in (sort_strategy_contract or []) if item}
+        ),
     }
     digest = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -361,8 +391,16 @@ def load_run_snapshot(
         return None
 
     manifest = _load_manifest(run_dir)
-    live_records = _load_optional_records(run_dir / LIVE_RECORDS_REL)
-    qmbd_records = _load_optional_records(run_dir / QMBD_REL)
+    live_records = [
+        record
+        for record in _load_optional_records(run_dir / LIVE_RECORDS_REL)
+        if _is_live_like_record(record)
+    ]
+    qmbd_records = [
+        record
+        for record in _load_optional_records(run_dir / QMBD_REL)
+        if _is_live_like_record(record)
+    ]
     constraints = _load_optional_object(run_dir / CONSTRAINTS_REL)
 
     doi_set = frozenset(
@@ -477,13 +515,21 @@ def build_run_stability_report(
 
     references = load_run_references(archive_root)
     classifier = AxisClassifier()
-    snapshots = [
-        snapshot
-        for snapshot in (
-            load_run_snapshot(archive_root, reference, classifier) for reference in references
-        )
-        if snapshot is not None
-    ]
+    skipped_runs: list[dict[str, str]] = []
+    snapshots: list[RunSnapshot] = []
+    for reference in references:
+        run_dir = _resolve_run_dir(archive_root, reference)
+        snapshot = load_run_snapshot(archive_root, reference, classifier)
+        if snapshot is None:
+            skipped_runs.append(
+                {
+                    "run_id": reference.run_id,
+                    "expected_path": str(run_dir),
+                    "reason": "archived_run_directory_missing",
+                }
+            )
+        else:
+            snapshots.append(snapshot)
 
     seen_dois: set[str] = set()
     run_pairs: list[dict[str, Any]] = []
@@ -537,6 +583,8 @@ def build_run_stability_report(
         "report_type": "cross_run_stability",
         "timestamp_utc": _now_utc_iso(),
         "runs_analyzed": len(snapshots),
+        "runs_referenced": len(references),
+        "runs_skipped": skipped_runs,
         "run_pairs": run_pairs,
         "saturation_assessment": saturation,
         "saturation_thresholds": {

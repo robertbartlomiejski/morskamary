@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blue Economy Analysis — Master Report Index</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0;
+          background: #f0f4f8; color: #222; }
+  header { background: #003366; color: #fff; padding: 1.2rem 2rem; }
+  header h1 { margin: 0; font-size: 1.6rem; }
+  header p { margin: 0.3rem 0 0; opacity: 0.85; font-size: 0.95rem; }
+  nav { background: #005599; padding: 0.5rem 2rem; }
+  nav a { color: #cce; margin-right: 1.2rem; text-decoration: none;
+            font-size: 0.9rem; }
+  nav a:hover { color: #fff; text-decoration: underline; }
+  main { padding: 1.5rem 2rem; }
+  h2 { color: #003366; border-bottom: 2px solid #cce; padding-bottom: 0.3rem; }
+  h3 { color: #005599; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem;
+           font-size: 0.88rem; }
+  th { background: #003366; color: #fff; padding: 0.5rem 0.7rem;
+        text-align: left; }
+  td { padding: 0.4rem 0.7rem; border-bottom: 1px solid #dde; }
+  tr:nth-child(even) { background: #eef3f8; }
+  .badge-M { background: #1a7a4a; color: #fff; border-radius: 4px;
+               padding: 2px 6px; font-size: 0.78rem; }
+  .badge-T { background: #1a4a8a; color: #fff; border-radius: 4px;
+               padding: 2px 6px; font-size: 0.78rem; }
+  .badge-O { background: #6a1a8a; color: #fff; border-radius: 4px;
+               padding: 2px 6px; font-size: 0.78rem; }
+  .badge-H { background: #8a5a1a; color: #fff; border-radius: 4px;
+               padding: 2px 6px; font-size: 0.78rem; }
+  .card { background: #fff; border: 1px solid #cce; border-radius: 6px;
+           padding: 1rem 1.2rem; margin-bottom: 1rem;
+           box-shadow: 0 1px 4px rgba(0,0,50,0.07); }
+  .card h3 { margin-top: 0; }
+  .gap-bar { height: 10px; border-radius: 5px;
+              background: linear-gradient(to right, #c0392b, #f39c12); }
+  .bar-bg { background: #dde; border-radius: 5px; height: 10px;
+             margin: 4px 0 8px; }
+  a { color: #005599; }
+  footer { text-align: center; font-size: 0.8rem; color: #888;
+            padding: 1.5rem; border-top: 1px solid #cce; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Blue Economy Analysis — Master Report Index</h1>
+  <p>Competence Gap Analysis & Micro-Credential Design | morskamary</p>
+</header>
+<nav>
+  <a href="report_index.html">🏠 Index</a>
+  <a href="gaps_by_sector.html">📊 Gap Analysis</a>
+  <a href="credentials_matrix.html">🎓 Credentials</a>
+  <a href="literature_integration.html">📚 Literature</a>
+</nav>
+<main>
+
+<h2>Summary Dashboard</h2>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem">
+  <div class="card"><h3>📋 Competences</h3><p style="font-size:2rem;margin:0">2052</p>
+    <p>15 baseline + 451 static literature + 1586 live-enriched</p></div>
+  <div class="card"><h3>🎓 Credentials</h3><p style="font-size:2rem;margin:0">26</p>
+    <p>12 sectors × 4 EQF levels</p></div>
+  <div class="card"><h3>🏭 Sectors</h3><p style="font-size:2rem;margin:0">12</p>
+    <p>EU Blue Economy sectors analysed</p></div>
+  <div class="card"><h3>⚠️ Avg Gap</h3><p style="font-size:2rem;margin:0">95.8%</p>
+    <p>Average competence gap across sectors</p></div>
+</div>
+
+<h2>Data Sources</h2>
+<table>
+  <tr><th>File</th><th>Type</th><th>Count</th><th>GitHub Link</th></tr>
+  <tr>
+    <td>Blue Social Competences Univ Szczecin - Overall Blue Competences Dimension.csv</td>
+    <td>Baseline</td><td>15</td>
+    <td><a href="https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/Blue%20Social%20Competences%20Univ%20Szczecin%20-%20Overall%20Blue%20Competences%20Dimension.csv" target="_blank">View on GitHub</a></td>
+  </tr>
+  <tr>
+    <td>combined_blue_economy_labor_justice.csv</td>
+    <td>Literature</td><td>177</td>
+    <td><a href="https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_labor_justice.csv" target="_blank">View on GitHub</a></td>
+  </tr>
+  <tr>
+    <td>combined_blue_economy_research_gaps.csv</td>
+    <td>Literature</td><td>131</td>
+    <td><a href="https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_economy_research_gaps.csv" target="_blank">View on GitHub</a></td>
+  </tr>
+  <tr>
+    <td>combined_blue_sociology_results.csv</td>
+    <td>Literature</td><td>143</td>
+    <td><a href="https://github.com/robertbartlomiejski/morskamary/blob/main/data/derived/combined_blue_sociology_results.csv" target="_blank">View on GitHub</a></td>
+  </tr>
+  <tr>
+    <td>outputs/research_sources/live_records_triangulated.json</td>
+    <td>Live</td><td>1586</td>
+    <td><a href="https://github.com/robertbartlomiejski/morskamary/blob/main/outputs/research_sources/live_records_triangulated.json" target="_blank">View on GitHub</a></td>
+  </tr>
+  <tr>
+    <td>outputs/research_sources/live_source_coverage.csv</td>
+    <td>Live</td><td>12</td>
+    <td><a href="https://github.com/robertbartlomiejski/morskamary/blob/main/outputs/research_sources/live_source_coverage.csv" target="_blank">View on GitHub</a></td>
+  </tr>
+</table>
+<h2>Sector Gap Overview</h2>
+<table>
+<tr><th>Sector</th><th>Required</th><th>Available</th><th>Missing</th><th>Gap %</th><th>MARINE</th><th>MARITIME</th><th>OCEANIC</th><th>HYDRONIZATION</th></tr>
+<tr><td><a href='gaps_by_sector.html#blue-biotech'>Blue Biotech</a></td><td>367</td><td>15</td><td>352</td><td>95.9%</td><td>37</td><td>20</td><td>295</td><td>0</td></tr>
+<tr><td><a href='gaps_by_sector.html#coastal-tourism'>Coastal Tourism</a></td><td>379</td><td>15</td><td>364</td><td>96.0%</td><td>25</td><td>37</td><td>301</td><td>1</td></tr>
+<tr><td><a href='gaps_by_sector.html#desalination'>Desalination</a></td><td>313</td><td>15</td><td>298</td><td>95.2%</td><td>6</td><td>20</td><td>250</td><td>22</td></tr>
+<tr><td><a href='gaps_by_sector.html#infra-robotics'>Infra &amp; Robotics</a></td><td>303</td><td>15</td><td>288</td><td>95.0%</td><td>3</td><td>48</td><td>207</td><td>30</td></tr>
+<tr><td><a href='gaps_by_sector.html#living-resources'>Living Res.</a></td><td>419</td><td>15</td><td>404</td><td>96.4%</td><td>58</td><td>40</td><td>306</td><td>0</td></tr>
+<tr><td><a href='gaps_by_sector.html#non-living-resources'>Non-living Res.</a></td><td>361</td><td>15</td><td>346</td><td>95.8%</td><td>32</td><td>19</td><td>294</td><td>1</td></tr>
+<tr><td><a href='gaps_by_sector.html#renewable-energy'>Renewable Energy</a></td><td>321</td><td>15</td><td>306</td><td>95.3%</td><td>16</td><td>27</td><td>263</td><td>0</td></tr>
+<tr><td><a href='gaps_by_sector.html#maritime-defence'>Maritime Defence</a></td><td>337</td><td>15</td><td>322</td><td>95.5%</td><td>3</td><td>100</td><td>219</td><td>0</td></tr>
+<tr><td><a href='gaps_by_sector.html#maritime-transport'>Maritime Transport</a></td><td>411</td><td>15</td><td>396</td><td>96.4%</td><td>3</td><td>167</td><td>226</td><td>0</td></tr>
+<tr><td><a href='gaps_by_sector.html#port-activities'>Port Activities</a></td><td>390</td><td>15</td><td>375</td><td>96.2%</td><td>4</td><td>184</td><td>178</td><td>9</td></tr>
+<tr><td><a href='gaps_by_sector.html#research-innovation'>R&amp;I</a></td><td>381</td><td>15</td><td>366</td><td>96.1%</td><td>43</td><td>30</td><td>293</td><td>0</td></tr>
+<tr><td><a href='gaps_by_sector.html#ship-repair'>Ship Repair</a></td><td>357</td><td>15</td><td>342</td><td>95.8%</td><td>3</td><td>78</td><td>260</td><td>1</td></tr>
+</table>
+</main>
+<footer>
+  Blue Sociology — morskamary evidence base &nbsp;|&nbsp;
+  <a href="https://github.com/robertbartlomiejski/morskamary">GitHub Repository</a> &nbsp;|&nbsp;
+  Generated by run_full_analysis.py
+</footer>
+</body>
+</html>
