@@ -1,0 +1,159 @@
+name: Research Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "scripts/**"
+      - "**.py"
+      - "requirements*.txt"
+      - ".github/workflows/research-pipeline.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "scripts/**"
+      - "**.py"
+      - "requirements*.txt"
+  workflow_dispatch:
+    inputs:
+      deployment_environment:
+        description: Select target deployment environment
+        required: true
+        default: research-dev
+        type: choice
+        options:
+          - research-dev
+          - research-staging
+          - research-prod
+      python_version:
+        description: Python version
+        required: true
+        default: "3.11"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: research-pipeline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-and-tests:
+    name: Code Quality and Testing
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.deployment_environment || 'research-dev' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ inputs.python_version || '3.11' }}
+          cache: pip
+
+      - name: Upgrade pip and install dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt; fi
+          python -m pip install flake8 mypy pytest
+
+      - name: Lint code
+        run: |
+          set -euo pipefail
+          python -m flake8 src scripts tests run_full_analysis.py main.py
+
+      - name: Type check
+        run: |
+          set -euo pipefail
+          python -m mypy src scripts run_full_analysis.py main.py
+
+      - name: Run tests
+        run: |
+          set -euo pipefail
+          python -m pytest tests/ -v
+
+      - name: Validate generated outputs
+        run: |
+          set -euo pipefail
+          python scripts/validate_generated_outputs.py
+
+      - name: Validate run archive integrity
+        run: |
+          set -euo pipefail
+          python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present
+
+  live-search-smoke:
+    name: Live Search Smoke Test
+    needs: quality-and-tests
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: live-research
+
+    env:
+      SELECTED_DEPLOYMENT_ENVIRONMENT: ${{ inputs.deployment_environment || 'research-dev' }}
+
+      CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
+      ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
+      SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
+      WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
+      SCIVAL_API_KEY: ${{ secrets.SCIVAL_API_KEY }}
+
+      OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+      OPEN_CONTEXT_API_KEY: ${{ secrets.OPEN_CONTEXT_API_KEY }}
+      OPNCXT: ${{ secrets.OPNCXT }}
+      MANUS_API_KEY: ${{ secrets.MANUS_API_KEY }}
+      OPNCTX_CLIENT_ID: ${{ secrets.OPNCTX_CLIENT_ID }}
+      OPNCTX_CLIENT_SECRET: ${{ secrets.OPNCTX_CLIENT_SECRET }}
+
+      LIVE_RESEARCH_API_TESTS: "true"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ inputs.python_version || '3.11' }}
+          cache: pip
+
+      - name: Upgrade pip and install dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt; fi
+          python -m pip install -e .[dev] || python -m pip install -e .
+
+      - name: Verify environment configuration
+        run: |
+          set -euo pipefail
+          python scripts/check_research_env.py
+
+      - name: Provider health preflight
+        run: |
+          set -euo pipefail
+          mkdir -p outputs
+          python scripts/check_research_api_health.py --output outputs/research_api_health.json
+
+      - name: Live search smoke invocation
+        run: |
+          set -euo pipefail
+          if [ -f openalex_search.py ]; then
+            python openalex_search.py --help || python openalex_search.py
+          elif [ -f scripts/smoke_scientific_bridge.py ]; then
+            python scripts/smoke_scientific_bridge.py --live-if-secrets-present
+          else
+            echo "No known live-search entrypoint found."
+          fi
