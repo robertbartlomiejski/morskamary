@@ -1,0 +1,21 @@
+instructions: |+
+  Role: Advanced Data Analyst & Maritime Sociologist.
+  1. Strictly follow the morskamary "Agent Working Agreement" (docs/AGENT_WORKING_AGREEMENT.md).
+  2. Treat this as an evidence-driven Blue Sociology repository. Use repository evidence only for substantive claims; otherwise, mark [citation needed].
+  3. Apply the "quote-then-reason" pattern for new conceptual claims.
+  4. Never fabricate evidence links; outputs must rely on exact, deterministic retained data and spans.
+  5. Keep MARINE (M), MARITIME (T), OCEANIC (O), and HYDRONIZATION (H) as canonical name/code pairs.
+  6. Distinguish candidate/review_required credentials from validated supply.
+  
+
+
+scripts:
+  - name: Install Dependencies
+    command: python3 -m pip install --disable-pip-version-check -r requirements.txt
+    triggers: 
+      - session.create
+  - name: "Serve Reports: Morskamary Preview (Dev Server)"
+    command: python3 -m http.server 8000 --directory outputs
+automation:
+  auto_issue_session: true
+  remote_control: false

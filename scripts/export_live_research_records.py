@@ -97,6 +97,7 @@ _DEFAULT_PROVIDER_POLICY: Dict[str, Any] = {
     "precedence": [
         "crossref",
         "scopus",
+        "openalex",
         "wos",
         "scival",
         "microsoft_graph",
@@ -105,12 +106,13 @@ _DEFAULT_PROVIDER_POLICY: Dict[str, Any] = {
     "classes": {
         "crossref": "bibliographic",
         "scopus": "bibliographic",
+        "openalex": "bibliographic",
         "wos": "bibliographic",
         "scival": "enrichment",
         "microsoft_graph": "workspace",
         "google_drive": "workspace",
     },
-    "primary_identity_providers": ["crossref", "scopus", "wos"],
+    "primary_identity_providers": ["crossref", "scopus", "openalex", "wos"],
 }
 
 DEFAULT_QUERY_FILE_PATH = Path("config/research_queries.yml")
@@ -254,6 +256,8 @@ def normalize_provider_name(provider: str) -> str:
         return "crossref"
     if "scopus" in text:
         return "scopus"
+    if "openalex" in text:
+        return "openalex"
     if "web of science" in text or text == "wos" or "clarivate" in text:
         return "wos"
     if "scival" in text:
@@ -263,6 +267,22 @@ def normalize_provider_name(provider: str) -> str:
     if "google drive" in text:
         return "google_drive"
     return re.sub(r"[^a-z0-9]+", "_", text).strip("_")
+
+
+def _lookup_provider_sort_strategy(
+    sort_strategy: Mapping[str, Any],
+    provider_key: str,
+) -> str:
+    """Return provider sort strategy with backward-compatible fallbacks."""
+    declared = str(sort_strategy.get(provider_key, "")).strip()
+    if declared:
+        return declared
+    if provider_key == "openalex":
+        for fallback_key in ("wos", "scopus", "crossref"):
+            fallback = str(sort_strategy.get(fallback_key, "")).strip()
+            if fallback:
+                return fallback
+    return ""
 
 
 def load_provider_policy(path: Path) -> Dict[str, Any]:
@@ -328,6 +348,82 @@ def _build_ad_hoc_constraints_from_query_groups(
     return constraints
 
 
+def validate_protocol_completeness(
+    query_groups: Mapping[str, Mapping[str, Any]],
+    constraints_by_query: Mapping[str, Mapping[str, Any]],
+) -> List[str]:
+    """Validate that the projected protocol query universe is complete."""
+    required_families = {
+        "core_sector",
+        "competence_demand",
+        "emerging_demand",
+        "validation_eqf_translation",
+        "hypothesis_verification",
+        "theory_translation",
+    }
+    errors: List[str] = []
+    total_queries = 0
+    query_ids: List[str] = []
+
+    if len(query_groups) != 12:
+        errors.append(
+            f"Expected 12 sectors in projected protocol, found {len(query_groups)}."
+        )
+
+    for sector_slug, sector_data in query_groups.items():
+        raw_queries = sector_data.get("queries", [])
+        queries = [str(query).strip() for query in raw_queries if str(query).strip()]
+        total_queries += len(queries)
+        if len(queries) != 10:
+            errors.append(
+                f"Sector '{sector_slug}' must declare exactly 10 queries; "
+                f"found {len(queries)}."
+            )
+        for query_text in queries:
+            constraint = constraints_by_query.get(query_text.lower())
+            if constraint is None:
+                errors.append(
+                    f"Query '{query_text}' in sector '{sector_slug}' "
+                    "is missing constraint metadata."
+                )
+                continue
+            query_id = str(constraint.get("query_id", "")).strip()
+            if not query_id:
+                errors.append(
+                    f"Query '{query_text}' in sector '{sector_slug}' is missing query_id."
+                )
+            else:
+                query_ids.append(query_id)
+
+    if total_queries != 120:
+        errors.append(
+            f"Expected 120 total projected queries, found {total_queries}."
+        )
+
+    family_names = {
+        str(constraint.get("query_family", "")).strip()
+        for constraint in constraints_by_query.values()
+        if str(constraint.get("query_family", "")).strip()
+    }
+    missing_families = sorted(required_families - family_names)
+    if missing_families:
+        errors.append(
+            "Missing required query family declarations in projected protocol: "
+            + ", ".join(missing_families)
+        )
+
+    duplicate_query_ids = sorted(
+        query_id for query_id in set(query_ids) if query_ids.count(query_id) > 1
+    )
+    if duplicate_query_ids:
+        errors.append(
+            "Duplicate query_id values detected in projected protocol: "
+            + ", ".join(duplicate_query_ids)
+        )
+
+    return errors
+
+
 def _record_year(record: LiteratureRecord) -> Optional[int]:
     raw_year = str(getattr(record, "year", "") or "").strip()
     if not raw_year:
@@ -341,6 +437,8 @@ def _apply_query_constraint(
     constraint: Mapping[str, Any],
     provider_name: str,
     max_results: int,
+    *,
+    pagination_used: bool = False,
 ) -> Tuple[List[LiteratureRecord], Dict[str, Any]]:
     """Apply auditable post-fetch time, sort, and sampling constraints."""
     time_window = constraint.get("time_window", {})
@@ -394,11 +492,12 @@ def _apply_query_constraint(
     declared_capacity = max(1, pages) * max(1, rows_per_page)
     applied_limit = min(max_results, declared_capacity)
     accepted = accepted[:applied_limit]
-    sampling_status = (
-        "applied_single_request_limit"
-        if pages <= 1 and applied_limit >= declared_capacity
-        else "partially_applied_registry_has_no_page_cursor"
-    )
+    if pagination_used:
+        sampling_status = "applied_genuine_pagination"
+    elif pages <= 1 and applied_limit >= declared_capacity:
+        sampling_status = "applied_single_request_limit"
+    else:
+        sampling_status = "partially_applied_registry_has_no_page_cursor"
 
     validity_warnings: List[str] = []
     if sort_status.startswith("unsupported") or sort_status.startswith("not_declared"):
@@ -418,7 +517,10 @@ def _apply_query_constraint(
         unsupported_filters.append("sort_strategy")
     elif sort_status == "not_declared_for_provider":
         unapplied_filters.append("sort_strategy")
-    if sampling_status == "applied_single_request_limit":
+    if sampling_status in {
+        "applied_single_request_limit",
+        "applied_genuine_pagination",
+    }:
         applied_filters.append("sampling_strategy")
     elif sampling_status.startswith("partially"):
         unapplied_filters.append("sampling_strategy")
@@ -1302,6 +1404,20 @@ def main() -> int:
         cap.name for cap in registry.list_capabilities() if cap.name in provider_list
     ]
 
+    if protocol_projected_query:
+        completeness_errors = validate_protocol_completeness(
+            query_groups, constraints_by_query
+        )
+        if completeness_errors:
+            print(
+                "ERROR: Protocol completeness assertion failed. "
+                "No provider API calls will be made.",
+                file=sys.stderr,
+            )
+            for err in completeness_errors:
+                print(f"  - {err}", file=sys.stderr)
+            return 1
+
     # Storage for all results
     all_records: List[LiteratureRecord] = []
     all_provenance: List[SourceEvidence] = []
@@ -1320,9 +1436,10 @@ def main() -> int:
                 constraint = constraints_by_query[query.lower()]
                 for provider_name in ordered_provider_names:
                     provider_key = normalize_provider_name(provider_name)
-                    declared_sort = str(
-                        constraint.get("sort_strategy", {}).get(provider_key, "")
-                    ).strip()
+                    declared_sort = _lookup_provider_sort_strategy(
+                        constraint.get("sort_strategy", {}),
+                        provider_key,
+                    )
                     requested_filters = ["time_window", "sampling_strategy"]
                     if declared_sort:
                         requested_filters.append("sort_strategy")
@@ -1344,9 +1461,10 @@ def main() -> int:
                             "to_year": constraint.get("time_window", {}).get(
                                 "to_year", ""
                             ),
-                            "declared_sort_strategy": constraint.get(
-                                "sort_strategy", {}
-                            ).get(provider_key, ""),
+                            "declared_sort_strategy": _lookup_provider_sort_strategy(
+                                constraint.get("sort_strategy", {}),
+                                provider_key,
+                            ),
                             "declared_sampling_mode": constraint.get(
                                 "sampling_strategy", {}
                             ).get("mode", ""),
@@ -1382,13 +1500,53 @@ def main() -> int:
             for query in queries:
                 constraint = constraints_by_query[query.lower()]
                 print(f"  Query: {query}")
-                results = registry.search(
-                    query,
-                    max_results=args.max_results_per_query,
-                    providers=provider_list,
+                sampling = constraint.get("sampling_strategy", {})
+                if not isinstance(sampling, Mapping):
+                    sampling = {}
+                declared_pages = int(sampling.get("pages", 1) or 1)
+                declared_rows_per_page = int(
+                    sampling.get("rows_per_page", args.max_results_per_query)
+                    or args.max_results_per_query
+                )
+                sort_strategies_map = constraint.get("sort_strategy", {})
+                if not isinstance(sort_strategies_map, Mapping):
+                    sort_strategies_map = {}
+                sort_strategies_for_provider = {
+                    provider_name: _lookup_provider_sort_strategy(
+                        sort_strategies_map,
+                        provider_name,
+                    )
+                    for provider_name in ordered_provider_names
+                }
+
+                if declared_pages > 1:
+                    provider_results = registry.search_paginated(
+                        query,
+                        logical_pages=declared_pages,
+                        rows_per_page=declared_rows_per_page,
+                        providers=provider_list,
+                        time_window=constraint.get("time_window", {}),
+                        sort_strategies=sort_strategies_for_provider,
+                    )
+                else:
+                    provider_results = [
+                        (result, [])
+                        for result in registry.search(
+                            query,
+                            max_results=args.max_results_per_query,
+                            providers=provider_list,
+                        )
+                    ]
+                constraint_max_results = (
+                    max(
+                        args.max_results_per_query,
+                        declared_pages * declared_rows_per_page,
+                    )
+                    if declared_pages > 1
+                    else args.max_results_per_query
                 )
 
-                for index, result in enumerate(results):
+                for index, (result, page_diagnostics) in enumerate(provider_results):
                     provider_name = (
                         ordered_provider_names[index]
                         if index < len(ordered_provider_names)
@@ -1406,7 +1564,12 @@ def main() -> int:
                         result.records,
                         constraint,
                         provider_name,
-                        args.max_results_per_query,
+                        constraint_max_results,
+                        pagination_used=any(
+                            str(diag.get("pagination_method", "")).strip()
+                            != "single_request_fallback"
+                            for diag in page_diagnostics
+                        ),
                     )
                     if result.errors:
                         print(f"    Errors: {result.errors}", file=sys.stderr)
