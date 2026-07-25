@@ -131,7 +131,7 @@ The cumulative database and its analytical views are intended to support the fol
 
 The mandated Layer 4 formula remains:
 
-````text
+```text
 demand_strength_score =
     0.30 * normalized_unique_doi_count
   + 0.20 * provider_diversity_score
@@ -331,4 +331,3 @@ Analytical exports and downstream reports should preserve, not erase, the reposi
 To materialise the empirical live-enriched report on `main`, the repository's `Full Live-Enriched Analysis` workflow must complete successfully for the current head with valid provider access and output generation. The authoritative user-facing report artifacts are the workflow-generated HTML/PDF and package outputs, not this planning document.
 
 Until such a run is executed successfully for the current head, this file should be treated as the **execution-ready statistical analysis plan and report contract**, not as the completed empirical report itself.
-````

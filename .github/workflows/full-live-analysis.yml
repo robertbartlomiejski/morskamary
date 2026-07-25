@@ -6,7 +6,7 @@ on:
       providers:
         description: "Comma-separated providers. Default excludes providers requiring extra proprietary credentials in CI."
         required: false
-        default: "crossref,scopus,wos"
+        default: "crossref,scopus,openalex"
       max_results_per_query:
         description: "Maximum results per query"
         required: false
@@ -63,7 +63,7 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-      REQUESTED_PROVIDERS: ${{ github.event.inputs.providers || 'crossref,scopus,wos' }}
+      REQUESTED_PROVIDERS: ${{ github.event.inputs.providers || 'crossref,scopus,openalex' }}
       MAX_RESULTS_PER_QUERY: ${{ github.event.inputs.max_results_per_query || '50' }}
       OFFLINE_MODE: ${{ github.event.inputs.offline || 'false' }}
       REQUIRE_VALID_CREDENTIALS: ${{ github.event.inputs.require_valid_credentials || 'false' }}
@@ -74,6 +74,7 @@ jobs:
       ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
       SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
       WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
+      OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
       SCIVAL_API_KEY: ${{ secrets.SCIVAL_API_KEY }}
       MICROSOFT_TENANT_ID: ${{ secrets.MICROSOFT_TENANT_ID }}
       MICROSOFT_CLIENT_ID: ${{ secrets.MICROSOFT_CLIENT_ID }}
@@ -270,6 +271,19 @@ jobs:
             --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
             --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC"
 
+      - name: Build preliminary H2 credential supply map
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          if [ -f data/validated/credential_supply_registry.csv ]; then
+            python scripts/build_validated_credential_supply_map.py \
+              --registry-path data/validated/credential_supply_registry.csv \
+              --demand-signals outputs/cumulative_database/competence_demand_signals.jsonl \
+              --output-dir outputs
+          else
+            echo "[WARN] Skipping H2 credential supply map; registry file not found."
+          fi
+
       - name: Evaluate live novelty gates (A-E)
         run: |
           set -euo pipefail
@@ -285,6 +299,13 @@ jobs:
             --output outputs/cumulative_database/novelty_gate_report.json \
             --strict \
             "${GATE_ARGS[@]}"
+
+      - name: Build cross-run stability report
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          python scripts/build_run_stability_report.py \
+            --archive-root outputs/run_archive
 
       - name: Build statistical research report (HTML + PDF)
         run: |

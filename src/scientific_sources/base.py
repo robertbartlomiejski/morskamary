@@ -53,6 +53,30 @@ class BaseProvider(ABC):
             ProviderResult with at most one LiteratureRecord.
         """
 
+    def search_paginated(
+        self,
+        query: str,
+        *,
+        logical_pages: int = 1,
+        rows_per_page: int = 50,
+        time_window: dict | None = None,
+        sort_strategy: str = "",
+    ) -> tuple[ProviderResult, list[dict]]:
+        """Paginated search with a single-request fallback implementation."""
+        del time_window, sort_strategy
+        total = logical_pages * rows_per_page
+        result = self.search(query, max_results=total)
+        diagnostics = [
+            {
+                "logical_page": 1,
+                "physical_requests": 1,
+                "requested_rows": total,
+                "returned_rows": len(result.records),
+                "pagination_method": "single_request_fallback",
+            }
+        ]
+        return result, diagnostics
+
     def _not_configured_result(self) -> ProviderResult:
         """Return a standard "provider not configured" result."""
         cap = self.capability

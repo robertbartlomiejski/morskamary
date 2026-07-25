@@ -188,6 +188,15 @@ def test_workflow_evaluates_novelty_gates_in_strict_mode() -> None:
     assert "--strict" in step_block
 
 
+def test_workflow_builds_informational_cross_run_stability_report_after_novelty() -> None:
+    novelty_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
+    stability_index = WORKFLOW_TEXT.index("python scripts/build_run_stability_report.py")
+    assert novelty_index < stability_index
+    stability_block = WORKFLOW_TEXT[stability_index - 120 : stability_index + 220]
+    assert "continue-on-error: true" in stability_block
+    assert "--archive-root outputs/run_archive" in stability_block
+
+
 def test_commit_outputs_job_stages_cumulative_database_directory() -> None:
     commit_index = WORKFLOW_TEXT.index("commit-outputs:")
     commit_block = WORKFLOW_TEXT[commit_index:]
@@ -252,6 +261,24 @@ def test_layer45_step_passes_fixed_analysis_timestamp_utc() -> None:
     layer45_block = WORKFLOW_TEXT[layer45_index : layer45_index + 600]
     assert "--analysis-timestamp-utc" in layer45_block
     assert '"$ANALYSIS_TIMESTAMP_UTC"' in layer45_block
+
+
+def test_workflow_builds_optional_h2_credential_supply_map_after_layer45() -> None:
+    layer45_index = WORKFLOW_TEXT.index(
+        "python scripts/build_layer4_5_scientific_analysis.py"
+    )
+    h2_index = WORKFLOW_TEXT.index(
+        "python scripts/build_validated_credential_supply_map.py"
+    )
+    gate_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
+    h2_block = WORKFLOW_TEXT[h2_index : h2_index + 500]
+    assert layer45_index < h2_index < gate_index
+    assert "continue-on-error: true" in WORKFLOW_TEXT
+    assert "--registry-path data/validated/credential_supply_registry.csv" in h2_block
+    assert (
+        "--demand-signals outputs/cumulative_database/competence_demand_signals.jsonl"
+        in h2_block
+    )
 
 
 def test_export_step_passes_generated_constraints_path() -> None:

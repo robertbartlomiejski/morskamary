@@ -16,7 +16,7 @@ Usage::
 
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Any, Dict, List, Tuple
 
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.crossref import CrossrefProvider
@@ -28,6 +28,7 @@ from src.scientific_sources.models import (
     ProviderResult,
     SourceCapability,
 )
+from src.scientific_sources.openalex import OpenAlexProvider
 from src.scientific_sources.scival import SciValProvider
 from src.scientific_sources.web_of_science import WebOfScienceProvider
 
@@ -45,6 +46,7 @@ class SourceRegistry:
         self._providers: List[BaseProvider] = [
             CrossrefProvider(),
             ElsevierScopusProvider(),
+            OpenAlexProvider(),
             WebOfScienceProvider(),
             SciValProvider(),
             GoogleDriveProvider(),
@@ -95,6 +97,36 @@ class SourceRegistry:
                 p for p in self._providers if p.capability.name in providers
             ]
         return [p.search(query, max_results) for p in targets]
+
+    def search_paginated(
+        self,
+        query: str,
+        *,
+        logical_pages: int = 1,
+        rows_per_page: int = 50,
+        providers: List[str] | None = None,
+        time_window: dict | None = None,
+        sort_strategies: Dict[str, str] | None = None,
+    ) -> List[Tuple[ProviderResult, List[Dict[str, Any]]]]:
+        """Search across providers using provider-level pagination when available."""
+        targets = self._providers
+        if providers is not None:
+            targets = [
+                p for p in self._providers if p.capability.name in providers
+            ]
+        results: List[Tuple[ProviderResult, List[Dict[str, Any]]]] = []
+        for provider in targets:
+            provider_name = provider.capability.name
+            sort_strategy = (sort_strategies or {}).get(provider_name, "")
+            result, diagnostics = provider.search_paginated(
+                query,
+                logical_pages=logical_pages,
+                rows_per_page=rows_per_page,
+                time_window=time_window,
+                sort_strategy=sort_strategy,
+            )
+            results.append((result, diagnostics))
+        return results
 
     def verify_doi(self, doi: str) -> List[ProviderResult]:
         """
