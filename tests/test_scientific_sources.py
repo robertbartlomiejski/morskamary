@@ -786,6 +786,47 @@ class TestWebOfScienceProvider:
         result = provider.search("blue economy")
         assert result.records == []
 
+    def test_search_paginated_iterates_pages(self, monkeypatch):
+        """WoS search_paginated uses native page iteration (max 50/request)."""
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+        call_log = []
+
+        def _mock_request(url):
+            call_log.append(url)
+            page_match = url.split("page=")[-1].split("&")[0]
+            page_num = int(page_match) if page_match.isdigit() else 1
+            return {
+                "hits": [
+                    {"title": f"Record p{page_num} i{i}", "source": {}}
+                    for i in range(25)
+                ]
+            }
+
+        monkeypatch.setattr(provider, "_request_json", _mock_request)
+        import time as _time
+        monkeypatch.setattr(_time, "sleep", lambda _: None)
+
+        result, diagnostics = provider.search_paginated(
+            "blue economy", logical_pages=2, rows_per_page=25
+        )
+        # 2 logical pages x 25 rows (within 50 limit) = 2 physical requests
+        assert len(call_log) == 2
+        assert len(result.records) == 50
+        assert diagnostics[0]["pagination_method"] == "wos_starter_page"
+        assert diagnostics[0]["returned_rows"] == 25
+        assert len(diagnostics) == 2
+
+    def test_search_paginated_not_configured(self, monkeypatch):
+        """WoS search_paginated returns not-configured when key absent."""
+        monkeypatch.delenv("WOS_API_KEY", raising=False)
+        provider = WebOfScienceProvider()
+        result, diagnostics = provider.search_paginated(
+            "ocean", logical_pages=2, rows_per_page=50
+        )
+        assert result.is_empty
+        assert diagnostics[0].get("error") == "not_configured"
+
 
 class TestSciValProvider:
     def test_not_configured_without_key(self, monkeypatch):

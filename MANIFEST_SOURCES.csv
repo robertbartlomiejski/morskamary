@@ -24,6 +24,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/workflows/full-analysis.yml,other,,,,,,full_analysis,no
 .github/workflows/full-live-analysis.yml,other,,,,,,full_live_analysis,no
 .github/workflows/research-api-smoke.yml,other,,,,,,research_api_smoke,no
+.github/workflows/research-pipeline.yml,other,,,,,,research_pipeline,no
 .gitignore,other,,,,,,gitignore,no
 .vscode/## Chat Customization Diagnostics.md,text,,,,,,Chat_Customization_Diagnostics,yes
 .vscode/launch.json,other,,,,,,launch,yes

@@ -244,12 +244,13 @@ def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
             return_value=fake_results[4],
         ),
         patch("check_research_api_health.probe_google_drive", return_value=fake_results[5]),
+        patch("check_research_api_health.probe_openalex", return_value=fake_results[0]),
     ):
         exit_code = check_research_api_health.main()
 
     payload = json.loads(output_file.read_text(encoding="utf-8"))
     assert exit_code == 1
-    assert payload["summary"]["ok"] == 1
+    assert payload["summary"]["ok"] == 2
     assert any(item["provider"] == "scopus" for item in payload["statuses"])
 
 
@@ -272,12 +273,13 @@ def test_main_without_require_valid_returns_zero(tmp_path: Path) -> None:
             "check_research_api_health.probe_microsoft_graph", return_value=ok_result
         ),
         patch("check_research_api_health.probe_google_drive", return_value=ok_result),
+        patch("check_research_api_health.probe_openalex", return_value=ok_result),
     ):
         exit_code = check_research_api_health.main()
 
     payload = json.loads(output_file.read_text(encoding="utf-8"))
     assert exit_code == 0
-    assert payload["summary"]["ok"] == 6
+    assert payload["summary"]["ok"] == 7
 
 
 def test_main_filters_to_requested_providers(tmp_path: Path) -> None:

@@ -26,7 +26,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, cast
+import time
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
@@ -355,6 +356,136 @@ class WebOfScienceProvider(BaseProvider):
             return self._http_error_result("search", exc)
         except Exception as exc:
             return ProviderResult(errors=[f"Web of Science search error: {exc}"])
+
+    def search_paginated(
+        self,
+        query: str,
+        *,
+        logical_pages: int = 1,
+        rows_per_page: int = 50,
+        time_window: Optional[Dict[str, Any]] = None,
+        sort_strategy: str = "",
+    ) -> Tuple[ProviderResult, List[Dict[str, Any]]]:
+        """Paginated WoS search using native page parameter.
+
+        WoS Starter API supports ``limit`` up to 50 per request and a
+        ``page`` parameter for sequential paging.  When ``rows_per_page``
+        exceeds 50 we chunk into multiple physical requests per logical
+        page (same approach Scopus uses).
+        """
+        del time_window, sort_strategy  # not used by WoS Starter
+        if not self._api_key:
+            result = self._not_configured_result()
+            return result, [{"logical_page": 1, "error": "not_configured"}]
+
+        _WOS_MAX_LIMIT = 50
+        all_records: List[LiteratureRecord] = []
+        all_warnings: List[str] = []
+        all_provenance: List[SourceEvidence] = []
+        page_diagnostics: List[Dict[str, Any]] = []
+
+        wos_query = urllib.parse.quote(f"TS=({query})")
+        # Global physical page counter across all logical pages
+        physical_page = 1
+
+        for logical_page_idx in range(logical_pages):
+            rows_remaining = rows_per_page
+            page_records: List[LiteratureRecord] = []
+            physical_requests = 0
+
+            while rows_remaining > 0:
+                chunk_size = min(rows_remaining, _WOS_MAX_LIMIT)
+                url = (
+                    f"{self._api_base}?q={wos_query}"
+                    f"&limit={chunk_size}&page={physical_page}"
+                )
+                try:
+                    payload = self._request_json(url)
+                    items = payload.get("hits", [])
+                    if not isinstance(items, list):
+                        items = []
+                    records = self._parse_items(items, query)
+                    page_records.extend(records)
+                    physical_requests += 1
+                    physical_page += 1
+                    rows_remaining -= chunk_size
+                    # Early stop if fewer results than requested
+                    if len(records) < chunk_size:
+                        rows_remaining = 0
+                except urllib.error.HTTPError as exc:
+                    if exc.code == 429:
+                        all_warnings.append(
+                            f"WoS page={physical_page} rate-limited (429)"
+                        )
+                        page_diagnostics.append({
+                            "logical_page": logical_page_idx + 1,
+                            "physical_requests": physical_requests,
+                            "requested_rows": rows_per_page,
+                            "returned_rows": len(page_records),
+                            "pagination_method": "wos_starter_page",
+                            "error": "rate_limited",
+                        })
+                        break
+                    all_warnings.append(
+                        f"WoS page={physical_page} HTTP {exc.code}"
+                    )
+                    page_diagnostics.append({
+                        "logical_page": logical_page_idx + 1,
+                        "physical_requests": physical_requests,
+                        "requested_rows": rows_per_page,
+                        "returned_rows": len(page_records),
+                        "pagination_method": "wos_starter_page",
+                        "error": f"http_{exc.code}",
+                    })
+                    break
+                except Exception as exc:
+                    all_warnings.append(
+                        f"WoS page={physical_page} error: {exc}"
+                    )
+                    break
+
+                # Polite inter-request delay (avoid burst)
+                if rows_remaining > 0:
+                    time.sleep(0.3)
+
+            all_records.extend(page_records)
+            all_provenance.extend(
+                self._make_evidence(
+                    query,
+                    f"wos/documents?page={logical_page_idx + 1}",
+                    page_records,
+                )
+            )
+            if not any(
+                d.get("logical_page") == logical_page_idx + 1
+                for d in page_diagnostics
+            ):
+                page_diagnostics.append({
+                    "logical_page": logical_page_idx + 1,
+                    "physical_requests": physical_requests,
+                    "requested_rows": rows_per_page,
+                    "returned_rows": len(page_records),
+                    "pagination_method": "wos_starter_page",
+                })
+
+            # Stop paging if last logical page returned fewer than expected
+            if len(page_records) < rows_per_page:
+                break
+
+        rate_limit_status = (
+            "rate-limited"
+            if any("rate-limited" in w or "rate_limited" in w for w in all_warnings)
+            else None
+        )
+        return (
+            ProviderResult(
+                records=all_records,
+                warnings=all_warnings,
+                provenance=all_provenance,
+                rate_limit_status=rate_limit_status,
+            ),
+            page_diagnostics,
+        )
 
     def verify_doi(self, doi: str) -> ProviderResult:
         """Verify DOI via Web of Science."""
