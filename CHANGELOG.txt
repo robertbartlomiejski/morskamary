@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-25 (fix: apply validated credential supply to H2 results)
+  Change type fix
+  Scope workflows tests governance
+  Files affected .github/workflows/full-live-analysis.yml tests/test_full_live_analysis_workflow.py CHANGELOG.txt
+  Summary The controlled live workflow now rebuilds the Layer 4-5 analysis with the validated credential supply map and supplies the same map to provider-sensitivity analysis.
+  Reason The map was previously generated only after the sole Layer 5 evaluation, so validated registry rows were archived without affecting the primary or sensitivity H2 outcomes.
+  Impact Validated external EQF supply can now affect H2 only through the audited map, while an invalid map build fails before scientific results are archived.
+  Provenance PR215 review feedback; config/live_query_protocol.yml H2 declaration; data/validated/credential_supply_registry.csv.
+  Quality checks Focused workflow regression test, generated-output validation, changelog guard, and whitespace validation.
+
 - 2026-07-25 (fix: corrective live-analysis safeguards after PR214)
   Change type fix update
   Scope scripts src workflows tests governance dataset

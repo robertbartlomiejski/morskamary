@@ -266,20 +266,32 @@ def test_layer45_step_passes_fixed_analysis_timestamp_utc() -> None:
     assert '"$ANALYSIS_TIMESTAMP_UTC"' in layer45_block
 
 
-def test_workflow_builds_optional_h2_credential_supply_map_after_layer45() -> None:
-    layer45_index = WORKFLOW_TEXT.index(
-        "python scripts/build_layer4_5_scientific_analysis.py"
-    )
+def test_workflow_feeds_validated_h2_supply_map_into_primary_and_sensitivity_results() -> None:
+    layer45_command = "python scripts/build_layer4_5_scientific_analysis.py"
+    provisional_layer45_index = WORKFLOW_TEXT.index(layer45_command)
     h2_index = WORKFLOW_TEXT.index(
         "python scripts/build_validated_credential_supply_map.py"
     )
+    final_layer45_index = WORKFLOW_TEXT.index(layer45_command, h2_index)
+    sensitivity_index = WORKFLOW_TEXT.index(
+        "python scripts/build_provider_sensitivity_analysis.py"
+    )
     gate_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
     h2_block = WORKFLOW_TEXT[h2_index : h2_index + 500]
-    assert layer45_index < h2_index < gate_index
-    assert "continue-on-error: true" in WORKFLOW_TEXT
+    final_layer45_block = WORKFLOW_TEXT[final_layer45_index : final_layer45_index + 700]
+    sensitivity_block = WORKFLOW_TEXT[sensitivity_index : sensitivity_index + 700]
+
+    assert provisional_layer45_index < h2_index < final_layer45_index
+    assert final_layer45_index < sensitivity_index < gate_index
     assert "--registry data/validated/credential_supply_registry.csv" in h2_block
     assert "--derived-demands outputs/cumulative_database/derived_competence_demands.csv" in h2_block
     assert "--output outputs/cumulative_database/validated_credential_supply_map.json" in h2_block
+    map_argument = (
+        "--validated-supply-map "
+        "outputs/cumulative_database/validated_credential_supply_map.json"
+    )
+    assert map_argument in final_layer45_block
+    assert map_argument in sensitivity_block
 
 
 def test_export_step_passes_generated_constraints_path() -> None:

@@ -234,7 +234,7 @@ jobs:
             --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
             --emit-summary
 
-      - name: Build derived competence demand and gap model (Layers 4 and 5)
+      - name: Build derived competence demands and provisional gap model (Layers 4 and 5)
         run: |
           set -euo pipefail
           python scripts/build_layer4_5_scientific_analysis.py \
@@ -245,7 +245,6 @@ jobs:
             --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC"
 
       - name: Build validated external H2 credential supply map
-        continue-on-error: true
         run: |
           set -euo pipefail
           python scripts/build_validated_credential_supply_map.py \
@@ -253,6 +252,17 @@ jobs:
             --derived-demands outputs/cumulative_database/derived_competence_demands.csv \
             --output outputs/cumulative_database/validated_credential_supply_map.json \
             --audit-output outputs/cumulative_database/validated_credential_supply_audit.json
+
+      - name: Rebuild gap model with validated H2 credential supply (Layers 4 and 5)
+        run: |
+          set -euo pipefail
+          python scripts/build_layer4_5_scientific_analysis.py \
+            --database-dir outputs/cumulative_database \
+            --output-dir outputs/cumulative_database \
+            --stats-dir outputs/layer4_statistics \
+            --validated-supply-map outputs/cumulative_database/validated_credential_supply_map.json \
+            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC"
 
       - name: Build provider sensitivity diagnostics
         run: |
@@ -262,6 +272,7 @@ jobs:
             --signals outputs/cumulative_database/competence_demand_signals.jsonl \
             --derived-demands outputs/cumulative_database/derived_competence_demands.csv \
             --hypothesis-fragments outputs/cumulative_database/hypothesis_semantic_fragments.jsonl \
+            --validated-supply-map outputs/cumulative_database/validated_credential_supply_map.json \
             --output-json outputs/cumulative_database/provider_sensitivity_analysis.json \
             --output-markdown outputs/cumulative_database/provider_sensitivity_analysis.md
 
