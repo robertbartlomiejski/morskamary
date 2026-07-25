@@ -7,6 +7,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/add-competence.prompt.md,text,,,,,,add_competence_prompt,yes
 .github/competence-domain.instructions.md,text,,,,,,competence_domain_instructions,yes
 .github/copilot-instructions.md,text,,,,,,copilot_instructions,yes
+.github/github-app.yml,other,,,,,,github_app,no
 .github/instructions/data-pipeline.instructions.md,text,,,,,,data_pipeline_instructions,yes
 .github/integrate-literature.skill.md,text,,,,,,integrate_literature_skill,yes
 .github/ISSUE_TEMPLATE/bug_report.md,text,,,,,,bug_report,yes
