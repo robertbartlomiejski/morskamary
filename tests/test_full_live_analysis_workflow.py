@@ -186,12 +186,18 @@ def test_workflow_evaluates_novelty_gates_in_strict_mode() -> None:
     step_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
     step_block = WORKFLOW_TEXT[step_index : step_index + 400]
     assert "--strict" in step_block
+    archive_index = WORKFLOW_TEXT.index("python scripts/archive_run_outputs.py")
+    assert step_index < archive_index
 
 
 def test_workflow_builds_cross_run_stability_report_after_novelty() -> None:
     novelty_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
+    archive_index = WORKFLOW_TEXT.index("python scripts/archive_run_outputs.py")
+    integrity_index = WORKFLOW_TEXT.index(
+        "python scripts/validate_run_archive_integrity.py"
+    )
     stability_index = WORKFLOW_TEXT.index("python scripts/build_run_stability_report.py")
-    assert novelty_index < stability_index
+    assert novelty_index < archive_index < integrity_index < stability_index
     stability_block = WORKFLOW_TEXT[stability_index - 120 : stability_index + 300]
     assert "continue-on-error: true" not in stability_block
     assert "--archive-root outputs/run_archive" in stability_block
@@ -314,6 +320,7 @@ def test_controlled_live_profile_defaults_to_openalex_and_full_depth() -> None:
         in WORKFLOW_TEXT
     )
     assert 'default: "150"' in WORKFLOW_TEXT
+    assert "about 3x the retrieval volume of 50" in WORKFLOW_TEXT
     assert (
         "MAX_RESULTS_PER_QUERY: "
         "${{ github.event.inputs.max_results_per_query || '150' }}"
@@ -339,6 +346,16 @@ def test_workflow_builds_provider_sensitivity_and_stability_artifacts() -> None:
     novelty_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
     assert layer45_index < sensitivity_index < novelty_index
     archive_index = WORKFLOW_TEXT.index("python scripts/archive_run_outputs.py")
-    assert layer45_index < sensitivity_index < archive_index < novelty_index < stability_index
+    integrity_index = WORKFLOW_TEXT.index(
+        "python scripts/validate_run_archive_integrity.py"
+    )
+    assert (
+        layer45_index
+        < sensitivity_index
+        < novelty_index
+        < archive_index
+        < integrity_index
+        < stability_index
+    )
     assert "provider_sensitivity_analysis.json" in WORKFLOW_TEXT
     assert "run_stability_report.json" in WORKFLOW_TEXT

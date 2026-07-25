@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-25 (fix: finalize live archives after strict quality gates)
+  Change type fix update
+  Scope workflows docs tests governance
+  Files affected .github/workflows/full-live-analysis.yml docs/LIVE_REPLICATION_INFRASTRUCTURE.md tests/test_full_live_analysis_workflow.py CHANGELOG.txt
+  Summary Moved strict novelty Gates A-E before immutable run-archive creation, documented the automatic archive and checksum-validation path, and made the 150-result full-depth profile's approximate threefold retrieval-volume implication explicit to operators.
+  Reason PR215 review feedback correctly requested confirmation that failed-quality runs cannot be finalized as valid archives and that the higher default acquisition depth is visible at dispatch time.
+  Impact H2 and provider-sensitivity results plus strict novelty gates must succeed before archive creation. Stability remains after archive validation because it consumes the newly indexed run and is an informational stopping diagnostic rather than a run-validity gate.
+  Provenance PR215 review feedback; config/live_query_protocol.yml; scripts/archive_run_outputs.py; scripts/build_run_stability_report.py.
+  Quality checks Focused workflow, archive, novelty, and stability tests 79 passed; workflow YAML parse passed; focused flake8 passed; source manifest regeneration was reproducible; changelog guard passed; archive integrity validation passed for 3 runs; no live provider calls made.
+
 - 2026-07-25 (fix: apply validated credential supply to H2 results)
   Change type fix
   Scope workflows tests governance

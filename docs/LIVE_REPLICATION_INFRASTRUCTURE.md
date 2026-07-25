@@ -21,6 +21,13 @@ PR validation and local development should keep using offline fixtures and mocks
 
 The protocol-defined sampling depth is three logical pages of 50 records per query/provider. Logical pages are the scientific sampling unit. Provider physical requests may differ.
 
+The workflow therefore defaults `max_results_per_query` to 150. Relative to the
+old 50-record ceiling, operators should budget for up to three times as many
+retrieval positions per query/provider. Actual requests, returned records, and
+provider charges can be lower because providers paginate differently, queries
+overlap, and some result sets contain fewer than 150 records. PR and CI tests
+use fixtures and do not spend live provider quota.
+
 Implemented provider behavior:
 
 - Crossref uses cursor-based paging and records page cursor markers.
@@ -88,6 +95,20 @@ The output status is one of:
 - `provisional_saturation`.
 
 Lack of saturation is not a pipeline failure. It is a scientific stopping diagnostic.
+
+## Archive finalization order
+
+The controlled workflow finalizes a run only after the demand model, externally
+validated H2 supply mapping, provider-sensitivity analysis, and strict novelty
+gates have succeeded. It then creates the immutable run archive and immediately
+validates its manifest and checksums.
+
+The cross-run stability report follows archive validation because it must read
+the newly indexed current run together with prior archives. Stability is an
+informational sampling-stopping diagnostic, not a structural validity gate. It
+remains in `outputs/cumulative_database/run_stability_report.json`, while the
+immutable per-run archive contains the evidence, H2 audit, and provider
+sensitivity artifacts that existed at finalization.
 
 ## Controlled post-merge run
 

@@ -8,7 +8,7 @@ on:
         required: false
         default: "crossref,scopus,openalex"
       max_results_per_query:
-        description: "Maximum results per query"
+        description: "Full-depth ceiling per query/provider (150 = 3 logical pages x 50; about 3x the retrieval volume of 50)"
         required: false
         default: "150"
       offline:
@@ -276,6 +276,22 @@ jobs:
             --output-json outputs/cumulative_database/provider_sensitivity_analysis.json \
             --output-markdown outputs/cumulative_database/provider_sensitivity_analysis.md
 
+      - name: Evaluate live novelty gates (A-E)
+        run: |
+          set -euo pipefail
+          GATE_ARGS=()
+          if [ "$ALLOW_MINIMUM_PROVIDER_CONTRIBUTION" = "true" ]; then
+            GATE_ARGS+=(--allow-minimum-provider-contribution)
+          fi
+          python scripts/compute_live_novelty_metrics.py \
+            --metrics outputs/cumulative_database/run_novelty_metrics.json \
+            --provider-health outputs/research_api_health.json \
+            --previous-metrics outputs/previous_run_novelty_metrics.json \
+            --current-run outputs \
+            --output outputs/cumulative_database/novelty_gate_report.json \
+            --strict \
+            "${GATE_ARGS[@]}"
+
       - name: Archive complete scientific run outputs
         run: |
           set -euo pipefail
@@ -303,22 +319,6 @@ jobs:
           python scripts/validate_run_archive_integrity.py \
             --archive-root outputs/run_archive \
             --require-present
-
-      - name: Evaluate live novelty gates (A-E)
-        run: |
-          set -euo pipefail
-          GATE_ARGS=()
-          if [ "$ALLOW_MINIMUM_PROVIDER_CONTRIBUTION" = "true" ]; then
-            GATE_ARGS+=(--allow-minimum-provider-contribution)
-          fi
-          python scripts/compute_live_novelty_metrics.py \
-            --metrics outputs/cumulative_database/run_novelty_metrics.json \
-            --provider-health outputs/research_api_health.json \
-            --previous-metrics outputs/previous_run_novelty_metrics.json \
-            --current-run outputs \
-            --output outputs/cumulative_database/novelty_gate_report.json \
-            --strict \
-            "${GATE_ARGS[@]}"
 
       - name: Build cross-run stability report
         run: |
