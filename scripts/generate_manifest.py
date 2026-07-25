@@ -143,8 +143,58 @@ def load_existing() -> Dict[str, Dict[str, str]]:
     return existing
 
 
+def _git_tracked_files() -> "List[str] | None":
+    """Return relative POSIX paths of git-tracked files, or None on failure."""
+    import subprocess
+
+    try:
+        result = subprocess.run(
+            ["git", "ls-files", "-z"],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=False,
+            timeout=30,
+        )
+        if result.returncode != 0:
+            return None
+        # Decode as UTF-8, split on NUL, filter empty strings
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        return [p for p in stdout.split("\0") if p]
+    except Exception:
+        return None
+
+
 def scan_files() -> List[pathlib.Path]:
-    files: List[pathlib.Path] = []
+    # Prefer git ls-files so untracked local files never cause manifest drift.
+    tracked = _git_tracked_files()
+    if tracked is not None:
+        files: List[pathlib.Path] = []
+        for rel_posix in tracked:
+            p = REPO_ROOT / pathlib.PurePosixPath(rel_posix)
+            if not p.exists():
+                continue
+            # Apply the same ignore rules
+            rel_parts = pathlib.PurePosixPath(rel_posix).parts
+            if any(part in IGNORED_DIRS for part in rel_parts):
+                continue
+            rel_dir = "/".join(rel_parts[:-1]) if len(rel_parts) > 1 else ""
+            if any(rel_posix.startswith(d + "/") or rel_dir == d
+                   for d in IGNORED_RELATIVE_DIRS):
+                continue
+            if p.resolve() == MANIFEST_PATH.resolve():
+                continue
+            if should_ignore_file(p):
+                continue
+            if p.name == ".codex":
+                continue
+            if p.name in {".DS_Store"} or p.suffix.lower() in {".lnk"}:
+                continue
+            files.append(p)
+        files.sort(key=lambda p: p.relative_to(REPO_ROOT).as_posix().lower())
+        return files
+
+    # Fallback: os.walk when git is unavailable
+    files = []
     for root, dirs, filenames in os.walk(REPO_ROOT):
         root_path = pathlib.Path(root).relative_to(REPO_ROOT)
 
@@ -161,14 +211,12 @@ def scan_files() -> List[pathlib.Path]:
 
         for name in filenames:
             p = pathlib.Path(root) / name
-            # ignore manifest while generating to avoid churn
             if p.resolve() == MANIFEST_PATH.resolve():
                 continue
             if should_ignore_file(p):
                 continue
             if name == ".codex":
                 continue
-            # ignore binary junk
             if name in {".DS_Store"} or p.suffix.lower() in {".lnk"}:
                 continue
             files.append(p)
