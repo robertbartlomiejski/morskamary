@@ -123,6 +123,23 @@ def probe_wos() -> ProbeResult:
     return result
 
 
+def probe_openalex() -> ProbeResult:
+    """Probe OpenAlex with optional authentication."""
+    url = "https://api.openalex.org/works?filter=title.search:ocean&per_page=1"
+    headers = {
+        "Accept": "application/json",
+        "User-Agent": "morskamary-openalex-healthcheck/1.0",
+    }
+    api_key = os.getenv("OPENALEX_API_KEY", "")
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    result = _request(url, headers)
+    result.provider = "openalex"
+    if not api_key and result.status == "ok":
+        result.detail = "ok (unauthenticated, lower rate limits)"
+    return result
+
+
 def probe_scival() -> ProbeResult:
     key = os.getenv("SCIVAL_API_KEY", "")
     if not key:
@@ -208,6 +225,7 @@ def _probe_functions() -> dict[str, Callable[[], ProbeResult]]:
         "crossref": probe_crossref,
         "scopus": probe_scopus,
         "wos": probe_wos,
+        "openalex": probe_openalex,
         "scival": probe_scival,
         "microsoft_graph": probe_microsoft_graph,
         "google_drive": probe_google_drive,
