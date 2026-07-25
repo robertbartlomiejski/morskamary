@@ -27,7 +27,7 @@ Use this section for changes in progress that are not yet merged into the main b
   Reason PR214 left archive indexes pointing at deleted runs and retained several paths where reports could claim pagination, provider sensitivity, H2 coverage, or output reproducibility without the authoritative underlying contract.
   Impact The controlled profile now runs Crossref, Scopus, and OpenAlex at the protocol-defined 3x50 depth by default, rejects malformed protocol projections before provider calls, keeps H2 not-computable until externally validated demand mappings exist, and reports historical stability as not assessable when fingerprints differ.
   Provenance PR214 review threads; config/live_query_protocol.yml; docs/AGENT_WORKING_AGREEMENT.md; archived run indexes and preserved payloads.
-  Quality checks focused pytest 283 passed; workflow YAML parse passed; archive integrity validation passed for 3 runs; no live/proprietary API calls made.
+  Quality checks full pytest 1152 passed; flake8 and mypy passed; workflow YAML parse passed; archive integrity validation passed for 3 runs; no live/proprietary API calls made.
 
 - 2026-07-25 (add: provider leave-one-out sensitivity analysis)
   Change type add update

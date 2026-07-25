@@ -31,7 +31,12 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Run full analysis pipeline
-        run: python run_full_analysis.py
+        env:
+          # This workflow verifies deterministic committed static artifacts;
+          # full-live-analysis.yml is the only workflow that runs live enrichment.
+          ALLOW_STATIC_RECOVERY_MODE: "true"
+          STATIC_RECOVERY_REASON: "Full Analysis CI reproducibility check"
+        run: python run_full_analysis.py --analysis-input-mode static
 
       - name: Verify output artifacts
         shell: bash
