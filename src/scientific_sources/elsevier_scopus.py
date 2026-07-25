@@ -437,21 +437,25 @@ class ElsevierScopusProvider(BaseProvider):
         query: str,
         *,
         pages: int = 1,
+        logical_pages: int | None = None,
         rows_per_page: int = 50,
         sort_strategy: str = "",
         time_window: Dict[str, int] | None = None,
-    ) -> ProviderResult:
+    ) -> Any:
         """Search Scopus using protocol logical pages composed from physical calls."""
+        legacy_api = logical_pages is not None
         if not self._api_key:
-            return self._not_configured_result()
+            result = self._not_configured_result()
+            return (result, result.page_diagnostics) if legacy_api else result
         projected_query = self._project_protocol_query(query)
         if projected_query is None:
-            return ProviderResult(
+            result = ProviderResult(
                 errors=[
                     f"Scopus query projection failed: no searchable tokens in query {query!r}. "
                     "Query rejected to prevent provenance contamination."
                 ]
             )
+            return (result, result.page_diagnostics) if legacy_api else result
         if time_window:
             from_year = int(time_window.get("from_year", 0) or 0)
             to_year = int(time_window.get("to_year", 9999) or 9999)
@@ -462,7 +466,8 @@ class ElsevierScopusProvider(BaseProvider):
                 year_clauses.append(f"PUBYEAR < {to_year + 1}")
             if year_clauses:
                 projected_query = f"({projected_query}) AND {' AND '.join(year_clauses)}"
-        safe_pages = max(1, int(pages or 1))
+        requested_pages = logical_pages if logical_pages is not None else pages
+        safe_pages = max(1, int(requested_pages or 1))
         safe_rows = max(1, int(rows_per_page or 1))
         encoded_query = urllib.parse.quote(projected_query, safe="()")
         field_param = urllib.parse.quote(_SCOPUS_FIELDS)
@@ -524,9 +529,13 @@ class ElsevierScopusProvider(BaseProvider):
                     result.page_diagnostics = page_diagnostics
                     result.raw_payload = {"physical_requests": raw_pages} if raw_pages else None
                     result.warnings = warnings + result.warnings
+                    if legacy_api:
+                        return result, self._legacy_page_diagnostics(
+                            page_diagnostics, safe_pages, safe_rows
+                        )
                     return result
                 except Exception as exc:
-                    return ProviderResult(
+                    result = ProviderResult(
                         records=records,
                         errors=[
                             f"Scopus search error: {exc} (projected_query={projected_query!r})"
@@ -536,6 +545,11 @@ class ElsevierScopusProvider(BaseProvider):
                         raw_payload={"physical_requests": raw_pages} if raw_pages else None,
                         page_diagnostics=page_diagnostics,
                     )
+                    if legacy_api:
+                        return result, self._legacy_page_diagnostics(
+                            page_diagnostics, safe_pages, safe_rows
+                        )
+                    return result
                 items = payload.get("search-results", {}).get("entry", [])
                 if not isinstance(items, list):
                     items = []
@@ -583,13 +597,46 @@ class ElsevierScopusProvider(BaseProvider):
                     f"Scopus logical_page={logical_page} produced zero normalized records"
                 )
 
-        return ProviderResult(
+        result = ProviderResult(
             records=records,
             warnings=warnings,
             provenance=provenance,
             raw_payload={"physical_requests": raw_pages},
             page_diagnostics=page_diagnostics,
         )
+        if legacy_api:
+            return result, self._legacy_page_diagnostics(
+                page_diagnostics, safe_pages, safe_rows
+            )
+        return result
+
+    @staticmethod
+    def _legacy_page_diagnostics(
+        diagnostics: List[Dict[str, Any]], safe_pages: int, safe_rows: int
+    ) -> List[Dict[str, Any]]:
+        """Adapt physical diagnostics to the historical logical-page contract."""
+        legacy: List[Dict[str, Any]] = []
+        for logical_page in range(1, safe_pages + 1):
+            entries = [
+                row
+                for row in diagnostics
+                if row.get("logical_page") == logical_page
+            ]
+            if not entries:
+                continue
+            first = dict(entries[0])
+            first["physical_requests"] = len(entries)
+            first["returned_rows"] = sum(
+                int(row.get("returned_rows", 0) or 0) for row in entries
+            )
+            first["normalized_rows"] = sum(
+                int(row.get("normalized_rows", 0) or 0) for row in entries
+            )
+            first["requested_rows"] = safe_rows
+            first["offset"] = (logical_page - 1) * safe_rows
+            first["pagination_method"] = "scopus_offset"
+            legacy.append(first)
+        return legacy
 
     def verify_doi(self, doi: str) -> ProviderResult:
         """Verify DOI via Scopus."""

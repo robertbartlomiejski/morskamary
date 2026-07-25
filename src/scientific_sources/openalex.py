@@ -305,12 +305,15 @@ class OpenAlexProvider(BaseProvider):
     def search(self, query: str, max_results: int = 5) -> ProviderResult:
         if not self._api_key:
             return self._not_configured_result()
-        return self.search_paginated(
-            query,
-            pages=1,
-            rows_per_page=max_results,
-            sort_strategy="date-desc",
-            time_window=None,
+        return cast(
+            ProviderResult,
+            self.search_paginated(
+                query,
+                pages=1,
+                rows_per_page=max_results,
+                sort_strategy="date-desc",
+                time_window=None,
+            ),
         )
 
     def search_paginated(
@@ -318,13 +321,17 @@ class OpenAlexProvider(BaseProvider):
         query: str,
         *,
         pages: int = 1,
+        logical_pages: int | None = None,
         rows_per_page: int = 50,
         sort_strategy: str = "",
         time_window: Dict[str, int] | None = None,
-    ) -> ProviderResult:
+    ) -> Any:
         if not self._api_key:
-            return self._not_configured_result()
-        safe_pages = max(1, int(pages or 1))
+            result = self._not_configured_result()
+            return (result, result.page_diagnostics) if logical_pages is not None else result
+        requested_pages = logical_pages if logical_pages is not None else pages
+        safe_pages = max(1, int(requested_pages or 1))
+        legacy_api = logical_pages is not None
         safe_rows = max(1, min(int(rows_per_page or 1), 100))
         cursor = "*"
         records: List[LiteratureRecord] = []
@@ -361,7 +368,7 @@ class OpenAlexProvider(BaseProvider):
                         "errors": terminal_error,
                     }
                 )
-                return ProviderResult(
+                result = ProviderResult(
                     records=records,
                     errors=[terminal_error],
                     warnings=warnings,
@@ -370,6 +377,9 @@ class OpenAlexProvider(BaseProvider):
                     raw_payload={"pages": raw_pages} if raw_pages else None,
                     page_diagnostics=page_diagnostics,
                 )
+                if legacy_api:
+                    return result, page_diagnostics
+                return result
             assert payload is not None
             items = payload.get("results", [])
             if not isinstance(items, list):
@@ -403,13 +413,16 @@ class OpenAlexProvider(BaseProvider):
                 break
             cursor = next_cursor
 
-        return ProviderResult(
+        result = ProviderResult(
             records=records,
             warnings=warnings,
             provenance=provenance,
             raw_payload={"pages": raw_pages},
             page_diagnostics=page_diagnostics,
         )
+        if legacy_api:
+            return result, page_diagnostics
+        return result
 
     def verify_doi(self, doi: str) -> ProviderResult:
         if not self._api_key:

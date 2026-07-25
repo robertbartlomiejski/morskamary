@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-25 (fix: corrective live-analysis safeguards after PR214)
+  Change type fix update
+  Scope scripts src workflows tests governance dataset
+  Files affected .github/workflows/full-live-analysis.yml .github/workflows/full-analysis.yml scripts/compare_generated_outputs.py scripts/build_run_stability_report.py scripts/archive_run_outputs.py scripts/export_live_research_records.py scripts/build_validated_credential_supply_map.py src/scientific_sources/openalex.py src/scientific_sources/crossref.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/base.py src/cumulative_analysis/triangulator.py outputs/run_archive/runs/ CHANGELOG.txt MANIFEST_SOURCES.csv
+  Summary Reconciled the merged PR214 infrastructure into one corrective live-replication path. Historical archive payloads were restored and their stale integrity metadata was regenerated without changing payload files; provider time windows, OpenAlex provenance, hard retrieval caps, external H2 validation, static-baseline exclusion, and field-level output reproducibility checks were tightened.
+  Reason PR214 left archive indexes pointing at deleted runs and retained several paths where reports could claim pagination, provider sensitivity, H2 coverage, or output reproducibility without the authoritative underlying contract.
+  Impact The controlled profile now runs Crossref, Scopus, and OpenAlex at the protocol-defined 3x50 depth by default, rejects malformed protocol projections before provider calls, keeps H2 not-computable until externally validated demand mappings exist, and reports historical stability as not assessable when fingerprints differ.
+  Provenance PR214 review threads; config/live_query_protocol.yml; docs/AGENT_WORKING_AGREEMENT.md; archived run indexes and preserved payloads.
+  Quality checks focused pytest 283 passed; workflow YAML parse passed; archive integrity validation passed for 3 runs; no live/proprietary API calls made.
+
 - 2026-07-25 (add: provider leave-one-out sensitivity analysis)
   Change type add update
   Scope scripts tests governance

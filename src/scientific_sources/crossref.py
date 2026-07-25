@@ -305,12 +305,15 @@ class CrossrefProvider(BaseProvider):
         query: str,
         *,
         pages: int = 1,
+        logical_pages: int | None = None,
         rows_per_page: int = 50,
         sort_strategy: str = "",
         time_window: Dict[str, int] | None = None,
-    ) -> ProviderResult:
+    ) -> Any:
         """Search Crossref using provider cursor paging."""
-        safe_pages = max(1, int(pages or 1))
+        legacy_api = logical_pages is not None
+        requested_pages = logical_pages if logical_pages is not None else pages
+        safe_pages = max(1, int(requested_pages or 1))
         safe_rows = max(1, min(int(rows_per_page or 1), 1000))
         cursor = "*"
         records: List[LiteratureRecord] = []
@@ -323,13 +326,19 @@ class CrossrefProvider(BaseProvider):
             sort_clause = "&sort=published&order=desc"
 
         for logical_page in range(1, safe_pages + 1):
-            endpoint = "crossref/works?cursor"
+            endpoint = "crossref/works?offset" if legacy_api else "crossref/works?cursor"
+            offset = (logical_page - 1) * safe_rows
+            page_clause = (
+                f"&offset={offset}"
+                if legacy_api
+                else f"&cursor={urllib.parse.quote(cursor, safe='')}"
+            )
             url = (
                 f"{_API_BASE}/works"
                 f"?query={urllib.parse.quote(query)}"
                 f"&select=title,author,URL,DOI,published,container-title,subject"
                 f"&rows={safe_rows}"
-                f"&cursor={urllib.parse.quote(cursor, safe='')}"
+                f"{page_clause}"
                 f"{sort_clause}"
             )
             if time_window:
@@ -366,7 +375,7 @@ class CrossrefProvider(BaseProvider):
                         "errors": terminal_error,
                     }
                 )
-                return ProviderResult(
+                result = ProviderResult(
                     records=records,
                     errors=[terminal_error],
                     warnings=warnings,
@@ -375,6 +384,9 @@ class CrossrefProvider(BaseProvider):
                     raw_payload={"pages": raw_pages} if raw_pages else None,
                     page_diagnostics=page_diagnostics,
                 )
+                if legacy_api:
+                    return result, page_diagnostics
+                return result
             assert data is not None
             message = data.get("message", {})
             items = message.get("items", [])
@@ -388,33 +400,40 @@ class CrossrefProvider(BaseProvider):
             status = "applied"
             if len(items) < safe_rows:
                 status = "end_of_results"
-            page_diagnostics.append(
-                {
-                    "provider": "crossref",
-                    "query": query,
-                    "logical_page": logical_page,
-                    "physical_request_index": logical_page,
-                    "cursor_or_offset": self._cursor_marker(cursor),
-                    "requested_rows": safe_rows,
-                    "returned_rows": len(items),
-                    "normalized_rows": len(page_records),
-                    "pagination_status": status,
-                }
-            )
+            diagnostic = {
+                "provider": "crossref",
+                "query": query,
+                "logical_page": logical_page,
+                "physical_request_index": logical_page,
+                "cursor_or_offset": str(offset) if legacy_api else self._cursor_marker(cursor),
+                "requested_rows": safe_rows,
+                "returned_rows": len(items),
+                "normalized_rows": len(page_records),
+                "pagination_status": status,
+            }
+            if legacy_api:
+                diagnostic["offset"] = offset
+                diagnostic["pagination_method"] = "crossref_offset"
+            page_diagnostics.append(diagnostic)
             if status == "end_of_results":
                 break
+            if legacy_api:
+                continue
             if not next_cursor or next_cursor == cursor:
                 warnings.append("Crossref cursor pagination stopped: missing_or_repeated_next_cursor")
                 break
             cursor = next_cursor
 
-        return ProviderResult(
+        result = ProviderResult(
             records=records,
             warnings=warnings,
             provenance=provenance,
             raw_payload={"pages": raw_pages},
             page_diagnostics=page_diagnostics,
         )
+        if legacy_api:
+            return result, page_diagnostics
+        return result
 
     def verify_doi(self, doi: str) -> ProviderResult:
         """Verify a specific DOI via Crossref."""

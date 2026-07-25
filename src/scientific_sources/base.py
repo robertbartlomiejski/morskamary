@@ -14,6 +14,7 @@ raising an exception when a required secret is absent.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Any
 
 from src.scientific_sources.models import ProviderResult, SourceCapability
 
@@ -48,10 +49,11 @@ class BaseProvider(ABC):
         query: str,
         *,
         pages: int = 1,
+        logical_pages: int | None = None,
         rows_per_page: int = 50,
         sort_strategy: str = "",
         time_window: dict[str, int] | None = None,
-    ) -> ProviderResult:
+    ) -> Any:
         """Search using protocol-defined logical pages when supported.
 
         The default implementation preserves the historical provider contract by
@@ -61,7 +63,9 @@ class BaseProvider(ABC):
         applied.
         """
         del sort_strategy, time_window
-        safe_pages = max(1, int(pages or 1))
+        legacy_api = logical_pages is not None
+        requested_pages = logical_pages if logical_pages is not None else pages
+        safe_pages = max(1, int(requested_pages or 1))
         safe_rows = max(1, int(rows_per_page or 1))
         result = self.search(query, safe_pages * safe_rows)
         result.page_diagnostics.append(
@@ -83,6 +87,10 @@ class BaseProvider(ABC):
         )
         if safe_pages > 1:
             result.warnings.append(_PAGINATION_UNSUPPORTED)
+        if legacy_api:
+            diagnostic = dict(result.page_diagnostics[0])
+            diagnostic["pagination_method"] = "single_request_fallback"
+            return result, [diagnostic]
         return result
 
     @abstractmethod
@@ -96,30 +104,6 @@ class BaseProvider(ABC):
         Returns:
             ProviderResult with at most one LiteratureRecord.
         """
-
-    def search_paginated(
-        self,
-        query: str,
-        *,
-        logical_pages: int = 1,
-        rows_per_page: int = 50,
-        time_window: dict | None = None,
-        sort_strategy: str = "",
-    ) -> tuple[ProviderResult, list[dict]]:
-        """Paginated search with a single-request fallback implementation."""
-        del time_window, sort_strategy
-        total = logical_pages * rows_per_page
-        result = self.search(query, max_results=total)
-        diagnostics = [
-            {
-                "logical_page": 1,
-                "physical_requests": 1,
-                "requested_rows": total,
-                "returned_rows": len(result.records),
-                "pagination_method": "single_request_fallback",
-            }
-        ]
-        return result, diagnostics
 
     def _not_configured_result(self) -> ProviderResult:
         """Return a standard "provider not configured" result."""

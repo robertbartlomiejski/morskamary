@@ -227,7 +227,11 @@ def _is_live_like_record(record: dict[str, Any]) -> bool:
     if origin.startswith("live") or origin.startswith("dynamic_api_"):
         return True
     source_id = _normalize_string(record.get("source_id")).lower()
-    return source_id.startswith(("crossref:", "scopus:", "openalex:", "wos:"))
+    if source_id.startswith(("crossref:", "scopus:", "openalex:", "wos:")):
+        return True
+    # Legacy archived live rows may lack an origin label.  The caller removes
+    # all rows from a run explicitly marked static-recovery before using them.
+    return True
 
 
 def _providers_from_manifest(manifest: dict[str, Any]) -> list[str]:
@@ -396,10 +400,11 @@ def load_run_snapshot(
         for record in _load_optional_records(run_dir / LIVE_RECORDS_REL)
         if _is_live_like_record(record)
     ]
+    static_recovery = bool(manifest.get("is_static_recovery_mode"))
     qmbd_records = [
         record
         for record in _load_optional_records(run_dir / QMBD_REL)
-        if _is_live_like_record(record)
+        if not static_recovery and _is_live_like_record(record)
     ]
     constraints = _load_optional_object(run_dir / CONSTRAINTS_REL)
 

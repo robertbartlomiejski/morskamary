@@ -164,15 +164,15 @@ def test_workflow_builds_layer23_cumulative_scientific_database() -> None:
     )
 
 
-def test_layer23_step_runs_after_archive_integrity_validation() -> None:
+def test_layer23_step_runs_before_final_archive_integrity_validation() -> None:
     integrity_index = WORKFLOW_TEXT.index(
         "python scripts/validate_run_archive_integrity.py"
     )
     layer23_index = WORKFLOW_TEXT.index(
         "python scripts/build_cumulative_scientific_database.py"
     )
-    assert integrity_index < layer23_index, (
-        "Layer 2-3 build must run after archived-run integrity validation."
+    assert layer23_index < integrity_index, (
+        "The complete archive must be created after Layer 2-5 artifacts exist."
     )
 
 
@@ -188,13 +188,14 @@ def test_workflow_evaluates_novelty_gates_in_strict_mode() -> None:
     assert "--strict" in step_block
 
 
-def test_workflow_builds_informational_cross_run_stability_report_after_novelty() -> None:
+def test_workflow_builds_cross_run_stability_report_after_novelty() -> None:
     novelty_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
     stability_index = WORKFLOW_TEXT.index("python scripts/build_run_stability_report.py")
     assert novelty_index < stability_index
-    stability_block = WORKFLOW_TEXT[stability_index - 120 : stability_index + 220]
-    assert "continue-on-error: true" in stability_block
+    stability_block = WORKFLOW_TEXT[stability_index - 120 : stability_index + 300]
+    assert "continue-on-error: true" not in stability_block
     assert "--archive-root outputs/run_archive" in stability_block
+    assert "--output-path outputs/cumulative_database/run_stability_report.json" in stability_block
 
 
 def test_commit_outputs_job_stages_cumulative_database_directory() -> None:
@@ -276,11 +277,9 @@ def test_workflow_builds_optional_h2_credential_supply_map_after_layer45() -> No
     h2_block = WORKFLOW_TEXT[h2_index : h2_index + 500]
     assert layer45_index < h2_index < gate_index
     assert "continue-on-error: true" in WORKFLOW_TEXT
-    assert "--registry-path data/validated/credential_supply_registry.csv" in h2_block
-    assert (
-        "--demand-signals outputs/cumulative_database/competence_demand_signals.jsonl"
-        in h2_block
-    )
+    assert "--registry data/validated/credential_supply_registry.csv" in h2_block
+    assert "--derived-demands outputs/cumulative_database/derived_competence_demands.csv" in h2_block
+    assert "--output outputs/cumulative_database/validated_credential_supply_map.json" in h2_block
 
 
 def test_export_step_passes_generated_constraints_path() -> None:
@@ -327,6 +326,7 @@ def test_workflow_builds_provider_sensitivity_and_stability_artifacts() -> None:
     layer45_index = WORKFLOW_TEXT.index("python scripts/build_layer4_5_scientific_analysis.py")
     novelty_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
     assert layer45_index < sensitivity_index < novelty_index
-    assert layer45_index < stability_index < novelty_index
+    archive_index = WORKFLOW_TEXT.index("python scripts/archive_run_outputs.py")
+    assert layer45_index < sensitivity_index < archive_index < novelty_index < stability_index
     assert "provider_sensitivity_analysis.json" in WORKFLOW_TEXT
     assert "run_stability_report.json" in WORKFLOW_TEXT
