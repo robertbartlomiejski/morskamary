@@ -1,0 +1,43 @@
+{
+  "report_type": "cross_run_stability",
+  "timestamp_utc": "2026-07-25T23:07:18+00:00",
+  "runs_analyzed": 2,
+  "run_pairs": [
+    {
+      "run_a": "30090903921-1",
+      "run_b": "30178365958-1",
+      "comparability_fingerprint_match": false,
+      "comparability_fingerprint_a": "c3045321dec57baf695467b46e88c215cb4eece93866714967e73a83ff45bb4b",
+      "comparability_fingerprint_b": "fa4526063e66244210e25ec6885003e2d93ee0c5791c9d507afa772c54f612cf",
+      "jaccard_doi_similarity": 0.036509,
+      "new_unique_dois": 10182,
+      "new_doi_ratio": 0.956685,
+      "cumulative_unique_dois": 12627,
+      "axis_distribution_a": {
+        "MARINE": 97,
+        "MARITIME": 429,
+        "OCEANIC": 2366,
+        "HYDRONIZATION": 36
+      },
+      "axis_distribution_b": {
+        "MARINE": 823,
+        "MARITIME": 1169,
+        "OCEANIC": 9065,
+        "HYDRONIZATION": 112
+      },
+      "axis_stability_score": 0.958148,
+      "stable_transition": false
+    }
+  ],
+  "saturation_assessment": {
+    "status": "not_assessable",
+    "consecutive_stable_transitions": 0,
+    "threshold_for_provisional": 2,
+    "rationale": "At least one consecutive run pair used a non-matching comparability fingerprint, so saturation cannot be interpreted across changing acquisition conditions."
+  },
+  "saturation_thresholds": {
+    "jaccard_stable_threshold": 0.85,
+    "new_doi_diminishing_threshold": 0.05,
+    "axis_stability_threshold": 0.9
+  }
+}

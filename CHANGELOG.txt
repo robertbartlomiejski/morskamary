@@ -1133,3 +1133,13 @@ Reason The live-enriched outputs commit (run 30090903921/1) added new output fil
 Impact governance-and-repro CI job passes; MANIFEST_SOURCES.csv now reflects all 1315 tracked repository files.
 Quality checks python3 scripts/generate_manifest.py → Wrote MANIFEST_SOURCES.csv with 1315 entries; git diff --exit-code MANIFEST_SOURCES.csv → clean.
 Reviewer GitHub Copilot Coding Agent
+
+2026-07-25
+Change type refresh
+Scope outputs run-archive governance
+Files affected outputs/cumulative_database/*.csv outputs/cumulative_database/*.jsonl outputs/cumulative_database/*.json outputs/live_runs/30178365958-1/ outputs/run_archive/runs/30178365958-1/ outputs/previous_run_novelty_metrics.json outputs/run_stability_report.json reports/ MANIFEST_SOURCES.csv
+Summary Live-enriched run 30178365958-1: refreshed cumulative database (evidence_records 3129→12686, competence_demand_signals 2105→14594, hypothesis_semantic_fragments 172→1556), new live_runs normalised acquisition artifacts, and run_archive snapshot. Regenerated MANIFEST_SOURCES.csv to include 88 new files added by the run.
+Reason Integrating full-live-analysis workflow run 30178365958 (WoS search_paginated multi-page acquisition) artifact `live-enriched-analysis-outputs` into tracked outputs. The run added new output files under outputs/cumulative_database/, outputs/live_runs/, outputs/run_archive/, and reports/ that were not yet committed.
+Impact MANIFEST_SOURCES.csv now reflects 1285 tracked repository files; cumulative database records increase 4× via WoS multi-page acquisition.
+Quality checks python3 scripts/generate_manifest.py → Wrote MANIFEST_SOURCES.csv with 1285 entries.
+Reviewer GitHub Copilot Coding Agent

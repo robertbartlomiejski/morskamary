@@ -1,5 +1,5 @@
 {
-  "current_run_id": "30090903921-1",
+  "current_run_id": "30178365958-1",
   "gates": [
     {
       "detail": {
@@ -7,14 +7,28 @@
         "contribution_outcomes": {
           "crossref": {
             "attempted_queries": 120,
-            "contributed_records": 3546,
+            "contributed_records": 4157,
+            "health_status": "ok",
+            "present_in_execution_log": true,
+            "queries_with_errors": 0
+          },
+          "openalex": {
+            "attempted_queries": 120,
+            "contributed_records": 10529,
             "health_status": "ok",
             "present_in_execution_log": true,
             "queries_with_errors": 0
           },
           "scopus": {
             "attempted_queries": 120,
-            "contributed_records": 452,
+            "contributed_records": 1055,
+            "health_status": "ok",
+            "present_in_execution_log": true,
+            "queries_with_errors": 1
+          },
+          "wos": {
+            "attempted_queries": 120,
+            "contributed_records": 653,
             "health_status": "ok",
             "present_in_execution_log": true,
             "queries_with_errors": 0
@@ -29,7 +43,7 @@
         "providers_ok_zero_records": [],
         "providers_ok_zero_records_optional": [],
         "providers_ok_zero_records_required": [],
-        "required_contributing_provider_count": 2
+        "required_contributing_provider_count": 3
       },
       "gate_id": "A",
       "name": "Provider contribution",
@@ -46,8 +60,8 @@
     },
     {
       "detail": {
-        "jaccard": 0.2956,
-        "semantic_new_signal_count": 1450
+        "jaccard": 0.0377,
+        "semantic_new_signal_count": 14071
       },
       "gate_id": "C",
       "name": "Jaccard repetition",
@@ -73,47 +87,51 @@
         ],
         "active_providers": [
           "crossref",
-          "scopus"
+          "openalex",
+          "scopus",
+          "wos"
         ],
-        "concentration_reasons": [
-          "provider_concentration_ratio>0.85"
-        ],
+        "concentration_reasons": [],
         "concentration_threshold": 0.85,
-        "crossref_dominance_ratio": 0.8224,
-        "max_provider_contribution_share": 0.886943,
-        "max_query_family_contribution_share": 0.364932,
+        "crossref_dominance_ratio": 0.1828,
+        "max_provider_contribution_share": 0.642247,
+        "max_query_family_contribution_share": 0.426132,
         "provider_contributed_record_count_by_provider": {
-          "crossref": 3546,
-          "scopus": 452
+          "crossref": 4157,
+          "openalex": 10529,
+          "scopus": 1055,
+          "wos": 653
         },
         "provider_contribution_share_by_provider": {
-          "crossref": 0.886943,
-          "scopus": 0.113057
+          "crossref": 0.253568,
+          "openalex": 0.642247,
+          "scopus": 0.064353,
+          "wos": 0.039832
         },
         "query_family_contributed_record_count_by_family": {
-          "competence_demand": 661,
-          "core_sector": 1459,
-          "emerging_demand": 867,
-          "hypothesis_verification": 228,
-          "theory_translation": 329,
-          "validation_eqf_translation": 454
+          "competence_demand": 2802,
+          "core_sector": 6986,
+          "emerging_demand": 3328,
+          "hypothesis_verification": 1612,
+          "theory_translation": 1533,
+          "validation_eqf_translation": 133
         },
         "query_family_contribution_share_by_family": {
-          "competence_demand": 0.165333,
-          "core_sector": 0.364932,
-          "emerging_demand": 0.216858,
-          "hypothesis_verification": 0.057029,
-          "theory_translation": 0.082291,
-          "validation_eqf_translation": 0.113557
+          "competence_demand": 0.170916,
+          "core_sector": 0.426132,
+          "emerging_demand": 0.203001,
+          "hypothesis_verification": 0.098329,
+          "theory_translation": 0.09351,
+          "validation_eqf_translation": 0.008113
         },
         "query_family_distribution_available": true,
         "warnings": []
       },
       "gate_id": "E",
       "name": "Provider/query concentration",
-      "status": "warn"
+      "status": "pass"
     }
   ],
   "overall_status": "pass",
-  "previous_run_id": "28967267944.2"
+  "previous_run_id": "30090903921-1"
 }

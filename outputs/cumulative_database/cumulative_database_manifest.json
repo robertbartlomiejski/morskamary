@@ -29,14 +29,14 @@
     "learning_outcome_signal",
     "credential_translation_signal"
   ],
-  "built_at_utc": "2026-07-24T11:52:32.006447+00:00",
+  "built_at_utc": "2026-07-25T23:05:27.013112+00:00",
   "classifier_version": "cumulative-db-semantic-v1",
   "counts": {
-    "competence_demand_signals": 2105,
-    "evidence_records": 3129,
-    "hypothesis_semantic_fragments": 172
+    "competence_demand_signals": 14594,
+    "evidence_records": 12686,
+    "hypothesis_semantic_fragments": 1556
   },
-  "current_run_id": "30090903921-1",
+  "current_run_id": "30178365958-1",
   "inputs": {
     "archive_root": "outputs/run_archive",
     "current_run_dir": "outputs",
@@ -59,9 +59,9 @@
     "github_job": "live-analysis",
     "github_ref": "refs/heads/main",
     "github_run_attempt": "1",
-    "github_run_id": "30090903921",
-    "github_run_number": "39",
-    "github_sha": "4eb044988659e51219a2ad62137091f0cb0f97c4",
+    "github_run_id": "30178365958",
+    "github_run_number": "44",
+    "github_sha": "5055b06f395433914345e2f58cad418b4974edc9",
     "github_workflow": "Full Live-Enriched Analysis"
   }
 }

@@ -1,17 +1,19 @@
 {
-  "crossref_dominance_ratio": 0.8224,
-  "current_run_id": "30090903921-1",
-  "jaccard_similarity_with_previous_run": 0.2956,
-  "new_unique_doi_count": 1495,
-  "previous_run_id": "28967267944.2",
-  "provider_diversity_score": 0.6749,
-  "provider_enriched_count": 8,
+  "crossref_dominance_ratio": 0.1828,
+  "current_run_id": "30178365958-1",
+  "jaccard_similarity_with_previous_run": 0.0377,
+  "new_unique_doi_count": 9958,
+  "previous_run_id": "30090903921-1",
+  "provider_diversity_score": 0.6953,
+  "provider_enriched_count": 240,
   "provider_health_ok_zero_records": [],
   "provider_record_count_by_provider": {
-    "crossref": 2037,
-    "scopus": 440
+    "crossref": 2053,
+    "openalex": 7498,
+    "scopus": 1037,
+    "wos": 642
   },
-  "query_diversity_score": 0.9374,
+  "query_diversity_score": 0.9654,
   "query_families_seen": [
     "competence_demand",
     "core_sector",
@@ -20,8 +22,8 @@
     "theory_translation",
     "validation_eqf_translation"
   ],
-  "repeated_doi_count": 1547,
-  "semantic_new_signal_count": 1450,
+  "repeated_doi_count": 2170,
+  "semantic_new_signal_count": 14071,
   "updated_metadata_count": 0,
   "validity_warnings": [
     "evidence_row_warnings_present",
