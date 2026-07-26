@@ -256,6 +256,11 @@ def main() -> int:
     parser.add_argument("--output", default="outputs/research_api_health.json")
     parser.add_argument("--providers", default="all")
     parser.add_argument("--require-valid", action="store_true")
+    parser.add_argument(
+        "--require-configured",
+        action="store_true",
+        help="Fail when any requested provider reports missing configuration.",
+    )
     args = parser.parse_args()
 
     try:
@@ -284,6 +289,14 @@ def main() -> int:
         invalid = [r for r in results if r.status in {"present-but-invalid", "rate-limited"}]
         if invalid:
             print("\nFailing preflight due to invalid/rate-limited provider credentials.")
+            return 1
+    if args.require_configured:
+        missing = [r for r in results if r.status == "missing"]
+        if missing:
+            names = ", ".join(r.provider for r in missing)
+            print(
+                f"\nFailing preflight because requested providers are not configured: {names}."
+            )
             return 1
     return 0
 

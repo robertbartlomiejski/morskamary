@@ -294,6 +294,75 @@ def test_main_without_require_valid_returns_zero(tmp_path: Path) -> None:
     assert payload["summary"]["ok"] == 7
 
 
+def test_main_require_configured_rejects_missing_requested_provider(
+    tmp_path: Path,
+) -> None:
+    """A protected live profile must fail before acquisition if a request is unready."""
+    import check_research_api_health
+
+    output_file = tmp_path / "health" / "results.json"
+    crossref_ok = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
+    scopus_missing = check_research_api_health.ProbeResult(
+        "scopus", "missing", "SCOPUS_API_KEY not set"
+    )
+
+    with (
+        patch(
+            "sys.argv",
+            [
+                "check_research_api_health.py",
+                "--output",
+                str(output_file),
+                "--providers",
+                "crossref,scopus",
+                "--require-configured",
+            ],
+        ),
+        patch("check_research_api_health.probe_crossref", return_value=crossref_ok),
+        patch("check_research_api_health.probe_scopus", return_value=scopus_missing),
+    ):
+        exit_code = check_research_api_health.main()
+
+    assert exit_code == 1
+    payload = json.loads(output_file.read_text(encoding="utf-8"))
+    assert [item["provider"] for item in payload["statuses"]] == [
+        "crossref",
+        "scopus",
+    ]
+
+
+def test_main_require_configured_accepts_requested_open_providers(
+    tmp_path: Path,
+) -> None:
+    """Credential-free providers remain ready when their probes succeed."""
+    import check_research_api_health
+
+    output_file = tmp_path / "health" / "results.json"
+    crossref_ok = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
+    openalex_ok = check_research_api_health.ProbeResult(
+        "openalex", "ok", "ok (unauthenticated, lower rate limits)", 200
+    )
+
+    with (
+        patch(
+            "sys.argv",
+            [
+                "check_research_api_health.py",
+                "--output",
+                str(output_file),
+                "--providers",
+                "crossref,openalex",
+                "--require-configured",
+            ],
+        ),
+        patch("check_research_api_health.probe_crossref", return_value=crossref_ok),
+        patch("check_research_api_health.probe_openalex", return_value=openalex_ok),
+    ):
+        exit_code = check_research_api_health.main()
+
+    assert exit_code == 0
+
+
 def test_main_filters_to_requested_providers(tmp_path: Path) -> None:
     """main should only run probes listed in --providers."""
     import check_research_api_health

@@ -44,6 +44,39 @@ The canonical low-cost three-provider profile is now:
 
 Web of Science remains optional when credentials exist. OpenAlex improves acquisition-provider diversity but must not be described as upstream bibliographic independence from Crossref-related DOI metadata infrastructures.
 
+The protected workflow applies `--require-configured` to the requested profile.
+Selecting Scopus, Web of Science, or another credential-dependent provider
+without its required configuration therefore fails before acquisition. Web of
+Science is not part of the canonical profile: its Starter free trial is limited
+to 50 requests per day, which cannot execute this repository's complete
+120-query, three-page protocol in one controlled run.
+
+OpenAIRE is a possible future European repository and funding-provenance
+enrichment source. Its Graph API supports publication-year filtering and
+structured offset/cursor paging, but morskamary has no OpenAIRE provider adapter.
+It must not be included in current provider counts, sensitivity subsets, or
+comparability fingerprints until an adapter and deterministic fixtures exist.
+
+## Static baseline interpretation
+
+`outputs/gaps_summary.csv` compares literature-derived candidate competence
+units with the 15-competence University of Szczecin project baseline available
+to the pipeline. It does not represent a census of qualifications, programmes,
+or workforce supply across the 12 sectors.
+
+Consequently, its `Missing` and `Gap %` fields are project-baseline coverage
+diagnostics. They must not be reported as national, European, or real-world
+qualification deficits. The current tracked output contains 2,548 candidate
+units absent from 2,728 required units (93.4%); 1,818 of those are OCEANIC
+(71.35%). Historical figures such as 16,929 missing, 13,583 OCEANIC, or
+98.8-99.1% sector gaps are not the current repository result and must not be
+carried into a manuscript without a run-specific archived source.
+
+Actual educational shortage claims require the externally validated
+programme-to-demand supply mapping described below. Until that evidence exists,
+the defensible conclusion is baseline undercoverage and validation need, not a
+measured labour-market or qualification shortage.
+
 ## H2 validated supply
 
 H2 uses an external, demand-level credential/programme supply map. Generated candidate credential translations are not validated supply.

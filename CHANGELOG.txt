@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-26 (fix: fail closed on incomplete live provider profiles)
+  Change type fix update
+  Scope workflows scripts docs tests governance
+  Files affected .github/workflows/full-live-analysis.yml scripts/check_research_api_health.py tests/test_check_research_api_health.py tests/test_full_live_analysis_workflow.py docs/LIVE_REPLICATION_INFRASTRUCTURE.md CHANGELOG.txt
+  Summary Added an explicit requested-provider configuration gate to the protected live workflow and documented provider-quota and static-baseline interpretation limits.
+  Reason The existing require-valid option rejected invalid and rate-limited credentials but allowed requested providers with missing configuration to pass readiness, while legacy static-gap figures could be mistaken for measured real-world qualification shortages.
+  Impact Controlled live runs now stop before acquisition when a selected credential-dependent provider is unconfigured. Web of Science remains optional, OpenAIRE remains a future adapter, and static gap percentages are explicitly limited to project-baseline coverage diagnostics.
+  Provenance PR215 follow-up review; Clarivate Web of Science Starter API limits; OpenAIRE Graph API documentation; outputs/gaps_summary.csv; University of Szczecin baseline.
+  Quality checks Focused health/workflow tests 48 passed; canonical flake8 passed; mypy passed for 70 source files; workflow YAML parse passed; source manifest regeneration was reproducible; changelog guard passed; generated-output validation passed; archive integrity passed for 3 runs; no live provider calls made.
+
 - 2026-07-25 (fix: finalize live archives after strict quality gates)
   Change type fix update
   Scope workflows docs tests governance

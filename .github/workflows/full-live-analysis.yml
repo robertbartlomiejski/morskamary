@@ -18,7 +18,7 @@ on:
         type: choice
         options: ["false", "true"]
       require_valid_credentials:
-        description: "Fail when configured proprietary credentials are invalid or rate-limited"
+        description: "Also fail when configured provider credentials are invalid or rate-limited"
         required: false
         default: "false"
         type: choice
@@ -123,6 +123,7 @@ jobs:
 
           python scripts/check_research_api_health.py \
             --providers "$REQUESTED_PROVIDERS" \
+            --require-configured \
             --output outputs/research_api_health.json \
             "${HEALTH_ARGS[@]}"
 

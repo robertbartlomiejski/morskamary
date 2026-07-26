@@ -16,6 +16,13 @@ def test_workflow_dispatch_declares_commit_outputs_input() -> None:
     assert "commit_outputs:" in WORKFLOW_TEXT
 
 
+def test_protected_live_workflow_requires_requested_providers_to_be_configured() -> None:
+    health_index = WORKFLOW_TEXT.index("python scripts/check_research_api_health.py")
+    health_block = WORKFLOW_TEXT[health_index : health_index + 400]
+    assert '--providers "$REQUESTED_PROVIDERS"' in health_block
+    assert "--require-configured" in health_block
+
+
 def test_schedule_commit_gate_uses_explicit_repo_variable_not_dispatch_input() -> None:
     assert "github.event_name == 'schedule'" in WORKFLOW_TEXT
     assert "vars.LIVE_OUTPUTS_AUTOCOMMIT == 'true'" in WORKFLOW_TEXT
