@@ -122,15 +122,18 @@ def test_candidate_only_registry_fails_closed_without_output(tmp_path: Path) -> 
     _write_demands(demands_path, ["cd:hydro:1"])
     _write_registry(registry_path, [_registry_row(validation_status="candidate")])
 
-    with pytest.raises(ValueError, match="no explicitly validated mappings"):
-        build_validated_supply_map(
-            registry_path=registry_path,
-            derived_demands_path=demands_path,
-            output_path=output_path,
-            audit_output_path=audit_path,
-        )
+    result = build_validated_supply_map(
+        registry_path=registry_path,
+        derived_demands_path=demands_path,
+        output_path=output_path,
+        audit_output_path=audit_path,
+    )
 
-    assert not output_path.exists()
+    # An empty registry now produces a not_computable map rather than raising.
+    assert output_path.exists()
+    assert result["validation_status"] == "not_computable"
+    assert result["has_validated_supply"] is False
+    assert result["validated_supply_by_demand_id"] == {}
 
 
 def test_unknown_demand_id_fails(tmp_path: Path) -> None:
@@ -175,6 +178,22 @@ def test_validated_mapping_requires_validation_evidence_ids(tmp_path: Path) -> N
     _write_registry(registry_path, [_registry_row(validation_evidence_ids="")])
 
     with pytest.raises(ValueError, match="validation_evidence_ids"):
+        build_validated_supply_map(
+            registry_path=registry_path,
+            derived_demands_path=demands_path,
+            output_path=tmp_path / "map.json",
+            audit_output_path=tmp_path / "audit.json",
+        )
+
+
+def test_validated_mapping_rejects_separator_only_evidence_ids(tmp_path: Path) -> None:
+    """Pipe-only strings like '|' pass _clean() but must fail the evidence-ID gate."""
+    demands_path = tmp_path / "derived_competence_demands.csv"
+    registry_path = tmp_path / "credential_supply_registry.csv"
+    _write_demands(demands_path, ["cd:hydro:1"])
+    _write_registry(registry_path, [_registry_row(validation_evidence_ids="|")])
+
+    with pytest.raises(ValueError, match="validation_evidence_id"):
         build_validated_supply_map(
             registry_path=registry_path,
             derived_demands_path=demands_path,
@@ -246,6 +265,7 @@ def test_only_validated_eqf_6_7_supply_affects_h2(tmp_path: Path) -> None:
 def test_cli_returns_nonzero_for_candidate_only_registry(tmp_path: Path, capsys) -> None:
     demands_path = tmp_path / "derived_competence_demands.csv"
     registry_path = tmp_path / "credential_supply_registry.csv"
+    output_path = tmp_path / "map.json"
     _write_demands(demands_path, ["cd:hydro:1"])
     _write_registry(registry_path, [_registry_row(validation_status="candidate")])
 
@@ -256,12 +276,16 @@ def test_cli_returns_nonzero_for_candidate_only_registry(tmp_path: Path, capsys)
             "--derived-demands",
             str(demands_path),
             "--output",
-            str(tmp_path / "map.json"),
+            str(output_path),
             "--audit-output",
             str(tmp_path / "audit.json"),
         ]
     )
 
     captured = capsys.readouterr()
-    assert result == 1
-    assert "candidate-only map" in captured.err
+    # An empty (candidate-only) registry now exits 0 with a not_computable map.
+    assert result == 0
+    assert "not_computable" in captured.err
+    assert output_path.exists()
+    data = json.loads(output_path.read_text())
+    assert data["has_validated_supply"] is False

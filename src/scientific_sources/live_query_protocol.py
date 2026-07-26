@@ -807,6 +807,7 @@ def validate_complete_authoritative_protocol_projection(
     time_window_mismatches: List[str] = []
     sort_strategy_mismatches: List[str] = []
     sampling_strategy_mismatches: List[str] = []
+    evidence_intent_mismatches: List[str] = []
     for query_id, query in protocol_by_id.items():
         row = projection_by_id[query_id]
         projection_sector_counts[str(row.get("sector_slug", "")).strip()] += 1
@@ -838,6 +839,8 @@ def validate_complete_authoritative_protocol_projection(
         }
         if row.get("sampling_strategy") != expected_sampling_strategy:
             sampling_strategy_mismatches.append(query_id)
+        if str(row.get("evidence_intent", "")).strip() != query.evidence_intent:
+            evidence_intent_mismatches.append(query_id)
     if query_text_mismatches:
         raise LiveQueryProtocolError(
             f"protocol/projection query-text mismatch IDs: {query_text_mismatches}"
@@ -862,6 +865,11 @@ def validate_complete_authoritative_protocol_projection(
         raise LiveQueryProtocolError(
             "protocol/projection sampling-strategy mismatch IDs: "
             f"{sampling_strategy_mismatches}"
+        )
+    if evidence_intent_mismatches:
+        raise LiveQueryProtocolError(
+            "protocol/projection evidence-intent mismatch IDs: "
+            f"{evidence_intent_mismatches}"
         )
     if dict(projection_family_counts) != dict(protocol_family_counts):
         raise LiveQueryProtocolError(

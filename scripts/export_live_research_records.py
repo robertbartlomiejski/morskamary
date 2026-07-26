@@ -343,10 +343,15 @@ def _search_registry_paginated(
     try:
         signature = inspect.signature(search_paginated)
     except (TypeError, ValueError):
+        # Cannot inspect the callable (e.g. built-in or C extension). Treat as
+        # old-style signature without extended kwargs to avoid a runtime TypeError
+        # that could be silently swallowed by an outer exception handler.
         signature = None
     if signature is None:
-        kwargs["sort_strategy_by_provider"] = sort_strategy_by_provider
-        kwargs["time_window"] = dict(time_window)
+        # Skip extended kwargs when signature is uninspectable to prevent a
+        # TypeError inside the provider from being confused with a legacy-signature
+        # mismatch and triggering a retry that would consume paid API quota.
+        pass
     else:
         parameters = signature.parameters
         accepts_var_keyword = any(

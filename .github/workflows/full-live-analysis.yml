@@ -253,8 +253,22 @@ jobs:
             --derived-demands outputs/cumulative_database/derived_competence_demands.csv \
             --output outputs/cumulative_database/validated_credential_supply_map.json \
             --audit-output outputs/cumulative_database/validated_credential_supply_audit.json
+          # Export whether the map has validated supply so downstream steps can branch.
+          HAS_SUPPLY=$(python - <<'PY'
+          import json, sys
+          from pathlib import Path
+          m = Path("outputs/cumulative_database/validated_credential_supply_map.json")
+          if not m.is_file():
+              print("false"); sys.exit(0)
+          data = json.loads(m.read_text())
+          print("true" if data.get("has_validated_supply") else "false")
+          PY
+          )
+          echo "HAS_VALIDATED_SUPPLY=${HAS_SUPPLY}" >> "$GITHUB_ENV"
+          echo "[INFO] has_validated_supply=${HAS_SUPPLY}"
 
       - name: Rebuild Layer 5 with validated H2 credential supply map
+        if: env.HAS_VALIDATED_SUPPLY == 'true'
         run: |
           set -euo pipefail
           python scripts/build_layer4_5_scientific_analysis.py \

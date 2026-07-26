@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-26 (fix: address remaining PR215 review findings on saturation, fingerprint, registry and protocol validation)
+  Change type fix update
+  Scope scripts src workflows tests governance
+  Files affected .github/workflows/full-live-analysis.yml scripts/build_validated_credential_supply_map.py scripts/build_run_stability_report.py src/scientific_sources/live_query_protocol.py scripts/export_live_research_records.py tests/test_build_validated_credential_supply_map.py tests/test_h2_credential_supply.py CHANGELOG.txt
+  Summary Allowed the validated-credential-supply map builder to produce a not_computable output instead of failing when the registry has no validated rows, so the workflow continues to a provisional H2=not_computable result. Added a _split_pipe evidence-ID gate for validated registry rows. Skipped static-recovery runs from saturation snapshots to prevent legacy live_records from contaminating convergence decisions. Added query_id_hash to the comparability fingerprint so runs with different query universes compare as incomparable. Added evidence_intent to the per-query protocol-projection assertion. Fixed the fallback path in _search_registry_paginated so an uninspectable callable does not receive unexpected keyword arguments.
+  Reason PR215 review: Thread 30 (empty registry caused workflow failure), Thread 11 (separator-only evidence IDs passed registry gate), Thread 5 (static-recovery contamination of saturation), Threads 4/25 (fingerprint missing query-set hash), Threads 16/22 (evidence_intent not checked in projection validator), Thread 12 (TypeError fallback in signature inspection).
+  Impact Controlled live runs with a header-only registry now reach archive and report H2 as not_computable. Saturation reports exclude runs that used static-recovery mode. The comparability fingerprint is stable across query-set changes.
+  Provenance PR#215 review threads 4, 5, 11, 12, 16, 22, 25, 30.
+  Quality checks python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m pytest tests/ -v (1170 passed, 8 warnings from openpyxl); python -m mypy src scripts run_full_analysis.py main.py (passed); no live provider calls made.
+
 - 2026-07-26 (fix: fail closed on incomplete live provider profiles)
   Change type fix update
   Scope workflows scripts docs tests governance

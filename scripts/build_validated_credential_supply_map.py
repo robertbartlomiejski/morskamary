@@ -225,13 +225,19 @@ def build_validated_supply_map(
                 f"registry row {index}: validated mapping missing required field(s): "
                 f"{missing}"
             )
+        if not bool(_split_pipe(row.get("validation_evidence_ids", ""))):
+            raise ValueError(
+                f"registry row {index}: validated mapping must supply at least one "
+                "validation_evidence_id (field is blank or contains only separators)"
+            )
         entry = _validated_entry(row, eqf_level)
         validated_rows_by_demand[demand_id].append(entry)
 
     if not validated_rows_by_demand:
-        raise ValueError(
-            "credential supply registry contains no explicitly validated mappings; "
-            "do not pass a candidate-only map to H2"
+        print(
+            "[INFO] credential supply registry contains no explicitly validated mappings; "
+            "writing not_computable supply map",
+            file=sys.stderr,
         )
 
     for demand_id, rows in sorted(validated_rows_by_demand.items()):
@@ -254,9 +260,11 @@ def build_validated_supply_map(
             "mapping_count": len(rows),
         }
 
+    has_validated_supply = bool(supply_by_demand)
     output = {
         "schema_version": MAP_SCHEMA_VERSION,
-        "validation_status": "validated",
+        "validation_status": "validated" if has_validated_supply else "not_computable",
+        "has_validated_supply": has_validated_supply,
         "unit_of_analysis": "competence_demand_id",
         "built_at_utc": built_at,
         "source_registry_path": str(registry_path),

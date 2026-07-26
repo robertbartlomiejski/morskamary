@@ -58,16 +58,22 @@ def _write_registry(path: Path, rows: list[dict[str, str]]) -> None:
 def test_candidate_only_registry_is_not_computable(tmp_path: Path) -> None:
     demands = tmp_path / "derived_competence_demands.csv"
     registry = tmp_path / "credential_supply_registry.csv"
+    output = tmp_path / "map.json"
     _write_demands(demands, ["cd:hydro:1"])
     _write_registry(registry, [_row(validation_status="candidate")])
 
-    with pytest.raises(ValueError, match="no explicitly validated mappings"):
-        build_validated_supply_map(
-            registry_path=registry,
-            derived_demands_path=demands,
-            output_path=tmp_path / "map.json",
-            audit_output_path=tmp_path / "audit.json",
-        )
+    result = build_validated_supply_map(
+        registry_path=registry,
+        derived_demands_path=demands,
+        output_path=output,
+        audit_output_path=tmp_path / "audit.json",
+    )
+
+    # A candidate-only registry now produces a not_computable map rather than raising.
+    assert output.exists()
+    assert result["validation_status"] == "not_computable"
+    assert result["has_validated_supply"] is False
+    assert result["validated_supply_by_demand_id"] == {}
 
 
 def test_validated_supply_is_keyed_by_demand_id_and_eqf(tmp_path: Path) -> None:

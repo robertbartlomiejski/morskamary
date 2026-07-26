@@ -259,10 +259,14 @@ def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
     sort_strategies: set[str] = set()
     logical_pages: set[int] = set()
     rows_per_page: set[int] = set()
+    query_ids: list[str] = []
     if isinstance(queries, list):
         for query in queries:
             if not isinstance(query, dict):
                 continue
+            query_id = _normalize_string(query.get("query_id"))
+            if query_id:
+                query_ids.append(query_id)
             time_window = query.get("time_window")
             if isinstance(time_window, dict):
                 time_windows.add(json.dumps(time_window, sort_keys=True, separators=(",", ":")))
@@ -282,6 +286,12 @@ def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
                 sort_strategies.add(
                     json.dumps(sort_strategy, sort_keys=True, separators=(",", ":"))
                 )
+    if query_ids:
+        query_id_hash = hashlib.sha256(
+            json.dumps(sorted(set(query_ids)), separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+    else:
+        query_id_hash = "unknown"
     return {
         "query_protocol_version": protocol_version or "unknown",
         "time_windows": sorted(time_windows),
@@ -289,6 +299,7 @@ def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
         "sort_strategy_contract": sorted(sort_strategies),
         "logical_pages": next(iter(logical_pages)) if len(logical_pages) == 1 else None,
         "rows_per_page": next(iter(rows_per_page)) if len(rows_per_page) == 1 else None,
+        "query_id_hash": query_id_hash,
     }
 
 
@@ -339,6 +350,7 @@ def build_comparability_fingerprint(
     logical_pages: int | None = None,
     rows_per_page: int | None = None,
     sort_strategy_contract: list[str] | None = None,
+    query_id_hash: str = "unknown",
 ) -> tuple[str, dict[str, Any]]:
     """Return the canonical comparability fingerprint and its source payload."""
 
@@ -359,6 +371,7 @@ def build_comparability_fingerprint(
         "sort_strategy_contract": sorted(
             {item for item in (sort_strategy_contract or []) if item}
         ),
+        "query_id_hash": _normalize_string(query_id_hash) or "unknown",
     }
     digest = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -447,16 +460,24 @@ def load_run_snapshot(
         return None
 
     manifest = _load_manifest(run_dir)
+    static_recovery = bool(manifest.get("is_static_recovery_mode"))
+    if static_recovery:
+        print(
+            f"[WARN] Skipping static-recovery run {reference.run_id}: "
+            "live_records from a static-recovery run must not contribute to saturation",
+            file=sys.stderr,
+        )
+        return None
+
     live_records = [
         record
         for record in _load_optional_records(run_dir / LIVE_RECORDS_REL)
         if _is_live_like_record(record)
     ]
-    static_recovery = bool(manifest.get("is_static_recovery_mode"))
     qmbd_records = [
         record
         for record in _load_optional_records(run_dir / QMBD_REL)
-        if not static_recovery and _is_live_like_record(record)
+        if _is_live_like_record(record)
     ]
     constraints = _load_optional_object(run_dir / CONSTRAINTS_REL)
 
@@ -489,6 +510,7 @@ def load_run_snapshot(
         logical_pages=constraint_payload.get("logical_pages"),
         rows_per_page=constraint_payload.get("rows_per_page"),
         sort_strategy_contract=list(constraint_payload.get("sort_strategy_contract", [])),
+        query_id_hash=str(constraint_payload.get("query_id_hash", "unknown")),
     )
 
     timestamp_utc = (
