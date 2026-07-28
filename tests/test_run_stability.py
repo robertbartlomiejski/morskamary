@@ -149,22 +149,55 @@ def test_build_comparability_fingerprint_matches_only_for_same_payload() -> None
         query_protocol_version="1.0.0",
         time_windows=['{"from_year":2020,"to_year":2026}'],
         sampling_strategies=['{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'],
+        classifier_version="classifier-v1",
+        requested_provider_profile=["crossref", "scopus"],
+        contributing_provider_profile=["crossref", "scopus"],
+        logical_pages=2,
+        rows_per_page=50,
+        sort_strategy_contract=['{"crossref":"published-desc","scopus":"date-desc"}'],
     )
     fingerprint_b, payload_b = module.build_comparability_fingerprint(
         providers_used=["scopus", "crossref"],
         query_protocol_version="1.0.0",
         time_windows=['{"from_year":2020,"to_year":2026}'],
         sampling_strategies=['{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'],
+        classifier_version="classifier-v1",
+        requested_provider_profile=["crossref", "scopus"],
+        contributing_provider_profile=["crossref", "scopus"],
+        logical_pages=2,
+        rows_per_page=50,
+        sort_strategy_contract=['{"crossref":"published-desc","scopus":"date-desc"}'],
     )
     fingerprint_c, _ = module.build_comparability_fingerprint(
         providers_used=["crossref"],
         query_protocol_version="1.0.0",
         time_windows=['{"from_year":2020,"to_year":2026}'],
         sampling_strategies=['{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'],
+        classifier_version="classifier-v1",
+        requested_provider_profile=["crossref"],
+        contributing_provider_profile=["crossref"],
+        logical_pages=2,
+        rows_per_page=50,
+        sort_strategy_contract=['{"crossref":"published-desc"}'],
     )
     assert payload_a == payload_b
     assert fingerprint_a == fingerprint_b
     assert fingerprint_a != fingerprint_c
+    fingerprint_d, payload_d = module.build_comparability_fingerprint(
+        providers_used=["crossref", "scopus"],
+        query_protocol_version="1.0.0",
+        time_windows=['{"from_year":2020,"to_year":2026}'],
+        sampling_strategies=['{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'],
+        classifier_version="classifier-v2",
+        requested_provider_profile=["crossref", "scopus"],
+        contributing_provider_profile=["crossref", "scopus"],
+        logical_pages=3,
+        rows_per_page=50,
+        sort_strategy_contract=['{"crossref":"published-desc","scopus":"date-desc"}'],
+    )
+    assert payload_d["classifier_version"] == "classifier-v2"
+    assert payload_d["logical_pages"] == 3
+    assert fingerprint_d != fingerprint_a
 
 
 def test_compute_axis_stability_score_uses_max_ratio_gap() -> None:

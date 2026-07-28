@@ -27,7 +27,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 import time
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Any, Dict, List, Optional, cast
 
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
@@ -361,11 +361,12 @@ class WebOfScienceProvider(BaseProvider):
         self,
         query: str,
         *,
-        logical_pages: int = 1,
+        pages: int = 1,
+        logical_pages: int | None = None,
         rows_per_page: int = 50,
-        time_window: Optional[Dict[str, Any]] = None,
+        time_window: Optional[Dict[str, int]] = None,
         sort_strategy: str = "",
-    ) -> Tuple[ProviderResult, List[Dict[str, Any]]]:
+    ) -> Any:
         """Paginated WoS search using native page parameter.
 
         WoS Starter API supports ``limit`` up to 50 per request and a
@@ -374,9 +375,15 @@ class WebOfScienceProvider(BaseProvider):
         page (same approach Scopus uses).
         """
         del time_window, sort_strategy  # not used by WoS Starter
+        legacy_api = logical_pages is not None
+        requested_pages = logical_pages if logical_pages is not None else pages
+        safe_pages = max(1, int(requested_pages or 1))
         if not self._api_key:
             result = self._not_configured_result()
-            return result, [{"logical_page": 1, "error": "not_configured"}]
+            result.page_diagnostics = [
+                {"logical_page": 1, "error": "not_configured"}
+            ]
+            return (result, result.page_diagnostics) if legacy_api else result
 
         _WOS_MAX_LIMIT = 50
         all_records: List[LiteratureRecord] = []
@@ -388,7 +395,7 @@ class WebOfScienceProvider(BaseProvider):
         # Global physical page counter across all logical pages
         physical_page = 1
 
-        for logical_page_idx in range(logical_pages):
+        for logical_page_idx in range(safe_pages):
             rows_remaining = rows_per_page
             page_records: List[LiteratureRecord] = []
             physical_requests = 0
@@ -477,15 +484,14 @@ class WebOfScienceProvider(BaseProvider):
             if any("rate-limited" in w or "rate_limited" in w for w in all_warnings)
             else None
         )
-        return (
-            ProviderResult(
-                records=all_records,
-                warnings=all_warnings,
-                provenance=all_provenance,
-                rate_limit_status=rate_limit_status,
-            ),
-            page_diagnostics,
+        result = ProviderResult(
+            records=all_records,
+            warnings=all_warnings,
+            provenance=all_provenance,
+            rate_limit_status=rate_limit_status,
+            page_diagnostics=page_diagnostics,
         )
+        return (result, page_diagnostics) if legacy_api else result
 
     def verify_doi(self, doi: str) -> ProviderResult:
         """Verify DOI via Web of Science."""

@@ -218,6 +218,22 @@ def _load_optional_object(path: Path) -> dict[str, Any]:
     return payload if isinstance(payload, dict) else {}
 
 
+def _is_live_like_record(record: dict[str, Any]) -> bool:
+    """Exclude explicit static baseline/literature rows from live stability."""
+
+    origin = _normalize_string(record.get("record_origin")).lower()
+    if origin in {"static_baseline", "static_literature", "baseline", "literature"}:
+        return False
+    if origin.startswith("live") or origin.startswith("dynamic_api_"):
+        return True
+    source_id = _normalize_string(record.get("source_id")).lower()
+    if source_id.startswith(("crossref:", "scopus:", "openalex:", "wos:")):
+        return True
+    # Legacy archived live rows may lack an origin label.  The caller removes
+    # all rows from a run explicitly marked static-recovery before using them.
+    return True
+
+
 def _providers_from_manifest(manifest: dict[str, Any]) -> list[str]:
     raw_values = [
         manifest.get("provider_set"),
@@ -240,10 +256,17 @@ def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
     queries = constraints.get("queries")
     time_windows: set[str] = set()
     sampling_strategies: set[str] = set()
+    sort_strategies: set[str] = set()
+    logical_pages: set[int] = set()
+    rows_per_page: set[int] = set()
+    query_ids: list[str] = []
     if isinstance(queries, list):
         for query in queries:
             if not isinstance(query, dict):
                 continue
+            query_id = _normalize_string(query.get("query_id"))
+            if query_id:
+                query_ids.append(query_id)
             time_window = query.get("time_window")
             if isinstance(time_window, dict):
                 time_windows.add(json.dumps(time_window, sort_keys=True, separators=(",", ":")))
@@ -252,11 +275,67 @@ def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
                 sampling_strategies.add(
                     json.dumps(sampling_strategy, sort_keys=True, separators=(",", ":"))
                 )
+                pages = sampling_strategy.get("pages")
+                rows = sampling_strategy.get("rows_per_page")
+                if isinstance(pages, int):
+                    logical_pages.add(pages)
+                if isinstance(rows, int):
+                    rows_per_page.add(rows)
+            sort_strategy = query.get("sort_strategy")
+            if isinstance(sort_strategy, dict):
+                sort_strategies.add(
+                    json.dumps(sort_strategy, sort_keys=True, separators=(",", ":"))
+                )
+    if query_ids:
+        query_id_hash = hashlib.sha256(
+            json.dumps(sorted(set(query_ids)), separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+    else:
+        query_id_hash = "unknown"
     return {
         "query_protocol_version": protocol_version or "unknown",
         "time_windows": sorted(time_windows),
         "sampling_strategies": sorted(sampling_strategies),
+        "sort_strategy_contract": sorted(sort_strategies),
+        "logical_pages": next(iter(logical_pages)) if len(logical_pages) == 1 else None,
+        "rows_per_page": next(iter(rows_per_page)) if len(rows_per_page) == 1 else None,
+        "query_id_hash": query_id_hash,
     }
+
+
+def _split_provider_list(raw_value: Any) -> list[str]:
+    providers: set[str] = set()
+    for item in _normalize_string(raw_value).replace("|", ",").split(","):
+        token = item.strip().lower()
+        if token:
+            providers.add(token)
+    return sorted(providers)
+
+
+def _extract_classifier_version(
+    qmbd_records: list[dict[str, Any]],
+    manifest: dict[str, Any],
+) -> str:
+    for record in qmbd_records:
+        analyses = record.get("qmbd_analysis")
+        if isinstance(analyses, list):
+            for analysis in analyses:
+                if not isinstance(analysis, dict):
+                    continue
+                provenance = analysis.get("provenance")
+                if isinstance(provenance, dict):
+                    classifier_version = _normalize_string(provenance.get("classifier_version"))
+                    if classifier_version:
+                        return classifier_version
+        classifier_version = _normalize_string(record.get("classifier_version"))
+        if classifier_version:
+            return classifier_version
+    workflow = manifest.get("workflow")
+    if isinstance(workflow, dict):
+        classifier_version = _normalize_string(workflow.get("classifier_version"))
+        if classifier_version:
+            return classifier_version
+    return _normalize_string(manifest.get("classifier_version")) or "unknown"
 
 
 def build_comparability_fingerprint(
@@ -265,6 +344,13 @@ def build_comparability_fingerprint(
     query_protocol_version: str,
     time_windows: list[str],
     sampling_strategies: list[str],
+    classifier_version: str = "unknown",
+    requested_provider_profile: list[str] | None = None,
+    contributing_provider_profile: list[str] | None = None,
+    logical_pages: int | None = None,
+    rows_per_page: int | None = None,
+    sort_strategy_contract: list[str] | None = None,
+    query_id_hash: str = "unknown",
 ) -> tuple[str, dict[str, Any]]:
     """Return the canonical comparability fingerprint and its source payload."""
 
@@ -273,6 +359,19 @@ def build_comparability_fingerprint(
         "query_protocol_version": _normalize_string(query_protocol_version) or "unknown",
         "time_windows": sorted({item for item in time_windows if item}),
         "sampling_strategies": sorted({item for item in sampling_strategies if item}),
+        "classifier_version": _normalize_string(classifier_version) or "unknown",
+        "requested_provider_profile": sorted(
+            {item.strip().lower() for item in (requested_provider_profile or []) if item}
+        ),
+        "contributing_provider_profile": sorted(
+            {item.strip().lower() for item in (contributing_provider_profile or []) if item}
+        ),
+        "logical_pages": logical_pages,
+        "rows_per_page": rows_per_page,
+        "sort_strategy_contract": sorted(
+            {item for item in (sort_strategy_contract or []) if item}
+        ),
+        "query_id_hash": _normalize_string(query_id_hash) or "unknown",
     }
     digest = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -361,8 +460,25 @@ def load_run_snapshot(
         return None
 
     manifest = _load_manifest(run_dir)
-    live_records = _load_optional_records(run_dir / LIVE_RECORDS_REL)
-    qmbd_records = _load_optional_records(run_dir / QMBD_REL)
+    static_recovery = bool(manifest.get("is_static_recovery_mode"))
+    if static_recovery:
+        print(
+            f"[WARN] Skipping static-recovery run {reference.run_id}: "
+            "live_records from a static-recovery run must not contribute to saturation",
+            file=sys.stderr,
+        )
+        return None
+
+    live_records = [
+        record
+        for record in _load_optional_records(run_dir / LIVE_RECORDS_REL)
+        if _is_live_like_record(record)
+    ]
+    qmbd_records = [
+        record
+        for record in _load_optional_records(run_dir / QMBD_REL)
+        if _is_live_like_record(record)
+    ]
     constraints = _load_optional_object(run_dir / CONSTRAINTS_REL)
 
     doi_set = frozenset(
@@ -382,6 +498,19 @@ def load_run_snapshot(
         query_protocol_version=str(constraint_payload["query_protocol_version"]),
         time_windows=list(constraint_payload["time_windows"]),
         sampling_strategies=list(constraint_payload["sampling_strategies"]),
+        classifier_version=_extract_classifier_version(qmbd_records, manifest),
+        requested_provider_profile=_split_provider_list(
+            manifest.get("workflow", {}).get("inputs", {}).get("providers", "")
+            if isinstance(manifest.get("workflow"), dict)
+            else ""
+        ),
+        contributing_provider_profile=_split_provider_list(
+            manifest.get("provider_set") or manifest.get("providers") or ""
+        ),
+        logical_pages=constraint_payload.get("logical_pages"),
+        rows_per_page=constraint_payload.get("rows_per_page"),
+        sort_strategy_contract=list(constraint_payload.get("sort_strategy_contract", [])),
+        query_id_hash=str(constraint_payload.get("query_id_hash", "unknown")),
     )
 
     timestamp_utc = (
@@ -477,13 +606,21 @@ def build_run_stability_report(
 
     references = load_run_references(archive_root)
     classifier = AxisClassifier()
-    snapshots = [
-        snapshot
-        for snapshot in (
-            load_run_snapshot(archive_root, reference, classifier) for reference in references
-        )
-        if snapshot is not None
-    ]
+    skipped_runs: list[dict[str, str]] = []
+    snapshots: list[RunSnapshot] = []
+    for reference in references:
+        run_dir = _resolve_run_dir(archive_root, reference)
+        snapshot = load_run_snapshot(archive_root, reference, classifier)
+        if snapshot is None:
+            skipped_runs.append(
+                {
+                    "run_id": reference.run_id,
+                    "expected_path": str(run_dir),
+                    "reason": "archived_run_directory_missing",
+                }
+            )
+        else:
+            snapshots.append(snapshot)
 
     seen_dois: set[str] = set()
     run_pairs: list[dict[str, Any]] = []
@@ -537,6 +674,8 @@ def build_run_stability_report(
         "report_type": "cross_run_stability",
         "timestamp_utc": _now_utc_iso(),
         "runs_analyzed": len(snapshots),
+        "runs_referenced": len(references),
+        "runs_skipped": skipped_runs,
         "run_pairs": run_pairs,
         "saturation_assessment": saturation,
         "saturation_thresholds": {

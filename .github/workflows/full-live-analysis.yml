@@ -8,9 +8,9 @@ on:
         required: false
         default: "crossref,scopus,openalex"
       max_results_per_query:
-        description: "Maximum results per query"
+        description: "Full-depth ceiling per query/provider (150 = 3 logical pages x 50; about 3x the retrieval volume of 50)"
         required: false
-        default: "50"
+        default: "150"
       offline:
         description: "Run in offline mode (true/false)"
         required: false
@@ -18,7 +18,7 @@ on:
         type: choice
         options: ["false", "true"]
       require_valid_credentials:
-        description: "Fail when configured proprietary credentials are invalid or rate-limited"
+        description: "Also fail when configured provider credentials are invalid or rate-limited"
         required: false
         default: "false"
         type: choice
@@ -64,7 +64,7 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
       REQUESTED_PROVIDERS: ${{ github.event.inputs.providers || 'crossref,scopus,openalex' }}
-      MAX_RESULTS_PER_QUERY: ${{ github.event.inputs.max_results_per_query || '50' }}
+      MAX_RESULTS_PER_QUERY: ${{ github.event.inputs.max_results_per_query || '150' }}
       OFFLINE_MODE: ${{ github.event.inputs.offline || 'false' }}
       REQUIRE_VALID_CREDENTIALS: ${{ github.event.inputs.require_valid_credentials || 'false' }}
       REQUIRE_LIVE_RECORDS: ${{ github.event.inputs.require_live_records || 'true' }}
@@ -123,6 +123,7 @@ jobs:
 
           python scripts/check_research_api_health.py \
             --providers "$REQUESTED_PROVIDERS" \
+            --require-configured \
             --output outputs/research_api_health.json \
             "${HEALTH_ARGS[@]}"
 
@@ -146,6 +147,7 @@ jobs:
             --providers "$REQUESTED_PROVIDERS" \
             --query-file outputs/research_sources/research_queries_from_protocol.yml \
             --query-constraints-file outputs/research_sources/query_protocol_constraints.json \
+            --protocol-path config/live_query_protocol.yml \
             --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
             --output-dir outputs/research_sources \
             --offline "$OFFLINE_MODE"
@@ -212,7 +214,106 @@ jobs:
           print(f"Validation state captured: {output_path}")
           PY
 
-      - name: Archive full run outputs
+      - name: Preserve previous novelty metrics for Gate B
+        run: |
+          set -euo pipefail
+          previous_metrics="outputs/cumulative_database/run_novelty_metrics.json"
+          preserved_metrics="outputs/previous_run_novelty_metrics.json"
+          if [ -f "$previous_metrics" ]; then
+            cp "$previous_metrics" "$preserved_metrics"
+          fi
+
+      - name: Build cumulative scientific database (Layers 2 and 3)
+        run: |
+          set -euo pipefail
+          python scripts/build_cumulative_scientific_database.py \
+            --current-run outputs \
+            --archive-root outputs/run_archive \
+            --live-runs-root outputs/live_runs \
+            --query-protocol config/live_query_protocol.yml \
+            --output-dir outputs/cumulative_database \
+            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --emit-summary
+
+      - name: Build derived competence demands and provisional gap model (Layers 4 and 5)
+        run: |
+          set -euo pipefail
+          python scripts/build_layer4_5_scientific_analysis.py \
+            --database-dir outputs/cumulative_database \
+            --output-dir outputs/cumulative_database \
+            --stats-dir outputs/layer4_statistics \
+            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC"
+
+      - name: Build validated external H2 credential supply map
+        run: |
+          set -euo pipefail
+          python scripts/build_validated_credential_supply_map.py \
+            --registry data/validated/credential_supply_registry.csv \
+            --derived-demands outputs/cumulative_database/derived_competence_demands.csv \
+            --output outputs/cumulative_database/validated_credential_supply_map.json \
+            --audit-output outputs/cumulative_database/validated_credential_supply_audit.json
+          # Export whether the map has validated supply so downstream steps can branch.
+          HAS_SUPPLY=$(python - <<'PY'
+          import json, sys
+          from pathlib import Path
+          m = Path("outputs/cumulative_database/validated_credential_supply_map.json")
+          if not m.is_file():
+              print("false"); sys.exit(0)
+          data = json.loads(m.read_text())
+          print("true" if data.get("has_validated_supply") else "false")
+          PY
+          )
+          echo "HAS_VALIDATED_SUPPLY=${HAS_SUPPLY}" >> "$GITHUB_ENV"
+          echo "[INFO] has_validated_supply=${HAS_SUPPLY}"
+
+      - name: Rebuild Layer 5 with validated H2 credential supply map
+        if: env.HAS_VALIDATED_SUPPLY == 'true'
+        run: |
+          set -euo pipefail
+          python scripts/build_layer4_5_scientific_analysis.py \
+            --database-dir outputs/cumulative_database \
+            --output-dir outputs/cumulative_database \
+            --stats-dir outputs/layer4_statistics \
+            --validated-supply-map outputs/cumulative_database/validated_credential_supply_map.json \
+            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC"
+
+      - name: Build provider sensitivity diagnostics
+        run: |
+          set -euo pipefail
+          python scripts/build_provider_sensitivity_analysis.py \
+            --evidence-records outputs/cumulative_database/evidence_records.jsonl \
+            --signals outputs/cumulative_database/competence_demand_signals.jsonl \
+            --derived-demands outputs/cumulative_database/derived_competence_demands.csv \
+            --hypothesis-fragments outputs/cumulative_database/hypothesis_semantic_fragments.jsonl \
+            --validated-supply-map outputs/cumulative_database/validated_credential_supply_map.json \
+            --output-json outputs/cumulative_database/provider_sensitivity_analysis.json \
+            --output-markdown outputs/cumulative_database/provider_sensitivity_analysis.md
+
+      - name: Evaluate live novelty gates (A-E)
+        run: |
+          set -euo pipefail
+          GATE_ARGS=()
+          if [ "$ALLOW_MINIMUM_PROVIDER_CONTRIBUTION" = "true" ]; then
+            GATE_ARGS+=(--allow-minimum-provider-contribution)
+          fi
+          python scripts/compute_live_novelty_metrics.py \
+            --metrics outputs/cumulative_database/run_novelty_metrics.json \
+            --provider-health outputs/research_api_health.json \
+            --previous-metrics outputs/previous_run_novelty_metrics.json \
+            --current-run outputs \
+            --output outputs/cumulative_database/novelty_gate_report.json \
+            --strict \
+            "${GATE_ARGS[@]}"
+
+      - name: Build cross-run stability report
+        run: |
+          set -euo pipefail
+          python scripts/build_run_stability_report.py \
+            --archive-root outputs/run_archive \
+            --output-path outputs/cumulative_database/run_stability_report.json
+      - name: Archive complete scientific run outputs
         run: |
           set -euo pipefail
           python scripts/archive_run_outputs.py \
@@ -239,74 +340,6 @@ jobs:
           python scripts/validate_run_archive_integrity.py \
             --archive-root outputs/run_archive \
             --require-present
-
-      - name: Preserve previous novelty metrics for Gate B
-        run: |
-          set -euo pipefail
-          previous_metrics="outputs/cumulative_database/run_novelty_metrics.json"
-          preserved_metrics="outputs/previous_run_novelty_metrics.json"
-          if [ -f "$previous_metrics" ]; then
-            cp "$previous_metrics" "$preserved_metrics"
-          fi
-
-      - name: Build cumulative scientific database (Layers 2 and 3)
-        run: |
-          set -euo pipefail
-          python scripts/build_cumulative_scientific_database.py \
-            --current-run outputs \
-            --archive-root outputs/run_archive \
-            --live-runs-root outputs/live_runs \
-            --query-protocol config/live_query_protocol.yml \
-            --output-dir outputs/cumulative_database \
-            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
-            --emit-summary
-
-      - name: Build derived competence demand and gap model (Layers 4 and 5)
-        run: |
-          set -euo pipefail
-          python scripts/build_layer4_5_scientific_analysis.py \
-            --database-dir outputs/cumulative_database \
-            --output-dir outputs/cumulative_database \
-            --stats-dir outputs/layer4_statistics \
-            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
-            --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC"
-
-      - name: Build preliminary H2 credential supply map
-        continue-on-error: true
-        run: |
-          set -euo pipefail
-          if [ -f data/validated/credential_supply_registry.csv ]; then
-            python scripts/build_validated_credential_supply_map.py \
-              --registry-path data/validated/credential_supply_registry.csv \
-              --demand-signals outputs/cumulative_database/competence_demand_signals.jsonl \
-              --output-dir outputs
-          else
-            echo "[WARN] Skipping H2 credential supply map; registry file not found."
-          fi
-
-      - name: Evaluate live novelty gates (A-E)
-        run: |
-          set -euo pipefail
-          GATE_ARGS=()
-          if [ "$ALLOW_MINIMUM_PROVIDER_CONTRIBUTION" = "true" ]; then
-            GATE_ARGS+=(--allow-minimum-provider-contribution)
-          fi
-          python scripts/compute_live_novelty_metrics.py \
-            --metrics outputs/cumulative_database/run_novelty_metrics.json \
-            --provider-health outputs/research_api_health.json \
-            --previous-metrics outputs/previous_run_novelty_metrics.json \
-            --current-run outputs \
-            --output outputs/cumulative_database/novelty_gate_report.json \
-            --strict \
-            "${GATE_ARGS[@]}"
-
-      - name: Build cross-run stability report
-        continue-on-error: true
-        run: |
-          set -euo pipefail
-          python scripts/build_run_stability_report.py \
-            --archive-root outputs/run_archive
-
       - name: Build statistical research report (HTML + PDF)
         run: |
           set -euo pipefail

@@ -19,6 +19,7 @@ from src.scientific_sources.live_query_protocol import (
     LiveQueryProtocolError,
     LiveQuerySector,
     load_live_query_protocol,
+    validate_complete_authoritative_protocol_projection,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -184,6 +185,69 @@ class TestShippedProtocol:
     def test_all_query_ids_unique(self, loaded_protocol: LiveQueryProtocol) -> None:
         ids = [q.query_id for q in loaded_protocol.all_queries()]
         assert len(ids) == len(set(ids)), "query_id values must be globally unique"
+
+    def test_complete_authoritative_projection_accepts_shipped_constraints(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        projection = {
+            "protocol_version": loaded_protocol.protocol_version,
+            "query_count": len(loaded_protocol.to_query_constraints()),
+            "queries": loaded_protocol.to_query_constraints(),
+        }
+
+        validate_complete_authoritative_protocol_projection(loaded_protocol, projection)
+
+    def test_complete_authoritative_projection_rejects_119_queries(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = loaded_protocol.to_query_constraints()[:-1]
+        projection = {
+            "protocol_version": loaded_protocol.protocol_version,
+            "query_count": len(constraints),
+            "queries": constraints,
+        }
+
+        with pytest.raises(LiveQueryProtocolError, match="exactly 120 queries"):
+            validate_complete_authoritative_protocol_projection(
+                loaded_protocol, projection
+            )
+
+    @pytest.mark.parametrize(
+        ("match_text", "mutator"),
+        [
+            ("protocol-version", lambda projection: projection.__setitem__("protocol_version", "0.0.0")),
+            (
+                "time-window",
+                lambda projection: projection["queries"][0]["time_window"].__setitem__("from_year", 1900),
+            ),
+            (
+                "sort-strategy",
+                lambda projection: projection["queries"][0]["sort_strategy"].__setitem__("crossref", "relevance"),
+            ),
+            (
+                "sampling-strategy",
+                lambda projection: projection["queries"][0]["sampling_strategy"].__setitem__("pages", 99),
+            ),
+        ],
+        ids=["protocol-version", "time-window", "sort-strategy", "sampling-strategy"],
+    )
+    def test_complete_authoritative_projection_rejects_stale_acquisition_fields(
+        self,
+        loaded_protocol: LiveQueryProtocol,
+        match_text: str,
+        mutator,
+    ) -> None:
+        projection = {
+            "protocol_version": loaded_protocol.protocol_version,
+            "query_count": len(loaded_protocol.to_query_constraints()),
+            "queries": loaded_protocol.to_query_constraints(),
+        }
+        mutator(projection)
+
+        with pytest.raises(LiveQueryProtocolError, match=match_text):
+            validate_complete_authoritative_protocol_projection(
+                loaded_protocol, projection
+            )
 
     def test_axis_targets_are_valid(
         self, loaded_protocol: LiveQueryProtocol

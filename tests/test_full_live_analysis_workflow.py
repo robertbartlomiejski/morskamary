@@ -16,6 +16,13 @@ def test_workflow_dispatch_declares_commit_outputs_input() -> None:
     assert "commit_outputs:" in WORKFLOW_TEXT
 
 
+def test_protected_live_workflow_requires_requested_providers_to_be_configured() -> None:
+    health_index = WORKFLOW_TEXT.index("python scripts/check_research_api_health.py")
+    health_block = WORKFLOW_TEXT[health_index : health_index + 400]
+    assert '--providers "$REQUESTED_PROVIDERS"' in health_block
+    assert "--require-configured" in health_block
+
+
 def test_schedule_commit_gate_uses_explicit_repo_variable_not_dispatch_input() -> None:
     assert "github.event_name == 'schedule'" in WORKFLOW_TEXT
     assert "vars.LIVE_OUTPUTS_AUTOCOMMIT == 'true'" in WORKFLOW_TEXT
@@ -164,15 +171,15 @@ def test_workflow_builds_layer23_cumulative_scientific_database() -> None:
     )
 
 
-def test_layer23_step_runs_after_archive_integrity_validation() -> None:
+def test_layer23_step_runs_before_final_archive_integrity_validation() -> None:
     integrity_index = WORKFLOW_TEXT.index(
         "python scripts/validate_run_archive_integrity.py"
     )
     layer23_index = WORKFLOW_TEXT.index(
         "python scripts/build_cumulative_scientific_database.py"
     )
-    assert integrity_index < layer23_index, (
-        "Layer 2-3 build must run after archived-run integrity validation."
+    assert layer23_index < integrity_index, (
+        "The complete archive must be created after Layer 2-5 artifacts exist."
     )
 
 
@@ -186,15 +193,22 @@ def test_workflow_evaluates_novelty_gates_in_strict_mode() -> None:
     step_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
     step_block = WORKFLOW_TEXT[step_index : step_index + 400]
     assert "--strict" in step_block
+    archive_index = WORKFLOW_TEXT.index("python scripts/archive_run_outputs.py")
+    assert step_index < archive_index
 
 
-def test_workflow_builds_informational_cross_run_stability_report_after_novelty() -> None:
+def test_workflow_builds_cross_run_stability_report_after_novelty() -> None:
     novelty_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
+    archive_index = WORKFLOW_TEXT.index("python scripts/archive_run_outputs.py")
+    integrity_index = WORKFLOW_TEXT.index(
+        "python scripts/validate_run_archive_integrity.py"
+    )
     stability_index = WORKFLOW_TEXT.index("python scripts/build_run_stability_report.py")
-    assert novelty_index < stability_index
-    stability_block = WORKFLOW_TEXT[stability_index - 120 : stability_index + 220]
-    assert "continue-on-error: true" in stability_block
+    assert novelty_index < stability_index < archive_index < integrity_index
+    stability_block = WORKFLOW_TEXT[stability_index - 120 : stability_index + 300]
+    assert "continue-on-error: true" not in stability_block
     assert "--archive-root outputs/run_archive" in stability_block
+    assert "--output-path outputs/cumulative_database/run_stability_report.json" in stability_block
 
 
 def test_commit_outputs_job_stages_cumulative_database_directory() -> None:
@@ -218,7 +232,9 @@ def test_release_package_step_passes_stats_dir_and_raw_acquisition_index() -> No
     package_block = WORKFLOW_TEXT[package_index : package_index + 700]
     assert "--stats-dir outputs/layer4_statistics" in package_block
     assert (
-        '--raw-acquisition-index "outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}/raw/raw_acquisition_index.csv"'
+        '--raw-acquisition-index '
+        '"outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}'
+        '/raw/raw_acquisition_index.csv"'
         in package_block
     )
     assert '--current-run-id "${{ github.run_id }}-${{ github.run_attempt }}"' in package_block
@@ -263,22 +279,32 @@ def test_layer45_step_passes_fixed_analysis_timestamp_utc() -> None:
     assert '"$ANALYSIS_TIMESTAMP_UTC"' in layer45_block
 
 
-def test_workflow_builds_optional_h2_credential_supply_map_after_layer45() -> None:
-    layer45_index = WORKFLOW_TEXT.index(
-        "python scripts/build_layer4_5_scientific_analysis.py"
-    )
+def test_workflow_feeds_validated_h2_supply_map_into_primary_and_sensitivity_results() -> None:
+    layer45_command = "python scripts/build_layer4_5_scientific_analysis.py"
+    provisional_layer45_index = WORKFLOW_TEXT.index(layer45_command)
     h2_index = WORKFLOW_TEXT.index(
         "python scripts/build_validated_credential_supply_map.py"
     )
+    final_layer45_index = WORKFLOW_TEXT.index(layer45_command, h2_index)
+    sensitivity_index = WORKFLOW_TEXT.index(
+        "python scripts/build_provider_sensitivity_analysis.py"
+    )
     gate_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
     h2_block = WORKFLOW_TEXT[h2_index : h2_index + 500]
-    assert layer45_index < h2_index < gate_index
-    assert "continue-on-error: true" in WORKFLOW_TEXT
-    assert "--registry-path data/validated/credential_supply_registry.csv" in h2_block
-    assert (
-        "--demand-signals outputs/cumulative_database/competence_demand_signals.jsonl"
-        in h2_block
+    final_layer45_block = WORKFLOW_TEXT[final_layer45_index : final_layer45_index + 700]
+    sensitivity_block = WORKFLOW_TEXT[sensitivity_index : sensitivity_index + 700]
+
+    assert provisional_layer45_index < h2_index < final_layer45_index
+    assert final_layer45_index < sensitivity_index < gate_index
+    assert "--registry data/validated/credential_supply_registry.csv" in h2_block
+    assert "--derived-demands outputs/cumulative_database/derived_competence_demands.csv" in h2_block
+    assert "--output outputs/cumulative_database/validated_credential_supply_map.json" in h2_block
+    map_argument = (
+        "--validated-supply-map "
+        "outputs/cumulative_database/validated_credential_supply_map.json"
     )
+    assert map_argument in final_layer45_block
+    assert map_argument in sensitivity_block
 
 
 def test_export_step_passes_generated_constraints_path() -> None:
@@ -291,3 +317,52 @@ def test_export_step_passes_generated_constraints_path() -> None:
     export_block = WORKFLOW_TEXT[export_index : export_index + 600]
     assert "--query-constraints-file" in export_block
     assert "query_protocol_constraints.json" in export_block
+
+
+def test_controlled_live_profile_defaults_to_openalex_and_full_depth() -> None:
+    assert 'default: "crossref,scopus,openalex"' in WORKFLOW_TEXT
+    assert (
+        "REQUESTED_PROVIDERS: "
+        "${{ github.event.inputs.providers || 'crossref,scopus,openalex' }}"
+        in WORKFLOW_TEXT
+    )
+    assert 'default: "150"' in WORKFLOW_TEXT
+    assert "about 3x the retrieval volume of 50" in WORKFLOW_TEXT
+    assert (
+        "MAX_RESULTS_PER_QUERY: "
+        "${{ github.event.inputs.max_results_per_query || '150' }}"
+        in WORKFLOW_TEXT
+    )
+    assert "OPENALEX_API_KEY" in WORKFLOW_TEXT
+
+
+def test_export_step_passes_authoritative_protocol_path() -> None:
+    export_index = WORKFLOW_TEXT.index("python scripts/export_live_research_records.py")
+    export_block = WORKFLOW_TEXT[export_index : export_index + 700]
+    assert "--protocol-path config/live_query_protocol.yml" in export_block
+
+
+def test_workflow_builds_provider_sensitivity_and_stability_artifacts() -> None:
+    sensitivity_index = WORKFLOW_TEXT.index(
+        "python scripts/build_provider_sensitivity_analysis.py"
+    )
+    stability_index = WORKFLOW_TEXT.index(
+        "python scripts/build_run_stability_report.py"
+    )
+    layer45_index = WORKFLOW_TEXT.index("python scripts/build_layer4_5_scientific_analysis.py")
+    novelty_index = WORKFLOW_TEXT.index("python scripts/compute_live_novelty_metrics.py")
+    assert layer45_index < sensitivity_index < novelty_index
+    archive_index = WORKFLOW_TEXT.index("python scripts/archive_run_outputs.py")
+    integrity_index = WORKFLOW_TEXT.index(
+        "python scripts/validate_run_archive_integrity.py"
+    )
+    assert (
+        layer45_index
+        < sensitivity_index
+        < novelty_index
+        < stability_index
+        < archive_index
+        < integrity_index
+    )
+    assert "provider_sensitivity_analysis.json" in WORKFLOW_TEXT
+    assert "run_stability_report.json" in WORKFLOW_TEXT
