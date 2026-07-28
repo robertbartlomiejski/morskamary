@@ -33,7 +33,7 @@ jobs:
       - name: Run full analysis pipeline
         env:
           # This workflow verifies deterministic committed static artifacts;
-          # full-live-analysis.yml is the only workflow that runs live enrichment.
+          # full-live-analysis.yml is the only workflow that may run live enrichment.
           ALLOW_STATIC_RECOVERY_MODE: "true"
           STATIC_RECOVERY_REASON: "Full Analysis CI reproducibility check"
         run: python run_full_analysis.py --analysis-input-mode static
@@ -96,7 +96,7 @@ jobs:
           else
             echo ""
             echo "ERROR: Committed outputs/ are out of sync with the generator."
-            echo "Run 'python run_full_analysis.py' locally and commit the updated outputs/."
+            echo "Run 'python run_full_analysis.py --analysis-input-mode static' locally and commit the updated outputs/."
             echo ""
             echo "--- Changed files (stat) ---"
             git diff --stat -- outputs "${excludes[@]}" || true
