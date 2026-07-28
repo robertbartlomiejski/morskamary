@@ -94,3 +94,16 @@ def test_exploratory_provider_relaxation_does_not_apply_to_replication() -> None
     ]
     assert 'if [ "$EXECUTION_MODE" = "exploratory_live" ]' in gate_block
     assert "--allow-minimum-provider-contribution" in gate_block
+
+
+def test_stability_thresholds_are_explicit_in_workflow() -> None:
+    """Workflow must pass saturation thresholds explicitly so default drift cannot
+    silently change the published method."""
+    text = _text()
+    stability_block = text[
+        text.index("Build cross-run stability outside immutable archives"):
+        text.index("Build reports and curated release package")
+    ]
+    assert "--jaccard-threshold 0.90" in stability_block
+    assert "--new-doi-threshold 0.05" in stability_block
+    assert "--axis-stability-threshold 0.95" in stability_block

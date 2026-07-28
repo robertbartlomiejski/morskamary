@@ -228,8 +228,12 @@ class TestShippedProtocol:
                 "sampling-strategy",
                 lambda projection: projection["queries"][0]["sampling_strategy"].__setitem__("pages", 99),
             ),
+            (
+                "axis-target",
+                lambda projection: projection["queries"][0].__setitem__("axis_target", "WRONG_AXIS"),
+            ),
         ],
-        ids=["protocol-version", "time-window", "sort-strategy", "sampling-strategy"],
+        ids=["protocol-version", "time-window", "sort-strategy", "sampling-strategy", "axis-target"],
     )
     def test_complete_authoritative_projection_rejects_stale_acquisition_fields(
         self,
@@ -247,6 +251,23 @@ class TestShippedProtocol:
         with pytest.raises(LiveQueryProtocolError, match=match_text):
             validate_complete_authoritative_protocol_projection(
                 loaded_protocol, projection
+            )
+
+    def test_projection_axis_target_matches_authoritative_protocol(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        """Mutating axis_target in the projection must fail before any provider call."""
+        constraints = loaded_protocol.to_query_constraints()
+        assert all("axis_target" in row for row in constraints), (
+            "to_query_constraints must include axis_target for every query"
+        )
+        # verify round-trip: each projected axis_target equals the authoritative value
+        by_id = {q.query_id: q for q in loaded_protocol.all_queries()}
+        for row in constraints:
+            expected = by_id[row["query_id"]].axis_target.name
+            assert row["axis_target"] == expected, (
+                f"axis_target mismatch for {row['query_id']}: "
+                f"projected={row['axis_target']!r}, authoritative={expected!r}"
             )
 
     def test_axis_targets_are_valid(

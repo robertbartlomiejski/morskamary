@@ -631,9 +631,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         "--output-path",
         default="outputs/cross_run_reports/run_stability_report.json",
     )
-    parser.add_argument("--jaccard-threshold", type=float, default=0.85)
+    parser.add_argument("--jaccard-threshold", type=float, default=0.90)
     parser.add_argument("--new-doi-threshold", type=float, default=0.05)
-    parser.add_argument("--axis-stability-threshold", type=float, default=0.90)
+    parser.add_argument("--axis-stability-threshold", type=float, default=0.95)
     parser.add_argument("--provisional-transitions", type=int, default=2)
     parser.add_argument("--fail-on-missing-runs", action="store_true")
     return parser.parse_args(argv)

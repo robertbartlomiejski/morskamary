@@ -29,6 +29,16 @@ Use this section for changes in progress that are not yet merged into the main b
   Provenance .github/workflows/full-analysis.yml; scripts/build_provider_sensitivity_analysis.py; tests/test_ci_workflow.py; config/live_query_protocol.yml.
   Quality checks python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m mypy src scripts run_full_analysis.py main.py (Success: no issues found in 69 source files); python -m pytest tests/ -v (1151 passed, 8 warnings); python scripts/generate_manifest.py (1201 entries written); python -c "import pathlib, yaml; yaml.safe_load(pathlib.Path('.github/workflows/full-analysis.yml').read_text(encoding='utf-8')); print('workflow-ok')" (passed).
 
+- 2026-07-28 (fix: PR-A axis_target projection validation and saturation threshold alignment)
+  Change type fix update
+  Scope scripts src tests workflows governance
+  Files affected src/scientific_sources/live_query_protocol.py scripts/build_run_stability_report.py .github/workflows/full-live-analysis.yml outputs/research_sources/query_protocol_constraints.json tests/test_live_query_protocol.py tests/test_run_stability.py tests/test_full_live_analysis_workflow.py
+  Summary Adds axis_target field to LiveQuery.to_query_constraints() and validate_complete_authoritative_protocol_projection() so a stale axis assignment is rejected before any provider call; aligns CLI saturation defaults with the published method (Jaccard 0.90, axis stability 0.95, new-DOI ratio 0.05); passes all three values explicitly in full-live-analysis.yml to prevent default drift; regenerates outputs/research_sources/query_protocol_constraints.json to include axis_target for all 120 queries.
+  Reason The authoritative protocol projection did not export axis_target, making it impossible for the validation step to detect a stale axis assignment before provider acquisition began. The executable stability thresholds (0.85 / 0.90) were lower than the documented method thresholds (0.90 / 0.95), creating an inconsistency between the code and the published method.
+  Impact validate_complete_authoritative_protocol_projection() now fails closed on axis-target mismatches; saturation judgements now use method-consistent thresholds; workflow is pinned to explicit thresholds so future default changes are caught by the workflow contract test.
+  Provenance src/scientific_sources/live_query_protocol.py; scripts/build_run_stability_report.py; .github/workflows/full-live-analysis.yml; config/live_query_protocol.yml.
+  Quality checks python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m mypy src scripts run_full_analysis.py main.py (Success: no issues found in 69 source files); python -m pytest tests/test_live_query_protocol.py tests/test_run_stability.py tests/test_full_live_analysis_workflow.py -v (67 passed); python scripts/sync_audit.py --strict (all checks passed after commit).
+
 - 2026-07-25 (add: provider leave-one-out sensitivity analysis)
   Change type add update
   Scope scripts tests governance

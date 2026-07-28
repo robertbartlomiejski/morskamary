@@ -383,6 +383,9 @@ jobs:
           python scripts/build_run_stability_report.py \
             --archive-root outputs/run_archive \
             --output-path outputs/cross_run_reports/run_stability_report.json \
+            --jaccard-threshold 0.90 \
+            --new-doi-threshold 0.05 \
+            --axis-stability-threshold 0.95 \
             "${STABILITY_ARGS[@]}"
 
       - name: Build reports and curated release package

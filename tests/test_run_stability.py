@@ -307,3 +307,20 @@ def test_fingerprint_mismatch_makes_report_not_assessable(tmp_path: Path) -> Non
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
     assert report["saturation_assessment"]["status"] == "not_assessable"
+
+
+def test_cli_defaults_match_published_method_thresholds() -> None:
+    """CLI defaults must match the documented saturation thresholds (Jaccard 0.90,
+    axis stability 0.95, new-DOI ratio 0.05) so that default drift cannot silently
+    change the published method."""
+    module = _load_module()
+    args = module.parse_args([])
+    assert args.jaccard_threshold == 0.90, (
+        f"jaccard_threshold default must be 0.90; got {args.jaccard_threshold}"
+    )
+    assert args.axis_stability_threshold == 0.95, (
+        f"axis_stability_threshold default must be 0.95; got {args.axis_stability_threshold}"
+    )
+    assert args.new_doi_threshold == 0.05, (
+        f"new_doi_threshold default must be 0.05; got {args.new_doi_threshold}"
+    )
