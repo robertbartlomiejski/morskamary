@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-28 (fix: PR-A fail-closed live-analysis execution)
+  Change type fix update
+  Scope scripts tests workflows governance
+  Files affected scripts/build_provider_sensitivity_analysis.py scripts/build_run_stability_report.py scripts/build_live_cumulative_release_package.py scripts/build_provider_sensitivity_analysis.py src/scientific_sources/openalex_source.py .github/workflows/full-live-analysis.yml .github/workflows/full-analysis.yml tests/test_ci_workflow.py tests/test_full_live_analysis_workflow.py tests/test_openalex_source.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary PR-A execution-correctness slice: restores explicit static-recovery-mode guard in full-analysis.yml so CI never runs live providers; fixes mypy type error (list[object] vs list[str]) in build_provider_sensitivity_analysis.py; corrects the workflow test that verifies the static-recovery contract; regenerates MANIFEST_SOURCES.csv deterministically.
+  Reason The final refactor commit in this PR branch accidentally reverted the ALLOW_STATIC_RECOVERY_MODE/--analysis-input-mode static env guard from full-analysis.yml while removing only the compare_generated_outputs.py reference. The test added in the same PR to assert the guard was still present then failed. The mypy error in build_provider_sensitivity_analysis.py was introduced by using an untyped dict value in a list[str] context.
+  Impact CI full-analysis workflow is now fail-closed against accidental live acquisition. Mypy passes cleanly. All 1151 tests pass.
+  Provenance .github/workflows/full-analysis.yml; scripts/build_provider_sensitivity_analysis.py; tests/test_ci_workflow.py; config/live_query_protocol.yml.
+  Quality checks python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m mypy src scripts run_full_analysis.py main.py (Success: no issues found in 69 source files); python -m pytest tests/ -v (1151 passed, 8 warnings); python scripts/generate_manifest.py (1201 entries written); python -c "import pathlib, yaml; yaml.safe_load(pathlib.Path('.github/workflows/full-analysis.yml').read_text(encoding='utf-8')); print('workflow-ok')" (passed).
+
 - 2026-07-25 (add: provider leave-one-out sensitivity analysis)
   Change type add update
   Scope scripts tests governance

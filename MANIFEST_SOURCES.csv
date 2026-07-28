@@ -1040,6 +1040,7 @@ scripts/build_derived.py,script,,,,,,build_derived,yes
 scripts/build_layer4_5_scientific_analysis.py,script,,,,,,build_layer4_5_scientific_analysis,yes
 scripts/build_live_cumulative_release_package.py,script,,,,,,build_live_cumulative_release_package,yes
 scripts/build_live_run_audit.py,script,,,,,,build_live_run_audit,yes
+scripts/build_provider_sensitivity_analysis.py,script,,,,,,build_provider_sensitivity_analysis,yes
 scripts/build_run_stability_report.py,script,,,,,,build_run_stability_report,yes
 scripts/build_statistical_research_report.py,script,,,,,,build_statistical_research_report,yes
 scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,yes
@@ -1140,6 +1141,7 @@ tests/test_build_cross_run_evidence_index.py,script,,,,,,test_build_cross_run_ev
 tests/test_build_derived.py,script,,,,,,test_build_derived,yes
 tests/test_build_layer4_5_scientific_analysis.py,script,,,,,,test_build_layer4_5_scientific_analysis,yes
 tests/test_build_tmbd_dictionary.py,script,,,,,,test_build_tmbd_dictionary,yes
+tests/test_build_validated_credential_supply_map.py,script,,,,,,test_build_validated_credential_supply_m,yes
 tests/test_build_versioned_research_data_package.py,script,,,,,,test_build_versioned_research_data_packa,yes
 tests/test_changelog_guard.py,script,,,,,,test_changelog_guard,yes
 tests/test_check_research_api_health.py,script,,,,,,test_check_research_api_health,yes
@@ -1161,6 +1163,7 @@ tests/test_e2e_workflows.py,script,,,,,,test_e2e_workflows,yes
 tests/test_edge_cases.py,script,,,,,,test_edge_cases,yes
 tests/test_export_live_query_protocol_projection.py,script,,,,,,test_export_live_query_protocol_projecti,yes
 tests/test_export_live_research_records.py,script,,,,,,test_export_live_research_records,yes
+tests/test_export_paid_call_safety.py,script,,,,,,test_export_paid_call_safety,yes
 tests/test_export_research_records_workflow.py,script,,,,,,test_export_research_records_workflow,yes
 tests/test_full_live_analysis_workflow.py,script,,,,,,test_full_live_analysis_workflow,yes
 tests/test_gap_model.py,script,,,,,,test_gap_model,yes
@@ -1180,6 +1183,7 @@ tests/test_pagination.py,script,,,,,,test_pagination,yes
 tests/test_pipeline_matrix.py,script,,,,,,test_pipeline_matrix,yes
 tests/test_pre_acquisition_assertion.py,script,,,,,,test_pre_acquisition_assertion,yes
 tests/test_provider_sensitivity.py,script,,,,,,test_provider_sensitivity,yes
+tests/test_provider_sensitivity_analysis.py,script,,,,,,test_provider_sensitivity_analysis,yes
 tests/test_publication_cumulative_database.py,script,,,,,,test_publication_cumulative_database,yes
 tests/test_research_queries_config.py,script,,,,,,test_research_queries_config,yes
 tests/test_research_support_scripts.py,script,,,,,,test_research_support_scripts,yes

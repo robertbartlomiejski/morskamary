@@ -614,10 +614,10 @@ def build_provider_sensitivity_analysis(
         json.dumps(result, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
-    lines = [
+    lines: list[str] = [
         "# Provider Sensitivity Analysis",
         "",
-        result["sensitivity_note"],
+        str(result["sensitivity_note"]),
         "",
         "| subset | providers | evidence | DOI | signals | demands | max share | H1 | H2 | H3 | bridges |",
         "|---|---|---:|---:|---:|---:|---:|---|---|---|---:|",
