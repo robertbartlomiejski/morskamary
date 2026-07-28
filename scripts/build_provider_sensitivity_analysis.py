@@ -128,16 +128,15 @@ def _read_csv_required(path: Path, label: str) -> list[dict[str, str]]:
     return rows
 
 
-def _parse_timestamp(value: str | None) -> datetime:
-    if value:
-        try:
-            result = datetime.fromisoformat(value.replace("Z", "+00:00"))
-            if result.tzinfo is None:
-                result = result.replace(tzinfo=timezone.utc)
-            return result
-        except ValueError:
-            pass
-    return datetime.now(timezone.utc)
+def _parse_timestamp_strict(value: str) -> datetime:
+    """Parse an ISO-8601 timestamp string; raise ValueError on malformed input."""
+    try:
+        result = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if result.tzinfo is None:
+            result = result.replace(tzinfo=timezone.utc)
+        return result
+    except ValueError as exc:
+        raise ValueError(f"malformed timestamp: {value!r}") from exc
 
 
 def _recency_score(latest_at: str, reference: datetime) -> float:
@@ -158,13 +157,42 @@ def _demand_id(label: str, sector: str, axis: str) -> str:
     return f"cd_{digest}"
 
 
+_REPO_ROOT_SENSITIVITY = Path(__file__).resolve().parents[1]
+
+
+def _to_repo_relative_posix(path: Path) -> str:
+    """Return repo-relative POSIX path, or redact if outside the repository."""
+    try:
+        return path.resolve().relative_to(_REPO_ROOT_SENSITIVITY).as_posix()
+    except ValueError:
+        return "[redacted-out-of-tree-path]"
+
+
 def _load_analysis_timestamp(derived_demands_path: Path) -> datetime:
+    """Load the fixed analysis timestamp from layer4_manifest.json.
+
+    Raises ValueError when the manifest is missing, not a JSON object, or
+    missing/malformed ``analysis_timestamp_utc``.  Never falls back to the
+    wall clock so that scientific scoring is fully deterministic.
+    """
     manifest = derived_demands_path.parent / "layer4_manifest.json"
-    if manifest.is_file():
+    if not manifest.is_file():
+        raise ValueError(
+            f"layer4_manifest.json is required for deterministic scoring "
+            f"but was not found: {manifest}"
+        )
+    try:
         payload = json.loads(manifest.read_text(encoding="utf-8"))
-        if isinstance(payload, dict):
-            return _parse_timestamp(str(payload.get("analysis_timestamp_utc", "")))
-    return datetime.now(timezone.utc)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"layer4_manifest.json is not valid JSON: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError(f"layer4_manifest.json must be a JSON object: {manifest}")
+    ts_value = str(payload.get("analysis_timestamp_utc") or "").strip()
+    if not ts_value:
+        raise ValueError(
+            "layer4_manifest.json is missing required field 'analysis_timestamp_utc'"
+        )
+    return _parse_timestamp_strict(ts_value)
 
 
 def _load_validated_supply(path: Path | None) -> dict[str, list[int]] | None:
@@ -521,6 +549,25 @@ def build_provider_sensitivity_analysis(
     output_markdown_path: Path,
 ) -> dict[str, Any]:
     evidence = _read_jsonl_required(evidence_path, "evidence")
+    # Duplicate evidence_id values are a Layer 2 structural violation: each
+    # canonical evidence row must have a unique stable identifier.  Merging
+    # duplicates would conceal data-quality defects; fail closed instead.
+    _seen_evidence_ids: set[str] = set()
+    _duplicate_evidence_ids: list[str] = []
+    for _row in evidence:
+        _eid = _evidence_id(_row)
+        if _eid:
+            if _eid in _seen_evidence_ids:
+                _duplicate_evidence_ids.append(_eid)
+            else:
+                _seen_evidence_ids.add(_eid)
+    if _duplicate_evidence_ids:
+        raise ValueError(
+            f"evidence_records.jsonl contains {len(_duplicate_evidence_ids)} duplicate "
+            "evidence_id values (Layer 2 structural violation — deduplicate before "
+            "provider sensitivity analysis): "
+            + ", ".join(sorted(set(_duplicate_evidence_ids))[:10])
+        )
     signals = _read_jsonl_required(signals_path, "signals")
     original_demands = _read_csv_required(derived_demands_path, "derived demands")
     fragments = _read_jsonl_required(hypothesis_fragments_path, "hypothesis fragments")

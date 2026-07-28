@@ -27,6 +27,23 @@ from typing import Callable
 
 _REQUEST_TIMEOUT_SECONDS = 12
 _ERROR_BODY_MAX_BYTES = 512
+# Query-string parameters that must never appear in log output.
+_REDACTED_QUERY_PARAMS = frozenset({"api_key", "apikey", "key", "token", "secret"})
+
+
+def _redact_url(url: str) -> str:
+    """Return a URL with sensitive query-string parameters replaced by REDACTED."""
+    try:
+        parsed = urllib.parse.urlparse(url)
+        params = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+        redacted = [
+            (k, "REDACTED" if k.lower() in _REDACTED_QUERY_PARAMS else v)
+            for k, v in params
+        ]
+        safe_query = urllib.parse.urlencode(redacted)
+        return urllib.parse.urlunparse(parsed._replace(query=safe_query))
+    except Exception:
+        return "[url-redacted]"
 
 
 def _is_transient_network_error(exc: Exception) -> bool:
@@ -84,9 +101,11 @@ def _request(url: str, headers: dict[str, str]) -> ProbeResult:
             return ProbeResult("", "present-but-invalid", f"HTTP {exc.code}", exc.code)
         return ProbeResult("", "present-but-invalid", f"HTTP {exc.code}", exc.code)
     except Exception as exc:
+        # Redact any URL fragment that might appear in the exception string.
+        safe_detail = _redact_url(str(exc)) if "://" in str(exc) else str(exc)
         if _is_transient_network_error(exc):
-            return ProbeResult("", "transient-network-error", str(exc), None)
-        return ProbeResult("", "present-but-invalid", str(exc), None)
+            return ProbeResult("", "transient-network-error", safe_detail, None)
+        return ProbeResult("", "present-but-invalid", safe_detail, None)
 
 
 def probe_crossref() -> ProbeResult:
@@ -124,19 +143,32 @@ def probe_wos() -> ProbeResult:
 
 
 def probe_openalex() -> ProbeResult:
-    """Probe OpenAlex with optional authentication."""
-    url = "https://api.openalex.org/works?filter=title.search:ocean&per_page=1"
-    headers = {
-        "Accept": "application/json",
-        "User-Agent": "morskamary-openalex-healthcheck/1.0",
-    }
+    """Probe OpenAlex using the documented ``api_key`` query parameter.
+
+    When ``OPENALEX_API_KEY`` is not set, return ``missing`` without making
+    any network request -- consistent with the provider's own behaviour.
+    When the key is present, use the ``api_key`` query parameter as required
+    by the official OpenAlex API contract.
+    """
     api_key = os.getenv("OPENALEX_API_KEY", "")
-    if api_key:
-        headers["Authorization"] = f"Bearer {api_key}"
-    result = _request(url, headers)
+    if not api_key:
+        return ProbeResult("openalex", "missing", "OPENALEX_API_KEY not set")
+    params = urllib.parse.urlencode(
+        {
+            "filter": "title.search:ocean",
+            "per_page": "1",
+            "api_key": api_key,
+        }
+    )
+    url = f"https://api.openalex.org/works?{params}"
+    result = _request(
+        url,
+        {
+            "Accept": "application/json",
+            "User-Agent": "morskamary-openalex-healthcheck/1.0",
+        },
+    )
     result.provider = "openalex"
-    if not api_key and result.status == "ok":
-        result.detail = "ok (unauthenticated, lower rate limits)"
     return result
 
 

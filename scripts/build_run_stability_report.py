@@ -21,6 +21,9 @@ QMBD_REL = Path("analysis_outputs/cumulative_qmbd_records.json")
 CONSTRAINTS_REL = Path("research_sources/query_protocol_constraints.json")
 CANONICAL_AXES = ("MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION")
 AXIS_CODE_MAP = {"M": "MARINE", "T": "MARITIME", "O": "OCEANIC", "H": "HYDRONIZATION"}
+_REPO_ROOT_STABILITY = Path(__file__).resolve().parents[1]
+# Allow-list of live source_id prefixes (provider-scoped stable IDs).
+_LIVE_SOURCE_ID_PREFIXES = ("crossref:", "scopus:", "openalex:", "wos:")
 
 
 @dataclass(frozen=True)
@@ -50,6 +53,14 @@ def _normalise(value: Any) -> str:
     if value is None:
         return ""
     return " ".join(str(value).split()).strip()
+
+
+def _to_repo_relative_posix(path: Path) -> str:
+    """Return a repository-relative POSIX path; redact if outside the repository."""
+    try:
+        return path.resolve().relative_to(_REPO_ROOT_STABILITY).as_posix()
+    except ValueError:
+        return "[redacted-out-of-tree-path]"
 
 
 def _read_json(path: Path) -> Any:
@@ -185,15 +196,20 @@ def _canonical_axis(value: Any) -> str:
 
 
 def _is_live_like_record(record: dict[str, Any]) -> bool:
+    """Return True only for records with known live provenance (allow-list).
+
+    Unknown or missing provenance is excluded and counted separately to avoid
+    silently inflating the live corpus.  Static-baseline and literature-only
+    records are always excluded.
+    """
     origin = _normalise(record.get("record_origin")).lower()
-    if origin in {"static_baseline", "static_literature", "baseline", "literature"}:
-        return False
     if origin.startswith("live") or origin.startswith("dynamic_api_"):
         return True
     source_id = _normalise(record.get("source_id")).lower()
-    if source_id.startswith(("crossref:", "scopus:", "openalex:", "wos:")):
+    if source_id.startswith(_LIVE_SOURCE_ID_PREFIXES):
         return True
-    return True
+    # Unknown or empty provenance → exclude (not silently count as live)
+    return False
 
 
 def _providers_from_manifest(manifest: dict[str, Any]) -> list[str]:
@@ -392,16 +408,10 @@ def load_run_snapshot(
     if bool(manifest.get("is_static_recovery_mode")):
         return None
 
-    live_records = [
-        row
-        for row in _load_records(run_dir / LIVE_RECORDS_REL)
-        if _is_live_like_record(row)
-    ]
-    qmbd_records = [
-        row
-        for row in _load_records(run_dir / QMBD_REL)
-        if _is_live_like_record(row)
-    ]
+    all_live_candidates = _load_records(run_dir / LIVE_RECORDS_REL)
+    live_records = [row for row in all_live_candidates if _is_live_like_record(row)]
+    all_qmbd_candidates = _load_records(run_dir / QMBD_REL)
+    qmbd_records = [row for row in all_qmbd_candidates if _is_live_like_record(row)]
     constraints = _load_object(run_dir / CONSTRAINTS_REL)
     doi_set = frozenset(
         doi
@@ -533,7 +543,7 @@ def build_run_stability_report(
             skipped.append(
                 {
                     "run_id": reference.run_id,
-                    "expected_path": str(run_dir),
+                    "expected_path": _to_repo_relative_posix(run_dir),
                     "reason": reason,
                 }
             )

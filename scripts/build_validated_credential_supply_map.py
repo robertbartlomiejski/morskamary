@@ -28,6 +28,7 @@ DEFAULT_OUTPUT_PATH = Path(
 DEFAULT_AUDIT_OUTPUT_PATH = Path(
     "outputs/cumulative_database/validated_credential_supply_audit.json"
 )
+_REPO_ROOT_SUPPLY = Path(__file__).resolve().parents[1]
 
 REGISTRY_FIELDS: Sequence[str] = (
     "credential_supply_id",
@@ -83,6 +84,14 @@ def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
+def _to_repo_relative_posix(path: Path) -> str:
+    """Return a repository-relative POSIX path; redact if outside the repository."""
+    try:
+        return path.resolve().relative_to(_REPO_ROOT_SUPPLY).as_posix()
+    except ValueError:
+        return "[redacted-out-of-tree-path]"
+
+
 def _clean(value: Any) -> str:
     return str(value or "").strip()
 
@@ -109,6 +118,10 @@ def load_derived_demand_ids(path: Path) -> Set[str]:
             demand_id = _clean(row.get("competence_demand_id"))
             if demand_id:
                 demand_ids.add(demand_id)
+        if not demand_ids:
+            raise ValueError(
+                "derived demands JSONL file contains no competence_demand_id values"
+            )
         return demand_ids
 
     with path.open(newline="", encoding="utf-8") as fh:
@@ -267,15 +280,15 @@ def build_validated_supply_map(
         "has_validated_supply": has_validated_supply,
         "unit_of_analysis": "competence_demand_id",
         "built_at_utc": built_at,
-        "source_registry_path": str(registry_path),
-        "derived_demands_path": str(derived_demands_path),
+        "source_registry_path": _to_repo_relative_posix(registry_path),
+        "derived_demands_path": _to_repo_relative_posix(derived_demands_path),
         "validated_supply_by_demand_id": supply_by_demand,
     }
     audit = {
         "schema_version": REGISTRY_SCHEMA_VERSION,
         "built_at_utc": built_at,
-        "registry_path": str(registry_path),
-        "derived_demands_path": str(derived_demands_path),
+        "registry_path": _to_repo_relative_posix(registry_path),
+        "derived_demands_path": _to_repo_relative_posix(derived_demands_path),
         "total_registry_rows": len(registry_rows),
         "validated_mapping_rows": sum(len(rows) for rows in validated_rows_by_demand.values()),
         "validated_demand_count": len(validated_rows_by_demand),

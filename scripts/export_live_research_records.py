@@ -86,6 +86,8 @@ QUERY_EXECUTION_FIELDS: Tuple[str, ...] = (
     "from_year",
     "to_year",
     "declared_sort_strategy",
+    "applied_sort_strategy",
+    "sort_strategy_source",
     "sort_status",
     "declared_sampling_mode",
     "declared_pages",
@@ -104,6 +106,18 @@ QUERY_EXECUTION_FIELDS: Tuple[str, ...] = (
     "physical_request_count",
     "pagination_warning_count",
 )
+
+
+def _safe_page_int(value: Any) -> int:
+    """Tolerantly parse a page-number value; return 0 for any unparseable input.
+
+    Malformed provider diagnostics must never crash after paid acquisition.
+    """
+    try:
+        return int(value or 0)
+    except (TypeError, ValueError):
+        return 0
+
 
 _DEFAULT_PROVIDER_POLICY: Dict[str, Any] = {
     "precedence": [
@@ -285,16 +299,36 @@ def _lookup_provider_sort_strategy(
     sort_strategy: Mapping[str, Any],
     provider_key: str,
 ) -> str:
-    """Return provider sort strategy with backward-compatible fallbacks."""
+    """Return the applied provider sort strategy (declared or inferred).
+
+    Use ``_lookup_provider_sort_strategy_full`` when the source of the strategy
+    (declared / inferred / none) must be recorded separately.
+    """
+    _, applied, _ = _lookup_provider_sort_strategy_full(sort_strategy, provider_key)
+    return applied
+
+
+def _lookup_provider_sort_strategy_full(
+    sort_strategy: Mapping[str, Any],
+    provider_key: str,
+) -> tuple[str, str, str]:
+    """Return (declared_sort, applied_sort, sort_strategy_source).
+
+    ``declared_sort``       – strategy explicitly configured for *provider_key*
+                              in the protocol (empty string when absent).
+    ``applied_sort``        – strategy that will actually be used; may be
+                              inferred from a sibling provider for OpenAlex.
+    ``sort_strategy_source``– ``"declared"`` | ``"inferred"`` | ``"none"``.
+    """
     declared = str(sort_strategy.get(provider_key, "")).strip()
     if declared:
-        return declared
+        return declared, declared, "declared"
     if provider_key == "openalex":
         for fallback_key in ("wos", "scopus", "crossref"):
             fallback = str(sort_strategy.get(fallback_key, "")).strip()
             if fallback:
-                return fallback
-    return ""
+                return "", fallback, "inferred"
+    return "", "", "none"
 
 
 def _resolve_provider_sort_strategies(
@@ -314,12 +348,29 @@ def _resolve_effective_sampling_request(
     declared_rows_per_page: int,
     max_results: int,
 ) -> Tuple[int, int]:
+    """Return *(effective_pages, rows_per_page)* that fit within *max_results*.
+
+    Uses all affordable **complete** logical pages while preserving
+    ``rows_per_page``.  When there is a residual smaller than one full page,
+    one additional reduced page is included so the caller can fetch up to
+    ``max_results`` records.  The downstream constraint filter clips the final
+    accepted count to ``max_results``, so the cap is never exceeded.
+    """
     pages = max(1, int(declared_pages or 1))
     rows_per_page = max(1, int(declared_rows_per_page or max_results or 1))
     declared_capacity = pages * rows_per_page
-    if max_results < declared_capacity:
-        return 1, max(1, min(rows_per_page, max_results))
-    return pages, rows_per_page
+    if max_results >= declared_capacity:
+        return pages, rows_per_page
+    # Budget is smaller than declared capacity.
+    full_pages = max_results // rows_per_page
+    residual = max_results % rows_per_page
+    if residual > 0:
+        # One or more complete pages plus one reduced page for the residual.
+        effective_pages = min(pages, full_pages + 1)
+    else:
+        # Budget is exactly divisible — no partial last page needed.
+        effective_pages = min(pages, max(1, full_pages))
+    return effective_pages, rows_per_page
 
 
 def _search_registry_paginated(
@@ -554,8 +605,10 @@ def _apply_query_constraint(
     if not isinstance(sort_strategy, Mapping):
         sort_strategy = {}
     provider_key = normalize_provider_name(provider_name)
-    declared_sort = _lookup_provider_sort_strategy(sort_strategy, provider_key)
-    if declared_sort in ("published-desc", "date-desc"):
+    declared_sort, applied_sort, sort_source = _lookup_provider_sort_strategy_full(
+        sort_strategy, provider_key
+    )
+    if applied_sort in ("published-desc", "date-desc"):
         accepted.sort(
             key=lambda record: (
                 -(_record_year(record) or 0),
@@ -565,7 +618,7 @@ def _apply_query_constraint(
             )
         )
         sort_status = "applied_post_fetch"
-    elif declared_sort:
+    elif applied_sort:
         sort_status = "unsupported_strategy"
     else:
         sort_status = "not_declared_for_provider"
@@ -580,7 +633,7 @@ def _apply_query_constraint(
 
     diagnostics = list(page_diagnostics or [])
     logical_pages = {
-        int(row.get("logical_page", 0) or 0)
+        _safe_page_int(row.get("logical_page", 0))
         for row in diagnostics
         if str(row.get("pagination_status", "")) in {"applied", "end_of_results"}
     }
@@ -595,10 +648,7 @@ def _apply_query_constraint(
     )
     page_tokens_by_logical_page: Dict[int, Set[str]] = defaultdict(set)
     for row in diagnostics:
-        try:
-            logical_page = int(row.get("logical_page", 0) or 0)
-        except (TypeError, ValueError):
-            logical_page = 0
+        logical_page = _safe_page_int(row.get("logical_page", 0))
         token = str(row.get("cursor_or_offset", "")).strip()
         if logical_page > 0 and token:
             page_tokens_by_logical_page[logical_page].add(token)
@@ -659,7 +709,7 @@ def _apply_query_constraint(
         validity_warnings.append("invalid_sampling:replayed_page")
 
     requested_filters: List[str] = ["time_window", "sampling_strategy"]
-    if declared_sort:
+    if applied_sort:
         requested_filters.append("sort_strategy")
     applied_filters: List[str] = ["time_window"]
     unsupported_filters: List[str] = []
@@ -686,6 +736,8 @@ def _apply_query_constraint(
         "from_year": from_year,
         "to_year": to_year,
         "declared_sort_strategy": declared_sort,
+        "applied_sort_strategy": applied_sort,
+        "sort_strategy_source": sort_source,
         "sort_status": sort_status,
         "declared_sampling_mode": mode,
         "declared_pages": pages,
@@ -1622,12 +1674,14 @@ def main() -> int:
                 constraint = constraints_by_query[query.lower()]
                 for provider_name in ordered_provider_names:
                     provider_key = normalize_provider_name(provider_name)
-                    declared_sort = _lookup_provider_sort_strategy(
-                        constraint.get("sort_strategy", {}),
-                        provider_key,
+                    _off_declared_sort, _off_applied_sort, _off_sort_src = (
+                        _lookup_provider_sort_strategy_full(
+                            constraint.get("sort_strategy", {}),
+                            provider_key,
+                        )
                     )
                     requested_filters = ["time_window", "sampling_strategy"]
-                    if declared_sort:
+                    if _off_applied_sort:
                         requested_filters.append("sort_strategy")
                     declared_sampling = constraint.get("sampling_strategy", {})
                     if not isinstance(declared_sampling, Mapping):
@@ -1658,10 +1712,9 @@ def main() -> int:
                             "to_year": constraint.get("time_window", {}).get(
                                 "to_year", ""
                             ),
-                            "declared_sort_strategy": _lookup_provider_sort_strategy(
-                                constraint.get("sort_strategy", {}),
-                                provider_key,
-                            ),
+                            "declared_sort_strategy": _off_declared_sort,
+                            "applied_sort_strategy": _off_applied_sort,
+                            "sort_strategy_source": _off_sort_src,
                             "declared_sampling_mode": constraint.get(
                                 "sampling_strategy", {}
                             ).get("mode", ""),
