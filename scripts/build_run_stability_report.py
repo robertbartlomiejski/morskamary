@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a cross-run comparability and saturation report from archived runs."""
+"""Build a fail-closed cross-run comparability and saturation report."""
 
 from __future__ import annotations
 
@@ -11,34 +11,20 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
-
-from src.axis_classifier import AxisClassifier
+from typing import Any, Sequence
 
 RUNS_INDEX_REL = Path("_index/runs_index.jsonl")
 CUMULATIVE_INDEX_FILENAME = "cumulative_runs_index.csv"
-MANIFEST_FILES: tuple[str, ...] = ("manifest.json", "run_manifest.json")
+MANIFEST_FILES = ("manifest.json", "run_manifest.json")
 LIVE_RECORDS_REL = Path("research_sources/live_records.json")
 QMBD_REL = Path("analysis_outputs/cumulative_qmbd_records.json")
 CONSTRAINTS_REL = Path("research_sources/query_protocol_constraints.json")
-CANONICAL_AXES: tuple[str, ...] = (
-    "MARINE",
-    "MARITIME",
-    "OCEANIC",
-    "HYDRONIZATION",
-)
-AXIS_CODE_MAP = {
-    "M": "MARINE",
-    "T": "MARITIME",
-    "O": "OCEANIC",
-    "H": "HYDRONIZATION",
-}
+CANONICAL_AXES = ("MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION")
+AXIS_CODE_MAP = {"M": "MARINE", "T": "MARITIME", "O": "OCEANIC", "H": "HYDRONIZATION"}
 
 
 @dataclass(frozen=True)
 class RunReference:
-    """One archived run located via the archive indexes."""
-
     run_id: str
     run_path: str
     timestamp_utc: str
@@ -47,8 +33,6 @@ class RunReference:
 
 @dataclass(frozen=True)
 class RunSnapshot:
-    """Normalized metrics extracted for one archived run."""
-
     run_id: str
     run_path: str
     timestamp_utc: str
@@ -62,136 +46,85 @@ def _now_utc_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
-def _normalize_string(value: Any) -> str:
+def _normalise(value: Any) -> str:
     if value is None:
         return ""
-    if isinstance(value, str):
-        return " ".join(value.split()).strip()
-    return str(value).strip()
+    return " ".join(str(value).split()).strip()
 
 
 def _read_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _extract_records(payload: Any) -> list[dict[str, Any]]:
-    if isinstance(payload, list):
-        return [item for item in payload if isinstance(item, dict)]
-    if isinstance(payload, dict):
-        for key in ("records", "items"):
-            value = payload.get(key)
-            if isinstance(value, list):
-                return [item for item in value if isinstance(item, dict)]
-    return []
-
-
-def _normalize_doi(value: Any) -> str:
-    token = _normalize_string(value).casefold()
-    if not token:
-        return ""
-    prefixes = (
-        "https://doi.org/",
-        "http://doi.org/",
-        "https://dx.doi.org/",
-        "http://dx.doi.org/",
-        "doi:",
-    )
-    for prefix in prefixes:
-        if token.startswith(prefix):
-            token = token[len(prefix) :].strip()
-            break
-    return token.rstrip(".,; ")
-
-
-def _canonical_axis(value: Any) -> str:
-    token = _normalize_string(value).upper()
-    if not token:
-        return ""
-    if token in CANONICAL_AXES:
-        return token
-    return AXIS_CODE_MAP.get(token, "")
-
-
 def _jsonl_rows(path: Path) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
     if not path.is_file():
-        return rows
-    with path.open("r", encoding="utf-8") as handle:
-        for line_number, line in enumerate(handle, start=1):
-            payload = line.strip()
-            if not payload:
-                continue
-            try:
-                row = json.loads(payload)
-            except json.JSONDecodeError as exc:
-                print(
-                    f"[WARN] Skipping malformed JSONL row {line_number} in {path}: {exc}",
-                    file=sys.stderr,
-                )
-                continue
-            if isinstance(row, dict):
-                rows.append(row)
+        return []
+    rows: list[dict[str, Any]] = []
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"malformed archive index row {line_number}: {exc}") from exc
+        if not isinstance(payload, dict):
+            raise ValueError(f"archive index row {line_number} must be an object")
+        rows.append(payload)
     return rows
 
 
 def load_run_references(archive_root: Path) -> list[RunReference]:
-    """Load and merge archived run references from both archive indexes."""
-
-    jsonl_rows = _jsonl_rows(archive_root / RUNS_INDEX_REL)
-    csv_path = archive_root / CUMULATIVE_INDEX_FILENAME
-    csv_rows: list[dict[str, str]] = []
-    if csv_path.is_file():
-        with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
-            csv_rows = list(csv.DictReader(handle))
-
     merged: dict[str, dict[str, str]] = {}
-    for row in jsonl_rows:
-        run_id = _normalize_string(row.get("run_id"))
+    for row in _jsonl_rows(archive_root / RUNS_INDEX_REL):
+        run_id = _normalise(row.get("run_id"))
         if not run_id:
             continue
         merged[run_id] = {
             "run_id": run_id,
-            "run_path": _normalize_string(row.get("run_path")),
-            "timestamp_utc": _normalize_string(row.get("timestamp_utc")),
-            "archived_at": _normalize_string(row.get("archived_at")),
+            "run_path": _normalise(row.get("run_path")),
+            "timestamp_utc": _normalise(row.get("timestamp_utc")),
+            "archived_at": _normalise(row.get("archived_at")),
         }
-    for row in csv_rows:
-        run_id = _normalize_string(row.get("run_id"))
-        if not run_id:
-            continue
-        slot = merged.setdefault(
-            run_id,
-            {"run_id": run_id, "run_path": "", "timestamp_utc": "", "archived_at": ""},
-        )
-        slot["run_path"] = _normalize_string(row.get("run_path")) or slot["run_path"]
-        slot["timestamp_utc"] = (
-            _normalize_string(row.get("timestamp_utc")) or slot["timestamp_utc"]
-        )
 
-    references: list[RunReference] = []
-    for run_id, row in merged.items():
-        run_path = _normalize_string(row.get("run_path")) or f"runs/{run_id}"
-        timestamp = _normalize_string(row.get("timestamp_utc")) or _normalize_string(
-            row.get("archived_at")
+    csv_path = archive_root / CUMULATIVE_INDEX_FILENAME
+    if csv_path.is_file():
+        with csv_path.open(newline="", encoding="utf-8-sig") as handle:
+            for row in csv.DictReader(handle):
+                run_id = _normalise(row.get("run_id"))
+                if not run_id:
+                    continue
+                slot = merged.setdefault(
+                    run_id,
+                    {
+                        "run_id": run_id,
+                        "run_path": "",
+                        "timestamp_utc": "",
+                        "archived_at": "",
+                    },
+                )
+                slot["run_path"] = _normalise(row.get("run_path")) or slot["run_path"]
+                slot["timestamp_utc"] = (
+                    _normalise(row.get("timestamp_utc")) or slot["timestamp_utc"]
+                )
+
+    references = [
+        RunReference(
+            run_id=run_id,
+            run_path=row["run_path"] or f"runs/{run_id}",
+            timestamp_utc=row["timestamp_utc"] or row["archived_at"],
+            archived_at=row["archived_at"],
         )
-        references.append(
-            RunReference(
-                run_id=run_id,
-                run_path=run_path,
-                timestamp_utc=timestamp,
-                archived_at=row.get("archived_at", ""),
-            )
-        )
+        for run_id, row in merged.items()
+    ]
     references.sort(key=lambda item: (item.timestamp_utc or item.archived_at, item.run_id))
     return references
 
 
 def _resolve_run_dir(archive_root: Path, reference: RunReference) -> Path:
-    candidate = archive_root / Path(reference.run_path)
-    if candidate.is_dir():
-        return candidate
-    fallback = archive_root / "runs" / reference.run_id
-    return fallback
+    configured = archive_root / Path(reference.run_path)
+    if configured.is_dir():
+        return configured
+    return archive_root / "runs" / reference.run_id
 
 
 def _load_manifest(run_dir: Path) -> dict[str, Any]:
@@ -199,38 +132,67 @@ def _load_manifest(run_dir: Path) -> dict[str, Any]:
         path = run_dir / filename
         if path.is_file():
             payload = _read_json(path)
-            if isinstance(payload, dict):
-                return payload
+            if not isinstance(payload, dict):
+                raise ValueError(f"run manifest must be an object: {path}")
+            return payload
     return {}
 
 
-def _load_optional_records(path: Path) -> list[dict[str, Any]]:
+def _extract_records(payload: Any) -> list[dict[str, Any]]:
+    if isinstance(payload, list):
+        return [row for row in payload if isinstance(row, dict)]
+    if isinstance(payload, dict):
+        for key in ("records", "items"):
+            rows = payload.get(key)
+            if isinstance(rows, list):
+                return [row for row in rows if isinstance(row, dict)]
+    return []
+
+
+def _load_records(path: Path) -> list[dict[str, Any]]:
     if not path.is_file():
         return []
-    payload = _read_json(path)
-    return _extract_records(payload)
+    return _extract_records(_read_json(path))
 
 
-def _load_optional_object(path: Path) -> dict[str, Any]:
+def _load_object(path: Path) -> dict[str, Any]:
     if not path.is_file():
         return {}
     payload = _read_json(path)
     return payload if isinstance(payload, dict) else {}
 
 
-def _is_live_like_record(record: dict[str, Any]) -> bool:
-    """Exclude explicit static baseline/literature rows from live stability."""
+def _normalise_doi(value: Any) -> str:
+    token = _normalise(value).casefold()
+    for prefix in (
+        "https://doi.org/",
+        "http://doi.org/",
+        "https://dx.doi.org/",
+        "http://dx.doi.org/",
+        "doi:",
+    ):
+        if token.startswith(prefix):
+            token = token[len(prefix):].strip()
+            break
+    return token.rstrip(".,; ")
 
-    origin = _normalize_string(record.get("record_origin")).lower()
+
+def _canonical_axis(value: Any) -> str:
+    token = _normalise(value).upper()
+    if token in CANONICAL_AXES:
+        return token
+    return AXIS_CODE_MAP.get(token, "")
+
+
+def _is_live_like_record(record: dict[str, Any]) -> bool:
+    origin = _normalise(record.get("record_origin")).lower()
     if origin in {"static_baseline", "static_literature", "baseline", "literature"}:
         return False
     if origin.startswith("live") or origin.startswith("dynamic_api_"):
         return True
-    source_id = _normalize_string(record.get("source_id")).lower()
+    source_id = _normalise(record.get("source_id")).lower()
     if source_id.startswith(("crossref:", "scopus:", "openalex:", "wos:")):
         return True
-    # Legacy archived live rows may lack an origin label.  The caller removes
-    # all rows from a run explicitly marked static-recovery before using them.
     return True
 
 
@@ -238,62 +200,72 @@ def _providers_from_manifest(manifest: dict[str, Any]) -> list[str]:
     raw_values = [
         manifest.get("provider_set"),
         manifest.get("providers"),
-        manifest.get("workflow", {}).get("inputs", {}).get("providers")
-        if isinstance(manifest.get("workflow"), dict)
-        else "",
+        (
+            manifest.get("workflow", {}).get("inputs", {}).get("providers")
+            if isinstance(manifest.get("workflow"), dict)
+            else ""
+        ),
     ]
     providers: set[str] = set()
     for raw in raw_values:
-        for item in _normalize_string(raw).split(","):
+        for item in _normalise(raw).replace("|", ",").split(","):
             token = item.strip().lower()
             if token:
                 providers.add(token)
     return sorted(providers)
 
 
-def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
-    protocol_version = _normalize_string(constraints.get("protocol_version"))
+def _split_provider_list(value: Any) -> list[str]:
+    return sorted(
+        {
+            item.strip().lower()
+            for item in _normalise(value).replace("|", ",").split(",")
+            if item.strip()
+        }
+    )
+
+
+def _normalise_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
     queries = constraints.get("queries")
+    if not isinstance(queries, list):
+        queries = []
     time_windows: set[str] = set()
     sampling_strategies: set[str] = set()
     sort_strategies: set[str] = set()
     logical_pages: set[int] = set()
     rows_per_page: set[int] = set()
-    query_ids: list[str] = []
-    if isinstance(queries, list):
-        for query in queries:
-            if not isinstance(query, dict):
-                continue
-            query_id = _normalize_string(query.get("query_id"))
-            if query_id:
-                query_ids.append(query_id)
-            time_window = query.get("time_window")
-            if isinstance(time_window, dict):
-                time_windows.add(json.dumps(time_window, sort_keys=True, separators=(",", ":")))
-            sampling_strategy = query.get("sampling_strategy")
-            if isinstance(sampling_strategy, dict):
-                sampling_strategies.add(
-                    json.dumps(sampling_strategy, sort_keys=True, separators=(",", ":"))
-                )
-                pages = sampling_strategy.get("pages")
-                rows = sampling_strategy.get("rows_per_page")
-                if isinstance(pages, int):
-                    logical_pages.add(pages)
-                if isinstance(rows, int):
-                    rows_per_page.add(rows)
-            sort_strategy = query.get("sort_strategy")
-            if isinstance(sort_strategy, dict):
-                sort_strategies.add(
-                    json.dumps(sort_strategy, sort_keys=True, separators=(",", ":"))
-                )
-    if query_ids:
-        query_id_hash = hashlib.sha256(
-            json.dumps(sorted(set(query_ids)), separators=(",", ":")).encode("utf-8")
+    query_ids: set[str] = set()
+    for query in queries:
+        if not isinstance(query, dict):
+            continue
+        query_id = _normalise(query.get("query_id"))
+        if query_id:
+            query_ids.add(query_id)
+        for key, target in (
+            ("time_window", time_windows),
+            ("sampling_strategy", sampling_strategies),
+            ("sort_strategy", sort_strategies),
+        ):
+            value = query.get(key)
+            if isinstance(value, dict):
+                target.add(json.dumps(value, sort_keys=True, separators=(",", ":")))
+        sampling = query.get("sampling_strategy")
+        if isinstance(sampling, dict):
+            pages = sampling.get("pages")
+            rows = sampling.get("rows_per_page")
+            if isinstance(pages, int):
+                logical_pages.add(pages)
+            if isinstance(rows, int):
+                rows_per_page.add(rows)
+    query_id_hash = (
+        hashlib.sha256(
+            json.dumps(sorted(query_ids), separators=(",", ":")).encode("utf-8")
         ).hexdigest()
-    else:
-        query_id_hash = "unknown"
+        if query_ids
+        else "unknown"
+    )
     return {
-        "query_protocol_version": protocol_version or "unknown",
+        "query_protocol_version": _normalise(constraints.get("protocol_version")) or "unknown",
         "time_windows": sorted(time_windows),
         "sampling_strategies": sorted(sampling_strategies),
         "sort_strategy_contract": sorted(sort_strategies),
@@ -303,17 +275,8 @@ def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _split_provider_list(raw_value: Any) -> list[str]:
-    providers: set[str] = set()
-    for item in _normalize_string(raw_value).replace("|", ",").split(","):
-        token = item.strip().lower()
-        if token:
-            providers.add(token)
-    return sorted(providers)
-
-
 def _extract_classifier_version(
-    qmbd_records: list[dict[str, Any]],
+    qmbd_records: Sequence[dict[str, Any]],
     manifest: dict[str, Any],
 ) -> str:
     for record in qmbd_records:
@@ -324,18 +287,18 @@ def _extract_classifier_version(
                     continue
                 provenance = analysis.get("provenance")
                 if isinstance(provenance, dict):
-                    classifier_version = _normalize_string(provenance.get("classifier_version"))
-                    if classifier_version:
-                        return classifier_version
-        classifier_version = _normalize_string(record.get("classifier_version"))
-        if classifier_version:
-            return classifier_version
+                    version = _normalise(provenance.get("classifier_version"))
+                    if version:
+                        return version
+        version = _normalise(record.get("classifier_version"))
+        if version:
+            return version
     workflow = manifest.get("workflow")
     if isinstance(workflow, dict):
-        classifier_version = _normalize_string(workflow.get("classifier_version"))
-        if classifier_version:
-            return classifier_version
-    return _normalize_string(manifest.get("classifier_version")) or "unknown"
+        version = _normalise(workflow.get("classifier_version"))
+        if version:
+            return version
+    return _normalise(manifest.get("classifier_version")) or "unknown"
 
 
 def build_comparability_fingerprint(
@@ -352,14 +315,12 @@ def build_comparability_fingerprint(
     sort_strategy_contract: list[str] | None = None,
     query_id_hash: str = "unknown",
 ) -> tuple[str, dict[str, Any]]:
-    """Return the canonical comparability fingerprint and its source payload."""
-
     payload = {
         "providers_used": sorted({item.strip().lower() for item in providers_used if item}),
-        "query_protocol_version": _normalize_string(query_protocol_version) or "unknown",
+        "query_protocol_version": _normalise(query_protocol_version) or "unknown",
         "time_windows": sorted({item for item in time_windows if item}),
         "sampling_strategies": sorted({item for item in sampling_strategies if item}),
-        "classifier_version": _normalize_string(classifier_version) or "unknown",
+        "classifier_version": _normalise(classifier_version) or "unknown",
         "requested_provider_profile": sorted(
             {item.strip().lower() for item in (requested_provider_profile or []) if item}
         ),
@@ -371,7 +332,7 @@ def build_comparability_fingerprint(
         "sort_strategy_contract": sorted(
             {item for item in (sort_strategy_contract or []) if item}
         ),
-        "query_id_hash": _normalize_string(query_id_hash) or "unknown",
+        "query_id_hash": _normalise(query_id_hash) or "unknown",
     }
     digest = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -380,150 +341,120 @@ def build_comparability_fingerprint(
 
 
 def compute_jaccard_similarity(left: set[str], right: set[str]) -> float:
-    """Return DOI-set Jaccard similarity with an empty-set guard."""
-
     if not left and not right:
         return 1.0
     union = left | right
-    if not union:
-        return 0.0
-    return len(left & right) / len(union)
+    return len(left & right) / len(union) if union else 0.0
 
 
 def compute_axis_stability_score(
-    axis_distribution_a: dict[str, int], axis_distribution_b: dict[str, int]
+    axis_distribution_a: dict[str, int],
+    axis_distribution_b: dict[str, int],
 ) -> float:
-    """Return 1 - max absolute ratio gap across the four canonical axes."""
-
     total_a = sum(axis_distribution_a.get(axis, 0) for axis in CANONICAL_AXES)
     total_b = sum(axis_distribution_b.get(axis, 0) for axis in CANONICAL_AXES)
     if total_a <= 0 or total_b <= 0:
         return 0.0
-    max_gap = 0.0
-    for axis in CANONICAL_AXES:
-        ratio_a = axis_distribution_a.get(axis, 0) / total_a
-        ratio_b = axis_distribution_b.get(axis, 0) / total_b
-        max_gap = max(max_gap, abs(ratio_a - ratio_b))
+    max_gap = max(
+        abs(
+            axis_distribution_a.get(axis, 0) / total_a
+            - axis_distribution_b.get(axis, 0) / total_b
+        )
+        for axis in CANONICAL_AXES
+    )
     return max(0.0, 1.0 - max_gap)
 
 
-def _text_for_axis_classification(record: dict[str, Any]) -> str:
-    parts: list[str] = []
-    for key in (
-        "title",
-        "abstract",
-        "summary",
-        "description",
-        "context_sentence",
-        "evidence_text",
-    ):
-        value = _normalize_string(record.get(key))
-        if value:
-            parts.append(value)
-    subject_terms = record.get("subject_terms")
-    if isinstance(subject_terms, list):
-        parts.extend(_normalize_string(item) for item in subject_terms if _normalize_string(item))
-    return " ".join(item for item in parts if item)
-
-
-def _extract_axis_name(record: dict[str, Any], classifier: AxisClassifier) -> str:
-    for key in ("axis_name", "qmbd_axis", "axis"):
+def _extract_axis(record: dict[str, Any]) -> str:
+    for key in ("axis_name", "axis_group", "qmbd_axis", "axis", "axis_code"):
         axis = _canonical_axis(record.get(key))
         if axis:
             return axis
-    axis_code = _canonical_axis(record.get("axis_code") or record.get("qmbd_axis_code"))
-    if axis_code:
-        return axis_code
     classification = record.get("classification")
     if isinstance(classification, dict):
-        axis = _canonical_axis(classification.get("axis") or classification.get("axis_name"))
-        if axis:
-            return axis
-
-    text = _text_for_axis_classification(record)
-    if not text:
-        return ""
-    return classifier.classify_axis(text).name
+        for key in ("axis", "axis_name", "axis_code"):
+            axis = _canonical_axis(classification.get(key))
+            if axis:
+                return axis
+    return ""
 
 
 def load_run_snapshot(
-    archive_root: Path, reference: RunReference, classifier: AxisClassifier
+    archive_root: Path,
+    reference: RunReference,
+    classifier: Any = None,
 ) -> RunSnapshot | None:
-    """Load one archived run's DOI set, axis distribution, and fingerprint."""
-
+    del classifier
     run_dir = _resolve_run_dir(archive_root, reference)
     if not run_dir.is_dir():
-        print(
-            f"[WARN] Skipping missing archived run directory for {reference.run_id}: {run_dir}",
-            file=sys.stderr,
-        )
         return None
-
     manifest = _load_manifest(run_dir)
-    static_recovery = bool(manifest.get("is_static_recovery_mode"))
-    if static_recovery:
-        print(
-            f"[WARN] Skipping static-recovery run {reference.run_id}: "
-            "live_records from a static-recovery run must not contribute to saturation",
-            file=sys.stderr,
-        )
+    if bool(manifest.get("is_static_recovery_mode")):
         return None
 
     live_records = [
-        record
-        for record in _load_optional_records(run_dir / LIVE_RECORDS_REL)
-        if _is_live_like_record(record)
+        row
+        for row in _load_records(run_dir / LIVE_RECORDS_REL)
+        if _is_live_like_record(row)
     ]
     qmbd_records = [
-        record
-        for record in _load_optional_records(run_dir / QMBD_REL)
-        if _is_live_like_record(record)
+        row
+        for row in _load_records(run_dir / QMBD_REL)
+        if _is_live_like_record(row)
     ]
-    constraints = _load_optional_object(run_dir / CONSTRAINTS_REL)
-
+    constraints = _load_object(run_dir / CONSTRAINTS_REL)
     doi_set = frozenset(
-        doi for doi in (_normalize_doi(record.get("doi")) for record in live_records) if doi
+        doi
+        for doi in (_normalise_doi(row.get("doi")) for row in live_records)
+        if doi
     )
-
     axis_distribution = {axis: 0 for axis in CANONICAL_AXES}
-    axis_records = qmbd_records if qmbd_records else live_records
-    for record in axis_records:
-        axis_name = _extract_axis_name(record, classifier)
-        if axis_name:
-            axis_distribution[axis_name] += 1
+    for row in qmbd_records if qmbd_records else live_records:
+        axis = _extract_axis(row)
+        if axis:
+            axis_distribution[axis] += 1
 
-    constraint_payload = _normalize_query_constraints(constraints)
+    constraint_payload = _normalise_query_constraints(constraints)
+    workflow = manifest.get("workflow")
+    workflow_inputs = (
+        workflow.get("inputs", {})
+        if isinstance(workflow, dict) and isinstance(workflow.get("inputs"), dict)
+        else {}
+    )
+    contributing = _split_provider_list(
+        manifest.get("contributing_provider_profile")
+        or manifest.get("provider_set")
+        or manifest.get("providers")
+        or ""
+    )
+    requested = _split_provider_list(
+        workflow_inputs.get("providers")
+        or manifest.get("requested_provider_profile")
+        or ""
+    )
     fingerprint, fingerprint_payload = build_comparability_fingerprint(
         providers_used=_providers_from_manifest(manifest),
         query_protocol_version=str(constraint_payload["query_protocol_version"]),
         time_windows=list(constraint_payload["time_windows"]),
         sampling_strategies=list(constraint_payload["sampling_strategies"]),
         classifier_version=_extract_classifier_version(qmbd_records, manifest),
-        requested_provider_profile=_split_provider_list(
-            manifest.get("workflow", {}).get("inputs", {}).get("providers", "")
-            if isinstance(manifest.get("workflow"), dict)
-            else ""
-        ),
-        contributing_provider_profile=_split_provider_list(
-            manifest.get("provider_set") or manifest.get("providers") or ""
-        ),
+        requested_provider_profile=requested,
+        contributing_provider_profile=contributing,
         logical_pages=constraint_payload.get("logical_pages"),
         rows_per_page=constraint_payload.get("rows_per_page"),
-        sort_strategy_contract=list(constraint_payload.get("sort_strategy_contract", [])),
-        query_id_hash=str(constraint_payload.get("query_id_hash", "unknown")),
+        sort_strategy_contract=list(constraint_payload["sort_strategy_contract"]),
+        query_id_hash=str(constraint_payload["query_id_hash"]),
     )
-
-    timestamp_utc = (
+    timestamp = (
         reference.timestamp_utc
-        or _normalize_string(manifest.get("analysis_timestamp_utc"))
-        or _normalize_string(manifest.get("timestamp_utc"))
+        or _normalise(manifest.get("analysis_timestamp_utc"))
+        or _normalise(manifest.get("timestamp_utc"))
         or reference.archived_at
     )
-
     return RunSnapshot(
         run_id=reference.run_id,
         run_path=reference.run_path,
-        timestamp_utc=timestamp_utc,
+        timestamp_utc=timestamp,
         doi_set=doi_set,
         axis_distribution=axis_distribution,
         comparability_fingerprint=fingerprint,
@@ -536,16 +467,13 @@ def assess_saturation(
     run_pairs: list[dict[str, Any]],
     provisional_transitions: int,
 ) -> dict[str, Any]:
-    """Derive the report-level saturation status from ordered run pairs."""
-
-    if len(run_pairs) < 1:
+    if not run_pairs:
         return {
             "status": "not_assessable",
             "consecutive_stable_transitions": 0,
             "threshold_for_provisional": provisional_transitions,
             "rationale": "Fewer than two archived runs were available for comparison.",
         }
-
     if any(not pair["comparability_fingerprint_match"] for pair in run_pairs):
         return {
             "status": "not_assessable",
@@ -553,43 +481,29 @@ def assess_saturation(
             "threshold_for_provisional": provisional_transitions,
             "rationale": (
                 "At least one consecutive run pair used a non-matching comparability "
-                "fingerprint, so saturation cannot be interpreted across changing "
-                "acquisition conditions."
+                "fingerprint."
             ),
         }
-
-    trailing_stable = 0
+    trailing = 0
     for pair in reversed(run_pairs):
         if pair.get("stable_transition"):
-            trailing_stable += 1
-            continue
-        break
-
-    saturated_threshold = provisional_transitions + 1
-    if trailing_stable >= saturated_threshold:
+            trailing += 1
+        else:
+            break
+    if trailing >= provisional_transitions + 1:
         status = "saturated"
-        rationale = (
-            f"The latest {trailing_stable} comparable transitions all met the DOI "
-            "overlap, diminishing-return, and axis-stability thresholds."
-        )
-    elif trailing_stable >= provisional_transitions:
+    elif trailing >= provisional_transitions:
         status = "provisional_saturation"
-        rationale = (
-            f"The latest {trailing_stable} comparable transitions met the stability "
-            "thresholds, indicating provisional saturation."
-        )
     else:
         status = "not_saturated"
-        rationale = (
-            "Comparable runs remain below the consecutive stable-transition threshold "
-            "required to claim saturation."
-        )
-
     return {
         "status": status,
-        "consecutive_stable_transitions": trailing_stable,
+        "consecutive_stable_transitions": trailing,
         "threshold_for_provisional": provisional_transitions,
-        "rationale": rationale,
+        "rationale": (
+            f"{trailing} trailing comparable transition(s) met the DOI-overlap, "
+            "diminishing-return, and axis-stability thresholds."
+        ),
     }
 
 
@@ -601,47 +515,60 @@ def build_run_stability_report(
     new_doi_threshold: float,
     axis_stability_threshold: float,
     provisional_transitions: int,
+    fail_on_missing_runs: bool = False,
 ) -> dict[str, Any]:
-    """Build, persist, and return the cross-run stability report."""
-
     references = load_run_references(archive_root)
-    classifier = AxisClassifier()
-    skipped_runs: list[dict[str, str]] = []
     snapshots: list[RunSnapshot] = []
+    skipped: list[dict[str, str]] = []
     for reference in references:
         run_dir = _resolve_run_dir(archive_root, reference)
-        snapshot = load_run_snapshot(archive_root, reference, classifier)
+        snapshot = load_run_snapshot(archive_root, reference)
         if snapshot is None:
-            skipped_runs.append(
+            manifest = _load_manifest(run_dir) if run_dir.is_dir() else {}
+            reason = (
+                "static_recovery_run_excluded"
+                if run_dir.is_dir() and bool(manifest.get("is_static_recovery_mode"))
+                else "archived_run_directory_missing"
+            )
+            skipped.append(
                 {
                     "run_id": reference.run_id,
                     "expected_path": str(run_dir),
-                    "reason": "archived_run_directory_missing",
+                    "reason": reason,
                 }
             )
         else:
             snapshots.append(snapshot)
+    missing = [row for row in skipped if row["reason"] == "archived_run_directory_missing"]
+    if missing and fail_on_missing_runs:
+        raise ValueError(
+            "archive index references missing run directories: "
+            + ", ".join(row["run_id"] for row in missing)
+        )
 
-    seen_dois: set[str] = set()
     run_pairs: list[dict[str, Any]] = []
-    previous_snapshot: RunSnapshot | None = None
+    seen_dois: set[str] = set()
+    previous: RunSnapshot | None = None
     for snapshot in snapshots:
         seen_dois.update(snapshot.doi_set)
-        if previous_snapshot is None:
-            previous_snapshot = snapshot
+        if previous is None:
+            previous = snapshot
             continue
-
-        jaccard = compute_jaccard_similarity(set(previous_snapshot.doi_set), set(snapshot.doi_set))
-        new_unique = snapshot.doi_set - previous_snapshot.doi_set
-        current_doi_count = len(snapshot.doi_set)
-        new_ratio = len(new_unique) / current_doi_count if current_doi_count else 0.0
+        jaccard = compute_jaccard_similarity(set(previous.doi_set), set(snapshot.doi_set))
+        new_unique = snapshot.doi_set - previous.doi_set
+        new_ratio = (
+            len(new_unique) / len(snapshot.doi_set)
+            if snapshot.doi_set
+            else 0.0
+        )
         axis_stability = compute_axis_stability_score(
-            previous_snapshot.axis_distribution, snapshot.axis_distribution
+            previous.axis_distribution,
+            snapshot.axis_distribution,
         )
         fingerprint_match = (
-            previous_snapshot.comparability_fingerprint == snapshot.comparability_fingerprint
+            previous.comparability_fingerprint == snapshot.comparability_fingerprint
         )
-        stable_transition = bool(
+        stable = bool(
             fingerprint_match
             and jaccard > jaccard_threshold
             and new_ratio < new_doi_threshold
@@ -649,88 +576,70 @@ def build_run_stability_report(
         )
         run_pairs.append(
             {
-                "run_a": previous_snapshot.run_id,
+                "run_a": previous.run_id,
                 "run_b": snapshot.run_id,
                 "comparability_fingerprint_match": fingerprint_match,
-                "comparability_fingerprint_a": previous_snapshot.comparability_fingerprint,
+                "comparability_fingerprint_a": previous.comparability_fingerprint,
                 "comparability_fingerprint_b": snapshot.comparability_fingerprint,
                 "jaccard_doi_similarity": round(jaccard, 6),
                 "new_unique_dois": len(new_unique),
                 "new_doi_ratio": round(new_ratio, 6),
                 "cumulative_unique_dois": len(seen_dois),
-                "axis_distribution_a": dict(previous_snapshot.axis_distribution),
+                "axis_distribution_a": dict(previous.axis_distribution),
                 "axis_distribution_b": dict(snapshot.axis_distribution),
                 "axis_stability_score": round(axis_stability, 6),
-                "stable_transition": stable_transition,
+                "stable_transition": stable,
             }
         )
-        previous_snapshot = snapshot
+        previous = snapshot
 
-    saturation = assess_saturation(
-        run_pairs=run_pairs,
-        provisional_transitions=provisional_transitions,
-    )
     report = {
+        "schema_version": "1.1.0",
         "report_type": "cross_run_stability",
+        "scope_note": (
+            "This cross-run report is mutable comparative analysis and must remain "
+            "outside immutable per-run archives."
+        ),
         "timestamp_utc": _now_utc_iso(),
-        "runs_analyzed": len(snapshots),
         "runs_referenced": len(references),
-        "runs_skipped": skipped_runs,
+        "runs_analyzed": len(snapshots),
+        "runs_skipped": skipped,
         "run_pairs": run_pairs,
-        "saturation_assessment": saturation,
+        "saturation_assessment": assess_saturation(
+            run_pairs=run_pairs,
+            provisional_transitions=provisional_transitions,
+        ),
         "saturation_thresholds": {
             "jaccard_stable_threshold": jaccard_threshold,
             "new_doi_diminishing_threshold": new_doi_threshold,
             "axis_stability_threshold": axis_stability_threshold,
+            "provisional_transitions": provisional_transitions,
         },
     }
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    output_path.write_text(
+        json.dumps(report, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
     return report
 
 
-def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Build a cross-run comparability and saturation report."
-    )
-    parser.add_argument(
-        "--archive-root",
-        default="outputs/run_archive",
-        help="Archive root containing _index/ and runs/ (default: outputs/run_archive).",
-    )
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--archive-root", default="outputs/run_archive")
     parser.add_argument(
         "--output-path",
-        default="outputs/run_stability_report.json",
-        help="JSON report output path (default: outputs/run_stability_report.json).",
+        default="outputs/cross_run_reports/run_stability_report.json",
     )
-    parser.add_argument(
-        "--jaccard-threshold",
-        type=float,
-        default=0.85,
-        help="Stable-transition DOI Jaccard threshold (default: 0.85).",
-    )
-    parser.add_argument(
-        "--new-doi-threshold",
-        type=float,
-        default=0.05,
-        help="Stable-transition diminishing-return threshold (default: 0.05).",
-    )
-    parser.add_argument(
-        "--axis-stability-threshold",
-        type=float,
-        default=0.90,
-        help="Stable-transition axis stability threshold (default: 0.90).",
-    )
-    parser.add_argument(
-        "--provisional-transitions",
-        type=int,
-        default=2,
-        help="Stable transitions needed for provisional saturation (default: 2).",
-    )
-    return parser.parse_args([] if argv is None else argv)
+    parser.add_argument("--jaccard-threshold", type=float, default=0.85)
+    parser.add_argument("--new-doi-threshold", type=float, default=0.05)
+    parser.add_argument("--axis-stability-threshold", type=float, default=0.90)
+    parser.add_argument("--provisional-transitions", type=int, default=2)
+    parser.add_argument("--fail-on-missing-runs", action="store_true")
+    return parser.parse_args(argv)
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
     try:
         report = build_run_stability_report(
@@ -740,18 +649,18 @@ def main(argv: list[str] | None = None) -> int:
             new_doi_threshold=float(args.new_doi_threshold),
             axis_stability_threshold=float(args.axis_stability_threshold),
             provisional_transitions=int(args.provisional_transitions),
+            fail_on_missing_runs=bool(args.fail_on_missing_runs),
         )
-    except Exception as exc:  # pragma: no cover - CLI safety net
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"[ERROR] Failed to build run stability report: {exc}", file=sys.stderr)
         return 1
-
     print(
         "[OK] Wrote run stability report "
-        f"({report['runs_analyzed']} runs, status="
-        f"{report['saturation_assessment']['status']})."
+        f"({report['runs_analyzed']} runs, "
+        f"status={report['saturation_assessment']['status']})."
     )
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     sys.exit(main())
