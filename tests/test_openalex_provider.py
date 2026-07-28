@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import urllib.error
 import urllib.parse
 from unittest.mock import patch
@@ -14,8 +15,8 @@ from src.scientific_sources.openalex import OpenAlexProvider
 from src.scientific_sources.source_registry import SourceRegistry
 
 
-def _work(index: int) -> dict:
-    return {
+def _work(index: int, *, include_abstract_index: bool = False) -> dict:
+    work = {
         "id": f"https://openalex.org/W{1000 + index}",
         "display_name": f"Test Article {index}",
         "publication_year": 2024,
@@ -27,12 +28,28 @@ def _work(index: int) -> dict:
         "topics": [{"display_name": "Marine Science"}],
         "keywords": [{"keyword": "maritime"}],
     }
+    if include_abstract_index:
+        work["abstract_inverted_index"] = {
+            "Restricted": [0],
+            "abstract": [1],
+            "content": [2],
+        }
+    return work
 
 
-def _response(start: int, count: int, next_cursor: str = "") -> dict:
+def _response(
+    start: int,
+    count: int,
+    next_cursor: str = "",
+    *,
+    include_abstract_index: bool = False,
+) -> dict:
     return {
         "meta": {"count": 1000, "next_cursor": next_cursor},
-        "results": [_work(start + index) for index in range(count)],
+        "results": [
+            _work(start + index, include_abstract_index=include_abstract_index)
+            for index in range(count)
+        ],
     }
 
 
@@ -66,9 +83,9 @@ def test_search_normalizes_work_and_sends_api_key(monkeypatch) -> None:
     assert result.records[0].doi == "10.5555/test.0"
     assert result.records[0].source_id == "openalex:10.5555/test.0"
     assert "Marine Science" in result.records[0].subject_terms
-    assert urllib.parse.parse_qs(urllib.parse.urlparse(captured[0]).query)["api_key"] == [
-        "test-key"
-    ]
+    assert urllib.parse.parse_qs(
+        urllib.parse.urlparse(captured[0]).query
+    )["api_key"] == ["test-key"]
 
 
 def test_paginated_search_uses_distinct_cursor_requests(monkeypatch) -> None:
@@ -103,7 +120,49 @@ def test_paginated_search_uses_distinct_cursor_requests(monkeypatch) -> None:
     ]
     assert cursors == ["*", "cursor-2", "cursor-3"]
     assert "from_publication_date%3A2019" in captured[0]
-    assert "2019" in captured[0]
+
+
+def test_retained_payload_strips_abstract_index(monkeypatch) -> None:
+    provider = _provider(monkeypatch)
+
+    def mocked(*, url: str, context_label: str):
+        del url, context_label
+        return _response(0, 1, include_abstract_index=True), [], None, None
+
+    with patch.object(provider, "_request_json_with_backoff", side_effect=mocked):
+        result = provider.search("abstract governance", max_results=2)
+
+    assert result.records[0].abstract_available is True
+    assert result.records[0].abstract_stored is False
+    assert result.raw_payload is not None
+    assert result.raw_payload["payload_kind"] == (
+        "redistribution_safe_metadata_envelope"
+    )
+    retained = json.dumps(result.raw_payload, sort_keys=True)
+    assert "abstract_inverted_index" not in retained
+    assert "Restricted" not in retained
+    safe_result = result.raw_payload["pages"][0]["payload"]["results"][0]
+    assert safe_result["abstract_available"] is True
+
+
+def test_retained_payload_hashes_next_cursor(monkeypatch) -> None:
+    provider = _provider(monkeypatch)
+
+    def mocked(*, url: str, context_label: str):
+        del url, context_label
+        return _response(0, 1, "sensitive-cursor"), [], None, None
+
+    with patch.object(provider, "_request_json_with_backoff", side_effect=mocked):
+        result = provider.search_paginated(
+            "cursor governance", pages=1, rows_per_page=1
+        )
+
+    retained = json.dumps(result.raw_payload, sort_keys=True)
+    assert "sensitive-cursor" not in retained
+    marker = result.raw_payload["pages"][0]["payload"]["meta"][
+        "next_cursor_marker"
+    ]
+    assert marker.startswith("sha256:")
 
 
 def test_terminal_page_failure_is_returned_as_provider_error(monkeypatch) -> None:
@@ -128,13 +187,15 @@ def test_verify_doi_uses_api_key_and_normalizes_doi(monkeypatch) -> None:
     def mocked(*, url: str, context_label: str):
         del context_label
         captured.append(url)
-        return _work(1), [], None, None
+        return _work(1, include_abstract_index=True), [], None, None
 
     with patch.object(provider, "_request_json_with_backoff", side_effect=mocked):
         result = provider.verify_doi("10.1234/test")
 
     assert result.records[0].doi == "10.5555/test.1"
     assert "api_key=test-key" in captured[0]
+    assert "abstract_inverted_index" not in json.dumps(result.raw_payload)
+    assert result.raw_payload["payload"]["abstract_available"] is True
 
 
 def test_transient_server_errors_are_retried(monkeypatch) -> None:
@@ -154,12 +215,16 @@ def test_transient_server_errors_are_retried(monkeypatch) -> None:
             raise result
         return result
 
-    with patch.object(provider, "_request_json", side_effect=mocked_request) as mocked, patch(
+    with patch.object(
+        provider, "_request_json", side_effect=mocked_request
+    ) as mocked, patch(
         "src.scientific_sources.openalex.time.sleep"
     ) as mocked_sleep:
-        payload, warnings, error, rate_limit = provider._request_json_with_backoff(
-            url="https://api.openalex.org/works",
-            context_label="search",
+        payload, warnings, error, rate_limit = (
+            provider._request_json_with_backoff(
+                url="https://api.openalex.org/works",
+                context_label="search",
+            )
         )
 
     assert payload == {"results": []}
@@ -176,5 +241,6 @@ def test_registry_and_sort_normalization_include_openalex(monkeypatch) -> None:
     assert "openalex" in names
     assert normalize_provider_name("OpenAlex") == "openalex"
     assert _lookup_provider_sort_strategy(
-        {"crossref": "published-desc", "scopus": "date-desc"}, "openalex"
+        {"crossref": "published-desc", "scopus": "date-desc"},
+        "openalex",
     ) == "date-desc"
