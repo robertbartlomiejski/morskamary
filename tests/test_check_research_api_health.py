@@ -174,7 +174,7 @@ def test_probe_scopus_missing_and_configured_paths(monkeypatch) -> None:
 
 
 def test_probe_wos_openalex_and_scival_missing_keys(monkeypatch) -> None:
-    """OpenAlex stays probeable without a key; WOS/SciVal still fail closed."""
+    """All three providers fail closed when their API key is absent."""
     import check_research_api_health
 
     monkeypatch.delenv("WOS_API_KEY", raising=False)
@@ -182,20 +182,13 @@ def test_probe_wos_openalex_and_scival_missing_keys(monkeypatch) -> None:
     monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
 
     wos_result = check_research_api_health.probe_wos()
-    with patch(
-        "check_research_api_health._request",
-        return_value=check_research_api_health.ProbeResult(
-            "", "ok", "request succeeded", 200
-        ),
-    ):
-        openalex_result = check_research_api_health.probe_openalex()
+    openalex_result = check_research_api_health.probe_openalex()
     scival_result = check_research_api_health.probe_scival()
 
     assert wos_result.status == "missing"
     assert wos_result.provider == "wos"
-    assert openalex_result.status == "ok"
+    assert openalex_result.status == "missing"
     assert openalex_result.provider == "openalex"
-    assert "unauthenticated" in openalex_result.detail
     assert scival_result.status == "missing"
     assert scival_result.provider == "scival"
 

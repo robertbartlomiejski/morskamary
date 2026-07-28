@@ -86,7 +86,7 @@ def _seed_archive(
             dois = []
         _write_json(
             run_dir / "research_sources" / "live_records.json",
-            [{"doi": str(doi), "title": f"Title {doi}"} for doi in dois],
+            [{"doi": str(doi), "title": f"Title {doi}", "record_origin": "live"} for doi in dois],
         )
         axis_distribution = run.get("axis_distribution")
         if not isinstance(axis_distribution, dict):
@@ -104,6 +104,7 @@ def _seed_archive(
                         "doi": f"{run_id}-{axis_name}-{idx}",
                         "title": f"{axis_name} evidence {idx}",
                         "axis_name": axis_name,
+                        "record_origin": "live",
                     }
                 )
         _write_json(run_dir / "analysis_outputs" / "cumulative_qmbd_records.json", qmbd_records)

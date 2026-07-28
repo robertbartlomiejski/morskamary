@@ -60,11 +60,21 @@ def _write_demands(path: Path) -> None:
         )
 
 
+def _write_manifest(tmp_path: Path) -> None:
+    """Write a mock layer4_manifest.json required by the fail-closed timestamp loader."""
+    manifest = tmp_path / "layer4_manifest.json"
+    manifest.write_text(
+        json.dumps({"analysis_timestamp_utc": "2026-07-20T12:00:00+00:00"}),
+        encoding="utf-8",
+    )
+
+
 def _fixture(tmp_path: Path, *, include_wos: bool = False) -> dict[str, Path]:
     evidence = tmp_path / "evidence_records.jsonl"
     signals = tmp_path / "competence_demand_signals.jsonl"
     demands = tmp_path / "derived_competence_demands.csv"
     fragments = tmp_path / "hypothesis_semantic_fragments.jsonl"
+    _write_manifest(tmp_path)
 
     evidence_rows = [
         {
