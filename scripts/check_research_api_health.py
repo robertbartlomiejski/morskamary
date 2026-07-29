@@ -189,17 +189,16 @@ def probe_microsoft_graph() -> ProbeResult:
 
 
 def probe_openalex() -> ProbeResult:
-    """OpenAlex is free/open; API key is optional (increases rate limits)."""
-    url = "https://api.openalex.org/works?filter=title.search:ocean&per_page=1"
-    headers: dict[str, str] = {}
+    """OpenAlex provider requires API key for live acquisition."""
     api_key = os.getenv("OPENALEX_API_KEY", "")
-    if api_key:
-        headers["Authorization"] = f"Bearer {api_key}"
+    if not api_key:
+        return ProbeResult(
+            "openalex", "missing", "OPENALEX_API_KEY not set"
+        )
+    url = "https://api.openalex.org/works?filter=title.search:ocean&per_page=1"
+    headers: dict[str, str] = {"Authorization": f"Bearer {api_key}"}
     result = _request(url, headers)
     result.provider = "openalex"
-    # OpenAlex works without a key; treat missing key as ok if endpoint responds
-    if not api_key and result.status == "ok":
-        result.detail = "ok (unauthenticated, lower rate limits)"
     return result
 
 
