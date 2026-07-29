@@ -368,6 +368,48 @@ def _append_jsonl_index(
         handle.write(json.dumps(summary, ensure_ascii=False) + "\n")
 
 
+def _read_csv_header(csv_path: Path) -> list[str]:
+    """Return the header row of an existing CSV file, or [] if unreadable."""
+    try:
+        with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.reader(handle)
+            header = next(reader, None)
+            return list(header) if header else []
+    except OSError:
+        return []
+
+
+def _rewrite_csv_with_new_schema(
+    csv_path: Path,
+    new_fieldnames: tuple[str, ...],
+) -> None:
+    """Rewrite *csv_path* adding any columns absent from the legacy header.
+
+    Existing rows are preserved; missing columns are filled with empty strings.
+    This makes it safe to append rows with a wider schema (e.g. after a new
+    ``archive_root`` column is added) without corrupting column alignment for
+    downstream ``csv.DictReader`` consumers.
+    """
+    old_rows: list[dict[str, str]] = []
+    try:
+        with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                old_rows.append(dict(row))
+    except OSError:
+        old_rows = []
+
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(
+            handle, fieldnames=list(new_fieldnames), extrasaction="ignore"
+        )
+        writer.writeheader()
+        for row in old_rows:
+            # Fill any column that is new (absent from the legacy row).
+            migrated = {col: row.get(col, "") for col in new_fieldnames}
+            writer.writerow(migrated)
+
+
 def _append_csv_index(archive_root: Path, manifest_payload: dict[str, Any]) -> None:
     csv_path = archive_root / "cumulative_runs_index.csv"
     row = {
@@ -413,7 +455,17 @@ def _append_csv_index(archive_root: Path, manifest_payload: dict[str, Any]) -> N
         "total_bytes": str(manifest_payload["total_bytes"]),
     }
 
-    write_header = not csv_path.exists()
+    if not csv_path.exists():
+        write_header = True
+    else:
+        # If the existing file was written with a legacy (narrower) schema,
+        # migrate it to the current column set before appending so that
+        # DictReader consumers see a consistent header across all rows.
+        existing_header = _read_csv_header(csv_path)
+        if list(existing_header) != list(INDEX_CSV_COLUMNS):
+            _rewrite_csv_with_new_schema(csv_path, INDEX_CSV_COLUMNS)
+        write_header = False
+
     with csv_path.open("a", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(INDEX_CSV_COLUMNS))
         if write_header:

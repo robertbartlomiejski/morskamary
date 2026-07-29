@@ -1507,6 +1507,28 @@ def main() -> int:
         help="Maximum results per query (default: 50)",
     )
     parser.add_argument(
+        "--default-rows-per-page",
+        type=int,
+        default=None,
+        help=(
+            "Default rows per logical page when the protocol query does not "
+            "specify rows_per_page. Overrides the --max-results-per-query "
+            "product as the per-page row count. Pass the workflow ROWS_PER_PAGE "
+            "input here so that the acquisition page shape matches the operator "
+            "intent rather than the ceiling product. (default: max_results_per_query)"
+        ),
+    )
+    parser.add_argument(
+        "--default-logical-pages",
+        type=int,
+        default=None,
+        help=(
+            "Default number of logical pages when the protocol query does not "
+            "specify pages. Pass the workflow LOGICAL_PAGES input here. "
+            "(default: 1)"
+        ),
+    )
+    parser.add_argument(
         "--output-dir",
         default="outputs/research_sources",
         help="Output directory for exported files",
@@ -1533,6 +1555,21 @@ def main() -> int:
     )
 
     args = parser.parse_args()
+
+    # Resolve page-shape defaults.  When the operator passes --default-rows-per-page
+    # and --default-logical-pages (via the workflow ROWS_PER_PAGE / LOGICAL_PAGES
+    # env vars), those values are used as the per-query sampling fallback so that
+    # the acquisition page shape matches the operator intent rather than the
+    # --max-results-per-query ceiling product.  When absent they fall back to the
+    # legacy defaults (max_results_per_query rows on a single page).
+    _default_rows_per_page: int = (
+        args.default_rows_per_page
+        if args.default_rows_per_page is not None
+        else args.max_results_per_query
+    )
+    _default_logical_pages: int = (
+        args.default_logical_pages if args.default_logical_pages is not None else 1
+    )
 
     # Parse providers — normalize to lowercase and drop empty tokens so that
     # case variants like "Crossref" match the registry's canonical names and
@@ -1793,12 +1830,14 @@ def main() -> int:
                     if not isinstance(declared_sampling, Mapping):
                         declared_sampling = {}
                     actual_pages_attempted, _ = _resolve_effective_sampling_request(
-                        declared_pages=int(declared_sampling.get("pages", 1) or 1),
+                        declared_pages=int(
+                            declared_sampling.get("pages", _default_logical_pages) or _default_logical_pages
+                        ),
                         declared_rows_per_page=int(
                             declared_sampling.get(
-                                "rows_per_page", args.max_results_per_query
+                                "rows_per_page", _default_rows_per_page
                             )
-                            or args.max_results_per_query
+                            or _default_rows_per_page
                         ),
                         max_results=args.max_results_per_query,
                     )
@@ -1865,10 +1904,10 @@ def main() -> int:
                 sampling = constraint.get("sampling_strategy", {})
                 if not isinstance(sampling, Mapping):
                     sampling = {}
-                pages = int(sampling.get("pages", 1) or 1)
+                pages = int(sampling.get("pages", _default_logical_pages) or _default_logical_pages)
                 rows_per_page = int(
-                    sampling.get("rows_per_page", args.max_results_per_query)
-                    or args.max_results_per_query
+                    sampling.get("rows_per_page", _default_rows_per_page)
+                    or _default_rows_per_page
                 )
                 effective_pages, effective_rows_per_page = (
                     _resolve_effective_sampling_request(

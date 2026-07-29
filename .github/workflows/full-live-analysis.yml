@@ -190,8 +190,18 @@ jobs:
           python - <<'PY'
           import json
           import os
+          import sys
           from pathlib import Path
-          providers = [p.strip() for p in os.environ["REQUESTED_PROVIDERS"].split(",") if p.strip()]
+          sys.path.insert(0, ".")
+          from src.scientific_sources.source_registry import SourceRegistry
+          requested = [p.strip() for p in os.environ["REQUESTED_PROVIDERS"].split(",") if p.strip()]
+          # Expand 'all' to the full registered provider list so that budget math
+          # uses the real provider count rather than treating 'all' as one provider.
+          if len(requested) == 1 and requested[0] == "all":
+              _registry = SourceRegistry()
+              providers = [cap.name for cap in _registry.list_capabilities()]
+          else:
+              providers = requested
           # Derive query count from committed protocol constraints (not hardcoded)
           _constraints_path = Path("outputs/research_sources/query_protocol_constraints.json")
           _constraints_data = json.loads(_constraints_path.read_text(encoding="utf-8")) if _constraints_path.exists() else {}
@@ -214,6 +224,21 @@ jobs:
               encoding="utf-8",
           )
           PY
+
+      - name: Clear stale committed run directories for current run ID
+        run: |
+          set -euo pipefail
+          # If a prior successful run committed its outputs under the same
+          # CURRENT_RUN_ID (outputs/live_runs/ and outputs/run_archive/runs/),
+          # those git-tracked directories would be present in the checkout.
+          # archive_run_outputs.py's collision-avoidance would then create a
+          # '.2'-suffixed directory, causing the artifact upload step (which
+          # uses the exact CURRENT_RUN_ID path) to pick up the stale committed
+          # data instead of the fresh run's outputs.  Remove them here — before
+          # any build step runs — so every downstream step writes to the
+          # expected path.
+          rm -rf "outputs/live_runs/${CURRENT_RUN_ID}"
+          rm -rf "outputs/run_archive/runs/${CURRENT_RUN_ID}"
 
       - name: Provider health preflight
         run: |
@@ -250,6 +275,8 @@ jobs:
             --query-constraints-file outputs/research_sources/query_protocol_constraints.json \
             --protocol-path config/live_query_protocol.yml \
             --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
+            --default-logical-pages "$LOGICAL_PAGES" \
+            --default-rows-per-page "$ROWS_PER_PAGE" \
             --output-dir outputs/research_sources \
             --offline false
 

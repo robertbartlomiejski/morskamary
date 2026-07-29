@@ -504,3 +504,108 @@ def test_out_of_tree_archive_root_is_redacted_in_manifest_and_csv(
             f"CSV archive_root must be sentinel, got: {row['archive_root']!r}"
         )
         assert str(out_of_tree_dir) not in row["archive_root"]
+
+
+def test_append_csv_index_migrates_legacy_header(tmp_path: Path) -> None:
+    """Appending to a CSV with a legacy (narrower) schema must rewrite the header
+    and fill missing columns with empty strings rather than corrupting alignment."""
+    module = _load_archive_module()
+
+    archive_root = tmp_path / "archive"
+    archive_root.mkdir(parents=True)
+    csv_path = archive_root / "cumulative_runs_index.csv"
+
+    # Write a legacy CSV that is missing the 'archive_root' column.
+    legacy_columns = [
+        c for c in module.INDEX_CSV_COLUMNS if c != "archive_root"
+    ]
+    legacy_row = {col: f"v-{col}" for col in legacy_columns}
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=legacy_columns)
+        writer.writeheader()
+        writer.writerow(legacy_row)
+
+    # Build a minimal manifest that can drive _append_csv_index.
+    manifest: dict = {col: "" for col in module.INDEX_CSV_COLUMNS}
+    manifest.update(
+        {
+            "run_id": "test-run-1",
+            "run_path": "runs/test-run-1",
+            "archive_root": "outputs/run_archive",
+            "timestamp_utc": "2025-01-01T00:00:00+00:00",
+            "analysis_timestamp_utc": "2025-01-01T00:00:00+00:00",
+            "is_static_recovery_mode": False,
+            "gaps_summary_available": False,
+            "live_records_count": 0,
+            "triangulated_records_count": 0,
+            "cumulative_qmbd_records_count": 0,
+            "competences_total": 0,
+            "baseline_count": 0,
+            "static_literature_count": 0,
+            "live_enrichment_count": 0,
+            "credentials_count": 0,
+            "file_count": 0,
+            "total_bytes": 0,
+        }
+    )
+
+    module._append_csv_index(archive_root, manifest)
+
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+
+    assert len(rows) == 2, "legacy row plus new row"
+    # Both rows must now have an 'archive_root' key (migrated).
+    for row in rows:
+        assert "archive_root" in row, "archive_root column must be present after migration"
+    # The legacy row should have an empty archive_root (filled in during migration).
+    assert rows[0]["archive_root"] == "", (
+        "legacy row should have empty archive_root after migration"
+    )
+    # The new row should have the correct value.
+    assert rows[1]["archive_root"] == "outputs/run_archive"
+
+
+def test_append_csv_index_does_not_rewrite_when_schema_matches(tmp_path: Path) -> None:
+    """When the existing CSV header already matches INDEX_CSV_COLUMNS, appending
+    must not rewrite the file (no migration needed)."""
+    module = _load_archive_module()
+
+    archive_root = tmp_path / "archive"
+    archive_root.mkdir(parents=True)
+    csv_path = archive_root / "cumulative_runs_index.csv"
+
+    # Write a CSV with the current full schema.
+    first_row = {col: f"orig-{col}" for col in module.INDEX_CSV_COLUMNS}
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(module.INDEX_CSV_COLUMNS))
+        writer.writeheader()
+        writer.writerow(first_row)
+
+    mtime_before = csv_path.stat().st_mtime
+
+    manifest: dict = {col: "" for col in module.INDEX_CSV_COLUMNS}
+    manifest.update(
+        {
+            "run_id": "test-run-2",
+            "is_static_recovery_mode": False,
+            "gaps_summary_available": False,
+            "live_records_count": 0,
+            "triangulated_records_count": 0,
+            "cumulative_qmbd_records_count": 0,
+            "competences_total": 0,
+            "baseline_count": 0,
+            "static_literature_count": 0,
+            "live_enrichment_count": 0,
+            "credentials_count": 0,
+            "file_count": 0,
+            "total_bytes": 0,
+        }
+    )
+
+    module._append_csv_index(archive_root, manifest)
+
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 2, "original row plus new row"
+    assert rows[0]["run_id"] == "orig-run_id", "original row must be preserved"
