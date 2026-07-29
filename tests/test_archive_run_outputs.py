@@ -582,8 +582,6 @@ def test_append_csv_index_does_not_rewrite_when_schema_matches(tmp_path: Path) -
         writer.writeheader()
         writer.writerow(first_row)
 
-    mtime_before = csv_path.stat().st_mtime
-
     manifest: dict = {col: "" for col in module.INDEX_CSV_COLUMNS}
     manifest.update(
         {
