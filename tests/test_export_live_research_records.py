@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 import yaml
 from unittest.mock import MagicMock, patch
 
@@ -18,6 +19,8 @@ from scripts.export_live_research_records import (
     PROTOCOL_PROJECTED_QUERY_FILE_NAME,
     STAGE1_CSV_FIELDS,
     _apply_query_constraint,
+    _lookup_provider_sort_strategy_full,
+    _resolve_effective_sampling_request,
     _resolve_provider_sort_strategies,
     _search_registry_paginated,
     _to_stage1_compliant_dict,
@@ -288,6 +291,35 @@ class TestApplyQueryConstraint:
         assert len(accepted) == 20
         assert audit["logical_pages_attempted"] == 1
 
+    def test_malformed_page_diagnostics_do_not_abort_constraint_audit(self):
+        accepted, audit = _apply_query_constraint(
+            records=[_make_record(year="2024")],
+            constraint={
+                "time_window": {"from_year": 2020, "to_year": 2026},
+                "sampling_strategy": {
+                    "mode": "stratified",
+                    "pages": 2,
+                    "rows_per_page": 50,
+                },
+            },
+            provider_name="Crossref",
+            max_results=10,
+            page_diagnostics=[
+                {
+                    "logical_page": {"malformed": True},
+                    "pagination_status": "applied",
+                    "errors": "",
+                    "warnings": "provider returned malformed page index",
+                }
+            ],
+            attempted_logical_pages=2,
+        )
+
+        assert len(accepted) == 1
+        assert audit["logical_pages_completed"] == 0
+        assert audit["sampling_status"] == "partially_applied_pagination_incomplete"
+        assert "filter_not_applied:multi_page_sampling" in audit["validity_warnings"]
+
 
 def test_resolve_provider_sort_strategies_includes_openalex_fallback() -> None:
     resolved = _resolve_provider_sort_strategies(
@@ -299,6 +331,35 @@ def test_resolve_provider_sort_strategies_includes_openalex_fallback() -> None:
         "crossref": "published-desc",
         "openalex": "date-desc",
     }
+
+
+def test_provider_sort_strategy_source_uses_canonical_audit_values() -> None:
+    assert _lookup_provider_sort_strategy_full(
+        {"crossref": "published-desc"},
+        "crossref",
+    ) == ("published-desc", "published-desc", "declared")
+    assert _lookup_provider_sort_strategy_full(
+        {"scopus": "date-desc"},
+        "openalex",
+    ) == ("", "date-desc", "inferred_provider_fallback")
+    assert _lookup_provider_sort_strategy_full({}, "wos") == (
+        "",
+        "",
+        "not_declared",
+    )
+
+
+def test_effective_sampling_uses_complete_pages_or_one_reduced_page() -> None:
+    assert _resolve_effective_sampling_request(
+        declared_pages=3,
+        declared_rows_per_page=50,
+        max_results=120,
+    ) == (2, 50)
+    assert _resolve_effective_sampling_request(
+        declared_pages=3,
+        declared_rows_per_page=50,
+        max_results=20,
+    ) == (1, 20)
 
 
 def test_search_registry_paginated_propagates_provider_typeerror() -> None:
@@ -313,7 +374,14 @@ def test_search_registry_paginated_propagates_provider_typeerror() -> None:
             sort_strategy_by_provider: dict[str, str],
             time_window: dict[str, int],
         ):
-            del query, pages, rows_per_page, providers, sort_strategy_by_provider, time_window
+            del (
+                query,
+                pages,
+                rows_per_page,
+                providers,
+                sort_strategy_by_provider,
+                time_window,
+            )
             raise TypeError("provider-side failure")
 
     try:
@@ -329,7 +397,9 @@ def test_search_registry_paginated_propagates_provider_typeerror() -> None:
     except TypeError as exc:
         assert "provider-side failure" in str(exc)
     else:
-        raise AssertionError("provider TypeError must not be masked as legacy signature handling")
+        raise AssertionError(
+            "provider TypeError must not be masked as legacy signature handling"
+        )
 
 
 class TestSentenceLevelClassification:
@@ -588,17 +658,18 @@ class TestMainIntegration:
         """Legacy research_queries.yml should trigger ad-hoc constraints fallback."""
         query_file = tmp_path / "config" / "research_queries.yml"
         query_file.parent.mkdir(parents=True, exist_ok=True)
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   test_sector:
     label: "Test Sector"
     queries:
       - "test query"
-"""
-        )
+""")
         constraints_file = (
-            tmp_path / "outputs" / "research_sources" / "query_protocol_constraints.json"
+            tmp_path
+            / "outputs"
+            / "research_sources"
+            / "query_protocol_constraints.json"
         )
         constraints_file.parent.mkdir(parents=True, exist_ok=True)
         constraints_file.write_text(
@@ -664,17 +735,18 @@ query_groups:
             / "research_queries_from_protocol.yml"
         )
         query_file.parent.mkdir(parents=True, exist_ok=True)
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   maritime_transport:
     label: "Maritime Transport"
     queries:
       - "port decarbonization maritime workforce"
-"""
-        )
+""")
         constraints_file = (
-            tmp_path / "outputs" / "research_sources" / "query_protocol_constraints.json"
+            tmp_path
+            / "outputs"
+            / "research_sources"
+            / "query_protocol_constraints.json"
         )
         constraints_file.parent.mkdir(parents=True, exist_ok=True)
         constraints_file.write_text(
@@ -712,7 +784,9 @@ query_groups:
         captured = capsys.readouterr()
 
         assert result == 1
-        assert "authoritative protocol projection and constraints differ" in captured.err
+        assert (
+            "authoritative protocol projection and constraints differ" in captured.err
+        )
 
     def test_offline_mode_skips_network_calls(self, tmp_path, monkeypatch):
         """Test that offline mode produces empty outputs without network calls."""
@@ -819,6 +893,95 @@ query_groups:
         assert result == 1
         registry.assert_not_called()
         assert "exactly 120 queries" in captured.err
+
+    @pytest.mark.parametrize(
+        "field_name",
+        [
+            "query_text",
+            "sector_slug",
+            "query_family",
+            "axis_target",
+            "evidence_intent",
+            "time_window",
+            "sort_strategy",
+            "sampling_strategy",
+            "protocol_version",
+        ],
+    )
+    def test_protocol_projection_field_mismatch_fails_before_provider_setup(
+        self, field_name, tmp_path, monkeypatch
+    ):
+        repo_root = Path(__file__).resolve().parents[1]
+        protocol_path = repo_root / "config" / "live_query_protocol.yml"
+        protocol = load_live_query_protocol(protocol_path)
+        constraints = json.loads(json.dumps(protocol.to_query_constraints()))
+        first = constraints[0]
+        payload = {
+            "protocol_version": protocol.protocol_version,
+            "query_count": len(constraints),
+            "queries": constraints,
+        }
+        if field_name == "query_text":
+            first["query_text"] = f"{first['query_text']} stale"
+        elif field_name == "sector_slug":
+            first["sector_slug"] = "wrong_sector"
+        elif field_name == "query_family":
+            first["query_family"] = "wrong_family"
+        elif field_name == "axis_target":
+            first["axis_target"] = (
+                "MARITIME" if first["axis_target"] != "MARITIME" else "OCEANIC"
+            )
+        elif field_name == "evidence_intent":
+            first["evidence_intent"] = "wrong_intent"
+        elif field_name == "time_window":
+            first["time_window"] = {"from_year": 1900, "to_year": 1901}
+        elif field_name == "sort_strategy":
+            first["sort_strategy"] = {
+                "crossref": "relevance",
+                "scopus": "relevance",
+                "wos": "relevance",
+            }
+        elif field_name == "sampling_strategy":
+            first["sampling_strategy"] = {
+                "mode": "stratified",
+                "pages": int(first["sampling_strategy"]["pages"]) + 1,
+                "rows_per_page": first["sampling_strategy"]["rows_per_page"],
+                "dedupe_key": first["sampling_strategy"]["dedupe_key"],
+            }
+        elif field_name == "protocol_version":
+            payload["protocol_version"] = "0.0.0"
+        query_file = tmp_path / PROTOCOL_PROJECTED_QUERY_FILE_NAME
+        query_file.write_text(
+            yaml.safe_dump(protocol.to_legacy_query_groups(), sort_keys=False),
+            encoding="utf-8",
+        )
+        constraints_file = tmp_path / "query_protocol_constraints.json"
+        constraints_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+        with patch("scripts.export_live_research_records.SourceRegistry") as registry:
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--query-constraints-file",
+                    str(constraints_file),
+                    "--protocol-path",
+                    str(protocol_path),
+                    "--output-dir",
+                    str(tmp_path / "out"),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                ],
+            )
+
+            result = main()
+
+        assert result == 1
+        registry.assert_not_called()
 
     def test_live_mode_uses_paginated_registry_search(self, tmp_path, monkeypatch):
         query_file = tmp_path / "queries.yml"
@@ -927,7 +1090,9 @@ query_groups:
             )
             return [mock_result]
 
-        with patch("scripts.export_live_research_records.SourceRegistry") as MockRegistry:
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search_paginated = mock_search_paginated
             mock_instance.search.side_effect = AssertionError("old search path used")
@@ -1098,7 +1263,11 @@ query_groups:
         mock_evidence = _make_evidence(
             record_id="crossref:10.1234/wind", query="offshore wind"
         )
-        raw_payload = {"message": {"items": [{"DOI": "10.1234/wind", "title": ["Offshore Wind Energy"]}]}}
+        raw_payload = {
+            "message": {
+                "items": [{"DOI": "10.1234/wind", "title": ["Offshore Wind Energy"]}]
+            }
+        }
         mock_result = ProviderResult(
             records=[mock_record], provenance=[mock_evidence], raw_payload=raw_payload
         )
@@ -1106,7 +1275,9 @@ query_groups:
         def mock_search(query, max_results, providers):
             return [mock_result]
 
-        with patch("scripts.export_live_research_records.SourceRegistry") as MockRegistry:
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
             mock_instance.list_capabilities.return_value = _make_capability("crossref")
@@ -1116,11 +1287,16 @@ query_groups:
                 "sys.argv",
                 [
                     "export_live_research_records.py",
-                    "--query-file", str(query_file),
-                    "--output-dir", str(output_dir),
-                    "--offline", "false",
-                    "--providers", "crossref",
-                    "--max-results-per-query", "10",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                    "--max-results-per-query",
+                    "10",
                 ],
             )
 
@@ -1652,7 +1828,9 @@ query_groups:
             assert providers == ["scopus"]
             return [scopus_result]
 
-        with patch("scripts.export_live_research_records.SourceRegistry") as MockRegistry:
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
             mock_instance.list_capabilities.return_value = _make_capability("scopus")
@@ -1703,7 +1881,9 @@ query_groups:
         assert row["unsupported_constraint_filters"] == ""
         assert "sort_strategy" in row["unapplied_constraint_filters"]
 
-        diagnostics = json.loads((output_dir / "scopus_query_diagnostics.json").read_text())
+        diagnostics = json.loads(
+            (output_dir / "scopus_query_diagnostics.json").read_text()
+        )
         assert len(diagnostics) == 1
         assert diagnostics[0]["provider_canonical"] == "scopus"
         assert diagnostics[0]["contributed_record_count"] == 1

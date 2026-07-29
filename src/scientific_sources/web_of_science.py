@@ -378,10 +378,23 @@ class WebOfScienceProvider(BaseProvider):
         legacy_api = logical_pages is not None
         requested_pages = logical_pages if logical_pages is not None else pages
         safe_pages = max(1, int(requested_pages or 1))
+        safe_rows = max(1, int(rows_per_page or 1))
         if not self._api_key:
             result = self._not_configured_result()
             result.page_diagnostics = [
-                {"logical_page": 1, "error": "not_configured"}
+                {
+                    "provider": "wos",
+                    "query": query,
+                    "logical_page": 1,
+                    "physical_request_index": 0,
+                    "cursor_or_offset": "not_configured",
+                    "requested_rows": safe_rows,
+                    "returned_rows": 0,
+                    "normalized_rows": 0,
+                    "pagination_status": "provider_not_configured",
+                    "error": "not_configured",
+                    "errors": "provider_not_configured",
+                }
             ]
             return (result, result.page_diagnostics) if legacy_api else result
 
@@ -424,31 +437,31 @@ class WebOfScienceProvider(BaseProvider):
                         all_warnings.append(
                             f"WoS page={physical_page} rate-limited (429)"
                         )
-                        page_diagnostics.append({
+                        page_diagnostics.append(
+                            {
+                                "logical_page": logical_page_idx + 1,
+                                "physical_requests": physical_requests,
+                                "requested_rows": rows_per_page,
+                                "returned_rows": len(page_records),
+                                "pagination_method": "wos_starter_page",
+                                "error": "rate_limited",
+                            }
+                        )
+                        break
+                    all_warnings.append(f"WoS page={physical_page} HTTP {exc.code}")
+                    page_diagnostics.append(
+                        {
                             "logical_page": logical_page_idx + 1,
                             "physical_requests": physical_requests,
                             "requested_rows": rows_per_page,
                             "returned_rows": len(page_records),
                             "pagination_method": "wos_starter_page",
-                            "error": "rate_limited",
-                        })
-                        break
-                    all_warnings.append(
-                        f"WoS page={physical_page} HTTP {exc.code}"
+                            "error": f"http_{exc.code}",
+                        }
                     )
-                    page_diagnostics.append({
-                        "logical_page": logical_page_idx + 1,
-                        "physical_requests": physical_requests,
-                        "requested_rows": rows_per_page,
-                        "returned_rows": len(page_records),
-                        "pagination_method": "wos_starter_page",
-                        "error": f"http_{exc.code}",
-                    })
                     break
                 except Exception as exc:
-                    all_warnings.append(
-                        f"WoS page={physical_page} error: {exc}"
-                    )
+                    all_warnings.append(f"WoS page={physical_page} error: {exc}")
                     break
 
                 # Polite inter-request delay (avoid burst)
@@ -464,16 +477,17 @@ class WebOfScienceProvider(BaseProvider):
                 )
             )
             if not any(
-                d.get("logical_page") == logical_page_idx + 1
-                for d in page_diagnostics
+                d.get("logical_page") == logical_page_idx + 1 for d in page_diagnostics
             ):
-                page_diagnostics.append({
-                    "logical_page": logical_page_idx + 1,
-                    "physical_requests": physical_requests,
-                    "requested_rows": rows_per_page,
-                    "returned_rows": len(page_records),
-                    "pagination_method": "wos_starter_page",
-                })
+                page_diagnostics.append(
+                    {
+                        "logical_page": logical_page_idx + 1,
+                        "physical_requests": physical_requests,
+                        "requested_rows": rows_per_page,
+                        "returned_rows": len(page_records),
+                        "pagination_method": "wos_starter_page",
+                    }
+                )
 
             # Stop paging if last logical page returned fewer than expected
             if len(page_records) < rows_per_page:

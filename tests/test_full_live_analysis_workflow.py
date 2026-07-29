@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 WORKFLOW = Path(".github/workflows/full-live-analysis.yml")
@@ -9,6 +10,24 @@ WORKFLOW = Path(".github/workflows/full-live-analysis.yml")
 
 def _text() -> str:
     return WORKFLOW.read_text(encoding="utf-8")
+
+
+def _run_block_text() -> str:
+    blocks: list[str] = []
+    in_run = False
+    run_indent = 0
+    for line in _text().splitlines():
+        if re.match(r"\s+run:\s*\|", line):
+            in_run = True
+            run_indent = len(line) - len(line.lstrip())
+            continue
+        if in_run:
+            indent = len(line) - len(line.lstrip())
+            if line.strip() and indent <= run_indent:
+                in_run = False
+            else:
+                blocks.append(line)
+    return "\n".join(blocks)
 
 
 def test_full_live_is_manual_and_defaults_to_no_provider_calls() -> None:
@@ -62,8 +81,9 @@ def test_current_run_is_archived_before_cross_run_stability() -> None:
 def test_cross_run_report_is_not_archived_as_current_run_payload() -> None:
     text = _text()
     archive_block = text[
-        text.index("Archive immutable current-run outputs"):
-        text.index("Build cross-run stability outside immutable archives")
+        text.index("Archive immutable current-run outputs") : text.index(
+            "Build cross-run stability outside immutable archives"
+        )
     ]
     assert "run_stability_report.json" not in archive_block
 
@@ -78,6 +98,24 @@ def test_artifacts_are_tiered_and_do_not_repeat_outputs_root() -> None:
     assert "retention-days: 7" in text
 
 
+def test_github_context_is_passed_through_env_before_shell_use() -> None:
+    text = _text()
+    run_text = _run_block_text()
+    assert "GH_CONTEXT_RUN_ID: ${{ github.run_id }}" in text
+    assert "GH_CONTEXT_RUN_ATTEMPT: ${{ github.run_attempt }}" in text
+    assert "GH_CONTEXT_SHA: ${{ github.sha }}" in text
+    assert "${{ github." not in run_text
+
+
+def test_uploaded_artifacts_exclude_raw_api_payloads() -> None:
+    text = _text()
+    assert "!outputs/release_packages/**/raw_api_payloads/**" in text
+    assert "!outputs/run_archive/**/raw_api_payloads/**" in text
+    assert "!outputs/live_runs/**/raw_api_payloads/**" in text
+    assert "!outputs/research_sources/raw_api_payloads/**" in text
+    assert "!outputs/cumulative_database/**/raw_api_payloads/**" in text
+
+
 def test_automatic_output_publication_is_removed() -> None:
     text = _text()
     assert "commit-outputs:" not in text
@@ -89,8 +127,9 @@ def test_automatic_output_publication_is_removed() -> None:
 def test_exploratory_provider_relaxation_does_not_apply_to_replication() -> None:
     text = _text()
     gate_block = text[
-        text.index("Evaluate live novelty gates"):
-        text.index("Archive immutable current-run outputs")
+        text.index("Evaluate live novelty gates") : text.index(
+            "Archive immutable current-run outputs"
+        )
     ]
     assert 'if [ "$EXECUTION_MODE" = "exploratory_live" ]' in gate_block
     assert "--allow-minimum-provider-contribution" in gate_block
@@ -101,8 +140,9 @@ def test_stability_thresholds_are_explicit_in_workflow() -> None:
     silently change the published method."""
     text = _text()
     stability_block = text[
-        text.index("Build cross-run stability outside immutable archives"):
-        text.index("Build reports and curated release package")
+        text.index("Build cross-run stability outside immutable archives") : text.index(
+            "Build reports and curated release package"
+        )
     ]
     assert "--jaccard-threshold 0.90" in stability_block
     assert "--new-doi-threshold 0.05" in stability_block

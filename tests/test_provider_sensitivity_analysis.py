@@ -170,6 +170,10 @@ def _fixture(tmp_path: Path, *, include_wos: bool = False) -> dict[str, Path]:
         )
     _write_jsonl(signals, signal_rows)
     _write_demands(demands)
+    (tmp_path / "layer4_manifest.json").write_text(
+        json.dumps({"analysis_timestamp_utc": "2026-07-29T00:00:00+00:00"}) + "\n",
+        encoding="utf-8",
+    )
     _write_jsonl(
         fragments,
         [
@@ -233,11 +237,11 @@ def test_recomputes_each_provider_subset_and_emits_complete_contract(
     direct = result["subsets"]["direct_crossref_excluded"]
     baseline = result["subsets"]["all_canonical"]
     retained = next(
-        row for row in direct["top_demands"]
-        if row["competence_demand_id"] == "D-MAR-1"
+        row for row in direct["top_demands"] if row["competence_demand_id"] == "D-MAR-1"
     )
     original = next(
-        row for row in baseline["top_demands"]
+        row
+        for row in baseline["top_demands"]
         if row["competence_demand_id"] == "D-MAR-1"
     )
     assert retained["provider_count"] == 1
@@ -274,6 +278,48 @@ def test_missing_required_input_fails_closed(tmp_path: Path) -> None:
     paths["signals"].unlink()
     with pytest.raises(ValueError, match="required signals file does not exist"):
         _build(tmp_path, paths)
+
+
+def test_empty_required_jsonl_and_csv_inputs_fail_closed(tmp_path: Path) -> None:
+    paths = _fixture(tmp_path)
+    paths["signals"].write_text("", encoding="utf-8")
+    with pytest.raises(ValueError, match="signals file contains no rows"):
+        _build(tmp_path, paths)
+
+    paths = _fixture(tmp_path)
+    paths["demands"].write_text(
+        "competence_demand_id,competence_label,sector,axis_group\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="derived demands file contains no rows"):
+        _build(tmp_path, paths)
+
+
+def test_missing_analysis_timestamp_manifest_fails_closed(tmp_path: Path) -> None:
+    paths = _fixture(tmp_path)
+    (tmp_path / "layer4_manifest.json").unlink()
+
+    with pytest.raises(ValueError, match="deterministic scoring"):
+        _build(tmp_path, paths)
+
+
+def test_duplicate_layer2_evidence_ids_fail_before_outputs_written(
+    tmp_path: Path,
+) -> None:
+    paths = _fixture(tmp_path)
+    rows = [
+        json.loads(line)
+        for line in paths["evidence"].read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    rows.append(dict(rows[0]))
+    _write_jsonl(paths["evidence"], rows)
+
+    with pytest.raises(ValueError, match="duplicate evidence_id"):
+        _build(tmp_path, paths)
+
+    assert not (tmp_path / "provider_sensitivity_analysis.json").exists()
+    assert not (tmp_path / "provider_sensitivity_analysis.md").exists()
 
 
 def test_explicit_unvalidated_supply_map_is_rejected(tmp_path: Path) -> None:

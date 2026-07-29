@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-29 (fix: complete PR-A review reconciliation follow-up)
+  Change type fix update
+  Scope scripts src tests workflows governance
+  Files affected .github/workflows/full-live-analysis.yml scripts/check_research_api_health.py scripts/export_live_research_records.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/openalex.py src/scientific_sources/web_of_science.py tests/test_check_research_api_health.py tests/test_export_live_research_records.py tests/test_full_live_analysis_workflow.py tests/test_openalex_provider.py tests/test_provider_sensitivity_analysis.py tests/test_run_stability.py tests/test_scientific_sources.py CHANGELOG.txt
+  Summary Completes the local PR-A reconciliation by routing GitHub workflow context through environment variables before shell/Python use, excluding raw_api_payloads from uploaded artifacts, standardizing sort-provenance audit values, enforcing capped logical-page requests, retaining Scopus responses only as redistribution-safe metadata envelopes, and strengthening OpenAlex/WoS credential diagnostics.
+  Reason The PR-A review contract requires fail-closed acquisition governance, no credential or restricted-payload retention in public artifacts, and regression tests showing that stale protocol projections, malformed pagination diagnostics, duplicate Layer 2 evidence IDs, and empty provider-sensitivity inputs cannot silently pass.
+  Impact Live-acquisition execution remains reviewer-protected and archive-first; no live provider calls or scientific-result claims are introduced. The changes affect workflow safety, Layer 1 provenance/audit metadata, provider retained-payload envelopes, and fail-closed diagnostic tests only.
+  Provenance GitHub issue comment 5116572204; config/live_query_protocol.yml; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md; .github/instructions/data-pipeline.instructions.md.
+  Quality checks Targeted pytest set passed with 261 tests; full pytest passed with 1176 passed and 8 openpyxl warnings; flake8, mypy, changelog guard, generated-output validation, research-source-output validation, manifest regeneration, and quick static recovery mode passed; run archive integrity remains blocked by pre-existing checksum/size drift in outputs/run_archive/runs/30090903921-1.
+
 - 2026-07-28 (fix: PR-A fail-closed live-analysis execution)
   Change type fix update
   Scope scripts tests workflows governance

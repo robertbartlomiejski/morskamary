@@ -83,9 +83,9 @@ def test_search_normalizes_work_and_sends_api_key(monkeypatch) -> None:
     assert result.records[0].doi == "10.5555/test.0"
     assert result.records[0].source_id == "openalex:10.5555/test.0"
     assert "Marine Science" in result.records[0].subject_terms
-    assert urllib.parse.parse_qs(
-        urllib.parse.urlparse(captured[0]).query
-    )["api_key"] == ["test-key"]
+    assert urllib.parse.parse_qs(urllib.parse.urlparse(captured[0]).query)[
+        "api_key"
+    ] == ["test-key"]
 
 
 def test_paginated_search_uses_distinct_cursor_requests(monkeypatch) -> None:
@@ -159,9 +159,7 @@ def test_retained_payload_hashes_next_cursor(monkeypatch) -> None:
 
     retained = json.dumps(result.raw_payload, sort_keys=True)
     assert "sensitive-cursor" not in retained
-    marker = result.raw_payload["pages"][0]["payload"]["meta"][
-        "next_cursor_marker"
-    ]
+    marker = result.raw_payload["pages"][0]["payload"]["meta"]["next_cursor_marker"]
     assert marker.startswith("sha256:")
 
 
@@ -178,6 +176,26 @@ def test_terminal_page_failure_is_returned_as_provider_error(monkeypatch) -> Non
     assert result.errors == ["OpenAlex search failed"]
     assert result.rate_limit_status == "rate-limited"
     assert result.page_diagnostics[0]["pagination_status"] == "failed"
+
+
+def test_provider_exception_redacts_api_key_from_errors(monkeypatch) -> None:
+    provider = _provider(monkeypatch)
+
+    def mocked_request(url: str):
+        raise RuntimeError(f"failed URL {url}")
+
+    with patch.object(provider, "_request_json", side_effect=mocked_request):
+        result = provider.search("credential redaction", max_results=1)
+
+    rendered = json.dumps(
+        {
+            "errors": result.errors,
+            "diagnostics": result.page_diagnostics,
+        },
+        sort_keys=True,
+    )
+    assert "test-key" not in rendered
+    assert "api_key=REDACTED" in rendered
 
 
 def test_verify_doi_uses_api_key_and_normalizes_doi(monkeypatch) -> None:
@@ -215,16 +233,13 @@ def test_transient_server_errors_are_retried(monkeypatch) -> None:
             raise result
         return result
 
-    with patch.object(
-        provider, "_request_json", side_effect=mocked_request
-    ) as mocked, patch(
-        "src.scientific_sources.openalex.time.sleep"
-    ) as mocked_sleep:
-        payload, warnings, error, rate_limit = (
-            provider._request_json_with_backoff(
-                url="https://api.openalex.org/works",
-                context_label="search",
-            )
+    with (
+        patch.object(provider, "_request_json", side_effect=mocked_request) as mocked,
+        patch("src.scientific_sources.openalex.time.sleep") as mocked_sleep,
+    ):
+        payload, warnings, error, rate_limit = provider._request_json_with_backoff(
+            url="https://api.openalex.org/works",
+            context_label="search",
         )
 
     assert payload == {"results": []}
@@ -240,7 +255,10 @@ def test_registry_and_sort_normalization_include_openalex(monkeypatch) -> None:
     names = [cap.name for cap in SourceRegistry().list_capabilities()]
     assert "openalex" in names
     assert normalize_provider_name("OpenAlex") == "openalex"
-    assert _lookup_provider_sort_strategy(
-        {"crossref": "published-desc", "scopus": "date-desc"},
-        "openalex",
-    ) == "date-desc"
+    assert (
+        _lookup_provider_sort_strategy(
+            {"crossref": "published-desc", "scopus": "date-desc"},
+            "openalex",
+        )
+        == "date-desc"
+    )

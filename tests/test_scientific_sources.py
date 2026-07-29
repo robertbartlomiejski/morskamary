@@ -303,7 +303,9 @@ class TestCrossrefProvider:
 
         assert len(result.records) == 1
         assert sleep_calls == [3.0]
-        assert any("attempt=1 http_status=429" in warning for warning in result.warnings)
+        assert any(
+            "attempt=1 http_status=429" in warning for warning in result.warnings
+        )
         assert any("terminal_status=success" in warning for warning in result.warnings)
 
     def test_search_retries_http_429_with_bounded_attempts(self, monkeypatch):
@@ -317,7 +319,11 @@ class TestCrossrefProvider:
             {},
             None,
         )
-        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=10: (_ for _ in ()).throw(throttled))
+        monkeypatch.setattr(
+            urllib.request,
+            "urlopen",
+            lambda req, timeout=10: (_ for _ in ()).throw(throttled),
+        )
         monkeypatch.setattr(time, "sleep", lambda _seconds: None)
 
         provider = CrossrefProvider()
@@ -362,7 +368,11 @@ class TestCrossrefProvider:
         """CrossrefProvider.search() must store the raw API JSON in raw_payload."""
         import urllib.request
 
-        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=10: _DummyResponse(_CROSSREF_PAYLOAD))
+        monkeypatch.setattr(
+            urllib.request,
+            "urlopen",
+            lambda req, timeout=10: _DummyResponse(_CROSSREF_PAYLOAD),
+        )
 
         provider = CrossrefProvider()
         result = provider.search("blue economy", max_results=1)
@@ -385,7 +395,11 @@ class TestCrossrefProvider:
                 "container-title": ["Ocean Studies"],
             }
         }
-        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=10: _DummyResponse(doi_payload))
+        monkeypatch.setattr(
+            urllib.request,
+            "urlopen",
+            lambda req, timeout=10: _DummyResponse(doi_payload),
+        )
 
         provider = CrossrefProvider()
         result = provider.verify_doi("10.1234/blue")
@@ -397,7 +411,11 @@ class TestCrossrefProvider:
         """raw_payload must remain None when a network error prevents API response."""
         import urllib.request
 
-        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=10: (_ for _ in ()).throw(OSError("down")))
+        monkeypatch.setattr(
+            urllib.request,
+            "urlopen",
+            lambda req, timeout=10: (_ for _ in ()).throw(OSError("down")),
+        )
 
         provider = CrossrefProvider()
         result = provider.search("blue economy")
@@ -466,7 +484,9 @@ class TestCrossrefProvider:
         assert any("attempt=1 http_status=429" in w for w in result.warnings)
         assert any("terminal_status=success" in w for w in result.warnings)
 
-    def test_search_preserves_429_retry_warnings_when_later_http_error_occurs(self, monkeypatch):
+    def test_search_preserves_429_retry_warnings_when_later_http_error_occurs(
+        self, monkeypatch
+    ):
         """A 429 retry followed by a terminal non-429 HTTP error must keep retry provenance."""
         import time
         import urllib.request
@@ -500,7 +520,9 @@ class TestCrossrefProvider:
         assert result.records == []
         assert result.errors
         assert "terminal_status=http_500" in result.errors[0]
-        assert any("attempt=1 http_status=429" in warning for warning in result.warnings)
+        assert any(
+            "attempt=1 http_status=429" in warning for warning in result.warnings
+        )
         # rate_limit_status must NOT be "rate-limited" because terminal cause was HTTP 500
         assert result.rate_limit_status != "rate-limited"
 
@@ -621,12 +643,17 @@ class TestElsevierScopusProvider:
 
         monkeypatch.setattr(provider, "_request_json", fake_request_json)
 
-        result = provider.search("infra & robotics qmbd axis translation", max_results=50)
+        result = provider.search(
+            "infra & robotics qmbd axis translation", max_results=50
+        )
 
         assert result.records == []
         assert "count=25" in captured["url"]
         decoded_url = urllib.parse.unquote(captured["url"])
-        assert 'TITLE-ABS-KEY("infra" AND "robotics" AND "qmbd" AND "axis" AND "translation")' in decoded_url
+        assert (
+            'TITLE-ABS-KEY("infra" AND "robotics" AND "qmbd" AND "axis" AND "translation")'
+            in decoded_url
+        )
         assert any("projected_query=" in warning for warning in result.warnings)
 
     def test_project_protocol_query_normalises_html_amp_before_raw_amp(self):
@@ -660,7 +687,9 @@ class TestElsevierScopusProvider:
 
     def test_project_protocol_query_preserves_hyphen_terms_only_as_full_tokens(self):
         """Preserved Scopus hyphen terms must not match inside larger hyphenated tokens."""
-        result = ElsevierScopusProvider._project_protocol_query("airport-city port-city")
+        result = ElsevierScopusProvider._project_protocol_query(
+            "airport-city port-city"
+        )
         assert result is not None
         assert '"port-city"' in result
         assert '"airport"' in result
@@ -756,16 +785,13 @@ class TestProviderPagination:
         ]
         assert [row["logical_page"] for row in result.page_diagnostics] == [1, 2]
         assert all(
-            row["pagination_status"] == "applied"
-            for row in result.page_diagnostics
+            row["pagination_status"] == "applied" for row in result.page_diagnostics
         )
         assert "cursor=%2A" in urls[0]
         assert "cursor-page-2" in urllib.parse.unquote(urls[1])
         assert "sort=published" in urls[0]
 
-    def test_scopus_protocol_logical_pages_compose_physical_requests(
-        self, monkeypatch
-    ):
+    def test_scopus_protocol_logical_pages_compose_physical_requests(self, monkeypatch):
         monkeypatch.setenv("SCOPUS_API_KEY", "test-key")
         provider = ElsevierScopusProvider()
         urls: list[str] = []
@@ -783,8 +809,13 @@ class TestProviderPagination:
                     "prism:doi": f"10.2000/{start + offset}",
                     "prism:coverDate": "2024-01-01",
                     "prism:publicationName": "Scopus Journal",
-                    "prism:url": f"https://example.org/{start + offset}",
+                    "prism:url": (
+                        f"https://example.org/{start + offset}"
+                        "?apiKey=credential-like-value"
+                    ),
                     "eid": f"2-s2.0-{start + offset}",
+                    "dc:description": "restricted abstract text",
+                    "raw-only-field": "must not be retained",
                 }
                 for offset in range(count)
             ]
@@ -805,7 +836,21 @@ class TestProviderPagination:
         assert len(result.page_diagnostics) == 6
         assert {row["logical_page"] for row in result.page_diagnostics} == {1, 2, 3}
         assert all(row["requested_rows"] == 25 for row in result.page_diagnostics)
-        assert all(row["pagination_status"] == "applied" for row in result.page_diagnostics)
+        assert all(
+            row["pagination_status"] == "applied" for row in result.page_diagnostics
+        )
+        assert result.raw_payload is not None
+        assert result.raw_payload["payload_kind"] == (
+            "redistribution_safe_metadata_envelope"
+        )
+        retained = json.dumps(result.raw_payload, sort_keys=True)
+        assert "restricted abstract text" not in retained
+        assert "raw-only-field" not in retained
+        assert "credential-like-value" not in retained
+        first_entry = result.raw_payload["physical_requests"][0]["payload"][
+            "search_results"
+        ]["entries"][0]
+        assert first_entry["url"].endswith("apiKey=REDACTED")
 
     def test_openalex_search_paginated_normalizes_records_and_provenance(
         self, monkeypatch
@@ -821,9 +866,7 @@ class TestProviderPagination:
                         "display_name": "Open blue competence",
                         "doi": "https://doi.org/10.3000/oa1",
                         "publication_year": 2025,
-                        "authorships": [
-                            {"author": {"display_name": "Ada Lovelace"}}
-                        ],
+                        "authorships": [{"author": {"display_name": "Ada Lovelace"}}],
                         "primary_location": {
                             "source": {"display_name": "OpenAlex Journal"}
                         },
@@ -989,6 +1032,7 @@ class TestWebOfScienceProvider:
 
         monkeypatch.setattr(provider, "_request_json", _mock_request)
         import time as _time
+
         monkeypatch.setattr(_time, "sleep", lambda _: None)
 
         result, diagnostics = provider.search_paginated(
@@ -1009,7 +1053,10 @@ class TestWebOfScienceProvider:
             "ocean", logical_pages=2, rows_per_page=50
         )
         assert result.is_empty
+        assert diagnostics[0]["provider"] == "wos"
+        assert diagnostics[0]["pagination_status"] == "provider_not_configured"
         assert diagnostics[0].get("error") == "not_configured"
+        assert diagnostics[0]["errors"] == "provider_not_configured"
 
 
 class TestSciValProvider:

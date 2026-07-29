@@ -12,6 +12,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import time
 import urllib.error
 import urllib.parse
@@ -48,6 +49,10 @@ _BASE_BACKOFF_SECONDS = 1.0
 _MAX_RETRY_AFTER_SECONDS = 60.0
 _TRANSIENT_SERVER_HTTP_STATUSES = {500, 502, 503}
 _PAYLOAD_KIND = "redistribution_safe_metadata_envelope"
+_REDACTED_QUERY_PARAMS = frozenset({"api_key", "apikey", "key", "token", "secret"})
+_SENSITIVE_QUERY_PARAM_RE = re.compile(
+    r"(?i)([?&](?:api_key|apikey|key|token|secret)=)[^&\s'\"<>)]*"
+)
 _LICENCE_NOTE = (
     "OpenAlex bibliographic metadata and topic labels. OpenAlex improves "
     "acquisition-provider diversity but is not upstream-independent from all DOI "
@@ -102,11 +107,38 @@ class OpenAlexProvider(BaseProvider):
         return f"sha256:{digest}"
 
     @staticmethod
+    def _redact_url(value: Any) -> str:
+        text = str(value or "").strip()
+        if not text:
+            return ""
+        try:
+            parsed = urllib.parse.urlparse(text)
+            if not parsed.scheme or not parsed.netloc:
+                return text
+            params = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+            safe_params = [
+                (
+                    key,
+                    "REDACTED" if key.lower() in _REDACTED_QUERY_PARAMS else raw_value,
+                )
+                for key, raw_value in params
+            ]
+            return urllib.parse.urlunparse(
+                parsed._replace(query=urllib.parse.urlencode(safe_params))
+            )
+        except Exception:
+            return "[url-redacted]"
+
+    def _redact_sensitive_text(self, value: Any) -> str:
+        text = _SENSITIVE_QUERY_PARAM_RE.sub(r"\1REDACTED", str(value or ""))
+        if self._api_key:
+            text = text.replace(self._api_key, "REDACTED")
+        return text
+
+    @staticmethod
     def _normalize_doi(raw_doi: Any) -> str:
         value = str(raw_doi or "").strip()
-        value = value.removeprefix("https://doi.org/").removeprefix(
-            "http://doi.org/"
-        )
+        value = value.removeprefix("https://doi.org/").removeprefix("http://doi.org/")
         return value.lower()
 
     @staticmethod
@@ -145,7 +177,7 @@ class OpenAlexProvider(BaseProvider):
         for key in ("doi", "id"):
             value = str(work.get(key, "")).strip()
             if value:
-                return value
+                return OpenAlexProvider._redact_url(value)
         return ""
 
     @staticmethod
@@ -219,9 +251,7 @@ class OpenAlexProvider(BaseProvider):
     ) -> List[LiteratureRecord]:
         records: List[LiteratureRecord] = []
         for item in items:
-            title = str(
-                item.get("title", "") or item.get("display_name", "")
-            ).strip()
+            title = str(item.get("title", "") or item.get("display_name", "")).strip()
             if not title:
                 continue
             doi = self._normalize_doi(item.get("doi"))
@@ -230,16 +260,12 @@ class OpenAlexProvider(BaseProvider):
             raw_citation_count = item.get("cited_by_count")
             try:
                 citation_count: Optional[int] = (
-                    int(raw_citation_count)
-                    if raw_citation_count is not None
-                    else None
+                    int(raw_citation_count) if raw_citation_count is not None else None
                 )
             except (TypeError, ValueError):
                 citation_count = None
             source_id = (
-                f"openalex:{doi}"
-                if doi
-                else f"openalex:{source_id_raw or title}"
+                f"openalex:{doi}" if doi else f"openalex:{source_id_raw or title}"
             )
             records.append(
                 LiteratureRecord(
@@ -360,7 +386,8 @@ class OpenAlexProvider(BaseProvider):
                 return (
                     None,
                     warnings,
-                    f"OpenAlex {context_label} error: {exc}",
+                    "OpenAlex "
+                    f"{context_label} error: {self._redact_sensitive_text(exc)}",
                     None,
                 )
         return None, warnings, "OpenAlex retry loop exhausted", "rate-limited"
@@ -571,9 +598,7 @@ class OpenAlexProvider(BaseProvider):
         return ProviderResult(
             records=records[:1],
             warnings=warnings,
-            provenance=self._make_evidence(
-                doi, "openalex/works/doi", records[:1]
-            ),
+            provenance=self._make_evidence(doi, "openalex/works/doi", records[:1]),
             raw_payload={
                 "payload_kind": _PAYLOAD_KIND,
                 "payload": self._safe_work_envelope(payload),

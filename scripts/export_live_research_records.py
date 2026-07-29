@@ -318,7 +318,9 @@ def _lookup_provider_sort_strategy_full(
                               in the protocol (empty string when absent).
     ``applied_sort``        – strategy that will actually be used; may be
                               inferred from a sibling provider for OpenAlex.
-    ``sort_strategy_source``– ``"declared"`` | ``"inferred"`` | ``"none"``.
+    ``sort_strategy_source``– ``"declared"`` |
+                              ``"inferred_provider_fallback"`` |
+                              ``"not_declared"``.
     """
     declared = str(sort_strategy.get(provider_key, "")).strip()
     if declared:
@@ -327,8 +329,8 @@ def _lookup_provider_sort_strategy_full(
         for fallback_key in ("wos", "scopus", "crossref"):
             fallback = str(sort_strategy.get(fallback_key, "")).strip()
             if fallback:
-                return "", fallback, "inferred"
-    return "", "", "none"
+                return "", fallback, "inferred_provider_fallback"
+    return "", "", "not_declared"
 
 
 def _resolve_provider_sort_strategies(
@@ -338,7 +340,9 @@ def _resolve_provider_sort_strategies(
     resolved: Dict[str, str] = {}
     for provider_name in provider_names:
         provider_key = normalize_provider_name(provider_name)
-        resolved[provider_key] = _lookup_provider_sort_strategy(sort_strategy, provider_key)
+        resolved[provider_key] = _lookup_provider_sort_strategy(
+            sort_strategy, provider_key
+        )
     return resolved
 
 
@@ -351,10 +355,9 @@ def _resolve_effective_sampling_request(
     """Return *(effective_pages, rows_per_page)* that fit within *max_results*.
 
     Uses all affordable **complete** logical pages while preserving
-    ``rows_per_page``.  When there is a residual smaller than one full page,
-    one additional reduced page is included so the caller can fetch up to
-    ``max_results`` records.  The downstream constraint filter clips the final
-    accepted count to ``max_results``, so the cap is never exceeded.
+    ``rows_per_page``.  When the entire budget is smaller than one declared
+    page, a single reduced page is requested so the provider call stays under
+    the operator cap.
     """
     pages = max(1, int(declared_pages or 1))
     rows_per_page = max(1, int(declared_rows_per_page or max_results or 1))
@@ -363,14 +366,10 @@ def _resolve_effective_sampling_request(
         return pages, rows_per_page
     # Budget is smaller than declared capacity.
     full_pages = max_results // rows_per_page
-    residual = max_results % rows_per_page
-    if residual > 0:
-        # One or more complete pages plus one reduced page for the residual.
-        effective_pages = min(pages, full_pages + 1)
-    else:
-        # Budget is exactly divisible — no partial last page needed.
-        effective_pages = min(pages, max(1, full_pages))
-    return effective_pages, rows_per_page
+    if full_pages > 0:
+        return min(pages, full_pages), rows_per_page
+    reduced_rows = max(1, max_results)
+    return 1, min(rows_per_page, reduced_rows)
 
 
 def _search_registry_paginated(
@@ -534,9 +533,7 @@ def validate_protocol_completeness(
                 query_ids.append(query_id)
 
     if total_queries != 120:
-        errors.append(
-            f"Expected 120 total projected queries, found {total_queries}."
-        )
+        errors.append(f"Expected 120 total projected queries, found {total_queries}.")
 
     family_names = {
         str(constraint.get("query_family", "")).strip()
@@ -687,7 +684,10 @@ def _apply_query_constraint(
             sampling_status = "pagination_failed"
         elif completed_pages >= pages:
             sampling_status = "applied_logical_pagination"
-        elif any(str(row.get("pagination_status", "")) == "end_of_results" for row in diagnostics):
+        elif any(
+            str(row.get("pagination_status", "")) == "end_of_results"
+            for row in diagnostics
+        ):
             sampling_status = "applied_until_end_of_results"
         elif has_diagnostic_warnings:
             sampling_status = "partially_applied_pagination_incomplete"
@@ -703,7 +703,10 @@ def _apply_query_constraint(
     validity_warnings: List[str] = []
     if sort_status.startswith("unsupported") or sort_status.startswith("not_declared"):
         validity_warnings.append("filter_not_applied:sort_strategy")
-    if sampling_status.startswith("partially") or sampling_status == "pagination_failed":
+    if (
+        sampling_status.startswith("partially")
+        or sampling_status == "pagination_failed"
+    ):
         validity_warnings.append("filter_not_applied:multi_page_sampling")
     if sampling_status == "invalid_replayed_page":
         validity_warnings.append("invalid_sampling:replayed_page")
@@ -777,10 +780,7 @@ def export_query_execution_log(
             ),
         ):
             writer.writerow(
-                {
-                    field: row.get(field, "")
-                    for field in QUERY_EXECUTION_FIELDS
-                }
+                {field: row.get(field, "") for field in QUERY_EXECUTION_FIELDS}
             )
 
 
@@ -1541,7 +1541,9 @@ def main() -> int:
         )
         return 1
     try:
-        constraints_projection_payload = _load_query_constraints_payload(constraints_path)
+        constraints_projection_payload = _load_query_constraints_payload(
+            constraints_path
+        )
         constraints_by_query = _load_query_constraints(constraints_path)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"Error: Invalid query constraints: {exc}", file=sys.stderr)
@@ -1583,8 +1585,7 @@ def main() -> int:
     sector_mismatches = sorted(
         query_text
         for query_text, sector_slug in projected_sector_by_query.items()
-        if str(constraints_by_query[query_text].get("sector_slug", ""))
-        != sector_slug
+        if str(constraints_by_query[query_text].get("sector_slug", "")) != sector_slug
     )
     if sector_mismatches:
         print(
@@ -1689,7 +1690,9 @@ def main() -> int:
                     actual_pages_attempted, _ = _resolve_effective_sampling_request(
                         declared_pages=int(declared_sampling.get("pages", 1) or 1),
                         declared_rows_per_page=int(
-                            declared_sampling.get("rows_per_page", args.max_results_per_query)
+                            declared_sampling.get(
+                                "rows_per_page", args.max_results_per_query
+                            )
                             or args.max_results_per_query
                         ),
                         max_results=args.max_results_per_query,
@@ -1762,10 +1765,12 @@ def main() -> int:
                     sampling.get("rows_per_page", args.max_results_per_query)
                     or args.max_results_per_query
                 )
-                effective_pages, effective_rows_per_page = _resolve_effective_sampling_request(
-                    declared_pages=pages,
-                    declared_rows_per_page=rows_per_page,
-                    max_results=args.max_results_per_query,
+                effective_pages, effective_rows_per_page = (
+                    _resolve_effective_sampling_request(
+                        declared_pages=pages,
+                        declared_rows_per_page=rows_per_page,
+                        max_results=args.max_results_per_query,
+                    )
                 )
                 sort_strategy = constraint.get("sort_strategy", {})
                 if not isinstance(sort_strategy, Mapping):
@@ -1842,9 +1847,7 @@ def main() -> int:
                         "provider": provider_name,
                         "provider_canonical": normalize_provider_name(provider_name),
                         "execution_status": (
-                            "completed_with_errors"
-                            if result.errors
-                            else "completed"
+                            "completed_with_errors" if result.errors else "completed"
                         ),
                         "returned_record_count": len(result.records),
                         "normalized_record_count": len(accepted_records),
@@ -1872,9 +1875,9 @@ def main() -> int:
                                 normalize_provider_name(provider_name),
                             )
                         ].add(_identity_key_from_record(record))
-                        sectors_by_identity_key[
-                            _identity_key_from_record(record)
-                        ].add(str(sector_label))
+                        sectors_by_identity_key[_identity_key_from_record(record)].add(
+                            str(sector_label)
+                        )
                     all_records.extend(accepted_records)
                     all_provenance.extend(result.provenance)
 
@@ -1910,8 +1913,12 @@ def main() -> int:
     deduped_identity_keys = {_identity_key_from_record(rec) for rec in deduped_records}
     for row in query_execution_rows:
         query_id = str(row.get("query_id", "")).strip()
-        provider_key = normalize_provider_name(row.get("provider_canonical") or row.get("provider", ""))
-        identity_keys = query_provider_identity_keys.get((query_id, provider_key), set())
+        provider_key = normalize_provider_name(
+            row.get("provider_canonical") or row.get("provider", "")
+        )
+        identity_keys = query_provider_identity_keys.get(
+            (query_id, provider_key), set()
+        )
         row["provider_canonical"] = provider_key
         row["contributed_record_count"] = len(identity_keys & deduped_identity_keys)
         if row.get("normalized_record_count", "") == "":
@@ -2019,19 +2026,23 @@ def main() -> int:
         query_execution_rows,
         output_dir / "query_execution_log.csv",
     )
-    with open(output_dir / "provider_pagination_diagnostics.json", "w", encoding="utf-8") as f:
+    with open(
+        output_dir / "provider_pagination_diagnostics.json", "w", encoding="utf-8"
+    ) as f:
         json.dump(provider_pagination_diagnostics, f, indent=2, ensure_ascii=False)
     scopus_rows = [
-        row for row in query_execution_rows
+        row
+        for row in query_execution_rows
         if str(row.get("provider_canonical", "")).strip() == "scopus"
     ]
-    with open(
-        output_dir / "scopus_query_diagnostics.json", "w", encoding="utf-8"
-    ) as f:
+    with open(output_dir / "scopus_query_diagnostics.json", "w", encoding="utf-8") as f:
         json.dump(
             sorted(
                 scopus_rows,
-                key=lambda row: (str(row.get("query_id", "")), str(row.get("provider", ""))),
+                key=lambda row: (
+                    str(row.get("query_id", "")),
+                    str(row.get("provider", "")),
+                ),
             ),
             f,
             indent=2,

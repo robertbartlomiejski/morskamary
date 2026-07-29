@@ -116,6 +116,13 @@ jobs:
       MICROSOFT_TENANT_ID: ${{ secrets.MICROSOFT_TENANT_ID }}
       MICROSOFT_CLIENT_ID: ${{ secrets.MICROSOFT_CLIENT_ID }}
       MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
+      GH_CONTEXT_RUN_ID: ${{ github.run_id }}
+      GH_CONTEXT_RUN_ATTEMPT: ${{ github.run_attempt }}
+      GH_CONTEXT_RUN_NUMBER: ${{ github.run_number }}
+      GH_CONTEXT_WORKFLOW: ${{ github.workflow }}
+      GH_CONTEXT_EVENT_NAME: ${{ github.event_name }}
+      GH_CONTEXT_SHA: ${{ github.sha }}
+      GH_CONTEXT_REF: ${{ github.ref }}
 
     steps:
       - name: Enforce live-run and publication freeze gates
@@ -175,7 +182,10 @@ jobs:
         run: |
           set -euo pipefail
           ANALYSIS_TS="$(date -u +%Y-%m-%dT%H:%M:%S+00:00)"
+          CURRENT_RUN_ID="${GH_CONTEXT_RUN_ID}-${GH_CONTEXT_RUN_ATTEMPT}"
           echo "ANALYSIS_TIMESTAMP_UTC=${ANALYSIS_TS}" >> "$GITHUB_ENV"
+          echo "CURRENT_RUN_ID=${CURRENT_RUN_ID}" >> "$GITHUB_ENV"
+          export CURRENT_RUN_ID
           mkdir -p outputs/governance
           python - <<'PY'
           import json
@@ -187,6 +197,7 @@ jobs:
           expected = queries * pages * len(providers)
           payload = {
               "execution_mode": os.environ["EXECUTION_MODE"],
+              "current_run_id": os.environ["CURRENT_RUN_ID"],
               "queries": queries,
               "providers": providers,
               "logical_pages": pages,
@@ -251,7 +262,7 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/build_live_run_audit.py \
-            --run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --run-id "$CURRENT_RUN_ID" \
             --research-sources-dir outputs/research_sources \
             --output-root outputs/live_runs \
             --protocol-path config/live_query_protocol.yml
@@ -284,13 +295,13 @@ jobs:
             --live-runs-root outputs/live_runs \
             --query-protocol config/live_query_protocol.yml \
             --output-dir outputs/cumulative_database \
-            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --current-run-id "$CURRENT_RUN_ID" \
             --emit-summary
           python scripts/build_layer4_5_scientific_analysis.py \
             --database-dir outputs/cumulative_database \
             --output-dir outputs/cumulative_database \
             --stats-dir outputs/layer4_statistics \
-            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --current-run-id "$CURRENT_RUN_ID" \
             --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC"
 
       - name: Build and conditionally consume validated H2 supply map
@@ -317,7 +328,7 @@ jobs:
               --output-dir outputs/cumulative_database \
               --stats-dir outputs/layer4_statistics \
               --validated-supply-map outputs/cumulative_database/validated_credential_supply_map.json \
-              --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+              --current-run-id "$CURRENT_RUN_ID" \
               --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC"
           fi
 
@@ -355,14 +366,14 @@ jobs:
           python scripts/archive_run_outputs.py \
             --repo-root . \
             --archive-root outputs/run_archive \
-            --run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
-            --workflow-name "${{ github.workflow }}" \
-            --event-name "${{ github.event_name }}" \
-            --git-sha "${{ github.sha }}" \
-            --git-ref "${{ github.ref }}" \
-            --github-run-id "${{ github.run_id }}" \
-            --github-run-attempt "${{ github.run_attempt }}" \
-            --github-run-number "${{ github.run_number }}" \
+            --run-id "$CURRENT_RUN_ID" \
+            --workflow-name "$GH_CONTEXT_WORKFLOW" \
+            --event-name "$GH_CONTEXT_EVENT_NAME" \
+            --git-sha "$GH_CONTEXT_SHA" \
+            --git-ref "$GH_CONTEXT_REF" \
+            --github-run-id "$GH_CONTEXT_RUN_ID" \
+            --github-run-attempt "$GH_CONTEXT_RUN_ATTEMPT" \
+            --github-run-number "$GH_CONTEXT_RUN_NUMBER" \
             --github-job "$GITHUB_JOB" \
             --providers "$REQUESTED_PROVIDERS" \
             --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
@@ -394,14 +405,14 @@ jobs:
           python scripts/build_statistical_research_report.py \
             --database-dir outputs/cumulative_database \
             --output-dir reports \
-            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}"
+            --current-run-id "$CURRENT_RUN_ID"
           python scripts/build_live_cumulative_release_package.py \
             --database-dir outputs/cumulative_database \
             --reports-dir reports \
             --stats-dir outputs/layer4_statistics \
-            --raw-acquisition-index "outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}/raw/raw_acquisition_index.csv" \
-            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
-            --version-tag "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --raw-acquisition-index "outputs/live_runs/${CURRENT_RUN_ID}/raw/raw_acquisition_index.csv" \
+            --current-run-id "$CURRENT_RUN_ID" \
+            --version-tag "$CURRENT_RUN_ID" \
             --output outputs/release_packages/morskamary_live_cumulative_latest.zip
 
       - name: Write execution qualification summary
@@ -425,9 +436,7 @@ jobs:
                   else "not_a_publication_release"
               ),
               "automatic_publication_performed": False,
-              "current_run_id": (
-                  "${{ github.run_id }}-${{ github.run_attempt }}"
-              ),
+              "current_run_id": os.environ["CURRENT_RUN_ID"],
           }
           Path("outputs/governance/execution_qualification.json").write_text(
               json.dumps(payload, indent=2) + "\n",
@@ -442,6 +451,7 @@ jobs:
           name: morskamary-release-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/release_packages/morskamary_live_cumulative_latest.zip
+            !outputs/release_packages/**/raw_api_payloads/**
             outputs/governance/api_budget_plan.json
             outputs/governance/execution_qualification.json
             outputs/cross_run_reports/run_stability_report.json
@@ -458,7 +468,9 @@ jobs:
           name: morskamary-run-audit-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/run_archive/runs/${{ github.run_id }}-${{ github.run_attempt }}/
+            !outputs/run_archive/**/raw_api_payloads/**
             outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}/
+            !outputs/live_runs/**/raw_api_payloads/**
             outputs/research_api_health.json
             outputs/research_sources/query_execution_log.csv
             outputs/research_sources/query_protocol_constraints.json
@@ -475,7 +487,9 @@ jobs:
           name: morskamary-debug-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/research_sources/
+            !outputs/research_sources/raw_api_payloads/**
             outputs/cumulative_database/
+            !outputs/cumulative_database/**/raw_api_payloads/**
             outputs/layer4_statistics/
           if-no-files-found: error
           retention-days: 7
