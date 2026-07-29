@@ -86,7 +86,15 @@ def _seed_archive(
             dois = []
         _write_json(
             run_dir / "research_sources" / "live_records.json",
-            [{"doi": str(doi), "title": f"Title {doi}"} for doi in dois],
+            [
+                {
+                    "doi": str(doi),
+                    "title": f"Title {doi}",
+                    "record_origin": "dynamic_api_crossref",
+                    "source_id": f"crossref:{doi}",
+                }
+                for doi in dois
+            ],
         )
         axis_distribution = run.get("axis_distribution")
         if not isinstance(axis_distribution, dict):
@@ -99,11 +107,14 @@ def _seed_archive(
         qmbd_records: list[dict[str, object]] = []
         for axis_name, count in axis_distribution.items():
             for idx in range(int(count)):
+                stable_identifier = f"{run_id}-{axis_name}-{idx}"
                 qmbd_records.append(
                     {
-                        "doi": f"{run_id}-{axis_name}-{idx}",
+                        "doi": stable_identifier,
                         "title": f"{axis_name} evidence {idx}",
                         "axis_name": axis_name,
+                        "record_origin": "dynamic_api_crossref",
+                        "source_id": f"crossref:{stable_identifier}",
                     }
                 )
         _write_json(run_dir / "analysis_outputs" / "cumulative_qmbd_records.json", qmbd_records)
@@ -140,6 +151,20 @@ def test_compute_jaccard_similarity() -> None:
     right = {"10.1000/b", "10.1000/c", "10.1000/d"}
     assert module.compute_jaccard_similarity(left, right) == 0.5
     assert module.compute_jaccard_similarity(set(), set()) == 1.0
+
+
+def test_live_provenance_allow_list_remains_fail_closed() -> None:
+    module = _load_module()
+
+    assert module._is_live_like_record({}) is False
+    assert (
+        module._is_live_like_record(
+            {"record_origin": "synthetic_fixture", "source_id": "unknown:10.1000/test"}
+        )
+        is False
+    )
+    assert module._is_live_like_record({"record_origin": "dynamic_api_crossref"}) is True
+    assert module._is_live_like_record({"source_id": "crossref:10.1000/test"}) is True
 
 
 def test_build_comparability_fingerprint_matches_only_for_same_payload() -> None:
