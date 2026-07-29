@@ -1070,6 +1070,7 @@ scripts/Iscot_240905_142040.txt,script,,,,,,Iscot_240905_142040,yes
 scripts/Materialnosc w morzu_241217_113623.txt,script,,,,,,Materialnosc_w_morzu_241217_113623,yes
 scripts/pip install pypdf.txt,script,,,,,,pip_install_pypdf,yes
 scripts/Port Animal-Human Relation_241026_074847.txt,script,,,,,,Port_Animal_Human_Relation_241026_074847,yes
+scripts/prepare_live_acquisition_plan.py,script,,,,,,prepare_live_acquisition_plan,yes
 scripts/prompt ioanis 12_02 18_37.txt,script,,,,,,prompt_ioanis_12_02_18_37,yes
 scripts/prompt ioanis 12_02 18_56.txt,script,,,,,,prompt_ioanis_12_02_18_56,yes
 scripts/prompt ioanis 12_02 18_58 Gemini.txt,script,,,,,,prompt_ioanis_12_02_18_58_Gemini,yes
@@ -1184,6 +1185,7 @@ tests/test_openalex_provider.py,script,,,,,,test_openalex_provider,yes
 tests/test_pagination.py,script,,,,,,test_pagination,yes
 tests/test_pipeline_matrix.py,script,,,,,,test_pipeline_matrix,yes
 tests/test_pre_acquisition_assertion.py,script,,,,,,test_pre_acquisition_assertion,yes
+tests/test_prepare_live_acquisition_plan.py,script,,,,,,test_prepare_live_acquisition_plan,yes
 tests/test_provider_sensitivity.py,script,,,,,,test_provider_sensitivity,yes
 tests/test_provider_sensitivity_analysis.py,script,,,,,,test_provider_sensitivity_analysis,yes
 tests/test_publication_cumulative_database.py,script,,,,,,test_publication_cumulative_database,yes

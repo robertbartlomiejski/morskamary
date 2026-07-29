@@ -17,7 +17,7 @@ def _run_block_text() -> str:
     in_run = False
     run_indent = 0
     for line in _text().splitlines():
-        if re.match(r"\s+run:\s*\|", line):
+        if re.match(r"\s+run:\s*[|>][+-]?\s*$", line):
             in_run = True
             run_indent = len(line) - len(line.lstrip())
             continue
@@ -54,7 +54,34 @@ def test_workflow_uses_explicit_page_contract_and_budget() -> None:
     assert "rows_per_page:" in text
     assert "MAX_RESULTS_PER_QUERY" in text
     assert "api_budget_plan.json" in text
-    assert '"abort_on_budget_exceeded": True' in text
+    plan = Path("scripts/prepare_live_acquisition_plan.py").read_text(encoding="utf-8")
+    assert '"abort_on_budget_exceeded": True' in plan
+
+
+def test_acquisition_plan_is_validated_before_provider_calls() -> None:
+    text = _text()
+    projection = text.index("Project and validate authoritative live query protocol")
+    plan = text.index("Validate and materialize acquisition plan")
+    health = text.index("Provider health preflight")
+    acquisition = text.index("Export live research records")
+    assert projection < plan < health < acquisition
+    assert "scripts/prepare_live_acquisition_plan.py" in text
+
+
+def test_failed_pre_acquisition_run_cannot_upload_stale_evidence() -> None:
+    text = _text()
+    clear = text.index("Clear stale committed run directories for current run ID")
+    plan = text.index("Validate and materialize acquisition plan")
+    assert clear < plan
+    assert "rm -f outputs/research_sources/query_execution_log.csv" in text
+    assert "rm -f outputs/cumulative_database/novelty_gate_report.json" in text
+    for upload in (
+        "Upload curated release",
+        "Upload current-run audit",
+        "Upload short-retention debug files",
+    ):
+        block = text[text.index(f"- name: {upload}") :]
+        assert "if: success()" in block.split("uses:", 1)[0]
 
 
 def test_h2_map_is_built_then_consumed_only_when_validated() -> None:

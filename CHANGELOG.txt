@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-29 (fix: close remaining PR-A acquisition-plan and archive-index gaps)
+  Change type fix update
+  Scope workflows scripts tests governance
+  Files affected .github/workflows/full-live-analysis.yml scripts/prepare_live_acquisition_plan.py scripts/archive_run_outputs.py tests/test_prepare_live_acquisition_plan.py tests/test_full_live_analysis_workflow.py tests/test_archive_run_outputs.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Validates the operator-selected pagination shape against the freshly projected authoritative protocol before provider activity, expands the all-provider profile before budgeting, prevents stale checkout evidence from entering current-run artifacts, and makes legacy archive-index migration atomic and fail closed for unknown headers.
+  Reason Current-head review found that a selected page shape could be silently transformed, the all-provider token could understate the budget, early failures could upload stale tracked evidence, and unknown legacy CSV headers could be widened unsafely.
+  Impact Live acquisition remains manual and reviewer protected. No scientific result semantics or historical archive payloads change; execution and provenance gates become stricter.
+  Provenance PR #217 review feedback; config/live_query_protocol.yml; docs/AGENT_WORKING_AGREEMENT.md.
+  Quality checks focused and full validation recorded in the PR evidence report.
+
 - 2026-07-29 (fix: PR-A three residual defects per review comment 5121338571)
   Change type fix update
   Scope scripts src tests workflows

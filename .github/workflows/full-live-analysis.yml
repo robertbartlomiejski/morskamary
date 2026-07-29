@@ -147,19 +147,6 @@ jobs:
             echo "Publication candidates remain frozen until ALLOW_PUBLICATION_RELEASES=true." >&2
             exit 1
           fi
-          python - <<'PY'
-          import os
-          pages = int(os.environ["LOGICAL_PAGES"])
-          rows = int(os.environ["ROWS_PER_PAGE"])
-          if pages < 1 or pages > 10:
-              raise SystemExit("LOGICAL_PAGES must be between 1 and 10")
-          if rows < 1 or rows > 100:
-              raise SystemExit("ROWS_PER_PAGE must be between 1 and 100")
-          total = pages * rows
-          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as handle:
-              handle.write(f"MAX_RESULTS_PER_QUERY={total}\n")
-          print(f"Approved acquisition ceiling: {pages} x {rows} = {total}")
-          PY
 
       - name: Checkout
         uses: actions/checkout@v6
@@ -178,7 +165,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
 
-      - name: Capture deterministic run timestamp and API budget
+      - name: Capture deterministic run identity
         run: |
           set -euo pipefail
           ANALYSIS_TS="$(date -u +%Y-%m-%dT%H:%M:%S+00:00)"
@@ -186,44 +173,6 @@ jobs:
           echo "ANALYSIS_TIMESTAMP_UTC=${ANALYSIS_TS}" >> "$GITHUB_ENV"
           echo "CURRENT_RUN_ID=${CURRENT_RUN_ID}" >> "$GITHUB_ENV"
           export CURRENT_RUN_ID
-          mkdir -p outputs/governance
-          python - <<'PY'
-          import json
-          import os
-          import sys
-          from pathlib import Path
-          sys.path.insert(0, ".")
-          from src.scientific_sources.source_registry import SourceRegistry
-          requested = [p.strip() for p in os.environ["REQUESTED_PROVIDERS"].split(",") if p.strip()]
-          # Expand 'all' to the full registered provider list so that budget math
-          # uses the real provider count rather than treating 'all' as one provider.
-          if len(requested) == 1 and requested[0] == "all":
-              _registry = SourceRegistry()
-              providers = [cap.name for cap in _registry.list_capabilities()]
-          else:
-              providers = requested
-          # Derive query count from committed protocol constraints (not hardcoded)
-          _constraints_path = Path("outputs/research_sources/query_protocol_constraints.json")
-          _constraints_data = json.loads(_constraints_path.read_text(encoding="utf-8")) if _constraints_path.exists() else {}
-          queries = int(_constraints_data.get("query_count", 120))
-          pages = int(os.environ["LOGICAL_PAGES"])
-          expected = queries * pages * len(providers)
-          payload = {
-              "execution_mode": os.environ["EXECUTION_MODE"],
-              "current_run_id": os.environ["CURRENT_RUN_ID"],
-              "queries": queries,
-              "providers": providers,
-              "logical_pages": pages,
-              "rows_per_page": int(os.environ["ROWS_PER_PAGE"]),
-              "expected_logical_requests": expected,
-              "maximum_total_logical_requests": expected,
-              "abort_on_budget_exceeded": True,
-          }
-          Path("outputs/governance/api_budget_plan.json").write_text(
-              json.dumps(payload, indent=2) + "\n",
-              encoding="utf-8",
-          )
-          PY
 
       - name: Clear stale committed run directories for current run ID
         run: |
@@ -239,6 +188,27 @@ jobs:
           # expected path.
           rm -rf "outputs/live_runs/${CURRENT_RUN_ID}"
           rm -rf "outputs/run_archive/runs/${CURRENT_RUN_ID}"
+          rm -f outputs/research_sources/query_execution_log.csv
+          rm -f outputs/cumulative_database/novelty_gate_report.json
+
+      - name: Project and validate authoritative live query protocol
+        run: |
+          set -euo pipefail
+          python scripts/export_live_query_protocol_projection.py \
+            --protocol-path config/live_query_protocol.yml \
+            --output-path outputs/research_sources/research_queries_from_protocol.yml \
+            --emit-summary-path outputs/research_sources/research_queries_from_protocol_summary.json
+
+      - name: Validate and materialize acquisition plan
+        run: |
+          set -euo pipefail
+          python scripts/prepare_live_acquisition_plan.py \
+            --constraints outputs/research_sources/query_protocol_constraints.json \
+            --providers "$REQUESTED_PROVIDERS" \
+            --logical-pages "$LOGICAL_PAGES" \
+            --rows-per-page "$ROWS_PER_PAGE" \
+            --output outputs/governance/api_budget_plan.json \
+            --github-env "$GITHUB_ENV"
 
       - name: Provider health preflight
         run: |
@@ -257,14 +227,6 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/export_research_source_capabilities.py
-
-      - name: Project and validate authoritative live query protocol
-        run: |
-          set -euo pipefail
-          python scripts/export_live_query_protocol_projection.py \
-            --protocol-path config/live_query_protocol.yml \
-            --output-path outputs/research_sources/research_queries_from_protocol.yml \
-            --emit-summary-path outputs/research_sources/research_queries_from_protocol_summary.json
 
       - name: Export live research records
         run: |
@@ -480,7 +442,7 @@ jobs:
           PY
 
       - name: Upload curated release
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: morskamary-release-${{ github.run_id }}-${{ github.run_attempt }}
@@ -497,7 +459,7 @@ jobs:
           retention-days: 30
 
       - name: Upload current-run audit
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: morskamary-run-audit-${{ github.run_id }}-${{ github.run_attempt }}
@@ -516,7 +478,7 @@ jobs:
           retention-days: 30
 
       - name: Upload short-retention debug files
-        if: always() && inputs.upload_debug_artifact == 'true'
+        if: success() && inputs.upload_debug_artifact == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: morskamary-debug-${{ github.run_id }}-${{ github.run_attempt }}

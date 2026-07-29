@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
+import pytest
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -607,3 +608,33 @@ def test_append_csv_index_does_not_rewrite_when_schema_matches(tmp_path: Path) -
         rows = list(csv.DictReader(handle))
     assert len(rows) == 2, "original row plus new row"
     assert rows[0]["run_id"] == "orig-run_id", "original row must be preserved"
+
+
+def test_append_csv_index_rejects_unknown_header_without_rewriting(tmp_path: Path) -> None:
+    """An unrecognized index schema must fail closed and preserve existing bytes."""
+    module = _load_archive_module()
+    archive_root = tmp_path / "archive"
+    archive_root.mkdir()
+    csv_path = archive_root / "cumulative_runs_index.csv"
+    original = b"run_id,unexpected\nlegacy,value\n"
+    csv_path.write_bytes(original)
+    manifest = {column: "" for column in module.INDEX_CSV_COLUMNS}
+    manifest.update(
+        {
+            "is_static_recovery_mode": False,
+            "gaps_summary_available": False,
+            "live_records_count": 0,
+            "triangulated_records_count": 0,
+            "cumulative_qmbd_records_count": 0,
+            "competences_total": 0,
+            "baseline_count": 0,
+            "static_literature_count": 0,
+            "live_enrichment_count": 0,
+            "credentials_count": 0,
+            "file_count": 0,
+            "total_bytes": 0,
+        }
+    )
+    with pytest.raises(ValueError, match="incompatible"):
+        module._append_csv_index(archive_root, manifest)
+    assert csv_path.read_bytes() == original

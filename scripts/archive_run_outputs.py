@@ -399,7 +399,8 @@ def _rewrite_csv_with_new_schema(
     except OSError:
         old_rows = []
 
-    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+    temporary_path = csv_path.with_suffix(csv_path.suffix + ".tmp")
+    with temporary_path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(
             handle, fieldnames=list(new_fieldnames), extrasaction="ignore"
         )
@@ -408,6 +409,7 @@ def _rewrite_csv_with_new_schema(
             # Fill any column that is new (absent from the legacy row).
             migrated = {col: row.get(col, "") for col in new_fieldnames}
             writer.writerow(migrated)
+    temporary_path.replace(csv_path)
 
 
 def _append_csv_index(archive_root: Path, manifest_payload: dict[str, Any]) -> None:
@@ -462,8 +464,16 @@ def _append_csv_index(archive_root: Path, manifest_payload: dict[str, Any]) -> N
         # migrate it to the current column set before appending so that
         # DictReader consumers see a consistent header across all rows.
         existing_header = _read_csv_header(csv_path)
-        if list(existing_header) != list(INDEX_CSV_COLUMNS):
+        legacy_header = [
+            column for column in INDEX_CSV_COLUMNS if column != "archive_root"
+        ]
+        if list(existing_header) == legacy_header:
             _rewrite_csv_with_new_schema(csv_path, INDEX_CSV_COLUMNS)
+        elif list(existing_header) != list(INDEX_CSV_COLUMNS):
+            raise ValueError(
+                "archive index header is incompatible with the canonical schema; "
+                "refusing to append a misaligned row"
+            )
         write_header = False
 
     with csv_path.open("a", encoding="utf-8", newline="") as handle:
