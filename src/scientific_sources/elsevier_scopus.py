@@ -588,6 +588,11 @@ class ElsevierScopusProvider(BaseProvider):
                     result = self._http_error_result(
                         f"search projected_query={projected_query!r}", exc
                     )
+                    _pag_status = (
+                        "rate_limited"
+                        if result.rate_limit_status == "rate-limited"
+                        else "failed"
+                    )
                     page_diagnostics.append(
                         {
                             "provider": "scopus",
@@ -598,7 +603,8 @@ class ElsevierScopusProvider(BaseProvider):
                             "requested_rows": count,
                             "returned_rows": 0,
                             "normalized_rows": 0,
-                            "pagination_status": "failed",
+                            "pagination_status": _pag_status,
+                            "rate_limit_status": result.rate_limit_status,
                             "errors": "|".join(result.errors),
                             "warnings": "|".join(result.warnings),
                         }

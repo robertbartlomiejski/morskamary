@@ -409,7 +409,7 @@ class WebOfScienceProvider(BaseProvider):
         physical_page = 1
 
         for logical_page_idx in range(safe_pages):
-            rows_remaining = rows_per_page
+            rows_remaining = safe_rows
             page_records: List[LiteratureRecord] = []
             physical_requests = 0
 
@@ -439,24 +439,36 @@ class WebOfScienceProvider(BaseProvider):
                         )
                         page_diagnostics.append(
                             {
+                                "provider": "wos",
+                                "query": query,
                                 "logical_page": logical_page_idx + 1,
+                                "physical_request_index": physical_requests,
+                                "cursor_or_offset": f"page:{physical_page}",
                                 "physical_requests": physical_requests,
-                                "requested_rows": rows_per_page,
+                                "requested_rows": safe_rows,
                                 "returned_rows": len(page_records),
+                                "normalized_rows": len(page_records),
                                 "pagination_method": "wos_starter_page",
-                                "error": "rate_limited",
+                                "pagination_status": "rate_limited",
+                                "errors": "rate_limited",
                             }
                         )
                         break
                     all_warnings.append(f"WoS page={physical_page} HTTP {exc.code}")
                     page_diagnostics.append(
                         {
+                            "provider": "wos",
+                            "query": query,
                             "logical_page": logical_page_idx + 1,
+                            "physical_request_index": physical_requests,
+                            "cursor_or_offset": f"page:{physical_page}",
                             "physical_requests": physical_requests,
-                            "requested_rows": rows_per_page,
+                            "requested_rows": safe_rows,
                             "returned_rows": len(page_records),
+                            "normalized_rows": len(page_records),
                             "pagination_method": "wos_starter_page",
-                            "error": f"http_{exc.code}",
+                            "pagination_status": "failed",
+                            "errors": f"http_{exc.code}",
                         }
                     )
                     break
@@ -479,18 +491,28 @@ class WebOfScienceProvider(BaseProvider):
             if not any(
                 d.get("logical_page") == logical_page_idx + 1 for d in page_diagnostics
             ):
+                _page_status = (
+                    "end_of_results" if len(page_records) < safe_rows else "applied"
+                )
                 page_diagnostics.append(
                     {
+                        "provider": "wos",
+                        "query": query,
                         "logical_page": logical_page_idx + 1,
+                        "physical_request_index": physical_requests,
+                        "cursor_or_offset": f"page:{physical_page - physical_requests}",
                         "physical_requests": physical_requests,
-                        "requested_rows": rows_per_page,
+                        "requested_rows": safe_rows,
                         "returned_rows": len(page_records),
+                        "normalized_rows": len(page_records),
                         "pagination_method": "wos_starter_page",
+                        "pagination_status": _page_status,
+                        "errors": "",
                     }
                 )
 
             # Stop paging if last logical page returned fewer than expected
-            if len(page_records) < rows_per_page:
+            if len(page_records) < safe_rows:
                 break
 
         rate_limit_status = (

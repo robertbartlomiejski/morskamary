@@ -335,11 +335,14 @@ def main() -> int:
 
     if args.require_valid:
         invalid = [
-            r for r in results if r.status in {"present-but-invalid", "rate-limited"}
+            r
+            for r in results
+            if r.status
+            in {"present-but-invalid", "rate-limited", "transient-network-error"}
         ]
         if invalid:
             print(
-                "\nFailing preflight due to invalid/rate-limited provider credentials."
+                "\nFailing preflight due to invalid/rate-limited/unreachable provider."
             )
             return 1
     if args.require_configured:

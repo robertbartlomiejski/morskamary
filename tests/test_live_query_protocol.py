@@ -256,7 +256,7 @@ class TestShippedProtocol:
     def test_projection_axis_target_matches_authoritative_protocol(
         self, loaded_protocol: LiveQueryProtocol
     ) -> None:
-        """Mutating axis_target in the projection must fail before any provider call."""
+        """Every projected axis_target must equal the authoritative protocol value."""
         constraints = loaded_protocol.to_query_constraints()
         assert all("axis_target" in row for row in constraints), (
             "to_query_constraints must include axis_target for every query"

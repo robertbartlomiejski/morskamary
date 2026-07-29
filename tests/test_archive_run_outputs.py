@@ -436,3 +436,19 @@ def test_archive_run_outputs_fails_when_required_targets_are_missing(tmp_path: P
 
     assert exit_code == 1
     assert not (tmp_path / "outputs" / "run_archive" / "runs" / "run-999").exists()
+
+
+def test_repo_relative_posix_uses_redaction_sentinel_for_out_of_tree_path(
+    tmp_path: Path,
+) -> None:
+    """_repo_relative_posix must return the sentinel for paths outside the repo root."""
+    module = _load_archive_module()
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as out_of_tree_dir:
+        out_of_tree_path = Path(out_of_tree_dir) / "some_archive"
+        repo_root = tmp_path
+        result = module._repo_relative_posix(out_of_tree_path, repo_root)
+        assert result == "[redacted-out-of-tree-path]", (
+            f"Expected sentinel for out-of-tree path, got: {result!r}"
+        )

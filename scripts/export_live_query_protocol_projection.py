@@ -42,7 +42,7 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         "--min-total-queries",
         type=int,
         default=120,
-        help="Fail if protocol has fewer executable queries than this threshold.",
+        help="Fail unless the protocol declares exactly this many executable queries.",
     )
     parser.add_argument(
         "--emit-summary-path",
@@ -72,8 +72,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     if len(all_queries) != args.min_total_queries:
         raise LiveQueryProtocolError(
             f"protocol query count {len(all_queries)} must equal required "
-            f"scientific count {args.min_total_queries}; below required minimum "
-            "or exact protocol count mismatch"
+            f"scientific count {args.min_total_queries}: exact protocol count mismatch"
         )
 
     output_path = Path(args.output_path)

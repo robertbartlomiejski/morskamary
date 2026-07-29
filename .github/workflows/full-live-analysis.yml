@@ -192,7 +192,10 @@ jobs:
           import os
           from pathlib import Path
           providers = [p.strip() for p in os.environ["REQUESTED_PROVIDERS"].split(",") if p.strip()]
-          queries = 120
+          # Derive query count from committed protocol constraints (not hardcoded)
+          _constraints_path = Path("outputs/research_sources/query_protocol_constraints.json")
+          _constraints_data = json.loads(_constraints_path.read_text(encoding="utf-8")) if _constraints_path.exists() else {}
+          queries = int(_constraints_data.get("query_count", 120))
           pages = int(os.environ["LOGICAL_PAGES"])
           expected = queries * pages * len(providers)
           payload = {
@@ -458,7 +461,7 @@ jobs:
             reports/morskamary_statistical_report.html
             reports/morskamary_methodological_audit.html
             reports/morskamary_statistical_report.pdf
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
 
       - name: Upload current-run audit

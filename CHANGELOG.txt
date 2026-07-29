@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-29 (fix: address fresh CodeRabbit review findings from PR-A head d04db532)
+  Change type fix update
+  Scope scripts src tests workflows
+  Files affected scripts/archive_run_outputs.py scripts/check_research_api_health.py scripts/export_live_query_protocol_projection.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/web_of_science.py .github/workflows/full-live-analysis.yml tests/test_archive_run_outputs.py tests/test_check_research_api_health.py tests/test_export_live_query_protocol_projection.py tests/test_live_query_protocol.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Addresses 9 unresolved inline threads from the fresh CodeRabbit review: (1) removes run_stability_report.json from immutable per-run archive targets; (2) returns explicit sentinel for out-of-tree paths in _repo_relative_posix; (3) adds transient-network-error to --require-valid validity gate; (4) fixes export-protocol error message to match exact-count semantics; (5) derives budget query count from committed constraints file instead of hardcoding 120; (6) changes Upload curated release if-no-files-found to warn so failed runs do not double-fail; (7) uses safe_rows consistently throughout WoS pagination loop; (8) derives Scopus pagination_status from rate_limit_status and adds canonical WoS diagnostic fields; (9) fixes misleading docstring in test_live_query_protocol.py.
+  Reason Fresh CodeRabbit review (run ab1caacc) for head d04db532bc identified 9 unresolved actionable threads; each finding verified against current code and confirmed as a still-valid PR-A defect.
+  Impact No live provider calls introduced. Archive immutability contract is tightened: cross-run stability report is no longer co-archived with immutable per-run data. Diagnostic consumers can now distinguish rate-limited from failed provider responses. Budget plan derives from authoritative protocol rather than hardcoded value.
+  Provenance GitHub PR #217 CodeRabbit review id 4809879406; config/live_query_protocol.yml; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md.
+  Quality checks python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m mypy src scripts run_full_analysis.py main.py (Success: no issues found); python -m pytest tests/ (1178 passed, 8 warnings); python scripts/generate_manifest.py (1201 entries).
+
 - 2026-07-29 (fix: complete PR-A review reconciliation follow-up)
   Change type fix update
   Scope scripts src tests workflows governance

@@ -471,3 +471,40 @@ def test_main_rejects_unknown_or_mixed_all_providers(tmp_path: Path) -> None:
         ],
     ):
         assert check_research_api_health.main() == 1
+
+
+def test_main_require_valid_fails_on_transient_network_error(
+    tmp_path: Path,
+) -> None:
+    """--require-valid must exit non-zero when a provider returns transient-network-error."""
+    import check_research_api_health
+
+    output_file = tmp_path / "health" / "results.json"
+    ok_result = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
+    transient_result = check_research_api_health.ProbeResult(
+        "scopus", "transient-network-error", "ECONNRESET", None
+    )
+
+    with (
+        patch(
+            "sys.argv",
+            [
+                "check_research_api_health.py",
+                "--output",
+                str(output_file),
+                "--require-valid",
+            ],
+        ),
+        patch("check_research_api_health.probe_crossref", return_value=ok_result),
+        patch("check_research_api_health.probe_scopus", return_value=transient_result),
+        patch("check_research_api_health.probe_wos", return_value=ok_result),
+        patch("check_research_api_health.probe_openalex", return_value=ok_result),
+        patch("check_research_api_health.probe_scival", return_value=ok_result),
+        patch(
+            "check_research_api_health.probe_microsoft_graph", return_value=ok_result
+        ),
+        patch("check_research_api_health.probe_google_drive", return_value=ok_result),
+    ):
+        exit_code = check_research_api_health.main()
+
+    assert exit_code == 1, "transient-network-error must fail --require-valid gate"

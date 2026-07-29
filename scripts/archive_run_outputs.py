@@ -41,7 +41,8 @@ ARCHIVE_OPTIONAL_TARGETS: tuple[str, ...] = (
     "outputs/cumulative_database/validated_credential_supply_audit.json",
     "outputs/cumulative_database/provider_sensitivity_analysis.json",
     "outputs/cumulative_database/provider_sensitivity_analysis.md",
-    "outputs/cumulative_database/run_stability_report.json",
+    # run_stability_report.json is a cross-run mutable report; it must remain
+    # outside immutable per-run archives (built separately by build_run_stability_report.py)
 )
 
 ANALYSIS_VIEW_TARGETS: tuple[str, ...] = (
@@ -440,7 +441,7 @@ def _repo_relative_posix(path: Path, repo_root: Path) -> str:
     try:
         return path.resolve().relative_to(repo_root.resolve()).as_posix()
     except ValueError:
-        return path.name
+        return "[redacted-out-of-tree-path]"
 
 
 def archive_run_outputs(
