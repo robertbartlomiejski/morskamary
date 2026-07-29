@@ -2,7 +2,7 @@
 Scientific sources provider package for morskamary.
 
 Provides a modular, capability-gated interface to multiple scientific databases
-(Crossref, Elsevier/Scopus, Web of Science, SciVal, Google Drive, Microsoft Graph).
+(Crossref, Elsevier/Scopus, OpenAlex, Web of Science, SciVal, Google Drive, Microsoft Graph).
 
 All providers normalize results into LiteratureRecord. Proprietary providers
 return a structured "not configured" result when the required secret is absent.

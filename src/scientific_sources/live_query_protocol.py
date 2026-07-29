@@ -21,6 +21,7 @@ Public surface:
 
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -690,6 +691,201 @@ def load_live_query_protocol(path: Union[str, Path]) -> LiveQueryProtocol:
         sectors=sectors,
         hypotheses=hypotheses,
     )
+
+
+EXPECTED_AUTHORITATIVE_QUERY_COUNT = 120
+EXPECTED_AUTHORITATIVE_SECTOR_COUNT = 12
+EXPECTED_AUTHORITATIVE_QUERIES_PER_SECTOR = 10
+
+
+def validate_complete_authoritative_protocol_projection(
+    protocol: LiveQueryProtocol,
+    constraints_projection: Mapping[str, Any],
+    *,
+    expected_query_count: int = EXPECTED_AUTHORITATIVE_QUERY_COUNT,
+    expected_sector_count: int = EXPECTED_AUTHORITATIVE_SECTOR_COUNT,
+    expected_queries_per_sector: int = EXPECTED_AUTHORITATIVE_QUERIES_PER_SECTOR,
+) -> None:
+    """Fail when the executable projection is not the complete protocol.
+
+    The legacy query-groups YAML contains query text only. The executable
+    per-query constraints projection contains query IDs and is therefore the
+    artifact that can prove 120-query completeness before provider acquisition.
+    """
+    protocol_queries = protocol.all_queries()
+    protocol_ids = [query.query_id for query in protocol_queries]
+    duplicate_protocol_ids = sorted(
+        query_id for query_id, count in Counter(protocol_ids).items() if count > 1
+    )
+    if duplicate_protocol_ids:
+        raise LiveQueryProtocolError(
+            f"duplicate protocol query IDs: {duplicate_protocol_ids}"
+        )
+    if len(protocol_queries) != expected_query_count:
+        raise LiveQueryProtocolError(
+            f"authoritative protocol must contain exactly {expected_query_count} queries; "
+            f"found {len(protocol_queries)}"
+        )
+    if len(protocol.sectors) != expected_sector_count:
+        raise LiveQueryProtocolError(
+            f"authoritative protocol must contain exactly {expected_sector_count} sectors; "
+            f"found {len(protocol.sectors)}"
+        )
+    sector_counts = {slug: len(sector.queries) for slug, sector in protocol.sectors.items()}
+    bad_sector_counts = {
+        slug: count
+        for slug, count in sector_counts.items()
+        if count != expected_queries_per_sector
+    }
+    if bad_sector_counts:
+        raise LiveQueryProtocolError(
+            "authoritative protocol sector query counts must all equal "
+            f"{expected_queries_per_sector}; bad={bad_sector_counts}"
+        )
+
+    protocol_family_counts = Counter(query.query_family.value for query in protocol_queries)
+    declared_families = {family.value for family in protocol.query_families}
+    if set(protocol_family_counts) != declared_families:
+        raise LiveQueryProtocolError(
+            "authoritative protocol family counts do not cover exactly the declared families"
+        )
+
+    rows = constraints_projection.get("queries")
+    if not isinstance(rows, Sequence) or isinstance(rows, (str, bytes)):
+        raise LiveQueryProtocolError("constraints projection must contain a queries list")
+    declared_count = int(constraints_projection.get("query_count", len(rows)) or 0)
+    if declared_count != len(rows):
+        raise LiveQueryProtocolError(
+            f"constraints projection query_count={declared_count} but rows={len(rows)}"
+        )
+    if len(rows) != expected_query_count:
+        raise LiveQueryProtocolError(
+            f"constraints projection must contain exactly {expected_query_count} queries; "
+            f"found {len(rows)}"
+        )
+    projected_protocol_version = str(
+        constraints_projection.get("protocol_version", "")
+    ).strip()
+    if projected_protocol_version != protocol.protocol_version:
+        raise LiveQueryProtocolError(
+            "protocol/projection protocol-version mismatch: "
+            f"protocol={protocol.protocol_version!r}, projection={projected_protocol_version!r}"
+        )
+
+    projection_by_id: Dict[str, Mapping[str, Any]] = {}
+    duplicate_projection_ids: List[str] = []
+    for row in rows:
+        if not isinstance(row, Mapping):
+            raise LiveQueryProtocolError("each constraints projection query must be an object")
+        query_id = str(row.get("query_id", "")).strip()
+        if not query_id:
+            raise LiveQueryProtocolError("constraints projection query missing query_id")
+        if query_id in projection_by_id:
+            duplicate_projection_ids.append(query_id)
+        projection_by_id[query_id] = row
+    if duplicate_projection_ids:
+        raise LiveQueryProtocolError(
+            f"duplicate projected query IDs: {sorted(set(duplicate_projection_ids))}"
+        )
+
+    protocol_id_set = set(protocol_ids)
+    projection_id_set = set(projection_by_id)
+    missing = sorted(protocol_id_set - projection_id_set)
+    extra = sorted(projection_id_set - protocol_id_set)
+    if missing or extra:
+        raise LiveQueryProtocolError(
+            "protocol/projection query-ID mismatch: "
+            f"missing={missing}, extra={extra}"
+        )
+
+    protocol_by_id = {query.query_id: query for query in protocol_queries}
+    projection_sector_counts: Counter[str] = Counter()
+    projection_family_counts: Counter[str] = Counter()
+    query_text_mismatches: List[str] = []
+    sector_mismatches: List[str] = []
+    family_mismatches: List[str] = []
+    time_window_mismatches: List[str] = []
+    sort_strategy_mismatches: List[str] = []
+    sampling_strategy_mismatches: List[str] = []
+    evidence_intent_mismatches: List[str] = []
+    for query_id, query in protocol_by_id.items():
+        row = projection_by_id[query_id]
+        projection_sector_counts[str(row.get("sector_slug", "")).strip()] += 1
+        projection_family_counts[str(row.get("query_family", "")).strip()] += 1
+        if str(row.get("query_text", "")).strip() != query.query_text:
+            query_text_mismatches.append(query_id)
+        if str(row.get("sector_slug", "")).strip() != query.sector_slug:
+            sector_mismatches.append(query_id)
+        if str(row.get("query_family", "")).strip() != query.query_family.value:
+            family_mismatches.append(query_id)
+        expected_time_window = {
+            "from_year": query.time_window.from_year,
+            "to_year": query.time_window.to_year,
+        }
+        if row.get("time_window") != expected_time_window:
+            time_window_mismatches.append(query_id)
+        expected_sort_strategy = {
+            "crossref": query.sort_strategy.crossref,
+            "scopus": query.sort_strategy.scopus,
+            "wos": query.sort_strategy.wos,
+        }
+        if row.get("sort_strategy") != expected_sort_strategy:
+            sort_strategy_mismatches.append(query_id)
+        expected_sampling_strategy = {
+            "mode": query.sampling_strategy.mode,
+            "pages": query.sampling_strategy.pages,
+            "rows_per_page": query.sampling_strategy.rows_per_page,
+            "dedupe_key": query.sampling_strategy.dedupe_key,
+        }
+        if row.get("sampling_strategy") != expected_sampling_strategy:
+            sampling_strategy_mismatches.append(query_id)
+        if str(row.get("evidence_intent", "")).strip() != query.evidence_intent:
+            evidence_intent_mismatches.append(query_id)
+    if query_text_mismatches:
+        raise LiveQueryProtocolError(
+            f"protocol/projection query-text mismatch IDs: {query_text_mismatches}"
+        )
+    if sector_mismatches:
+        raise LiveQueryProtocolError(
+            f"protocol/projection sector mismatch IDs: {sector_mismatches}"
+        )
+    if family_mismatches:
+        raise LiveQueryProtocolError(
+            f"protocol/projection family mismatch IDs: {family_mismatches}"
+        )
+    if time_window_mismatches:
+        raise LiveQueryProtocolError(
+            f"protocol/projection time-window mismatch IDs: {time_window_mismatches}"
+        )
+    if sort_strategy_mismatches:
+        raise LiveQueryProtocolError(
+            f"protocol/projection sort-strategy mismatch IDs: {sort_strategy_mismatches}"
+        )
+    if sampling_strategy_mismatches:
+        raise LiveQueryProtocolError(
+            "protocol/projection sampling-strategy mismatch IDs: "
+            f"{sampling_strategy_mismatches}"
+        )
+    if evidence_intent_mismatches:
+        raise LiveQueryProtocolError(
+            "protocol/projection evidence-intent mismatch IDs: "
+            f"{evidence_intent_mismatches}"
+        )
+    if dict(projection_family_counts) != dict(protocol_family_counts):
+        raise LiveQueryProtocolError(
+            "protocol/projection query-family count mismatch: "
+            f"protocol={dict(protocol_family_counts)}, projection={dict(projection_family_counts)}"
+        )
+    bad_projection_sectors = {
+        slug: count
+        for slug, count in projection_sector_counts.items()
+        if count != expected_queries_per_sector
+    }
+    if len(projection_sector_counts) != expected_sector_count or bad_projection_sectors:
+        raise LiveQueryProtocolError(
+            "constraints projection must cover 12 sectors with exactly 10 queries each; "
+            f"sector_counts={dict(sorted(projection_sector_counts.items()))}"
+        )
 
 
 def validate_legacy_projection_matches_protocol(

@@ -173,18 +173,29 @@ def test_probe_scopus_missing_and_configured_paths(monkeypatch) -> None:
     mocked_request.assert_called_once()
 
 
-def test_probe_wos_and_scival_missing_keys(monkeypatch) -> None:
-    """probe_wos/probe_scival should report missing when required keys are absent."""
+def test_probe_wos_openalex_and_scival_missing_keys(monkeypatch) -> None:
+    """OpenAlex stays probeable without a key; WOS/SciVal still fail closed."""
     import check_research_api_health
 
     monkeypatch.delenv("WOS_API_KEY", raising=False)
     monkeypatch.delenv("SCIVAL_API_KEY", raising=False)
+    monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
 
     wos_result = check_research_api_health.probe_wos()
+    with patch(
+        "check_research_api_health._request",
+        return_value=check_research_api_health.ProbeResult(
+            "", "ok", "request succeeded", 200
+        ),
+    ):
+        openalex_result = check_research_api_health.probe_openalex()
     scival_result = check_research_api_health.probe_scival()
 
     assert wos_result.status == "missing"
     assert wos_result.provider == "wos"
+    assert openalex_result.status == "ok"
+    assert openalex_result.provider == "openalex"
+    assert "unauthenticated" in openalex_result.detail
     assert scival_result.status == "missing"
     assert scival_result.provider == "scival"
 
@@ -218,6 +229,7 @@ def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
             "scopus", "present-but-invalid", "HTTP 401", 401
         ),
         check_research_api_health.ProbeResult("wos", "missing", "missing", None),
+        check_research_api_health.ProbeResult("openalex", "missing", "missing", None),
         check_research_api_health.ProbeResult("scival", "missing", "missing", None),
         check_research_api_health.ProbeResult(
             "microsoft_graph", "missing", "missing", None
@@ -238,19 +250,19 @@ def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
         patch("check_research_api_health.probe_crossref", return_value=fake_results[0]),
         patch("check_research_api_health.probe_scopus", return_value=fake_results[1]),
         patch("check_research_api_health.probe_wos", return_value=fake_results[2]),
-        patch("check_research_api_health.probe_scival", return_value=fake_results[3]),
+        patch("check_research_api_health.probe_openalex", return_value=fake_results[3]),
         patch(
             "check_research_api_health.probe_microsoft_graph",
-            return_value=fake_results[4],
+            return_value=fake_results[5],
         ),
-        patch("check_research_api_health.probe_google_drive", return_value=fake_results[5]),
-        patch("check_research_api_health.probe_openalex", return_value=fake_results[0]),
+        patch("check_research_api_health.probe_scival", return_value=fake_results[4]),
+        patch("check_research_api_health.probe_google_drive", return_value=fake_results[6]),
     ):
         exit_code = check_research_api_health.main()
 
     payload = json.loads(output_file.read_text(encoding="utf-8"))
     assert exit_code == 1
-    assert payload["summary"]["ok"] == 2
+    assert payload["summary"]["ok"] == 1
     assert any(item["provider"] == "scopus" for item in payload["statuses"])
 
 
@@ -268,18 +280,87 @@ def test_main_without_require_valid_returns_zero(tmp_path: Path) -> None:
         patch("check_research_api_health.probe_crossref", return_value=ok_result),
         patch("check_research_api_health.probe_scopus", return_value=ok_result),
         patch("check_research_api_health.probe_wos", return_value=ok_result),
+        patch("check_research_api_health.probe_openalex", return_value=ok_result),
         patch("check_research_api_health.probe_scival", return_value=ok_result),
         patch(
             "check_research_api_health.probe_microsoft_graph", return_value=ok_result
         ),
         patch("check_research_api_health.probe_google_drive", return_value=ok_result),
-        patch("check_research_api_health.probe_openalex", return_value=ok_result),
     ):
         exit_code = check_research_api_health.main()
 
     payload = json.loads(output_file.read_text(encoding="utf-8"))
     assert exit_code == 0
     assert payload["summary"]["ok"] == 7
+
+
+def test_main_require_configured_rejects_missing_requested_provider(
+    tmp_path: Path,
+) -> None:
+    """A protected live profile must fail before acquisition if a request is unready."""
+    import check_research_api_health
+
+    output_file = tmp_path / "health" / "results.json"
+    crossref_ok = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
+    scopus_missing = check_research_api_health.ProbeResult(
+        "scopus", "missing", "SCOPUS_API_KEY not set"
+    )
+
+    with (
+        patch(
+            "sys.argv",
+            [
+                "check_research_api_health.py",
+                "--output",
+                str(output_file),
+                "--providers",
+                "crossref,scopus",
+                "--require-configured",
+            ],
+        ),
+        patch("check_research_api_health.probe_crossref", return_value=crossref_ok),
+        patch("check_research_api_health.probe_scopus", return_value=scopus_missing),
+    ):
+        exit_code = check_research_api_health.main()
+
+    assert exit_code == 1
+    payload = json.loads(output_file.read_text(encoding="utf-8"))
+    assert [item["provider"] for item in payload["statuses"]] == [
+        "crossref",
+        "scopus",
+    ]
+
+
+def test_main_require_configured_accepts_requested_open_providers(
+    tmp_path: Path,
+) -> None:
+    """Credential-free providers remain ready when their probes succeed."""
+    import check_research_api_health
+
+    output_file = tmp_path / "health" / "results.json"
+    crossref_ok = check_research_api_health.ProbeResult("crossref", "ok", "ok", 200)
+    openalex_ok = check_research_api_health.ProbeResult(
+        "openalex", "ok", "ok (unauthenticated, lower rate limits)", 200
+    )
+
+    with (
+        patch(
+            "sys.argv",
+            [
+                "check_research_api_health.py",
+                "--output",
+                str(output_file),
+                "--providers",
+                "crossref,openalex",
+                "--require-configured",
+            ],
+        ),
+        patch("check_research_api_health.probe_crossref", return_value=crossref_ok),
+        patch("check_research_api_health.probe_openalex", return_value=openalex_ok),
+    ):
+        exit_code = check_research_api_health.main()
+
+    assert exit_code == 0
 
 
 def test_main_filters_to_requested_providers(tmp_path: Path) -> None:
@@ -304,6 +385,7 @@ def test_main_filters_to_requested_providers(tmp_path: Path) -> None:
         patch("check_research_api_health.probe_crossref", return_value=crossref_ok),
         patch("check_research_api_health.probe_wos", return_value=wos_ok),
         patch("check_research_api_health.probe_scopus") as probe_scopus,
+        patch("check_research_api_health.probe_openalex") as probe_openalex,
         patch("check_research_api_health.probe_scival") as probe_scival,
         patch("check_research_api_health.probe_microsoft_graph") as probe_microsoft_graph,
         patch("check_research_api_health.probe_google_drive") as probe_google_drive,
@@ -315,6 +397,7 @@ def test_main_filters_to_requested_providers(tmp_path: Path) -> None:
     assert payload["summary"]["ok"] == 2
     assert [item["provider"] for item in payload["statuses"]] == ["crossref", "wos"]
     probe_scopus.assert_not_called()
+    probe_openalex.assert_not_called()
     probe_scival.assert_not_called()
     probe_microsoft_graph.assert_not_called()
     probe_google_drive.assert_not_called()

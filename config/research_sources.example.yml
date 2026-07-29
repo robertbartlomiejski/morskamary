@@ -32,6 +32,11 @@ providers:
     # Set via environment variable: WOS_API_KEY
     api_key: ""
 
+  openalex:
+    # OpenAlex API key for low-cost/open bibliographic retrieval.
+    # Set via environment variable: OPENALEX_API_KEY
+    api_key: ""
+
   scival:
     # Elsevier SciVal API key (institutional analytics access required).
     # Set via environment variable: SCIVAL_API_KEY

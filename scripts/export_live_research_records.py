@@ -14,7 +14,8 @@ Outputs:
   - outputs/research_sources/enrichment_records.json (non-identity provider rows)
   - outputs/research_sources/live_provenance.json (provenance metadata)
   - outputs/research_sources/live_source_coverage.csv (coverage by sector/provider)
-  - outputs/research_sources/scopus_query_diagnostics.json (per-query Scopus returned/normalized/contributed diagnostics)
+  - outputs/research_sources/scopus_query_diagnostics.json
+    (per-query Scopus returned/normalized/contributed diagnostics)
   - outputs/research_sources/low_confidence_live_records.json (records with confidence < 0.8)
   - outputs/research_sources/triangulation_identity_loop.json (loop-1 identity audit)
   - outputs/research_sources/triangulation_thematic_loop.json (loop-2 QMBD audit)
@@ -32,7 +33,9 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import inspect
 import json
+import math
 import re
 import sys
 from collections import defaultdict
@@ -51,6 +54,11 @@ from src.scientific_sources.models import (  # noqa: E402
     SourceEvidence,
 )
 from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
+from src.scientific_sources.live_query_protocol import (  # noqa: E402
+    LiveQueryProtocolError,
+    load_live_query_protocol,
+    validate_complete_authoritative_protocol_projection,
+)
 from src.axis_classifier import AxisClassifier  # noqa: E402
 from src.cumulative_analysis.triangulator import (  # noqa: E402
     CumulativeTriangulator,
@@ -91,6 +99,10 @@ QUERY_EXECUTION_FIELDS: Tuple[str, ...] = (
     "validity_warnings",
     "errors",
     "warnings",
+    "logical_pages_attempted",
+    "logical_pages_completed",
+    "physical_request_count",
+    "pagination_warning_count",
 )
 
 _DEFAULT_PROVIDER_POLICY: Dict[str, Any] = {
@@ -285,6 +297,75 @@ def _lookup_provider_sort_strategy(
     return ""
 
 
+def _resolve_provider_sort_strategies(
+    sort_strategy: Mapping[str, Any],
+    provider_names: Sequence[str],
+) -> Dict[str, str]:
+    resolved: Dict[str, str] = {}
+    for provider_name in provider_names:
+        provider_key = normalize_provider_name(provider_name)
+        resolved[provider_key] = _lookup_provider_sort_strategy(sort_strategy, provider_key)
+    return resolved
+
+
+def _resolve_effective_sampling_request(
+    *,
+    declared_pages: int,
+    declared_rows_per_page: int,
+    max_results: int,
+) -> Tuple[int, int]:
+    pages = max(1, int(declared_pages or 1))
+    rows_per_page = max(1, int(declared_rows_per_page or max_results or 1))
+    declared_capacity = pages * rows_per_page
+    if max_results < declared_capacity:
+        return 1, max(1, min(rows_per_page, max_results))
+    return pages, rows_per_page
+
+
+def _search_registry_paginated(
+    registry: Any,
+    *,
+    query: str,
+    pages: int,
+    rows_per_page: int,
+    providers: List[str],
+    sort_strategy_by_provider: Dict[str, str],
+    time_window: Mapping[str, Any],
+) -> List[Any]:
+    search_paginated = getattr(registry, "search_paginated", None)
+    if not callable(search_paginated):
+        return []
+    kwargs: Dict[str, Any] = {
+        "pages": pages,
+        "rows_per_page": rows_per_page,
+        "providers": providers,
+    }
+    try:
+        signature = inspect.signature(search_paginated)
+    except (TypeError, ValueError):
+        # Cannot inspect the callable (e.g. built-in or C extension). Treat as
+        # old-style signature without extended kwargs to avoid a runtime TypeError
+        # that could be silently swallowed by an outer exception handler.
+        signature = None
+    if signature is None:
+        # Skip extended kwargs when signature is uninspectable to prevent a
+        # TypeError inside the provider from being confused with a legacy-signature
+        # mismatch and triggering a retry that would consume paid API quota.
+        pass
+    else:
+        parameters = signature.parameters
+        accepts_var_keyword = any(
+            parameter.kind == inspect.Parameter.VAR_KEYWORD
+            for parameter in parameters.values()
+        )
+        if "sort_strategy_by_provider" in parameters or accepts_var_keyword:
+            kwargs["sort_strategy_by_provider"] = sort_strategy_by_provider
+        if "time_window" in parameters or accepts_var_keyword:
+            kwargs["time_window"] = dict(time_window)
+    candidate_results = search_paginated(query, **kwargs)
+    return candidate_results if isinstance(candidate_results, list) else []
+
+
 def load_provider_policy(path: Path) -> Dict[str, Any]:
     """Load explicit provider-priority and class policy from YAML."""
     if not path.exists():
@@ -298,11 +379,17 @@ def load_provider_policy(path: Path) -> Dict[str, Any]:
     return merged
 
 
-def _load_query_constraints(path: Path) -> Dict[str, Dict[str, Any]]:
-    """Load and index the authoritative per-query acquisition constraints."""
+def _load_query_constraints_payload(path: Path) -> Dict[str, Any]:
+    """Load the authoritative per-query acquisition constraints payload."""
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict) or not isinstance(payload.get("queries"), list):
         raise ValueError("query constraints must contain a queries list")
+    return payload
+
+
+def _load_query_constraints(path: Path) -> Dict[str, Dict[str, Any]]:
+    """Load and index the authoritative per-query acquisition constraints."""
+    payload = _load_query_constraints_payload(path)
     indexed: Dict[str, Dict[str, Any]] = {}
     for raw in payload["queries"]:
         if not isinstance(raw, dict):
@@ -437,8 +524,8 @@ def _apply_query_constraint(
     constraint: Mapping[str, Any],
     provider_name: str,
     max_results: int,
-    *,
-    pagination_used: bool = False,
+    page_diagnostics: Optional[Sequence[Mapping[str, Any]]] = None,
+    attempted_logical_pages: Optional[int] = None,
 ) -> Tuple[List[LiteratureRecord], Dict[str, Any]]:
     """Apply auditable post-fetch time, sort, and sampling constraints."""
     time_window = constraint.get("time_window", {})
@@ -467,7 +554,7 @@ def _apply_query_constraint(
     if not isinstance(sort_strategy, Mapping):
         sort_strategy = {}
     provider_key = normalize_provider_name(provider_name)
-    declared_sort = str(sort_strategy.get(provider_key, "")).strip()
+    declared_sort = _lookup_provider_sort_strategy(sort_strategy, provider_key)
     if declared_sort in ("published-desc", "date-desc"):
         accepted.sort(
             key=lambda record: (
@@ -490,20 +577,86 @@ def _apply_query_constraint(
     pages = int(sampling.get("pages", 1) or 1)
     rows_per_page = int(sampling.get("rows_per_page", max_results) or max_results)
     declared_capacity = max(1, pages) * max(1, rows_per_page)
+
+    diagnostics = list(page_diagnostics or [])
+    logical_pages = {
+        int(row.get("logical_page", 0) or 0)
+        for row in diagnostics
+        if str(row.get("pagination_status", "")) in {"applied", "end_of_results"}
+    }
+    completed_pages = len({page for page in logical_pages if page > 0})
+    physical_request_count = len(diagnostics)
+    pagination_warning_count = sum(
+        1
+        for row in diagnostics
+        if str(row.get("pagination_status", "")) not in {"applied", "end_of_results"}
+        or str(row.get("warnings", "")).strip()
+        or str(row.get("errors", "")).strip()
+    )
+    page_tokens_by_logical_page: Dict[int, Set[str]] = defaultdict(set)
+    for row in diagnostics:
+        try:
+            logical_page = int(row.get("logical_page", 0) or 0)
+        except (TypeError, ValueError):
+            logical_page = 0
+        token = str(row.get("cursor_or_offset", "")).strip()
+        if logical_page > 0 and token:
+            page_tokens_by_logical_page[logical_page].add(token)
+    replayed_page = False
+    if pages > 1 and len(page_tokens_by_logical_page) > 1:
+        first_tokens = {
+            sorted(tokens)[0]
+            for tokens in page_tokens_by_logical_page.values()
+            if tokens
+        }
+        replayed_page = len(first_tokens) < len(page_tokens_by_logical_page)
+
     applied_limit = min(max_results, declared_capacity)
     accepted = accepted[:applied_limit]
-    if pagination_used:
-        sampling_status = "applied_genuine_pagination"
-    elif pages <= 1 and applied_limit >= declared_capacity:
-        sampling_status = "applied_single_request_limit"
+    computed_attempted_pages = max(
+        1,
+        min(
+            max(1, pages),
+            math.ceil(applied_limit / max(1, rows_per_page)),
+        ),
+    )
+    actual_attempted_pages = max(
+        1,
+        int(attempted_logical_pages or computed_attempted_pages or 1),
+    )
+    if diagnostics:
+        has_diagnostic_errors = any(
+            str(row.get("errors", "")).strip() for row in diagnostics
+        )
+        has_diagnostic_warnings = any(
+            str(row.get("warnings", "")).strip() for row in diagnostics
+        )
+        if replayed_page:
+            sampling_status = "invalid_replayed_page"
+        elif has_diagnostic_errors:
+            sampling_status = "pagination_failed"
+        elif completed_pages >= pages:
+            sampling_status = "applied_logical_pagination"
+        elif any(str(row.get("pagination_status", "")) == "end_of_results" for row in diagnostics):
+            sampling_status = "applied_until_end_of_results"
+        elif has_diagnostic_warnings:
+            sampling_status = "partially_applied_pagination_incomplete"
+        else:
+            sampling_status = "partially_applied_pagination_incomplete"
     else:
-        sampling_status = "partially_applied_registry_has_no_page_cursor"
+        sampling_status = (
+            "applied_single_request_limit"
+            if pages <= 1 and applied_limit >= declared_capacity
+            else "partially_applied_registry_has_no_page_cursor"
+        )
 
     validity_warnings: List[str] = []
     if sort_status.startswith("unsupported") or sort_status.startswith("not_declared"):
         validity_warnings.append("filter_not_applied:sort_strategy")
-    if sampling_status.startswith("partially"):
+    if sampling_status.startswith("partially") or sampling_status == "pagination_failed":
         validity_warnings.append("filter_not_applied:multi_page_sampling")
+    if sampling_status == "invalid_replayed_page":
+        validity_warnings.append("invalid_sampling:replayed_page")
 
     requested_filters: List[str] = ["time_window", "sampling_strategy"]
     if declared_sort:
@@ -519,10 +672,11 @@ def _apply_query_constraint(
         unapplied_filters.append("sort_strategy")
     if sampling_status in {
         "applied_single_request_limit",
-        "applied_genuine_pagination",
+        "applied_logical_pagination",
+        "applied_until_end_of_results",
     }:
         applied_filters.append("sampling_strategy")
-    elif sampling_status.startswith("partially"):
+    else:
         unapplied_filters.append("sampling_strategy")
     return accepted, {
         "raw_record_count": len(records),
@@ -543,6 +697,10 @@ def _apply_query_constraint(
         "unsupported_constraint_filters": "|".join(sorted(set(unsupported_filters))),
         "unapplied_constraint_filters": "|".join(sorted(set(unapplied_filters))),
         "validity_warnings": "|".join(validity_warnings),
+        "logical_pages_attempted": actual_attempted_pages,
+        "logical_pages_completed": completed_pages,
+        "physical_request_count": physical_request_count,
+        "pagination_warning_count": pagination_warning_count,
     }
 
 
@@ -1211,6 +1369,11 @@ def main() -> int:
         default="outputs/research_sources/query_protocol_constraints.json",
         help="Authoritative per-query acquisition constraints JSON.",
     )
+    parser.add_argument(
+        "--protocol-path",
+        default="config/live_query_protocol.yml",
+        help="Authoritative protocol used to validate scientific live projections.",
+    )
 
     args = parser.parse_args()
 
@@ -1326,6 +1489,7 @@ def main() -> int:
         )
         return 1
     try:
+        constraints_projection_payload = _load_query_constraints_payload(constraints_path)
         constraints_by_query = _load_query_constraints(constraints_path)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"Error: Invalid query constraints: {exc}", file=sys.stderr)
@@ -1378,6 +1542,27 @@ def main() -> int:
         )
         return 1
 
+    if protocol_projected_query:
+        protocol_path = Path(args.protocol_path)
+        if not protocol_path.is_file():
+            print(
+                f"Error: Authoritative live query protocol not found: {protocol_path}",
+                file=sys.stderr,
+            )
+            return 1
+        try:
+            protocol = load_live_query_protocol(protocol_path)
+            validate_complete_authoritative_protocol_projection(
+                protocol, constraints_projection_payload
+            )
+        except (OSError, LiveQueryProtocolError, TypeError, ValueError) as exc:
+            print(
+                "Error: authoritative live query protocol projection is incomplete: "
+                f"{exc}",
+                file=sys.stderr,
+            )
+            return 1
+
     # Initialize registry
     registry = SourceRegistry()
     provider_policy = load_provider_policy(Path(args.provider_policy_file))
@@ -1426,6 +1611,7 @@ def main() -> int:
     # Raw API payloads for cold-cache archiving — stored before any normalisation.
     raw_api_payload_triples: List[Dict[str, Any]] = []
     query_execution_rows: List[Dict[str, Any]] = []
+    provider_pagination_diagnostics: List[Dict[str, Any]] = []
     query_provider_identity_keys: Dict[Tuple[str, str], Set[str]] = defaultdict(set)
 
     # Execute exactly the authoritative projected query universe.
@@ -1443,6 +1629,17 @@ def main() -> int:
                     requested_filters = ["time_window", "sampling_strategy"]
                     if declared_sort:
                         requested_filters.append("sort_strategy")
+                    declared_sampling = constraint.get("sampling_strategy", {})
+                    if not isinstance(declared_sampling, Mapping):
+                        declared_sampling = {}
+                    actual_pages_attempted, _ = _resolve_effective_sampling_request(
+                        declared_pages=int(declared_sampling.get("pages", 1) or 1),
+                        declared_rows_per_page=int(
+                            declared_sampling.get("rows_per_page", args.max_results_per_query)
+                            or args.max_results_per_query
+                        ),
+                        max_results=args.max_results_per_query,
+                    )
                     query_execution_rows.append(
                         {
                             "query_id": constraint["query_id"],
@@ -1485,6 +1682,10 @@ def main() -> int:
                             "unapplied_constraint_filters": "|".join(
                                 sorted(set(requested_filters))
                             ),
+                            "logical_pages_attempted": actual_pages_attempted,
+                            "logical_pages_completed": 0,
+                            "physical_request_count": 0,
+                            "pagination_warning_count": 0,
                         }
                     )
     else:
@@ -1503,50 +1704,44 @@ def main() -> int:
                 sampling = constraint.get("sampling_strategy", {})
                 if not isinstance(sampling, Mapping):
                     sampling = {}
-                declared_pages = int(sampling.get("pages", 1) or 1)
-                declared_rows_per_page = int(
+                pages = int(sampling.get("pages", 1) or 1)
+                rows_per_page = int(
                     sampling.get("rows_per_page", args.max_results_per_query)
                     or args.max_results_per_query
                 )
-                sort_strategies_map = constraint.get("sort_strategy", {})
-                if not isinstance(sort_strategies_map, Mapping):
-                    sort_strategies_map = {}
-                sort_strategies_for_provider = {
-                    provider_name: _lookup_provider_sort_strategy(
-                        sort_strategies_map,
-                        provider_name,
-                    )
-                    for provider_name in ordered_provider_names
-                }
-
-                if declared_pages > 1:
-                    provider_results = registry.search_paginated(
-                        query,
-                        logical_pages=declared_pages,
-                        rows_per_page=declared_rows_per_page,
-                        providers=provider_list,
-                        time_window=constraint.get("time_window", {}),
-                        sort_strategies=sort_strategies_for_provider,
-                    )
-                else:
-                    provider_results = [
-                        (result, [])
-                        for result in registry.search(
-                            query,
-                            max_results=args.max_results_per_query,
-                            providers=provider_list,
-                        )
-                    ]
-                constraint_max_results = (
-                    max(
-                        args.max_results_per_query,
-                        declared_pages * declared_rows_per_page,
-                    )
-                    if declared_pages > 1
-                    else args.max_results_per_query
+                effective_pages, effective_rows_per_page = _resolve_effective_sampling_request(
+                    declared_pages=pages,
+                    declared_rows_per_page=rows_per_page,
+                    max_results=args.max_results_per_query,
                 )
+                sort_strategy = constraint.get("sort_strategy", {})
+                if not isinstance(sort_strategy, Mapping):
+                    sort_strategy = {}
+                resolved_sort_strategy = _resolve_provider_sort_strategies(
+                    sort_strategy,
+                    ordered_provider_names,
+                )
+                time_window = constraint.get("time_window", {})
+                if not isinstance(time_window, Mapping):
+                    time_window = {}
 
-                for index, (result, page_diagnostics) in enumerate(provider_results):
+                results = _search_registry_paginated(
+                    registry,
+                    query=query,
+                    pages=effective_pages,
+                    rows_per_page=effective_rows_per_page,
+                    providers=provider_list,
+                    sort_strategy_by_provider=resolved_sort_strategy,
+                    time_window=time_window,
+                )
+                if not results:
+                    results = registry.search(
+                        query,
+                        max_results=args.max_results_per_query,
+                        providers=provider_list,
+                    )
+
+                for index, result in enumerate(results):
                     provider_name = (
                         ordered_provider_names[index]
                         if index < len(ordered_provider_names)
@@ -1560,16 +1755,26 @@ def main() -> int:
                             )
                         )
                     )
+                    result_page_diagnostics = list(
+                        getattr(result, "page_diagnostics", []) or []
+                    )
+                    for page_diag in result_page_diagnostics:
+                        diag_row = dict(page_diag)
+                        diag_row.setdefault("query", query)
+                        diag_row["query_id"] = constraint["query_id"]
+                        diag_row["sector_slug"] = sector_key
+                        diag_row["query_family"] = constraint.get("query_family", "")
+                        diag_row["provider_canonical"] = normalize_provider_name(
+                            provider_name
+                        )
+                        provider_pagination_diagnostics.append(diag_row)
                     accepted_records, constraint_audit = _apply_query_constraint(
                         result.records,
                         constraint,
                         provider_name,
-                        constraint_max_results,
-                        pagination_used=any(
-                            str(diag.get("pagination_method", "")).strip()
-                            != "single_request_fallback"
-                            for diag in page_diagnostics
-                        ),
+                        args.max_results_per_query,
+                        page_diagnostics=result_page_diagnostics,
+                        attempted_logical_pages=effective_pages,
                     )
                     if result.errors:
                         print(f"    Errors: {result.errors}", file=sys.stderr)
@@ -1761,6 +1966,8 @@ def main() -> int:
         query_execution_rows,
         output_dir / "query_execution_log.csv",
     )
+    with open(output_dir / "provider_pagination_diagnostics.json", "w", encoding="utf-8") as f:
+        json.dump(provider_pagination_diagnostics, f, indent=2, ensure_ascii=False)
     scopus_rows = [
         row for row in query_execution_rows
         if str(row.get("provider_canonical", "")).strip() == "scopus"

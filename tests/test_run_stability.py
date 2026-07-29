@@ -53,16 +53,16 @@ def _seed_archive(
         run_path = f"runs/{run_id}"
         run_dir = archive_root / run_path
 
-        _write_json(
-            run_dir / "manifest.json",
-            {
-                "run_id": run_id,
-                "timestamp_utc": timestamp,
-                "analysis_timestamp_utc": timestamp,
-                "provider_set": str(run.get("provider_set", provider_set)),
-                "workflow": {"inputs": {"providers": str(run.get("provider_set", provider_set))}},
-            },
-        )
+        manifest_payload: dict[str, Any] = {
+            "run_id": run_id,
+            "timestamp_utc": timestamp,
+            "analysis_timestamp_utc": timestamp,
+            "provider_set": str(run.get("provider_set", provider_set)),
+            "workflow": {"inputs": {"providers": str(run.get("provider_set", provider_set))}},
+        }
+        if run.get("is_static_recovery_mode"):
+            manifest_payload["is_static_recovery_mode"] = True
+        _write_json(run_dir / "manifest.json", manifest_payload)
         _write_json(
             run_dir / "research_sources" / "query_protocol_constraints.json",
             {
@@ -149,22 +149,55 @@ def test_build_comparability_fingerprint_matches_only_for_same_payload() -> None
         query_protocol_version="1.0.0",
         time_windows=['{"from_year":2020,"to_year":2026}'],
         sampling_strategies=['{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'],
+        classifier_version="classifier-v1",
+        requested_provider_profile=["crossref", "scopus"],
+        contributing_provider_profile=["crossref", "scopus"],
+        logical_pages=2,
+        rows_per_page=50,
+        sort_strategy_contract=['{"crossref":"published-desc","scopus":"date-desc"}'],
     )
     fingerprint_b, payload_b = module.build_comparability_fingerprint(
         providers_used=["scopus", "crossref"],
         query_protocol_version="1.0.0",
         time_windows=['{"from_year":2020,"to_year":2026}'],
         sampling_strategies=['{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'],
+        classifier_version="classifier-v1",
+        requested_provider_profile=["crossref", "scopus"],
+        contributing_provider_profile=["crossref", "scopus"],
+        logical_pages=2,
+        rows_per_page=50,
+        sort_strategy_contract=['{"crossref":"published-desc","scopus":"date-desc"}'],
     )
     fingerprint_c, _ = module.build_comparability_fingerprint(
         providers_used=["crossref"],
         query_protocol_version="1.0.0",
         time_windows=['{"from_year":2020,"to_year":2026}'],
         sampling_strategies=['{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'],
+        classifier_version="classifier-v1",
+        requested_provider_profile=["crossref"],
+        contributing_provider_profile=["crossref"],
+        logical_pages=2,
+        rows_per_page=50,
+        sort_strategy_contract=['{"crossref":"published-desc"}'],
     )
     assert payload_a == payload_b
     assert fingerprint_a == fingerprint_b
     assert fingerprint_a != fingerprint_c
+    fingerprint_d, payload_d = module.build_comparability_fingerprint(
+        providers_used=["crossref", "scopus"],
+        query_protocol_version="1.0.0",
+        time_windows=['{"from_year":2020,"to_year":2026}'],
+        sampling_strategies=['{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'],
+        classifier_version="classifier-v2",
+        requested_provider_profile=["crossref", "scopus"],
+        contributing_provider_profile=["crossref", "scopus"],
+        logical_pages=3,
+        rows_per_page=50,
+        sort_strategy_contract=['{"crossref":"published-desc","scopus":"date-desc"}'],
+    )
+    assert payload_d["classifier_version"] == "classifier-v2"
+    assert payload_d["logical_pages"] == 3
+    assert fingerprint_d != fingerprint_a
 
 
 def test_compute_axis_stability_score_uses_max_ratio_gap() -> None:
@@ -274,3 +307,45 @@ def test_fingerprint_mismatch_makes_report_not_assessable(tmp_path: Path) -> Non
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
     assert report["saturation_assessment"]["status"] == "not_assessable"
+
+
+def test_static_recovery_run_is_excluded_from_saturation(tmp_path: Path) -> None:
+    """Static-recovery runs must be skipped entirely; their live_records must not
+    contaminate the DOI set or axis distribution used for saturation analysis."""
+    module = _load_module()
+    # run-1 and run-3 are live; run-2 is static-recovery with distinct DOIs that
+    # must not appear in any pair comparison.
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(10),
+            },
+            {
+                "run_id": "run-2-static",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": ["10.9999/static-only"],
+                "is_static_recovery_mode": True,
+            },
+            {
+                "run_id": "run-3",
+                "timestamp_utc": "2026-07-03T00:00:00+00:00",
+                "dois": _doi_series(11),
+            },
+        ],
+    )
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+
+    # Only the two live runs should be analyzed; the static-recovery run is skipped.
+    assert report["runs_analyzed"] == 2
+
+    # The single pair is run-1 vs run-3; the static-recovery DOI must not appear.
+    assert len(report["run_pairs"]) == 1
+    pair = report["run_pairs"][0]
+    assert pair["run_a"] == "run-1"
+    assert pair["run_b"] == "run-3"
+    assert "10.9999/static-only" not in str(pair)

@@ -8,6 +8,12 @@ WORKFLOW_TEXT = (
 BLANK_WORKFLOW_TEXT = (
     Path(__file__).resolve().parents[1] / ".github" / "workflows" / "blank.yml"
 ).read_text(encoding="utf-8")
+FULL_ANALYSIS_WORKFLOW_TEXT = (
+    Path(__file__).resolve().parents[1]
+    / ".github"
+    / "workflows"
+    / "full-analysis.yml"
+).read_text(encoding="utf-8")
 
 
 def test_quick_mode_gate_validates_run_archive_integrity() -> None:
@@ -30,3 +36,13 @@ def test_ci_static_quality_job_runs_module_based_flake8_and_mypy() -> None:
     assert "python -m flake8 src scripts tests run_full_analysis.py main.py" in WORKFLOW_TEXT
     assert 'python -m flake8 $(git ls-files "*.py")' not in WORKFLOW_TEXT
     assert "python -m mypy src scripts run_full_analysis.py main.py" in WORKFLOW_TEXT
+
+
+def test_full_analysis_workflow_uses_explicit_static_recovery_mode() -> None:
+    assert 'ALLOW_STATIC_RECOVERY_MODE: "true"' in FULL_ANALYSIS_WORKFLOW_TEXT
+    assert "STATIC_RECOVERY_REASON: \"Full Analysis CI reproducibility check\"" in (
+        FULL_ANALYSIS_WORKFLOW_TEXT
+    )
+    assert "python run_full_analysis.py --analysis-input-mode static" in (
+        FULL_ANALYSIS_WORKFLOW_TEXT
+    )

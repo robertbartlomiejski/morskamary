@@ -1,22 +1,9 @@
-"""
-OpenAlex provider -- scholarly works search and metadata retrieval.
+"""OpenAlex provider.
 
-OpenAlex is an open scholarly database providing broad coverage of academic
-literature. It serves as the canonical low-cost replacement for Web of Science
-in the morskamary provider profile.
-
-API documentation: https://docs.openalex.org/
-Authentication: Optional API key via OPENALEX_API_KEY (increases rate limits).
-
-Allowed metadata fields:
-- title, authors, year, doi, journal, url, subject_terms, citation_count
-Do NOT store full abstracts unless licence permits redistribution.
-
-IMPORTANT: OpenAlex is an aggregator that incorporates metadata from multiple
-upstream scholarly infrastructures, including overlapping DOI metadata
-ecosystems. It is NOT statistically independent from Crossref.
-Provider-level acquisition diversity is not identical to upstream
-bibliographic-source independence.
+Requires OPENALEX_API_KEY. OpenAlex is used as a low-cost bibliographic
+retrieval provider, not as proof of upstream independence from Crossref or
+other metadata infrastructures. Store only bibliographic metadata and derived
+subject/topic labels; do not persist abstract text from the inverted index.
 """
 
 from __future__ import annotations
@@ -29,7 +16,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from email.utils import parsedate_to_datetime
+from typing import Any, Dict, List, Optional, cast
 
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
@@ -54,25 +42,25 @@ _ALLOWED_FIELDS = [
     "retrieval_timestamp",
 ]
 
-_API_BASE = "https://api.openalex.org"
+_OPENALEX_API_BASE = "https://api.openalex.org/works"
 _MAX_RETRY_ATTEMPTS = 3
 _BASE_BACKOFF_SECONDS = 1.0
-_MAX_PER_PAGE = 200
-_DEFAULT_PER_PAGE = 50
+_MAX_RETRY_AFTER_SECONDS = 60.0
+_TRANSIENT_SERVER_HTTP_STATUSES = {500, 502, 503}
 
 _LICENCE_NOTE = (
-    "OpenAlex open scholarly metadata. "
-    "OpenAlex is an aggregator; provider-level diversity does not imply "
-    "upstream bibliographic-source independence."
+    "OpenAlex bibliographic metadata and topic labels. OpenAlex improves "
+    "acquisition-provider diversity but is not upstream-independent from all DOI "
+    "metadata infrastructures. Abstract inverted-index content is not stored."
 )
 
 
 class OpenAlexProvider(BaseProvider):
-    """OpenAlex scholarly works API provider."""
+    """OpenAlex works API provider."""
 
     def __init__(self) -> None:
         self._api_key: str = os.getenv("OPENALEX_API_KEY", "")
-        self._mailto: str = os.getenv("CROSSREF_MAILTO", "")
+        self._api_base = _OPENALEX_API_BASE
 
     @property
     def capability(self) -> SourceCapability:
@@ -80,189 +68,141 @@ class OpenAlexProvider(BaseProvider):
         return SourceCapability(
             name="openalex",
             provider="OpenAlex",
-            requires_secret=False,
-            configured=True,
-            live_test_allowed=live,
+            requires_secret=True,
+            configured=bool(self._api_key),
+            live_test_allowed=live and bool(self._api_key),
             allowed_metadata_fields=_ALLOWED_FIELDS,
             licence_note=_LICENCE_NOTE,
         )
 
-    def _user_agent(self) -> str:
-        base = (
-            "morskamary-scientific-bridge/1.0 "
-            "(https://github.com/robertbartlomiejski/morskamary"
-        )
-        if self._mailto:
-            base += f"; mailto:{self._mailto}"
-        return base + ")"
-
-    def _build_headers(self) -> Dict[str, str]:
-        headers: Dict[str, str] = {
-            "User-Agent": self._user_agent(),
-            "Accept": "application/json",
-        }
-        if self._api_key:
-            headers["Authorization"] = f"Bearer {self._api_key}"
-        return headers
-
-    def _request_json_with_backoff(
-        self,
-        *,
-        url: str,
-        context_label: str,
-    ) -> Tuple[Optional[Dict[str, Any]], List[str], Optional[str]]:
-        """Make an HTTP request with exponential backoff on 429/5xx."""
-        warnings: List[str] = []
-        for attempt in range(1, _MAX_RETRY_ATTEMPTS + 1):
-            req = urllib.request.Request(url, headers=self._build_headers())
-            try:
-                with urllib.request.urlopen(req, timeout=15) as resp:
-                    payload = json.loads(resp.read().decode())
-                if warnings:
-                    warnings.append(
-                        f"OpenAlex retry terminal_status=success attempt={attempt}"
-                    )
-                return payload, warnings, None
-            except urllib.error.HTTPError as exc:
-                if exc.code == 429 or exc.code >= 500:
-                    backoff = _BASE_BACKOFF_SECONDS * (2 ** (attempt - 1))
-                    warnings.append(
-                        f"OpenAlex {context_label}: attempt={attempt} "
-                        f"http_status={exc.code} backoff_seconds={backoff}"
-                    )
-                    if attempt >= _MAX_RETRY_ATTEMPTS:
-                        terminal_status = (
-                            "rate_limited" if exc.code == 429 else f"http_{exc.code}"
-                        )
-                        return None, warnings, (
-                            f"OpenAlex {context_label} failed after "
-                            f"{_MAX_RETRY_ATTEMPTS} attempts "
-                            f"(terminal_status={terminal_status})"
-                        )
-                    time.sleep(backoff)
-                    continue
-                body_snippet = ""
-                try:
-                    body_snippet = exc.read(240).decode(
-                        "utf-8", errors="ignore"
-                    ).strip()
-                except Exception:
-                    body_snippet = ""
-                snippet = f" body={body_snippet[:180]!r}" if body_snippet else ""
-                return None, warnings, (
-                    f"OpenAlex {context_label} failed "
-                    f"(terminal_status=http_{exc.code}).{snippet}"
-                )
-            except Exception as exc:
-                return None, warnings, f"OpenAlex {context_label} error: {exc}"
-        return None, warnings, (
-            f"OpenAlex {context_label} failed after {_MAX_RETRY_ATTEMPTS} attempts"
-        )
+    @staticmethod
+    def _retry_after_seconds(raw_retry_after: str) -> float | None:
+        value = str(raw_retry_after or "").strip()
+        if not value:
+            return None
+        if value.isdigit():
+            return min(float(value), _MAX_RETRY_AFTER_SECONDS)
+        try:
+            retry_after_at = parsedate_to_datetime(value)
+        except (TypeError, ValueError, OverflowError):
+            return None
+        now = datetime.now(timezone.utc)
+        if retry_after_at.tzinfo is None:
+            retry_after_at = retry_after_at.replace(tzinfo=timezone.utc)
+        delta = (retry_after_at - now).total_seconds()
+        if delta <= 0:
+            return 0.0
+        return min(delta, _MAX_RETRY_AFTER_SECONDS)
 
     @staticmethod
-    def _parse_authors(authorship_list: List[Dict[str, Any]]) -> str:
-        """Extract author names from OpenAlex authorship objects."""
+    def _cursor_marker(cursor: str) -> str:
+        if cursor == "*":
+            return "*"
+        digest = hashlib.sha256(cursor.encode("utf-8")).hexdigest()[:16]
+        return f"sha256:{digest}"
+
+    @staticmethod
+    def _normalize_doi(raw_doi: Any) -> str:
+        value = str(raw_doi or "").strip()
+        value = value.removeprefix("https://doi.org/").removeprefix("http://doi.org/")
+        return value.lower()
+
+    @staticmethod
+    def _extract_authors(work: Dict[str, Any]) -> str:
         names: List[str] = []
-        for authorship in authorship_list:
-            author = authorship.get("author", {})
-            name = str(author.get("display_name", "")).strip()
-            if name:
-                names.append(name)
+        authorships = work.get("authorships", [])
+        if isinstance(authorships, list):
+            for authorship in authorships:
+                if not isinstance(authorship, dict):
+                    continue
+                author = authorship.get("author", {})
+                if isinstance(author, dict):
+                    name = str(author.get("display_name", "")).strip()
+                    if name:
+                        names.append(name)
         return ", ".join(names) if names else "Unknown"
 
     @staticmethod
-    def _parse_year(work: Dict[str, Any]) -> str:
-        year = work.get("publication_year")
-        if year is not None:
-            return str(year)
-        publication_date = str(work.get("publication_date", "")).strip()
-        if publication_date and len(publication_date) >= 4:
-            return publication_date[:4]
+    def _extract_source(work: Dict[str, Any]) -> str:
+        primary_location = work.get("primary_location", {})
+        if isinstance(primary_location, dict):
+            source = primary_location.get("source", {})
+            if isinstance(source, dict):
+                display_name = str(source.get("display_name", "")).strip()
+                if display_name:
+                    return display_name
+        host_venue = work.get("host_venue", {})
+        if isinstance(host_venue, dict):
+            display_name = str(host_venue.get("display_name", "")).strip()
+            if display_name:
+                return display_name
         return ""
 
     @staticmethod
-    def _parse_subject_terms(work: Dict[str, Any]) -> List[str]:
-        """Extract subject terms from OpenAlex topics/concepts/keywords."""
+    def _extract_url(work: Dict[str, Any]) -> str:
+        for key in ("doi", "id"):
+            value = str(work.get(key, "")).strip()
+            if value:
+                return value
+        return ""
+
+    @staticmethod
+    def _extract_subject_terms(work: Dict[str, Any]) -> List[str]:
         terms: List[str] = []
-        for topic in work.get("topics", []):
-            name = str(topic.get("display_name", "")).strip()
-            if name and name not in terms:
-                terms.append(name)
-        if not terms:
-            for concept in work.get("concepts", []):
-                name = str(concept.get("display_name", "")).strip()
-                if name and name not in terms:
-                    terms.append(name)
-        for keyword in work.get("keywords", []):
-            if isinstance(keyword, dict):
-                name = str(
-                    keyword.get("keyword", keyword.get("display_name", ""))
-                ).strip()
-            else:
-                name = str(keyword).strip()
-            if name and name not in terms:
-                terms.append(name)
-        return terms
+        for field_name in ("topics", "keywords", "concepts"):
+            raw_items = work.get(field_name, [])
+            if not isinstance(raw_items, list):
+                continue
+            for item in raw_items:
+                if not isinstance(item, dict):
+                    continue
+                label = str(item.get("display_name", "") or item.get("keyword", "")).strip()
+                if label:
+                    terms.append(label)
+        return list(dict.fromkeys(terms))
 
-    def _parse_work(self, work: Dict[str, Any], query: str) -> LiteratureRecord:
-        """Convert an OpenAlex work object into a LiteratureRecord."""
-        title = str(work.get("display_name", work.get("title", ""))).strip()
-        if not title:
-            title = "Unknown Title"
-
-        authors = self._parse_authors(work.get("authorships", []))
-        year = self._parse_year(work)
-        doi = str(work.get("doi", "")).strip()
-        if doi.startswith("https://doi.org/"):
-            doi = doi[len("https://doi.org/") :]
-
-        primary_location = work.get("primary_location", {}) or {}
-        source = primary_location.get("source", {}) or {}
-        journal = str(source.get("display_name", "")).strip()
-
-        url = str(work.get("doi", "")).strip()
-        if not url:
-            url = str(work.get("id", "")).strip()
-
-        citation_count: Optional[int] = None
-        raw_cited_by_count = work.get("cited_by_count")
-        if raw_cited_by_count is not None:
-            try:
-                citation_count = int(raw_cited_by_count)
-            except (TypeError, ValueError):
-                citation_count = None
-
-        subject_terms = self._parse_subject_terms(work)
-        openalex_id = str(work.get("id", "")).strip()
-        source_id = f"openalex:{doi}" if doi else f"openalex:{openalex_id}"
-
-        return LiteratureRecord(
-            title=title,
-            authors=authors,
-            year=year,
-            doi=doi,
-            source_id=source_id,
-            provider="OpenAlex",
-            journal=journal,
-            url=url,
-            citation_count=citation_count,
-            subject_terms=subject_terms,
-            source_query=query,
-            retrieval_timestamp=datetime.now(timezone.utc).isoformat(),
-            licence_note=_LICENCE_NOTE,
-        )
-
-    def _parse_works(
+    def _parse_items(
         self,
-        works: List[Dict[str, Any]],
+        items: List[Dict[str, Any]],
         query: str,
     ) -> List[LiteratureRecord]:
         records: List[LiteratureRecord] = []
-        for work in works:
-            try:
-                records.append(self._parse_work(work, query))
-            except Exception:
+        for item in items:
+            title = str(item.get("title", "") or item.get("display_name", "")).strip()
+            if not title:
                 continue
+            doi = self._normalize_doi(item.get("doi"))
+            source_id_raw = str(item.get("id", "")).strip()
+            year = str(item.get("publication_year", "") or "").strip()
+            citation_count: Optional[int]
+            raw_citation_count = item.get("cited_by_count")
+            try:
+                citation_count = (
+                    int(raw_citation_count)
+                    if raw_citation_count is not None
+                    else None
+                )
+            except (TypeError, ValueError):
+                citation_count = None
+            source_id = f"openalex:{doi}" if doi else f"openalex:{source_id_raw or title}"
+            records.append(
+                LiteratureRecord(
+                    title=title,
+                    authors=self._extract_authors(item),
+                    year=year,
+                    doi=doi,
+                    source_id=source_id,
+                    provider="OpenAlex",
+                    journal=self._extract_source(item),
+                    url=self._extract_url(item),
+                    abstract_available=bool(item.get("abstract_inverted_index")),
+                    abstract_stored=False,
+                    citation_count=citation_count,
+                    subject_terms=self._extract_subject_terms(item),
+                    source_query=query,
+                    licence_note=_LICENCE_NOTE,
+                )
+            )
         return records
 
     def _make_evidence(
@@ -271,209 +211,264 @@ class OpenAlexProvider(BaseProvider):
         endpoint: str,
         records: List[LiteratureRecord],
     ) -> List[SourceEvidence]:
-        timestamp = datetime.now(timezone.utc).isoformat()
+        ts = datetime.now(timezone.utc).isoformat()
         evidence: List[SourceEvidence] = []
-        for record in records:
-            raw = (
-                f"openalex|{query}|{record.doi}|{record.source_id}|{timestamp}"
-            )
-            provenance_hash = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+        for rec in records:
+            raw = f"openalex|{query}|{rec.doi}|{rec.source_id}|{rec.title}|{ts}"
+            phash = hashlib.sha256(raw.encode()).hexdigest()[:16]
             evidence.append(
                 SourceEvidence(
-                    record_id=record.source_id,
+                    record_id=rec.source_id,
                     source_provider="OpenAlex",
                     retrieval_mode="live",
                     query=query,
                     api_endpoint_label=endpoint,
-                    timestamp=timestamp,
-                    confidence_score=0.85,
-                    provenance_hash=provenance_hash,
+                    timestamp=ts,
+                    confidence_score=0.9,
+                    provenance_hash=phash,
                 )
             )
         return evidence
 
-    def _build_search_url(
+    def _request_json(self, url: str) -> Dict[str, Any]:
+        req = urllib.request.Request(
+            url,
+            headers={
+                "Accept": "application/json",
+                "User-Agent": "morskamary-openalex-provider/1.0",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            payload = json.loads(resp.read().decode())
+        return cast(Dict[str, Any], payload)
+
+    def _request_json_with_backoff(
         self,
-        query: str,
         *,
-        per_page: int = _DEFAULT_PER_PAGE,
-        page: int = 1,
-        time_window: Optional[Dict[str, Any]] = None,
-        sort_strategy: str = "",
+        url: str,
+        context_label: str,
+    ) -> tuple[Dict[str, Any] | None, List[str], str | None, str | None]:
+        warnings: List[str] = []
+        for attempt in range(1, _MAX_RETRY_ATTEMPTS + 1):
+            try:
+                return self._request_json(url), warnings, None, None
+            except urllib.error.HTTPError as exc:
+                if exc.code == 429:
+                    retry_after = self._retry_after_seconds(exc.headers.get("Retry-After", ""))
+                    wait_seconds = (
+                        retry_after if retry_after is not None else _BASE_BACKOFF_SECONDS * attempt
+                    )
+                    warnings.append(
+                        f"OpenAlex retry {context_label}: attempt={attempt} http_status=429 "
+                        f"wait_seconds={round(wait_seconds, 3)}"
+                    )
+                    if attempt >= _MAX_RETRY_ATTEMPTS:
+                        return None, warnings, "OpenAlex rate limited after retries", "rate-limited"
+                    time.sleep(max(wait_seconds, 0.0))
+                    continue
+                if exc.code not in _TRANSIENT_SERVER_HTTP_STATUSES:
+                    return (
+                        None,
+                        warnings,
+                        f"OpenAlex {context_label} failed (HTTP {exc.code})",
+                        None,
+                    )
+                wait_seconds = _BASE_BACKOFF_SECONDS * attempt
+                warnings.append(
+                    f"OpenAlex retry {context_label}: attempt={attempt} http_status={exc.code} "
+                    f"wait_seconds={round(wait_seconds, 3)}"
+                )
+                if attempt >= _MAX_RETRY_ATTEMPTS:
+                    return (
+                        None,
+                        warnings,
+                        f"OpenAlex {context_label} failed after retries (HTTP {exc.code})",
+                        None,
+                    )
+                time.sleep(max(wait_seconds, 0.0))
+            except Exception as exc:
+                return None, warnings, f"OpenAlex {context_label} error: {exc}", None
+        return None, warnings, "OpenAlex retry loop exhausted", "rate-limited"
+
+    @staticmethod
+    def _time_window_filter(time_window: Dict[str, int] | None) -> str:
+        if not time_window:
+            return ""
+        from_year = int(time_window.get("from_year", 0) or 0)
+        to_year = int(time_window.get("to_year", 0) or 0)
+        filters: List[str] = []
+        if from_year:
+            filters.append(f"from_publication_date:{from_year}-01-01")
+        if to_year:
+            filters.append(f"to_publication_date:{to_year}-12-31")
+        return ",".join(filters)
+
+    def _build_works_url(
+        self,
+        *,
+        query: str,
+        per_page: int,
+        cursor: str,
+        sort_strategy: str,
+        time_window: Dict[str, int] | None,
     ) -> str:
-        """Build an OpenAlex works search URL."""
         params: Dict[str, str] = {
+            "api_key": self._api_key,
             "search": query,
-            "per_page": str(min(per_page, _MAX_PER_PAGE)),
-            "page": str(page),
+            "per_page": str(per_page),
+            "cursor": cursor,
         }
-        if not self._api_key and self._mailto:
-            params["mailto"] = self._mailto
-
-        if time_window:
-            from_year = time_window.get("from_year")
-            to_year = time_window.get("to_year")
-            if from_year and to_year:
-                params["filter"] = f"publication_year:{from_year}-{to_year}"
-            elif from_year:
-                params["filter"] = f"publication_year:>{int(from_year) - 1}"
-
-        if sort_strategy in ("published-desc", "date-desc"):
-            params["sort"] = "publication_date:desc"
-        elif sort_strategy:
-            params["sort"] = "relevance_score:desc"
-
-        return f"{_API_BASE}/works?{urllib.parse.urlencode(params)}"
+        filter_value = self._time_window_filter(time_window)
+        if filter_value:
+            params["filter"] = filter_value
+        if sort_strategy in {"published-desc", "date-desc"}:
+            params["sort"] = "publication_date:desc,relevance_score:desc"
+        return f"{self._api_base}?{urllib.parse.urlencode(params)}"
 
     def search(self, query: str, max_results: int = 5) -> ProviderResult:
-        """Search OpenAlex for records matching query."""
-        url = self._build_search_url(
-            query,
-            per_page=min(max_results, _MAX_PER_PAGE),
-        )
-        data, retry_warnings, terminal_error = self._request_json_with_backoff(
-            url=url,
-            context_label="search",
-        )
-        if terminal_error:
-            rate_limit_status = (
-                "rate-limited" if "rate_limited" in terminal_error else None
-            )
-            return ProviderResult(
-                errors=[terminal_error],
-                warnings=retry_warnings,
-                rate_limit_status=rate_limit_status,
-            )
-
-        assert data is not None
-        works = data.get("results", [])
-        if not isinstance(works, list):
-            works = []
-        records = self._parse_works(works[:max_results], query)
-        evidence = self._make_evidence(query, "openalex/works", records)
-        meta = data.get("meta", {})
-        result_count = meta.get("count", len(records))
-        return ProviderResult(
-            records=records,
-            warnings=retry_warnings
-            + [
-                f"OpenAlex search: total_results={result_count}; "
-                f"returned={len(records)}"
-            ],
-            provenance=evidence,
-            raw_payload=data,
+        if not self._api_key:
+            return self._not_configured_result()
+        return cast(
+            ProviderResult,
+            self.search_paginated(
+                query,
+                pages=1,
+                rows_per_page=max_results,
+                sort_strategy="date-desc",
+                time_window=None,
+            ),
         )
 
     def search_paginated(
         self,
         query: str,
         *,
-        logical_pages: int = 1,
+        pages: int = 1,
+        logical_pages: int | None = None,
         rows_per_page: int = 50,
-        time_window: Optional[Dict[str, Any]] = None,
         sort_strategy: str = "",
-    ) -> Tuple[ProviderResult, List[Dict[str, Any]]]:
-        """Paginated OpenAlex search using native page parameters."""
-        all_records: List[LiteratureRecord] = []
-        all_warnings: List[str] = []
-        all_provenance: List[SourceEvidence] = []
+        time_window: Dict[str, int] | None = None,
+    ) -> Any:
+        if not self._api_key:
+            result = self._not_configured_result()
+            return (result, result.page_diagnostics) if logical_pages is not None else result
+        requested_pages = logical_pages if logical_pages is not None else pages
+        safe_pages = max(1, int(requested_pages or 1))
+        legacy_api = logical_pages is not None
+        safe_rows = max(1, min(int(rows_per_page or 1), 100))
+        cursor = "*"
+        records: List[LiteratureRecord] = []
+        provenance: List[SourceEvidence] = []
+        warnings: List[str] = []
         page_diagnostics: List[Dict[str, Any]] = []
+        raw_pages: List[Dict[str, Any]] = []
 
-        for page_num in range(logical_pages):
-            api_page = page_num + 1
-            per_page = min(rows_per_page, _MAX_PER_PAGE)
-            url = self._build_search_url(
-                query,
-                per_page=per_page,
-                page=api_page,
-                time_window=time_window,
+        for logical_page in range(1, safe_pages + 1):
+            url = self._build_works_url(
+                query=query,
+                per_page=safe_rows,
+                cursor=cursor,
                 sort_strategy=sort_strategy,
+                time_window=time_window,
             )
-            data, retry_warnings, terminal_error = self._request_json_with_backoff(
+            payload, retry_warnings, terminal_error, rate_status = self._request_json_with_backoff(
                 url=url,
-                context_label=f"search_page_{api_page}",
+                context_label=f"search page {logical_page}",
             )
-            all_warnings.extend(retry_warnings)
-
+            warnings.extend(retry_warnings)
             if terminal_error:
                 page_diagnostics.append(
                     {
-                        "logical_page": api_page,
-                        "physical_requests": 1,
-                        "requested_rows": per_page,
+                        "provider": "openalex",
+                        "query": query,
+                        "logical_page": logical_page,
+                        "physical_request_index": logical_page,
+                        "cursor_or_offset": self._cursor_marker(cursor),
+                        "requested_rows": safe_rows,
                         "returned_rows": 0,
-                        "pagination_method": "openalex_page",
-                        "api_page": api_page,
-                        "error": terminal_error,
+                        "normalized_rows": 0,
+                        "pagination_status": "failed",
+                        "errors": terminal_error,
                     }
                 )
-                all_warnings.append(terminal_error)
-                break
-
-            assert data is not None
-            works = data.get("results", [])
-            if not isinstance(works, list):
-                works = []
-            records = self._parse_works(works[:per_page], query)
-            all_records.extend(records)
-            all_provenance.extend(
-                self._make_evidence(
-                    query,
-                    f"openalex/works?page={api_page}",
-                    records,
+                result = ProviderResult(
+                    records=records,
+                    errors=[terminal_error],
+                    warnings=warnings,
+                    rate_limit_status=rate_status,
+                    provenance=provenance,
+                    raw_payload={"pages": raw_pages} if raw_pages else None,
+                    page_diagnostics=page_diagnostics,
                 )
-            )
+                if legacy_api:
+                    return result, page_diagnostics
+                return result
+            assert payload is not None
+            items = payload.get("results", [])
+            if not isinstance(items, list):
+                items = []
+            page_records = self._parse_items(items, query)
+            records.extend(page_records)
+            provenance.extend(self._make_evidence(query, "openalex/works", page_records))
+            raw_pages.append({"logical_page": logical_page, "payload": payload})
+            meta = payload.get("meta", {}) if isinstance(payload.get("meta"), dict) else {}
+            next_cursor = str(meta.get("next_cursor", "") or "").strip()
+            status = "applied"
+            if len(items) < safe_rows:
+                status = "end_of_results"
             page_diagnostics.append(
                 {
-                    "logical_page": api_page,
-                    "physical_requests": 1,
-                    "requested_rows": per_page,
-                    "returned_rows": len(records),
-                    "pagination_method": "openalex_page",
-                    "api_page": api_page,
+                    "provider": "openalex",
+                    "query": query,
+                    "logical_page": logical_page,
+                    "physical_request_index": logical_page,
+                    "cursor_or_offset": self._cursor_marker(cursor),
+                    "requested_rows": safe_rows,
+                    "returned_rows": len(items),
+                    "normalized_rows": len(page_records),
+                    "pagination_status": status,
                 }
             )
-            if len(records) < per_page:
+            if status == "end_of_results":
                 break
+            if not next_cursor or next_cursor == cursor:
+                warnings.append("OpenAlex cursor pagination stopped: missing_or_repeated_next_cursor")
+                break
+            cursor = next_cursor
 
-        rate_limit_status = (
-            "rate-limited" if any("rate_limited" in warning for warning in all_warnings)
-            else None
+        result = ProviderResult(
+            records=records,
+            warnings=warnings,
+            provenance=provenance,
+            raw_payload={"pages": raw_pages},
+            page_diagnostics=page_diagnostics,
         )
-        return (
-            ProviderResult(
-                records=all_records,
-                warnings=all_warnings,
-                provenance=all_provenance,
-                rate_limit_status=rate_limit_status,
-            ),
-            page_diagnostics,
-        )
+        if legacy_api:
+            return result, page_diagnostics
+        return result
 
     def verify_doi(self, doi: str) -> ProviderResult:
-        """Verify a specific DOI via OpenAlex."""
-        encoded_doi = urllib.parse.quote(doi, safe="")
-        url = f"{_API_BASE}/works/https://doi.org/{encoded_doi}"
-        data, retry_warnings, terminal_error = self._request_json_with_backoff(
+        if not self._api_key:
+            return self._not_configured_result()
+        normalized = self._normalize_doi(doi)
+        url = f"{self._api_base}/doi:{urllib.parse.quote(normalized)}?api_key={urllib.parse.quote(self._api_key)}"
+        payload, warnings, terminal_error, rate_status = self._request_json_with_backoff(
             url=url,
-            context_label="DOI_verification",
+            context_label="DOI verification",
         )
         if terminal_error:
-            rate_limit_status = (
-                "rate-limited" if "rate_limited" in terminal_error else None
-            )
             return ProviderResult(
                 errors=[terminal_error],
-                warnings=retry_warnings,
-                rate_limit_status=rate_limit_status,
+                warnings=warnings,
+                rate_limit_status=rate_status,
             )
-
-        assert data is not None
-        records = [self._parse_work(data, doi)] if "id" in data else []
-        evidence = self._make_evidence(doi, f"openalex/works/doi:{doi}", records)
+        assert payload is not None
+        records = self._parse_items([payload], doi)
+        if records:
+            records[0].source_query = doi
         return ProviderResult(
-            records=records,
-            warnings=retry_warnings,
-            provenance=evidence,
-            raw_payload=data,
+            records=records[:1],
+            warnings=warnings,
+            provenance=self._make_evidence(doi, "openalex/works/doi", records[:1]),
+            raw_payload=payload,
         )

@@ -123,6 +123,23 @@ def probe_wos() -> ProbeResult:
     return result
 
 
+def probe_openalex() -> ProbeResult:
+    """Probe OpenAlex with optional authentication."""
+    url = "https://api.openalex.org/works?filter=title.search:ocean&per_page=1"
+    headers = {
+        "Accept": "application/json",
+        "User-Agent": "morskamary-openalex-healthcheck/1.0",
+    }
+    api_key = os.getenv("OPENALEX_API_KEY", "")
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    result = _request(url, headers)
+    result.provider = "openalex"
+    if not api_key and result.status == "ok":
+        result.detail = "ok (unauthenticated, lower rate limits)"
+    return result
+
+
 def probe_scival() -> ProbeResult:
     key = os.getenv("SCIVAL_API_KEY", "")
     if not key:
@@ -188,21 +205,6 @@ def probe_microsoft_graph() -> ProbeResult:
         return ProbeResult("microsoft_graph", "present-but-invalid", str(exc))
 
 
-def probe_openalex() -> ProbeResult:
-    """OpenAlex is free/open; API key is optional (increases rate limits)."""
-    url = "https://api.openalex.org/works?filter=title.search:ocean&per_page=1"
-    headers: dict[str, str] = {}
-    api_key = os.getenv("OPENALEX_API_KEY", "")
-    if api_key:
-        headers["Authorization"] = f"Bearer {api_key}"
-    result = _request(url, headers)
-    result.provider = "openalex"
-    # OpenAlex works without a key; treat missing key as ok if endpoint responds
-    if not api_key and result.status == "ok":
-        result.detail = "ok (unauthenticated, lower rate limits)"
-    return result
-
-
 def probe_google_drive() -> ProbeResult:
     credentials_path = os.getenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", "")
     if not credentials_path:
@@ -223,8 +225,8 @@ def _probe_functions() -> dict[str, Callable[[], ProbeResult]]:
         "crossref": probe_crossref,
         "scopus": probe_scopus,
         "wos": probe_wos,
-        "scival": probe_scival,
         "openalex": probe_openalex,
+        "scival": probe_scival,
         "microsoft_graph": probe_microsoft_graph,
         "google_drive": probe_google_drive,
     }
@@ -254,6 +256,11 @@ def main() -> int:
     parser.add_argument("--output", default="outputs/research_api_health.json")
     parser.add_argument("--providers", default="all")
     parser.add_argument("--require-valid", action="store_true")
+    parser.add_argument(
+        "--require-configured",
+        action="store_true",
+        help="Fail when any requested provider reports missing configuration.",
+    )
     args = parser.parse_args()
 
     try:
@@ -282,6 +289,14 @@ def main() -> int:
         invalid = [r for r in results if r.status in {"present-but-invalid", "rate-limited"}]
         if invalid:
             print("\nFailing preflight due to invalid/rate-limited provider credentials.")
+            return 1
+    if args.require_configured:
+        missing = [r for r in results if r.status == "missing"]
+        if missing:
+            names = ", ".join(r.provider for r in missing)
+            print(
+                f"\nFailing preflight because requested providers are not configured: {names}."
+            )
             return 1
     return 0
 

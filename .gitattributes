@@ -1,0 +1,2 @@
+# Archived scientific payloads are byte-addressed by manifests and checksums.
+outputs/run_archive/** -text

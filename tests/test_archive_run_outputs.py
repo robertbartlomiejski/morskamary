@@ -82,7 +82,7 @@ def _seed_required_targets(base_dir: Path) -> dict[str, int | str]:
                 "is_static_recovery_mode": True,
                 "static_recovery_reason": "offline-ci",
                 "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
-                "provider_set": "crossref,scopus,wos",
+                "provider_set": "crossref,scopus,openalex",
                 "github_run_id": "1001",
                 "commit_sha": "abc123",
                 "timestamp_utc": "2026-07-07T00:00:00+00:00",
@@ -156,9 +156,9 @@ def test_archive_run_outputs_creates_full_run_archive(tmp_path: Path) -> None:
             "--git-ref",
             "refs/heads/main",
             "--providers",
-            "crossref,scopus,wos",
+            "crossref,scopus,openalex",
             "--max-results-per-query",
-            "50",
+            "150",
             "--offline",
             "false",
             "--require-live-records",
@@ -201,16 +201,17 @@ def test_archive_run_outputs_creates_full_run_archive(tmp_path: Path) -> None:
     assert manifest["run_id"] == "run-123-1"
     assert manifest["requested_run_id"] == "run-123-1"
     assert manifest["run_path"] == "runs/run-123-1"
+    assert manifest["archive_root"] == "outputs/run_archive"
     assert manifest["manifest_schema"] == "schemas/run_archive_manifest.schema.json"
     assert manifest["analysis_input_mode"] == "static"
     assert manifest["is_static_recovery_mode"] is True
     assert manifest["static_recovery_reason"] == "offline-ci"
     assert manifest["allow_static_recovery_mode_env"] == "ALLOW_STATIC_RECOVERY_MODE"
-    assert manifest["provider_set"] == "crossref,scopus,wos"
+    assert manifest["provider_set"] == "crossref,scopus,openalex"
     assert manifest["analysis_timestamp_utc"] == "2026-07-07T00:00:00+00:00"
     assert manifest["warnings"]
     assert manifest["workflow"]["name"] == "Full Live-Enriched Analysis"
-    assert manifest["workflow"]["inputs"]["providers"] == "crossref,scopus,wos"
+    assert manifest["workflow"]["inputs"]["providers"] == "crossref,scopus,openalex"
     assert manifest["query_file_sha256"] == expected_metrics["query_file_sha256"]
     assert manifest["live_records_count"] == expected_metrics["live_records_count"]
     assert (
@@ -252,7 +253,7 @@ def test_archive_run_outputs_creates_full_run_archive(tmp_path: Path) -> None:
     assert csv_latest["run_path"] == "runs/run-123-1"
     assert csv_latest["analysis_input_mode"] == "static"
     assert csv_latest["is_static_recovery_mode"] == "true"
-    assert csv_latest["provider_set"] == "crossref,scopus,wos"
+    assert csv_latest["provider_set"] == "crossref,scopus,openalex"
     assert csv_latest["query_file_sha256"] == expected_metrics["query_file_sha256"]
     assert csv_latest["credentials_count"] == str(expected_metrics["credentials_count"])
 

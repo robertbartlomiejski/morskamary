@@ -19,6 +19,76 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-29 (fix: align test_h2_credential_supply _write_demands fixture with derived_competence_demands.csv schema)
+  Change type fix
+  Scope tests
+  Files affected tests/test_h2_credential_supply.py CHANGELOG.txt
+  Summary Added axis_group="HYDRONIZATION" column to the _write_demands helper in test_h2_credential_supply.py so the test fixture CSV matches the real derived_competence_demands.csv schema (which includes axis_group).
+  Reason The _write_demands helper wrote a minimal CSV without axis_group, making the test fixture diverge from the actual Layer 4 output schema. Aligning the fixture prevents false negatives when the script is extended to read axis_group.
+  Impact Test correctness; no production code change.
+  Quality checks python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m pytest tests/ -v (1171 passed, 8 warnings from openpyxl); python -m mypy src scripts run_full_analysis.py main.py (passed); no live provider calls made.
+  Reviewer GitHub Copilot Coding Agent
+
+- 2026-07-26 (fix: address remaining PR215 review findings on saturation, fingerprint, registry and protocol validation)
+  Change type fix update
+  Scope scripts src workflows tests governance
+  Files affected .github/workflows/full-live-analysis.yml scripts/build_validated_credential_supply_map.py scripts/build_run_stability_report.py src/scientific_sources/live_query_protocol.py scripts/export_live_research_records.py tests/test_build_validated_credential_supply_map.py tests/test_h2_credential_supply.py CHANGELOG.txt
+  Summary Allowed the validated-credential-supply map builder to produce a not_computable output instead of failing when the registry has no validated rows, so the workflow continues to a provisional H2=not_computable result. Added a _split_pipe evidence-ID gate for validated registry rows. Skipped static-recovery runs from saturation snapshots to prevent legacy live_records from contaminating convergence decisions. Added query_id_hash to the comparability fingerprint so runs with different query universes compare as incomparable. Added evidence_intent to the per-query protocol-projection assertion. Fixed the fallback path in _search_registry_paginated so an uninspectable callable does not receive unexpected keyword arguments.
+  Reason PR215 review: Thread 30 (empty registry caused workflow failure), Thread 11 (separator-only evidence IDs passed registry gate), Thread 5 (static-recovery contamination of saturation), Threads 4/25 (fingerprint missing query-set hash), Threads 16/22 (evidence_intent not checked in projection validator), Thread 12 (TypeError fallback in signature inspection).
+  Impact Controlled live runs with a header-only registry now reach archive and report H2 as not_computable. Saturation reports exclude runs that used static-recovery mode. The comparability fingerprint is stable across query-set changes.
+  Provenance PR#215 review threads 4, 5, 11, 12, 16, 22, 25, 30.
+  Quality checks python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m pytest tests/ -v (1170 passed, 8 warnings from openpyxl); python -m mypy src scripts run_full_analysis.py main.py (passed); no live provider calls made.
+
+- 2026-07-26 (fix: fail closed on incomplete live provider profiles)
+  Change type fix update
+  Scope workflows scripts docs tests governance
+  Files affected .github/workflows/full-live-analysis.yml scripts/check_research_api_health.py src/scientific_sources/web_of_science.py tests/test_check_research_api_health.py tests/test_full_live_analysis_workflow.py tests/test_scientific_sources.py docs/LIVE_REPLICATION_INFRASTRUCTURE.md CHANGELOG.txt
+  Summary Added an explicit requested-provider configuration gate to the protected live workflow, documented provider-quota and static-baseline interpretation limits, and reconciled the new Web of Science pagination override with the shared provider contract.
+  Reason The existing require-valid option rejected invalid and rate-limited credentials but allowed requested providers with missing configuration to pass readiness, while legacy static-gap figures could be mistaken for measured real-world qualification shortages.
+  Impact Controlled live runs now stop before acquisition when a selected credential-dependent provider is unconfigured. Web of Science remains optional, OpenAIRE remains a future adapter, and static gap percentages are explicitly limited to project-baseline coverage diagnostics.
+  Provenance PR215 follow-up review; Clarivate Web of Science Starter API limits; OpenAIRE Graph API documentation; outputs/gaps_summary.csv; University of Szczecin baseline.
+  Quality checks Focused health/workflow/provider tests 168 passed; canonical flake8 passed; mypy passed for 70 source files; workflow YAML parse passed; source manifest regeneration was reproducible; changelog guard passed; generated-output validation passed; archive integrity passed for 3 runs; no live provider calls made.
+
+- 2026-07-25 (fix: finalize live archives after strict quality gates)
+  Change type fix update
+  Scope workflows docs tests governance
+  Files affected .github/workflows/full-live-analysis.yml docs/LIVE_REPLICATION_INFRASTRUCTURE.md scripts/check_research_api_health.py tests/test_full_live_analysis_workflow.py CHANGELOG.txt
+  Summary Moved strict novelty Gates A-E before immutable run-archive creation, documented the automatic archive and checksum-validation path, and made the 150-result full-depth profile's approximate threefold retrieval-volume implication explicit to operators. Reconciled concurrent health-check changes to exactly one optional-key OpenAlex probe and one provider-table entry.
+  Reason PR215 review feedback correctly requested confirmation that failed-quality runs cannot be finalized as valid archives and that the higher default acquisition depth is visible at dispatch time.
+  Impact H2 and provider-sensitivity results plus strict novelty gates must succeed before archive creation. Stability remains after archive validation because it consumes the newly indexed run and is an informational stopping diagnostic rather than a run-validity gate.
+  Provenance PR215 review feedback; config/live_query_protocol.yml; scripts/archive_run_outputs.py; scripts/build_run_stability_report.py.
+  Quality checks Focused workflow, archive, novelty, and stability tests 79 passed; provider-health tests 15 passed; workflow YAML parse passed; canonical flake8 passed; source manifest regeneration was reproducible; changelog guard passed; archive integrity validation passed for 3 runs; no live provider calls made.
+
+- 2026-07-25 (fix: apply validated credential supply to H2 results)
+  Change type fix
+  Scope workflows tests governance
+  Files affected .github/workflows/full-live-analysis.yml tests/test_full_live_analysis_workflow.py CHANGELOG.txt
+  Summary The controlled live workflow now rebuilds the Layer 4-5 analysis with the validated credential supply map and supplies the same map to provider-sensitivity analysis.
+  Reason The map was previously generated only after the sole Layer 5 evaluation, so validated registry rows were archived without affecting the primary or sensitivity H2 outcomes.
+  Impact Validated external EQF supply can now affect H2 only through the audited map, while an invalid map build fails before scientific results are archived.
+  Provenance PR215 review feedback; config/live_query_protocol.yml H2 declaration; data/validated/credential_supply_registry.csv.
+  Quality checks Focused workflow regression test, generated-output validation, changelog guard, and whitespace validation.
+
+- 2026-07-25 (fix: close PR215 live-replication review findings)
+  Change type fix update
+  Scope scripts src workflows docs tests dataset governance
+  Files affected .github/workflows/full-live-analysis.yml scripts/check_research_api_health.py scripts/export_live_research_records.py scripts/build_provider_sensitivity_analysis.py scripts/build_run_stability_report.py scripts/build_validated_credential_supply_map.py scripts/compare_generated_outputs.py scripts/archive_run_outputs.py src/scientific_sources/live_query_protocol.py src/scientific_sources/openalex.py docs/LIVE_REPLICATION_INFRASTRUCTURE.md data/validated/credential_supply_registry.csv outputs/run_archive/runs/28625632237-1/manifest.json outputs/run_archive/runs/28625632237-1/run_manifest.json tests/test_check_research_api_health.py tests/test_export_live_research_records.py tests/test_provider_sensitivity_analysis.py tests/test_run_stability.py tests/test_compare_generated_outputs.py tests/test_live_query_protocol.py tests/test_archive_run_outputs.py tests/test_build_validated_credential_supply_map.py tests/test_h2_credential_supply.py tests/test_openalex_provider.py tests/test_full_live_analysis_workflow.py CHANGELOG.txt
+  Summary Removed the duplicate OpenAlex health probe, resolved provider sort contracts before registry paging, recomputed provider-sensitivity demand rows inside each leave-one-out subset, expanded protocol/fingerprint validation, rerouted the workflow so validated H2 supply feeds Layer 5 and stability is generated before archiving, and aligned archive manifests/docs/output drift checks with the implemented contracts.
+  Reason PR #215 review found several places where the live-replication infrastructure could overstate provider independence, silently accept stale acquisition projections, miss transient OpenAlex retries, or archive/report metadata that was not scientifically or operationally valid.
+  Impact Controlled live runs now fail closed on stale Layer 0 projections, provider sensitivity reflects subset-local evidence rather than full-sample carry-over, validated H2 supply is wired back into analysis, archive manifests no longer leak runner-local paths, and supporting tests/docs match the corrected behavior.
+  Provenance PR #215 review comments; config/live_query_protocol.yml; docs/AGENT_WORKING_AGREEMENT.md; full-live workflow contract; archived run manifest hygiene requirements.
+  Quality checks python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m pytest tests/ -v (1164 passed, 8 warnings from openpyxl header/footer parsing); python -m mypy src scripts run_full_analysis.py main.py (passed, two annotation-unchecked notes in existing src/competence_mapper.py); python scripts/validate_generated_outputs.py (passed); python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present (passed)
+
+- 2026-07-25 (fix: corrective live-analysis safeguards after PR214)
+  Change type fix update
+  Scope scripts src workflows tests governance dataset
+  Files affected .gitattributes .github/workflows/full-live-analysis.yml .github/workflows/full-analysis.yml scripts/compare_generated_outputs.py scripts/build_run_stability_report.py scripts/archive_run_outputs.py scripts/export_live_research_records.py scripts/build_validated_credential_supply_map.py scripts/export_research_source_capabilities.py src/scientific_sources/openalex.py src/scientific_sources/crossref.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/base.py src/cumulative_analysis/triangulator.py outputs/research_source_capabilities.json outputs/competences_full_database.json outputs/credentials_database.json outputs/credentials_dynamic_database.json outputs/credentials_generation_rationale.json outputs/cumulative_qmbd_records.json outputs/gaps_detailed.json outputs/run_archive/runs/ CHANGELOG.txt MANIFEST_SOURCES.csv
+  Summary Reconciled the merged PR214 infrastructure into one corrective live-replication path. Historical archive payloads were restored and their stale integrity metadata was regenerated without changing payload files; provider time windows, OpenAlex provenance, hard retrieval caps, external H2 validation, static-baseline exclusion, and field-level output reproducibility checks were tightened. The tracked static analysis outputs were refreshed from the merged generator so the reproducibility gate has a current committed baseline.
+  Reason PR214 left archive indexes pointing at deleted runs and retained several paths where reports could claim pagination, provider sensitivity, H2 coverage, or output reproducibility without the authoritative underlying contract.
+  Impact The controlled profile now runs Crossref, Scopus, and OpenAlex at the protocol-defined 3x50 depth by default, rejects malformed protocol projections before provider calls, keeps H2 not-computable until externally validated demand mappings exist, and reports historical stability as not assessable when fingerprints differ. Archived run payloads are marked byte-preserved so checksum validation has the same result on Windows and Linux.
+  Provenance PR214 review threads; config/live_query_protocol.yml; docs/AGENT_WORKING_AGREEMENT.md; archived run indexes and preserved payloads.
+  Quality checks full pytest 1152 passed; flake8 and mypy passed; workflow YAML parse passed; static-mode output regeneration passed semantic validation and was idempotent apart from normalized audit metadata; archive integrity validation passed for 3 runs; no live/proprietary API calls made.
+
 - 2026-07-25 (add: provider leave-one-out sensitivity analysis)
   Change type add update
   Scope scripts tests governance
@@ -68,6 +138,15 @@ Use this section for changes in progress that are not yet merged into the main b
   Impact Live acquisition now aborts before any API call when the projected protocol loses sectors, query families, or query identifiers; query sampling can distinguish genuine pagination from single-request fallback behavior; and regression tests cover both invariants.
   Provenance config/live_query_protocol.yml; scripts/export_live_query_protocol_projection.py; outputs/research_sources/research_queries_from_protocol.yml; outputs/research_sources/query_protocol_constraints.json.
   Quality checks python -m flake8 scripts/export_live_research_records.py src/scientific_sources/base.py src/scientific_sources/crossref.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/source_registry.py tests/test_pre_acquisition_assertion.py tests/test_pagination.py (passed); python -m pytest tests/test_pre_acquisition_assertion.py tests/test_pagination.py -v (passed); python -m mypy scripts/export_live_research_records.py src/scientific_sources/base.py src/scientific_sources/crossref.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/source_registry.py tests/test_pre_acquisition_assertion.py tests/test_pagination.py (passed); python scripts/generate_manifest.py (passed)
+- 2026-07-25 (add: controlled live replication infrastructure for publication-grade reruns)
+  Change type add update fix
+  Scope scripts src workflows docs tests dataset
+  Files affected src/scientific_sources/base.py src/scientific_sources/crossref.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/openalex.py src/scientific_sources/source_registry.py src/scientific_sources/models.py src/scientific_sources/live_query_protocol.py scripts/export_live_research_records.py scripts/export_live_query_protocol_projection.py scripts/build_validated_credential_supply_map.py scripts/build_provider_sensitivity_analysis.py scripts/build_run_stability_report.py scripts/check_research_api_health.py .github/workflows/full-live-analysis.yml config/research_provider_policy.yml config/research_sources.example.yml data/validated/credential_supply_registry.csv docs/LIVE_REPLICATION_INFRASTRUCTURE.md tests/test_scientific_sources.py tests/test_export_live_research_records.py tests/test_live_query_protocol.py tests/test_build_validated_credential_supply_map.py tests/test_provider_sensitivity_analysis.py tests/test_run_stability_report.py tests/test_check_research_api_health.py tests/test_full_live_analysis_workflow.py tests/test_archive_run_outputs.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Added fail-fast 120-query protocol completeness validation before provider acquisition, genuine provider pagination diagnostics for Crossref/Scopus/OpenAlex, OpenAlex provider support, a validated external credential-supply builder for H2, no-call provider sensitivity diagnostics, and cross-run comparability/saturation reporting.
+  Reason The next controlled live-enriched replications require complete protocol execution, genuine sampling depth, provider-diversity sensitivity, conservative H2 supply validation, and explicit saturation/stability diagnostics before publication-oriented interpretation.
+  Impact Scientific live runs now have stronger protection against partial query execution, first-page replay, Scopus physical-request misreporting, candidate credential circularity, provider monoculture, and invalid cross-run comparisons. The canonical controlled provider profile is Crossref + Scopus + OpenAlex while WoS remains optional.
+  Provenance `config/live_query_protocol.yml`; `.github/copilot-instructions.md`; `docs/AGENT_WORKING_AGREEMENT.md`; official provider API contracts reviewed during implementation planning.
+  Quality checks python -m pytest tests/test_check_research_api_health.py tests/test_full_live_analysis_workflow.py tests/test_archive_run_outputs.py tests/test_provider_sensitivity_analysis.py tests/test_run_stability_report.py tests/test_build_validated_credential_supply_map.py tests/test_live_query_protocol.py::TestShippedProtocol::test_complete_authoritative_projection_accepts_shipped_constraints tests/test_live_query_protocol.py::TestShippedProtocol::test_complete_authoritative_projection_rejects_119_queries tests/test_scientific_sources.py::TestProviderPagination tests/test_export_live_research_records.py::TestMainIntegration::test_protocol_projection_119_queries_fails_before_provider_setup tests/test_export_live_research_records.py::TestMainIntegration::test_live_mode_uses_paginated_registry_search tests/test_export_live_research_records.py::TestMainIntegration::test_apply_query_constraint_rejects_replayed_page_tokens -q (67 passed); python -m flake8 focused touched files --max-line-length 120 (passed)
 
 - 2026-07-23 (docs: codify operator closure checklist for issue #198 and PR #208)
   Change type update
