@@ -67,6 +67,7 @@ INDEX_CSV_COLUMNS: tuple[str, ...] = (
     "analysis_timestamp_utc",
     "run_id",
     "run_path",
+    "archive_root",
     "analysis_input_mode",
     "is_static_recovery_mode",
     "static_recovery_reason",
@@ -374,6 +375,7 @@ def _append_csv_index(archive_root: Path, manifest_payload: dict[str, Any]) -> N
         "analysis_timestamp_utc": manifest_payload["analysis_timestamp_utc"],
         "run_id": manifest_payload["run_id"],
         "run_path": manifest_payload["run_path"],
+        "archive_root": manifest_payload["archive_root"],
         "analysis_input_mode": manifest_payload["analysis_input_mode"],
         "is_static_recovery_mode": str(
             manifest_payload["is_static_recovery_mode"]

@@ -19,6 +19,7 @@ from scripts.export_live_research_records import (
     PROTOCOL_PROJECTED_QUERY_FILE_NAME,
     STAGE1_CSV_FIELDS,
     _apply_query_constraint,
+    _count_physical_requests,
     _lookup_provider_sort_strategy_full,
     _resolve_effective_sampling_request,
     _resolve_provider_sort_strategies,
@@ -319,6 +320,61 @@ class TestApplyQueryConstraint:
         assert audit["logical_pages_completed"] == 0
         assert audit["sampling_status"] == "partially_applied_pagination_incomplete"
         assert "filter_not_applied:multi_page_sampling" in audit["validity_warnings"]
+
+    def test_physical_request_count_aggregates_provider_field(self):
+        """physical_request_count must sum provider-reported physical_requests,
+        not count diagnostic rows.  A WoS logical page requiring two physical
+        HTTP calls must report physical_request_count == 2."""
+        _, audit = _apply_query_constraint(
+            records=[_make_record(year="2024")],
+            constraint={
+                "time_window": {"from_year": 2020, "to_year": 2026},
+                "sampling_strategy": {"mode": "paginated", "pages": 1, "rows_per_page": 50},
+            },
+            provider_name="wos",
+            max_results=100,
+            page_diagnostics=[
+                {
+                    "provider": "wos",
+                    "logical_page": 1,
+                    "physical_requests": 2,
+                    "pagination_status": "applied",
+                    "errors": "",
+                }
+            ],
+            attempted_logical_pages=1,
+        )
+        assert audit["physical_request_count"] == 2
+
+    def test_physical_request_count_falls_back_to_one_per_entry_when_field_absent(self):
+        """Providers that omit physical_requests (e.g. OpenAlex) default to 1 per entry."""
+        _, audit = _apply_query_constraint(
+            records=[_make_record(year="2024")],
+            constraint={
+                "time_window": {"from_year": 2020, "to_year": 2026},
+                "sampling_strategy": {"mode": "paginated", "pages": 2, "rows_per_page": 50},
+            },
+            provider_name="openalex",
+            max_results=100,
+            page_diagnostics=[
+                {
+                    "provider": "openalex",
+                    "logical_page": 1,
+                    "physical_request_index": 1,
+                    "pagination_status": "applied",
+                    "errors": "",
+                },
+                {
+                    "provider": "openalex",
+                    "logical_page": 2,
+                    "physical_request_index": 2,
+                    "pagination_status": "applied",
+                    "errors": "",
+                },
+            ],
+            attempted_logical_pages=2,
+        )
+        assert audit["physical_request_count"] == 2
 
 
 def test_resolve_provider_sort_strategies_includes_openalex_fallback() -> None:
@@ -2260,3 +2316,260 @@ class TestStage1ComplianceFilter:
             "licence_note must be in STAGE1_CSV_FIELDS — it is required by "
             "docs/licensing_and_compliance.md Stage 1 export rules."
         )
+
+
+# ---------------------------------------------------------------------------
+# Tests for _count_physical_requests deterministic helper
+# ---------------------------------------------------------------------------
+
+
+class TestCountPhysicalRequests:
+    """Regression suite for the deterministic physical-request aggregation helper."""
+
+    def _diag(self, logical_page=1, physical_requests=None, physical_request_index=None,
+              pagination_status="applied"):
+        row = {
+            "provider": "wos",
+            "logical_page": logical_page,
+            "pagination_status": pagination_status,
+        }
+        if physical_requests is not None:
+            row["physical_requests"] = physical_requests
+        if physical_request_index is not None:
+            row["physical_request_index"] = physical_request_index
+        return row
+
+    def test_empty_diagnostics_returns_zero(self):
+        assert _count_physical_requests([]) == 0
+
+    def test_single_page_one_physical_call(self):
+        """One logical page with physical_requests=1 -> total=1."""
+        diags = [self._diag(physical_requests=1)]
+        assert _count_physical_requests(diags) == 1
+
+    def test_one_logical_page_two_physical_calls(self):
+        """One logical page requiring two physical HTTP calls -> total=2."""
+        diags = [self._diag(logical_page=1, physical_requests=2)]
+        assert _count_physical_requests(diags) == 2
+
+    def test_two_logical_pages_summed(self):
+        """Two logical pages each with 1 physical call -> total=2."""
+        diags = [
+            self._diag(logical_page=1, physical_requests=1),
+            self._diag(logical_page=2, physical_requests=1),
+        ]
+        assert _count_physical_requests(diags) == 2
+
+    def test_duplicate_rows_same_logical_page_no_double_count(self):
+        """Multiple diagnostic rows for the same logical page must not double-count.
+        The maximum valid physical_requests across all rows is used."""
+        diags = [
+            self._diag(logical_page=1, physical_requests=1),
+            self._diag(logical_page=1, physical_requests=2),
+        ]
+        assert _count_physical_requests(diags) == 2
+
+    def test_failed_attempt_retained(self):
+        """Failed page diagnostics must still count as physical requests."""
+        diags = [
+            self._diag(logical_page=1, physical_requests=1, pagination_status="failed"),
+        ]
+        assert _count_physical_requests(diags) == 1
+
+    def test_provider_not_configured_contributes_zero(self):
+        """provider_not_configured rows must contribute zero to the count."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": 0,
+                "pagination_status": "provider_not_configured",
+                "errors": "provider_not_configured",
+            }
+        ]
+        assert _count_physical_requests(diags) == 0
+
+    def test_not_configured_status_contributes_zero(self):
+        """not_configured status must contribute zero."""
+        diags = [
+            {
+                "provider": "scopus",
+                "logical_page": 1,
+                "physical_requests": 0,
+                "pagination_status": "not_configured",
+            }
+        ]
+        assert _count_physical_requests(diags) == 0
+
+    def test_malformed_physical_requests_does_not_crash(self):
+        """Malformed physical_requests values must not crash; fall back gracefully."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": "not-a-number",
+                "physical_request_index": 1,
+                "pagination_status": "applied",
+            }
+        ]
+        result = _count_physical_requests(diags)
+        assert isinstance(result, int)
+        assert result >= 0
+
+    def test_bool_physical_requests_not_counted(self):
+        """Boolean physical_requests must be rejected and not crash."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": True,
+                "physical_request_index": 1,
+                "pagination_status": "applied",
+            }
+        ]
+        result = _count_physical_requests(diags)
+        assert isinstance(result, int)
+        assert result >= 0
+
+    def test_negative_physical_requests_ignored(self):
+        """Negative physical_requests values must be ignored."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": -1,
+                "physical_request_index": 1,
+                "pagination_status": "applied",
+            }
+        ]
+        result = _count_physical_requests(diags)
+        assert result >= 0
+
+    def test_fallback_to_physical_request_index(self):
+        """When physical_requests is absent, deduplicate physical_request_index values."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_request_index": 1,
+                "pagination_status": "applied",
+            },
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_request_index": 2,
+                "pagination_status": "applied",
+            },
+        ]
+        assert _count_physical_requests(diags) == 2
+
+    def test_one_attempt_fallback_for_actual_request(self):
+        """When no physical_requests or index is available and status is not zero-attempt,
+        a one-attempt fallback applies."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "pagination_status": "end_of_results",
+            }
+        ]
+        assert _count_physical_requests(diags) == 1
+
+    # --- new precedence-contract regressions ---
+
+    def test_zero_attempt_status_with_misleading_physical_requests_contributes_zero(self):
+        """provider_not_configured row with misleading physical_requests=1 and
+        physical_request_index=1 must still contribute exactly 0."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": 1,
+                "physical_request_index": 1,
+                "pagination_status": "provider_not_configured",
+            }
+        ]
+        assert _count_physical_requests(diags) == 0
+
+    def test_failed_row_zero_physical_requests_no_index_uses_fallback(self):
+        """Failed row with physical_requests=0 and no positive index must use
+        the bounded one-attempt fallback."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": 0,
+                "pagination_status": "failed",
+            }
+        ]
+        assert _count_physical_requests(diags) == 1
+
+    def test_mixed_page_ignores_zero_attempt_row_counts_attempted_only(self):
+        """A page with one zero-attempt row (physical_requests=1) and one attempted
+        row (physical_requests=2) must count only the attempted row => 2."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": 1,
+                "physical_request_index": 1,
+                "pagination_status": "provider_not_configured",
+            },
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": 2,
+                "physical_request_index": 2,
+                "pagination_status": "applied",
+            },
+        ]
+        assert _count_physical_requests(diags) == 2
+
+    def test_retry_distinct_positive_indexes_retained_when_totals_absent(self):
+        """When physical_requests is absent, distinct positive indexes from
+        retry/failure rows are all retained."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_request_index": 1,
+                "pagination_status": "failed",
+            },
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_request_index": 2,
+                "pagination_status": "applied",
+            },
+        ]
+        assert _count_physical_requests(diags) == 2
+
+    def test_malformed_physical_requests_uses_bounded_fallback(self):
+        """Malformed physical_requests with no valid index on an attempted row
+        must fall back to bounded 1, not crash."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": "bad!value",
+                "pagination_status": "failed",
+            }
+        ]
+        assert _count_physical_requests(diags) == 1
+
+    def test_all_zero_attempt_statuses_contribute_zero(self):
+        """All recognised zero-attempt statuses (no_credentials, skipped) must
+        also contribute zero even when physical_requests looks positive."""
+        for status in ("no_credentials", "skipped"):
+            diags = [
+                {
+                    "provider": "scopus",
+                    "logical_page": 1,
+                    "physical_requests": 5,
+                    "physical_request_index": 5,
+                    "pagination_status": status,
+                }
+            ]
+            assert _count_physical_requests(diags) == 0, (
+                f"status {status!r} should contribute zero"
+            )

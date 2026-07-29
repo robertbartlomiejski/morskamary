@@ -452,3 +452,55 @@ def test_repo_relative_posix_uses_redaction_sentinel_for_out_of_tree_path(
         assert result == "[redacted-out-of-tree-path]", (
             f"Expected sentinel for out-of-tree path, got: {result!r}"
         )
+
+
+def test_out_of_tree_archive_root_is_redacted_in_manifest_and_csv(
+    tmp_path: Path,
+) -> None:
+    """When --archive-root is outside --repo-root, both manifest.json and
+    cumulative_runs_index.csv must record exactly '[redacted-out-of-tree-path]',
+    never an absolute path or a bare basename."""
+    import tempfile
+
+    module = _load_archive_module()
+
+    with tempfile.TemporaryDirectory() as out_of_tree_dir:
+        archive_root = Path(out_of_tree_dir) / "run_archive"
+        archive_root.mkdir(parents=True, exist_ok=True)
+
+        _seed_required_targets(tmp_path)
+
+        result = module.main(
+            [
+                "--repo-root",
+                str(tmp_path),
+                "--archive-root",
+                str(archive_root),
+                "--run-id",
+                "run-oot-1",
+            ]
+        )
+        assert result == 0, "archive with out-of-tree root must succeed"
+
+        run_dir = archive_root / "runs" / "run-oot-1"
+        manifest_path = run_dir / "manifest.json"
+        assert manifest_path.exists(), "manifest must be written"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+        # manifest must redact the absolute path
+        assert manifest["archive_root"] == "[redacted-out-of-tree-path]", (
+            f"manifest archive_root must be sentinel, got: {manifest['archive_root']!r}"
+        )
+        assert str(out_of_tree_dir) not in manifest["archive_root"]
+
+        csv_index = archive_root / "cumulative_runs_index.csv"
+        assert csv_index.exists(), "cumulative CSV index must be written"
+        with csv_index.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+        assert rows, "CSV index must have at least one row"
+        row = rows[-1]
+
+        assert row["archive_root"] == "[redacted-out-of-tree-path]", (
+            f"CSV archive_root must be sentinel, got: {row['archive_root']!r}"
+        )
+        assert str(out_of_tree_dir) not in row["archive_root"]

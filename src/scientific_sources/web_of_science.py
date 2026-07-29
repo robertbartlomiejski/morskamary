@@ -401,6 +401,7 @@ class WebOfScienceProvider(BaseProvider):
         _WOS_MAX_LIMIT = 50
         all_records: List[LiteratureRecord] = []
         all_warnings: List[str] = []
+        all_errors: List[str] = []
         all_provenance: List[SourceEvidence] = []
         page_diagnostics: List[Dict[str, Any]] = []
 
@@ -419,6 +420,10 @@ class WebOfScienceProvider(BaseProvider):
                     f"{self._api_base}?q={wos_query}"
                     f"&limit={chunk_size}&page={physical_page}"
                 )
+                # Count the attempt before making the request so that every
+                # outcome (success, HTTP error, timeout, malformed JSON) is
+                # accounted for exactly once.
+                physical_requests += 1
                 try:
                     payload = self._request_json(url)
                     items = payload.get("hits", [])
@@ -426,7 +431,6 @@ class WebOfScienceProvider(BaseProvider):
                         items = []
                     records = self._parse_items(items, query)
                     page_records.extend(records)
-                    physical_requests += 1
                     physical_page += 1
                     rows_remaining -= chunk_size
                     # Early stop if fewer results than requested
@@ -437,6 +441,7 @@ class WebOfScienceProvider(BaseProvider):
                         all_warnings.append(
                             f"WoS page={physical_page} rate-limited (429)"
                         )
+                        all_errors.append("rate_limited")
                         page_diagnostics.append(
                             {
                                 "provider": "wos",
@@ -454,7 +459,9 @@ class WebOfScienceProvider(BaseProvider):
                             }
                         )
                         break
+                    _http_code = f"http_{exc.code}"
                     all_warnings.append(f"WoS page={physical_page} HTTP {exc.code}")
+                    all_errors.append(_http_code)
                     page_diagnostics.append(
                         {
                             "provider": "wos",
@@ -468,12 +475,37 @@ class WebOfScienceProvider(BaseProvider):
                             "normalized_rows": len(page_records),
                             "pagination_method": "wos_starter_page",
                             "pagination_status": "failed",
-                            "errors": f"http_{exc.code}",
+                            "errors": _http_code,
                         }
                     )
                     break
                 except Exception as exc:
-                    all_warnings.append(f"WoS page={physical_page} error: {exc}")
+                    if isinstance(exc, (urllib.error.URLError, TimeoutError, OSError)):
+                        _stable_error = "network_timeout_or_connection_error"
+                    elif isinstance(exc, (json.JSONDecodeError, ValueError)):
+                        _stable_error = "malformed_response_json_decode_error"
+                    else:
+                        _stable_error = "acquisition_error"
+                    all_warnings.append(
+                        f"WoS logical_page={logical_page_idx + 1} {_stable_error}"
+                    )
+                    all_errors.append(_stable_error)
+                    page_diagnostics.append(
+                        {
+                            "provider": "wos",
+                            "query": query,
+                            "logical_page": logical_page_idx + 1,
+                            "physical_request_index": physical_requests,
+                            "cursor_or_offset": f"page:{physical_page}",
+                            "physical_requests": physical_requests,
+                            "requested_rows": safe_rows,
+                            "returned_rows": len(page_records),
+                            "normalized_rows": len(page_records),
+                            "pagination_method": "wos_starter_page",
+                            "pagination_status": "failed",
+                            "errors": _stable_error,
+                        }
+                    )
                     break
 
                 # Polite inter-request delay (avoid burst)
@@ -522,6 +554,7 @@ class WebOfScienceProvider(BaseProvider):
         )
         result = ProviderResult(
             records=all_records,
+            errors=all_errors,
             warnings=all_warnings,
             provenance=all_provenance,
             rate_limit_status=rate_limit_status,

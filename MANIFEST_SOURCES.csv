@@ -1047,6 +1047,7 @@ scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,yes
 scripts/build_validated_credential_supply_map.py,script,,,,,,build_validated_credential_supply_map,yes
 scripts/build_versioned_research_data_package.py,script,,,,,,build_versioned_research_data_package,yes
 scripts/changelog_guard.py,script,,,,,,changelog_guard,yes
+scripts/check_budget_ceiling.py,script,,,,,,check_budget_ceiling,yes
 scripts/check_research_api_health.py,script,,,,,,check_research_api_health,yes
 scripts/check_research_env.py,script,,,,,,check_research_env,yes
 scripts/compute_live_novelty_metrics.py,script,,,,,,compute_live_novelty_metrics,yes
@@ -1144,6 +1145,7 @@ tests/test_build_tmbd_dictionary.py,script,,,,,,test_build_tmbd_dictionary,yes
 tests/test_build_validated_credential_supply_map.py,script,,,,,,test_build_validated_credential_supply_m,yes
 tests/test_build_versioned_research_data_package.py,script,,,,,,test_build_versioned_research_data_packa,yes
 tests/test_changelog_guard.py,script,,,,,,test_changelog_guard,yes
+tests/test_check_budget_ceiling.py,script,,,,,,test_check_budget_ceiling,yes
 tests/test_check_research_api_health.py,script,,,,,,test_check_research_api_health,yes
 tests/test_ci_workflow.py,script,,,,,,test_ci_workflow,yes
 tests/test_codeql_workflow.py,script,,,,,,test_codeql_workflow,yes

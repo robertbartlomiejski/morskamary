@@ -1058,6 +1058,148 @@ class TestWebOfScienceProvider:
         assert diagnostics[0].get("error") == "not_configured"
         assert diagnostics[0]["errors"] == "provider_not_configured"
 
+    def test_search_paginated_timeout_emits_failed_diagnostic(self, monkeypatch):
+        """Timeout/connection exceptions must emit pagination_status='failed', not
+        end_of_results, and must use a stable error code with no raw exception text.
+        The stable code must also appear in ProviderResult.errors."""
+        import urllib.request as _urllib_req
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+
+        def _fake_urlopen(req, timeout=12):
+            raise TimeoutError("connection timed out")
+
+        monkeypatch.setattr(_urllib_req, "urlopen", _fake_urlopen)
+
+        result, diagnostics = provider.search_paginated(
+            "ocean", logical_pages=1, rows_per_page=50
+        )
+        assert len(diagnostics) == 1
+        diag = diagnostics[0]
+        assert diag["provider"] == "wos"
+        assert diag["pagination_status"] == "failed"
+        assert diag["errors"] == "network_timeout_or_connection_error"
+        # Raw exception text must not appear in errors or warnings
+        for w in result.warnings:
+            assert "timed out" not in w.lower() or "logical_page" in w
+        assert "timed out" not in diag["errors"]
+        # Stable error code must also appear in ProviderResult.errors
+        assert "network_timeout_or_connection_error" in result.errors
+        # Raw exception text must not appear in ProviderResult.errors
+        assert not any("timed out" in e for e in result.errors)
+
+    def test_search_paginated_malformed_json_emits_failed_diagnostic(self, monkeypatch):
+        """Malformed JSON responses must emit pagination_status='failed' and a stable
+        error code, never end_of_results or applied.
+        The stable code must also appear in ProviderResult.errors."""
+        import urllib.request as _urllib_req
+        import json as _json
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+
+        def _fake_urlopen(req, timeout=12):
+            raise _json.JSONDecodeError("not JSON", "", 0)
+
+        monkeypatch.setattr(_urllib_req, "urlopen", _fake_urlopen)
+
+        result, diagnostics = provider.search_paginated(
+            "ports", logical_pages=1, rows_per_page=50
+        )
+        assert len(diagnostics) == 1
+        diag = diagnostics[0]
+        assert diag["pagination_status"] == "failed"
+        assert diag["errors"] == "malformed_response_json_decode_error"
+        # No raw exception text in the errors field
+        assert "not JSON" not in diag["errors"]
+        # Stable error code must also appear in ProviderResult.errors
+        assert "malformed_response_json_decode_error" in result.errors
+        # Raw exception text must not appear in ProviderResult.errors
+        assert not any("not JSON" in e for e in result.errors)
+
+    def test_search_paginated_physical_requests_aggregated(self, monkeypatch):
+        """physical_requests field in diagnostic must reflect chunked calls per page;
+        a logical page requiring two physical HTTP calls reports physical_requests==2."""
+        import time as _time
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+        call_log: list[str] = []
+
+        def _mock_request(url):
+            call_log.append(url)
+            return {
+                "hits": [{"title": f"rec {len(call_log)}", "source": {}}]
+                * 50  # full chunk = 50 rows
+            }
+
+        monkeypatch.setattr(provider, "_request_json", _mock_request)
+        monkeypatch.setattr(_time, "sleep", lambda _: None)
+
+        # rows_per_page=100 > WoS 50-row limit → two physical calls per logical page
+        result, diagnostics = provider.search_paginated(
+            "maritime", logical_pages=1, rows_per_page=100
+        )
+        assert len(diagnostics) == 1
+        diag = diagnostics[0]
+        assert diag["physical_requests"] == 2
+        assert len(call_log) == 2
+
+    def test_search_paginated_http_429_counts_one_physical_request(self, monkeypatch):
+        """HTTP 429 after one call must report physical_requests==1 and
+        physical_request_index==1, and 'rate_limited' in ProviderResult.errors."""
+        import urllib.request as _urllib_req
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+
+        rate_limited_exc = urllib.error.HTTPError(
+            "https://example.com", 429, "Too Many Requests", {}, None
+        )
+
+        def _fake_urlopen(req, timeout=12):
+            raise rate_limited_exc
+
+        monkeypatch.setattr(_urllib_req, "urlopen", _fake_urlopen)
+
+        result, diagnostics = provider.search_paginated(
+            "shipping", logical_pages=1, rows_per_page=50
+        )
+        assert len(diagnostics) == 1
+        diag = diagnostics[0]
+        assert diag["pagination_status"] == "rate_limited"
+        assert diag["physical_requests"] == 1
+        assert diag["physical_request_index"] == 1
+        assert "rate_limited" in result.errors
+
+    def test_search_paginated_non_429_http_counts_one_physical_request(self, monkeypatch):
+        """Non-429 HTTP error after one call must report physical_requests==1 and
+        physical_request_index==1, and a stable error code in ProviderResult.errors."""
+        import urllib.request as _urllib_req
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+
+        server_error_exc = urllib.error.HTTPError(
+            "https://example.com", 500, "Internal Server Error", {}, None
+        )
+
+        def _fake_urlopen(req, timeout=12):
+            raise server_error_exc
+
+        monkeypatch.setattr(_urllib_req, "urlopen", _fake_urlopen)
+
+        result, diagnostics = provider.search_paginated(
+            "ports", logical_pages=1, rows_per_page=50
+        )
+        assert len(diagnostics) == 1
+        diag = diagnostics[0]
+        assert diag["pagination_status"] == "failed"
+        assert diag["physical_requests"] == 1
+        assert diag["physical_request_index"] == 1
+        assert "http_500" in result.errors
+
 
 class TestSciValProvider:
     def test_not_configured_without_key(self, monkeypatch):

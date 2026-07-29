@@ -253,6 +253,11 @@ jobs:
             --output-dir outputs/research_sources \
             --offline false
 
+      - name: Enforce post-acquisition logical-request budget ceiling
+        run: |
+          set -euo pipefail
+          python scripts/check_budget_ceiling.py
+
       - name: Validate live research source outputs
         run: |
           set -euo pipefail

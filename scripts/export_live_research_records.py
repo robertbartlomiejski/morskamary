@@ -119,6 +119,111 @@ def _safe_page_int(value: Any) -> int:
         return 0
 
 
+# Diagnostic status values that represent zero actual paid requests.
+_ZERO_ATTEMPT_STATUSES = frozenset(
+    {"provider_not_configured", "not_configured", "no_credentials", "skipped"}
+)
+
+
+def _parse_canonical_positive_int(raw: Any) -> Optional[int]:
+    """Return a positive canonical integer from *raw*, or ``None`` for any invalid input.
+
+    Accepted: plain Python ``int`` that is positive (not ``bool``, not ``float``).
+    For string inputs, only canonical ASCII-digit sequences (``[0-9]+``) are
+    accepted; ``+1``, ``1_0``, ``-1``, ``1.0``, ``True`` and similar non-canonical
+    forms are all rejected.  Never raises.
+    """
+    if raw is None:
+        return None
+    # Reject booleans (bool is a subclass of int in Python).
+    if isinstance(raw, bool):
+        return None
+    # Reject float values.
+    if isinstance(raw, float):
+        return None
+    if isinstance(raw, str):
+        if not re.fullmatch(r"[0-9]+", raw):
+            return None
+        v = int(raw)
+    else:
+        try:
+            v = int(raw)
+        except (TypeError, ValueError):
+            return None
+    return v if v > 0 else None
+
+
+def _count_physical_requests(diagnostics: Sequence[Mapping[str, Any]]) -> int:
+    """Deterministically count physical provider requests from page diagnostics.
+
+    Precedence contract per logical page:
+
+    1. If **all** rows for that logical page have a zero-attempt
+       ``pagination_status`` (``provider_not_configured``, ``not_configured``,
+       ``no_credentials``, ``skipped``), contribute **0** regardless of any
+       reported ``physical_requests`` or ``physical_request_index`` values.
+    2. Otherwise, ignore zero-attempt rows when calculating actual attempts.
+    3. Use the maximum valid **positive canonical integer** ``physical_requests``
+       from attempted rows.
+    4. Where no valid ``physical_requests`` exists, count unique valid positive
+       canonical ``physical_request_index`` values from attempted rows.
+    5. Use a one-attempt fallback when at least one attempted-status row exists
+       but no valid counts are available.
+    6. Malformed, non-positive, bool, float, signed, underscore-separated, or
+       otherwise non-canonical values are ignored and never crash.
+    """
+    if not diagnostics:
+        return 0
+
+    # Group rows by logical_page.
+    by_page: Dict[int, List[Mapping[str, Any]]] = {}
+    for row in diagnostics:
+        page = _safe_page_int(row.get("logical_page", 0))
+        by_page.setdefault(page, []).append(row)
+
+    total = 0
+    for page_rows in by_page.values():
+        # Step 1: if every row for this page is a zero-attempt status, skip it.
+        if all(
+            str(row.get("pagination_status", "")) in _ZERO_ATTEMPT_STATUSES
+            for row in page_rows
+        ):
+            continue
+
+        # Step 2: restrict remaining steps to actually-attempted rows only.
+        attempted_rows = [
+            row for row in page_rows
+            if str(row.get("pagination_status", "")) not in _ZERO_ATTEMPT_STATUSES
+        ]
+
+        # Step 3: collect valid positive physical_requests values.
+        valid_totals: List[int] = []
+        for row in attempted_rows:
+            v = _parse_canonical_positive_int(row.get("physical_requests"))
+            if v is not None:
+                valid_totals.append(v)
+
+        if valid_totals:
+            total += max(valid_totals)
+            continue
+
+        # Step 4: deduplicate positive physical_request_index values.
+        valid_indexes: set = set()
+        for row in attempted_rows:
+            v = _parse_canonical_positive_int(row.get("physical_request_index"))
+            if v is not None:
+                valid_indexes.add(v)
+
+        if valid_indexes:
+            total += len(valid_indexes)
+            continue
+
+        # Step 5: one-attempt fallback — attempted_rows is non-empty here.
+        total += 1
+
+    return total
+
+
 _DEFAULT_PROVIDER_POLICY: Dict[str, Any] = {
     "precedence": [
         "crossref",
@@ -635,7 +740,7 @@ def _apply_query_constraint(
         if str(row.get("pagination_status", "")) in {"applied", "end_of_results"}
     }
     completed_pages = len({page for page in logical_pages if page > 0})
-    physical_request_count = len(diagnostics)
+    physical_request_count = _count_physical_requests(diagnostics)
     pagination_warning_count = sum(
         1
         for row in diagnostics

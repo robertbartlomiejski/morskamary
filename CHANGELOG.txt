@@ -19,6 +19,26 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-29 (fix: PR-A three residual defects per review comment 5121338571)
+  Change type fix update
+  Scope scripts src tests workflows
+  Files affected scripts/check_budget_ceiling.py .github/workflows/full-live-analysis.yml scripts/export_live_research_records.py src/scientific_sources/web_of_science.py tests/test_check_budget_ceiling.py tests/test_export_live_research_records.py tests/test_full_live_analysis_workflow.py tests/test_scientific_sources.py CHANGELOG.txt
+  Summary Three residual PR-A defects addressed: (1) budget ceiling validator extracted to scripts/check_budget_ceiling.py with strict type enforcement (rejects bool, float, negative, missing column) and offline-testable regressions; workflow now calls the script; (2) WoS non-HTTP failures now propagate stable error codes to ProviderResult.errors in addition to page_diagnostics; (3) physical-request aggregation replaced with _count_physical_requests helper implementing per-logical-page precedence (max physical_requests, deduped indexes, one-attempt fallback; zero for not-configured rows; never crashes on malformed values).
+  Reason Review comment 5121338571 identified three still-open contract defects in commit 0cb728017f1152e62f858d8e15d259dcf53d5622.
+  Impact No live provider calls introduced. Budget validator now rejects bool/float/negative ceilings, blank/negative/float row values, and missing required CSV column. WoS ProviderResult.errors is now populated for all error cases. Physical-request counting no longer double-counts duplicate diagnostic rows or counts not-configured entries.
+  Provenance GitHub PR #217 comment 5121338571; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md.
+  Quality checks python -m flake8 src scripts tests (pending); python -m mypy src scripts (pending); python -m pytest tests/ (pending).
+
+- 2026-07-29 (fix: PR-A four contract defects at head f9bd457 per comment 5121001319)
+  Change type fix update
+  Scope scripts src tests workflows
+  Files affected .github/workflows/full-live-analysis.yml scripts/archive_run_outputs.py scripts/export_live_research_records.py src/scientific_sources/web_of_science.py tests/test_archive_run_outputs.py tests/test_export_live_research_records.py tests/test_full_live_analysis_workflow.py tests/test_scientific_sources.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Four verified PR-A contract defects addressed: (1) post-acquisition logical-request ceiling enforced in workflow between acquisition and validation using api_budget_plan.json and query_execution_log.csv, with fail-closed behavior on missing files or exceeded budget; (2) archive_root added to cumulative_runs_index.csv using the same redacted sentinel as manifest.json for out-of-tree paths; (3) WoS non-HTTP exceptions (timeout, connection, malformed JSON) now emit a canonical pagination_status="failed" diagnostic with stable sanitized error codes instead of falling through to end_of_results; (4) physical_request_count in export records now aggregates provider-reported physical_requests per diagnostic rather than counting diagnostic rows, fixing multi-chunk WoS logical page accounting.
+  Reason Fresh review of head f9bd45746472ad1321f130fa72d715dae3aea994 identified these four still-open PR-A defects; all verified against current code before implementation.
+  Impact No live provider calls introduced. Budget ceiling now blocks downstream analysis when actual logical requests exceed the plan ceiling. Archive CSV index now carries archive_root provenance. WoS non-HTTP failure diagnostics are now correctly classified. Physical request accounting is now correct for providers with multi-request logical pages.
+  Provenance GitHub PR #217 comment 5121001319; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md.
+  Quality checks python -m flake8 src scripts tests (passed); python -m mypy src scripts (Success: no issues found); python -m pytest tests/ (1188 passed, 8 warnings).
+
 - 2026-07-29 (fix: address fresh CodeRabbit review findings from PR-A head d04db532)
   Change type fix update
   Scope scripts src tests workflows

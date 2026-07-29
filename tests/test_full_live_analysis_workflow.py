@@ -147,3 +147,67 @@ def test_stability_thresholds_are_explicit_in_workflow() -> None:
     assert "--jaccard-threshold 0.90" in stability_block
     assert "--new-doi-threshold 0.05" in stability_block
     assert "--axis-stability-threshold 0.95" in stability_block
+
+
+def test_budget_ceiling_enforcement_step_exists_after_acquisition() -> None:
+    """The workflow must enforce the logical-request ceiling immediately after
+    acquisition and before source validation or downstream analysis."""
+    text = _text()
+
+    export_pos = text.index("Export live research records")
+    budget_pos = text.index("Enforce post-acquisition logical-request budget ceiling")
+    validate_pos = text.index("Validate live research source outputs")
+
+    assert export_pos < budget_pos < validate_pos, (
+        "budget ceiling enforcement must occur after acquisition and before validation"
+    )
+
+
+def test_budget_step_invokes_check_budget_ceiling_script() -> None:
+    """The budget enforcement step must invoke scripts/check_budget_ceiling.py
+    (the deterministic offline-testable validator) rather than inline Python."""
+    text = _text()
+    budget_block = text[
+        text.index("Enforce post-acquisition logical-request budget ceiling") : text.index(
+            "Validate live research source outputs"
+        )
+    ]
+    assert "scripts/check_budget_ceiling.py" in budget_block, (
+        "budget step must call python scripts/check_budget_ceiling.py"
+    )
+
+
+def test_check_budget_ceiling_script_contains_fail_closed_contracts() -> None:
+    """The deterministic budget ceiling validator must enforce all required contracts:
+    api_budget_plan.json, query_execution_log.csv, maximum_total_logical_requests,
+    logical_pages_attempted, and sys.exit on any violation."""
+    script = Path("scripts/check_budget_ceiling.py").read_text(encoding="utf-8")
+    assert "api_budget_plan.json" in script
+    assert "query_execution_log.csv" in script
+    assert "maximum_total_logical_requests" in script
+    assert "logical_pages_attempted" in script
+    assert "sys.exit" in script
+
+
+def test_check_budget_ceiling_script_rejects_bool_ceiling() -> None:
+    """The validator must reject boolean maximum_total_logical_requests."""
+    script = Path("scripts/check_budget_ceiling.py").read_text(encoding="utf-8")
+    assert "bool" in script, (
+        "validator must explicitly check for and reject boolean ceiling values"
+    )
+
+
+def test_check_budget_ceiling_script_requires_header_column() -> None:
+    """The validator must explicitly verify logical_pages_attempted is in CSV fieldnames."""
+    script = Path("scripts/check_budget_ceiling.py").read_text(encoding="utf-8")
+    assert "fieldnames" in script, (
+        "validator must check CSV fieldnames to ensure the required column is present"
+    )
+
+
+def test_no_github_expression_in_shell_run_blocks() -> None:
+    """No ${{ github.* }} expression must appear in any run: shell body."""
+    run_text = _run_block_text()
+    assert "${{ github." not in run_text, (
+        "github.* values must be passed through env:, not interpolated in shell"
+    )
