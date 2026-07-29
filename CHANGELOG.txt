@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-29 (fix: align test_h2_credential_supply _write_demands fixture with derived_competence_demands.csv schema)
+  Change type fix
+  Scope tests
+  Files affected tests/test_h2_credential_supply.py CHANGELOG.txt
+  Summary Added axis_group="HYDRONIZATION" column to the _write_demands helper in test_h2_credential_supply.py so the test fixture CSV matches the real derived_competence_demands.csv schema (which includes axis_group).
+  Reason The _write_demands helper wrote a minimal CSV without axis_group, making the test fixture diverge from the actual Layer 4 output schema. Aligning the fixture prevents false negatives when the script is extended to read axis_group.
+  Impact Test correctness; no production code change.
+  Quality checks python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m pytest tests/ -v (1171 passed, 8 warnings from openpyxl); python -m mypy src scripts run_full_analysis.py main.py (passed); no live provider calls made.
+  Reviewer GitHub Copilot Coding Agent
+
 - 2026-07-26 (fix: address remaining PR215 review findings on saturation, fingerprint, registry and protocol validation)
   Change type fix update
   Scope scripts src workflows tests governance
