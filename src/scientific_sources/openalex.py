@@ -75,7 +75,8 @@ def _strip_abstract_fields(payload: Any) -> Any:
         payload (Any): API payload to clean.
     
     Returns:
-        Any: A cleaned copy of dictionary payloads, with nested result items processed recursively; other values are returned unchanged.
+        Any: A cleaned copy of dictionary payloads, with nested result items processed recursively;
+            other values are returned unchanged.
     """
     if isinstance(payload, dict):
         cleaned = {
