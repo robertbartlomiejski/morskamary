@@ -6,6 +6,7 @@ import json
 import sys
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATH = REPO_ROOT / "scripts" / "build_run_stability_report.py"
@@ -63,13 +64,14 @@ def _seed_archive(
                 "workflow": {"inputs": {"providers": str(run.get("provider_set", provider_set))}},
             },
         )
+        query_ids = run.get("query_ids", ["q1"])
         _write_json(
             run_dir / "research_sources" / "query_protocol_constraints.json",
             {
                 "protocol_version": str(run.get("protocol_version", protocol_version)),
                 "queries": [
                     {
-                        "query_id": "q1",
+                        "query_id": query_id,
                         "time_window": {"from_year": 2020, "to_year": 2026},
                         "sampling_strategy": {
                             "mode": "pages",
@@ -78,6 +80,7 @@ def _seed_archive(
                             "dedupe_key": "doi",
                         },
                     }
+                    for query_id in query_ids
                 ],
             },
         )
@@ -274,3 +277,109 @@ def test_fingerprint_mismatch_makes_report_not_assessable(tmp_path: Path) -> Non
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
     assert report["saturation_assessment"]["status"] == "not_assessable"
+
+
+def test_different_query_id_sets_break_fingerprint_match(tmp_path: Path) -> None:
+    """A changed query universe (query_id set) must be treated as a
+    non-comparable acquisition condition, even when every other constraint
+    dimension is identical."""
+    module = _load_module()
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+                "query_ids": ["q1", "q2"],
+            },
+            {
+                "run_id": "run-2",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(21),
+                "query_ids": ["q1", "q3"],
+            },
+        ],
+    )
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+    assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
+    assert report["saturation_assessment"]["status"] == "not_assessable"
+
+
+def test_query_id_set_fingerprint_is_order_independent(tmp_path: Path) -> None:
+    """The same query_id set declared in a different order must still hash
+    to a matching fingerprint (query_id_hash sorts before hashing)."""
+    module = _load_module()
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+                "query_ids": ["q1", "q2"],
+            },
+            {
+                "run_id": "run-2",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(21),
+                "query_ids": ["q2", "q1"],
+            },
+        ],
+    )
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+    assert report["run_pairs"][0]["comparability_fingerprint_match"] is True
+
+
+def test_static_recovery_run_excluded_from_full_report(tmp_path: Path) -> None:
+    """A run archived in static-recovery mode must not count toward
+    ``runs_analyzed`` or contribute to saturation comparisons."""
+    module = _load_module()
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {"run_id": "run-1", "timestamp_utc": "2026-07-01T00:00:00+00:00", "dois": _doi_series(20)},
+            {"run_id": "run-2", "timestamp_utc": "2026-07-02T00:00:00+00:00", "dois": _doi_series(21)},
+        ],
+    )
+    manifest_path = archive_root / "runs" / "run-1" / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["is_static_recovery_mode"] = True
+    _write_json(manifest_path, manifest)
+
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+
+    assert report["runs_analyzed"] == 1
+    assert report["saturation_assessment"]["status"] == "not_assessable"
+
+
+def test_normalize_query_constraints_handles_missing_and_non_list_queries() -> None:
+    """Missing or malformed ``queries`` payloads must degrade gracefully to
+    an empty, unhashed constraint payload rather than raising."""
+    module = _load_module()
+
+    empty_result = module._normalize_query_constraints({})
+    assert empty_result["query_id_hash"] == ""
+    assert empty_result["time_windows"] == []
+    assert empty_result["sampling_strategies"] == []
+    assert empty_result["query_protocol_version"] == "unknown"
+
+    non_list_result = module._normalize_query_constraints(
+        {"protocol_version": "1.0.0", "queries": "not-a-list"}
+    )
+    assert non_list_result["query_id_hash"] == ""
+    assert non_list_result["query_protocol_version"] == "1.0.0"
+
+
+def test_parse_args_defaults_do_not_read_sys_argv_when_given_empty_list() -> None:
+    """An explicit empty argv list must yield defaults, not sys.argv."""
+    module = _load_module()
+    with patch.object(sys, "argv", ["prog", "--archive-root", "/should/not/be/used"]):
+        args = module.parse_args([])
+    assert args.archive_root == "outputs/run_archive"

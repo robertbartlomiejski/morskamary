@@ -207,6 +207,40 @@ def test_probe_google_drive_missing_and_configured_paths(monkeypatch, tmp_path: 
     assert configured_result.provider == "google_drive"
 
 
+def test_probe_openalex_missing_without_key(monkeypatch) -> None:
+    """probe_openalex should report missing when OPENALEX_API_KEY is unset."""
+    import check_research_api_health
+
+    monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
+    result = check_research_api_health.probe_openalex()
+
+    assert result.status == "missing"
+    assert result.provider == "openalex"
+    assert "OPENALEX_API_KEY" in result.detail
+
+
+def test_probe_openalex_sends_bearer_authorization_header(monkeypatch) -> None:
+    """probe_openalex should send the key as a Bearer Authorization header
+    and tag the result with the openalex provider name."""
+    import check_research_api_health
+
+    monkeypatch.setenv("OPENALEX_API_KEY", "test-key")
+    captured: dict[str, object] = {}
+
+    def fake_request(url: str, headers: dict[str, str]):
+        captured["url"] = url
+        captured["headers"] = headers
+        return check_research_api_health.ProbeResult("", "ok", "request succeeded", 200)
+
+    with patch("check_research_api_health._request", side_effect=fake_request):
+        result = check_research_api_health.probe_openalex()
+
+    assert captured["headers"] == {"Authorization": "Bearer test-key"}
+    assert "api.openalex.org" in captured["url"]
+    assert result.provider == "openalex"
+    assert result.status == "ok"
+
+
 def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
     """main should return non-zero with --require-valid when invalid provider exists."""
     import check_research_api_health
