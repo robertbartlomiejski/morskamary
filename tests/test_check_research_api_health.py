@@ -5,6 +5,7 @@ import sys
 import urllib.error
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+from urllib.parse import urlparse
 
 import pytest
 
@@ -237,7 +238,8 @@ def test_probe_openalex_sends_bearer_header_when_key_present(monkeypatch) -> Non
     assert result.status == "ok"
     mocked_request.assert_called_once()
     called_url, called_headers = mocked_request.call_args.args
-    assert "api.openalex.org" in called_url
+    parsed_url = urlparse(called_url)
+    assert parsed_url.hostname == "api.openalex.org"
     assert called_headers == {"Authorization": "Bearer test-openalex-key"}
 
 
