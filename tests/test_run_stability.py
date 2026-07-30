@@ -53,23 +53,23 @@ def _seed_archive(
         run_path = f"runs/{run_id}"
         run_dir = archive_root / run_path
 
-        _write_json(
-            run_dir / "manifest.json",
-            {
-                "run_id": run_id,
-                "timestamp_utc": timestamp,
-                "analysis_timestamp_utc": timestamp,
-                "provider_set": str(run.get("provider_set", provider_set)),
-                "workflow": {"inputs": {"providers": str(run.get("provider_set", provider_set))}},
-            },
-        )
+        manifest_payload: dict[str, Any] = {
+            "run_id": run_id,
+            "timestamp_utc": timestamp,
+            "analysis_timestamp_utc": timestamp,
+            "provider_set": str(run.get("provider_set", provider_set)),
+            "workflow": {"inputs": {"providers": str(run.get("provider_set", provider_set))}},
+        }
+        manifest_payload.update(run.get("manifest_extra", {}))
+        _write_json(run_dir / "manifest.json", manifest_payload)
+        query_ids = run.get("query_ids", ["q1"])
         _write_json(
             run_dir / "research_sources" / "query_protocol_constraints.json",
             {
                 "protocol_version": str(run.get("protocol_version", protocol_version)),
                 "queries": [
                     {
-                        "query_id": "q1",
+                        "query_id": query_id,
                         "time_window": {"from_year": 2020, "to_year": 2026},
                         "sampling_strategy": {
                             "mode": "pages",
@@ -78,6 +78,7 @@ def _seed_archive(
                             "dedupe_key": "doi",
                         },
                     }
+                    for query_id in query_ids
                 ],
             },
         )
@@ -274,3 +275,80 @@ def test_fingerprint_mismatch_makes_report_not_assessable(tmp_path: Path) -> Non
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
     assert report["saturation_assessment"]["status"] == "not_assessable"
+
+
+def test_static_recovery_run_is_excluded_from_runs_analyzed(tmp_path: Path) -> None:
+    """A run manifest flagged is_static_recovery_mode must not contribute a
+    snapshot, and must not appear in any run_pairs comparison."""
+    module = _load_module()
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {"run_id": "run-1", "timestamp_utc": "2026-07-01T00:00:00+00:00", "dois": _doi_series(20)},
+            {
+                "run_id": "run-2-static",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(99),
+                "manifest_extra": {"is_static_recovery_mode": True},
+            },
+            {"run_id": "run-3", "timestamp_utc": "2026-07-03T00:00:00+00:00", "dois": _doi_series(21)},
+        ],
+    )
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+
+    assert report["runs_analyzed"] == 2
+    assert len(report["run_pairs"]) == 1
+    assert report["run_pairs"][0]["run_a"] == "run-1"
+    assert report["run_pairs"][0]["run_b"] == "run-3"
+
+
+def test_query_id_hash_mismatch_makes_report_not_assessable(tmp_path: Path) -> None:
+    """Two runs whose constraints declare different query_id universes must
+    not compare as saturation-stable, even with identical providers/time
+    windows/sampling strategies, because query_id_hash is folded into the
+    comparability fingerprint."""
+    module = _load_module()
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+                "query_ids": ["q1", "q2"],
+            },
+            {
+                "run_id": "run-2",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(21),
+                "query_ids": ["q1"],
+            },
+        ],
+    )
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+
+    assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
+    assert report["saturation_assessment"]["status"] == "not_assessable"
+
+
+def test_normalize_query_constraints_empty_queries_yields_empty_hash() -> None:
+    module = _load_module()
+    result = module._normalize_query_constraints({"protocol_version": "1.0.0", "queries": []})
+    assert result["query_id_hash"] == ""
+
+
+def test_build_comparability_fingerprint_defaults_query_id_hash_to_unknown() -> None:
+    """query_id_hash should default to 'unknown' in the payload when the
+    caller does not supply one, keeping older callers' fingerprints stable."""
+    module = _load_module()
+    _, payload = module.build_comparability_fingerprint(
+        providers_used=["crossref"],
+        query_protocol_version="1.0.0",
+        time_windows=[],
+        sampling_strategies=[],
+    )
+    assert payload["query_id_hash"] == "unknown"

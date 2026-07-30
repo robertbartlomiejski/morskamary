@@ -8,7 +8,7 @@ from scripts.export_live_research_records import (
     _lookup_provider_sort_strategy,
     normalize_provider_name,
 )
-from src.scientific_sources.openalex import OpenAlexProvider
+from src.scientific_sources.openalex import OpenAlexProvider, _strip_abstract_fields
 from src.scientific_sources.source_registry import SourceRegistry
 
 
@@ -253,6 +253,92 @@ class TestOpenAlexVerifyDoi:
 
         assert len(result.records) == 1
         assert result.records[0].doi == "10.1234/test"
+
+
+class TestStripAbstractFields:
+    """Tests for `_strip_abstract_fields`, which removes abstract_inverted_index
+    from raw API responses before they are persisted (no-abstract-retention)."""
+
+    def test_removes_top_level_abstract_inverted_index(self) -> None:
+        payload = {"id": "W1", "abstract_inverted_index": {"the": [0]}}
+        cleaned = _strip_abstract_fields(payload)
+        assert "abstract_inverted_index" not in cleaned
+        assert cleaned["id"] == "W1"
+
+    def test_removes_abstract_inverted_index_from_each_result(self) -> None:
+        payload = {
+            "results": [
+                {"id": "W1", "title": "Test", "abstract_inverted_index": {"the": [0, 5]}},
+                {"id": "W2", "title": "Test2"},
+            ],
+            "meta": {"count": 2},
+        }
+        cleaned = _strip_abstract_fields(payload)
+        assert "abstract_inverted_index" not in cleaned["results"][0]
+        assert cleaned["results"][0]["title"] == "Test"
+        assert cleaned["results"][1]["title"] == "Test2"
+        assert cleaned["meta"]["count"] == 2
+
+    def test_payload_without_results_key_is_unaffected_besides_stripping(self) -> None:
+        payload = {"id": "W1", "title": "solo work"}
+        cleaned = _strip_abstract_fields(payload)
+        assert cleaned == {"id": "W1", "title": "solo work"}
+
+    def test_non_dict_payload_is_returned_unchanged(self) -> None:
+        assert _strip_abstract_fields(None) is None
+        assert _strip_abstract_fields("raw-string") == "raw-string"
+        assert _strip_abstract_fields([1, 2, 3]) == [1, 2, 3]
+
+    def test_original_payload_is_not_mutated(self) -> None:
+        payload = {"id": "W1", "abstract_inverted_index": {"the": [0]}}
+        _strip_abstract_fields(payload)
+        assert "abstract_inverted_index" in payload
+
+    def test_search_raw_payload_has_abstracts_stripped(self) -> None:
+        provider = OpenAlexProvider()
+        response = _mock_works_response(1)
+        response["results"][0]["abstract_inverted_index"] = {"the": [0], "quick": [1]}
+
+        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
+            del url, context_label
+            return response, [], None
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.search("test", max_results=1)
+
+        assert "abstract_inverted_index" not in result.raw_payload["results"][0]
+
+    def test_verify_doi_raw_payload_has_abstracts_stripped(self) -> None:
+        provider = OpenAlexProvider()
+        work = {
+            "id": "https://openalex.org/W123",
+            "display_name": "Test Article",
+            "publication_year": 2024,
+            "doi": "https://doi.org/10.1234/test",
+            "authorships": [{"author": {"display_name": "Test Author"}}],
+            "primary_location": {"source": {"display_name": "Test Journal"}},
+            "cited_by_count": 5,
+            "topics": [],
+            "keywords": [],
+            "abstract_inverted_index": {"the": [0]},
+        }
+
+        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
+            del url, context_label
+            return work, [], None
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.verify_doi("10.1234/test")
+
+        assert "abstract_inverted_index" not in result.raw_payload
 
 
 class TestOpenAlexIntegration:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import textwrap
 from pathlib import Path
 from typing import Any, Dict
@@ -19,6 +20,7 @@ from src.scientific_sources.live_query_protocol import (
     LiveQueryProtocolError,
     LiveQuerySector,
     load_live_query_protocol,
+    validate_complete_authoritative_protocol_projection,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -324,6 +326,102 @@ class TestLegacyView:
             assert not missing, (
                 f"sector {slug}: legacy queries missing from new protocol: {missing}"
             )
+
+
+class TestCompleteAuthoritativeProtocolProjection:
+    """Tests for `validate_complete_authoritative_protocol_projection`, which
+    fails closed when a persisted constraints artifact diverges from the
+    authoritative protocol on any acquisition-defining field."""
+
+    def test_exact_projection_passes(self, loaded_protocol: LiveQueryProtocol) -> None:
+        constraints = {
+            "protocol_version": loaded_protocol.protocol_version,
+            "queries": loaded_protocol.to_query_constraints(),
+        }
+        # Should not raise.
+        validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_missing_protocol_version_is_tolerated(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        """An absent protocol_version key should not itself trigger a mismatch
+        (only a present-but-different value is rejected)."""
+        constraints = {"queries": loaded_protocol.to_query_constraints()}
+        validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_missing_queries_key_raises(self, loaded_protocol: LiveQueryProtocol) -> None:
+        constraints = {"protocol_version": loaded_protocol.protocol_version}
+        with pytest.raises(LiveQueryProtocolError, match="queries"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_queries_not_a_list_raises(self, loaded_protocol: LiveQueryProtocol) -> None:
+        constraints = {
+            "protocol_version": loaded_protocol.protocol_version,
+            "queries": {"not": "a list"},
+        }
+        with pytest.raises(LiveQueryProtocolError, match="queries"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_query_count_mismatch_raises(self, loaded_protocol: LiveQueryProtocol) -> None:
+        constraints = {
+            "protocol_version": loaded_protocol.protocol_version,
+            "queries": loaded_protocol.to_query_constraints()[:-1],
+        }
+        with pytest.raises(LiveQueryProtocolError, match="query count mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_unknown_query_id_raises(self, loaded_protocol: LiveQueryProtocol) -> None:
+        constraint_queries = copy.deepcopy(loaded_protocol.to_query_constraints())
+        constraint_queries[0]["query_id"] = "Q_DOES_NOT_EXIST"
+        constraints = {
+            "protocol_version": loaded_protocol.protocol_version,
+            "queries": constraint_queries,
+        }
+        with pytest.raises(LiveQueryProtocolError, match="unknown query_id"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    @pytest.mark.parametrize(
+        "field, bad_value",
+        [
+            ("query_text", "a stale/modified query text"),
+            ("sector_slug", "not_a_real_sector"),
+            ("query_family", "not_a_real_family"),
+            ("evidence_intent", "WRONG_INTENT"),
+            (
+                "sort_strategy",
+                {"crossref": "x", "scopus": "y", "wos": "z"},
+            ),
+            (
+                "sampling_strategy",
+                {"mode": "x", "pages": 1, "rows_per_page": 1, "dedupe_key": "x"},
+            ),
+            (
+                "time_window",
+                {"from_year": 1900, "to_year": 1901},
+            ),
+        ],
+    )
+    def test_each_acquisition_field_mismatch_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol, field: str, bad_value: object
+    ) -> None:
+        constraint_queries = copy.deepcopy(loaded_protocol.to_query_constraints())
+        constraint_queries[0][field] = bad_value
+        constraints = {
+            "protocol_version": loaded_protocol.protocol_version,
+            "queries": constraint_queries,
+        }
+        with pytest.raises(LiveQueryProtocolError, match=f"field '{field}' mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_stale_protocol_version_raises_before_query_check(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = {
+            "protocol_version": "0.0.1-stale",
+            "queries": [],
+        }
+        with pytest.raises(LiveQueryProtocolError, match="protocol_version mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
 
 
 # ---------- loader validation --------------------------------------------
