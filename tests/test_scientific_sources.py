@@ -855,6 +855,45 @@ class TestWebOfScienceProvider:
             }
         ]
 
+    def test_search_paginated_http_failure_records_attempt(self, monkeypatch):
+        """A rejected request is an attempted, failed physical request."""
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+
+        def _raise_http_error(url):
+            raise urllib.error.HTTPError(url, 403, "forbidden", {}, None)
+
+        monkeypatch.setattr(provider, "_request_json", _raise_http_error)
+
+        result, diagnostics = provider.search_paginated(
+            "ocean", logical_pages=2, rows_per_page=50
+        )
+
+        assert result.errors == ["WoS page=1 HTTP 403"]
+        assert diagnostics[0]["physical_requests"] == 1
+        assert diagnostics[0]["error"] == "http_403"
+        assert diagnostics[0]["returned_rows"] == 0
+
+    def test_search_paginated_rate_limit_is_distinct_failure(self, monkeypatch):
+        """A 429 remains distinguishable from credentials and transport errors."""
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+
+        def _raise_rate_limit(url):
+            raise urllib.error.HTTPError(url, 429, "rate limited", {}, None)
+
+        monkeypatch.setattr(provider, "_request_json", _raise_rate_limit)
+
+        result, diagnostics = provider.search_paginated(
+            "ocean", logical_pages=2, rows_per_page=50
+        )
+
+        assert result.errors == []
+        assert result.rate_limit_status == "rate-limited"
+        assert diagnostics[0]["physical_requests"] == 1
+        assert diagnostics[0]["error"] == "rate_limited"
+        assert len(diagnostics) == 1
+
 
 class TestSciValProvider:
     def test_not_configured_without_key(self, monkeypatch):
