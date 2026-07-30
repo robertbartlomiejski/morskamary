@@ -28,11 +28,16 @@ from typing import Callable
 
 _REQUEST_TIMEOUT_SECONDS = 12
 _ERROR_BODY_MAX_BYTES = 512
-# Query-string parameters that must never appear in log output.
 _REDACTED_QUERY_PARAMS = frozenset({"api_key", "apikey", "key", "token", "secret"})
 _SENSITIVE_QUERY_PARAM_RE = re.compile(
     r"(?i)([?&](?:api_key|apikey|key|token|secret)=)[^&\s'\"<>)]*"
 )
+DEACTIVATED_PROVIDERS = {
+    "wos": (
+        "Web of Science acquisition is temporarily deactivated until the "
+        "scientific hardening plan and provider contract are completed"
+    )
+}
 
 
 def _redact_url(url: str) -> str:
@@ -143,34 +148,12 @@ def probe_scopus() -> ProbeResult:
     return result
 
 
-def probe_wos() -> ProbeResult:
-    key = os.getenv("WOS_API_KEY", "")
-    if not key:
-        return ProbeResult("wos", "missing", "WOS_API_KEY not set")
-    query = urllib.parse.quote("TS=ocean")
-    url = f"https://api.clarivate.com/apis/wos-starter/v1/documents?q={query}&limit=1&page=1"
-    result = _request(url, {"X-ApiKey": key, "Accept": "application/json"})
-    result.provider = "wos"
-    return result
-
-
 def probe_openalex() -> ProbeResult:
-    """Probe OpenAlex using the documented ``api_key`` query parameter.
-
-    When ``OPENALEX_API_KEY`` is not set, return ``missing`` without making
-    any network request -- consistent with the provider's own behaviour.
-    When the key is present, use the ``api_key`` query parameter as required
-    by the official OpenAlex API contract.
-    """
     api_key = os.getenv("OPENALEX_API_KEY", "")
     if not api_key:
         return ProbeResult("openalex", "missing", "OPENALEX_API_KEY not set")
     params = urllib.parse.urlencode(
-        {
-            "filter": "title.search:ocean",
-            "per_page": "1",
-            "api_key": api_key,
-        }
+        {"filter": "title.search:ocean", "per_page": "1", "api_key": api_key}
     )
     url = f"https://api.openalex.org/works?{params}"
     result = _request(
@@ -209,7 +192,6 @@ def probe_microsoft_graph() -> ProbeResult:
             "missing",
             "MICROSOFT_TENANT_ID/MICROSOFT_CLIENT_ID/MICROSOFT_CLIENT_SECRET not set",
         )
-
     token_url = f"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token"
     payload = urllib.parse.urlencode(
         {
@@ -272,7 +254,6 @@ def _probe_functions() -> dict[str, Callable[[], ProbeResult]]:
     return {
         "crossref": probe_crossref,
         "scopus": probe_scopus,
-        "wos": probe_wos,
         "openalex": probe_openalex,
         "scival": probe_scival,
         "microsoft_graph": probe_microsoft_graph,
@@ -291,10 +272,16 @@ def _parse_requested_providers(raw_value: str) -> list[str]:
         if len(requested) > 1:
             raise ValueError("--providers=all cannot be combined with other providers.")
         return list(probe_functions.keys())
+    deactivated = sorted(set(requested) & set(DEACTIVATED_PROVIDERS))
+    if deactivated:
+        reasons = "; ".join(
+            f"{name}: {DEACTIVATED_PROVIDERS[name]}" for name in deactivated
+        )
+        raise ValueError(f"deactivated provider requested: {reasons}")
     unknown = sorted({name for name in requested if name not in probe_functions})
     if unknown:
         raise ValueError(
-            f"Unknown provider(s): {unknown}. Valid names are: {sorted(probe_functions)}"
+            f"Unknown provider(s): {unknown}. Valid active names are: {sorted(probe_functions)}"
         )
     return requested
 
@@ -310,34 +297,34 @@ def main() -> int:
         help="Fail when any requested provider reports missing configuration.",
     )
     args = parser.parse_args()
-
     try:
         requested_provider_names = _parse_requested_providers(args.providers)
     except ValueError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
-
     probe_functions = _probe_functions()
     results = [probe_functions[name]() for name in requested_provider_names]
-
     print("=== Research API health preflight ===")
-    for r in results:
-        code = f" (HTTP {r.http_status})" if r.http_status else ""
-        print(f"  - {r.provider:<8} {r.status:<20} {r.detail}{code}")
-
+    for result in results:
+        code = f" (HTTP {result.http_status})" if result.http_status else ""
+        print(
+            f"  - {result.provider:<8} {result.status:<20} {result.detail}{code}"
+        )
     payload = {
-        "statuses": [r.__dict__ for r in results],
-        "summary": {"ok": sum(1 for r in results if r.status == "ok")},
+        "statuses": [result.__dict__ for result in results],
+        "summary": {"ok": sum(1 for result in results if result.status == "ok")},
+        "deactivated_providers": sorted(DEACTIVATED_PROVIDERS),
     }
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    with open(args.output, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2)
-
+    output_parent = os.path.dirname(args.output)
+    if output_parent:
+        os.makedirs(output_parent, exist_ok=True)
+    with open(args.output, "w", encoding="utf-8") as handle:
+        json.dump(payload, handle, indent=2)
     if args.require_valid:
         invalid = [
-            r
-            for r in results
-            if r.status
+            result
+            for result in results
+            if result.status
             in {"present-but-invalid", "rate-limited", "transient-network-error"}
         ]
         if invalid:
@@ -346,15 +333,13 @@ def main() -> int:
             )
             return 1
     if args.require_configured:
-        missing = [r for r in results if r.status == "missing"]
+        missing = [result for result in results if result.status == "missing"]
         if missing:
-            names = ", ".join(r.provider for r in missing)
-            print(
-                f"\nFailing preflight because requested providers are not configured: {names}."
-            )
+            names = ", ".join(result.provider for result in missing)
+            print(f"\nFailing preflight due to missing provider configuration: {names}")
             return 1
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())
