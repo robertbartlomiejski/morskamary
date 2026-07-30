@@ -32,6 +32,7 @@ def _write_registry(path: Path, rows: list[dict[str, object]]) -> None:
                 "axis_coverage",
                 "validation_status",
                 "source_url",
+                "validation_evidence_ids",
                 "notes",
             ],
         )
@@ -185,6 +186,7 @@ def test_missing_ratio_and_interpretation_require_validated_entries() -> None:
                     "axis_coverage": "HYDRONIZATION",
                     "validation_status": "validated",
                     "source_url": "",
+                    "validation_evidence_ids": "EVD-001",
                     "notes": "Governance and water diplomacy",
                 },
                 {
@@ -196,6 +198,7 @@ def test_missing_ratio_and_interpretation_require_validated_entries() -> None:
                     "axis_coverage": "HYDRONIZATION",
                     "validation_status": "validated",
                     "source_url": "",
+                    "validation_evidence_ids": "EVD-002",
                     "notes": "Digital monitoring and sensor systems",
                 },
                 {
@@ -207,6 +210,7 @@ def test_missing_ratio_and_interpretation_require_validated_entries() -> None:
                     "axis_coverage": "HYDRONIZATION",
                     "validation_status": "validated",
                     "source_url": "",
+                    "validation_evidence_ids": "EVD-003",
                     "notes": "Resilience planning",
                 },
             ],
@@ -313,6 +317,7 @@ def test_eqf_filter_excludes_levels_outside_requested_range() -> None:
                     "axis_coverage": "HYDRONIZATION",
                     "validation_status": "validated",
                     "source_url": "",
+                    "validation_evidence_ids": "EVD-004",
                     "notes": "Water governance",
                 }
             ],
@@ -338,6 +343,108 @@ def test_eqf_filter_excludes_levels_outside_requested_range() -> None:
 
         assert excluded["validated_covered_demand_count"] == 0
         assert included["validated_covered_demand_count"] == 1
+
+
+def test_parse_evidence_ids_splits_trims_and_drops_empty_tokens() -> None:
+    assert _MOD._parse_evidence_ids("EVD-001|EVD-002|EVD-003") == (
+        "EVD-001",
+        "EVD-002",
+        "EVD-003",
+    )
+    assert _MOD._parse_evidence_ids(" EVD-001 | EVD-002 ") == ("EVD-001", "EVD-002")
+    assert _MOD._parse_evidence_ids("EVD-001||EVD-002") == ("EVD-001", "EVD-002")
+    assert _MOD._parse_evidence_ids("") == ()
+    assert _MOD._parse_evidence_ids("   ") == ()
+
+
+def test_validated_entry_without_evidence_counts_as_preliminary_only() -> None:
+    """A 'validated' entry with no validation_evidence_ids must not be counted as
+    validated, but should still be eligible for the preliminary calculation."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        root = Path(temp_dir)
+        registry_path = root / "registry.csv"
+        demand_path = root / "signals.jsonl"
+        _write_registry(
+            registry_path,
+            [
+                {
+                    "credential_id": "cred-h-no-evidence",
+                    "credential_name": "Validated MSc in Water Governance",
+                    "eqf_level": 7,
+                    "issuing_body": "Validated issuer",
+                    "country_iso": "EU",
+                    "axis_coverage": "HYDRONIZATION",
+                    "validation_status": "validated",
+                    "source_url": "",
+                    "validation_evidence_ids": "",
+                    "notes": "Governance and water diplomacy",
+                },
+            ],
+        )
+        _write_signals(demand_path, [_signal("sig-1")])
+
+        payload = _MOD.compute_h2_supply_map(
+            registry_entries=_MOD.load_registry(registry_path),
+            demand_signals=_MOD.load_demand_signals(demand_path),
+            registry_path=registry_path,
+            demand_signals_path=demand_path,
+        )
+
+        assert payload["validated_entries_hydronization_eqf_6_7"] == 0
+        assert payload["validated_covered_demand_count"] == 0
+        assert payload["preliminary_covered_demand_count"] == 1
+        assert payload["interpretation"] == "not_computable"
+        assert payload["validation_status_distribution"]["validated"] == 1
+
+
+def test_validated_entry_with_evidence_is_counted_as_validated() -> None:
+    """Sanity check: providing validation_evidence_ids makes a validated entry
+    eligible for the validated coverage calculation (contrast with the
+    no-evidence case above)."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        root = Path(temp_dir)
+        registry_path = root / "registry.csv"
+        demand_path = root / "signals.jsonl"
+        _write_registry(
+            registry_path,
+            [
+                {
+                    "credential_id": "cred-h-with-evidence",
+                    "credential_name": "Validated MSc in Water Governance",
+                    "eqf_level": 7,
+                    "issuing_body": "Validated issuer",
+                    "country_iso": "EU",
+                    "axis_coverage": "HYDRONIZATION",
+                    "validation_status": "validated",
+                    "source_url": "",
+                    "validation_evidence_ids": "EVD-100",
+                    "notes": "Governance and water diplomacy",
+                },
+            ],
+        )
+        _write_signals(demand_path, [_signal("sig-1")])
+
+        payload = _MOD.compute_h2_supply_map(
+            registry_entries=_MOD.load_registry(registry_path),
+            demand_signals=_MOD.load_demand_signals(demand_path),
+            registry_path=registry_path,
+            demand_signals_path=demand_path,
+        )
+
+        assert payload["validated_entries_hydronization_eqf_6_7"] == 1
+        assert payload["validated_covered_demand_count"] == 1
+        assert payload["interpretation"] == "not_supported"
+
+
+def test_shipped_registry_file_parses_with_evidence_column() -> None:
+    """Regression: the real registry CSV must include the validation_evidence_ids
+    header and every candidate row must currently be an unvalidated placeholder."""
+    registry = _MOD.load_registry(_MOD.DEFAULT_REGISTRY_PATH)
+    assert registry, "expected at least one registry entry in the shipped CSV"
+    for entry in registry:
+        assert isinstance(entry.validation_evidence_ids, tuple)
+        assert entry.validation_status == "review_required"
+        assert entry.validation_evidence_ids == ()
 
 
 def test_main_writes_output_json_without_live_data() -> None:

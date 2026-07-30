@@ -8,7 +8,7 @@ from scripts.export_live_research_records import (
     _lookup_provider_sort_strategy,
     normalize_provider_name,
 )
-from src.scientific_sources.openalex import OpenAlexProvider
+from src.scientific_sources.openalex import OpenAlexProvider, _strip_abstract_fields
 from src.scientific_sources.source_registry import SourceRegistry
 
 
@@ -223,6 +223,114 @@ class TestOpenAlexPagination:
 
         assert "publication_year" in captured_url[0]
         assert "2019" in captured_url[0]
+
+
+class TestStripAbstractFields:
+    """Unit tests for the `_strip_abstract_fields` no-abstract-retention helper."""
+
+    def test_removes_top_level_abstract_inverted_index(self) -> None:
+        payload = {"id": "W1", "abstract_inverted_index": {"the": [0, 5]}}
+        cleaned = _strip_abstract_fields(payload)
+        assert "abstract_inverted_index" not in cleaned
+        assert cleaned["id"] == "W1"
+
+    def test_removes_abstract_inverted_index_from_nested_results(self) -> None:
+        payload = {
+            "meta": {"count": 2},
+            "results": [
+                {"id": "W1", "abstract_inverted_index": {"a": [0]}},
+                {"id": "W2"},
+            ],
+        }
+        cleaned = _strip_abstract_fields(payload)
+        assert all("abstract_inverted_index" not in r for r in cleaned["results"])
+        assert cleaned["meta"]["count"] == 2
+
+    def test_passes_through_non_dict_payloads_unchanged(self) -> None:
+        assert _strip_abstract_fields(None) is None
+        assert _strip_abstract_fields([1, 2, 3]) == [1, 2, 3]
+        assert _strip_abstract_fields("plain-string") == "plain-string"
+
+    def test_payload_without_abstract_field_is_unaffected(self) -> None:
+        payload = {"id": "W1", "title": "No abstract here"}
+        cleaned = _strip_abstract_fields(payload)
+        assert cleaned == payload
+
+
+class TestOpenAlexSearchStripsAbstracts:
+    """`search()` and `verify_doi()` must never persist abstract_inverted_index."""
+
+    def test_search_raw_payload_has_abstracts_stripped(self) -> None:
+        provider = OpenAlexProvider()
+        response = _mock_works_response(2)
+        response["results"][0]["abstract_inverted_index"] = {"the": [0], "quick": [1]}
+        response["results"][1]["abstract_inverted_index"] = {"fox": [0]}
+
+        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
+            del url, context_label
+            return response, [], None
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.search("test", max_results=2)
+
+        assert result.raw_payload is not None
+        for work in result.raw_payload["results"]:
+            assert "abstract_inverted_index" not in work
+        # Parsed literature records are unaffected by raw-payload stripping.
+        assert len(result.records) == 2
+
+    def test_search_error_path_has_no_raw_payload_to_strip(self) -> None:
+        provider = OpenAlexProvider()
+
+        def mock_backoff(
+            *, url: str, context_label: str
+        ) -> tuple[None, list[str], str]:
+            del url, context_label
+            return None, [], "OpenAlex search failed (terminal_status=http_500)"
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.search("test", max_results=5)
+
+        assert result.raw_payload is None
+        assert result.errors
+
+    def test_verify_doi_raw_payload_has_abstract_stripped(self) -> None:
+        provider = OpenAlexProvider()
+        work = {
+            "id": "https://openalex.org/W123",
+            "display_name": "Test Article",
+            "publication_year": 2024,
+            "doi": "https://doi.org/10.1234/test",
+            "authorships": [{"author": {"display_name": "Test Author"}}],
+            "primary_location": {"source": {"display_name": "Test Journal"}},
+            "cited_by_count": 5,
+            "topics": [],
+            "keywords": [],
+            "abstract_inverted_index": {"secret": [0]},
+        }
+
+        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
+            del url, context_label
+            return work, [], None
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.verify_doi("10.1234/test")
+
+        assert result.raw_payload is not None
+        assert "abstract_inverted_index" not in result.raw_payload
+        assert result.records[0].doi == "10.1234/test"
 
 
 class TestOpenAlexVerifyDoi:
