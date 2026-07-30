@@ -255,6 +255,61 @@ class TestOpenAlexVerifyDoi:
         assert result.records[0].doi == "10.1234/test"
 
 
+class TestOpenAlexAbstractRetentionContract:
+    """Regression tests for PR-215: abstract_inverted_index must never be
+    persisted in the provider's raw_payload."""
+
+    def test_search_raw_payload_excludes_abstract_inverted_index(self) -> None:
+        provider = OpenAlexProvider()
+        response = _mock_works_response(2)
+        response["results"][0]["abstract_inverted_index"] = {"the": [0], "sea": [1]}
+
+        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
+            del url, context_label
+            return response, [], None
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.search("blue economy", max_results=2)
+
+        assert "abstract_inverted_index" not in result.raw_payload["results"][0]
+        assert "abstract_inverted_index" not in result.raw_payload["results"][1]
+        # Non-abstract fields must remain intact.
+        assert result.raw_payload["results"][0]["display_name"] == "Test Article 0"
+
+    def test_verify_doi_raw_payload_excludes_abstract_inverted_index(self) -> None:
+        provider = OpenAlexProvider()
+        work = {
+            "id": "https://openalex.org/W123",
+            "display_name": "Test Article",
+            "publication_year": 2024,
+            "doi": "https://doi.org/10.1234/test",
+            "authorships": [{"author": {"display_name": "Test Author"}}],
+            "primary_location": {"source": {"display_name": "Test Journal"}},
+            "cited_by_count": 5,
+            "topics": [],
+            "keywords": [],
+            "abstract_inverted_index": {"ocean": [0], "science": [1]},
+        }
+
+        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
+            del url, context_label
+            return work, [], None
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.verify_doi("10.1234/test")
+
+        assert "abstract_inverted_index" not in result.raw_payload
+        assert result.raw_payload["display_name"] == "Test Article"
+
+
 class TestOpenAlexIntegration:
     def test_registry_lists_openalex_provider(self) -> None:
         registry = SourceRegistry()
