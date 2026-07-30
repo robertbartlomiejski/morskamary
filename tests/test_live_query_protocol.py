@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import textwrap
 from pathlib import Path
 from typing import Any, Dict
@@ -19,6 +20,7 @@ from src.scientific_sources.live_query_protocol import (
     LiveQueryProtocolError,
     LiveQuerySector,
     load_live_query_protocol,
+    validate_complete_authoritative_protocol_projection,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -516,6 +518,109 @@ class TestSuccessfulParse:
         # Passing a str, not a Path
         protocol = load_live_query_protocol(str(path))
         assert isinstance(protocol, LiveQueryProtocol)
+
+
+# ---------- validate_complete_authoritative_protocol_projection ---------
+
+
+class TestValidateCompleteAuthoritativeProtocolProjection:
+    """Tests for the fail-closed constraints-vs-protocol comparison."""
+
+    @staticmethod
+    def _correct_constraints(protocol: LiveQueryProtocol) -> Dict[str, Any]:
+        return {
+            "protocol_version": protocol.protocol_version,
+            "queries": json.loads(json.dumps(protocol.to_query_constraints())),
+        }
+
+    def test_valid_constraints_pass_without_error(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._correct_constraints(loaded_protocol)
+        validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_empty_protocol_version_in_constraints_is_tolerated(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        """An empty protocol_version is treated as absent, not a mismatch."""
+        constraints = self._correct_constraints(loaded_protocol)
+        constraints["protocol_version"] = ""
+        validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_queries_key_must_be_a_list(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._correct_constraints(loaded_protocol)
+        constraints["queries"] = {"not": "a-list"}
+        with pytest.raises(LiveQueryProtocolError, match="must contain a 'queries' list"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_missing_queries_key_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = {"protocol_version": loaded_protocol.protocol_version}
+        with pytest.raises(LiveQueryProtocolError, match="must contain a 'queries' list"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_query_count_mismatch_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._correct_constraints(loaded_protocol)
+        constraints["queries"].pop()
+        with pytest.raises(LiveQueryProtocolError, match="query count mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_unknown_query_id_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._correct_constraints(loaded_protocol)
+        constraints["queries"][0]["query_id"] = "Q_DOES_NOT_EXIST"
+        with pytest.raises(LiveQueryProtocolError, match="unknown query_id"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_sector_slug_mismatch_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._correct_constraints(loaded_protocol)
+        constraints["queries"][0]["sector_slug"] = "wrong_sector_slug"
+        with pytest.raises(LiveQueryProtocolError, match="sector_slug.*mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_query_family_mismatch_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._correct_constraints(loaded_protocol)
+        original = constraints["queries"][0]["query_family"]
+        replacement = next(
+            f.value for f in LiveQueryFamily if f.value != original
+        )
+        constraints["queries"][0]["query_family"] = replacement
+        with pytest.raises(LiveQueryProtocolError, match="query_family.*mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_query_text_mismatch_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._correct_constraints(loaded_protocol)
+        constraints["queries"][0]["query_text"] = "a completely different query"
+        with pytest.raises(LiveQueryProtocolError, match="query_text.*mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_sort_strategy_mismatch_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._correct_constraints(loaded_protocol)
+        constraints["queries"][0]["sort_strategy"]["crossref"] = "relevance-desc"
+        with pytest.raises(LiveQueryProtocolError, match="sort_strategy.*mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_sampling_strategy_mismatch_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._correct_constraints(loaded_protocol)
+        constraints["queries"][0]["sampling_strategy"]["pages"] = 999
+        with pytest.raises(LiveQueryProtocolError, match="sampling_strategy.*mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
 
 
 # ---------- helper: docstring example -----------------------------------

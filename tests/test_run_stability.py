@@ -250,6 +250,59 @@ def test_four_runs_trigger_saturated_status(tmp_path: Path) -> None:
     assert report["saturation_assessment"]["consecutive_stable_transitions"] == 3
 
 
+def test_normalize_query_constraints_returns_empty_hash_without_query_ids() -> None:
+    module = _load_module()
+    result = module._normalize_query_constraints(
+        {
+            "protocol_version": "1.0.0",
+            "queries": [{"time_window": {}, "sampling_strategy": {}}],
+        }
+    )
+    assert result["query_id_hash"] == ""
+
+
+def test_normalize_query_constraints_dedupes_duplicate_query_ids() -> None:
+    module = _load_module()
+    with_duplicate = module._normalize_query_constraints(
+        {
+            "protocol_version": "1.0.0",
+            "queries": [
+                {"query_id": "Q001"},
+                {"query_id": "Q001"},
+                {"query_id": "Q002"},
+            ],
+        }
+    )
+    without_duplicate = module._normalize_query_constraints(
+        {
+            "protocol_version": "1.0.0",
+            "queries": [{"query_id": "Q001"}, {"query_id": "Q002"}],
+        }
+    )
+    assert with_duplicate["query_id_hash"] == without_duplicate["query_id_hash"]
+
+
+def test_normalize_query_constraints_ignores_non_list_queries() -> None:
+    module = _load_module()
+    result = module._normalize_query_constraints(
+        {"protocol_version": "1.0.0", "queries": "not-a-list"}
+    )
+    assert result["query_id_hash"] == ""
+    assert result["time_windows"] == []
+    assert result["sampling_strategies"] == []
+
+
+def test_build_comparability_fingerprint_defaults_query_id_hash_to_unknown() -> None:
+    module = _load_module()
+    _, payload = module.build_comparability_fingerprint(
+        providers_used=["crossref"],
+        query_protocol_version="1.0.0",
+        time_windows=[],
+        sampling_strategies=[],
+    )
+    assert payload["query_id_hash"] == "unknown"
+
+
 def test_fingerprint_mismatch_makes_report_not_assessable(tmp_path: Path) -> None:
     module = _load_module()
     archive_root = _seed_archive(

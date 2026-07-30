@@ -189,6 +189,39 @@ def test_probe_wos_and_scival_missing_keys(monkeypatch) -> None:
     assert scival_result.provider == "scival"
 
 
+def test_probe_openalex_missing_key_does_not_perform_request(monkeypatch) -> None:
+    """probe_openalex should short-circuit to missing without calling _request."""
+    import check_research_api_health
+
+    monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
+    with patch("check_research_api_health._request") as mocked_request:
+        result = check_research_api_health.probe_openalex()
+
+    mocked_request.assert_not_called()
+    assert result.status == "missing"
+    assert result.provider == "openalex"
+    assert "OPENALEX_API_KEY" in result.detail
+
+
+def test_probe_openalex_sends_bearer_header_when_key_present(monkeypatch) -> None:
+    """probe_openalex should authenticate with a Bearer header when a key is set."""
+    import check_research_api_health
+
+    monkeypatch.setenv("OPENALEX_API_KEY", "secret-key")
+    ok_result = check_research_api_health.ProbeResult("", "ok", "request succeeded", 200)
+    with patch(
+        "check_research_api_health._request", return_value=ok_result
+    ) as mocked_request:
+        result = check_research_api_health.probe_openalex()
+
+    mocked_request.assert_called_once()
+    called_url, called_headers = mocked_request.call_args[0]
+    assert "api.openalex.org" in called_url
+    assert called_headers["Authorization"] == "Bearer secret-key"
+    assert result.provider == "openalex"
+    assert result.status == "ok"
+
+
 def test_probe_google_drive_missing_and_configured_paths(monkeypatch, tmp_path: Path) -> None:
     """probe_google_drive should report missing without credentials and ok with a valid file."""
     import check_research_api_health
