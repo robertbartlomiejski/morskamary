@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import copy
+import json
 import textwrap
 from pathlib import Path
 from typing import Any, Dict
@@ -19,6 +21,7 @@ from src.scientific_sources.live_query_protocol import (
     LiveQueryProtocolError,
     LiveQuerySector,
     load_live_query_protocol,
+    validate_complete_authoritative_protocol_projection,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -540,3 +543,122 @@ def test_textwrap_import_unused_but_module_health() -> None:
     """Regression guard: textwrap import in tests remains available for future
     tests; presence must not fail the collection phase."""
     assert textwrap.dedent("x") == "x"
+
+
+# ---------- validate_complete_authoritative_protocol_projection ---------
+
+
+class TestCompleteAuthoritativeProjectionValidation:
+    """Tests for `validate_complete_authoritative_protocol_projection`."""
+
+    def _valid_constraints(self, loaded_protocol: LiveQueryProtocol) -> Dict[str, Any]:
+        return {
+            "protocol_version": loaded_protocol.protocol_version,
+            "queries": copy.deepcopy(loaded_protocol.to_query_constraints()),
+        }
+
+    def test_valid_constraints_pass_without_error(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._valid_constraints(loaded_protocol)
+        # Should not raise.
+        validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_missing_protocol_version_is_tolerated(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        """An absent protocol_version key should not itself fail the check
+        (only a present-but-different value should)."""
+        constraints = self._valid_constraints(loaded_protocol)
+        del constraints["protocol_version"]
+        validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_queries_not_a_list_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._valid_constraints(loaded_protocol)
+        constraints["queries"] = {"not": "a list"}
+        with pytest.raises(LiveQueryProtocolError, match="queries.*list"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_missing_queries_key_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._valid_constraints(loaded_protocol)
+        del constraints["queries"]
+        with pytest.raises(LiveQueryProtocolError, match="queries.*list"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_query_count_mismatch_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._valid_constraints(loaded_protocol)
+        constraints["queries"].pop()
+        with pytest.raises(LiveQueryProtocolError, match="query count mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_unknown_query_id_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._valid_constraints(loaded_protocol)
+        constraints["queries"][0]["query_id"] = "Q_DOES_NOT_EXIST"
+        with pytest.raises(LiveQueryProtocolError, match="unknown query_id"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_stale_query_text_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._valid_constraints(loaded_protocol)
+        constraints["queries"][0]["query_text"] = "totally different query text"
+        with pytest.raises(LiveQueryProtocolError, match="query_text.*mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_stale_sector_slug_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._valid_constraints(loaded_protocol)
+        constraints["queries"][0]["sector_slug"] = "not_a_real_sector"
+        with pytest.raises(LiveQueryProtocolError, match="sector_slug.*mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_stale_query_family_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._valid_constraints(loaded_protocol)
+        constraints["queries"][0]["query_family"] = "not_a_real_family"
+        with pytest.raises(LiveQueryProtocolError, match="query_family.*mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_stale_sort_strategy_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._valid_constraints(loaded_protocol)
+        constraints["queries"][0]["sort_strategy"] = {
+            "crossref": "relevance",
+            "scopus": "relevance",
+            "wos": "relevance",
+        }
+        with pytest.raises(LiveQueryProtocolError, match="sort_strategy.*mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_stale_sampling_strategy_is_rejected(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = self._valid_constraints(loaded_protocol)
+        constraints["queries"][0]["sampling_strategy"] = {
+            "mode": "random",
+            "pages": 999,
+            "rows_per_page": 1,
+            "dedupe_key": "title",
+        }
+        with pytest.raises(LiveQueryProtocolError, match="sampling_strategy.*mismatch"):
+            validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_json_roundtrip_of_valid_constraints_still_passes(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        """Constraints artifacts are persisted/loaded as JSON in CI; a
+        round-trip through json.dumps/json.loads must not introduce spurious
+        mismatches (e.g., tuple-vs-list for expected_signal)."""
+        constraints = json.loads(json.dumps(self._valid_constraints(loaded_protocol)))
+        validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)

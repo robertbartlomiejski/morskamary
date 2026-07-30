@@ -8,7 +8,7 @@ from scripts.export_live_research_records import (
     _lookup_provider_sort_strategy,
     normalize_provider_name,
 )
-from src.scientific_sources.openalex import OpenAlexProvider
+from src.scientific_sources.openalex import OpenAlexProvider, _strip_abstract_fields
 from src.scientific_sources.source_registry import SourceRegistry
 
 
@@ -271,3 +271,106 @@ class TestOpenAlexIntegration:
             "wos": "date-desc",
         }
         assert _lookup_provider_sort_strategy(strategies, "openalex") == "date-desc"
+
+
+class TestStripAbstractFieldsUnit:
+    """Unit tests for the `_strip_abstract_fields` helper directly."""
+
+    def test_removes_top_level_abstract_inverted_index(self) -> None:
+        payload = {
+            "id": "https://openalex.org/W1",
+            "abstract_inverted_index": {"the": [0], "study": [1]},
+        }
+        cleaned = _strip_abstract_fields(payload)
+        assert "abstract_inverted_index" not in cleaned
+        assert cleaned["id"] == "https://openalex.org/W1"
+
+    def test_recurses_into_results_list(self) -> None:
+        payload = {
+            "results": [
+                {"id": "W1", "abstract_inverted_index": {"a": [0]}},
+                {"id": "W2", "abstract_inverted_index": {"b": [0]}},
+            ]
+        }
+        cleaned = _strip_abstract_fields(payload)
+        assert all("abstract_inverted_index" not in item for item in cleaned["results"])
+
+    def test_payload_without_abstract_field_is_unchanged(self) -> None:
+        payload = {"id": "W1", "title": "No abstract here"}
+        cleaned = _strip_abstract_fields(payload)
+        assert cleaned == payload
+
+    def test_non_dict_payload_returned_as_is(self) -> None:
+        assert _strip_abstract_fields(None) is None
+        assert _strip_abstract_fields("plain string") == "plain string"
+        assert _strip_abstract_fields([1, 2, 3]) == [1, 2, 3]
+
+    def test_results_key_absent_leaves_payload_otherwise_intact(self) -> None:
+        payload = {
+            "id": "https://openalex.org/W1",
+            "abstract_inverted_index": {"x": [0]},
+            "meta": {"count": 1},
+        }
+        cleaned = _strip_abstract_fields(payload)
+        assert cleaned == {"id": "https://openalex.org/W1", "meta": {"count": 1}}
+
+    def test_does_not_mutate_the_original_payload(self) -> None:
+        payload = {"abstract_inverted_index": {"x": [0]}, "id": "W1"}
+        _strip_abstract_fields(payload)
+        assert "abstract_inverted_index" in payload
+
+
+class TestSearchAndVerifyDoiStripAbstracts:
+    """Integration checks that raw_payload never retains OpenAlex abstracts."""
+
+    def test_search_raw_payload_has_abstract_stripped(self) -> None:
+        provider = OpenAlexProvider()
+        response = _mock_works_response(2)
+        response["results"][0]["abstract_inverted_index"] = {"the": [0], "sea": [1]}
+
+        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
+            del url, context_label
+            return response, [], None
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.search("blue economy", max_results=2)
+
+        assert result.raw_payload is not None
+        assert "abstract_inverted_index" not in result.raw_payload["results"][0]
+        # Non-abstract fields must survive untouched.
+        assert result.raw_payload["results"][0]["id"] == response["results"][0]["id"]
+        assert result.raw_payload["meta"]["count"] == 100
+
+    def test_verify_doi_raw_payload_has_abstract_stripped(self) -> None:
+        provider = OpenAlexProvider()
+        work = {
+            "id": "https://openalex.org/W123",
+            "display_name": "Test Article",
+            "publication_year": 2024,
+            "doi": "https://doi.org/10.1234/test",
+            "authorships": [{"author": {"display_name": "Test Author"}}],
+            "primary_location": {"source": {"display_name": "Test Journal"}},
+            "cited_by_count": 5,
+            "topics": [],
+            "keywords": [],
+            "abstract_inverted_index": {"the": [0], "test": [1]},
+        }
+
+        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
+            del url, context_label
+            return work, [], None
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.verify_doi("10.1234/test")
+
+        assert result.raw_payload is not None
+        assert "abstract_inverted_index" not in result.raw_payload
+        assert result.raw_payload["id"] == "https://openalex.org/W123"
