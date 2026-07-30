@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-30 (fix: close PR #240 re-review blockers with fail-closed runtime wiring)
+  Change type fix update
+  Scope scripts src tests governance
+  Files affected tests/test_check_research_api_health.py tests/test_run_stability.py tests/test_live_query_protocol.py scripts/check_research_api_health.py scripts/build_run_stability_report.py src/scientific_sources/live_query_protocol.py scripts/export_live_research_records.py scripts/build_validated_credential_supply_map.py src/scientific_sources/openalex.py CHANGELOG.txt
+  Summary Hardened OpenAlex missing-key health probing to fail closed without network calls, strengthened run-stability comparability by hashing query-id universes and excluding static-recovery runs, added complete authoritative protocol-projection validation, and wired that validation into pre-acquisition export flow to abort before any provider search on mismatch. Added/updated regression tests for missing-key no-request behavior, query-id order independence, and pre-acquisition fail-closed mismatch handling. Also aligned H2 registry parsing with `validation_evidence_ids` and enforced OpenAlex abstract-inverted-index stripping in retained raw payloads so existing regression suites pass.
+  Reason Re-review feedback required deterministic thread-closing guards that prevent false-positive test passes and ensure protocol/credential/privacy contracts are runtime-enforced before provider acquisition.
+  Impact CI collection/runtime failures on PR #240 are removed; projected protocol mismatches now fail closed pre-acquisition; run comparability rejects query-universe drift and static-recovery contamination; OpenAlex retention and H2 validated-supply gates match the repository's scientific/privacy contracts.
+  Provenance docs/AGENT_WORKING_AGREEMENT.md config/live_query_protocol.yml .github/instructions/data-pipeline.instructions.md tests/test_live_query_protocol.py tests/test_run_stability.py tests/test_check_research_api_health.py tests/test_h2_credential_supply.py tests/test_openalex_provider.py.
+  Quality checks python -m pytest -q tests/test_check_research_api_health.py tests/test_run_stability.py tests/test_live_query_protocol.py (passed); python -m pytest -q tests/test_export_live_research_records.py (passed); python -m pytest -q tests/test_h2_credential_supply.py tests/test_openalex_provider.py tests/test_check_research_api_health.py tests/test_run_stability.py tests/test_live_query_protocol.py (passed); python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m mypy src scripts run_full_analysis.py main.py (passed); python -m pytest tests/ -v (1166 passed, 8 warnings); python scripts/validate_generated_outputs.py (passed); python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present (passed)
+
 - 2026-07-25 (add: provider leave-one-out sensitivity analysis)
   Change type add update
   Scope scripts tests governance

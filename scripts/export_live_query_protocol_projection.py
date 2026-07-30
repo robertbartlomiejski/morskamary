@@ -19,6 +19,7 @@ if str(REPO_ROOT) not in sys.path:
 from src.scientific_sources.live_query_protocol import (  # noqa: E402
     LiveQueryProtocolError,
     load_live_query_protocol,
+    validate_complete_authoritative_protocol_projection,
     validate_legacy_projection_matches_protocol,
 )
 
@@ -116,6 +117,10 @@ def main(argv: Optional[list[str]] = None) -> int:
         json.dumps(constraints_payload, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+    # Validate the emitted constraints against the authoritative protocol so
+    # that any projection/protocol mismatch is caught before acquisition starts.
+    validate_complete_authoritative_protocol_projection(protocol, constraints_payload)
 
     summary["constraints_path"] = str(constraints_path)
     print(json.dumps(summary, sort_keys=True))

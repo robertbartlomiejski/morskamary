@@ -721,3 +721,111 @@ def validate_legacy_projection_matches_protocol(
             "projection query-text mismatch: projected query order/text does not "
             "exactly match config/live_query_protocol.yml"
         )
+
+
+def validate_complete_authoritative_protocol_projection(
+    protocol: LiveQueryProtocol,
+    constraints: Mapping[str, Any],
+) -> None:
+    """Validate that *constraints* is a faithful projection of *protocol*.
+
+    *constraints* is the dict written by ``to_query_constraints()`` (or loaded
+    from ``query_protocol_constraints.json``).  It must contain:
+
+    * ``"queries"`` – a list of per-query dicts, one per protocol query.
+
+    Optionally it may contain:
+
+    * ``"protocol_version"`` – if present and non-empty, must match the
+      protocol's declared version.
+
+    Raises :class:`LiveQueryProtocolError` for any mismatch so that the
+    pre-acquisition gate fails closed before the first provider call.
+    """
+    # Optional version check (blank / absent is accepted without error).
+    constraint_version = str(constraints.get("protocol_version") or "").strip()
+    if constraint_version and constraint_version != protocol.protocol_version:
+        raise LiveQueryProtocolError(
+            f"protocol_version mismatch: constraints declare "
+            f"'{constraint_version}' but protocol is '{protocol.protocol_version}'"
+        )
+
+    raw_queries = constraints.get("queries")
+    if not isinstance(raw_queries, list):
+        raise LiveQueryProtocolError(
+            "queries in constraints must be a list of per-query dicts"
+        )
+
+    protocol_queries: Dict[str, "LiveQuery"] = {
+        q.query_id: q for q in protocol.all_queries()
+    }
+
+    if len(raw_queries) != len(protocol_queries):
+        raise LiveQueryProtocolError(
+            f"query count mismatch: constraints contain {len(raw_queries)} queries "
+            f"but protocol declares {len(protocol_queries)}"
+        )
+
+    for entry in raw_queries:
+        if not isinstance(entry, Mapping):
+            raise LiveQueryProtocolError("each query constraint entry must be a mapping")
+
+        qid = str(entry.get("query_id", "")).strip()
+        if qid not in protocol_queries:
+            raise LiveQueryProtocolError(
+                f"unknown query_id in constraints: '{qid}'"
+            )
+        pq = protocol_queries[qid]
+        sector_slug = _get_sector_slug_for_query(protocol, qid)
+
+        # Scalar field checks.
+        for field_name, protocol_value in (
+            ("query_text", pq.query_text),
+            ("sector_slug", sector_slug),
+            ("query_family", pq.query_family.value),
+            ("evidence_intent", pq.evidence_intent),
+        ):
+            constraint_value = str(entry.get(field_name, ""))
+            if constraint_value != protocol_value:
+                raise LiveQueryProtocolError(
+                    f"{field_name} mismatch for query '{qid}': "
+                    f"constraints have '{constraint_value}' but protocol declares "
+                    f"'{protocol_value}'"
+                )
+
+        # Sort-strategy check.
+        expected_sort = {
+            "crossref": pq.sort_strategy.crossref,
+            "scopus": pq.sort_strategy.scopus,
+            "wos": pq.sort_strategy.wos,
+        }
+        got_sort = entry.get("sort_strategy", {})
+        if dict(got_sort) != expected_sort:
+            raise LiveQueryProtocolError(
+                f"sort_strategy mismatch for query '{qid}': "
+                f"constraints have {got_sort!r} but protocol declares {expected_sort!r}"
+            )
+
+        # Sampling-strategy check.
+        expected_sampling = {
+            "mode": pq.sampling_strategy.mode,
+            "pages": pq.sampling_strategy.pages,
+            "rows_per_page": pq.sampling_strategy.rows_per_page,
+            "dedupe_key": pq.sampling_strategy.dedupe_key,
+        }
+        got_sampling = entry.get("sampling_strategy", {})
+        if dict(got_sampling) != expected_sampling:
+            raise LiveQueryProtocolError(
+                f"sampling_strategy mismatch for query '{qid}': "
+                f"constraints have {got_sampling!r} but protocol declares "
+                f"{expected_sampling!r}"
+            )
+
+
+def _get_sector_slug_for_query(protocol: LiveQueryProtocol, query_id: str) -> str:
+    """Return the sector slug for *query_id*, or '' if not found."""
+    for slug, sector in protocol.sectors.items():
+        for q in sector.queries:
+            if q.query_id == query_id:
+                return slug
+    return ""

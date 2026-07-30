@@ -67,6 +67,17 @@ _LICENCE_NOTE = (
 )
 
 
+def _strip_abstract_fields(payload: Any) -> Any:
+    """Remove abstract-inverted payload fields before retention/export."""
+    if isinstance(payload, dict):
+        cleaned = {k: v for k, v in payload.items() if k != "abstract_inverted_index"}
+        results = cleaned.get("results")
+        if isinstance(results, list):
+            cleaned["results"] = [_strip_abstract_fields(item) for item in results]
+        return cleaned
+    return payload
+
+
 class OpenAlexProvider(BaseProvider):
     """OpenAlex scholarly works API provider."""
 
@@ -361,7 +372,7 @@ class OpenAlexProvider(BaseProvider):
                 f"returned={len(records)}"
             ],
             provenance=evidence,
-            raw_payload=data,
+            raw_payload=_strip_abstract_fields(data),
         )
 
     def search_paginated(
@@ -475,5 +486,5 @@ class OpenAlexProvider(BaseProvider):
             records=records,
             warnings=retry_warnings,
             provenance=evidence,
-            raw_payload=data,
+            raw_payload=_strip_abstract_fields(data),
         )
