@@ -236,6 +236,15 @@ def _providers_from_manifest(manifest: dict[str, Any]) -> list[str]:
 
 
 def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
+    """
+    Normalize query protocol constraints into a stable summary of protocol version, time windows, sampling strategies, and query identifiers.
+    
+    Parameters:
+    	constraints (dict[str, Any]): Query protocol constraints to normalize.
+    
+    Returns:
+    	dict[str, Any]: Normalized constraint values, including a SHA-256 hash of sorted query identifiers when present.
+    """
     protocol_version = _normalize_string(constraints.get("protocol_version"))
     queries = constraints.get("queries")
     time_windows: set[str] = set()
@@ -277,7 +286,20 @@ def build_comparability_fingerprint(
     sampling_strategies: list[str],
     query_id_hash: str = "",
 ) -> tuple[str, dict[str, Any]]:
-    """Return the canonical comparability fingerprint and its source payload."""
+    """
+    Build a stable fingerprint from the run's acquisition and query characteristics.
+    
+    Parameters:
+        providers_used (list[str]): Providers used by the run.
+        query_protocol_version (str): Version of the query protocol.
+        time_windows (list[str]): Query time-window specifications.
+        sampling_strategies (list[str]): Query sampling-strategy specifications.
+        query_id_hash (str): Hash of the run's normalized query identifiers.
+    
+    Returns:
+        tuple[str, dict[str, Any]]: The SHA-256 fingerprint and the normalized
+            payload used to compute it.
+    """
 
     payload = {
         "providers_used": sorted({item.strip().lower() for item in providers_used if item}),
@@ -362,7 +384,17 @@ def _extract_axis_name(record: dict[str, Any], classifier: AxisClassifier) -> st
 def load_run_snapshot(
     archive_root: Path, reference: RunReference, classifier: AxisClassifier
 ) -> RunSnapshot | None:
-    """Load one archived run's DOI set, axis distribution, and fingerprint."""
+    """
+    Load an archived run's normalized DOI set, axis distribution, and comparability fingerprint.
+    
+    Parameters:
+        archive_root (Path): Root directory containing the archived runs.
+        reference (RunReference): Identifiers and metadata for the archived run.
+        classifier (AxisClassifier): Classifier used when records lack explicit axis information.
+    
+    Returns:
+        RunSnapshot | None: The extracted run snapshot, or `None` when the run directory is missing or the run is in static recovery mode.
+    """
 
     run_dir = _resolve_run_dir(archive_root, reference)
     if not run_dir.is_dir():
@@ -573,6 +605,15 @@ def build_run_stability_report(
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """
+    Parse command-line arguments for the cross-run stability report.
+    
+    Parameters:
+    	argv (list[str] | None): Optional command-line argument list. If omitted, arguments are read from the process command line.
+    
+    Returns:
+    	argparse.Namespace: Parsed archive, output, stability-threshold, and saturation settings.
+    """
     parser = argparse.ArgumentParser(
         description="Build a cross-run comparability and saturation report."
     )
@@ -614,6 +655,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """
+    Build the run stability report from command-line arguments.
+    
+    Parameters:
+    	argv (list[str] | None): Optional command-line arguments to parse.
+    
+    Returns:
+    	int: `0` if the report is built successfully, `1` if an error occurs.
+    """
     args = parse_args(argv)
     try:
         report = build_run_stability_report(

@@ -110,6 +110,15 @@ def _timestamp_utc() -> str:
 
 
 def _repo_relative_posix(path: Path) -> str:
+    """
+    Return a repository-relative POSIX path while redacting paths outside the repository.
+    
+    Parameters:
+    	path (Path): Path to convert.
+    
+    Returns:
+    	str: The repository-relative POSIX path, or a redacted path containing only the basename.
+    """
     try:
         return path.resolve().relative_to(REPO_ROOT).as_posix()
     except ValueError:
@@ -119,6 +128,14 @@ def _repo_relative_posix(path: Path) -> str:
 
 
 def _parse_axis_coverage(raw_value: str) -> tuple[str, ...]:
+    """Parse pipe-delimited axis coverage values into normalized axis names.
+    
+    Parameters:
+    	raw_value (str): Pipe-delimited axis coverage text.
+    
+    Returns:
+    	tuple[str, ...]: Uppercase axis names without surrounding whitespace or empty values.
+    """
     axes = [token.strip().upper() for token in str(raw_value or "").split("|")]
     return tuple(axis for axis in axes if axis)
 
@@ -130,6 +147,15 @@ def _parse_evidence_ids(raw_value: str) -> tuple[str, ...]:
 
 
 def _search_tokens(*parts: str) -> set[str]:
+    """
+    Extracts unique searchable tokens from the supplied text parts.
+    
+    Parameters:
+    	parts (str): Text values to tokenize.
+    
+    Returns:
+    	set[str]: Lowercase tokens with fewer than four characters or listed as stopwords excluded.
+    """
     tokens: set[str] = set()
     for part in parts:
         for token in _TOKEN_RE.findall(str(part or "").lower()):
@@ -142,6 +168,15 @@ def _search_tokens(*parts: str) -> set[str]:
 
 
 def load_registry(path: Path) -> List[RegistryEntry]:
+    """
+    Load credential registry entries from a CSV file.
+    
+    Parameters:
+        path (Path): Path to the credential registry CSV file.
+    
+    Returns:
+        List[RegistryEntry]: Registry entries parsed from the CSV rows.
+    """
     with path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
         rows: List[RegistryEntry] = []
@@ -248,6 +283,20 @@ def compute_h2_supply_map(
     registry_path: Path | None = None,
     demand_signals_path: Path | None = None,
 ) -> Dict[str, Any]:
+    """
+    Build the H2 credential supply map from registry entries and Hydronization demand signals.
+    
+    Parameters:
+    	registry_entries (Sequence[RegistryEntry]): Credential registry entries to evaluate.
+    	demand_signals (Sequence[DemandSignal]): Competence demand signals to match against eligible credentials.
+    	eqf_min (int): Lower bound of the inclusive EQF range.
+    	eqf_max (int): Upper bound of the inclusive EQF range.
+    	registry_path (Path | None): Optional registry path to include in the output metadata.
+    	demand_signals_path (Path | None): Optional demand-signals path to include in the output metadata.
+    
+    Returns:
+    	Dict[str, Any]: Supply-map payload containing coverage counts, missing-demand ratios, interpretation, validation status information, and source metadata.
+    """
     hydronization_demands = [
         demand for demand in demand_signals if demand.axis_group == HYDRONIZATION
     ]
