@@ -53,23 +53,27 @@ def _seed_archive(
         run_path = f"runs/{run_id}"
         run_dir = archive_root / run_path
 
-        _write_json(
-            run_dir / "manifest.json",
-            {
-                "run_id": run_id,
-                "timestamp_utc": timestamp,
-                "analysis_timestamp_utc": timestamp,
-                "provider_set": str(run.get("provider_set", provider_set)),
-                "workflow": {"inputs": {"providers": str(run.get("provider_set", provider_set))}},
-            },
-        )
+        manifest_payload: dict[str, Any] = {
+            "run_id": run_id,
+            "timestamp_utc": timestamp,
+            "analysis_timestamp_utc": timestamp,
+            "provider_set": str(run.get("provider_set", provider_set)),
+            "workflow": {"inputs": {"providers": str(run.get("provider_set", provider_set))}},
+        }
+        if run.get("is_static_recovery_mode"):
+            manifest_payload["is_static_recovery_mode"] = True
+        _write_json(run_dir / "manifest.json", manifest_payload)
+
+        query_ids = run.get("query_ids", ["q1"])
+        if not isinstance(query_ids, list) or not query_ids:
+            query_ids = ["q1"]
         _write_json(
             run_dir / "research_sources" / "query_protocol_constraints.json",
             {
                 "protocol_version": str(run.get("protocol_version", protocol_version)),
                 "queries": [
                     {
-                        "query_id": "q1",
+                        "query_id": qid,
                         "time_window": {"from_year": 2020, "to_year": 2026},
                         "sampling_strategy": {
                             "mode": "pages",
@@ -78,6 +82,7 @@ def _seed_archive(
                             "dedupe_key": "doi",
                         },
                     }
+                    for qid in query_ids
                 ],
             },
         )
@@ -274,3 +279,86 @@ def test_fingerprint_mismatch_makes_report_not_assessable(tmp_path: Path) -> Non
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
     assert report["saturation_assessment"]["status"] == "not_assessable"
+
+
+def test_query_id_universe_mismatch_makes_report_not_assessable(tmp_path: Path) -> None:
+    """A changed query_id universe (even with identical windows/strategies) must
+
+    break the comparability fingerprint, since it changes what was acquired.
+    """
+    module = _load_module()
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+                "query_ids": ["q1"],
+            },
+            {
+                "run_id": "run-2",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(21),
+                "query_ids": ["q1", "q2"],
+            },
+        ],
+    )
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+    assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
+    assert report["saturation_assessment"]["status"] == "not_assessable"
+
+
+def test_identical_query_id_universe_remains_comparable(tmp_path: Path) -> None:
+    """Same query_id set across runs should not break the fingerprint match."""
+    module = _load_module()
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+                "query_ids": ["q1", "q2"],
+            },
+            {
+                "run_id": "run-2",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(21),
+                "query_ids": ["q1", "q2"],
+            },
+        ],
+    )
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+    assert report["run_pairs"][0]["comparability_fingerprint_match"] is True
+
+
+def test_static_recovery_run_is_excluded_from_full_report(tmp_path: Path) -> None:
+    """Static-recovery runs must not contribute to saturation/comparability."""
+    module = _load_module()
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {"run_id": "run-1", "timestamp_utc": "2026-07-01T00:00:00+00:00", "dois": _doi_series(20)},
+            {
+                "run_id": "run-2-static",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(5),
+                "is_static_recovery_mode": True,
+            },
+            {"run_id": "run-3", "timestamp_utc": "2026-07-03T00:00:00+00:00", "dois": _doi_series(21)},
+        ],
+    )
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+
+    # Only the two non-static runs should be analyzed and paired.
+    assert report["runs_analyzed"] == 2
+    assert len(report["run_pairs"]) == 1
+    assert report["run_pairs"][0]["run_a"] == "run-1"
+    assert report["run_pairs"][0]["run_b"] == "run-3"

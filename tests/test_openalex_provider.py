@@ -8,7 +8,7 @@ from scripts.export_live_research_records import (
     _lookup_provider_sort_strategy,
     normalize_provider_name,
 )
-from src.scientific_sources.openalex import OpenAlexProvider
+from src.scientific_sources.openalex import OpenAlexProvider, _strip_abstract_fields
 from src.scientific_sources.source_registry import SourceRegistry
 
 
@@ -253,6 +253,85 @@ class TestOpenAlexVerifyDoi:
 
         assert len(result.records) == 1
         assert result.records[0].doi == "10.1234/test"
+
+
+class TestStripAbstractFields:
+    """Thread: 'Strip OpenAlex abstracts before retaining raw pages'."""
+
+    def test_non_dict_payload_is_returned_unchanged(self) -> None:
+        assert _strip_abstract_fields(None) is None
+        assert _strip_abstract_fields("string") == "string"
+        assert _strip_abstract_fields([1, 2, 3]) == [1, 2, 3]
+
+    def test_dict_without_results_key_is_still_stripped(self) -> None:
+        payload = {"id": "W1", "abstract_inverted_index": {"a": [0]}}
+        cleaned = _strip_abstract_fields(payload)
+        assert "abstract_inverted_index" not in cleaned
+        assert cleaned["id"] == "W1"
+
+    def test_dict_without_abstract_field_is_unaffected(self) -> None:
+        payload = {"id": "W1", "title": "Test"}
+        cleaned = _strip_abstract_fields(payload)
+        assert cleaned == payload
+
+    def test_nested_results_without_abstract_are_preserved(self) -> None:
+        payload = {"results": [{"id": "W1"}, {"id": "W2"}]}
+        cleaned = _strip_abstract_fields(payload)
+        assert cleaned["results"] == [{"id": "W1"}, {"id": "W2"}]
+
+
+class TestOpenAlexRawPayloadAbstractStripping:
+    """Verify search()/verify_doi() strip abstracts before returning raw_payload."""
+
+    def test_search_raw_payload_has_abstract_stripped(self) -> None:
+        provider = OpenAlexProvider()
+        response = _mock_works_response(2)
+        response["results"][0]["abstract_inverted_index"] = {"the": [0], "ocean": [1]}
+
+        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
+            del url, context_label
+            return response, [], None
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.search("blue economy", max_results=2)
+
+        assert "abstract_inverted_index" not in result.raw_payload["results"][0]
+        assert "abstract_inverted_index" not in result.raw_payload["results"][1]
+        # Non-abstract fields must survive the strip.
+        assert result.raw_payload["results"][0]["id"] == response["results"][0]["id"]
+
+    def test_verify_doi_raw_payload_has_abstract_stripped(self) -> None:
+        provider = OpenAlexProvider()
+        work = {
+            "id": "https://openalex.org/W123",
+            "display_name": "Test Article",
+            "publication_year": 2024,
+            "doi": "https://doi.org/10.1234/test",
+            "authorships": [{"author": {"display_name": "Test Author"}}],
+            "primary_location": {"source": {"display_name": "Test Journal"}},
+            "cited_by_count": 5,
+            "topics": [],
+            "keywords": [],
+            "abstract_inverted_index": {"the": [0], "test": [1]},
+        }
+
+        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
+            del url, context_label
+            return work, [], None
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.verify_doi("10.1234/test")
+
+        assert "abstract_inverted_index" not in result.raw_payload
+        assert result.raw_payload["id"] == work["id"]
 
 
 class TestOpenAlexIntegration:
