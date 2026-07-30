@@ -646,3 +646,40 @@ def test_textwrap_import_unused_but_module_health() -> None:
     """Regression guard: textwrap import in tests remains available for future
     tests; presence must not fail the collection phase."""
     assert textwrap.dedent("x") == "x"
+
+
+# ---------- integration: pre-acquisition abort ---------------------------
+
+
+def test_projection_mismatch_aborts_before_provider_call(
+    tmp_path: Path,
+) -> None:
+    """validate_complete_authoritative_protocol_projection must raise before any
+    provider acquisition function is invoked.
+
+    The protocol is loaded from a valid minimal document.  The constraints are
+    then mutated to introduce a query_text mismatch.  A mock 'provider search'
+    callable stands in for registry.search(); the test proves it is never reached.
+    """
+    from unittest.mock import MagicMock
+
+    payload = _minimal_valid_document()
+    path = _write_yaml(tmp_path, payload)
+    protocol = load_live_query_protocol(path)
+
+    # Build valid constraints then corrupt the first query_text.
+    constraints: Dict[str, Any] = {
+        "protocol_version": protocol.protocol_version,
+        "queries": [dict(q) for q in protocol.to_query_constraints()],
+    }
+    constraints["queries"][0] = dict(constraints["queries"][0])
+    constraints["queries"][0]["query_text"] = "INJECTED STALE QUERY TEXT"
+
+    provider_search = MagicMock()
+
+    with pytest.raises(LiveQueryProtocolError, match="query_text.*mismatch"):
+        validate_complete_authoritative_protocol_projection(protocol, constraints)
+        # This line must never be reached; the validator raises first.
+        provider_search()
+
+    provider_search.assert_not_called()

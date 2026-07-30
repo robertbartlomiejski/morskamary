@@ -323,7 +323,7 @@ def test_same_query_id_universe_across_runs_is_comparable(tmp_path: Path) -> Non
                 "run_id": "run-2",
                 "timestamp_utc": "2026-07-02T00:00:00+00:00",
                 "dois": _doi_series(21),
-                "query_ids": ["q1", "q2"],
+                "query_ids": ["q2", "q1"],
             },
         ],
     )

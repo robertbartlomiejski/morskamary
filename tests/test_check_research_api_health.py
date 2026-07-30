@@ -209,16 +209,19 @@ def test_probe_google_drive_missing_and_configured_paths(monkeypatch, tmp_path: 
 
 
 def test_probe_openalex_missing_without_key(monkeypatch) -> None:
-    """probe_openalex must report missing (not an unauthenticated 'ok') when
-    OPENALEX_API_KEY is absent, since live acquisition now requires a key."""
+    """probe_openalex must report missing and make no network calls when
+    OPENALEX_API_KEY is absent; live acquisition requires an authenticated key."""
     import check_research_api_health
 
     monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
-    result = check_research_api_health.probe_openalex()
+
+    with patch("check_research_api_health._request") as mocked_request:
+        result = check_research_api_health.probe_openalex()
 
     assert result.status == "missing"
     assert result.provider == "openalex"
     assert "OPENALEX_API_KEY" in result.detail
+    mocked_request.assert_not_called()
 
 
 def test_probe_openalex_sends_bearer_header_when_key_present(monkeypatch) -> None:

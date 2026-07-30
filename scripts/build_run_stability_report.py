@@ -252,10 +252,19 @@ def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
                 sampling_strategies.add(
                     json.dumps(sampling_strategy, sort_keys=True, separators=(",", ":"))
                 )
+    query_ids: set[str] = set()
+    if isinstance(queries, list):
+        for query in queries:
+            if not isinstance(query, dict):
+                continue
+            qid = _normalize_string(query.get("query_id"))
+            if qid:
+                query_ids.add(qid)
     return {
         "query_protocol_version": protocol_version or "unknown",
         "time_windows": sorted(time_windows),
         "sampling_strategies": sorted(sampling_strategies),
+        "query_ids": sorted(query_ids),
     }
 
 
@@ -265,11 +274,13 @@ def build_comparability_fingerprint(
     query_protocol_version: str,
     time_windows: list[str],
     sampling_strategies: list[str],
+    query_ids: list[str] | None = None,
 ) -> tuple[str, dict[str, Any]]:
     """Return the canonical comparability fingerprint and its source payload."""
 
     payload = {
         "providers_used": sorted({item.strip().lower() for item in providers_used if item}),
+        "query_ids": sorted({item for item in (query_ids or []) if item}),
         "query_protocol_version": _normalize_string(query_protocol_version) or "unknown",
         "time_windows": sorted({item for item in time_windows if item}),
         "sampling_strategies": sorted({item for item in sampling_strategies if item}),
@@ -361,6 +372,14 @@ def load_run_snapshot(
         return None
 
     manifest = _load_manifest(run_dir)
+
+    if manifest.get("is_static_recovery_mode"):
+        print(
+            f"[INFO] Skipping static-recovery run {reference.run_id} from stability analysis.",
+            file=sys.stderr,
+        )
+        return None
+
     live_records = _load_optional_records(run_dir / LIVE_RECORDS_REL)
     qmbd_records = _load_optional_records(run_dir / QMBD_REL)
     constraints = _load_optional_object(run_dir / CONSTRAINTS_REL)
@@ -382,6 +401,7 @@ def load_run_snapshot(
         query_protocol_version=str(constraint_payload["query_protocol_version"]),
         time_windows=list(constraint_payload["time_windows"]),
         sampling_strategies=list(constraint_payload["sampling_strategies"]),
+        query_ids=list(constraint_payload["query_ids"]),
     )
 
     timestamp_utc = (
