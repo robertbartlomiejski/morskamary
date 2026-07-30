@@ -57,6 +57,11 @@ from src.cumulative_analysis.triangulator import (  # noqa: E402
     TriangulatedRecord,
 )
 from src.literature_extraction import extract_sentence_records  # noqa: E402
+from src.scientific_sources.live_query_protocol import (  # noqa: E402
+    LiveQueryProtocolError,
+    load_live_query_protocol,
+    validate_complete_authoritative_protocol_projection,
+)
 
 DEFAULT_PROVIDER_POLICY_PATH = REPO_ROOT / "config" / "research_provider_policy.yml"
 
@@ -298,7 +303,9 @@ def load_provider_policy(path: Path) -> Dict[str, Any]:
     return merged
 
 
-def _load_query_constraints(path: Path) -> Dict[str, Dict[str, Any]]:
+def _load_query_constraints(
+    path: Path,
+) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, Any]]:
     """Load and index the authoritative per-query acquisition constraints."""
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict) or not isinstance(payload.get("queries"), list):
@@ -320,7 +327,7 @@ def _load_query_constraints(path: Path) -> Dict[str, Dict[str, Any]]:
         raise ValueError(
             f"constraint query_count={declared_count} but indexed {len(indexed)}"
         )
-    return indexed
+    return indexed, payload
 
 
 def _build_ad_hoc_constraints_from_query_groups(
@@ -1326,7 +1333,9 @@ def main() -> int:
         )
         return 1
     try:
-        constraints_by_query = _load_query_constraints(constraints_path)
+        constraints_by_query, constraints_payload = _load_query_constraints(
+            constraints_path
+        )
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"Error: Invalid query constraints: {exc}", file=sys.stderr)
         return 1
@@ -1351,6 +1360,11 @@ def main() -> int:
             constraints_by_query = _build_ad_hoc_constraints_from_query_groups(
                 query_groups
             )
+            constraints_payload = {
+                "protocol_version": "",
+                "query_count": len(constraints_by_query),
+                "queries": list(constraints_by_query.values()),
+            }
         else:
             missing_constraints = sorted(
                 set(projected_sector_by_query) - set(constraints_by_query)
@@ -1416,6 +1430,22 @@ def main() -> int:
             )
             for err in completeness_errors:
                 print(f"  - {err}", file=sys.stderr)
+            return 1
+        try:
+            authoritative_protocol = load_live_query_protocol(
+                REPO_ROOT / "config" / "live_query_protocol.yml"
+            )
+            validate_complete_authoritative_protocol_projection(
+                authoritative_protocol,
+                constraints_payload,
+            )
+        except (FileNotFoundError, LiveQueryProtocolError) as exc:
+            print(
+                "ERROR: Authoritative protocol projection mismatch. "
+                "No provider API calls will be made.",
+                file=sys.stderr,
+            )
+            print(f"  - {exc}", file=sys.stderr)
             return 1
 
     # Storage for all results

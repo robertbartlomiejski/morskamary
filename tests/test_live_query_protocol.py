@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import textwrap
 from pathlib import Path
 from typing import Any, Dict
+from unittest.mock import MagicMock, patch
 
 import pytest
 import yaml
@@ -622,6 +624,66 @@ class TestCompleteAuthoritativeProjectionValidation:
         own authoritative projection."""
         constraints = self._valid_constraints(loaded_protocol)
         validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_mismatch_aborts_before_provider_search(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A projected-query constraints mismatch must fail closed pre-acquisition."""
+        from scripts import export_live_research_records as export_script
+
+        protocol = load_live_query_protocol(PROTOCOL_PATH)
+        query_file = tmp_path / "research_queries_from_protocol.yml"
+        query_file.write_text(
+            yaml.safe_dump(protocol.to_legacy_query_groups(), sort_keys=False),
+            encoding="utf-8",
+        )
+
+        constraints = {
+            "protocol_version": protocol.protocol_version,
+            "query_count": len(protocol.to_query_constraints()),
+            "queries": protocol.to_query_constraints(),
+        }
+        constraints["queries"][0] = dict(constraints["queries"][0])
+        constraints["queries"][0]["sampling_strategy"] = dict(
+            constraints["queries"][0]["sampling_strategy"]
+        )
+        constraints["queries"][0]["sampling_strategy"]["pages"] = (
+            constraints["queries"][0]["sampling_strategy"]["pages"] + 1
+        )
+        constraints_file = tmp_path / "query_protocol_constraints.json"
+        constraints_file.write_text(
+            json.dumps(constraints, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+        with patch("scripts.export_live_research_records.SourceRegistry") as mock_registry:
+            mock_instance = MagicMock()
+            capability = MagicMock()
+            capability.name = "crossref"
+            mock_instance.list_capabilities.return_value = [capability]
+            mock_registry.return_value = mock_instance
+
+            with patch(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--query-constraints-file",
+                    str(constraints_file),
+                    "--output-dir",
+                    str(tmp_path / "outputs"),
+                    "--providers",
+                    "crossref",
+                ],
+            ):
+                exit_code = export_script.main()
+
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "Authoritative protocol projection mismatch" in captured.err
+        mock_instance.search.assert_not_called()
+        mock_instance.search_paginated.assert_not_called()
 
 
 # ---------- helper: docstring example -----------------------------------
