@@ -207,6 +207,40 @@ def test_probe_google_drive_missing_and_configured_paths(monkeypatch, tmp_path: 
     assert configured_result.provider == "google_drive"
 
 
+def test_probe_openalex_missing_without_key(monkeypatch) -> None:
+    """probe_openalex must report missing (not an unauthenticated 'ok') when
+    OPENALEX_API_KEY is absent, since live acquisition now requires a key."""
+    import check_research_api_health
+
+    monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
+    result = check_research_api_health.probe_openalex()
+
+    assert result.status == "missing"
+    assert result.provider == "openalex"
+    assert "OPENALEX_API_KEY" in result.detail
+
+
+def test_probe_openalex_sends_bearer_header_when_key_present(monkeypatch) -> None:
+    """probe_openalex must attach an Authorization: Bearer header and only
+    probe the network once a key is configured."""
+    import check_research_api_health
+
+    monkeypatch.setenv("OPENALEX_API_KEY", "test-openalex-key")
+    ok_result = check_research_api_health.ProbeResult("", "ok", "request succeeded", 200)
+
+    with patch(
+        "check_research_api_health._request", return_value=ok_result
+    ) as mocked_request:
+        result = check_research_api_health.probe_openalex()
+
+    assert result.provider == "openalex"
+    assert result.status == "ok"
+    mocked_request.assert_called_once()
+    called_url, called_headers = mocked_request.call_args.args
+    assert "api.openalex.org" in called_url
+    assert called_headers == {"Authorization": "Bearer test-openalex-key"}
+
+
 def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
     """main should return non-zero with --require-valid when invalid provider exists."""
     import check_research_api_health

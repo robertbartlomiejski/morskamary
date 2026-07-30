@@ -32,6 +32,7 @@ def _write_registry(path: Path, rows: list[dict[str, object]]) -> None:
                 "axis_coverage",
                 "validation_status",
                 "source_url",
+                "validation_evidence_ids",
                 "notes",
             ],
         )
@@ -185,6 +186,7 @@ def test_missing_ratio_and_interpretation_require_validated_entries() -> None:
                     "axis_coverage": "HYDRONIZATION",
                     "validation_status": "validated",
                     "source_url": "",
+                    "validation_evidence_ids": "EVD-001",
                     "notes": "Governance and water diplomacy",
                 },
                 {
@@ -196,6 +198,7 @@ def test_missing_ratio_and_interpretation_require_validated_entries() -> None:
                     "axis_coverage": "HYDRONIZATION",
                     "validation_status": "validated",
                     "source_url": "",
+                    "validation_evidence_ids": "EVD-002",
                     "notes": "Digital monitoring and sensor systems",
                 },
                 {
@@ -207,6 +210,7 @@ def test_missing_ratio_and_interpretation_require_validated_entries() -> None:
                     "axis_coverage": "HYDRONIZATION",
                     "validation_status": "validated",
                     "source_url": "",
+                    "validation_evidence_ids": "EVD-003",
                     "notes": "Resilience planning",
                 },
             ],
@@ -313,6 +317,7 @@ def test_eqf_filter_excludes_levels_outside_requested_range() -> None:
                     "axis_coverage": "HYDRONIZATION",
                     "validation_status": "validated",
                     "source_url": "",
+                    "validation_evidence_ids": "EVD-004",
                     "notes": "Water governance",
                 }
             ],
@@ -338,6 +343,86 @@ def test_eqf_filter_excludes_levels_outside_requested_range() -> None:
 
         assert excluded["validated_covered_demand_count"] == 0
         assert included["validated_covered_demand_count"] == 1
+
+
+def test_validated_entry_without_evidence_counts_as_preliminary_not_validated() -> None:
+    """A 'validated' registry row with no validation_evidence_ids must still be
+    eligible for the preliminary (review) count, but must be excluded from the
+    strict validated count used to compute the H2 interpretation."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        root = Path(temp_dir)
+        registry_path = root / "registry.csv"
+        demand_path = root / "signals.jsonl"
+        _write_registry(
+            registry_path,
+            [
+                {
+                    "credential_id": "cred-h-unproven",
+                    "credential_name": "Validated MSc in Water Governance",
+                    "eqf_level": 7,
+                    "issuing_body": "Validated issuer",
+                    "country_iso": "EU",
+                    "axis_coverage": "HYDRONIZATION",
+                    "validation_status": "validated",
+                    "source_url": "",
+                    "validation_evidence_ids": "",
+                    "notes": "Governance and water diplomacy",
+                },
+            ],
+        )
+        _write_signals(demand_path, [_signal("sig-1")])
+
+        registry_entries = _MOD.load_registry(registry_path)
+        assert registry_entries[0].validation_status == "validated"
+        assert registry_entries[0].validation_evidence_ids == ()
+
+        payload = _MOD.compute_h2_supply_map(
+            registry_entries=registry_entries,
+            demand_signals=_MOD.load_demand_signals(demand_path),
+            registry_path=registry_path,
+            demand_signals_path=demand_path,
+        )
+
+        assert payload["validated_entries_hydronization_eqf_6_7"] == 0
+        assert payload["validated_covered_demand_count"] == 0
+        assert payload["interpretation"] == "not_computable"
+        # Preliminary counts (review-eligible, no evidence required) still see it.
+        assert payload["preliminary_covered_demand_count"] == 1
+
+
+def test_evidence_ids_parsed_as_pipe_delimited_tuple() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        root = Path(temp_dir)
+        registry_path = root / "registry.csv"
+        _write_registry(
+            registry_path,
+            [
+                {
+                    "credential_id": "cred-h-multi",
+                    "credential_name": "Validated Certificate",
+                    "eqf_level": 6,
+                    "issuing_body": "Validated issuer",
+                    "country_iso": "EU",
+                    "axis_coverage": "HYDRONIZATION",
+                    "validation_status": "validated",
+                    "source_url": "",
+                    "validation_evidence_ids": " EVD-010 | EVD-011 |",
+                    "notes": "",
+                },
+            ],
+        )
+
+        entries = _MOD.load_registry(registry_path)
+        assert entries[0].validation_evidence_ids == ("EVD-010", "EVD-011")
+
+
+def test_actual_registry_csv_matches_loader_schema() -> None:
+    """The checked-in registry must parse cleanly and reflect its current
+    placeholder (review_required, no evidence) state."""
+    entries = _MOD.load_registry(_MOD.DEFAULT_REGISTRY_PATH)
+    assert len(entries) == 9
+    assert all(entry.validation_status == "review_required" for entry in entries)
+    assert all(entry.validation_evidence_ids == () for entry in entries)
 
 
 def test_main_writes_output_json_without_live_data() -> None:

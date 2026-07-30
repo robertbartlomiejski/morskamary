@@ -254,6 +254,85 @@ class TestOpenAlexVerifyDoi:
         assert len(result.records) == 1
         assert result.records[0].doi == "10.1234/test"
 
+    def test_verify_doi_raw_payload_strips_abstract_inverted_index(self) -> None:
+        """No-abstract-retention contract: verify_doi's raw_payload must not
+        carry abstract_inverted_index even when the upstream API returns it."""
+        provider = OpenAlexProvider()
+        work = {
+            "id": "https://openalex.org/W123",
+            "display_name": "Test Article",
+            "publication_year": 2024,
+            "doi": "https://doi.org/10.1234/test",
+            "authorships": [{"author": {"display_name": "Test Author"}}],
+            "primary_location": {"source": {"display_name": "Test Journal"}},
+            "cited_by_count": 5,
+            "topics": [],
+            "keywords": [],
+            "abstract_inverted_index": {"The": [0], "study": [1]},
+        }
+
+        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
+            del url, context_label
+            return work, [], None
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.verify_doi("10.1234/test")
+
+        assert result.raw_payload is not None
+        assert "abstract_inverted_index" not in result.raw_payload
+        assert result.raw_payload["id"] == "https://openalex.org/W123"
+
+
+class TestOpenAlexAbstractRetentionContract:
+    """Integration coverage that search()/verify_doi() enforce the
+    no-abstract-retention contract via `_strip_abstract_fields`."""
+
+    def test_search_raw_payload_strips_abstract_inverted_index_from_results(self) -> None:
+        provider = OpenAlexProvider()
+        response = _mock_works_response(2)
+        response["results"][0]["abstract_inverted_index"] = {"The": [0], "sea": [1]}
+        response["results"][1]["abstract_inverted_index"] = {"Ocean": [0]}
+
+        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
+            del url, context_label
+            return response, [], None
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.search("blue economy", max_results=2)
+
+        assert result.raw_payload is not None
+        for work in result.raw_payload["results"]:
+            assert "abstract_inverted_index" not in work
+        # Untouched sibling fields must survive the strip.
+        assert result.raw_payload["results"][0]["display_name"] == "Test Article 0"
+        assert result.raw_payload["meta"]["count"] == 100
+
+    def test_search_raw_payload_without_abstract_field_is_unaffected(self) -> None:
+        """Responses that never contained abstracts should pass through intact."""
+        provider = OpenAlexProvider()
+        response = _mock_works_response(1)
+
+        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
+            del url, context_label
+            return response, [], None
+
+        with patch.object(
+            provider,
+            "_request_json_with_backoff",
+            side_effect=mock_backoff,
+        ):
+            result = provider.search("test", max_results=1)
+
+        assert result.raw_payload["results"][0]["id"] == "https://openalex.org/W1000"
+
 
 class TestOpenAlexIntegration:
     def test_registry_lists_openalex_provider(self) -> None:
