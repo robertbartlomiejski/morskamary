@@ -7,13 +7,24 @@ All tests use mocked Crossref responses — no network access required.
 from __future__ import annotations
 
 import json
+from pathlib import Path
+
+import pytest
+import yaml
 from unittest.mock import MagicMock, patch
 
 from scripts.export_live_research_records import (
     LiveContextClassificationRepository,
     QUERY_EXECUTION_FIELDS,
+    PROTOCOL_PROJECTED_QUERY_FILE_NAME,
     STAGE1_CSV_FIELDS,
     _apply_query_constraint,
+    _count_physical_requests,
+    _lookup_provider_sort_strategy_full,
+    _normalise_page_diagnostics,
+    _resolve_effective_sampling_request,
+    _resolve_provider_sort_strategies,
+    _search_registry_paginated,
     _to_stage1_compliant_dict,
     build_thematic_loop_audit,
     build_coverage_report,
@@ -26,6 +37,7 @@ from scripts.export_live_research_records import (
     normalize_title,
     triangulate_identity_loop,
 )
+from src.scientific_sources.live_query_protocol import load_live_query_protocol
 from src.scientific_sources.models import (
     LiteratureRecord,
     ProviderResult,
@@ -261,6 +273,205 @@ class TestApplyQueryConstraint:
         assert len(accepted) == 1
         assert accepted[0].year == "2024"
         assert audit["excluded_missing_year_count"] == 1
+
+    def test_records_actual_attempted_pages_when_max_results_caps_sampling(self):
+        accepted, audit = _apply_query_constraint(
+            records=[_make_record(year="2024") for _ in range(60)],
+            constraint={
+                "time_window": {"from_year": 2020, "to_year": 2026},
+                "sampling_strategy": {
+                    "mode": "stratified",
+                    "pages": 3,
+                    "rows_per_page": 50,
+                },
+            },
+            provider_name="Crossref",
+            max_results=20,
+            attempted_logical_pages=1,
+        )
+
+        assert len(accepted) == 20
+        assert audit["logical_pages_attempted"] == 1
+
+    def test_malformed_page_diagnostics_do_not_abort_constraint_audit(self):
+        accepted, audit = _apply_query_constraint(
+            records=[_make_record(year="2024")],
+            constraint={
+                "time_window": {"from_year": 2020, "to_year": 2026},
+                "sampling_strategy": {
+                    "mode": "stratified",
+                    "pages": 2,
+                    "rows_per_page": 50,
+                },
+            },
+            provider_name="Crossref",
+            max_results=10,
+            page_diagnostics=[
+                {
+                    "logical_page": {"malformed": True},
+                    "pagination_status": "applied",
+                    "errors": "",
+                    "warnings": "provider returned malformed page index",
+                }
+            ],
+            attempted_logical_pages=2,
+        )
+
+        assert len(accepted) == 1
+        assert audit["logical_pages_completed"] == 0
+        assert audit["sampling_status"] == "partially_applied_pagination_incomplete"
+        assert "filter_not_applied:multi_page_sampling" in audit["validity_warnings"]
+
+    def test_normalise_page_diagnostics_converts_non_mapping_entries(self):
+        diagnostics = _normalise_page_diagnostics(
+            [None, "bad-diagnostic"],
+            provider_name="Crossref",
+            query="offshore wind",
+        )
+
+        assert len(diagnostics) == 2
+        for idx, row in enumerate(diagnostics, start=1):
+            assert row["provider"] == "crossref"
+            assert row["query"] == "offshore wind"
+            assert row["pagination_status"] == "failed"
+            assert row["errors"] == "malformed_page_diagnostic_non_mapping"
+            assert row["warnings"] == f"malformed_page_diagnostic_index:{idx}"
+
+    def test_physical_request_count_aggregates_provider_field(self):
+        """physical_request_count must sum provider-reported physical_requests,
+        not count diagnostic rows.  A WoS logical page requiring two physical
+        HTTP calls must report physical_request_count == 2."""
+        _, audit = _apply_query_constraint(
+            records=[_make_record(year="2024")],
+            constraint={
+                "time_window": {"from_year": 2020, "to_year": 2026},
+                "sampling_strategy": {"mode": "paginated", "pages": 1, "rows_per_page": 50},
+            },
+            provider_name="wos",
+            max_results=100,
+            page_diagnostics=[
+                {
+                    "provider": "wos",
+                    "logical_page": 1,
+                    "physical_requests": 2,
+                    "pagination_status": "applied",
+                    "errors": "",
+                }
+            ],
+            attempted_logical_pages=1,
+        )
+        assert audit["physical_request_count"] == 2
+
+    def test_physical_request_count_falls_back_to_one_per_entry_when_field_absent(self):
+        """Providers that omit physical_requests (e.g. OpenAlex) default to 1 per entry."""
+        _, audit = _apply_query_constraint(
+            records=[_make_record(year="2024")],
+            constraint={
+                "time_window": {"from_year": 2020, "to_year": 2026},
+                "sampling_strategy": {"mode": "paginated", "pages": 2, "rows_per_page": 50},
+            },
+            provider_name="openalex",
+            max_results=100,
+            page_diagnostics=[
+                {
+                    "provider": "openalex",
+                    "logical_page": 1,
+                    "physical_request_index": 1,
+                    "pagination_status": "applied",
+                    "errors": "",
+                },
+                {
+                    "provider": "openalex",
+                    "logical_page": 2,
+                    "physical_request_index": 2,
+                    "pagination_status": "applied",
+                    "errors": "",
+                },
+            ],
+            attempted_logical_pages=2,
+        )
+        assert audit["physical_request_count"] == 2
+
+
+def test_resolve_provider_sort_strategies_includes_openalex_fallback() -> None:
+    resolved = _resolve_provider_sort_strategies(
+        {"crossref": "published-desc", "scopus": "date-desc"},
+        ["Crossref", "OpenAlex"],
+    )
+
+    assert resolved == {
+        "crossref": "published-desc",
+        "openalex": "date-desc",
+    }
+
+
+def test_provider_sort_strategy_source_uses_canonical_audit_values() -> None:
+    assert _lookup_provider_sort_strategy_full(
+        {"crossref": "published-desc"},
+        "crossref",
+    ) == ("published-desc", "published-desc", "declared")
+    assert _lookup_provider_sort_strategy_full(
+        {"scopus": "date-desc"},
+        "openalex",
+    ) == ("", "date-desc", "inferred_provider_fallback")
+    assert _lookup_provider_sort_strategy_full({}, "wos") == (
+        "",
+        "",
+        "not_declared",
+    )
+
+
+def test_effective_sampling_uses_complete_pages_or_one_reduced_page() -> None:
+    assert _resolve_effective_sampling_request(
+        declared_pages=3,
+        declared_rows_per_page=50,
+        max_results=120,
+    ) == (2, 50)
+    assert _resolve_effective_sampling_request(
+        declared_pages=3,
+        declared_rows_per_page=50,
+        max_results=20,
+    ) == (1, 20)
+
+
+def test_search_registry_paginated_propagates_provider_typeerror() -> None:
+    class Registry:
+        def search_paginated(
+            self,
+            query: str,
+            *,
+            pages: int,
+            rows_per_page: int,
+            providers: list[str],
+            sort_strategy_by_provider: dict[str, str],
+            time_window: dict[str, int],
+        ):
+            del (
+                query,
+                pages,
+                rows_per_page,
+                providers,
+                sort_strategy_by_provider,
+                time_window,
+            )
+            raise TypeError("provider-side failure")
+
+    try:
+        _search_registry_paginated(
+            Registry(),
+            query="blue economy",
+            pages=2,
+            rows_per_page=50,
+            providers=["crossref"],
+            sort_strategy_by_provider={"crossref": "published-desc"},
+            time_window={"from_year": 2020, "to_year": 2026},
+        )
+    except TypeError as exc:
+        assert "provider-side failure" in str(exc)
+    else:
+        raise AssertionError(
+            "provider TypeError must not be masked as legacy signature handling"
+        )
 
 
 class TestSentenceLevelClassification:
@@ -519,17 +730,18 @@ class TestMainIntegration:
         """Legacy research_queries.yml should trigger ad-hoc constraints fallback."""
         query_file = tmp_path / "config" / "research_queries.yml"
         query_file.parent.mkdir(parents=True, exist_ok=True)
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   test_sector:
     label: "Test Sector"
     queries:
       - "test query"
-"""
-        )
+""")
         constraints_file = (
-            tmp_path / "outputs" / "research_sources" / "query_protocol_constraints.json"
+            tmp_path
+            / "outputs"
+            / "research_sources"
+            / "query_protocol_constraints.json"
         )
         constraints_file.parent.mkdir(parents=True, exist_ok=True)
         constraints_file.write_text(
@@ -595,17 +807,18 @@ query_groups:
             / "research_queries_from_protocol.yml"
         )
         query_file.parent.mkdir(parents=True, exist_ok=True)
-        query_file.write_text(
-            """
+        query_file.write_text("""
 query_groups:
   maritime_transport:
     label: "Maritime Transport"
     queries:
       - "port decarbonization maritime workforce"
-"""
-        )
+""")
         constraints_file = (
-            tmp_path / "outputs" / "research_sources" / "query_protocol_constraints.json"
+            tmp_path
+            / "outputs"
+            / "research_sources"
+            / "query_protocol_constraints.json"
         )
         constraints_file.parent.mkdir(parents=True, exist_ok=True)
         constraints_file.write_text(
@@ -643,7 +856,9 @@ query_groups:
         captured = capsys.readouterr()
 
         assert result == 1
-        assert "authoritative protocol projection and constraints differ" in captured.err
+        assert (
+            "authoritative protocol projection and constraints differ" in captured.err
+        )
 
     def test_offline_mode_skips_network_calls(self, tmp_path, monkeypatch):
         """Test that offline mode produces empty outputs without network calls."""
@@ -693,6 +908,336 @@ query_groups:
         # Check that outputs are empty
         records = json.loads((output_dir / "live_records.json").read_text())
         assert len(records) == 0
+
+    def test_protocol_projection_119_queries_fails_before_provider_setup(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        repo_root = Path(__file__).resolve().parents[1]
+        protocol_path = repo_root / "config" / "live_query_protocol.yml"
+        protocol = load_live_query_protocol(protocol_path)
+        constraints = protocol.to_query_constraints()[:-1]
+        dropped_query_text = protocol.to_query_constraints()[-1]["query_text"]
+        legacy_projection = protocol.to_legacy_query_groups()
+        for group in legacy_projection["query_groups"].values():
+            group["queries"] = [
+                query for query in group["queries"] if query != dropped_query_text
+            ]
+        query_file = tmp_path / PROTOCOL_PROJECTED_QUERY_FILE_NAME
+        query_file.write_text(
+            yaml.safe_dump(legacy_projection, sort_keys=False), encoding="utf-8"
+        )
+        constraints_file = tmp_path / "query_protocol_constraints.json"
+        constraints_file.write_text(
+            json.dumps(
+                {
+                    "protocol_version": protocol.protocol_version,
+                    "query_count": len(constraints),
+                    "queries": constraints,
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+
+        with patch("scripts.export_live_research_records.SourceRegistry") as registry:
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--query-constraints-file",
+                    str(constraints_file),
+                    "--protocol-path",
+                    str(protocol_path),
+                    "--output-dir",
+                    str(tmp_path / "out"),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                ],
+            )
+
+            result = main()
+
+        captured = capsys.readouterr()
+        assert result == 1
+        registry.assert_not_called()
+        assert "exactly 120 queries" in captured.err
+
+    @pytest.mark.parametrize(
+        "field_name",
+        [
+            "query_text",
+            "sector_slug",
+            "query_family",
+            "axis_target",
+            "evidence_intent",
+            "time_window",
+            "sort_strategy",
+            "sampling_strategy",
+            "protocol_version",
+        ],
+    )
+    def test_protocol_projection_field_mismatch_fails_before_provider_setup(
+        self, field_name, tmp_path, monkeypatch
+    ):
+        repo_root = Path(__file__).resolve().parents[1]
+        protocol_path = repo_root / "config" / "live_query_protocol.yml"
+        protocol = load_live_query_protocol(protocol_path)
+        constraints = json.loads(json.dumps(protocol.to_query_constraints()))
+        first = constraints[0]
+        payload = {
+            "protocol_version": protocol.protocol_version,
+            "query_count": len(constraints),
+            "queries": constraints,
+        }
+        if field_name == "query_text":
+            first["query_text"] = f"{first['query_text']} stale"
+        elif field_name == "sector_slug":
+            first["sector_slug"] = "wrong_sector"
+        elif field_name == "query_family":
+            first["query_family"] = "wrong_family"
+        elif field_name == "axis_target":
+            first["axis_target"] = (
+                "MARITIME" if first["axis_target"] != "MARITIME" else "OCEANIC"
+            )
+        elif field_name == "evidence_intent":
+            first["evidence_intent"] = "wrong_intent"
+        elif field_name == "time_window":
+            first["time_window"] = {"from_year": 1900, "to_year": 1901}
+        elif field_name == "sort_strategy":
+            first["sort_strategy"] = {
+                "crossref": "relevance",
+                "scopus": "relevance",
+                "wos": "relevance",
+            }
+        elif field_name == "sampling_strategy":
+            first["sampling_strategy"] = {
+                "mode": "stratified",
+                "pages": int(first["sampling_strategy"]["pages"]) + 1,
+                "rows_per_page": first["sampling_strategy"]["rows_per_page"],
+                "dedupe_key": first["sampling_strategy"]["dedupe_key"],
+            }
+        elif field_name == "protocol_version":
+            payload["protocol_version"] = "0.0.0"
+        query_file = tmp_path / PROTOCOL_PROJECTED_QUERY_FILE_NAME
+        query_file.write_text(
+            yaml.safe_dump(protocol.to_legacy_query_groups(), sort_keys=False),
+            encoding="utf-8",
+        )
+        constraints_file = tmp_path / "query_protocol_constraints.json"
+        constraints_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+        with patch("scripts.export_live_research_records.SourceRegistry") as registry:
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--query-constraints-file",
+                    str(constraints_file),
+                    "--protocol-path",
+                    str(protocol_path),
+                    "--output-dir",
+                    str(tmp_path / "out"),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                ],
+            )
+
+            result = main()
+
+        assert result == 1
+        registry.assert_not_called()
+
+    def test_live_mode_uses_paginated_registry_search(self, tmp_path, monkeypatch):
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  offshore_energy:
+    label: "Offshore Energy"
+    queries:
+      - "offshore wind"
+""",
+            encoding="utf-8",
+        )
+        constraints_file = tmp_path / "constraints.json"
+        constraints_file.write_text(
+            json.dumps(
+                {
+                    "query_count": 1,
+                    "queries": [
+                        {
+                            "query_id": "Q_TEST_001",
+                            "query_text": "offshore wind",
+                            "sector_slug": "offshore_energy",
+                            "query_family": "core_sector",
+                            "time_window": {"from_year": 2019, "to_year": 2026},
+                            "sort_strategy": {"crossref": "published-desc"},
+                            "sampling_strategy": {
+                                "mode": "stratified",
+                                "pages": 3,
+                                "rows_per_page": 1,
+                            },
+                        }
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        output_dir = tmp_path / "outputs"
+        mock_record = _make_record(
+            title="Offshore Wind Energy",
+            doi="10.1234/wind",
+            source_id="crossref:10.1234/wind",
+        )
+        mock_evidence = _make_evidence(
+            record_id="crossref:10.1234/wind", query="offshore wind"
+        )
+        mock_result = ProviderResult(
+            records=[mock_record],
+            provenance=[mock_evidence],
+            page_diagnostics=[
+                {
+                    "provider": "crossref",
+                    "query": "offshore wind",
+                    "logical_page": 1,
+                    "physical_request_index": 1,
+                    "cursor_or_offset": "*",
+                    "requested_rows": 1,
+                    "returned_rows": 1,
+                    "normalized_rows": 1,
+                    "pagination_status": "applied",
+                },
+                {
+                    "provider": "crossref",
+                    "query": "offshore wind",
+                    "logical_page": 2,
+                    "physical_request_index": 2,
+                    "cursor_or_offset": "sha256:two",
+                    "requested_rows": 1,
+                    "returned_rows": 1,
+                    "normalized_rows": 1,
+                    "pagination_status": "applied",
+                },
+                {
+                    "provider": "crossref",
+                    "query": "offshore wind",
+                    "logical_page": 3,
+                    "physical_request_index": 3,
+                    "cursor_or_offset": "sha256:three",
+                    "requested_rows": 1,
+                    "returned_rows": 1,
+                    "normalized_rows": 1,
+                    "pagination_status": "applied",
+                },
+            ],
+        )
+        seen: dict[str, object] = {}
+
+        def mock_search_paginated(
+            query,
+            *,
+            pages,
+            rows_per_page,
+            providers,
+            sort_strategy_by_provider,
+            time_window,
+        ):
+            seen.update(
+                {
+                    "query": query,
+                    "pages": pages,
+                    "rows_per_page": rows_per_page,
+                    "providers": providers,
+                    "sort_strategy_by_provider": sort_strategy_by_provider,
+                    "time_window": time_window,
+                }
+            )
+            return [mock_result]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search_paginated = mock_search_paginated
+            mock_instance.search.side_effect = AssertionError("old search path used")
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
+            MockRegistry.return_value = mock_instance
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--query-constraints-file",
+                    str(constraints_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                ],
+            )
+
+            result = main()
+
+        assert result == 0
+        assert seen["pages"] == 3
+        assert seen["rows_per_page"] == 1
+        assert seen["providers"] == ["crossref"]
+        rows = json.loads(
+            (output_dir / "provider_pagination_diagnostics.json").read_text()
+        )
+        assert [row["logical_page"] for row in rows] == [1, 2, 3]
+        execution_log = (output_dir / "query_execution_log.csv").read_text()
+        assert "applied_logical_pagination" in execution_log
+
+    def test_apply_query_constraint_rejects_replayed_page_tokens(self):
+        records = [
+            _make_record(title=f"Record {idx}", doi=f"10.1234/{idx}")
+            for idx in range(3)
+        ]
+        constraint = {
+            "time_window": {"from_year": 2019, "to_year": 2026},
+            "sort_strategy": {"crossref": "published-desc"},
+            "sampling_strategy": {
+                "mode": "stratified",
+                "pages": 3,
+                "rows_per_page": 1,
+            },
+        }
+        page_diagnostics = [
+            {
+                "logical_page": page,
+                "physical_request_index": page,
+                "cursor_or_offset": "*",
+                "requested_rows": 1,
+                "returned_rows": 1,
+                "normalized_rows": 1,
+                "pagination_status": "applied",
+            }
+            for page in (1, 2, 3)
+        ]
+
+        _accepted, audit = _apply_query_constraint(
+            records,
+            constraint,
+            "crossref",
+            max_results=50,
+            page_diagnostics=page_diagnostics,
+        )
+
+        assert audit["sampling_status"] == "invalid_replayed_page"
+        assert "invalid_sampling:replayed_page" in audit["validity_warnings"]
+        assert "sampling_strategy" in audit["unapplied_constraint_filters"]
 
     def test_live_mode_with_mocked_registry(self, tmp_path, monkeypatch):
         """Test live mode with mocked SourceRegistry returning synthetic records."""
@@ -790,7 +1335,11 @@ query_groups:
         mock_evidence = _make_evidence(
             record_id="crossref:10.1234/wind", query="offshore wind"
         )
-        raw_payload = {"message": {"items": [{"DOI": "10.1234/wind", "title": ["Offshore Wind Energy"]}]}}
+        raw_payload = {
+            "message": {
+                "items": [{"DOI": "10.1234/wind", "title": ["Offshore Wind Energy"]}]
+            }
+        }
         mock_result = ProviderResult(
             records=[mock_record], provenance=[mock_evidence], raw_payload=raw_payload
         )
@@ -798,7 +1347,9 @@ query_groups:
         def mock_search(query, max_results, providers):
             return [mock_result]
 
-        with patch("scripts.export_live_research_records.SourceRegistry") as MockRegistry:
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
             mock_instance.list_capabilities.return_value = _make_capability("crossref")
@@ -808,11 +1359,16 @@ query_groups:
                 "sys.argv",
                 [
                     "export_live_research_records.py",
-                    "--query-file", str(query_file),
-                    "--output-dir", str(output_dir),
-                    "--offline", "false",
-                    "--providers", "crossref",
-                    "--max-results-per-query", "10",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                    "--max-results-per-query",
+                    "10",
                 ],
             )
 
@@ -1344,7 +1900,9 @@ query_groups:
             assert providers == ["scopus"]
             return [scopus_result]
 
-        with patch("scripts.export_live_research_records.SourceRegistry") as MockRegistry:
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
             mock_instance = MagicMock()
             mock_instance.search = mock_search
             mock_instance.list_capabilities.return_value = _make_capability("scopus")
@@ -1395,7 +1953,9 @@ query_groups:
         assert row["unsupported_constraint_filters"] == ""
         assert "sort_strategy" in row["unapplied_constraint_filters"]
 
-        diagnostics = json.loads((output_dir / "scopus_query_diagnostics.json").read_text())
+        diagnostics = json.loads(
+            (output_dir / "scopus_query_diagnostics.json").read_text()
+        )
         assert len(diagnostics) == 1
         assert diagnostics[0]["provider_canonical"] == "scopus"
         assert diagnostics[0]["contributed_record_count"] == 1
@@ -1772,3 +2332,260 @@ class TestStage1ComplianceFilter:
             "licence_note must be in STAGE1_CSV_FIELDS — it is required by "
             "docs/licensing_and_compliance.md Stage 1 export rules."
         )
+
+
+# ---------------------------------------------------------------------------
+# Tests for _count_physical_requests deterministic helper
+# ---------------------------------------------------------------------------
+
+
+class TestCountPhysicalRequests:
+    """Regression suite for the deterministic physical-request aggregation helper."""
+
+    def _diag(self, logical_page=1, physical_requests=None, physical_request_index=None,
+              pagination_status="applied"):
+        row = {
+            "provider": "wos",
+            "logical_page": logical_page,
+            "pagination_status": pagination_status,
+        }
+        if physical_requests is not None:
+            row["physical_requests"] = physical_requests
+        if physical_request_index is not None:
+            row["physical_request_index"] = physical_request_index
+        return row
+
+    def test_empty_diagnostics_returns_zero(self):
+        assert _count_physical_requests([]) == 0
+
+    def test_single_page_one_physical_call(self):
+        """One logical page with physical_requests=1 -> total=1."""
+        diags = [self._diag(physical_requests=1)]
+        assert _count_physical_requests(diags) == 1
+
+    def test_one_logical_page_two_physical_calls(self):
+        """One logical page requiring two physical HTTP calls -> total=2."""
+        diags = [self._diag(logical_page=1, physical_requests=2)]
+        assert _count_physical_requests(diags) == 2
+
+    def test_two_logical_pages_summed(self):
+        """Two logical pages each with 1 physical call -> total=2."""
+        diags = [
+            self._diag(logical_page=1, physical_requests=1),
+            self._diag(logical_page=2, physical_requests=1),
+        ]
+        assert _count_physical_requests(diags) == 2
+
+    def test_duplicate_rows_same_logical_page_no_double_count(self):
+        """Multiple diagnostic rows for the same logical page must not double-count.
+        The maximum valid physical_requests across all rows is used."""
+        diags = [
+            self._diag(logical_page=1, physical_requests=1),
+            self._diag(logical_page=1, physical_requests=2),
+        ]
+        assert _count_physical_requests(diags) == 2
+
+    def test_failed_attempt_retained(self):
+        """Failed page diagnostics must still count as physical requests."""
+        diags = [
+            self._diag(logical_page=1, physical_requests=1, pagination_status="failed"),
+        ]
+        assert _count_physical_requests(diags) == 1
+
+    def test_provider_not_configured_contributes_zero(self):
+        """provider_not_configured rows must contribute zero to the count."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": 0,
+                "pagination_status": "provider_not_configured",
+                "errors": "provider_not_configured",
+            }
+        ]
+        assert _count_physical_requests(diags) == 0
+
+    def test_not_configured_status_contributes_zero(self):
+        """not_configured status must contribute zero."""
+        diags = [
+            {
+                "provider": "scopus",
+                "logical_page": 1,
+                "physical_requests": 0,
+                "pagination_status": "not_configured",
+            }
+        ]
+        assert _count_physical_requests(diags) == 0
+
+    def test_malformed_physical_requests_does_not_crash(self):
+        """Malformed physical_requests values must not crash; fall back gracefully."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": "not-a-number",
+                "physical_request_index": 1,
+                "pagination_status": "applied",
+            }
+        ]
+        result = _count_physical_requests(diags)
+        assert isinstance(result, int)
+        assert result >= 0
+
+    def test_bool_physical_requests_not_counted(self):
+        """Boolean physical_requests must be rejected and not crash."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": True,
+                "physical_request_index": 1,
+                "pagination_status": "applied",
+            }
+        ]
+        result = _count_physical_requests(diags)
+        assert isinstance(result, int)
+        assert result >= 0
+
+    def test_negative_physical_requests_ignored(self):
+        """Negative physical_requests values must be ignored."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": -1,
+                "physical_request_index": 1,
+                "pagination_status": "applied",
+            }
+        ]
+        result = _count_physical_requests(diags)
+        assert result >= 0
+
+    def test_fallback_to_physical_request_index(self):
+        """When physical_requests is absent, deduplicate physical_request_index values."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_request_index": 1,
+                "pagination_status": "applied",
+            },
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_request_index": 2,
+                "pagination_status": "applied",
+            },
+        ]
+        assert _count_physical_requests(diags) == 2
+
+    def test_one_attempt_fallback_for_actual_request(self):
+        """When no physical_requests or index is available and status is not zero-attempt,
+        a one-attempt fallback applies."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "pagination_status": "end_of_results",
+            }
+        ]
+        assert _count_physical_requests(diags) == 1
+
+    # --- new precedence-contract regressions ---
+
+    def test_zero_attempt_status_with_misleading_physical_requests_contributes_zero(self):
+        """provider_not_configured row with misleading physical_requests=1 and
+        physical_request_index=1 must still contribute exactly 0."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": 1,
+                "physical_request_index": 1,
+                "pagination_status": "provider_not_configured",
+            }
+        ]
+        assert _count_physical_requests(diags) == 0
+
+    def test_failed_row_zero_physical_requests_no_index_uses_fallback(self):
+        """Failed row with physical_requests=0 and no positive index must use
+        the bounded one-attempt fallback."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": 0,
+                "pagination_status": "failed",
+            }
+        ]
+        assert _count_physical_requests(diags) == 1
+
+    def test_mixed_page_ignores_zero_attempt_row_counts_attempted_only(self):
+        """A page with one zero-attempt row (physical_requests=1) and one attempted
+        row (physical_requests=2) must count only the attempted row => 2."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": 1,
+                "physical_request_index": 1,
+                "pagination_status": "provider_not_configured",
+            },
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": 2,
+                "physical_request_index": 2,
+                "pagination_status": "applied",
+            },
+        ]
+        assert _count_physical_requests(diags) == 2
+
+    def test_retry_distinct_positive_indexes_retained_when_totals_absent(self):
+        """When physical_requests is absent, distinct positive indexes from
+        retry/failure rows are all retained."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_request_index": 1,
+                "pagination_status": "failed",
+            },
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_request_index": 2,
+                "pagination_status": "applied",
+            },
+        ]
+        assert _count_physical_requests(diags) == 2
+
+    def test_malformed_physical_requests_uses_bounded_fallback(self):
+        """Malformed physical_requests with no valid index on an attempted row
+        must fall back to bounded 1, not crash."""
+        diags = [
+            {
+                "provider": "wos",
+                "logical_page": 1,
+                "physical_requests": "bad!value",
+                "pagination_status": "failed",
+            }
+        ]
+        assert _count_physical_requests(diags) == 1
+
+    def test_all_zero_attempt_statuses_contribute_zero(self):
+        """All recognised zero-attempt statuses (no_credentials, skipped) must
+        also contribute zero even when physical_requests looks positive."""
+        for status in ("no_credentials", "skipped"):
+            diags = [
+                {
+                    "provider": "scopus",
+                    "logical_page": 1,
+                    "physical_requests": 5,
+                    "physical_request_index": 5,
+                    "pagination_status": status,
+                }
+            ]
+            assert _count_physical_requests(diags) == 0, (
+                f"status {status!r} should contribute zero"
+            )

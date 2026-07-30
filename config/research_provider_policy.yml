@@ -2,6 +2,7 @@ provider_policy:
   precedence:
     - crossref
     - scopus
+    - openalex
     - wos
     - scival
     - microsoft_graph
@@ -9,6 +10,7 @@ provider_policy:
   classes:
     crossref: bibliographic
     scopus: bibliographic
+    openalex: bibliographic
     wos: bibliographic
     scival: enrichment
     microsoft_graph: workspace
@@ -16,4 +18,5 @@ provider_policy:
   primary_identity_providers:
     - crossref
     - scopus
+    - openalex
     - wos

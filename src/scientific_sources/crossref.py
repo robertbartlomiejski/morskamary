@@ -292,115 +292,148 @@ class CrossrefProvider(BaseProvider):
         except Exception as exc:
             return ProviderResult(errors=[f"Crossref search error: {exc}"])
 
+    @staticmethod
+    def _cursor_marker(cursor: str) -> str:
+        """Return a compact persisted marker for a Crossref cursor token."""
+        if cursor == "*":
+            return "*"
+        digest = hashlib.sha256(cursor.encode("utf-8")).hexdigest()[:16]
+        return f"sha256:{digest}"
+
     def search_paginated(
         self,
         query: str,
         *,
-        logical_pages: int = 1,
+        pages: int = 1,
+        logical_pages: int | None = None,
         rows_per_page: int = 50,
-        time_window: dict | None = None,
         sort_strategy: str = "",
-    ) -> tuple[ProviderResult, list[dict]]:
-        """Paginated Crossref search using the offset parameter."""
-        del time_window
-        all_records: List[LiteratureRecord] = []
-        all_errors: List[str] = []
-        all_warnings: List[str] = []
-        all_provenance: List[SourceEvidence] = []
-        raw_pages: List[Dict[str, Any]] = []
+        time_window: Dict[str, int] | None = None,
+    ) -> Any:
+        """Search Crossref using provider cursor paging."""
+        legacy_api = logical_pages is not None
+        requested_pages = logical_pages if logical_pages is not None else pages
+        safe_pages = max(1, int(requested_pages or 1))
+        safe_rows = max(1, min(int(rows_per_page or 1), 1000))
+        cursor = "*"
+        records: List[LiteratureRecord] = []
+        provenance: List[SourceEvidence] = []
+        warnings: List[str] = []
         page_diagnostics: List[Dict[str, Any]] = []
+        raw_pages: List[Dict[str, Any]] = []
+        sort_clause = ""
+        if sort_strategy == "published-desc":
+            sort_clause = "&sort=published&order=desc"
 
-        for page_num in range(logical_pages):
-            offset = page_num * rows_per_page
+        for logical_page in range(1, safe_pages + 1):
+            endpoint = "crossref/works?offset" if legacy_api else "crossref/works?cursor"
+            offset = (logical_page - 1) * safe_rows
+            page_clause = (
+                f"&offset={offset}"
+                if legacy_api
+                else f"&cursor={urllib.parse.quote(cursor, safe='')}"
+            )
             url = (
                 f"{_API_BASE}/works"
                 f"?query={urllib.parse.quote(query)}"
                 f"&select=title,author,URL,DOI,published,container-title,subject"
-                f"&rows={rows_per_page}"
-                f"&offset={offset}"
+                f"&rows={safe_rows}"
+                f"{page_clause}"
+                f"{sort_clause}"
             )
-            if sort_strategy == "published-desc":
-                url += "&sort=published&order=desc"
-
-            try:
-                data, retry_warnings, terminal_error = self._request_json_with_backoff(
-                    url=url,
-                    context_label=f"search_page_{page_num + 1}",
-                    jitter_seed=f"{query}|page{page_num}",
+            if time_window:
+                from_year = int(time_window.get("from_year", 0) or 0)
+                to_year = int(time_window.get("to_year", 9999) or 9999)
+                filters: List[str] = []
+                if from_year > 0:
+                    filters.append(f"from-pub-date:{from_year:04d}-01-01")
+                if to_year < 9999:
+                    filters.append(f"until-pub-date:{to_year:04d}-12-31")
+                if filters:
+                    url += f"&filter={urllib.parse.quote(','.join(filters), safe=':,')}"
+            data, retry_warnings, terminal_error = self._request_json_with_backoff(
+                url=url,
+                context_label=f"search page {logical_page}",
+                jitter_seed=f"{query}|{logical_page}",
+            )
+            warnings.extend(retry_warnings)
+            if terminal_error:
+                rate_limit_status = (
+                    "rate-limited" if "terminal_status=rate_limited" in terminal_error else None
                 )
-                all_warnings.extend(retry_warnings)
-
-                if terminal_error:
-                    page_diagnostics.append(
-                        {
-                            "logical_page": page_num + 1,
-                            "physical_requests": 1,
-                            "requested_rows": rows_per_page,
-                            "returned_rows": 0,
-                            "pagination_method": "crossref_offset",
-                            "offset": offset,
-                            "error": terminal_error,
-                        }
-                    )
-                    all_errors.append(terminal_error)
-                    break
-
-                assert data is not None
-                raw_pages.append(data)
-                items = data.get("message", {}).get("items", [])
-                records = self._parse_items(items, query)
-                evidence = self._make_evidence(
-                    query, f"crossref/works?offset={offset}", records
-                )
-
                 page_diagnostics.append(
                     {
-                        "logical_page": page_num + 1,
-                        "physical_requests": 1,
-                        "requested_rows": rows_per_page,
-                        "returned_rows": len(records),
-                        "pagination_method": "crossref_offset",
-                        "offset": offset,
-                    }
-                )
-
-                all_records.extend(records)
-                all_provenance.extend(evidence)
-
-                if len(records) < rows_per_page:
-                    break
-            except Exception as exc:
-                page_diagnostics.append(
-                    {
-                        "logical_page": page_num + 1,
-                        "physical_requests": 1,
-                        "requested_rows": rows_per_page,
+                        "provider": "crossref",
+                        "query": query,
+                        "logical_page": logical_page,
+                        "physical_request_index": logical_page,
+                        "cursor_or_offset": self._cursor_marker(cursor),
+                        "requested_rows": safe_rows,
                         "returned_rows": 0,
-                        "pagination_method": "crossref_offset",
-                        "offset": offset,
-                        "error": str(exc),
+                        "normalized_rows": 0,
+                        "pagination_status": "failed",
+                        "errors": terminal_error,
                     }
                 )
-                all_errors.append(f"Crossref page {page_num + 1} error: {exc}")
+                result = ProviderResult(
+                    records=records,
+                    errors=[terminal_error],
+                    warnings=warnings,
+                    rate_limit_status=rate_limit_status,
+                    provenance=provenance,
+                    raw_payload={"pages": raw_pages} if raw_pages else None,
+                    page_diagnostics=page_diagnostics,
+                )
+                if legacy_api:
+                    return result, page_diagnostics
+                return result
+            assert data is not None
+            message = data.get("message", {})
+            items = message.get("items", [])
+            if not isinstance(items, list):
+                items = []
+            page_records = self._parse_items(items, query)
+            records.extend(page_records)
+            provenance.extend(self._make_evidence(query, endpoint, page_records))
+            raw_pages.append({"logical_page": logical_page, "payload": data})
+            next_cursor = str(message.get("next-cursor", "") or "").strip()
+            status = "applied"
+            if len(items) < safe_rows:
+                status = "end_of_results"
+            diagnostic = {
+                "provider": "crossref",
+                "query": query,
+                "logical_page": logical_page,
+                "physical_request_index": logical_page,
+                "cursor_or_offset": str(offset) if legacy_api else self._cursor_marker(cursor),
+                "requested_rows": safe_rows,
+                "returned_rows": len(items),
+                "normalized_rows": len(page_records),
+                "pagination_status": status,
+            }
+            if legacy_api:
+                diagnostic["offset"] = offset
+                diagnostic["pagination_method"] = "crossref_offset"
+            page_diagnostics.append(diagnostic)
+            if status == "end_of_results":
                 break
+            if legacy_api:
+                continue
+            if not next_cursor or next_cursor == cursor:
+                warnings.append("Crossref cursor pagination stopped: missing_or_repeated_next_cursor")
+                break
+            cursor = next_cursor
 
-        rate_limit_status = (
-            "rate-limited"
-            if any("terminal_status=rate_limited" in msg for msg in all_errors)
-            or any("http_status=429" in msg for msg in all_warnings)
-            else None
+        result = ProviderResult(
+            records=records,
+            warnings=warnings,
+            provenance=provenance,
+            raw_payload={"pages": raw_pages},
+            page_diagnostics=page_diagnostics,
         )
-        return (
-            ProviderResult(
-                records=all_records,
-                errors=all_errors,
-                warnings=all_warnings,
-                provenance=all_provenance,
-                raw_payload={"pages": raw_pages} if raw_pages else None,
-                rate_limit_status=rate_limit_status,
-            ),
-            page_diagnostics,
-        )
+        if legacy_api:
+            return result, page_diagnostics
+        return result
 
     def verify_doi(self, doi: str) -> ProviderResult:
         """Verify a specific DOI via Crossref."""

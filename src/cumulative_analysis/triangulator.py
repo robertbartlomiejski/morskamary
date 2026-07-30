@@ -79,6 +79,11 @@ class ClaimOrigin(Enum):
         The record originated from a Microsoft Graph / OneDrive metadata index
         mediated by ``src.scientific_sources.microsoft_graph.MicrosoftGraphProvider``.
         Only sanitised document metadata is stored.
+
+    DYNAMIC_API_OPENALEX
+        The record originated from a live OpenAlex scholarly-works API query.
+        It is tracked separately so provider sensitivity retains acquisition
+        provenance.
     """
 
     STATIC_BASELINE = "static_baseline"
@@ -88,6 +93,7 @@ class ClaimOrigin(Enum):
     DYNAMIC_API_SCIVAL = "dynamic_api_scival"
     DYNAMIC_API_GOOGLE_DRIVE = "dynamic_api_google_drive"
     DYNAMIC_API_MICROSOFT_GRAPH = "dynamic_api_microsoft_graph"
+    DYNAMIC_API_OPENALEX = "dynamic_api_openalex"
 
 
 # ---------------------------------------------------------------------------
@@ -105,6 +111,8 @@ _PROVIDER_CLAIM_ORIGIN: Dict[str, ClaimOrigin] = {
     "elsevier scival": ClaimOrigin.DYNAMIC_API_SCIVAL,
     "google drive": ClaimOrigin.DYNAMIC_API_GOOGLE_DRIVE,
     "microsoft graph (onedrive/sharepoint)": ClaimOrigin.DYNAMIC_API_MICROSOFT_GRAPH,
+    "openalex": ClaimOrigin.DYNAMIC_API_OPENALEX,
+    "open alex": ClaimOrigin.DYNAMIC_API_OPENALEX,
 }
 
 

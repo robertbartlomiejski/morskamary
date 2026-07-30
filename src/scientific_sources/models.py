@@ -1,9 +1,4 @@
-"""
-Data models for the scientific sources provider package.
-
-All providers normalize their responses into these canonical models so that
-downstream analysis code is decoupled from provider-specific API formats.
-"""
+"""Canonical data models for scientific-source providers."""
 
 from __future__ import annotations
 
@@ -14,38 +9,20 @@ from typing import Any, Dict, List, Optional
 
 @dataclass
 class SourceCapability:
-    """Describes one configured (or unconfigured) provider capability."""
+    """Describe one configured or unconfigured provider capability."""
 
     name: str
-    """Short identifier, e.g. 'crossref', 'scopus'."""
-
     provider: str
-    """Human-readable provider name."""
-
     requires_secret: bool
-    """True when an API key or OAuth credential is needed."""
-
     configured: bool
-    """True when the required secret/credential is available at runtime."""
-
     live_test_allowed: bool
-    """True when LIVE_RESEARCH_API_TESTS env var is set to 'true'."""
-
     allowed_metadata_fields: List[str]
-    """Fields that may be stored under licence / open-access rules."""
-
     licence_note: str
-    """Short note on storage/redistribution constraints."""
 
 
 @dataclass
 class LiteratureRecord:
-    """
-    Normalized bibliographic record produced by any provider.
-
-    Only the fields listed in the provider's ``allowed_metadata_fields``
-    should be populated; all others must be left as None/empty.
-    """
+    """Normalised bibliographic record produced by a provider."""
 
     title: str
     authors: str
@@ -68,13 +45,8 @@ class LiteratureRecord:
     licence_note: str = ""
 
     def to_dict(self, *, include_restricted: bool = False) -> Dict[str, Any]:
-        """Serialize to a plain dictionary.
+        """Serialise safe metadata, optionally including restricted fields."""
 
-        By default, only bibliographic and internal provenance metadata that is
-        safe to export is included. Restricted fields such as full abstract text
-        are only returned when ``include_restricted=True`` is requested
-        explicitly for in-memory/internal workflows.
-        """
         payload: Dict[str, Any] = {
             "title": self.title,
             "authors": self.authors,
@@ -104,12 +76,11 @@ class LiteratureRecord:
 
 @dataclass
 class SourceEvidence:
-    """Provenance record for a single search call."""
+    """Provenance record for a single provider search result."""
 
     record_id: str
     source_provider: str
     retrieval_mode: str
-    """'live', 'mocked', or 'offline'."""
     query: str
     api_endpoint_label: str
     timestamp: str
@@ -117,7 +88,6 @@ class SourceEvidence:
     provenance_hash: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
-        """Serialize to a plain dictionary."""
         return {
             "record_id": self.record_id,
             "source_provider": self.source_provider,
@@ -132,39 +102,36 @@ class SourceEvidence:
 
 @dataclass
 class ProviderResult:
-    """
-    Result bundle returned by every provider search call.
+    """Result bundle returned by every provider search call.
 
-    Always contains *records* (possibly empty), *errors*, *warnings*, and
-    *provenance* metadata.  Callers must never crash when *records* is empty.
-
-    ``raw_payload`` holds the verbatim JSON object returned by the provider API
-    before any parsing or normalisation.  It is ``None`` for offline/mocked
-    results and for error-only results where no network call succeeded.
-    Storing it enables cold-cache replay: archived raw payloads allow exact
-    replication of a run without re-querying third-party APIs.
+    ``raw_payload`` may contain either a licence-safe verbatim provider payload
+    or an explicitly declared redistribution-safe metadata envelope. Providers
+    must remove fields that cannot be retained under licence, privacy, or
+    repository governance rules. Consumers must inspect an envelope's
+    ``payload_kind`` before assuming exact cold-cache replay is possible.
     """
 
     records: List[LiteratureRecord] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
     rate_limit_status: Optional[str] = None
+    page_diagnostics: List[Dict[str, Any]] = field(default_factory=list)
     provenance: List[SourceEvidence] = field(default_factory=list)
     raw_payload: Optional[Dict[str, Any]] = field(default=None)
 
     @property
     def is_empty(self) -> bool:
-        """Return True when no records were returned."""
         return len(self.records) == 0
 
     def to_dict(self, *, include_restricted: bool = False) -> Dict[str, Any]:
-        """Serialize to a plain dictionary."""
         return {
             "records": [
-                r.to_dict(include_restricted=include_restricted) for r in self.records
+                record.to_dict(include_restricted=include_restricted)
+                for record in self.records
             ],
             "errors": self.errors,
             "warnings": self.warnings,
             "rate_limit_status": self.rate_limit_status,
-            "provenance": [p.to_dict() for p in self.provenance],
+            "page_diagnostics": self.page_diagnostics,
+            "provenance": [item.to_dict() for item in self.provenance],
         }

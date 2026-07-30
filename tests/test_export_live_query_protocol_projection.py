@@ -52,4 +52,4 @@ def test_projection_script_fails_when_minimum_query_count_not_met(tmp_path: Path
     ]
     result = subprocess.run(cmd, capture_output=True, text=True, check=False)
     assert result.returncode == 1
-    assert "below required minimum" in result.stderr
+    assert "exact protocol count mismatch" in result.stderr
