@@ -240,10 +240,14 @@ def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
     queries = constraints.get("queries")
     time_windows: set[str] = set()
     sampling_strategies: set[str] = set()
+    query_ids: set[str] = set()
     if isinstance(queries, list):
         for query in queries:
             if not isinstance(query, dict):
                 continue
+            query_id = _normalize_string(query.get("query_id"))
+            if query_id:
+                query_ids.add(query_id)
             time_window = query.get("time_window")
             if isinstance(time_window, dict):
                 time_windows.add(json.dumps(time_window, sort_keys=True, separators=(",", ":")))
@@ -252,10 +256,16 @@ def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
                 sampling_strategies.add(
                     json.dumps(sampling_strategy, sort_keys=True, separators=(",", ":"))
                 )
+    query_id_hash = ""
+    if query_ids:
+        query_id_hash = hashlib.sha256(
+            ",".join(sorted(query_ids)).encode("utf-8")
+        ).hexdigest()
     return {
         "query_protocol_version": protocol_version or "unknown",
         "time_windows": sorted(time_windows),
         "sampling_strategies": sorted(sampling_strategies),
+        "query_id_hash": query_id_hash,
     }
 
 
@@ -265,6 +275,7 @@ def build_comparability_fingerprint(
     query_protocol_version: str,
     time_windows: list[str],
     sampling_strategies: list[str],
+    query_id_hash: str = "",
 ) -> tuple[str, dict[str, Any]]:
     """Return the canonical comparability fingerprint and its source payload."""
 
@@ -273,6 +284,7 @@ def build_comparability_fingerprint(
         "query_protocol_version": _normalize_string(query_protocol_version) or "unknown",
         "time_windows": sorted({item for item in time_windows if item}),
         "sampling_strategies": sorted({item for item in sampling_strategies if item}),
+        "query_id_hash": query_id_hash or "unknown",
     }
     digest = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -361,6 +373,15 @@ def load_run_snapshot(
         return None
 
     manifest = _load_manifest(run_dir)
+
+    if manifest.get("is_static_recovery_mode"):
+        print(
+            f"[WARN] Skipping static-recovery run {reference.run_id}: "
+            "static-recovery runs cannot contribute to saturation.",
+            file=sys.stderr,
+        )
+        return None
+
     live_records = _load_optional_records(run_dir / LIVE_RECORDS_REL)
     qmbd_records = _load_optional_records(run_dir / QMBD_REL)
     constraints = _load_optional_object(run_dir / CONSTRAINTS_REL)
@@ -382,6 +403,7 @@ def load_run_snapshot(
         query_protocol_version=str(constraint_payload["query_protocol_version"]),
         time_windows=list(constraint_payload["time_windows"]),
         sampling_strategies=list(constraint_payload["sampling_strategies"]),
+        query_id_hash=str(constraint_payload.get("query_id_hash", "")),
     )
 
     timestamp_utc = (
@@ -588,7 +610,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=2,
         help="Stable transitions needed for provisional saturation (default: 2).",
     )
-    return parser.parse_args([] if argv is None else argv)
+    return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:

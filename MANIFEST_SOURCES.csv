@@ -1178,6 +1178,7 @@ tests/test_nlp_reliability.py,script,,,,,,test_nlp_reliability,yes
 tests/test_openalex_provider.py,script,,,,,,test_openalex_provider,yes
 tests/test_pagination.py,script,,,,,,test_pagination,yes
 tests/test_pipeline_matrix.py,script,,,,,,test_pipeline_matrix,yes
+tests/test_pr215_review_fixes.py,script,,,,,,test_pr215_review_fixes,yes
 tests/test_pre_acquisition_assertion.py,script,,,,,,test_pre_acquisition_assertion,yes
 tests/test_provider_sensitivity.py,script,,,,,,test_provider_sensitivity,yes
 tests/test_publication_cumulative_database.py,script,,,,,,test_publication_cumulative_database,yes

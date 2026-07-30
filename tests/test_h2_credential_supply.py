@@ -32,6 +32,7 @@ def _write_registry(path: Path, rows: list[dict[str, object]]) -> None:
                 "axis_coverage",
                 "validation_status",
                 "source_url",
+                "validation_evidence_ids",
                 "notes",
             ],
         )
@@ -185,6 +186,7 @@ def test_missing_ratio_and_interpretation_require_validated_entries() -> None:
                     "axis_coverage": "HYDRONIZATION",
                     "validation_status": "validated",
                     "source_url": "",
+                    "validation_evidence_ids": "EVD-001",
                     "notes": "Governance and water diplomacy",
                 },
                 {
@@ -196,6 +198,7 @@ def test_missing_ratio_and_interpretation_require_validated_entries() -> None:
                     "axis_coverage": "HYDRONIZATION",
                     "validation_status": "validated",
                     "source_url": "",
+                    "validation_evidence_ids": "EVD-002",
                     "notes": "Digital monitoring and sensor systems",
                 },
                 {
@@ -207,6 +210,7 @@ def test_missing_ratio_and_interpretation_require_validated_entries() -> None:
                     "axis_coverage": "HYDRONIZATION",
                     "validation_status": "validated",
                     "source_url": "",
+                    "validation_evidence_ids": "EVD-003",
                     "notes": "Resilience planning",
                 },
             ],
@@ -313,6 +317,7 @@ def test_eqf_filter_excludes_levels_outside_requested_range() -> None:
                     "axis_coverage": "HYDRONIZATION",
                     "validation_status": "validated",
                     "source_url": "",
+                    "validation_evidence_ids": "EVD-004",
                     "notes": "Water governance",
                 }
             ],

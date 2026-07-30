@@ -721,3 +721,78 @@ def validate_legacy_projection_matches_protocol(
             "projection query-text mismatch: projected query order/text does not "
             "exactly match config/live_query_protocol.yml"
         )
+
+
+def validate_complete_authoritative_protocol_projection(
+    protocol: "LiveQueryProtocol",
+    constraints: Mapping[str, Any],
+) -> None:
+    """Fail closed when a constraints artifact diverges from the protocol.
+
+    Compares every acquisition-defining field — protocol_version, query text,
+    sector, family, time_window, sort_strategy, sampling_strategy, and
+    evidence_intent — so a stale or modified executable contract is rejected
+    before any provider calls.
+    """
+    constraint_version = str(constraints.get("protocol_version", "")).strip()
+    if constraint_version and constraint_version != protocol.protocol_version:
+        raise LiveQueryProtocolError(
+            f"protocol_version mismatch: constraints say '{constraint_version}' "
+            f"but protocol declares '{protocol.protocol_version}'"
+        )
+
+    protocol_constraints = protocol.to_query_constraints()
+    constraint_queries = constraints.get("queries")
+    if not isinstance(constraint_queries, list):
+        raise LiveQueryProtocolError(
+            "constraints artifact must contain a 'queries' list"
+        )
+    if len(constraint_queries) != len(protocol_constraints):
+        raise LiveQueryProtocolError(
+            f"constraints query count mismatch: {len(constraint_queries)} "
+            f"constraints != {len(protocol_constraints)} protocol"
+        )
+
+    protocol_by_id: Dict[str, Dict[str, Any]] = {
+        str(c["query_id"]): c for c in protocol_constraints
+    }
+    _ACQUISITION_FIELDS = (
+        "query_text",
+        "sector_slug",
+        "query_family",
+        "evidence_intent",
+        "time_window",
+        "sort_strategy",
+        "sampling_strategy",
+    )
+    seen_query_ids: set[str] = set()
+    for cq in constraint_queries:
+        qid = str(cq.get("query_id", "")).strip()
+        if qid not in protocol_by_id:
+            raise LiveQueryProtocolError(
+                f"constraints contain unknown query_id '{qid}'"
+            )
+        seen_query_ids.add(qid)
+        expected = protocol_by_id[qid]
+        for acq_field in _ACQUISITION_FIELDS:
+            projected_val = cq.get(acq_field)
+            expected_val = expected.get(acq_field)
+            if projected_val != expected_val:
+                raise LiveQueryProtocolError(
+                    f"query '{qid}' field '{acq_field}' mismatch: "
+                    f"constraints={projected_val!r} vs protocol={expected_val!r}"
+                )
+    missing_ids = set(protocol_by_id) - seen_query_ids
+    if missing_ids:
+        raise LiveQueryProtocolError(
+            f"constraints missing required query_id(s): {sorted(missing_ids)}"
+        )
+        expected = protocol_by_id[qid]
+        for acq_field in _ACQUISITION_FIELDS:
+            projected_val = cq.get(acq_field)
+            expected_val = expected.get(acq_field)
+            if projected_val != expected_val:
+                raise LiveQueryProtocolError(
+                    f"query '{qid}' field '{acq_field}' mismatch: "
+                    f"constraints={projected_val!r} vs protocol={expected_val!r}"
+                )

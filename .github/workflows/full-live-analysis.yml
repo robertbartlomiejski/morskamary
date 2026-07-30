@@ -272,6 +272,7 @@ jobs:
             --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC"
 
       - name: Build preliminary H2 credential supply map
+        id: h2_map
         continue-on-error: true
         run: |
           set -euo pipefail
@@ -280,9 +281,33 @@ jobs:
               --registry-path data/validated/credential_supply_registry.csv \
               --demand-signals outputs/cumulative_database/competence_demand_signals.jsonl \
               --output-dir outputs
+            if [ -f outputs/h2_credential_supply_map.json ]; then
+              HAS_VALIDATED=$(python -c "
+          import json, sys
+          m = json.loads(open('outputs/h2_credential_supply_map.json').read())
+          # A map is usable only when at least one entry was validated with evidence
+          print('true' if m.get('validated_entries_hydronization_eqf_6_7', 0) > 0 else 'false')
+          ")
+              echo "HAS_VALIDATED_SUPPLY=${HAS_VALIDATED}" >> "$GITHUB_ENV"
+            else
+              echo "HAS_VALIDATED_SUPPLY=false" >> "$GITHUB_ENV"
+            fi
           else
             echo "[WARN] Skipping H2 credential supply map; registry file not found."
+            echo "HAS_VALIDATED_SUPPLY=false" >> "$GITHUB_ENV"
           fi
+
+      - name: Rebuild Layer 5 with validated supply map
+        if: env.HAS_VALIDATED_SUPPLY == 'true'
+        run: |
+          set -euo pipefail
+          python scripts/build_layer4_5_scientific_analysis.py \
+            --database-dir outputs/cumulative_database \
+            --output-dir outputs/cumulative_database \
+            --stats-dir outputs/layer4_statistics \
+            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC" \
+            --validated-supply-map outputs/h2_credential_supply_map.json
 
       - name: Evaluate live novelty gates (A-E)
         run: |

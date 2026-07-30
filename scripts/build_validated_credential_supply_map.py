@@ -63,6 +63,7 @@ class RegistryEntry:
     axis_coverage: tuple[str, ...]
     validation_status: str
     source_url: str
+    validation_evidence_ids: tuple[str, ...]
     notes: str
 
     @property
@@ -112,12 +113,20 @@ def _repo_relative_posix(path: Path) -> str:
     try:
         return path.resolve().relative_to(REPO_ROOT).as_posix()
     except ValueError:
-        return path.as_posix()
+        # Out-of-repository path: redact to basename only to avoid leaking
+        # runner filesystem layout into persisted artifacts.
+        return f"<redacted>/{path.name}"
 
 
 def _parse_axis_coverage(raw_value: str) -> tuple[str, ...]:
     axes = [token.strip().upper() for token in str(raw_value or "").split("|")]
     return tuple(axis for axis in axes if axis)
+
+
+def _parse_evidence_ids(raw_value: str) -> tuple[str, ...]:
+    """Parse pipe-delimited validation evidence IDs, filtering empty tokens."""
+    ids = [token.strip() for token in str(raw_value or "").split("|")]
+    return tuple(eid for eid in ids if eid)
 
 
 def _search_tokens(*parts: str) -> set[str]:
@@ -149,6 +158,9 @@ def load_registry(path: Path) -> List[RegistryEntry]:
                         row.get("validation_status", "")
                     ).strip().lower(),
                     source_url=str(row.get("source_url", "")).strip(),
+                    validation_evidence_ids=_parse_evidence_ids(
+                        row.get("validation_evidence_ids", "")
+                    ),
                     notes=str(row.get("notes", "")).strip(),
                 )
             )
@@ -250,6 +262,7 @@ def compute_h2_supply_map(
         entry
         for entry in hydronization_eqf_entries
         if entry.validation_status == "validated"
+        and entry.validation_evidence_ids
     ]
     preliminary_entries = [
         entry
