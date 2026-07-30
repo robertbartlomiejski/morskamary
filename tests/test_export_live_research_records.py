@@ -21,6 +21,7 @@ from scripts.export_live_research_records import (
     _apply_query_constraint,
     _count_physical_requests,
     _lookup_provider_sort_strategy_full,
+    _normalise_page_diagnostics,
     _resolve_effective_sampling_request,
     _resolve_provider_sort_strategies,
     _search_registry_paginated,
@@ -320,6 +321,21 @@ class TestApplyQueryConstraint:
         assert audit["logical_pages_completed"] == 0
         assert audit["sampling_status"] == "partially_applied_pagination_incomplete"
         assert "filter_not_applied:multi_page_sampling" in audit["validity_warnings"]
+
+    def test_normalise_page_diagnostics_converts_non_mapping_entries(self):
+        diagnostics = _normalise_page_diagnostics(
+            [None, "bad-diagnostic"],
+            provider_name="Crossref",
+            query="offshore wind",
+        )
+
+        assert len(diagnostics) == 2
+        for idx, row in enumerate(diagnostics, start=1):
+            assert row["provider"] == "crossref"
+            assert row["query"] == "offshore wind"
+            assert row["pagination_status"] == "failed"
+            assert row["errors"] == "malformed_page_diagnostic_non_mapping"
+            assert row["warnings"] == f"malformed_page_diagnostic_index:{idx}"
 
     def test_physical_request_count_aggregates_provider_field(self):
         """physical_request_count must sum provider-reported physical_requests,

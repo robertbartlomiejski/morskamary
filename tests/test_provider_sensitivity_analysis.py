@@ -260,7 +260,9 @@ def test_recomputes_each_provider_subset_and_emits_complete_contract(
 
     assert baseline["h3"]["matched_fragment_count"] == 2
     assert baseline["h3"]["oceanic_fragment_count"] == 1
-    assert baseline["h3"]["semantic_bridge_count"] == 1
+    assert baseline["h3"]["semantic_bridge_count"] == 0
+    assert baseline["h3"]["interpretation"] == "not_computable"
+    assert "no_validated_bridge_relation" in baseline["h3"]["validity_warning"]
     assert (tmp_path / "provider_sensitivity_analysis.md").is_file()
 
 

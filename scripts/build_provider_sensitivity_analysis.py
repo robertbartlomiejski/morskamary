@@ -12,7 +12,7 @@ import sys
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
 GROWTH_ELIGIBLE_STATUSES = {
     "new_record",
@@ -490,31 +490,12 @@ def _h3(fragments: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     total = len(marine) + len(oceanic)
     balance = 1.0 - abs(len(marine) - len(oceanic)) / total if total else 0.0
 
-    def keys(rows: Iterable[Mapping[str, Any]]) -> set[str]:
-        result: set[str] = set()
-        for row in rows:
-            evidence_id = str(row.get("evidence_id", "")).strip()
-            signal_id = str(row.get("signal_id", "")).strip()
-            if evidence_id:
-                result.add(f"evidence:{evidence_id}")
-            if signal_id:
-                result.add(f"signal:{signal_id}")
-        return result
-
-    bridges = len(keys(marine) & keys(oceanic))
-    if not marine or not oceanic:
-        interpretation = "not_computable"
-    elif balance >= 0.8 and bridges > 0:
-        interpretation = "supported"
-    elif balance >= 0.5 or bridges > 0:
-        interpretation = "partially_supported"
-    else:
-        interpretation = "not_supported"
+    bridges = 0
+    interpretation = "not_computable"
     warnings: list[str] = []
     if min(len(marine), len(oceanic)) < 5:
         warnings.append("small_cell_stability")
-    if marine and oceanic and bridges == 0:
-        warnings.append("no_semantic_bridges")
+    warnings.append("no_validated_bridge_relation")
     return {
         "hypothesis_id": "H3",
         "hypothesis_label": "MARINE vs OCEANIC Differential Coverage",

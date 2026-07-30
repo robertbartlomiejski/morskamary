@@ -62,6 +62,12 @@ def _seed_archive(
                 "timestamp_utc": timestamp,
                 "analysis_timestamp_utc": timestamp,
                 "provider_set": str(run.get("provider_set", provider_set)),
+                "contributing_provider_profile": str(
+                    run.get(
+                        "contributing_provider_profile",
+                        run.get("provider_set", provider_set),
+                    )
+                ),
                 "workflow": {
                     "inputs": {"providers": str(run.get("provider_set", provider_set))}
                 },
@@ -174,6 +180,8 @@ def test_live_provenance_allow_list_remains_fail_closed() -> None:
         )
         is False
     )
+    assert module._is_live_like_record({"record_origin": "dynamic_api_synthetic"}) is False
+    assert module._is_live_like_record({"record_origin": "live-fabricated"}) is False
     assert (
         module._is_live_like_record(
             {"record_origin": "synthetic_fixture", "source_id": "crossref:10.1000/test"}
@@ -419,6 +427,37 @@ def test_fingerprint_mismatch_makes_report_not_assessable(tmp_path: Path) -> Non
                 "timestamp_utc": "2026-07-02T00:00:00+00:00",
                 "dois": _doi_series(21),
                 "provider_set": "crossref",
+            },
+        ],
+    )
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert (
+        module.main(
+            ["--archive-root", str(archive_root), "--output-path", str(output_path)]
+        )
+        == 0
+    )
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+    assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
+    assert report["saturation_assessment"]["status"] == "not_assessable"
+
+
+def test_missing_contributing_profile_fails_comparability_closed(tmp_path: Path) -> None:
+    module = _load_module()
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+                "contributing_provider_profile": "",
+            },
+            {
+                "run_id": "run-2",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(21),
+                "contributing_provider_profile": "",
             },
         ],
     )

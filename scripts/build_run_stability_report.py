@@ -19,6 +19,7 @@ MANIFEST_FILES = ("manifest.json", "run_manifest.json")
 LIVE_RECORDS_REL = Path("research_sources/live_records.json")
 QMBD_REL = Path("analysis_outputs/cumulative_qmbd_records.json")
 CONSTRAINTS_REL = Path("research_sources/query_protocol_constraints.json")
+QUERY_EXECUTION_LOG_REL = Path("research_sources/query_execution_log.csv")
 CANONICAL_AXES = ("MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION")
 AXIS_CODE_MAP = {"M": "MARINE", "T": "MARITIME", "O": "OCEANIC", "H": "HYDRONIZATION"}
 _REPO_ROOT_STABILITY = Path(__file__).resolve().parents[1]
@@ -259,6 +260,41 @@ def _split_provider_list(value: Any) -> list[str]:
     )
 
 
+def _parse_nonnegative_int(value: Any) -> int:
+    try:
+        parsed = int(str(value).strip())
+    except (TypeError, ValueError):
+        return 0
+    return parsed if parsed >= 0 else 0
+
+
+def _derive_contributing_provider_profile(run_dir: Path, manifest: dict[str, Any]) -> tuple[list[str], bool]:
+    explicit = _split_provider_list(manifest.get("contributing_provider_profile"))
+    if explicit:
+        return explicit, True
+
+    log_path = run_dir / QUERY_EXECUTION_LOG_REL
+    if not log_path.is_file():
+        return [], False
+    try:
+        with log_path.open(newline="", encoding="utf-8") as handle:
+            reader = csv.DictReader(handle)
+            if reader.fieldnames is None:
+                return [], False
+            contributing: set[str] = set()
+            for row in reader:
+                provider = _normalise(row.get("provider_canonical") or row.get("provider")).lower()
+                if not provider:
+                    continue
+                contributed = _parse_nonnegative_int(row.get("contributed_record_count"))
+                normalized = _parse_nonnegative_int(row.get("normalized_record_count"))
+                if contributed > 0 or normalized > 0:
+                    contributing.add(provider)
+    except (csv.Error, OSError):
+        return [], False
+    return sorted(contributing), True
+
+
 def _normalise_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
     queries = constraints.get("queries")
     if not isinstance(queries, list):
@@ -344,6 +380,7 @@ def build_comparability_fingerprint(
     classifier_version: str = "unknown",
     requested_provider_profile: list[str] | None = None,
     contributing_provider_profile: list[str] | None = None,
+    contributing_profile_available: bool = False,
     logical_pages: int | None = None,
     rows_per_page: int | None = None,
     sort_strategy_contract: list[str] | None = None,
@@ -361,6 +398,7 @@ def build_comparability_fingerprint(
         "contributing_provider_profile": sorted(
             {item.strip().lower() for item in (contributing_provider_profile or []) if item}
         ),
+        "contributing_profile_available": bool(contributing_profile_available),
         "logical_pages": logical_pages,
         "rows_per_page": rows_per_page,
         "sort_strategy_contract": sorted(
@@ -449,12 +487,7 @@ def load_run_snapshot(
         if isinstance(workflow, dict) and isinstance(workflow.get("inputs"), dict)
         else {}
     )
-    contributing = _split_provider_list(
-        manifest.get("contributing_provider_profile")
-        or manifest.get("provider_set")
-        or manifest.get("providers")
-        or ""
-    )
+    contributing, contributing_available = _derive_contributing_provider_profile(run_dir, manifest)
     requested = _split_provider_list(
         workflow_inputs.get("providers")
         or manifest.get("requested_provider_profile")
@@ -468,6 +501,7 @@ def load_run_snapshot(
         classifier_version=_extract_classifier_version(qmbd_records, manifest),
         requested_provider_profile=requested,
         contributing_provider_profile=contributing,
+        contributing_profile_available=contributing_available,
         logical_pages=constraint_payload.get("logical_pages"),
         rows_per_page=constraint_payload.get("rows_per_page"),
         sort_strategy_contract=list(constraint_payload["sort_strategy_contract"]),
@@ -593,7 +627,11 @@ def build_run_stability_report(
             previous.axis_distribution,
             snapshot.axis_distribution,
         )
-        fingerprint_match = (
+        contributing_profiles_known = bool(
+            previous.fingerprint_payload.get("contributing_profile_available")
+            and snapshot.fingerprint_payload.get("contributing_profile_available")
+        )
+        fingerprint_match = contributing_profiles_known and (
             previous.comparability_fingerprint == snapshot.comparability_fingerprint
         )
         stable = bool(
