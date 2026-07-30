@@ -173,6 +173,33 @@ def test_probe_scopus_missing_and_configured_paths(monkeypatch) -> None:
     mocked_request.assert_called_once()
 
 
+def test_probe_openalex_missing_and_configured_paths(monkeypatch) -> None:
+    """probe_openalex must fail closed without a key and authenticate when present."""
+    import check_research_api_health
+
+    monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
+    missing_result = check_research_api_health.probe_openalex()
+    assert missing_result.status == "missing"
+    assert missing_result.provider == "openalex"
+    assert "OPENALEX_API_KEY" in missing_result.detail
+
+    monkeypatch.setenv("OPENALEX_API_KEY", "test-key")
+    with patch(
+        "check_research_api_health._request",
+        return_value=check_research_api_health.ProbeResult(
+            "", "ok", "request succeeded", 200
+        ),
+    ) as mocked_request:
+        configured_result = check_research_api_health.probe_openalex()
+
+    assert configured_result.provider == "openalex"
+    assert configured_result.status == "ok"
+    mocked_request.assert_called_once()
+    called_url, called_headers = mocked_request.call_args[0]
+    assert "api.openalex.org" in called_url
+    assert called_headers["Authorization"] == "Bearer test-key"
+
+
 def test_probe_wos_and_scival_missing_keys(monkeypatch) -> None:
     """probe_wos/probe_scival should report missing when required keys are absent."""
     import check_research_api_health
