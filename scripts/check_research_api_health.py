@@ -235,6 +235,19 @@ def probe_microsoft_graph() -> ProbeResult:
         return ProbeResult("microsoft_graph", "present-but-invalid", str(exc))
 
 
+def probe_wos() -> ProbeResult:
+    key = os.getenv("WOS_API_KEY", "")
+    if not key:
+        return ProbeResult("wos", "missing", "WOS_API_KEY not set")
+    url = (
+        "https://api.clarivate.com/apis/wos/api/v1/wos"
+        "?databaseId=WOS&usrQuery=TI%3Docean&count=1&firstRecord=1"
+    )
+    result = _request(url, {"X-ApiKey": key, "Accept": "application/json"})
+    result.provider = "wos"
+    return result
+
+
 def probe_google_drive() -> ProbeResult:
     credentials_path = os.getenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", "")
     if not credentials_path:
@@ -256,6 +269,7 @@ def _probe_functions() -> dict[str, Callable[[], ProbeResult]]:
         "scopus": probe_scopus,
         "openalex": probe_openalex,
         "scival": probe_scival,
+        "wos": probe_wos,
         "microsoft_graph": probe_microsoft_graph,
         "google_drive": probe_google_drive,
     }

@@ -459,7 +459,7 @@ jobs:
           retention-days: 30
 
       - name: Upload current-run audit
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: morskamary-run-audit-${{ github.run_id }}-${{ github.run_attempt }}

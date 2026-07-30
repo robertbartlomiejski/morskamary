@@ -173,19 +173,23 @@ def test_probe_scopus_missing_and_configured_paths(monkeypatch) -> None:
     mocked_request.assert_called_once()
 
 
-def test_probe_openalex_and_scival_missing_keys(monkeypatch) -> None:
-    """OpenAlex and SciVal report missing without provider credentials."""
+def test_probe_wos_openalex_and_scival_missing_keys(monkeypatch) -> None:
+    """WoS, OpenAlex and SciVal report missing without provider credentials."""
     import check_research_api_health
 
     monkeypatch.delenv("SCIVAL_API_KEY", raising=False)
     monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
+    monkeypatch.delenv("WOS_API_KEY", raising=False)
 
     with patch("check_research_api_health._request") as mocked_request:
         openalex_result = check_research_api_health.probe_openalex()
+        wos_result = check_research_api_health.probe_wos()
     scival_result = check_research_api_health.probe_scival()
 
     assert openalex_result.status == "missing"
     assert openalex_result.provider == "openalex"
+    assert wos_result.status == "missing"
+    assert wos_result.provider == "wos"
     mocked_request.assert_not_called()
     assert scival_result.status == "missing"
     assert scival_result.provider == "scival"
@@ -257,9 +261,9 @@ def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
         check_research_api_health.ProbeResult(
             "scopus", "present-but-invalid", "HTTP 401", 401
         ),
-        check_research_api_health.ProbeResult("wos", "missing", "missing", None),
         check_research_api_health.ProbeResult("openalex", "missing", "missing", None),
         check_research_api_health.ProbeResult("scival", "missing", "missing", None),
+        check_research_api_health.ProbeResult("wos", "missing", "missing", None),
         check_research_api_health.ProbeResult(
             "microsoft_graph", "missing", "missing", None
         ),
@@ -280,12 +284,13 @@ def test_main_require_valid_fails_when_invalid_provider(tmp_path: Path) -> None:
         ),
         patch("check_research_api_health.probe_crossref", return_value=fake_results[0]),
         patch("check_research_api_health.probe_scopus", return_value=fake_results[1]),
-        patch("check_research_api_health.probe_openalex", return_value=fake_results[3]),
+        patch("check_research_api_health.probe_openalex", return_value=fake_results[2]),
+        patch("check_research_api_health.probe_scival", return_value=fake_results[3]),
+        patch("check_research_api_health.probe_wos", return_value=fake_results[4]),
         patch(
             "check_research_api_health.probe_microsoft_graph",
             return_value=fake_results[5],
         ),
-        patch("check_research_api_health.probe_scival", return_value=fake_results[4]),
         patch(
             "check_research_api_health.probe_google_drive", return_value=fake_results[6]
         ),
@@ -313,6 +318,7 @@ def test_main_without_require_valid_returns_zero(tmp_path: Path) -> None:
         patch("check_research_api_health.probe_scopus", return_value=ok_result),
         patch("check_research_api_health.probe_openalex", return_value=ok_result),
         patch("check_research_api_health.probe_scival", return_value=ok_result),
+        patch("check_research_api_health.probe_wos", return_value=ok_result),
         patch(
             "check_research_api_health.probe_microsoft_graph", return_value=ok_result
         ),
@@ -322,7 +328,7 @@ def test_main_without_require_valid_returns_zero(tmp_path: Path) -> None:
 
     payload = json.loads(output_file.read_text(encoding="utf-8"))
     assert exit_code == 0
-    assert payload["summary"]["ok"] == 6
+    assert payload["summary"]["ok"] == 7
 
 
 def test_main_require_configured_rejects_missing_requested_provider(
@@ -417,6 +423,7 @@ def test_main_filters_to_requested_providers(tmp_path: Path) -> None:
         patch("check_research_api_health.probe_openalex", return_value=openalex_ok),
         patch("check_research_api_health.probe_scopus") as probe_scopus,
         patch("check_research_api_health.probe_scival") as probe_scival,
+        patch("check_research_api_health.probe_wos") as probe_wos,
         patch(
             "check_research_api_health.probe_microsoft_graph"
         ) as probe_microsoft_graph,
@@ -433,6 +440,7 @@ def test_main_filters_to_requested_providers(tmp_path: Path) -> None:
     ]
     probe_scopus.assert_not_called()
     probe_scival.assert_not_called()
+    probe_wos.assert_not_called()
     probe_microsoft_graph.assert_not_called()
     probe_google_drive.assert_not_called()
 
@@ -494,6 +502,7 @@ def test_main_require_valid_fails_on_transient_network_error(
         patch("check_research_api_health.probe_scopus", return_value=transient_result),
         patch("check_research_api_health.probe_openalex", return_value=ok_result),
         patch("check_research_api_health.probe_scival", return_value=ok_result),
+        patch("check_research_api_health.probe_wos", return_value=ok_result),
         patch(
             "check_research_api_health.probe_microsoft_graph", return_value=ok_result
         ),

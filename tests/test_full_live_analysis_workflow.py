@@ -78,12 +78,10 @@ def test_failed_pre_acquisition_run_cannot_upload_stale_evidence() -> None:
     for upload in (
         "Upload curated release",
         "Upload short-retention debug files",
+        "Upload current-run audit",
     ):
         block = text[text.index(f"- name: {upload}") :]
         assert "if: success()" in block.split("uses:", 1)[0]
-    # Audit artifact uses always() so it uploads even on failure
-    audit_block = text[text.index("- name: Upload current-run audit") :]
-    assert "if: always()" in audit_block.split("uses:", 1)[0]
 
 
 def test_h2_map_is_built_then_consumed_only_when_validated() -> None:
