@@ -175,8 +175,15 @@ def test_live_provenance_allow_list_remains_fail_closed() -> None:
         is False
     )
     assert (
+        module._is_live_like_record(
+            {"record_origin": "synthetic_fixture", "source_id": "crossref:10.1000/test"}
+        )
+        is False
+    )
+    assert (
         module._is_live_like_record({"record_origin": "dynamic_api_crossref"}) is True
     )
+    assert module._is_live_like_record({"record_origin": "live-crossref"}) is True
     assert module._is_live_like_record({"source_id": "crossref:10.1000/test"}) is True
 
 

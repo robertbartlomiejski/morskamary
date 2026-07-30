@@ -24,6 +24,25 @@ AXIS_CODE_MAP = {"M": "MARINE", "T": "MARITIME", "O": "OCEANIC", "H": "HYDRONIZA
 _REPO_ROOT_STABILITY = Path(__file__).resolve().parents[1]
 # Allow-list of live source_id prefixes (provider-scoped stable IDs).
 _LIVE_SOURCE_ID_PREFIXES = ("crossref:", "scopus:", "openalex:", "wos:")
+_STATIC_RECORD_ORIGINS = {
+    "static_baseline",
+    "static_literature",
+    "baseline",
+    "literature",
+}
+_CANONICAL_LIVE_RECORD_ORIGINS = {
+    "dynamic_api_crossref",
+    "dynamic_api_scopus",
+    "dynamic_api_wos",
+    "dynamic_api_scival",
+    "dynamic_api_google_drive",
+    "dynamic_api_microsoft_graph",
+    "dynamic_api_openalex",
+}
+_LEGACY_LIVE_RECORD_ORIGINS = {
+    "live-crossref",
+    "live-scopus",
+}
 
 
 @dataclass(frozen=True)
@@ -203,13 +222,12 @@ def _is_live_like_record(record: dict[str, Any]) -> bool:
     records are always excluded.
     """
     origin = _normalise(record.get("record_origin")).lower()
-    if origin.startswith("live") or origin.startswith("dynamic_api_"):
-        return True
+    if origin:
+        if origin in _STATIC_RECORD_ORIGINS:
+            return False
+        return origin in _CANONICAL_LIVE_RECORD_ORIGINS or origin in _LEGACY_LIVE_RECORD_ORIGINS
     source_id = _normalise(record.get("source_id")).lower()
-    if source_id.startswith(_LIVE_SOURCE_ID_PREFIXES):
-        return True
-    # Unknown or empty provenance → exclude (not silently count as live)
-    return False
+    return source_id.startswith(_LIVE_SOURCE_ID_PREFIXES)
 
 
 def _providers_from_manifest(manifest: dict[str, Any]) -> list[str]:
