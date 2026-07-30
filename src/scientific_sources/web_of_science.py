@@ -22,11 +22,11 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
-import time
 from typing import Any, Dict, List, Optional, Tuple, cast
 
 from src.scientific_sources.base import BaseProvider
@@ -375,11 +375,13 @@ class WebOfScienceProvider(BaseProvider):
         """
         del time_window, sort_strategy  # not used by WoS Starter
         if not self._api_key:
-            result = self._not_configured_result()
-            return result, [{"logical_page": 1, "error": "not_configured"}]
+            # No page was attempted.  Provider configuration is represented by
+            # the ProviderResult warning, not by a synthetic pagination row.
+            return self._not_configured_result(), []
 
         _WOS_MAX_LIMIT = 50
         all_records: List[LiteratureRecord] = []
+        all_errors: List[str] = []
         all_warnings: List[str] = []
         all_provenance: List[SourceEvidence] = []
         page_diagnostics: List[Dict[str, Any]] = []
@@ -399,6 +401,9 @@ class WebOfScienceProvider(BaseProvider):
                     f"{self._api_base}?q={wos_query}"
                     f"&limit={chunk_size}&page={physical_page}"
                 )
+                # Count attempted requests, including requests that fail.  This
+                # value is acquisition provenance rather than a success count.
+                physical_requests += 1
                 try:
                     payload = self._request_json(url)
                     items = payload.get("hits", [])
@@ -406,7 +411,6 @@ class WebOfScienceProvider(BaseProvider):
                         items = []
                     records = self._parse_items(items, query)
                     page_records.extend(records)
-                    physical_requests += 1
                     physical_page += 1
                     rows_remaining -= chunk_size
                     # Early stop if fewer results than requested
@@ -426,9 +430,7 @@ class WebOfScienceProvider(BaseProvider):
                             "error": "rate_limited",
                         })
                         break
-                    all_warnings.append(
-                        f"WoS page={physical_page} HTTP {exc.code}"
-                    )
+                    all_errors.append(f"WoS page={physical_page} HTTP {exc.code}")
                     page_diagnostics.append({
                         "logical_page": logical_page_idx + 1,
                         "physical_requests": physical_requests,
@@ -438,10 +440,21 @@ class WebOfScienceProvider(BaseProvider):
                         "error": f"http_{exc.code}",
                     })
                     break
-                except Exception as exc:
-                    all_warnings.append(
-                        f"WoS page={physical_page} error: {exc}"
+                except Exception:
+                    # Provider exceptions can contain request URLs or library
+                    # diagnostics.  Persist only a stable, credential-safe
+                    # category; detailed exceptions must not enter artifacts.
+                    all_errors.append(
+                        f"WoS page={physical_page} request failed"
                     )
+                    page_diagnostics.append({
+                        "logical_page": logical_page_idx + 1,
+                        "physical_requests": physical_requests,
+                        "requested_rows": rows_per_page,
+                        "returned_rows": len(page_records),
+                        "pagination_method": "wos_starter_page",
+                        "error": "request_failed",
+                    })
                     break
 
                 # Polite inter-request delay (avoid burst)
@@ -480,6 +493,7 @@ class WebOfScienceProvider(BaseProvider):
         return (
             ProviderResult(
                 records=all_records,
+                errors=all_errors,
                 warnings=all_warnings,
                 provenance=all_provenance,
                 rate_limit_status=rate_limit_status,

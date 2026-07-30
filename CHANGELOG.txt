@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-29 (fix: fail-closed Web of Science pagination diagnostics)
+  Change type fix update
+  Scope src tests governance
+  Files affected src/scientific_sources/web_of_science.py tests/test_scientific_sources.py CHANGELOG.txt
+  Summary Corrected WoS pagination provenance so failed requests count as attempted, non-rate-limit failures populate credential-safe ProviderResult errors and explicit failed-page diagnostics, and an unconfigured provider emits no synthetic attempted-page row.
+  Reason Pagination diagnostics must distinguish provider configuration, attempted requests, successful completion, and failures without allowing a failed or unattempted acquisition to appear complete.
+  Impact Live acquisition can fail closed on WoS page failures and no longer overstates pagination attempts when WOS_API_KEY is absent. No provider request or historical output is involved.
+  Provenance config/live_query_protocol.yml sampling strategy and the Layer 1 acquisition evidence contract in .github/copilot-instructions.md.
+  Quality checks focused provider tests, canonical static analysis, generated-output validation, and archive-integrity validation.
+
 - 2026-07-25 (add: provider leave-one-out sensitivity analysis)
   Change type add update
   Scope scripts tests governance

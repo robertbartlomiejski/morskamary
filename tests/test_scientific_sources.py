@@ -818,14 +818,42 @@ class TestWebOfScienceProvider:
         assert len(diagnostics) == 2
 
     def test_search_paginated_not_configured(self, monkeypatch):
-        """WoS search_paginated returns not-configured when key absent."""
+        """WoS reports no attempted pages when its key is absent."""
         monkeypatch.delenv("WOS_API_KEY", raising=False)
         provider = WebOfScienceProvider()
         result, diagnostics = provider.search_paginated(
             "ocean", logical_pages=2, rows_per_page=50
         )
         assert result.is_empty
-        assert diagnostics[0].get("error") == "not_configured"
+        assert result.warnings
+        assert diagnostics == []
+
+    def test_search_paginated_failure_is_not_reported_as_complete(self, monkeypatch):
+        """A failed physical request must produce fail-closed diagnostics."""
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+
+        def _raise_transport_error(_url):
+            raise OSError("sensitive request diagnostic")
+
+        monkeypatch.setattr(provider, "_request_json", _raise_transport_error)
+
+        result, diagnostics = provider.search_paginated(
+            "ocean", logical_pages=2, rows_per_page=50
+        )
+
+        assert result.errors == ["WoS page=1 request failed"]
+        assert "sensitive request diagnostic" not in str(result.errors)
+        assert diagnostics == [
+            {
+                "logical_page": 1,
+                "physical_requests": 1,
+                "requested_rows": 50,
+                "returned_rows": 0,
+                "pagination_method": "wos_starter_page",
+                "error": "request_failed",
+            }
+        ]
 
 
 class TestSciValProvider:
