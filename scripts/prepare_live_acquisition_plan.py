@@ -6,15 +6,21 @@ import json
 from pathlib import Path
 from typing import Any, Sequence
 
-REGISTERED_ACQUISITION_PROVIDERS = (
+ACTIVE_ACQUISITION_PROVIDERS = (
     "crossref",
     "scopus",
     "openalex",
-    "wos",
     "scival",
     "google_drive",
     "microsoft_graph",
 )
+DEACTIVATED_ACQUISITION_PROVIDERS = {
+    "wos": (
+        "Web of Science acquisition is temporarily deactivated until the "
+        "scientific hardening plan and provider contract are completed"
+    )
+}
+REGISTERED_ACQUISITION_PROVIDERS = ACTIVE_ACQUISITION_PROVIDERS
 
 
 def _positive_int(value: str, label: str) -> int:
@@ -42,20 +48,27 @@ def build_plan(
             raise ValueError(
                 "selected sampling shape does not match authoritative projection"
             )
-    requested = [item.strip() for item in providers_text.split(",") if item.strip()]
+    requested = [item.strip().lower() for item in providers_text.split(",") if item.strip()]
     if requested == ["all"]:
-        providers = list(REGISTERED_ACQUISITION_PROVIDERS)
+        providers = list(ACTIVE_ACQUISITION_PROVIDERS)
     else:
         providers = requested
     if not providers or "all" in providers or len(providers) != len(set(providers)):
         raise ValueError("providers must be a non-empty unique provider profile")
-    unknown = sorted(set(providers) - set(REGISTERED_ACQUISITION_PROVIDERS))
+    deactivated = sorted(set(providers) & set(DEACTIVATED_ACQUISITION_PROVIDERS))
+    if deactivated:
+        reasons = "; ".join(
+            f"{name}: {DEACTIVATED_ACQUISITION_PROVIDERS[name]}" for name in deactivated
+        )
+        raise ValueError(f"deactivated provider requested: {reasons}")
+    unknown = sorted(set(providers) - set(ACTIVE_ACQUISITION_PROVIDERS))
     if unknown:
         raise ValueError(f"unknown providers: {unknown}")
     expected = len(queries) * pages * len(providers)
     return {
         "queries": len(queries),
         "providers": providers,
+        "deactivated_providers": sorted(DEACTIVATED_ACQUISITION_PROVIDERS),
         "logical_pages": pages,
         "rows_per_page": rows,
         "max_results_per_query": pages * rows,
