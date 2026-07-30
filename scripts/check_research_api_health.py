@@ -189,8 +189,12 @@ def probe_microsoft_graph() -> ProbeResult:
 
 
 def probe_openalex() -> ProbeResult:
-    """Check OpenAlex API availability using the configured API key.
-    
+    """Check OpenAlex API availability.
+
+    Verifies that ``OPENALEX_API_KEY`` is configured, then probes the endpoint.
+    The request does not use the actual key value; credential presence is
+    checked but not validated against the provider.
+
     Returns:
         ProbeResult: The OpenAlex health-check result, including `missing` when
             `OPENALEX_API_KEY` is not set.

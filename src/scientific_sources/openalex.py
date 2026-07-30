@@ -416,7 +416,7 @@ class OpenAlexProvider(BaseProvider):
         	sort_strategy (str): Optional result ordering strategy.
         
         Returns:
-        	Tuple[ProviderResult, List[Dict[str, Any]]]: Combined search results and diagnostics for each requested page.
+        	Tuple[ProviderResult, List[Dict[str, Any]]]: Combined search results and diagnostics for each attempted page.
         """
         all_records: List[LiteratureRecord] = []
         all_warnings: List[str] = []

@@ -237,7 +237,8 @@ def _providers_from_manifest(manifest: dict[str, Any]) -> list[str]:
 
 def _normalize_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
     """
-    Normalize query protocol constraints into a stable summary of protocol version, time windows, sampling strategies, and query identifiers.
+    Normalize query protocol constraints into a stable summary of protocol version, time windows,
+    sampling strategies, and query identifiers.
     
     Parameters:
     	constraints (dict[str, Any]): Query protocol constraints to normalize.
@@ -393,7 +394,8 @@ def load_run_snapshot(
         classifier (AxisClassifier): Classifier used when records lack explicit axis information.
     
     Returns:
-        RunSnapshot | None: The extracted run snapshot, or `None` when the run directory is missing or the run is in static recovery mode.
+        RunSnapshot | None: The extracted run snapshot, or `None` when the run directory is missing
+            or the run is in static recovery mode.
     """
 
     run_dir = _resolve_run_dir(archive_root, reference)
