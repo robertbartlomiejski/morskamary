@@ -134,8 +134,9 @@ def load_derived_demand_ids(path: Path) -> Set[str]:
             demand_id = _clean(row.get("competence_demand_id"))
             if demand_id:
                 demand_ids.add(demand_id)
-    if not demand_ids:
-        raise ValueError("derived demands file contains no competence_demand_id values")
+    # An empty demand set is a valid scientific outcome: live acquisition
+    # produced records but no legally retained semantic competence signals.
+    # Downstream code emits not_computable hypotheses in this case.
     return demand_ids
 
 
@@ -205,46 +206,55 @@ def build_validated_supply_map(
     validated_rows_by_demand: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     excluded_rows: List[Dict[str, Any]] = []
 
-    for index, row in enumerate(registry_rows, start=2):
-        demand_id = _clean(row.get("competence_demand_id"))
-        if not demand_id:
-            raise ValueError(f"registry row {index}: competence_demand_id is required")
-        if demand_id not in demand_ids:
-            raise ValueError(
-                f"registry row {index}: unknown competence_demand_id {demand_id!r}"
-            )
-        eqf_level = _parse_eqf_level(row.get("eqf_level"), row_number=index)
-        status = _clean(row.get("validation_status")).lower()
-        if status not in _ALLOWED_VALIDATION_STATUSES:
-            raise ValueError(
-                f"registry row {index}: unsupported validation_status {status!r}"
-            )
-        if status != "validated":
-            excluded_rows.append(
-                {
-                    "row_number": index,
-                    "credential_supply_id": _clean(row.get("credential_supply_id")),
-                    "competence_demand_id": demand_id,
-                    "eqf_level": eqf_level,
-                    "validation_status": status,
-                    "reason": "not_explicitly_validated",
-                }
-            )
-            continue
+    # Empty demand set: no competence signals survived semantic filtering.
+    # Registry cannot be validated against absent demands; emit not_computable.
+    if not demand_ids:
+        print(
+            "[INFO] derived demands file contains no competence_demand_id values; "
+            "writing not_computable supply map (no demands to validate against)",
+            file=sys.stderr,
+        )
+    else:
+        for index, row in enumerate(registry_rows, start=2):
+            demand_id = _clean(row.get("competence_demand_id"))
+            if not demand_id:
+                raise ValueError(f"registry row {index}: competence_demand_id is required")
+            if demand_id not in demand_ids:
+                raise ValueError(
+                    f"registry row {index}: unknown competence_demand_id {demand_id!r}"
+                )
+            eqf_level = _parse_eqf_level(row.get("eqf_level"), row_number=index)
+            status = _clean(row.get("validation_status")).lower()
+            if status not in _ALLOWED_VALIDATION_STATUSES:
+                raise ValueError(
+                    f"registry row {index}: unsupported validation_status {status!r}"
+                )
+            if status != "validated":
+                excluded_rows.append(
+                    {
+                        "row_number": index,
+                        "credential_supply_id": _clean(row.get("credential_supply_id")),
+                        "competence_demand_id": demand_id,
+                        "eqf_level": eqf_level,
+                        "validation_status": status,
+                        "reason": "not_explicitly_validated",
+                    }
+                )
+                continue
 
-        missing = [field for field in VALIDATED_REQUIRED_FIELDS if not _clean(row.get(field))]
-        if missing:
-            raise ValueError(
-                f"registry row {index}: validated mapping missing required field(s): "
-                f"{missing}"
-            )
-        if not bool(_split_pipe(row.get("validation_evidence_ids", ""))):
-            raise ValueError(
-                f"registry row {index}: validated mapping must supply at least one "
-                "validation_evidence_id (field is blank or contains only separators)"
-            )
-        entry = _validated_entry(row, eqf_level)
-        validated_rows_by_demand[demand_id].append(entry)
+            missing = [field for field in VALIDATED_REQUIRED_FIELDS if not _clean(row.get(field))]
+            if missing:
+                raise ValueError(
+                    f"registry row {index}: validated mapping missing required field(s): "
+                    f"{missing}"
+                )
+            if not bool(_split_pipe(row.get("validation_evidence_ids", ""))):
+                raise ValueError(
+                    f"registry row {index}: validated mapping must supply at least one "
+                    "validation_evidence_id (field is blank or contains only separators)"
+                )
+            entry = _validated_entry(row, eqf_level)
+            validated_rows_by_demand[demand_id].append(entry)
 
     if not validated_rows_by_demand:
         print(

@@ -96,7 +96,9 @@ def _safe_float(value: Any) -> float:
         return 0.0
 
 
-def _read_jsonl_required(path: Path, label: str) -> list[dict[str, Any]]:
+def _read_jsonl_required(
+    path: Path, label: str, *, allow_empty: bool = False
+) -> list[dict[str, Any]]:
     if not path.is_file():
         raise ValueError(f"required {label} file does not exist: {path}")
     rows: list[dict[str, Any]] = []
@@ -110,7 +112,7 @@ def _read_jsonl_required(path: Path, label: str) -> list[dict[str, Any]]:
         if not isinstance(payload, dict):
             raise ValueError(f"invalid {label} JSONL row {line_number}: object required")
         rows.append(payload)
-    if not rows:
+    if not rows and not allow_empty:
         raise ValueError(f"required {label} file contains no rows: {path}")
     return rows
 
@@ -551,7 +553,9 @@ def build_provider_sensitivity_analysis(
         )
     signals = _read_jsonl_required(signals_path, "signals")
     original_demands = _read_csv_required(derived_demands_path, "derived demands")
-    fragments = _read_jsonl_required(hypothesis_fragments_path, "hypothesis fragments")
+    fragments = _read_jsonl_required(
+        hypothesis_fragments_path, "hypothesis fragments", allow_empty=True
+    )
     supply = _load_validated_supply(validated_supply_map_path)
     reference_time = _load_analysis_timestamp(derived_demands_path)
 

@@ -297,7 +297,21 @@ def test_empty_required_jsonl_and_csv_inputs_fail_closed(tmp_path: Path) -> None
         _build(tmp_path, paths)
 
 
-def test_missing_analysis_timestamp_manifest_fails_closed(tmp_path: Path) -> None:
+def test_empty_hypothesis_fragments_produces_not_computable(tmp_path: Path) -> None:
+    """Empty hypothesis_semantic_fragments.jsonl is a valid scientific outcome.
+
+    When live evidence produces competence signals but none match any hypothesis
+    indicator registry, Layer 2 writes an empty JSONL file.  The pipeline must
+    accept this and emit not_computable for affected hypotheses rather than
+    aborting with an error.
+    """
+    paths = _fixture(tmp_path)
+    # Write a valid but empty JSONL file (no data rows)
+    paths["fragments"].write_text("", encoding="utf-8")
+    result = _build(tmp_path, paths)
+    # H3 uses fragments; with no fragments it must be not_computable
+    baseline = result["subsets"]["all_canonical"]
+    assert baseline["h3"]["interpretation"] == "not_computable"
     paths = _fixture(tmp_path)
     (tmp_path / "layer4_manifest.json").unlink()
 

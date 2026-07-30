@@ -289,3 +289,39 @@ def test_cli_returns_nonzero_for_candidate_only_registry(tmp_path: Path, capsys)
     assert output_path.exists()
     data = json.loads(output_path.read_text())
     assert data["has_validated_supply"] is False
+
+
+def test_empty_demand_set_produces_not_computable_supply_map(tmp_path: Path) -> None:
+    """A schema-valid derived demands CSV with no data rows is a valid outcome.
+
+    When live acquisition yields records but no legally retained semantic
+    competence signals, Layer 4 emits a header-only demands CSV.  The supply
+    map builder must accept this and produce a not_computable output rather
+    than aborting with an error.
+    """
+    demands_path = tmp_path / "derived_competence_demands.csv"
+    registry_path = tmp_path / "credential_supply_registry.csv"
+    output_path = tmp_path / "map.json"
+    audit_path = tmp_path / "audit.json"
+    # Header-only CSV: valid schema but no demand rows
+    demands_path.write_text(
+        "competence_demand_id,sector\n", encoding="utf-8"
+    )
+    _write_registry(registry_path, [_registry_row()])
+
+    result = main(
+        [
+            "--registry",
+            str(registry_path),
+            "--derived-demands",
+            str(demands_path),
+            "--output",
+            str(output_path),
+            "--audit-output",
+            str(audit_path),
+        ]
+    )
+    assert result == 0
+    assert output_path.exists()
+    data = json.loads(output_path.read_text())
+    assert data["has_validated_supply"] is False

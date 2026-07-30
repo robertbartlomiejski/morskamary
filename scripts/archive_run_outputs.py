@@ -396,7 +396,7 @@ def _rewrite_csv_with_new_schema(
             reader = csv.DictReader(handle)
             for row in reader:
                 old_rows.append(dict(row))
-    except OSError:
+    except FileNotFoundError:
         old_rows = []
 
     temporary_path = csv_path.with_suffix(csv_path.suffix + ".tmp")
