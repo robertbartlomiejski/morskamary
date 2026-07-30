@@ -19,6 +19,76 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-29 (fix: close remaining PR-A acquisition-plan and archive-index gaps)
+  Change type fix update
+  Scope workflows scripts tests governance
+  Files affected .github/workflows/full-live-analysis.yml scripts/prepare_live_acquisition_plan.py scripts/archive_run_outputs.py tests/test_prepare_live_acquisition_plan.py tests/test_full_live_analysis_workflow.py tests/test_archive_run_outputs.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Validates the operator-selected pagination shape against the freshly projected authoritative protocol before provider activity, expands the all-provider profile before budgeting, prevents stale checkout evidence from entering current-run artifacts, and makes legacy archive-index migration atomic and fail closed for unknown headers.
+  Reason Current-head review found that a selected page shape could be silently transformed, the all-provider token could understate the budget, early failures could upload stale tracked evidence, and unknown legacy CSV headers could be widened unsafely.
+  Impact Live acquisition remains manual and reviewer protected. No scientific result semantics or historical archive payloads change; execution and provenance gates become stricter.
+  Provenance PR #217 review feedback; config/live_query_protocol.yml; docs/AGENT_WORKING_AGREEMENT.md.
+  Quality checks focused and full validation recorded in the PR evidence report.
+
+- 2026-07-29 (fix: PR-A three residual defects per review comment 5121338571)
+  Change type fix update
+  Scope scripts src tests workflows
+  Files affected scripts/check_budget_ceiling.py .github/workflows/full-live-analysis.yml scripts/export_live_research_records.py src/scientific_sources/web_of_science.py tests/test_check_budget_ceiling.py tests/test_export_live_research_records.py tests/test_full_live_analysis_workflow.py tests/test_scientific_sources.py CHANGELOG.txt
+  Summary Three residual PR-A defects addressed: (1) budget ceiling validator extracted to scripts/check_budget_ceiling.py with strict type enforcement (rejects bool, float, negative, missing column) and offline-testable regressions; workflow now calls the script; (2) WoS non-HTTP failures now propagate stable error codes to ProviderResult.errors in addition to page_diagnostics; (3) physical-request aggregation replaced with _count_physical_requests helper implementing per-logical-page precedence (max physical_requests, deduped indexes, one-attempt fallback; zero for not-configured rows; never crashes on malformed values).
+  Reason Review comment 5121338571 identified three still-open contract defects in commit 0cb728017f1152e62f858d8e15d259dcf53d5622.
+  Impact No live provider calls introduced. Budget validator now rejects bool/float/negative ceilings, blank/negative/float row values, and missing required CSV column. WoS ProviderResult.errors is now populated for all error cases. Physical-request counting no longer double-counts duplicate diagnostic rows or counts not-configured entries.
+  Provenance GitHub PR #217 comment 5121338571; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md.
+  Quality checks python -m flake8 src scripts tests (pending); python -m mypy src scripts (pending); python -m pytest tests/ (pending).
+
+- 2026-07-29 (fix: PR-A four contract defects at head f9bd457 per comment 5121001319)
+  Change type fix update
+  Scope scripts src tests workflows
+  Files affected .github/workflows/full-live-analysis.yml scripts/archive_run_outputs.py scripts/export_live_research_records.py src/scientific_sources/web_of_science.py tests/test_archive_run_outputs.py tests/test_export_live_research_records.py tests/test_full_live_analysis_workflow.py tests/test_scientific_sources.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Four verified PR-A contract defects addressed: (1) post-acquisition logical-request ceiling enforced in workflow between acquisition and validation using api_budget_plan.json and query_execution_log.csv, with fail-closed behavior on missing files or exceeded budget; (2) archive_root added to cumulative_runs_index.csv using the same redacted sentinel as manifest.json for out-of-tree paths; (3) WoS non-HTTP exceptions (timeout, connection, malformed JSON) now emit a canonical pagination_status="failed" diagnostic with stable sanitized error codes instead of falling through to end_of_results; (4) physical_request_count in export records now aggregates provider-reported physical_requests per diagnostic rather than counting diagnostic rows, fixing multi-chunk WoS logical page accounting.
+  Reason Fresh review of head f9bd45746472ad1321f130fa72d715dae3aea994 identified these four still-open PR-A defects; all verified against current code before implementation.
+  Impact No live provider calls introduced. Budget ceiling now blocks downstream analysis when actual logical requests exceed the plan ceiling. Archive CSV index now carries archive_root provenance. WoS non-HTTP failure diagnostics are now correctly classified. Physical request accounting is now correct for providers with multi-request logical pages.
+  Provenance GitHub PR #217 comment 5121001319; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md.
+  Quality checks python -m flake8 src scripts tests (passed); python -m mypy src scripts (Success: no issues found); python -m pytest tests/ (1188 passed, 8 warnings).
+
+- 2026-07-29 (fix: address fresh CodeRabbit review findings from PR-A head d04db532)
+  Change type fix update
+  Scope scripts src tests workflows
+  Files affected scripts/archive_run_outputs.py scripts/check_research_api_health.py scripts/export_live_query_protocol_projection.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/web_of_science.py .github/workflows/full-live-analysis.yml tests/test_archive_run_outputs.py tests/test_check_research_api_health.py tests/test_export_live_query_protocol_projection.py tests/test_live_query_protocol.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Addresses 9 unresolved inline threads from the fresh CodeRabbit review: (1) removes run_stability_report.json from immutable per-run archive targets; (2) returns explicit sentinel for out-of-tree paths in _repo_relative_posix; (3) adds transient-network-error to --require-valid validity gate; (4) fixes export-protocol error message to match exact-count semantics; (5) derives budget query count from committed constraints file instead of hardcoding 120; (6) changes Upload curated release if-no-files-found to warn so failed runs do not double-fail; (7) uses safe_rows consistently throughout WoS pagination loop; (8) derives Scopus pagination_status from rate_limit_status and adds canonical WoS diagnostic fields; (9) fixes misleading docstring in test_live_query_protocol.py.
+  Reason Fresh CodeRabbit review (run ab1caacc) for head d04db532bc identified 9 unresolved actionable threads; each finding verified against current code and confirmed as a still-valid PR-A defect.
+  Impact No live provider calls introduced. Archive immutability contract is tightened: cross-run stability report is no longer co-archived with immutable per-run data. Diagnostic consumers can now distinguish rate-limited from failed provider responses. Budget plan derives from authoritative protocol rather than hardcoded value.
+  Provenance GitHub PR #217 CodeRabbit review id 4809879406; config/live_query_protocol.yml; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md.
+  Quality checks python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m mypy src scripts run_full_analysis.py main.py (Success: no issues found); python -m pytest tests/ (1178 passed, 8 warnings); python scripts/generate_manifest.py (1201 entries).
+
+- 2026-07-29 (fix: complete PR-A review reconciliation follow-up)
+  Change type fix update
+  Scope scripts src tests workflows governance
+  Files affected .github/workflows/full-live-analysis.yml scripts/check_research_api_health.py scripts/export_live_research_records.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/openalex.py src/scientific_sources/web_of_science.py tests/test_check_research_api_health.py tests/test_export_live_research_records.py tests/test_full_live_analysis_workflow.py tests/test_openalex_provider.py tests/test_provider_sensitivity_analysis.py tests/test_run_stability.py tests/test_scientific_sources.py CHANGELOG.txt
+  Summary Completes the local PR-A reconciliation by routing GitHub workflow context through environment variables before shell/Python use, excluding raw_api_payloads from uploaded artifacts, standardizing sort-provenance audit values, enforcing capped logical-page requests, retaining Scopus responses only as redistribution-safe metadata envelopes, and strengthening OpenAlex/WoS credential diagnostics.
+  Reason The PR-A review contract requires fail-closed acquisition governance, no credential or restricted-payload retention in public artifacts, and regression tests showing that stale protocol projections, malformed pagination diagnostics, duplicate Layer 2 evidence IDs, and empty provider-sensitivity inputs cannot silently pass.
+  Impact Live-acquisition execution remains reviewer-protected and archive-first; no live provider calls or scientific-result claims are introduced. The changes affect workflow safety, Layer 1 provenance/audit metadata, provider retained-payload envelopes, and fail-closed diagnostic tests only.
+  Provenance GitHub issue comment 5116572204; config/live_query_protocol.yml; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md; .github/instructions/data-pipeline.instructions.md.
+  Quality checks Targeted pytest set passed with 261 tests; full pytest passed with 1176 passed and 8 openpyxl warnings; flake8, mypy, changelog guard, generated-output validation, research-source-output validation, manifest regeneration, and quick static recovery mode passed; run archive integrity remains blocked by pre-existing checksum/size drift in outputs/run_archive/runs/30090903921-1.
+
+- 2026-07-28 (fix: PR-A fail-closed live-analysis execution)
+  Change type fix update
+  Scope scripts tests workflows governance
+  Files affected scripts/build_provider_sensitivity_analysis.py scripts/build_run_stability_report.py scripts/build_live_cumulative_release_package.py src/scientific_sources/openalex.py .github/workflows/full-live-analysis.yml .github/workflows/full-analysis.yml tests/test_ci_workflow.py tests/test_full_live_analysis_workflow.py tests/test_openalex_provider.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary PR-A execution-correctness slice: restores explicit static-recovery-mode guard in full-analysis.yml so CI never runs live providers; fixes mypy type error (list[object] vs list[str]) in build_provider_sensitivity_analysis.py; corrects the workflow test that verifies the static-recovery contract; regenerates MANIFEST_SOURCES.csv deterministically.
+  Reason The final refactor commit in this PR branch accidentally reverted the ALLOW_STATIC_RECOVERY_MODE/--analysis-input-mode static env guard from full-analysis.yml while removing only the compare_generated_outputs.py reference. The test added in the same PR to assert the guard was still present then failed. The mypy error in build_provider_sensitivity_analysis.py was introduced by using an untyped dict value in a list[str] context.
+  Impact CI full-analysis workflow is now fail-closed against accidental live acquisition. Mypy passes cleanly. All 1151 tests pass.
+  Provenance .github/workflows/full-analysis.yml; scripts/build_provider_sensitivity_analysis.py; tests/test_ci_workflow.py; config/live_query_protocol.yml.
+  Quality checks python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m mypy src scripts run_full_analysis.py main.py (Success: no issues found in 69 source files); python -m pytest tests/ -v (1151 passed, 8 warnings); python scripts/generate_manifest.py (1201 entries written); python -c "import pathlib, yaml; yaml.safe_load(pathlib.Path('.github/workflows/full-analysis.yml').read_text(encoding='utf-8')); print('workflow-ok')" (passed).
+
+- 2026-07-28 (fix: PR-A axis_target projection validation and saturation threshold alignment)
+  Change type fix update
+  Scope scripts src tests workflows governance
+  Files affected src/scientific_sources/live_query_protocol.py scripts/build_run_stability_report.py .github/workflows/full-live-analysis.yml outputs/research_sources/query_protocol_constraints.json tests/test_live_query_protocol.py tests/test_run_stability.py tests/test_full_live_analysis_workflow.py
+  Summary Adds axis_target field to LiveQuery.to_query_constraints() and validate_complete_authoritative_protocol_projection() so a stale axis assignment is rejected before any provider call; aligns CLI saturation defaults with the published method (Jaccard 0.90, axis stability 0.95, new-DOI ratio 0.05); passes all three values explicitly in full-live-analysis.yml to prevent default drift; regenerates outputs/research_sources/query_protocol_constraints.json to include axis_target for all 120 queries.
+  Reason The authoritative protocol projection did not export axis_target, making it impossible for the validation step to detect a stale axis assignment before provider acquisition began. The executable stability thresholds (0.85 / 0.90) were lower than the documented method thresholds (0.90 / 0.95), creating an inconsistency between the code and the published method.
+  Impact validate_complete_authoritative_protocol_projection() now fails closed on axis-target mismatches; saturation judgements now use method-consistent thresholds; workflow is pinned to explicit thresholds so future default changes are caught by the workflow contract test.
+  Provenance src/scientific_sources/live_query_protocol.py; scripts/build_run_stability_report.py; .github/workflows/full-live-analysis.yml; config/live_query_protocol.yml.
+  Quality checks python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m mypy src scripts run_full_analysis.py main.py (Success: no issues found in 69 source files); python -m pytest tests/test_live_query_protocol.py tests/test_run_stability.py tests/test_full_live_analysis_workflow.py -v (67 passed); python scripts/sync_audit.py --strict (all checks passed after commit).
+
 - 2026-07-25 (add: provider leave-one-out sensitivity analysis)
   Change type add update
   Scope scripts tests governance

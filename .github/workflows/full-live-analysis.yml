@@ -3,46 +3,48 @@ name: Full Live-Enriched Analysis
 on:
   workflow_dispatch:
     inputs:
+      execution_mode:
+        description: "hardening_dry_run performs no provider calls; other modes require explicit authorization"
+        required: true
+        default: hardening_dry_run
+        type: choice
+        options:
+          - hardening_dry_run
+          - exploratory_live
+          - controlled_replication
+          - publication_candidate
+      live_run_authorization:
+        description: "For live modes enter AUTHORIZE_LIVE_PROVIDER_CALLS"
+        required: false
+        default: ""
+        type: string
       providers:
-        description: "Comma-separated providers. Default excludes providers requiring extra proprietary credentials in CI."
+        description: "Comma-separated provider profile"
         required: false
         default: "crossref,scopus,openalex"
-      max_results_per_query:
-        description: "Maximum results per query"
+        type: string
+      logical_pages:
+        description: "Logical pages per query/provider"
+        required: false
+        default: "3"
+        type: string
+      rows_per_page:
+        description: "Rows per logical page"
         required: false
         default: "50"
-      offline:
-        description: "Run in offline mode (true/false)"
-        required: false
-        default: "false"
-        type: choice
-        options: ["false", "true"]
+        type: string
       require_valid_credentials:
-        description: "Fail when configured proprietary credentials are invalid or rate-limited"
-        required: false
-        default: "false"
-        type: choice
-        options: ["false", "true"]
-      require_live_records:
-        description: "Fail live-enriched run if no live records reach outputs"
+        description: "Require configured providers to pass live credential/entitlement checks"
         required: false
         default: "true"
         type: choice
         options: ["true", "false"]
-      allow_minimum_provider_contribution:
-        description: "Controlled acquisition: allow package build when at least one required provider contributes"
-        required: false
-        default: "false"
-        type: choice
-        options: ["true", "false"]
-      commit_outputs:
-        description: "Commit updated outputs/ back to main (requires vars.ALLOW_BOT_COMMITS=true)"
+      upload_debug_artifact:
+        description: "Upload short-retention current-run debugging files"
         required: false
         default: "false"
         type: choice
         options: ["false", "true"]
-  schedule:
-    - cron: "0 3 * * 1"
 
 permissions:
   contents: read
@@ -52,24 +54,59 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  live-analysis:
+  hardening-dry-run:
+    if: inputs.execution_mode == 'hardening_dry_run'
     runs-on: ubuntu-latest
-    # Fix 8: gate all proprietary-provider secrets and live-package publication
-    # behind a GitHub Environments approval so production credentials require
-    # maintainer review before use.  ALLOW_BOT_COMMITS and
-    # LIVE_OUTPUTS_AUTOCOMMIT remain false-by-default; direct-push publication
-    # is not added here.
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run execution-contract regression tests
+        run: |
+          set -euo pipefail
+          python -m pytest \
+            tests/test_full_live_analysis_workflow.py \
+            tests/test_export_live_research_records.py \
+            tests/test_live_query_protocol.py \
+            tests/test_provider_sensitivity_analysis.py \
+            tests/test_run_stability.py \
+            tests/test_build_validated_credential_supply_map.py \
+            tests/test_openalex_provider.py \
+            tests/test_archive_run_outputs.py \
+            -v
+
+      - name: Validate generated-output contract
+        run: |
+          set -euo pipefail
+          python scripts/validate_generated_outputs.py
+
+  live-analysis:
+    if: inputs.execution_mode != 'hardening_dry_run'
+    runs-on: ubuntu-latest
     environment: live-research
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
-      REQUESTED_PROVIDERS: ${{ github.event.inputs.providers || 'crossref,scopus,openalex' }}
-      MAX_RESULTS_PER_QUERY: ${{ github.event.inputs.max_results_per_query || '50' }}
-      OFFLINE_MODE: ${{ github.event.inputs.offline || 'false' }}
-      REQUIRE_VALID_CREDENTIALS: ${{ github.event.inputs.require_valid_credentials || 'false' }}
-      REQUIRE_LIVE_RECORDS: ${{ github.event.inputs.require_live_records || 'true' }}
-      ALLOW_MINIMUM_PROVIDER_CONTRIBUTION: ${{ github.event.inputs.allow_minimum_provider_contribution || 'false' }}
-
+      EXECUTION_MODE: ${{ inputs.execution_mode }}
+      REQUESTED_PROVIDERS: ${{ inputs.providers }}
+      LOGICAL_PAGES: ${{ inputs.logical_pages }}
+      ROWS_PER_PAGE: ${{ inputs.rows_per_page }}
+      REQUIRE_VALID_CREDENTIALS: ${{ inputs.require_valid_credentials }}
       CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
       ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
       SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
@@ -79,19 +116,48 @@ jobs:
       MICROSOFT_TENANT_ID: ${{ secrets.MICROSOFT_TENANT_ID }}
       MICROSOFT_CLIENT_ID: ${{ secrets.MICROSOFT_CLIENT_ID }}
       MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
+      GH_CONTEXT_RUN_ID: ${{ github.run_id }}
+      GH_CONTEXT_RUN_ATTEMPT: ${{ github.run_attempt }}
+      GH_CONTEXT_RUN_NUMBER: ${{ github.run_number }}
+      GH_CONTEXT_WORKFLOW: ${{ github.workflow }}
+      GH_CONTEXT_EVENT_NAME: ${{ github.event_name }}
+      GH_CONTEXT_SHA: ${{ github.sha }}
+      GH_CONTEXT_REF: ${{ github.ref }}
 
     steps:
+      - name: Enforce live-run and publication freeze gates
+        env:
+          LIVE_RUN_AUTHORIZATION: ${{ inputs.live_run_authorization }}
+          ALLOW_PUBLICATION_RELEASES: ${{ vars.ALLOW_PUBLICATION_RELEASES }}
+        run: |
+          set -euo pipefail
+          if [ "$LIVE_RUN_AUTHORIZATION" != "AUTHORIZE_LIVE_PROVIDER_CALLS" ]; then
+            echo "Live provider calls are frozen without the exact authorization phrase." >&2
+            exit 1
+          fi
+          case "$EXECUTION_MODE" in
+            exploratory_live|controlled_replication|publication_candidate) ;;
+            *)
+              echo "Unsupported execution mode: $EXECUTION_MODE" >&2
+              exit 1
+              ;;
+          esac
+          if [ "$EXECUTION_MODE" = "publication_candidate" ] && \
+             [ "$ALLOW_PUBLICATION_RELEASES" != "true" ]; then
+            echo "Publication candidates remain frozen until ALLOW_PUBLICATION_RELEASES=true." >&2
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          # Fix 9: never leave a reusable Git credential on the live-analysis
-          # runner where proprietary provider secrets are also exposed.
           persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.11"
+          cache: pip
 
       - name: Install dependencies
         run: |
@@ -99,28 +165,59 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
 
-      - name: Capture single workflow-level analysis timestamp (UTC)
-        # Recency-sensitive Layer 4-5 outputs must be deterministic across
-        # steps within a single run.  Capture one ISO-8601 UTC timestamp here
-        # and reuse it for the Layer 4-5 build so no downstream step calls
-        # wall-clock `datetime.now()` independently for recency scoring.
+      - name: Capture deterministic run identity
         run: |
           set -euo pipefail
           ANALYSIS_TS="$(date -u +%Y-%m-%dT%H:%M:%S+00:00)"
+          CURRENT_RUN_ID="${GH_CONTEXT_RUN_ID}-${GH_CONTEXT_RUN_ATTEMPT}"
           echo "ANALYSIS_TIMESTAMP_UTC=${ANALYSIS_TS}" >> "$GITHUB_ENV"
-          echo "Captured analysis timestamp: ${ANALYSIS_TS}"
+          echo "CURRENT_RUN_ID=${CURRENT_RUN_ID}" >> "$GITHUB_ENV"
+          export CURRENT_RUN_ID
 
-      - name: Provider health preflight
-        if: ${{ env.OFFLINE_MODE != 'true' }}
+      - name: Clear stale committed run directories for current run ID
         run: |
           set -euo pipefail
-          mkdir -p outputs
+          # If a prior successful run committed its outputs under the same
+          # CURRENT_RUN_ID (outputs/live_runs/ and outputs/run_archive/runs/),
+          # those git-tracked directories would be present in the checkout.
+          # archive_run_outputs.py's collision-avoidance would then create a
+          # '.2'-suffixed directory, causing the artifact upload step (which
+          # uses the exact CURRENT_RUN_ID path) to pick up the stale committed
+          # data instead of the fresh run's outputs.  Remove them here — before
+          # any build step runs — so every downstream step writes to the
+          # expected path.
+          rm -rf "outputs/live_runs/${CURRENT_RUN_ID}"
+          rm -rf "outputs/run_archive/runs/${CURRENT_RUN_ID}"
+          rm -f outputs/research_sources/query_execution_log.csv
+          rm -f outputs/cumulative_database/novelty_gate_report.json
 
-          HEALTH_ARGS=()
-          if [ "$REQUIRE_VALID_CREDENTIALS" = "true" ]; then
+      - name: Project and validate authoritative live query protocol
+        run: |
+          set -euo pipefail
+          python scripts/export_live_query_protocol_projection.py \
+            --protocol-path config/live_query_protocol.yml \
+            --output-path outputs/research_sources/research_queries_from_protocol.yml \
+            --emit-summary-path outputs/research_sources/research_queries_from_protocol_summary.json
+
+      - name: Validate and materialize acquisition plan
+        run: |
+          set -euo pipefail
+          python scripts/prepare_live_acquisition_plan.py \
+            --constraints outputs/research_sources/query_protocol_constraints.json \
+            --providers "$REQUESTED_PROVIDERS" \
+            --logical-pages "$LOGICAL_PAGES" \
+            --rows-per-page "$ROWS_PER_PAGE" \
+            --output outputs/governance/api_budget_plan.json \
+            --github-env "$GITHUB_ENV"
+
+      - name: Provider health preflight
+        run: |
+          set -euo pipefail
+          HEALTH_ARGS=(--require-configured)
+          if [ "$REQUIRE_VALID_CREDENTIALS" = "true" ] || \
+             [ "$EXECUTION_MODE" != "exploratory_live" ]; then
             HEALTH_ARGS+=(--require-valid)
           fi
-
           python scripts/check_research_api_health.py \
             --providers "$REQUESTED_PROVIDERS" \
             --output outputs/research_api_health.json \
@@ -131,14 +228,6 @@ jobs:
           set -euo pipefail
           python scripts/export_research_source_capabilities.py
 
-      - name: Project live query protocol into legacy query_groups
-        run: |
-          set -euo pipefail
-          python scripts/export_live_query_protocol_projection.py \
-            --protocol-path config/live_query_protocol.yml \
-            --output-path outputs/research_sources/research_queries_from_protocol.yml \
-            --emit-summary-path outputs/research_sources/research_queries_from_protocol_summary.json
-
       - name: Export live research records
         run: |
           set -euo pipefail
@@ -146,110 +235,55 @@ jobs:
             --providers "$REQUESTED_PROVIDERS" \
             --query-file outputs/research_sources/research_queries_from_protocol.yml \
             --query-constraints-file outputs/research_sources/query_protocol_constraints.json \
+            --protocol-path config/live_query_protocol.yml \
             --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
+            --default-logical-pages "$LOGICAL_PAGES" \
+            --default-rows-per-page "$ROWS_PER_PAGE" \
             --output-dir outputs/research_sources \
-            --offline "$OFFLINE_MODE"
+            --offline false
 
-      - name: Validate research source outputs
+      - name: Enforce post-acquisition logical-request budget ceiling
         run: |
           set -euo pipefail
+          python scripts/check_budget_ceiling.py
 
-          if [ "$REQUIRE_LIVE_RECORDS" = "true" ] && [ "$OFFLINE_MODE" != "true" ]; then
-            python scripts/validate_research_source_outputs.py \
-              --require-health \
-              --require-live \
-              --min-live-records 1
-          else
-            python scripts/validate_research_source_outputs.py
-          fi
+      - name: Validate live research source outputs
+        run: |
+          set -euo pipefail
+          python scripts/validate_research_source_outputs.py \
+            --require-health \
+            --require-live \
+            --min-live-records 1
 
       - name: Build Layer 1 live-run audit bundle
         run: |
           set -euo pipefail
           python scripts/build_live_run_audit.py \
-            --run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --run-id "$CURRENT_RUN_ID" \
             --research-sources-dir outputs/research_sources \
             --output-root outputs/live_runs \
             --protocol-path config/live_query_protocol.yml
 
-      - name: Run full analysis
+      - name: Run full live-enriched analysis
         run: |
           set -euo pipefail
           python run_full_analysis.py \
             --analysis-input-mode live-enriched \
             --live-records-path outputs/research_sources/live_records_triangulated.json
-
-      - name: Assert cumulative output is live-enriched
-        run: |
-          set -euo pipefail
-          ASSERT_ARGS=()
-          if [ "$REQUIRE_LIVE_RECORDS" = "true" ] && [ "$OFFLINE_MODE" != "true" ]; then
-            ASSERT_ARGS+=(--require-live)
-          fi
-
           python scripts/assert_cumulative_live_enriched.py \
             --path outputs/cumulative_qmbd_records.json \
-            "${ASSERT_ARGS[@]}"
-
-      - name: Validate generated outputs
-        run: |
-          set -euo pipefail
+            --require-live
           python scripts/validate_generated_outputs.py
 
-          python - <<'PY'
-          import json
-          from datetime import datetime, UTC
-          from pathlib import Path
-
-          payload = {
-              "validator": "scripts/validate_generated_outputs.py",
-              "status": "passed",
-              "captured_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
-          }
-          output_path = Path("outputs") / "validation_state.json"
-          output_path.parent.mkdir(parents=True, exist_ok=True)
-          output_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-          print(f"Validation state captured: {output_path}")
-          PY
-
-      - name: Archive full run outputs
+      - name: Preserve previous novelty metrics
         run: |
           set -euo pipefail
-          python scripts/archive_run_outputs.py \
-            --repo-root . \
-            --archive-root outputs/run_archive \
-            --run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
-            --workflow-name "${{ github.workflow }}" \
-            --event-name "${{ github.event_name }}" \
-            --git-sha "${{ github.sha }}" \
-            --git-ref "${{ github.ref }}" \
-            --github-run-id "${{ github.run_id }}" \
-            --github-run-attempt "${{ github.run_attempt }}" \
-            --github-run-number "${{ github.run_number }}" \
-            --github-job "$GITHUB_JOB" \
-            --providers "$REQUESTED_PROVIDERS" \
-            --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
-            --offline "$OFFLINE_MODE" \
-            --require-live-records "$REQUIRE_LIVE_RECORDS" \
-            --query-file outputs/research_sources/research_queries_from_protocol.yml
-
-      - name: Validate archived run integrity
-        run: |
-          set -euo pipefail
-          python scripts/validate_run_archive_integrity.py \
-            --archive-root outputs/run_archive \
-            --require-present
-
-      - name: Preserve previous novelty metrics for Gate B
-        run: |
-          set -euo pipefail
-          previous_metrics="outputs/cumulative_database/run_novelty_metrics.json"
-          preserved_metrics="outputs/previous_run_novelty_metrics.json"
-          if [ -f "$previous_metrics" ]; then
-            cp "$previous_metrics" "$preserved_metrics"
+          if [ -f outputs/cumulative_database/run_novelty_metrics.json ]; then
+            cp outputs/cumulative_database/run_novelty_metrics.json \
+               outputs/previous_run_novelty_metrics.json
           fi
 
-      - name: Build cumulative scientific database (Layers 2 and 3)
+      - name: Build cumulative database and provisional Layers 4-5
         run: |
           set -euo pipefail
           python scripts/build_cumulative_scientific_database.py \
@@ -258,37 +292,60 @@ jobs:
             --live-runs-root outputs/live_runs \
             --query-protocol config/live_query_protocol.yml \
             --output-dir outputs/cumulative_database \
-            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --current-run-id "$CURRENT_RUN_ID" \
             --emit-summary
-
-      - name: Build derived competence demand and gap model (Layers 4 and 5)
-        run: |
-          set -euo pipefail
           python scripts/build_layer4_5_scientific_analysis.py \
             --database-dir outputs/cumulative_database \
             --output-dir outputs/cumulative_database \
             --stats-dir outputs/layer4_statistics \
-            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --current-run-id "$CURRENT_RUN_ID" \
             --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC"
 
-      - name: Build preliminary H2 credential supply map
-        continue-on-error: true
+      - name: Build and conditionally consume validated H2 supply map
         run: |
           set -euo pipefail
-          if [ -f data/validated/credential_supply_registry.csv ]; then
-            python scripts/build_validated_credential_supply_map.py \
-              --registry-path data/validated/credential_supply_registry.csv \
-              --demand-signals outputs/cumulative_database/competence_demand_signals.jsonl \
-              --output-dir outputs
-          else
-            echo "[WARN] Skipping H2 credential supply map; registry file not found."
+          python scripts/build_validated_credential_supply_map.py \
+            --registry data/validated/credential_supply_registry.csv \
+            --derived-demands outputs/cumulative_database/derived_competence_demands.csv \
+            --output outputs/cumulative_database/validated_credential_supply_map.json \
+            --audit-output outputs/cumulative_database/validated_credential_supply_audit.json \
+            --built-at-utc "$ANALYSIS_TIMESTAMP_UTC"
+          HAS_SUPPLY="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path(
+              "outputs/cumulative_database/validated_credential_supply_map.json"
+          ).read_text(encoding="utf-8"))
+          print("true" if data.get("has_validated_supply") else "false")
+          PY
+          )"
+          if [ "$HAS_SUPPLY" = "true" ]; then
+            python scripts/build_layer4_5_scientific_analysis.py \
+              --database-dir outputs/cumulative_database \
+              --output-dir outputs/cumulative_database \
+              --stats-dir outputs/layer4_statistics \
+              --validated-supply-map outputs/cumulative_database/validated_credential_supply_map.json \
+              --current-run-id "$CURRENT_RUN_ID" \
+              --analysis-timestamp-utc "$ANALYSIS_TIMESTAMP_UTC"
           fi
 
-      - name: Evaluate live novelty gates (A-E)
+      - name: Build fail-closed provider sensitivity diagnostics
+        run: |
+          set -euo pipefail
+          python scripts/build_provider_sensitivity_analysis.py \
+            --evidence-records outputs/cumulative_database/evidence_records.jsonl \
+            --signals outputs/cumulative_database/competence_demand_signals.jsonl \
+            --derived-demands outputs/cumulative_database/derived_competence_demands.csv \
+            --hypothesis-fragments outputs/cumulative_database/hypothesis_semantic_fragments.jsonl \
+            --validated-supply-map outputs/cumulative_database/validated_credential_supply_map.json \
+            --output-json outputs/cumulative_database/provider_sensitivity_analysis.json \
+            --output-markdown outputs/cumulative_database/provider_sensitivity_analysis.md
+
+      - name: Evaluate live novelty gates
         run: |
           set -euo pipefail
           GATE_ARGS=()
-          if [ "$ALLOW_MINIMUM_PROVIDER_CONTRIBUTION" = "true" ]; then
+          if [ "$EXECUTION_MODE" = "exploratory_live" ]; then
             GATE_ARGS+=(--allow-minimum-provider-contribution)
           fi
           python scripts/compute_live_novelty_metrics.py \
@@ -300,161 +357,136 @@ jobs:
             --strict \
             "${GATE_ARGS[@]}"
 
-      - name: Build cross-run stability report
-        continue-on-error: true
+      - name: Archive immutable current-run outputs
         run: |
           set -euo pipefail
-          python scripts/build_run_stability_report.py \
-            --archive-root outputs/run_archive
+          python scripts/archive_run_outputs.py \
+            --repo-root . \
+            --archive-root outputs/run_archive \
+            --run-id "$CURRENT_RUN_ID" \
+            --workflow-name "$GH_CONTEXT_WORKFLOW" \
+            --event-name "$GH_CONTEXT_EVENT_NAME" \
+            --git-sha "$GH_CONTEXT_SHA" \
+            --git-ref "$GH_CONTEXT_REF" \
+            --github-run-id "$GH_CONTEXT_RUN_ID" \
+            --github-run-attempt "$GH_CONTEXT_RUN_ATTEMPT" \
+            --github-run-number "$GH_CONTEXT_RUN_NUMBER" \
+            --github-job "$GITHUB_JOB" \
+            --providers "$REQUESTED_PROVIDERS" \
+            --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
+            --offline false \
+            --require-live-records true \
+            --query-file outputs/research_sources/research_queries_from_protocol.yml
+          python scripts/validate_run_archive_integrity.py \
+            --archive-root outputs/run_archive \
+            --require-present
 
-      - name: Build statistical research report (HTML + PDF)
+      - name: Build cross-run stability outside immutable archives
+        run: |
+          set -euo pipefail
+          STABILITY_ARGS=()
+          if [ "$EXECUTION_MODE" = "publication_candidate" ]; then
+            STABILITY_ARGS+=(--fail-on-missing-runs)
+          fi
+          python scripts/build_run_stability_report.py \
+            --archive-root outputs/run_archive \
+            --output-path outputs/cross_run_reports/run_stability_report.json \
+            --jaccard-threshold 0.90 \
+            --new-doi-threshold 0.05 \
+            --axis-stability-threshold 0.95 \
+            "${STABILITY_ARGS[@]}"
+
+      - name: Build reports and curated release package
         run: |
           set -euo pipefail
           python scripts/build_statistical_research_report.py \
             --database-dir outputs/cumulative_database \
             --output-dir reports \
-            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}"
-
-      - name: Build live cumulative release package (single ZIP)
-        run: |
-          set -euo pipefail
+            --current-run-id "$CURRENT_RUN_ID"
           python scripts/build_live_cumulative_release_package.py \
             --database-dir outputs/cumulative_database \
             --reports-dir reports \
             --stats-dir outputs/layer4_statistics \
-            --raw-acquisition-index "outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}/raw/raw_acquisition_index.csv" \
-            --current-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
-            --version-tag "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --raw-acquisition-index "outputs/live_runs/${CURRENT_RUN_ID}/raw/raw_acquisition_index.csv" \
+            --current-run-id "$CURRENT_RUN_ID" \
+            --version-tag "$CURRENT_RUN_ID" \
             --output outputs/release_packages/morskamary_live_cumulative_latest.zip
 
-      - name: Upload live-enriched analysis outputs
-        if: always()
+      - name: Write execution qualification summary
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          mode = os.environ["EXECUTION_MODE"]
+          payload = {
+              "schema_version": "1.0.0",
+              "execution_mode": mode,
+              "engineering_status": "pass",
+              "scientific_status": (
+                  "exploratory" if mode == "exploratory_live" else "replication"
+              ),
+              "publication_status": (
+                  "conditional_candidate"
+                  if mode == "publication_candidate"
+                  else "not_a_publication_release"
+              ),
+              "automatic_publication_performed": False,
+              "current_run_id": os.environ["CURRENT_RUN_ID"],
+          }
+          Path("outputs/governance/execution_qualification.json").write_text(
+              json.dumps(payload, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload curated release
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: live-enriched-analysis-outputs
+          name: morskamary-release-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            outputs/
-            outputs/run_archive/
-            outputs/live_runs/
-            outputs/cumulative_database/
-            outputs/layer4_statistics/
-            outputs/release_packages/
-            reports/
-            data/derived/
+            outputs/release_packages/morskamary_live_cumulative_latest.zip
+            !outputs/release_packages/**/raw_api_payloads/**
+            outputs/governance/api_budget_plan.json
+            outputs/governance/execution_qualification.json
+            outputs/cross_run_reports/run_stability_report.json
+            reports/morskamary_statistical_report.html
+            reports/morskamary_methodological_audit.html
+            reports/morskamary_statistical_report.pdf
           if-no-files-found: warn
           retention-days: 30
 
-  commit-outputs:
-    # Fix 10: publication path is disabled-by-default and never pushes generated
-    # outputs directly to main.  A uniquely named bot branch is created and a
-    # pull request is opened against main instead.  Repository/organization
-    # Actions policy must allow the chosen bot identity (default: GITHUB_TOKEN
-    # via `gh pr create`) to create PRs; note that GITHUB_TOKEN-created PRs may
-    # require an explicit follow-up trigger for CI checks to run.  No PAT or
-    # proprietary provider secret is introduced or exposed here.
-    needs: live-analysis
-    runs-on: ubuntu-latest
-    # Gate publication behind the same reviewer-approved environment as the
-    # live-analysis job so any credential use is auditable.
-    environment: live-research
-    permissions:
-      # Least privilege: contents:write to create the bot branch, and
-      # pull-requests:write so `gh pr create` can open the PR against main.
-      contents: write
-      pull-requests: write
-    if: >
-      github.ref == 'refs/heads/main' &&
-      vars.ALLOW_BOT_COMMITS == 'true' &&
-      (
-        (github.event_name == 'workflow_dispatch' && github.event.inputs.commit_outputs == 'true') ||
-        (github.event_name == 'schedule' && vars.LIVE_OUTPUTS_AUTOCOMMIT == 'true')
-      )
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Upload current-run audit
+        if: success()
+        uses: actions/upload-artifact@v4
         with:
-          # Fix 9: do not leave a reusable Git credential in the runner.  We
-          # authenticate the single push explicitly using GITHUB_TOKEN below.
-          persist-credentials: false
+          name: morskamary-run-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/run_archive/runs/${{ github.run_id }}-${{ github.run_attempt }}/
+            !outputs/run_archive/**/raw_api_payloads/**
+            outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}/
+            !outputs/live_runs/**/raw_api_payloads/**
+            outputs/research_api_health.json
+            outputs/research_sources/query_execution_log.csv
+            outputs/research_sources/query_protocol_constraints.json
+            outputs/cumulative_database/novelty_gate_report.json
+            outputs/cumulative_database/provider_sensitivity_analysis.json
+            outputs/cumulative_database/validated_credential_supply_audit.json
+          if-no-files-found: warn
+          retention-days: 30
 
-      - name: Download analysis outputs
-        uses: actions/download-artifact@v4
+      - name: Upload short-retention debug files
+        if: success() && inputs.upload_debug_artifact == 'true'
+        uses: actions/upload-artifact@v4
         with:
-          name: live-enriched-analysis-outputs
-          path: .
-
-      - name: Create bot branch and open pull request against main
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_ID: ${{ github.run_id }}
-          RUN_ATTEMPT: ${{ github.run_attempt }}
-          REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-
-          # Fix 10: never push generated outputs directly to main.  Stage only
-          # the validated allowlisted output paths onto a uniquely named
-          # bot/live-research/<run_id>/<run_attempt> branch and open a PR.
-          BOT_BRANCH="bot/live-research/${RUN_ID}/${RUN_ATTEMPT}"
-
-          git config user.name "morskamary-bot"
-          git config user.email "actions@github.com"
-
-          git checkout -b "$BOT_BRANCH"
-
-          # Allowlisted output paths only.  Anything outside this list is not
-          # staged, so drift in the artifact download cannot leak unrelated
-          # files into the PR.
-          git add \
-            outputs/research_sources/ \
-            outputs/research_api_health.json \
-            outputs/run_archive/ \
-            outputs/live_runs/ \
-            outputs/cumulative_database/ \
-            outputs/layer4_statistics/ \
-            outputs/release_packages/ \
-            reports/
-
-          # Compliance guard: never stage proprietary raw provider payloads.
-          git reset --quiet -- ':(glob)outputs/**/raw_api_payloads/**' ':(glob)raw_api_payloads/**' || true
-
-          if git diff --cached --quiet; then
-            echo "[INFO] No output changes to publish; skipping PR creation."
-            exit 0
-          fi
-
-          git commit -m "chore: refresh live-enriched outputs (run ${RUN_ID}/${RUN_ATTEMPT})"
-
-          # Push the bot branch using GITHUB_TOKEN explicitly for this single
-          # operation, then unset the remote credential.  No PAT is used.
-          REMOTE_URL="https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git"
-          git push "$REMOTE_URL" "HEAD:refs/heads/${BOT_BRANCH}"
-
-          PR_TITLE="chore(live-research): refresh outputs from run ${RUN_ID}/${RUN_ATTEMPT}"
-          PR_BODY_FILE="$(mktemp)"
-          {
-            echo "Automated publication of live-enriched analysis outputs."
-            echo
-            echo "- Workflow run: ${RUN_ID}, attempt ${RUN_ATTEMPT}"
-            echo "- Source branch: \`${BOT_BRANCH}\`"
-            echo "- Target branch: \`main\`"
-            echo
-            echo "This PR was opened by the live-analysis workflow because the"
-            echo "double publication gate (\`commit_outputs\`/\`ALLOW_BOT_COMMITS\`,"
-            echo "and \`LIVE_OUTPUTS_AUTOCOMMIT\` for scheduled runs) was enabled."
-            echo "No generated outputs are pushed directly to \`main\`."
-          } > "$PR_BODY_FILE"
-
-          # Fix 10: failure to open the PR must be explicit; do not swallow the
-          # error and do not fall back to a direct push to main.
-          if ! gh pr create \
-                --repo "$REPO" \
-                --base main \
-                --head "$BOT_BRANCH" \
-                --title "$PR_TITLE" \
-                --body-file "$PR_BODY_FILE"; then
-            echo "[ERROR] Failed to open pull request for ${BOT_BRANCH}." >&2
-            echo "[ERROR] Repository/organization Actions policy must allow" >&2
-            echo "[ERROR] the bot identity to create pull requests." >&2
-            exit 1
-          fi
+          name: morskamary-debug-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/research_sources/
+            !outputs/research_sources/raw_api_payloads/**
+            outputs/cumulative_database/
+            !outputs/cumulative_database/**/raw_api_payloads/**
+            outputs/layer4_statistics/
+          if-no-files-found: error
+          retention-days: 7

@@ -44,7 +44,7 @@
     },
     "openalex": {
       "provider": "OpenAlex",
-      "requires_secret": false,
+      "requires_secret": true,
       "configured": true,
       "live_test_allowed": false,
       "allowed_metadata_fields": [
@@ -61,7 +61,7 @@
         "source_query",
         "retrieval_timestamp"
       ],
-      "licence_note": "OpenAlex open scholarly metadata. OpenAlex is an aggregator; provider-level diversity does not imply upstream bibliographic-source independence."
+      "licence_note": "OpenAlex bibliographic metadata and topic labels. OpenAlex improves acquisition-provider diversity but is not upstream-independent from all DOI metadata infrastructures. Abstract inverted-index content is not stored."
     },
     "wos": {
       "provider": "Web of Science (Clarivate)",

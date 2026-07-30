@@ -1040,12 +1040,14 @@ scripts/build_derived.py,script,,,,,,build_derived,yes
 scripts/build_layer4_5_scientific_analysis.py,script,,,,,,build_layer4_5_scientific_analysis,yes
 scripts/build_live_cumulative_release_package.py,script,,,,,,build_live_cumulative_release_package,yes
 scripts/build_live_run_audit.py,script,,,,,,build_live_run_audit,yes
+scripts/build_provider_sensitivity_analysis.py,script,,,,,,build_provider_sensitivity_analysis,yes
 scripts/build_run_stability_report.py,script,,,,,,build_run_stability_report,yes
 scripts/build_statistical_research_report.py,script,,,,,,build_statistical_research_report,yes
 scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,yes
 scripts/build_validated_credential_supply_map.py,script,,,,,,build_validated_credential_supply_map,yes
 scripts/build_versioned_research_data_package.py,script,,,,,,build_versioned_research_data_package,yes
 scripts/changelog_guard.py,script,,,,,,changelog_guard,yes
+scripts/check_budget_ceiling.py,script,,,,,,check_budget_ceiling,yes
 scripts/check_research_api_health.py,script,,,,,,check_research_api_health,yes
 scripts/check_research_env.py,script,,,,,,check_research_env,yes
 scripts/compute_live_novelty_metrics.py,script,,,,,,compute_live_novelty_metrics,yes
@@ -1068,6 +1070,7 @@ scripts/Iscot_240905_142040.txt,script,,,,,,Iscot_240905_142040,yes
 scripts/Materialnosc w morzu_241217_113623.txt,script,,,,,,Materialnosc_w_morzu_241217_113623,yes
 scripts/pip install pypdf.txt,script,,,,,,pip_install_pypdf,yes
 scripts/Port Animal-Human Relation_241026_074847.txt,script,,,,,,Port_Animal_Human_Relation_241026_074847,yes
+scripts/prepare_live_acquisition_plan.py,script,,,,,,prepare_live_acquisition_plan,yes
 scripts/prompt ioanis 12_02 18_37.txt,script,,,,,,prompt_ioanis_12_02_18_37,yes
 scripts/prompt ioanis 12_02 18_56.txt,script,,,,,,prompt_ioanis_12_02_18_56,yes
 scripts/prompt ioanis 12_02 18_58 Gemini.txt,script,,,,,,prompt_ioanis_12_02_18_58_Gemini,yes
@@ -1140,8 +1143,10 @@ tests/test_build_cross_run_evidence_index.py,script,,,,,,test_build_cross_run_ev
 tests/test_build_derived.py,script,,,,,,test_build_derived,yes
 tests/test_build_layer4_5_scientific_analysis.py,script,,,,,,test_build_layer4_5_scientific_analysis,yes
 tests/test_build_tmbd_dictionary.py,script,,,,,,test_build_tmbd_dictionary,yes
+tests/test_build_validated_credential_supply_map.py,script,,,,,,test_build_validated_credential_supply_m,yes
 tests/test_build_versioned_research_data_package.py,script,,,,,,test_build_versioned_research_data_packa,yes
 tests/test_changelog_guard.py,script,,,,,,test_changelog_guard,yes
+tests/test_check_budget_ceiling.py,script,,,,,,test_check_budget_ceiling,yes
 tests/test_check_research_api_health.py,script,,,,,,test_check_research_api_health,yes
 tests/test_ci_workflow.py,script,,,,,,test_ci_workflow,yes
 tests/test_codeql_workflow.py,script,,,,,,test_codeql_workflow,yes
@@ -1161,6 +1166,7 @@ tests/test_e2e_workflows.py,script,,,,,,test_e2e_workflows,yes
 tests/test_edge_cases.py,script,,,,,,test_edge_cases,yes
 tests/test_export_live_query_protocol_projection.py,script,,,,,,test_export_live_query_protocol_projecti,yes
 tests/test_export_live_research_records.py,script,,,,,,test_export_live_research_records,yes
+tests/test_export_paid_call_safety.py,script,,,,,,test_export_paid_call_safety,yes
 tests/test_export_research_records_workflow.py,script,,,,,,test_export_research_records_workflow,yes
 tests/test_full_live_analysis_workflow.py,script,,,,,,test_full_live_analysis_workflow,yes
 tests/test_gap_model.py,script,,,,,,test_gap_model,yes
@@ -1179,7 +1185,9 @@ tests/test_openalex_provider.py,script,,,,,,test_openalex_provider,yes
 tests/test_pagination.py,script,,,,,,test_pagination,yes
 tests/test_pipeline_matrix.py,script,,,,,,test_pipeline_matrix,yes
 tests/test_pre_acquisition_assertion.py,script,,,,,,test_pre_acquisition_assertion,yes
+tests/test_prepare_live_acquisition_plan.py,script,,,,,,test_prepare_live_acquisition_plan,yes
 tests/test_provider_sensitivity.py,script,,,,,,test_provider_sensitivity,yes
+tests/test_provider_sensitivity_analysis.py,script,,,,,,test_provider_sensitivity_analysis,yes
 tests/test_publication_cumulative_database.py,script,,,,,,test_publication_cumulative_database,yes
 tests/test_research_queries_config.py,script,,,,,,test_research_queries_config,yes
 tests/test_research_support_scripts.py,script,,,,,,test_research_support_scripts,yes

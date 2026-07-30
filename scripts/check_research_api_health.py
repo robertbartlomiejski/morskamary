@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.parse
@@ -27,13 +28,45 @@ from typing import Callable
 
 _REQUEST_TIMEOUT_SECONDS = 12
 _ERROR_BODY_MAX_BYTES = 512
+_REDACTED_QUERY_PARAMS = frozenset({"api_key", "apikey", "key", "token", "secret"})
+_SENSITIVE_QUERY_PARAM_RE = re.compile(
+    r"(?i)([?&](?:api_key|apikey|key|token|secret)=)[^&\s'\"<>)]*"
+)
+DEACTIVATED_PROVIDERS = {
+    "wos": (
+        "Web of Science acquisition is temporarily deactivated until the "
+        "scientific hardening plan and provider contract are completed"
+    )
+}
+
+
+def _redact_url(url: str) -> str:
+    """Return a URL with sensitive query-string parameters replaced by REDACTED."""
+    try:
+        parsed = urllib.parse.urlparse(url)
+        params = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+        redacted = [
+            (k, "REDACTED" if k.lower() in _REDACTED_QUERY_PARAMS else v)
+            for k, v in params
+        ]
+        safe_query = urllib.parse.urlencode(redacted)
+        return urllib.parse.urlunparse(parsed._replace(query=safe_query))
+    except Exception:
+        return "[url-redacted]"
+
+
+def _redact_sensitive_text(value: object) -> str:
+    """Redact credential-like query-string values inside arbitrary text."""
+    return _SENSITIVE_QUERY_PARAM_RE.sub(r"\1REDACTED", str(value))
 
 
 def _is_transient_network_error(exc: Exception) -> bool:
     """Return True for transport-level transient failures."""
     if isinstance(exc, urllib.error.URLError):
         reason = exc.reason
-        if isinstance(reason, (ConnectionResetError, TimeoutError, ConnectionAbortedError)):
+        if isinstance(
+            reason, (ConnectionResetError, TimeoutError, ConnectionAbortedError)
+        ):
             return True
         if isinstance(reason, OSError):
             return True
@@ -84,9 +117,10 @@ def _request(url: str, headers: dict[str, str]) -> ProbeResult:
             return ProbeResult("", "present-but-invalid", f"HTTP {exc.code}", exc.code)
         return ProbeResult("", "present-but-invalid", f"HTTP {exc.code}", exc.code)
     except Exception as exc:
+        safe_detail = _redact_sensitive_text(exc)
         if _is_transient_network_error(exc):
-            return ProbeResult("", "transient-network-error", str(exc), None)
-        return ProbeResult("", "present-but-invalid", str(exc), None)
+            return ProbeResult("", "transient-network-error", safe_detail, None)
+        return ProbeResult("", "present-but-invalid", safe_detail, None)
 
 
 def probe_crossref() -> ProbeResult:
@@ -104,7 +138,9 @@ def _get_elsevier_key() -> str:
 def probe_scopus() -> ProbeResult:
     key = _get_elsevier_key()
     if not key:
-        return ProbeResult("scopus", "missing", "ELSEVIER_API_KEY/SCOPUS_API_KEY not set")
+        return ProbeResult(
+            "scopus", "missing", "ELSEVIER_API_KEY/SCOPUS_API_KEY not set"
+        )
     query = urllib.parse.quote("TITLE(ocean)")
     url = f"https://api.elsevier.com/content/search/scopus?query={query}&count=1"
     result = _request(url, {"X-ELS-APIKey": key, "Accept": "application/json"})
@@ -112,14 +148,22 @@ def probe_scopus() -> ProbeResult:
     return result
 
 
-def probe_wos() -> ProbeResult:
-    key = os.getenv("WOS_API_KEY", "")
-    if not key:
-        return ProbeResult("wos", "missing", "WOS_API_KEY not set")
-    query = urllib.parse.quote("TS=ocean")
-    url = f"https://api.clarivate.com/apis/wos-starter/v1/documents?q={query}&limit=1&page=1"
-    result = _request(url, {"X-ApiKey": key, "Accept": "application/json"})
-    result.provider = "wos"
+def probe_openalex() -> ProbeResult:
+    api_key = os.getenv("OPENALEX_API_KEY", "")
+    if not api_key:
+        return ProbeResult("openalex", "missing", "OPENALEX_API_KEY not set")
+    params = urllib.parse.urlencode(
+        {"filter": "title.search:ocean", "per_page": "1", "api_key": api_key}
+    )
+    url = f"https://api.openalex.org/works?{params}"
+    result = _request(
+        url,
+        {
+            "Accept": "application/json",
+            "User-Agent": "morskamary-openalex-healthcheck/1.0",
+        },
+    )
+    result.provider = "openalex"
     return result
 
 
@@ -148,7 +192,6 @@ def probe_microsoft_graph() -> ProbeResult:
             "missing",
             "MICROSOFT_TENANT_ID/MICROSOFT_CLIENT_ID/MICROSOFT_CLIENT_SECRET not set",
         )
-
     token_url = f"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token"
     payload = urllib.parse.urlencode(
         {
@@ -180,26 +223,28 @@ def probe_microsoft_graph() -> ProbeResult:
                 exc.code,
             )
         if _is_rate_limited(exc.code, ""):
-            return ProbeResult("microsoft_graph", "rate-limited", f"HTTP {exc.code}", exc.code)
-        return ProbeResult("microsoft_graph", "present-but-invalid", f"HTTP {exc.code}", exc.code)
+            return ProbeResult(
+                "microsoft_graph", "rate-limited", f"HTTP {exc.code}", exc.code
+            )
+        return ProbeResult(
+            "microsoft_graph", "present-but-invalid", f"HTTP {exc.code}", exc.code
+        )
     except Exception as exc:
         if _is_transient_network_error(exc):
             return ProbeResult("microsoft_graph", "transient-network-error", str(exc))
         return ProbeResult("microsoft_graph", "present-but-invalid", str(exc))
 
 
-def probe_openalex() -> ProbeResult:
-    """OpenAlex is free/open; API key is optional (increases rate limits)."""
-    url = "https://api.openalex.org/works?filter=title.search:ocean&per_page=1"
-    headers: dict[str, str] = {}
-    api_key = os.getenv("OPENALEX_API_KEY", "")
-    if api_key:
-        headers["Authorization"] = f"Bearer {api_key}"
-    result = _request(url, headers)
-    result.provider = "openalex"
-    # OpenAlex works without a key; treat missing key as ok if endpoint responds
-    if not api_key and result.status == "ok":
-        result.detail = "ok (unauthenticated, lower rate limits)"
+def probe_wos() -> ProbeResult:
+    key = os.getenv("WOS_API_KEY", "")
+    if not key:
+        return ProbeResult("wos", "missing", "WOS_API_KEY not set")
+    url = (
+        "https://api.clarivate.com/apis/wos/api/v1/wos"
+        "?databaseId=WOS&usrQuery=TI%3Docean&count=1&firstRecord=1"
+    )
+    result = _request(url, {"X-ApiKey": key, "Accept": "application/json"})
+    result.provider = "wos"
     return result
 
 
@@ -222,9 +267,9 @@ def _probe_functions() -> dict[str, Callable[[], ProbeResult]]:
     return {
         "crossref": probe_crossref,
         "scopus": probe_scopus,
-        "wos": probe_wos,
-        "scival": probe_scival,
         "openalex": probe_openalex,
+        "scival": probe_scival,
+        "wos": probe_wos,
         "microsoft_graph": probe_microsoft_graph,
         "google_drive": probe_google_drive,
     }
@@ -241,10 +286,16 @@ def _parse_requested_providers(raw_value: str) -> list[str]:
         if len(requested) > 1:
             raise ValueError("--providers=all cannot be combined with other providers.")
         return list(probe_functions.keys())
+    deactivated = sorted(set(requested) & set(DEACTIVATED_PROVIDERS))
+    if deactivated:
+        reasons = "; ".join(
+            f"{name}: {DEACTIVATED_PROVIDERS[name]}" for name in deactivated
+        )
+        raise ValueError(f"deactivated provider requested: {reasons}")
     unknown = sorted({name for name in requested if name not in probe_functions})
     if unknown:
         raise ValueError(
-            f"Unknown provider(s): {unknown}. Valid names are: {sorted(probe_functions)}"
+            f"Unknown provider(s): {unknown}. Valid active names are: {sorted(probe_functions)}"
         )
     return requested
 
@@ -254,37 +305,55 @@ def main() -> int:
     parser.add_argument("--output", default="outputs/research_api_health.json")
     parser.add_argument("--providers", default="all")
     parser.add_argument("--require-valid", action="store_true")
+    parser.add_argument(
+        "--require-configured",
+        action="store_true",
+        help="Fail when any requested provider reports missing configuration.",
+    )
     args = parser.parse_args()
-
     try:
         requested_provider_names = _parse_requested_providers(args.providers)
     except ValueError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
-
     probe_functions = _probe_functions()
     results = [probe_functions[name]() for name in requested_provider_names]
-
     print("=== Research API health preflight ===")
-    for r in results:
-        code = f" (HTTP {r.http_status})" if r.http_status else ""
-        print(f"  - {r.provider:<8} {r.status:<20} {r.detail}{code}")
-
+    for result in results:
+        code = f" (HTTP {result.http_status})" if result.http_status else ""
+        print(
+            f"  - {result.provider:<8} {result.status:<20} {result.detail}{code}"
+        )
     payload = {
-        "statuses": [r.__dict__ for r in results],
-        "summary": {"ok": sum(1 for r in results if r.status == "ok")},
+        "statuses": [result.__dict__ for result in results],
+        "summary": {"ok": sum(1 for result in results if result.status == "ok")},
+        "deactivated_providers": sorted(DEACTIVATED_PROVIDERS),
     }
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    with open(args.output, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2)
-
+    output_parent = os.path.dirname(args.output)
+    if output_parent:
+        os.makedirs(output_parent, exist_ok=True)
+    with open(args.output, "w", encoding="utf-8") as handle:
+        json.dump(payload, handle, indent=2)
     if args.require_valid:
-        invalid = [r for r in results if r.status in {"present-but-invalid", "rate-limited"}]
+        invalid = [
+            result
+            for result in results
+            if result.status
+            in {"present-but-invalid", "rate-limited", "transient-network-error"}
+        ]
         if invalid:
-            print("\nFailing preflight due to invalid/rate-limited provider credentials.")
+            print(
+                "\nFailing preflight due to invalid/rate-limited/unreachable provider."
+            )
+            return 1
+    if args.require_configured:
+        missing = [result for result in results if result.status == "missing"]
+        if missing:
+            names = ", ".join(result.provider for result in missing)
+            print(f"\nFailing preflight due to missing provider configuration: {names}")
             return 1
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

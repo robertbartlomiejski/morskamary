@@ -19,6 +19,7 @@ if str(REPO_ROOT) not in sys.path:
 from src.scientific_sources.live_query_protocol import (  # noqa: E402
     LiveQueryProtocolError,
     load_live_query_protocol,
+    validate_complete_authoritative_protocol_projection,
     validate_legacy_projection_matches_protocol,
 )
 
@@ -41,7 +42,7 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         "--min-total-queries",
         type=int,
         default=120,
-        help="Fail if protocol has fewer executable queries than this threshold.",
+        help="Fail unless the protocol declares exactly this many executable queries.",
     )
     parser.add_argument(
         "--emit-summary-path",
@@ -68,10 +69,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     validate_legacy_projection_matches_protocol(protocol, projection)
 
     all_queries = protocol.all_queries()
-    if len(all_queries) < args.min_total_queries:
+    if len(all_queries) != args.min_total_queries:
         raise LiveQueryProtocolError(
-            f"protocol query count {len(all_queries)} is below required minimum "
-            f"{args.min_total_queries}"
+            f"protocol query count {len(all_queries)} must equal required "
+            f"scientific count {args.min_total_queries}: exact protocol count mismatch"
         )
 
     output_path = Path(args.output_path)
@@ -110,6 +111,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         "query_count": len(constraints),
         "queries": constraints,
     }
+    validate_complete_authoritative_protocol_projection(protocol, constraints_payload)
     constraints_path = Path(args.emit_constraints_path)
     constraints_path.parent.mkdir(parents=True, exist_ok=True)
     constraints_path.write_text(

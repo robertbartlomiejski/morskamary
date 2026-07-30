@@ -37,6 +37,12 @@ ARCHIVE_OPTIONAL_TARGETS: tuple[str, ...] = (
     "outputs/research_api_health.json",
     "outputs/research_source_capabilities.json",
     "outputs/validation_state.json",
+    "outputs/cumulative_database/validated_credential_supply_map.json",
+    "outputs/cumulative_database/validated_credential_supply_audit.json",
+    "outputs/cumulative_database/provider_sensitivity_analysis.json",
+    "outputs/cumulative_database/provider_sensitivity_analysis.md",
+    # run_stability_report.json is a cross-run mutable report; it must remain
+    # outside immutable per-run archives (built separately by build_run_stability_report.py)
 )
 
 ANALYSIS_VIEW_TARGETS: tuple[str, ...] = (
@@ -61,6 +67,7 @@ INDEX_CSV_COLUMNS: tuple[str, ...] = (
     "analysis_timestamp_utc",
     "run_id",
     "run_path",
+    "archive_root",
     "analysis_input_mode",
     "is_static_recovery_mode",
     "static_recovery_reason",
@@ -361,6 +368,50 @@ def _append_jsonl_index(
         handle.write(json.dumps(summary, ensure_ascii=False) + "\n")
 
 
+def _read_csv_header(csv_path: Path) -> list[str]:
+    """Return the header row of an existing CSV file, or [] if unreadable."""
+    try:
+        with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.reader(handle)
+            header = next(reader, None)
+            return list(header) if header else []
+    except OSError:
+        return []
+
+
+def _rewrite_csv_with_new_schema(
+    csv_path: Path,
+    new_fieldnames: tuple[str, ...],
+) -> None:
+    """Rewrite *csv_path* adding any columns absent from the legacy header.
+
+    Existing rows are preserved; missing columns are filled with empty strings.
+    This makes it safe to append rows with a wider schema (e.g. after a new
+    ``archive_root`` column is added) without corrupting column alignment for
+    downstream ``csv.DictReader`` consumers.
+    """
+    old_rows: list[dict[str, str]] = []
+    try:
+        with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                old_rows.append(dict(row))
+    except OSError:
+        old_rows = []
+
+    temporary_path = csv_path.with_suffix(csv_path.suffix + ".tmp")
+    with temporary_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(
+            handle, fieldnames=list(new_fieldnames), extrasaction="ignore"
+        )
+        writer.writeheader()
+        for row in old_rows:
+            # Fill any column that is new (absent from the legacy row).
+            migrated = {col: row.get(col, "") for col in new_fieldnames}
+            writer.writerow(migrated)
+    temporary_path.replace(csv_path)
+
+
 def _append_csv_index(archive_root: Path, manifest_payload: dict[str, Any]) -> None:
     csv_path = archive_root / "cumulative_runs_index.csv"
     row = {
@@ -368,6 +419,7 @@ def _append_csv_index(archive_root: Path, manifest_payload: dict[str, Any]) -> N
         "analysis_timestamp_utc": manifest_payload["analysis_timestamp_utc"],
         "run_id": manifest_payload["run_id"],
         "run_path": manifest_payload["run_path"],
+        "archive_root": manifest_payload["archive_root"],
         "analysis_input_mode": manifest_payload["analysis_input_mode"],
         "is_static_recovery_mode": str(
             manifest_payload["is_static_recovery_mode"]
@@ -405,7 +457,25 @@ def _append_csv_index(archive_root: Path, manifest_payload: dict[str, Any]) -> N
         "total_bytes": str(manifest_payload["total_bytes"]),
     }
 
-    write_header = not csv_path.exists()
+    if not csv_path.exists():
+        write_header = True
+    else:
+        # If the existing file was written with a legacy (narrower) schema,
+        # migrate it to the current column set before appending so that
+        # DictReader consumers see a consistent header across all rows.
+        existing_header = _read_csv_header(csv_path)
+        legacy_header = [
+            column for column in INDEX_CSV_COLUMNS if column != "archive_root"
+        ]
+        if list(existing_header) == legacy_header:
+            _rewrite_csv_with_new_schema(csv_path, INDEX_CSV_COLUMNS)
+        elif list(existing_header) != list(INDEX_CSV_COLUMNS):
+            raise ValueError(
+                "archive index header is incompatible with the canonical schema; "
+                "refusing to append a misaligned row"
+            )
+        write_header = False
+
     with csv_path.open("a", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(INDEX_CSV_COLUMNS))
         if write_header:
@@ -429,6 +499,13 @@ def _resolve_run_path(archive_root: Path, run_id: str) -> tuple[str, Path]:
 
 def _archive_relative_run_path(run_id: str) -> str:
     return (Path("runs") / run_id).as_posix()
+
+
+def _repo_relative_posix(path: Path, repo_root: Path) -> str:
+    try:
+        return path.resolve().relative_to(repo_root.resolve()).as_posix()
+    except ValueError:
+        return "[redacted-out-of-tree-path]"
 
 
 def archive_run_outputs(
@@ -483,7 +560,7 @@ def archive_run_outputs(
         "timestamp_utc": timestamp_utc,
         "analysis_timestamp_utc": str(cumulative_metadata.get("timestamp_utc", "")),
         "archived_at": timestamp_utc,
-        "archive_root": archive_root.as_posix(),
+        "archive_root": _repo_relative_posix(archive_root, repo_root),
         "run_path": _archive_relative_run_path(resolved_run_id),
         "copied_targets": copy_targets,
         "file_count": len(archived_files),
