@@ -459,7 +459,7 @@ jobs:
           retention-days: 30
 
       - name: Upload current-run audit
-        if: success()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: morskamary-run-audit-${{ github.run_id }}-${{ github.run_attempt }}
@@ -474,7 +474,7 @@ jobs:
             outputs/cumulative_database/novelty_gate_report.json
             outputs/cumulative_database/provider_sensitivity_analysis.json
             outputs/cumulative_database/validated_credential_supply_audit.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
 
       - name: Upload short-retention debug files
