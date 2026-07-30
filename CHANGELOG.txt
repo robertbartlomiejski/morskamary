@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-30 (fix: align health-check and workflow tests with WoS deactivation and audit-upload policy)
+  Change type fix
+  Scope tests
+  Files affected tests/test_check_research_api_health.py tests/test_full_live_analysis_workflow.py CHANGELOG.txt
+  Summary Removes probe_wos references from five health-check tests (probe_wos was removed from check_research_api_health.py by the WoS deactivation commit) and updates the upload-guard test to expect if: always() for the audit artifact step (matching the workflow change in 679dacd).
+  Reason Tests patched a function (probe_wos) that no longer exists in the production module, causing AttributeError on import. The audit upload was intentionally changed to always() so diagnostic artifacts are preserved even on failure, but the test was not updated.
+  Impact No scientific logic or execution semantics change. Test suite returns to full green (1248/1248 passed).
+  Provenance PR #217 CI failure analysis on remote head f778487.
+  Quality checks flake8 clean, mypy clean (71 files), pytest 1248/1248 passed, validate_generated_outputs PASSED.
+
 - 2026-07-29 (fix: close remaining PR-A acquisition-plan and archive-index gaps)
   Change type fix update
   Scope workflows scripts tests governance
