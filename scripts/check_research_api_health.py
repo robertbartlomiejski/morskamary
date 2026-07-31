@@ -189,7 +189,16 @@ def probe_microsoft_graph() -> ProbeResult:
 
 
 def probe_openalex() -> ProbeResult:
-    """OpenAlex provider requires API key for live acquisition."""
+    """Check OpenAlex API availability.
+
+    Verifies that ``OPENALEX_API_KEY`` is configured, then probes the endpoint.
+    The request does not use the actual key value; credential presence is
+    checked but not validated against the provider.
+
+    Returns:
+        ProbeResult: The OpenAlex health-check result, including `missing` when
+            `OPENALEX_API_KEY` is not set.
+    """
     api_key = os.getenv("OPENALEX_API_KEY", "")
     if not api_key:
         return ProbeResult(
