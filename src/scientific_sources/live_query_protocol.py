@@ -779,12 +779,28 @@ def validate_complete_authoritative_protocol_projection(
         "sort_strategy",
         "sampling_strategy",
     )
+    seen_query_ids: set[str] = set()
     for cq in constraint_queries:
         qid = str(cq.get("query_id", "")).strip()
         if qid not in protocol_by_id:
             raise LiveQueryProtocolError(
                 f"constraints contain unknown query_id '{qid}'"
             )
+        seen_query_ids.add(qid)
+        expected = protocol_by_id[qid]
+        for acq_field in _ACQUISITION_FIELDS:
+            projected_val = cq.get(acq_field)
+            expected_val = expected.get(acq_field)
+            if projected_val != expected_val:
+                raise LiveQueryProtocolError(
+                    f"query '{qid}' field '{acq_field}' mismatch: "
+                    f"constraints={projected_val!r} vs protocol={expected_val!r}"
+                )
+    missing_ids = set(protocol_by_id) - seen_query_ids
+    if missing_ids:
+        raise LiveQueryProtocolError(
+            f"constraints missing required query_id(s): {sorted(missing_ids)}"
+        )
         expected = protocol_by_id[qid]
         for acq_field in _ACQUISITION_FIELDS:
             projected_val = cq.get(acq_field)
