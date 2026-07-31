@@ -33,7 +33,8 @@ def test_request_marks_econnreset_as_transient_network_error(reset_errno: int) -
         result = check_research_api_health._request("https://example.com", {})
 
     assert result.status == "transient-network-error"
-    assert "connection reset" in result.detail.lower()
+    assert result.detail == "network failure"
+    assert "connection reset" not in result.detail.lower()
 
 
 def test_request_keeps_other_runtime_errors_as_present_but_invalid() -> None:
@@ -42,12 +43,13 @@ def test_request_keeps_other_runtime_errors_as_present_but_invalid() -> None:
 
     with patch(
         "check_research_api_health.urllib.request.urlopen",
-        side_effect=RuntimeError("boom"),
+        side_effect=RuntimeError("credential-bearing-url?api_key=secret"),
     ):
         result = check_research_api_health._request("https://example.com", {})
 
     assert result.status == "present-but-invalid"
-    assert result.detail == "boom"
+    assert result.detail == "request failed"
+    assert "secret" not in result.detail
 
 
 def test_probe_microsoft_graph_treats_timeout_as_transient(monkeypatch) -> None:
@@ -67,7 +69,7 @@ def test_probe_microsoft_graph_treats_timeout_as_transient(monkeypatch) -> None:
 
     assert result.provider == "microsoft_graph"
     assert result.status == "transient-network-error"
-    assert "timed out" in result.detail.lower()
+    assert result.detail == "network failure"
 
 
 def test_request_success_returns_ok_status() -> None:
@@ -180,13 +182,36 @@ def test_probe_wos_and_scival_missing_keys(monkeypatch) -> None:
     monkeypatch.delenv("WOS_API_KEY", raising=False)
     monkeypatch.delenv("SCIVAL_API_KEY", raising=False)
 
-    wos_result = check_research_api_health.probe_wos()
-    scival_result = check_research_api_health.probe_scival()
+    with (
+        patch("check_research_api_health._request") as request,
+        patch("check_research_api_health.urllib.request.urlopen") as urlopen,
+    ):
+        wos_result = check_research_api_health.probe_wos()
+        scival_result = check_research_api_health.probe_scival()
 
     assert wos_result.status == "missing"
     assert wos_result.provider == "wos"
+    request.assert_not_called()
+    urlopen.assert_not_called()
     assert scival_result.status == "missing"
     assert scival_result.provider == "scival"
+
+
+def test_probe_wos_redacts_transport_failure(monkeypatch) -> None:
+    """WoS health diagnostics must not retain exception or credential details."""
+    import check_research_api_health
+
+    monkeypatch.setenv("WOS_API_KEY", "secret-wos-key")
+    with patch(
+        "check_research_api_health.urllib.request.urlopen",
+        side_effect=RuntimeError("request failed with secret-wos-key in URL"),
+    ):
+        result = check_research_api_health.probe_wos()
+
+    assert result.provider == "wos"
+    assert result.status == "present-but-invalid"
+    assert result.detail == "request failed"
+    assert "secret-wos-key" not in result.detail
 
 
 def test_probe_google_drive_missing_and_configured_paths(monkeypatch, tmp_path: Path) -> None:

@@ -328,7 +328,10 @@ jobs:
             --output outputs/release_packages/morskamary_live_cumulative_latest.zip
 
       - name: Upload live-enriched analysis outputs
-        if: always()
+        # Never upload tracked/stale audit outputs after an early preflight or
+        # acquisition failure.  Successful completion proves that this run's
+        # audit bundle and all downstream publication gates were rebuilt.
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: live-enriched-analysis-outputs

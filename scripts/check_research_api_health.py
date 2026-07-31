@@ -84,9 +84,11 @@ def _request(url: str, headers: dict[str, str]) -> ProbeResult:
             return ProbeResult("", "present-but-invalid", f"HTTP {exc.code}", exc.code)
         return ProbeResult("", "present-but-invalid", f"HTTP {exc.code}", exc.code)
     except Exception as exc:
+        # Exception strings can embed request URLs, headers, or provider SDK
+        # diagnostics.  Health artifacts expose only stable classifications.
         if _is_transient_network_error(exc):
-            return ProbeResult("", "transient-network-error", str(exc), None)
-        return ProbeResult("", "present-but-invalid", str(exc), None)
+            return ProbeResult("", "transient-network-error", "network failure", None)
+        return ProbeResult("", "present-but-invalid", "request failed", None)
 
 
 def probe_crossref() -> ProbeResult:
@@ -184,8 +186,10 @@ def probe_microsoft_graph() -> ProbeResult:
         return ProbeResult("microsoft_graph", "present-but-invalid", f"HTTP {exc.code}", exc.code)
     except Exception as exc:
         if _is_transient_network_error(exc):
-            return ProbeResult("microsoft_graph", "transient-network-error", str(exc))
-        return ProbeResult("microsoft_graph", "present-but-invalid", str(exc))
+            return ProbeResult(
+                "microsoft_graph", "transient-network-error", "network failure"
+            )
+        return ProbeResult("microsoft_graph", "present-but-invalid", "request failed")
 
 
 def probe_openalex() -> ProbeResult:

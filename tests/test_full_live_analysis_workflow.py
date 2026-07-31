@@ -140,6 +140,17 @@ def test_workflow_uploads_live_runs_directory_as_artifact() -> None:
     assert "outputs/live_runs/" in upload_block
 
 
+def test_workflow_does_not_upload_stale_audit_after_early_failure() -> None:
+    """Artifact publication requires successful current-run audit generation."""
+    upload_index = WORKFLOW_TEXT.index("- name: Upload live-enriched analysis outputs")
+    upload_block = WORKFLOW_TEXT[upload_index : upload_index + 700]
+    audit_index = WORKFLOW_TEXT.index("python scripts/build_live_run_audit.py")
+
+    assert audit_index < upload_index
+    assert "if: success()" in upload_block
+    assert "if: always()" not in upload_block
+
+
 def test_commit_outputs_job_stages_live_runs_directory() -> None:
     commit_index = WORKFLOW_TEXT.index("commit-outputs:")
     commit_block = WORKFLOW_TEXT[commit_index:]

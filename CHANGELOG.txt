@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-07-31 (fix: restore fail-closed health and audit publication boundaries)
+  Change type fix update
+  Scope scripts workflows tests governance
+  Files affected scripts/check_research_api_health.py .github/workflows/full-live-analysis.yml tests/test_check_research_api_health.py tests/test_full_live_analysis_workflow.py CHANGELOG.txt
+  Summary Restored zero-network WoS missing-key health behavior with credential-safe transport diagnostics, and restricted live-analysis artifact upload to successful runs so an early failure cannot publish stale tracked audit outputs.
+  Reason Reviewer-protected acquisition must fail closed without persisting exception details or treating repository state from an earlier run as a current-run audit artifact.
+  Impact Health preflight retains only stable status categories, and current-run audit artifacts are uploaded only after acquisition, audit construction, and downstream gates complete successfully. No scientific results, archives, or provider data were changed.
+  Provenance Layer 1 acquisition and secret-redaction contracts in .github/copilot-instructions.md and config/live_query_protocol.yml.
+  Quality checks focused negative regressions; canonical Python, workflow, strict-sync, manifest, generated-output, and archive-contract validation.
+
 - 2026-07-29 (fix: fail-closed Web of Science pagination diagnostics)
   Change type fix update
   Scope src tests governance
