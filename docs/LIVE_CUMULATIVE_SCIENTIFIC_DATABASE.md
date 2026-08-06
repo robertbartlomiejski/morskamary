@@ -68,7 +68,7 @@ using chunked 1 MB reads for reproducibility across large runs.
 Each row in `evidence_records.{csv,jsonl}` represents one deduplicated
 scientific work observed across all runs contributing to the bundle.
 
-### Evidence-record columns
+### Evidence-record columns (Layer 2)
 
 1. `evidence_id`
 2. `canonical_doi`
@@ -211,6 +211,13 @@ Each row in `competence_demand_signals.{csv,jsonl}` is one deterministic
 semantic hit against the metadata available for an evidence record in the
 current run. The scanner is intentionally rule-based (no LLM, no external
 services) and reproducible.
+
+This compatibility projection deliberately retains its frozen v1 classifier
+identifier, signal identities, substring matching, and one-row-per-pattern
+cardinality. The schema-v2 construct-validity tables use the separately
+versioned v3 scanner, which retains every exact, unqualified evidence span.
+Neither projection turns a legacy aggregate row into a validated canonical
+competence.
 
 ### Columns
 

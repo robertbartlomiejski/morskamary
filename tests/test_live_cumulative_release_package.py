@@ -1359,26 +1359,13 @@ def test_package_rejects_invalid_supersession_links(
 def test_package_rejects_assignment_evidence_unlinked_from_candidate(
     tmp_path: Path,
     evidence_ids: str,
+    capsys: object,
 ) -> None:
     """Assignments retain their source candidate's nonempty evidence lineage."""
     db = tmp_path / "db"
     reports = tmp_path / "reports"
     _write_min_bundle(db, reports)
-    rows = _schema_v2_rows()
-    for entity_name in (
-        "validation_decisions",
-        "canonical_competences",
-        "sector_competence_assignments",
-    ):
-        row = rows[entity_name]
-        _write_csv_rows(
-            db / f"{entity_name}.csv",
-            CSV_REQUIRED_COLUMNS[f"{entity_name}.csv"],
-            [row],
-        )
-        (db / f"{entity_name}.jsonl").write_text(
-            json.dumps(row) + "\n", encoding="utf-8"
-        )
+    _write_schema_v2_decision_chain(db)
 
     evidence_csv_path = db / "evidence_records.csv"
     evidence_rows = list(

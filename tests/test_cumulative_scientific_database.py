@@ -2115,12 +2115,13 @@ def test_multiple_observations_keep_signal_fragment_candidate_lineage(
     semantic_pairs = {
         (row.signal_id, row.fragment_id) for row in result.semantic_signals
     }
-    assert len(fragment_ids) == 2
-    assert len(semantic_pairs) == 2
+    assert len(fragment_ids) == 4
+    assert len(semantic_pairs) == 4
     assert {row.fragment_id for row in result.semantic_signals} == fragment_ids
     assert len(result.competence_candidates) == 1
     for candidate in result.competence_candidates:
         assert (candidate.signal_id, candidate.fragment_id) in semantic_pairs
+        assert set(candidate.fragment_ids.split("|")) == fragment_ids
 
 
 def test_candidate_representative_fragment_is_independent_of_input_order(
@@ -2380,6 +2381,82 @@ def test_semantic_scanner_uses_word_boundaries_and_qualified_claim_gate() -> Non
         match for match in matches if match.pattern.signal_type == "digital_skill"
     )
     assert digital_match.span_text == "AI"
+
+
+def test_v2_retains_all_occurrences_while_legacy_projection_remains_v1(
+    tmp_path: Path,
+) -> None:
+    """Distinct retained spans aggregate to one v2 candidate, not legacy rows."""
+    current = tmp_path / "current"
+    abstract = "Governance improves resilience. Governance improves resilience."
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Neutral bibliographic record",
+                "abstract": abstract,
+                "doi": "10.1000/repeated-governance",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    v2_signals = [
+        signal
+        for signal in result.semantic_signals
+        if signal.signal_type == "governance_skill"
+    ]
+    assert len(v2_signals) == 2
+    assert {signal.signal_id for signal in v2_signals} == {v2_signals[0].signal_id}
+    assert {signal.classifier_version for signal in v2_signals} == {
+        CLASSIFIER_VERSION
+    }
+    v2_fragments = [
+        fragment
+        for fragment in result.evidence_fragments
+        if fragment.fragment_id in {signal.fragment_id for signal in v2_signals}
+    ]
+    assert {fragment.span_start_offset for fragment in v2_fragments} == {
+        abstract.index("Governance"),
+        abstract.rindex("Governance"),
+    }
+    candidate = next(
+        row
+        for row in result.competence_candidates
+        if row.signal_id == v2_signals[0].signal_id
+    )
+    assert set(candidate.fragment_ids.split("|")) == {
+        fragment.fragment_id for fragment in v2_fragments
+    }
+
+    legacy_signals = [
+        signal
+        for signal in result.competence_demand_signals
+        if signal.signal_type == "governance_skill"
+    ]
+    assert len(legacy_signals) == 1
+    legacy_signal = legacy_signals[0]
+    assert (
+        legacy_signal.classifier_version
+        == database_module.LEGACY_COMPATIBILITY_CLASSIFIER_VERSION
+    )
+    assert legacy_signal.signal_id == database_module._make_signal_id(
+        legacy_signal.evidence_id,
+        legacy_signal.signal_type,
+        legacy_signal.demand_phrase,
+        legacy_signal.evidence_text_hash,
+        database_module.LEGACY_COMPATIBILITY_CLASSIFIER_VERSION,
+    )
+    assert legacy_signal.signal_id != v2_signals[0].signal_id
 
 
 def test_archived_only_construct_validity_rows_are_retained(

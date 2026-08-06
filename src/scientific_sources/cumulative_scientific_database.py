@@ -1804,7 +1804,6 @@ def build_cumulative_scientific_database(
         buckets=buckets,
         evidence_index=evidence_index,
         current_run_id=resolved_run_id,
-        current_records=current_records,
     )
     historical_signal_ids = _historical_signal_ids(
         buckets=buckets,
@@ -2329,10 +2328,8 @@ def _make_signals(
     buckets: Mapping[Tuple[str, str], Sequence[_RunObservation]],
     evidence_index: Mapping[Tuple[str, str], str],
     current_run_id: str,
-    current_records: Sequence[Mapping[str, Any]],
 ) -> List[CompetenceDemandSignal]:
     """Return the frozen-v1, de-duplicated compatibility projection."""
-    del current_records  # Retained for the pre-v2 private call signature.
     signals_by_id: Dict[str, CompetenceDemandSignal] = {}
     for bucket, observations in sorted(buckets.items(), key=lambda item: item[0]):
         evidence_id = evidence_index[bucket]
@@ -2481,7 +2478,6 @@ def _build_signal_components_for_observation(
         ("full_text", full_text),
     ]
     text_scope = " || ".join(text for _, text in surfaces if text)
-    semantic_scope = "+".join(name for name, text in surfaces if text)
     if not text_scope:
         return []
 
@@ -3671,6 +3667,7 @@ __all__ = [
     "EVIDENCE_RECORDS_JSONL",
     "EVIDENCE_RECORD_COLUMNS",
     "EvidenceRecord",
+    "LEGACY_COMPATIBILITY_CLASSIFIER_VERSION",
     "RUN_NOVELTY_METRICS_CSV",
     "RUN_NOVELTY_METRICS_JSON",
     "RunNoveltyMetrics",
