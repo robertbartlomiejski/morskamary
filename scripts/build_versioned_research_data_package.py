@@ -735,14 +735,6 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
     if preflight_code != 0:
         return preflight_code
 
-    package_dir = (
-        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}"
-    )
-    if package_dir.exists():
-        shutil.rmtree(package_dir)
-    (package_dir / "data" / "csv").mkdir(parents=True, exist_ok=True)
-    (package_dir / "data" / "jsonl").mkdir(parents=True, exist_ok=True)
-
     cross_run_summary = _read_csv(
         repo_root / "outputs/run_archive/cross_run_run_summary.csv"
     )
@@ -1141,6 +1133,14 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         for error in validation_errors[:50]:
             print(f"{status_label('error')} {error}")
         return 1
+
+    package_dir = (
+        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}"
+    )
+    if package_dir.exists():
+        shutil.rmtree(package_dir)
+    (package_dir / "data" / "csv").mkdir(parents=True, exist_ok=True)
+    (package_dir / "data" / "jsonl").mkdir(parents=True, exist_ok=True)
 
     for table_name, rows in csv_tables.items():
         if table_name in SCHEMA_V2_ENTITY_NAMES:
