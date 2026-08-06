@@ -31,6 +31,32 @@ def _load_module():
     return module
 
 
+def test_schema_v2_enums_generate_variable_and_value_labels() -> None:
+    module = _load_module()
+    variable_rows, value_rows = module._load_variable_and_value_labels(
+        REPO_ROOT / "schemas"
+    )
+    variables = {
+        (row["schema_file"], row["variable_name"]): row for row in variable_rows
+    }
+    values = {
+        (row["schema_file"], row["variable_name"], row["code"]): row["label"]
+        for row in value_rows
+    }
+
+    for entity_name in SCHEMA_V2_ENTITY_NAMES:
+        schema_name = f"{entity_name}.schema.json"
+        schema = json.loads((REPO_ROOT / "schemas" / schema_name).read_text())
+        for field_name, definition in schema["properties"].items():
+            if "enum" not in definition:
+                continue
+            assert (schema_name, field_name) in variables
+            key = (schema_name, field_name, str(code))
+            assert key in values
+            if code == "":
+                assert values[key] == "Unbound"
+
+
 def _copy_required_schemas(repo_root: Path) -> None:
     schema_dir = repo_root / "schemas"
     schema_dir.mkdir(parents=True, exist_ok=True)

@@ -292,6 +292,7 @@ def _axis_code(value: str) -> tuple[int, str]:
 def _load_variable_and_value_labels(
     schema_dir: Path,
 ) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """Load declared categorical metadata and enum-backed schema categories."""
     variable_rows: list[dict[str, str]] = []
     value_rows: list[dict[str, str]] = []
     for schema_path in sorted(schema_dir.glob("*.schema.json")):
@@ -304,7 +305,9 @@ def _load_variable_and_value_labels(
         for field_name, definition in props.items():
             if not isinstance(definition, dict):
                 continue
-            if not definition.get("x-categorical"):
+            enum_values = definition.get("enum")
+            is_enum_category = isinstance(enum_values, list) and bool(enum_values)
+            if not definition.get("x-categorical") and not is_enum_category:
                 continue
             variable_rows.append(
                 {
@@ -316,11 +319,23 @@ def _load_variable_and_value_labels(
                         str(i) for i in definition.get("x-missing-codes", [])
                     ),
                     "allowed_values": "|".join(
-                        str(i) for i in definition.get("x-allowed-values", [])
+                        str(i)
+                        for i in definition.get(
+                            "x-allowed-values", enum_values or []
+                        )
                     ),
                 }
             )
             value_labels = definition.get("x-value-labels", {})
+            if not value_labels and is_enum_category:
+                value_labels = {
+                    str(value): (
+                        "Unbound"
+                        if value == ""
+                        else str(value).replace("_", " ").title()
+                    )
+                    for value in enum_values
+                }
             if isinstance(value_labels, dict):
                 for code, label in sorted(value_labels.items(), key=lambda kv: kv[0]):
                     value_rows.append(
