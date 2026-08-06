@@ -68,7 +68,7 @@ using chunked 1 MB reads for reproducibility across large runs.
 Each row in `evidence_records.{csv,jsonl}` represents one deduplicated
 scientific work observed across all runs contributing to the bundle.
 
-### Columns
+### Competence-demand signal columns
 
 1. `evidence_id`
 2. `canonical_doi`
