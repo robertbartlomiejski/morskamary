@@ -2345,7 +2345,7 @@ def _build_construct_validity_tables(
                     component.evidence_fragment,
                 )
                 semantic_by_id.setdefault(
-                    component.semantic_signal.signal_id,
+                    component.semantic_signal.fragment_id,
                     component.semantic_signal,
                 )
                 candidates_by_id.setdefault(
