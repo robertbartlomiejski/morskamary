@@ -92,6 +92,27 @@ def _to_repo_relative_posix(path: Path) -> str:
         return "[redacted-out-of-tree-path]"
 
 
+def _redact_cli_path_text(value: object, paths: Sequence[Path]) -> str:
+    """Redact supplied paths from diagnostic text before it reaches the CLI."""
+    text = str(value)
+    replacements: Dict[str, str] = {}
+    for path in paths:
+        try:
+            resolved_path = path.resolve()
+        except (OSError, RuntimeError):
+            resolved_path = path
+        safe_path = _to_repo_relative_posix(path)
+        for candidate in (path, resolved_path):
+            candidate_text = str(candidate)
+            if len(candidate_text) > 1:
+                replacements[candidate_text] = safe_path
+                replacements[candidate_text.replace("\\", "/")] = safe_path
+
+    for candidate_text in sorted(replacements, key=len, reverse=True):
+        text = text.replace(candidate_text, replacements[candidate_text])
+    return text
+
+
 def _clean(value: Any) -> str:
     return str(value or "").strip()
 
@@ -334,12 +355,24 @@ def main(argv: Sequence[str] | None = None) -> int:
             built_at_utc=args.built_at_utc,
         )
     except (OSError, ValueError) as exc:
-        print(f"ERROR: {exc}", file=sys.stderr)
+        print(
+            "ERROR: "
+            + _redact_cli_path_text(
+                exc,
+                (
+                    Path(args.registry),
+                    Path(args.derived_demands),
+                    Path(args.output),
+                    Path(args.audit_output),
+                ),
+            ),
+            file=sys.stderr,
+        )
         return 1
     summary = {
         "validated_demand_count": len(output["validated_supply_by_demand_id"]),
-        "output": args.output,
-        "audit_output": args.audit_output,
+        "output": _to_repo_relative_posix(Path(args.output)),
+        "audit_output": _to_repo_relative_posix(Path(args.audit_output)),
     }
     print(json.dumps(summary, sort_keys=True))
     return 0

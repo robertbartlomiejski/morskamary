@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+import scripts.build_validated_credential_supply_map as supply_map_builder
 from scripts.build_validated_credential_supply_map import (
     REGISTRY_FIELDS,
     build_validated_supply_map,
@@ -325,3 +326,149 @@ def test_empty_demand_set_produces_not_computable_supply_map(tmp_path: Path) -> 
     assert output_path.exists()
     data = json.loads(output_path.read_text())
     assert data["has_validated_supply"] is False
+
+
+def test_cli_redacts_out_of_tree_output_paths(tmp_path: Path, capsys) -> None:
+    demands_path = tmp_path / "derived_competence_demands.csv"
+    registry_path = tmp_path / "credential_supply_registry.csv"
+    output_path = tmp_path / "map.json"
+    audit_path = tmp_path / "audit.json"
+    _write_demands(demands_path, ["cd:hydro:1"])
+    _write_registry(registry_path, [_registry_row()])
+
+    result = main(
+        [
+            "--registry",
+            str(registry_path),
+            "--derived-demands",
+            str(demands_path),
+            "--output",
+            str(output_path),
+            "--audit-output",
+            str(audit_path),
+        ]
+    )
+
+    captured = capsys.readouterr()
+    summary = json.loads(captured.out)
+    assert result == 0
+    assert summary["output"] == "[redacted-out-of-tree-path]"
+    assert summary["audit_output"] == "[redacted-out-of-tree-path]"
+    assert str(output_path) not in captured.out
+    assert str(audit_path) not in captured.out
+
+
+def test_cli_redacts_all_supplied_paths_from_error_text(
+    tmp_path: Path, monkeypatch, capsys
+) -> None:
+    registry_path = tmp_path / "credential_supply_registry.csv"
+    demands_path = tmp_path / "derived_competence_demands.csv"
+    output_path = tmp_path / "map.json"
+    audit_path = tmp_path / "audit.json"
+
+    def fail_build(**kwargs) -> None:
+        raise OSError(
+            "failed paths: "
+            + ", ".join(str(kwargs[key]) for key in sorted(kwargs))
+        )
+
+    monkeypatch.setattr(supply_map_builder, "build_validated_supply_map", fail_build)
+
+    result = main(
+        [
+            "--registry",
+            str(registry_path),
+            "--derived-demands",
+            str(demands_path),
+            "--output",
+            str(output_path),
+            "--audit-output",
+            str(audit_path),
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert result == 1
+    assert "[redacted-out-of-tree-path]" in captured.err
+    for path in (registry_path, demands_path, output_path, audit_path):
+        assert str(path) not in captured.err
+
+
+def _stub_cli_build(monkeypatch) -> None:
+    """Prevent CLI path-display tests from writing any real output file."""
+
+    def fake_build(**_kwargs):
+        return {"validated_supply_by_demand_id": {}}
+
+    monkeypatch.setattr(supply_map_builder, "build_validated_supply_map", fake_build)
+
+
+def test_cli_default_relative_output_paths_are_repo_relative(monkeypatch, capsys) -> None:
+    _stub_cli_build(monkeypatch)
+    monkeypatch.chdir(supply_map_builder._REPO_ROOT_SUPPLY)
+
+    assert main([]) == 0
+
+    captured = capsys.readouterr()
+    summary = json.loads(captured.out)
+    assert summary == {
+        "audit_output": "outputs/cumulative_database/validated_credential_supply_audit.json",
+        "output": "outputs/cumulative_database/validated_credential_supply_map.json",
+        "validated_demand_count": 0,
+    }
+    assert str(supply_map_builder._REPO_ROOT_SUPPLY) not in captured.out
+    assert captured.err == ""
+
+
+@pytest.mark.parametrize("windows_style", [False, True])
+def test_cli_absolute_in_repo_output_paths_are_rendered_relative_posix(
+    monkeypatch, capsys, windows_style: bool
+) -> None:
+    _stub_cli_build(monkeypatch)
+    repo_root = supply_map_builder._REPO_ROOT_SUPPLY
+    output_path = repo_root / ".path-display-test" / "map.json"
+    audit_path = repo_root / ".path-display-test" / "audit.json"
+    output_arg = str(output_path)
+    audit_arg = str(audit_path)
+    if windows_style:
+        output_arg = output_arg.replace("/", "\\")
+        audit_arg = audit_arg.replace("/", "\\")
+
+    assert main(["--output", output_arg, "--audit-output", audit_arg]) == 0
+
+    captured = capsys.readouterr()
+    summary = json.loads(captured.out)
+    assert summary["output"] == ".path-display-test/map.json"
+    assert summary["audit_output"] == ".path-display-test/audit.json"
+    assert str(output_path) not in captured.out
+    assert str(audit_path) not in captured.out
+    assert captured.err == ""
+
+
+@pytest.mark.parametrize(
+    ("output_arg", "audit_arg"),
+    [
+        (
+            r"C:\codex-external-path-test\validated_credential_supply_map.json",
+            r"C:\codex-external-path-test\validated_credential_supply_audit.json",
+        ),
+        (
+            "/tmp/codex-external-path-test/validated_credential_supply_map.json",
+            "/tmp/codex-external-path-test/validated_credential_supply_audit.json",
+        ),
+    ],
+)
+def test_cli_redacts_external_windows_and_posix_output_paths(
+    monkeypatch, capsys, output_arg: str, audit_arg: str
+) -> None:
+    _stub_cli_build(monkeypatch)
+
+    assert main(["--output", output_arg, "--audit-output", audit_arg]) == 0
+
+    captured = capsys.readouterr()
+    summary = json.loads(captured.out)
+    assert summary["output"] == "[redacted-out-of-tree-path]"
+    assert summary["audit_output"] == "[redacted-out-of-tree-path]"
+    assert output_arg not in captured.out
+    assert audit_arg not in captured.out
+    assert captured.err == ""
