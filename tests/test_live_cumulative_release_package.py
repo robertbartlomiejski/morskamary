@@ -106,35 +106,65 @@ def _write_csv_rows(
         writer.writerows(rows)
 
 
+def _refresh_fragment_integrity(
+    fragment: dict[str, object], *, source_provider_id: str
+) -> str:
+    """Refresh fixture hashes from the published source-occurrence preimage."""
+    fragment["source_provider_id"] = source_provider_id
+    source_query_text = re.sub(
+        r"\s+", " ", str(fragment["source_query_text"])
+    ).strip().lower()
+    payload = "\x1f".join(
+        (
+            str(fragment["run_id"]),
+            str(fragment["evidence_id"]),
+            str(fragment["source_retrieved_at_utc"]),
+            str(fragment["source_provider"]),
+            source_provider_id.strip().lower(),
+            str(fragment["source_query_id"]),
+            source_query_text,
+        )
+    )
+    provenance_id = "prov:" + hashlib.sha256(
+        payload.encode("utf-8")
+    ).hexdigest()
+    fragment["source_provenance_id"] = provenance_id
+    fragment["provenance_hash"] = hashlib.sha256(
+        provenance_id.encode("utf-8")
+    ).hexdigest()
+    normalized_context = re.sub(
+        r"\s+", " ", str(fragment["fragment_text"])
+    ).strip().lower()
+    fragment["surface_text_hash"] = hashlib.sha256(
+        normalized_context.encode("utf-8")
+    ).hexdigest()
+    return provenance_id
+
+
 def _schema_v2_rows() -> dict[str, dict[str, object]]:
-    source_provenance_id = (
-        "prov:35e99358e7ea05bc9630930eab4cd3228b215cabd6de9984c6dbba75525367d3"
-    )
-    surface_text_hash = (
-        "b300492f352a9fb63eb3282fb2ce0abcecde517e668f13636ec2cbe428d1cd2e"
-    )
-    provenance_hash = (
-        "ae6f862b5bdaa0aa6aaf222d6d4015529bc08efd04dda15945c121ccb1f6566a"
+    fragment: dict[str, object] = {
+        "fragment_id": "fragment:test",
+        "evidence_id": "E-0001",
+        "run_id": "RUN-1",
+        "source_provenance_id": "",
+        "source_provider": "Crossref",
+        "source_provider_id": "source:test",
+        "source_retrieved_at_utc": "2026-07-10T00:00:00+00:00",
+        "source_query_id": "Q1",
+        "source_query_text": "fixture query",
+        "source_field": "title",
+        "language": "en",
+        "fragment_text": "marine skill",
+        "span_start_offset": 0,
+        "span_end_offset": 12,
+        "surface_text_hash": "",
+        "provenance_hash": "",
+    }
+    source_provenance_id = _refresh_fragment_integrity(
+        fragment, source_provider_id="source:test"
     )
     return {
-        "evidence_fragments": {
-            "fragment_id": "fragment:test",
-            "evidence_id": "E-0001",
-            "run_id": "RUN-1",
-            "source_provenance_id": source_provenance_id,
-            "source_provider": "Crossref",
-            "source_provider_id": "source:test",
-            "source_retrieved_at_utc": "2026-07-10T00:00:00+00:00",
-            "source_query_id": "Q1",
-            "source_query_text": "fixture query",
-            "source_field": "title",
-            "language": "en",
-            "fragment_text": "marine skill",
-            "span_start_offset": 0,
-            "span_end_offset": 12,
-            "surface_text_hash": surface_text_hash,
-            "provenance_hash": provenance_hash,
-        },
+        "evidence_fragments": fragment,
         "semantic_signals": {
             "signal_id": "S-0001",
             "fragment_id": "fragment:test",
@@ -219,41 +249,6 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
             "evidence_ids": "E-0001",
         },
     }
-
-
-def _refresh_fragment_integrity(
-    fragment: dict[str, object], *, source_provider_id: str
-) -> str:
-    """Refresh fixture hashes from the published source-occurrence preimage."""
-    fragment["source_provider_id"] = source_provider_id
-    source_query_text = re.sub(
-        r"\s+", " ", str(fragment["source_query_text"])
-    ).strip().lower()
-    payload = "\x1f".join(
-        (
-            str(fragment["run_id"]),
-            str(fragment["evidence_id"]),
-            str(fragment["source_retrieved_at_utc"]),
-            str(fragment["source_provider"]),
-            source_provider_id.strip().lower(),
-            str(fragment["source_query_id"]),
-            source_query_text,
-        )
-    )
-    provenance_id = "prov:" + hashlib.sha256(
-        payload.encode("utf-8")
-    ).hexdigest()
-    fragment["source_provenance_id"] = provenance_id
-    fragment["provenance_hash"] = hashlib.sha256(
-        provenance_id.encode("utf-8")
-    ).hexdigest()
-    normalized_context = re.sub(
-        r"\s+", " ", str(fragment["fragment_text"])
-    ).strip().lower()
-    fragment["surface_text_hash"] = hashlib.sha256(
-        normalized_context.encode("utf-8")
-    ).hexdigest()
-    return provenance_id
 
 
 def _write_min_bundle(db: Path, reports: Path) -> None:

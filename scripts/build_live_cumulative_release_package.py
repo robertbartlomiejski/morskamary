@@ -1508,9 +1508,8 @@ def _citation_text(version_tag: str, generated_at: str) -> str:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
-    parser = argparse.ArgumentParser(
-        description=next(iter((__doc__ or "").splitlines()), "")
-    )
+    _doclines = (__doc__ or "").splitlines()
+    parser = argparse.ArgumentParser(description=_doclines[0] if _doclines else "")
     parser.add_argument("--database-dir", default="outputs/cumulative_database")
     parser.add_argument("--reports-dir", default="reports")
     parser.add_argument("--stats-dir", default="outputs/layer4_statistics")

@@ -1388,7 +1388,7 @@ class TestCliWrapper:
         import subprocess
 
         proc = subprocess.run(
-            ["python", str(CLI_SCRIPT_PATH), "--help"],
+            [sys.executable, str(CLI_SCRIPT_PATH), "--help"],
             capture_output=True,
             text=True,
             check=False,

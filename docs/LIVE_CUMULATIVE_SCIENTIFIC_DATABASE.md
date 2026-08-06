@@ -176,10 +176,13 @@ Schema v2 adds an explicit construct-valid chain:
   that signal. Therefore an evidence fragment's stored offsets resolve against
   it even when a retained abstract, full-text field, or subject-term field was
   originally structured as a list or mapping.
-- Semantic signals and competence candidates may carry only the fully unbound
-  axis pair `("", "")`. Sector competence assignments are emitted only for one
-  of the four canonical `MARINE/M`, `MARITIME/T`, `OCEANIC/O`, or
-  `HYDRONIZATION/H` pairs. A stable candidate retains every occurrence-level
+- Semantic signals and competence candidates may carry any of the four
+  canonical bound sector-axis pairs — `MARINE/M`, `MARITIME/T`, `OCEANIC/O`,
+  or `HYDRONIZATION/H` — or the fully unbound pair `("", "")`. The fully
+  unbound pair `("", "")` is the **only** permitted incomplete pair; any other
+  combination where exactly one of the two fields is empty is invalid. Sector
+  competence assignments are emitted only for one of the four canonical bound
+  pairs. A stable candidate retains every occurrence-level
   fragment/provenance reference and emits one assignment for each distinct
   valid bound sector-axis context; an accepted but unbound candidate remains
   canonical without an invented sector-axis assignment.
