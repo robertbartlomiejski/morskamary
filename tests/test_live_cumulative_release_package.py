@@ -1009,6 +1009,31 @@ def test_package_rejects_projection_evidence_ids_mismatch(
     ) in captured.err
 
 
+def test_package_rejects_stale_schema_v2_manifest_count(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Manifested schema-v2 row counts cannot diverge from either projection."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    manifest_path = db / "cumulative_database_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["counts"]["competence_candidates"] = 0
+    manifest_path.write_text(
+        json.dumps(manifest, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_manifest_count_mismatch:"
+        "cumulative_database_manifest.json:competence_candidates:"
+        "manifest=0:csv=1:jsonl=1"
+    ) in captured.err
+
+
 def test_package_rejects_canonical_rows_without_validation_decisions(
     tmp_path: Path,
 ) -> None:
@@ -1135,6 +1160,40 @@ def test_package_requires_fragment_context_offsets_and_surface_hash(
     ) in captured.err
 
 
+@pytest.mark.parametrize(
+    ("field_name", "value"),
+    (
+        ("exact_evidence_span", "unlinked evidence span"),
+        ("exact_span_start_offset", 1),
+        ("exact_span_end_offset", 11),
+    ),
+)
+def test_package_requires_candidate_span_to_match_selected_fragment(
+    tmp_path: Path,
+    capsys: object,
+    field_name: str,
+    value: str | int,
+) -> None:
+    """Candidate exact spans cannot diverge from their selected fragment."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _update_schema_v2_first_row(
+        db,
+        "competence_candidates",
+        {field_name: value},
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / f"pkg-{field_name}.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "competence_candidates.csv:L2:selected_fragment_content"
+    ) in captured.err
+
+
 def test_package_recomputes_fragment_provenance_preimage_and_hash(
     tmp_path: Path, capsys: object
 ) -> None:
@@ -1201,6 +1260,34 @@ def test_package_requires_assignment_semantic_context_and_label_guard(
         "schema_v2_lineage_mismatch:"
         "canonical_competences.csv:L2:canonical_label_guard:"
         "provider_metadata_prefix"
+    ) in captured.err
+
+
+def test_package_rejects_assignment_classification_outside_candidate_context(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Assignments cannot substitute a valid but unlinked sector/axis pair."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _write_schema_v2_decision_chain(db)
+    _update_schema_v2_first_row(
+        db,
+        "sector_competence_assignments",
+        {
+            "sector": "shipping",
+            "axis_group": "MARITIME",
+            "axis_code": "T",
+        },
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "sector_competence_assignments.csv:L2:semantic_context"
     ) in captured.err
 
 
@@ -1621,20 +1708,38 @@ def test_package_rejects_demand_without_supporting_evidence_ids(tmp_path: Path) 
 
 
 def test_package_rejects_jsonl_demand_without_supporting_evidence_ids(
-    tmp_path: Path,
+    tmp_path: Path, capsys: object
 ) -> None:
-    """The JSONL compatibility view must retain supporting evidence IDs."""
+    """Compatibility projections require supporting evidence independently."""
     db = tmp_path / "db"
     reports = tmp_path / "reports"
     _write_min_bundle(db, reports)
-    path = db / "derived_competence_demands.jsonl"
-    payload = json.loads(path.read_text(encoding="utf-8"))
+    csv_path = db / "derived_competence_demands.csv"
+    csv_rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
+    assert csv_rows
+    csv_rows[0]["evidence_ids"] = ""
+    _write_csv_rows(
+        csv_path,
+        CSV_REQUIRED_COLUMNS[csv_path.name],
+        [dict(csv_rows[0])],
+    )
+    jsonl_path = db / "derived_competence_demands.jsonl"
+    payload = json.loads(jsonl_path.read_text(encoding="utf-8"))
     payload["evidence_ids"] = ""
-    path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    jsonl_path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
     _rewrite_checksums(db)
     out = tmp_path / "pkg.zip"
     assert _build_fixture_package(db, reports, out) == 1
     assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "derived_demand_missing_supporting_evidence_ids:"
+        "derived_competence_demands.csv:L1:cd:test"
+    ) in captured.err
+    assert (
+        "derived_demand_missing_supporting_evidence_ids:"
+        "derived_competence_demands.jsonl:L1:cd:test"
+    ) in captured.err
 
 
 def test_package_allows_non_hypothesis_demand_evidence_not_in_fragments(
