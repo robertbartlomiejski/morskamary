@@ -320,8 +320,9 @@ def _load_variable_and_value_labels(
                     ),
                     "allowed_values": "|".join(
                         str(i)
-                        for i in definition.get(
-                            "x-allowed-values", enum_values or []
+                        for i in (
+                            definition.get("x-allowed-values")
+                            or (enum_values if enum_values is not None else [])
                         )
                     ),
                 }
@@ -334,7 +335,7 @@ def _load_variable_and_value_labels(
                         if value == ""
                         else str(value).replace("_", " ").title()
                     )
-                    for value in enum_values
+                    for value in (enum_values or [])
                 }
             if isinstance(value_labels, dict):
                 for code, label in sorted(value_labels.items(), key=lambda kv: kv[0]):
