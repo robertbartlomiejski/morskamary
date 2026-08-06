@@ -44,6 +44,19 @@ AXIS_CODE = {"MARINE": 1, "MARITIME": 2, "OCEANIC": 3, "HYDRONIZATION": 4}
 MISSING_CODE = -98
 MISSING_LABEL = "Not extracted"
 
+# Schema-v2 tables are materialized by the cumulative scientific database
+# builder.  Keep the list here so the research-data package carries the whole
+# review-gated construct-validity chain, rather than only its legacy views.
+SCHEMA_V2_ENTITY_NAMES: tuple[str, ...] = (
+    "evidence_fragments",
+    "semantic_signals",
+    "competence_candidates",
+    "canonical_competences",
+    "sector_competence_assignments",
+    "validation_decisions",
+)
+SCHEMA_V2_SOURCE_DIRECTORY = "outputs/cumulative_database"
+
 
 @dataclass(frozen=True)
 class PackageConfig:
@@ -85,6 +98,106 @@ def _load_json(path: Path) -> Any:
 def _read_csv(path: Path) -> list[dict[str, str]]:
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         return list(csv.DictReader(handle))
+
+
+def _coerce_schema_csv_value(value: Any, definition: dict[str, Any]) -> Any:
+    """Restore scalar types lost when a schema-v2 row is serialized to CSV."""
+    if value is None:
+        return None
+    raw_type = definition.get("type")
+    types = (raw_type,) if isinstance(raw_type, str) else tuple(raw_type or ())
+    if "integer" in types:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return value
+    if "number" in types:
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return value
+    if "boolean" in types:
+        if value == "true":
+            return True
+        if value == "false":
+            return False
+    return value
+
+
+def _read_schema_v2_csv(
+    path: Path, schema_path: Path, table_name: str
+) -> tuple[list[dict[str, Any]], list[str]]:
+    """Read a schema-v2 CSV and verify its header before row validation.
+
+    Header validation is necessary for intentionally empty review-gated tables:
+    a header-only file still has to preserve the complete schema contract.
+    """
+    schema = _load_json(schema_path)
+    properties = schema.get("properties", {}) if isinstance(schema, dict) else {}
+    expected_columns = set(properties) if isinstance(properties, dict) else set()
+    errors: list[str] = []
+    rows: list[dict[str, Any]] = []
+
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        headers = reader.fieldnames or []
+        actual_columns = {header for header in headers if header is not None}
+        missing_columns = sorted(expected_columns - actual_columns)
+        unexpected_columns = sorted(actual_columns - expected_columns)
+        if not headers:
+            errors.append(f"{table_name}.csv is missing its schema-v2 header")
+        if len(headers) != len(actual_columns):
+            errors.append(f"{table_name}.csv has duplicate column headers")
+        if missing_columns:
+            errors.append(
+                f"{table_name}.csv is missing schema columns: "
+                f"{', '.join(missing_columns)}"
+            )
+        if unexpected_columns:
+            errors.append(
+                f"{table_name}.csv has unexpected schema columns: "
+                f"{', '.join(unexpected_columns)}"
+            )
+        for row_index, raw_row in enumerate(reader, start=2):
+            if None in raw_row:
+                errors.append(
+                    f"{table_name}.csv row {row_index} has more values than headers"
+                )
+            rows.append(
+                {
+                    key: _coerce_schema_csv_value(
+                        value,
+                        properties.get(key, {}) if isinstance(properties, dict) else {},
+                    )
+                    for key, value in raw_row.items()
+                    if key is not None
+                }
+            )
+    return rows, errors
+
+
+def _read_schema_v2_jsonl(
+    path: Path, table_name: str
+) -> tuple[list[dict[str, Any]], list[str]]:
+    """Read JSONL without echoing source content if a row is malformed."""
+    rows: list[dict[str, Any]] = []
+    errors: list[str] = []
+    for line_number, raw_line in enumerate(
+        path.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        if not raw_line.strip():
+            errors.append(f"{table_name}.jsonl line {line_number} is blank")
+            continue
+        try:
+            payload = json.loads(raw_line)
+        except json.JSONDecodeError:
+            errors.append(f"{table_name}.jsonl line {line_number} is not valid JSON")
+            continue
+        if not isinstance(payload, dict):
+            errors.append(f"{table_name}.jsonl line {line_number} is not an object")
+            continue
+        rows.append(payload)
+    return rows, errors
 
 
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -301,6 +414,11 @@ MANUAL_SOURCE_FILES: tuple[str, ...] = (
     "outputs/manual_sources/historical_compatibility.csv",
     "outputs/manual_sources/manual_sources_index.csv",
 )
+REQUIRED_SCHEMA_V2_FILES: tuple[str, ...] = tuple(
+    f"{SCHEMA_V2_SOURCE_DIRECTORY}/{entity_name}.{suffix}"
+    for entity_name in SCHEMA_V2_ENTITY_NAMES
+    for suffix in ("csv", "jsonl")
+)
 
 HISTORICAL_COMPAT_HEADER = (
     "bundle_id,source_path,extracted_dir,status,reason,"
@@ -322,7 +440,11 @@ def _check_preflight(repo_root: Path, bootstrap_empty_manual_sources: bool) -> i
     """
     missing: list[str] = []
 
-    for rel in (*REQUIRED_CROSS_RUN_FILES, *REQUIRED_ANALYSIS_FILES):
+    for rel in (
+        *REQUIRED_CROSS_RUN_FILES,
+        *REQUIRED_ANALYSIS_FILES,
+        *REQUIRED_SCHEMA_V2_FILES,
+    ):
         if not (repo_root / rel).is_file():
             missing.append(rel)
 
@@ -376,6 +498,11 @@ def _check_preflight(repo_root: Path, bootstrap_empty_manual_sources: bool) -> i
             )
         ):
             print("  python run_full_analysis.py")
+        if any(rel.startswith(SCHEMA_V2_SOURCE_DIRECTORY) for rel in missing):
+            print(
+                "  python scripts/build_cumulative_scientific_database.py "
+                "--output-dir outputs/cumulative_database"
+            )
         for rel in missing:
             print(f"    missing: {rel}")
         return 1
@@ -419,6 +546,30 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
     build_report = _load_json(
         repo_root / "outputs/run_archive/cross_run_evidence_build_report.json"
     )
+    schema_dir = repo_root / "schemas"
+    schema_v2_csv_paths: dict[str, Path] = {}
+    schema_v2_jsonl_paths: dict[str, Path] = {}
+    schema_v2_csv_rows: dict[str, list[dict[str, Any]]] = {}
+    schema_v2_jsonl_rows: dict[str, list[dict[str, Any]]] = {}
+    schema_v2_format_errors: list[str] = []
+    for entity_name in SCHEMA_V2_ENTITY_NAMES:
+        schema_path = schema_dir / f"{entity_name}.schema.json"
+        csv_path = (
+            repo_root / SCHEMA_V2_SOURCE_DIRECTORY / f"{entity_name}.csv"
+        )
+        jsonl_path = (
+            repo_root / SCHEMA_V2_SOURCE_DIRECTORY / f"{entity_name}.jsonl"
+        )
+        schema_v2_csv_paths[entity_name] = csv_path
+        schema_v2_jsonl_paths[entity_name] = jsonl_path
+        csv_rows, csv_errors = _read_schema_v2_csv(
+            csv_path, schema_path, entity_name
+        )
+        jsonl_rows, jsonl_errors = _read_schema_v2_jsonl(jsonl_path, entity_name)
+        schema_v2_csv_rows[entity_name] = csv_rows
+        schema_v2_jsonl_rows[entity_name] = jsonl_rows
+        schema_v2_format_errors.extend(csv_errors)
+        schema_v2_format_errors.extend(jsonl_errors)
 
     runs_rows: list[dict[str, Any]] = []
     for row in cross_run_summary:
@@ -741,9 +892,9 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         "analysis_view_sector_axis_gap_level": analysis_view_sector_axis_gap,
         "analysis_view_provider_sector_level": analysis_view_provider_sector,
         "analysis_view_credential_level": analysis_view_credential,
+        **schema_v2_csv_rows,
     }
 
-    schema_dir = repo_root / "schemas"
     schema_map = {
         "runs": schema_dir / "runs.schema.json",
         "source_bundles": schema_dir / "source_bundles.schema.json",
@@ -752,11 +903,23 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         "gap_clusters": schema_dir / "gap_clusters.schema.json",
         "dynamic_credentials": schema_dir / "dynamic_credentials.schema.json",
         "data_quality_indicators": schema_dir / "data_quality_indicators.schema.json",
+        **{
+            entity_name: schema_dir / f"{entity_name}.schema.json"
+            for entity_name in SCHEMA_V2_ENTITY_NAMES
+        },
     }
-    validation_errors: list[str] = []
+    validation_errors: list[str] = list(schema_v2_format_errors)
     for table_name, schema_path in schema_map.items():
         validation_errors.extend(
             _validate_rows(csv_tables[table_name], schema_path, table_name)
+        )
+    for entity_name in SCHEMA_V2_ENTITY_NAMES:
+        validation_errors.extend(
+            _validate_rows(
+                schema_v2_jsonl_rows[entity_name],
+                schema_map[entity_name],
+                f"{entity_name}.jsonl",
+            )
         )
     if validation_errors:
         for error in validation_errors[:50]:
@@ -764,6 +927,8 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         return 1
 
     for table_name, rows in csv_tables.items():
+        if table_name in SCHEMA_V2_ENTITY_NAMES:
+            continue
         _write_csv(package_dir / "data" / "csv" / f"{table_name}.csv", rows)
     _write_jsonl(
         package_dir / "data" / "jsonl" / "evidence_records.jsonl", evidence_record_rows
@@ -775,6 +940,15 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
     _write_jsonl(
         package_dir / "data" / "jsonl" / "dynamic_credentials.jsonl", credential_rows
     )
+    for entity_name in SCHEMA_V2_ENTITY_NAMES:
+        shutil.copyfile(
+            schema_v2_csv_paths[entity_name],
+            package_dir / "data" / "csv" / f"{entity_name}.csv",
+        )
+        shutil.copyfile(
+            schema_v2_jsonl_paths[entity_name],
+            package_dir / "data" / "jsonl" / f"{entity_name}.jsonl",
+        )
 
     variable_labels, value_labels = _load_variable_and_value_labels(schema_dir)
     _write_csv(package_dir / "VARIABLE_LABELS.csv", variable_labels)
@@ -819,6 +993,13 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
     )
     (package_dir / "CITATION_APA.txt").write_text(citation_text, encoding="utf-8")
 
+    schema_v2_package_paths = {
+        entity_name: {
+            "csv": f"data/csv/{entity_name}.csv",
+            "jsonl": f"data/jsonl/{entity_name}.jsonl",
+        }
+        for entity_name in SCHEMA_V2_ENTITY_NAMES
+    }
     manifest_payload = {
         "package_name": f"morskamary_cumulative_evidence_{config.version_tag}",
         "version_tag": config.version_tag,
@@ -834,7 +1015,23 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         "data_release_policy_path": "docs/DATA_RELEASE_POLICY.md",
         "schema_validation": {
             "validated_tables": sorted(schema_map.keys()),
+            "validated_exports": {
+                "csv": list(SCHEMA_V2_ENTITY_NAMES),
+                "jsonl": list(SCHEMA_V2_ENTITY_NAMES),
+            },
             "errors": [],
+        },
+        "schema_v2_entities": {
+            "source_directory": SCHEMA_V2_SOURCE_DIRECTORY,
+            "entities": list(SCHEMA_V2_ENTITY_NAMES),
+            "package_paths": schema_v2_package_paths,
+            "row_counts": {
+                entity_name: {
+                    "csv": len(schema_v2_csv_rows[entity_name]),
+                    "jsonl": len(schema_v2_jsonl_rows[entity_name]),
+                }
+                for entity_name in SCHEMA_V2_ENTITY_NAMES
+            },
         },
         "exports": {
             "csv_utf8": True,

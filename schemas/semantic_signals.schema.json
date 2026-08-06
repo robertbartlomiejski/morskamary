@@ -37,8 +37,11 @@
     "run_id": { "type": "string", "minLength": 1 },
     "source_provenance_id": { "type": "string", "minLength": 1 },
     "sector": { "type": "string" },
-    "axis_group": { "type": "string" },
-    "axis_code": { "type": "string" },
+    "axis_group": {
+      "type": "string",
+      "enum": ["MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION", ""]
+    },
+    "axis_code": { "type": "string", "enum": ["M", "T", "O", "H", ""] },
     "query_id": { "type": "string" },
     "query_family": { "type": "string" },
     "signal_type": { "type": "string", "minLength": 1 },
@@ -58,5 +61,16 @@
       "enum": ["auto_accepted", "review_required", "manually_reviewed", "rejected"]
     },
     "validity_warning": { "type": "string" }
-  }
+  },
+  "allOf": [
+    {
+      "anyOf": [
+        { "properties": { "axis_group": { "const": "MARINE" }, "axis_code": { "const": "M" } } },
+        { "properties": { "axis_group": { "const": "MARITIME" }, "axis_code": { "const": "T" } } },
+        { "properties": { "axis_group": { "const": "OCEANIC" }, "axis_code": { "const": "O" } } },
+        { "properties": { "axis_group": { "const": "HYDRONIZATION" }, "axis_code": { "const": "H" } } },
+        { "properties": { "axis_group": { "const": "" }, "axis_code": { "const": "" } } }
+      ]
+    }
+  ]
 }

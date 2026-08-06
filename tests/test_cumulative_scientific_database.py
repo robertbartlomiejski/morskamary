@@ -17,8 +17,11 @@ protocol-binding path is exercised end-to-end.
 from __future__ import annotations
 
 import csv
+import importlib.util
 import json
+import sys
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, Dict, List, Mapping, Sequence
 
 import pytest
@@ -64,6 +67,7 @@ from src.scientific_sources.derived_competence_analysis import (
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL_PATH = REPO_ROOT / "config" / "live_query_protocol.yml"
+CLI_SCRIPT_PATH = REPO_ROOT / "scripts" / "build_cumulative_scientific_database.py"
 
 FROZEN_TS = "2026-07-09T00:00:00+00:00"
 
@@ -143,6 +147,17 @@ def _write_layer1_audit(
         writer.writeheader()
         for row in rows:
             writer.writerow({col: row.get(col, "") for col in columns})
+
+
+def _load_cli_module():
+    spec = importlib.util.spec_from_file_location(
+        "build_cumulative_scientific_database_cli_test", CLI_SCRIPT_PATH
+    )
+    module = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
+    assert spec.loader is not None
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
+    return module
 
 
 # ---------------------------------------------------------------------------
@@ -1372,15 +1387,76 @@ class TestCliWrapper:
     def test_cli_help_runs(self) -> None:
         import subprocess
 
-        script = REPO_ROOT / "scripts" / "build_cumulative_scientific_database.py"
         proc = subprocess.run(
-            ["python", str(script), "--help"],
+            ["python", str(CLI_SCRIPT_PATH), "--help"],
             capture_output=True,
             text=True,
             check=False,
         )
         assert proc.returncode == 0
         assert "Build the PR-190 live cumulative scientific database" in proc.stdout
+        assert "--validation-decision-ledger" in proc.stdout
+
+    def test_cli_forwards_reviewer_decision_ledger(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        module = _load_cli_module()
+        ledger = tmp_path / "reviewer-decisions.json"
+        decisions = [
+            {
+                "target_candidate_id": "candidate:test",
+                "decision_status": "review_required",
+                "reviewer": "reviewer-fixture-001",
+            }
+        ]
+        ledger.write_text(
+            json.dumps({"validation_decisions": decisions}), encoding="utf-8"
+        )
+        captured: Dict[str, Any] = {}
+
+        def fake_builder(**kwargs: Any) -> Any:
+            captured.update(kwargs)
+            return SimpleNamespace(
+                files=[],
+                output_dir=tmp_path / "cumulative_database",
+                evidence_records=[],
+                competence_demand_signals=[],
+            )
+
+        monkeypatch.setattr(module, "build_cumulative_scientific_database", fake_builder)
+
+        exit_code = module.main(
+            [
+                "--archive-root",
+                "",
+                "--live-runs-root",
+                "",
+                "--query-protocol",
+                "",
+                "--validation-decision-ledger",
+                str(ledger),
+            ]
+        )
+
+        assert exit_code == 0
+        assert captured["validation_decisions"] == decisions
+
+    def test_cli_rejects_non_list_reviewer_decision_ledger(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        module = _load_cli_module()
+        ledger = tmp_path / "invalid-reviewer-decisions.json"
+        ledger.write_text(
+            json.dumps({"validation_decisions": {"not": "a list"}}),
+            encoding="utf-8",
+        )
+
+        exit_code = module.main(
+            ["--validation-decision-ledger", str(ledger)]
+        )
+
+        assert exit_code == 1
+        assert "validation_decisions must be a list" in capsys.readouterr().err
 
 
 # ---------------------------------------------------------------------------
@@ -2279,3 +2355,545 @@ def test_current_observation_signal_components_are_reused(
 
     assert result.competence_demand_signals
     assert calls == ["R1", "R1"]
+
+
+def test_semantic_scanner_uses_word_boundaries_and_qualified_claim_gate() -> None:
+    """A lexical substring or qualified claim cannot create demand evidence."""
+    assert not database_module._scan_semantic_signals(
+        [("abstract", "The said coastal context is descriptive.")],
+        source_query="",
+    )
+    assert not database_module._scan_semantic_signals(
+        [("abstract", "No digital skills are required for this role.")],
+        source_query="",
+    )
+    assert not database_module._scan_semantic_signals(
+        [("abstract", "Training may be required in a future study.")],
+        source_query="",
+    )
+
+    matches = database_module._scan_semantic_signals(
+        [("abstract", "AI skills are required for safe port operations.")],
+        source_query="",
+    )
+    digital_match = next(
+        match for match in matches if match.pattern.signal_type == "digital_skill"
+    )
+    assert digital_match.span_text == "AI"
+
+
+def test_archived_only_construct_validity_rows_are_retained(
+    tmp_path: Path,
+) -> None:
+    archive = tmp_path / "archive"
+    current = tmp_path / "current"
+    _write_run_archive(
+        archive,
+        [
+            {
+                "run_id": "R1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "records": [
+                    {
+                        "title": "Archived governance evidence",
+                        "abstract": "Governance capability is required.",
+                        "doi": "10.1000/archived-construct-validity",
+                        "provider": "Crossref",
+                        "source_id": "crossref:archived-construct-validity",
+                        "source_query": BOUND_QUERY_TEXT,
+                    }
+                ],
+            }
+        ],
+    )
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Current neutral bibliographic record",
+                "doi": "10.1000/current-neutral",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "database",
+        archive_root=archive,
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R2",
+        built_at_utc=FROZEN_TS,
+    )
+
+    assert result.competence_demand_signals == []
+    assert {fragment.run_id for fragment in result.evidence_fragments} == {"R1"}
+    assert {signal.run_id for signal in result.semantic_signals} == {"R1"}
+    assert {candidate.run_id for candidate in result.competence_candidates} == {"R1"}
+
+
+def test_candidates_aggregate_all_fragment_and_provenance_occurrences(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "current"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance evidence",
+                "doi": "10.1000/plural-provenance",
+                "provider": "Crossref",
+                "source_id": "crossref:plural-a",
+                "retrieval_timestamp": "2026-07-01T00:00:00+00:00",
+                "source_query": BOUND_QUERY_TEXT,
+            },
+            {
+                "title": "Governance evidence",
+                "doi": "10.1000/plural-provenance",
+                "provider": "Scopus",
+                "source_id": "scopus:plural-b",
+                "retrieval_timestamp": "2026-07-02T00:00:00+00:00",
+                "source_query": BOUND_QUERY_TEXT,
+            },
+        ],
+    )
+
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    candidate = result.competence_candidates[0]
+    linked_fragments = [
+        fragment
+        for fragment in result.evidence_fragments
+        if fragment.fragment_id in candidate.fragment_ids.split("|")
+    ]
+    assert len(linked_fragments) == 2
+    assert candidate.fragment_ids == "|".join(
+        sorted(fragment.fragment_id for fragment in linked_fragments)
+    )
+    assert candidate.source_provenance_ids == "|".join(
+        sorted(fragment.source_provenance_id for fragment in linked_fragments)
+    )
+    assert {fragment.source_provider for fragment in linked_fragments} == {
+        "crossref",
+        "scopus",
+    }
+    assert {fragment.source_provider_id for fragment in linked_fragments} == {
+        "crossref:plural-a",
+        "scopus:plural-b",
+    }
+    assert {
+        fragment.source_retrieved_at_utc for fragment in linked_fragments
+    } == {
+        "2026-07-01T00:00:00+00:00",
+        "2026-07-02T00:00:00+00:00",
+    }
+    assert all(fragment.source_query_id for fragment in linked_fragments)
+    assert {fragment.source_query_text for fragment in linked_fragments} == {
+        BOUND_QUERY_TEXT
+    }
+
+
+def test_structured_surface_offsets_resolve_against_persisted_context(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "current"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Neutral bibliographic record",
+                "abstract": {
+                    "first": "Digital skills",
+                    "second": "are required.",
+                },
+                "doi": "10.1000/structured-surface",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    signal = next(
+        row for row in result.semantic_signals if row.signal_type == "digital_skill"
+    )
+    fragment = next(
+        row for row in result.evidence_fragments if row.fragment_id == signal.fragment_id
+    )
+    assert fragment.source_field == "abstract"
+    assert signal.context_text == "Digital skills are required."
+    assert (
+        signal.context_text[
+            fragment.span_start_offset:fragment.span_end_offset
+        ]
+        == fragment.fragment_text
+    )
+    assert fragment.surface_text_hash == database_module._text_hash(
+        signal.context_text
+    )
+
+
+def test_superseded_decision_suppresses_canonical_promotion(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "current"
+    record = {
+        "title": "Governance evidence for port planning",
+        "doi": "10.1000/superseded-decision",
+        "provider": "Crossref",
+        "source_query": BOUND_QUERY_TEXT,
+    }
+    _write_current_run(current, [record])
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    candidate_id = initial.competence_candidates[0].candidate_id
+
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "superseded",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+        validation_decisions=[
+            {
+                "validation_decision_id": "decision:accepted",
+                "target_candidate_id": candidate_id,
+                "canonical_label": "Governance capability",
+                "decision_status": "accepted",
+                "reviewer": "reviewer-fixture-001",
+                "decision_at_utc": FROZEN_TS,
+                "decision_reason": "Initial review.",
+            },
+            {
+                "validation_decision_id": "decision:revision",
+                "target_candidate_id": candidate_id,
+                "canonical_label": "",
+                "decision_status": "review_required",
+                "reviewer": "reviewer-fixture-002",
+                "decision_at_utc": FROZEN_TS,
+                "decision_reason": "Further evidence review is required.",
+                "superseded_validation_decision_id": "decision:accepted",
+            },
+        ],
+    )
+
+    assert len(result.validation_decisions) == 2
+    assert result.canonical_competences == []
+    assert result.sector_competence_assignments == []
+
+
+@pytest.mark.parametrize(
+    ("override", "expected_error"),
+    [
+        ({"reviewer": ""}, "requires reviewer"),
+        ({"decision_at_utc": ""}, "requires decision_at_utc"),
+        ({"decision_at_utc": "2026-07-09T01:00:00+01:00"}, "invalid decision_at"),
+        ({"decision_reason": ""}, "requires decision_reason"),
+    ],
+)
+def test_validation_decisions_require_explicit_audit_payload_fields(
+    tmp_path: Path,
+    override: Mapping[str, str],
+    expected_error: str,
+) -> None:
+    current = tmp_path / "current"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance evidence",
+                "doi": "10.1000/explicit-decision",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    decision = {
+        "target_candidate_id": initial.competence_candidates[0].candidate_id,
+        "canonical_label": "Governance capability",
+        "decision_status": "accepted",
+        "reviewer": "reviewer-fixture-001",
+        "decision_at_utc": FROZEN_TS,
+        "decision_reason": "Explicit audit regression.",
+    }
+    decision.update(override)
+
+    with pytest.raises(CumulativeDatabaseError, match=expected_error):
+        build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "invalid",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+            validation_decisions=[decision],
+        )
+
+
+def test_canonical_label_guard_blocks_provider_aliases_and_source_titles(
+    tmp_path: Path,
+) -> None:
+    for label in (
+        "Clarivate: retained metadata",
+        "Elsevier Scopus retained metadata",
+        "Microsoft Graph: retained metadata",
+    ):
+        allowed, reason = canonical_label_is_allowed(label)
+        assert not allowed
+        assert reason == "provider_metadata_prefix"
+
+    allowed, reason = canonical_label_is_allowed(
+        "skills for coastal maintenance",
+        retained_source_titles=("Digital skills for coastal maintenance",),
+    )
+    assert not allowed
+    assert reason == "source_title_fragment"
+
+    current = tmp_path / "current"
+    title = "Digital skills for coastal maintenance"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": title,
+                "doi": "10.1000/title-leakage",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    with pytest.raises(CumulativeDatabaseError, match="source_title_exact"):
+        build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "title-leakage",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+            validation_decisions=[
+                {
+                    "target_candidate_id": initial.competence_candidates[0].candidate_id,
+                    "canonical_label": title,
+                    "decision_status": "accepted",
+                    "reviewer": "reviewer-fixture-001",
+                    "decision_at_utc": FROZEN_TS,
+                    "decision_reason": "Title-leakage regression.",
+                }
+            ],
+        )
+
+
+def test_unbound_candidate_keeps_canonical_but_has_no_sector_assignment(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "current"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance evidence from an unbound protocol",
+                "doi": "10.1000/unbound-assignment",
+                "provider": "Crossref",
+            }
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial",
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "validated",
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+        validation_decisions=[
+            {
+                "target_candidate_id": initial.competence_candidates[0].candidate_id,
+                "canonical_label": "Governance capability",
+                "decision_status": "accepted",
+                "reviewer": "reviewer-fixture-001",
+                "decision_at_utc": FROZEN_TS,
+                "decision_reason": "Unbound assignment regression.",
+            }
+        ],
+    )
+
+    assert len(result.canonical_competences) == 1
+    assert result.sector_competence_assignments == []
+
+
+def test_unbound_query_text_is_part_of_stable_provenance_identity(
+    tmp_path: Path,
+) -> None:
+    records = [
+        {
+            "title": "Governance evidence",
+            "doi": "10.1000/unbound-query-provenance",
+            "provider": "Crossref",
+            "source_id": "crossref:shared-source",
+            "retrieval_timestamp": FROZEN_TS,
+            "source_query": "unbound query alpha",
+        },
+        {
+            "title": "Governance evidence",
+            "doi": "10.1000/unbound-query-provenance",
+            "provider": "Crossref",
+            "source_id": "crossref:shared-source",
+            "retrieval_timestamp": FROZEN_TS,
+            "source_query": "unbound query beta",
+        },
+    ]
+    forward_current = tmp_path / "forward-current"
+    reverse_current = tmp_path / "reverse-current"
+    _write_current_run(forward_current, records)
+    _write_current_run(reverse_current, list(reversed(records)))
+
+    forward = build_cumulative_scientific_database(
+        current_run_dir=forward_current,
+        output_dir=tmp_path / "forward",
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    reverse = build_cumulative_scientific_database(
+        current_run_dir=reverse_current,
+        output_dir=tmp_path / "reverse",
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    assert len(forward.evidence_fragments) == 2
+    assert {
+        fragment.source_query_text for fragment in forward.evidence_fragments
+    } == {
+        "unbound query alpha",
+        "unbound query beta",
+    }
+    assert len(reverse.evidence_fragments) == 2
+    assert (
+        (tmp_path / "forward" / EVIDENCE_FRAGMENTS_JSONL).read_bytes()
+        == (tmp_path / "reverse" / EVIDENCE_FRAGMENTS_JSONL).read_bytes()
+    )
+
+
+def test_aggregated_candidate_emits_each_bound_sector_axis_assignment(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "current"
+    live_runs = tmp_path / "live-runs"
+    _write_layer1_audit(
+        live_runs,
+        "R1",
+        [
+            {
+                "query_id": "query-marine",
+                "sector_slug": "marine-sector",
+                "sector_label": "Marine sector",
+                "axis_group": "MARINE",
+                "axis_code": "M",
+                "query_family": "sector_axis",
+                "provider": "Crossref",
+                "query_text": "bound query marine",
+                "protocol_binding": "bound",
+            },
+            {
+                "query_id": "query-maritime",
+                "sector_slug": "maritime-sector",
+                "sector_label": "Maritime sector",
+                "axis_group": "MARITIME",
+                "axis_code": "T",
+                "query_family": "sector_axis",
+                "provider": "Crossref",
+                "query_text": "bound query maritime",
+                "protocol_binding": "bound",
+            },
+        ],
+    )
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance evidence",
+                "doi": "10.1000/multi-axis-assignment",
+                "provider": "Crossref",
+                "source_id": "crossref:multi-axis",
+                "source_query": "bound query marine",
+            },
+            {
+                "title": "Governance evidence",
+                "doi": "10.1000/multi-axis-assignment",
+                "provider": "Crossref",
+                "source_id": "crossref:multi-axis",
+                "source_query": "bound query maritime",
+            },
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial",
+        live_runs_root=live_runs,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    assert len(initial.competence_candidates) == 1
+
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "validated",
+        live_runs_root=live_runs,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+        validation_decisions=[
+            {
+                "target_candidate_id": initial.competence_candidates[0].candidate_id,
+                "canonical_label": "Governance capability",
+                "decision_status": "accepted",
+                "reviewer": "reviewer-fixture-001",
+                "decision_at_utc": FROZEN_TS,
+                "decision_reason": "Multi-axis assignment regression.",
+            }
+        ],
+    )
+
+    assert len(result.canonical_competences) == 1
+    assert {
+        (assignment.sector, assignment.axis_group, assignment.axis_code)
+        for assignment in result.sector_competence_assignments
+    } == {
+        ("marine-sector", "MARINE", "M"),
+        ("maritime-sector", "MARITIME", "T"),
+    }

@@ -59,7 +59,7 @@ import hashlib
 import json
 import re
 import unicodedata
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import (
@@ -91,7 +91,7 @@ from src.scientific_sources.live_query_protocol import (
 DATABASE_SCHEMA_VERSION = "2.0.0"
 """Schema version stamped into every manifest produced by this module."""
 
-CLASSIFIER_VERSION = "cumulative-db-semantic-v2"
+CLASSIFIER_VERSION = "cumulative-db-semantic-v3"
 """Deterministic rule-based semantic classifier version tag."""
 
 EVIDENCE_RECORDS_CSV = "evidence_records.csv"
@@ -146,6 +146,11 @@ EVIDENCE_FRAGMENT_COLUMNS: Tuple[str, ...] = (
     "evidence_id",
     "run_id",
     "source_provenance_id",
+    "source_provider",
+    "source_provider_id",
+    "source_retrieved_at_utc",
+    "source_query_id",
+    "source_query_text",
     "source_field",
     "language",
     "fragment_text",
@@ -628,6 +633,11 @@ class EvidenceFragment:
     evidence_id: str
     run_id: str
     source_provenance_id: str
+    source_provider: str
+    source_provider_id: str
+    source_retrieved_at_utc: str
+    source_query_id: str
+    source_query_text: str
     source_field: str
     language: str
     fragment_text: str
@@ -1389,6 +1399,46 @@ def _upgrade_if_enriched(
 # Semantic scanner (Layer 3)
 # ---------------------------------------------------------------------------
 
+_NEGATION_CUE_RE = re.compile(
+    r"\b(?:no|not(?!\s+only\b)|never|without|neither|nor|"
+    r"lack(?:ing|ed|s)?)\b",
+    flags=re.IGNORECASE,
+)
+_SPECULATION_CUE_RE = re.compile(
+    r"\b(?:may|might|could|possibly|potentially|likely|unlikely|"
+    r"suggest(?:s|ed|ing)?|appear(?:s|ed|ing)?|expected)\b",
+    flags=re.IGNORECASE,
+)
+
+
+def _has_negation_or_speculation_cue(
+    source_text: str,
+    span_start: int,
+    span_end: int,
+) -> bool:
+    """Return whether a match's clause has a qualifying inference cue.
+
+    The scanner only emits automatic demand candidates for unqualified positive
+    claims. Negated and speculative clauses need human interpretation and are
+    therefore excluded rather than mislabeled as positive demand evidence.
+    """
+    delimiters = (".", "?", "!", ";", "\n")
+    clause_start = (
+        max(source_text.rfind(delimiter, 0, span_start) for delimiter in delimiters)
+        + 1
+    )
+    following_delimiters = [
+        index
+        for delimiter in delimiters
+        if (index := source_text.find(delimiter, span_end)) != -1
+    ]
+    clause_end = min(following_delimiters) if following_delimiters else len(source_text)
+    clause = source_text[clause_start:clause_end]
+    return bool(
+        _NEGATION_CUE_RE.search(clause) or _SPECULATION_CUE_RE.search(clause)
+    )
+
+
 def _scan_semantic_signals(
     surfaces: Sequence[Tuple[str, str]],
     source_query: str,
@@ -1410,14 +1460,18 @@ def _scan_semantic_signals(
         for source_field, source_text in normalized_surfaces:
             for phrase in pattern.phrases:
                 phrase_token = phrase.strip()
+                if not phrase_token:
+                    continue
                 phrase_match = re.search(
-                    rf"(?<!\\w){re.escape(phrase_token)}(?!\\w)",
+                    rf"(?<!\w){re.escape(phrase_token)}(?!\w)",
                     source_text,
                     flags=re.IGNORECASE,
                 )
                 if phrase_match is None:
                     continue
                 start, end = phrase_match.span()
+                if _has_negation_or_speculation_cue(source_text, start, end):
+                    continue
                 found_match = _SignalMatch(
                     pattern=pattern,
                     matched_phrase=phrase.strip(),
@@ -1488,21 +1542,48 @@ def _make_candidate_id(*, signal_id: str, evidence_id: str) -> str:
     return f"candidate:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
 
-def _make_provenance_id(*, obs: _RunObservation, evidence_id: str) -> str:
-    timestamp = _record_timestamp(obs.record, obs.timestamp_utc)
-    provider = _canonical_provider_name(obs.record.get("provider")) or "unknown"
-    source_id = _normalize_source_id(obs.record.get("source_id"))
+def _source_provenance_fields(
+    *,
+    obs: _RunObservation,
+    evidence_id: str,
+) -> Dict[str, str]:
+    """Return the published preimage fields for one source occurrence."""
+    return {
+        "run_id": obs.run_id,
+        "evidence_id": evidence_id,
+        "source_provider": (
+            _canonical_provider_name(obs.record.get("provider")) or "unknown"
+        ),
+        "source_provider_id": str(obs.record.get("source_id") or "").strip(),
+        "source_retrieved_at_utc": _record_timestamp(
+            obs.record, obs.timestamp_utc
+        ),
+        "source_query_id": obs.binding.query_id,
+        "source_query_text": str(obs.record.get("source_query") or "").strip(),
+    }
+
+
+def _make_provenance_id_from_fields(fields: Mapping[str, str]) -> str:
+    """Return the stable identifier for published source-occurrence fields."""
     payload = "\x1f".join(
         (
-            obs.run_id,
-            evidence_id,
-            timestamp,
-            provider,
-            source_id,
-            obs.binding.query_id,
+            fields["run_id"],
+            fields["evidence_id"],
+            fields["source_retrieved_at_utc"],
+            fields["source_provider"],
+            _normalize_source_id(fields["source_provider_id"]),
+            fields["source_query_id"],
+            re.sub(r"\s+", " ", fields["source_query_text"]).strip().lower(),
         )
     )
     return f"prov:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
+
+
+def _make_provenance_id(*, obs: _RunObservation, evidence_id: str) -> str:
+    """Return a stable source-occurrence identifier with a published preimage."""
+    return _make_provenance_id_from_fields(
+        _source_provenance_fields(obs=obs, evidence_id=evidence_id)
+    )
 
 
 def _candidate_label(pattern: _SignalPattern, span_text: str) -> str:
@@ -1552,13 +1633,27 @@ def _candidate_ra_dimension(pattern: _SignalPattern) -> str:
     return "hybrid"
 
 
-def canonical_label_is_allowed(label: str) -> Tuple[bool, str]:
+def canonical_label_is_allowed(
+    label: str,
+    *,
+    retained_source_titles: Sequence[str] = (),
+) -> Tuple[bool, str]:
     """Return canonical-promotion eligibility and any guard rejection reason."""
     token = re.sub(r"\s+", " ", str(label or "").strip())
     if not token:
         return False, "empty_label"
     lowered = token.lower()
-    if lowered.startswith(("crossref:", "scopus:", "wos:", "web of science:")):
+    provider_token = re.sub(r"[_\s]+", " ", lowered).strip()
+    provider_aliases = {
+        re.sub(r"[_\s]+", " ", alias).strip()
+        for alias in _PROVIDER_ALIAS_TO_CANONICAL
+    }
+    if any(
+        provider_token == alias
+        or provider_token.startswith(f"{alias}:")
+        or provider_token.startswith(f"{alias} ")
+        for alias in provider_aliases
+    ):
         return False, "provider_metadata_prefix"
     if "..." in token or "\u2026" in token:
         return False, "truncation_ellipsis"
@@ -1569,6 +1664,19 @@ def canonical_label_is_allowed(label: str) -> Tuple[bool, str]:
     metadata_match = re.search(r"\b(doi|journal|conference|article|paper)\b", lowered)
     if metadata_match:
         return False, f"metadata_term:{metadata_match.group(1)}"
+    normalized_label = _normalize_title(token)
+    label_token_count = len(normalized_label.split())
+    for source_title in retained_source_titles:
+        normalized_title = _normalize_title(source_title)
+        if not normalized_title or not normalized_label:
+            continue
+        if normalized_label == normalized_title:
+            return False, "source_title_exact"
+        if (
+            label_token_count >= 3
+            and f" {normalized_label} " in f" {normalized_title} "
+        ):
+            return False, "source_title_fragment"
     return True, ""
 
 
@@ -1618,10 +1726,12 @@ def build_cumulative_scientific_database(
         built_at_utc: Optional ISO-8601 timestamp to stamp into the manifest.
         workflow_context: Optional mapping of GitHub Actions env vars.
         validation_decisions: Optional explicit reviewer decision payloads. Each
-            payload must include a current-run ``target_candidate_id`` and a
+            payload must include a generated ``target_candidate_id`` and a
             ``decision_status`` of ``accepted``, ``rejected``,
-            ``review_required``, or ``superseded``. An unknown candidate target
-            raises :class:`CumulativeDatabaseError`.
+            ``review_required``, or ``superseded``. Reviewer, decision time,
+            and reason are explicit audit fields. An unknown candidate target,
+            malformed audit field, or invalid status raises
+            :class:`CumulativeDatabaseError`.
 
     Returns:
         A :class:`CumulativeDatabaseResult` describing every file written.
@@ -1692,6 +1802,15 @@ def build_cumulative_scientific_database(
         run_timestamps=run_timestamps,
         historical_signal_ids=historical_signal_ids,
     )
+    construct_validity_components = _build_construct_validity_signal_components(
+        buckets=buckets,
+        evidence_index=evidence_index,
+        current_run_id=resolved_run_id,
+        current_signal_components=current_signal_components,
+    )
+    evidence_titles_by_id = {
+        row.evidence_id: row.canonical_title for row in evidence_records
+    }
     (
         evidence_fragments,
         semantic_signals,
@@ -1700,9 +1819,10 @@ def build_cumulative_scientific_database(
         canonical_competences,
         sector_competence_assignments,
     ) = _build_construct_validity_tables(
-        signal_components=current_signal_components,
+        signal_components=construct_validity_components,
         validation_decision_payloads=tuple(validation_decisions or ()),
         built_at_utc=built_at,
+        evidence_titles_by_id=evidence_titles_by_id,
     )
 
     written = _write_bundle(
@@ -2142,6 +2262,41 @@ def _build_current_signal_components(
     return components
 
 
+def _build_construct_validity_signal_components(
+    *,
+    buckets: Mapping[Tuple[str, str], Sequence[_RunObservation]],
+    evidence_index: Mapping[Tuple[str, str], str],
+    current_run_id: str,
+    current_signal_components: Sequence[_SignalComponent],
+) -> List[_SignalComponent]:
+    """Return historical construct-validity components plus reused current rows."""
+    components = list(current_signal_components)
+    for bucket, observations in sorted(buckets.items(), key=lambda item: item[0]):
+        evidence_id = evidence_index[bucket]
+        historical_observations = sorted(
+            (
+                observation
+                for observation in observations
+                if observation.run_id != current_run_id
+            ),
+            key=lambda observation: (
+                observation.run_id,
+                observation.binding.query_id,
+                _canonical_provider_name(observation.record.get("provider")),
+                _normalize_source_id(observation.record.get("source_id")),
+                observation.timestamp_utc,
+            ),
+        )
+        for observation in historical_observations:
+            components.extend(
+                _build_signal_components_for_observation(
+                    obs=observation,
+                    evidence_id=evidence_id,
+                )
+            )
+    return components
+
+
 def _make_signals(
     *,
     signal_components: Sequence[_SignalComponent],
@@ -2208,7 +2363,11 @@ def _build_signal_components_for_observation(
     evidence_text_hash = _text_hash(text_scope)
     is_metadata_only = _is_metadata_only(record)
     warning = "metadata_only_limitation" if is_metadata_only else ""
-    provenance_id = _make_provenance_id(obs=obs, evidence_id=evidence_id)
+    source_provenance = _source_provenance_fields(
+        obs=obs,
+        evidence_id=evidence_id,
+    )
+    provenance_id = _make_provenance_id_from_fields(source_provenance)
     provenance_hash = hashlib.sha256(provenance_id.encode("utf-8")).hexdigest()
 
     components: List[_SignalComponent] = []
@@ -2279,6 +2438,13 @@ def _build_signal_components_for_observation(
                     evidence_id=evidence_id,
                     run_id=obs.run_id,
                     source_provenance_id=provenance_id,
+                    source_provider=source_provenance["source_provider"],
+                    source_provider_id=source_provenance["source_provider_id"],
+                    source_retrieved_at_utc=source_provenance[
+                        "source_retrieved_at_utc"
+                    ],
+                    source_query_id=source_provenance["source_query_id"],
+                    source_query_text=source_provenance["source_query_text"],
                     source_field=match.source_field,
                     language=str(record.get("language") or "und").strip() or "und",
                     fragment_text=match.span_text,
@@ -2309,7 +2475,7 @@ def _build_signal_components_for_observation(
                     actor_text="",
                     action_text=matched_phrase,
                     object_text="",
-                    context_text=match.source_field,
+                    context_text=match.source_text,
                     manual_review_status=review_status,
                     validity_warning=warning,
                 ),
@@ -2346,6 +2512,7 @@ def _build_construct_validity_tables(
     signal_components: Sequence[_SignalComponent],
     validation_decision_payloads: Sequence[Mapping[str, Any]],
     built_at_utc: str,
+    evidence_titles_by_id: Mapping[str, str],
 ) -> Tuple[
     List[EvidenceFragment],
     List[SemanticSignal],
@@ -2357,6 +2524,8 @@ def _build_construct_validity_tables(
     fragments_by_id: Dict[str, EvidenceFragment] = {}
     semantic_by_id: Dict[Tuple[str, str], SemanticSignal] = {}
     candidates_by_id: Dict[str, CompetenceCandidate] = {}
+    candidate_fragment_ids: Dict[str, Set[str]] = {}
+    candidate_provenance_ids: Dict[str, Set[str]] = {}
 
     for component in signal_components:
         fragments_by_id.setdefault(
@@ -2369,6 +2538,12 @@ def _build_construct_validity_tables(
         )
         semantic_by_id.setdefault(semantic_key, component.semantic_signal)
         candidate = component.competence_candidate
+        candidate_fragment_ids.setdefault(candidate.candidate_id, set()).add(
+            candidate.fragment_id
+        )
+        candidate_provenance_ids.setdefault(candidate.candidate_id, set()).add(
+            candidate.source_provenance_ids
+        )
         existing_candidate = candidates_by_id.get(candidate.candidate_id)
         # Candidate identity is cross-run stable. Select the lexicographically
         # smallest fragment deterministically as its scalar foreign-key reference.
@@ -2378,23 +2553,38 @@ def _build_construct_validity_tables(
         ):
             candidates_by_id[candidate.candidate_id] = candidate
 
+    for candidate_id, candidate in candidates_by_id.items():
+        candidates_by_id[candidate_id] = replace(
+            candidate,
+            source_provenance_ids="|".join(
+                sorted(candidate_provenance_ids[candidate_id])
+            ),
+            fragment_ids="|".join(sorted(candidate_fragment_ids[candidate_id])),
+        )
+
     validation_decisions = _build_validation_decisions(
         candidates_by_id=candidates_by_id,
         payloads=validation_decision_payloads,
         built_at_utc=built_at_utc,
     )
+    active_validation_decisions = _active_validation_decisions(validation_decisions)
     canonical_competences = _build_canonical_competences(
         candidates_by_id=candidates_by_id,
-        validation_decisions=validation_decisions,
+        validation_decisions=active_validation_decisions,
+        evidence_titles_by_id=evidence_titles_by_id,
     )
+    semantic_signal_rows = [
+        semantic_by_id[key] for key in sorted(semantic_by_id)
+    ]
     sector_assignments = _build_sector_competence_assignments(
         candidates_by_id=candidates_by_id,
         canonical_competences=canonical_competences,
-        validation_decisions=validation_decisions,
+        validation_decisions=active_validation_decisions,
+        semantic_signals=semantic_signal_rows,
     )
     return (
         [fragments_by_id[key] for key in sorted(fragments_by_id)],
-        [semantic_by_id[key] for key in sorted(semantic_by_id)],
+        semantic_signal_rows,
         [candidates_by_id[key] for key in sorted(candidates_by_id)],
         validation_decisions,
         canonical_competences,
@@ -2409,6 +2599,7 @@ def _build_validation_decisions(
     built_at_utc: str,
 ) -> List[ValidationDecision]:
     decisions: List[ValidationDecision] = []
+    decision_ids: Set[str] = set()
     allowed_statuses = {"accepted", "rejected", "review_required", "superseded"}
     for payload in payloads:
         candidate_id = str(payload.get("target_candidate_id") or "").strip()
@@ -2425,13 +2616,44 @@ def _build_validation_decisions(
                 f"invalid validation decision status for {candidate_id}: {decision_status}"
             )
         canonical_label = str(payload.get("canonical_label") or "").strip()
-        reviewer = str(payload.get("reviewer") or "manual_review").strip()
+        if decision_status == "accepted" and not canonical_label:
+            raise CumulativeDatabaseError(
+                "accepted validation decision requires canonical_label"
+            )
+        reviewer = str(payload.get("reviewer") or "").strip()
+        if not reviewer:
+            raise CumulativeDatabaseError("validation decision requires reviewer")
         if not _REVIEWER_IDENTIFIER_RE.fullmatch(reviewer):
             raise CumulativeDatabaseError(
                 "invalid reviewer identifier; use a stable pseudonymous identifier"
             )
-        decision_at = str(payload.get("decision_at_utc") or built_at_utc).strip()
+        decision_at = str(payload.get("decision_at_utc") or "").strip()
+        if not decision_at:
+            raise CumulativeDatabaseError(
+                "validation decision requires decision_at_utc"
+            )
+        try:
+            parsed_decision_at = datetime.fromisoformat(
+                decision_at.replace("Z", "+00:00")
+            )
+        except ValueError as exc:
+            raise CumulativeDatabaseError(
+                "invalid decision_at_utc; require an ISO-8601 UTC timestamp"
+            ) from exc
+        utc_offset = parsed_decision_at.utcoffset()
+        if (
+            parsed_decision_at.tzinfo is None
+            or utc_offset is None
+            or utc_offset.total_seconds() != 0
+        ):
+            raise CumulativeDatabaseError(
+                "invalid decision_at_utc; require an ISO-8601 UTC timestamp"
+            )
         decision_reason = str(payload.get("decision_reason") or "").strip()
+        if not decision_reason:
+            raise CumulativeDatabaseError(
+                "validation decision requires decision_reason"
+            )
         superseded_id = str(
             payload.get("superseded_validation_decision_id") or ""
         ).strip()
@@ -2441,6 +2663,11 @@ def _build_validation_decisions(
                 (candidate_id, canonical_label, decision_status, reviewer, decision_at)
             )
             decision_id = f"decision:{hashlib.sha256(seed.encode('utf-8')).hexdigest()}"
+        if decision_id in decision_ids:
+            raise CumulativeDatabaseError(
+                f"duplicate validation decision identifier: {decision_id}"
+            )
+        decision_ids.add(decision_id)
         decisions.append(
             ValidationDecision(
                 validation_decision_id=decision_id,
@@ -2451,32 +2678,75 @@ def _build_validation_decisions(
                 decision_at_utc=decision_at,
                 decision_reason=decision_reason,
                 evidence_ids=candidate.evidence_id,
-                fragment_ids=candidate.fragment_id,
+                fragment_ids=candidate.fragment_ids,
                 source_provenance_ids=candidate.source_provenance_ids,
                 superseded_validation_decision_id=superseded_id,
             )
         )
+
+    decisions_by_id = {
+        decision.validation_decision_id: decision for decision in decisions
+    }
+    for decision in decisions:
+        superseded_id = decision.superseded_validation_decision_id
+        if not superseded_id:
+            continue
+        if superseded_id == decision.validation_decision_id:
+            raise CumulativeDatabaseError(
+                "validation decision cannot supersede itself"
+            )
+        superseded_decision = decisions_by_id.get(superseded_id)
+        if superseded_decision is None:
+            raise CumulativeDatabaseError(
+                f"unknown superseded validation decision: {superseded_id}"
+            )
+        if superseded_decision.target_candidate_id != decision.target_candidate_id:
+            raise CumulativeDatabaseError(
+                "superseded validation decision must target the same candidate"
+            )
     decisions.sort(key=lambda row: row.validation_decision_id)
     return decisions
+
+
+def _active_validation_decisions(
+    validation_decisions: Sequence[ValidationDecision],
+) -> List[ValidationDecision]:
+    """Return decisions not superseded by a later ledger entry."""
+    superseded_ids = {
+        decision.superseded_validation_decision_id
+        for decision in validation_decisions
+        if decision.superseded_validation_decision_id
+    }
+    return [
+        decision
+        for decision in validation_decisions
+        if decision.validation_decision_id not in superseded_ids
+    ]
 
 
 def _build_canonical_competences(
     *,
     candidates_by_id: Mapping[str, CompetenceCandidate],
     validation_decisions: Sequence[ValidationDecision],
+    evidence_titles_by_id: Mapping[str, str],
 ) -> List[CanonicalCompetence]:
     rows: Dict[str, CanonicalCompetence] = {}
     for decision in validation_decisions:
         if decision.decision_status != "accepted":
             continue
         label = re.sub(r"\s+", " ", decision.canonical_label).strip()
-        label_allowed, rejection_reason = canonical_label_is_allowed(label)
+        candidate = candidates_by_id[decision.target_candidate_id]
+        label_allowed, rejection_reason = canonical_label_is_allowed(
+            label,
+            retained_source_titles=(
+                evidence_titles_by_id.get(candidate.evidence_id, ""),
+            ),
+        )
         if not label_allowed:
             raise CumulativeDatabaseError(
                 "invalid canonical competence label blocked by provenance guard "
                 f"({rejection_reason}): {label}"
             )
-        candidate = candidates_by_id[decision.target_candidate_id]
         canonical_id = (
             "canonical:"
             + hashlib.sha256(label.lower().encode("utf-8")).hexdigest()
@@ -2507,10 +2777,15 @@ def _build_sector_competence_assignments(
     candidates_by_id: Mapping[str, CompetenceCandidate],
     canonical_competences: Sequence[CanonicalCompetence],
     validation_decisions: Sequence[ValidationDecision],
+    semantic_signals: Sequence[SemanticSignal],
 ) -> List[SectorCompetenceAssignment]:
     canonical_by_label = {
         re.sub(r"\s+", " ", row.preferred_label).strip().lower(): row
         for row in canonical_competences
+    }
+    semantic_by_fragment = {
+        (signal.signal_id, signal.fragment_id): signal
+        for signal in semantic_signals
     }
     assignments: Dict[str, SectorCompetenceAssignment] = {}
     for decision in validation_decisions:
@@ -2521,28 +2796,55 @@ def _build_sector_competence_assignments(
         if canonical is None:
             continue
         candidate = candidates_by_id[decision.target_candidate_id]
-        seed = "\x1f".join(
-            (
-                canonical.canonical_competence_id,
-                decision.validation_decision_id,
-                candidate.sector,
-                candidate.axis_group,
+        contexts: Dict[Tuple[str, str, str], SemanticSignal] = {}
+        for fragment_id in sorted(
+            fragment_id
+            for fragment_id in candidate.fragment_ids.split("|")
+            if fragment_id
+        ):
+            signal = semantic_by_fragment.get((candidate.signal_id, fragment_id))
+            if signal is None:
+                continue
+            context_key = (
+                signal.sector.strip(),
+                signal.axis_group.strip().upper(),
+                signal.axis_code.strip().upper(),
             )
-        )
-        assignment_id = f"assignment:{hashlib.sha256(seed.encode('utf-8')).hexdigest()}"
-        assignments.setdefault(
-            assignment_id,
-            SectorCompetenceAssignment(
-                assignment_id=assignment_id,
-                canonical_competence_id=canonical.canonical_competence_id,
-                validation_decision_id=decision.validation_decision_id,
-                source_candidate_id=candidate.candidate_id,
-                sector=candidate.sector,
-                axis_group=candidate.axis_group,
-                axis_code=candidate.axis_code,
-                evidence_ids=candidate.evidence_id,
-            ),
-        )
+            contexts.setdefault(context_key, signal)
+
+        for (sector, axis_group, axis_code), _signal in sorted(contexts.items()):
+            try:
+                canonical_axis = BlueDynamicsAxis[axis_group]
+            except KeyError:
+                continue
+            if not sector or axis_code != canonical_axis.value:
+                continue
+            seed = "\x1f".join(
+                (
+                    canonical.canonical_competence_id,
+                    decision.validation_decision_id,
+                    sector,
+                    axis_group,
+                    axis_code,
+                )
+            )
+            assignment_id = (
+                "assignment:"
+                + hashlib.sha256(seed.encode("utf-8")).hexdigest()
+            )
+            assignments.setdefault(
+                assignment_id,
+                SectorCompetenceAssignment(
+                    assignment_id=assignment_id,
+                    canonical_competence_id=canonical.canonical_competence_id,
+                    validation_decision_id=decision.validation_decision_id,
+                    source_candidate_id=candidate.candidate_id,
+                    sector=sector,
+                    axis_group=axis_group,
+                    axis_code=axis_code,
+                    evidence_ids=candidate.evidence_id,
+                ),
+            )
     return [assignments[key] for key in sorted(assignments)]
 
 
