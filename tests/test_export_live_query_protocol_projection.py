@@ -396,6 +396,64 @@ def test_projection_preserves_original_failure_when_rollback_also_fails(
     assert "could not completely roll back" not in str(exc_info.value)
 
 
+def test_projection_commits_when_post_commit_backup_cleanup_fails(
+    tmp_path: Path, monkeypatch, capsys
+) -> None:
+    expected_paths = _projection_paths(tmp_path / "expected")
+    assert projection_export.main(_projection_args(*expected_paths)) == 0
+    expected = {path.name: path.read_bytes() for path in expected_paths}
+    capsys.readouterr()
+
+    paths = _projection_paths(tmp_path)
+    previous = _write_existing_artifacts(paths)
+    original_unlink = projection_export._unlink_if_present
+    cleanup_attempts: list[Path] = []
+    failed_backups: list[Path] = []
+
+    def fail_first_backup_cleanup(path: Path) -> None:
+        cleanup_attempts.append(path)
+        if (
+            path.suffix == ".rollback"
+            and path.name.startswith(f".{paths[0].name}.")
+            and not failed_backups
+        ):
+            failed_backups.append(path)
+            raise OSError(
+                f"simulated post-commit backup cleanup failure: {path} {REPO_ROOT}"
+            )
+        original_unlink(path)
+
+    def should_not_rollback(*_args, **_kwargs) -> None:
+        raise AssertionError("rollback must not run after publication commits")
+
+    monkeypatch.setattr(projection_export, "_unlink_if_present", fail_first_backup_cleanup)
+    monkeypatch.setattr(
+        projection_export, "_rollback_published_artifacts", should_not_rollback
+    )
+
+    assert projection_export.main(_projection_args(*paths)) == 0
+
+    for path in paths:
+        assert path.read_bytes() == expected[path.name]
+    assert len([path for path in cleanup_attempts if path.suffix == ".stage"]) == 3
+    backup_attempts = [path for path in cleanup_attempts if path.suffix == ".rollback"]
+    assert len(backup_attempts) == 3
+    assert failed_backups == [backup_attempts[0]]
+    assert failed_backups[0].read_bytes() == previous[paths[0]]
+    assert all(not path.exists() for path in backup_attempts[1:])
+    assert not list(tmp_path.glob(".*.stage"))
+
+    captured = capsys.readouterr()
+    assert captured.err == (
+        "[WARN] Non-fatal post-commit cleanup warning: 1 temporary artifact(s) "
+        "could not be removed.\n"
+    )
+    assert captured.err.isascii()
+    assert str(tmp_path) not in captured.err
+    assert str(failed_backups[0]) not in captured.err
+    assert str(REPO_ROOT) not in captured.err
+
+
 def test_projection_publication_bytes_are_deterministic(tmp_path: Path) -> None:
     paths = _projection_paths(tmp_path)
     args = _projection_args(*paths)
@@ -406,3 +464,4 @@ def test_projection_publication_bytes_are_deterministic(tmp_path: Path) -> None:
 
     for path, content in first_bytes.items():
         assert path.read_bytes() == content
+    _assert_no_publication_temporary_files(tmp_path)

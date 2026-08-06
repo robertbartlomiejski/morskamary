@@ -146,8 +146,9 @@ def _publish_staged_text_artifacts(
     backups: Dict[Path, Path] = {}
     reserved_backups: List[Path] = []
     published_paths: List[Path] = []
-    publication_succeeded = False
+    publication_committed = False
     publication_error: BaseException | None = None
+    post_commit_cleanup_errors: List[OSError] = []
 
     try:
         for destination, content in artifacts:
@@ -166,7 +167,9 @@ def _publish_staged_text_artifacts(
         for destination in destinations:
             os.replace(staged_paths[destination], destination)
             published_paths.append(destination)
-        publication_succeeded = True
+        # Every destination is now replaced.  Temporary-file cleanup below
+        # cannot invalidate this committed publication.
+        publication_committed = True
     except BaseException as exc:
         publication_error = exc
         if backups or published_paths:
@@ -180,19 +183,34 @@ def _publish_staged_text_artifacts(
             try:
                 _unlink_if_present(stage_path)
             except OSError as cleanup_error:
-                if publication_error is None:
+                if publication_committed:
+                    post_commit_cleanup_errors.append(cleanup_error)
+                elif publication_error is None:
                     raise
-                _record_secondary_failure(publication_error, cleanup_error, "cleanup")
-        for backup_path in reserved_backups:
-            if publication_succeeded or backup_path not in backups.values():
-                try:
-                    _unlink_if_present(backup_path)
-                except OSError as cleanup_error:
-                    if publication_error is None:
-                        raise
+                else:
                     _record_secondary_failure(
                         publication_error, cleanup_error, "cleanup"
                     )
+        for backup_path in reserved_backups:
+            if publication_committed or backup_path not in backups.values():
+                try:
+                    _unlink_if_present(backup_path)
+                except OSError as cleanup_error:
+                    if publication_committed:
+                        post_commit_cleanup_errors.append(cleanup_error)
+                    elif publication_error is None:
+                        raise
+                    else:
+                        _record_secondary_failure(
+                            publication_error, cleanup_error, "cleanup"
+                        )
+        if publication_committed and post_commit_cleanup_errors:
+            print(
+                "[WARN] Non-fatal post-commit cleanup warning: "
+                f"{len(post_commit_cleanup_errors)} temporary artifact(s) could "
+                "not be removed.",
+                file=sys.stderr,
+            )
 
 
 def _validate_serialized_projection_artifacts(

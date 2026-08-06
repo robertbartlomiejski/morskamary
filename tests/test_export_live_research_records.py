@@ -112,14 +112,6 @@ def _adapt_legacy_search_for_paginated_dispatch(legacy_search):
             max_results=pages * rows_per_page,
             providers=providers,
         )
-        for result in results:
-            if (
-                isinstance(result, ProviderResult)
-                and result.physical_request_count == 0
-            ):
-                # Each synthetic fixture represents one successful paginated
-                # provider operation unless its test explicitly overrides it.
-                result.physical_request_count = 1
         return results
 
     return search_paginated
@@ -1513,7 +1505,9 @@ query_groups:
         mock_evidence = _make_evidence(
             record_id="crossref:10.1234/wind", query="offshore wind"
         )
-        mock_result = ProviderResult(records=[mock_record], provenance=[mock_evidence])
+        mock_result = ProviderResult(
+            records=[mock_record], provenance=[mock_evidence], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             return [mock_result]
@@ -1594,7 +1588,10 @@ query_groups:
             }
         }
         mock_result = ProviderResult(
-            records=[mock_record], provenance=[mock_evidence], raw_payload=raw_payload
+            records=[mock_record],
+            provenance=[mock_evidence],
+            raw_payload=raw_payload,
+            physical_request_count=1,
         )
 
         def mock_search(query, max_results, providers):
@@ -1675,10 +1672,14 @@ query_groups:
             source_provider="SciVal",
         )
         mock_crossref_result = ProviderResult(
-            records=[crossref_record], provenance=[crossref_ev]
+            records=[crossref_record],
+            provenance=[crossref_ev],
+            physical_request_count=1,
         )
         mock_scival_result = ProviderResult(
-            records=[scival_record], provenance=[scival_ev]
+            records=[scival_record],
+            provenance=[scival_ev],
+            physical_request_count=1,
         )
 
         def mock_search(query, max_results, providers):
@@ -1740,7 +1741,9 @@ query_groups:
         # Mock two identical records from different queries
         mock_record = _make_record(doi="10.1234/same")
         mock_evidence = _make_evidence()
-        mock_result = ProviderResult(records=[mock_record], provenance=[mock_evidence])
+        mock_result = ProviderResult(
+            records=[mock_record], provenance=[mock_evidence], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             return [mock_result]
@@ -1793,7 +1796,9 @@ query_groups:
         mock_evidence = _make_evidence(
             record_id="crossref:10.1234/low", confidence_score=0.5
         )
-        mock_result = ProviderResult(records=[mock_record], provenance=[mock_evidence])
+        mock_result = ProviderResult(
+            records=[mock_record], provenance=[mock_evidence], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             return [mock_result]
@@ -1871,10 +1876,10 @@ query_groups:
         )
         mock_evidence = _make_evidence()
         mock_result_cr = ProviderResult(
-            records=[crossref_rec], provenance=[mock_evidence]
+            records=[crossref_rec], provenance=[mock_evidence], physical_request_count=1
         )
         mock_result_sc = ProviderResult(
-            records=[scopus_rec], provenance=[mock_evidence]
+            records=[scopus_rec], provenance=[mock_evidence], physical_request_count=1
         )
 
         def mock_search(query, max_results, providers):
@@ -2034,7 +2039,9 @@ query_groups:
         output_dir = tmp_path / "outputs"
 
         # Provider returns an empty ProviderResult (zero records, zero provenance)
-        empty_result = ProviderResult(records=[], provenance=[])
+        empty_result = ProviderResult(
+            records=[], provenance=[], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             return [empty_result]
@@ -2078,6 +2085,64 @@ query_groups:
             assert rows[0]["record_count"] == "0"
             assert rows[0]["sector"] == "Test Sector"
 
+    def test_legacy_adapter_preserves_canonical_skipped_zero_request_count(
+        self, tmp_path, monkeypatch
+    ):
+        """A valid pre-network zero remains provider-owned through export."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text("""
+query_groups:
+  test_sector:
+    label: "Test Sector"
+    queries:
+      - "blue economy"
+""")
+        output_dir = tmp_path / "outputs"
+        skipped_result = ProviderResult(
+            records=[],
+            provenance=[],
+            physical_request_count=0,
+            page_diagnostics=[{"pagination_status": "skipped"}],
+        )
+
+        def mock_search(query, max_results, providers):
+            return [skipped_result]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                ],
+            )
+
+            assert main() == 0
+
+        execution_rows = list(
+            csv.DictReader(
+                (output_dir / "query_execution_log.csv").read_text().splitlines()
+            )
+        )
+        assert skipped_result.physical_request_count == 0
+        assert execution_rows[0]["physical_request_count"] == "0"
+
     def test_reversed_cli_provider_order_uses_registry_order_in_coverage(
         self, tmp_path, monkeypatch
     ):
@@ -2102,8 +2167,12 @@ query_groups:
             doi="10.2222/scopus",
             source_id="scopus:10.2222/s",
         )
-        crossref_result = ProviderResult(records=[crossref_rec], provenance=[])
-        scopus_result = ProviderResult(records=[scopus_rec], provenance=[])
+        crossref_result = ProviderResult(
+            records=[crossref_rec], provenance=[], physical_request_count=1
+        )
+        scopus_result = ProviderResult(
+            records=[scopus_rec], provenance=[], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             assert providers == ["scopus", "crossref"]
@@ -2165,7 +2234,9 @@ query_groups:
             doi="10.1000/scopus.1",
             source_id="scopus:10.1000/scopus.1",
         )
-        scopus_result = ProviderResult(records=[scopus_rec], provenance=[])
+        scopus_result = ProviderResult(
+            records=[scopus_rec], provenance=[], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             assert providers == ["scopus"]
@@ -2286,7 +2357,7 @@ query_groups:
 """)
 
         output_dir = tmp_path / "outputs"
-        mock_result = ProviderResult(records=[], provenance=[])
+        mock_result = ProviderResult(records=[], provenance=[], physical_request_count=1)
 
         def mock_search(query, max_results, providers):
             assert providers == ["crossref"]
@@ -2334,7 +2405,7 @@ query_groups:
 """)
 
         output_dir = tmp_path / "outputs"
-        mock_result = ProviderResult(records=[], provenance=[])
+        mock_result = ProviderResult(records=[], provenance=[], physical_request_count=1)
         seen_providers = []
 
         def mock_search(query, max_results, providers):
@@ -2386,8 +2457,12 @@ query_groups:
 """)
 
         output_dir = tmp_path / "outputs"
-        mock_result_crossref = ProviderResult(records=[], provenance=[])
-        mock_result_scopus = ProviderResult(records=[], provenance=[])
+        mock_result_crossref = ProviderResult(
+            records=[], provenance=[], physical_request_count=1
+        )
+        mock_result_scopus = ProviderResult(
+            records=[], provenance=[], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             assert providers == ["crossref", "scopus"]
