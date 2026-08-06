@@ -199,6 +199,7 @@ def test_schema_v2_fixture_preserves_construct_valid_lineage() -> None:
     assert decision["evidence_ids"] == candidate["evidence_id"]
     assert decision["fragment_ids"] == candidate["fragment_id"]
     assert decision["source_provenance_ids"] == candidate["source_provenance_ids"]
+    assert decision["decision_status"] == "accepted"
     assert canonical["validation_decision_id"] == decision["validation_decision_id"]
     assert canonical["source_candidate_id"] == decision["target_candidate_id"]
     assert assignment["canonical_competence_id"] == canonical["canonical_competence_id"]
@@ -255,12 +256,12 @@ def test_sector_assignment_axis_code_schema_uses_canonical_codes() -> None:
     validator = Draft202012Validator(
         _load_schema("sector_competence_assignments.schema.json")
     )
-    for axis_code in ("M", "T", "O", "H", ""):
+    for axis_code in ("M", "T", "O", "H"):
         payload = copy.deepcopy(fixture["sector_competence_assignments"])
         payload["axis_code"] = axis_code
         assert list(validator.iter_errors(payload)) == []
 
-    for invalid_axis_code in ("OCEANIC", "X"):
+    for invalid_axis_code in ("", "OCEANIC", "X"):
         payload = copy.deepcopy(fixture["sector_competence_assignments"])
         payload["axis_code"] = invalid_axis_code
         assert list(validator.iter_errors(payload))

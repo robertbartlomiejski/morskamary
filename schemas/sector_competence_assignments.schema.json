@@ -21,7 +21,7 @@
     "source_candidate_id": { "type": "string", "minLength": 1 },
     "sector": { "type": "string" },
     "axis_group": { "type": "string" },
-    "axis_code": { "type": "string", "enum": ["M", "T", "O", "H", ""] },
+    "axis_code": { "type": "string", "enum": ["M", "T", "O", "H"] },
     "evidence_ids": { "type": "string", "minLength": 1 }
   }
 }

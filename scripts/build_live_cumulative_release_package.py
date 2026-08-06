@@ -65,7 +65,10 @@ def _load_schema_v2_contract(
         if (
             properties.get(field_name, {}).get("minLength", 0) >= 1
             or properties.get(field_name, {}).get("type") != "string"
-            or "enum" in properties.get(field_name, {})
+            or (
+                "enum" in properties.get(field_name, {})
+                and "" not in properties.get(field_name, {}).get("enum", [])
+            )
         )
     }
     # Non-accepted decisions may deliberately have no canonical label.
@@ -332,9 +335,12 @@ def _validate_schema_v2_required_fields(
 ) -> List[str]:
     """Validate required schema-v2 fields for one CSV or JSONL projection."""
     errors: List[str] = []
+    first_row_line = 2 if suffix == "csv" else 1
     for entity_name, required_columns in SCHEMA_V2_REQUIRED_COLUMNS.items():
         file_name = f"{entity_name}.{suffix}"
-        for row_index, row in enumerate(rows_by_file.get(file_name, []), start=1):
+        for row_index, row in enumerate(
+            rows_by_file.get(file_name, []), start=first_row_line
+        ):
             for field_name in required_columns:
                 if field_name not in row:
                     issue = "missing_required_field"
@@ -392,9 +398,14 @@ def _validate_schema_v2_foreign_keys(
         indexes[entity_name] = index
 
     for source, source_fields, target, target_fields in SCHEMA_V2_FOREIGN_KEYS:
+        target_index = {
+            _row_key(row, target_fields)
+            for row in entity_rows[target]
+            if all(_row_key(row, target_fields))
+        }
         for row_index, row in enumerate(entity_rows[source], start=1):
             key = _row_key(row, source_fields)
-            if all(key) and key not in indexes[target]:
+            if all(key) and key not in target_index:
                 errors.append(
                     "schema_v2_broken_foreign_key:"
                     f"{source}.{suffix}:L{row_index}:{'+'.join(source_fields)}"
@@ -539,8 +550,8 @@ def _validate_legacy_derived_demand_metadata(
 
     def metadata_by_demand(
         rows: List[Dict[str, Any]], file_name: str
-    ) -> Dict[str, Tuple[str, str]]:
-        metadata: Dict[str, Tuple[str, str]] = {}
+    ) -> Dict[str, Tuple[str, str, Tuple[str, ...]]]:
+        metadata: Dict[str, Tuple[str, str, Tuple[str, ...]]] = {}
         for row_index, row in enumerate(rows, start=1):
             demand_id = _identifier(row.get("competence_demand_id"))
             if not demand_id:
@@ -549,9 +560,18 @@ def _validate_legacy_derived_demand_metadata(
                     f"{file_name}:L{row_index}:competence_demand_id"
                 )
                 continue
+            evidence_ids = tuple(sorted(_split_references(row.get("evidence_ids"))))
+            if not evidence_ids or any(
+                value.lower() == "unavailable" for value in evidence_ids
+            ):
+                errors.append(
+                    "derived_demand_missing_supporting_evidence_ids:"
+                    f"{file_name}:L{row_index}:{demand_id}"
+                )
             values = (
                 _identifier(row.get("view_kind")),
                 _identifier(row.get("scientific_status")),
+                evidence_ids,
             )
             for field_name, value, expected_value in (
                 (

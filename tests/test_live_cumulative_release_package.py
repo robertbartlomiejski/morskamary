@@ -9,6 +9,8 @@ import json
 import zipfile
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 _PACKAGE_SPEC = importlib.util.spec_from_file_location(
@@ -634,15 +636,15 @@ def test_package_allows_byte_empty_null_result_jsonl_tables(
     assert out.exists()
 
 
-def test_package_rejects_placeholder_object_in_allowed_empty_jsonl(
+def test_package_rejects_whitespace_only_allowed_empty_jsonl(
     tmp_path: Path,
 ) -> None:
-    """An empty entity is represented by zero bytes, never a bare object."""
+    """An allowed-empty projection must hold zero bytes, not blank lines."""
     db = tmp_path / "db"
     reports = tmp_path / "reports"
     _write_min_bundle(db, reports)
     (db / "canonical_competences.jsonl").write_text(
-        "{}\n", encoding="utf-8"
+        "\n   \n", encoding="utf-8"
     )
     _rewrite_checksums(db)
     out = tmp_path / "pkg.zip"
@@ -715,70 +717,72 @@ def test_package_rejects_canonical_rows_without_validation_decisions(
     assert not out.exists()
 
 
+@pytest.mark.parametrize("suffix", ("csv", "jsonl"))
+@pytest.mark.parametrize("evidence_ids", ("E-OTHER", "|"))
 def test_package_rejects_assignment_evidence_unlinked_from_candidate(
     tmp_path: Path,
+    suffix: str,
+    evidence_ids: str,
 ) -> None:
     """Assignments retain their source candidate's nonempty evidence lineage."""
-    for suffix in ("csv", "jsonl"):
-        for evidence_ids in ("E-OTHER", "|"):
-            db = tmp_path / f"db-{suffix}-{evidence_ids.replace('|', 'pipe')}"
-            reports = tmp_path / f"reports-{suffix}-{evidence_ids.replace('|', 'pipe')}"
-            _write_min_bundle(db, reports)
-            rows = _schema_v2_rows()
-            for entity_name in (
-                "validation_decisions",
-                "canonical_competences",
-                "sector_competence_assignments",
-            ):
-                row = rows[entity_name]
-                _write_csv_rows(
-                    db / f"{entity_name}.csv",
-                    CSV_REQUIRED_COLUMNS[f"{entity_name}.csv"],
-                    [row],
-                )
-                (db / f"{entity_name}.jsonl").write_text(
-                    json.dumps(row) + "\n", encoding="utf-8"
-                )
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    rows = _schema_v2_rows()
+    for entity_name in (
+        "validation_decisions",
+        "canonical_competences",
+        "sector_competence_assignments",
+    ):
+        row = rows[entity_name]
+        _write_csv_rows(
+            db / f"{entity_name}.csv",
+            CSV_REQUIRED_COLUMNS[f"{entity_name}.csv"],
+            [row],
+        )
+        (db / f"{entity_name}.jsonl").write_text(
+            json.dumps(row) + "\n", encoding="utf-8"
+        )
 
-            evidence_csv_path = db / "evidence_records.csv"
-            evidence_rows = list(
-                csv.DictReader(evidence_csv_path.open(encoding="utf-8"))
-            )
-            assert evidence_rows
-            other_evidence = dict(evidence_rows[0])
-            other_evidence["evidence_id"] = "E-OTHER"
-            _write_csv_rows(
-                evidence_csv_path,
-                CSV_REQUIRED_COLUMNS[evidence_csv_path.name],
-                [dict(evidence_rows[0]), other_evidence],
-            )
-            with (db / "evidence_records.jsonl").open(
-                "a", encoding="utf-8"
-            ) as handle:
-                handle.write(json.dumps({"evidence_id": "E-OTHER"}) + "\n")
+    evidence_csv_path = db / "evidence_records.csv"
+    evidence_rows = list(
+        csv.DictReader(evidence_csv_path.open(encoding="utf-8"))
+    )
+    assert evidence_rows
+    other_evidence = dict(evidence_rows[0])
+    other_evidence["evidence_id"] = "E-OTHER"
+    _write_csv_rows(
+        evidence_csv_path,
+        CSV_REQUIRED_COLUMNS[evidence_csv_path.name],
+        [dict(evidence_rows[0]), other_evidence],
+    )
+    with (db / "evidence_records.jsonl").open(
+        "a", encoding="utf-8"
+    ) as handle:
+        handle.write(json.dumps({"evidence_id": "E-OTHER"}) + "\n")
 
-            assignment_path = db / f"sector_competence_assignments.{suffix}"
-            if suffix == "csv":
-                assignments = list(
-                    csv.DictReader(assignment_path.open(encoding="utf-8"))
-                )
-                assignments[0]["evidence_ids"] = evidence_ids
-                _write_csv_rows(
-                    assignment_path,
-                    CSV_REQUIRED_COLUMNS[assignment_path.name],
-                    [dict(assignments[0])],
-                )
-            else:
-                assignment = json.loads(assignment_path.read_text(encoding="utf-8"))
-                assignment["evidence_ids"] = evidence_ids
-                assignment_path.write_text(
-                    json.dumps(assignment) + "\n", encoding="utf-8"
-                )
+    assignment_path = db / f"sector_competence_assignments.{suffix}"
+    if suffix == "csv":
+        assignments = list(
+            csv.DictReader(assignment_path.open(encoding="utf-8"))
+        )
+        assignments[0]["evidence_ids"] = evidence_ids
+        _write_csv_rows(
+            assignment_path,
+            CSV_REQUIRED_COLUMNS[assignment_path.name],
+            [dict(assignments[0])],
+        )
+    else:
+        assignment = json.loads(assignment_path.read_text(encoding="utf-8"))
+        assignment["evidence_ids"] = evidence_ids
+        assignment_path.write_text(
+            json.dumps(assignment) + "\n", encoding="utf-8"
+        )
 
-            _rewrite_checksums(db)
-            out = tmp_path / f"pkg-{suffix}-{evidence_ids.replace('|', 'pipe')}.zip"
-            assert _build_fixture_package(db, reports, out) == 1
-            assert not out.exists()
+    _rewrite_checksums(db)
+    out = tmp_path / f"pkg-{suffix}-{evidence_ids.replace('|', 'pipe')}.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
 
 
 def test_package_rejects_legacy_metadata_projection_mismatch(
@@ -790,7 +794,7 @@ def test_package_rejects_legacy_metadata_projection_mismatch(
     _write_min_bundle(db, reports)
     jsonl_path = db / "derived_competence_demands.jsonl"
     payload = json.loads(jsonl_path.read_text(encoding="utf-8"))
-    payload["scientific_status"] = "candidate"
+    payload["evidence_ids"] = "E-OTHER"
     jsonl_path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
     _rewrite_checksums(db)
     out = tmp_path / "pkg.zip"
@@ -886,6 +890,23 @@ def test_package_rejects_demand_without_supporting_evidence_ids(tmp_path: Path) 
     assert not out.exists()
 
 
+def test_package_rejects_jsonl_demand_without_supporting_evidence_ids(
+    tmp_path: Path,
+) -> None:
+    """The JSONL compatibility view must retain supporting evidence IDs."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    path = db / "derived_competence_demands.jsonl"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["evidence_ids"] = ""
+    path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+
+
 def test_package_allows_non_hypothesis_demand_evidence_not_in_fragments(
     tmp_path: Path,
 ) -> None:
@@ -908,6 +929,12 @@ def test_package_allows_non_hypothesis_demand_evidence_not_in_fragments(
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
+    demand_jsonl_path = db / "derived_competence_demands.jsonl"
+    demand_jsonl = json.loads(demand_jsonl_path.read_text(encoding="utf-8"))
+    demand_jsonl["evidence_ids"] = "E-NONH"
+    demand_jsonl_path.write_text(
+        json.dumps(demand_jsonl) + "\n", encoding="utf-8"
+    )
     learning_rows = list(csv.DictReader((db / "learning_outcomes.csv").open(encoding="utf-8")))
     assert learning_rows
     learning_rows[0]["evidence_id"] = "E-NONH"
