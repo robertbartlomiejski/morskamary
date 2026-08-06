@@ -51,10 +51,11 @@ def test_schema_v2_enums_generate_variable_and_value_labels() -> None:
             if "enum" not in definition:
                 continue
             assert (schema_name, field_name) in variables
-            key = (schema_name, field_name, str(code))
-            assert key in values
-            if code == "":
-                assert values[key] == "Unbound"
+            for code in definition["enum"]:
+                key = (schema_name, field_name, str(code))
+                assert key in values
+                if code == "":
+                    assert values[key] == "Unbound"
 
 
 def _copy_required_schemas(repo_root: Path) -> None:
