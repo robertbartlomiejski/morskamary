@@ -48,6 +48,32 @@ CSV_REQUIRED_COLUMNS: Dict[str, Tuple[str, ...]] = {
         "first_seen_run_id", "latest_seen_run_id",
         "providers_seen", "record_novelty_status",
     ),
+    "evidence_fragments.csv": (
+        "fragment_id", "evidence_id", "run_id", "source_provenance_id",
+        "source_field", "fragment_text", "span_start_offset", "span_end_offset",
+    ),
+    "semantic_signals.csv": (
+        "signal_id", "fragment_id", "evidence_id", "run_id",
+        "source_provenance_id", "signal_type", "signal_category_label",
+        "matched_phrase",
+    ),
+    "competence_candidates.csv": (
+        "candidate_id", "signal_id", "fragment_id", "evidence_id",
+        "source_provenance_ids", "candidate_label", "review_status",
+        "exact_evidence_span",
+    ),
+    "canonical_competences.csv": (
+        "canonical_competence_id", "validation_decision_id",
+        "source_candidate_id", "preferred_label", "validation_status",
+    ),
+    "sector_competence_assignments.csv": (
+        "assignment_id", "canonical_competence_id", "validation_decision_id",
+        "source_candidate_id", "sector", "axis_group",
+    ),
+    "validation_decisions.csv": (
+        "validation_decision_id", "target_candidate_id", "canonical_label",
+        "decision_status", "reviewer", "evidence_ids", "fragment_ids",
+    ),
     "competence_demand_signals.csv": (
         "signal_id", "evidence_id", "run_id", "sector",
         "axis_group", "signal_type", "competence_label",
@@ -59,8 +85,9 @@ CSV_REQUIRED_COLUMNS: Dict[str, Tuple[str, ...]] = {
         "semantic_fragment", "evidence_surface",
     ),
     "derived_competence_demands.csv": (
-        "competence_demand_id", "competence_label", "sector",
-        "axis_group", "demand_strength_score", "evidence_ids",
+        "competence_demand_id", "competence_label", "view_kind",
+        "scientific_status", "sector", "axis_group",
+        "demand_strength_score", "evidence_ids",
     ),
     "sector_axis_gap_model.csv": (
         "sector", "axis_group", "live_literature_demand_count",
@@ -79,6 +106,12 @@ CSV_REQUIRED_COLUMNS: Dict[str, Tuple[str, ...]] = {
 
 CSV_FILES = (
     "evidence_records.csv",
+    "evidence_fragments.csv",
+    "semantic_signals.csv",
+    "competence_candidates.csv",
+    "canonical_competences.csv",
+    "sector_competence_assignments.csv",
+    "validation_decisions.csv",
     "competence_demand_signals.csv",
     "hypothesis_semantic_fragments.csv",
     "derived_competence_demands.csv",
@@ -96,10 +129,22 @@ OPTIONAL_CSV_FILES = (
 
 JSONL_FILES = (
     "evidence_records.jsonl",
+    "evidence_fragments.jsonl",
+    "semantic_signals.jsonl",
+    "competence_candidates.jsonl",
+    "canonical_competences.jsonl",
+    "sector_competence_assignments.jsonl",
+    "validation_decisions.jsonl",
     "competence_demand_signals.jsonl",
     "hypothesis_semantic_fragments.jsonl",
     "derived_competence_demands.jsonl",
 )
+
+ALLOW_EMPTY_JSONL = {
+    "canonical_competences.jsonl",
+    "sector_competence_assignments.jsonl",
+    "validation_decisions.jsonl",
+}
 
 DATABASE_METADATA_FILES = (
     "run_novelty_metrics.json",
@@ -176,7 +221,7 @@ def _load_jsonl_rows(path: Path) -> Tuple[List[Dict[str, Any]], List[str]]:
             errors.append(f"jsonl_not_object:{path.name}:L{line_no}")
             continue
         rows.append(payload)
-    if not rows and not errors:
+    if not rows and not errors and path.name not in ALLOW_EMPTY_JSONL:
         errors.append(f"empty_jsonl:{path.name}")
     return rows, errors
 
@@ -472,6 +517,13 @@ def main(argv: Optional[List[str]] = None) -> int:
             if name == "derived_competence_demands.csv":
                 dict_reader = csv.DictReader(text.splitlines())
                 for row_index, row in enumerate(dict_reader, start=2):
+                    if (
+                        str(row.get("view_kind", "")).strip()
+                        != "legacy_category_aggregate_compatibility_view"
+                    ):
+                        missing_required.append(
+                            f"derived_demand_not_marked_legacy:L{row_index}"
+                        )
                     evidence_ids = str(row.get("evidence_ids", "")).strip()
                     if evidence_ids and evidence_ids.lower() != "unavailable":
                         continue

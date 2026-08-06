@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-08-06 (add: schema-v2 construct-valid cumulative foundation for issue #218)
+  Change type add update
+  Scope scripts src tests governance
+  Files affected src/scientific_sources/cumulative_scientific_database.py src/scientific_sources/derived_competence_analysis.py scripts/build_live_cumulative_release_package.py schemas/evidence_fragments.schema.json schemas/semantic_signals.schema.json schemas/competence_candidates.schema.json schemas/canonical_competences.schema.json schemas/sector_competence_assignments.schema.json schemas/validation_decisions.schema.json tests/fixtures/cumulative_database_schema_samples.json tests/test_cumulative_scientific_database.py tests/test_publication_cumulative_database.py tests/test_live_cumulative_release_package.py tests/test_derived_competence_analysis.py tests/test_build_validated_credential_supply_map.py tests/test_build_versioned_research_data_package.py docs/LIVE_CUMULATIVE_SCIENTIFIC_DATABASE.md docs/STATISTICAL_REPORT_METHODOLOGY.md CHANGELOG.txt MANIFEST_SOURCES.csv
+  Summary Adds schema-v2 exports for evidence fragments, semantic signals, competence candidates, canonical competences, sector competence assignments, and validation decisions; keeps `derived_competence_demands` explicitly marked as a legacy category-aggregate compatibility view; and strengthens release-package/test contracts so provenance spans, separate counts, and validation-decision gating are enforced offline.
+  Reason Issue #218 requires a construct-valid chain that separates evidence spans, semantic signals, review-gated candidates, explicit canonical promotion, sector linkage, and reviewer validation decisions, without scientifically relabelling legacy aggregate rows as validated canonical competences.
+  Impact Cumulative database manifests now count construct-validity entities separately; canonical competence exports remain empty unless explicit validation decisions are provided; release-package SQLite/CSV/JSONL contents stay aligned with the new schemas; and negative regressions block title/provider/truncation leakage into canonical labels.
+  Provenance Issue #218; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md; config/live_query_protocol.yml.
+  Quality checks Focused pytest set passed (105 tests): test_cumulative_scientific_database.py, test_publication_cumulative_database.py, test_live_cumulative_release_package.py, test_derived_competence_analysis.py, test_build_versioned_research_data_package.py. Full repository validation pending until diff stabilization and manifest regeneration complete.
+
 - 2026-08-06 (fix: harden post-merge provider accounting and protocol publication)
   Change type fix update
   Scope scripts src tests governance

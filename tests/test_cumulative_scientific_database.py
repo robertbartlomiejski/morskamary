@@ -27,20 +27,34 @@ from src.scientific_sources.cumulative_scientific_database import (
     ALLOWED_MANUAL_REVIEW_STATUSES,
     ALLOWED_RECORD_NOVELTY_STATUS,
     ALLOWED_SIGNAL_TYPES,
+    CANONICAL_COMPETENCES_CSV,
+    CANONICAL_COMPETENCES_JSONL,
     CLASSIFIER_VERSION,
+    COMPETENCE_CANDIDATES_CSV,
+    COMPETENCE_CANDIDATES_JSONL,
     COMPETENCE_DEMAND_SIGNALS_CSV,
     COMPETENCE_DEMAND_SIGNALS_JSONL,
     COMPETENCE_DEMAND_SIGNAL_COLUMNS,
+    CumulativeDatabaseError,
     DATABASE_CHECKSUMS_FILENAME,
     DATABASE_MANIFEST_FILENAME,
+    EVIDENCE_FRAGMENTS_CSV,
+    EVIDENCE_FRAGMENTS_JSONL,
     EVIDENCE_RECORDS_CSV,
     EVIDENCE_RECORDS_JSONL,
     EVIDENCE_RECORD_COLUMNS,
+    SECTOR_COMPETENCE_ASSIGNMENTS_CSV,
+    SECTOR_COMPETENCE_ASSIGNMENTS_JSONL,
+    SEMANTIC_SIGNALS_CSV,
+    SEMANTIC_SIGNALS_JSONL,
+    VALIDATION_DECISIONS_CSV,
+    VALIDATION_DECISIONS_JSONL,
     HYPOTHESIS_SEMANTIC_FRAGMENTS_CSV,
     HYPOTHESIS_SEMANTIC_FRAGMENTS_JSONL,
     RUN_NOVELTY_METRICS_CSV,
     RUN_NOVELTY_METRICS_JSON,
     build_cumulative_scientific_database,
+    canonical_label_is_allowed,
 )
 from src.scientific_sources.derived_competence_analysis import (
     build_layer4,
@@ -164,6 +178,18 @@ class TestBundleShape:
         expected = {
             EVIDENCE_RECORDS_CSV,
             EVIDENCE_RECORDS_JSONL,
+            EVIDENCE_FRAGMENTS_CSV,
+            EVIDENCE_FRAGMENTS_JSONL,
+            SEMANTIC_SIGNALS_CSV,
+            SEMANTIC_SIGNALS_JSONL,
+            COMPETENCE_CANDIDATES_CSV,
+            COMPETENCE_CANDIDATES_JSONL,
+            CANONICAL_COMPETENCES_CSV,
+            CANONICAL_COMPETENCES_JSONL,
+            SECTOR_COMPETENCE_ASSIGNMENTS_CSV,
+            SECTOR_COMPETENCE_ASSIGNMENTS_JSONL,
+            VALIDATION_DECISIONS_CSV,
+            VALIDATION_DECISIONS_JSONL,
             COMPETENCE_DEMAND_SIGNALS_CSV,
             COMPETENCE_DEMAND_SIGNALS_JSONL,
             HYPOTHESIS_SEMANTIC_FRAGMENTS_CSV,
@@ -209,6 +235,11 @@ class TestBundleShape:
             ALLOWED_MANUAL_REVIEW_STATUSES
         )
         assert manifest["classifier_version"] == CLASSIFIER_VERSION
+        assert manifest["counts"]["semantic_signals"] >= 0
+        assert manifest["counts"]["competence_candidates"] >= 0
+        assert manifest["counts"]["canonical_competences"] == 0
+        assert manifest["counts"]["sector_competence_assignments"] == 0
+        assert manifest["counts"]["validation_decisions"] == 0
 
 
 # ---------------------------------------------------------------------------
@@ -1775,3 +1806,110 @@ def test_hypothesis_fragment_ledger_is_evidence_bound(tmp_path: Path) -> None:
         "source_query" not in fragment["semantic_scope"]
         for fragment in fragments
     )
+
+
+def test_candidates_reference_exact_fragment_spans_and_provenance(tmp_path: Path) -> None:
+    current = tmp_path / "outputs"
+    output = tmp_path / "database"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Digital skills for port maintenance",
+                "abstract": "Digital skills improve port maintenance safety.",
+                "doi": "10.1000/candidate-span",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=output,
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    assert result.evidence_fragments
+    assert result.semantic_signals
+    assert result.competence_candidates
+    candidate = result.competence_candidates[0]
+    fragment = {
+        row.fragment_id: row for row in result.evidence_fragments
+    }[candidate.fragment_id]
+    assert candidate.fragment_id == fragment.fragment_id
+    assert candidate.source_provenance_ids == fragment.source_provenance_id
+    assert candidate.exact_evidence_span == fragment.fragment_text
+    assert candidate.exact_span_end_offset > candidate.exact_span_start_offset
+
+
+def test_no_canonical_competence_without_validation_decision(tmp_path: Path) -> None:
+    current = tmp_path / "outputs"
+    output = tmp_path / "database"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance skills for blue economy planning",
+                "doi": "10.1000/no-canonical",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=output,
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    assert result.competence_candidates
+    assert result.validation_decisions == []
+    assert result.canonical_competences == []
+    assert result.sector_competence_assignments == []
+
+
+def test_invalid_canonical_label_is_blocked_before_promotion(tmp_path: Path) -> None:
+    current = tmp_path / "outputs"
+    output = tmp_path / "database"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Paper title fragment for canonical label rejection",
+                "abstract": "Digital skill paper title fragment for canonical label rejection.",
+                "doi": "10.1000/bad-label",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=output,
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    assert initial.competence_candidates
+    bad_label = "Crossref: Paper title fragment..."
+    assert not canonical_label_is_allowed(bad_label)
+    with pytest.raises(CumulativeDatabaseError):
+        build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "invalid",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+            validation_decisions=[
+                {
+                    "target_candidate_id": initial.competence_candidates[0].candidate_id,
+                    "canonical_label": bad_label,
+                    "decision_status": "accepted",
+                    "reviewer": "reviewer@example.org",
+                    "decision_at_utc": FROZEN_TS,
+                    "decision_reason": "bad label regression",
+                }
+            ],
+        )

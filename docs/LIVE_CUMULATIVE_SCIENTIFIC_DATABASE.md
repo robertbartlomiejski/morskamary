@@ -40,6 +40,18 @@ cumulative_database_manifest.json
 _checksums.sha256
 evidence_records.csv
 evidence_records.jsonl
+evidence_fragments.csv
+evidence_fragments.jsonl
+semantic_signals.csv
+semantic_signals.jsonl
+competence_candidates.csv
+competence_candidates.jsonl
+canonical_competences.csv
+canonical_competences.jsonl
+sector_competence_assignments.csv
+sector_competence_assignments.jsonl
+validation_decisions.csv
+validation_decisions.jsonl
 competence_demand_signals.csv
 competence_demand_signals.jsonl
 run_novelty_metrics.csv
@@ -143,7 +155,21 @@ tracking only and never contributes to positive semantic matching or
 confidence scoring. Query intent is not scientific evidence; matched semantic
 fragments are evidence candidates.
 
-## Competence-demand signals (Layer 3)
+## Versioned construct-valid chain (Layer 3 foundation)
+
+Schema v2 adds an explicit construct-valid chain:
+
+`evidence_record -> evidence_fragment -> semantic_signal -> competence_candidate -> canonical_competence -> sector_competence_assignment -> validation_decision`
+
+- `competence_demand_signals.{csv,jsonl}` remain deterministic compatibility
+  projections for legacy consumers.
+- `canonical_competences.{csv,jsonl}` and
+  `sector_competence_assignments.{csv,jsonl}` stay empty unless explicit
+  validation decisions are supplied.
+- No candidate is promoted to a canonical competence without an explicit
+  `validation_decisions.{csv,jsonl}` row.
+
+## Competence-demand signals (legacy compatibility projection)
 
 Each row in `competence_demand_signals.{csv,jsonl}` is one deterministic
 semantic hit against the metadata available for an evidence record in the

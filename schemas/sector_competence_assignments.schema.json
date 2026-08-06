@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/sector_competence_assignments.schema.json",
+  "title": "Sector competence assignments row",
+  "type": "object",
+  "required": [
+    "assignment_id",
+    "canonical_competence_id",
+    "validation_decision_id",
+    "source_candidate_id",
+    "sector",
+    "axis_group",
+    "axis_code",
+    "evidence_ids"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "assignment_id": { "type": "string", "minLength": 1 },
+    "canonical_competence_id": { "type": "string", "minLength": 1 },
+    "validation_decision_id": { "type": "string", "minLength": 1 },
+    "source_candidate_id": { "type": "string", "minLength": 1 },
+    "sector": { "type": "string" },
+    "axis_group": { "type": "string" },
+    "axis_code": { "type": "string" },
+    "evidence_ids": { "type": "string", "minLength": 1 }
+  }
+}

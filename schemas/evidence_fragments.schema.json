@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/evidence_fragments.schema.json",
+  "title": "Evidence fragments row",
+  "type": "object",
+  "required": [
+    "fragment_id",
+    "evidence_id",
+    "run_id",
+    "source_provenance_id",
+    "source_field",
+    "language",
+    "fragment_text",
+    "span_start_offset",
+    "span_end_offset",
+    "surface_text_hash",
+    "provenance_hash"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "fragment_id": { "type": "string", "minLength": 1 },
+    "evidence_id": { "type": "string", "minLength": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "source_provenance_id": { "type": "string", "minLength": 1 },
+    "source_field": {
+      "type": "string",
+      "enum": ["title", "subject_terms", "abstract", "full_text"]
+    },
+    "language": { "type": "string", "minLength": 1 },
+    "fragment_text": { "type": "string", "minLength": 1 },
+    "span_start_offset": { "type": "integer", "minimum": 0 },
+    "span_end_offset": { "type": "integer", "minimum": 0 },
+    "surface_text_hash": { "type": "string", "minLength": 1 },
+    "provenance_hash": { "type": "string", "minLength": 1 }
+  }
+}

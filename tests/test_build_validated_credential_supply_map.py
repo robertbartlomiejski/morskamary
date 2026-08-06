@@ -208,6 +208,8 @@ def _hydro_demand(demand_id: str) -> DerivedCompetenceDemand:
         competence_demand_id=demand_id,
         competence_label="hydronization governance",
         competence_definition="validated hydronization competence",
+        view_kind="legacy_category_aggregate_compatibility_view",
+        scientific_status="legacy_not_validated_canonical_competence",
         sector="desalination",
         axis_group="HYDRONIZATION",
         axis_code="H",

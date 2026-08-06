@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/validation_decisions.schema.json",
+  "title": "Validation decisions row",
+  "type": "object",
+  "required": [
+    "validation_decision_id",
+    "target_candidate_id",
+    "canonical_label",
+    "decision_status",
+    "reviewer",
+    "decision_at_utc",
+    "decision_reason",
+    "evidence_ids",
+    "fragment_ids",
+    "source_provenance_ids",
+    "superseded_validation_decision_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "validation_decision_id": { "type": "string", "minLength": 1 },
+    "target_candidate_id": { "type": "string", "minLength": 1 },
+    "canonical_label": { "type": "string", "minLength": 1 },
+    "decision_status": {
+      "type": "string",
+      "enum": ["accepted", "rejected", "review_required", "superseded"]
+    },
+    "reviewer": { "type": "string", "minLength": 1 },
+    "decision_at_utc": { "type": "string", "minLength": 1 },
+    "decision_reason": { "type": "string" },
+    "evidence_ids": { "type": "string", "minLength": 1 },
+    "fragment_ids": { "type": "string", "minLength": 1 },
+    "source_provenance_ids": { "type": "string", "minLength": 1 },
+    "superseded_validation_decision_id": { "type": "string" }
+  }
+}

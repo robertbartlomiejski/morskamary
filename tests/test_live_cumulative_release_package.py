@@ -108,7 +108,8 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
     # Ensure cross-file evidence/demand links are scientifically coherent.
     (db / "derived_competence_demands.csv").write_text(
         ",".join(CSV_REQUIRED_COLUMNS["derived_competence_demands.csv"])
-        + "\ncd:test,marine skill,ports,MARINE,0.55,E-0001\n",
+        + "\ncd:test,marine skill,legacy_category_aggregate_compatibility_view,"
+        "legacy_not_validated_canonical_competence,ports,MARINE,0.55,E-0001\n",
         encoding="utf-8",
     )
     (db / "learning_outcomes.csv").write_text(
@@ -144,8 +145,35 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
         elif name == "derived_competence_demands.jsonl":
             payload = {
                 "competence_demand_id": "cd:test",
+                "view_kind": "legacy_category_aggregate_compatibility_view",
                 "evidence_ids": "E-0001",
             }
+        elif name == "evidence_fragments.jsonl":
+            payload = {
+                "fragment_id": "fragment:test",
+                "evidence_id": "E-0001",
+                "source_provenance_id": "prov:test",
+            }
+        elif name == "semantic_signals.jsonl":
+            payload = {
+                "signal_id": "S-0001",
+                "fragment_id": "fragment:test",
+                "evidence_id": "E-0001",
+            }
+        elif name == "competence_candidates.jsonl":
+            payload = {
+                "candidate_id": "candidate:test",
+                "signal_id": "S-0001",
+                "fragment_id": "fragment:test",
+                "evidence_id": "E-0001",
+                "source_provenance_ids": "prov:test",
+            }
+        elif name == "canonical_competences.jsonl":
+            payload = {}
+        elif name == "sector_competence_assignments.jsonl":
+            payload = {}
+        elif name == "validation_decisions.jsonl":
+            payload = {}
         elif name == "competence_demand_signals.jsonl":
             payload = {
                 "signal_id": "S-0001",

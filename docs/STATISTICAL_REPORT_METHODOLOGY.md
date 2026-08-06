@@ -16,8 +16,8 @@ evidence-based credential coverage and richer inferential tests.
 | 0     | Query protocol registry                                | `config/live_query_protocol.yml`                      |
 | 1     | Raw provider acquisition                               | `outputs/live_runs/<run_id>/raw/`                     |
 | 2     | Deduplicated cumulative evidence records               | `evidence_records.{csv,jsonl}`                        |
-| 3     | Semantic competence-demand signals                     | `competence_demand_signals.{csv,jsonl}`               |
-| 4     | Derived competence demand + statistical indices        | `derived_competence_demands.{csv,jsonl}` + statistics |
+| 3     | Versioned fragments, semantic signals, candidates and validation chain | `evidence_fragments.{csv,jsonl}`, `semantic_signals.{csv,jsonl}`, `competence_candidates.{csv,jsonl}`, `canonical_competences.{csv,jsonl}`, `sector_competence_assignments.{csv,jsonl}`, `validation_decisions.{csv,jsonl}` |
+| 4     | Legacy category-aggregate compatibility view + statistical indices | `derived_competence_demands.{csv,jsonl}` + statistics |
 | 5     | Sector gap model + EQF 4-7 credential translation      | `sector_axis_gap_model.csv` + credentials + outcomes  |
 
 ## 2. Mandated demand-strength formula

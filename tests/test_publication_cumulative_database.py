@@ -20,6 +20,12 @@ SCHEMA_TO_FIXTURE = {
     "evidence_records.schema.json": "evidence_records",
     "evidence_occurrences.schema.json": "evidence_occurrences",
     "evidence_segments.schema.json": "evidence_segments",
+    "evidence_fragments.schema.json": "evidence_fragments",
+    "semantic_signals.schema.json": "semantic_signals",
+    "competence_candidates.schema.json": "competence_candidates",
+    "canonical_competences.schema.json": "canonical_competences",
+    "sector_competence_assignments.schema.json": "sector_competence_assignments",
+    "validation_decisions.schema.json": "validation_decisions",
     "coding_assignments.schema.json": "coding_assignments",
     "reliability_metrics.schema.json": "reliability_metrics",
     "gap_clusters.schema.json": "gap_clusters",
@@ -98,8 +104,13 @@ def test_schemas_reject_missing_primary_keys() -> None:
         validator = Draft202012Validator(schema)
         payload = copy.deepcopy(fixture[fixture_key])
         primary_key = next(
-            field for field in schema["required"] if field.endswith("_pk")
+            (
+                field for field in schema["required"]
+                if field.endswith("_pk") or field.endswith("_id")
+            ),
+            None,
         )
+        assert primary_key is not None, schema_name
         payload.pop(primary_key, None)
         errors = list(validator.iter_errors(payload))
         assert errors, schema_name
@@ -158,6 +169,26 @@ def test_generated_supply_cannot_become_verified_supply() -> None:
     validator = Draft202012Validator(schema)
     negative_payload = _load_fixture()["dynamic_credentials_generated_supply_negative"]
     errors = list(validator.iter_errors(negative_payload))
+    assert errors
+
+
+def test_canonical_competence_requires_validation_decision_link() -> None:
+    fixture = _load_fixture()
+    schema = _load_schema("canonical_competences.schema.json")
+    validator = Draft202012Validator(schema)
+    payload = copy.deepcopy(fixture["canonical_competences"])
+    payload.pop("validation_decision_id", None)
+    errors = list(validator.iter_errors(payload))
+    assert errors
+
+
+def test_validation_decision_requires_candidate_lineage() -> None:
+    fixture = _load_fixture()
+    schema = _load_schema("validation_decisions.schema.json")
+    validator = Draft202012Validator(schema)
+    payload = copy.deepcopy(fixture["validation_decisions"])
+    payload["target_candidate_id"] = ""
+    errors = list(validator.iter_errors(payload))
     assert errors
 
 

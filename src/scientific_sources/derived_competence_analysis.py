@@ -81,6 +81,8 @@ DERIVED_DEMAND_COLUMNS: Tuple[str, ...] = (
     "competence_demand_id",
     "competence_label",
     "competence_definition",
+    "view_kind",
+    "scientific_status",
     "sector",
     "axis_group",
     "axis_code",
@@ -229,6 +231,8 @@ class DerivedCompetenceDemand:
     competence_demand_id: str
     competence_label: str
     competence_definition: str
+    view_kind: str
+    scientific_status: str
     sector: str
     axis_group: str
     axis_code: str
@@ -623,6 +627,8 @@ def build_layer4(
                 (str(s.get("competence_description", "")) for s in signals),
                 default=label,
             ),
+            view_kind="legacy_category_aggregate_compatibility_view",
+            scientific_status="legacy_not_validated_canonical_competence",
             sector=sector,
             axis_group=axis,
             axis_code=_axis_group_to_code(axis),
@@ -729,7 +735,9 @@ def build_layer4(
             "+ 0.20*temporal_recency_score + 0.15*query_diversity_score "
             "+ 0.15*semantic_confidence_mean"
         ),
+        "legacy_category_aggregate_view_count": len(demands),
         "derived_demand_count": len(demands),
+        "derived_demand_view_kind": "legacy_category_aggregate_compatibility_view",
         "indices": indices,
         "files": sorted(str(f.relative_to(out.parent)) for f in files),
     }

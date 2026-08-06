@@ -103,6 +103,8 @@ def test_derived_demand_columns_are_deterministic() -> None:
     assert "demand_strength_score" in DERIVED_DEMAND_COLUMNS
     assert "status" in DERIVED_DEMAND_COLUMNS
     assert "axis_code" in DERIVED_DEMAND_COLUMNS
+    assert "view_kind" in DERIVED_DEMAND_COLUMNS
+    assert "scientific_status" in DERIVED_DEMAND_COLUMNS
 
 
 def test_growth_eligibility_excludes_duplicate_only() -> None:
@@ -151,6 +153,8 @@ def test_build_layer4_layer5_end_to_end(tmp_path: Path) -> None:
     assert rows, "expected at least one derived demand"
     for r in rows:
         assert r["status"] in ALLOWED_DEMAND_STATUS
+        assert r["view_kind"] == "legacy_category_aggregate_compatibility_view"
+        assert r["scientific_status"] == "legacy_not_validated_canonical_competence"
 
     # Layer 5 gap row uses static baseline field, not live availability.
     with gap_csv.open() as fh:
@@ -230,6 +234,8 @@ def _mk_hydro_demand(idx: int, *, sector: str = "ports") -> "Dict[str, Any]":
         competence_demand_id=f"cd:hydro:{sector}:HYDRONIZATION:demand{idx}",
         competence_label=f"hydro demand {idx}",
         competence_definition=f"definition {idx}",
+        view_kind="legacy_category_aggregate_compatibility_view",
+        scientific_status="legacy_not_validated_canonical_competence",
         sector=sector,
         axis_group="HYDRONIZATION",
         axis_code="H",
@@ -570,6 +576,8 @@ def test_h1_signed_direction_controls_interpretation(
             competence_demand_id=f"cd:{axis}:sector:{idx}",
             competence_label=f"{axis} demand {idx}",
             competence_definition="",
+            view_kind="legacy_category_aggregate_compatibility_view",
+            scientific_status="legacy_not_validated_canonical_competence",
             sector="ports",
             axis_group=axis,
             axis_code=axis[0],
@@ -866,6 +874,8 @@ def test_h3_uses_matched_fragments_and_evidence_level_bridges(tmp_path: Path) ->
         competence_demand_id="cd:marine:1",
         competence_label="marine skill",
         competence_definition="marine",
+        view_kind="legacy_category_aggregate_compatibility_view",
+        scientific_status="legacy_not_validated_canonical_competence",
         sector="ports",
         axis_group="MARINE",
         axis_code="M",
@@ -897,6 +907,8 @@ def test_h3_uses_matched_fragments_and_evidence_level_bridges(tmp_path: Path) ->
         competence_demand_id="cd:oceanic:1",
         competence_label="oceanic skill",
         competence_definition="oceanic",
+        view_kind="legacy_category_aggregate_compatibility_view",
+        scientific_status="legacy_not_validated_canonical_competence",
         sector="ports",
         axis_group="OCEANIC",
         axis_code="O",
