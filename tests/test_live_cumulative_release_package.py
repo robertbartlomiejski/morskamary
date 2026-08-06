@@ -1729,7 +1729,7 @@ def test_package_rejects_jsonl_demand_without_supporting_evidence_ids(
     captured = capsys.readouterr()  # type: ignore[attr-defined]
     assert (
         "derived_demand_missing_supporting_evidence_ids:"
-        "derived_competence_demands.csv:L1:cd:test"
+        "derived_competence_demands.csv:L2:cd:test"
     ) in captured.err
     assert (
         "derived_demand_missing_supporting_evidence_ids:"

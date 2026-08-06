@@ -1317,10 +1317,10 @@ def _validate_legacy_derived_demand_metadata(
     errors: List[str] = []
 
     def metadata_by_demand(
-        rows: List[Dict[str, Any]], file_name: str
+        rows: List[Dict[str, Any]], file_name: str, row_start: int = 1
     ) -> Dict[str, Tuple[str, str, Tuple[str, ...]]]:
         metadata: Dict[str, Tuple[str, str, Tuple[str, ...]]] = {}
-        for row_index, row in enumerate(rows, start=1):
+        for row_index, row in enumerate(rows, start=row_start):
             demand_id = _identifier(row.get("competence_demand_id"))
             if not demand_id:
                 errors.append(
@@ -1372,10 +1372,10 @@ def _validate_legacy_derived_demand_metadata(
         return metadata
 
     csv_metadata = metadata_by_demand(
-        csv_rows, "derived_competence_demands.csv"
+        csv_rows, "derived_competence_demands.csv", row_start=2
     )
     jsonl_metadata = metadata_by_demand(
-        jsonl_rows, "derived_competence_demands.jsonl"
+        jsonl_rows, "derived_competence_demands.jsonl", row_start=1
     )
     for demand_id in sorted(set(csv_metadata) | set(jsonl_metadata)):
         if demand_id not in csv_metadata:
