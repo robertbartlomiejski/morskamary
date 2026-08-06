@@ -6,6 +6,7 @@ All tests use mocked Crossref responses — no network access required.
 
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 
@@ -15,17 +16,18 @@ from unittest.mock import MagicMock, patch
 
 from scripts.export_live_research_records import (
     LiveContextClassificationRepository,
+    PhysicalRequestCountContractError,
     QUERY_EXECUTION_FIELDS,
     PROTOCOL_PROJECTED_QUERY_FILE_NAME,
     STAGE1_CSV_FIELDS,
     _apply_query_constraint,
-    _count_physical_requests,
     _lookup_provider_sort_strategy_full,
     _normalise_page_diagnostics,
     _resolve_effective_sampling_request,
     _resolve_provider_sort_strategies,
     _search_registry_paginated,
     _to_stage1_compliant_dict,
+    _validate_provider_physical_request_count,
     build_thematic_loop_audit,
     build_coverage_report,
     deduplicate_records,
@@ -87,8 +89,32 @@ def _make_capability(*names: str) -> list:
     for name in names:
         cap = MagicMock()
         cap.name = name
+        cap.configured = True
         caps.append(cap)
     return caps
+
+
+def _adapt_legacy_search_for_paginated_dispatch(legacy_search):
+    """Adapt a synthetic legacy fixture without exercising the legacy path."""
+
+    def search_paginated(
+        query,
+        *,
+        pages,
+        rows_per_page,
+        providers,
+        sort_strategy_by_provider,
+        time_window,
+    ):
+        del sort_strategy_by_provider, time_window
+        results = legacy_search(
+            query,
+            max_results=pages * rows_per_page,
+            providers=providers,
+        )
+        return results
+
+    return search_paginated
 
 
 # ---------------------------------------------------------------------------
@@ -255,6 +281,7 @@ class TestApplyQueryConstraint:
             constraint={"time_window": {}},
             provider_name="Crossref",
             max_results=10,
+            physical_request_count=1,
         )
         assert len(accepted) == 2
         assert audit["excluded_missing_year_count"] == 0
@@ -269,6 +296,7 @@ class TestApplyQueryConstraint:
             constraint={"time_window": {"from_year": 2020, "to_year": 2026}},
             provider_name="Crossref",
             max_results=10,
+            physical_request_count=1,
         )
         assert len(accepted) == 1
         assert accepted[0].year == "2024"
@@ -287,6 +315,7 @@ class TestApplyQueryConstraint:
             },
             provider_name="Crossref",
             max_results=20,
+            physical_request_count=1,
             attempted_logical_pages=1,
         )
 
@@ -306,6 +335,7 @@ class TestApplyQueryConstraint:
             },
             provider_name="Crossref",
             max_results=10,
+            physical_request_count=1,
             page_diagnostics=[
                 {
                     "logical_page": {"malformed": True},
@@ -337,10 +367,8 @@ class TestApplyQueryConstraint:
             assert row["errors"] == "malformed_page_diagnostic_non_mapping"
             assert row["warnings"] == f"malformed_page_diagnostic_index:{idx}"
 
-    def test_physical_request_count_aggregates_provider_field(self):
-        """physical_request_count must sum provider-reported physical_requests,
-        not count diagnostic rows.  A WoS logical page requiring two physical
-        HTTP calls must report physical_request_count == 2."""
+    def test_physical_request_count_uses_provider_result_not_diagnostics(self):
+        """The provider count wins even when diagnostic rows disagree."""
         _, audit = _apply_query_constraint(
             records=[_make_record(year="2024")],
             constraint={
@@ -349,6 +377,7 @@ class TestApplyQueryConstraint:
             },
             provider_name="wos",
             max_results=100,
+            physical_request_count=7,
             page_diagnostics=[
                 {
                     "provider": "wos",
@@ -360,10 +389,10 @@ class TestApplyQueryConstraint:
             ],
             attempted_logical_pages=1,
         )
-        assert audit["physical_request_count"] == 2
+        assert audit["physical_request_count"] == 7
 
-    def test_physical_request_count_falls_back_to_one_per_entry_when_field_absent(self):
-        """Providers that omit physical_requests (e.g. OpenAlex) default to 1 per entry."""
+    def test_physical_request_count_never_falls_back_to_diagnostics(self):
+        """Diagnostic indexes cannot create a provider request count."""
         _, audit = _apply_query_constraint(
             records=[_make_record(year="2024")],
             constraint={
@@ -372,6 +401,7 @@ class TestApplyQueryConstraint:
             },
             provider_name="openalex",
             max_results=100,
+            physical_request_count=3,
             page_diagnostics=[
                 {
                     "provider": "openalex",
@@ -390,7 +420,7 @@ class TestApplyQueryConstraint:
             ],
             attempted_logical_pages=2,
         )
-        assert audit["physical_request_count"] == 2
+        assert audit["physical_request_count"] == 3
 
 
 def test_resolve_provider_sort_strategies_includes_openalex_fallback() -> None:
@@ -1103,6 +1133,7 @@ query_groups:
         mock_result = ProviderResult(
             records=[mock_record],
             provenance=[mock_evidence],
+            physical_request_count=7,
             page_diagnostics=[
                 {
                     "provider": "crossref",
@@ -1197,8 +1228,219 @@ query_groups:
             (output_dir / "provider_pagination_diagnostics.json").read_text()
         )
         assert [row["logical_page"] for row in rows] == [1, 2, 3]
-        execution_log = (output_dir / "query_execution_log.csv").read_text()
-        assert "applied_logical_pagination" in execution_log
+        execution_rows = list(
+            csv.DictReader(
+                (output_dir / "query_execution_log.csv").read_text().splitlines()
+            )
+        )
+        assert execution_rows[0]["sampling_status"] == "applied_logical_pagination"
+        assert execution_rows[0]["physical_request_count"] == "7"
+
+    def test_empty_paginated_result_fails_without_publishing_or_registry_fallback(
+        self, tmp_path, monkeypatch
+    ):
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test"
+    queries:
+      - "empty-result query"
+""",
+            encoding="utf-8",
+        )
+        output_dir = tmp_path / "outputs"
+        paginated_calls = 0
+
+        def mock_search_paginated(
+            query,
+            *,
+            pages,
+            rows_per_page,
+            providers,
+            sort_strategy_by_provider,
+            time_window,
+        ):
+            nonlocal paginated_calls
+            del (
+                query,
+                pages,
+                rows_per_page,
+                providers,
+                sort_strategy_by_provider,
+                time_window,
+            )
+            paginated_calls += 1
+            return []
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search_paginated = mock_search_paginated
+            mock_instance.search.side_effect = AssertionError("unpaginated fallback used")
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
+            MockRegistry.return_value = mock_instance
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                ],
+            )
+
+            assert main() == 1
+
+        assert paginated_calls == 1
+        mock_instance.search.assert_not_called()
+        assert not output_dir.exists()
+
+    @pytest.mark.parametrize("invalid_count", [True, 1.0, -1, "1"])
+    def test_main_fails_closed_for_invalid_provider_request_count(
+        self, invalid_count, tmp_path, monkeypatch, capsys
+    ):
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test"
+    queries:
+      - "invalid-count query"
+""",
+            encoding="utf-8",
+        )
+        mock_result = ProviderResult(physical_request_count=invalid_count)
+        paginated_calls = 0
+
+        def mock_search_paginated(
+            query,
+            *,
+            pages,
+            rows_per_page,
+            providers,
+            sort_strategy_by_provider,
+            time_window,
+        ):
+            nonlocal paginated_calls
+            del (
+                query,
+                pages,
+                rows_per_page,
+                providers,
+                sort_strategy_by_provider,
+                time_window,
+            )
+            paginated_calls += 1
+            return [mock_result]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search_paginated = mock_search_paginated
+            mock_instance.search.side_effect = AssertionError("unpaginated fallback used")
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
+            MockRegistry.return_value = mock_instance
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(tmp_path / "outputs"),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                ],
+            )
+
+            assert main() == 1
+
+        assert paginated_calls == 1
+        mock_instance.search.assert_not_called()
+        assert "provider result contract failed" in capsys.readouterr().err
+
+    @pytest.mark.parametrize("invalid_diagnostics", [{}, ["not-a-mapping"]])
+    def test_main_fails_closed_for_malformed_page_diagnostics(
+        self, invalid_diagnostics, tmp_path, monkeypatch, capsys
+    ):
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text(
+            """
+query_groups:
+  test_sector:
+    label: "Test"
+    queries:
+      - "malformed-diagnostic query"
+""",
+            encoding="utf-8",
+        )
+        mock_result = ProviderResult(
+            physical_request_count=1,
+            page_diagnostics=invalid_diagnostics,
+        )
+        paginated_calls = 0
+
+        def mock_search_paginated(
+            query,
+            *,
+            pages,
+            rows_per_page,
+            providers,
+            sort_strategy_by_provider,
+            time_window,
+        ):
+            nonlocal paginated_calls
+            del (
+                query,
+                pages,
+                rows_per_page,
+                providers,
+                sort_strategy_by_provider,
+                time_window,
+            )
+            paginated_calls += 1
+            return [mock_result]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search_paginated = mock_search_paginated
+            mock_instance.search.side_effect = AssertionError("unpaginated fallback used")
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
+            MockRegistry.return_value = mock_instance
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(tmp_path / "outputs"),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                ],
+            )
+
+            assert main() == 1
+
+        assert paginated_calls == 1
+        mock_instance.search.assert_not_called()
+        assert "provider result contract failed" in capsys.readouterr().err
 
     def test_apply_query_constraint_rejects_replayed_page_tokens(self):
         records = [
@@ -1232,6 +1474,7 @@ query_groups:
             constraint,
             "crossref",
             max_results=50,
+            physical_request_count=3,
             page_diagnostics=page_diagnostics,
         )
 
@@ -1262,7 +1505,9 @@ query_groups:
         mock_evidence = _make_evidence(
             record_id="crossref:10.1234/wind", query="offshore wind"
         )
-        mock_result = ProviderResult(records=[mock_record], provenance=[mock_evidence])
+        mock_result = ProviderResult(
+            records=[mock_record], provenance=[mock_evidence], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             return [mock_result]
@@ -1271,7 +1516,9 @@ query_groups:
             "scripts.export_live_research_records.SourceRegistry"
         ) as MockRegistry:
             mock_instance = MagicMock()
-            mock_instance.search = mock_search
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
             mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
@@ -1341,7 +1588,10 @@ query_groups:
             }
         }
         mock_result = ProviderResult(
-            records=[mock_record], provenance=[mock_evidence], raw_payload=raw_payload
+            records=[mock_record],
+            provenance=[mock_evidence],
+            raw_payload=raw_payload,
+            physical_request_count=1,
         )
 
         def mock_search(query, max_results, providers):
@@ -1351,7 +1601,9 @@ query_groups:
             "scripts.export_live_research_records.SourceRegistry"
         ) as MockRegistry:
             mock_instance = MagicMock()
-            mock_instance.search = mock_search
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
             mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
@@ -1420,10 +1672,14 @@ query_groups:
             source_provider="SciVal",
         )
         mock_crossref_result = ProviderResult(
-            records=[crossref_record], provenance=[crossref_ev]
+            records=[crossref_record],
+            provenance=[crossref_ev],
+            physical_request_count=1,
         )
         mock_scival_result = ProviderResult(
-            records=[scival_record], provenance=[scival_ev]
+            records=[scival_record],
+            provenance=[scival_ev],
+            physical_request_count=1,
         )
 
         def mock_search(query, max_results, providers):
@@ -1433,7 +1689,9 @@ query_groups:
             "scripts.export_live_research_records.SourceRegistry"
         ) as MockRegistry:
             mock_instance = MagicMock()
-            mock_instance.search = mock_search
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
             mock_instance.list_capabilities.return_value = _make_capability(
                 "crossref", "scival"
             )
@@ -1483,7 +1741,9 @@ query_groups:
         # Mock two identical records from different queries
         mock_record = _make_record(doi="10.1234/same")
         mock_evidence = _make_evidence()
-        mock_result = ProviderResult(records=[mock_record], provenance=[mock_evidence])
+        mock_result = ProviderResult(
+            records=[mock_record], provenance=[mock_evidence], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             return [mock_result]
@@ -1492,7 +1752,9 @@ query_groups:
             "scripts.export_live_research_records.SourceRegistry"
         ) as MockRegistry:
             mock_instance = MagicMock()
-            mock_instance.search = mock_search
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
             mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
@@ -1534,7 +1796,9 @@ query_groups:
         mock_evidence = _make_evidence(
             record_id="crossref:10.1234/low", confidence_score=0.5
         )
-        mock_result = ProviderResult(records=[mock_record], provenance=[mock_evidence])
+        mock_result = ProviderResult(
+            records=[mock_record], provenance=[mock_evidence], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             return [mock_result]
@@ -1543,7 +1807,9 @@ query_groups:
             "scripts.export_live_research_records.SourceRegistry"
         ) as MockRegistry:
             mock_instance = MagicMock()
-            mock_instance.search = mock_search
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
             mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
@@ -1610,10 +1876,10 @@ query_groups:
         )
         mock_evidence = _make_evidence()
         mock_result_cr = ProviderResult(
-            records=[crossref_rec], provenance=[mock_evidence]
+            records=[crossref_rec], provenance=[mock_evidence], physical_request_count=1
         )
         mock_result_sc = ProviderResult(
-            records=[scopus_rec], provenance=[mock_evidence]
+            records=[scopus_rec], provenance=[mock_evidence], physical_request_count=1
         )
 
         def mock_search(query, max_results, providers):
@@ -1623,8 +1889,12 @@ query_groups:
             "scripts.export_live_research_records.SourceRegistry"
         ) as MockRegistry:
             mock_instance = MagicMock()
-            mock_instance.search = mock_search
-            mock_instance.list_capabilities.return_value = _make_capability("crossref")
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
+            mock_instance.list_capabilities.return_value = _make_capability(
+                "crossref", "scopus"
+            )
             MockRegistry.return_value = mock_instance
 
             monkeypatch.setattr(
@@ -1637,6 +1907,8 @@ query_groups:
                     str(output_dir),
                     "--offline",
                     "false",
+                    "--providers",
+                    "crossref,scopus",
                 ],
             )
 
@@ -1767,7 +2039,9 @@ query_groups:
         output_dir = tmp_path / "outputs"
 
         # Provider returns an empty ProviderResult (zero records, zero provenance)
-        empty_result = ProviderResult(records=[], provenance=[])
+        empty_result = ProviderResult(
+            records=[], provenance=[], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             return [empty_result]
@@ -1776,7 +2050,9 @@ query_groups:
             "scripts.export_live_research_records.SourceRegistry"
         ) as MockRegistry:
             mock_instance = MagicMock()
-            mock_instance.search = mock_search
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
             mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
@@ -1809,6 +2085,64 @@ query_groups:
             assert rows[0]["record_count"] == "0"
             assert rows[0]["sector"] == "Test Sector"
 
+    def test_legacy_adapter_preserves_canonical_skipped_zero_request_count(
+        self, tmp_path, monkeypatch
+    ):
+        """A valid pre-network zero remains provider-owned through export."""
+        query_file = tmp_path / "queries.yml"
+        query_file.write_text("""
+query_groups:
+  test_sector:
+    label: "Test Sector"
+    queries:
+      - "blue economy"
+""")
+        output_dir = tmp_path / "outputs"
+        skipped_result = ProviderResult(
+            records=[],
+            provenance=[],
+            physical_request_count=0,
+            page_diagnostics=[{"pagination_status": "skipped"}],
+        )
+
+        def mock_search(query, max_results, providers):
+            return [skipped_result]
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
+            mock_instance.list_capabilities.return_value = _make_capability("crossref")
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                ],
+            )
+
+            assert main() == 0
+
+        execution_rows = list(
+            csv.DictReader(
+                (output_dir / "query_execution_log.csv").read_text().splitlines()
+            )
+        )
+        assert skipped_result.physical_request_count == 0
+        assert execution_rows[0]["physical_request_count"] == "0"
+
     def test_reversed_cli_provider_order_uses_registry_order_in_coverage(
         self, tmp_path, monkeypatch
     ):
@@ -1833,8 +2167,12 @@ query_groups:
             doi="10.2222/scopus",
             source_id="scopus:10.2222/s",
         )
-        crossref_result = ProviderResult(records=[crossref_rec], provenance=[])
-        scopus_result = ProviderResult(records=[scopus_rec], provenance=[])
+        crossref_result = ProviderResult(
+            records=[crossref_rec], provenance=[], physical_request_count=1
+        )
+        scopus_result = ProviderResult(
+            records=[scopus_rec], provenance=[], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             assert providers == ["scopus", "crossref"]
@@ -1844,7 +2182,9 @@ query_groups:
             "scripts.export_live_research_records.SourceRegistry"
         ) as MockRegistry:
             mock_instance = MagicMock()
-            mock_instance.search = mock_search
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
             mock_instance.list_capabilities.return_value = _make_capability(
                 "crossref", "scopus"
             )
@@ -1894,7 +2234,9 @@ query_groups:
             doi="10.1000/scopus.1",
             source_id="scopus:10.1000/scopus.1",
         )
-        scopus_result = ProviderResult(records=[scopus_rec], provenance=[])
+        scopus_result = ProviderResult(
+            records=[scopus_rec], provenance=[], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             assert providers == ["scopus"]
@@ -1904,7 +2246,9 @@ query_groups:
             "scripts.export_live_research_records.SourceRegistry"
         ) as MockRegistry:
             mock_instance = MagicMock()
-            mock_instance.search = mock_search
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
             mock_instance.list_capabilities.return_value = _make_capability("scopus")
             MockRegistry.return_value = mock_instance
 
@@ -2013,7 +2357,7 @@ query_groups:
 """)
 
         output_dir = tmp_path / "outputs"
-        mock_result = ProviderResult(records=[], provenance=[])
+        mock_result = ProviderResult(records=[], provenance=[], physical_request_count=1)
 
         def mock_search(query, max_results, providers):
             assert providers == ["crossref"]
@@ -2023,7 +2367,9 @@ query_groups:
             "scripts.export_live_research_records.SourceRegistry"
         ) as MockRegistry:
             mock_instance = MagicMock()
-            mock_instance.search = mock_search
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
             mock_instance.list_capabilities.return_value = _make_capability("crossref")
             MockRegistry.return_value = mock_instance
 
@@ -2059,7 +2405,7 @@ query_groups:
 """)
 
         output_dir = tmp_path / "outputs"
-        mock_result = ProviderResult(records=[], provenance=[])
+        mock_result = ProviderResult(records=[], provenance=[], physical_request_count=1)
         seen_providers = []
 
         def mock_search(query, max_results, providers):
@@ -2070,7 +2416,9 @@ query_groups:
             "scripts.export_live_research_records.SourceRegistry"
         ) as MockRegistry:
             mock_instance = MagicMock()
-            mock_instance.search = mock_search
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
             mock_instance.list_capabilities.return_value = _make_capability(
                 "crossref", "scopus"
             )
@@ -2109,8 +2457,12 @@ query_groups:
 """)
 
         output_dir = tmp_path / "outputs"
-        mock_result_crossref = ProviderResult(records=[], provenance=[])
-        mock_result_scopus = ProviderResult(records=[], provenance=[])
+        mock_result_crossref = ProviderResult(
+            records=[], provenance=[], physical_request_count=1
+        )
+        mock_result_scopus = ProviderResult(
+            records=[], provenance=[], physical_request_count=1
+        )
 
         def mock_search(query, max_results, providers):
             assert providers == ["crossref", "scopus"]
@@ -2120,7 +2472,9 @@ query_groups:
             "scripts.export_live_research_records.SourceRegistry"
         ) as MockRegistry:
             mock_instance = MagicMock()
-            mock_instance.search = mock_search
+            mock_instance.search_paginated = _adapt_legacy_search_for_paginated_dispatch(
+                mock_search
+            )
             mock_instance.list_capabilities.return_value = _make_capability(
                 "crossref", "scopus"
             )
@@ -2334,258 +2688,59 @@ class TestStage1ComplianceFilter:
         )
 
 
-# ---------------------------------------------------------------------------
-# Tests for _count_physical_requests deterministic helper
-# ---------------------------------------------------------------------------
+class TestProviderOwnedPhysicalRequestCount:
+    """The exporter accepts only the provider's exact attempt count."""
 
+    @pytest.mark.parametrize("invalid_count", [True, 1.0, -1, "1", None])
+    def test_rejects_noncanonical_count_values(self, invalid_count):
+        result = ProviderResult(physical_request_count=invalid_count)
 
-class TestCountPhysicalRequests:
-    """Regression suite for the deterministic physical-request aggregation helper."""
+        with pytest.raises(PhysicalRequestCountContractError):
+            _validate_provider_physical_request_count(
+                result,
+                provider_name="crossref",
+                provider_configured=True,
+                page_diagnostics=[{"pagination_status": "applied"}],
+            )
 
-    def _diag(self, logical_page=1, physical_requests=None, physical_request_index=None,
-              pagination_status="applied"):
-        row = {
-            "provider": "wos",
-            "logical_page": logical_page,
-            "pagination_status": pagination_status,
-        }
-        if physical_requests is not None:
-            row["physical_requests"] = physical_requests
-        if physical_request_index is not None:
-            row["physical_request_index"] = physical_request_index
-        return row
+    def test_configured_provider_requires_count_above_zero_after_acquisition(self):
+        result = ProviderResult(physical_request_count=0)
 
-    def test_empty_diagnostics_returns_zero(self):
-        assert _count_physical_requests([]) == 0
+        with pytest.raises(PhysicalRequestCountContractError, match="configured provider"):
+            _validate_provider_physical_request_count(
+                result,
+                provider_name="crossref",
+                provider_configured=True,
+                page_diagnostics=[],
+            )
 
-    def test_single_page_one_physical_call(self):
-        """One logical page with physical_requests=1 -> total=1."""
-        diags = [self._diag(physical_requests=1)]
-        assert _count_physical_requests(diags) == 1
+    def test_zero_is_allowed_for_explicit_pre_network_skip(self):
+        result = ProviderResult(physical_request_count=0)
 
-    def test_one_logical_page_two_physical_calls(self):
-        """One logical page requiring two physical HTTP calls -> total=2."""
-        diags = [self._diag(logical_page=1, physical_requests=2)]
-        assert _count_physical_requests(diags) == 2
+        assert (
+            _validate_provider_physical_request_count(
+                result,
+                provider_name="scopus",
+                provider_configured=True,
+                page_diagnostics=[{"pagination_status": "skipped"}],
+            )
+            == 0
+        )
 
-    def test_two_logical_pages_summed(self):
-        """Two logical pages each with 1 physical call -> total=2."""
-        diags = [
-            self._diag(logical_page=1, physical_requests=1),
-            self._diag(logical_page=2, physical_requests=1),
-        ]
-        assert _count_physical_requests(diags) == 2
-
-    def test_duplicate_rows_same_logical_page_no_double_count(self):
-        """Multiple diagnostic rows for the same logical page must not double-count.
-        The maximum valid physical_requests across all rows is used."""
-        diags = [
-            self._diag(logical_page=1, physical_requests=1),
-            self._diag(logical_page=1, physical_requests=2),
-        ]
-        assert _count_physical_requests(diags) == 2
-
-    def test_failed_attempt_retained(self):
-        """Failed page diagnostics must still count as physical requests."""
-        diags = [
-            self._diag(logical_page=1, physical_requests=1, pagination_status="failed"),
-        ]
-        assert _count_physical_requests(diags) == 1
-
-    def test_provider_not_configured_contributes_zero(self):
-        """provider_not_configured rows must contribute zero to the count."""
-        diags = [
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "physical_requests": 0,
-                "pagination_status": "provider_not_configured",
-                "errors": "provider_not_configured",
-            }
-        ]
-        assert _count_physical_requests(diags) == 0
-
-    def test_not_configured_status_contributes_zero(self):
-        """not_configured status must contribute zero."""
-        diags = [
-            {
-                "provider": "scopus",
-                "logical_page": 1,
-                "physical_requests": 0,
-                "pagination_status": "not_configured",
-            }
-        ]
-        assert _count_physical_requests(diags) == 0
-
-    def test_malformed_physical_requests_does_not_crash(self):
-        """Malformed physical_requests values must not crash; fall back gracefully."""
-        diags = [
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "physical_requests": "not-a-number",
-                "physical_request_index": 1,
-                "pagination_status": "applied",
-            }
-        ]
-        result = _count_physical_requests(diags)
-        assert isinstance(result, int)
-        assert result >= 0
-
-    def test_bool_physical_requests_not_counted(self):
-        """Boolean physical_requests must be rejected and not crash."""
-        diags = [
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "physical_requests": True,
-                "physical_request_index": 1,
-                "pagination_status": "applied",
-            }
-        ]
-        result = _count_physical_requests(diags)
-        assert isinstance(result, int)
-        assert result >= 0
-
-    def test_negative_physical_requests_ignored(self):
-        """Negative physical_requests values must be ignored."""
-        diags = [
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "physical_requests": -1,
-                "physical_request_index": 1,
-                "pagination_status": "applied",
-            }
-        ]
-        result = _count_physical_requests(diags)
-        assert result >= 0
-
-    def test_fallback_to_physical_request_index(self):
-        """When physical_requests is absent, deduplicate physical_request_index values."""
-        diags = [
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "physical_request_index": 1,
-                "pagination_status": "applied",
-            },
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "physical_request_index": 2,
-                "pagination_status": "applied",
-            },
-        ]
-        assert _count_physical_requests(diags) == 2
-
-    def test_one_attempt_fallback_for_actual_request(self):
-        """When no physical_requests or index is available and status is not zero-attempt,
-        a one-attempt fallback applies."""
-        diags = [
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "pagination_status": "end_of_results",
-            }
-        ]
-        assert _count_physical_requests(diags) == 1
-
-    # --- new precedence-contract regressions ---
-
-    def test_zero_attempt_status_with_misleading_physical_requests_contributes_zero(self):
-        """provider_not_configured row with misleading physical_requests=1 and
-        physical_request_index=1 must still contribute exactly 0."""
-        diags = [
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "physical_requests": 1,
-                "physical_request_index": 1,
-                "pagination_status": "provider_not_configured",
-            }
-        ]
-        assert _count_physical_requests(diags) == 0
-
-    def test_failed_row_zero_physical_requests_no_index_uses_fallback(self):
-        """Failed row with physical_requests=0 and no positive index must use
-        the bounded one-attempt fallback."""
-        diags = [
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "physical_requests": 0,
-                "pagination_status": "failed",
-            }
-        ]
-        assert _count_physical_requests(diags) == 1
-
-    def test_mixed_page_ignores_zero_attempt_row_counts_attempted_only(self):
-        """A page with one zero-attempt row (physical_requests=1) and one attempted
-        row (physical_requests=2) must count only the attempted row => 2."""
-        diags = [
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "physical_requests": 1,
-                "physical_request_index": 1,
-                "pagination_status": "provider_not_configured",
-            },
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "physical_requests": 2,
-                "physical_request_index": 2,
-                "pagination_status": "applied",
-            },
-        ]
-        assert _count_physical_requests(diags) == 2
-
-    def test_retry_distinct_positive_indexes_retained_when_totals_absent(self):
-        """When physical_requests is absent, distinct positive indexes from
-        retry/failure rows are all retained."""
-        diags = [
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "physical_request_index": 1,
-                "pagination_status": "failed",
-            },
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "physical_request_index": 2,
-                "pagination_status": "applied",
-            },
-        ]
-        assert _count_physical_requests(diags) == 2
-
-    def test_malformed_physical_requests_uses_bounded_fallback(self):
-        """Malformed physical_requests with no valid index on an attempted row
-        must fall back to bounded 1, not crash."""
-        diags = [
-            {
-                "provider": "wos",
-                "logical_page": 1,
-                "physical_requests": "bad!value",
-                "pagination_status": "failed",
-            }
-        ]
-        assert _count_physical_requests(diags) == 1
-
-    def test_all_zero_attempt_statuses_contribute_zero(self):
-        """All recognised zero-attempt statuses (no_credentials, skipped) must
-        also contribute zero even when physical_requests looks positive."""
-        for status in ("no_credentials", "skipped"):
-            diags = [
-                {
-                    "provider": "scopus",
-                    "logical_page": 1,
-                    "physical_requests": 5,
-                    "physical_request_index": 5,
-                    "pagination_status": status,
-                }
-            ]
-            assert _count_physical_requests(diags) == 0, (
-                f"status {status!r} should contribute zero"
+    def test_unconfigured_provider_requires_exact_zero(self):
+        assert (
+            _validate_provider_physical_request_count(
+                ProviderResult(physical_request_count=0),
+                provider_name="openalex",
+                provider_configured=False,
+                page_diagnostics=[],
+            )
+            == 0
+        )
+        with pytest.raises(PhysicalRequestCountContractError, match="unconfigured provider"):
+            _validate_provider_physical_request_count(
+                ProviderResult(physical_request_count=1),
+                provider_name="openalex",
+                provider_configured=False,
+                page_diagnostics=[],
             )

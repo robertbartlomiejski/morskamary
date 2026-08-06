@@ -284,15 +284,20 @@ class TestScanFiles:
 class TestMainFunction:
     """Tests for main() and CLI execution paths"""
 
-    def test_main_if_name_main_block(self):
-        """Test the if __name__ == '__main__' execution path"""
-        from scripts.generate_manifest import main
+    def test_main_runs_in_an_isolated_workspace(self, tmp_path, monkeypatch, capsys):
+        """Calling main must not rewrite the repository manifest."""
+        import scripts.generate_manifest as gm
 
-        # Verify main() can be called (may modify MANIFEST_SOURCES.csv)
-        # This tests the __name__ == '__main__' block can execute
-        result = main()
-        # main() returns None, not an int
+        (tmp_path / "example.py").write_text("print('example')\n", encoding="utf-8")
+        manifest_path = tmp_path / "MANIFEST_SOURCES.csv"
+        monkeypatch.setattr(gm, "REPO_ROOT", tmp_path)
+        monkeypatch.setattr(gm, "MANIFEST_PATH", manifest_path)
+
+        result = gm.main()
+
         assert result is None
+        assert manifest_path.is_file()
+        assert "Wrote" in capsys.readouterr().out
 
 
 if __name__ == "__main__":

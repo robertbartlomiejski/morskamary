@@ -51,6 +51,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from src.scientific_sources.models import (  # noqa: E402
     LiteratureRecord,
+    ProviderResult,
     SourceEvidence,
 )
 from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
@@ -108,6 +109,18 @@ QUERY_EXECUTION_FIELDS: Tuple[str, ...] = (
 )
 
 
+class PaginatedDispatchContractError(RuntimeError):
+    """Raised before acquisition when the paginated registry contract is invalid."""
+
+
+class ProviderResultContractError(ValueError):
+    """Raised when a registry result cannot be safely consumed by the exporter."""
+
+
+class PhysicalRequestCountContractError(ValueError):
+    """Raised when a provider does not report an exact request-attempt count."""
+
+
 def _safe_page_int(value: Any) -> int:
     """Tolerantly parse a page-number value; return 0 for any unparseable input.
 
@@ -150,109 +163,112 @@ def _normalise_page_diagnostics(
     return normalised
 
 
-# Diagnostic status values that represent zero actual paid requests.
+# Diagnostic status values that explicitly establish a zero-attempt outcome.
+#
+# These diagnostics are pagination evidence only.  They are never used to
+# calculate a request count: the provider-owned ``ProviderResult`` field is the
+# sole count authority.  They only distinguish a canonical pre-network outcome
+# from an unsafe configured-provider zero.
 _ZERO_ATTEMPT_STATUSES = frozenset(
     {"provider_not_configured", "not_configured", "no_credentials", "skipped"}
 )
 
 
-def _parse_canonical_positive_int(raw: Any) -> Optional[int]:
-    """Return a positive canonical integer from *raw*, or ``None`` for any invalid input.
+def _require_nonnegative_physical_request_count(
+    value: Any,
+    *,
+    provider_name: str,
+) -> int:
+    """Return an exact provider-owned count or fail without approximation.
 
-    Accepted: plain Python ``int`` that is positive (not ``bool``, not ``float``).
-    For string inputs, only canonical ASCII-digit sequences (``[0-9]+``) are
-    accepted; ``+1``, ``1_0``, ``-1``, ``1.0``, ``True`` and similar non-canonical
-    forms are all rejected.  Never raises.
+    ``bool`` is deliberately rejected even though it subclasses ``int``.  The
+    exporter does not decode strings, floats, diagnostics, or any other proxy:
+    doing so could silently undercount charged provider attempts.
     """
-    if raw is None:
-        return None
-    # Reject booleans (bool is a subclass of int in Python).
-    if isinstance(raw, bool):
-        return None
-    # Reject float values.
-    if isinstance(raw, float):
-        return None
-    if isinstance(raw, str):
-        if not re.fullmatch(r"[0-9]+", raw):
-            return None
-        v = int(raw)
-    else:
-        try:
-            v = int(raw)
-        except (TypeError, ValueError):
-            return None
-    return v if v > 0 else None
+    if type(value) is not int or value < 0:
+        raise PhysicalRequestCountContractError(
+            "provider "
+            f"'{normalize_provider_name(provider_name)}' must report "
+            "physical_request_count as a non-negative built-in int"
+        )
+    return value
 
 
-def _count_physical_requests(diagnostics: Sequence[Mapping[str, Any]]) -> int:
-    """Deterministically count physical provider requests from page diagnostics.
+def _has_canonical_zero_attempt_diagnostic(
+    diagnostics: Sequence[Mapping[str, Any]],
+) -> bool:
+    """Whether pagination evidence explicitly proves that no attempt occurred."""
+    return bool(diagnostics) and all(
+        str(row.get("pagination_status", "")) in _ZERO_ATTEMPT_STATUSES
+        for row in diagnostics
+    )
 
-    Precedence contract per logical page:
 
-    1. If **all** rows for that logical page have a zero-attempt
-       ``pagination_status`` (``provider_not_configured``, ``not_configured``,
-       ``no_credentials``, ``skipped``), contribute **0** regardless of any
-       reported ``physical_requests`` or ``physical_request_index`` values.
-    2. Otherwise, ignore zero-attempt rows when calculating actual attempts.
-    3. Use the maximum valid **positive canonical integer** ``physical_requests``
-       from attempted rows.
-    4. Where no valid ``physical_requests`` exists, count unique valid positive
-       canonical ``physical_request_index`` values from attempted rows.
-    5. Use a one-attempt fallback when at least one attempted-status row exists
-       but no valid counts are available.
-    6. Malformed, non-positive, bool, float, signed, underscore-separated, or
-       otherwise non-canonical values are ignored and never crash.
+def _validate_provider_physical_request_count(
+    result: ProviderResult,
+    *,
+    provider_name: str,
+    provider_configured: bool,
+    page_diagnostics: Sequence[Mapping[str, Any]],
+) -> int:
+    """Validate the canonical count for one provider operation.
+
+    A configured provider may report zero only when its own canonical
+    pagination result explicitly establishes a skipped/pre-network outcome.
+    Page diagnostics must never be used to derive or repair a count.
     """
-    if not diagnostics:
-        return 0
+    count = _require_nonnegative_physical_request_count(
+        getattr(result, "physical_request_count", None),
+        provider_name=provider_name,
+    )
+    if not provider_configured:
+        if count != 0:
+            raise PhysicalRequestCountContractError(
+                "unconfigured provider "
+                f"'{normalize_provider_name(provider_name)}' must report "
+                "physical_request_count=0"
+            )
+        return count
+    if count == 0 and not _has_canonical_zero_attempt_diagnostic(page_diagnostics):
+        raise PhysicalRequestCountContractError(
+            "configured provider "
+            f"'{normalize_provider_name(provider_name)}' reported "
+            "physical_request_count=0 without a canonical skipped/pre-network "
+            "outcome"
+        )
+    return count
 
-    # Group rows by logical_page.
-    by_page: Dict[int, List[Mapping[str, Any]]] = {}
-    for row in diagnostics:
-        page = _safe_page_int(row.get("logical_page", 0))
-        by_page.setdefault(page, []).append(row)
 
-    total = 0
-    for page_rows in by_page.values():
-        # Step 1: if every row for this page is a zero-attempt status, skip it.
-        if all(
-            str(row.get("pagination_status", "")) in _ZERO_ATTEMPT_STATUSES
-            for row in page_rows
-        ):
-            continue
-
-        # Step 2: restrict remaining steps to actually-attempted rows only.
-        attempted_rows = [
-            row for row in page_rows
-            if str(row.get("pagination_status", "")) not in _ZERO_ATTEMPT_STATUSES
-        ]
-
-        # Step 3: collect valid positive physical_requests values.
-        valid_totals: List[int] = []
-        for row in attempted_rows:
-            v = _parse_canonical_positive_int(row.get("physical_requests"))
-            if v is not None:
-                valid_totals.append(v)
-
-        if valid_totals:
-            total += max(valid_totals)
-            continue
-
-        # Step 4: deduplicate positive physical_request_index values.
-        valid_indexes: set = set()
-        for row in attempted_rows:
-            v = _parse_canonical_positive_int(row.get("physical_request_index"))
-            if v is not None:
-                valid_indexes.add(v)
-
-        if valid_indexes:
-            total += len(valid_indexes)
-            continue
-
-        # Step 5: one-attempt fallback — attempted_rows is non-empty here.
-        total += 1
-
-    return total
+def _validate_provider_result_shape(result: Any, *, provider_name: str) -> ProviderResult:
+    """Reject malformed registry output before it reaches publication artifacts."""
+    provider_key = normalize_provider_name(provider_name)
+    if not isinstance(result, ProviderResult):
+        raise ProviderResultContractError(
+            f"provider '{provider_key}' did not return a ProviderResult"
+        )
+    for field_name in (
+        "records",
+        "errors",
+        "warnings",
+        "provenance",
+        "page_diagnostics",
+    ):
+        if not isinstance(getattr(result, field_name, None), list):
+            raise ProviderResultContractError(
+                f"provider '{provider_key}' returned a malformed ProviderResult "
+                f"field: {field_name}"
+            )
+    for diagnostic_index, diagnostic in enumerate(result.page_diagnostics, start=1):
+        if not isinstance(diagnostic, Mapping):
+            raise ProviderResultContractError(
+                f"provider '{provider_key}' returned a non-mapping page diagnostic "
+                f"at index {diagnostic_index}"
+            )
+    if result.raw_payload is not None and not isinstance(result.raw_payload, Mapping):
+        raise ProviderResultContractError(
+            f"provider '{provider_key}' returned a malformed ProviderResult field: raw_payload"
+        )
+    return result
 
 
 _DEFAULT_PROVIDER_POLICY: Dict[str, Any] = {
@@ -520,36 +536,40 @@ def _search_registry_paginated(
 ) -> List[Any]:
     search_paginated = getattr(registry, "search_paginated", None)
     if not callable(search_paginated):
-        return []
+        raise PaginatedDispatchContractError(
+            "registry.search_paginated is required for live acquisition"
+        )
     kwargs: Dict[str, Any] = {
         "pages": pages,
         "rows_per_page": rows_per_page,
         "providers": providers,
+        "sort_strategy_by_provider": sort_strategy_by_provider,
+        "time_window": dict(time_window),
     }
     try:
         signature = inspect.signature(search_paginated)
-    except (TypeError, ValueError):
-        # Cannot inspect the callable (e.g. built-in or C extension). Treat as
-        # old-style signature without extended kwargs to avoid a runtime TypeError
-        # that could be silently swallowed by an outer exception handler.
-        signature = None
-    if signature is None:
-        # Skip extended kwargs when signature is uninspectable to prevent a
-        # TypeError inside the provider from being confused with a legacy-signature
-        # mismatch and triggering a retry that would consume paid API quota.
-        pass
-    else:
-        parameters = signature.parameters
-        accepts_var_keyword = any(
-            parameter.kind == inspect.Parameter.VAR_KEYWORD
-            for parameter in parameters.values()
-        )
-        if "sort_strategy_by_provider" in parameters or accepts_var_keyword:
-            kwargs["sort_strategy_by_provider"] = sort_strategy_by_provider
-        if "time_window" in parameters or accepts_var_keyword:
-            kwargs["time_window"] = dict(time_window)
+    except (TypeError, ValueError) as exc:
+        raise PaginatedDispatchContractError(
+            "registry.search_paginated signature cannot be inspected; "
+            "no provider call was made"
+        ) from exc
+    try:
+        signature.bind(query, **kwargs)
+    except TypeError as exc:
+        raise PaginatedDispatchContractError(
+            "registry.search_paginated cannot bind the complete acquisition "
+            "contract; no provider call was made"
+        ) from exc
+
+    # Do not catch TypeError (or any provider exception) from this call.  Once
+    # binding has succeeded, an exception comes from acquisition itself and
+    # retrying it as a legacy signature would risk a second paid request.
     candidate_results = search_paginated(query, **kwargs)
-    return candidate_results if isinstance(candidate_results, list) else []
+    if not isinstance(candidate_results, list):
+        raise PaginatedDispatchContractError(
+            "registry.search_paginated must return a list of ProviderResult objects"
+        )
+    return candidate_results
 
 
 def load_provider_policy(path: Path) -> Dict[str, Any]:
@@ -708,10 +728,20 @@ def _apply_query_constraint(
     constraint: Mapping[str, Any],
     provider_name: str,
     max_results: int,
+    *,
+    physical_request_count: int,
     page_diagnostics: Optional[Sequence[Mapping[str, Any]]] = None,
     attempted_logical_pages: Optional[int] = None,
 ) -> Tuple[List[LiteratureRecord], Dict[str, Any]]:
-    """Apply auditable post-fetch time, sort, and sampling constraints."""
+    """Apply auditable post-fetch time, sort, and sampling constraints.
+
+    ``physical_request_count`` is supplied directly by the provider result and
+    is intentionally independent from the diagnostic rows below.
+    """
+    physical_request_count = _require_nonnegative_physical_request_count(
+        physical_request_count,
+        provider_name=provider_name,
+    )
     time_window = constraint.get("time_window", {})
     if not isinstance(time_window, Mapping):
         time_window = {}
@@ -771,7 +801,6 @@ def _apply_query_constraint(
         if str(row.get("pagination_status", "")) in {"applied", "end_of_results"}
     }
     completed_pages = len({page for page in logical_pages if page > 0})
-    physical_request_count = _count_physical_requests(diagnostics)
     pagination_warning_count = sum(
         1
         for row in diagnostics
@@ -1792,13 +1821,14 @@ def main() -> int:
     # Initialize registry
     registry = SourceRegistry()
     provider_policy = load_provider_policy(Path(args.provider_policy_file))
+    registry_capabilities = registry.list_capabilities()
 
     # --providers all => query every registered provider in registry order.
     if len(provider_list) == 1 and provider_list[0] == "all":
-        provider_list = [cap.name for cap in registry.list_capabilities()]
+        provider_list = [cap.name for cap in registry_capabilities]
 
     # Validate that every requested provider name is known to the registry.
-    known_names: Set[str] = {cap.name for cap in registry.list_capabilities()}
+    known_names: Set[str] = {cap.name for cap in registry_capabilities}
     unknown = [p for p in provider_list if p not in known_names]
     if unknown:
         print(
@@ -1808,12 +1838,16 @@ def main() -> int:
         )
         return 1
 
-    # Derive the ordered list of provider names as the registry will return them.
-    # registry.search() filters _providers by name membership in provider_list but
-    # preserves the registry's internal order — NOT the order of provider_list itself.
+    # Derive the ordered list of provider names as the paginated registry returns
+    # them. It filters registered providers by membership while preserving the
+    # registry's internal order — not the raw CLI order.
     ordered_provider_names: List[str] = [
-        cap.name for cap in registry.list_capabilities() if cap.name in provider_list
+        cap.name for cap in registry_capabilities if cap.name in provider_list
     ]
+    provider_configured_by_name = {
+        normalize_provider_name(cap.name): bool(cap.configured)
+        for cap in registry_capabilities
+    }
 
     if protocol_projected_query:
         completeness_errors = validate_protocol_completeness(
@@ -1958,41 +1992,63 @@ def main() -> int:
                 if not isinstance(time_window, Mapping):
                     time_window = {}
 
-                results = _search_registry_paginated(
-                    registry,
-                    query=query,
-                    pages=effective_pages,
-                    rows_per_page=effective_rows_per_page,
-                    providers=provider_list,
-                    sort_strategy_by_provider=resolved_sort_strategy,
-                    time_window=time_window,
-                )
-                if not results:
-                    results = registry.search(
-                        query,
-                        max_results=args.max_results_per_query,
+                try:
+                    results = _search_registry_paginated(
+                        registry,
+                        query=query,
+                        pages=effective_pages,
+                        rows_per_page=effective_rows_per_page,
                         providers=provider_list,
+                        sort_strategy_by_provider=resolved_sort_strategy,
+                        time_window=time_window,
                     )
+                except PaginatedDispatchContractError as exc:
+                    print(
+                        "Error: paginated acquisition dispatch contract failed: "
+                        f"{exc}",
+                        file=sys.stderr,
+                    )
+                    return 1
+                if len(results) != len(ordered_provider_names):
+                    print(
+                        "Error: paginated acquisition returned an unexpected provider "
+                        "result count; no fallback search will be attempted.",
+                        file=sys.stderr,
+                    )
+                    return 1
 
                 for index, result in enumerate(results):
-                    provider_name = (
-                        ordered_provider_names[index]
-                        if index < len(ordered_provider_names)
-                        else (
-                            result.records[0].provider
-                            if result.records
-                            else (
-                                result.provenance[0].source_provider
-                                if result.provenance
-                                else "unknown"
+                    provider_name = ordered_provider_names[index]
+                    try:
+                        result = _validate_provider_result_shape(
+                            result,
+                            provider_name=provider_name,
+                        )
+                        result_page_diagnostics = _normalise_page_diagnostics(
+                            result.page_diagnostics,
+                            provider_name=provider_name,
+                            query=query,
+                        )
+                        provider_physical_request_count = (
+                            _validate_provider_physical_request_count(
+                                result,
+                                provider_name=provider_name,
+                                provider_configured=provider_configured_by_name[
+                                    normalize_provider_name(provider_name)
+                                ],
+                                page_diagnostics=result_page_diagnostics,
                             )
                         )
-                    )
-                    result_page_diagnostics = _normalise_page_diagnostics(
-                        getattr(result, "page_diagnostics", []) or [],
-                        provider_name=provider_name,
-                        query=query,
-                    )
+                    except (
+                        PhysicalRequestCountContractError,
+                        ProviderResultContractError,
+                    ) as exc:
+                        print(
+                            "Error: paginated provider result contract failed: "
+                            f"{exc}",
+                            file=sys.stderr,
+                        )
+                        return 1
                     for diag_row in result_page_diagnostics:
                         diag_row.setdefault("query", query)
                         diag_row["query_id"] = constraint["query_id"]
@@ -2007,6 +2063,7 @@ def main() -> int:
                         constraint,
                         provider_name,
                         args.max_results_per_query,
+                        physical_request_count=provider_physical_request_count,
                         page_diagnostics=result_page_diagnostics,
                         attempted_logical_pages=effective_pages,
                     )

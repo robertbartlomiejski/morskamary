@@ -331,11 +331,17 @@ class OpenAlexProvider(BaseProvider):
         *,
         url: str,
         context_label: str,
-    ) -> tuple[Dict[str, Any] | None, List[str], str | None, str | None]:
+    ) -> tuple[Dict[str, Any] | None, List[str], str | None, str | None, int]:
+        """Fetch JSON with bounded retry and exact physical-attempt accounting."""
         warnings: List[str] = []
+        physical_request_count = 0
         for attempt in range(1, _MAX_RETRY_ATTEMPTS + 1):
             try:
-                return self._request_json(url), warnings, None, None
+                # Count immediately before the request boundary so timeout,
+                # transport, and response-read failures remain visible.
+                physical_request_count += 1
+                payload = self._request_json(url)
+                return payload, warnings, None, None, physical_request_count
             except urllib.error.HTTPError as exc:
                 if exc.code == 429:
                     retry_after = self._retry_after_seconds(
@@ -357,6 +363,7 @@ class OpenAlexProvider(BaseProvider):
                             warnings,
                             "OpenAlex rate limited after retries",
                             "rate-limited",
+                            physical_request_count,
                         )
                     time.sleep(max(wait_seconds, 0.0))
                     continue
@@ -366,6 +373,7 @@ class OpenAlexProvider(BaseProvider):
                         warnings,
                         f"OpenAlex {context_label} failed (HTTP {exc.code})",
                         None,
+                        physical_request_count,
                     )
                 wait_seconds = _BASE_BACKOFF_SECONDS * attempt
                 warnings.append(
@@ -380,6 +388,30 @@ class OpenAlexProvider(BaseProvider):
                         f"OpenAlex {context_label} failed after retries "
                         f"(HTTP {exc.code})",
                         None,
+                        physical_request_count,
+                    )
+                time.sleep(max(wait_seconds, 0.0))
+            except (
+                urllib.error.URLError,
+                TimeoutError,
+                ConnectionError,
+                OSError,
+            ) as exc:
+                wait_seconds = _BASE_BACKOFF_SECONDS * attempt
+                warnings.append(
+                    "OpenAlex retry "
+                    f"{context_label}: attempt={attempt} "
+                    f"transport_error={type(exc).__name__} "
+                    f"wait_seconds={round(wait_seconds, 3)}"
+                )
+                if attempt >= _MAX_RETRY_ATTEMPTS:
+                    return (
+                        None,
+                        warnings,
+                        f"OpenAlex {context_label} failed after retries "
+                        "(transport_error)",
+                        None,
+                        physical_request_count,
                     )
                 time.sleep(max(wait_seconds, 0.0))
             except Exception as exc:  # pragma: no cover - provider boundary
@@ -389,8 +421,15 @@ class OpenAlexProvider(BaseProvider):
                     "OpenAlex "
                     f"{context_label} error: {self._redact_sensitive_text(exc)}",
                     None,
+                    physical_request_count,
                 )
-        return None, warnings, "OpenAlex retry loop exhausted", "rate-limited"
+        return (
+            None,
+            warnings,
+            "OpenAlex retry loop exhausted",
+            "rate-limited",
+            physical_request_count,
+        )
 
     @staticmethod
     def _time_window_filter(time_window: Dict[str, int] | None) -> str:
@@ -468,6 +507,7 @@ class OpenAlexProvider(BaseProvider):
         warnings: List[str] = []
         page_diagnostics: List[Dict[str, Any]] = []
         retained_pages: List[Dict[str, Any]] = []
+        physical_request_count = 0
 
         for logical_page in range(1, safe_pages + 1):
             url = self._build_works_url(
@@ -477,12 +517,17 @@ class OpenAlexProvider(BaseProvider):
                 sort_strategy=sort_strategy,
                 time_window=time_window,
             )
-            payload, retry_warnings, terminal_error, rate_status = (
-                self._request_json_with_backoff(
-                    url=url,
-                    context_label=f"search page {logical_page}",
-                )
+            (
+                payload,
+                retry_warnings,
+                terminal_error,
+                rate_status,
+                page_physical_request_count,
+            ) = self._request_json_with_backoff(
+                url=url,
+                context_label=f"search page {logical_page}",
             )
+            physical_request_count += page_physical_request_count
             warnings.extend(retry_warnings)
             if terminal_error:
                 page_diagnostics.append(
@@ -511,6 +556,7 @@ class OpenAlexProvider(BaseProvider):
                         else None
                     ),
                     page_diagnostics=page_diagnostics,
+                    physical_request_count=physical_request_count,
                 )
                 return (result, page_diagnostics) if legacy_api else result
 
@@ -568,6 +614,7 @@ class OpenAlexProvider(BaseProvider):
                 "pages": retained_pages,
             },
             page_diagnostics=page_diagnostics,
+            physical_request_count=physical_request_count,
         )
         return (result, page_diagnostics) if legacy_api else result
 
@@ -579,17 +626,22 @@ class OpenAlexProvider(BaseProvider):
             f"{self._api_base}/doi:{urllib.parse.quote(normalized)}"
             f"?api_key={urllib.parse.quote(self._api_key)}"
         )
-        payload, warnings, terminal_error, rate_status = (
-            self._request_json_with_backoff(
-                url=url,
-                context_label="DOI verification",
-            )
+        (
+            payload,
+            warnings,
+            terminal_error,
+            rate_status,
+            physical_request_count,
+        ) = self._request_json_with_backoff(
+            url=url,
+            context_label="DOI verification",
         )
         if terminal_error:
             return ProviderResult(
                 errors=[terminal_error],
                 warnings=warnings,
                 rate_limit_status=rate_status,
+                physical_request_count=physical_request_count,
             )
         assert payload is not None
         records = self._parse_items([payload], doi)
@@ -603,4 +655,5 @@ class OpenAlexProvider(BaseProvider):
                 "payload_kind": _PAYLOAD_KIND,
                 "payload": self._safe_work_envelope(payload),
             },
+            physical_request_count=physical_request_count,
         )

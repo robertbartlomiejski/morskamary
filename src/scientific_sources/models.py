@@ -118,6 +118,10 @@ class ProviderResult:
     page_diagnostics: List[Dict[str, Any]] = field(default_factory=list)
     provenance: List[SourceEvidence] = field(default_factory=list)
     raw_payload: Optional[Dict[str, Any]] = field(default=None)
+    # The provider owns this count: it is the exact number of physical HTTP
+    # attempts initiated by this public operation, including retries and
+    # failed attempts. It must not be inferred from pagination diagnostics.
+    physical_request_count: int = 0
 
     @property
     def is_empty(self) -> bool:
@@ -132,6 +136,7 @@ class ProviderResult:
             "errors": self.errors,
             "warnings": self.warnings,
             "rate_limit_status": self.rate_limit_status,
+            "physical_request_count": self.physical_request_count,
             "page_diagnostics": self.page_diagnostics,
             "provenance": [item.to_dict() for item in self.provenance],
         }

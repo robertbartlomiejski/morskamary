@@ -19,6 +19,7 @@ Live implementation notes:
 from __future__ import annotations
 
 import os
+from typing import Any
 
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
@@ -78,6 +79,46 @@ class GoogleDriveProvider(BaseProvider):
                 "the Drive API call in google_drive.py."
             ]
         )
+
+    def search_paginated(
+        self,
+        query: str,
+        *,
+        pages: int = 1,
+        logical_pages: int | None = None,
+        rows_per_page: int = 50,
+        sort_strategy: str = "",
+        time_window: dict[str, int] | None = None,
+    ) -> Any:
+        """Return an explicit zero-attempt pagination result until Drive dispatch exists."""
+        del sort_strategy, time_window
+        legacy_api = logical_pages is not None
+        requested_pages = logical_pages if logical_pages is not None else pages
+        safe_pages = max(1, int(requested_pages or 1))
+        safe_rows = max(1, int(rows_per_page or 1))
+        result = self.search(query, safe_pages * safe_rows)
+        configured = self.capability.configured
+        pagination_status = "skipped" if configured else "provider_not_configured"
+        diagnostic = {
+            "provider": self.capability.name,
+            "query": query,
+            "logical_page": 1,
+            "physical_request_index": 0,
+            "cursor_or_offset": (
+                "not_implemented" if configured else "not_configured"
+            ),
+            "requested_rows": safe_pages * safe_rows,
+            "returned_rows": 0,
+            "normalized_rows": 0,
+            "pagination_status": pagination_status,
+            "errors": "not_implemented" if configured else "provider_not_configured",
+        }
+        result.page_diagnostics = [diagnostic]
+        if legacy_api:
+            legacy_diagnostic = dict(diagnostic)
+            legacy_diagnostic["pagination_method"] = "no_dispatch"
+            return result, [legacy_diagnostic]
+        return result
 
     def verify_doi(self, doi: str) -> ProviderResult:
         """DOI verification not applicable for Drive metadata."""

@@ -10,7 +10,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List
 
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
@@ -164,7 +164,10 @@ class MicrosoftGraphProvider(BaseProvider):
             ),
         )
 
-    def _token(self) -> str:
+    def _token(
+        self, on_physical_request: Callable[[], None] | None = None
+    ) -> str:
+        """Request an app token and report the exact attempted HTTP dispatch."""
         token_url = f"https://login.microsoftonline.com/{self._tenant_id}/oauth2/v2.0/token"
         payload = urllib.parse.urlencode(
             {
@@ -175,6 +178,8 @@ class MicrosoftGraphProvider(BaseProvider):
             }
         ).encode("utf-8")
         req = urllib.request.Request(token_url, data=payload, method="POST")
+        if on_physical_request is not None:
+            on_physical_request()
         with urllib.request.urlopen(req, timeout=12) as resp:
             data = json.loads(resp.read().decode("utf-8"))
         return str(data.get("access_token", ""))
@@ -278,33 +283,110 @@ class MicrosoftGraphProvider(BaseProvider):
                     "Microsoft Graph live search is not yet implemented "
                     "without MICROSOFT_GRAPH_SITE_ID or MICROSOFT_GRAPH_DRIVE_ID "
                     "search scope."
-                ]
+                ],
+                physical_request_count=0,
             )
+        physical_request_count = 0
+
+        def count_physical_request() -> None:
+            nonlocal physical_request_count
+            physical_request_count += 1
+
         try:
-            token = self._token()
+            token = self._token(count_physical_request)
             if not token:
-                return ProviderResult(errors=["Microsoft Graph token acquisition failed."])
+                return ProviderResult(
+                    errors=["Microsoft Graph token acquisition failed."],
+                    physical_request_count=physical_request_count,
+                )
             req = urllib.request.Request(
                 self._search_url(query, max_results),
                 headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
             )
+            count_physical_request()
             with urllib.request.urlopen(req, timeout=12) as resp:
                 payload = json.loads(resp.read().decode("utf-8"))
             records = self._parse_items(payload, query)
-            return ProviderResult(records=records, provenance=self._evidence(query, records))
+            return ProviderResult(
+                records=records,
+                provenance=self._evidence(query, records),
+                physical_request_count=physical_request_count,
+            )
         except urllib.error.HTTPError as exc:
             if exc.code == 429:
                 return ProviderResult(
                     warnings=["Microsoft Graph rate limited (HTTP 429)."],
                     rate_limit_status="rate-limited",
+                    physical_request_count=physical_request_count,
                 )
             if exc.code in (401, 403):
                 return ProviderResult(
-                    errors=[f"Microsoft Graph unauthorized (HTTP {exc.code})."]
+                    errors=[f"Microsoft Graph unauthorized (HTTP {exc.code})."],
+                    physical_request_count=physical_request_count,
                 )
-            return ProviderResult(errors=[f"Microsoft Graph search failed (HTTP {exc.code})."])
+            return ProviderResult(
+                errors=[f"Microsoft Graph search failed (HTTP {exc.code})."],
+                physical_request_count=physical_request_count,
+            )
         except Exception as exc:
-            return ProviderResult(errors=[f"Microsoft Graph search error: {exc}"])
+            return ProviderResult(
+                errors=[f"Microsoft Graph search error: {exc}"],
+                physical_request_count=physical_request_count,
+            )
+
+    def search_paginated(
+        self,
+        query: str,
+        *,
+        pages: int = 1,
+        logical_pages: int | None = None,
+        rows_per_page: int = 50,
+        sort_strategy: str = "",
+        time_window: dict[str, int] | None = None,
+    ) -> Any:
+        """Preserve zero-attempt states instead of fabricating fallback dispatch."""
+        if self.capability.configured and (self._site_id or self._drive_id):
+            return super().search_paginated(
+                query,
+                pages=pages,
+                logical_pages=logical_pages,
+                rows_per_page=rows_per_page,
+                sort_strategy=sort_strategy,
+                time_window=time_window,
+            )
+
+        del sort_strategy, time_window
+        legacy_api = logical_pages is not None
+        requested_pages = logical_pages if logical_pages is not None else pages
+        safe_pages = max(1, int(requested_pages or 1))
+        safe_rows = max(1, int(rows_per_page or 1))
+        result = self.search(query, safe_pages * safe_rows)
+        configured = self.capability.configured
+        pagination_status = "skipped" if configured else "provider_not_configured"
+        diagnostic = {
+            "provider": self.capability.name,
+            "query": query,
+            "logical_page": 1,
+            "physical_request_index": 0,
+            "cursor_or_offset": (
+                "search_scope_not_configured" if configured else "not_configured"
+            ),
+            "requested_rows": safe_pages * safe_rows,
+            "returned_rows": 0,
+            "normalized_rows": 0,
+            "pagination_status": pagination_status,
+            "errors": (
+                "search_scope_not_configured"
+                if configured
+                else "provider_not_configured"
+            ),
+        }
+        result.page_diagnostics = [diagnostic]
+        if legacy_api:
+            legacy_diagnostic = dict(diagnostic)
+            legacy_diagnostic["pagination_method"] = "no_dispatch"
+            return result, [legacy_diagnostic]
+        return result
 
     def verify_doi(self, doi: str) -> ProviderResult:
         """Search Graph metadata and filter matches containing DOI text."""
