@@ -334,6 +334,207 @@ def _load_variable_and_value_labels(
     return variable_rows, value_rows
 
 
+# ---------------------------------------------------------------------------
+# Schema-v2 string-enum categorical fields: explicitly registered because
+# they use string codes (not integer codes) and therefore do not carry the
+# x-categorical / x-label-field / x-missing-codes contract used by the
+# legacy integer-coded tables.  Both VARIABLE_LABELS.csv and VALUE_LABELS.csv
+# produced by _build_label_tables() are supplemented with these entries.
+# ---------------------------------------------------------------------------
+_SCHEMA_V2_VARIABLE_LABELS: list[dict[str, str]] = [
+    {
+        "schema_file": "evidence_fragments.schema.json",
+        "variable_name": "source_field",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "title|subject_terms|abstract|full_text",
+    },
+    {
+        "schema_file": "semantic_signals.schema.json",
+        "variable_name": "axis_group",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "MARINE|MARITIME|OCEANIC|HYDRONIZATION|",
+    },
+    {
+        "schema_file": "semantic_signals.schema.json",
+        "variable_name": "axis_code",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "M|T|O|H|",
+    },
+    {
+        "schema_file": "semantic_signals.schema.json",
+        "variable_name": "negation_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "not_detected|not_assessed",
+    },
+    {
+        "schema_file": "semantic_signals.schema.json",
+        "variable_name": "speculation_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "not_detected|not_assessed",
+    },
+    {
+        "schema_file": "semantic_signals.schema.json",
+        "variable_name": "manual_review_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "auto_accepted|review_required|manually_reviewed|rejected",
+    },
+    {
+        "schema_file": "competence_candidates.schema.json",
+        "variable_name": "axis_group",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "MARINE|MARITIME|OCEANIC|HYDRONIZATION|",
+    },
+    {
+        "schema_file": "competence_candidates.schema.json",
+        "variable_name": "axis_code",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "M|T|O|H|",
+    },
+    {
+        "schema_file": "competence_candidates.schema.json",
+        "variable_name": "candidate_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "candidate",
+    },
+    {
+        "schema_file": "competence_candidates.schema.json",
+        "variable_name": "review_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "auto_accepted|review_required|manually_reviewed|rejected",
+    },
+    {
+        "schema_file": "validation_decisions.schema.json",
+        "variable_name": "decision_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "accepted|rejected|review_required|superseded",
+    },
+    {
+        "schema_file": "canonical_competences.schema.json",
+        "variable_name": "validation_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "accepted",
+    },
+    {
+        "schema_file": "canonical_competences.schema.json",
+        "variable_name": "provenance_guard_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "passed",
+    },
+    {
+        "schema_file": "sector_competence_assignments.schema.json",
+        "variable_name": "axis_group",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "MARINE|MARITIME|OCEANIC|HYDRONIZATION",
+    },
+    {
+        "schema_file": "sector_competence_assignments.schema.json",
+        "variable_name": "axis_code",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "M|T|O|H",
+    },
+]
+
+
+def _v2vl(schema_file: str, variable_name: str, code: str, label: str) -> dict[str, str]:
+    """Shorthand constructor for schema-v2 value-label rows."""
+    return {
+        "schema_file": schema_file,
+        "variable_name": variable_name,
+        "code": code,
+        "label": label,
+    }
+
+
+_EF = "evidence_fragments.schema.json"
+_SS = "semantic_signals.schema.json"
+_CC = "competence_candidates.schema.json"
+_VD = "validation_decisions.schema.json"
+_CN = "canonical_competences.schema.json"
+_SA = "sector_competence_assignments.schema.json"
+
+_AXIS_GROUP_LABELS = [
+    ("MARINE", "Marine \u2014 biophysical, ecological and more-than-human agency or constraints"),
+    ("MARITIME", "Maritime \u2014 labour, technology, infrastructure, economy and institutional mediation"),
+    ("OCEANIC", "Oceanic \u2014 planetary coupling, transboundary governance and hydrosocial responsibility"),
+    ("HYDRONIZATION", "Hydronization \u2014 water-mediated transformation and hydro-social relations"),
+]
+_AXIS_CODE_LABELS = [
+    ("M", "Marine"), ("T", "Maritime"), ("O", "Oceanic"), ("H", "Hydronization"),
+]
+_REVIEW_STATUS_LABELS = [
+    ("auto_accepted", "Automatically accepted by classifier"),
+    ("review_required", "Manual review required"),
+    ("manually_reviewed", "Manually reviewed and accepted"),
+    ("rejected", "Rejected after review"),
+]
+
+_SCHEMA_V2_VALUE_LABELS: list[dict[str, str]] = (
+    # evidence_fragments.source_field
+    [_v2vl(_EF, "source_field", "title", "Title field")]
+    + [_v2vl(_EF, "source_field", "subject_terms", "Subject terms / keywords field")]
+    + [_v2vl(_EF, "source_field", "abstract", "Abstract field")]
+    + [_v2vl(_EF, "source_field", "full_text", "Full text field")]
+    # semantic_signals
+    + [_v2vl(_SS, "axis_group", c, l) for c, l in _AXIS_GROUP_LABELS]
+    + [_v2vl(_SS, "axis_group", "", "Unbound / not assigned")]
+    + [_v2vl(_SS, "axis_code", c, l) for c, l in _AXIS_CODE_LABELS]
+    + [_v2vl(_SS, "axis_code", "", "Unbound / not assigned")]
+    + [_v2vl(_SS, "negation_status", "not_detected", "Negation not detected in text span")]
+    + [_v2vl(_SS, "negation_status", "not_assessed", "Negation assessment not run")]
+    + [_v2vl(_SS, "speculation_status", "not_detected", "Speculation not detected in text span")]
+    + [_v2vl(_SS, "speculation_status", "not_assessed", "Speculation assessment not run")]
+    + [_v2vl(_SS, "manual_review_status", c, l) for c, l in _REVIEW_STATUS_LABELS]
+    # competence_candidates
+    + [_v2vl(_CC, "axis_group", c, l) for c, l in _AXIS_GROUP_LABELS]
+    + [_v2vl(_CC, "axis_group", "", "Unbound / not assigned")]
+    + [_v2vl(_CC, "axis_code", c, l) for c, l in _AXIS_CODE_LABELS]
+    + [_v2vl(_CC, "axis_code", "", "Unbound / not assigned")]
+    + [_v2vl(_CC, "candidate_status", "candidate", "Proposed competence candidate awaiting validation")]
+    + [_v2vl(_CC, "review_status", c, l) for c, l in _REVIEW_STATUS_LABELS]
+    # validation_decisions
+    + [_v2vl(_VD, "decision_status", "accepted", "Candidate accepted and promoted to canonical competence")]
+    + [_v2vl(_VD, "decision_status", "rejected", "Candidate rejected; not promoted")]
+    + [_v2vl(_VD, "decision_status", "review_required", "Decision deferred pending further review")]
+    + [_v2vl(_VD, "decision_status", "superseded", "Decision superseded by a later validation decision")]
+    # canonical_competences
+    + [_v2vl(_CN, "validation_status", "accepted", "Canonical competence accepted via validated decision")]
+    + [_v2vl(_CN, "provenance_guard_status", "passed", "Canonical-label provenance guard passed")]
+    # sector_competence_assignments
+    + [_v2vl(_SA, "axis_group", c, l) for c, l in _AXIS_GROUP_LABELS]
+    + [_v2vl(_SA, "axis_code", c, l) for c, l in _AXIS_CODE_LABELS]
+)
+
+
 def _validate_rows(
     rows: list[dict[str, Any]], schema_path: Path, table_name: str
 ) -> list[str]:
@@ -951,6 +1152,8 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         )
 
     variable_labels, value_labels = _load_variable_and_value_labels(schema_dir)
+    variable_labels = variable_labels + _SCHEMA_V2_VARIABLE_LABELS
+    value_labels = value_labels + _SCHEMA_V2_VALUE_LABELS
     _write_csv(package_dir / "VARIABLE_LABELS.csv", variable_labels)
     _write_csv(package_dir / "VALUE_LABELS.csv", value_labels)
 
