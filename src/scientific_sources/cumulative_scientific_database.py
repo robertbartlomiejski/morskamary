@@ -1408,12 +1408,16 @@ def _scan_semantic_signals(
     for pattern in _SIGNAL_PATTERNS:
         found_match: Optional[_SignalMatch] = None
         for source_field, source_text in normalized_surfaces:
-            source_text_lc = source_text.lower()
             for phrase in pattern.phrases:
-                start = source_text_lc.find(phrase)
-                if start < 0:
+                phrase_token = phrase.strip()
+                phrase_match = re.search(
+                    rf"(?<!\\w){re.escape(phrase_token)}(?!\\w)",
+                    source_text,
+                    flags=re.IGNORECASE,
+                )
+                if phrase_match is None:
                     continue
-                end = start + len(phrase)
+                start, end = phrase_match.span()
                 found_match = _SignalMatch(
                     pattern=pattern,
                     matched_phrase=phrase.strip(),
