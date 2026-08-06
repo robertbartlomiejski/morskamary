@@ -280,6 +280,12 @@ def test_build_versioned_package_rejects_invalid_schema_v2_jsonl(
 
     assert exit_code == 1
 
+    release_out = tmp_path / "release_out"
+    expected_zip = release_out / "morskamary_cumulative_evidence_v0.1.1.zip"
+    assert not expected_zip.exists(), (
+        "ZIP artifact must not be created when validation fails"
+    )
+
 
 def test_build_versioned_research_data_package_cli_entrypoint_forwards_argv(
     tmp_path: Path,
