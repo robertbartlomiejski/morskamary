@@ -10,10 +10,11 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import sys
 from collections import defaultdict
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
 from typing import Any, Dict, List, Mapping, Sequence, Set
 
 REGISTRY_SCHEMA_VERSION = "1.0.0"
@@ -29,6 +30,7 @@ DEFAULT_AUDIT_OUTPUT_PATH = Path(
     "outputs/cumulative_database/validated_credential_supply_audit.json"
 )
 _REPO_ROOT_SUPPLY = Path(__file__).resolve().parents[1]
+_REDACTED_OUT_OF_TREE_PATH = "[redacted-out-of-tree-path]"
 
 REGISTRY_FIELDS: Sequence[str] = (
     "credential_supply_id",
@@ -89,26 +91,169 @@ def _to_repo_relative_posix(path: Path) -> str:
     try:
         return path.resolve().relative_to(_REPO_ROOT_SUPPLY).as_posix()
     except ValueError:
-        return "[redacted-out-of-tree-path]"
+        return _REDACTED_OUT_OF_TREE_PATH
 
 
-def _redact_cli_path_text(value: object, paths: Sequence[Path]) -> str:
-    """Redact supplied paths from diagnostic text before it reaches the CLI."""
+def _normalise_lexical_path(
+    path: PurePosixPath | PureWindowsPath,
+) -> PurePosixPath | PureWindowsPath:
+    """Collapse ``.`` and ``..`` without consulting the filesystem."""
+    parts: List[str] = []
+    for part in path.parts:
+        if part in (path.anchor, "", "."):
+            continue
+        if part == "..":
+            if parts and parts[-1] != "..":
+                parts.pop()
+            elif not path.is_absolute():
+                parts.append(part)
+            continue
+        parts.append(part)
+
+    path_type = PureWindowsPath if isinstance(path, PureWindowsPath) else PurePosixPath
+    if path.anchor:
+        return path_type(path.anchor, *parts)
+    return path_type(*parts)
+
+
+def _classify_path_string(
+    text: str,
+) -> tuple[str, PurePosixPath | PureWindowsPath] | None:
+    """Classify raw CLI path syntax before host-native path conversion."""
+    windows_path = PureWindowsPath(text)
+    if text.startswith(("\\\\", "//")):
+        if windows_path.is_absolute():
+            return "windows", _normalise_lexical_path(windows_path)
+        return None
+    if len(text) >= 2 and text[1] == ":":
+        if windows_path.is_absolute():
+            return "windows", _normalise_lexical_path(windows_path)
+        return None
+    if text.startswith("/"):
+        return "posix", _normalise_lexical_path(
+            PurePosixPath(text.replace("\\", "/"))
+        )
+    if text.startswith("\\"):
+        return "posix", _normalise_lexical_path(
+            PurePosixPath(text.replace("\\", "/"))
+        )
+    return "relative", _normalise_lexical_path(
+        PurePosixPath(text.replace("\\", "/"))
+    )
+
+
+def _native_lexical_path(path: Path) -> PurePosixPath | PureWindowsPath:
+    """Represent a genuine host-native path after safe lexical resolution."""
+    resolved_path = path.resolve(strict=False)
+    if os.name == "nt":
+        return _normalise_lexical_path(PureWindowsPath(str(resolved_path)))
+    return _normalise_lexical_path(PurePosixPath(resolved_path.as_posix()))
+
+
+def _repository_lexical_path(
+    repo_root: Path | PurePath,
+) -> PurePosixPath | PureWindowsPath:
+    """Keep concrete roots native while allowing pure-path regression fixtures."""
+    if isinstance(repo_root, Path):
+        return _native_lexical_path(repo_root)
+    if isinstance(repo_root, PureWindowsPath):
+        return _normalise_lexical_path(repo_root)
+    return _normalise_lexical_path(PurePosixPath(str(repo_root)))
+
+
+def _same_path_flavour(
+    first: PurePosixPath | PureWindowsPath,
+    second: PurePosixPath | PureWindowsPath,
+) -> bool:
+    return isinstance(first, PureWindowsPath) == isinstance(second, PureWindowsPath)
+
+
+def _relative_for_flavour(
+    path: PurePosixPath,
+    reference: PurePosixPath | PureWindowsPath,
+) -> PurePosixPath | PureWindowsPath:
+    """Apply separator-neutral relative components to the native root flavour."""
+    if isinstance(reference, PureWindowsPath):
+        return PureWindowsPath(*path.parts)
+    return PurePosixPath(*path.parts)
+
+
+def _repository_relative_display_path(
+    candidate: PurePosixPath | PureWindowsPath,
+    repo_root: PurePosixPath | PureWindowsPath,
+) -> str:
+    """Return a proved repository-relative display path or redact it."""
+    if not _same_path_flavour(candidate, repo_root):
+        return _REDACTED_OUT_OF_TREE_PATH
+    if isinstance(candidate, PureWindowsPath) and isinstance(repo_root, PureWindowsPath):
+        if candidate.drive.casefold() != repo_root.drive.casefold():
+            return _REDACTED_OUT_OF_TREE_PATH
+    try:
+        relative_path = candidate.relative_to(repo_root)
+    except ValueError:
+        return _REDACTED_OUT_OF_TREE_PATH
+    return "/".join(relative_path.parts) or "."
+
+
+def _redact_path_string(text: str, repo_root: Path | PurePath) -> str:
+    """Render one raw CLI path as repository-relative POSIX or a redaction token."""
+    classified_path = _classify_path_string(text)
+    if classified_path is None:
+        return _REDACTED_OUT_OF_TREE_PATH
+
+    path_kind, candidate = classified_path
+    lexical_repo_root = _repository_lexical_path(repo_root)
+    if not lexical_repo_root.is_absolute():
+        return _REDACTED_OUT_OF_TREE_PATH
+    if path_kind == "relative":
+        if not isinstance(candidate, PurePosixPath):
+            return _REDACTED_OUT_OF_TREE_PATH
+        current_directory = _native_lexical_path(Path.cwd())
+        if not _same_path_flavour(current_directory, lexical_repo_root):
+            return _REDACTED_OUT_OF_TREE_PATH
+        relative_candidate = _relative_for_flavour(candidate, lexical_repo_root)
+        candidate = _normalise_lexical_path(
+            current_directory.joinpath(*relative_candidate.parts)
+        )
+
+    return _repository_relative_display_path(candidate, lexical_repo_root)
+
+
+def _path_text_variants(text: str) -> Sequence[str]:
+    """Return the exact supplied spelling and its separator-only variants."""
+    separator_variants = (text, text.replace("\\", "/"), text.replace("/", "\\"))
+    return tuple(
+        dict.fromkeys(
+            candidate
+            for variant in separator_variants
+            for candidate in (variant, repr(variant)[1:-1])
+        )
+    )
+
+
+def _redact_cli_path_text(
+    value: object,
+    raw_paths: Sequence[str],
+    native_paths: Sequence[Path],
+) -> str:
+    """Redact raw and host-native CLI path forms from caught diagnostics."""
     text = str(value)
     replacements: Dict[str, str] = {}
-    for path in paths:
+    for raw_path, native_path in zip(raw_paths, native_paths):
+        safe_path = _redact_path_string(raw_path, _REPO_ROOT_SUPPLY)
+        candidates = list(_path_text_variants(raw_path))
+        candidates.extend(_path_text_variants(str(native_path)))
         try:
-            resolved_path = path.resolve()
+            candidates.extend(
+                _path_text_variants(str(native_path.resolve(strict=False)))
+            )
         except (OSError, RuntimeError):
-            resolved_path = path
-        safe_path = _to_repo_relative_posix(path)
-        for candidate in (path, resolved_path):
-            candidate_text = str(candidate)
-            if len(candidate_text) > 1:
+            pass
+        for candidate_text in candidates:
+            if candidate_text and candidate_text != safe_path:
                 replacements[candidate_text] = safe_path
-                replacements[candidate_text.replace("\\", "/")] = safe_path
 
-    for candidate_text in sorted(replacements, key=len, reverse=True):
+    for candidate_text in sorted(replacements, key=lambda item: (-len(item), item)):
         text = text.replace(candidate_text, replacements[candidate_text])
     return text
 
@@ -345,34 +490,32 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--audit-output", default=str(DEFAULT_AUDIT_OUTPUT_PATH))
     parser.add_argument("--built-at-utc", default=None)
     args = parser.parse_args(argv)
+    raw_paths = (
+        args.registry,
+        args.derived_demands,
+        args.output,
+        args.audit_output,
+    )
+    native_paths = tuple(Path(raw_path) for raw_path in raw_paths)
 
     try:
         output = build_validated_supply_map(
-            registry_path=Path(args.registry),
-            derived_demands_path=Path(args.derived_demands),
-            output_path=Path(args.output),
-            audit_output_path=Path(args.audit_output),
+            registry_path=native_paths[0],
+            derived_demands_path=native_paths[1],
+            output_path=native_paths[2],
+            audit_output_path=native_paths[3],
             built_at_utc=args.built_at_utc,
         )
     except (OSError, ValueError) as exc:
         print(
-            "ERROR: "
-            + _redact_cli_path_text(
-                exc,
-                (
-                    Path(args.registry),
-                    Path(args.derived_demands),
-                    Path(args.output),
-                    Path(args.audit_output),
-                ),
-            ),
+            "ERROR: " + _redact_cli_path_text(exc, raw_paths, native_paths),
             file=sys.stderr,
         )
         return 1
     summary = {
         "validated_demand_count": len(output["validated_supply_by_demand_id"]),
-        "output": _to_repo_relative_posix(Path(args.output)),
-        "audit_output": _to_repo_relative_posix(Path(args.audit_output)),
+        "output": _redact_path_string(args.output, _REPO_ROOT_SUPPLY),
+        "audit_output": _redact_path_string(args.audit_output, _REPO_ROOT_SUPPLY),
     }
     print(json.dumps(summary, sort_keys=True))
     return 0

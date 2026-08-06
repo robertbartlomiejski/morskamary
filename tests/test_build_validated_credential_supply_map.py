@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 import pytest
 
@@ -472,3 +472,205 @@ def test_cli_redacts_external_windows_and_posix_output_paths(
     assert output_arg not in captured.out
     assert audit_arg not in captured.out
     assert captured.err == ""
+
+
+@pytest.mark.parametrize(
+    ("path_text", "expected"),
+    [
+        ("/workspace/morskamary/outputs/./map.json", "outputs/map.json"),
+        (r"\workspace\morskamary\outputs\.\map.json", "outputs/map.json"),
+        ("/workspace\\morskamary/mixed\\map.json", "mixed/map.json"),
+        ("/workspace/morskamary", "."),
+        (
+            "/workspace/morskamary-copy/map.json",
+            "[redacted-out-of-tree-path]",
+        ),
+        (
+            r"C:\codex-external-path-test\validated_credential_supply_map.json",
+            "[redacted-out-of-tree-path]",
+        ),
+        (
+            r"\\server\share\external\validated_credential_supply_map.json",
+            "[redacted-out-of-tree-path]",
+        ),
+    ],
+)
+def test_redact_path_string_classifies_absolute_syntax_lexically(
+    path_text: str, expected: str
+) -> None:
+    repo_root = PurePosixPath("/workspace/morskamary")
+
+    assert supply_map_builder._redact_path_string(path_text, repo_root) == expected
+
+
+def test_redact_path_string_normalises_relative_paths_and_rejects_escapes(
+    monkeypatch, tmp_path: Path
+) -> None:
+    repo_root = tmp_path / "morskamary"
+    repo_root.mkdir()
+    monkeypatch.chdir(repo_root)
+
+    assert (
+        supply_map_builder._redact_path_string(
+            r"outputs\nested/../validated_supply_map.json", repo_root
+        )
+        == "outputs/validated_supply_map.json"
+    )
+    assert (
+        supply_map_builder._redact_path_string(
+            "../morskamary-copy/validated_supply_map.json", repo_root
+        )
+        == "[redacted-out-of-tree-path]"
+    )
+
+
+def test_redact_path_string_requires_compatible_windows_drive_and_unc_share() -> None:
+    windows_repo_root = PureWindowsPath(r"C:\work\morskamary")
+    unc_repo_root = PureWindowsPath(r"\\server\share\morskamary")
+
+    assert (
+        supply_map_builder._redact_path_string(
+            r"D:\work\morskamary\validated_supply_map.json", windows_repo_root
+        )
+        == "[redacted-out-of-tree-path]"
+    )
+    assert (
+        supply_map_builder._redact_path_string(
+            r"\\server\share\morskamary\outputs\validated_supply_map.json",
+            unc_repo_root,
+        )
+        == "outputs/validated_supply_map.json"
+    )
+    assert (
+        supply_map_builder._redact_path_string(
+            r"\\server\other-share\morskamary\validated_supply_map.json",
+            unc_repo_root,
+        )
+        == "[redacted-out-of-tree-path]"
+    )
+
+
+@pytest.mark.parametrize(
+    ("output_arg", "audit_arg", "expected_output", "expected_audit"),
+    [
+        (
+            r"\home\runner\work\morskamary\morskamary\.path-display-test\map.json",
+            r"\home\runner\work\morskamary\morskamary\.path-display-test\audit.json",
+            ".path-display-test/map.json",
+            ".path-display-test/audit.json",
+        ),
+        (
+            r"C:\codex-external-path-test\validated_credential_supply_map.json",
+            r"C:\codex-external-path-test\validated_credential_supply_audit.json",
+            "[redacted-out-of-tree-path]",
+            "[redacted-out-of-tree-path]",
+        ),
+    ],
+)
+def test_cli_lexically_displays_foreign_syntax_against_posix_repository(
+    monkeypatch,
+    capsys,
+    output_arg: str,
+    audit_arg: str,
+    expected_output: str,
+    expected_audit: str,
+) -> None:
+    _stub_cli_build(monkeypatch)
+    monkeypatch.setattr(
+        supply_map_builder,
+        "_REPO_ROOT_SUPPLY",
+        PurePosixPath("/home/runner/work/morskamary/morskamary"),
+    )
+
+    assert main(["--output", output_arg, "--audit-output", audit_arg]) == 0
+
+    captured = capsys.readouterr()
+    summary = json.loads(captured.out)
+    assert summary["output"] == expected_output
+    assert summary["audit_output"] == expected_audit
+    assert output_arg not in captured.out
+    assert audit_arg not in captured.out
+    assert captured.err == ""
+
+
+@pytest.mark.parametrize(
+    "external_output",
+    [
+        r"C:\codex-external-path-test\validated_credential_supply_map.json",
+        "/tmp/codex-external-path-test/validated_credential_supply_map.json",
+    ],
+)
+def test_cli_error_scrubs_raw_and_native_external_path_variants(
+    monkeypatch, capsys, external_output: str
+) -> None:
+    external_audit = external_output.replace("map.json", "audit.json")
+
+    def path_variants(raw_path: str) -> set[str]:
+        native_path = Path(raw_path)
+        variants = {
+            raw_path,
+            raw_path.replace("\\", "/"),
+            raw_path.replace("/", "\\"),
+        }
+        for candidate in (str(native_path), str(native_path.resolve(strict=False))):
+            variants.update(
+                {
+                    candidate,
+                    candidate.replace("\\", "/"),
+                    candidate.replace("/", "\\"),
+                }
+            )
+        return variants
+
+    leaked_forms = path_variants(external_output) | path_variants(external_audit)
+
+    def fail_build(**_kwargs) -> None:
+        raise OSError("external paths: " + " | ".join(sorted(leaked_forms)))
+
+    monkeypatch.setattr(supply_map_builder, "build_validated_supply_map", fail_build)
+
+    assert (
+        main(
+            [
+                "--output",
+                external_output,
+                "--audit-output",
+                external_audit,
+            ]
+        )
+        == 1
+    )
+
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "[redacted-out-of-tree-path]" in captured.err
+    for leaked_form in leaked_forms:
+        assert leaked_form not in captured.out
+        assert leaked_form not in captured.err
+
+
+@pytest.mark.parametrize(
+    "external_output",
+    [
+        r"C:\codex-external-path-test\validated_credential_supply_map.json",
+        r"\tmp\codex-external-path-test\validated_credential_supply_map.json",
+        r"\\server\share\codex-external-path-test\validated_credential_supply_map.json",
+    ],
+)
+def test_cli_error_scrubs_escaped_oserror_path_forms(
+    monkeypatch, capsys, external_output: str
+) -> None:
+    escaped_output = repr(external_output)[1:-1]
+
+    def fail_build(**_kwargs) -> None:
+        raise FileNotFoundError(2, "No such file or directory", external_output)
+
+    monkeypatch.setattr(supply_map_builder, "build_validated_supply_map", fail_build)
+
+    assert main(["--output", external_output]) == 1
+
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "[redacted-out-of-tree-path]" in captured.err
+    assert external_output not in captured.err
+    assert escaped_output not in captured.err
