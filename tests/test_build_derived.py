@@ -275,11 +275,15 @@ class TestMainIntegration:
         assert "Processed:" in captured.out
         assert "exported_tables=1" in captured.out
 
-    def test_main_if_name_main_block(self):
-        """Test the if __name__ == '__main__' execution path"""
-        from scripts.build_derived import main
+    def test_main_runs_in_an_isolated_workspace(self, tmp_path: Path, capsys) -> None:
+        """Calling main must not scan or rewrite the repository's derived data."""
+        derived_dir = tmp_path / "data" / "derived"
 
-        # Verify main() can be called and returns None/0
-        result = main()
-        # main() returns None, not int, so we just verify it runs
+        with patch("scripts.build_derived.REPO_ROOT", tmp_path), patch(
+            "scripts.build_derived.DERIVED_DIR", derived_dir
+        ):
+            result = main()
+
         assert result is None
+        assert not derived_dir.exists()
+        assert "No Excel files found." in capsys.readouterr().out

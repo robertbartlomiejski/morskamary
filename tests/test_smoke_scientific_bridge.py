@@ -123,10 +123,15 @@ def test_run_live_checks_handles_skip_and_failure(monkeypatch) -> None:
     assert failures == ["live wos"]
 
 
-def test_main_offline_and_live_modes(monkeypatch) -> None:
+def test_main_offline_and_live_modes(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(smoke, "run_offline_checks", lambda: [])
     monkeypatch.setattr(smoke, "run_live_checks", lambda: [])
-    monkeypatch.setattr(smoke.sys, "argv", ["smoke_scientific_bridge.py", "--offline"])
+    report_path = tmp_path / "research_api_smoke_report.json"
+    monkeypatch.setattr(
+        smoke.sys,
+        "argv",
+        ["smoke_scientific_bridge.py", "--offline", "--output", str(report_path)],
+    )
     assert smoke.main() == 0
 
     monkeypatch.setattr(smoke, "run_offline_checks", lambda: ["offline-fail"])
@@ -134,6 +139,11 @@ def test_main_offline_and_live_modes(monkeypatch) -> None:
     monkeypatch.setattr(
         smoke.sys,
         "argv",
-        ["smoke_scientific_bridge.py", "--live-if-secrets-present"],
+        [
+            "smoke_scientific_bridge.py",
+            "--live-if-secrets-present",
+            "--output",
+            str(report_path),
+        ],
     )
     assert smoke.main() == 1
