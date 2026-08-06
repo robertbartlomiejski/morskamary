@@ -239,19 +239,32 @@ def _redact_cli_path_text(
     """Redact raw and host-native CLI path forms from caught diagnostics."""
     text = str(value)
     replacements: Dict[str, str] = {}
-    for raw_path, native_path in zip(raw_paths, native_paths):
-        safe_path = _redact_path_string(raw_path, _REPO_ROOT_SUPPLY)
-        candidates = list(_path_text_variants(raw_path))
-        candidates.extend(_path_text_variants(str(native_path)))
-        try:
-            candidates.extend(
-                _path_text_variants(str(native_path.resolve(strict=False)))
-            )
-        except (OSError, RuntimeError):
-            pass
-        for candidate_text in candidates:
+
+    def add_replacement_candidates(path_text: str, safe_path: str) -> None:
+        for candidate_text in _path_text_variants(path_text):
             if candidate_text and candidate_text != safe_path:
                 replacements[candidate_text] = safe_path
+
+    def add_parent_replacement_candidates(path: Path) -> None:
+        parent = path.parent
+        if not path.is_absolute() or parent == path or parent == parent.parent:
+            return
+        add_replacement_candidates(
+            str(parent), _redact_path_string(str(parent), _REPO_ROOT_SUPPLY)
+        )
+
+    for raw_path, native_path in zip(raw_paths, native_paths, strict=True):
+        safe_path = _redact_path_string(raw_path, _REPO_ROOT_SUPPLY)
+        add_replacement_candidates(raw_path, safe_path)
+        add_replacement_candidates(str(native_path), safe_path)
+        add_parent_replacement_candidates(native_path)
+        try:
+            resolved_native_path = native_path.resolve(strict=False)
+        except (OSError, RuntimeError):
+            pass
+        else:
+            add_replacement_candidates(str(resolved_native_path), safe_path)
+            add_parent_replacement_candidates(resolved_native_path)
 
     for candidate_text in sorted(replacements, key=lambda item: (-len(item), item)):
         text = text.replace(candidate_text, replacements[candidate_text])

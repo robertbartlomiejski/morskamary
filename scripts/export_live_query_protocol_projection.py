@@ -9,12 +9,13 @@ import os
 import sys
 import tempfile
 from collections import Counter
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import yaml  # type: ignore[import-untyped]
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+_REDACTED_OUT_OF_TREE_PATH = "[redacted-out-of-tree-path]"
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
@@ -30,6 +31,26 @@ from src.scientific_sources.live_query_protocol import (  # noqa: E402
 def _path_exists(path: Path) -> bool:
     """Return whether a regular path or dangling symlink is present."""
     return path.exists() or path.is_symlink()
+
+
+def _redact_path_string(path_text: str | Path, repo_root: Path = REPO_ROOT) -> str:
+    """Render a native CLI path as repository-relative POSIX or redact it."""
+    text = str(path_text)
+    if os.name != "nt":
+        if PureWindowsPath(text).is_absolute():
+            return _REDACTED_OUT_OF_TREE_PATH
+        if text.startswith("\\"):
+            path = Path("/" + text.lstrip("\\").replace("\\", "/"))
+        else:
+            path = Path(text)
+    else:
+        path = Path(text)
+    try:
+        return path.resolve(strict=False).relative_to(
+            repo_root.resolve(strict=False)
+        ).as_posix() or "."
+    except (OSError, RuntimeError, ValueError):
+        return _REDACTED_OUT_OF_TREE_PATH
 
 
 def _unlink_if_present(path: Path) -> None:
@@ -216,13 +237,13 @@ def _validate_serialized_projection_artifacts(
         slug: len(sector.queries) for slug, sector in protocol.sectors.items()
     }
     expected_summary = {
-        "protocol_path": str(protocol_path),
-        "projection_path": str(output_path),
+        "protocol_path": _redact_path_string(protocol_path),
+        "projection_path": _redact_path_string(output_path),
         "protocol_query_count": len(all_queries),
         "projected_query_count": len(protocol.flattened_query_texts()),
         "family_counts": dict(sorted(expected_family_counts.items())),
         "sector_counts": dict(sorted(expected_sector_counts.items())),
-        "constraints_path": str(constraints_path),
+        "constraints_path": _redact_path_string(constraints_path),
     }
     if summary != expected_summary:
         raise ValueError("protocol summary is not consistent with the projection")
@@ -294,12 +315,13 @@ def main(argv: Optional[list[str]] = None) -> int:
     summary_path = Path(args.emit_summary_path)
     constraints_path = Path(args.emit_constraints_path)
     summary = {
-        "protocol_path": str(Path(args.protocol_path)),
-        "projection_path": str(output_path),
+        "protocol_path": _redact_path_string(args.protocol_path),
+        "projection_path": _redact_path_string(output_path),
         "protocol_query_count": len(all_queries),
         "projected_query_count": len(protocol.flattened_query_texts()),
         "family_counts": dict(sorted(family_counts.items())),
         "sector_counts": dict(sorted(sector_counts.items())),
+        "constraints_path": _redact_path_string(constraints_path),
     }
 
     # Record per-query constraints so downstream audit bundles can identify
@@ -313,12 +335,12 @@ def main(argv: Optional[list[str]] = None) -> int:
     }
     validate_complete_authoritative_protocol_projection(protocol, constraints_payload)
 
-    summary["constraints_path"] = str(constraints_path)
-
     projection_bytes = yaml.safe_dump(
         projection, sort_keys=False, allow_unicode=True
     ).encode("utf-8")
-    summary_bytes = (json.dumps(summary, indent=2) + "\n").encode("utf-8")
+    summary_bytes = (
+        json.dumps(summary, indent=2, sort_keys=True) + "\n"
+    ).encode("utf-8")
     constraints_bytes = (
         json.dumps(constraints_payload, indent=2, sort_keys=True) + "\n"
     ).encode("utf-8")

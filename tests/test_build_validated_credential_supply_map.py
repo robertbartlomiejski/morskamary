@@ -440,8 +440,8 @@ def test_cli_absolute_in_repo_output_paths_are_rendered_relative_posix(
     summary = json.loads(captured.out)
     assert summary["output"] == ".path-display-test/map.json"
     assert summary["audit_output"] == ".path-display-test/audit.json"
-    assert str(output_path) not in captured.out
-    assert str(audit_path) not in captured.out
+    assert output_arg not in captured.out
+    assert audit_arg not in captured.out
     assert captured.err == ""
 
 
@@ -646,6 +646,37 @@ def test_cli_error_scrubs_raw_and_native_external_path_variants(
     assert "[redacted-out-of-tree-path]" in captured.err
     for leaked_form in leaked_forms:
         assert leaked_form not in captured.out
+        assert leaked_form not in captured.err
+
+
+def test_cli_error_scrubs_external_parent_directory_path(
+    monkeypatch, capsys, tmp_path: Path
+) -> None:
+    external_output = tmp_path / "external" / "validated_credential_supply_map.json"
+    external_audit = external_output.with_name("validated_credential_supply_audit.json")
+    external_parent = external_output.parent
+
+    def fail_build(**_kwargs) -> None:
+        raise PermissionError(13, "Permission denied", str(external_parent))
+
+    monkeypatch.setattr(supply_map_builder, "build_validated_supply_map", fail_build)
+
+    assert (
+        main(
+            [
+                "--output",
+                str(external_output),
+                "--audit-output",
+                str(external_audit),
+            ]
+        )
+        == 1
+    )
+
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "[redacted-out-of-tree-path]" in captured.err
+    for leaked_form in supply_map_builder._path_text_variants(str(external_parent)):
         assert leaked_form not in captured.err
 
 

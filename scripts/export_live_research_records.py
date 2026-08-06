@@ -2009,7 +2009,7 @@ def main() -> int:
                         file=sys.stderr,
                     )
                     return 1
-                if results and len(results) != len(ordered_provider_names):
+                if len(results) != len(ordered_provider_names):
                     print(
                         "Error: paginated acquisition returned an unexpected provider "
                         "result count; no fallback search will be attempted.",

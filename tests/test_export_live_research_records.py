@@ -6,6 +6,7 @@ All tests use mocked Crossref responses — no network access required.
 
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 
@@ -1235,11 +1236,15 @@ query_groups:
             (output_dir / "provider_pagination_diagnostics.json").read_text()
         )
         assert [row["logical_page"] for row in rows] == [1, 2, 3]
-        execution_log = (output_dir / "query_execution_log.csv").read_text()
-        assert "applied_logical_pagination" in execution_log
-        assert ",7," in execution_log
+        execution_rows = list(
+            csv.DictReader(
+                (output_dir / "query_execution_log.csv").read_text().splitlines()
+            )
+        )
+        assert execution_rows[0]["sampling_status"] == "applied_logical_pagination"
+        assert execution_rows[0]["physical_request_count"] == "7"
 
-    def test_empty_paginated_result_does_not_fall_back_to_registry_search(
+    def test_empty_paginated_result_fails_without_publishing_or_registry_fallback(
         self, tmp_path, monkeypatch
     ):
         query_file = tmp_path / "queries.yml"
@@ -1300,10 +1305,11 @@ query_groups:
                 ],
             )
 
-            assert main() == 0
+            assert main() == 1
 
         assert paginated_calls == 1
         mock_instance.search.assert_not_called()
+        assert not output_dir.exists()
 
     @pytest.mark.parametrize("invalid_count", [True, 1.0, -1, "1"])
     def test_main_fails_closed_for_invalid_provider_request_count(

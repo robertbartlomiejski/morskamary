@@ -126,16 +126,23 @@ def test_run_live_checks_handles_skip_and_failure(monkeypatch) -> None:
 def test_main_offline_and_live_modes(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(smoke, "run_offline_checks", lambda: [])
     monkeypatch.setattr(smoke, "run_live_checks", lambda: [])
-    report_path = tmp_path / "research_api_smoke_report.json"
+    offline_report_path = tmp_path / "offline_research_api_smoke_report.json"
     monkeypatch.setattr(
         smoke.sys,
         "argv",
-        ["smoke_scientific_bridge.py", "--offline", "--output", str(report_path)],
+        [
+            "smoke_scientific_bridge.py",
+            "--offline",
+            "--output",
+            str(offline_report_path),
+        ],
     )
     assert smoke.main() == 0
+    assert offline_report_path.is_file()
 
     monkeypatch.setattr(smoke, "run_offline_checks", lambda: ["offline-fail"])
     monkeypatch.setattr(smoke, "run_live_checks", lambda: ["live-fail"])
+    live_report_path = tmp_path / "live_research_api_smoke_report.json"
     monkeypatch.setattr(
         smoke.sys,
         "argv",
@@ -143,7 +150,8 @@ def test_main_offline_and_live_modes(monkeypatch, tmp_path) -> None:
             "smoke_scientific_bridge.py",
             "--live-if-secrets-present",
             "--output",
-            str(report_path),
+            str(live_report_path),
         ],
     )
     assert smoke.main() == 1
+    assert live_report_path.is_file()

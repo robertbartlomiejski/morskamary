@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -42,6 +43,20 @@ def test_projection_script_generates_legacy_query_groups(tmp_path: Path) -> None
     for group in payload["query_groups"].values():
         projected.extend(group["queries"])
     assert projected == protocol.flattened_query_texts()
+
+
+def test_projection_summary_redacts_out_of_repository_paths(tmp_path: Path) -> None:
+    output_path, summary_path, constraints_path = _projection_paths(tmp_path)
+
+    assert projection_export.main(_projection_args(output_path, summary_path, constraints_path)) == 0
+
+    summary_text = summary_path.read_text(encoding="utf-8")
+    summary = json.loads(summary_text)
+    assert summary["protocol_path"] == "config/live_query_protocol.yml"
+    assert summary["projection_path"] == "[redacted-out-of-tree-path]"
+    assert summary["constraints_path"] == "[redacted-out-of-tree-path]"
+    for raw_path in (PROTOCOL_PATH, output_path, constraints_path):
+        assert str(raw_path) not in summary_text
 
 
 def test_projection_script_fails_when_minimum_query_count_not_met(tmp_path: Path) -> None:
@@ -308,7 +323,7 @@ def test_projection_replacement_failure_rolls_back_all_existing_artifacts(
 ) -> None:
     paths = _projection_paths(tmp_path)
     previous = _write_existing_artifacts(paths)
-    targets = dict(zip(("projection", "summary", "constraints"), paths))
+    targets = dict(zip(("projection", "summary", "constraints"), paths, strict=True))
     target = targets[failed_artifact]
     original_replace = projection_export.os.replace
 
