@@ -2280,7 +2280,7 @@ def _build_signal_components_for_observation(
                     run_id=obs.run_id,
                     source_provenance_id=provenance_id,
                     source_field=match.source_field,
-                    language="und",
+                    language=str(record.get("language") or "und").strip() or "und",
                     fragment_text=match.span_text,
                     span_start_offset=match.span_start,
                     span_end_offset=match.span_end,
