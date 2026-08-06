@@ -35,7 +35,7 @@ consistently reproducible from the same inputs.
 The builder writes the following files under
 `outputs/cumulative_database/`:
 
-```
+```text
 cumulative_database_manifest.json
 _checksums.sha256
 evidence_records.csv
@@ -132,7 +132,6 @@ abstract nor structured subject terms — i.e., when semantic scanning must
 operate solely on the title. This warning is propagated into
 any Layer 3 signals derived from that record so downstream consumers can
 distinguish weak from strong evidence.
-
 
 ## Raw payload provenance note
 
