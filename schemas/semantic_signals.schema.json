@@ -47,13 +47,16 @@
     "matched_phrase": { "type": "string", "minLength": 1 },
     "confidence_score": { "type": "number", "minimum": 0, "maximum": 1 },
     "classifier_version": { "type": "string", "minLength": 1 },
-    "negation_status": { "type": "string", "minLength": 1 },
-    "speculation_status": { "type": "string", "minLength": 1 },
+    "negation_status": { "type": "string", "enum": ["not_detected"] },
+    "speculation_status": { "type": "string", "enum": ["not_detected"] },
     "actor_text": { "type": "string" },
     "action_text": { "type": "string" },
     "object_text": { "type": "string" },
     "context_text": { "type": "string" },
-    "manual_review_status": { "type": "string", "minLength": 1 },
+    "manual_review_status": {
+      "type": "string",
+      "enum": ["auto_accepted", "review_required", "manually_reviewed", "rejected"]
+    },
     "validity_warning": { "type": "string" }
   }
 }

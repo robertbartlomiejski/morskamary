@@ -20,17 +20,38 @@
   "properties": {
     "validation_decision_id": { "type": "string", "minLength": 1 },
     "target_candidate_id": { "type": "string", "minLength": 1 },
-    "canonical_label": { "type": "string", "minLength": 1 },
+    "canonical_label": { "type": "string" },
     "decision_status": {
       "type": "string",
       "enum": ["accepted", "rejected", "review_required", "superseded"]
     },
-    "reviewer": { "type": "string", "minLength": 1 },
+    "reviewer": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$",
+      "description": "Stable pseudonymous reviewer identifier; identity mapping is retained outside published artifacts."
+    },
     "decision_at_utc": { "type": "string", "minLength": 1 },
     "decision_reason": { "type": "string" },
     "evidence_ids": { "type": "string", "minLength": 1 },
     "fragment_ids": { "type": "string", "minLength": 1 },
     "source_provenance_ids": { "type": "string", "minLength": 1 },
     "superseded_validation_decision_id": { "type": "string" }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "decision_status": { "const": "accepted" }
+        },
+        "required": ["decision_status"]
+      },
+      "then": {
+        "properties": {
+          "canonical_label": { "minLength": 1 }
+        }
+      }
+    }
+  ]
 }

@@ -159,7 +159,7 @@ fragments are evidence candidates.
 
 Schema v2 adds an explicit construct-valid chain:
 
-`evidence_record -> evidence_fragment -> semantic_signal -> competence_candidate -> canonical_competence -> sector_competence_assignment -> validation_decision`
+`evidence_record -> evidence_fragment -> semantic_signal -> competence_candidate -> validation_decision -> canonical_competence -> sector_competence_assignment`
 
 - `competence_demand_signals.{csv,jsonl}` remain deterministic compatibility
   projections for legacy consumers.
@@ -168,6 +168,26 @@ Schema v2 adds an explicit construct-valid chain:
   validation decisions are supplied.
 - No candidate is promoted to a canonical competence without an explicit
   `validation_decisions.{csv,jsonl}` row.
+
+### Validation-decision privacy and canonical-label guard
+
+`reviewer` is a stable pseudonymous ASCII identifier matching
+`[A-Za-z0-9][A-Za-z0-9._-]{2,127}` (for example,
+`reviewer-fixture-001`). It must not contain an email address or other direct
+identity. Any mapping from this identifier to a person is retained outside
+published artifacts.
+
+`canonical_label` remains a required string in every validation-decision row.
+It must be non-empty when `decision_status='accepted'`; it may be empty for
+`rejected`, `review_required`, or `superseded` decisions because those decisions
+do not promote a candidate.
+
+For accepted decisions, the canonical-label promotion guard normalizes
+whitespace and rejects labels that are blank; start with `crossref:`, `scopus:`,
+`wos:`, or `web of science:`; contain `...` or `…`; exceed 180 characters;
+contain eight or more spaces; or contain the standalone, case-insensitive terms
+`doi`, `journal`, `conference`, `article`, or `paper`. These thresholds prevent
+provider metadata and truncated source text from becoming canonical labels.
 
 ## Competence-demand signals (legacy compatibility projection)
 

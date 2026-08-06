@@ -23,6 +23,7 @@ DEMAND_STRENGTH_FORMULA = _PACKAGE.DEMAND_STRENGTH_FORMULA
 CSV_FILES = _PACKAGE.CSV_FILES
 CSV_REQUIRED_COLUMNS = _PACKAGE.CSV_REQUIRED_COLUMNS
 JSONL_FILES = _PACKAGE.JSONL_FILES
+ALLOW_EMPTY_JSONL = _PACKAGE.ALLOW_EMPTY_JSONL
 DATABASE_METADATA_FILES = _PACKAGE.DATABASE_METADATA_FILES
 LAYER4_STAT_FILES = _PACKAGE.LAYER4_STAT_FILES
 REPORT_FILES = _PACKAGE.REPORT_FILES
@@ -90,6 +91,118 @@ def _all_hypotheses() -> dict[str, object]:
     return {"H1": _h1_payload(), "H2": _h2_payload(), "H3": _h3_payload()}
 
 
+def _write_csv_rows(
+    path: Path,
+    fieldnames: tuple[str, ...],
+    rows: list[dict[str, object]],
+) -> None:
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(fieldnames))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def _schema_v2_rows() -> dict[str, dict[str, object]]:
+    return {
+        "evidence_fragments": {
+            "fragment_id": "fragment:test",
+            "evidence_id": "E-0001",
+            "run_id": "RUN-1",
+            "source_provenance_id": "prov:test",
+            "source_field": "title",
+            "language": "en",
+            "fragment_text": "marine skill",
+            "span_start_offset": 0,
+            "span_end_offset": 12,
+            "surface_text_hash": "surface:test",
+            "provenance_hash": "provenance:test",
+        },
+        "semantic_signals": {
+            "signal_id": "S-0001",
+            "fragment_id": "fragment:test",
+            "evidence_id": "E-0001",
+            "run_id": "RUN-1",
+            "source_provenance_id": "prov:test",
+            "sector": "ports",
+            "axis_group": "MARINE",
+            "axis_code": "M",
+            "query_id": "Q1",
+            "query_family": "core_sector",
+            "signal_type": "governance_skill",
+            "signal_category_label": "marine skill",
+            "signal_category_description": "Fixture semantic signal.",
+            "matched_phrase": "marine",
+            "confidence_score": 0.8,
+            "classifier_version": "v1",
+            "negation_status": "not_detected",
+            "speculation_status": "not_detected",
+            "actor_text": "",
+            "action_text": "",
+            "object_text": "",
+            "context_text": "",
+            "manual_review_status": "auto_accepted",
+            "validity_warning": "",
+        },
+        "competence_candidates": {
+            "candidate_id": "candidate:test",
+            "signal_id": "S-0001",
+            "fragment_id": "fragment:test",
+            "evidence_id": "E-0001",
+            "run_id": "RUN-1",
+            "sector": "ports",
+            "axis_group": "MARINE",
+            "axis_code": "M",
+            "source_provenance_ids": "prov:test",
+            "fragment_ids": "fragment:test",
+            "candidate_label": "Marine skill",
+            "candidate_definition": "Fixture candidate definition.",
+            "capability_proposition": "Apply marine skill.",
+            "knowledge_dimension": "marine knowledge",
+            "skill_dimension": "marine skill",
+            "responsibility_autonomy_dimension": "independent practice",
+            "candidate_status": "candidate",
+            "review_status": "auto_accepted",
+            "exact_evidence_span": "marine skill",
+            "exact_span_start_offset": 0,
+            "exact_span_end_offset": 12,
+        },
+        "validation_decisions": {
+            "validation_decision_id": "decision:test",
+            "target_candidate_id": "candidate:test",
+            "canonical_label": "Marine skill",
+            "decision_status": "accepted",
+            "reviewer": "reviewer-fixture",
+            "decision_at_utc": "2026-07-10T00:00:00+00:00",
+            "decision_reason": "Fixture acceptance.",
+            "evidence_ids": "E-0001",
+            "fragment_ids": "fragment:test",
+            "source_provenance_ids": "prov:test",
+            "superseded_validation_decision_id": "",
+        },
+        "canonical_competences": {
+            "canonical_competence_id": "canonical:test",
+            "validation_decision_id": "decision:test",
+            "source_candidate_id": "candidate:test",
+            "preferred_label": "Marine skill",
+            "canonical_definition": "Fixture candidate definition.",
+            "aliases": "",
+            "validation_status": "accepted",
+            "schema_version": "2.0.0",
+            "provenance_guard_status": "passed",
+        },
+        "sector_competence_assignments": {
+            "assignment_id": "assignment:test",
+            "canonical_competence_id": "canonical:test",
+            "validation_decision_id": "decision:test",
+            "source_candidate_id": "candidate:test",
+            "sector": "ports",
+            "axis_group": "MARINE",
+            "axis_code": "M",
+            "evidence_ids": "E-0001",
+        },
+    }
+
+
 def _write_min_bundle(db: Path, reports: Path) -> None:
     root = db.parent
     stats = root / "stats"
@@ -97,29 +210,73 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
     reports.mkdir(parents=True, exist_ok=True)
     stats.mkdir(parents=True, exist_ok=True)
 
+    schema_rows = _schema_v2_rows()
+    empty_by_default = {
+        "canonical_competences",
+        "sector_competence_assignments",
+        "validation_decisions",
+    }
+    derived_demand: dict[str, object] = {
+        "competence_demand_id": "cd:test",
+        "competence_label": "marine skill",
+        "view_kind": "legacy_category_aggregate_compatibility_view",
+        "scientific_status": "legacy_not_validated_canonical_competence",
+        "sector": "ports",
+        "axis_group": "MARINE",
+        "demand_strength_score": "0.55",
+        "evidence_ids": "E-0001",
+    }
     for name in CSV_FILES:
-        req = CSV_REQUIRED_COLUMNS.get(name)
-        if req:
-            header = ",".join(req)
-            values = ",".join("x" for _ in req)
-            (db / name).write_text(f"{header}\n{values}\n", encoding="utf-8")
-        else:
+        required_columns = CSV_REQUIRED_COLUMNS.get(name)
+        if not required_columns:
             (db / name).write_text("col_a\nval_1\n", encoding="utf-8")
-    # Ensure cross-file evidence/demand links are scientifically coherent.
-    (db / "derived_competence_demands.csv").write_text(
-        ",".join(CSV_REQUIRED_COLUMNS["derived_competence_demands.csv"])
-        + "\ncd:test,marine skill,legacy_category_aggregate_compatibility_view,"
-        "legacy_not_validated_canonical_competence,ports,MARINE,0.55,E-0001\n",
-        encoding="utf-8",
+            continue
+        entity_name = name.removesuffix(".csv")
+        if entity_name in empty_by_default:
+            _write_csv_rows(db / name, required_columns, [])
+        elif entity_name == "evidence_records":
+            row: dict[str, object] = {
+                field_name: "x" for field_name in required_columns
+            }
+            row["evidence_id"] = "E-0001"
+            _write_csv_rows(db / name, required_columns, [row])
+        elif entity_name in schema_rows:
+            _write_csv_rows(
+                db / name, required_columns, [schema_rows[entity_name]]
+            )
+        else:
+            _write_csv_rows(
+                db / name,
+                required_columns,
+                [{field_name: "x" for field_name in required_columns}],
+            )
+
+    _write_csv_rows(
+        db / "derived_competence_demands.csv",
+        CSV_REQUIRED_COLUMNS["derived_competence_demands.csv"],
+        [derived_demand],
     )
-    (db / "learning_outcomes.csv").write_text(
-        ",".join(CSV_REQUIRED_COLUMNS["learning_outcomes.csv"])
-        + "\nlo:test,cred:test,ports,6,Outcome statement,cd:test,E-0001\n",
-        encoding="utf-8",
+    _write_csv_rows(
+        db / "learning_outcomes.csv",
+        CSV_REQUIRED_COLUMNS["learning_outcomes.csv"],
+        [{
+            "outcome_id": "lo:test",
+            "credential_id": "cred:test",
+            "sector": "ports",
+            "eqf_level": "6",
+            "outcome_statement": "Outcome statement",
+            "competence_demand_id": "cd:test",
+            "evidence_id": "E-0001",
+        }],
     )
+
     for name in JSONL_FILES:
+        if name.removesuffix(".jsonl") in empty_by_default:
+            (db / name).write_text("", encoding="utf-8")
+            continue
+        jsonl_payload: dict[str, object]
         if name == "hypothesis_semantic_fragments.jsonl":
-            payload = {
+            jsonl_payload = {
                 "fragment_id": "fragment:S-0001:H3:test",
                 "hypothesis_id": "H3",
                 "hypothesis_ids": "H3",
@@ -143,54 +300,27 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
                 "validity_warning": "",
             }
         elif name == "derived_competence_demands.jsonl":
-            payload = {
-                "competence_demand_id": "cd:test",
-                "view_kind": "legacy_category_aggregate_compatibility_view",
-                "evidence_ids": "E-0001",
-            }
-        elif name == "evidence_fragments.jsonl":
-            payload = {
-                "fragment_id": "fragment:test",
-                "evidence_id": "E-0001",
-                "source_provenance_id": "prov:test",
-            }
-        elif name == "semantic_signals.jsonl":
-            payload = {
-                "signal_id": "S-0001",
-                "fragment_id": "fragment:test",
-                "evidence_id": "E-0001",
-            }
-        elif name == "competence_candidates.jsonl":
-            payload = {
-                "candidate_id": "candidate:test",
-                "signal_id": "S-0001",
-                "fragment_id": "fragment:test",
-                "evidence_id": "E-0001",
-                "source_provenance_ids": "prov:test",
-            }
-        elif name == "canonical_competences.jsonl":
-            payload = {}
-        elif name == "sector_competence_assignments.jsonl":
-            payload = {}
-        elif name == "validation_decisions.jsonl":
-            payload = {}
+            jsonl_payload = derived_demand
+        elif name.removesuffix(".jsonl") in schema_rows:
+            jsonl_payload = schema_rows[name.removesuffix(".jsonl")]
         elif name == "competence_demand_signals.jsonl":
-            payload = {
-                "signal_id": "S-0001",
-                "evidence_id": "E-0001",
-            }
+            jsonl_payload = {"signal_id": "S-0001", "evidence_id": "E-0001"}
         else:
-            payload = {"evidence_id": "E-0001"}
-        (db / name).write_text(json.dumps(payload) + "\n", encoding="utf-8")
+            jsonl_payload = {"evidence_id": "E-0001"}
+        (db / name).write_text(
+            json.dumps(jsonl_payload, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+
     # Write all metadata files except _checksums.sha256 first, so we can
     # compute real SHA-256 digests for the checksum file.
     for name in DATABASE_METADATA_FILES:
         if name.endswith(".sha256"):
             continue
         if name == "layer5_manifest.json":
-            payload = {"hypothesis_results": _all_hypotheses()}
+            metadata_payload = {"hypothesis_results": _all_hypotheses()}
             (db / name).write_text(
-                json.dumps(payload, sort_keys=True) + "\n",
+                json.dumps(metadata_payload, sort_keys=True) + "\n",
                 encoding="utf-8",
             )
         elif name.endswith(".json"):
@@ -255,6 +385,39 @@ def _stamp_current_run_id(db: Path, run_id: str) -> None:
             payload = {}
         payload["current_run_id"] = run_id
         path.write_text(json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _build_fixture_package(db: Path, reports: Path, output: Path) -> int:
+    return int(build_main([
+        "--database-dir", str(db),
+        "--reports-dir", str(reports),
+        "--output", str(output),
+        "--version-tag", "test",
+        "--generated-at-utc", "2026-07-10T00:00:00+00:00",
+        *_required_source_args(db),
+    ]))
+
+
+def _append_schema_v2_row(
+    db: Path,
+    entity_name: str,
+    row: dict[str, object],
+) -> None:
+    csv_path = db / f"{entity_name}.csv"
+    with csv_path.open(encoding="utf-8", newline="") as handle:
+        csv_rows: list[dict[str, object]] = [
+            {
+                str(key): value
+                for key, value in parsed_row.items()
+                if key is not None
+            }
+            for parsed_row in csv.DictReader(handle)
+        ]
+    csv_rows.append(row)
+    _write_csv_rows(csv_path, CSV_REQUIRED_COLUMNS[csv_path.name], csv_rows)
+    jsonl_path = db / f"{entity_name}.jsonl"
+    with jsonl_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(row, sort_keys=True) + "\n")
 
 
 def test_package_is_deterministic(tmp_path: Path) -> None:
@@ -446,6 +609,254 @@ def test_package_rejects_missing_csv_columns(tmp_path: Path) -> None:
         *_required_source_args(db),
     ])
     assert rc == 1
+    assert not out.exists()
+
+
+def test_package_allows_byte_empty_null_result_jsonl_tables(
+    tmp_path: Path,
+) -> None:
+    """Null-result projections are valid only when their JSONL is byte-empty."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    for name in ALLOW_EMPTY_JSONL:
+        (db / name).write_text("", encoding="utf-8")
+        csv_name = name.removesuffix(".jsonl") + ".csv"
+        if csv_name in CSV_REQUIRED_COLUMNS:
+            _write_csv_rows(
+                db / csv_name,
+                CSV_REQUIRED_COLUMNS[csv_name],
+                [],
+            )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 0
+    assert out.exists()
+
+
+def test_package_rejects_placeholder_object_in_allowed_empty_jsonl(
+    tmp_path: Path,
+) -> None:
+    """An empty entity is represented by zero bytes, never a bare object."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    (db / "canonical_competences.jsonl").write_text(
+        "{}\n", encoding="utf-8"
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+
+
+def test_package_rejects_schema_v2_row_missing_required_field(
+    tmp_path: Path,
+) -> None:
+    """A partially populated v2 row cannot bypass required-field validation."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    jsonl_path = db / "competence_candidates.jsonl"
+    payload = json.loads(jsonl_path.read_text(encoding="utf-8"))
+    del payload["candidate_definition"]
+    jsonl_path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+
+
+def test_package_rejects_broken_schema_v2_foreign_keys(
+    tmp_path: Path,
+) -> None:
+    """Both package projections must retain the fragment-to-signal link."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    csv_path = db / "semantic_signals.csv"
+    rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
+    assert rows
+    rows[0]["fragment_id"] = "fragment:missing"
+    _write_csv_rows(
+        csv_path,
+        CSV_REQUIRED_COLUMNS[csv_path.name],
+        [dict(row) for row in rows],
+    )
+    jsonl_path = db / "semantic_signals.jsonl"
+    payload = json.loads(jsonl_path.read_text(encoding="utf-8"))
+    payload["fragment_id"] = "fragment:missing"
+    jsonl_path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+
+
+def test_package_rejects_canonical_rows_without_validation_decisions(
+    tmp_path: Path,
+) -> None:
+    """Canonical promotion cannot bypass a retained validation decision."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    canonical = _schema_v2_rows()["canonical_competences"]
+    _write_csv_rows(
+        db / "canonical_competences.csv",
+        CSV_REQUIRED_COLUMNS["canonical_competences.csv"],
+        [canonical],
+    )
+    (db / "canonical_competences.jsonl").write_text(
+        json.dumps(canonical) + "\n", encoding="utf-8"
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+
+
+def test_package_rejects_assignment_evidence_unlinked_from_candidate(
+    tmp_path: Path,
+) -> None:
+    """Assignments retain their source candidate's nonempty evidence lineage."""
+    for suffix in ("csv", "jsonl"):
+        for evidence_ids in ("E-OTHER", "|"):
+            db = tmp_path / f"db-{suffix}-{evidence_ids.replace('|', 'pipe')}"
+            reports = tmp_path / f"reports-{suffix}-{evidence_ids.replace('|', 'pipe')}"
+            _write_min_bundle(db, reports)
+            rows = _schema_v2_rows()
+            for entity_name in (
+                "validation_decisions",
+                "canonical_competences",
+                "sector_competence_assignments",
+            ):
+                row = rows[entity_name]
+                _write_csv_rows(
+                    db / f"{entity_name}.csv",
+                    CSV_REQUIRED_COLUMNS[f"{entity_name}.csv"],
+                    [row],
+                )
+                (db / f"{entity_name}.jsonl").write_text(
+                    json.dumps(row) + "\n", encoding="utf-8"
+                )
+
+            evidence_csv_path = db / "evidence_records.csv"
+            evidence_rows = list(
+                csv.DictReader(evidence_csv_path.open(encoding="utf-8"))
+            )
+            assert evidence_rows
+            other_evidence = dict(evidence_rows[0])
+            other_evidence["evidence_id"] = "E-OTHER"
+            _write_csv_rows(
+                evidence_csv_path,
+                CSV_REQUIRED_COLUMNS[evidence_csv_path.name],
+                [dict(evidence_rows[0]), other_evidence],
+            )
+            with (db / "evidence_records.jsonl").open(
+                "a", encoding="utf-8"
+            ) as handle:
+                handle.write(json.dumps({"evidence_id": "E-OTHER"}) + "\n")
+
+            assignment_path = db / f"sector_competence_assignments.{suffix}"
+            if suffix == "csv":
+                assignments = list(
+                    csv.DictReader(assignment_path.open(encoding="utf-8"))
+                )
+                assignments[0]["evidence_ids"] = evidence_ids
+                _write_csv_rows(
+                    assignment_path,
+                    CSV_REQUIRED_COLUMNS[assignment_path.name],
+                    [dict(assignments[0])],
+                )
+            else:
+                assignment = json.loads(assignment_path.read_text(encoding="utf-8"))
+                assignment["evidence_ids"] = evidence_ids
+                assignment_path.write_text(
+                    json.dumps(assignment) + "\n", encoding="utf-8"
+                )
+
+            _rewrite_checksums(db)
+            out = tmp_path / f"pkg-{suffix}-{evidence_ids.replace('|', 'pipe')}.zip"
+            assert _build_fixture_package(db, reports, out) == 1
+            assert not out.exists()
+
+
+def test_package_rejects_legacy_metadata_projection_mismatch(
+    tmp_path: Path,
+) -> None:
+    """The CSV and JSONL compatibility views share ID-keyed metadata."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    jsonl_path = db / "derived_competence_demands.jsonl"
+    payload = json.loads(jsonl_path.read_text(encoding="utf-8"))
+    payload["scientific_status"] = "candidate"
+    jsonl_path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+
+
+def test_package_allows_shared_signal_id_for_distinct_fragments(
+    tmp_path: Path,
+) -> None:
+    """Signal identity is the signal/fragment pair, not signal ID alone."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    rows = _schema_v2_rows()
+    second_fragment = dict(rows["evidence_fragments"])
+    second_fragment.update({
+        "fragment_id": "fragment:second",
+        "source_provenance_id": "prov:second",
+        "surface_text_hash": "surface:second",
+        "provenance_hash": "provenance:second",
+    })
+    second_signal = dict(rows["semantic_signals"])
+    second_signal.update({
+        "fragment_id": "fragment:second",
+        "source_provenance_id": "prov:second",
+    })
+    second_candidate = dict(rows["competence_candidates"])
+    second_candidate.update({
+        "candidate_id": "candidate:second",
+        "fragment_id": "fragment:second",
+        "fragment_ids": "fragment:second",
+        "source_provenance_ids": "prov:second",
+    })
+    for entity_name, row in (
+        ("evidence_fragments", second_fragment),
+        ("semantic_signals", second_signal),
+        ("competence_candidates", second_candidate),
+    ):
+        _append_schema_v2_row(db, entity_name, row)
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 0
+    assert out.exists()
+
+
+def test_package_rejects_unknown_superseded_validation_decision(
+    tmp_path: Path,
+) -> None:
+    """A populated superseded-decision reference is a validation-decision FK."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    decision = _schema_v2_rows()["validation_decisions"]
+    decision["superseded_validation_decision_id"] = "decision:missing"
+    _write_csv_rows(
+        db / "validation_decisions.csv",
+        CSV_REQUIRED_COLUMNS["validation_decisions.csv"],
+        [decision],
+    )
+    (db / "validation_decisions.jsonl").write_text(
+        json.dumps(decision) + "\n", encoding="utf-8"
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
     assert not out.exists()
 
 

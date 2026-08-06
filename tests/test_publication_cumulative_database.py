@@ -15,22 +15,34 @@ FIXTURE_PATH = (
 STANDARD_MISSING_CODES = [-99, -98, -97, -96, -95]
 
 SCHEMA_TO_FIXTURE = {
-    "runs.schema.json": "runs",
-    "source_bundles.schema.json": "source_bundles",
-    "evidence_records.schema.json": "evidence_records",
-    "evidence_occurrences.schema.json": "evidence_occurrences",
-    "evidence_segments.schema.json": "evidence_segments",
-    "evidence_fragments.schema.json": "evidence_fragments",
-    "semantic_signals.schema.json": "semantic_signals",
-    "competence_candidates.schema.json": "competence_candidates",
-    "canonical_competences.schema.json": "canonical_competences",
-    "sector_competence_assignments.schema.json": "sector_competence_assignments",
-    "validation_decisions.schema.json": "validation_decisions",
-    "coding_assignments.schema.json": "coding_assignments",
-    "reliability_metrics.schema.json": "reliability_metrics",
-    "gap_clusters.schema.json": "gap_clusters",
-    "dynamic_credentials.schema.json": "dynamic_credentials",
-    "data_quality_indicators.schema.json": "data_quality_indicators",
+    "runs.schema.json": ("runs", "run_pk"),
+    "source_bundles.schema.json": ("source_bundles", "bundle_pk"),
+    "evidence_records.schema.json": ("evidence_records", "record_pk"),
+    "evidence_occurrences.schema.json": ("evidence_occurrences", "occurrence_pk"),
+    "evidence_segments.schema.json": ("evidence_segments", "segment_pk"),
+    "evidence_fragments.schema.json": ("evidence_fragments", "fragment_id"),
+    "semantic_signals.schema.json": ("semantic_signals", "signal_id"),
+    "competence_candidates.schema.json": ("competence_candidates", "candidate_id"),
+    "canonical_competences.schema.json": (
+        "canonical_competences",
+        "canonical_competence_id",
+    ),
+    "sector_competence_assignments.schema.json": (
+        "sector_competence_assignments",
+        "assignment_id",
+    ),
+    "validation_decisions.schema.json": (
+        "validation_decisions",
+        "validation_decision_id",
+    ),
+    "coding_assignments.schema.json": ("coding_assignments", "assignment_pk"),
+    "reliability_metrics.schema.json": ("reliability_metrics", "reliability_pk"),
+    "gap_clusters.schema.json": ("gap_clusters", "gap_cluster_pk"),
+    "dynamic_credentials.schema.json": ("dynamic_credentials", "credential_pk"),
+    "data_quality_indicators.schema.json": (
+        "data_quality_indicators",
+        "indicator_pk",
+    ),
 }
 
 REQUIRED_DOCS = {
@@ -90,7 +102,7 @@ def _load_schema(name: str) -> dict:
 
 def test_schema_positive_fixtures_validate() -> None:
     fixture = _load_fixture()
-    for schema_name, fixture_key in SCHEMA_TO_FIXTURE.items():
+    for schema_name, (fixture_key, _) in SCHEMA_TO_FIXTURE.items():
         schema = _load_schema(schema_name)
         Draft202012Validator.check_schema(schema)
         validator = Draft202012Validator(schema)
@@ -99,18 +111,11 @@ def test_schema_positive_fixtures_validate() -> None:
 
 def test_schemas_reject_missing_primary_keys() -> None:
     fixture = _load_fixture()
-    for schema_name, fixture_key in SCHEMA_TO_FIXTURE.items():
+    for schema_name, (fixture_key, primary_key) in SCHEMA_TO_FIXTURE.items():
         schema = _load_schema(schema_name)
         validator = Draft202012Validator(schema)
         payload = copy.deepcopy(fixture[fixture_key])
-        primary_key = next(
-            (
-                field for field in schema["required"]
-                if field.endswith("_pk") or field.endswith("_id")
-            ),
-            None,
-        )
-        assert primary_key is not None, schema_name
+        assert primary_key in schema["required"], schema_name
         payload.pop(primary_key, None)
         errors = list(validator.iter_errors(payload))
         assert errors, schema_name
@@ -135,7 +140,7 @@ def test_categorical_variables_define_labels_and_missing_codes() -> None:
 
 def test_missing_codes_validate_for_categorical_fields() -> None:
     fixture = _load_fixture()
-    for schema_name, fixture_key in SCHEMA_TO_FIXTURE.items():
+    for schema_name, (fixture_key, _) in SCHEMA_TO_FIXTURE.items():
         schema = _load_schema(schema_name)
         validator = Draft202012Validator(schema)
         base = fixture[fixture_key]
@@ -172,24 +177,93 @@ def test_generated_supply_cannot_become_verified_supply() -> None:
     assert errors
 
 
-def test_canonical_competence_requires_validation_decision_link() -> None:
+def test_schema_v2_fixture_preserves_construct_valid_lineage() -> None:
     fixture = _load_fixture()
-    schema = _load_schema("canonical_competences.schema.json")
-    validator = Draft202012Validator(schema)
-    payload = copy.deepcopy(fixture["canonical_competences"])
-    payload.pop("validation_decision_id", None)
-    errors = list(validator.iter_errors(payload))
-    assert errors
+    evidence_record = fixture["evidence_records"]
+    fragment = fixture["evidence_fragments"]
+    signal = fixture["semantic_signals"]
+    candidate = fixture["competence_candidates"]
+    decision = fixture["validation_decisions"]
+    canonical = fixture["canonical_competences"]
+    assignment = fixture["sector_competence_assignments"]
+
+    assert fragment["evidence_id"] == evidence_record["canonical_record_id"]
+    assert signal["fragment_id"] == fragment["fragment_id"]
+    assert signal["evidence_id"] == fragment["evidence_id"]
+    assert signal["source_provenance_id"] == fragment["source_provenance_id"]
+    assert candidate["signal_id"] == signal["signal_id"]
+    assert candidate["fragment_id"] == fragment["fragment_id"]
+    assert candidate["evidence_id"] == fragment["evidence_id"]
+    assert candidate["source_provenance_ids"] == fragment["source_provenance_id"]
+    assert decision["target_candidate_id"] == candidate["candidate_id"]
+    assert decision["evidence_ids"] == candidate["evidence_id"]
+    assert decision["fragment_ids"] == candidate["fragment_id"]
+    assert decision["source_provenance_ids"] == candidate["source_provenance_ids"]
+    assert canonical["validation_decision_id"] == decision["validation_decision_id"]
+    assert canonical["source_candidate_id"] == decision["target_candidate_id"]
+    assert assignment["canonical_competence_id"] == canonical["canonical_competence_id"]
+    assert assignment["validation_decision_id"] == decision["validation_decision_id"]
+    assert assignment["source_candidate_id"] == candidate["candidate_id"]
+    assert assignment["evidence_ids"] == candidate["evidence_id"]
 
 
-def test_validation_decision_requires_candidate_lineage() -> None:
+def test_validation_decision_schema_requires_accepted_labels_and_pseudonymous_reviewers() -> None:
     fixture = _load_fixture()
     schema = _load_schema("validation_decisions.schema.json")
     validator = Draft202012Validator(schema)
-    payload = copy.deepcopy(fixture["validation_decisions"])
-    payload["target_candidate_id"] = ""
-    errors = list(validator.iter_errors(payload))
-    assert errors
+
+    accepted_blank_label = copy.deepcopy(fixture["validation_decisions"])
+    accepted_blank_label["canonical_label"] = ""
+    assert list(validator.iter_errors(accepted_blank_label))
+
+    for decision_status in ("rejected", "review_required", "superseded"):
+        non_promoting_decision = copy.deepcopy(fixture["validation_decisions"])
+        non_promoting_decision["decision_status"] = decision_status
+        non_promoting_decision["canonical_label"] = ""
+        assert list(validator.iter_errors(non_promoting_decision)) == []
+
+    email_reviewer = copy.deepcopy(fixture["validation_decisions"])
+    email_reviewer["reviewer"] = "reviewer@example.org"
+    assert list(validator.iter_errors(email_reviewer))
+
+
+def test_schema_v2_status_vocabularies_are_closed() -> None:
+    fixture = _load_fixture()
+    invalid_values = (
+        ("semantic_signals.schema.json", "semantic_signals", "negation_status", "unknown"),
+        ("semantic_signals.schema.json", "semantic_signals", "speculation_status", "unknown"),
+        ("semantic_signals.schema.json", "semantic_signals", "manual_review_status", "pending"),
+        ("canonical_competences.schema.json", "canonical_competences", "validation_status", "draft"),
+        (
+            "canonical_competences.schema.json",
+            "canonical_competences",
+            "provenance_guard_status",
+            "unchecked",
+        ),
+        ("competence_candidates.schema.json", "competence_candidates", "candidate_status", "accepted"),
+        ("competence_candidates.schema.json", "competence_candidates", "review_status", "pending"),
+    )
+    for schema_name, fixture_key, field_name, invalid_value in invalid_values:
+        validator = Draft202012Validator(_load_schema(schema_name))
+        payload = copy.deepcopy(fixture[fixture_key])
+        payload[field_name] = invalid_value
+        assert list(validator.iter_errors(payload)), (schema_name, field_name)
+
+
+def test_sector_assignment_axis_code_schema_uses_canonical_codes() -> None:
+    fixture = _load_fixture()
+    validator = Draft202012Validator(
+        _load_schema("sector_competence_assignments.schema.json")
+    )
+    for axis_code in ("M", "T", "O", "H", ""):
+        payload = copy.deepcopy(fixture["sector_competence_assignments"])
+        payload["axis_code"] = axis_code
+        assert list(validator.iter_errors(payload)) == []
+
+    for invalid_axis_code in ("OCEANIC", "X"):
+        payload = copy.deepcopy(fixture["sector_competence_assignments"])
+        payload["axis_code"] = invalid_axis_code
+        assert list(validator.iter_errors(payload))
 
 
 def test_small_fixtures_stay_small() -> None:

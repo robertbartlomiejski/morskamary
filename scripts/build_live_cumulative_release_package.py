@@ -39,41 +39,102 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-# Required minimum columns per CSV file.  Imports are deferred to avoid
-# circular-import issues; the constants are duplicated intentionally so
-# the package builder has zero coupling to analysis internals.
+# Versioned schemas are the authoritative schema-v2 field contract.
+_SCHEMA_V2_DIR = Path(__file__).resolve().parents[1] / "schemas"
+SCHEMA_V2_ENTITY_NAMES = (
+    "evidence_fragments",
+    "semantic_signals",
+    "competence_candidates",
+    "canonical_competences",
+    "sector_competence_assignments",
+    "validation_decisions",
+)
+
+
+def _load_schema_v2_contract(
+    entity_name: str,
+) -> Tuple[Tuple[str, ...], Set[str]]:
+    """Read required fields and fields permitted to be empty from the schema."""
+    schema_path = _SCHEMA_V2_DIR / f"{entity_name}.schema.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    required_fields = tuple(str(value) for value in schema["required"])
+    properties = schema.get("properties", {})
+    nonempty_fields = {
+        field_name
+        for field_name in required_fields
+        if (
+            properties.get(field_name, {}).get("minLength", 0) >= 1
+            or properties.get(field_name, {}).get("type") != "string"
+            or "enum" in properties.get(field_name, {})
+        )
+    }
+    # Non-accepted decisions may deliberately have no canonical label.
+    if entity_name == "validation_decisions":
+        nonempty_fields.discard("canonical_label")
+    return required_fields, set(required_fields) - nonempty_fields
+
+
+SCHEMA_V2_REQUIRED_COLUMNS: Dict[str, Tuple[str, ...]] = {}
+SCHEMA_V2_EMPTY_ALLOWED_FIELDS: Dict[str, Set[str]] = {}
+for _entity_name in SCHEMA_V2_ENTITY_NAMES:
+    (
+        SCHEMA_V2_REQUIRED_COLUMNS[_entity_name],
+        SCHEMA_V2_EMPTY_ALLOWED_FIELDS[_entity_name],
+    ) = _load_schema_v2_contract(_entity_name)
+
+ENTITY_ID_FIELDS: Dict[str, Tuple[str, ...]] = {
+    "evidence_records": ("evidence_id",),
+    "evidence_fragments": ("fragment_id",),
+    "semantic_signals": ("signal_id", "fragment_id"),
+    "competence_candidates": ("candidate_id",),
+    "canonical_competences": ("canonical_competence_id",),
+    "sector_competence_assignments": ("assignment_id",),
+    "validation_decisions": ("validation_decision_id",),
+}
+
+SCHEMA_V2_FOREIGN_KEYS: Tuple[
+    Tuple[str, Tuple[str, ...], str, Tuple[str, ...]], ...
+] = (
+    ("evidence_fragments", ("evidence_id",), "evidence_records", ("evidence_id",)),
+    ("semantic_signals", ("fragment_id",), "evidence_fragments", ("fragment_id",)),
+    ("semantic_signals", ("evidence_id",), "evidence_records", ("evidence_id",)),
+    ("competence_candidates", ("signal_id", "fragment_id"), "semantic_signals", ("signal_id", "fragment_id")),
+    ("competence_candidates", ("fragment_id",), "evidence_fragments", ("fragment_id",)),
+    ("competence_candidates", ("evidence_id",), "evidence_records", ("evidence_id",)),
+    ("validation_decisions", ("target_candidate_id",), "competence_candidates", ("candidate_id",)),
+    ("validation_decisions", ("superseded_validation_decision_id",), "validation_decisions", ("validation_decision_id",)),
+    ("canonical_competences", ("validation_decision_id",), "validation_decisions", ("validation_decision_id",)),
+    ("canonical_competences", ("source_candidate_id",), "competence_candidates", ("candidate_id",)),
+    ("sector_competence_assignments", ("canonical_competence_id",), "canonical_competences", ("canonical_competence_id",)),
+    ("sector_competence_assignments", ("validation_decision_id",), "validation_decisions", ("validation_decision_id",)),
+    ("sector_competence_assignments", ("source_candidate_id",), "competence_candidates", ("candidate_id",)),
+)
+
+SCHEMA_V2_LIST_FOREIGN_KEYS: Tuple[Tuple[str, str, str, str], ...] = (
+    ("competence_candidates", "fragment_ids", "evidence_fragments", "fragment_id"),
+    ("competence_candidates", "source_provenance_ids", "evidence_fragments", "source_provenance_id"),
+    ("validation_decisions", "evidence_ids", "evidence_records", "evidence_id"),
+    ("validation_decisions", "fragment_ids", "evidence_fragments", "fragment_id"),
+    ("validation_decisions", "source_provenance_ids", "evidence_fragments", "source_provenance_id"),
+    ("sector_competence_assignments", "evidence_ids", "evidence_records", "evidence_id"),
+)
+
+LEGACY_DERIVED_DEMAND_VIEW_KIND = "legacy_category_aggregate_compatibility_view"
+LEGACY_DERIVED_DEMAND_SCIENTIFIC_STATUS = (
+    "legacy_not_validated_canonical_competence"
+)
+
+# Required minimum columns per CSV file.
 CSV_REQUIRED_COLUMNS: Dict[str, Tuple[str, ...]] = {
     "evidence_records.csv": (
         "evidence_id", "canonical_doi", "canonical_title",
         "first_seen_run_id", "latest_seen_run_id",
         "providers_seen", "record_novelty_status",
     ),
-    "evidence_fragments.csv": (
-        "fragment_id", "evidence_id", "run_id", "source_provenance_id",
-        "source_field", "fragment_text", "span_start_offset", "span_end_offset",
-    ),
-    "semantic_signals.csv": (
-        "signal_id", "fragment_id", "evidence_id", "run_id",
-        "source_provenance_id", "signal_type", "signal_category_label",
-        "matched_phrase",
-    ),
-    "competence_candidates.csv": (
-        "candidate_id", "signal_id", "fragment_id", "evidence_id",
-        "source_provenance_ids", "candidate_label", "review_status",
-        "exact_evidence_span",
-    ),
-    "canonical_competences.csv": (
-        "canonical_competence_id", "validation_decision_id",
-        "source_candidate_id", "preferred_label", "validation_status",
-    ),
-    "sector_competence_assignments.csv": (
-        "assignment_id", "canonical_competence_id", "validation_decision_id",
-        "source_candidate_id", "sector", "axis_group",
-    ),
-    "validation_decisions.csv": (
-        "validation_decision_id", "target_candidate_id", "canonical_label",
-        "decision_status", "reviewer", "evidence_ids", "fragment_ids",
-    ),
+    **{
+        f"{entity_name}.csv": SCHEMA_V2_REQUIRED_COLUMNS[entity_name]
+        for entity_name in SCHEMA_V2_ENTITY_NAMES
+    },
     "competence_demand_signals.csv": (
         "signal_id", "evidence_id", "run_id", "sector",
         "axis_group", "signal_type", "competence_label",
@@ -103,6 +164,7 @@ CSV_REQUIRED_COLUMNS: Dict[str, Tuple[str, ...]] = {
         "competence_demand_id", "evidence_id",
     ),
 }
+
 
 CSV_FILES = (
     "evidence_records.csv",
@@ -141,9 +203,15 @@ JSONL_FILES = (
 )
 
 ALLOW_EMPTY_JSONL = {
+    "evidence_fragments.jsonl",
+    "semantic_signals.jsonl",
+    "competence_candidates.jsonl",
     "canonical_competences.jsonl",
     "sector_competence_assignments.jsonl",
     "validation_decisions.jsonl",
+    "competence_demand_signals.jsonl",
+    "hypothesis_semantic_fragments.jsonl",
+    "derived_competence_demands.jsonl",
 }
 
 DATABASE_METADATA_FILES = (
@@ -208,7 +276,11 @@ def _load_jsonl_rows(path: Path) -> Tuple[List[Dict[str, Any]], List[str]]:
     errors: List[str] = []
     if not path.is_file():
         return rows, errors
-    for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        return rows, [f"unreadable_jsonl:{path.name}:{exc}"]
+    for line_no, line in enumerate(text.splitlines(), start=1):
         stripped = line.strip()
         if not stripped:
             continue
@@ -221,9 +293,321 @@ def _load_jsonl_rows(path: Path) -> Tuple[List[Dict[str, Any]], List[str]]:
             errors.append(f"jsonl_not_object:{path.name}:L{line_no}")
             continue
         rows.append(payload)
-    if not rows and not errors and path.name not in ALLOW_EMPTY_JSONL:
-        errors.append(f"empty_jsonl:{path.name}")
+    if not rows and not errors:
+        if path.name in ALLOW_EMPTY_JSONL and not text:
+            return rows, errors
+        if path.name in ALLOW_EMPTY_JSONL:
+            errors.append(f"allowed_empty_jsonl_not_truly_empty:{path.name}")
+        else:
+            errors.append(f"empty_jsonl:{path.name}")
     return rows, errors
+
+
+def _is_nonempty(value: Any) -> bool:
+    """Return whether a schema-required value has a retained value."""
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return bool(value.strip())
+    return True
+
+
+def _identifier(value: Any) -> str:
+    """Return a normalized identifier without treating numeric zero as empty."""
+    return str(value).strip() if value is not None else ""
+
+
+def _split_references(value: Any) -> List[str]:
+    """Split the package's pipe-delimited provenance/reference fields."""
+    return [
+        item.strip()
+        for item in _identifier(value).split("|")
+        if item.strip()
+    ]
+
+
+def _validate_schema_v2_required_fields(
+    rows_by_file: Dict[str, List[Dict[str, Any]]],
+    suffix: str,
+) -> List[str]:
+    """Validate required schema-v2 fields for one CSV or JSONL projection."""
+    errors: List[str] = []
+    for entity_name, required_columns in SCHEMA_V2_REQUIRED_COLUMNS.items():
+        file_name = f"{entity_name}.{suffix}"
+        for row_index, row in enumerate(rows_by_file.get(file_name, []), start=1):
+            for field_name in required_columns:
+                if field_name not in row:
+                    issue = "missing_required_field"
+                elif (
+                    field_name in SCHEMA_V2_EMPTY_ALLOWED_FIELDS[entity_name]
+                    or _is_nonempty(row.get(field_name))
+                ):
+                    continue
+                else:
+                    issue = "empty_required_field"
+                errors.append(
+                    f"schema_v2_{issue}:{file_name}:L{row_index}:{field_name}"
+                )
+            if (
+                entity_name == "validation_decisions"
+                and _identifier(row.get("decision_status")) == "accepted"
+                and not _is_nonempty(row.get("canonical_label"))
+            ):
+                errors.append(
+                    "schema_v2_empty_required_field:"
+                    f"{file_name}:L{row_index}:canonical_label"
+                )
+    return errors
+
+
+def _row_key(row: Dict[str, Any], fields: Tuple[str, ...]) -> Tuple[str, ...]:
+    """Return an ordered, normalized identity or foreign-key value."""
+    return tuple(_identifier(row.get(field_name)) for field_name in fields)
+
+
+def _validate_schema_v2_foreign_keys(
+    rows_by_file: Dict[str, List[Dict[str, Any]]],
+    suffix: str,
+) -> List[str]:
+    """Validate schema-v2 keys and the retained evidence-to-decision chain."""
+    errors: List[str] = []
+    entity_rows = {
+        entity_name: rows_by_file.get(f"{entity_name}.{suffix}", [])
+        for entity_name in ENTITY_ID_FIELDS
+    }
+    indexes: Dict[str, Dict[Tuple[str, ...], Dict[str, Any]]] = {}
+    for entity_name, fields in ENTITY_ID_FIELDS.items():
+        index: Dict[Tuple[str, ...], Dict[str, Any]] = {}
+        for row_index, row in enumerate(entity_rows[entity_name], start=1):
+            key = _row_key(row, fields)
+            if not all(key):
+                continue
+            if key in index:
+                errors.append(
+                    "schema_v2_duplicate_primary_key:"
+                    f"{entity_name}.{suffix}:L{row_index}:{'+'.join(fields)}"
+                )
+                continue
+            index[key] = row
+        indexes[entity_name] = index
+
+    for source, source_fields, target, target_fields in SCHEMA_V2_FOREIGN_KEYS:
+        for row_index, row in enumerate(entity_rows[source], start=1):
+            key = _row_key(row, source_fields)
+            if all(key) and key not in indexes[target]:
+                errors.append(
+                    "schema_v2_broken_foreign_key:"
+                    f"{source}.{suffix}:L{row_index}:{'+'.join(source_fields)}"
+                )
+
+    for source, field_name, target, target_field in SCHEMA_V2_LIST_FOREIGN_KEYS:
+        target_values = {
+            _identifier(row.get(target_field))
+            for row in entity_rows[target]
+            if _identifier(row.get(target_field))
+        }
+        for row_index, row in enumerate(entity_rows[source], start=1):
+            for value in _split_references(row.get(field_name)):
+                if value not in target_values:
+                    errors.append(
+                        "schema_v2_broken_foreign_key:"
+                        f"{source}.{suffix}:L{row_index}:{field_name}:{value}"
+                    )
+
+    fragments = indexes["evidence_fragments"]
+    signals = indexes["semantic_signals"]
+    candidates = indexes["competence_candidates"]
+    decisions = indexes["validation_decisions"]
+    for row_index, signal in enumerate(entity_rows["semantic_signals"], start=1):
+        fragment = fragments.get((_identifier(signal.get("fragment_id")),))
+        if fragment and any(
+            _identifier(signal.get(field_name))
+            != _identifier(fragment.get(field_name))
+            for field_name in ("evidence_id", "source_provenance_id")
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"semantic_signals.{suffix}:L{row_index}:fragment_lineage"
+            )
+
+    for row_index, candidate in enumerate(
+        entity_rows["competence_candidates"], start=1
+    ):
+        fragment_id = _identifier(candidate.get("fragment_id"))
+        fragment = fragments.get((fragment_id,))
+        linked_signal = signals.get(
+            (
+                _identifier(candidate.get("signal_id")),
+                fragment_id,
+            )
+        )
+        if linked_signal and _identifier(candidate.get("evidence_id")) != _identifier(
+            linked_signal.get("evidence_id")
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"competence_candidates.{suffix}:L{row_index}:evidence_id"
+            )
+        references = _split_references(candidate.get("fragment_ids"))
+        if fragment_id and fragment_id not in references:
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"competence_candidates.{suffix}:L{row_index}:fragment_ids"
+            )
+        provenance_ids = set(
+            _split_references(candidate.get("source_provenance_ids"))
+        )
+        if fragment and _identifier(
+            fragment.get("source_provenance_id")
+        ) not in provenance_ids:
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"competence_candidates.{suffix}:L{row_index}:source_provenance_ids"
+            )
+
+    for row_index, decision in enumerate(
+        entity_rows["validation_decisions"], start=1
+    ):
+        linked_candidate = candidates.get(
+            (_identifier(decision.get("target_candidate_id")),)
+        )
+        if linked_candidate is None:
+            continue
+        expected = {
+            "evidence_ids": {_identifier(linked_candidate.get("evidence_id"))},
+            "fragment_ids": {_identifier(linked_candidate.get("fragment_id"))},
+            "source_provenance_ids": set(
+                _split_references(linked_candidate.get("source_provenance_ids"))
+            ),
+        }
+        for field_name, expected_values in expected.items():
+            if expected_values <= set(_split_references(decision.get(field_name))):
+                continue
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"validation_decisions.{suffix}:L{row_index}:{field_name}"
+            )
+
+    for entity_name in ("canonical_competences", "sector_competence_assignments"):
+        for row_index, row in enumerate(entity_rows[entity_name], start=1):
+            linked_decision = decisions.get(
+                (_identifier(row.get("validation_decision_id")),)
+            )
+            if linked_decision is None:
+                continue
+            if (
+                _identifier(linked_decision.get("decision_status")) == "accepted"
+                and _identifier(row.get("source_candidate_id"))
+                == _identifier(linked_decision.get("target_candidate_id"))
+            ):
+                continue
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{entity_name}.{suffix}:L{row_index}:validation_decision_id"
+            )
+
+    for row_index, assignment in enumerate(
+        entity_rows["sector_competence_assignments"], start=1
+    ):
+        linked_candidate = candidates.get(
+            (_identifier(assignment.get("source_candidate_id")),)
+        )
+        if linked_candidate is None:
+            continue
+        assignment_evidence_ids = set(
+            _split_references(assignment.get("evidence_ids"))
+        )
+        if (
+            assignment_evidence_ids
+            and _identifier(linked_candidate.get("evidence_id"))
+            in assignment_evidence_ids
+        ):
+            continue
+        errors.append(
+            "schema_v2_lineage_mismatch:"
+            f"sector_competence_assignments.{suffix}:L{row_index}:evidence_ids"
+        )
+    return errors
+
+
+def _validate_legacy_derived_demand_metadata(
+    csv_rows: List[Dict[str, Any]],
+    jsonl_rows: List[Dict[str, Any]],
+) -> List[str]:
+    """Require identical legacy-view metadata for each derived-demand ID."""
+    errors: List[str] = []
+
+    def metadata_by_demand(
+        rows: List[Dict[str, Any]], file_name: str
+    ) -> Dict[str, Tuple[str, str]]:
+        metadata: Dict[str, Tuple[str, str]] = {}
+        for row_index, row in enumerate(rows, start=1):
+            demand_id = _identifier(row.get("competence_demand_id"))
+            if not demand_id:
+                errors.append(
+                    "derived_demand_missing_required_field:"
+                    f"{file_name}:L{row_index}:competence_demand_id"
+                )
+                continue
+            values = (
+                _identifier(row.get("view_kind")),
+                _identifier(row.get("scientific_status")),
+            )
+            for field_name, value, expected_value in (
+                (
+                    "view_kind",
+                    values[0],
+                    LEGACY_DERIVED_DEMAND_VIEW_KIND,
+                ),
+                (
+                    "scientific_status",
+                    values[1],
+                    LEGACY_DERIVED_DEMAND_SCIENTIFIC_STATUS,
+                ),
+            ):
+                if not value:
+                    errors.append(
+                        "derived_demand_missing_required_field:"
+                        f"{file_name}:L{row_index}:{field_name}"
+                    )
+                elif value != expected_value:
+                    errors.append(
+                        "derived_demand_invalid_legacy_metadata:"
+                        f"{file_name}:L{row_index}:{field_name}"
+                    )
+            if demand_id in metadata:
+                errors.append(
+                    f"duplicate_derived_demand_id:{file_name}:L{row_index}:{demand_id}"
+                )
+                continue
+            metadata[demand_id] = values
+        return metadata
+
+    csv_metadata = metadata_by_demand(
+        csv_rows, "derived_competence_demands.csv"
+    )
+    jsonl_metadata = metadata_by_demand(
+        jsonl_rows, "derived_competence_demands.jsonl"
+    )
+    for demand_id in sorted(set(csv_metadata) | set(jsonl_metadata)):
+        if demand_id not in csv_metadata:
+            errors.append(
+                "derived_demand_missing_csv_metadata:"
+                f"competence_demand_id:{demand_id}"
+            )
+            continue
+        if demand_id not in jsonl_metadata:
+            errors.append(
+                "derived_demand_missing_jsonl_metadata:"
+                f"competence_demand_id:{demand_id}"
+            )
+            continue
+        if csv_metadata[demand_id] != jsonl_metadata[demand_id]:
+            errors.append(
+                "derived_demand_metadata_mismatch:"
+                f"competence_demand_id:{demand_id}"
+            )
+    return errors
 
 
 def _report_has_required_sections(path: Path) -> List[str]:
@@ -493,6 +877,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                     )
             except OSError as exc:
                 missing_required.append(f"unreadable_checksum:{name}:{exc}")
+    csv_rows: Dict[str, List[Dict[str, Any]]] = {}
     for name in CSV_FILES:
         candidate = database_dir / name
         if not candidate.is_file():
@@ -514,16 +899,17 @@ def main(argv: Optional[List[str]] = None) -> int:
                         f"csv_missing_columns:{name}:"
                         + ",".join(missing_cols)
                     )
+            parsed_rows = [
+                {
+                    str(key): value
+                    for key, value in row.items()
+                    if key is not None
+                }
+                for row in csv.DictReader(text.splitlines())
+            ]
+            csv_rows[name] = parsed_rows
             if name == "derived_competence_demands.csv":
-                dict_reader = csv.DictReader(text.splitlines())
-                for row_index, row in enumerate(dict_reader, start=2):
-                    if (
-                        str(row.get("view_kind", "")).strip()
-                        != "legacy_category_aggregate_compatibility_view"
-                    ):
-                        missing_required.append(
-                            f"derived_demand_not_marked_legacy:L{row_index}"
-                        )
+                for row_index, row in enumerate(parsed_rows, start=2):
                     evidence_ids = str(row.get("evidence_ids", "")).strip()
                     if evidence_ids and evidence_ids.lower() != "unavailable":
                         continue
@@ -542,6 +928,25 @@ def main(argv: Optional[List[str]] = None) -> int:
         rows, errors = _load_jsonl_rows(database_dir / name)
         jsonl_rows[name] = rows
         missing_required.extend(errors)
+
+    missing_required.extend(
+        _validate_schema_v2_required_fields(csv_rows, "csv")
+    )
+    missing_required.extend(
+        _validate_schema_v2_required_fields(jsonl_rows, "jsonl")
+    )
+    missing_required.extend(
+        _validate_schema_v2_foreign_keys(csv_rows, "csv")
+    )
+    missing_required.extend(
+        _validate_schema_v2_foreign_keys(jsonl_rows, "jsonl")
+    )
+    missing_required.extend(
+        _validate_legacy_derived_demand_metadata(
+            csv_rows.get("derived_competence_demands.csv", []),
+            jsonl_rows.get("derived_competence_demands.jsonl", []),
+        )
+    )
 
     fragment_rows = jsonl_rows.get("hypothesis_semantic_fragments.jsonl", [])
     for row_index, row in enumerate(fragment_rows, start=1):
@@ -566,23 +971,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         if str(row.get("evidence_id", "")).strip()
     }
 
-    demand_rows: List[Dict[str, str]] = []
-    try:
-        with (database_dir / "derived_competence_demands.csv").open(
-            "r", encoding="utf-8", newline=""
-        ) as handle:
-            demand_rows = list(csv.DictReader(handle))
-    except OSError as exc:
-        missing_required.append(f"unreadable_csv:derived_competence_demands.csv:{exc}")
-
-    learning_rows: List[Dict[str, str]] = []
-    try:
-        with (database_dir / "learning_outcomes.csv").open(
-            "r", encoding="utf-8", newline=""
-        ) as handle:
-            learning_rows = list(csv.DictReader(handle))
-    except OSError as exc:
-        missing_required.append(f"unreadable_csv:learning_outcomes.csv:{exc}")
+    demand_rows = csv_rows.get("derived_competence_demands.csv", [])
+    learning_rows = csv_rows.get("learning_outcomes.csv", [])
 
     demand_ids = {
         str(row.get("competence_demand_id", "")).strip()

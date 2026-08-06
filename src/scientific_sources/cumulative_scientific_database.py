@@ -324,6 +324,8 @@ ALLOWED_MANUAL_REVIEW_STATUSES: Tuple[str, ...] = (
     "rejected",
 )
 
+_REVIEWER_IDENTIFIER_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{2,127}")
+
 
 class CumulativeDatabaseError(RuntimeError):
     """Raised when the cumulative-database builder cannot produce a bundle."""
@@ -635,6 +637,7 @@ class EvidenceFragment:
     provenance_hash: str
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-friendly ordered dict of this evidence-fragment row."""
         return {col: getattr(self, col) for col in EVIDENCE_FRAGMENT_COLUMNS}
 
 
@@ -668,6 +671,7 @@ class SemanticSignal:
     validity_warning: str
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-friendly ordered dict of this semantic-signal row."""
         return {col: getattr(self, col) for col in SEMANTIC_SIGNAL_COLUMNS}
 
 
@@ -698,6 +702,7 @@ class CompetenceCandidate:
     exact_span_end_offset: int
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-friendly ordered dict of this candidate row."""
         return {col: getattr(self, col) for col in COMPETENCE_CANDIDATE_COLUMNS}
 
 
@@ -718,6 +723,7 @@ class ValidationDecision:
     superseded_validation_decision_id: str
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-friendly ordered dict of this validation-decision row."""
         return {col: getattr(self, col) for col in VALIDATION_DECISION_COLUMNS}
 
 
@@ -736,6 +742,7 @@ class CanonicalCompetence:
     provenance_guard_status: str
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-friendly ordered dict of this canonical-competence row."""
         return {col: getattr(self, col) for col in CANONICAL_COMPETENCE_COLUMNS}
 
 
@@ -753,6 +760,7 @@ class SectorCompetenceAssignment:
     evidence_ids: str
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-friendly ordered dict of this sector-assignment row."""
         return {
             col: getattr(self, col)
             for col in SECTOR_COMPETENCE_ASSIGNMENT_COLUMNS
@@ -1470,8 +1478,9 @@ def _make_fragment_id(
     return f"fragment:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
 
-def _make_candidate_id(*, signal_id: str, fragment_id: str) -> str:
-    payload = "\x1f".join((signal_id, fragment_id, "candidate"))
+def _make_candidate_id(*, signal_id: str, evidence_id: str) -> str:
+    """Return a stable cross-run candidate identity for one semantic signal."""
+    payload = "\x1f".join((signal_id, evidence_id, "candidate"))
     return f"candidate:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
 
@@ -1539,23 +1548,24 @@ def _candidate_ra_dimension(pattern: _SignalPattern) -> str:
     return "hybrid"
 
 
-def canonical_label_is_allowed(label: str) -> bool:
-    """Return True when a candidate label is safe for canonical promotion."""
+def canonical_label_is_allowed(label: str) -> Tuple[bool, str]:
+    """Return canonical-promotion eligibility and any guard rejection reason."""
     token = re.sub(r"\s+", " ", str(label or "").strip())
     if not token:
-        return False
+        return False, "empty_label"
     lowered = token.lower()
     if lowered.startswith(("crossref:", "scopus:", "wos:", "web of science:")):
-        return False
+        return False, "provider_metadata_prefix"
     if "..." in token or "\u2026" in token:
-        return False
+        return False, "truncation_ellipsis"
     if len(token) > 180:
-        return False
+        return False, "length_over_180"
     if token.count(" ") >= 8:
-        return False
-    if re.search(r"\b(doi|journal|conference|article|paper)\b", lowered):
-        return False
-    return True
+        return False, "space_count_at_least_8"
+    metadata_match = re.search(r"\b(doi|journal|conference|article|paper)\b", lowered)
+    if metadata_match:
+        return False, f"metadata_term:{metadata_match.group(1)}"
+    return True, ""
 
 
 def _text_hash(text: str) -> str:
@@ -1603,6 +1613,11 @@ def build_cumulative_scientific_database(
             local development.
         built_at_utc: Optional ISO-8601 timestamp to stamp into the manifest.
         workflow_context: Optional mapping of GitHub Actions env vars.
+        validation_decisions: Optional explicit reviewer decision payloads. Each
+            payload must include a current-run ``target_candidate_id`` and a
+            ``decision_status`` of ``accepted``, ``rejected``,
+            ``review_required``, or ``superseded``. An unknown candidate target
+            raises :class:`CumulativeDatabaseError`.
 
     Returns:
         A :class:`CumulativeDatabaseResult` describing every file written.
@@ -1625,7 +1640,7 @@ def build_cumulative_scientific_database(
 
     output_path.mkdir(parents=True, exist_ok=True)
 
-    observations, run_timestamps, current_records = _collect_observations(
+    observations, run_timestamps, _ = _collect_observations(
         current_run_path=current_run_path,
         current_run_id=resolved_run_id,
         current_run_timestamp=built_at,
@@ -1642,11 +1657,13 @@ def build_cumulative_scientific_database(
         run_timestamps=run_timestamps,
     )
 
-    competence_demand_signals = _make_signals(
+    current_signal_components = _build_current_signal_components(
         buckets=buckets,
         evidence_index=evidence_index,
         current_run_id=resolved_run_id,
-        current_records=current_records,
+    )
+    competence_demand_signals = _make_signals(
+        signal_components=current_signal_components,
     )
     historical_signal_ids = _historical_signal_ids(
         buckets=buckets,
@@ -1679,9 +1696,7 @@ def build_cumulative_scientific_database(
         canonical_competences,
         sector_competence_assignments,
     ) = _build_construct_validity_tables(
-        buckets=buckets,
-        evidence_index=evidence_index,
-        current_run_id=resolved_run_id,
+        signal_components=current_signal_components,
         validation_decision_payloads=tuple(validation_decisions or ()),
         built_at_utc=built_at,
     )
@@ -2091,34 +2106,47 @@ def _bucket_sort_key(bucket: Tuple[str, str]) -> Tuple[str, str]:
     return (kind_order.get(kind, "9"), key)
 
 
-def _make_signals(
+def _build_current_signal_components(
     *,
-    buckets: Dict[Tuple[str, str], List[_RunObservation]],
+    buckets: Mapping[Tuple[str, str], Sequence[_RunObservation]],
     evidence_index: Mapping[Tuple[str, str], str],
     current_run_id: str,
-    current_records: Sequence[Mapping[str, Any]],
-) -> List[CompetenceDemandSignal]:
-    """Return de-duplicated semantic signals for the current run only."""
-    del current_records  # retained for backward-compatible public call shape
-    signals_by_id: Dict[str, CompetenceDemandSignal] = {}
-
+) -> List[_SignalComponent]:
+    """Build each current-run observation's signal components exactly once."""
+    components: List[_SignalComponent] = []
     for bucket, observations in sorted(buckets.items(), key=lambda item: item[0]):
+        evidence_id = evidence_index[bucket]
         current_obs = sorted(
-            (o for o in observations if o.run_id == current_run_id),
-            key=lambda o: (
-                o.binding.query_id,
-                str(o.record.get("provider") or ""),
-                o.timestamp_utc,
+            (
+                observation
+                for observation in observations
+                if observation.run_id == current_run_id
+            ),
+            key=lambda observation: (
+                observation.binding.query_id,
+                str(observation.record.get("provider") or ""),
+                observation.timestamp_utc,
             ),
         )
-        evidence_id = evidence_index[bucket]
-        for obs in current_obs:
-            for component in _build_signal_components_for_observation(
-                obs=obs,
-                evidence_id=evidence_id,
-            ):
-                signal = component.compatibility_signal
-                signals_by_id.setdefault(signal.signal_id, signal)
+        for observation in current_obs:
+            components.extend(
+                _build_signal_components_for_observation(
+                    obs=observation,
+                    evidence_id=evidence_id,
+                )
+            )
+    return components
+
+
+def _make_signals(
+    *,
+    signal_components: Sequence[_SignalComponent],
+) -> List[CompetenceDemandSignal]:
+    """Return de-duplicated semantic signals for the current run only."""
+    signals_by_id: Dict[str, CompetenceDemandSignal] = {}
+    for component in signal_components:
+        signal = component.compatibility_signal
+        signals_by_id.setdefault(signal.signal_id, signal)
 
     return [signals_by_id[key] for key in sorted(signals_by_id)]
 
@@ -2207,7 +2235,10 @@ def _build_signal_components_for_observation(
             span_start=match.span_start,
             span_end=match.span_end,
         )
-        candidate_id = _make_candidate_id(signal_id=signal_id, fragment_id=fragment_id)
+        candidate_id = _make_candidate_id(
+            signal_id=signal_id,
+            evidence_id=evidence_id,
+        )
         capability_proposition = _candidate_capability_proposition(
             pattern=pattern,
             span_text=match.span_text,
@@ -2308,9 +2339,7 @@ def _build_signal_components_for_observation(
 
 def _build_construct_validity_tables(
     *,
-    buckets: Dict[Tuple[str, str], List[_RunObservation]],
-    evidence_index: Mapping[Tuple[str, str], str],
-    current_run_id: str,
+    signal_components: Sequence[_SignalComponent],
     validation_decision_payloads: Sequence[Mapping[str, Any]],
     built_at_utc: str,
 ) -> Tuple[
@@ -2322,36 +2351,28 @@ def _build_construct_validity_tables(
     List[SectorCompetenceAssignment],
 ]:
     fragments_by_id: Dict[str, EvidenceFragment] = {}
-    semantic_by_id: Dict[str, SemanticSignal] = {}
+    semantic_by_id: Dict[Tuple[str, str], SemanticSignal] = {}
     candidates_by_id: Dict[str, CompetenceCandidate] = {}
 
-    for bucket, observations in sorted(buckets.items(), key=lambda item: item[0]):
-        evidence_id = evidence_index[bucket]
-        current_obs = sorted(
-            (o for o in observations if o.run_id == current_run_id),
-            key=lambda o: (
-                o.binding.query_id,
-                str(o.record.get("provider") or ""),
-                o.timestamp_utc,
-            ),
+    for component in signal_components:
+        fragments_by_id.setdefault(
+            component.evidence_fragment.fragment_id,
+            component.evidence_fragment,
         )
-        for obs in current_obs:
-            for component in _build_signal_components_for_observation(
-                obs=obs,
-                evidence_id=evidence_id,
-            ):
-                fragments_by_id.setdefault(
-                    component.evidence_fragment.fragment_id,
-                    component.evidence_fragment,
-                )
-                semantic_by_id.setdefault(
-                    component.semantic_signal.signal_id,
-                    component.semantic_signal,
-                )
-                candidates_by_id.setdefault(
-                    component.competence_candidate.candidate_id,
-                    component.competence_candidate,
-                )
+        semantic_key = (
+            component.semantic_signal.signal_id,
+            component.semantic_signal.fragment_id,
+        )
+        semantic_by_id.setdefault(semantic_key, component.semantic_signal)
+        candidate = component.competence_candidate
+        existing_candidate = candidates_by_id.get(candidate.candidate_id)
+        # Candidate identity is cross-run stable. Select the lexicographically
+        # smallest fragment deterministically as its scalar foreign-key reference.
+        if (
+            existing_candidate is None
+            or candidate.fragment_id < existing_candidate.fragment_id
+        ):
+            candidates_by_id[candidate.candidate_id] = candidate
 
     validation_decisions = _build_validation_decisions(
         candidates_by_id=candidates_by_id,
@@ -2401,6 +2422,10 @@ def _build_validation_decisions(
             )
         canonical_label = str(payload.get("canonical_label") or "").strip()
         reviewer = str(payload.get("reviewer") or "manual_review").strip()
+        if not _REVIEWER_IDENTIFIER_RE.fullmatch(reviewer):
+            raise CumulativeDatabaseError(
+                "invalid reviewer identifier; use a stable pseudonymous identifier"
+            )
         decision_at = str(payload.get("decision_at_utc") or built_at_utc).strip()
         decision_reason = str(payload.get("decision_reason") or "").strip()
         superseded_id = str(
@@ -2440,10 +2465,12 @@ def _build_canonical_competences(
     for decision in validation_decisions:
         if decision.decision_status != "accepted":
             continue
-        label = decision.canonical_label.strip()
-        if not canonical_label_is_allowed(label):
+        label = re.sub(r"\s+", " ", decision.canonical_label).strip()
+        label_allowed, rejection_reason = canonical_label_is_allowed(label)
+        if not label_allowed:
             raise CumulativeDatabaseError(
-                f"invalid canonical competence label blocked by provenance guard: {label}"
+                "invalid canonical competence label blocked by provenance guard "
+                f"({rejection_reason}): {label}"
             )
         candidate = candidates_by_id[decision.target_candidate_id]
         canonical_id = (
@@ -2477,12 +2504,16 @@ def _build_sector_competence_assignments(
     canonical_competences: Sequence[CanonicalCompetence],
     validation_decisions: Sequence[ValidationDecision],
 ) -> List[SectorCompetenceAssignment]:
-    canonical_by_decision = {
-        row.validation_decision_id: row for row in canonical_competences
+    canonical_by_label = {
+        re.sub(r"\s+", " ", row.preferred_label).strip().lower(): row
+        for row in canonical_competences
     }
     assignments: Dict[str, SectorCompetenceAssignment] = {}
     for decision in validation_decisions:
-        canonical = canonical_by_decision.get(decision.validation_decision_id)
+        if decision.decision_status != "accepted":
+            continue
+        normalized_label = re.sub(r"\s+", " ", decision.canonical_label).strip().lower()
+        canonical = canonical_by_label.get(normalized_label)
         if canonical is None:
             continue
         candidate = candidates_by_id[decision.target_candidate_id]
@@ -2973,74 +3004,63 @@ def _write_bundle(
     metrics_row = novelty_metrics.to_dict()
 
     files: List[Path] = []
-
-    evidence_csv = output_dir / EVIDENCE_RECORDS_CSV
-    _write_csv(evidence_csv, EVIDENCE_RECORD_COLUMNS, evidence_rows)
-    files.append(evidence_csv)
-
-    evidence_jsonl = output_dir / EVIDENCE_RECORDS_JSONL
-    _write_jsonl(evidence_jsonl, evidence_rows)
-    files.append(evidence_jsonl)
-
-    fragments_v2_csv = output_dir / EVIDENCE_FRAGMENTS_CSV
-    _write_csv(fragments_v2_csv, EVIDENCE_FRAGMENT_COLUMNS, fragment_v2_rows)
-    files.append(fragments_v2_csv)
-
-    fragments_v2_jsonl = output_dir / EVIDENCE_FRAGMENTS_JSONL
-    _write_jsonl(fragments_v2_jsonl, fragment_v2_rows)
-    files.append(fragments_v2_jsonl)
-
-    semantic_csv = output_dir / SEMANTIC_SIGNALS_CSV
-    _write_csv(semantic_csv, SEMANTIC_SIGNAL_COLUMNS, semantic_signal_rows)
-    files.append(semantic_csv)
-
-    semantic_jsonl = output_dir / SEMANTIC_SIGNALS_JSONL
-    _write_jsonl(semantic_jsonl, semantic_signal_rows)
-    files.append(semantic_jsonl)
-
-    candidate_csv = output_dir / COMPETENCE_CANDIDATES_CSV
-    _write_csv(candidate_csv, COMPETENCE_CANDIDATE_COLUMNS, candidate_rows)
-    files.append(candidate_csv)
-
-    candidate_jsonl = output_dir / COMPETENCE_CANDIDATES_JSONL
-    _write_jsonl(candidate_jsonl, candidate_rows)
-    files.append(candidate_jsonl)
-
-    canonical_csv = output_dir / CANONICAL_COMPETENCES_CSV
-    _write_csv(canonical_csv, CANONICAL_COMPETENCE_COLUMNS, canonical_rows)
-    files.append(canonical_csv)
-
-    canonical_jsonl = output_dir / CANONICAL_COMPETENCES_JSONL
-    _write_jsonl(canonical_jsonl, canonical_rows)
-    files.append(canonical_jsonl)
-
-    assignments_csv = output_dir / SECTOR_COMPETENCE_ASSIGNMENTS_CSV
-    _write_csv(
-        assignments_csv,
-        SECTOR_COMPETENCE_ASSIGNMENT_COLUMNS,
-        assignment_rows,
+    tabular_outputs = (
+        (
+            EVIDENCE_RECORDS_CSV,
+            EVIDENCE_RECORDS_JSONL,
+            EVIDENCE_RECORD_COLUMNS,
+            evidence_rows,
+        ),
+        (
+            EVIDENCE_FRAGMENTS_CSV,
+            EVIDENCE_FRAGMENTS_JSONL,
+            EVIDENCE_FRAGMENT_COLUMNS,
+            fragment_v2_rows,
+        ),
+        (
+            SEMANTIC_SIGNALS_CSV,
+            SEMANTIC_SIGNALS_JSONL,
+            SEMANTIC_SIGNAL_COLUMNS,
+            semantic_signal_rows,
+        ),
+        (
+            COMPETENCE_CANDIDATES_CSV,
+            COMPETENCE_CANDIDATES_JSONL,
+            COMPETENCE_CANDIDATE_COLUMNS,
+            candidate_rows,
+        ),
+        (
+            CANONICAL_COMPETENCES_CSV,
+            CANONICAL_COMPETENCES_JSONL,
+            CANONICAL_COMPETENCE_COLUMNS,
+            canonical_rows,
+        ),
+        (
+            SECTOR_COMPETENCE_ASSIGNMENTS_CSV,
+            SECTOR_COMPETENCE_ASSIGNMENTS_JSONL,
+            SECTOR_COMPETENCE_ASSIGNMENT_COLUMNS,
+            assignment_rows,
+        ),
+        (
+            VALIDATION_DECISIONS_CSV,
+            VALIDATION_DECISIONS_JSONL,
+            VALIDATION_DECISION_COLUMNS,
+            decision_rows,
+        ),
+        (
+            COMPETENCE_DEMAND_SIGNALS_CSV,
+            COMPETENCE_DEMAND_SIGNALS_JSONL,
+            COMPETENCE_DEMAND_SIGNAL_COLUMNS,
+            signal_rows,
+        ),
     )
-    files.append(assignments_csv)
-
-    assignments_jsonl = output_dir / SECTOR_COMPETENCE_ASSIGNMENTS_JSONL
-    _write_jsonl(assignments_jsonl, assignment_rows)
-    files.append(assignments_jsonl)
-
-    decisions_csv = output_dir / VALIDATION_DECISIONS_CSV
-    _write_csv(decisions_csv, VALIDATION_DECISION_COLUMNS, decision_rows)
-    files.append(decisions_csv)
-
-    decisions_jsonl = output_dir / VALIDATION_DECISIONS_JSONL
-    _write_jsonl(decisions_jsonl, decision_rows)
-    files.append(decisions_jsonl)
-
-    signals_csv = output_dir / COMPETENCE_DEMAND_SIGNALS_CSV
-    _write_csv(signals_csv, COMPETENCE_DEMAND_SIGNAL_COLUMNS, signal_rows)
-    files.append(signals_csv)
-
-    signals_jsonl = output_dir / COMPETENCE_DEMAND_SIGNALS_JSONL
-    _write_jsonl(signals_jsonl, signal_rows)
-    files.append(signals_jsonl)
+    for csv_name, jsonl_name, columns, rows in tabular_outputs:
+        csv_path = output_dir / csv_name
+        _write_csv(csv_path, columns, rows)
+        files.append(csv_path)
+        jsonl_path = output_dir / jsonl_name
+        _write_jsonl(jsonl_path, rows)
+        files.append(jsonl_path)
 
     fragments_csv = output_dir / HYPOTHESIS_SEMANTIC_FRAGMENTS_CSV
     _write_csv(

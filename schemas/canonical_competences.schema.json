@@ -22,8 +22,8 @@
     "preferred_label": { "type": "string", "minLength": 1 },
     "canonical_definition": { "type": "string", "minLength": 1 },
     "aliases": { "type": "string" },
-    "validation_status": { "type": "string", "minLength": 1 },
+    "validation_status": { "type": "string", "enum": ["accepted"] },
     "schema_version": { "type": "string", "minLength": 1 },
-    "provenance_guard_status": { "type": "string", "minLength": 1 }
+    "provenance_guard_status": { "type": "string", "enum": ["passed"] }
   }
 }

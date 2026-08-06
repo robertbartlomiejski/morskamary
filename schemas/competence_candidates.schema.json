@@ -44,8 +44,11 @@
     "knowledge_dimension": { "type": "string", "minLength": 1 },
     "skill_dimension": { "type": "string", "minLength": 1 },
     "responsibility_autonomy_dimension": { "type": "string", "minLength": 1 },
-    "candidate_status": { "type": "string", "minLength": 1 },
-    "review_status": { "type": "string", "minLength": 1 },
+    "candidate_status": { "type": "string", "enum": ["candidate"] },
+    "review_status": {
+      "type": "string",
+      "enum": ["auto_accepted", "review_required", "manually_reviewed", "rejected"]
+    },
     "exact_evidence_span": { "type": "string", "minLength": 1 },
     "exact_span_start_offset": { "type": "integer", "minimum": 0 },
     "exact_span_end_offset": { "type": "integer", "minimum": 0 }

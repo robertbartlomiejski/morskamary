@@ -19,10 +19,11 @@ from __future__ import annotations
 import csv
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Mapping
+from typing import Any, Dict, List, Mapping, Sequence
 
 import pytest
 
+from src.scientific_sources import cumulative_scientific_database as database_module
 from src.scientific_sources.cumulative_scientific_database import (
     ALLOWED_MANUAL_REVIEW_STATUSES,
     ALLOWED_RECORD_NOVELTY_STATUS,
@@ -78,7 +79,7 @@ BOUND_QUERY_TEXT = (
 # ---------------------------------------------------------------------------
 
 
-def _write_live_records(dir_path: Path, records: List[Mapping[str, Any]]) -> None:
+def _write_live_records(dir_path: Path, records: Sequence[Mapping[str, Any]]) -> None:
     dir_path.mkdir(parents=True, exist_ok=True)
     (dir_path / "live_records.json").write_text(
         json.dumps(records, indent=2, sort_keys=True), encoding="utf-8"
@@ -108,7 +109,7 @@ def _write_run_archive(
             _write_live_records(research_dir, run["records"])
 
 
-def _write_current_run(run_dir: Path, records: List[Mapping[str, Any]]) -> None:
+def _write_current_run(run_dir: Path, records: Sequence[Mapping[str, Any]]) -> None:
     _write_live_records(run_dir / "research_sources", records)
 
 
@@ -200,6 +201,24 @@ class TestBundleShape:
             DATABASE_CHECKSUMS_FILENAME,
         }
         assert {p.name for p in result.files} == expected
+        assert [path.name for path in result.files[:16]] == [
+            EVIDENCE_RECORDS_CSV,
+            EVIDENCE_RECORDS_JSONL,
+            EVIDENCE_FRAGMENTS_CSV,
+            EVIDENCE_FRAGMENTS_JSONL,
+            SEMANTIC_SIGNALS_CSV,
+            SEMANTIC_SIGNALS_JSONL,
+            COMPETENCE_CANDIDATES_CSV,
+            COMPETENCE_CANDIDATES_JSONL,
+            CANONICAL_COMPETENCES_CSV,
+            CANONICAL_COMPETENCES_JSONL,
+            SECTOR_COMPETENCE_ASSIGNMENTS_CSV,
+            SECTOR_COMPETENCE_ASSIGNMENTS_JSONL,
+            VALIDATION_DECISIONS_CSV,
+            VALIDATION_DECISIONS_JSONL,
+            COMPETENCE_DEMAND_SIGNALS_CSV,
+            COMPETENCE_DEMAND_SIGNALS_JSONL,
+        ]
         for name in expected:
             assert (output / name).is_file()
 
@@ -235,8 +254,8 @@ class TestBundleShape:
             ALLOWED_MANUAL_REVIEW_STATUSES
         )
         assert manifest["classifier_version"] == CLASSIFIER_VERSION
-        assert manifest["counts"]["semantic_signals"] >= 0
-        assert manifest["counts"]["competence_candidates"] >= 0
+        assert manifest["counts"]["semantic_signals"] == 0
+        assert manifest["counts"]["competence_candidates"] == 0
         assert manifest["counts"]["canonical_competences"] == 0
         assert manifest["counts"]["sector_competence_assignments"] == 0
         assert manifest["counts"]["validation_decisions"] == 0
@@ -1894,8 +1913,10 @@ def test_invalid_canonical_label_is_blocked_before_promotion(tmp_path: Path) -> 
     )
     assert initial.competence_candidates
     bad_label = "Crossref: Paper title fragment..."
-    assert not canonical_label_is_allowed(bad_label)
-    with pytest.raises(CumulativeDatabaseError):
+    label_allowed, rejection_reason = canonical_label_is_allowed(bad_label)
+    assert not label_allowed
+    assert rejection_reason == "provider_metadata_prefix"
+    with pytest.raises(CumulativeDatabaseError, match="provider_metadata_prefix"):
         build_cumulative_scientific_database(
             current_run_dir=current,
             output_dir=tmp_path / "invalid",
@@ -1907,9 +1928,354 @@ def test_invalid_canonical_label_is_blocked_before_promotion(tmp_path: Path) -> 
                     "target_candidate_id": initial.competence_candidates[0].candidate_id,
                     "canonical_label": bad_label,
                     "decision_status": "accepted",
-                    "reviewer": "reviewer@example.org",
+                    "reviewer": "reviewer-fixture-001",
                     "decision_at_utc": FROZEN_TS,
                     "decision_reason": "bad label regression",
                 }
             ],
         )
+
+
+@pytest.mark.parametrize(
+    ("label", "expected_reason"),
+    [
+        ("", "empty_label"),
+        ("Scopus: retained metadata", "provider_metadata_prefix"),
+        ("Truncated capability...", "truncation_ellipsis"),
+        ("a" * 181, "length_over_180"),
+        ("one two three four five six seven eight nine", "space_count_at_least_8"),
+        ("Competence from journal metadata", "metadata_term:journal"),
+    ],
+)
+def test_canonical_label_guard_returns_explicit_rejection_reason(
+    label: str, expected_reason: str
+) -> None:
+    allowed, reason = canonical_label_is_allowed(label)
+    assert not allowed
+    assert reason == expected_reason
+
+
+def test_canonical_label_guard_returns_empty_reason_for_allowed_label() -> None:
+    allowed, reason = canonical_label_is_allowed("Governance capability")
+    assert allowed
+    assert reason == ""
+
+
+def test_validation_decision_rejects_non_pseudonymous_reviewer(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "outputs"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance skills for blue economy planning",
+                "doi": "10.1000/reviewer-identifier",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial-database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    with pytest.raises(CumulativeDatabaseError, match="invalid reviewer identifier"):
+        build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "invalid-reviewer-database",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+            validation_decisions=[
+                {
+                    "target_candidate_id": initial.competence_candidates[0].candidate_id,
+                    "canonical_label": "Governance capability",
+                    "decision_status": "accepted",
+                    "reviewer": "reviewer@example.org",
+                    "decision_at_utc": FROZEN_TS,
+                    "decision_reason": "Reviewer identifier regression.",
+                }
+            ],
+        )
+
+
+def test_multiple_observations_keep_signal_fragment_candidate_lineage(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "outputs"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance skills for blue economy planning",
+                "abstract": "Governance skills are needed.",
+                "doi": "10.1000/signal-fragment-lineage",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            },
+            {
+                "title": "Governance skills for blue economy planning",
+                "abstract": "Governance skills are needed.",
+                "doi": "10.1000/signal-fragment-lineage",
+                "provider": "Scopus",
+                "source_query": BOUND_QUERY_TEXT,
+            },
+        ],
+    )
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    fragment_ids = {row.fragment_id for row in result.evidence_fragments}
+    semantic_pairs = {
+        (row.signal_id, row.fragment_id) for row in result.semantic_signals
+    }
+    assert len(fragment_ids) == 2
+    assert len(semantic_pairs) == 2
+    assert {row.fragment_id for row in result.semantic_signals} == fragment_ids
+    assert len(result.competence_candidates) == 1
+    for candidate in result.competence_candidates:
+        assert (candidate.signal_id, candidate.fragment_id) in semantic_pairs
+
+
+def test_candidate_representative_fragment_is_independent_of_input_order(
+    tmp_path: Path,
+) -> None:
+    records = [
+        {
+            "title": "Governance skills for blue economy planning",
+            "abstract": "Governance skills are needed.",
+            "doi": "10.1000/stable-candidate-fragment",
+            "source_id": "source-a",
+            "provider": "Crossref",
+            "source_query": BOUND_QUERY_TEXT,
+            "retrieval_timestamp": FROZEN_TS,
+        },
+        {
+            "title": "Governance skills for blue economy planning",
+            "abstract": "Governance skills are needed.",
+            "doi": "10.1000/stable-candidate-fragment",
+            "source_id": "source-b",
+            "provider": "Crossref",
+            "source_query": BOUND_QUERY_TEXT,
+            "retrieval_timestamp": FROZEN_TS,
+        },
+    ]
+    forward_current = tmp_path / "forward-outputs"
+    reverse_current = tmp_path / "reverse-outputs"
+    _write_current_run(forward_current, records)
+    _write_current_run(reverse_current, list(reversed(records)))
+    forward = build_cumulative_scientific_database(
+        current_run_dir=forward_current,
+        output_dir=tmp_path / "forward-database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    reverse = build_cumulative_scientific_database(
+        current_run_dir=reverse_current,
+        output_dir=tmp_path / "reverse-database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    assert len(forward.competence_candidates) == 1
+    assert len(reverse.competence_candidates) == 1
+    forward_candidate = forward.competence_candidates[0]
+    reverse_candidate = reverse.competence_candidates[0]
+    assert forward_candidate.candidate_id == reverse_candidate.candidate_id
+    assert forward_candidate.fragment_id == reverse_candidate.fragment_id
+    assert forward_candidate.fragment_id == min(
+        fragment.fragment_id for fragment in forward.evidence_fragments
+    )
+    assert (
+        (tmp_path / "forward-database" / COMPETENCE_CANDIDATES_JSONL).read_bytes()
+        == (tmp_path / "reverse-database" / COMPETENCE_CANDIDATES_JSONL).read_bytes()
+    )
+
+
+def test_validation_decision_candidate_identity_persists_across_runs(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "outputs"
+    archive = tmp_path / "archive"
+    record = {
+        "title": "Governance skills for blue economy planning",
+        "abstract": "Governance skills are needed.",
+        "doi": "10.1000/stable-candidate",
+        "provider": "Crossref",
+        "source_query": BOUND_QUERY_TEXT,
+    }
+    _write_current_run(current, [record])
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial-database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    candidate_id = initial.competence_candidates[0].candidate_id
+    _write_run_archive(
+        archive,
+        [
+            {
+                "run_id": "R1",
+                "timestamp_utc": "2026-07-08T00:00:00+00:00",
+                "records": [record],
+            }
+        ],
+    )
+
+    recurring = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "recurring-database",
+        archive_root=archive,
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R2",
+        built_at_utc="2026-07-10T00:00:00+00:00",
+        validation_decisions=[
+            {
+                "target_candidate_id": candidate_id,
+                "canonical_label": "Governance capability",
+                "decision_status": "accepted",
+                "reviewer": "reviewer-fixture-001",
+                "decision_at_utc": FROZEN_TS,
+                "decision_reason": "Persistent candidate validation.",
+            }
+        ],
+    )
+
+    assert {candidate.candidate_id for candidate in recurring.competence_candidates} == {
+        candidate_id
+    }
+    assert [
+        decision.target_candidate_id for decision in recurring.validation_decisions
+    ] == [candidate_id]
+    assert len(recurring.canonical_competences) == 1
+    assert len(recurring.sector_competence_assignments) == 1
+
+
+def test_shared_canonical_label_emits_assignment_for_each_accepted_decision(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "outputs"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance skills for blue economy planning A",
+                "abstract": "Governance skills are needed.",
+                "doi": "10.1000/shared-canonical-a",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            },
+            {
+                "title": "Governance skills for blue economy planning B",
+                "abstract": "Governance skills are needed.",
+                "doi": "10.1000/shared-canonical-b",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            },
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial-database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    assert len(initial.competence_candidates) == 2
+    validation_decisions = [
+        {
+            "target_candidate_id": candidate.candidate_id,
+            "canonical_label": (
+                "Shared governance capability"
+                if index == 0
+                else "Shared  governance capability"
+            ),
+            "decision_status": "accepted",
+            "reviewer": f"reviewer-fixture-00{index + 1}",
+            "decision_at_utc": FROZEN_TS,
+            "decision_reason": "Shared canonical validation.",
+        }
+        for index, candidate in enumerate(initial.competence_candidates)
+    ]
+    validated = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "validated-database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+        validation_decisions=validation_decisions,
+    )
+
+    assert len(validated.canonical_competences) == 1
+    assert len(validated.sector_competence_assignments) == 2
+    canonical_id = validated.canonical_competences[0].canonical_competence_id
+    accepted_decision_ids = {
+        decision.validation_decision_id for decision in validated.validation_decisions
+    }
+    assert {
+        assignment.validation_decision_id
+        for assignment in validated.sector_competence_assignments
+    } == accepted_decision_ids
+    assert {
+        assignment.canonical_competence_id
+        for assignment in validated.sector_competence_assignments
+    } == {canonical_id}
+
+
+def test_current_observation_signal_components_are_reused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    current = tmp_path / "outputs"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance skills for blue economy planning A",
+                "doi": "10.1000/component-reuse-a",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            },
+            {
+                "title": "Governance skills for blue economy planning B",
+                "doi": "10.1000/component-reuse-b",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            },
+        ],
+    )
+    calls: List[str] = []
+    original = database_module._build_signal_components_for_observation
+
+    def count_component_builds(*, obs: Any, evidence_id: str) -> Any:
+        calls.append(obs.run_id)
+        return original(obs=obs, evidence_id=evidence_id)
+
+    monkeypatch.setattr(
+        database_module,
+        "_build_signal_components_for_observation",
+        count_component_builds,
+    )
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    assert result.competence_demand_signals
+    assert calls == ["R1", "R1"]
