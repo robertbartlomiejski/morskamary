@@ -222,7 +222,7 @@ def test_variable_and_value_labels_written(tmp_path: Path) -> None:
     assert val.read_text(encoding="utf-8").strip() != ""
     variable_rows = {row["variable_name"] for row in csv.DictReader(var.open())}
     value_rows = {
-        (row["variable_name"], row["value_code"])
+        (row["variable_name"], row["value_code"]): row["value_label"]
         for row in csv.DictReader(val.open())
     }
     assert {"source_field", "decision_status", "review_status"}.issubset(
@@ -230,6 +230,7 @@ def test_variable_and_value_labels_written(tmp_path: Path) -> None:
     )
     assert ("decision_status", "accepted") in value_rows
     assert ("decision_status", "superseded") in value_rows
+    assert value_rows[("axis_group", "")] == "Unbound"
 
 
 # ---------------------------------------------------------------------------
