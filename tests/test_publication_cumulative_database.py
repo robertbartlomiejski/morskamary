@@ -195,6 +195,9 @@ def test_schema_v2_fixture_preserves_construct_valid_lineage() -> None:
     assert candidate["fragment_id"] == fragment["fragment_id"]
     assert candidate["evidence_id"] == fragment["evidence_id"]
     assert candidate["source_provenance_ids"] == fragment["source_provenance_id"]
+    assert candidate["exact_evidence_span"] == fragment["fragment_text"]
+    assert candidate["exact_span_start_offset"] == fragment["span_start_offset"]
+    assert candidate["exact_span_end_offset"] == fragment["span_end_offset"]
     assert decision["target_candidate_id"] == candidate["candidate_id"]
     assert decision["evidence_ids"] == candidate["evidence_id"]
     assert decision["fragment_ids"] == candidate["fragment_id"]
@@ -227,6 +230,18 @@ def test_validation_decision_schema_requires_accepted_labels_and_pseudonymous_re
     email_reviewer["reviewer"] = "reviewer@example.org"
     assert list(validator.iter_errors(email_reviewer))
 
+    blank_reason = copy.deepcopy(fixture["validation_decisions"])
+    blank_reason["decision_reason"] = ""
+    assert list(validator.iter_errors(blank_reason))
+
+    non_utc_timestamp = copy.deepcopy(fixture["validation_decisions"])
+    non_utc_timestamp["decision_at_utc"] = "2026-07-07T02:00:00+02:00"
+    assert list(validator.iter_errors(non_utc_timestamp))
+
+    non_iso_timestamp = copy.deepcopy(fixture["validation_decisions"])
+    non_iso_timestamp["decision_at_utc"] = "2026/07/07"
+    assert list(validator.iter_errors(non_iso_timestamp))
+
 
 def test_schema_v2_status_vocabularies_are_closed() -> None:
     fixture = _load_fixture()
@@ -251,20 +266,64 @@ def test_schema_v2_status_vocabularies_are_closed() -> None:
         assert list(validator.iter_errors(payload)), (schema_name, field_name)
 
 
-def test_sector_assignment_axis_code_schema_uses_canonical_codes() -> None:
+def test_sector_assignment_axis_code_schema_uses_canonical_pairs() -> None:
     fixture = _load_fixture()
     validator = Draft202012Validator(
         _load_schema("sector_competence_assignments.schema.json")
     )
-    for axis_code in ("M", "T", "O", "H"):
+    for axis_group, axis_code in (
+        ("MARINE", "M"),
+        ("MARITIME", "T"),
+        ("OCEANIC", "O"),
+        ("HYDRONIZATION", "H"),
+    ):
         payload = copy.deepcopy(fixture["sector_competence_assignments"])
+        payload["axis_group"] = axis_group
         payload["axis_code"] = axis_code
         assert list(validator.iter_errors(payload)) == []
 
-    for invalid_axis_code in ("", "OCEANIC", "X"):
+    for axis_group, axis_code in (
+        ("OCEANIC", "M"),
+        ("MARINE", ""),
+        ("", "M"),
+        ("MARINE", "OCEANIC"),
+        ("MARINE", "X"),
+    ):
         payload = copy.deepcopy(fixture["sector_competence_assignments"])
-        payload["axis_code"] = invalid_axis_code
+        payload["axis_group"] = axis_group
+        payload["axis_code"] = axis_code
         assert list(validator.iter_errors(payload))
+
+
+def test_semantic_and_candidate_axis_pairs_allow_only_full_unbound_pair() -> None:
+    fixture = _load_fixture()
+    for schema_name, fixture_key in (
+        ("semantic_signals.schema.json", "semantic_signals"),
+        ("competence_candidates.schema.json", "competence_candidates"),
+    ):
+        validator = Draft202012Validator(_load_schema(schema_name))
+        for axis_group, axis_code in (
+            ("MARINE", "M"),
+            ("MARITIME", "T"),
+            ("OCEANIC", "O"),
+            ("HYDRONIZATION", "H"),
+            ("", ""),
+        ):
+            payload = copy.deepcopy(fixture[fixture_key])
+            payload["axis_group"] = axis_group
+            payload["axis_code"] = axis_code
+            assert list(validator.iter_errors(payload)) == []
+
+        for axis_group, axis_code in (
+            ("MARINE", "O"),
+            ("", "M"),
+            ("MARINE", ""),
+            ("UNKNOWN", "M"),
+        ):
+            payload = copy.deepcopy(fixture[fixture_key])
+            payload["axis_group"] = axis_group
+            payload["axis_code"] = axis_code
+            assert list(validator.iter_errors(payload))
 
 
 def test_small_fixtures_stay_small() -> None:

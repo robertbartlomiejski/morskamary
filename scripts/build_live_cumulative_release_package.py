@@ -30,14 +30,19 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+from io import StringIO
 import json
+import math
 import re
 import sqlite3
 import sys
+import unicodedata
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
+
+from jsonschema import Draft202012Validator
 
 # Versioned schemas are the authoritative schema-v2 field contract.
 _SCHEMA_V2_DIR = Path(__file__).resolve().parents[1] / "schemas"
@@ -49,41 +54,76 @@ SCHEMA_V2_ENTITY_NAMES = (
     "sector_competence_assignments",
     "validation_decisions",
 )
+SCHEMA_V2_SCHEMA_FILENAMES = tuple(
+    f"{entity_name}.schema.json" for entity_name in SCHEMA_V2_ENTITY_NAMES
+)
+
+_CANONICAL_LABEL_PROVIDER_ALIASES = {
+    "crossref",
+    "cr",
+    "scopus",
+    "elsevier scopus",
+    "wos",
+    "web of science",
+    "web of science clarivate",
+    "web of science (clarivate)",
+    "web_of_science",
+    "web_of_science_clarivate",
+    "clarivate",
+    "clarivate wos",
+    "clarivate web of science",
+    "clarivate_web_of_science",
+    "scival",
+    "microsoft graph",
+    "microsoft_graph",
+    "google drive",
+    "google_drive",
+}
 
 
 def _load_schema_v2_contract(
     entity_name: str,
-) -> Tuple[Tuple[str, ...], Set[str]]:
+) -> Tuple[Dict[str, Any], Tuple[str, ...], Set[str]]:
     """Read required fields and fields permitted to be empty from the schema."""
     schema_path = _SCHEMA_V2_DIR / f"{entity_name}.schema.json"
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     required_fields = tuple(str(value) for value in schema["required"])
     properties = schema.get("properties", {})
-    nonempty_fields = {
-        field_name
-        for field_name in required_fields
-        if (
-            properties.get(field_name, {}).get("minLength", 0) >= 1
-            or properties.get(field_name, {}).get("type") != "string"
-            or (
-                "enum" in properties.get(field_name, {})
-                and "" not in properties.get(field_name, {}).get("enum", [])
-            )
+    nonempty_fields = set()
+    for field_name in required_fields:
+        definition = properties.get(field_name, {})
+        enum_values = definition.get("enum") if isinstance(definition, dict) else None
+        enum_excludes_empty = (
+            isinstance(enum_values, list) and "" not in enum_values
         )
-    }
+        if (
+            definition.get("minLength", 0) >= 1
+            or definition.get("type") != "string"
+            or enum_excludes_empty
+        ):
+            nonempty_fields.add(field_name)
     # Non-accepted decisions may deliberately have no canonical label.
     if entity_name == "validation_decisions":
         nonempty_fields.discard("canonical_label")
-    return required_fields, set(required_fields) - nonempty_fields
+    return schema, required_fields, set(required_fields) - nonempty_fields
 
 
 SCHEMA_V2_REQUIRED_COLUMNS: Dict[str, Tuple[str, ...]] = {}
 SCHEMA_V2_EMPTY_ALLOWED_FIELDS: Dict[str, Set[str]] = {}
+SCHEMA_V2_SCHEMAS: Dict[str, Dict[str, Any]] = {}
+SCHEMA_V2_VALIDATORS: Dict[str, Draft202012Validator] = {}
 for _entity_name in SCHEMA_V2_ENTITY_NAMES:
     (
+        _schema,
         SCHEMA_V2_REQUIRED_COLUMNS[_entity_name],
         SCHEMA_V2_EMPTY_ALLOWED_FIELDS[_entity_name],
     ) = _load_schema_v2_contract(_entity_name)
+    Draft202012Validator.check_schema(_schema)
+    SCHEMA_V2_SCHEMAS[_entity_name] = _schema
+    SCHEMA_V2_VALIDATORS[_entity_name] = Draft202012Validator(
+        _schema,
+        format_checker=Draft202012Validator.FORMAT_CHECKER,
+    )
 
 ENTITY_ID_FIELDS: Dict[str, Tuple[str, ...]] = {
     "evidence_records": ("evidence_id",),
@@ -274,15 +314,18 @@ def _load_json_required(path: Path) -> Optional[Dict[str, Any]]:
     return None
 
 
-def _load_jsonl_rows(path: Path) -> Tuple[List[Dict[str, Any]], List[str]]:
+def _load_jsonl_rows(
+    path: Path,
+) -> Tuple[List[Dict[str, Any]], List[int], List[str]]:
     rows: List[Dict[str, Any]] = []
+    line_numbers: List[int] = []
     errors: List[str] = []
     if not path.is_file():
-        return rows, errors
+        return rows, line_numbers, errors
     try:
         text = path.read_text(encoding="utf-8")
     except OSError as exc:
-        return rows, [f"unreadable_jsonl:{path.name}:{exc}"]
+        return rows, line_numbers, [f"unreadable_jsonl:{path.name}:{exc}"]
     for line_no, line in enumerate(text.splitlines(), start=1):
         stripped = line.strip()
         if not stripped:
@@ -296,14 +339,15 @@ def _load_jsonl_rows(path: Path) -> Tuple[List[Dict[str, Any]], List[str]]:
             errors.append(f"jsonl_not_object:{path.name}:L{line_no}")
             continue
         rows.append(payload)
+        line_numbers.append(line_no)
     if not rows and not errors:
         if path.name in ALLOW_EMPTY_JSONL and not text:
-            return rows, errors
+            return rows, line_numbers, errors
         if path.name in ALLOW_EMPTY_JSONL:
             errors.append(f"allowed_empty_jsonl_not_truly_empty:{path.name}")
         else:
             errors.append(f"empty_jsonl:{path.name}")
-    return rows, errors
+    return rows, line_numbers, errors
 
 
 def _is_nonempty(value: Any) -> bool:
@@ -329,18 +373,106 @@ def _split_references(value: Any) -> List[str]:
     ]
 
 
+def _row_line_number(
+    file_name: str,
+    row_index: int,
+    line_numbers_by_file: Optional[Dict[str, List[int]]] = None,
+) -> int:
+    """Return a physical source line number for a parsed projection row."""
+    if line_numbers_by_file is not None:
+        line_numbers = line_numbers_by_file.get(file_name, [])
+        if 0 < row_index <= len(line_numbers):
+            return line_numbers[row_index - 1]
+    # CSV rows begin after the header; JSONL row numbering begins at one.
+    return row_index + (1 if file_name.endswith(".csv") else 0)
+
+
+def _coerce_csv_schema_value(value: Any, definition: Any) -> Any:
+    """Coerce CSV scalar text to the JSON Schema scalar type when possible."""
+    if not isinstance(value, str) or not isinstance(definition, dict):
+        return value
+    value_type = definition.get("type")
+    if value_type == "integer":
+        if re.fullmatch(r"[+-]?\d+", value):
+            try:
+                return int(value)
+            except ValueError:
+                return value
+    elif value_type == "number":
+        try:
+            numeric_value = float(value)
+        except ValueError:
+            return value
+        if math.isfinite(numeric_value):
+            return numeric_value
+    return value
+
+
+def _coerce_csv_row_for_schema(
+    row: Dict[str, Any], schema: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Return a typed copy of one CSV row for Draft 2020-12 validation."""
+    properties = schema.get("properties", {})
+    if not isinstance(properties, dict):
+        return dict(row)
+    return {
+        field_name: _coerce_csv_schema_value(
+            value, properties.get(field_name, {})
+        )
+        for field_name, value in row.items()
+    }
+
+
+def _schema_error_path(error: Any) -> str:
+    """Return a concise, deterministic JSON-pointer-like schema error path."""
+    path = [str(part) for part in error.absolute_path]
+    return ".".join(path) if path else "$"
+
+
+def _validate_schema_v2_json_schema(
+    rows_by_file: Dict[str, List[Dict[str, Any]]],
+    suffix: str,
+    line_numbers_by_file: Optional[Dict[str, List[int]]] = None,
+) -> List[str]:
+    """Validate every schema-v2 row with its full Draft 2020-12 contract."""
+    errors: List[str] = []
+    for entity_name, validator in SCHEMA_V2_VALIDATORS.items():
+        file_name = f"{entity_name}.{suffix}"
+        schema = SCHEMA_V2_SCHEMAS[entity_name]
+        for row_index, row in enumerate(rows_by_file.get(file_name, []), start=1):
+            payload = (
+                _coerce_csv_row_for_schema(row, schema)
+                if suffix == "csv"
+                else row
+            )
+            line_number = _row_line_number(
+                file_name, row_index, line_numbers_by_file
+            )
+            for error in sorted(
+                validator.iter_errors(payload),
+                key=lambda item: (list(item.absolute_path), item.validator),
+            ):
+                errors.append(
+                    "schema_v2_schema_validation:"
+                    f"{file_name}:L{line_number}:{_schema_error_path(error)}:"
+                    f"{error.validator}"
+                )
+    return errors
+
+
 def _validate_schema_v2_required_fields(
     rows_by_file: Dict[str, List[Dict[str, Any]]],
     suffix: str,
+    line_numbers_by_file: Optional[Dict[str, List[int]]] = None,
 ) -> List[str]:
     """Validate required schema-v2 fields for one CSV or JSONL projection."""
     errors: List[str] = []
-    first_row_line = 2 if suffix == "csv" else 1
     for entity_name, required_columns in SCHEMA_V2_REQUIRED_COLUMNS.items():
         file_name = f"{entity_name}.{suffix}"
-        for row_index, row in enumerate(
-            rows_by_file.get(file_name, []), start=first_row_line
-        ):
+        for row_index, row in enumerate(rows_by_file.get(file_name, []), start=1):
+            line_number = _row_line_number(
+                file_name, row_index, line_numbers_by_file
+            )
             for field_name in required_columns:
                 if field_name not in row:
                     issue = "missing_required_field"
@@ -352,7 +484,7 @@ def _validate_schema_v2_required_fields(
                 else:
                     issue = "empty_required_field"
                 errors.append(
-                    f"schema_v2_{issue}:{file_name}:L{row_index}:{field_name}"
+                    f"schema_v2_{issue}:{file_name}:L{line_number}:{field_name}"
                 )
             if (
                 entity_name == "validation_decisions"
@@ -361,7 +493,15 @@ def _validate_schema_v2_required_fields(
             ):
                 errors.append(
                     "schema_v2_empty_required_field:"
-                    f"{file_name}:L{row_index}:canonical_label"
+                    f"{file_name}:L{line_number}:canonical_label"
+                )
+            if (
+                entity_name == "validation_decisions"
+                and not _is_utc_iso_datetime(row.get("decision_at_utc"))
+            ):
+                errors.append(
+                    "schema_v2_invalid_decision_at_utc:"
+                    f"{file_name}:L{line_number}:decision_at_utc"
                 )
     return errors
 
@@ -371,9 +511,194 @@ def _row_key(row: Dict[str, Any], fields: Tuple[str, ...]) -> Tuple[str, ...]:
     return tuple(_identifier(row.get(field_name)) for field_name in fields)
 
 
+def _normalized_label(value: Any) -> str:
+    """Normalize a human-facing label before comparing linked projections."""
+    return re.sub(r"\s+", " ", _identifier(value)).strip().casefold()
+
+
+def _string_value(value: Any) -> str:
+    """Return a raw scalar string without normalizing retained text."""
+    return "" if value is None else str(value)
+
+
+def _normalized_text_hash(value: Any) -> str:
+    """Return the runtime-compatible SHA-256 for a retained text surface."""
+    normalized = re.sub(r"\s+", " ", _string_value(value)).strip().lower()
+    if not normalized:
+        return ""
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
+def _expected_fragment_provenance_id(fragment: Dict[str, Any]) -> str:
+    """Recreate a fragment occurrence identifier from its published preimage."""
+    payload = "\x1f".join(
+        (
+            _string_value(fragment.get("run_id")),
+            _string_value(fragment.get("evidence_id")),
+            _string_value(fragment.get("source_retrieved_at_utc")),
+            _string_value(fragment.get("source_provider")),
+            _string_value(fragment.get("source_provider_id")).strip().lower(),
+            _string_value(fragment.get("source_query_id")),
+            re.sub(
+                r"\s+",
+                " ",
+                _string_value(fragment.get("source_query_text")),
+            ).strip().lower(),
+        )
+    )
+    return "prov:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _parse_integer(value: Any) -> Optional[int]:
+    """Parse an integer from either a typed JSON value or a CSV scalar."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str) and re.fullmatch(r"[+-]?\d+", value):
+        try:
+            return int(value)
+        except ValueError:
+            return None
+    return None
+
+
+def _is_utc_iso_datetime(value: Any) -> bool:
+    """Return whether a retained decision timestamp is ISO-8601 UTC."""
+    token = _string_value(value).strip()
+    if not token:
+        return False
+    try:
+        parsed = datetime.fromisoformat(token.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    utc_offset = parsed.utcoffset()
+    return (
+        parsed.tzinfo is not None
+        and utc_offset is not None
+        and utc_offset.total_seconds() == 0
+    )
+
+
+def _normalize_title_for_label_guard(value: Any) -> str:
+    """Normalize labels/titles with the runtime canonical-label semantics."""
+    ascii_value = unicodedata.normalize(
+        "NFKD", _string_value(value)
+    ).encode("ascii", "ignore").decode("ascii")
+    return re.sub(
+        r"\s+", " ", re.sub(r"[^a-z0-9 ]+", " ", ascii_value.lower())
+    ).strip()
+
+
+def _canonical_label_guard_reason(
+    label: Any, retained_source_titles: Tuple[str, ...] = ()
+) -> str:
+    """Return the runtime-compatible rejection reason for a canonical label."""
+    token = re.sub(r"\s+", " ", _string_value(label)).strip()
+    if not token:
+        return "empty_label"
+    lowered = token.lower()
+    provider_token = re.sub(r"[_\s]+", " ", lowered).strip()
+    provider_aliases = {
+        re.sub(r"[_\s]+", " ", alias).strip()
+        for alias in _CANONICAL_LABEL_PROVIDER_ALIASES
+    }
+    if any(
+        provider_token == alias
+        or provider_token.startswith(f"{alias}:")
+        or provider_token.startswith(f"{alias} ")
+        for alias in provider_aliases
+    ):
+        return "provider_metadata_prefix"
+    if "..." in token or "\u2026" in token:
+        return "truncation_ellipsis"
+    if len(token) > 180:
+        return "length_over_180"
+    if token.count(" ") >= 8:
+        return "space_count_at_least_8"
+    metadata_match = re.search(
+        r"\b(doi|journal|conference|article|paper)\b", lowered
+    )
+    if metadata_match:
+        return f"metadata_term:{metadata_match.group(1)}"
+    normalized_label = _normalize_title_for_label_guard(token)
+    label_token_count = len(normalized_label.split())
+    for source_title in retained_source_titles:
+        normalized_title = _normalize_title_for_label_guard(source_title)
+        if not normalized_title or not normalized_label:
+            continue
+        if normalized_label == normalized_title:
+            return "source_title_exact"
+        if (
+            label_token_count >= 3
+            and f" {normalized_label} " in f" {normalized_title} "
+        ):
+            return "source_title_fragment"
+    return ""
+
+
+def _fragment_contains_phrase(fragment_text: Any, matched_phrase: Any) -> bool:
+    """Return whether a semantic phrase remains present in its evidence span."""
+    phrase = re.sub(r"\s+", " ", _identifier(matched_phrase)).strip()
+    text = re.sub(r"\s+", " ", _identifier(fragment_text)).strip()
+    if not phrase or not text:
+        return False
+    return re.search(
+        rf"(?<!\w){re.escape(phrase)}(?!\w)", text, flags=re.IGNORECASE
+    ) is not None
+
+
+def _candidate_reference_ids(
+    candidate: Dict[str, Any], plural_field: str, scalar_field: str
+) -> Set[str]:
+    """Return retained plural references, retaining a scalar fallback for errors."""
+    references = set(_split_references(candidate.get(plural_field)))
+    if references:
+        return references
+    scalar_reference = _identifier(candidate.get(scalar_field))
+    return {scalar_reference} if scalar_reference else set()
+
+
+_BOUND_AXIS_CONTEXTS = {
+    ("MARINE", "M"),
+    ("MARITIME", "T"),
+    ("OCEANIC", "O"),
+    ("HYDRONIZATION", "H"),
+}
+
+
+def _candidate_semantic_contexts(
+    candidate: Dict[str, Any],
+    signals: Dict[Tuple[str, ...], Dict[str, Any]],
+) -> Set[Tuple[str, str, str]]:
+    """Return all retained semantic sector/axis contexts for a candidate."""
+    signal_id = _identifier(candidate.get("signal_id"))
+    contexts: Set[Tuple[str, str, str]] = set()
+    for fragment_id in _candidate_reference_ids(
+        candidate, "fragment_ids", "fragment_id"
+    ):
+        signal = signals.get((signal_id, fragment_id))
+        if signal is not None:
+            contexts.add(
+                (
+                    _identifier(signal.get("sector")),
+                    _identifier(signal.get("axis_group")),
+                    _identifier(signal.get("axis_code")),
+                )
+            )
+    return contexts
+
+
+def _is_bound_axis_context(context: Tuple[str, str, str]) -> bool:
+    """Return whether a semantic context can validly emit an assignment."""
+    sector, axis_group, axis_code = context
+    return bool(sector) and (axis_group, axis_code) in _BOUND_AXIS_CONTEXTS
+
+
 def _validate_schema_v2_foreign_keys(
     rows_by_file: Dict[str, List[Dict[str, Any]]],
     suffix: str,
+    line_numbers_by_file: Optional[Dict[str, List[int]]] = None,
 ) -> List[str]:
     """Validate schema-v2 keys and the retained evidence-to-decision chain."""
     errors: List[str] = []
@@ -384,14 +709,18 @@ def _validate_schema_v2_foreign_keys(
     indexes: Dict[str, Dict[Tuple[str, ...], Dict[str, Any]]] = {}
     for entity_name, fields in ENTITY_ID_FIELDS.items():
         index: Dict[Tuple[str, ...], Dict[str, Any]] = {}
+        file_name = f"{entity_name}.{suffix}"
         for row_index, row in enumerate(entity_rows[entity_name], start=1):
             key = _row_key(row, fields)
             if not all(key):
                 continue
             if key in index:
+                line_number = _row_line_number(
+                    file_name, row_index, line_numbers_by_file
+                )
                 errors.append(
                     "schema_v2_duplicate_primary_key:"
-                    f"{entity_name}.{suffix}:L{row_index}:{'+'.join(fields)}"
+                    f"{file_name}:L{line_number}:{'+'.join(fields)}"
                 )
                 continue
             index[key] = row
@@ -403,15 +732,20 @@ def _validate_schema_v2_foreign_keys(
             for row in entity_rows[target]
             if all(_row_key(row, target_fields))
         }
+        file_name = f"{source}.{suffix}"
         for row_index, row in enumerate(entity_rows[source], start=1):
             key = _row_key(row, source_fields)
             if all(key) and key not in target_index:
+                line_number = _row_line_number(
+                    file_name, row_index, line_numbers_by_file
+                )
                 errors.append(
                     "schema_v2_broken_foreign_key:"
-                    f"{source}.{suffix}:L{row_index}:{'+'.join(source_fields)}"
+                    f"{file_name}:L{line_number}:{'+'.join(source_fields)}"
                 )
 
     for source, field_name, target, target_field in SCHEMA_V2_LIST_FOREIGN_KEYS:
+        file_name = f"{source}.{suffix}"
         target_values = {
             _identifier(row.get(target_field))
             for row in entity_rows[target]
@@ -420,65 +754,229 @@ def _validate_schema_v2_foreign_keys(
         for row_index, row in enumerate(entity_rows[source], start=1):
             for value in _split_references(row.get(field_name)):
                 if value not in target_values:
+                    line_number = _row_line_number(
+                        file_name, row_index, line_numbers_by_file
+                    )
                     errors.append(
                         "schema_v2_broken_foreign_key:"
-                        f"{source}.{suffix}:L{row_index}:{field_name}:{value}"
+                        f"{file_name}:L{line_number}:{field_name}:{value}"
                     )
 
     fragments = indexes["evidence_fragments"]
     signals = indexes["semantic_signals"]
     candidates = indexes["competence_candidates"]
     decisions = indexes["validation_decisions"]
-    for row_index, signal in enumerate(entity_rows["semantic_signals"], start=1):
-        fragment = fragments.get((_identifier(signal.get("fragment_id")),))
-        if fragment and any(
-            _identifier(signal.get(field_name))
-            != _identifier(fragment.get(field_name))
-            for field_name in ("evidence_id", "source_provenance_id")
+    canonical_competences = indexes["canonical_competences"]
+    evidence_records = indexes["evidence_records"]
+    inactive_decision_ids = {
+        _identifier(decision.get("superseded_validation_decision_id"))
+        for decision in entity_rows["validation_decisions"]
+        if _identifier(decision.get("superseded_validation_decision_id"))
+    }
+    for row_index, decision in enumerate(
+        entity_rows["validation_decisions"], start=1
+    ):
+        file_name = f"validation_decisions.{suffix}"
+        line_number = _row_line_number(
+            file_name, row_index, line_numbers_by_file
+        )
+        decision_id = _identifier(decision.get("validation_decision_id"))
+        superseded_id = _identifier(
+            decision.get("superseded_validation_decision_id")
+        )
+        if not superseded_id:
+            continue
+        if superseded_id == decision_id:
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:"
+                "superseded_validation_decision_self_reference"
+            )
+            continue
+        superseded_decision = decisions.get((superseded_id,))
+        if (
+            superseded_decision is not None
+            and _identifier(superseded_decision.get("target_candidate_id"))
+            != _identifier(decision.get("target_candidate_id"))
         ):
             errors.append(
                 "schema_v2_lineage_mismatch:"
-                f"semantic_signals.{suffix}:L{row_index}:fragment_lineage"
+                f"{file_name}:L{line_number}:"
+                "superseded_validation_decision_target_candidate"
             )
+    for row_index, fragment in enumerate(
+        entity_rows["evidence_fragments"], start=1
+    ):
+        file_name = f"evidence_fragments.{suffix}"
+        line_number = _row_line_number(
+            file_name, row_index, line_numbers_by_file
+        )
+        expected_provenance_id = _expected_fragment_provenance_id(fragment)
+        retained_provenance_id = _string_value(
+            fragment.get("source_provenance_id")
+        )
+        if retained_provenance_id != expected_provenance_id:
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:source_provenance_id"
+            )
+        expected_provenance_hash = hashlib.sha256(
+            retained_provenance_id.encode("utf-8")
+        ).hexdigest()
+        if _string_value(fragment.get("provenance_hash")) != expected_provenance_hash:
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:provenance_hash"
+            )
+    for row_index, signal in enumerate(entity_rows["semantic_signals"], start=1):
+        file_name = f"semantic_signals.{suffix}"
+        line_number = _row_line_number(
+            file_name, row_index, line_numbers_by_file
+        )
+        linked_fragment = fragments.get(
+            (_identifier(signal.get("fragment_id")),)
+        )
+        if linked_fragment and any(
+            _identifier(signal.get(field_name))
+            != _identifier(linked_fragment.get(field_name))
+            for field_name in ("evidence_id", "run_id", "source_provenance_id")
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:fragment_lineage"
+            )
+        if linked_fragment and not _fragment_contains_phrase(
+            linked_fragment.get("fragment_text"), signal.get("matched_phrase")
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:matched_phrase"
+            )
+        if linked_fragment:
+            start_offset = _parse_integer(
+                linked_fragment.get("span_start_offset")
+            )
+            end_offset = _parse_integer(
+                linked_fragment.get("span_end_offset")
+            )
+            context_text = _string_value(signal.get("context_text"))
+            if (
+                start_offset is None
+                or end_offset is None
+                or start_offset < 0
+                or end_offset < start_offset
+                or end_offset > len(context_text)
+            ):
+                errors.append(
+                    "schema_v2_lineage_mismatch:"
+                    f"{file_name}:L{line_number}:fragment_context_offsets"
+                )
+            elif context_text[start_offset:end_offset] != _string_value(
+                linked_fragment.get("fragment_text")
+            ):
+                errors.append(
+                    "schema_v2_lineage_mismatch:"
+                    f"{file_name}:L{line_number}:fragment_context_slice"
+                )
+            if _normalized_text_hash(context_text) != _string_value(
+                linked_fragment.get("surface_text_hash")
+            ):
+                errors.append(
+                    "schema_v2_lineage_mismatch:"
+                    f"{file_name}:L{line_number}:surface_text_hash"
+                )
 
     for row_index, candidate in enumerate(
         entity_rows["competence_candidates"], start=1
     ):
-        fragment_id = _identifier(candidate.get("fragment_id"))
-        fragment = fragments.get((fragment_id,))
-        linked_signal = signals.get(
-            (
-                _identifier(candidate.get("signal_id")),
-                fragment_id,
-            )
+        file_name = f"competence_candidates.{suffix}"
+        line_number = _row_line_number(
+            file_name, row_index, line_numbers_by_file
         )
-        if linked_signal and _identifier(candidate.get("evidence_id")) != _identifier(
-            linked_signal.get("evidence_id")
-        ):
+        fragment_id = _identifier(candidate.get("fragment_id"))
+        selected_fragment = fragments.get((fragment_id,))
+        references = _candidate_reference_ids(
+            candidate, "fragment_ids", "fragment_id"
+        )
+        expected_fragment_ids = {
+            signal_fragment_id
+            for (signal_id, signal_fragment_id), signal in signals.items()
+            if (
+                signal_id == _identifier(candidate.get("signal_id"))
+                and _identifier(signal.get("evidence_id"))
+                == _identifier(candidate.get("evidence_id"))
+            )
+        }
+        if references != expected_fragment_ids:
             errors.append(
                 "schema_v2_lineage_mismatch:"
-                f"competence_candidates.{suffix}:L{row_index}:evidence_id"
+                f"{file_name}:L{line_number}:fragment_ids"
             )
-        references = _split_references(candidate.get("fragment_ids"))
         if fragment_id and fragment_id not in references:
             errors.append(
                 "schema_v2_lineage_mismatch:"
-                f"competence_candidates.{suffix}:L{row_index}:fragment_ids"
+                f"{file_name}:L{line_number}:fragment_ids"
             )
         provenance_ids = set(
             _split_references(candidate.get("source_provenance_ids"))
         )
-        if fragment and _identifier(
-            fragment.get("source_provenance_id")
-        ) not in provenance_ids:
+        for referenced_fragment_id in sorted(references):
+            referenced_fragment = fragments.get((referenced_fragment_id,))
+            linked_signal = signals.get(
+                (
+                    _identifier(candidate.get("signal_id")),
+                    referenced_fragment_id,
+                )
+            )
+            if referenced_fragment is None or linked_signal is None:
+                errors.append(
+                    "schema_v2_lineage_mismatch:"
+                    f"{file_name}:L{line_number}:fragment_ids_signal_pair"
+                )
+                continue
+            if _identifier(candidate.get("evidence_id")) != _identifier(
+                referenced_fragment.get("evidence_id")
+            ):
+                errors.append(
+                    "schema_v2_lineage_mismatch:"
+                    f"{file_name}:L{line_number}:fragment_ids_evidence_id"
+                )
+        expected_provenance_ids = {
+            _identifier(referenced_fragment.get("source_provenance_id"))
+            for referenced_fragment_id in expected_fragment_ids
+            for referenced_fragment in [
+                fragments.get((referenced_fragment_id,))
+            ]
+            if referenced_fragment is not None
+        }
+        if provenance_ids != expected_provenance_ids:
             errors.append(
                 "schema_v2_lineage_mismatch:"
-                f"competence_candidates.{suffix}:L{row_index}:source_provenance_ids"
+                f"{file_name}:L{line_number}:source_provenance_ids"
+            )
+        if selected_fragment and any(
+            _identifier(candidate.get(field_name))
+            != _identifier(selected_fragment.get(fragment_field))
+            for field_name, fragment_field in (
+                ("evidence_id", "evidence_id"),
+                ("run_id", "run_id"),
+                ("exact_evidence_span", "fragment_text"),
+                ("exact_span_start_offset", "span_start_offset"),
+                ("exact_span_end_offset", "span_end_offset"),
+            )
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:selected_fragment_content"
             )
 
     for row_index, decision in enumerate(
         entity_rows["validation_decisions"], start=1
     ):
+        file_name = f"validation_decisions.{suffix}"
+        line_number = _row_line_number(
+            file_name, row_index, line_numbers_by_file
+        )
         linked_candidate = candidates.get(
             (_identifier(decision.get("target_candidate_id")),)
         )
@@ -486,58 +984,328 @@ def _validate_schema_v2_foreign_keys(
             continue
         expected = {
             "evidence_ids": {_identifier(linked_candidate.get("evidence_id"))},
-            "fragment_ids": {_identifier(linked_candidate.get("fragment_id"))},
-            "source_provenance_ids": set(
-                _split_references(linked_candidate.get("source_provenance_ids"))
+            "fragment_ids": _candidate_reference_ids(
+                linked_candidate, "fragment_ids", "fragment_id"
+            ),
+            "source_provenance_ids": _candidate_reference_ids(
+                linked_candidate,
+                "source_provenance_ids",
+                "source_provenance_id",
             ),
         }
         for field_name, expected_values in expected.items():
-            if expected_values <= set(_split_references(decision.get(field_name))):
+            if expected_values == set(_split_references(decision.get(field_name))):
                 continue
             errors.append(
                 "schema_v2_lineage_mismatch:"
-                f"validation_decisions.{suffix}:L{row_index}:{field_name}"
+                f"{file_name}:L{line_number}:{field_name}"
             )
 
-    for entity_name in ("canonical_competences", "sector_competence_assignments"):
-        for row_index, row in enumerate(entity_rows[entity_name], start=1):
-            linked_decision = decisions.get(
-                (_identifier(row.get("validation_decision_id")),)
-            )
-            if linked_decision is None:
-                continue
-            if (
-                _identifier(linked_decision.get("decision_status")) == "accepted"
-                and _identifier(row.get("source_candidate_id"))
-                == _identifier(linked_decision.get("target_candidate_id"))
-            ):
-                continue
+    for row_index, canonical in enumerate(
+        entity_rows["canonical_competences"], start=1
+    ):
+        file_name = f"canonical_competences.{suffix}"
+        line_number = _row_line_number(
+            file_name, row_index, line_numbers_by_file
+        )
+        linked_decision = decisions.get(
+            (_identifier(canonical.get("validation_decision_id")),)
+        )
+        if linked_decision is None:
+            continue
+        if _identifier(canonical.get("validation_decision_id")) in inactive_decision_ids:
             errors.append(
                 "schema_v2_lineage_mismatch:"
-                f"{entity_name}.{suffix}:L{row_index}:validation_decision_id"
+                f"{file_name}:L{line_number}:inactive_validation_decision_id"
             )
+        if (
+            _identifier(linked_decision.get("decision_status")) != "accepted"
+            or _identifier(canonical.get("source_candidate_id"))
+            != _identifier(linked_decision.get("target_candidate_id"))
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:validation_decision_id"
+            )
+        if _normalized_label(canonical.get("preferred_label")) != _normalized_label(
+            linked_decision.get("canonical_label")
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:canonical_label"
+            )
+        if _identifier(linked_decision.get("decision_status")) == "accepted":
+            linked_candidate = candidates.get(
+                (_identifier(canonical.get("source_candidate_id")),)
+            )
+            retained_source_titles: Tuple[str, ...] = ()
+            if linked_candidate is not None:
+                evidence_record = evidence_records.get(
+                    (_identifier(linked_candidate.get("evidence_id")),)
+                )
+                if evidence_record is not None:
+                    retained_source_titles = (
+                        _string_value(evidence_record.get("canonical_title")),
+                    )
+            guard_reason = _canonical_label_guard_reason(
+                canonical.get("preferred_label"), retained_source_titles
+            )
+            if guard_reason:
+                errors.append(
+                    "schema_v2_lineage_mismatch:"
+                    f"{file_name}:L{line_number}:canonical_label_guard:"
+                    f"{guard_reason}"
+                )
 
     for row_index, assignment in enumerate(
         entity_rows["sector_competence_assignments"], start=1
     ):
+        file_name = f"sector_competence_assignments.{suffix}"
+        line_number = _row_line_number(
+            file_name, row_index, line_numbers_by_file
+        )
         linked_candidate = candidates.get(
             (_identifier(assignment.get("source_candidate_id")),)
         )
+        linked_decision = decisions.get(
+            (_identifier(assignment.get("validation_decision_id")),)
+        )
+        linked_canonical = canonical_competences.get(
+            (_identifier(assignment.get("canonical_competence_id")),)
+        )
+        if _identifier(assignment.get("validation_decision_id")) in inactive_decision_ids:
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:inactive_validation_decision_id"
+            )
+        if linked_decision is not None and (
+            _identifier(linked_decision.get("decision_status")) != "accepted"
+            or _identifier(assignment.get("source_candidate_id"))
+            != _identifier(linked_decision.get("target_candidate_id"))
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:validation_decision_id"
+            )
+        if linked_decision is not None and linked_canonical is not None and (
+            _normalized_label(linked_canonical.get("preferred_label"))
+            != _normalized_label(linked_decision.get("canonical_label"))
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:canonical_label"
+            )
         if linked_candidate is None:
             continue
         assignment_evidence_ids = set(
             _split_references(assignment.get("evidence_ids"))
         )
+        expected_evidence_ids = {_identifier(linked_candidate.get("evidence_id"))}
+        if assignment_evidence_ids != expected_evidence_ids:
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:evidence_ids"
+            )
+        semantic_contexts = _candidate_semantic_contexts(
+            linked_candidate, signals
+        )
+        assignment_context = (
+            _identifier(assignment.get("sector")),
+            _identifier(assignment.get("axis_group")),
+            _identifier(assignment.get("axis_code")),
+        )
+        if assignment_context not in semantic_contexts:
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:semantic_context"
+            )
+
+    for row_index, decision in enumerate(
+        entity_rows["validation_decisions"], start=1
+    ):
+        decision_id = _identifier(decision.get("validation_decision_id"))
         if (
-            assignment_evidence_ids
-            and _identifier(linked_candidate.get("evidence_id"))
-            in assignment_evidence_ids
+            _identifier(decision.get("decision_status")) != "accepted"
+            or decision_id in inactive_decision_ids
         ):
             continue
-        errors.append(
-            "schema_v2_lineage_mismatch:"
-            f"sector_competence_assignments.{suffix}:L{row_index}:evidence_ids"
+        file_name = f"validation_decisions.{suffix}"
+        line_number = _row_line_number(
+            file_name, row_index, line_numbers_by_file
         )
+        candidate_id = _identifier(decision.get("target_candidate_id"))
+        linked_candidate = candidates.get((candidate_id,))
+        if linked_candidate is None:
+            continue
+        expected_contexts = {
+            context
+            for context in _candidate_semantic_contexts(
+                linked_candidate, signals
+            )
+            if _is_bound_axis_context(context)
+        }
+        matching_canonicals = [
+            canonical
+            for canonical in entity_rows["canonical_competences"]
+            if _normalized_label(canonical.get("preferred_label"))
+            == _normalized_label(decision.get("canonical_label"))
+        ]
+        canonical_ids = {
+            _identifier(canonical.get("canonical_competence_id"))
+            for canonical in matching_canonicals
+            if _identifier(canonical.get("canonical_competence_id"))
+        }
+        if len(canonical_ids) != 1:
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:canonical_competence"
+            )
+            continue
+        expected_canonical_id = next(iter(canonical_ids))
+        matching_assignments = [
+            assignment
+            for assignment in entity_rows["sector_competence_assignments"]
+            if (
+                _identifier(assignment.get("validation_decision_id"))
+                == decision_id
+                and _identifier(assignment.get("source_candidate_id"))
+                == candidate_id
+            )
+        ]
+        assignment_contexts = {
+            (
+                _identifier(assignment.get("sector")),
+                _identifier(assignment.get("axis_group")),
+                _identifier(assignment.get("axis_code")),
+            )
+            for assignment in matching_assignments
+        }
+        assignment_canonical_ids = {
+            _identifier(assignment.get("canonical_competence_id"))
+            for assignment in matching_assignments
+        }
+        if (
+            assignment_contexts != expected_contexts
+            or len(matching_assignments) != len(expected_contexts)
+            or (
+                matching_assignments
+                and assignment_canonical_ids != {expected_canonical_id}
+            )
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:sector_competence_assignments"
+            )
+    return errors
+
+
+def _projection_value(value: Any) -> str:
+    """Return a stable scalar representation for CSV/JSONL parity checks."""
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return str(value).strip()
+
+
+def _validate_schema_v2_cross_projection_parity(
+    csv_rows_by_file: Dict[str, List[Dict[str, Any]]],
+    jsonl_rows_by_file: Dict[str, List[Dict[str, Any]]],
+    csv_line_numbers: Optional[Dict[str, List[int]]] = None,
+    jsonl_line_numbers: Optional[Dict[str, List[int]]] = None,
+) -> List[str]:
+    """Require CSV and JSONL schema-v2 projections to retain the same rows."""
+    errors: List[str] = []
+    for entity_name in SCHEMA_V2_ENTITY_NAMES:
+        identity_fields = ENTITY_ID_FIELDS[entity_name]
+        csv_file = f"{entity_name}.csv"
+        jsonl_file = f"{entity_name}.jsonl"
+        csv_index: Dict[Tuple[str, ...], Tuple[int, Dict[str, Any]]] = {}
+        jsonl_index: Dict[Tuple[str, ...], Tuple[int, Dict[str, Any]]] = {}
+        for row_index, row in enumerate(csv_rows_by_file.get(csv_file, []), start=1):
+            key = _row_key(row, identity_fields)
+            if all(key):
+                csv_index.setdefault(key, (row_index, row))
+        for row_index, row in enumerate(
+            jsonl_rows_by_file.get(jsonl_file, []), start=1
+        ):
+            key = _row_key(row, identity_fields)
+            if all(key):
+                jsonl_index.setdefault(key, (row_index, row))
+
+        for key in sorted(set(csv_index) - set(jsonl_index)):
+            row_index, _ = csv_index[key]
+            line_number = _row_line_number(
+                csv_file, row_index, csv_line_numbers
+            )
+            errors.append(
+                "schema_v2_cross_projection_missing_jsonl_key:"
+                f"{entity_name}:csv:L{line_number}"
+            )
+        for key in sorted(set(jsonl_index) - set(csv_index)):
+            row_index, _ = jsonl_index[key]
+            line_number = _row_line_number(
+                jsonl_file, row_index, jsonl_line_numbers
+            )
+            errors.append(
+                "schema_v2_cross_projection_missing_csv_key:"
+                f"{entity_name}:jsonl:L{line_number}"
+            )
+        for key in sorted(set(csv_index) & set(jsonl_index)):
+            csv_row_index, csv_row = csv_index[key]
+            jsonl_row_index, jsonl_row = jsonl_index[key]
+            csv_line_number = _row_line_number(
+                csv_file, csv_row_index, csv_line_numbers
+            )
+            jsonl_line_number = _row_line_number(
+                jsonl_file, jsonl_row_index, jsonl_line_numbers
+            )
+            for field_name in SCHEMA_V2_REQUIRED_COLUMNS[entity_name]:
+                if _projection_value(csv_row.get(field_name)) == _projection_value(
+                    jsonl_row.get(field_name)
+                ):
+                    continue
+                errors.append(
+                    "schema_v2_cross_projection_value_mismatch:"
+                    f"{entity_name}:{field_name}:csv:L{csv_line_number}:"
+                    f"jsonl:L{jsonl_line_number}"
+                )
+    return errors
+
+
+def _validate_schema_v2_manifest_counts(
+    manifest_path: Path,
+    csv_rows_by_file: Dict[str, List[Dict[str, Any]]],
+    jsonl_rows_by_file: Dict[str, List[Dict[str, Any]]],
+) -> List[str]:
+    """Require the database manifest to count each schema-v2 table exactly."""
+    errors: List[str] = []
+    manifest = _load_json_required(manifest_path)
+    counts = manifest.get("counts") if manifest is not None else None
+    if not isinstance(counts, dict):
+        return [
+            "schema_v2_manifest_missing_counts:"
+            f"{manifest_path.name}"
+        ]
+
+    for entity_name in SCHEMA_V2_ENTITY_NAMES:
+        declared_count = counts.get(entity_name)
+        if isinstance(declared_count, bool) or not isinstance(
+            declared_count, int
+        ):
+            errors.append(
+                "schema_v2_manifest_invalid_count:"
+                f"{manifest_path.name}:{entity_name}"
+            )
+            continue
+        csv_count = len(csv_rows_by_file.get(f"{entity_name}.csv", []))
+        jsonl_count = len(jsonl_rows_by_file.get(f"{entity_name}.jsonl", []))
+        if declared_count != csv_count or declared_count != jsonl_count:
+            errors.append(
+                "schema_v2_manifest_count_mismatch:"
+                f"{manifest_path.name}:{entity_name}:"
+                f"manifest={declared_count}:csv={csv_count}:jsonl={jsonl_count}"
+            )
     return errors
 
 
@@ -708,6 +1476,8 @@ def _readme_text(version_tag: str, generated_at: str) -> str:
         "derived demands, gap model, credentials, outcomes, novelty).\n"
         "- `data/jsonl/` — canonical JSONL audit records and evidence-bound "
         "hypothesis fragments.\n"
+        "- `schemas/` — bundled Draft 2020-12 schema-v2 contracts for the "
+        "evidence-to-decision tables.\n"
         "- `protocol/` — authoritative protocol, executable projection, and "
         "declared acquisition constraints.\n"
         "- `provenance/` — query execution log and Layer 1 raw acquisition "
@@ -738,7 +1508,9 @@ def _citation_text(version_tag: str, generated_at: str) -> str:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
-    parser = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
+    parser = argparse.ArgumentParser(
+        description=next(iter((__doc__ or "").splitlines()), "")
+    )
     parser.add_argument("--database-dir", default="outputs/cumulative_database")
     parser.add_argument("--reports-dir", default="reports")
     parser.add_argument("--stats-dir", default="outputs/layer4_statistics")
@@ -898,36 +1670,65 @@ def main(argv: Optional[List[str]] = None) -> int:
             except OSError as exc:
                 missing_required.append(f"unreadable_checksum:{name}:{exc}")
     csv_rows: Dict[str, List[Dict[str, Any]]] = {}
+    csv_line_numbers: Dict[str, List[int]] = {}
     for name in CSV_FILES:
         candidate = database_dir / name
         if not candidate.is_file():
             continue
         try:
             text = candidate.read_text(encoding="utf-8")
-            reader = csv.reader(text.splitlines())
+            reader = csv.reader(StringIO(text, newline=""))
             header = next(reader, None)
             if not header:
                 missing_required.append(f"empty_csv:{name}")
-            elif name in CSV_REQUIRED_COLUMNS:
-                header_set = set(header)
-                missing_cols = sorted(
-                    col for col in CSV_REQUIRED_COLUMNS[name]
-                    if col not in header_set
-                )
-                if missing_cols:
-                    missing_required.append(
-                        f"csv_missing_columns:{name}:"
-                        + ",".join(missing_cols)
+            else:
+                header_counts: Dict[str, int] = {}
+                for header_name in header:
+                    header_counts[header_name] = (
+                        header_counts.get(header_name, 0) + 1
                     )
-            parsed_rows = [
-                {
-                    str(key): value
-                    for key, value in row.items()
-                    if key is not None
-                }
-                for row in csv.DictReader(text.splitlines())
-            ]
+                duplicate_headers = sorted(
+                    header_name
+                    for header_name, count in header_counts.items()
+                    if count > 1
+                )
+                if duplicate_headers:
+                    rendered_headers = ",".join(
+                        header_name or "<empty>"
+                        for header_name in duplicate_headers
+                    )
+                    missing_required.append(
+                        f"csv_duplicate_headers:{name}:L1:{rendered_headers}"
+                    )
+                if name in CSV_REQUIRED_COLUMNS:
+                    header_set = set(header)
+                    missing_cols = sorted(
+                        col for col in CSV_REQUIRED_COLUMNS[name]
+                        if col not in header_set
+                    )
+                    if missing_cols:
+                        missing_required.append(
+                            f"csv_missing_columns:{name}:"
+                            + ",".join(missing_cols)
+                        )
+            dict_reader = csv.DictReader(StringIO(text, newline=""))
+            parsed_rows = []
+            line_numbers = []
+            for row in dict_reader:
+                if row.get(None):
+                    missing_required.append(
+                        f"csv_surplus_values:{name}:L{dict_reader.line_num}"
+                    )
+                parsed_rows.append(
+                    {
+                        str(key): value
+                        for key, value in row.items()
+                        if key is not None
+                    }
+                )
+                line_numbers.append(dict_reader.line_num)
             csv_rows[name] = parsed_rows
+            csv_line_numbers[name] = line_numbers
             if name == "derived_competence_demands.csv":
                 for row_index, row in enumerate(parsed_rows, start=2):
                     evidence_ids = str(row.get("evidence_ids", "")).strip()
@@ -944,22 +1745,57 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     # JSONL scientific-content checks (non-empty, parseable, and structurally linked).
     jsonl_rows: Dict[str, List[Dict[str, Any]]] = {}
+    jsonl_line_numbers: Dict[str, List[int]] = {}
     for name in JSONL_FILES:
-        rows, errors = _load_jsonl_rows(database_dir / name)
+        rows, line_numbers, errors = _load_jsonl_rows(database_dir / name)
         jsonl_rows[name] = rows
+        jsonl_line_numbers[name] = line_numbers
         missing_required.extend(errors)
 
     missing_required.extend(
-        _validate_schema_v2_required_fields(csv_rows, "csv")
+        _validate_schema_v2_json_schema(
+            csv_rows, "csv", csv_line_numbers
+        )
     )
     missing_required.extend(
-        _validate_schema_v2_required_fields(jsonl_rows, "jsonl")
+        _validate_schema_v2_json_schema(
+            jsonl_rows, "jsonl", jsonl_line_numbers
+        )
     )
     missing_required.extend(
-        _validate_schema_v2_foreign_keys(csv_rows, "csv")
+        _validate_schema_v2_required_fields(
+            csv_rows, "csv", csv_line_numbers
+        )
     )
     missing_required.extend(
-        _validate_schema_v2_foreign_keys(jsonl_rows, "jsonl")
+        _validate_schema_v2_required_fields(
+            jsonl_rows, "jsonl", jsonl_line_numbers
+        )
+    )
+    missing_required.extend(
+        _validate_schema_v2_foreign_keys(
+            csv_rows, "csv", csv_line_numbers
+        )
+    )
+    missing_required.extend(
+        _validate_schema_v2_foreign_keys(
+            jsonl_rows, "jsonl", jsonl_line_numbers
+        )
+    )
+    missing_required.extend(
+        _validate_schema_v2_cross_projection_parity(
+            csv_rows,
+            jsonl_rows,
+            csv_line_numbers,
+            jsonl_line_numbers,
+        )
+    )
+    missing_required.extend(
+        _validate_schema_v2_manifest_counts(
+            database_dir / "cumulative_database_manifest.json",
+            csv_rows,
+            jsonl_rows,
+        )
     )
     missing_required.extend(
         _validate_legacy_derived_demand_metadata(
@@ -1104,6 +1940,13 @@ def main(argv: Optional[List[str]] = None) -> int:
         blob = _read_bytes_if_exists(database_dir / name)
         if blob is not None:
             entries.append((f"data/jsonl/{name}", blob))
+
+    # The versioned schema-v2 contracts are part of the publication package,
+    # so consumers can validate each CSV/JSONL projection without relying on
+    # a mutable repository checkout.
+    for name in SCHEMA_V2_SCHEMA_FILENAMES:
+        schema_path = _SCHEMA_V2_DIR / name
+        entries.append((f"schemas/{name}", schema_path.read_bytes()))
 
     # Database manifests, novelty results, and internal checksums.
     for name in DATABASE_METADATA_FILES:

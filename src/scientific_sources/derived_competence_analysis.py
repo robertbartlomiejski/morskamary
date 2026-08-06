@@ -58,6 +58,12 @@ from typing import (
 LAYER4_SCHEMA_VERSION = "1.0.0"
 LAYER5_SCHEMA_VERSION = "1.0.0"
 
+# Layer-4 compatibility aggregates are deliberately not validation-backed
+# canonical competences.  Layer 5 may count a demand as validation-backed only
+# when a later integration explicitly supplies this status from accepted
+# canonical lineage.
+VALIDATED_CANONICAL_DEMAND_SCIENTIFIC_STATUS = "validated_canonical_competence"
+
 DERIVED_DEMANDS_CSV = "derived_competence_demands.csv"
 DERIVED_DEMANDS_JSONL = "derived_competence_demands.jsonl"
 SECTOR_AXIS_GAP_MODEL_CSV = "sector_axis_gap_model.csv"
@@ -773,7 +779,11 @@ def build_layer5(
     built_at_utc: Optional[str] = None,
     classifier_version: str = "",
 ) -> Layer5Result:
-    """Build the Layer 5 gap model, credential translation, and outcomes."""
+    """Build the Layer 5 gap model, credential translation, and outcomes.
+
+    Legacy Layer-4 category aggregates remain visible as literature demand, but
+    they do not enter validation-backed coverage or gap measures.
+    """
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     baseline_map = dict(static_baseline_count_by_sector or {})
@@ -794,8 +804,19 @@ def build_layer5(
     for sector, axis in sorted(gap_cells):
         demands = buckets.get((sector, axis), [])
         live_demand = len(demands)
-        validated = sum(1 for d in demands if d.status not in ("review_required", "duplicate_artifact"))
-        covered = int(coverage_map.get((sector, axis), 0))
+        validated = sum(
+            1
+            for d in demands
+            if (
+                d.scientific_status
+                == VALIDATED_CANONICAL_DEMAND_SCIENTIFIC_STATUS
+                and d.status not in ("review_required", "duplicate_artifact")
+            )
+        )
+        # The coverage map counts validated demands, not independent supply
+        # items.  Do not let it produce coverage for a cell without validated
+        # canonical demand lineage.
+        covered = min(int(coverage_map.get((sector, axis), 0)), validated)
         baseline_val = int(baseline_map.get(sector, 0))
         uncovered = max(0, validated - covered)
         gap_ratio = round(uncovered / max(1, validated), 6)
@@ -807,6 +828,8 @@ def build_layer5(
             warns.append("static_baseline_only")
         if live_demand > 0 and all(d.status == "review_required" for d in demands):
             warns.append("all_review_required")
+        if live_demand > 0 and validated == 0:
+            warns.append("no_validated_canonical_demand")
         gap_rows.append(SectorAxisGapRow(
             sector=sector,
             axis_group=axis,

@@ -8,6 +8,11 @@
     "evidence_id",
     "run_id",
     "source_provenance_id",
+    "source_provider",
+    "source_provider_id",
+    "source_retrieved_at_utc",
+    "source_query_id",
+    "source_query_text",
     "source_field",
     "language",
     "fragment_text",
@@ -22,6 +27,11 @@
     "evidence_id": { "type": "string", "minLength": 1 },
     "run_id": { "type": "string", "minLength": 1 },
     "source_provenance_id": { "type": "string", "minLength": 1 },
+    "source_provider": { "type": "string", "minLength": 1 },
+    "source_provider_id": { "type": "string" },
+    "source_retrieved_at_utc": { "type": "string", "minLength": 1 },
+    "source_query_id": { "type": "string" },
+    "source_query_text": { "type": "string" },
     "source_field": {
       "type": "string",
       "enum": ["title", "subject_terms", "abstract", "full_text"]

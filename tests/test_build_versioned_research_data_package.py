@@ -6,9 +6,18 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from zipfile import ZipFile
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATH = REPO_ROOT / "scripts" / "build_versioned_research_data_package.py"
+SCHEMA_V2_ENTITY_NAMES = (
+    "evidence_fragments",
+    "semantic_signals",
+    "competence_candidates",
+    "canonical_competences",
+    "sector_competence_assignments",
+    "validation_decisions",
+)
 
 
 def _load_module():
@@ -52,6 +61,8 @@ def _seed_minimal_outputs(repo_root: Path) -> None:
     out = repo_root / "outputs"
     (out / "run_archive").mkdir(parents=True, exist_ok=True)
     (out / "manual_sources").mkdir(parents=True, exist_ok=True)
+    cumulative_database = out / "cumulative_database"
+    cumulative_database.mkdir(parents=True, exist_ok=True)
 
     (out / "run_archive" / "cross_run_run_summary.csv").write_text(
         (
@@ -127,6 +138,28 @@ def _seed_minimal_outputs(repo_root: Path) -> None:
         ),
         encoding="utf-8",
     )
+    schema_v2_samples = json.loads(
+        (REPO_ROOT / "tests/fixtures/cumulative_database_schema_samples.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    for entity_name in SCHEMA_V2_ENTITY_NAMES:
+        row = schema_v2_samples[entity_name]
+        schema = json.loads(
+            (repo_root / "schemas" / f"{entity_name}.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        fields = list(schema["properties"])
+        with (cumulative_database / f"{entity_name}.csv").open(
+            "w", encoding="utf-8", newline=""
+        ) as handle:
+            writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
+            writer.writeheader()
+            writer.writerow(row)
+        (cumulative_database / f"{entity_name}.jsonl").write_text(
+            json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
 
 
 def test_build_versioned_research_data_package_creates_manifest_checksums_and_views(
@@ -176,6 +209,29 @@ def test_build_versioned_research_data_package_creates_manifest_checksums_and_vi
     assert manifest["source_commit_sha"] == "abc1234"
     assert manifest["package_commit_sha"] == "pending_until_merge"
     assert manifest["exports"]["csv_utf8"] is True
+    assert manifest["schema_v2_entities"]["entities"] == list(
+        SCHEMA_V2_ENTITY_NAMES
+    )
+    assert manifest["schema_validation"]["validated_exports"] == {
+        "csv": list(SCHEMA_V2_ENTITY_NAMES),
+        "jsonl": list(SCHEMA_V2_ENTITY_NAMES),
+    }
+    for entity_name in SCHEMA_V2_ENTITY_NAMES:
+        csv_path = package_dir / "data" / "csv" / f"{entity_name}.csv"
+        jsonl_path = package_dir / "data" / "jsonl" / f"{entity_name}.jsonl"
+        assert csv_path.exists()
+        assert jsonl_path.exists()
+        assert entity_name in manifest["schema_validation"]["validated_tables"]
+        assert manifest["schema_v2_entities"]["package_paths"][entity_name] == {
+            "csv": f"data/csv/{entity_name}.csv",
+            "jsonl": f"data/jsonl/{entity_name}.jsonl",
+        }
+        assert csv_path.read_bytes() == (
+            repo_root / "outputs" / "cumulative_database" / f"{entity_name}.csv"
+        ).read_bytes()
+        assert jsonl_path.read_bytes() == (
+            repo_root / "outputs" / "cumulative_database" / f"{entity_name}.jsonl"
+        ).read_bytes()
 
     with (package_dir / "data" / "csv" / "runs.csv").open(
         "r", encoding="utf-8", newline=""
@@ -184,7 +240,45 @@ def test_build_versioned_research_data_package_creates_manifest_checksums_and_vi
     assert run_rows
     assert run_rows[0]["run_id"] == "123-1"
 
-    assert (output_dir / "morskamary_cumulative_evidence_v0.1.0.zip").exists()
+    archive_path = output_dir / "morskamary_cumulative_evidence_v0.1.0.zip"
+    assert archive_path.exists()
+    with ZipFile(archive_path) as archive:
+        archived_paths = set(archive.namelist())
+    for entity_name in SCHEMA_V2_ENTITY_NAMES:
+        assert f"data/csv/{entity_name}.csv" in archived_paths
+        assert f"data/jsonl/{entity_name}.jsonl" in archived_paths
+
+
+def test_build_versioned_package_rejects_invalid_schema_v2_jsonl(
+    tmp_path: Path,
+) -> None:
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+
+    invalid_jsonl = repo_root / "outputs/cumulative_database/semantic_signals.jsonl"
+    row = json.loads(invalid_jsonl.read_text(encoding="utf-8"))
+    row["confidence_score"] = 1.5
+    invalid_jsonl.write_text(json.dumps(row) + "\n", encoding="utf-8")
+
+    exit_code = module.main(
+        [
+            "--repo-root",
+            str(repo_root),
+            "--output-dir",
+            str(tmp_path / "release_out"),
+            "--version-tag",
+            "v0.1.1",
+            "--include-xlsx",
+            "false",
+            "--include-sav",
+            "false",
+        ]
+    )
+
+    assert exit_code == 1
 
 
 def test_build_versioned_research_data_package_cli_entrypoint_forwards_argv(

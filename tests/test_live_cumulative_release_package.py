@@ -6,6 +6,7 @@ import csv
 import hashlib
 import importlib.util
 import json
+import re
 import zipfile
 from pathlib import Path
 
@@ -29,6 +30,7 @@ ALLOW_EMPTY_JSONL = _PACKAGE.ALLOW_EMPTY_JSONL
 DATABASE_METADATA_FILES = _PACKAGE.DATABASE_METADATA_FILES
 LAYER4_STAT_FILES = _PACKAGE.LAYER4_STAT_FILES
 REPORT_FILES = _PACKAGE.REPORT_FILES
+SCHEMA_V2_SCHEMA_FILENAMES = _PACKAGE.SCHEMA_V2_SCHEMA_FILENAMES
 
 _REPORT_SPEC = importlib.util.spec_from_file_location(
     "build_statistical_research_report",
@@ -105,26 +107,40 @@ def _write_csv_rows(
 
 
 def _schema_v2_rows() -> dict[str, dict[str, object]]:
+    source_provenance_id = (
+        "prov:35e99358e7ea05bc9630930eab4cd3228b215cabd6de9984c6dbba75525367d3"
+    )
+    surface_text_hash = (
+        "b300492f352a9fb63eb3282fb2ce0abcecde517e668f13636ec2cbe428d1cd2e"
+    )
+    provenance_hash = (
+        "ae6f862b5bdaa0aa6aaf222d6d4015529bc08efd04dda15945c121ccb1f6566a"
+    )
     return {
         "evidence_fragments": {
             "fragment_id": "fragment:test",
             "evidence_id": "E-0001",
             "run_id": "RUN-1",
-            "source_provenance_id": "prov:test",
+            "source_provenance_id": source_provenance_id,
+            "source_provider": "Crossref",
+            "source_provider_id": "source:test",
+            "source_retrieved_at_utc": "2026-07-10T00:00:00+00:00",
+            "source_query_id": "Q1",
+            "source_query_text": "fixture query",
             "source_field": "title",
             "language": "en",
             "fragment_text": "marine skill",
             "span_start_offset": 0,
             "span_end_offset": 12,
-            "surface_text_hash": "surface:test",
-            "provenance_hash": "provenance:test",
+            "surface_text_hash": surface_text_hash,
+            "provenance_hash": provenance_hash,
         },
         "semantic_signals": {
             "signal_id": "S-0001",
             "fragment_id": "fragment:test",
             "evidence_id": "E-0001",
             "run_id": "RUN-1",
-            "source_provenance_id": "prov:test",
+            "source_provenance_id": source_provenance_id,
             "sector": "ports",
             "axis_group": "MARINE",
             "axis_code": "M",
@@ -141,7 +157,7 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
             "actor_text": "",
             "action_text": "",
             "object_text": "",
-            "context_text": "",
+            "context_text": "marine skill",
             "manual_review_status": "auto_accepted",
             "validity_warning": "",
         },
@@ -154,7 +170,7 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
             "sector": "ports",
             "axis_group": "MARINE",
             "axis_code": "M",
-            "source_provenance_ids": "prov:test",
+            "source_provenance_ids": source_provenance_id,
             "fragment_ids": "fragment:test",
             "candidate_label": "Marine skill",
             "candidate_definition": "Fixture candidate definition.",
@@ -178,7 +194,7 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
             "decision_reason": "Fixture acceptance.",
             "evidence_ids": "E-0001",
             "fragment_ids": "fragment:test",
-            "source_provenance_ids": "prov:test",
+            "source_provenance_ids": source_provenance_id,
             "superseded_validation_decision_id": "",
         },
         "canonical_competences": {
@@ -203,6 +219,41 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
             "evidence_ids": "E-0001",
         },
     }
+
+
+def _refresh_fragment_integrity(
+    fragment: dict[str, object], *, source_provider_id: str
+) -> str:
+    """Refresh fixture hashes from the published source-occurrence preimage."""
+    fragment["source_provider_id"] = source_provider_id
+    source_query_text = re.sub(
+        r"\s+", " ", str(fragment["source_query_text"])
+    ).strip().lower()
+    payload = "\x1f".join(
+        (
+            str(fragment["run_id"]),
+            str(fragment["evidence_id"]),
+            str(fragment["source_retrieved_at_utc"]),
+            str(fragment["source_provider"]),
+            source_provider_id.strip().lower(),
+            str(fragment["source_query_id"]),
+            source_query_text,
+        )
+    )
+    provenance_id = "prov:" + hashlib.sha256(
+        payload.encode("utf-8")
+    ).hexdigest()
+    fragment["source_provenance_id"] = provenance_id
+    fragment["provenance_hash"] = hashlib.sha256(
+        provenance_id.encode("utf-8")
+    ).hexdigest()
+    normalized_context = re.sub(
+        r"\s+", " ", str(fragment["fragment_text"])
+    ).strip().lower()
+    fragment["surface_text_hash"] = hashlib.sha256(
+        normalized_context.encode("utf-8")
+    ).hexdigest()
+    return provenance_id
 
 
 def _write_min_bundle(db: Path, reports: Path) -> None:
@@ -329,6 +380,7 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
             (db / name).write_text("{}\n", encoding="utf-8")
         else:
             (db / name).write_text("fixture data\n", encoding="utf-8")
+    _sync_schema_v2_manifest_counts(db)
     # Build a real _checksums.sha256 with actual digests.
     checksum_lines: list[str] = []
     for name in sorted(
@@ -400,6 +452,21 @@ def _build_fixture_package(db: Path, reports: Path, output: Path) -> int:
     ]))
 
 
+def _sync_schema_v2_manifest_counts(db: Path) -> None:
+    """Refresh only schema-v2 manifest counts after fixture row changes."""
+    manifest_path = db / "cumulative_database_manifest.json"
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert isinstance(payload, dict)
+    counts: dict[str, int] = {}
+    for entity_name in _PACKAGE.SCHEMA_V2_ENTITY_NAMES:
+        with (db / f"{entity_name}.csv").open(encoding="utf-8") as handle:
+            counts[entity_name] = sum(1 for _ in csv.DictReader(handle))
+    payload["counts"] = counts
+    manifest_path.write_text(
+        json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+
 def _append_schema_v2_row(
     db: Path,
     entity_name: str,
@@ -420,6 +487,59 @@ def _append_schema_v2_row(
     jsonl_path = db / f"{entity_name}.jsonl"
     with jsonl_path.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(row, sort_keys=True) + "\n")
+    _sync_schema_v2_manifest_counts(db)
+
+
+def _write_schema_v2_decision_chain(db: Path) -> None:
+    """Populate the accepted fixture chain in both package projections."""
+    rows = _schema_v2_rows()
+    for entity_name in (
+        "validation_decisions",
+        "canonical_competences",
+        "sector_competence_assignments",
+    ):
+        row = rows[entity_name]
+        _write_csv_rows(
+            db / f"{entity_name}.csv",
+            CSV_REQUIRED_COLUMNS[f"{entity_name}.csv"],
+            [row],
+        )
+        (db / f"{entity_name}.jsonl").write_text(
+            json.dumps(row, sort_keys=True) + "\n", encoding="utf-8"
+        )
+    _sync_schema_v2_manifest_counts(db)
+
+
+def _update_schema_v2_first_row(
+    db: Path, entity_name: str, updates: dict[str, object]
+) -> None:
+    """Apply the same field mutation to one schema-v2 CSV/JSONL row."""
+    csv_path = db / f"{entity_name}.csv"
+    csv_rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
+    assert csv_rows
+    csv_rows[0].update(updates)
+    _write_csv_rows(
+        csv_path,
+        CSV_REQUIRED_COLUMNS[csv_path.name],
+        [dict(row) for row in csv_rows],
+    )
+    jsonl_path = db / f"{entity_name}.jsonl"
+    jsonl_row = json.loads(jsonl_path.read_text(encoding="utf-8"))
+    jsonl_row.update(updates)
+    jsonl_path.write_text(
+        json.dumps(jsonl_row, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+
+@pytest.mark.parametrize("module_docstring", (None, "\n\n"))
+def test_main_accepts_absent_or_blank_module_docstring(
+    monkeypatch: pytest.MonkeyPatch, module_docstring: str | None
+) -> None:
+    """CLI parser creation does not assume that a module docstring exists."""
+    monkeypatch.setattr(_PACKAGE, "__doc__", module_docstring)
+    with pytest.raises(SystemExit) as exit_info:
+        build_main(["--help"])
+    assert exit_info.value.code == 0
 
 
 def test_package_is_deterministic(tmp_path: Path) -> None:
@@ -479,6 +599,11 @@ def test_package_contains_required_files(tmp_path: Path) -> None:
     assert "protocol/live_query_protocol.yml" in names
     assert "provenance/raw_acquisition_index.csv" in names
     assert "data/jsonl/hypothesis_semantic_fragments.jsonl" in names
+
+    for schema_name in SCHEMA_V2_SCHEMA_FILENAMES:
+        archive_name = f"schemas/{schema_name}"
+        assert archive_name in names
+        assert f"  {archive_name}\n" in checksums
 
     for name in LAYER4_STAT_FILES:
         archive_name = f"statistics/{name}"
@@ -630,6 +755,7 @@ def test_package_allows_byte_empty_null_result_jsonl_tables(
                 CSV_REQUIRED_COLUMNS[csv_name],
                 [],
             )
+    _sync_schema_v2_manifest_counts(db)
     _rewrite_checksums(db)
     out = tmp_path / "pkg.zip"
     assert _build_fixture_package(db, reports, out) == 0
@@ -669,6 +795,141 @@ def test_package_rejects_schema_v2_row_missing_required_field(
     assert not out.exists()
 
 
+def test_package_reports_physical_csv_line_for_schema_failure(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Schema diagnostics retain the physical CSV line after blank records."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    candidate_path = db / "competence_candidates.csv"
+    rows = list(csv.DictReader(candidate_path.open(encoding="utf-8")))
+    assert rows
+    rows[0]["candidate_definition"] = ""
+    _write_csv_rows(
+        candidate_path,
+        CSV_REQUIRED_COLUMNS[candidate_path.name],
+        [dict(rows[0])],
+    )
+    header, separator, payload = candidate_path.read_text(
+        encoding="utf-8"
+    ).partition("\n")
+    assert separator
+    candidate_path.write_text(
+        f"{header}\n\n{payload}", encoding="utf-8"
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_empty_required_field:"
+        "competence_candidates.csv:L3:candidate_definition"
+    ) in captured.err
+
+
+def test_package_rejects_surplus_csv_values_with_physical_line(
+    tmp_path: Path, capsys: object
+) -> None:
+    """CSV values without a header are rejected instead of being discarded."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    candidate_path = db / "competence_candidates.csv"
+    candidate_path.write_text(
+        candidate_path.read_text(encoding="utf-8").rstrip("\n")
+        + ",surplus-value\n",
+        encoding="utf-8",
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert "csv_surplus_values:competence_candidates.csv:L2" in captured.err
+
+
+def test_package_rejects_duplicate_csv_headers_on_header_line(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Duplicate header names cannot be silently overwritten by DictReader."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    candidate_path = db / "competence_candidates.csv"
+    header, separator, payload = candidate_path.read_text(
+        encoding="utf-8"
+    ).partition("\n")
+    assert separator
+    headers = next(csv.reader([header]))
+    headers[1] = headers[0]
+    candidate_path.write_text(
+        ",".join(headers) + "\n" + payload, encoding="utf-8"
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "csv_duplicate_headers:competence_candidates.csv:L1:candidate_id"
+    ) in captured.err
+
+
+def test_package_applies_full_draft_schema_to_jsonl_rows(
+    tmp_path: Path, capsys: object
+) -> None:
+    """A JSONL scalar type error cannot pass the required-column checks."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    jsonl_path = db / "competence_candidates.jsonl"
+    payload = json.loads(jsonl_path.read_text(encoding="utf-8"))
+    payload["exact_span_start_offset"] = "not-an-integer"
+    jsonl_path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_schema_validation:competence_candidates.jsonl:L1:"
+        "exact_span_start_offset:type"
+    ) in captured.err
+
+
+def test_package_rejects_blank_reason_and_non_utc_decision_time(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Published decisions retain the runtime audit-field requirements."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _write_schema_v2_decision_chain(db)
+    _update_schema_v2_first_row(
+        db,
+        "validation_decisions",
+        {
+            "decision_reason": "",
+            "decision_at_utc": "2026-07-10T01:00:00+01:00",
+        },
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_empty_required_field:"
+        "validation_decisions.csv:L2:decision_reason"
+    ) in captured.err
+    assert (
+        "schema_v2_invalid_decision_at_utc:"
+        "validation_decisions.csv:L2:decision_at_utc"
+    ) in captured.err
+
+
 def test_package_rejects_broken_schema_v2_foreign_keys(
     tmp_path: Path,
 ) -> None:
@@ -695,6 +956,59 @@ def test_package_rejects_broken_schema_v2_foreign_keys(
     assert not out.exists()
 
 
+def test_package_rejects_schema_v2_projection_key_mismatch(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Every schema-v2 primary key is retained in both package projections."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    candidate_path = db / "competence_candidates.csv"
+    rows = list(csv.DictReader(candidate_path.open(encoding="utf-8")))
+    assert rows
+    second_candidate = dict(rows[0])
+    second_candidate["candidate_id"] = "candidate:csv-only"
+    _write_csv_rows(
+        candidate_path,
+        CSV_REQUIRED_COLUMNS[candidate_path.name],
+        [dict(rows[0]), second_candidate],
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_cross_projection_missing_jsonl_key:"
+        "competence_candidates:csv:L3"
+    ) in captured.err
+
+
+def test_package_rejects_projection_evidence_ids_mismatch(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Decision evidence IDs cannot differ between CSV and JSONL projections."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _write_schema_v2_decision_chain(db)
+    decision_path = db / "validation_decisions.jsonl"
+    decision = json.loads(decision_path.read_text(encoding="utf-8"))
+    decision["evidence_ids"] = "E-0001|"
+    decision_path.write_text(
+        json.dumps(decision, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_cross_projection_value_mismatch:"
+        "validation_decisions:evidence_ids:csv:L2:jsonl:L1"
+    ) in captured.err
+
+
 def test_package_rejects_canonical_rows_without_validation_decisions(
     tmp_path: Path,
 ) -> None:
@@ -717,11 +1031,333 @@ def test_package_rejects_canonical_rows_without_validation_decisions(
     assert not out.exists()
 
 
-@pytest.mark.parametrize("suffix", ("csv", "jsonl"))
-@pytest.mark.parametrize("evidence_ids", ("E-OTHER", "|"))
+def test_package_requires_canonical_label_to_match_decision(
+    tmp_path: Path, capsys: object
+) -> None:
+    """An accepted decision's label binds the promoted canonical row."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _write_schema_v2_decision_chain(db)
+    canonical_path = db / "canonical_competences.csv"
+    canonical_rows = list(csv.DictReader(canonical_path.open(encoding="utf-8")))
+    assert canonical_rows
+    canonical_rows[0]["preferred_label"] = "A different competence"
+    _write_csv_rows(
+        canonical_path,
+        CSV_REQUIRED_COLUMNS[canonical_path.name],
+        [dict(canonical_rows[0])],
+    )
+    canonical_jsonl_path = db / "canonical_competences.jsonl"
+    canonical = json.loads(canonical_jsonl_path.read_text(encoding="utf-8"))
+    canonical["preferred_label"] = "A different competence"
+    canonical_jsonl_path.write_text(
+        json.dumps(canonical, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "canonical_competences.csv:L2:canonical_label"
+    ) in captured.err
+
+
+def test_package_requires_semantic_phrase_to_remain_in_fragment(
+    tmp_path: Path, capsys: object
+) -> None:
+    """A semantic signal remains bound to the retained fragment content."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    semantic_path = db / "semantic_signals.csv"
+    semantic_rows = list(csv.DictReader(semantic_path.open(encoding="utf-8")))
+    assert semantic_rows
+    semantic_rows[0]["matched_phrase"] = "unlinked phrase"
+    _write_csv_rows(
+        semantic_path,
+        CSV_REQUIRED_COLUMNS[semantic_path.name],
+        [dict(semantic_rows[0])],
+    )
+    semantic_jsonl_path = db / "semantic_signals.jsonl"
+    semantic = json.loads(semantic_jsonl_path.read_text(encoding="utf-8"))
+    semantic["matched_phrase"] = "unlinked phrase"
+    semantic_jsonl_path.write_text(
+        json.dumps(semantic, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "semantic_signals.csv:L2:matched_phrase"
+    ) in captured.err
+
+
+def test_package_requires_fragment_context_offsets_and_surface_hash(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Fragment coordinates and surface hash remain bound to semantic context."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _update_schema_v2_first_row(
+        db,
+        "evidence_fragments",
+        {"span_end_offset": 13},
+    )
+    _update_schema_v2_first_row(
+        db,
+        "competence_candidates",
+        {"exact_span_end_offset": 13},
+    )
+    _update_schema_v2_first_row(
+        db,
+        "semantic_signals",
+        {"context_text": "marine craft"},
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "semantic_signals.csv:L2:fragment_context_offsets"
+    ) in captured.err
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "semantic_signals.csv:L2:surface_text_hash"
+    ) in captured.err
+
+
+def test_package_recomputes_fragment_provenance_preimage_and_hash(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Direct provenance fields cannot diverge from published identifiers."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _update_schema_v2_first_row(
+        db,
+        "evidence_fragments",
+        {
+            "source_provider_id": "tampered-source-id",
+            "provenance_hash": "0" * 64,
+        },
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "evidence_fragments.csv:L2:source_provenance_id"
+    ) in captured.err
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "evidence_fragments.csv:L2:provenance_hash"
+    ) in captured.err
+
+
+def test_package_requires_assignment_semantic_context_and_label_guard(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Assignments and canonical labels remain grounded in semantic evidence."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _write_schema_v2_decision_chain(db)
+    _update_schema_v2_first_row(
+        db,
+        "sector_competence_assignments",
+        {"sector": "not-in-signal"},
+    )
+    _update_schema_v2_first_row(
+        db,
+        "validation_decisions",
+        {"canonical_label": "Crossref: marine skill"},
+    )
+    _update_schema_v2_first_row(
+        db,
+        "canonical_competences",
+        {"preferred_label": "Crossref: marine skill"},
+    )
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "sector_competence_assignments.csv:L2:semantic_context"
+    ) in captured.err
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "canonical_competences.csv:L2:canonical_label_guard:"
+        "provider_metadata_prefix"
+    ) in captured.err
+
+
+def test_package_requires_all_candidate_fragments_and_bound_assignments(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Candidate aggregates and active decisions retain every bound context."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    rows = _schema_v2_rows()
+    second_fragment = dict(rows["evidence_fragments"])
+    second_fragment["fragment_id"] = "fragment:second"
+    second_provenance_id = _refresh_fragment_integrity(
+        second_fragment, source_provider_id="source:second"
+    )
+    second_signal = dict(rows["semantic_signals"])
+    second_signal.update(
+        {
+            "fragment_id": "fragment:second",
+            "source_provenance_id": second_provenance_id,
+            "sector": "shipping",
+            "axis_group": "MARITIME",
+            "axis_code": "T",
+        }
+    )
+    _append_schema_v2_row(db, "evidence_fragments", second_fragment)
+    _append_schema_v2_row(db, "semantic_signals", second_signal)
+    _rewrite_checksums(db)
+
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "competence_candidates.csv:L2:fragment_ids"
+    ) in captured.err
+
+    references = "fragment:test|fragment:second"
+    provenance_ids = "|".join(
+        sorted(
+            {
+                str(rows["evidence_fragments"]["source_provenance_id"]),
+                second_provenance_id,
+            }
+        )
+    )
+    _update_schema_v2_first_row(
+        db,
+        "competence_candidates",
+        {
+            "fragment_ids": references,
+            "source_provenance_ids": provenance_ids,
+        },
+    )
+    _write_schema_v2_decision_chain(db)
+    _update_schema_v2_first_row(
+        db,
+        "validation_decisions",
+        {
+            "fragment_ids": references,
+            "source_provenance_ids": provenance_ids,
+        },
+    )
+    _rewrite_checksums(db)
+    assert _build_fixture_package(db, reports, out) == 1
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "validation_decisions.csv:L2:sector_competence_assignments"
+    ) in captured.err
+
+
+def test_package_rejects_promotions_from_superseded_decisions(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Canonical rows and assignments cannot retain inactive decisions."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _write_schema_v2_decision_chain(db)
+    superseding = dict(_schema_v2_rows()["validation_decisions"])
+    superseding.update(
+        {
+            "validation_decision_id": "decision:replacement",
+            "decision_status": "review_required",
+            "superseded_validation_decision_id": "decision:test",
+            "decision_reason": "Replaces the earlier decision.",
+        }
+    )
+    _append_schema_v2_row(db, "validation_decisions", superseding)
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "canonical_competences.csv:L2:inactive_validation_decision_id"
+    ) in captured.err
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "sector_competence_assignments.csv:L2:inactive_validation_decision_id"
+    ) in captured.err
+
+
+def test_package_rejects_invalid_supersession_links(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Supersession cannot self-reference or cross candidate lineage."""
+    scenarios = (
+        (
+            "self",
+            "superseded_validation_decision_self_reference",
+        ),
+        (
+            "cross-candidate",
+            "superseded_validation_decision_target_candidate",
+        ),
+    )
+    for scenario, expected_issue in scenarios:
+        db = tmp_path / f"db-{scenario}"
+        reports = tmp_path / f"reports-{scenario}"
+        _write_min_bundle(db, reports)
+        _write_schema_v2_decision_chain(db)
+        if scenario == "self":
+            _update_schema_v2_first_row(
+                db,
+                "validation_decisions",
+                {"superseded_validation_decision_id": "decision:test"},
+            )
+        else:
+            cross_candidate = dict(_schema_v2_rows()["validation_decisions"])
+            cross_candidate.update(
+                {
+                    "validation_decision_id": "decision:cross-candidate",
+                    "target_candidate_id": "candidate:other",
+                    "decision_status": "review_required",
+                    "superseded_validation_decision_id": "decision:test",
+                    "decision_reason": "Invalid cross-candidate fixture.",
+                }
+            )
+            _append_schema_v2_row(db, "validation_decisions", cross_candidate)
+        _rewrite_checksums(db)
+        out = tmp_path / f"pkg-{scenario}.zip"
+        assert _build_fixture_package(db, reports, out) == 1
+        assert not out.exists()
+        captured = capsys.readouterr()  # type: ignore[attr-defined]
+        assert (
+            "schema_v2_lineage_mismatch:validation_decisions.csv:"
+            f"L{2 if scenario == 'self' else 3}:{expected_issue}"
+        ) in captured.err
+
+
+@pytest.mark.parametrize("evidence_ids", ("E-OTHER", "E-0001|E-OTHER", "|"))
 def test_package_rejects_assignment_evidence_unlinked_from_candidate(
     tmp_path: Path,
-    suffix: str,
     evidence_ids: str,
 ) -> None:
     """Assignments retain their source candidate's nonempty evidence lineage."""
@@ -759,30 +1395,119 @@ def test_package_rejects_assignment_evidence_unlinked_from_candidate(
     with (db / "evidence_records.jsonl").open(
         "a", encoding="utf-8"
     ) as handle:
-        handle.write(json.dumps({"evidence_id": "E-OTHER"}) + "\n")
+        handle.write(json.dumps(other_evidence, sort_keys=True) + "\n")
 
-    assignment_path = db / f"sector_competence_assignments.{suffix}"
-    if suffix == "csv":
-        assignments = list(
-            csv.DictReader(assignment_path.open(encoding="utf-8"))
-        )
-        assignments[0]["evidence_ids"] = evidence_ids
-        _write_csv_rows(
-            assignment_path,
-            CSV_REQUIRED_COLUMNS[assignment_path.name],
-            [dict(assignments[0])],
-        )
-    else:
-        assignment = json.loads(assignment_path.read_text(encoding="utf-8"))
-        assignment["evidence_ids"] = evidence_ids
-        assignment_path.write_text(
-            json.dumps(assignment) + "\n", encoding="utf-8"
-        )
+    _update_schema_v2_first_row(
+        db,
+        "sector_competence_assignments",
+        {"evidence_ids": evidence_ids},
+    )
 
     _rewrite_checksums(db)
-    out = tmp_path / f"pkg-{suffix}-{evidence_ids.replace('|', 'pipe')}.zip"
+    out = tmp_path / f"pkg-{evidence_ids.replace('|', 'pipe')}.zip"
     assert _build_fixture_package(db, reports, out) == 1
     assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "sector_competence_assignments.csv:L2:evidence_ids"
+    ) in captured.err
+
+
+def test_package_requires_decision_to_retain_full_candidate_reference_sets(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Decisions retain every fragment and source provenance of their candidate."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    rows = _schema_v2_rows()
+    second_fragment = dict(rows["evidence_fragments"])
+    second_fragment.update(
+        {
+            "fragment_id": "fragment:second",
+        }
+    )
+    second_provenance_id = _refresh_fragment_integrity(
+        second_fragment, source_provider_id="source:second"
+    )
+    second_signal = dict(rows["semantic_signals"])
+    second_signal.update(
+        {
+            "fragment_id": "fragment:second",
+            "source_provenance_id": second_provenance_id,
+        }
+    )
+    _append_schema_v2_row(db, "evidence_fragments", second_fragment)
+    _append_schema_v2_row(db, "semantic_signals", second_signal)
+
+    candidate_path = db / "competence_candidates.csv"
+    candidate_rows = list(csv.DictReader(candidate_path.open(encoding="utf-8")))
+    assert candidate_rows
+    candidate_rows[0]["fragment_ids"] = "fragment:test|fragment:second"
+    candidate_rows[0]["source_provenance_ids"] = "|".join(
+        sorted(
+            {
+                str(rows["evidence_fragments"]["source_provenance_id"]),
+                second_provenance_id,
+            }
+        )
+    )
+    _write_csv_rows(
+        candidate_path,
+        CSV_REQUIRED_COLUMNS[candidate_path.name],
+        [dict(candidate_rows[0])],
+    )
+    candidate_jsonl_path = db / "competence_candidates.jsonl"
+    candidate = json.loads(candidate_jsonl_path.read_text(encoding="utf-8"))
+    candidate["fragment_ids"] = "fragment:test|fragment:second"
+    candidate["source_provenance_ids"] = candidate_rows[0][
+        "source_provenance_ids"
+    ]
+    candidate_jsonl_path.write_text(
+        json.dumps(candidate, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    _write_schema_v2_decision_chain(db)
+    _rewrite_checksums(db)
+
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "validation_decisions.csv:L2:fragment_ids"
+    ) in captured.err
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "validation_decisions.csv:L2:source_provenance_ids"
+    ) in captured.err
+
+    for suffix in ("csv", "jsonl"):
+        decision_path = db / f"validation_decisions.{suffix}"
+        if suffix == "csv":
+            decision_rows = list(csv.DictReader(decision_path.open(encoding="utf-8")))
+            decision_rows[0]["fragment_ids"] = "fragment:test|fragment:second"
+            decision_rows[0]["source_provenance_ids"] = candidate_rows[0][
+                "source_provenance_ids"
+            ]
+            _write_csv_rows(
+                decision_path,
+                CSV_REQUIRED_COLUMNS[decision_path.name],
+                [dict(decision_rows[0])],
+            )
+        else:
+            decision = json.loads(decision_path.read_text(encoding="utf-8"))
+            decision["fragment_ids"] = "fragment:test|fragment:second"
+            decision["source_provenance_ids"] = candidate_rows[0][
+                "source_provenance_ids"
+            ]
+            decision_path.write_text(
+                json.dumps(decision, sort_keys=True) + "\n", encoding="utf-8"
+            )
+    _rewrite_checksums(db)
+    assert _build_fixture_package(db, reports, out) == 0
+    assert out.exists()
 
 
 def test_package_rejects_legacy_metadata_projection_mismatch(
@@ -805,7 +1530,7 @@ def test_package_rejects_legacy_metadata_projection_mismatch(
 def test_package_allows_shared_signal_id_for_distinct_fragments(
     tmp_path: Path,
 ) -> None:
-    """Signal identity is the signal/fragment pair, not signal ID alone."""
+    """One candidate aggregates all fragment pairs for its shared signal ID."""
     db = tmp_path / "db"
     reports = tmp_path / "reports"
     _write_min_bundle(db, reports)
@@ -813,28 +1538,46 @@ def test_package_allows_shared_signal_id_for_distinct_fragments(
     second_fragment = dict(rows["evidence_fragments"])
     second_fragment.update({
         "fragment_id": "fragment:second",
-        "source_provenance_id": "prov:second",
-        "surface_text_hash": "surface:second",
-        "provenance_hash": "provenance:second",
     })
+    second_provenance_id = _refresh_fragment_integrity(
+        second_fragment, source_provider_id="source:second"
+    )
     second_signal = dict(rows["semantic_signals"])
     second_signal.update({
         "fragment_id": "fragment:second",
-        "source_provenance_id": "prov:second",
-    })
-    second_candidate = dict(rows["competence_candidates"])
-    second_candidate.update({
-        "candidate_id": "candidate:second",
-        "fragment_id": "fragment:second",
-        "fragment_ids": "fragment:second",
-        "source_provenance_ids": "prov:second",
+        "source_provenance_id": second_provenance_id,
     })
     for entity_name, row in (
         ("evidence_fragments", second_fragment),
         ("semantic_signals", second_signal),
-        ("competence_candidates", second_candidate),
     ):
         _append_schema_v2_row(db, entity_name, row)
+    candidate_path = db / "competence_candidates.csv"
+    candidate_rows = list(csv.DictReader(candidate_path.open(encoding="utf-8")))
+    assert candidate_rows
+    candidate_rows[0]["fragment_ids"] = "fragment:test|fragment:second"
+    candidate_rows[0]["source_provenance_ids"] = "|".join(
+        sorted(
+            {
+                str(rows["evidence_fragments"]["source_provenance_id"]),
+                second_provenance_id,
+            }
+        )
+    )
+    _write_csv_rows(
+        candidate_path,
+        CSV_REQUIRED_COLUMNS[candidate_path.name],
+        [dict(candidate_rows[0])],
+    )
+    candidate_jsonl_path = db / "competence_candidates.jsonl"
+    candidate = json.loads(candidate_jsonl_path.read_text(encoding="utf-8"))
+    candidate["fragment_ids"] = candidate_rows[0]["fragment_ids"]
+    candidate["source_provenance_ids"] = candidate_rows[0][
+        "source_provenance_ids"
+    ]
+    candidate_jsonl_path.write_text(
+        json.dumps(candidate, sort_keys=True) + "\n", encoding="utf-8"
+    )
     _rewrite_checksums(db)
     out = tmp_path / "pkg.zip"
     assert _build_fixture_package(db, reports, out) == 0

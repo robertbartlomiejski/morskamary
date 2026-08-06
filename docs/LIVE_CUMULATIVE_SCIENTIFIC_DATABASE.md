@@ -68,7 +68,7 @@ using chunked 1 MB reads for reproducibility across large runs.
 Each row in `evidence_records.{csv,jsonl}` represents one deduplicated
 scientific work observed across all runs contributing to the bundle.
 
-### Competence-demand signal columns
+### Evidence-record columns
 
 1. `evidence_id`
 2. `canonical_doi`
@@ -167,6 +167,22 @@ Schema v2 adds an explicit construct-valid chain:
   validation decisions are supplied.
 - No candidate is promoted to a canonical competence without an explicit
   `validation_decisions.{csv,jsonl}` row.
+- Each evidence fragment retains its `source_provenance_id` together with its
+  provider, provider source identifier, retrieval time, query identifier, and
+  source-query text. These fields are the published preimage/crosswalk for the
+  occurrence identifier; they remain retrieval provenance, not empirical
+  evidence.
+- `semantic_signals.context_text` is the exact normalized surface scanned for
+  that signal. Therefore an evidence fragment's stored offsets resolve against
+  it even when a retained abstract, full-text field, or subject-term field was
+  originally structured as a list or mapping.
+- Semantic signals and competence candidates may carry only the fully unbound
+  axis pair `("", "")`. Sector competence assignments are emitted only for one
+  of the four canonical `MARINE/M`, `MARITIME/T`, `OCEANIC/O`, or
+  `HYDRONIZATION/H` pairs. A stable candidate retains every occurrence-level
+  fragment/provenance reference and emits one assignment for each distinct
+  valid bound sector-axis context; an accepted but unbound candidate remains
+  canonical without an invented sector-axis assignment.
 
 ### Validation-decision privacy and canonical-label guard
 
@@ -182,11 +198,12 @@ It must be non-empty when `decision_status='accepted'`; it may be empty for
 do not promote a candidate.
 
 For accepted decisions, the canonical-label promotion guard normalizes
-whitespace and rejects labels that are blank; start with `crossref:`, `scopus:`,
-`wos:`, or `web of science:`; contain `...` or `…`; exceed 180 characters;
-contain eight or more spaces; or contain the standalone, case-insensitive terms
-`doi`, `journal`, `conference`, `article`, or `paper`. These thresholds prevent
-provider metadata and truncated source text from becoming canonical labels.
+whitespace and rejects labels that are blank; begin with any configured provider
+alias; duplicate a retained evidence title or a three-or-more-token title
+fragment; contain `...` or `…`; exceed 180 characters; contain eight or more
+spaces; or contain the standalone, case-insensitive terms `doi`, `journal`,
+`conference`, `article`, or `paper`. These thresholds prevent provider metadata
+and truncated source text from becoming canonical labels.
 
 ## Competence-demand signals (legacy compatibility projection)
 
@@ -330,6 +347,12 @@ Arguments:
   `scripts/build_live_run_audit.py`.
 - `--built-at-utc` — optional ISO-8601 timestamp to freeze into the manifest
   for reproducible bundles.
+- `--validation-decision-ledger` — optional reviewer-approved JSON list (or
+  object containing `validation_decisions`) of explicit decisions. Each entry
+  must provide a candidate ID, decision status, pseudonymous reviewer,
+  UTC decision time, and decision reason; accepted entries also require a
+  canonical label. In live use, materialize this file only through the
+  reviewer-protected `live-research` environment; its contents are never echoed.
 - `--emit-summary` — print a one-line JSON summary to stdout on success.
 
 Missing optional inputs degrade gracefully: absent `--archive-root` limits

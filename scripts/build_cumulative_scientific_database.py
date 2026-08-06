@@ -30,6 +30,8 @@ The script is safe to run when some inputs are missing:
   protocol index for query binding.
 * If ``--query-protocol`` is empty, all Layer 0 fallback bindings are
   disabled (records may still bind through Layer 1).
+* ``--validation-decision-ledger`` accepts only reviewer-approved JSON
+  decision payloads; live workflow protection is applied by the caller.
 """
 
 from __future__ import annotations
@@ -140,6 +142,17 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--validation-decision-ledger",
+        default=None,
+        metavar="PATH",
+        help=(
+            "Path to a reviewer-approved JSON ledger: either a list of "
+            "decision objects or an object with a validation_decisions list. "
+            "For live runs, pass this only through the reviewer-protected "
+            "live-research environment. Ledger content is not echoed."
+        ),
+    )
+    parser.add_argument(
         "--emit-summary",
         action="store_true",
         help="Print a one-line JSON summary to stdout when the build succeeds.",
@@ -152,6 +165,50 @@ def _optional_path(value: str) -> Optional[Path]:
         return None
     path = Path(value)
     return path
+
+
+def _load_validation_decision_ledger(
+    value: Optional[str],
+) -> list[dict[str, Any]]:
+    """Load reviewer-approved decision objects without exposing their content."""
+    if not value:
+        return []
+    path = Path(value)
+    if not path.is_file():
+        raise CumulativeDatabaseError(
+            f"validation-decision ledger file not found: {path}"
+        )
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise CumulativeDatabaseError(
+            f"validation-decision ledger is not readable JSON: {path}"
+        ) from exc
+
+    decisions: Any
+    if isinstance(payload, list):
+        decisions = payload
+    elif isinstance(payload, dict):
+        decisions = payload.get("validation_decisions")
+    else:
+        raise CumulativeDatabaseError(
+            "validation-decision ledger must be a JSON list or contain a "
+            "validation_decisions list"
+        )
+    if not isinstance(decisions, list):
+        raise CumulativeDatabaseError(
+            "validation-decision ledger validation_decisions must be a list"
+        )
+
+    normalized: list[dict[str, Any]] = []
+    for index, decision in enumerate(decisions, start=1):
+        if not isinstance(decision, dict):
+            raise CumulativeDatabaseError(
+                "validation-decision ledger entry "
+                f"{index} must be a JSON object"
+            )
+        normalized.append(dict(decision))
+    return normalized
 
 
 def main(argv: Optional[list[str]] = None) -> int:
@@ -184,6 +241,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         protocol_path = None
 
     try:
+        validation_decisions = _load_validation_decision_ledger(
+            args.validation_decision_ledger
+        )
         result = build_cumulative_scientific_database(
             current_run_dir=args.current_run,
             output_dir=args.output_dir,
@@ -193,6 +253,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             current_run_id=args.current_run_id,
             built_at_utc=args.built_at_utc,
             workflow_context=_collect_workflow_context(),
+            validation_decisions=validation_decisions,
         )
     except CumulativeDatabaseError as exc:
         print(f"error: failed to build cumulative scientific database: {exc}", file=sys.stderr)

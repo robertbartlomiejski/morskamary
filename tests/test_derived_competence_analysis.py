@@ -399,6 +399,54 @@ def test_review_required_signals_propagate_to_demand_and_validated_counts(
     assert gap_rows[0].validated_demand_count == 0
 
 
+def test_legacy_demands_do_not_enter_validation_backed_gap_measure(
+    tmp_path: Path,
+) -> None:
+    """Legacy aggregates remain literature demand but cannot imply validation."""
+    demand = _mk_hydro_demand(1)
+    demand.status = "high_demand"
+
+    result = build_layer5(
+        derived_demands=[demand],
+        evidence_records=[],
+        existing_credential_coverage={
+            (demand.sector, demand.axis_group): 1,
+        },
+        output_dir=tmp_path / "db-legacy-gap",
+    )
+
+    row = result.gap_rows[0]
+    assert row.live_literature_demand_count == 1
+    assert row.validated_demand_count == 0
+    assert row.covered_by_existing_credentials_count == 0
+    assert row.uncovered_demand_count == 0
+    assert row.gap_ratio == 0.0
+    assert "no_validated_canonical_demand" in row.validity_warning
+
+
+def test_validation_backed_demands_enter_gap_measure(tmp_path: Path) -> None:
+    """A future accepted-canonical integration has an explicit entry path."""
+    demand = _mk_hydro_demand(1)
+    demand.status = "high_demand"
+    demand.scientific_status = "validated_canonical_competence"
+
+    result = build_layer5(
+        derived_demands=[demand],
+        evidence_records=[],
+        existing_credential_coverage={
+            (demand.sector, demand.axis_group): 1,
+        },
+        output_dir=tmp_path / "db-validated-gap",
+    )
+
+    row = result.gap_rows[0]
+    assert row.validated_demand_count == 1
+    assert row.covered_by_existing_credentials_count == 1
+    assert row.uncovered_demand_count == 0
+    assert row.gap_ratio == 0.0
+    assert "no_validated_canonical_demand" not in row.validity_warning
+
+
 def test_learning_outcome_statement_does_not_use_placeholder_evidence_id(
     tmp_path: Path,
 ) -> None:
