@@ -974,6 +974,39 @@ def write_variable_and_value_labels(output_dir: Union[str, Path]) -> Tuple[Path,
         ("eqf_level", "European Qualifications Framework level (4-7)."),
         ("ects", "European Credit Transfer and Accumulation System points."),
     ]
+    schema_v2_categories = {
+        "source_field": (
+            "Retained evidence surface containing the exact fragment.",
+            ("title", "subject_terms", "abstract", "full_text"),
+        ),
+        "axis_group": (
+            "Canonical QMBD axis name; blank means unbound where permitted.",
+            ("MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION", ""),
+        ),
+        "axis_code": ("Canonical QMBD display code; blank means unbound where permitted.", ("M", "T", "O", "H", "")),
+        "negation_status": ("Negation assessment status for the semantic signal.", ("not_detected",)),
+        "speculation_status": ("Speculation assessment status for the semantic signal.", ("not_detected",)),
+        "manual_review_status": (
+            "Manual-review state of the semantic signal.",
+            ("auto_accepted", "review_required", "manually_reviewed", "rejected"),
+        ),
+        "candidate_status": ("Construct status of the competence candidate.", ("candidate",)),
+        "review_status": (
+            "Review state of the competence candidate.",
+            ("auto_accepted", "review_required", "manually_reviewed", "rejected"),
+        ),
+        "validation_status": ("Validation state required for canonical competence promotion.", ("accepted",)),
+        "provenance_guard_status": ("Canonical-label provenance guard outcome.", ("passed",)),
+        "decision_status": (
+            "Explicit reviewer decision for a competence candidate.",
+            ("accepted", "rejected", "review_required", "superseded"),
+        ),
+    }
+    var_labels.extend(
+        (variable_name, definition)
+        for variable_name, (definition, _) in schema_v2_categories.items()
+        if variable_name not in {name for name, _ in var_labels}
+    )
     val_labels = [
         ("status", "high_demand", "Score >= 0.70 with at least 2 evidence records."),
         ("status", "medium_demand", "Score >= 0.40 with at least 1 evidence record."),
@@ -1011,6 +1044,15 @@ def write_variable_and_value_labels(output_dir: Union[str, Path]) -> Tuple[Path,
         ("axis_group", "OCEANIC", "Planetary coupling, multi-level governance, hydrosocial subjectivity."),
         ("axis_group", "HYDRONIZATION", "Hydrosocial governance and water-body coupling."),
     ]
+    existing_values = {(name, code) for name, code, _ in val_labels}
+    for variable_name, (_, codes) in schema_v2_categories.items():
+        for code in codes:
+            key = (variable_name, code)
+            if key in existing_values:
+                continue
+            label = "Unbound" if code == "" else code.replace("_", " ").title()
+            val_labels.append((variable_name, code, label))
+            existing_values.add(key)
     var_path = _write_csv_rows(
         out / VARIABLE_LABELS_CSV,
         header=("variable_name", "variable_label"),
