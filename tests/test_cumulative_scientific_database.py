@@ -2383,6 +2383,35 @@ def test_semantic_scanner_uses_word_boundaries_and_qualified_claim_gate() -> Non
     assert digital_match.span_text == "AI"
 
 
+def test_semantic_scanner_word_boundary_rejects_embedded_phrases() -> None:
+    """Phrases embedded within larger words must not produce signals."""
+    assert not database_module._scan_semantic_signals(
+        [("abstract", "Seafarers hold careerships in the maritime sector.")],
+        source_query="",
+    ), "'career' embedded in 'careerships' must not match"
+    assert not database_module._scan_semantic_signals(
+        [("abstract", "Port retraining initiatives expand fleet capacity.")],
+        source_query="",
+    ), "'training' embedded in 'retraining' must not match"
+    career_matches = database_module._scan_semantic_signals(
+        [("abstract", "Seafarers need career guidance for offshore roles.")],
+        source_query="",
+    )
+    assert any(
+        m.pattern.signal_type == "workforce_skill" and m.matched_phrase == "career"
+        for m in career_matches
+    ), "standalone 'career' must produce a workforce_skill signal"
+    training_matches = database_module._scan_semantic_signals(
+        [("abstract", "Port operators need training in vessel handling.")],
+        source_query="",
+    )
+    assert any(
+        m.pattern.signal_type == "education_training_signal"
+        and m.matched_phrase == "training"
+        for m in training_matches
+    ), "standalone 'training' must produce an education_training_signal"
+
+
 def test_v2_retains_all_occurrences_while_legacy_projection_remains_v1(
     tmp_path: Path,
 ) -> None:

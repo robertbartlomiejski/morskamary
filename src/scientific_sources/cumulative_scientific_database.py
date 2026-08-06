@@ -3304,7 +3304,15 @@ def _hypothesis_fragment_rows(
     signals: Sequence[CompetenceDemandSignal],
     protocol: Optional[LiveQueryProtocol],
 ) -> List[Dict[str, Any]]:
-    """Project evidence-bound signals into an auditable hypothesis-fragment ledger."""
+    """Project evidence-bound signals into an auditable hypothesis-fragment ledger.
+
+    This function operates on the frozen-v1 ``CompetenceDemandSignal`` projection
+    rather than on schema-v2 entities directly.  Each row it emits is keyed to a
+    signal produced by ``_make_signals`` and therefore to the same evidence record
+    and canonical record identifier that anchors the corresponding schema-v2
+    ``evidence_fragment`` and ``semantic_signal`` rows.  Downstream consumers
+    should join on ``evidence_id`` to cross-reference with schema-v2 tables.
+    """
     hypothesis_registry = protocol.hypotheses if protocol is not None else {}
     if not hypothesis_registry:
         return []
