@@ -235,8 +235,8 @@ class TestBundleShape:
             ALLOWED_MANUAL_REVIEW_STATUSES
         )
         assert manifest["classifier_version"] == CLASSIFIER_VERSION
-        assert manifest["counts"]["semantic_signals"] >= 0
-        assert manifest["counts"]["competence_candidates"] >= 0
+        assert manifest["counts"]["semantic_signals"] == 0
+        assert manifest["counts"]["competence_candidates"] == 0
         assert manifest["counts"]["canonical_competences"] == 0
         assert manifest["counts"]["sector_competence_assignments"] == 0
         assert manifest["counts"]["validation_decisions"] == 0
