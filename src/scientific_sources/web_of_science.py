@@ -317,18 +317,26 @@ class WebOfScienceProvider(BaseProvider):
         return evidence
 
     @staticmethod
-    def _http_error_result(action: str, exc: urllib.error.HTTPError) -> ProviderResult:
+    def _http_error_result(
+        action: str,
+        exc: urllib.error.HTTPError,
+        *,
+        physical_request_count: int = 0,
+    ) -> ProviderResult:
         if exc.code == 429:
             return ProviderResult(
                 warnings=[f"Web of Science {action} rate limited (HTTP 429)."],
                 rate_limit_status="rate-limited",
+                physical_request_count=physical_request_count,
             )
         if exc.code in (401, 403):
             return ProviderResult(
-                errors=[f"Web of Science {action} unauthorized (HTTP {exc.code})."]
+                errors=[f"Web of Science {action} unauthorized (HTTP {exc.code})."],
+                physical_request_count=physical_request_count,
             )
         return ProviderResult(
-            errors=[f"Web of Science {action} failed (HTTP {exc.code})."]
+            errors=[f"Web of Science {action} failed (HTTP {exc.code})."],
+            physical_request_count=physical_request_count,
         )
 
     # ------------------------------------------------------------------
@@ -341,7 +349,9 @@ class WebOfScienceProvider(BaseProvider):
             return self._not_configured_result()
         wos_query = urllib.parse.quote(f"TS=({query})")
         url = f"{self._api_base}?q={wos_query}&limit={max_results}&page=1"
+        physical_request_count = 0
         try:
+            physical_request_count += 1
             payload = self._request_json(url)
             items = payload.get("hits", [])
             if not isinstance(items, list):
@@ -351,11 +361,17 @@ class WebOfScienceProvider(BaseProvider):
                 records=records,
                 provenance=self._make_evidence(query, "wos/documents", records),
                 raw_payload=payload,
+                physical_request_count=physical_request_count,
             )
         except urllib.error.HTTPError as exc:
-            return self._http_error_result("search", exc)
+            return self._http_error_result(
+                "search", exc, physical_request_count=physical_request_count
+            )
         except Exception as exc:
-            return ProviderResult(errors=[f"Web of Science search error: {exc}"])
+            return ProviderResult(
+                errors=[f"Web of Science search error: {exc}"],
+                physical_request_count=physical_request_count,
+            )
 
     def search_paginated(
         self,
@@ -408,6 +424,7 @@ class WebOfScienceProvider(BaseProvider):
         wos_query = urllib.parse.quote(f"TS=({query})")
         # Global physical page counter across all logical pages
         physical_page = 1
+        physical_request_count = 0
 
         for logical_page_idx in range(safe_pages):
             rows_remaining = safe_rows
@@ -424,6 +441,7 @@ class WebOfScienceProvider(BaseProvider):
                 # outcome (success, HTTP error, timeout, malformed JSON) is
                 # accounted for exactly once.
                 physical_requests += 1
+                physical_request_count += 1
                 try:
                     payload = self._request_json(url)
                     items = payload.get("hits", [])
@@ -559,6 +577,7 @@ class WebOfScienceProvider(BaseProvider):
             provenance=all_provenance,
             rate_limit_status=rate_limit_status,
             page_diagnostics=page_diagnostics,
+            physical_request_count=physical_request_count,
         )
         return (result, page_diagnostics) if legacy_api else result
 
@@ -568,7 +587,9 @@ class WebOfScienceProvider(BaseProvider):
             return self._not_configured_result()
         wos_query = urllib.parse.quote(f"DO=({doi})")
         url = f"{self._api_base}?q={wos_query}&limit=1&page=1"
+        physical_request_count = 0
         try:
+            physical_request_count += 1
             payload = self._request_json(url)
             items = payload.get("hits", [])
             if not isinstance(items, list):
@@ -580,10 +601,14 @@ class WebOfScienceProvider(BaseProvider):
                 records=records,
                 provenance=self._make_evidence(doi, "wos/documents?doi", records),
                 raw_payload=payload,
+                physical_request_count=physical_request_count,
             )
         except urllib.error.HTTPError as exc:
-            return self._http_error_result("DOI verification", exc)
+            return self._http_error_result(
+                "DOI verification", exc, physical_request_count=physical_request_count
+            )
         except Exception as exc:
             return ProviderResult(
-                errors=[f"Web of Science DOI verification error: {exc}"]
+                errors=[f"Web of Science DOI verification error: {exc}"],
+                physical_request_count=physical_request_count,
             )
