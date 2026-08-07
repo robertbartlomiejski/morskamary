@@ -2179,12 +2179,13 @@ def _build_accepted_canonical_lineage_demands(
         expected_candidate_provenance_ids: Set[str] = set()
         contexts: Set[Tuple[str, str, str]] = set()
         for fragment_id in candidate_fragment_ids:
-            fragment = fragments_by_id.get(fragment_id)
-            if fragment is None:
+            _frag_lookup: Optional[Mapping[str, Any]] = fragments_by_id.get(fragment_id)
+            if _frag_lookup is None:
                 raise DerivedAnalysisError(
                     "accepted canonical lineage candidate references a missing "
                     f"evidence fragment: {candidate_id}:{fragment_id}"
                 )
+            fragment = _frag_lookup
             if (
                 _lineage_row_id(fragment, "evidence_id") != candidate_evidence_id
                 or candidate_evidence_id not in evidence_by_id
