@@ -2707,6 +2707,116 @@ def test_superseded_decision_suppresses_canonical_promotion(
     assert result.sector_competence_assignments == []
 
 
+def test_validation_decisions_reject_supersession_cycles(tmp_path: Path) -> None:
+    current = tmp_path / "current"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance evidence for cycle rejection",
+                "doi": "10.1000/supersession-cycle",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    candidate_id = initial.competence_candidates[0].candidate_id
+
+    with pytest.raises(CumulativeDatabaseError, match="cannot contain cycles"):
+        build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "cycle",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+            validation_decisions=[
+                {
+                    "validation_decision_id": "decision:a",
+                    "target_candidate_id": candidate_id,
+                    "canonical_label": "Governance capability",
+                    "decision_status": "accepted",
+                    "reviewer": "reviewer-fixture-001",
+                    "decision_at_utc": FROZEN_TS,
+                    "decision_reason": "Cycle regression fixture A.",
+                    "superseded_validation_decision_id": "decision:b",
+                },
+                {
+                    "validation_decision_id": "decision:b",
+                    "target_candidate_id": candidate_id,
+                    "canonical_label": "",
+                    "decision_status": "review_required",
+                    "reviewer": "reviewer-fixture-002",
+                    "decision_at_utc": FROZEN_TS,
+                    "decision_reason": "Cycle regression fixture B.",
+                    "superseded_validation_decision_id": "decision:a",
+                },
+            ],
+        )
+
+
+def test_validation_decisions_require_single_active_decision_per_candidate(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "current"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance evidence for active decision uniqueness",
+                "doi": "10.1000/active-decision-uniqueness",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    candidate_id = initial.competence_candidates[0].candidate_id
+
+    with pytest.raises(
+        CumulativeDatabaseError, match="multiple active decisions for candidate"
+    ):
+        build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "multiple-active",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+            validation_decisions=[
+                {
+                    "validation_decision_id": "decision:accepted-a",
+                    "target_candidate_id": candidate_id,
+                    "canonical_label": "Governance capability",
+                    "decision_status": "accepted",
+                    "reviewer": "reviewer-fixture-001",
+                    "decision_at_utc": FROZEN_TS,
+                    "decision_reason": "First active acceptance.",
+                },
+                {
+                    "validation_decision_id": "decision:accepted-b",
+                    "target_candidate_id": candidate_id,
+                    "canonical_label": "Governance competency",
+                    "decision_status": "accepted",
+                    "reviewer": "reviewer-fixture-002",
+                    "decision_at_utc": FROZEN_TS,
+                    "decision_reason": "Second active acceptance.",
+                },
+            ],
+        )
+
+
 @pytest.mark.parametrize(
     ("override", "expected_error"),
     [

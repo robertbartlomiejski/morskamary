@@ -2813,16 +2813,45 @@ def _active_validation_decisions(
     validation_decisions: Sequence[ValidationDecision],
 ) -> List[ValidationDecision]:
     """Return decisions not superseded by a later ledger entry."""
+    decisions_by_id = {
+        decision.validation_decision_id: decision for decision in validation_decisions
+    }
+    for decision in validation_decisions:
+        path_ids: Set[str] = set()
+        current: Optional[ValidationDecision] = decision
+        while current is not None:
+            current_id = current.validation_decision_id
+            if current_id in path_ids:
+                raise CumulativeDatabaseError(
+                    "validation decision supersession graph cannot contain cycles"
+                )
+            path_ids.add(current_id)
+            superseded_id = current.superseded_validation_decision_id
+            if not superseded_id:
+                current = None
+                continue
+            current = decisions_by_id.get(superseded_id)
     superseded_ids = {
         decision.superseded_validation_decision_id
         for decision in validation_decisions
         if decision.superseded_validation_decision_id
     }
-    return [
+    active_decisions = [
         decision
         for decision in validation_decisions
         if decision.validation_decision_id not in superseded_ids
     ]
+    active_decisions_by_candidate: Dict[str, int] = {}
+    for decision in active_decisions:
+        candidate_id = decision.target_candidate_id
+        count = active_decisions_by_candidate.get(candidate_id, 0) + 1
+        active_decisions_by_candidate[candidate_id] = count
+        if count > 1:
+            raise CumulativeDatabaseError(
+                "validation decision set must not contain multiple active "
+                f"decisions for candidate: {candidate_id}"
+            )
+    return active_decisions
 
 
 def _build_canonical_competences(
