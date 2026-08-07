@@ -571,6 +571,175 @@ def _validate_manifest(manifest: dict[str, Any], schema_path: Path) -> list[str]
     return [error.message for error in validator.iter_errors(manifest)]
 
 
+def _merge_label_rows(
+    generated_rows: list[dict[str, str]],
+    curated_rows: list[dict[str, str]],
+    key_fields: tuple[str, ...],
+) -> list[dict[str, str]]:
+    """Merge generated and curated label rows with curated-key override."""
+    merged: dict[tuple[str, ...], dict[str, str]] = {
+        tuple(str(row.get(field, "")) for field in key_fields): row
+        for row in generated_rows
+    }
+    for row in curated_rows:
+        key = tuple(str(row.get(field, "")) for field in key_fields)
+        merged[key] = row
+    return sorted(
+        merged.values(),
+        key=lambda row: tuple(str(row.get(field, "")) for field in key_fields),
+    )
+
+
+def _validate_schema_v2_projection_and_lineage(
+    schema_v2_csv_rows: dict[str, list[dict[str, Any]]],
+    schema_v2_jsonl_rows: dict[str, list[dict[str, Any]]],
+) -> list[str]:
+    """Fail closed if schema-v2 CSV/JSONL projections or lineage diverge."""
+
+    primary_keys = {
+        "evidence_fragments": "fragment_id",
+        "semantic_signals": "signal_id",
+        "competence_candidates": "candidate_id",
+        "validation_decisions": "validation_decision_id",
+        "canonical_competences": "canonical_competence_id",
+        "sector_competence_assignments": "assignment_id",
+    }
+    errors: list[str] = []
+
+    def _index_rows(
+        table_name: str, rows: list[dict[str, Any]]
+    ) -> dict[str, dict[str, Any]]:
+        key_name = primary_keys[table_name]
+        indexed: dict[str, dict[str, Any]] = {}
+        for idx, row in enumerate(rows, start=1):
+            key = str(row.get(key_name, ""))
+            if not key:
+                errors.append(f"{table_name}:L{idx}:{key_name}:missing_primary_key")
+                continue
+            if key in indexed:
+                errors.append(f"{table_name}:L{idx}:{key_name}:duplicate_primary_key:{key}")
+                continue
+            indexed[key] = row
+        return indexed
+
+    csv_index = {
+        table_name: _index_rows(table_name, schema_v2_csv_rows[table_name])
+        for table_name in SCHEMA_V2_ENTITY_NAMES
+    }
+    jsonl_index = {
+        table_name: _index_rows(table_name, schema_v2_jsonl_rows[table_name])
+        for table_name in SCHEMA_V2_ENTITY_NAMES
+    }
+
+    for table_name in SCHEMA_V2_ENTITY_NAMES:
+        csv_ids = set(csv_index[table_name])
+        jsonl_ids = set(jsonl_index[table_name])
+        if csv_ids != jsonl_ids:
+            missing_in_jsonl = sorted(csv_ids - jsonl_ids)
+            missing_in_csv = sorted(jsonl_ids - csv_ids)
+            if missing_in_jsonl:
+                errors.append(
+                    f"{table_name}:projection_parity:missing_in_jsonl:{'|'.join(missing_in_jsonl)}"
+                )
+            if missing_in_csv:
+                errors.append(
+                    f"{table_name}:projection_parity:missing_in_csv:{'|'.join(missing_in_csv)}"
+                )
+            continue
+        for row_id in sorted(csv_ids):
+            if csv_index[table_name][row_id] != jsonl_index[table_name][row_id]:
+                errors.append(f"{table_name}:projection_parity:row_mismatch:{row_id}")
+
+    fragments_by_id = csv_index["evidence_fragments"]
+    signals_by_id = csv_index["semantic_signals"]
+    candidates_by_id = csv_index["competence_candidates"]
+    decisions_by_id = csv_index["validation_decisions"]
+    canonicals_by_id = csv_index["canonical_competences"]
+
+    for signal_id, signal in signals_by_id.items():
+        fragment_id = str(signal.get("fragment_id", ""))
+        fragment = fragments_by_id.get(fragment_id)
+        if fragment is None:
+            errors.append(
+                f"semantic_signals:lineage:{signal_id}:missing_fragment:{fragment_id}"
+            )
+            continue
+        context_text = str(signal.get("context_text", ""))
+        start = fragment.get("span_start_offset")
+        end = fragment.get("span_end_offset")
+        if isinstance(start, int) and isinstance(end, int):
+            if start < 0 or end < start or end > len(context_text):
+                errors.append(
+                    f"semantic_signals:lineage:{signal_id}:invalid_context_span:{start}:{end}:{len(context_text)}"
+                )
+            else:
+                span = context_text[start:end]
+                if span != str(fragment.get("fragment_text", "")):
+                    errors.append(
+                        f"semantic_signals:lineage:{signal_id}:context_span_mismatch"
+                    )
+
+    for candidate_id, candidate in candidates_by_id.items():
+        signal_id = str(candidate.get("signal_id", ""))
+        signal_row = signals_by_id.get(signal_id)
+        if signal_row is None:
+            errors.append(
+                f"competence_candidates:lineage:{candidate_id}:missing_signal:{signal_id}"
+            )
+            continue
+        fragment_id = str(candidate.get("fragment_id", ""))
+        if fragment_id != str(signal_row.get("fragment_id", "")):
+            errors.append(
+                f"competence_candidates:lineage:{candidate_id}:signal_fragment_mismatch"
+            )
+
+    for decision_id, decision in decisions_by_id.items():
+        candidate_id = str(decision.get("target_candidate_id", ""))
+        if candidate_id not in candidates_by_id:
+            errors.append(
+                f"validation_decisions:lineage:{decision_id}:missing_candidate:{candidate_id}"
+            )
+
+    for canonical_id, canonical in canonicals_by_id.items():
+        decision_id = str(canonical.get("validation_decision_id", ""))
+        candidate_id = str(canonical.get("source_candidate_id", ""))
+        decision_row = decisions_by_id.get(decision_id)
+        if decision_row is None:
+            errors.append(
+                f"canonical_competences:lineage:{canonical_id}:missing_decision:{decision_id}"
+            )
+        elif candidate_id != str(decision_row.get("target_candidate_id", "")):
+            errors.append(
+                f"canonical_competences:lineage:{canonical_id}:decision_candidate_mismatch"
+            )
+        if candidate_id not in candidates_by_id:
+            errors.append(
+                f"canonical_competences:lineage:{canonical_id}:missing_candidate:{candidate_id}"
+            )
+
+    for assignment in csv_index["sector_competence_assignments"].values():
+        assignment_id = str(assignment.get("assignment_id", ""))
+        canonical_id = str(assignment.get("canonical_competence_id", ""))
+        canonical_row = canonicals_by_id.get(canonical_id)
+        if canonical_row is None:
+            errors.append(
+                f"sector_competence_assignments:lineage:{assignment_id}:missing_canonical:{canonical_id}"
+            )
+            continue
+        decision_id = str(assignment.get("validation_decision_id", ""))
+        if decision_id != str(canonical_row.get("validation_decision_id", "")):
+            errors.append(
+                f"sector_competence_assignments:lineage:{assignment_id}:decision_mismatch"
+            )
+        candidate_id = str(assignment.get("source_candidate_id", ""))
+        if candidate_id != str(canonical_row.get("source_candidate_id", "")):
+            errors.append(
+                f"sector_competence_assignments:lineage:{assignment_id}:candidate_mismatch"
+            )
+
+    return errors
+
+
 def _write_xlsx(workbook_path: Path, tables: dict[str, list[dict[str, Any]]]) -> bool:
     try:
         from openpyxl import Workbook  # type: ignore
@@ -1130,6 +1299,12 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
                 f"{entity_name}.jsonl",
             )
         )
+    validation_errors.extend(
+        _validate_schema_v2_projection_and_lineage(
+            schema_v2_csv_rows=schema_v2_csv_rows,
+            schema_v2_jsonl_rows=schema_v2_jsonl_rows,
+        )
+    )
     if validation_errors:
         for error in validation_errors[:50]:
             print(f"{status_label('error')} {error}")
@@ -1168,8 +1343,16 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         )
 
     variable_labels, value_labels = _load_variable_and_value_labels(schema_dir)
-    variable_labels = variable_labels + _SCHEMA_V2_VARIABLE_LABELS
-    value_labels = value_labels + _SCHEMA_V2_VALUE_LABELS
+    variable_labels = _merge_label_rows(
+        variable_labels,
+        _SCHEMA_V2_VARIABLE_LABELS,
+        key_fields=("schema_file", "variable_name"),
+    )
+    value_labels = _merge_label_rows(
+        value_labels,
+        _SCHEMA_V2_VALUE_LABELS,
+        key_fields=("schema_file", "variable_name", "code"),
+    )
     _write_csv(package_dir / "VARIABLE_LABELS.csv", variable_labels)
     _write_csv(package_dir / "VALUE_LABELS.csv", value_labels)
 

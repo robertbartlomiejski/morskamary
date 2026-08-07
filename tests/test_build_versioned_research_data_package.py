@@ -275,6 +275,30 @@ def test_build_versioned_research_data_package_creates_manifest_checksums_and_vi
         assert f"data/csv/{entity_name}.csv" in archived_paths
         assert f"data/jsonl/{entity_name}.jsonl" in archived_paths
 
+    with (package_dir / "VALUE_LABELS.csv").open(
+        "r", encoding="utf-8", newline=""
+    ) as handle:
+        value_rows = list(csv.DictReader(handle))
+    value_keys = {
+        (row["schema_file"], row["variable_name"], row["code"]) for row in value_rows
+    }
+    assert len(value_keys) == len(value_rows)
+    axis_blank_key = ("semantic_signals.schema.json", "axis_group", "")
+    assert axis_blank_key in value_keys
+    assert (
+        next(
+            row["label"]
+            for row in value_rows
+            if (
+                row["schema_file"],
+                row["variable_name"],
+                row["code"],
+            )
+            == axis_blank_key
+        )
+        == "Unbound / not assigned"
+    )
+
 
 def test_build_versioned_package_rejects_invalid_schema_v2_jsonl(
     tmp_path: Path,
@@ -315,6 +339,81 @@ def test_build_versioned_package_rejects_invalid_schema_v2_jsonl(
     assert not expected_zip.exists(), (
         "ZIP artifact must not be created when validation fails"
     )
+
+
+def test_build_versioned_package_rejects_schema_v2_projection_mismatch(
+    tmp_path: Path,
+) -> None:
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+
+    mismatch_csv = repo_root / "outputs/cumulative_database/semantic_signals.csv"
+    with mismatch_csv.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fields = list(rows[0].keys())
+    rows[0]["manual_review_status"] = "review_required"
+    with mismatch_csv.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+    release_out = tmp_path / "release_out"
+    exit_code = module.main(
+        [
+            "--repo-root",
+            str(repo_root),
+            "--output-dir",
+            str(release_out),
+            "--version-tag",
+            "v0.1.2",
+            "--include-xlsx",
+            "false",
+            "--include-sav",
+            "false",
+        ]
+    )
+
+    assert exit_code == 1
+    assert not release_out.exists()
+    assert not (release_out / "morskamary_cumulative_evidence_v0.1.2.zip").exists()
+
+
+def test_build_versioned_package_rejects_schema_v2_lineage_mismatch(
+    tmp_path: Path,
+) -> None:
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+
+    bad_signal = repo_root / "outputs/cumulative_database/semantic_signals.jsonl"
+    signal_row = json.loads(bad_signal.read_text(encoding="utf-8"))
+    signal_row["context_text"] = "abstract"
+    bad_signal.write_text(json.dumps(signal_row) + "\n", encoding="utf-8")
+
+    release_out = tmp_path / "release_out"
+    exit_code = module.main(
+        [
+            "--repo-root",
+            str(repo_root),
+            "--output-dir",
+            str(release_out),
+            "--version-tag",
+            "v0.1.3",
+            "--include-xlsx",
+            "false",
+            "--include-sav",
+            "false",
+        ]
+    )
+
+    assert exit_code == 1
+    assert not release_out.exists()
+    assert not (release_out / "morskamary_cumulative_evidence_v0.1.3.zip").exists()
 
 
 def test_build_versioned_research_data_package_cli_entrypoint_forwards_argv(
