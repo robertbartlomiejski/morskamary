@@ -85,6 +85,8 @@ _LINEAGE_REVIEWER_IDENTIFIER_RE = re.compile(
 _LINEAGE_HEX_ID_RE = re.compile(
     r"^[A-Za-z][A-Za-z0-9_-]*:[0-9a-f]{64}$"
 )
+# ASCII Unit Separator — preimage field delimiter matching cumulative_scientific_database.py
+_UNIT_SEP = "\x1f"
 _LINEAGE_UTC_TIMESTAMP_RE = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}"
     r"(?::\d{2}(?:\.\d+)?)?(?:Z|\+00:00)$"
@@ -1502,6 +1504,114 @@ def _expected_canonical_competence_id(value: Any) -> str:
     ).hexdigest()
 
 
+def _recompute_provenance_id(row: Mapping[str, Any]) -> str:
+    """Recompute prov:<sha256> from the provenance preimage fields.
+
+    Mirrors _make_provenance_id_from_fields in cumulative_scientific_database.
+    Returns "" when any required field is absent so callers can skip silently.
+    """
+    run_id = str(row.get("run_id") or "").strip()
+    evidence_id = str(row.get("evidence_id") or "").strip()
+    source_retrieved_at_utc = str(
+        row.get("source_retrieved_at_utc") or ""
+    ).strip()
+    source_provider = str(row.get("source_provider") or "").strip()
+    source_provider_id = str(row.get("source_provider_id") or "").strip().lower()
+    source_query_id = str(row.get("source_query_id") or "").strip()
+    source_query_text = re.sub(
+        r"\s+", " ", str(row.get("source_query_text") or "")
+    ).strip().lower()
+    if not all(
+        [
+            run_id,
+            evidence_id,
+            source_retrieved_at_utc,
+            source_provider,
+            source_query_id,
+        ]
+    ):
+        return ""
+    payload = _UNIT_SEP.join(
+        [
+            run_id,
+            evidence_id,
+            source_retrieved_at_utc,
+            source_provider,
+            source_provider_id,
+            source_query_id,
+            source_query_text,
+        ]
+    )
+    return "prov:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _recompute_signal_id(row: Mapping[str, Any]) -> str:
+    """Recompute signal:<sha256> from the signal preimage fields.
+
+    Returns "" when any required field is absent so callers can skip silently.
+    """
+    evidence_id = str(row.get("evidence_id") or "").strip()
+    signal_type = str(row.get("signal_type") or "").strip()
+    matched_phrase = re.sub(
+        r"\s+", " ", str(row.get("matched_phrase") or "")
+    ).strip().lower()
+    evidence_text_hash = str(row.get("evidence_text_hash") or "").strip()
+    classifier_version = str(row.get("classifier_version") or "").strip()
+    if not all(
+        [evidence_id, signal_type, matched_phrase, evidence_text_hash, classifier_version]
+    ):
+        return ""
+    payload = _UNIT_SEP.join(
+        [evidence_id, signal_type, matched_phrase, evidence_text_hash, classifier_version]
+    )
+    return "signal:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _recompute_fragment_id(
+    row: Mapping[str, Any],
+    *,
+    signal_id: str,
+    provenance_id: str,
+) -> str:
+    """Recompute fragment:<sha256> from the fragment preimage fields.
+
+    Returns "" when any required field is absent or offsets are non-numeric.
+    """
+    evidence_id = str(row.get("evidence_id") or "").strip()
+    source_field = str(row.get("source_field") or "").strip()
+    try:
+        span_start = int(row.get("span_start_offset", ""))
+        span_end = int(row.get("span_end_offset", ""))
+    except (ValueError, TypeError):
+        return ""
+    if not all([evidence_id, signal_id, provenance_id, source_field]):
+        return ""
+    payload = _UNIT_SEP.join(
+        [
+            evidence_id,
+            signal_id,
+            provenance_id,
+            source_field,
+            str(span_start),
+            str(span_end),
+        ]
+    )
+    return "fragment:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _recompute_candidate_id(row: Mapping[str, Any]) -> str:
+    """Recompute candidate:<sha256> from signal_id and evidence_id.
+
+    Returns "" when any required field is absent so callers can skip silently.
+    """
+    signal_id = str(row.get("signal_id") or "").strip()
+    evidence_id = str(row.get("evidence_id") or "").strip()
+    if not signal_id or not evidence_id:
+        return ""
+    payload = _UNIT_SEP.join([signal_id, evidence_id, "candidate"])
+    return "candidate:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
 def _parse_lineage_utc(value: Any) -> Optional[datetime]:
     """Return a strict UTC lineage timestamp, or ``None`` when invalid."""
     token = str(value or "").strip()
@@ -1940,6 +2050,90 @@ def _build_accepted_canonical_lineage_demands(
             )
         signal_by_key[signal_key] = signal
 
+    # ------------------------------------------------------------------
+    # Deterministic ID recomputation guards (best-effort: only fire when
+    # all preimage fields are present; missing fields are skipped).
+    # ------------------------------------------------------------------
+
+    # Build reverse map: fragment_id -> first signal row that covers it,
+    # needed for per-fragment provenance_id and fragment_id recomputation.
+    signal_by_fragment_id: Dict[str, Mapping[str, Any]] = {}
+    for (sig_id, frag_id), sig_row in signal_by_key.items():
+        if frag_id not in signal_by_fragment_id:
+            signal_by_fragment_id[frag_id] = sig_row
+
+    # 1. Recompute signal_id for each semantic signal row.
+    for signal in signal_rows:
+        stored_signal_id = _lineage_row_id(signal, "signal_id")
+        recomputed_signal_id = _recompute_signal_id(signal)
+        if recomputed_signal_id and recomputed_signal_id != stored_signal_id:
+            raise DerivedAnalysisError(
+                "accepted canonical lineage signal_id does not match "
+                f"recomputed identity: {stored_signal_id}"
+            )
+
+    # 2. Recompute provenance_id and fragment_id for each evidence fragment.
+    for fragment_id, fragment in fragments_by_id.items():
+        stored_provenance_id = _lineage_row_id(fragment, "source_provenance_id")
+        recomputed_prov = _recompute_provenance_id(fragment)
+        if recomputed_prov and recomputed_prov != stored_provenance_id:
+            raise DerivedAnalysisError(
+                "accepted canonical lineage fragment provenance_id does not "
+                f"match recomputed identity: {fragment_id}"
+            )
+        covering_signal = signal_by_fragment_id.get(fragment_id)
+        if covering_signal is not None:
+            covering_signal_id = _lineage_row_id(covering_signal, "signal_id")
+            prov_for_fragment = recomputed_prov or stored_provenance_id
+            recomputed_frag = _recompute_fragment_id(
+                fragment,
+                signal_id=covering_signal_id,
+                provenance_id=prov_for_fragment,
+            )
+            if recomputed_frag and recomputed_frag != fragment_id:
+                raise DerivedAnalysisError(
+                    "accepted canonical lineage fragment_id does not match "
+                    f"recomputed identity: {fragment_id}"
+                )
+
+    # 3. Recompute candidate_id for each competence candidate row.
+    for candidate_id, candidate in candidates_by_id.items():
+        recomputed_cand = _recompute_candidate_id(candidate)
+        if recomputed_cand and recomputed_cand != candidate_id:
+            raise DerivedAnalysisError(
+                "accepted canonical lineage candidate_id does not match "
+                f"recomputed identity: {candidate_id}"
+            )
+
+    # 4. Span validation: verify fragment text matches context slice.
+    for fragment_id, fragment in fragments_by_id.items():
+        context_text = str(fragment.get("context_text") or "")
+        fragment_text = str(fragment.get("fragment_text") or "")
+        span_start_raw = fragment.get("span_start_offset")
+        span_end_raw = fragment.get("span_end_offset")
+        if not context_text or not fragment_text:
+            continue
+        if span_start_raw is None or span_end_raw is None:
+            continue
+        try:
+            span_start = int(span_start_raw)
+            span_end = int(span_end_raw)
+        except (ValueError, TypeError):
+            raise DerivedAnalysisError(
+                "accepted canonical lineage fragment has invalid span offsets: "
+                f"{fragment_id}"
+            )
+        if not (0 <= span_start < span_end <= len(context_text)):
+            raise DerivedAnalysisError(
+                "accepted canonical lineage fragment has out-of-bounds span "
+                f"offsets: {fragment_id}"
+            )
+        if context_text[span_start:span_end] != fragment_text:
+            raise DerivedAnalysisError(
+                "accepted canonical lineage fragment span text does not match "
+                f"context_text slice: {fragment_id}"
+            )
+
     expected_contexts_by_decision_id: Dict[str, Set[Tuple[str, str, str]]] = {}
     expected_canonical_id_by_decision_id: Dict[str, str] = {}
     for decision in active_accepted_decisions:
@@ -2068,6 +2262,12 @@ def _build_accepted_canonical_lineage_demands(
             raise DerivedAnalysisError(
                 "accepted canonical lineage decision has an invalid UTC "
                 f"timestamp: {decision_id}"
+            )
+        built_at = _parse_lineage_utc(analysis_timestamp_utc)
+        if built_at is not None and decision_at > built_at:
+            raise DerivedAnalysisError(
+                "accepted canonical lineage decision is dated after the "
+                f"database built_at_utc: {decision_id}"
             )
         for fragment_id in decision_fragment_ids:
             retrieved_at = _parse_lineage_utc(

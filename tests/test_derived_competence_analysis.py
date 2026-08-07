@@ -104,7 +104,7 @@ def _accepted_canonical_lineage_rows() -> Dict[str, List[Dict[str, Any]]]:
     evidence_id = "E-0001"
     fragment_id = "fragment:9cb8e123711f6dd1708535ccdc0a9d693470917fc49c3d73821b31b903eb9b32"
     signal_id = "signal:hydrosocial:001"
-    candidate_id = "candidate:1dfeccb6cfa3e424affb1a2f558f5dd9f74f41f555ecaa8fc624518d59590302"
+    candidate_id = "candidate:8e9a8f273eee0e2dbcf3b43cb688879876af49c986bff214bffbe01aa95cb524"
     decision_id = "decision:hydrosocial:001"
     assignment_id = "assignment:hydrosocial:001"
     provenance_id = "provenance:hydrosocial:001"
@@ -246,7 +246,7 @@ def test_layer4_emits_only_complete_accepted_canonical_lineage(
     ]
     assert demand.validation_decision_ids == "decision:hydrosocial:001"
     assert demand.source_candidate_ids == (
-        "candidate:1dfeccb6cfa3e424affb1a2f558f5dd9f74f41f555ecaa8fc624518d59590302"
+        "candidate:8e9a8f273eee0e2dbcf3b43cb688879876af49c986bff214bffbe01aa95cb524"
     )
     assert demand.assignment_ids == "assignment:hydrosocial:001"
     assert demand.manual_review_status == "manually_reviewed"
@@ -264,6 +264,8 @@ def test_layer4_emits_only_complete_accepted_canonical_lineage(
         ("invalid_reviewer", "invalid reviewer identifier"),
         ("invalid_timestamp", "invalid UTC timestamp"),
         ("mismatched_definition", "does not resolve its reviewed decision"),
+        ("forged_candidate_id", "candidate_id does not match recomputed identity"),
+        ("mismatched_span_text", "span text does not match"),
     ],
 )
 def test_layer4_rejects_incomplete_or_noncanonical_accepted_lineage(
@@ -306,10 +308,38 @@ def test_layer4_rejects_incomplete_or_noncanonical_accepted_lineage(
         decision["decision_at_utc"] = "2026-07-10 00:00:00+00:00"
     elif mutation == "mismatched_definition":
         canonical["canonical_definition"] = "A forged definition."
+    elif mutation == "forged_candidate_id":
+        # Compute a candidate_id that uses a wrong evidence_id in the preimage.
+        # The recomputation check will compute the correct ID (using "E-0001")
+        # and see it differs from the forged ID (computed with "E-WRONG").
+        forged = "candidate:" + hashlib.sha256(
+            ("\x1f".join(["signal:hydrosocial:001", "E-WRONG", "candidate"])).encode()
+        ).hexdigest()
+        rows["competence_candidates"][0]["candidate_id"] = forged
+        decision["target_candidate_id"] = forged
+        canonical["source_candidate_id"] = forged
+        assignment["source_candidate_id"] = forged
+    elif mutation == "mismatched_span_text":
+        rows["evidence_fragments"][0].update({
+            "context_text": "Desalination governance competence needs for water systems",
+            "span_start_offset": 0,
+            "span_end_offset": 12,
+            "fragment_text": "WRONG_TEXT",
+        })
     else:  # pragma: no cover - keeps parametrization exhaustive.
         raise AssertionError(f"unexpected mutation: {mutation}")
 
     with pytest.raises(DerivedAnalysisError, match=message):
+        _build_accepted_canonical_lineage(tmp_path, rows)
+
+
+def test_layer4_rejects_decision_after_built_at(tmp_path: Path) -> None:
+    """A decision timestamped after built_at_utc must raise DerivedAnalysisError."""
+    rows = _accepted_canonical_lineage_rows()
+    # Base fixture: decision_at_utc=2026-07-10, built_at=2026-07-12 → passes.
+    # Make decision AFTER built_at to trigger the guard:
+    rows["validation_decisions"][0]["decision_at_utc"] = "2026-07-15T00:00:00+00:00"
+    with pytest.raises(DerivedAnalysisError, match="dated after the database built_at_utc"):
         _build_accepted_canonical_lineage(tmp_path, rows)
 
 
