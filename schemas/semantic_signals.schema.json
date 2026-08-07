@@ -26,6 +26,7 @@
     "action_text",
     "object_text",
     "context_text",
+    "evidence_text_hash",
     "manual_review_status",
     "validity_warning"
   ],
@@ -56,6 +57,10 @@
     "action_text": { "type": "string" },
     "object_text": { "type": "string" },
     "context_text": { "type": "string" },
+    "evidence_text_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
     "manual_review_status": {
       "type": "string",
       "enum": ["auto_accepted", "review_required", "manually_reviewed", "rejected"]

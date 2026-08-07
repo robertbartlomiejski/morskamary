@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-08-07 (fix: reconcile schema-v2 publication blockers for PR #245)
+  Change type fix update
+  Scope scripts src tests governance
+  Files affected .github/workflows/full-live-analysis.yml docs/LIVE_CUMULATIVE_SCIENTIFIC_DATABASE.md schemas/evidence_fragments.schema.json schemas/semantic_signals.schema.json scripts/build_cumulative_scientific_database.py scripts/build_live_cumulative_release_package.py scripts/build_versioned_research_data_package.py src/scientific_sources/cumulative_scientific_database.py src/scientific_sources/derived_competence_analysis.py tests/fixtures/cumulative_database_schema_samples.json tests/test_build_validated_credential_supply_map.py tests/test_build_versioned_research_data_package.py tests/test_cumulative_scientific_database.py tests/test_derived_competence_analysis.py tests/test_full_live_analysis_workflow.py tests/test_live_cumulative_release_package.py CHANGELOG.txt
+  Summary Reconciles the remaining PR #245 schema-v2 blockers by enforcing reproducible identities, UTC provenance, immutable reviewer decision snapshots, finite numeric inputs, full package lineage and contract inclusion, and exact-match v2 confidence scoring. The protected live workflow now passes an optional reviewer-protected decision ledger without printing it.
+  Reason Issue #218 requires publication-safe construct validity across CSV, JSONL, package, and release preflight paths while preserving the frozen legacy compatibility projection.
+  Impact Schema-v2 publication fails closed for malformed lineage, non-finite values, invalid timestamps, mutable decision evidence, incompatible assignment contexts, and count mismatches. Legacy aggregate demand rows remain legacy; they no longer contribute to H2 validation-backed counts.
+  Provenance Issue #218; PR #245 review reconciliation; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md; config/live_query_protocol.yml.
+  Quality checks Focused contract regressions and the required repository validation suite are run before PR update; results are recorded in the PR evidence report.
+
 - 2026-08-06 (add: schema-v2 construct-valid cumulative foundation for issue #218)
   Change type add update
   Scope scripts src tests governance

@@ -141,9 +141,82 @@ def _refresh_fragment_integrity(
     return provenance_id
 
 
+def _fixture_signal_id(signal: dict[str, object]) -> str:
+    """Return the runtime-compatible v2 semantic-signal fixture identity."""
+    normalized_phrase = re.sub(
+        r"\s+", " ", str(signal["matched_phrase"])
+    ).strip().lower()
+    payload = "\x1f".join(
+        (
+            str(signal["evidence_id"]),
+            str(signal["signal_type"]),
+            normalized_phrase,
+            str(signal["evidence_text_hash"]),
+            str(signal["classifier_version"]),
+        )
+    )
+    return "signal:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _refresh_fixture_fragment_id(
+    fragment: dict[str, object], signal: dict[str, object]
+) -> str:
+    """Refresh one fixture fragment's runtime-compatible occurrence ID."""
+    payload = "\x1f".join(
+        (
+            str(fragment["evidence_id"]),
+            str(signal["signal_id"]),
+            str(fragment["source_provenance_id"]),
+            str(fragment["source_field"]),
+            str(fragment["span_start_offset"]),
+            str(fragment["span_end_offset"]),
+        )
+    )
+    fragment_id = "fragment:" + hashlib.sha256(
+        payload.encode("utf-8")
+    ).hexdigest()
+    fragment["fragment_id"] = fragment_id
+    return fragment_id
+
+
+def _fixture_candidate_id(candidate: dict[str, object]) -> str:
+    """Return the runtime-compatible v2 competence-candidate identity."""
+    payload = "\x1f".join(
+        (
+            str(candidate["signal_id"]),
+            str(candidate["evidence_id"]),
+            "candidate",
+        )
+    )
+    return "candidate:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _additional_fixture_signal_component(
+    rows: dict[str, dict[str, object]],
+    *,
+    sector: str = "ports",
+    axis_group: str = "MARINE",
+    axis_code: str = "M",
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Return a valid second occurrence for one aggregate v2 candidate."""
+    fragment = dict(rows["evidence_fragments"])
+    _refresh_fragment_integrity(fragment, source_provider_id="source:second")
+    signal = dict(rows["semantic_signals"])
+    signal.update(
+        {
+            "source_provenance_id": fragment["source_provenance_id"],
+            "sector": sector,
+            "axis_group": axis_group,
+            "axis_code": axis_code,
+        }
+    )
+    signal["fragment_id"] = _refresh_fixture_fragment_id(fragment, signal)
+    return fragment, signal
+
+
 def _schema_v2_rows() -> dict[str, dict[str, object]]:
     fragment: dict[str, object] = {
-        "fragment_id": "fragment:test",
+        "fragment_id": "",
         "evidence_id": "E-0001",
         "run_id": "RUN-1",
         "source_provenance_id": "",
@@ -163,11 +236,9 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
     source_provenance_id = _refresh_fragment_integrity(
         fragment, source_provider_id="source:test"
     )
-    return {
-        "evidence_fragments": fragment,
-        "semantic_signals": {
-            "signal_id": "S-0001",
-            "fragment_id": "fragment:test",
+    semantic_signal: dict[str, object] = {
+            "signal_id": "",
+            "fragment_id": "",
             "evidence_id": "E-0001",
             "run_id": "RUN-1",
             "source_provenance_id": source_provenance_id,
@@ -188,20 +259,26 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
             "action_text": "",
             "object_text": "",
             "context_text": "marine skill",
+            "evidence_text_hash": hashlib.sha256(
+                b"fixture evidence scope"
+            ).hexdigest(),
             "manual_review_status": "auto_accepted",
             "validity_warning": "",
-        },
-        "competence_candidates": {
-            "candidate_id": "candidate:test",
-            "signal_id": "S-0001",
-            "fragment_id": "fragment:test",
+    }
+    semantic_signal["signal_id"] = _fixture_signal_id(semantic_signal)
+    fragment_id = _refresh_fixture_fragment_id(fragment, semantic_signal)
+    semantic_signal["fragment_id"] = fragment_id
+    candidate: dict[str, object] = {
+            "candidate_id": "",
+            "signal_id": semantic_signal["signal_id"],
+            "fragment_id": fragment_id,
             "evidence_id": "E-0001",
             "run_id": "RUN-1",
             "sector": "ports",
             "axis_group": "MARINE",
             "axis_code": "M",
             "source_provenance_ids": source_provenance_id,
-            "fragment_ids": "fragment:test",
+            "fragment_ids": fragment_id,
             "candidate_label": "Marine skill",
             "candidate_definition": "Fixture candidate definition.",
             "capability_proposition": "Apply marine skill.",
@@ -213,41 +290,49 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
             "exact_evidence_span": "marine skill",
             "exact_span_start_offset": 0,
             "exact_span_end_offset": 12,
-        },
-        "validation_decisions": {
+    }
+    candidate["candidate_id"] = _fixture_candidate_id(candidate)
+    validation_decision: dict[str, object] = {
             "validation_decision_id": "decision:test",
-            "target_candidate_id": "candidate:test",
+            "target_candidate_id": candidate["candidate_id"],
             "canonical_label": "Marine skill",
             "decision_status": "accepted",
             "reviewer": "reviewer-fixture",
             "decision_at_utc": "2026-07-10T00:00:00+00:00",
             "decision_reason": "Fixture acceptance.",
             "evidence_ids": "E-0001",
-            "fragment_ids": "fragment:test",
+            "fragment_ids": fragment_id,
             "source_provenance_ids": source_provenance_id,
             "superseded_validation_decision_id": "",
-        },
-        "canonical_competences": {
+    }
+    canonical_competence: dict[str, object] = {
             "canonical_competence_id": "canonical:test",
             "validation_decision_id": "decision:test",
-            "source_candidate_id": "candidate:test",
+            "source_candidate_id": candidate["candidate_id"],
             "preferred_label": "Marine skill",
             "canonical_definition": "Fixture candidate definition.",
             "aliases": "",
             "validation_status": "accepted",
             "schema_version": "2.0.0",
             "provenance_guard_status": "passed",
-        },
-        "sector_competence_assignments": {
+    }
+    assignment: dict[str, object] = {
             "assignment_id": "assignment:test",
             "canonical_competence_id": "canonical:test",
             "validation_decision_id": "decision:test",
-            "source_candidate_id": "candidate:test",
+            "source_candidate_id": candidate["candidate_id"],
             "sector": "ports",
             "axis_group": "MARINE",
             "axis_code": "M",
             "evidence_ids": "E-0001",
-        },
+    }
+    return {
+        "evidence_fragments": fragment,
+        "semantic_signals": semantic_signal,
+        "competence_candidates": candidate,
+        "validation_decisions": validation_decision,
+        "canonical_competences": canonical_competence,
+        "sector_competence_assignments": assignment,
     }
 
 
@@ -519,10 +604,18 @@ def _update_schema_v2_first_row(
         [dict(row) for row in csv_rows],
     )
     jsonl_path = db / f"{entity_name}.jsonl"
-    jsonl_row = json.loads(jsonl_path.read_text(encoding="utf-8"))
-    jsonl_row.update(updates)
+    jsonl_rows = [
+        json.loads(line)
+        for line in jsonl_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert jsonl_rows
+    jsonl_rows[0].update(updates)
     jsonl_path.write_text(
-        json.dumps(jsonl_row, sort_keys=True) + "\n", encoding="utf-8"
+        "".join(
+            json.dumps(row, sort_keys=True) + "\n" for row in jsonl_rows
+        ),
+        encoding="utf-8",
     )
 
 
@@ -894,6 +987,85 @@ def test_package_applies_full_draft_schema_to_jsonl_rows(
     ) in captured.err
 
 
+@pytest.mark.parametrize("literal", ("NaN", "Infinity", "-Infinity", "1e9999"))
+def test_package_rejects_nonfinite_jsonl_numbers(
+    tmp_path: Path, capsys: object, literal: str
+) -> None:
+    """JSONL must reject non-standard and overflowed non-finite numbers."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    jsonl_path = db / "semantic_signals.jsonl"
+    serialized = jsonl_path.read_text(encoding="utf-8")
+    updated = re.sub(
+        r'("confidence_score": )[^,}]+',
+        rf"\g<1>{literal}",
+        serialized,
+    )
+    assert updated != serialized
+    jsonl_path.write_text(updated, encoding="utf-8")
+    _rewrite_checksums(db)
+
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "nonfinite_jsonl_number:semantic_signals.jsonl:L1:"
+    ) in captured.err
+
+
+def test_package_rejects_nonfinite_csv_numbers(
+    tmp_path: Path, capsys: object
+) -> None:
+    """CSV coercion must fail closed rather than retain an IEEE non-finite."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    csv_path = db / "semantic_signals.csv"
+    rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
+    rows[0]["confidence_score"] = "NaN"
+    _write_csv_rows(
+        csv_path,
+        CSV_REQUIRED_COLUMNS[csv_path.name],
+        [dict(row) for row in rows],
+    )
+    _rewrite_checksums(db)
+
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_nonfinite_number:"
+        "semantic_signals.csv:L2:confidence_score"
+    ) in captured.err
+
+
+def test_package_requires_utc_source_provenance_timestamps(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Evidence-fragment provenance timestamps are explicitly UTC records."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _update_schema_v2_first_row(
+        db,
+        "evidence_fragments",
+        {"source_retrieved_at_utc": "2026-07-10T01:00:00+01:00"},
+    )
+    _rewrite_checksums(db)
+
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_invalid_source_retrieved_at_utc:"
+        "evidence_fragments.csv:L2:source_retrieved_at_utc"
+    ) in captured.err
+
+
 def test_package_rejects_blank_reason_and_non_utc_decision_time(
     tmp_path: Path, capsys: object
 ) -> None:
@@ -1219,6 +1391,51 @@ def test_package_recomputes_fragment_provenance_preimage_and_hash(
     ) in captured.err
 
 
+@pytest.mark.parametrize(
+    ("entity_name", "field_name", "value", "expected_issue"),
+    (
+        (
+            "semantic_signals",
+            "signal_id",
+            "signal:tampered",
+            "semantic_signals.csv:L2:signal_id",
+        ),
+        (
+            "evidence_fragments",
+            "fragment_id",
+            "fragment:tampered",
+            "evidence_fragments.csv:L2:fragment_id",
+        ),
+        (
+            "competence_candidates",
+            "candidate_id",
+            "candidate:tampered",
+            "competence_candidates.csv:L2:candidate_id",
+        ),
+    ),
+)
+def test_package_rejects_tampered_deterministic_v2_identities(
+    tmp_path: Path,
+    capsys: object,
+    entity_name: str,
+    field_name: str,
+    value: str,
+    expected_issue: str,
+) -> None:
+    """Release preflight re-derives every published v2 identity preimage."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _update_schema_v2_first_row(db, entity_name, {field_name: value})
+    _rewrite_checksums(db)
+
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert f"schema_v2_lineage_mismatch:{expected_issue}" in captured.err
+
+
 def test_package_requires_assignment_semantic_context_and_label_guard(
     tmp_path: Path, capsys: object
 ) -> None:
@@ -1294,20 +1511,11 @@ def test_package_requires_all_candidate_fragments_and_bound_assignments(
     reports = tmp_path / "reports"
     _write_min_bundle(db, reports)
     rows = _schema_v2_rows()
-    second_fragment = dict(rows["evidence_fragments"])
-    second_fragment["fragment_id"] = "fragment:second"
-    second_provenance_id = _refresh_fragment_integrity(
-        second_fragment, source_provider_id="source:second"
-    )
-    second_signal = dict(rows["semantic_signals"])
-    second_signal.update(
-        {
-            "fragment_id": "fragment:second",
-            "source_provenance_id": second_provenance_id,
-            "sector": "shipping",
-            "axis_group": "MARITIME",
-            "axis_code": "T",
-        }
+    second_fragment, second_signal = _additional_fixture_signal_component(
+        rows,
+        sector="shipping",
+        axis_group="MARITIME",
+        axis_code="T",
     )
     _append_schema_v2_row(db, "evidence_fragments", second_fragment)
     _append_schema_v2_row(db, "semantic_signals", second_signal)
@@ -1321,12 +1529,19 @@ def test_package_requires_all_candidate_fragments_and_bound_assignments(
         "competence_candidates.csv:L2:fragment_ids"
     ) in captured.err
 
-    references = "fragment:test|fragment:second"
+    references = "|".join(
+        sorted(
+            {
+                str(rows["evidence_fragments"]["fragment_id"]),
+                str(second_fragment["fragment_id"]),
+            }
+        )
+    )
     provenance_ids = "|".join(
         sorted(
             {
                 str(rows["evidence_fragments"]["source_provenance_id"]),
-                second_provenance_id,
+                str(second_fragment["source_provenance_id"]),
             }
         )
     )
@@ -1437,6 +1652,52 @@ def test_package_rejects_invalid_supersession_links(
         ) in captured.err
 
 
+@pytest.mark.parametrize(
+    ("scenario", "expected_issue"),
+    (
+        ("cycle", "supersession_cycle"),
+        ("multiple-active", "multiple_active_validation_decisions"),
+    ),
+)
+def test_package_rejects_supersession_cycles_and_multiple_active_decisions(
+    tmp_path: Path,
+    capsys: object,
+    scenario: str,
+    expected_issue: str,
+) -> None:
+    """A candidate can have one acyclic active validation decision at most."""
+    db = tmp_path / f"db-{scenario}"
+    reports = tmp_path / f"reports-{scenario}"
+    _write_min_bundle(db, reports)
+    _write_schema_v2_decision_chain(db)
+    replacement = dict(_schema_v2_rows()["validation_decisions"])
+    replacement.update(
+        {
+            "validation_decision_id": "decision:replacement",
+            "decision_status": "review_required",
+            "decision_reason": "Fixture review replacement.",
+            "superseded_validation_decision_id": (
+                "decision:test" if scenario == "cycle" else ""
+            ),
+        }
+    )
+    _append_schema_v2_row(db, "validation_decisions", replacement)
+    if scenario == "cycle":
+        _update_schema_v2_first_row(
+            db,
+            "validation_decisions",
+            {"superseded_validation_decision_id": "decision:replacement"},
+        )
+    _rewrite_checksums(db)
+
+    out = tmp_path / f"pkg-{scenario}.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert f"validation_decisions.csv:L{3 if scenario == 'multiple-active' else 2}:" in captured.err
+    assert expected_issue in captured.err
+
+
 @pytest.mark.parametrize("evidence_ids", ("E-OTHER", "E-0001|E-OTHER", "|"))
 def test_package_rejects_assignment_evidence_unlinked_from_candidate(
     tmp_path: Path,
@@ -1483,42 +1744,34 @@ def test_package_rejects_assignment_evidence_unlinked_from_candidate(
     ) in captured.err
 
 
-def test_package_requires_decision_to_retain_full_candidate_reference_sets(
-    tmp_path: Path, capsys: object
+def test_package_allows_immutable_decision_snapshot_subset_of_candidate(
+    tmp_path: Path,
 ) -> None:
-    """Decisions retain every fragment and source provenance of their candidate."""
+    """A decision retains its original evidence snapshot after aggregation grows."""
     db = tmp_path / "db"
     reports = tmp_path / "reports"
     _write_min_bundle(db, reports)
     rows = _schema_v2_rows()
-    second_fragment = dict(rows["evidence_fragments"])
-    second_fragment.update(
-        {
-            "fragment_id": "fragment:second",
-        }
-    )
-    second_provenance_id = _refresh_fragment_integrity(
-        second_fragment, source_provider_id="source:second"
-    )
-    second_signal = dict(rows["semantic_signals"])
-    second_signal.update(
-        {
-            "fragment_id": "fragment:second",
-            "source_provenance_id": second_provenance_id,
-        }
-    )
+    second_fragment, second_signal = _additional_fixture_signal_component(rows)
     _append_schema_v2_row(db, "evidence_fragments", second_fragment)
     _append_schema_v2_row(db, "semantic_signals", second_signal)
 
     candidate_path = db / "competence_candidates.csv"
     candidate_rows = list(csv.DictReader(candidate_path.open(encoding="utf-8")))
     assert candidate_rows
-    candidate_rows[0]["fragment_ids"] = "fragment:test|fragment:second"
+    candidate_rows[0]["fragment_ids"] = "|".join(
+        sorted(
+            {
+                str(rows["evidence_fragments"]["fragment_id"]),
+                str(second_fragment["fragment_id"]),
+            }
+        )
+    )
     candidate_rows[0]["source_provenance_ids"] = "|".join(
         sorted(
             {
                 str(rows["evidence_fragments"]["source_provenance_id"]),
-                second_provenance_id,
+                str(second_fragment["source_provenance_id"]),
             }
         )
     )
@@ -1529,7 +1782,7 @@ def test_package_requires_decision_to_retain_full_candidate_reference_sets(
     )
     candidate_jsonl_path = db / "competence_candidates.jsonl"
     candidate = json.loads(candidate_jsonl_path.read_text(encoding="utf-8"))
-    candidate["fragment_ids"] = "fragment:test|fragment:second"
+    candidate["fragment_ids"] = candidate_rows[0]["fragment_ids"]
     candidate["source_provenance_ids"] = candidate_rows[0][
         "source_provenance_ids"
     ]
@@ -1540,43 +1793,67 @@ def test_package_requires_decision_to_retain_full_candidate_reference_sets(
     _rewrite_checksums(db)
 
     out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 0
+    assert out.exists()
+
+
+@pytest.mark.parametrize(
+    ("field_name", "value"),
+    (
+        ("evidence_ids", "E-OTHER"),
+        ("fragment_ids", "fragment:missing"),
+        ("source_provenance_ids", "prov:missing"),
+    ),
+)
+def test_package_rejects_decision_snapshot_unlinked_from_candidate(
+    tmp_path: Path,
+    capsys: object,
+    field_name: str,
+    value: str,
+) -> None:
+    """Immutable decision snapshots must resolve to the retained candidate chain."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _write_schema_v2_decision_chain(db)
+    _update_schema_v2_first_row(
+        db, "validation_decisions", {field_name: value}
+    )
+    _rewrite_checksums(db)
+
+    out = tmp_path / "pkg.zip"
     assert _build_fixture_package(db, reports, out) == 1
     assert not out.exists()
     captured = capsys.readouterr()  # type: ignore[attr-defined]
     assert (
         "schema_v2_lineage_mismatch:"
-        "validation_decisions.csv:L2:fragment_ids"
-    ) in captured.err
-    assert (
-        "schema_v2_lineage_mismatch:"
-        "validation_decisions.csv:L2:source_provenance_ids"
+        f"validation_decisions.csv:L2:{field_name}"
     ) in captured.err
 
-    for suffix in ("csv", "jsonl"):
-        decision_path = db / f"validation_decisions.{suffix}"
-        if suffix == "csv":
-            decision_rows = list(csv.DictReader(decision_path.open(encoding="utf-8")))
-            decision_rows[0]["fragment_ids"] = "fragment:test|fragment:second"
-            decision_rows[0]["source_provenance_ids"] = candidate_rows[0][
-                "source_provenance_ids"
-            ]
-            _write_csv_rows(
-                decision_path,
-                CSV_REQUIRED_COLUMNS[decision_path.name],
-                [dict(decision_rows[0])],
-            )
-        else:
-            decision = json.loads(decision_path.read_text(encoding="utf-8"))
-            decision["fragment_ids"] = "fragment:test|fragment:second"
-            decision["source_provenance_ids"] = candidate_rows[0][
-                "source_provenance_ids"
-            ]
-            decision_path.write_text(
-                json.dumps(decision, sort_keys=True) + "\n", encoding="utf-8"
-            )
+
+def test_package_rejects_snapshot_evidence_retrieved_after_decision(
+    tmp_path: Path, capsys: object
+) -> None:
+    """A decision cannot cite an evidence snapshot retrieved after its timestamp."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _write_schema_v2_decision_chain(db)
+    _update_schema_v2_first_row(
+        db,
+        "validation_decisions",
+        {"decision_at_utc": "2026-07-09T00:00:00+00:00"},
+    )
     _rewrite_checksums(db)
-    assert _build_fixture_package(db, reports, out) == 0
-    assert out.exists()
+
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "validation_decisions.csv:L2:source_retrieved_at_utc"
+    ) in captured.err
 
 
 def test_package_rejects_legacy_metadata_projection_mismatch(
@@ -1604,18 +1881,7 @@ def test_package_allows_shared_signal_id_for_distinct_fragments(
     reports = tmp_path / "reports"
     _write_min_bundle(db, reports)
     rows = _schema_v2_rows()
-    second_fragment = dict(rows["evidence_fragments"])
-    second_fragment.update({
-        "fragment_id": "fragment:second",
-    })
-    second_provenance_id = _refresh_fragment_integrity(
-        second_fragment, source_provider_id="source:second"
-    )
-    second_signal = dict(rows["semantic_signals"])
-    second_signal.update({
-        "fragment_id": "fragment:second",
-        "source_provenance_id": second_provenance_id,
-    })
+    second_fragment, second_signal = _additional_fixture_signal_component(rows)
     for entity_name, row in (
         ("evidence_fragments", second_fragment),
         ("semantic_signals", second_signal),
@@ -1624,12 +1890,19 @@ def test_package_allows_shared_signal_id_for_distinct_fragments(
     candidate_path = db / "competence_candidates.csv"
     candidate_rows = list(csv.DictReader(candidate_path.open(encoding="utf-8")))
     assert candidate_rows
-    candidate_rows[0]["fragment_ids"] = "fragment:test|fragment:second"
+    candidate_rows[0]["fragment_ids"] = "|".join(
+        sorted(
+            {
+                str(rows["evidence_fragments"]["fragment_id"]),
+                str(second_fragment["fragment_id"]),
+            }
+        )
+    )
     candidate_rows[0]["source_provenance_ids"] = "|".join(
         sorted(
             {
                 str(rows["evidence_fragments"]["source_provenance_id"]),
-                second_provenance_id,
+                str(second_fragment["source_provenance_id"]),
             }
         )
     )

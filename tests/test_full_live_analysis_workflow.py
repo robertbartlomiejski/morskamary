@@ -48,6 +48,25 @@ def test_live_calls_require_exact_authorization_and_protected_environment() -> N
     assert "publication_candidate" in text
 
 
+def test_reviewer_protected_decision_ledger_reaches_cumulative_builder() -> None:
+    """Protected decisions must be usable without exposing their JSON content."""
+    text = _text()
+    build_block = text[
+        text.index("Build cumulative database and provisional Layers 4-5") : text.index(
+            "Build and conditionally consume validated H2 supply map"
+        )
+    ]
+    assert (
+        "VALIDATION_DECISION_LEDGER_JSON: "
+        "${{ secrets.VALIDATION_DECISION_LEDGER_JSON }}"
+    ) in text
+    assert "LEDGER_PATH=\"$RUNNER_TEMP/validation-decision-ledger.json\"" in build_block
+    assert "umask 077" in build_block
+    assert "printf '%s' \"$VALIDATION_DECISION_LEDGER_JSON\"" in build_block
+    assert "--validation-decision-ledger \"$LEDGER_PATH\"" in build_block
+    assert "echo \"$VALIDATION_DECISION_LEDGER_JSON\"" not in build_block
+
+
 def test_workflow_uses_explicit_page_contract_and_budget() -> None:
     text = _text()
     assert "logical_pages:" in text

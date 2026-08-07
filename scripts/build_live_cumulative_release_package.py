@@ -314,6 +314,40 @@ def _load_json_required(path: Path) -> Optional[Dict[str, Any]]:
     return None
 
 
+class _NonFiniteJsonNumberError(ValueError):
+    """Raised when JSON text uses a non-finite numeric token."""
+
+
+def _reject_nonfinite_json_number(token: str) -> None:
+    """Reject JSON extensions such as ``NaN`` and ``Infinity`` fail-closed."""
+    raise _NonFiniteJsonNumberError(token)
+
+
+def _nonfinite_number_paths(value: Any, path: str = "$") -> List[str]:
+    """Return JSON paths containing a retained non-finite numeric value."""
+    if isinstance(value, float) and not math.isfinite(value):
+        return [path]
+    if isinstance(value, dict):
+        paths: List[str] = []
+        for key, nested_value in value.items():
+            paths.extend(
+                _nonfinite_number_paths(
+                    nested_value, f"{path}.{key}"
+                )
+            )
+        return paths
+    if isinstance(value, list):
+        paths = []
+        for index, nested_value in enumerate(value):
+            paths.extend(
+                _nonfinite_number_paths(
+                    nested_value, f"{path}[{index}]"
+                )
+            )
+        return paths
+    return []
+
+
 def _load_jsonl_rows(
     path: Path,
 ) -> Tuple[List[Dict[str, Any]], List[int], List[str]]:
@@ -331,9 +365,25 @@ def _load_jsonl_rows(
         if not stripped:
             continue
         try:
-            payload = json.loads(stripped)
+            payload = json.loads(
+                stripped,
+                parse_constant=_reject_nonfinite_json_number,
+            )
+        except _NonFiniteJsonNumberError as exc:
+            errors.append(
+                f"nonfinite_jsonl_number:{path.name}:L{line_no}:{exc}"
+            )
+            continue
         except json.JSONDecodeError as exc:
             errors.append(f"malformed_jsonl:{path.name}:L{line_no}:{exc}")
+            continue
+        nonfinite_paths = _nonfinite_number_paths(payload)
+        if nonfinite_paths:
+            errors.extend(
+                "nonfinite_jsonl_number:"
+                f"{path.name}:L{line_no}:{nonfinite_path}"
+                for nonfinite_path in nonfinite_paths
+            )
             continue
         if not isinstance(payload, dict):
             errors.append(f"jsonl_not_object:{path.name}:L{line_no}")
@@ -440,13 +490,32 @@ def _validate_schema_v2_json_schema(
         file_name = f"{entity_name}.{suffix}"
         schema = SCHEMA_V2_SCHEMAS[entity_name]
         for row_index, row in enumerate(rows_by_file.get(file_name, []), start=1):
+            line_number = _row_line_number(
+                file_name, row_index, line_numbers_by_file
+            )
+            properties = schema.get("properties", {})
+            if isinstance(properties, dict):
+                for field_name, definition in properties.items():
+                    if (
+                        not isinstance(definition, dict)
+                        or definition.get("type") != "number"
+                        or field_name not in row
+                    ):
+                        continue
+                    value = row[field_name]
+                    try:
+                        numeric_value = float(value)
+                    except (TypeError, ValueError):
+                        continue
+                    if not math.isfinite(numeric_value):
+                        errors.append(
+                            "schema_v2_nonfinite_number:"
+                            f"{file_name}:L{line_number}:{field_name}"
+                        )
             payload = (
                 _coerce_csv_row_for_schema(row, schema)
                 if suffix == "csv"
                 else row
-            )
-            line_number = _row_line_number(
-                file_name, row_index, line_numbers_by_file
             )
             for error in sorted(
                 validator.iter_errors(payload),
@@ -503,6 +572,16 @@ def _validate_schema_v2_required_fields(
                     "schema_v2_invalid_decision_at_utc:"
                     f"{file_name}:L{line_number}:decision_at_utc"
                 )
+            if (
+                entity_name == "evidence_fragments"
+                and not _is_utc_iso_datetime(
+                    row.get("source_retrieved_at_utc")
+                )
+            ):
+                errors.append(
+                    "schema_v2_invalid_source_retrieved_at_utc:"
+                    f"{file_name}:L{line_number}:source_retrieved_at_utc"
+                )
     return errors
 
 
@@ -549,6 +628,52 @@ def _expected_fragment_provenance_id(fragment: Dict[str, Any]) -> str:
     return "prov:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def _expected_signal_id(signal: Dict[str, Any]) -> str:
+    """Recreate the stable semantic-signal identity from its v2 preimage."""
+    normalized_phrase = re.sub(
+        r"\s+", " ", _string_value(signal.get("matched_phrase"))
+    ).strip().lower()
+    payload = "\x1f".join(
+        (
+            _string_value(signal.get("evidence_id")),
+            _string_value(signal.get("signal_type")),
+            normalized_phrase,
+            _string_value(signal.get("evidence_text_hash")),
+            _string_value(signal.get("classifier_version")),
+        )
+    )
+    return "signal:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _expected_fragment_id(
+    fragment: Dict[str, Any], signal: Dict[str, Any]
+) -> str:
+    """Recreate the stable fragment occurrence identity from its v2 preimage."""
+    payload = "\x1f".join(
+        (
+            _string_value(fragment.get("evidence_id")),
+            _string_value(signal.get("signal_id")),
+            _expected_fragment_provenance_id(fragment),
+            _string_value(fragment.get("source_field")),
+            _string_value(fragment.get("span_start_offset")),
+            _string_value(fragment.get("span_end_offset")),
+        )
+    )
+    return "fragment:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _expected_candidate_id(candidate: Dict[str, Any]) -> str:
+    """Recreate the stable candidate identity from its semantic preimage."""
+    payload = "\x1f".join(
+        (
+            _string_value(candidate.get("signal_id")),
+            _string_value(candidate.get("evidence_id")),
+            "candidate",
+        )
+    )
+    return "candidate:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
 def _parse_integer(value: Any) -> Optional[int]:
     """Parse an integer from either a typed JSON value or a CSV scalar."""
     if isinstance(value, bool):
@@ -563,21 +688,28 @@ def _parse_integer(value: Any) -> Optional[int]:
     return None
 
 
-def _is_utc_iso_datetime(value: Any) -> bool:
-    """Return whether a retained decision timestamp is ISO-8601 UTC."""
+def _parse_utc_iso_datetime(value: Any) -> Optional[datetime]:
+    """Parse an ISO-8601 UTC timestamp, returning ``None`` when invalid."""
     token = _string_value(value).strip()
     if not token:
-        return False
+        return None
     try:
         parsed = datetime.fromisoformat(token.replace("Z", "+00:00"))
     except ValueError:
-        return False
+        return None
     utc_offset = parsed.utcoffset()
-    return (
-        parsed.tzinfo is not None
-        and utc_offset is not None
-        and utc_offset.total_seconds() == 0
-    )
+    if (
+        parsed.tzinfo is None
+        or utc_offset is None
+        or utc_offset.total_seconds() != 0
+    ):
+        return None
+    return parsed.astimezone(timezone.utc)
+
+
+def _is_utc_iso_datetime(value: Any) -> bool:
+    """Return whether a retained timestamp is ISO-8601 UTC."""
+    return _parse_utc_iso_datetime(value) is not None
 
 
 def _normalize_title_for_label_guard(value: Any) -> str:
@@ -804,6 +936,67 @@ def _validate_schema_v2_foreign_keys(
                 f"{file_name}:L{line_number}:"
                 "superseded_validation_decision_target_candidate"
             )
+    supersession_by_decision_id = {
+        _identifier(decision.get("validation_decision_id")): _identifier(
+            decision.get("superseded_validation_decision_id")
+        )
+        for decision in entity_rows["validation_decisions"]
+        if _identifier(decision.get("validation_decision_id"))
+    }
+    for row_index, decision in enumerate(
+        entity_rows["validation_decisions"], start=1
+    ):
+        decision_id = _identifier(decision.get("validation_decision_id"))
+        if not decision_id:
+            continue
+        path_ids: Set[str] = set()
+        current_id = decision_id
+        while current_id:
+            if current_id in path_ids:
+                line_number = _row_line_number(
+                    f"validation_decisions.{suffix}",
+                    row_index,
+                    line_numbers_by_file,
+                )
+                errors.append(
+                    "schema_v2_lineage_mismatch:"
+                    f"validation_decisions.{suffix}:L{line_number}:"
+                    "supersession_cycle"
+                )
+                break
+            path_ids.add(current_id)
+            current_id = supersession_by_decision_id.get(current_id, "")
+    active_decision_ids = {
+        decision_id
+        for decision_id in supersession_by_decision_id
+        if decision_id not in inactive_decision_ids
+    }
+    active_decision_count_by_candidate: Dict[str, int] = {}
+    for row_index, decision in enumerate(
+        entity_rows["validation_decisions"], start=1
+    ):
+        decision_id = _identifier(decision.get("validation_decision_id"))
+        candidate_id = _identifier(decision.get("target_candidate_id"))
+        if decision_id not in active_decision_ids or not candidate_id:
+            continue
+        count = active_decision_count_by_candidate.get(candidate_id, 0) + 1
+        active_decision_count_by_candidate[candidate_id] = count
+        if count > 1:
+            line_number = _row_line_number(
+                f"validation_decisions.{suffix}",
+                row_index,
+                line_numbers_by_file,
+            )
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"validation_decisions.{suffix}:L{line_number}:"
+                "multiple_active_validation_decisions"
+            )
+    signals_by_fragment_id: Dict[str, List[Dict[str, Any]]] = {}
+    for signal in entity_rows["semantic_signals"]:
+        fragment_id = _identifier(signal.get("fragment_id"))
+        if fragment_id:
+            signals_by_fragment_id.setdefault(fragment_id, []).append(signal)
     for row_index, fragment in enumerate(
         entity_rows["evidence_fragments"], start=1
     ):
@@ -828,11 +1021,31 @@ def _validate_schema_v2_foreign_keys(
                 "schema_v2_lineage_mismatch:"
                 f"{file_name}:L{line_number}:provenance_hash"
             )
+        linked_signals = signals_by_fragment_id.get(
+            _identifier(fragment.get("fragment_id")), []
+        )
+        if len(linked_signals) != 1:
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:fragment_identity"
+            )
+        elif _string_value(fragment.get("fragment_id")) != _expected_fragment_id(
+            fragment, linked_signals[0]
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:fragment_id"
+            )
     for row_index, signal in enumerate(entity_rows["semantic_signals"], start=1):
         file_name = f"semantic_signals.{suffix}"
         line_number = _row_line_number(
             file_name, row_index, line_numbers_by_file
         )
+        if _string_value(signal.get("signal_id")) != _expected_signal_id(signal):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:signal_id"
+            )
         linked_fragment = fragments.get(
             (_identifier(signal.get("fragment_id")),)
         )
@@ -893,6 +1106,13 @@ def _validate_schema_v2_foreign_keys(
         line_number = _row_line_number(
             file_name, row_index, line_numbers_by_file
         )
+        if _string_value(candidate.get("candidate_id")) != _expected_candidate_id(
+            candidate
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:candidate_id"
+            )
         fragment_id = _identifier(candidate.get("fragment_id"))
         selected_fragment = fragments.get((fragment_id,))
         references = _candidate_reference_ids(
@@ -982,24 +1202,81 @@ def _validate_schema_v2_foreign_keys(
         )
         if linked_candidate is None:
             continue
-        expected = {
-            "evidence_ids": {_identifier(linked_candidate.get("evidence_id"))},
-            "fragment_ids": _candidate_reference_ids(
-                linked_candidate, "fragment_ids", "fragment_id"
-            ),
-            "source_provenance_ids": _candidate_reference_ids(
-                linked_candidate,
-                "source_provenance_ids",
-                "source_provenance_id",
-            ),
-        }
-        for field_name, expected_values in expected.items():
-            if expected_values == set(_split_references(decision.get(field_name))):
-                continue
+        snapshot_evidence_ids = set(
+            _split_references(decision.get("evidence_ids"))
+        )
+        snapshot_fragment_ids = set(
+            _split_references(decision.get("fragment_ids"))
+        )
+        snapshot_provenance_ids = set(
+            _split_references(decision.get("source_provenance_ids"))
+        )
+        candidate_fragment_ids = _candidate_reference_ids(
+            linked_candidate, "fragment_ids", "fragment_id"
+        )
+        if not snapshot_evidence_ids:
             errors.append(
                 "schema_v2_lineage_mismatch:"
-                f"{file_name}:L{line_number}:{field_name}"
+                f"{file_name}:L{line_number}:evidence_ids"
             )
+        if not snapshot_fragment_ids or not snapshot_fragment_ids.issubset(
+            candidate_fragment_ids
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:fragment_ids"
+            )
+        if not snapshot_provenance_ids:
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:source_provenance_ids"
+            )
+        snapshot_fragments = [
+            fragments[(fragment_id,)]
+            for fragment_id in sorted(snapshot_fragment_ids)
+            if (fragment_id,) in fragments
+        ]
+        expected_snapshot_evidence_ids = {
+            _identifier(fragment.get("evidence_id"))
+            for fragment in snapshot_fragments
+            if _identifier(fragment.get("evidence_id"))
+        }
+        expected_snapshot_provenance_ids = {
+            _identifier(fragment.get("source_provenance_id"))
+            for fragment in snapshot_fragments
+            if _identifier(fragment.get("source_provenance_id"))
+        }
+        candidate_evidence_ids = {
+            _identifier(linked_candidate.get("evidence_id"))
+        }
+        if (
+            snapshot_evidence_ids != expected_snapshot_evidence_ids
+            or snapshot_evidence_ids != candidate_evidence_ids
+        ):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:evidence_ids"
+            )
+        if snapshot_provenance_ids != expected_snapshot_provenance_ids:
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:source_provenance_ids"
+            )
+        decision_at = _parse_utc_iso_datetime(
+            decision.get("decision_at_utc")
+        )
+        if decision_at is not None:
+            for fragment in snapshot_fragments:
+                retrieved_at = _parse_utc_iso_datetime(
+                    fragment.get("source_retrieved_at_utc")
+                )
+                if retrieved_at is not None and retrieved_at > decision_at:
+                    errors.append(
+                        "schema_v2_lineage_mismatch:"
+                        f"{file_name}:L{line_number}:"
+                        "source_retrieved_at_utc"
+                    )
+                    break
 
     for row_index, canonical in enumerate(
         entity_rows["canonical_competences"], start=1

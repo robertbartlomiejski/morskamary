@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import csv
+import hashlib
+import io
 import importlib.util
 import json
 import subprocess
 import sys
+from contextlib import redirect_stdout
 from pathlib import Path
+from typing import Any
 from zipfile import ZipFile
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -187,6 +191,275 @@ def _seed_minimal_outputs(repo_root: Path) -> None:
         (cumulative_database / f"{entity_name}.jsonl").write_text(
             json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8"
         )
+    (cumulative_database / "cumulative_database_manifest.json").write_text(
+        json.dumps(
+            {"counts": {entity_name: 1 for entity_name in SCHEMA_V2_ENTITY_NAMES}}
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+def _read_schema_v2_entity_rows(
+    repo_root: Path, entity_name: str
+) -> list[dict[str, object]]:
+    path = repo_root / "outputs" / "cumulative_database" / f"{entity_name}.jsonl"
+    return [
+        json.loads(raw_line)
+        for raw_line in path.read_text(encoding="utf-8").splitlines()
+        if raw_line.strip()
+    ]
+
+
+def _sync_schema_v2_manifest_counts(repo_root: Path) -> None:
+    manifest_path = (
+        repo_root / "outputs" / "cumulative_database" / "cumulative_database_manifest.json"
+    )
+    if not manifest_path.exists():
+        return
+    counts = {
+        entity_name: len(_read_schema_v2_entity_rows(repo_root, entity_name))
+        for entity_name in SCHEMA_V2_ENTITY_NAMES
+    }
+    manifest_path.write_text(
+        json.dumps({"counts": counts}) + "\n", encoding="utf-8"
+    )
+
+
+def _write_schema_v2_entity_rows(
+    repo_root: Path,
+    entity_name: str,
+    rows: list[dict[str, object]],
+) -> None:
+    schema = json.loads(
+        (repo_root / "schemas" / f"{entity_name}.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    fields = list(schema["properties"])
+    cumulative_database = repo_root / "outputs" / "cumulative_database"
+    with (cumulative_database / f"{entity_name}.csv").open(
+        "w", encoding="utf-8", newline=""
+    ) as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+    (cumulative_database / f"{entity_name}.jsonl").write_text(
+        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+    _sync_schema_v2_manifest_counts(repo_root)
+
+
+def _append_shared_signal_fragment(
+    repo_root: Path,
+    module: Any,
+    *,
+    sector: str = "blue_biotech",
+    axis_group: str = "OCEANIC",
+    axis_code: str = "O",
+) -> dict[str, object]:
+    """Add a valid second occurrence of the fixture's stable signal identity."""
+    fragments = _read_schema_v2_entity_rows(repo_root, "evidence_fragments")
+    signals = _read_schema_v2_entity_rows(repo_root, "semantic_signals")
+    second_fragment = dict(fragments[0])
+    second_fragment.update(
+        {
+            "fragment_id": "",
+            "source_provenance_id": "",
+            "source_provider_id": "crossref:rec_001:second",
+            "fragment_text": "governance",
+            "span_start_offset": 0,
+            "span_end_offset": 10,
+            "surface_text_hash": module._normalized_text_hash(
+                "governance context"
+            ),
+            "provenance_hash": "",
+        }
+    )
+    signal_id = str(signals[0]["signal_id"])
+    second_fragment["source_provenance_id"] = (
+        module._expected_fragment_provenance_id(second_fragment)
+    )
+    second_fragment["provenance_hash"] = hashlib.sha256(
+        str(second_fragment["source_provenance_id"]).encode("utf-8")
+    ).hexdigest()
+    second_fragment["fragment_id"] = module._expected_fragment_id(
+        second_fragment, signal_id
+    )
+    second_signal = dict(signals[0])
+    second_signal.update(
+        {
+            "fragment_id": second_fragment["fragment_id"],
+            "source_provenance_id": second_fragment["source_provenance_id"],
+            "sector": sector,
+            "axis_group": axis_group,
+            "axis_code": axis_code,
+            "context_text": "governance context",
+        }
+    )
+    fragments.append(second_fragment)
+    signals.append(second_signal)
+    _write_schema_v2_entity_rows(repo_root, "evidence_fragments", fragments)
+    _write_schema_v2_entity_rows(repo_root, "semantic_signals", signals)
+    return second_fragment
+
+
+def _aggregate_candidate_fragment(
+    repo_root: Path, second_fragment: dict[str, object]
+) -> None:
+    candidates = _read_schema_v2_entity_rows(repo_root, "competence_candidates")
+    candidates[0]["fragment_ids"] = "|".join(
+        sorted(
+            {
+                str(candidates[0]["fragment_id"]),
+                str(second_fragment["fragment_id"]),
+            }
+        )
+    )
+    candidates[0]["source_provenance_ids"] = "|".join(
+        sorted(
+            {
+                *str(candidates[0]["source_provenance_ids"]).split("|"),
+                str(second_fragment["source_provenance_id"]),
+            }
+        )
+    )
+    _write_schema_v2_entity_rows(repo_root, "competence_candidates", candidates)
+
+
+def _append_shared_canonical_candidate(repo_root: Path, module: Any) -> None:
+    """Add an accepted candidate that intentionally shares a canonical label."""
+    fragments = _read_schema_v2_entity_rows(repo_root, "evidence_fragments")
+    signals = _read_schema_v2_entity_rows(repo_root, "semantic_signals")
+    candidates = _read_schema_v2_entity_rows(repo_root, "competence_candidates")
+    decisions = _read_schema_v2_entity_rows(repo_root, "validation_decisions")
+    assignments = _read_schema_v2_entity_rows(
+        repo_root, "sector_competence_assignments"
+    )
+
+    second_fragment = dict(fragments[0])
+    second_fragment.update(
+        {
+            "fragment_id": "",
+            "source_provenance_id": "",
+            "source_provider_id": "crossref:rec_001:shared",
+            "fragment_text": "coordination",
+            "span_start_offset": 0,
+            "span_end_offset": 12,
+            "surface_text_hash": module._normalized_text_hash(
+                "coordination context"
+            ),
+            "provenance_hash": "",
+        }
+    )
+    second_fragment["source_provenance_id"] = (
+        module._expected_fragment_provenance_id(second_fragment)
+    )
+    second_fragment["provenance_hash"] = hashlib.sha256(
+        str(second_fragment["source_provenance_id"]).encode("utf-8")
+    ).hexdigest()
+
+    second_signal = dict(signals[0])
+    second_signal.update(
+        {
+            "signal_id": "",
+            "fragment_id": "",
+            "source_provenance_id": second_fragment["source_provenance_id"],
+            "sector": "coastal_tourism",
+            "axis_group": "MARITIME",
+            "axis_code": "T",
+            "signal_type": "coordination_skill",
+            "matched_phrase": "coordination",
+            "action_text": "coordination",
+            "context_text": "coordination context",
+            "evidence_text_hash": "a" * 64,
+        }
+    )
+    second_signal["signal_id"] = module._expected_signal_id(second_signal)
+    second_fragment["fragment_id"] = module._expected_fragment_id(
+        second_fragment, str(second_signal["signal_id"])
+    )
+    second_signal["fragment_id"] = second_fragment["fragment_id"]
+
+    second_candidate = dict(candidates[0])
+    second_candidate.update(
+        {
+            "candidate_id": "",
+            "signal_id": second_signal["signal_id"],
+            "fragment_id": second_fragment["fragment_id"],
+            "sector": "coastal_tourism",
+            "axis_group": "MARITIME",
+            "axis_code": "T",
+            "source_provenance_ids": second_fragment["source_provenance_id"],
+            "fragment_ids": second_fragment["fragment_id"],
+            "candidate_label": "coordination",
+            "exact_evidence_span": "coordination",
+            "exact_span_start_offset": 0,
+            "exact_span_end_offset": 12,
+        }
+    )
+    second_candidate["candidate_id"] = module._expected_candidate_id(second_candidate)
+
+    second_decision = dict(decisions[0])
+    second_decision.update(
+        {
+            "validation_decision_id": "decision_002",
+            "target_candidate_id": second_candidate["candidate_id"],
+            "reviewer": "reviewer-fixture-002",
+            "decision_reason": "Second accepted evidence path.",
+            "fragment_ids": second_fragment["fragment_id"],
+            "source_provenance_ids": second_fragment["source_provenance_id"],
+        }
+    )
+    second_assignment = dict(assignments[0])
+    second_assignment.update(
+        {
+            "assignment_id": "assignment_002",
+            "validation_decision_id": second_decision["validation_decision_id"],
+            "source_candidate_id": second_candidate["candidate_id"],
+            "sector": "coastal_tourism",
+            "axis_group": "MARITIME",
+            "axis_code": "T",
+        }
+    )
+
+    fragments.append(second_fragment)
+    signals.append(second_signal)
+    candidates.append(second_candidate)
+    decisions.append(second_decision)
+    assignments.append(second_assignment)
+    _write_schema_v2_entity_rows(repo_root, "evidence_fragments", fragments)
+    _write_schema_v2_entity_rows(repo_root, "semantic_signals", signals)
+    _write_schema_v2_entity_rows(repo_root, "competence_candidates", candidates)
+    _write_schema_v2_entity_rows(repo_root, "validation_decisions", decisions)
+    _write_schema_v2_entity_rows(
+        repo_root, "sector_competence_assignments", assignments
+    )
+
+
+def _run_package(
+    module: Any, repo_root: Path, output_dir: Path, version: str
+) -> tuple[int, str]:
+    stdout = io.StringIO()
+    with redirect_stdout(stdout):
+        exit_code = module.main(
+            [
+                "--repo-root",
+                str(repo_root),
+                "--output-dir",
+                str(output_dir),
+                "--version-tag",
+                version,
+                "--source-commit-sha",
+                "fixture_source_sha",
+                "--include-xlsx",
+                "false",
+                "--include-sav",
+                "false",
+            ]
+        )
+    return exit_code, stdout.getvalue()
 
 
 def test_build_versioned_research_data_package_creates_manifest_checksums_and_views(
@@ -243,11 +516,23 @@ def test_build_versioned_research_data_package_creates_manifest_checksums_and_vi
         "csv": list(SCHEMA_V2_ENTITY_NAMES),
         "jsonl": list(SCHEMA_V2_ENTITY_NAMES),
     }
+    assert manifest["schema_v2_entities"]["contract_paths"] == {
+        entity_name: f"schemas/{entity_name}.schema.json"
+        for entity_name in SCHEMA_V2_ENTITY_NAMES
+    }
+    checksum_paths = {
+        line.split("  ", maxsplit=1)[1]
+        for line in (package_dir / "CHECKSUMS.sha256").read_text(
+            encoding="utf-8"
+        ).splitlines()
+    }
     for entity_name in SCHEMA_V2_ENTITY_NAMES:
         csv_path = package_dir / "data" / "csv" / f"{entity_name}.csv"
         jsonl_path = package_dir / "data" / "jsonl" / f"{entity_name}.jsonl"
+        contract_path = package_dir / "schemas" / f"{entity_name}.schema.json"
         assert csv_path.exists()
         assert jsonl_path.exists()
+        assert contract_path.exists()
         assert entity_name in manifest["schema_validation"]["validated_tables"]
         assert manifest["schema_v2_entities"]["package_paths"][entity_name] == {
             "csv": f"data/csv/{entity_name}.csv",
@@ -259,6 +544,10 @@ def test_build_versioned_research_data_package_creates_manifest_checksums_and_vi
         assert jsonl_path.read_bytes() == (
             repo_root / "outputs" / "cumulative_database" / f"{entity_name}.jsonl"
         ).read_bytes()
+        assert contract_path.read_bytes() == (
+            repo_root / "schemas" / f"{entity_name}.schema.json"
+        ).read_bytes()
+        assert f"schemas/{entity_name}.schema.json" in checksum_paths
 
     with (package_dir / "data" / "csv" / "runs.csv").open(
         "r", encoding="utf-8", newline=""
@@ -274,6 +563,7 @@ def test_build_versioned_research_data_package_creates_manifest_checksums_and_vi
     for entity_name in SCHEMA_V2_ENTITY_NAMES:
         assert f"data/csv/{entity_name}.csv" in archived_paths
         assert f"data/jsonl/{entity_name}.jsonl" in archived_paths
+        assert f"schemas/{entity_name}.schema.json" in archived_paths
 
     with (package_dir / "VALUE_LABELS.csv").open(
         "r", encoding="utf-8", newline=""
@@ -414,6 +704,376 @@ def test_build_versioned_package_rejects_schema_v2_lineage_mismatch(
     assert exit_code == 1
     assert not release_out.exists()
     assert not (release_out / "morskamary_cumulative_evidence_v0.1.3.zip").exists()
+
+
+def test_build_versioned_package_preserves_composite_semantic_signal_identity(
+    tmp_path: Path,
+) -> None:
+    """The same stable signal may have multiple evidence-fragment occurrences."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+
+    second_fragment = _append_shared_signal_fragment(repo_root, module)
+    _aggregate_candidate_fragment(repo_root, second_fragment)
+
+    exit_code, stdout = _run_package(
+        module, repo_root, tmp_path / "release_out", "v0.1.4"
+    )
+
+    assert exit_code == 0, stdout
+
+
+def test_build_versioned_package_rejects_missing_composite_signal_projection(
+    tmp_path: Path,
+) -> None:
+    """CSV/JSONL parity is keyed by signal and fragment, not signal alone."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+
+    second_fragment = _append_shared_signal_fragment(repo_root, module)
+    _aggregate_candidate_fragment(repo_root, second_fragment)
+    signals = _read_schema_v2_entity_rows(repo_root, "semantic_signals")
+    (repo_root / "outputs/cumulative_database/semantic_signals.jsonl").write_text(
+        json.dumps(signals[0], ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+
+    exit_code, stdout = _run_package(
+        module, repo_root, tmp_path / "release_out", "v0.1.4-parity"
+    )
+
+    assert exit_code == 1
+    assert "semantic_signals:projection_parity:missing_in_jsonl:" in stdout
+
+
+def test_build_versioned_package_rejects_incomplete_aggregate_assignment_contexts(
+    tmp_path: Path,
+) -> None:
+    """Assignments must retain every bound sector/axis context of a candidate."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+
+    second_fragment = _append_shared_signal_fragment(
+        repo_root,
+        module,
+        sector="coastal_tourism",
+        axis_group="MARITIME",
+        axis_code="T",
+    )
+    _aggregate_candidate_fragment(repo_root, second_fragment)
+
+    assignments = _read_schema_v2_entity_rows(
+        repo_root, "sector_competence_assignments"
+    )
+    duplicate_context = dict(assignments[0])
+    duplicate_context["assignment_id"] = "assignment_002"
+    assignments.append(duplicate_context)
+    _write_schema_v2_entity_rows(
+        repo_root, "sector_competence_assignments", assignments
+    )
+
+    exit_code, stdout = _run_package(
+        module, repo_root, tmp_path / "release_out", "v0.1.5"
+    )
+
+    assert exit_code == 1
+    assert "sector_competence_assignments:lineage:assignment_001:" in stdout
+    assert "semantic_context_set" in stdout
+
+
+def test_schema_v2_readers_reject_non_finite_numbers(tmp_path: Path) -> None:
+    """NaN and infinity are never valid values in schema-v2 projections."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    sample = json.loads(
+        (REPO_ROOT / "tests/fixtures/cumulative_database_schema_samples.json").read_text(
+            encoding="utf-8"
+        )
+    )["semantic_signals"]
+    schema_path = repo_root / "schemas" / "semantic_signals.schema.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    fields = list(schema["properties"])
+
+    csv_path = tmp_path / "semantic_signals.csv"
+    csv_row = dict(sample)
+    csv_row["confidence_score"] = "NaN"
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
+        writer.writeheader()
+        writer.writerow(csv_row)
+    _, csv_errors = module._read_schema_v2_csv(
+        csv_path, schema_path, "semantic_signals"
+    )
+    assert csv_errors == [
+        "semantic_signals.csv row 2 column confidence_score "
+        "contains a non-finite numeric value"
+    ]
+
+    jsonl_path = tmp_path / "semantic_signals.jsonl"
+    jsonl_path.write_text(
+        '{"confidence_score": Infinity}\n', encoding="utf-8"
+    )
+    jsonl_rows, jsonl_errors = module._read_schema_v2_jsonl(
+        jsonl_path, "semantic_signals"
+    )
+    assert jsonl_rows == []
+    assert jsonl_errors == [
+        "semantic_signals.jsonl line 1 contains a non-finite numeric value"
+    ]
+
+
+def test_build_versioned_package_rejects_schema_v2_manifest_count_mismatch(
+    tmp_path: Path,
+) -> None:
+    """Published source manifest counts must match both validated projections."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+    manifest_path = (
+        repo_root / "outputs/cumulative_database/cumulative_database_manifest.json"
+    )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["counts"]["semantic_signals"] = 0
+    manifest_path.write_text(json.dumps(manifest) + "\n", encoding="utf-8")
+
+    exit_code, stdout = _run_package(
+        module, repo_root, tmp_path / "release_out", "v0.1.8"
+    )
+
+    assert exit_code == 1
+    assert "schema_v2_manifest_count_mismatch:" in stdout
+    assert "cumulative_database_manifest.json:semantic_signals:" in stdout
+
+
+def test_build_versioned_package_enforces_schema_datetime_formats(
+    tmp_path: Path,
+) -> None:
+    """Draft-2020-12 format checking rejects impossible calendar timestamps."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+    decisions = _read_schema_v2_entity_rows(repo_root, "validation_decisions")
+    decisions[0]["decision_at_utc"] = "2026-07-07T25:00:00+00:00"
+    _write_schema_v2_entity_rows(repo_root, "validation_decisions", decisions)
+
+    exit_code, stdout = _run_package(
+        module, repo_root, tmp_path / "release_out", "v0.1.9"
+    )
+
+    assert exit_code == 1
+    assert "is not a 'date-time'" in stdout
+
+
+def test_build_versioned_package_rejects_provenance_and_snapshot_tampering(
+    tmp_path: Path,
+) -> None:
+    """Fragments and decision snapshots retain immutable source preimages."""
+    module = _load_module()
+    scenarios = {
+        "provenance": "evidence_fragments:lineage:",
+        "provenance-hash": "provenance_hash",
+        "snapshot": "validation_decisions:lineage:decision_001:fragment_ids",
+        "timestamp": "validation_decisions:lineage:decision_001:source_retrieved_at_utc",
+    }
+    for scenario, expected_error in scenarios.items():
+        repo_root = tmp_path / scenario / "repo"
+        repo_root.mkdir(parents=True, exist_ok=True)
+        _copy_required_schemas(repo_root)
+        _seed_minimal_outputs(repo_root)
+        if scenario in {"provenance", "provenance-hash", "timestamp"}:
+            fragments = _read_schema_v2_entity_rows(repo_root, "evidence_fragments")
+            if scenario == "provenance":
+                fragments[0]["source_provider_id"] = "crossref:tampered"
+            elif scenario == "provenance-hash":
+                fragments[0]["provenance_hash"] = "0" * 64
+            else:
+                fragments[0]["source_retrieved_at_utc"] = "2026-07-08T00:00:00+00:00"
+            _write_schema_v2_entity_rows(repo_root, "evidence_fragments", fragments)
+        else:
+            decisions = _read_schema_v2_entity_rows(repo_root, "validation_decisions")
+            decisions[0]["fragment_ids"] = "fragment:missing"
+            _write_schema_v2_entity_rows(repo_root, "validation_decisions", decisions)
+
+        exit_code, stdout = _run_package(
+            module,
+            repo_root,
+            tmp_path / scenario / "release_out",
+            f"v0.1.10-{scenario}",
+        )
+        assert exit_code == 1
+        assert expected_error in stdout
+
+
+def test_build_versioned_package_rejects_candidate_selected_fragment_mismatch(
+    tmp_path: Path,
+) -> None:
+    """Candidate scalar spans must remain an exact copy of their fragment."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+    candidates = _read_schema_v2_entity_rows(repo_root, "competence_candidates")
+    candidates[0]["exact_evidence_span"] = "tampered span"
+    _write_schema_v2_entity_rows(repo_root, "competence_candidates", candidates)
+
+    exit_code, stdout = _run_package(
+        module, repo_root, tmp_path / "release_out", "v0.1.11"
+    )
+
+    assert exit_code == 1
+    assert "competence_candidates:lineage:" in stdout
+    assert "selected_fragment_content" in stdout
+
+
+def test_build_versioned_package_supports_shared_canonical_label_assignments(
+    tmp_path: Path,
+) -> None:
+    """Distinct accepted candidates may legitimately share one canonical label."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+    _append_shared_canonical_candidate(repo_root, module)
+
+    exit_code, stdout = _run_package(
+        module, repo_root, tmp_path / "release_out", "v0.1.12"
+    )
+
+    assert exit_code == 0, stdout
+
+
+def _replace_candidate_references(
+    repo_root: Path, old_candidate_id: str, new_candidate_id: str
+) -> None:
+    for entity_name, field_name in (
+        ("canonical_competences", "source_candidate_id"),
+        ("sector_competence_assignments", "source_candidate_id"),
+        ("validation_decisions", "target_candidate_id"),
+    ):
+        rows = _read_schema_v2_entity_rows(repo_root, entity_name)
+        for row in rows:
+            if row[field_name] == old_candidate_id:
+                row[field_name] = new_candidate_id
+        _write_schema_v2_entity_rows(repo_root, entity_name, rows)
+
+
+def test_build_versioned_package_rejects_tampered_deterministic_identities(
+    tmp_path: Path,
+) -> None:
+    """Published schema-v2 identities must be reproducible from their preimages."""
+    module = _load_module()
+    expected_errors = {
+        "signal": "semantic_signals:identity:",
+        "fragment": "evidence_fragments:identity:",
+        "candidate": "competence_candidates:identity:",
+    }
+    for identity_kind, expected_error in expected_errors.items():
+        repo_root = tmp_path / identity_kind / "repo"
+        repo_root.mkdir(parents=True, exist_ok=True)
+        _copy_required_schemas(repo_root)
+        _seed_minimal_outputs(repo_root)
+        fragments = _read_schema_v2_entity_rows(repo_root, "evidence_fragments")
+        signals = _read_schema_v2_entity_rows(repo_root, "semantic_signals")
+        candidates = _read_schema_v2_entity_rows(repo_root, "competence_candidates")
+
+        if identity_kind == "signal":
+            new_signal_id = "signal:tampered"
+            fragments[0]["fragment_id"] = module._expected_fragment_id(
+                fragments[0], new_signal_id
+            )
+            signals[0]["signal_id"] = new_signal_id
+            signals[0]["fragment_id"] = fragments[0]["fragment_id"]
+            candidates[0]["signal_id"] = new_signal_id
+            candidates[0]["fragment_id"] = fragments[0]["fragment_id"]
+            candidates[0]["fragment_ids"] = fragments[0]["fragment_id"]
+            old_candidate_id = str(candidates[0]["candidate_id"])
+            candidates[0]["candidate_id"] = module._expected_candidate_id(candidates[0])
+            _replace_candidate_references(
+                repo_root, old_candidate_id, str(candidates[0]["candidate_id"])
+            )
+        elif identity_kind == "fragment":
+            fragments[0]["fragment_id"] = "fragment:tampered"
+            signals[0]["fragment_id"] = fragments[0]["fragment_id"]
+            candidates[0]["fragment_id"] = fragments[0]["fragment_id"]
+            candidates[0]["fragment_ids"] = fragments[0]["fragment_id"]
+        else:
+            old_candidate_id = str(candidates[0]["candidate_id"])
+            candidates[0]["candidate_id"] = "candidate:tampered"
+            _replace_candidate_references(
+                repo_root, old_candidate_id, str(candidates[0]["candidate_id"])
+            )
+
+        _write_schema_v2_entity_rows(repo_root, "evidence_fragments", fragments)
+        _write_schema_v2_entity_rows(repo_root, "semantic_signals", signals)
+        _write_schema_v2_entity_rows(repo_root, "competence_candidates", candidates)
+        exit_code, stdout = _run_package(
+            module,
+            repo_root,
+            tmp_path / identity_kind / "release_out",
+            f"v0.1.6-{identity_kind}",
+        )
+        assert exit_code == 1
+        assert expected_error in stdout
+
+
+def test_build_versioned_package_rejects_invalid_supersession_graphs(
+    tmp_path: Path,
+) -> None:
+    """Decision ledgers reject cycles and multiple active decisions per candidate."""
+    module = _load_module()
+    expected_errors = {
+        "cycle": "validation_decisions:supersession:cycle:",
+        "multiple-active": (
+            "validation_decisions:supersession:multiple_active_decisions:"
+        ),
+    }
+    for scenario, expected_error in expected_errors.items():
+        repo_root = tmp_path / scenario / "repo"
+        repo_root.mkdir(parents=True, exist_ok=True)
+        _copy_required_schemas(repo_root)
+        _seed_minimal_outputs(repo_root)
+        decisions = _read_schema_v2_entity_rows(repo_root, "validation_decisions")
+        second_decision = dict(decisions[0])
+        second_decision.update(
+            {
+                "validation_decision_id": "decision_002",
+                "canonical_label": "",
+                "decision_status": "review_required",
+                "decision_reason": "Regression decision ledger entry.",
+            }
+        )
+        if scenario == "cycle":
+            decisions[0]["superseded_validation_decision_id"] = "decision_002"
+            second_decision["superseded_validation_decision_id"] = "decision_001"
+        else:
+            second_decision["superseded_validation_decision_id"] = ""
+        decisions.append(second_decision)
+        _write_schema_v2_entity_rows(repo_root, "validation_decisions", decisions)
+
+        exit_code, stdout = _run_package(
+            module,
+            repo_root,
+            tmp_path / scenario / "release_out",
+            f"v0.1.7-{scenario}",
+        )
+        assert exit_code == 1
+        assert expected_error in stdout
 
 
 def test_build_versioned_research_data_package_cli_entrypoint_forwards_argv(

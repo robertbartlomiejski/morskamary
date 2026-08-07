@@ -238,7 +238,12 @@ def test_variable_and_value_labels_written(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _mk_hydro_demand(idx: int, *, sector: str = "ports") -> "Dict[str, Any]":
+def _mk_hydro_demand(
+    idx: int,
+    *,
+    sector: str = "ports",
+    scientific_status: str = "legacy_not_validated_canonical_competence",
+) -> "Dict[str, Any]":
     """Build a minimal HYDRONIZATION DerivedCompetenceDemand-like dict."""
     from src.scientific_sources.derived_competence_analysis import DerivedCompetenceDemand
     return DerivedCompetenceDemand(
@@ -246,7 +251,7 @@ def _mk_hydro_demand(idx: int, *, sector: str = "ports") -> "Dict[str, Any]":
         competence_label=f"hydro demand {idx}",
         competence_definition=f"definition {idx}",
         view_kind="legacy_category_aggregate_compatibility_view",
-        scientific_status="legacy_not_validated_canonical_competence",
+        scientific_status=scientific_status,
         sector=sector,
         axis_group="HYDRONIZATION",
         axis_code="H",
@@ -847,7 +852,13 @@ def test_layer4_honors_stats_dir_and_fixed_timestamp(tmp_path: Path) -> None:
 
 
 def test_h2_consumes_only_validated_demand_level_supply(tmp_path: Path) -> None:
-    demands = [_mk_hydro_demand(index) for index in range(1, 4)]
+    demands = [
+        _mk_hydro_demand(
+            index,
+            scientific_status="validated_canonical_competence",
+        )
+        for index in range(1, 4)
+    ]
     validated_supply = {
         demands[0].competence_demand_id: [6],
         demands[1].competence_demand_id: [5],
@@ -866,8 +877,41 @@ def test_h2_consumes_only_validated_demand_level_supply(tmp_path: Path) -> None:
     assert h2["interpretation"] == "supported"
 
 
+def test_h2_excludes_legacy_demands_from_validated_counts(
+    tmp_path: Path,
+) -> None:
+    """A legacy compatibility row cannot inflate a validation-backed H2 result."""
+    validated_demand = _mk_hydro_demand(
+        1,
+        scientific_status="validated_canonical_competence",
+    )
+    legacy_demand = _mk_hydro_demand(2)
+    result = build_layer5(
+        derived_demands=[validated_demand, legacy_demand],
+        evidence_records=[],
+        validated_credential_supply={
+            validated_demand.competence_demand_id: [6],
+            legacy_demand.competence_demand_id: [6],
+        },
+        output_dir=tmp_path / "db-h2-legacy-exclusion",
+    )
+
+    h2 = result.hypothesis_results["H2"]
+    assert h2["hydronization_demand_count"] == 2
+    assert h2["validated_hydronization_demand_count"] == 1
+    assert h2["validated_covered_demand_count"] == 1
+    assert h2["validated_missing_demand_count"] == 0
+    assert h2["association_metric_missing_ratio"] == 0.0
+
+
 def test_h2_partial_support_threshold_is_0_25(tmp_path: Path) -> None:
-    demands = [_mk_hydro_demand(index) for index in range(1, 5)]
+    demands = [
+        _mk_hydro_demand(
+            index,
+            scientific_status="validated_canonical_competence",
+        )
+        for index in range(1, 5)
+    ]
     validated_supply = {
         demands[0].competence_demand_id: [6],
         demands[1].competence_demand_id: [7],

@@ -186,6 +186,7 @@ SEMANTIC_SIGNAL_COLUMNS: Tuple[str, ...] = (
     "action_text",
     "object_text",
     "context_text",
+    "evidence_text_hash",
     "manual_review_status",
     "validity_warning",
 )
@@ -333,6 +334,10 @@ ALLOWED_MANUAL_REVIEW_STATUSES: Tuple[str, ...] = (
 )
 
 _REVIEWER_IDENTIFIER_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{2,127}")
+_UTC_TIMESTAMP_RE = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}"
+    r"(?::\d{2}(?:\.\d+)?)?(?:Z|\+00:00)$"
+)
 
 
 class CumulativeDatabaseError(RuntimeError):
@@ -679,6 +684,7 @@ class SemanticSignal:
     action_text: str
     object_text: str
     context_text: str
+    evidence_text_hash: str
     manual_review_status: str
     validity_warning: str
 
@@ -1275,12 +1281,43 @@ def _bind_record(
     return _UNBOUND_BINDING
 
 
-def _record_timestamp(
-    record: Mapping[str, Any], fallback: str
-) -> str:
-    """Return the record's retrieval timestamp or `fallback` if absent."""
+def _require_utc_timestamp(value: Any, *, field_name: str) -> str:
+    """Return a retained ISO-8601 UTC timestamp or fail closed.
+
+    Source-occurrence timestamps are part of the provenance identifier.  A
+    non-UTC value must never be copied into that preimage because it makes
+    ordering and reproducibility ambiguous across consumers.
+    """
+    stamp = str(value or "").strip()
+    if not stamp or not _UTC_TIMESTAMP_RE.fullmatch(stamp):
+        raise CumulativeDatabaseError(
+            f"{field_name} requires an ISO-8601 UTC timestamp"
+        )
+    try:
+        parsed = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise CumulativeDatabaseError(
+            f"{field_name} requires an ISO-8601 UTC timestamp"
+        ) from exc
+    utc_offset = parsed.utcoffset()
+    if (
+        parsed.tzinfo is None
+        or utc_offset is None
+        or utc_offset.total_seconds() != 0
+    ):
+        raise CumulativeDatabaseError(
+            f"{field_name} requires an ISO-8601 UTC timestamp"
+        )
+    return stamp
+
+
+def _record_timestamp(record: Mapping[str, Any], fallback: str) -> str:
+    """Return the record's UTC retrieval timestamp or a UTC fallback."""
     stamp = str(record.get("retrieval_timestamp") or "").strip()
-    return stamp or fallback
+    return _require_utc_timestamp(
+        stamp or fallback,
+        field_name="source_retrieved_at_utc",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -1771,6 +1808,7 @@ def build_cumulative_scientific_database(
 
     resolved_run_id = (current_run_id or "current").strip() or "current"
     built_at = built_at_utc or datetime.now(timezone.utc).isoformat()
+    built_at = _require_utc_timestamp(built_at, field_name="built_at_utc")
     workflow_ctx: Dict[str, Any] = dict(workflow_context or {})
 
     protocol = _load_protocol_or_none(protocol_path_obj)
@@ -2499,13 +2537,8 @@ def _build_signal_components_for_observation(
     for match in matches:
         pattern = match.pattern
         matched_phrase = match.matched_phrase
-        confidence, review_status = _score_confidence(
-            pattern=pattern,
-            title=title,
-            subject_terms=subject_terms,
-            abstract=abstract,
-            full_text=full_text,
-            source_query=source_query,
+        confidence, review_status = _score_v2_match_confidence(
+            source_field=match.source_field,
             metadata_only=is_metadata_only,
         )
         signal_id = _make_signal_id(
@@ -2577,6 +2610,7 @@ def _build_signal_components_for_observation(
                     action_text=matched_phrase,
                     object_text="",
                     context_text=match.source_text,
+                    evidence_text_hash=evidence_text_hash,
                     manual_review_status=review_status,
                     validity_warning=warning,
                 ),
@@ -2665,6 +2699,7 @@ def _build_construct_validity_tables(
 
     validation_decisions = _build_validation_decisions(
         candidates_by_id=candidates_by_id,
+        fragments_by_id=fragments_by_id,
         payloads=validation_decision_payloads,
         built_at_utc=built_at_utc,
     )
@@ -2696,9 +2731,11 @@ def _build_construct_validity_tables(
 def _build_validation_decisions(
     *,
     candidates_by_id: Mapping[str, CompetenceCandidate],
+    fragments_by_id: Mapping[str, EvidenceFragment],
     payloads: Sequence[Mapping[str, Any]],
     built_at_utc: str,
 ) -> List[ValidationDecision]:
+    del built_at_utc
     decisions: List[ValidationDecision] = []
     decision_ids: Set[str] = set()
     allowed_statuses = {"accepted", "rejected", "review_required", "superseded"}
@@ -2734,26 +2771,79 @@ def _build_validation_decisions(
                 "validation decision requires decision_at_utc"
             )
         try:
-            parsed_decision_at = datetime.fromisoformat(
-                decision_at.replace("Z", "+00:00")
+            decision_at = _require_utc_timestamp(
+                decision_at,
+                field_name="decision_at_utc",
             )
-        except ValueError as exc:
+        except CumulativeDatabaseError as exc:
             raise CumulativeDatabaseError(
                 "invalid decision_at_utc; require an ISO-8601 UTC timestamp"
             ) from exc
-        utc_offset = parsed_decision_at.utcoffset()
-        if (
-            parsed_decision_at.tzinfo is None
-            or utc_offset is None
-            or utc_offset.total_seconds() != 0
-        ):
-            raise CumulativeDatabaseError(
-                "invalid decision_at_utc; require an ISO-8601 UTC timestamp"
-            )
+        parsed_decision_at = datetime.fromisoformat(
+            decision_at.replace("Z", "+00:00")
+        )
         decision_reason = str(payload.get("decision_reason") or "").strip()
         if not decision_reason:
             raise CumulativeDatabaseError(
                 "validation decision requires decision_reason"
+            )
+        evidence_ids = _normalize_decision_snapshot_references(
+            payload.get("evidence_ids"),
+            field_name="evidence_ids",
+        )
+        fragment_ids = _normalize_decision_snapshot_references(
+            payload.get("fragment_ids"),
+            field_name="fragment_ids",
+        )
+        source_provenance_ids = _normalize_decision_snapshot_references(
+            payload.get("source_provenance_ids"),
+            field_name="source_provenance_ids",
+        )
+        snapshot_evidence_ids = set(evidence_ids.split("|"))
+        snapshot_fragment_ids = set(fragment_ids.split("|"))
+        snapshot_provenance_ids = set(source_provenance_ids.split("|"))
+        candidate_fragment_ids = {
+            fragment_id.strip()
+            for fragment_id in candidate.fragment_ids.split("|")
+            if fragment_id.strip()
+        }
+        if snapshot_evidence_ids != {candidate.evidence_id}:
+            raise CumulativeDatabaseError(
+                "validation decision evidence_ids must equal the target "
+                "candidate evidence snapshot"
+            )
+        if not snapshot_fragment_ids <= candidate_fragment_ids:
+            raise CumulativeDatabaseError(
+                "validation decision fragment_ids must be a retained subset "
+                "of the target candidate"
+            )
+        snapshot_fragments: List[EvidenceFragment] = []
+        for fragment_id in sorted(snapshot_fragment_ids):
+            fragment = fragments_by_id.get(fragment_id)
+            if fragment is None or fragment.evidence_id != candidate.evidence_id:
+                raise CumulativeDatabaseError(
+                    "validation decision fragment_ids must resolve to target "
+                    "candidate evidence"
+                )
+            fragment_timestamp = datetime.fromisoformat(
+                _require_utc_timestamp(
+                    fragment.source_retrieved_at_utc,
+                    field_name="source_retrieved_at_utc",
+                ).replace("Z", "+00:00")
+            )
+            if fragment_timestamp > parsed_decision_at:
+                raise CumulativeDatabaseError(
+                    "validation decision cannot cite evidence retrieved after "
+                    "decision_at_utc"
+                )
+            snapshot_fragments.append(fragment)
+        expected_snapshot_provenance_ids = {
+            fragment.source_provenance_id for fragment in snapshot_fragments
+        }
+        if snapshot_provenance_ids != expected_snapshot_provenance_ids:
+            raise CumulativeDatabaseError(
+                "validation decision source_provenance_ids must equal the "
+                "snapshot fragment provenance"
             )
         superseded_id = str(
             payload.get("superseded_validation_decision_id") or ""
@@ -2761,7 +2851,18 @@ def _build_validation_decisions(
         decision_id = str(payload.get("validation_decision_id") or "").strip()
         if not decision_id:
             seed = "\x1f".join(
-                (candidate_id, canonical_label, decision_status, reviewer, decision_at)
+                (
+                    candidate_id,
+                    canonical_label,
+                    decision_status,
+                    reviewer,
+                    decision_at,
+                    decision_reason,
+                    evidence_ids,
+                    fragment_ids,
+                    source_provenance_ids,
+                    superseded_id,
+                )
             )
             decision_id = f"decision:{hashlib.sha256(seed.encode('utf-8')).hexdigest()}"
         if decision_id in decision_ids:
@@ -2778,9 +2879,9 @@ def _build_validation_decisions(
                 reviewer=reviewer,
                 decision_at_utc=decision_at,
                 decision_reason=decision_reason,
-                evidence_ids=candidate.evidence_id,
-                fragment_ids=candidate.fragment_ids,
-                source_provenance_ids=candidate.source_provenance_ids,
+                evidence_ids=evidence_ids,
+                fragment_ids=fragment_ids,
+                source_provenance_ids=source_provenance_ids,
                 superseded_validation_decision_id=superseded_id,
             )
         )
@@ -2807,6 +2908,28 @@ def _build_validation_decisions(
             )
     decisions.sort(key=lambda row: row.validation_decision_id)
     return decisions
+
+
+def _normalize_decision_snapshot_references(
+    value: Any, *, field_name: str
+) -> str:
+    """Normalize one explicit, immutable reviewer snapshot reference list."""
+    if isinstance(value, str):
+        raw_values = value.split("|")
+    elif isinstance(value, (list, tuple, set)):
+        raw_values = [str(item) for item in value]
+    else:
+        raw_values = []
+    references = [item.strip() for item in raw_values if item.strip()]
+    if not references:
+        raise CumulativeDatabaseError(
+            f"validation decision requires immutable {field_name} snapshot"
+        )
+    if len(set(references)) != len(references):
+        raise CumulativeDatabaseError(
+            f"validation decision {field_name} snapshot cannot contain duplicates"
+        )
+    return "|".join(sorted(references))
 
 
 def _active_validation_decisions(
@@ -3065,6 +3188,30 @@ def _score_confidence(
     if metadata_only:
         score -= 0.10
 
+    score = max(0.05, min(0.95, round(score, 3)))
+    review_status = "auto_accepted" if score >= 0.50 else "review_required"
+    return score, review_status
+
+
+def _score_v2_match_confidence(
+    *, source_field: str, metadata_only: bool
+) -> Tuple[float, str]:
+    """Score one retained v2 match from its exact qualified source surface.
+
+    The frozen legacy compatibility projection deliberately continues to use
+    :func:`_score_confidence`, whose record-wide substring accounting is part
+    of the v1 contract.  Schema-v2 rows instead receive credit only for the
+    surface that supplied their exact, qualified match.
+    """
+    field_weight = {
+        "title": 0.55,
+        "subject_terms": 0.20,
+        "abstract": 0.20,
+        "full_text": 0.25,
+    }
+    score = field_weight.get(source_field, 0.0)
+    if metadata_only:
+        score -= 0.10
     score = max(0.05, min(0.95, round(score, 3)))
     review_status = "auto_accepted" if score >= 0.50 else "review_required"
     return score, review_status

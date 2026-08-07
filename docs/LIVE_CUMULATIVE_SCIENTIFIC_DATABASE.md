@@ -170,12 +170,21 @@ Schema v2 adds an explicit construct-valid chain:
 - Each evidence fragment retains its `source_provenance_id` together with its
   provider, provider source identifier, retrieval time, query identifier, and
   source-query text. These fields are the published preimage/crosswalk for the
-  occurrence identifier; they remain retrieval provenance, not empirical
-  evidence.
+  occurrence identifier; `source_retrieved_at_utc` is always an ISO-8601 UTC
+  timestamp. They remain retrieval provenance, not empirical evidence.
 - `semantic_signals.context_text` is the exact normalized surface scanned for
   that signal. Therefore an evidence fragment's stored offsets resolve against
   it even when a retained abstract, full-text field, or subject-term field was
   originally structured as a list or mapping.
+- `semantic_signals.evidence_text_hash` is the retained whole-observation hash
+  used in the stable signal identity. It permits package preflight to recreate
+  that identity without changing the exact fragment surface retained in
+  `context_text`.
+- A reviewer ledger entry must carry its own non-empty `evidence_ids`,
+  `fragment_ids`, and `source_provenance_ids` snapshot. Those references are
+  checked against the target candidate and preserved as supplied; later
+  occurrences may expand a candidate, but cannot rewrite a prior decision's
+  cited evidence.
 - Semantic signals and competence candidates may carry any of the four
   canonical bound sector-axis pairs — `MARINE/M`, `MARITIME/T`, `OCEANIC/O`,
   or `HYDRONIZATION/H` — or the fully unbound pair `("", "")`. The fully
@@ -219,6 +228,8 @@ This compatibility projection deliberately retains its frozen v1 classifier
 identifier, signal identities, substring matching, and one-row-per-pattern
 cardinality. The schema-v2 construct-validity tables use the separately
 versioned v3 scanner, which retains every exact, unqualified evidence span.
+Its confidence score is calculated only from the exact qualified match surface;
+it never receives credit from a record-wide legacy substring match.
 Neither projection turns a legacy aggregate row into a validated canonical
 competence.
 
@@ -360,7 +371,8 @@ Arguments:
 - `--validation-decision-ledger` — optional reviewer-approved JSON list (or
   object containing `validation_decisions`) of explicit decisions. Each entry
   must provide a candidate ID, decision status, pseudonymous reviewer,
-  UTC decision time, and decision reason; accepted entries also require a
+  UTC decision time, decision reason, and immutable evidence, fragment, and
+  source-provenance reference snapshots; accepted entries also require a
   canonical label. In live use, materialize this file only through the
   reviewer-protected `live-research` environment; its contents are never echoed.
 - `--emit-summary` — print a one-line JSON summary to stdout on success.

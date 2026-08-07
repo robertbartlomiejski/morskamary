@@ -31,7 +31,8 @@ The script is safe to run when some inputs are missing:
 * If ``--query-protocol`` is empty, all Layer 0 fallback bindings are
   disabled (records may still bind through Layer 1).
 * ``--validation-decision-ledger`` accepts only reviewer-approved JSON
-  decision payloads; live workflow protection is applied by the caller.
+  decision payloads with immutable evidence snapshots; live workflow
+  protection is applied by the caller.
 """
 
 from __future__ import annotations
@@ -148,6 +149,8 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         help=(
             "Path to a reviewer-approved JSON ledger: either a list of "
             "decision objects or an object with a validation_decisions list. "
+            "Every decision must retain explicit evidence_ids, fragment_ids, "
+            "and source_provenance_ids snapshots. "
             "For live runs, pass this only through the reviewer-protected "
             "live-research environment. Ledger content is not echoed."
         ),

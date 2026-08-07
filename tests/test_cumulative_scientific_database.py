@@ -117,6 +117,21 @@ def _write_current_run(run_dir: Path, records: Sequence[Mapping[str, Any]]) -> N
     _write_live_records(run_dir / "research_sources", records)
 
 
+def _decision_snapshot(
+    result: Any, candidate_id: str
+) -> Dict[str, str]:
+    """Return the explicit immutable ledger snapshot for one fixture candidate."""
+    candidate = next(
+        row for row in result.competence_candidates
+        if row.candidate_id == candidate_id
+    )
+    return {
+        "evidence_ids": candidate.evidence_id,
+        "fragment_ids": candidate.fragment_ids,
+        "source_provenance_ids": candidate.source_provenance_ids,
+    }
+
+
 def _write_layer1_audit(
     live_runs_root: Path, run_id: str, rows: List[Dict[str, str]]
 ) -> None:
@@ -2002,6 +2017,9 @@ def test_invalid_canonical_label_is_blocked_before_promotion(tmp_path: Path) -> 
             validation_decisions=[
                 {
                     "target_candidate_id": initial.competence_candidates[0].candidate_id,
+                    **_decision_snapshot(
+                        initial, initial.competence_candidates[0].candidate_id
+                    ),
                     "canonical_label": bad_label,
                     "decision_status": "accepted",
                     "reviewer": "reviewer-fixture-001",
@@ -2070,6 +2088,9 @@ def test_validation_decision_rejects_non_pseudonymous_reviewer(
             validation_decisions=[
                 {
                     "target_candidate_id": initial.competence_candidates[0].candidate_id,
+                    **_decision_snapshot(
+                        initial, initial.competence_candidates[0].candidate_id
+                    ),
                     "canonical_label": "Governance capability",
                     "decision_status": "accepted",
                     "reviewer": "reviewer@example.org",
@@ -2192,6 +2213,7 @@ def test_validation_decision_candidate_identity_persists_across_runs(
         "doi": "10.1000/stable-candidate",
         "provider": "Crossref",
         "source_query": BOUND_QUERY_TEXT,
+        "retrieval_timestamp": "2026-07-08T00:00:00+00:00",
     }
     _write_current_run(current, [record])
     initial = build_cumulative_scientific_database(
@@ -2223,6 +2245,7 @@ def test_validation_decision_candidate_identity_persists_across_runs(
         validation_decisions=[
             {
                 "target_candidate_id": candidate_id,
+                **_decision_snapshot(initial, candidate_id),
                 "canonical_label": "Governance capability",
                 "decision_status": "accepted",
                 "reviewer": "reviewer-fixture-001",
@@ -2276,6 +2299,7 @@ def test_shared_canonical_label_emits_assignment_for_each_accepted_decision(
     validation_decisions = [
         {
             "target_candidate_id": candidate.candidate_id,
+            **_decision_snapshot(initial, candidate.candidate_id),
             "canonical_label": (
                 "Shared governance capability"
                 if index == 0
@@ -2653,6 +2677,193 @@ def test_structured_surface_offsets_resolve_against_persisted_context(
     )
 
 
+def test_v2_confidence_uses_the_exact_qualified_match_surface(
+    tmp_path: Path,
+) -> None:
+    """A legacy substring elsewhere must not inflate a schema-v2 match."""
+    current = tmp_path / "current"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Digitally mediated policy context",
+                "abstract": "Digital skills are required for port maintenance.",
+                "doi": "10.1000/exact-v2-confidence",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    v2_signal = next(
+        row for row in result.semantic_signals
+        if row.signal_type == "digital_skill"
+    )
+    legacy_signal = next(
+        row for row in result.competence_demand_signals
+        if row.signal_type == "digital_skill"
+    )
+    assert v2_signal.context_text == "Digital skills are required for port maintenance."
+    assert v2_signal.confidence_score == 0.2
+    assert v2_signal.manual_review_status == "review_required"
+    # Frozen legacy compatibility still retains its record-wide scorer.
+    assert legacy_signal.confidence_score == 0.75
+
+
+def test_source_provenance_rejects_non_utc_retrieval_timestamp(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "current"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance skills evidence",
+                "doi": "10.1000/non-utc-provenance",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+                "retrieval_timestamp": "2026-07-09T01:00:00+01:00",
+            }
+        ],
+    )
+
+    with pytest.raises(
+        CumulativeDatabaseError, match="source_retrieved_at_utc requires"
+    ):
+        build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "database",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+        )
+
+
+def test_validation_decision_snapshot_is_immutable_across_later_occurrences(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "current"
+    archive = tmp_path / "archive"
+    initial_record = {
+        "title": "Governance skills evidence",
+        "abstract": "Governance skills are needed.",
+        "doi": "10.1000/immutable-decision-snapshot",
+        "provider": "Crossref",
+        "source_id": "crossref:initial",
+        "source_query": BOUND_QUERY_TEXT,
+        "retrieval_timestamp": "2026-07-08T00:00:00+00:00",
+    }
+    _write_current_run(current, [initial_record])
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    candidate_id = initial.competence_candidates[0].candidate_id
+    snapshot = _decision_snapshot(initial, candidate_id)
+    _write_run_archive(
+        archive,
+        [
+            {
+                "run_id": "R1",
+                "timestamp_utc": "2026-07-08T00:00:00+00:00",
+                "records": [initial_record],
+            }
+        ],
+    )
+    _write_current_run(
+        current,
+        [
+            {
+                **initial_record,
+                "provider": "Scopus",
+                "source_id": "scopus:later",
+                "retrieval_timestamp": "2026-07-10T00:00:00+00:00",
+            }
+        ],
+    )
+
+    recurring = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "recurring",
+        archive_root=archive,
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R2",
+        built_at_utc="2026-07-11T00:00:00+00:00",
+        validation_decisions=[
+            {
+                "target_candidate_id": candidate_id,
+                **snapshot,
+                "canonical_label": "Governance capability",
+                "decision_status": "accepted",
+                "reviewer": "reviewer-fixture-001",
+                "decision_at_utc": FROZEN_TS,
+                "decision_reason": "Initial evidence review.",
+            }
+        ],
+    )
+
+    decision = recurring.validation_decisions[0]
+    candidate = recurring.competence_candidates[0]
+    assert decision.evidence_ids == snapshot["evidence_ids"]
+    assert decision.fragment_ids == snapshot["fragment_ids"]
+    assert decision.source_provenance_ids == snapshot["source_provenance_ids"]
+    assert set(decision.fragment_ids.split("|")) < set(candidate.fragment_ids.split("|"))
+
+
+def test_validation_decision_requires_explicit_immutable_snapshot(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "current"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance skills evidence",
+                "doi": "10.1000/missing-decision-snapshot",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    with pytest.raises(CumulativeDatabaseError, match="immutable evidence_ids"):
+        build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "invalid",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+            validation_decisions=[
+                {
+                    "target_candidate_id": initial.competence_candidates[0].candidate_id,
+                    "canonical_label": "Governance capability",
+                    "decision_status": "accepted",
+                    "reviewer": "reviewer-fixture-001",
+                    "decision_at_utc": FROZEN_TS,
+                    "decision_reason": "Missing snapshot regression.",
+                }
+            ],
+        )
+
+
 def test_superseded_decision_suppresses_canonical_promotion(
     tmp_path: Path,
 ) -> None:
@@ -2683,6 +2894,7 @@ def test_superseded_decision_suppresses_canonical_promotion(
             {
                 "validation_decision_id": "decision:accepted",
                 "target_candidate_id": candidate_id,
+                **_decision_snapshot(initial, candidate_id),
                 "canonical_label": "Governance capability",
                 "decision_status": "accepted",
                 "reviewer": "reviewer-fixture-001",
@@ -2692,6 +2904,7 @@ def test_superseded_decision_suppresses_canonical_promotion(
             {
                 "validation_decision_id": "decision:revision",
                 "target_candidate_id": candidate_id,
+                **_decision_snapshot(initial, candidate_id),
                 "canonical_label": "",
                 "decision_status": "review_required",
                 "reviewer": "reviewer-fixture-002",
@@ -2740,6 +2953,7 @@ def test_validation_decisions_reject_supersession_cycles(tmp_path: Path) -> None
                 {
                     "validation_decision_id": "decision:a",
                     "target_candidate_id": candidate_id,
+                    **_decision_snapshot(initial, candidate_id),
                     "canonical_label": "Governance capability",
                     "decision_status": "accepted",
                     "reviewer": "reviewer-fixture-001",
@@ -2750,6 +2964,7 @@ def test_validation_decisions_reject_supersession_cycles(tmp_path: Path) -> None
                 {
                     "validation_decision_id": "decision:b",
                     "target_candidate_id": candidate_id,
+                    **_decision_snapshot(initial, candidate_id),
                     "canonical_label": "",
                     "decision_status": "review_required",
                     "reviewer": "reviewer-fixture-002",
@@ -2798,6 +3013,7 @@ def test_validation_decisions_require_single_active_decision_per_candidate(
                 {
                     "validation_decision_id": "decision:accepted-a",
                     "target_candidate_id": candidate_id,
+                    **_decision_snapshot(initial, candidate_id),
                     "canonical_label": "Governance capability",
                     "decision_status": "accepted",
                     "reviewer": "reviewer-fixture-001",
@@ -2807,6 +3023,7 @@ def test_validation_decisions_require_single_active_decision_per_candidate(
                 {
                     "validation_decision_id": "decision:accepted-b",
                     "target_candidate_id": candidate_id,
+                    **_decision_snapshot(initial, candidate_id),
                     "canonical_label": "Governance competency",
                     "decision_status": "accepted",
                     "reviewer": "reviewer-fixture-002",
@@ -2852,6 +3069,9 @@ def test_validation_decisions_require_explicit_audit_payload_fields(
     )
     decision = {
         "target_candidate_id": initial.competence_candidates[0].candidate_id,
+        **_decision_snapshot(
+            initial, initial.competence_candidates[0].candidate_id
+        ),
         "canonical_label": "Governance capability",
         "decision_status": "accepted",
         "reviewer": "reviewer-fixture-001",
@@ -2898,6 +3118,9 @@ def test_validation_decisions_reject_duplicate_identifiers(
     )
     decision = {
         "target_candidate_id": initial.competence_candidates[0].candidate_id,
+        **_decision_snapshot(
+            initial, initial.competence_candidates[0].candidate_id
+        ),
         "canonical_label": "Governance capability",
         "decision_status": "accepted",
         "reviewer": "reviewer-fixture-001",
@@ -2970,6 +3193,9 @@ def test_canonical_label_guard_blocks_provider_aliases_and_source_titles(
             validation_decisions=[
                 {
                     "target_candidate_id": initial.competence_candidates[0].candidate_id,
+                    **_decision_snapshot(
+                        initial, initial.competence_candidates[0].candidate_id
+                    ),
                     "canonical_label": title,
                     "decision_status": "accepted",
                     "reviewer": "reviewer-fixture-001",
@@ -3009,6 +3235,9 @@ def test_unbound_candidate_keeps_canonical_but_has_no_sector_assignment(
         validation_decisions=[
             {
                 "target_candidate_id": initial.competence_candidates[0].candidate_id,
+                **_decision_snapshot(
+                    initial, initial.competence_candidates[0].candidate_id
+                ),
                 "canonical_label": "Governance capability",
                 "decision_status": "accepted",
                 "reviewer": "reviewer-fixture-001",
@@ -3145,6 +3374,9 @@ def test_aggregated_candidate_emits_each_bound_sector_axis_assignment(
         validation_decisions=[
             {
                 "target_candidate_id": initial.competence_candidates[0].candidate_id,
+                **_decision_snapshot(
+                    initial, initial.competence_candidates[0].candidate_id
+                ),
                 "canonical_label": "Governance capability",
                 "decision_status": "accepted",
                 "reviewer": "reviewer-fixture-001",

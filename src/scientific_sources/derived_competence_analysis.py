@@ -1842,6 +1842,20 @@ def _test_hypotheses(
         demand for demand in demands if demand.axis_group == "HYDRONIZATION"
     ]
     hydro_ids = {demand.competence_demand_id for demand in hydro_demands}
+    # Legacy category aggregates remain useful compatibility projections, but
+    # they are not canonical competences and must never enter the denominator
+    # for a validation-backed hypothesis result.  Keep the all-demand set for
+    # the informational candidate-coverage count, while every field prefixed
+    # ``validated_`` is derived exclusively from accepted canonical lineage.
+    validated_hydro_ids = {
+        demand.competence_demand_id
+        for demand in hydro_demands
+        if (
+            demand.scientific_status
+            == VALIDATED_CANONICAL_DEMAND_SCIENTIFIC_STATUS
+            and demand.status not in ("review_required", "duplicate_artifact")
+        )
+    }
     candidate_covered_ids = {
         demand_id.strip()
         for credential in credentials
@@ -1867,11 +1881,13 @@ def _test_hypotheses(
             }
             if levels & {6, 7}:
                 validated_covered_ids.add(str(demand_id))
-    validated_covered_count = len(hydro_ids & validated_covered_ids)
+    validated_covered_count = len(validated_hydro_ids & validated_covered_ids)
     missing_ratio: Optional[float]
-    if supply_map_provided and hydro_ids:
-        validated_missing_count = len(hydro_ids) - validated_covered_count
-        ratio = validated_missing_count / len(hydro_ids)
+    if supply_map_provided and validated_hydro_ids:
+        validated_missing_count = (
+            len(validated_hydro_ids) - validated_covered_count
+        )
+        ratio = validated_missing_count / len(validated_hydro_ids)
         missing_ratio = ratio
         if ratio >= 0.5:
             h2_interpretation = "supported"
@@ -1880,14 +1896,14 @@ def _test_hypotheses(
         else:
             h2_interpretation = "not_supported"
     else:
-        validated_missing_count = len(hydro_ids)
+        validated_missing_count = len(validated_hydro_ids)
         missing_ratio = None
         h2_interpretation = "not_computable"
 
     h2_warnings: List[str] = []
     if not supply_map_provided:
         h2_warnings.append("no_validated_supply_map")
-    if len(hydro_ids) < 5:
+    if len(validated_hydro_ids) < 5:
         h2_warnings.append("small_cell_stability")
     h2 = {
         "hypothesis_id": "H2",
@@ -1896,6 +1912,7 @@ def _test_hypotheses(
         "validated_supply_map_provided": supply_map_provided,
         "matched_fragment_count": len(h2_fragments),
         "hydronization_demand_count": len(hydro_ids),
+        "validated_hydronization_demand_count": len(validated_hydro_ids),
         "validated_covered_demand_count": validated_covered_count,
         "validated_missing_demand_count": validated_missing_count,
         "candidate_covered_demand_count": candidate_covered_count,
