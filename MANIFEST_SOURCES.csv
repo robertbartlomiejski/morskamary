@@ -1124,12 +1124,12 @@ src/scientific_sources/derived_competence_analysis.py,script,,,,,,derived_compet
 src/scientific_sources/elsevier_scopus.py,script,,,,,,elsevier_scopus,yes
 src/scientific_sources/google_drive.py,script,,,,,,google_drive,yes
 src/scientific_sources/live_query_protocol.py,script,,,,,,live_query_protocol,yes
-src/scientific_sources/schema_v2_identity.py,script,,,,,,schema_v2_identity,yes
 src/scientific_sources/live_run_audit.py,script,,,,,,live_run_audit,yes
 src/scientific_sources/microsoft_graph.py,script,,,,,,microsoft_graph,yes
 src/scientific_sources/models.py,script,,,,,,models,yes
 src/scientific_sources/openalex.py,script,,,,,,openalex,yes
 src/scientific_sources/provenance.py,script,,,,,,provenance,yes
+src/scientific_sources/schema_v2_identity.py,script,,,,,,schema_v2_identity,yes
 src/scientific_sources/scival.py,script,,,,,,scival,yes
 src/scientific_sources/source_registry.py,script,,,,,,source_registry,yes
 src/scientific_sources/web_of_science.py,script,,,,,,web_of_science,yes
