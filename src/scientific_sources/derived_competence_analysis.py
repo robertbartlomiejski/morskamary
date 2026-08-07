@@ -53,6 +53,14 @@ from typing import (
 from src.scientific_sources.cumulative_scientific_database import (
     canonical_label_is_allowed,
 )
+from src.scientific_sources.schema_v2_identity import (
+    make_canonical_competence_id as _make_canonical_competence_id,
+    recompute_assignment_id_from_row as _recompute_assignment_id_from_row,
+    recompute_candidate_id_from_row as _recompute_candidate_id_from_row,
+    recompute_fragment_id_from_row as _recompute_fragment_id_from_row,
+    recompute_provenance_id_from_row as _recompute_provenance_id_from_row,
+    recompute_signal_id_from_row as _recompute_signal_id_from_row,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -79,14 +87,15 @@ _LINEAGE_REVIEWER_IDENTIFIER_RE = re.compile(
 # lowercase hex sha256 digest (e.g. "candidate:abc123...", "fragment:def456...").
 # Empty strings, provider-prefixed labels, truncated tokens, or other formats
 # indicate a corrupted or forged lineage chain.
-# Further hardening (recomputing the full deterministic hash from field content)
-# is deferred because it requires importing/mirroring helpers from
-# cumulative_scientific_database.py, which would risk regressions.
+# All hash builders and recomputation helpers are imported from
+# src.scientific_sources.schema_v2_identity — the single authoritative source
+# of the preimage contract.  These identifiers are *deterministically
+# reconstructable* and *tamper-evident under the trusted validation boundary*.
 _LINEAGE_HEX_ID_RE = re.compile(
     r"^[A-Za-z][A-Za-z0-9_-]*:[0-9a-f]{64}$"
 )
-# ASCII Unit Separator — preimage field delimiter matching cumulative_scientific_database.py
-_UNIT_SEP = "\x1f"
+# _UNIT_SEP, hash builders, and recompute helpers are imported from
+# src.scientific_sources.schema_v2_identity above.
 _LINEAGE_UTC_TIMESTAMP_RE = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}"
     r"(?::\d{2}(?:\.\d+)?)?(?:Z|\+00:00)$"
@@ -1491,125 +1500,21 @@ def _make_id(prefix: str, *parts: str) -> str:
     return f"{prefix}-{slug}-{digest}" if slug else f"{prefix}-{digest}"
 
 
-def _normalized_lineage_label(value: Any) -> str:
-    """Normalize a canonical label using the runtime identity preimage."""
-    return re.sub(r"\s+", " ", str(value or "")).strip()
-
-
 def _expected_canonical_competence_id(value: Any) -> str:
-    """Return the schema-v2 canonical identifier for one preferred label."""
-    label = _normalized_lineage_label(value)
-    return "canonical:" + hashlib.sha256(
-        label.lower().encode("utf-8")
-    ).hexdigest()
+    """Return the schema-v2 canonical identifier for one preferred label.
 
-
-def _recompute_provenance_id(row: Mapping[str, Any]) -> str:
-    """Recompute prov:<sha256> from the provenance preimage fields.
-
-    Mirrors _make_provenance_id_from_fields in cumulative_scientific_database.
-    Returns "" when any required field is absent so callers can skip silently.
+    Delegates to :func:`schema_v2_identity.make_canonical_competence_id`.
     """
-    run_id = str(row.get("run_id") or "").strip()
-    evidence_id = str(row.get("evidence_id") or "").strip()
-    source_retrieved_at_utc = str(
-        row.get("source_retrieved_at_utc") or ""
-    ).strip()
-    source_provider = str(row.get("source_provider") or "").strip()
-    source_provider_id = str(row.get("source_provider_id") or "").strip().lower()
-    source_query_id = str(row.get("source_query_id") or "").strip()
-    source_query_text = re.sub(
-        r"\s+", " ", str(row.get("source_query_text") or "")
-    ).strip().lower()
-    if not all(
-        [
-            run_id,
-            evidence_id,
-            source_retrieved_at_utc,
-            source_provider,
-            source_query_id,
-        ]
-    ):
-        return ""
-    payload = _UNIT_SEP.join(
-        [
-            run_id,
-            evidence_id,
-            source_retrieved_at_utc,
-            source_provider,
-            source_provider_id,
-            source_query_id,
-            source_query_text,
-        ]
-    )
-    return "prov:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    return _make_canonical_competence_id(value)
 
 
-def _recompute_signal_id(row: Mapping[str, Any]) -> str:
-    """Recompute signal:<sha256> from the signal preimage fields.
+def _normalized_lineage_label(value: Any) -> str:
+    """Normalize a canonical label using the runtime identity preimage.
 
-    Returns "" when any required field is absent so callers can skip silently.
+    Thin wrapper over :func:`schema_v2_identity.normalize_canonical_label`.
     """
-    evidence_id = str(row.get("evidence_id") or "").strip()
-    signal_type = str(row.get("signal_type") or "").strip()
-    matched_phrase = re.sub(
-        r"\s+", " ", str(row.get("matched_phrase") or "")
-    ).strip().lower()
-    evidence_text_hash = str(row.get("evidence_text_hash") or "").strip()
-    classifier_version = str(row.get("classifier_version") or "").strip()
-    if not all(
-        [evidence_id, signal_type, matched_phrase, evidence_text_hash, classifier_version]
-    ):
-        return ""
-    payload = _UNIT_SEP.join(
-        [evidence_id, signal_type, matched_phrase, evidence_text_hash, classifier_version]
-    )
-    return "signal:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
-
-
-def _recompute_fragment_id(
-    row: Mapping[str, Any],
-    *,
-    signal_id: str,
-    provenance_id: str,
-) -> str:
-    """Recompute fragment:<sha256> from the fragment preimage fields.
-
-    Returns "" when any required field is absent or offsets are non-numeric.
-    """
-    evidence_id = str(row.get("evidence_id") or "").strip()
-    source_field = str(row.get("source_field") or "").strip()
-    try:
-        span_start = int(row.get("span_start_offset", ""))
-        span_end = int(row.get("span_end_offset", ""))
-    except (ValueError, TypeError):
-        return ""
-    if not all([evidence_id, signal_id, provenance_id, source_field]):
-        return ""
-    payload = _UNIT_SEP.join(
-        [
-            evidence_id,
-            signal_id,
-            provenance_id,
-            source_field,
-            str(span_start),
-            str(span_end),
-        ]
-    )
-    return "fragment:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
-
-
-def _recompute_candidate_id(row: Mapping[str, Any]) -> str:
-    """Recompute candidate:<sha256> from signal_id and evidence_id.
-
-    Returns "" when any required field is absent so callers can skip silently.
-    """
-    signal_id = str(row.get("signal_id") or "").strip()
-    evidence_id = str(row.get("evidence_id") or "").strip()
-    if not signal_id or not evidence_id:
-        return ""
-    payload = _UNIT_SEP.join([signal_id, evidence_id, "candidate"])
-    return "candidate:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    from src.scientific_sources.schema_v2_identity import normalize_canonical_label
+    return normalize_canonical_label(value)
 
 
 def _parse_lineage_utc(value: Any) -> Optional[datetime]:
@@ -2065,7 +1970,7 @@ def _build_accepted_canonical_lineage_demands(
     # 1. Recompute signal_id for each semantic signal row.
     for signal in signal_rows:
         stored_signal_id = _lineage_row_id(signal, "signal_id")
-        recomputed_signal_id = _recompute_signal_id(signal)
+        recomputed_signal_id = _recompute_signal_id_from_row(signal)
         if recomputed_signal_id and recomputed_signal_id != stored_signal_id:
             raise DerivedAnalysisError(
                 "accepted canonical lineage signal_id does not match "
@@ -2075,7 +1980,7 @@ def _build_accepted_canonical_lineage_demands(
     # 2. Recompute provenance_id and fragment_id for each evidence fragment.
     for fragment_id, fragment in fragments_by_id.items():
         stored_provenance_id = _lineage_row_id(fragment, "source_provenance_id")
-        recomputed_prov = _recompute_provenance_id(fragment)
+        recomputed_prov = _recompute_provenance_id_from_row(fragment)
         if recomputed_prov and recomputed_prov != stored_provenance_id:
             raise DerivedAnalysisError(
                 "accepted canonical lineage fragment provenance_id does not "
@@ -2085,7 +1990,7 @@ def _build_accepted_canonical_lineage_demands(
         if covering_signal is not None:
             covering_signal_id = _lineage_row_id(covering_signal, "signal_id")
             prov_for_fragment = recomputed_prov or stored_provenance_id
-            recomputed_frag = _recompute_fragment_id(
+            recomputed_frag = _recompute_fragment_id_from_row(
                 fragment,
                 signal_id=covering_signal_id,
                 provenance_id=prov_for_fragment,
@@ -2098,7 +2003,7 @@ def _build_accepted_canonical_lineage_demands(
 
     # 3. Recompute candidate_id for each competence candidate row.
     for candidate_id, candidate in candidates_by_id.items():
-        recomputed_cand = _recompute_candidate_id(candidate)
+        recomputed_cand = _recompute_candidate_id_from_row(candidate)
         if recomputed_cand and recomputed_cand != candidate_id:
             raise DerivedAnalysisError(
                 "accepted canonical lineage candidate_id does not match "
@@ -2435,6 +2340,15 @@ def _build_accepted_canonical_lineage_demands(
             raise DerivedAnalysisError(
                 "accepted canonical lineage assignment evidence does not "
                 f"match its candidate snapshot: {assignment_id}"
+            )
+        # 4b. Recompute assignment_id from its preimage fields to detect
+        # forgery: a tampered sector/axis/canonical_id combination that
+        # passes FK checks but was not issued by the canonical producer.
+        recomputed_assignment_id = _recompute_assignment_id_from_row(assignment)
+        if recomputed_assignment_id and recomputed_assignment_id != assignment_id:
+            raise DerivedAnalysisError(
+                "accepted canonical lineage assignment_id does not match "
+                f"recomputed identity: {assignment_id}"
             )
         if candidate_evidence_id not in evidence_by_id:
             raise DerivedAnalysisError(

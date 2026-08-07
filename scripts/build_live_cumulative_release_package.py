@@ -42,7 +42,23 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-from jsonschema import Draft202012Validator
+# Ensure the repository root is on sys.path so that ``src.*`` is importable
+# when this script is invoked directly (e.g. ``python scripts/<name>.py``).
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from jsonschema import Draft202012Validator  # noqa: E402
+
+from src.scientific_sources.schema_v2_identity import (  # noqa: E402
+    make_assignment_id as _make_assignment_id_v2,
+    make_candidate_id as _make_candidate_id_v2,
+    make_canonical_competence_id as _make_canonical_competence_id_v2,
+    make_fragment_id as _make_fragment_id_v2,
+    make_provenance_id as _make_provenance_id_v2,
+    make_signal_id as _make_signal_id_v2,
+    normalize_canonical_label as _normalize_canonical_label_v2,
+)
 
 # Versioned schemas are the authoritative schema-v2 field contract.
 _SCHEMA_V2_DIR = Path(__file__).resolve().parents[1] / "schemas"
@@ -611,8 +627,11 @@ def _string_value(value: Any) -> str:
 
 
 def _runtime_canonical_label(value: Any) -> str:
-    """Normalize a canonical label exactly as the runtime identity does."""
-    return re.sub(r"\s+", " ", _string_value(value)).strip().lower()
+    """Normalize a canonical label exactly as the runtime identity does.
+
+    Delegates to :func:`schema_v2_identity.normalize_canonical_label`.
+    """
+    return _normalize_canonical_label_v2(value).lower()
 
 
 def _normalized_text_hash(value: Any) -> str:
@@ -624,77 +643,79 @@ def _normalized_text_hash(value: Any) -> str:
 
 
 def _expected_fragment_provenance_id(fragment: Dict[str, Any]) -> str:
-    """Recreate a fragment occurrence identifier from its published preimage."""
-    payload = "\x1f".join(
-        (
-            _string_value(fragment.get("run_id")),
-            _string_value(fragment.get("evidence_id")),
-            _string_value(fragment.get("source_retrieved_at_utc")),
-            _string_value(fragment.get("source_provider")),
-            _string_value(fragment.get("source_provider_id")).strip().lower(),
-            _string_value(fragment.get("source_query_id")),
-            re.sub(
-                r"\s+",
-                " ",
-                _string_value(fragment.get("source_query_text")),
-            ).strip().lower(),
-        )
+    """Recreate a fragment occurrence identifier from its published preimage.
+
+    Delegates to :func:`schema_v2_identity.make_provenance_id`.
+    """
+    return _make_provenance_id_v2(
+        run_id=_string_value(fragment.get("run_id")),
+        evidence_id=_string_value(fragment.get("evidence_id")),
+        source_retrieved_at_utc=_string_value(
+            fragment.get("source_retrieved_at_utc")
+        ),
+        source_provider=_string_value(fragment.get("source_provider")),
+        source_provider_id=_string_value(fragment.get("source_provider_id")),
+        source_query_id=_string_value(fragment.get("source_query_id")),
+        source_query_text=_string_value(fragment.get("source_query_text")),
     )
-    return "prov:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _expected_signal_id(signal: Dict[str, Any]) -> str:
-    """Recreate the stable semantic-signal identity from its v2 preimage."""
-    normalized_phrase = re.sub(
-        r"\s+", " ", _string_value(signal.get("matched_phrase"))
-    ).strip().lower()
-    payload = "\x1f".join(
-        (
-            _string_value(signal.get("evidence_id")),
-            _string_value(signal.get("signal_type")),
-            normalized_phrase,
-            _string_value(signal.get("evidence_text_hash")),
-            _string_value(signal.get("classifier_version")),
-        )
+    """Recreate the stable semantic-signal identity from its v2 preimage.
+
+    Delegates to :func:`schema_v2_identity.make_signal_id`.
+    """
+    return _make_signal_id_v2(
+        evidence_id=_string_value(signal.get("evidence_id")),
+        signal_type=_string_value(signal.get("signal_type")),
+        matched_phrase=_string_value(signal.get("matched_phrase")),
+        evidence_text_hash=_string_value(signal.get("evidence_text_hash")),
+        classifier_version=_string_value(signal.get("classifier_version")),
     )
-    return "signal:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _expected_fragment_id(
     fragment: Dict[str, Any], signal: Dict[str, Any]
 ) -> str:
-    """Recreate the stable fragment occurrence identity from its v2 preimage."""
-    payload = "\x1f".join(
-        (
-            _string_value(fragment.get("evidence_id")),
-            _string_value(signal.get("signal_id")),
-            _expected_fragment_provenance_id(fragment),
-            _string_value(fragment.get("source_field")),
-            _string_value(fragment.get("span_start_offset")),
-            _string_value(fragment.get("span_end_offset")),
-        )
+    """Recreate the stable fragment occurrence identity from its v2 preimage.
+
+    Delegates to :func:`schema_v2_identity.make_fragment_id`.  Span offsets
+    are parsed as integers before passing; the formula produces ``str(int)``
+    in the payload, matching the producer in ``cumulative_scientific_database``.
+    """
+    try:
+        span_start = int(_string_value(fragment.get("span_start_offset")))
+        span_end = int(_string_value(fragment.get("span_end_offset")))
+    except (ValueError, TypeError):
+        span_start = 0
+        span_end = 0
+    return _make_fragment_id_v2(
+        evidence_id=_string_value(fragment.get("evidence_id")),
+        signal_id=_string_value(signal.get("signal_id")),
+        provenance_id=_expected_fragment_provenance_id(fragment),
+        source_field=_string_value(fragment.get("source_field")),
+        span_start=span_start,
+        span_end=span_end,
     )
-    return "fragment:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _expected_candidate_id(candidate: Dict[str, Any]) -> str:
-    """Recreate the stable candidate identity from its semantic preimage."""
-    payload = "\x1f".join(
-        (
-            _string_value(candidate.get("signal_id")),
-            _string_value(candidate.get("evidence_id")),
-            "candidate",
-        )
+    """Recreate the stable candidate identity from its semantic preimage.
+
+    Delegates to :func:`schema_v2_identity.make_candidate_id`.
+    """
+    return _make_candidate_id_v2(
+        signal_id=_string_value(candidate.get("signal_id")),
+        evidence_id=_string_value(candidate.get("evidence_id")),
     )
-    return "candidate:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _expected_canonical_competence_id(canonical: Dict[str, Any]) -> str:
-    """Recreate the runtime canonical-competence identity from its label."""
-    label = _runtime_canonical_label(canonical.get("preferred_label"))
-    return "canonical:" + hashlib.sha256(
-        label.encode("utf-8")
-    ).hexdigest()
+    """Recreate the runtime canonical-competence identity from its label.
+
+    Delegates to :func:`schema_v2_identity.make_canonical_competence_id`.
+    """
+    return _make_canonical_competence_id_v2(canonical.get("preferred_label"))
 
 
 def _parse_integer(value: Any) -> Optional[int]:
@@ -1436,15 +1457,12 @@ def _validate_schema_v2_foreign_keys(
             and axis_group_for_seed
             and axis_code_for_seed
         ):
-            seed = "\x1f".join((
-                canonical_competence_id_for_seed,
-                validation_decision_id_for_seed,
-                sector_for_seed,
-                axis_group_for_seed,
-                axis_code_for_seed,
-            ))
-            expected_assignment_id = (
-                "assignment:" + hashlib.sha256(seed.encode("utf-8")).hexdigest()
+            expected_assignment_id = _make_assignment_id_v2(
+                canonical_competence_id=canonical_competence_id_for_seed,
+                validation_decision_id=validation_decision_id_for_seed,
+                sector=sector_for_seed,
+                axis_group=axis_group_for_seed,
+                axis_code=axis_code_for_seed,
             )
             if _string_value(assignment.get("assignment_id")) != expected_assignment_id:
                 errors.append(

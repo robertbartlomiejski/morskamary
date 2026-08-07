@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-08-07 (add: schema_v2_identity shared module; refactor all identity builders to single contract)
+  Change type add fix update
+  Scope scripts tests governance src
+  Files affected src/scientific_sources/schema_v2_identity.py src/scientific_sources/cumulative_scientific_database.py src/scientific_sources/derived_competence_analysis.py scripts/build_live_cumulative_release_package.py scripts/build_versioned_research_data_package.py tests/test_derived_competence_analysis.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Creates a single authoritative module (schema_v2_identity.py) that defines all SHA-256 preimage builders (make_provenance_id, make_signal_id, make_fragment_id, make_candidate_id, make_canonical_competence_id, make_assignment_id, make_decision_content_hash) with an ASCII Unit Separator (\x1f) delimiter-injection guard. All four prior duplicate inline implementations (cumulative_scientific_database.py, derived_competence_analysis.py, build_live_cumulative_release_package.py, build_versioned_research_data_package.py) are refactored to delegate to the shared module. Layer-4 validation now recomputes assignment_id from its canonical preimage in addition to the previously added candidate/fragment/provenance/signal recomputations. Two new negative regression tests assert that (a) a preimage field containing \x1f raises ValueError and (b) a forged assignment_id preimage causes Layer-4 to fail closed. The validation_decision_id remains an externally supplied opaque public contract; its integrity is covered by the separate make_decision_content_hash builder. The fixture assignment_id in test_derived_competence_analysis.py is updated from an opaque legacy stub to the correct deterministic hash.
+  Reason Requirement 2 of the construct-validity audit: all identity-building paths must share one contract so drift between the cumulative producer, Layer-4 promotion gate, and publication preflights is structurally impossible. Requirement 3: \x1f delimiter guard. Requirement 4: Layer-4 assignment_id recomputation. Requirement 6: negative regressions for forged lineage.
+  Impact No change to generated identities (same SHA-256 + \x1f formula throughout). Scripts gain a _REPO_ROOT sys.path guard so they remain executable both as CLI tools and as pytest subprocess targets.
+  Provenance Issue #218; PR #245 construct-validity audit; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md.
+  Quality checks flake8 clean; mypy 0 errors (73 files); 1458 tests passed; full test suite run.
+
 - 2026-08-07 (add: schema-v2 offline bundle preflight)
   Change type add fix update
   Scope scripts tests governance

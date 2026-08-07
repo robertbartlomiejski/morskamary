@@ -82,6 +82,15 @@ from src.scientific_sources.live_query_protocol import (
     LiveQueryProtocol,
     load_live_query_protocol,
 )
+from src.scientific_sources.schema_v2_identity import (
+    make_assignment_id as _make_assignment_id_shared,
+    make_candidate_id as _make_candidate_id_shared,
+    make_canonical_competence_id as _make_canonical_competence_id_shared,
+    make_fragment_id as _make_fragment_id_shared,
+    make_provenance_id as _make_provenance_id_shared,
+    make_signal_id as _make_signal_id_shared,
+    normalize_source_id as _normalize_source_id_shared,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -967,9 +976,7 @@ def _title_hash(normalized_title: str) -> str:
 
 def _normalize_source_id(source_id: Any) -> str:
     """Return the lowercased trimmed source_id, or '' if empty."""
-    if not isinstance(source_id, str):
-        return ""
-    return source_id.strip().lower()
+    return _normalize_source_id_shared(source_id)
 
 
 def _canonical_provider_name(value: Any) -> str:
@@ -1580,20 +1587,16 @@ def _make_signal_id(
 ) -> str:
     """Return a stable cross-run semantic signal identity.
 
-    Run identifiers and query metadata are deliberately excluded: recurrence
-    of the same evidence-bound semantic signal must retain the same identity.
+    Delegates to :func:`schema_v2_identity.make_signal_id`.  Run identifiers
+    and query metadata are deliberately excluded.
     """
-    normalized_phrase = re.sub(r"\s+", " ", matched_phrase).strip().lower()
-    payload = "\x1f".join(
-        (
-            evidence_id,
-            signal_type,
-            normalized_phrase,
-            evidence_text_hash,
-            classifier_version,
-        )
+    return _make_signal_id_shared(
+        evidence_id=evidence_id,
+        signal_type=signal_type,
+        matched_phrase=matched_phrase,
+        evidence_text_hash=evidence_text_hash,
+        classifier_version=classifier_version,
     )
-    return f"signal:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
 
 def _make_fragment_id(
@@ -1605,23 +1608,26 @@ def _make_fragment_id(
     span_start: int,
     span_end: int,
 ) -> str:
-    payload = "\x1f".join(
-        (
-            evidence_id,
-            signal_id,
-            provenance_id,
-            source_field,
-            str(span_start),
-            str(span_end),
-        )
+    """Return a stable evidence-fragment identifier.
+
+    Delegates to :func:`schema_v2_identity.make_fragment_id`.
+    """
+    return _make_fragment_id_shared(
+        evidence_id=evidence_id,
+        signal_id=signal_id,
+        provenance_id=provenance_id,
+        source_field=source_field,
+        span_start=span_start,
+        span_end=span_end,
     )
-    return f"fragment:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
 
 def _make_candidate_id(*, signal_id: str, evidence_id: str) -> str:
-    """Return a stable cross-run candidate identity for one semantic signal."""
-    payload = "\x1f".join((signal_id, evidence_id, "candidate"))
-    return f"candidate:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
+    """Return a stable cross-run candidate identity for one semantic signal.
+
+    Delegates to :func:`schema_v2_identity.make_candidate_id`.
+    """
+    return _make_candidate_id_shared(signal_id=signal_id, evidence_id=evidence_id)
 
 
 def _source_provenance_fields(
@@ -1646,19 +1652,19 @@ def _source_provenance_fields(
 
 
 def _make_provenance_id_from_fields(fields: Mapping[str, str]) -> str:
-    """Return the stable identifier for published source-occurrence fields."""
-    payload = "\x1f".join(
-        (
-            fields["run_id"],
-            fields["evidence_id"],
-            fields["source_retrieved_at_utc"],
-            fields["source_provider"],
-            _normalize_source_id(fields["source_provider_id"]),
-            fields["source_query_id"],
-            re.sub(r"\s+", " ", fields["source_query_text"]).strip().lower(),
-        )
+    """Return the stable identifier for published source-occurrence fields.
+
+    Delegates to :func:`schema_v2_identity.make_provenance_id`.
+    """
+    return _make_provenance_id_shared(
+        run_id=fields["run_id"],
+        evidence_id=fields["evidence_id"],
+        source_retrieved_at_utc=fields["source_retrieved_at_utc"],
+        source_provider=fields["source_provider"],
+        source_provider_id=fields.get("source_provider_id", ""),
+        source_query_id=fields["source_query_id"],
+        source_query_text=fields.get("source_query_text", ""),
     )
-    return f"prov:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
 
 def _make_provenance_id(*, obs: _RunObservation, evidence_id: str) -> str:
@@ -3058,10 +3064,7 @@ def _build_canonical_competences(
                 "invalid canonical competence label blocked by provenance guard "
                 f"({rejection_reason}): {label}"
             )
-        canonical_id = (
-            "canonical:"
-            + hashlib.sha256(label.lower().encode("utf-8")).hexdigest()
-        )
+        canonical_id = _make_canonical_competence_id_shared(label)
         rows.setdefault(
             canonical_id,
             CanonicalCompetence(
@@ -3130,18 +3133,12 @@ def _build_sector_competence_assignments(
                 continue
             if not sector or axis_code != canonical_axis.value:
                 continue
-            seed = "\x1f".join(
-                (
-                    canonical.canonical_competence_id,
-                    decision.validation_decision_id,
-                    sector,
-                    axis_group,
-                    axis_code,
-                )
-            )
-            assignment_id = (
-                "assignment:"
-                + hashlib.sha256(seed.encode("utf-8")).hexdigest()
+            assignment_id = _make_assignment_id_shared(
+                canonical_competence_id=canonical.canonical_competence_id,
+                validation_decision_id=decision.validation_decision_id,
+                sector=sector,
+                axis_group=axis_group,
+                axis_code=axis_code,
             )
             assignments.setdefault(
                 assignment_id,

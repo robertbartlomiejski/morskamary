@@ -106,7 +106,17 @@ def _accepted_canonical_lineage_rows() -> Dict[str, List[Dict[str, Any]]]:
     signal_id = "signal:hydrosocial:001"
     candidate_id = "candidate:8e9a8f273eee0e2dbcf3b43cb688879876af49c986bff214bffbe01aa95cb524"
     decision_id = "decision:hydrosocial:001"
-    assignment_id = "assignment:hydrosocial:001"
+    assignment_id = (
+        "assignment:" + hashlib.sha256(
+            "\x1f".join([
+                canonical_id,
+                "decision:hydrosocial:001",
+                "desalination",
+                "HYDRONIZATION",
+                "H",
+            ]).encode("utf-8")
+        ).hexdigest()
+    )
     provenance_id = "provenance:hydrosocial:001"
     definition = "Apply hydrosocial governance in desalination operations."
     return {
@@ -248,7 +258,18 @@ def test_layer4_emits_only_complete_accepted_canonical_lineage(
     assert demand.source_candidate_ids == (
         "candidate:8e9a8f273eee0e2dbcf3b43cb688879876af49c986bff214bffbe01aa95cb524"
     )
-    assert demand.assignment_ids == "assignment:hydrosocial:001"
+    expected_assignment_id = (
+        "assignment:" + hashlib.sha256(
+            "\x1f".join([
+                rows["canonical_competences"][0]["canonical_competence_id"],
+                "decision:hydrosocial:001",
+                "desalination",
+                "HYDRONIZATION",
+                "H",
+            ]).encode("utf-8")
+        ).hexdigest()
+    )
+    assert demand.assignment_ids == expected_assignment_id
     assert demand.manual_review_status == "manually_reviewed"
 
 
@@ -1605,3 +1626,55 @@ def test_write_layer45_checksums_format_is_sha256sum_compatible(tmp_path: Path) 
         assert len(parts) == 2, f"malformed checksum line: {line!r}"
         assert hex64.match(parts[0]), f"digest is not 64 hex chars: {parts[0]!r}"
         assert (out / parts[1]).is_file(), f"checksum references non-existent file: {parts[1]!r}"
+
+
+# ---------------------------------------------------------------------------
+# schema_v2_identity delimiter guard regressions
+# ---------------------------------------------------------------------------
+
+def test_check_no_unit_sep_raises_on_delimiter_in_preimage_field(tmp_path: Path) -> None:
+    """make_signal_id must raise ValueError when a preimage field contains \\x1f.
+
+    This is the negative regression for requirement 3 of the construct-validity
+    audit: a field value that itself contains the ASCII Unit Separator (used as
+    the hash-payload delimiter) would silently corrupt the preimage.  The
+    construction-time guard must detect and refuse it.
+    """
+    from src.scientific_sources.schema_v2_identity import make_signal_id
+
+    with pytest.raises(ValueError, match="ASCII Unit Separator"):
+        make_signal_id(
+            evidence_id="E-0001",
+            signal_type="governance_skill\x1fINJECTED",
+            matched_phrase="governance",
+            evidence_text_hash="abc123",
+            classifier_version="v1",
+        )
+
+
+def test_layer4_rejects_forged_assignment_id(tmp_path: Path) -> None:
+    """Layer 4 must raise DerivedAnalysisError when assignment_id preimage is forged.
+
+    The assignment_id in the fixture is an opaque string that does not match the
+    deterministic preimage formula.  Layer 4 recomputes it from
+    (canonical_competence_id, validation_decision_id, sector, axis_group, axis_code)
+    and must fail closed when the stored ID disagrees.
+    """
+    rows = _accepted_canonical_lineage_rows()
+    # Replace the real assignment_id with a plausible-looking but wrong hash
+    # (uses a deliberately incorrect canonical_competence_id in its preimage).
+    forged_assignment_id = (
+        "assignment:" + hashlib.sha256(
+            "\x1f".join([
+                "canonical:" + "0" * 64,  # wrong canonical_competence_id
+                "decision:hydrosocial:001",
+                "desalination",
+                "HYDRONIZATION",
+                "H",
+            ]).encode("utf-8")
+        ).hexdigest()
+    )
+    rows["sector_competence_assignments"][0]["assignment_id"] = forged_assignment_id
+
+    with pytest.raises(DerivedAnalysisError, match="assignment_id does not match recomputed"):
+        _build_accepted_canonical_lineage(tmp_path, rows)

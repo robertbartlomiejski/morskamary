@@ -18,7 +18,22 @@ from pathlib import Path
 from typing import Any
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from jsonschema import Draft202012Validator, FormatChecker  # type: ignore[import-untyped]
+# Ensure the repository root is on sys.path so that ``src.*`` is importable
+# when this script is invoked directly (e.g. ``python scripts/<name>.py``).
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from jsonschema import Draft202012Validator, FormatChecker  # type: ignore[import-untyped]  # noqa: E402
+
+from src.scientific_sources.schema_v2_identity import (  # noqa: E402
+    make_candidate_id as _make_candidate_id_v2,
+    make_canonical_competence_id as _make_canonical_competence_id_v2,
+    make_fragment_id as _make_fragment_id_v2,
+    make_provenance_id as _make_provenance_id_v2,
+    make_signal_id as _make_signal_id_v2,
+    normalize_canonical_label as _normalize_canonical_label_v2,
+)
 
 STATUS = {
     "ok": "[OK]",
@@ -777,8 +792,11 @@ def _normalized_label(value: Any) -> str:
 
 
 def _runtime_canonical_label(value: Any) -> str:
-    """Normalize a canonical label exactly as the runtime identity does."""
-    return re.sub(r"\s+", " ", _string_value(value)).strip().lower()
+    """Normalize a canonical label exactly as the runtime identity does.
+
+    Delegates to :func:`schema_v2_identity.normalize_canonical_label`.
+    """
+    return _normalize_canonical_label_v2(value).lower()
 
 
 # Provider aliases used by the canonical-label provenance guard.  Must stay in
@@ -872,23 +890,21 @@ def _normalized_text_hash(value: Any) -> str:
 
 
 def _expected_fragment_provenance_id(fragment: dict[str, Any]) -> str:
-    """Recompute a source occurrence identifier from its public preimage."""
-    payload = "\x1f".join(
-        (
-            _string_value(fragment.get("run_id")),
-            _string_value(fragment.get("evidence_id")),
-            _string_value(fragment.get("source_retrieved_at_utc")),
-            _string_value(fragment.get("source_provider")),
-            _string_value(fragment.get("source_provider_id")).strip().lower(),
-            _string_value(fragment.get("source_query_id")),
-            re.sub(
-                r"\s+", " ", _string_value(fragment.get("source_query_text"))
-            )
-            .strip()
-            .lower(),
-        )
+    """Recompute a source occurrence identifier from its public preimage.
+
+    Delegates to :func:`schema_v2_identity.make_provenance_id`.
+    """
+    return _make_provenance_id_v2(
+        run_id=_string_value(fragment.get("run_id")),
+        evidence_id=_string_value(fragment.get("evidence_id")),
+        source_retrieved_at_utc=_string_value(
+            fragment.get("source_retrieved_at_utc")
+        ),
+        source_provider=_string_value(fragment.get("source_provider")),
+        source_provider_id=_string_value(fragment.get("source_provider_id")),
+        source_query_id=_string_value(fragment.get("source_query_id")),
+        source_query_text=_string_value(fragment.get("source_query_text")),
     )
-    return f"prov:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
 
 def _parse_utc_iso_datetime(value: Any) -> datetime | None:
@@ -911,57 +927,56 @@ def _parse_utc_iso_datetime(value: Any) -> datetime | None:
 
 
 def _expected_signal_id(signal: dict[str, Any]) -> str:
-    """Recompute the runtime's stable semantic-signal identity."""
-    matched_phrase = re.sub(
-        r"\s+", " ", _string_value(signal.get("matched_phrase"))
-    ).strip().lower()
-    payload = "\x1f".join(
-        (
-            _string_value(signal.get("evidence_id")),
-            _string_value(signal.get("signal_type")),
-            matched_phrase,
-            _string_value(signal.get("evidence_text_hash")),
-            _string_value(signal.get("classifier_version")),
-        )
+    """Recompute the runtime's stable semantic-signal identity.
+
+    Delegates to :func:`schema_v2_identity.make_signal_id`.
+    """
+    return _make_signal_id_v2(
+        evidence_id=_string_value(signal.get("evidence_id")),
+        signal_type=_string_value(signal.get("signal_type")),
+        matched_phrase=_string_value(signal.get("matched_phrase")),
+        evidence_text_hash=_string_value(signal.get("evidence_text_hash")),
+        classifier_version=_string_value(signal.get("classifier_version")),
     )
-    return f"signal:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
 
 def _expected_fragment_id(fragment: dict[str, Any], signal_id: str) -> str | None:
-    """Recompute the runtime's stable evidence-fragment identity."""
+    """Recompute the runtime's stable evidence-fragment identity.
+
+    Delegates to :func:`schema_v2_identity.make_fragment_id`.  Returns ``None``
+    when span offsets are not integers (pre-v2 rows without span data).
+    """
     span_start = fragment.get("span_start_offset")
     span_end = fragment.get("span_end_offset")
     if not isinstance(span_start, int) or not isinstance(span_end, int):
         return None
-    payload = "\x1f".join(
-        (
-            _string_value(fragment.get("evidence_id")),
-            signal_id,
-            _expected_fragment_provenance_id(fragment),
-            _string_value(fragment.get("source_field")),
-            str(span_start),
-            str(span_end),
-        )
+    return _make_fragment_id_v2(
+        evidence_id=_string_value(fragment.get("evidence_id")),
+        signal_id=signal_id,
+        provenance_id=_expected_fragment_provenance_id(fragment),
+        source_field=_string_value(fragment.get("source_field")),
+        span_start=span_start,
+        span_end=span_end,
     )
-    return f"fragment:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
 
 def _expected_candidate_id(candidate: dict[str, Any]) -> str:
-    """Recompute the runtime's stable competence-candidate identity."""
-    payload = "\x1f".join(
-        (
-            _string_value(candidate.get("signal_id")),
-            _string_value(candidate.get("evidence_id")),
-            "candidate",
-        )
+    """Recompute the runtime's stable competence-candidate identity.
+
+    Delegates to :func:`schema_v2_identity.make_candidate_id`.
+    """
+    return _make_candidate_id_v2(
+        signal_id=_string_value(candidate.get("signal_id")),
+        evidence_id=_string_value(candidate.get("evidence_id")),
     )
-    return f"candidate:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
 
 def _expected_canonical_competence_id(canonical: dict[str, Any]) -> str:
-    """Recompute the runtime canonical-competence identity from its label."""
-    label = _runtime_canonical_label(canonical.get("preferred_label"))
-    return f"canonical:{hashlib.sha256(label.encode('utf-8')).hexdigest()}"
+    """Recompute the runtime canonical-competence identity from its label.
+
+    Delegates to :func:`schema_v2_identity.make_canonical_competence_id`.
+    """
+    return _make_canonical_competence_id_v2(canonical.get("preferred_label"))
 
 
 def _validate_schema_v2_projection_and_lineage(
