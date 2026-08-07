@@ -64,6 +64,9 @@ MISSING_LABEL = "Not extracted"
 # Schema-v2 tables are materialized by the cumulative scientific database
 # builder.  Keep the list here so the research-data package carries the whole
 # review-gated construct-validity chain, rather than only its legacy views.
+# Note: "evidence_records" is the cumulative projection keyed by evidence_id;
+# it is copied as a supplementary file without schema validation because its
+# schema diverges from the legacy evidence_records.schema.json (record_pk PK).
 SCHEMA_V2_ENTITY_NAMES: tuple[str, ...] = (
     "evidence_fragments",
     "semantic_signals",
@@ -71,6 +74,9 @@ SCHEMA_V2_ENTITY_NAMES: tuple[str, ...] = (
     "canonical_competences",
     "sector_competence_assignments",
     "validation_decisions",
+)
+SCHEMA_V2_SUPPLEMENTARY_ENTITY_NAMES: tuple[str, ...] = (
+    "evidence_records",
 )
 SCHEMA_V2_SOURCE_DIRECTORY = "outputs/cumulative_database"
 SCHEMA_V2_SCHEMA_FILENAMES: tuple[str, ...] = tuple(
@@ -775,6 +781,88 @@ def _runtime_canonical_label(value: Any) -> str:
     return re.sub(r"\s+", " ", _string_value(value)).strip().lower()
 
 
+# Provider aliases used by the canonical-label provenance guard.  Must stay in
+# sync with _CANONICAL_LABEL_PROVIDER_ALIASES in build_live_cumulative_release_package.py.
+_CANONICAL_LABEL_PROVIDER_ALIASES: frozenset[str] = frozenset({
+    "crossref",
+    "cr",
+    "scopus",
+    "elsevier scopus",
+    "wos",
+    "web of science",
+    "web of science clarivate",
+    "web of science (clarivate)",
+    "web_of_science",
+    "web_of_science_clarivate",
+    "clarivate",
+    "clarivate wos",
+    "clarivate web of science",
+    "clarivate_web_of_science",
+    "scival",
+    "microsoft graph",
+    "microsoft_graph",
+    "google drive",
+    "google_drive",
+})
+
+
+def _normalize_title_for_label_guard(value: Any) -> str:
+    """Strip punctuation and collapse whitespace for title-overlap detection."""
+    raw = re.sub(r"\s+", " ", _string_value(value)).strip().lower()
+    return re.sub(r"[^\w\s]", "", raw).strip()
+
+
+def _canonical_label_guard_reason(
+    label: Any, retained_source_titles: tuple[str, ...] = ()
+) -> str:
+    """Return the rejection reason for a canonical label, or '' if it is valid.
+
+    Mirrors the guard in build_live_cumulative_release_package.py so that the
+    versioned-package validator enforces the same provenance rules.
+    """
+    token = re.sub(r"\s+", " ", _string_value(label)).strip()
+    if not token:
+        return "empty_label"
+    lowered = token.lower()
+    provider_token = re.sub(r"[_\s]+", " ", lowered).strip()
+    provider_aliases = {
+        re.sub(r"[_\s]+", " ", alias).strip()
+        for alias in _CANONICAL_LABEL_PROVIDER_ALIASES
+    }
+    if any(
+        provider_token == alias
+        or provider_token.startswith(f"{alias}:")
+        or provider_token.startswith(f"{alias} ")
+        for alias in provider_aliases
+    ):
+        return "provider_metadata_prefix"
+    if "..." in token or "\u2026" in token:
+        return "truncation_ellipsis"
+    if len(token) > 180:
+        return "length_over_180"
+    if token.count(" ") >= 8:
+        return "space_count_at_least_8"
+    metadata_match = re.search(
+        r"\b(doi|journal|conference|article|paper)\b", lowered
+    )
+    if metadata_match:
+        return f"metadata_term:{metadata_match.group(1)}"
+    normalized_label = _normalize_title_for_label_guard(token)
+    label_token_count = len(normalized_label.split())
+    for source_title in retained_source_titles:
+        normalized_title = _normalize_title_for_label_guard(source_title)
+        if not normalized_title or not normalized_label:
+            continue
+        if normalized_label == normalized_title:
+            return "source_title_exact"
+        if (
+            label_token_count >= 3
+            and f" {normalized_label} " in f" {normalized_title} "
+        ):
+            return "source_title_fragment"
+    return ""
+
+
 def _normalized_text_hash(value: Any) -> str:
     """Return the runtime-compatible hash for a retained text surface."""
     normalized = re.sub(r"\s+", " ", _string_value(value)).strip().lower()
@@ -1328,6 +1416,30 @@ def _validate_schema_v2_projection_and_lineage(
                 errors.append(
                     f"canonical_competences:lineage:{canonical_id}:canonical_label"
                 )
+            if (
+                _string_value(decision_row.get("decision_status")).strip()
+                == "accepted"
+            ):
+                retained_source_titles: tuple[str, ...] = ()
+                candidate_row = candidates_by_id.get((candidate_id,))
+                if candidate_row is not None:
+                    evidence_id = _string_value(
+                        candidate_row.get("evidence_id")
+                    ).strip()
+                    evidence_records_index = csv_index.get("evidence_records", {})
+                    evidence_record = evidence_records_index.get((evidence_id,))
+                    if evidence_record is not None:
+                        retained_source_titles = (
+                            _string_value(evidence_record.get("canonical_title")),
+                        )
+                guard_reason = _canonical_label_guard_reason(
+                    canonical.get("preferred_label"), retained_source_titles
+                )
+                if guard_reason:
+                    errors.append(
+                        f"canonical_competences:lineage:{canonical_id}:"
+                        f"canonical_label_guard:{guard_reason}"
+                    )
         if (candidate_id,) not in candidates_by_id:
             errors.append(
                 f"canonical_competences:lineage:{canonical_id}:missing_candidate:{candidate_id}"
@@ -2186,6 +2298,25 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
             schema_dir / f"{entity_name}.schema.json",
             package_dir / "schemas" / f"{entity_name}.schema.json",
         )
+
+    # Supplementary: copy the cumulative evidence_records projection (keyed by
+    # evidence_id) alongside the schema-v2 chain so consumers can resolve
+    # fragment/signal/candidate evidence_id references to their source record.
+    # This table uses a different primary key than the legacy evidence_records
+    # output, so it is packaged without schema validation.
+    for supp_entity in SCHEMA_V2_SUPPLEMENTARY_ENTITY_NAMES:
+        supp_csv = repo_root / SCHEMA_V2_SOURCE_DIRECTORY / f"{supp_entity}.csv"
+        supp_jsonl = repo_root / SCHEMA_V2_SOURCE_DIRECTORY / f"{supp_entity}.jsonl"
+        if supp_csv.exists():
+            shutil.copyfile(
+                supp_csv,
+                package_dir / "data" / "csv" / f"{supp_entity}.csv",
+            )
+        if supp_jsonl.exists():
+            shutil.copyfile(
+                supp_jsonl,
+                package_dir / "data" / "jsonl" / f"{supp_entity}.jsonl",
+            )
 
     variable_labels, value_labels = _load_variable_and_value_labels(schema_dir)
     variable_labels = _merge_label_rows(

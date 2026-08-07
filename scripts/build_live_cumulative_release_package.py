@@ -1380,6 +1380,26 @@ def _validate_schema_v2_foreign_keys(
                     f"{file_name}:L{line_number}:canonical_label_guard:"
                     f"{guard_reason}"
                 )
+            canonical_definition = _string_value(
+                canonical.get("canonical_definition")
+            )
+            if not canonical_definition:
+                errors.append(
+                    "schema_v2_lineage_mismatch:"
+                    f"{file_name}:L{line_number}:canonical_definition_empty"
+                )
+            elif linked_candidate is not None:
+                candidate_definition = _string_value(
+                    linked_candidate.get("candidate_definition")
+                )
+                if (
+                    candidate_definition
+                    and canonical_definition != candidate_definition
+                ):
+                    errors.append(
+                        "schema_v2_lineage_mismatch:"
+                        f"{file_name}:L{line_number}:canonical_definition"
+                    )
 
     for row_index, assignment in enumerate(
         entity_rows["sector_competence_assignments"], start=1
@@ -1399,6 +1419,37 @@ def _validate_schema_v2_foreign_keys(
                 errors.append(
                     "schema_v2_lineage_mismatch:"
                     f"{file_name}:L{line_number}:{field_name}_outer_whitespace"
+                )
+        canonical_competence_id_for_seed = _string_value(
+            assignment.get("canonical_competence_id")
+        ).strip()
+        validation_decision_id_for_seed = _string_value(
+            assignment.get("validation_decision_id")
+        ).strip()
+        sector_for_seed = _string_value(assignment.get("sector")).strip()
+        axis_group_for_seed = _string_value(assignment.get("axis_group")).strip()
+        axis_code_for_seed = _string_value(assignment.get("axis_code")).strip()
+        if (
+            canonical_competence_id_for_seed
+            and validation_decision_id_for_seed
+            and sector_for_seed
+            and axis_group_for_seed
+            and axis_code_for_seed
+        ):
+            seed = "\x1f".join((
+                canonical_competence_id_for_seed,
+                validation_decision_id_for_seed,
+                sector_for_seed,
+                axis_group_for_seed,
+                axis_code_for_seed,
+            ))
+            expected_assignment_id = (
+                "assignment:" + hashlib.sha256(seed.encode("utf-8")).hexdigest()
+            )
+            if _string_value(assignment.get("assignment_id")) != expected_assignment_id:
+                errors.append(
+                    "schema_v2_lineage_mismatch:"
+                    f"{file_name}:L{line_number}:assignment_id"
                 )
         linked_candidate = candidates.get(
             (_identifier(assignment.get("source_candidate_id")),)
@@ -1654,6 +1705,32 @@ def _validate_schema_v2_manifest_counts(
     return errors
 
 
+_DEMAND_NUMERIC_FIELDS = frozenset((
+    "demand_strength_score",
+    "evidence_record_count",
+    "unique_doi_count",
+    "record_occurrence_count",
+    "provider_count",
+    "provider_diversity_score",
+    "query_count",
+    "query_diversity_score",
+    "temporal_recency_score",
+    "cross_sector_recurrence_score",
+    "semantic_confidence_mean",
+))
+
+
+def _normalize_demand_field(field_name: str, value: Any) -> str:
+    """Return a normalized string representation for derived-demand field comparison."""
+    raw = _string_value(value).strip()
+    if field_name in _DEMAND_NUMERIC_FIELDS:
+        try:
+            return f"{float(raw):.10g}"
+        except (ValueError, TypeError):
+            return raw
+    return raw
+
+
 def _validate_legacy_derived_demand_metadata(
     csv_rows: List[Dict[str, Any]],
     jsonl_rows: List[Dict[str, Any]],
@@ -1663,10 +1740,8 @@ def _validate_legacy_derived_demand_metadata(
 
     def metadata_by_demand(
         rows: List[Dict[str, Any]], file_name: str, row_start: int = 1
-    ) -> Dict[str, Tuple[str, str, Tuple[str, ...], Tuple[str, ...]]]:
-        metadata: Dict[
-            str, Tuple[str, str, Tuple[str, ...], Tuple[str, ...]]
-        ] = {}
+    ) -> Dict[str, Tuple[Any, ...]]:
+        metadata: Dict[str, Tuple[Any, ...]] = {}
         for row_index, row in enumerate(rows, start=row_start):
             demand_id = _identifier(row.get("competence_demand_id"))
             if not demand_id:
@@ -1690,6 +1765,17 @@ def _validate_legacy_derived_demand_metadata(
                 tuple(
                     _identifier(row.get(field_name))
                     for field_name in DERIVED_CANONICAL_LINEAGE_FIELDS
+                ),
+                tuple(
+                    sorted(
+                        (field_name, _normalize_demand_field(field_name, row.get(field_name)))
+                        for field_name in row
+                        if field_name
+                        and field_name != "competence_demand_id"
+                        and field_name not in ("view_kind", "scientific_status", "evidence_ids")
+                        and field_name not in DERIVED_CANONICAL_LINEAGE_FIELDS
+                        and _string_value(row.get(field_name)).strip()
+                    )
                 ),
             )
             if not values[0] or not values[1]:

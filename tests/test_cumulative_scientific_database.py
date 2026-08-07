@@ -2873,6 +2873,7 @@ def test_superseded_decision_suppresses_canonical_promotion(
         "doi": "10.1000/superseded-decision",
         "provider": "Crossref",
         "source_query": BOUND_QUERY_TEXT,
+        "retrieval_timestamp": FROZEN_TS,
     }
     _write_current_run(current, [record])
     initial = build_cumulative_scientific_database(
@@ -2884,12 +2885,13 @@ def test_superseded_decision_suppresses_canonical_promotion(
     )
     candidate_id = initial.competence_candidates[0].candidate_id
 
+    superseding_ts = "2026-07-10T00:00:00+00:00"
     result = build_cumulative_scientific_database(
         current_run_dir=current,
         output_dir=tmp_path / "superseded",
         protocol_path=PROTOCOL_PATH,
         current_run_id="R1",
-        built_at_utc=FROZEN_TS,
+        built_at_utc=superseding_ts,
         validation_decisions=[
             {
                 "validation_decision_id": "decision:accepted",
@@ -2908,7 +2910,7 @@ def test_superseded_decision_suppresses_canonical_promotion(
                 "canonical_label": "",
                 "decision_status": "review_required",
                 "reviewer": "reviewer-fixture-002",
-                "decision_at_utc": "2026-07-10T00:00:00+00:00",
+                "decision_at_utc": superseding_ts,
                 "decision_reason": "Further evidence review is required.",
                 "superseded_validation_decision_id": "decision:accepted",
             },
@@ -2918,6 +2920,56 @@ def test_superseded_decision_suppresses_canonical_promotion(
     assert len(result.validation_decisions) == 2
     assert result.canonical_competences == []
     assert result.sector_competence_assignments == []
+
+
+def test_validation_decision_after_bundle_build_is_rejected(
+    tmp_path: Path,
+) -> None:
+    """decision_at_utc after built_at_utc must raise CumulativeDatabaseError."""
+    current = tmp_path / "current"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance evidence for temporal guard",
+                "doi": "10.1000/future-decision",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    candidate_id = initial.competence_candidates[0].candidate_id
+
+    with pytest.raises(
+        CumulativeDatabaseError,
+        match="after bundle built_at_utc",
+    ):
+        build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "future-decision",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+            validation_decisions=[
+                {
+                    "validation_decision_id": "decision:future",
+                    "target_candidate_id": candidate_id,
+                    **_decision_snapshot(initial, candidate_id),
+                    "canonical_label": "Governance capability",
+                    "decision_status": "accepted",
+                    "reviewer": "reviewer-fixture-001",
+                    "decision_at_utc": "2099-01-01T00:00:00+00:00",
+                    "decision_reason": "Decision from the far future.",
+                },
+            ],
+        )
 
 
 def test_validation_decisions_require_strictly_later_supersession(

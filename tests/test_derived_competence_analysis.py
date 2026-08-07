@@ -102,9 +102,9 @@ def _accepted_canonical_lineage_rows() -> Dict[str, List[Dict[str, Any]]]:
         canonical_label.lower().encode("utf-8")
     ).hexdigest()
     evidence_id = "E-0001"
-    fragment_id = "fragment:hydrosocial:001"
+    fragment_id = "fragment:9cb8e123711f6dd1708535ccdc0a9d693470917fc49c3d73821b31b903eb9b32"
     signal_id = "signal:hydrosocial:001"
-    candidate_id = "candidate:hydrosocial:001"
+    candidate_id = "candidate:1dfeccb6cfa3e424affb1a2f558f5dd9f74f41f555ecaa8fc624518d59590302"
     decision_id = "decision:hydrosocial:001"
     assignment_id = "assignment:hydrosocial:001"
     provenance_id = "provenance:hydrosocial:001"
@@ -245,7 +245,9 @@ def test_layer4_emits_only_complete_accepted_canonical_lineage(
         "canonical_competence_id"
     ]
     assert demand.validation_decision_ids == "decision:hydrosocial:001"
-    assert demand.source_candidate_ids == "candidate:hydrosocial:001"
+    assert demand.source_candidate_ids == (
+        "candidate:1dfeccb6cfa3e424affb1a2f558f5dd9f74f41f555ecaa8fc624518d59590302"
+    )
     assert demand.assignment_ids == "assignment:hydrosocial:001"
     assert demand.manual_review_status == "manually_reviewed"
 
@@ -281,14 +283,15 @@ def test_layer4_rejects_incomplete_or_noncanonical_accepted_lineage(
     elif mutation == "missing_canonical":
         rows["canonical_competences"] = []
     elif mutation == "phantom_fragment":
+        phantom_frag_id = "fragment:" + "f" * 64
         rows["competence_candidates"][0].update(
             {
-                "fragment_id": "fragment:phantom:001",
-                "fragment_ids": "fragment:phantom:001",
+                "fragment_id": phantom_frag_id,
+                "fragment_ids": phantom_frag_id,
             }
         )
-        rows["semantic_signals"][0]["fragment_id"] = "fragment:phantom:001"
-        decision["fragment_ids"] = "fragment:phantom:001"
+        rows["semantic_signals"][0]["fragment_id"] = phantom_frag_id
+        decision["fragment_ids"] = phantom_frag_id
     elif mutation == "padded_identifier":
         decision["validation_decision_id"] = " decision:hydrosocial:001 "
         canonical["validation_decision_id"] = " decision:hydrosocial:001 "

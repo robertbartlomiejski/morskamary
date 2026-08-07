@@ -158,7 +158,7 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
         _PACKAGE._expected_canonical_competence_id(canonical)
     )
     assignment: dict[str, object] = {
-        "assignment_id": "assignment:fixture",
+        "assignment_id": "",
         "canonical_competence_id": canonical["canonical_competence_id"],
         "validation_decision_id": decision["validation_decision_id"],
         "source_candidate_id": candidate["candidate_id"],
@@ -167,6 +167,16 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
         "axis_code": "M",
         "evidence_ids": "E-0001",
     }
+    _seed = "\x1f".join([
+        str(assignment["canonical_competence_id"]),
+        str(assignment["validation_decision_id"]),
+        str(assignment["sector"]),
+        str(assignment["axis_group"]),
+        str(assignment["axis_code"]),
+    ])
+    assignment["assignment_id"] = (
+        "assignment:" + hashlib.sha256(_seed.encode("utf-8")).hexdigest()
+    )
     return {
         "evidence_fragments": fragment,
         "semantic_signals": signal,

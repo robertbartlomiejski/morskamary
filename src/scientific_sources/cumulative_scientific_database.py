@@ -1473,6 +1473,27 @@ def _has_negation_or_speculation_cue(
     ]
     clause_end = min(following_delimiters) if following_delimiters else len(source_text)
     clause = source_text[clause_start:clause_end]
+    # Narrow further: split on adversative/concessive conjunctions and keep only
+    # the sub-clause that contains the matched span (relative offset within clause).
+    _ADVERSATIVE_SPLIT_RE = re.compile(
+        r"\s+(?:but|however|although|though|yet|whereas|while|nevertheless|"
+        r"nonetheless|even so|even though)\s+",
+        flags=re.IGNORECASE,
+    )
+    match_offset = span_start - clause_start
+    segments = _ADVERSATIVE_SPLIT_RE.split(clause)
+    running = 0
+    for segment in segments:
+        if running <= match_offset < running + len(segment):
+            clause = segment
+            break
+        # account for the separator (consumed by split, not in segment)
+        separator_match = _ADVERSATIVE_SPLIT_RE.search(
+            source_text[clause_start:clause_end], running + len(segment)
+        )
+        running += len(segment) + (
+            len(separator_match.group()) if separator_match else 0
+        )
     return bool(
         _NEGATION_CUE_RE.search(clause) or _SPECULATION_CUE_RE.search(clause)
     )
@@ -2735,7 +2756,16 @@ def _build_validation_decisions(
     payloads: Sequence[Mapping[str, Any]],
     built_at_utc: str,
 ) -> List[ValidationDecision]:
-    del built_at_utc
+    try:
+        parsed_built_at = datetime.fromisoformat(
+            _require_utc_timestamp(built_at_utc, field_name="built_at_utc").replace(
+                "Z", "+00:00"
+            )
+        )
+    except CumulativeDatabaseError as exc:
+        raise CumulativeDatabaseError(
+            "invalid built_at_utc; require an ISO-8601 UTC timestamp"
+        ) from exc
     decisions: List[ValidationDecision] = []
     decision_ids: Set[str] = set()
     allowed_statuses = {"accepted", "rejected", "review_required", "superseded"}
@@ -2782,6 +2812,11 @@ def _build_validation_decisions(
         parsed_decision_at = datetime.fromisoformat(
             decision_at.replace("Z", "+00:00")
         )
+        if parsed_decision_at > parsed_built_at:
+            raise CumulativeDatabaseError(
+                f"validation decision {payload.get('target_candidate_id', '<unknown>')!r} "
+                f"has decision_at_utc ({decision_at}) after bundle built_at_utc"
+            )
         decision_reason = str(payload.get("decision_reason") or "").strip()
         if not decision_reason:
             raise CumulativeDatabaseError(
@@ -3075,7 +3110,7 @@ def _build_sector_competence_assignments(
         contexts: Dict[Tuple[str, str, str], SemanticSignal] = {}
         for fragment_id in sorted(
             fragment_id
-            for fragment_id in candidate.fragment_ids.split("|")
+            for fragment_id in decision.fragment_ids.split("|")
             if fragment_id
         ):
             signal = semantic_by_fragment.get((candidate.signal_id, fragment_id))

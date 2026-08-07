@@ -75,6 +75,16 @@ VALIDATED_CANONICAL_DEMAND_SCIENTIFIC_STATUS = "validated_canonical_competence"
 _LINEAGE_REVIEWER_IDENTIFIER_RE = re.compile(
     r"[A-Za-z0-9][A-Za-z0-9._-]{2,127}"
 )
+# Deterministic identity pattern: schema-v2 IDs use a typed-prefix + 64-char
+# lowercase hex sha256 digest (e.g. "candidate:abc123...", "fragment:def456...").
+# Empty strings, provider-prefixed labels, truncated tokens, or other formats
+# indicate a corrupted or forged lineage chain.
+# Further hardening (recomputing the full deterministic hash from field content)
+# is deferred because it requires importing/mirroring helpers from
+# cumulative_scientific_database.py, which would risk regressions.
+_LINEAGE_HEX_ID_RE = re.compile(
+    r"^[A-Za-z][A-Za-z0-9_-]*:[0-9a-f]{64}$"
+)
 _LINEAGE_UTC_TIMESTAMP_RE = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}"
     r"(?::\d{2}(?:\.\d+)?)?(?:Z|\+00:00)$"
@@ -876,6 +886,17 @@ def build_layer5(
         # items.  Do not let it produce coverage for a cell without validated
         # canonical demand lineage.
         covered = min(int(coverage_map.get((sector, axis), 0)), validated)
+        # When existing_credential_coverage is absent (production CLI default),
+        # fall back to validated_credential_supply to count canonical demands
+        # that have at least one validated EQF level.  This prevents canonical
+        # demands from always showing covered=0 when the supply map is provided.
+        if coverage_map.get((sector, axis)) is None and validated_credential_supply is not None:
+            supply_covered = sum(
+                1
+                for demand in validated_demands
+                if validated_credential_supply.get(demand.competence_demand_id)
+            )
+            covered = min(supply_covered, validated)
         baseline_val = int(baseline_map.get(sector, 0))
         uncovered = max(0, validated - covered)
         gap_ratio = round(uncovered / max(1, validated), 6)
@@ -1873,6 +1894,34 @@ def _build_accepted_canonical_lineage_demands(
         table_name="sector_competence_assignments",
     )
 
+    # Guard: candidate_id and fragment_id values must be non-empty
+    # typed-prefix hex-hash strings (e.g. "candidate:<64-hex>" /
+    # "fragment:<64-hex>").  Empty strings, bare labels, provider-prefixed
+    # tokens, or truncated values indicate a corrupted or forged chain and are
+    # rejected before any cross-table resolution begins.
+    # Note: recomputing the full deterministic hash from field content is
+    # deferred — that requires mirroring helpers from
+    # cumulative_scientific_database.py and carries regression risk.
+    for candidate_id, candidate in candidates_by_id.items():
+        if not _LINEAGE_HEX_ID_RE.fullmatch(candidate_id):
+            raise DerivedAnalysisError(
+                "accepted canonical lineage candidate_id is not a valid "
+                f"typed-prefix hex-hash identity: {candidate_id!r}"
+            )
+        for fragment_id in _split_list(candidate.get("fragment_ids")):
+            if not _LINEAGE_HEX_ID_RE.fullmatch(fragment_id):
+                raise DerivedAnalysisError(
+                    "accepted canonical lineage candidate contains a "
+                    "fragment_id that is not a valid typed-prefix hex-hash "
+                    f"identity: {fragment_id!r} (candidate: {candidate_id})"
+                )
+    for fragment_id in fragments_by_id:
+        if not _LINEAGE_HEX_ID_RE.fullmatch(fragment_id):
+            raise DerivedAnalysisError(
+                "accepted canonical lineage fragment_id is not a valid "
+                f"typed-prefix hex-hash identity: {fragment_id!r}"
+            )
+
     signal_by_key: Dict[Tuple[str, str], Mapping[str, Any]] = {}
     for signal in signal_rows:
         signal_key = (
@@ -2189,7 +2238,15 @@ def _build_accepted_canonical_lineage_demands(
                 "accepted canonical lineage assignment references missing "
                 f"evidence: {assignment_id}"
             )
-        candidate_fragment_ids = set(_split_list(candidate.get("fragment_ids")))
+        # Use the immutable reviewed fragment snapshot from the decision row
+        # rather than the current live candidate.fragment_ids.  The decision
+        # snapshot was validated at review time and must gate which context
+        # signals are eligible for metrics; reading the candidate's current
+        # fragment_ids could include post-review additions.
+        reviewed_decision = decisions_by_id[decision_id]
+        candidate_fragment_ids = set(
+            _split_list(reviewed_decision.get("fragment_ids"))
+        )
         selected_context_signals = [
             signal
             for (signal_id, fragment_id), signal in signal_by_key.items()

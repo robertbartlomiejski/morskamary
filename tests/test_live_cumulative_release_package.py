@@ -331,6 +331,16 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
             "axis_code": "M",
             "evidence_ids": "E-0001",
     }
+    _seed = "\x1f".join((
+        str(canonical_competence["canonical_competence_id"]),
+        "decision:test",
+        "ports",
+        "MARINE",
+        "M",
+    ))
+    assignment["assignment_id"] = (
+        "assignment:" + hashlib.sha256(_seed.encode("utf-8")).hexdigest()
+    )
     return {
         "evidence_fragments": fragment,
         "semantic_signals": semantic_signal,

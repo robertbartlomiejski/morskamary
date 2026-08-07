@@ -1,19 +1,13 @@
 {
   "statuses": [
     {
-      "provider": "crossref",
-      "status": "ok",
-      "detail": "request succeeded",
-      "http_status": 200
-    },
-    {
-      "provider": "scopus",
-      "status": "ok",
-      "detail": "request succeeded",
-      "http_status": 200
+      "provider": "wos",
+      "status": "missing",
+      "detail": "WOS_API_KEY not set",
+      "http_status": null
     }
   ],
   "summary": {
-    "ok": 2
+    "ok": 0
   }
 }
