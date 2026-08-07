@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-08-07 (add: schema-v2 offline bundle preflight)
+  Change type add fix update
+  Scope scripts tests governance
+  Files affected .github/workflows/ci.yml docs/LIVE_CUMULATIVE_SCIENTIFIC_DATABASE.md scripts/build_versioned_research_data_package.py scripts/validate_csv_bundle.py tests/test_validate_csv_bundle.py CHANGELOG.txt MANIFEST_SOURCES.csv
+  Summary Adds a repository-owned, fail-closed schema-v2 bundle CLI and a non-live PR check that proves a fully linked fixture passes while a deliberately corrupted fixture fails. It reuses the release builder's current Draft-2020-12, lineage, identity, projection-parity, finite-number, and manifest-count contracts rather than copying the stale appendix validator. The remaining ambiguous one-letter label iterator is renamed without changing generated labels.
+  Reason The supplied validation appendices describe a useful reproducible pre-merge integration gate, but their external CSV-only implementation accepts weaker and obsolete contracts. The sole remaining PR #245 tooling thread also identifies ambiguous iterator names despite the configured Flake8 command already passing.
+  Impact Offline bundle validation becomes directly runnable without release publication or live acquisition. Zero-byte CSV files remain rejected because a required schema header must be retained; no scientific output, archive, provider configuration, or legacy compatibility projection changes.
+  Provenance Issue #218; PR #245 appendix reconciliation; `.github/copilot-instructions.md`; `docs/AGENT_WORKING_AGREEMENT.md`; `config/live_query_protocol.yml`; supplied validation/workflow appendices.
+  Quality checks Focused lint, mypy, and pytest validation are run before the PR update; the required repository suite and governance checks are recorded with the final PR evidence.
+
 - 2026-08-07 (fix: reconcile schema-v2 publication blockers for PR #245)
   Change type fix update
   Scope scripts src tests governance

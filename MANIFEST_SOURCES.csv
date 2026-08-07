@@ -1091,6 +1091,7 @@ scripts/run_research_api_full.sh,script,,,,,,run_research_api_full,no
 scripts/smoke_scientific_bridge.py,script,,,,,,smoke_scientific_bridge,yes
 scripts/sync_audit.py,script,,,,,,sync_audit,yes
 scripts/Tripatle Blue Value Model WOW.txt,script,,,,,,Tripatle_Blue_Value_Model_WOW,yes
+scripts/validate_csv_bundle.py,script,,,,,,validate_csv_bundle,yes
 scripts/validate_generated_outputs.py,script,,,,,,validate_generated_outputs,yes
 scripts/validate_manual_sources_gatekeeper.py,script,,,,,,validate_manual_sources_gatekeeper,yes
 scripts/validate_research_source_outputs.py,script,,,,,,validate_research_source_outputs,yes
@@ -1206,6 +1207,7 @@ tests/test_script_cli.py,script,,,,,,test_script_cli,yes
 tests/test_smoke_scientific_bridge.py,script,,,,,,test_smoke_scientific_bridge,yes
 tests/test_stage2_schema.py,script,,,,,,test_stage2_schema,yes
 tests/test_sync_audit.py,script,,,,,,test_sync_audit,yes
+tests/test_validate_csv_bundle.py,script,,,,,,test_validate_csv_bundle,yes
 tests/test_validate_generated_outputs.py,script,,,,,,test_validate_generated_outputs,yes
 tests/test_validate_manual_sources_gatekeeper.py,script,,,,,,test_validate_manual_sources_gatekeeper,yes
 tests/test_validate_run_archive_integrity.py,script,,,,,,test_validate_run_archive_integrity,yes

@@ -382,6 +382,26 @@ the run to the current run only, absent `--live-runs-root` disables Layer 1
 protocol binding, and absent `--query-protocol` disables Layer 0 fallback
 binding.
 
+### Offline schema-v2 bundle preflight
+
+Before a bundle is handed to the full release-package builder, maintainers can
+run the non-publication preflight locally:
+
+```bash
+python scripts/validate_csv_bundle.py \
+  --bundle-dir outputs/cumulative_database
+```
+
+The command validates `evidence_records` and all six schema-v2 entities in
+both CSV and JSONL form. It reuses the release builder's Draft-2020-12 schema,
+required-field, finite-number, deterministic-ID, lineage, immutable-decision,
+cross-projection, and manifest-count checks. It does not call providers,
+create a release, or modify the bundle. A CSV table with no records must still
+retain its header; zero-byte CSV files fail because they cannot be validated
+against the required field contract. A legacy bundle that predates the six
+schema-v2 files is intentionally rejected rather than silently treated as a
+valid construct-validity export.
+
 ## Workflow integration
 
 The builder is invoked in `.github/workflows/full-live-analysis.yml`

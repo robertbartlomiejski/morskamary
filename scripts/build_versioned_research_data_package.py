@@ -602,22 +602,40 @@ _SCHEMA_V2_VALUE_LABELS: list[dict[str, str]] = (
     + [_v2vl(_EF, "source_field", "abstract", "Abstract field")]
     + [_v2vl(_EF, "source_field", "full_text", "Full text field")]
     # semantic_signals
-    + [_v2vl(_SS, "axis_group", c, l) for c, l in _AXIS_GROUP_LABELS]
+    + [
+        _v2vl(_SS, "axis_group", code, label)
+        for code, label in _AXIS_GROUP_LABELS
+    ]
     + [_v2vl(_SS, "axis_group", "", "Unbound / not assigned")]
-    + [_v2vl(_SS, "axis_code", c, l) for c, l in _AXIS_CODE_LABELS]
+    + [
+        _v2vl(_SS, "axis_code", code, label)
+        for code, label in _AXIS_CODE_LABELS
+    ]
     + [_v2vl(_SS, "axis_code", "", "Unbound / not assigned")]
     + [_v2vl(_SS, "negation_status", "not_detected", "Negation not detected in text span")]
     + [_v2vl(_SS, "negation_status", "not_assessed", "Negation assessment not run")]
     + [_v2vl(_SS, "speculation_status", "not_detected", "Speculation not detected in text span")]
     + [_v2vl(_SS, "speculation_status", "not_assessed", "Speculation assessment not run")]
-    + [_v2vl(_SS, "manual_review_status", c, l) for c, l in _REVIEW_STATUS_LABELS]
+    + [
+        _v2vl(_SS, "manual_review_status", code, label)
+        for code, label in _REVIEW_STATUS_LABELS
+    ]
     # competence_candidates
-    + [_v2vl(_CC, "axis_group", c, l) for c, l in _AXIS_GROUP_LABELS]
+    + [
+        _v2vl(_CC, "axis_group", code, label)
+        for code, label in _AXIS_GROUP_LABELS
+    ]
     + [_v2vl(_CC, "axis_group", "", "Unbound / not assigned")]
-    + [_v2vl(_CC, "axis_code", c, l) for c, l in _AXIS_CODE_LABELS]
+    + [
+        _v2vl(_CC, "axis_code", code, label)
+        for code, label in _AXIS_CODE_LABELS
+    ]
     + [_v2vl(_CC, "axis_code", "", "Unbound / not assigned")]
     + [_v2vl(_CC, "candidate_status", "candidate", "Proposed competence candidate awaiting validation")]
-    + [_v2vl(_CC, "review_status", c, l) for c, l in _REVIEW_STATUS_LABELS]
+    + [
+        _v2vl(_CC, "review_status", code, label)
+        for code, label in _REVIEW_STATUS_LABELS
+    ]
     # validation_decisions
     + [_v2vl(_VD, "decision_status", "accepted", "Candidate accepted and promoted to canonical competence")]
     + [_v2vl(_VD, "decision_status", "rejected", "Candidate rejected; not promoted")]
@@ -627,8 +645,14 @@ _SCHEMA_V2_VALUE_LABELS: list[dict[str, str]] = (
     + [_v2vl(_CN, "validation_status", "accepted", "Canonical competence accepted via validated decision")]
     + [_v2vl(_CN, "provenance_guard_status", "passed", "Canonical-label provenance guard passed")]
     # sector_competence_assignments
-    + [_v2vl(_SA, "axis_group", c, l) for c, l in _AXIS_GROUP_LABELS]
-    + [_v2vl(_SA, "axis_code", c, l) for c, l in _AXIS_CODE_LABELS]
+    + [
+        _v2vl(_SA, "axis_group", code, label)
+        for code, label in _AXIS_GROUP_LABELS
+    ]
+    + [
+        _v2vl(_SA, "axis_code", code, label)
+        for code, label in _AXIS_CODE_LABELS
+    ]
 )
 
 
