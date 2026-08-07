@@ -1945,12 +1945,13 @@ def _build_accepted_canonical_lineage_demands(
     for decision in active_accepted_decisions:
         decision_id = _lineage_row_id(decision, "validation_decision_id")
         candidate_id = _lineage_row_id(decision, "target_candidate_id")
-        candidate = candidates_by_id.get(candidate_id)
-        if candidate is None:
+        _cand_lookup: Optional[Mapping[str, Any]] = candidates_by_id.get(candidate_id)
+        if _cand_lookup is None:
             raise DerivedAnalysisError(
                 "accepted canonical lineage decision references a missing "
                 f"candidate: {decision_id}"
             )
+        candidate = _cand_lookup
         candidate_evidence_id = _lineage_row_id(candidate, "evidence_id")
         candidate_signal_id = _lineage_row_id(candidate, "signal_id")
         candidate_fragment_tokens = _split_list(candidate.get("fragment_ids"))
@@ -2185,7 +2186,7 @@ def _build_accepted_canonical_lineage_demands(
         axis_code = _lineage_row_id(assignment, "axis_code").upper()
         assigned_canonical = canonicals_by_id.get(canonical_id)
         linked_decision = decisions_by_id.get(decision_id)
-        candidate = candidates_by_id.get(candidate_id)
+        _cand_lookup2: Optional[Mapping[str, Any]] = candidates_by_id.get(candidate_id)
         if not all((assignment_id, canonical_id, decision_id, candidate_id, sector)):
             raise DerivedAnalysisError(
                 "accepted canonical lineage assignment is missing a required "
@@ -2194,12 +2195,13 @@ def _build_accepted_canonical_lineage_demands(
         if (
             assigned_canonical is None
             or linked_decision is None
-            or candidate is None
+            or _cand_lookup2 is None
         ):
             raise DerivedAnalysisError(
                 "accepted canonical lineage assignment has an unresolved "
                 f"foreign key: {assignment_id}"
             )
+        candidate = _cand_lookup2
         if (
             decision_id in inactive_decision_ids
             or _lineage_row_id(linked_decision, "decision_status") != "accepted"
