@@ -2906,6 +2906,22 @@ def _build_validation_decisions(
             raise CumulativeDatabaseError(
                 "superseded validation decision must target the same candidate"
             )
+    _assert_acyclic_validation_decision_supersession_graph(decisions_by_id)
+    for decision in decisions:
+        superseded_id = decision.superseded_validation_decision_id
+        if not superseded_id:
+            continue
+        superseded_decision = decisions_by_id[superseded_id]
+        superseding_at = datetime.fromisoformat(
+            decision.decision_at_utc.replace("Z", "+00:00")
+        )
+        superseded_at = datetime.fromisoformat(
+            superseded_decision.decision_at_utc.replace("Z", "+00:00")
+        )
+        if superseding_at <= superseded_at:
+            raise CumulativeDatabaseError(
+                "superseding validation decision must be chronologically later"
+            )
     decisions.sort(key=lambda row: row.validation_decision_id)
     return decisions
 
@@ -2932,14 +2948,11 @@ def _normalize_decision_snapshot_references(
     return "|".join(sorted(references))
 
 
-def _active_validation_decisions(
-    validation_decisions: Sequence[ValidationDecision],
-) -> List[ValidationDecision]:
-    """Return decisions not superseded by a later ledger entry."""
-    decisions_by_id = {
-        decision.validation_decision_id: decision for decision in validation_decisions
-    }
-    for decision in validation_decisions:
+def _assert_acyclic_validation_decision_supersession_graph(
+    decisions_by_id: Mapping[str, ValidationDecision],
+) -> None:
+    """Reject cyclic validation-decision supersession references."""
+    for decision in decisions_by_id.values():
         path_ids: Set[str] = set()
         current: Optional[ValidationDecision] = decision
         while current is not None:
@@ -2954,6 +2967,16 @@ def _active_validation_decisions(
                 current = None
                 continue
             current = decisions_by_id.get(superseded_id)
+
+
+def _active_validation_decisions(
+    validation_decisions: Sequence[ValidationDecision],
+) -> List[ValidationDecision]:
+    """Return decisions not superseded by a later ledger entry."""
+    decisions_by_id = {
+        decision.validation_decision_id: decision for decision in validation_decisions
+    }
+    _assert_acyclic_validation_decision_supersession_graph(decisions_by_id)
     superseded_ids = {
         decision.superseded_validation_decision_id
         for decision in validation_decisions

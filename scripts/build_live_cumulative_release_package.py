@@ -166,6 +166,16 @@ LEGACY_DERIVED_DEMAND_VIEW_KIND = "legacy_category_aggregate_compatibility_view"
 LEGACY_DERIVED_DEMAND_SCIENTIFIC_STATUS = (
     "legacy_not_validated_canonical_competence"
 )
+ACCEPTED_CANONICAL_LINEAGE_VIEW_KIND = "accepted_canonical_lineage_view"
+VALIDATED_CANONICAL_DEMAND_SCIENTIFIC_STATUS = (
+    "validated_canonical_competence"
+)
+DERIVED_CANONICAL_LINEAGE_FIELDS = (
+    "canonical_competence_id",
+    "validation_decision_ids",
+    "source_candidate_ids",
+    "assignment_ids",
+)
 
 # Required minimum columns per CSV file.
 CSV_REQUIRED_COLUMNS: Dict[str, Tuple[str, ...]] = {
@@ -600,6 +610,11 @@ def _string_value(value: Any) -> str:
     return "" if value is None else str(value)
 
 
+def _runtime_canonical_label(value: Any) -> str:
+    """Normalize a canonical label exactly as the runtime identity does."""
+    return re.sub(r"\s+", " ", _string_value(value)).strip().lower()
+
+
 def _normalized_text_hash(value: Any) -> str:
     """Return the runtime-compatible SHA-256 for a retained text surface."""
     normalized = re.sub(r"\s+", " ", _string_value(value)).strip().lower()
@@ -672,6 +687,14 @@ def _expected_candidate_id(candidate: Dict[str, Any]) -> str:
         )
     )
     return "candidate:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _expected_canonical_competence_id(canonical: Dict[str, Any]) -> str:
+    """Recreate the runtime canonical-competence identity from its label."""
+    label = _runtime_canonical_label(canonical.get("preferred_label"))
+    return "canonical:" + hashlib.sha256(
+        label.encode("utf-8")
+    ).hexdigest()
 
 
 def _parse_integer(value: Any) -> Optional[int]:
@@ -936,6 +959,23 @@ def _validate_schema_v2_foreign_keys(
                 f"{file_name}:L{line_number}:"
                 "superseded_validation_decision_target_candidate"
             )
+        if superseded_decision is not None:
+            superseding_at = _parse_utc_iso_datetime(
+                decision.get("decision_at_utc")
+            )
+            superseded_at = _parse_utc_iso_datetime(
+                superseded_decision.get("decision_at_utc")
+            )
+            if (
+                superseding_at is not None
+                and superseded_at is not None
+                and superseding_at <= superseded_at
+            ):
+                errors.append(
+                    "schema_v2_lineage_mismatch:"
+                    f"{file_name}:L{line_number}:"
+                    "superseding_validation_decision_not_later"
+                )
     supersession_by_decision_id = {
         _identifier(decision.get("validation_decision_id")): _identifier(
             decision.get("superseded_validation_decision_id")
@@ -1285,6 +1325,13 @@ def _validate_schema_v2_foreign_keys(
         line_number = _row_line_number(
             file_name, row_index, line_numbers_by_file
         )
+        if _string_value(
+            canonical.get("canonical_competence_id")
+        ) != _expected_canonical_competence_id(canonical):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:canonical_competence_id"
+            )
         linked_decision = decisions.get(
             (_identifier(canonical.get("validation_decision_id")),)
         )
@@ -1304,7 +1351,7 @@ def _validate_schema_v2_foreign_keys(
                 "schema_v2_lineage_mismatch:"
                 f"{file_name}:L{line_number}:validation_decision_id"
             )
-        if _normalized_label(canonical.get("preferred_label")) != _normalized_label(
+        if _runtime_canonical_label(canonical.get("preferred_label")) != _runtime_canonical_label(
             linked_decision.get("canonical_label")
         ):
             errors.append(
@@ -1341,6 +1388,18 @@ def _validate_schema_v2_foreign_keys(
         line_number = _row_line_number(
             file_name, row_index, line_numbers_by_file
         )
+        for field_name in (
+            "assignment_id",
+            "canonical_competence_id",
+            "validation_decision_id",
+            "source_candidate_id",
+        ):
+            retained_value = _string_value(assignment.get(field_name))
+            if retained_value != retained_value.strip():
+                errors.append(
+                    "schema_v2_lineage_mismatch:"
+                    f"{file_name}:L{line_number}:{field_name}_outer_whitespace"
+                )
         linked_candidate = candidates.get(
             (_identifier(assignment.get("source_candidate_id")),)
         )
@@ -1365,8 +1424,8 @@ def _validate_schema_v2_foreign_keys(
                 f"{file_name}:L{line_number}:validation_decision_id"
             )
         if linked_decision is not None and linked_canonical is not None and (
-            _normalized_label(linked_canonical.get("preferred_label"))
-            != _normalized_label(linked_decision.get("canonical_label"))
+            _runtime_canonical_label(linked_canonical.get("preferred_label"))
+            != _runtime_canonical_label(linked_decision.get("canonical_label"))
         ):
             errors.append(
                 "schema_v2_lineage_mismatch:"
@@ -1374,11 +1433,20 @@ def _validate_schema_v2_foreign_keys(
             )
         if linked_candidate is None:
             continue
+        assignment_evidence_raw = _string_value(
+            assignment.get("evidence_ids")
+        )
         assignment_evidence_ids = set(
-            _split_references(assignment.get("evidence_ids"))
+            _split_references(assignment_evidence_raw)
         )
         expected_evidence_ids = {_identifier(linked_candidate.get("evidence_id"))}
-        if assignment_evidence_ids != expected_evidence_ids:
+        expected_evidence_serialization = "|".join(
+            sorted(expected_evidence_ids)
+        )
+        if (
+            assignment_evidence_ids != expected_evidence_ids
+            or assignment_evidence_raw != expected_evidence_serialization
+        ):
             errors.append(
                 "schema_v2_lineage_mismatch:"
                 f"{file_name}:L{line_number}:evidence_ids"
@@ -1424,8 +1492,8 @@ def _validate_schema_v2_foreign_keys(
         matching_canonicals = [
             canonical
             for canonical in entity_rows["canonical_competences"]
-            if _normalized_label(canonical.get("preferred_label"))
-            == _normalized_label(decision.get("canonical_label"))
+            if _runtime_canonical_label(canonical.get("preferred_label"))
+            == _runtime_canonical_label(decision.get("canonical_label"))
         ]
         canonical_ids = {
             _identifier(canonical.get("canonical_competence_id"))
@@ -1590,13 +1658,15 @@ def _validate_legacy_derived_demand_metadata(
     csv_rows: List[Dict[str, Any]],
     jsonl_rows: List[Dict[str, Any]],
 ) -> List[str]:
-    """Require identical legacy-view metadata for each derived-demand ID."""
+    """Require one valid derived-demand view and identical projections."""
     errors: List[str] = []
 
     def metadata_by_demand(
         rows: List[Dict[str, Any]], file_name: str, row_start: int = 1
-    ) -> Dict[str, Tuple[str, str, Tuple[str, ...]]]:
-        metadata: Dict[str, Tuple[str, str, Tuple[str, ...]]] = {}
+    ) -> Dict[str, Tuple[str, str, Tuple[str, ...], Tuple[str, ...]]]:
+        metadata: Dict[
+            str, Tuple[str, str, Tuple[str, ...], Tuple[str, ...]]
+        ] = {}
         for row_index, row in enumerate(rows, start=row_start):
             demand_id = _identifier(row.get("competence_demand_id"))
             if not demand_id:
@@ -1617,29 +1687,53 @@ def _validate_legacy_derived_demand_metadata(
                 _identifier(row.get("view_kind")),
                 _identifier(row.get("scientific_status")),
                 evidence_ids,
+                tuple(
+                    _identifier(row.get(field_name))
+                    for field_name in DERIVED_CANONICAL_LINEAGE_FIELDS
+                ),
             )
-            for field_name, value, expected_value in (
-                (
-                    "view_kind",
-                    values[0],
-                    LEGACY_DERIVED_DEMAND_VIEW_KIND,
-                ),
-                (
-                    "scientific_status",
-                    values[1],
-                    LEGACY_DERIVED_DEMAND_SCIENTIFIC_STATUS,
-                ),
-            ):
-                if not value:
+            if not values[0] or not values[1]:
+                for field_name, value in (
+                    ("view_kind", values[0]),
+                    ("scientific_status", values[1]),
+                ):
+                    if value:
+                        continue
                     errors.append(
                         "derived_demand_missing_required_field:"
                         f"{file_name}:L{row_index}:{field_name}"
                     )
-                elif value != expected_value:
+            elif (
+                values[0] == LEGACY_DERIVED_DEMAND_VIEW_KIND
+                and values[1] == LEGACY_DERIVED_DEMAND_SCIENTIFIC_STATUS
+            ):
+                for field_name, value in zip(
+                    DERIVED_CANONICAL_LINEAGE_FIELDS, values[3]
+                ):
+                    if not value:
+                        continue
                     errors.append(
                         "derived_demand_invalid_legacy_metadata:"
                         f"{file_name}:L{row_index}:{field_name}"
                     )
+            elif (
+                values[0] == ACCEPTED_CANONICAL_LINEAGE_VIEW_KIND
+                and values[1] == VALIDATED_CANONICAL_DEMAND_SCIENTIFIC_STATUS
+            ):
+                for field_name, value in zip(
+                    DERIVED_CANONICAL_LINEAGE_FIELDS, values[3]
+                ):
+                    if value:
+                        continue
+                    errors.append(
+                        "derived_demand_missing_required_field:"
+                        f"{file_name}:L{row_index}:{field_name}"
+                    )
+            else:
+                errors.append(
+                    "derived_demand_invalid_view_metadata:"
+                    f"{file_name}:L{row_index}:view_kind+scientific_status"
+                )
             if demand_id in metadata:
                 errors.append(
                     f"duplicate_derived_demand_id:{file_name}:L{row_index}:{demand_id}"
@@ -1672,6 +1766,261 @@ def _validate_legacy_derived_demand_metadata(
                 "derived_demand_metadata_mismatch:"
                 f"competence_demand_id:{demand_id}"
             )
+    return errors
+
+
+def _validate_accepted_canonical_derived_demand_lineage(
+    csv_demand_rows: List[Dict[str, Any]],
+    jsonl_demand_rows: List[Dict[str, Any]],
+    csv_rows_by_file: Dict[str, List[Dict[str, Any]]],
+    jsonl_rows_by_file: Dict[str, List[Dict[str, Any]]],
+) -> List[str]:
+    """Require canonical demand rows to reproduce the accepted v2 lineage."""
+    errors: List[str] = []
+
+    def indexed_rows(
+        rows: List[Dict[str, Any]], field_name: str
+    ) -> Dict[str, Dict[str, Any]]:
+        return {
+            _identifier(row.get(field_name)): row
+            for row in rows
+            if _identifier(row.get(field_name))
+        }
+
+    def validate_projection(
+        demand_rows: List[Dict[str, Any]],
+        rows_by_file: Dict[str, List[Dict[str, Any]]],
+        file_name: str,
+        row_start: int,
+    ) -> None:
+        canonicals = indexed_rows(
+            rows_by_file.get("canonical_competences.csv", [])
+            if file_name.endswith(".csv")
+            else rows_by_file.get("canonical_competences.jsonl", []),
+            "canonical_competence_id",
+        )
+        decisions = indexed_rows(
+            rows_by_file.get("validation_decisions.csv", [])
+            if file_name.endswith(".csv")
+            else rows_by_file.get("validation_decisions.jsonl", []),
+            "validation_decision_id",
+        )
+        candidates = indexed_rows(
+            rows_by_file.get("competence_candidates.csv", [])
+            if file_name.endswith(".csv")
+            else rows_by_file.get("competence_candidates.jsonl", []),
+            "candidate_id",
+        )
+        assignments = indexed_rows(
+            rows_by_file.get("sector_competence_assignments.csv", [])
+            if file_name.endswith(".csv")
+            else rows_by_file.get("sector_competence_assignments.jsonl", []),
+            "assignment_id",
+        )
+        canonical_demand_rows_by_group: Dict[
+            Tuple[str, str, str], List[int]
+        ] = {}
+        for row_index, demand in enumerate(demand_rows, start=row_start):
+            def issue(field_name: str) -> None:
+                errors.append(
+                    "derived_demand_canonical_lineage_mismatch:"
+                    f"{file_name}:L{row_index}:{field_name}"
+                )
+
+            view_kind = _string_value(demand.get("view_kind"))
+            scientific_status = _string_value(demand.get("scientific_status"))
+            if not (
+                _identifier(view_kind) == ACCEPTED_CANONICAL_LINEAGE_VIEW_KIND
+                and _identifier(scientific_status)
+                == VALIDATED_CANONICAL_DEMAND_SCIENTIFIC_STATUS
+            ):
+                continue
+            if view_kind != ACCEPTED_CANONICAL_LINEAGE_VIEW_KIND:
+                issue("view_kind")
+            if scientific_status != VALIDATED_CANONICAL_DEMAND_SCIENTIFIC_STATUS:
+                issue("scientific_status")
+            canonical_id_raw = _string_value(demand.get("canonical_competence_id"))
+            canonical_id = _identifier(canonical_id_raw)
+            if canonical_id_raw != canonical_id:
+                issue("canonical_competence_id")
+            canonical = canonicals.get(canonical_id)
+            if canonical is None:
+                issue("canonical_competence_id")
+                continue
+            if _string_value(demand.get("competence_label")) != _string_value(
+                canonical.get("preferred_label")
+            ):
+                issue("competence_label")
+            if _string_value(demand.get("competence_definition")) != _string_value(
+                canonical.get("canonical_definition")
+            ):
+                issue("competence_definition")
+            if _string_value(demand.get("manual_review_status")) != "manually_reviewed":
+                issue("manual_review_status")
+
+            assignment_ids_raw = _string_value(demand.get("assignment_ids"))
+            decision_ids_raw = _string_value(demand.get("validation_decision_ids"))
+            candidate_ids_raw = _string_value(demand.get("source_candidate_ids"))
+            evidence_ids_raw = _string_value(demand.get("evidence_ids"))
+            demand_assignment_ids = set(
+                _split_references(assignment_ids_raw)
+            )
+            demand_decision_ids = set(
+                _split_references(decision_ids_raw)
+            )
+            demand_candidate_ids = set(
+                _split_references(candidate_ids_raw)
+            )
+            demand_evidence_ids = set(
+                _split_references(evidence_ids_raw)
+            )
+            sector_raw = _string_value(demand.get("sector"))
+            axis_group_raw = _string_value(demand.get("axis_group"))
+            axis_code_raw = _string_value(demand.get("axis_code"))
+            sector = _identifier(sector_raw)
+            axis_group = _identifier(axis_group_raw)
+            axis_code = _identifier(axis_code_raw)
+            if (
+                sector_raw != sector
+                or axis_group_raw != axis_group
+                or axis_code_raw != axis_code
+            ):
+                issue("sector_axis_context")
+            if not sector:
+                issue("sector")
+            if axis_code != {
+                "MARINE": "M",
+                "MARITIME": "T",
+                "OCEANIC": "O",
+                "HYDRONIZATION": "H",
+            }.get(axis_group, ""):
+                issue("axis_code")
+
+            expected_assignment_ids = {
+                assignment_id
+                for assignment_id, assignment in assignments.items()
+                if (
+                    _identifier(assignment.get("canonical_competence_id"))
+                    == canonical_id
+                    and _identifier(assignment.get("sector")) == sector
+                    and _identifier(assignment.get("axis_group")) == axis_group
+                    and _identifier(assignment.get("axis_code")) == axis_code
+                )
+            }
+            if not demand_assignment_ids or demand_assignment_ids != expected_assignment_ids:
+                issue("assignment_ids")
+                continue
+            if assignment_ids_raw != "|".join(sorted(expected_assignment_ids)):
+                issue("assignment_ids")
+            canonical_demand_rows_by_group.setdefault(
+                (canonical_id, sector, axis_group), []
+            ).append(row_index)
+
+            linked_assignments = [
+                assignments[assignment_id]
+                for assignment_id in sorted(demand_assignment_ids)
+            ]
+            expected_decision_ids = {
+                _identifier(assignment.get("validation_decision_id"))
+                for assignment in linked_assignments
+            }
+            expected_candidate_ids = {
+                _identifier(assignment.get("source_candidate_id"))
+                for assignment in linked_assignments
+            }
+            expected_evidence_ids = {
+                evidence_id
+                for assignment in linked_assignments
+                for evidence_id in _split_references(
+                    assignment.get("evidence_ids")
+                )
+            }
+            if demand_decision_ids != expected_decision_ids:
+                issue("validation_decision_ids")
+            if demand_candidate_ids != expected_candidate_ids:
+                issue("source_candidate_ids")
+            if demand_evidence_ids != expected_evidence_ids:
+                issue("evidence_ids")
+            if decision_ids_raw != "|".join(sorted(expected_decision_ids)):
+                issue("validation_decision_ids")
+            if candidate_ids_raw != "|".join(sorted(expected_candidate_ids)):
+                issue("source_candidate_ids")
+            if evidence_ids_raw != "|".join(sorted(expected_evidence_ids)):
+                issue("evidence_ids")
+
+            for decision_id in expected_decision_ids:
+                decision = decisions.get(decision_id)
+                if (
+                    decision is None
+                    or _identifier(decision.get("decision_status")) != "accepted"
+                    or _runtime_canonical_label(decision.get("canonical_label"))
+                    != _runtime_canonical_label(canonical.get("preferred_label"))
+                ):
+                    issue("validation_decision_ids")
+            for candidate_id in expected_candidate_ids:
+                if candidate_id not in candidates:
+                    issue("source_candidate_ids")
+                    continue
+                if candidate_id not in {
+                    _identifier(decision.get("target_candidate_id"))
+                    for decision_id in expected_decision_ids
+                    for decision in [decisions.get(decision_id)]
+                    if decision is not None
+                }:
+                    issue("source_candidate_ids")
+
+        inactive_decision_ids = {
+            _identifier(decision.get("superseded_validation_decision_id"))
+            for decision in decisions.values()
+            if _identifier(decision.get("superseded_validation_decision_id"))
+        }
+        expected_assignment_ids_by_group: Dict[
+            Tuple[str, str, str], Set[str]
+        ] = {}
+        for assignment_id, assignment in assignments.items():
+            decision_id = _identifier(assignment.get("validation_decision_id"))
+            decision = decisions.get(decision_id)
+            if (
+                decision is None
+                or decision_id in inactive_decision_ids
+                or _identifier(decision.get("decision_status")) != "accepted"
+            ):
+                continue
+            canonical_id = _identifier(assignment.get("canonical_competence_id"))
+            sector = _identifier(assignment.get("sector"))
+            axis_group = _identifier(assignment.get("axis_group"))
+            if not canonical_id or not sector or not axis_group:
+                continue
+            expected_assignment_ids_by_group.setdefault(
+                (canonical_id, sector, axis_group), set()
+            ).add(assignment_id)
+        for group_key, _expected_assignment_ids in (
+            expected_assignment_ids_by_group.items()
+        ):
+            matching_rows = canonical_demand_rows_by_group.get(group_key, [])
+            if not matching_rows:
+                errors.append(
+                    "derived_demand_canonical_lineage_missing_projection:"
+                    f"{file_name}:{group_key[0]}:{group_key[1]}:{group_key[2]}"
+                )
+            elif len(matching_rows) != 1:
+                errors.append(
+                    "derived_demand_canonical_lineage_duplicate_projection:"
+                    f"{file_name}:{group_key[0]}:{group_key[1]}:{group_key[2]}"
+                )
+
+    validate_projection(
+        csv_demand_rows,
+        csv_rows_by_file,
+        "derived_competence_demands.csv",
+        2,
+    )
+    validate_projection(
+        jsonl_demand_rows,
+        jsonl_rows_by_file,
+        "derived_competence_demands.jsonl",
+        1,
+    )
     return errors
 
 
@@ -2080,6 +2429,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         _validate_legacy_derived_demand_metadata(
             csv_rows.get("derived_competence_demands.csv", []),
             jsonl_rows.get("derived_competence_demands.jsonl", []),
+        )
+    )
+    missing_required.extend(
+        _validate_accepted_canonical_derived_demand_lineage(
+            csv_rows.get("derived_competence_demands.csv", []),
+            jsonl_rows.get("derived_competence_demands.jsonl", []),
+            csv_rows,
+            jsonl_rows,
         )
     )
 

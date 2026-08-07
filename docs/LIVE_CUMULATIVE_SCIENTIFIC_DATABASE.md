@@ -185,6 +185,10 @@ Schema v2 adds an explicit construct-valid chain:
   checked against the target candidate and preserved as supplied; later
   occurrences may expand a candidate, but cannot rewrite a prior decision's
   cited evidence.
+- A non-empty `superseded_validation_decision_id` must identify a decision for
+  the same candidate, and the superseding row's `decision_at_utc` must be
+  strictly later than the referenced decision; equal or earlier replacement
+  timestamps are rejected.
 - Semantic signals and competence candidates may carry any of the four
   canonical bound sector-axis pairs — `MARINE/M`, `MARITIME/T`, `OCEANIC/O`,
   or `HYDRONIZATION/H` — or the fully unbound pair `("", "")`. The fully
@@ -232,6 +236,27 @@ Its confidence score is calculated only from the exact qualified match surface;
 it never receives credit from a record-wide legacy substring match.
 Neither projection turns a legacy aggregate row into a validated canonical
 competence.
+
+### Accepted canonical lineage view (Layer 4)
+
+`scripts/build_layer4_5_scientific_analysis.py` loads the retained schema-v2
+evidence-fragment, semantic-signal, candidate, decision, canonical, and
+assignment JSONL tables alongside the legacy projections. For every fully resolved accepted
+`canonical_competence_id` × sector × QMBD-axis context, Layer 4 emits one
+`accepted_canonical_lineage_view` row with
+`scientific_status=validated_canonical_competence`. The row retains its
+canonical, decision, candidate, and assignment identifiers plus the exact
+assignment evidence IDs. It is not generated from a label match alone; broken
+or partial lineage fails closed. Retained primary keys, foreign keys, and
+pipe-delimited reference snapshots must be exact, unpadded serializations, so
+published canonical provenance cannot be reconstructed from a normalized
+forgery.
+
+Legacy category-aggregate rows remain the population for Layer-4 descriptive
+statistics and Layer-5 `live_literature_demand_count`. The separate canonical
+view supplies only validation-backed Layer-5/H2 counts, avoiding double
+counting. An accepted but unbound canonical competence creates no invented
+sector-axis demand.
 
 ### Columns
 

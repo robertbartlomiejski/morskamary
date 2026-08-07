@@ -2908,7 +2908,7 @@ def test_superseded_decision_suppresses_canonical_promotion(
                 "canonical_label": "",
                 "decision_status": "review_required",
                 "reviewer": "reviewer-fixture-002",
-                "decision_at_utc": FROZEN_TS,
+                "decision_at_utc": "2026-07-10T00:00:00+00:00",
                 "decision_reason": "Further evidence review is required.",
                 "superseded_validation_decision_id": "decision:accepted",
             },
@@ -2918,6 +2918,67 @@ def test_superseded_decision_suppresses_canonical_promotion(
     assert len(result.validation_decisions) == 2
     assert result.canonical_competences == []
     assert result.sector_competence_assignments == []
+
+
+def test_validation_decisions_require_strictly_later_supersession(
+    tmp_path: Path,
+) -> None:
+    """Equal-time replacement decisions cannot rewrite the validation ledger."""
+    current = tmp_path / "current"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Governance evidence for chronological review",
+                "doi": "10.1000/chronological-supersession",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    candidate_id = initial.competence_candidates[0].candidate_id
+
+    with pytest.raises(
+        CumulativeDatabaseError,
+        match="superseding validation decision must be chronologically later",
+    ):
+        build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "equal-time-replacement",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+            validation_decisions=[
+                {
+                    "validation_decision_id": "decision:accepted",
+                    "target_candidate_id": candidate_id,
+                    **_decision_snapshot(initial, candidate_id),
+                    "canonical_label": "Governance capability",
+                    "decision_status": "accepted",
+                    "reviewer": "reviewer-fixture-001",
+                    "decision_at_utc": FROZEN_TS,
+                    "decision_reason": "Initial review.",
+                },
+                {
+                    "validation_decision_id": "decision:equal-time-revision",
+                    "target_candidate_id": candidate_id,
+                    **_decision_snapshot(initial, candidate_id),
+                    "canonical_label": "",
+                    "decision_status": "review_required",
+                    "reviewer": "reviewer-fixture-002",
+                    "decision_at_utc": FROZEN_TS,
+                    "decision_reason": "Equal-time replacement regression.",
+                    "superseded_validation_decision_id": "decision:accepted",
+                },
+            ],
+        )
 
 
 def test_validation_decisions_reject_supersession_cycles(tmp_path: Path) -> None:

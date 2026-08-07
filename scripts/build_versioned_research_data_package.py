@@ -770,6 +770,11 @@ def _normalized_label(value: Any) -> str:
     return re.sub(r"\s+", " ", _string_value(value)).strip().casefold()
 
 
+def _runtime_canonical_label(value: Any) -> str:
+    """Normalize a canonical label exactly as the runtime identity does."""
+    return re.sub(r"\s+", " ", _string_value(value)).strip().lower()
+
+
 def _normalized_text_hash(value: Any) -> str:
     """Return the runtime-compatible hash for a retained text surface."""
     normalized = re.sub(r"\s+", " ", _string_value(value)).strip().lower()
@@ -863,6 +868,12 @@ def _expected_candidate_id(candidate: dict[str, Any]) -> str:
         )
     )
     return f"candidate:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
+
+
+def _expected_canonical_competence_id(canonical: dict[str, Any]) -> str:
+    """Recompute the runtime canonical-competence identity from its label."""
+    label = _runtime_canonical_label(canonical.get("preferred_label"))
+    return f"canonical:{hashlib.sha256(label.encode('utf-8')).hexdigest()}"
 
 
 def _validate_schema_v2_projection_and_lineage(
@@ -1146,6 +1157,19 @@ def _validate_schema_v2_projection_and_lineage(
                 "validation_decisions:supersession:"
                 f"{decision_id}:cross_candidate_reference"
             )
+        superseding_at = _parse_utc_iso_datetime(decision.get("decision_at_utc"))
+        superseded_at = _parse_utc_iso_datetime(
+            superseded.get("decision_at_utc")
+        )
+        if (
+            superseding_at is not None
+            and superseded_at is not None
+            and superseding_at <= superseded_at
+        ):
+            errors.append(
+                "validation_decisions:supersession:"
+                f"{decision_id}:not_later_than:{superseded_id}"
+            )
 
     reported_cycles: set[tuple[str, ...]] = set()
     for decision_id in sorted(decision_key[0] for decision_key in decisions_by_id):
@@ -1266,6 +1290,13 @@ def _validate_schema_v2_projection_and_lineage(
 
     for canonical_key, canonical in canonicals_by_id.items():
         canonical_id = canonical_key[0]
+        if _string_value(canonical.get("canonical_competence_id")) != (
+            _expected_canonical_competence_id(canonical)
+        ):
+            errors.append(
+                "canonical_competences:identity:"
+                f"{canonical_id}:canonical_competence_id_mismatch"
+            )
         decision_id = _string_value(
             canonical.get("validation_decision_id")
         ).strip()
@@ -1291,7 +1322,7 @@ def _validate_schema_v2_projection_and_lineage(
                     f"canonical_competences:lineage:{canonical_id}:"
                     "validation_decision_id"
                 )
-            if _normalized_label(canonical.get("preferred_label")) != _normalized_label(
+            if _runtime_canonical_label(canonical.get("preferred_label")) != _runtime_canonical_label(
                 decision_row.get("canonical_label")
             ):
                 errors.append(
@@ -1306,6 +1337,18 @@ def _validate_schema_v2_projection_and_lineage(
         tuple[str, str, str], list[dict[str, Any]]
     ] = {}
     for assignment in csv_index["sector_competence_assignments"].values():
+        for field_name in (
+            "assignment_id",
+            "canonical_competence_id",
+            "validation_decision_id",
+            "source_candidate_id",
+        ):
+            retained_value = _string_value(assignment.get(field_name))
+            if retained_value != retained_value.strip():
+                errors.append(
+                    "sector_competence_assignments:lineage:"
+                    f"{retained_value.strip()}:{field_name}:outer_whitespace"
+                )
         assignment_id = _string_value(assignment.get("assignment_id")).strip()
         canonical_id = _string_value(
             assignment.get("canonical_competence_id")
@@ -1342,7 +1385,7 @@ def _validate_schema_v2_projection_and_lineage(
                     f"sector_competence_assignments:lineage:{assignment_id}:"
                     "validation_decision_id"
                 )
-            if _normalized_label(canonical_row.get("preferred_label")) != _normalized_label(
+            if _runtime_canonical_label(canonical_row.get("preferred_label")) != _runtime_canonical_label(
                 linked_decision.get("canonical_label")
             ):
                 errors.append(
@@ -1359,8 +1402,13 @@ def _validate_schema_v2_projection_and_lineage(
         expected_evidence_ids = {
             str(linked_candidate.get("evidence_id", "")).strip()
         }
-        assignment_evidence_ids = _split_reference_ids(assignment.get("evidence_ids"))
-        if assignment_evidence_ids != expected_evidence_ids:
+        assignment_evidence_raw = _string_value(assignment.get("evidence_ids"))
+        assignment_evidence_ids = _split_reference_ids(assignment_evidence_raw)
+        expected_evidence_serialization = "|".join(sorted(expected_evidence_ids))
+        if (
+            assignment_evidence_ids != expected_evidence_ids
+            or assignment_evidence_raw != expected_evidence_serialization
+        ):
             errors.append(
                 f"sector_competence_assignments:lineage:{assignment_id}:evidence_ids"
             )
@@ -1425,8 +1473,8 @@ def _validate_schema_v2_projection_and_lineage(
         matching_canonicals = [
             canonical
             for canonical in canonicals_by_id.values()
-            if _normalized_label(canonical.get("preferred_label"))
-            == _normalized_label(decision.get("canonical_label"))
+            if _runtime_canonical_label(canonical.get("preferred_label"))
+            == _runtime_canonical_label(decision.get("canonical_label"))
         ]
         canonical_ids = {
             _string_value(canonical.get("canonical_competence_id")).strip()

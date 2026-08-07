@@ -306,7 +306,7 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
             "superseded_validation_decision_id": "",
     }
     canonical_competence: dict[str, object] = {
-            "canonical_competence_id": "canonical:test",
+            "canonical_competence_id": "",
             "validation_decision_id": "decision:test",
             "source_candidate_id": candidate["candidate_id"],
             "preferred_label": "Marine skill",
@@ -316,9 +316,14 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
             "schema_version": "2.0.0",
             "provenance_guard_status": "passed",
     }
+    canonical_competence["canonical_competence_id"] = (
+        _PACKAGE._expected_canonical_competence_id(canonical_competence)
+    )
     assignment: dict[str, object] = {
             "assignment_id": "assignment:test",
-            "canonical_competence_id": "canonical:test",
+            "canonical_competence_id": canonical_competence[
+                "canonical_competence_id"
+            ],
             "validation_decision_id": "decision:test",
             "source_candidate_id": candidate["candidate_id"],
             "sector": "ports",
@@ -334,6 +339,86 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
         "canonical_competences": canonical_competence,
         "sector_competence_assignments": assignment,
     }
+
+
+def _write_canonical_derived_demand(
+    db: Path,
+    *,
+    competence_demand_id: str = "cd:canonical-test",
+    schema_rows: dict[str, dict[str, object]] | None = None,
+) -> None:
+    """Replace the legacy fixture row with its fully retained v2 projection."""
+    rows = schema_rows or _schema_v2_rows()
+    canonical = rows["canonical_competences"]
+    candidate = rows["competence_candidates"]
+    assignment = rows["sector_competence_assignments"]
+    demand: dict[str, object] = {
+        "competence_demand_id": competence_demand_id,
+        "competence_label": canonical["preferred_label"],
+        "competence_definition": canonical["canonical_definition"],
+        "view_kind": "accepted_canonical_lineage_view",
+        "scientific_status": "validated_canonical_competence",
+        "canonical_competence_id": canonical["canonical_competence_id"],
+        "validation_decision_ids": canonical["validation_decision_id"],
+        "source_candidate_ids": candidate["candidate_id"],
+        "assignment_ids": assignment["assignment_id"],
+        "sector": assignment["sector"],
+        "axis_group": assignment["axis_group"],
+        "axis_code": assignment["axis_code"],
+        "demand_strength_score": "0.55",
+        "evidence_ids": assignment["evidence_ids"],
+        "manual_review_status": "manually_reviewed",
+    }
+    fieldnames = tuple(
+        dict.fromkeys(
+            [
+                *CSV_REQUIRED_COLUMNS["derived_competence_demands.csv"],
+                "competence_definition",
+                "canonical_competence_id",
+                "validation_decision_ids",
+                "source_candidate_ids",
+                "assignment_ids",
+                "axis_code",
+                "manual_review_status",
+            ]
+        )
+    )
+    _write_csv_rows(db / "derived_competence_demands.csv", fieldnames, [demand])
+    (db / "derived_competence_demands.jsonl").write_text(
+        json.dumps(demand, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    outcome_path = db / "learning_outcomes.csv"
+    with outcome_path.open(encoding="utf-8", newline="") as handle:
+        outcome_reader = csv.DictReader(handle)
+        outcome_fields = outcome_reader.fieldnames
+        outcome_rows = list(outcome_reader)
+    assert outcome_fields and len(outcome_rows) == 1
+    outcome_rows[0].update(
+        {
+            "competence_demand_id": competence_demand_id,
+            "sector": assignment["sector"],
+            "evidence_id": assignment["evidence_ids"],
+        }
+    )
+    _write_csv_rows(outcome_path, outcome_fields, outcome_rows)
+
+
+def _update_canonical_derived_demand(
+    db: Path, updates: dict[str, object]
+) -> None:
+    """Apply one identical mutation to both derived-demand projections."""
+    csv_path = db / "derived_competence_demands.csv"
+    with csv_path.open(encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        fieldnames = reader.fieldnames
+        rows = list(reader)
+    assert fieldnames and len(rows) == 1
+    rows[0].update({key: str(value) for key, value in updates.items()})
+    _write_csv_rows(csv_path, fieldnames, rows)
+    jsonl_path = db / "derived_competence_demands.jsonl"
+    row = json.loads(jsonl_path.read_text(encoding="utf-8"))
+    row.update(updates)
+    jsonl_path.write_text(json.dumps(row, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def _write_min_bundle(db: Path, reports: Path) -> None:
@@ -1436,6 +1521,40 @@ def test_package_rejects_tampered_deterministic_v2_identities(
     assert f"schema_v2_lineage_mismatch:{expected_issue}" in captured.err
 
 
+def test_package_rejects_forged_canonical_id_before_missing_decision_return(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Canonical IDs are re-derived even when the decision reference is broken."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    canonical = _schema_v2_rows()["canonical_competences"]
+    canonical.update(
+        {
+            "canonical_competence_id": "canonical:forged",
+            "validation_decision_id": "decision:missing",
+        }
+    )
+    _write_csv_rows(
+        db / "canonical_competences.csv",
+        CSV_REQUIRED_COLUMNS["canonical_competences.csv"],
+        [canonical],
+    )
+    (db / "canonical_competences.jsonl").write_text(
+        json.dumps(canonical, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    _rewrite_checksums(db)
+
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "canonical_competences.csv:L2:canonical_competence_id"
+    ) in captured.err
+
+
 def test_package_requires_assignment_semantic_context_and_label_guard(
     tmp_path: Path, capsys: object
 ) -> None:
@@ -1652,6 +1771,38 @@ def test_package_rejects_invalid_supersession_links(
         ) in captured.err
 
 
+def test_package_rejects_superseding_decision_that_is_not_later(
+    tmp_path: Path, capsys: object
+) -> None:
+    """A replacement decision must carry a strictly later UTC timestamp."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _write_schema_v2_decision_chain(db)
+    replacement = dict(_schema_v2_rows()["validation_decisions"])
+    replacement.update(
+        {
+            "validation_decision_id": "decision:replacement",
+            "canonical_label": "",
+            "decision_status": "review_required",
+            "decision_reason": "Equal-time replacement is invalid.",
+            "superseded_validation_decision_id": "decision:test",
+        }
+    )
+    _append_schema_v2_row(db, "validation_decisions", replacement)
+    _rewrite_checksums(db)
+
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "validation_decisions.csv:L3:"
+        "superseding_validation_decision_not_later"
+    ) in captured.err
+
+
 @pytest.mark.parametrize(
     ("scenario", "expected_issue"),
     (
@@ -1698,7 +1849,16 @@ def test_package_rejects_supersession_cycles_and_multiple_active_decisions(
     assert expected_issue in captured.err
 
 
-@pytest.mark.parametrize("evidence_ids", ("E-OTHER", "E-0001|E-OTHER", "|"))
+@pytest.mark.parametrize(
+    "evidence_ids",
+    (
+        "E-OTHER",
+        "E-0001|E-OTHER",
+        "|",
+        " E-0001 ",
+        "E-0001|E-0001",
+    ),
+)
 def test_package_rejects_assignment_evidence_unlinked_from_candidate(
     tmp_path: Path,
     evidence_ids: str,
@@ -1790,6 +1950,7 @@ def test_package_allows_immutable_decision_snapshot_subset_of_candidate(
         json.dumps(candidate, sort_keys=True) + "\n", encoding="utf-8"
     )
     _write_schema_v2_decision_chain(db)
+    _write_canonical_derived_demand(db)
     _rewrite_checksums(db)
 
     out = tmp_path / "pkg.zip"
@@ -1871,6 +2032,186 @@ def test_package_rejects_legacy_metadata_projection_mismatch(
     out = tmp_path / "pkg.zip"
     assert _build_fixture_package(db, reports, out) == 1
     assert not out.exists()
+
+
+def test_package_accepts_and_verifies_canonical_derived_demand_lineage(
+    tmp_path: Path, capsys: object
+) -> None:
+    """A canonical Layer-4 view must retain its accepted v2 provenance."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _write_schema_v2_decision_chain(db)
+    chain = _schema_v2_rows()
+    canonical = chain["canonical_competences"]
+    candidate = chain["competence_candidates"]
+    assignment = chain["sector_competence_assignments"]
+    demand = {
+        "competence_demand_id": "cd:test",
+        "competence_label": canonical["preferred_label"],
+        "competence_definition": canonical["canonical_definition"],
+        "view_kind": "accepted_canonical_lineage_view",
+        "scientific_status": "validated_canonical_competence",
+        "canonical_competence_id": canonical["canonical_competence_id"],
+        "validation_decision_ids": canonical["validation_decision_id"],
+        "source_candidate_ids": candidate["candidate_id"],
+        "assignment_ids": assignment["assignment_id"],
+        "sector": "ports",
+        "axis_group": "MARINE",
+        "axis_code": "M",
+        "demand_strength_score": "0.55",
+        "evidence_ids": "E-0001",
+        "manual_review_status": "manually_reviewed",
+    }
+    fieldnames = tuple(
+        dict.fromkeys(
+            [
+                *CSV_REQUIRED_COLUMNS["derived_competence_demands.csv"],
+                "competence_definition",
+                "canonical_competence_id",
+                "validation_decision_ids",
+                "source_candidate_ids",
+                "assignment_ids",
+                "axis_code",
+                "manual_review_status",
+            ]
+        )
+    )
+    _write_csv_rows(db / "derived_competence_demands.csv", fieldnames, [demand])
+    (db / "derived_competence_demands.jsonl").write_text(
+        json.dumps(demand, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    _rewrite_checksums(db)
+
+    valid_out = tmp_path / "valid.zip"
+    assert _build_fixture_package(db, reports, valid_out) == 0
+    assert valid_out.exists()
+
+    demand["assignment_ids"] = "assignment:forged"
+    _write_csv_rows(db / "derived_competence_demands.csv", fieldnames, [demand])
+    (db / "derived_competence_demands.jsonl").write_text(
+        json.dumps(demand, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    _rewrite_checksums(db)
+    invalid_out = tmp_path / "invalid.zip"
+    assert _build_fixture_package(db, reports, invalid_out) == 1
+    assert not invalid_out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "derived_demand_canonical_lineage_mismatch:"
+        "derived_competence_demands.csv:L2:assignment_ids"
+    ) in captured.err
+    assert (
+        "derived_demand_canonical_lineage_mismatch:"
+        "derived_competence_demands.jsonl:L1:assignment_ids"
+    ) in captured.err
+
+
+def test_package_requires_every_accepted_assignment_context_projection(
+    tmp_path: Path, capsys: object
+) -> None:
+    """An accepted assignment cannot be silently omitted from Layer 4."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _write_schema_v2_decision_chain(db)
+    _rewrite_checksums(db)
+
+    out = tmp_path / "missing-projection.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "derived_demand_canonical_lineage_missing_projection:"
+        "derived_competence_demands.csv:"
+    ) in captured.err
+    assert (
+        "derived_demand_canonical_lineage_missing_projection:"
+        "derived_competence_demands.jsonl:"
+    ) in captured.err
+
+
+@pytest.mark.parametrize(
+    ("field_name", "value", "expected_field"),
+    (
+        ("assignment_ids", "assignment:test|assignment:test", "assignment_ids"),
+        ("assignment_ids", " assignment:test ", "assignment_ids"),
+        (
+            "view_kind",
+            " accepted_canonical_lineage_view ",
+            "view_kind",
+        ),
+    ),
+)
+def test_package_rejects_noncanonical_derived_lineage_serialization(
+    tmp_path: Path,
+    capsys: object,
+    field_name: str,
+    value: str,
+    expected_field: str,
+) -> None:
+    """Canonical Layer-4 provenance must retain exact deterministic syntax."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _write_schema_v2_decision_chain(db)
+    _write_canonical_derived_demand(db)
+    _update_canonical_derived_demand(db, {field_name: value})
+    _rewrite_checksums(db)
+
+    out = tmp_path / "noncanonical-lineage.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "derived_demand_canonical_lineage_mismatch:"
+        f"derived_competence_demands.csv:L2:{expected_field}"
+    ) in captured.err
+    assert (
+        "derived_demand_canonical_lineage_mismatch:"
+        f"derived_competence_demands.jsonl:L1:{expected_field}"
+    ) in captured.err
+
+
+def test_package_uses_runtime_lower_not_casefold_for_canonical_links(
+    tmp_path: Path, capsys: object
+) -> None:
+    """Unicode casefold-only label equality must not forge a canonical link."""
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    rows = _schema_v2_rows()
+    canonical = rows["canonical_competences"]
+    assignment = rows["sector_competence_assignments"]
+    canonical["preferred_label"] = "Straße"
+    canonical["canonical_competence_id"] = (
+        _PACKAGE._expected_canonical_competence_id(canonical)
+    )
+    assignment["canonical_competence_id"] = canonical["canonical_competence_id"]
+    rows["validation_decisions"]["canonical_label"] = "STRASSE"
+    _write_schema_v2_decision_chain(db)
+    _update_schema_v2_first_row(db, "canonical_competences", canonical)
+    _update_schema_v2_first_row(
+        db,
+        "validation_decisions",
+        {"canonical_label": "STRASSE"},
+    )
+    _update_schema_v2_first_row(
+        db,
+        "sector_competence_assignments",
+        {"canonical_competence_id": canonical["canonical_competence_id"]},
+    )
+    _write_canonical_derived_demand(db, schema_rows=rows)
+    _rewrite_checksums(db)
+
+    out = tmp_path / "unicode-label-link.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "canonical_competences.csv:L2:canonical_label"
+    ) in captured.err
 
 
 def test_package_allows_shared_signal_id_for_distinct_fragments(

@@ -144,7 +144,7 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
         "superseded_validation_decision_id": "",
     }
     canonical: dict[str, object] = {
-        "canonical_competence_id": "canonical:fixture",
+        "canonical_competence_id": "",
         "validation_decision_id": decision["validation_decision_id"],
         "source_candidate_id": candidate["candidate_id"],
         "preferred_label": "Marine skill",
@@ -154,6 +154,9 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
         "schema_version": "2.0.0",
         "provenance_guard_status": "passed",
     }
+    canonical["canonical_competence_id"] = (
+        _PACKAGE._expected_canonical_competence_id(canonical)
+    )
     assignment: dict[str, object] = {
         "assignment_id": "assignment:fixture",
         "canonical_competence_id": canonical["canonical_competence_id"],
@@ -281,6 +284,79 @@ def test_cli_accepts_a_fully_linked_clean_bundle(tmp_path: Path) -> None:
 
     assert completed.returncode == 0, completed.stderr
     assert "[OK] Schema-v2 bundle preflight passed." in completed.stdout
+
+
+def test_cli_rejects_forged_canonical_competence_identity(tmp_path: Path) -> None:
+    """Both projections must retain the canonical ID derived from its label."""
+    bundle_dir = tmp_path / "forged-canonical-id"
+    _write_valid_bundle(bundle_dir)
+    forged_id = "canonical:" + "f" * 64
+    _update_projection(
+        bundle_dir,
+        "canonical_competences",
+        {"canonical_competence_id": forged_id},
+    )
+    # Keep the assignment foreign key internally consistent.  The failure
+    # must come from canonical identity recomputation, not a broken reference.
+    _update_projection(
+        bundle_dir,
+        "sector_competence_assignments",
+        {"canonical_competence_id": forged_id},
+    )
+
+    completed = _run_validator(bundle_dir)
+    output = completed.stdout + completed.stderr
+
+    assert completed.returncode == 1
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "canonical_competences.csv:L2:canonical_competence_id"
+    ) in output
+    assert (
+        "schema_v2_lineage_mismatch:"
+        "canonical_competences.jsonl:L1:canonical_competence_id"
+    ) in output
+
+
+def test_cli_rejects_superseding_decision_that_is_not_later(
+    tmp_path: Path,
+) -> None:
+    """Both projections reject equal-time validation-decision replacements."""
+    bundle_dir = tmp_path / "equal-time-supersession"
+    _write_valid_bundle(bundle_dir)
+    decisions = _read_projection_rows(bundle_dir, "validation_decisions")
+    replacement = dict(decisions[0])
+    replacement.update(
+        {
+            "validation_decision_id": "decision:replacement",
+            "canonical_label": "",
+            "decision_status": "review_required",
+            "decision_reason": "Equal-time replacement is invalid.",
+            "superseded_validation_decision_id": "decision:fixture",
+        }
+    )
+    _replace_projection_rows(
+        bundle_dir, "validation_decisions", [*decisions, replacement]
+    )
+    manifest_path = bundle_dir / "cumulative_database_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["counts"]["validation_decisions"] = 2
+    manifest_path.write_text(
+        json.dumps(manifest, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+    completed = _run_validator(bundle_dir)
+    output = completed.stdout + completed.stderr
+
+    assert completed.returncode == 1
+    assert (
+        "schema_v2_lineage_mismatch:validation_decisions.csv:L3:"
+        "superseding_validation_decision_not_later"
+    ) in output
+    assert (
+        "schema_v2_lineage_mismatch:validation_decisions.jsonl:L2:"
+        "superseding_validation_decision_not_later"
+    ) in output
 
 
 def test_cli_rejects_every_appendix_corruption_class(tmp_path: Path) -> None:

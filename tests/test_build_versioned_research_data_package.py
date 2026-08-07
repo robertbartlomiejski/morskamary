@@ -982,6 +982,7 @@ def test_build_versioned_package_rejects_tampered_deterministic_identities(
         "signal": "semantic_signals:identity:",
         "fragment": "evidence_fragments:identity:",
         "candidate": "competence_candidates:identity:",
+        "canonical": "canonical_competences:identity:",
     }
     for identity_kind, expected_error in expected_errors.items():
         repo_root = tmp_path / identity_kind / "repo"
@@ -1012,11 +1013,19 @@ def test_build_versioned_package_rejects_tampered_deterministic_identities(
             signals[0]["fragment_id"] = fragments[0]["fragment_id"]
             candidates[0]["fragment_id"] = fragments[0]["fragment_id"]
             candidates[0]["fragment_ids"] = fragments[0]["fragment_id"]
-        else:
+        elif identity_kind == "candidate":
             old_candidate_id = str(candidates[0]["candidate_id"])
             candidates[0]["candidate_id"] = "candidate:tampered"
             _replace_candidate_references(
                 repo_root, old_candidate_id, str(candidates[0]["candidate_id"])
+            )
+        else:
+            canonicals = _read_schema_v2_entity_rows(
+                repo_root, "canonical_competences"
+            )
+            canonicals[0]["canonical_competence_id"] = "canonical:tampered"
+            _write_schema_v2_entity_rows(
+                repo_root, "canonical_competences", canonicals
             )
 
         _write_schema_v2_entity_rows(repo_root, "evidence_fragments", fragments)
@@ -1030,6 +1039,68 @@ def test_build_versioned_package_rejects_tampered_deterministic_identities(
         )
         assert exit_code == 1
         assert expected_error in stdout
+
+
+def test_build_versioned_package_rejects_padded_assignment_lineage_id(
+    tmp_path: Path,
+) -> None:
+    """Published assignment foreign keys retain exact canonical syntax."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+    canonicals = _read_schema_v2_entity_rows(repo_root, "canonical_competences")
+    assignments = _read_schema_v2_entity_rows(
+        repo_root, "sector_competence_assignments"
+    )
+    padded_id = f" {canonicals[0]['canonical_competence_id']} "
+    assignments[0]["canonical_competence_id"] = padded_id
+    _write_schema_v2_entity_rows(
+        repo_root, "sector_competence_assignments", assignments
+    )
+
+    exit_code, stdout = _run_package(
+        module, repo_root, tmp_path / "release_out", "v0.1.13-padded-assignment"
+    )
+
+    assert exit_code == 1
+    assert "canonical_competence_id:outer_whitespace" in stdout
+
+
+def test_build_versioned_package_rejects_noncanonical_assignment_evidence_ids(
+    tmp_path: Path,
+) -> None:
+    """Published assignment evidence references retain exact serialization."""
+    module = _load_module()
+    for scenario in ("outer-whitespace", "duplicate"):
+        repo_root = tmp_path / scenario / "repo"
+        repo_root.mkdir(parents=True, exist_ok=True)
+        _copy_required_schemas(repo_root)
+        _seed_minimal_outputs(repo_root)
+        assignments = _read_schema_v2_entity_rows(
+            repo_root, "sector_competence_assignments"
+        )
+        expected_evidence_id = str(assignments[0]["evidence_ids"])
+        assignments[0]["evidence_ids"] = (
+            f" {expected_evidence_id} "
+            if scenario == "outer-whitespace"
+            else f"{expected_evidence_id}|{expected_evidence_id}"
+        )
+        _write_schema_v2_entity_rows(
+            repo_root, "sector_competence_assignments", assignments
+        )
+
+        exit_code, stdout = _run_package(
+            module,
+            repo_root,
+            tmp_path / scenario / "release_out",
+            f"v0.1.13-{scenario}",
+        )
+
+        assert exit_code == 1
+        assert "sector_competence_assignments:lineage:" in stdout
+        assert ":evidence_ids" in stdout
 
 
 def test_build_versioned_package_rejects_invalid_supersession_graphs(
@@ -1074,6 +1145,41 @@ def test_build_versioned_package_rejects_invalid_supersession_graphs(
         )
         assert exit_code == 1
         assert expected_error in stdout
+
+
+def test_build_versioned_package_rejects_equal_time_supersession(
+    tmp_path: Path,
+) -> None:
+    """Versioned-package validation requires superseding timestamps to advance."""
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+    decisions = _read_schema_v2_entity_rows(repo_root, "validation_decisions")
+    replacement = dict(decisions[0])
+    replacement.update(
+        {
+            "validation_decision_id": "decision_002",
+            "canonical_label": "",
+            "decision_status": "review_required",
+            "decision_reason": "Equal-time replacement is invalid.",
+            "superseded_validation_decision_id": "decision_001",
+        }
+    )
+    _write_schema_v2_entity_rows(
+        repo_root, "validation_decisions", [*decisions, replacement]
+    )
+
+    exit_code, stdout = _run_package(
+        module, repo_root, tmp_path / "release_out", "v0.1.13"
+    )
+
+    assert exit_code == 1
+    assert (
+        "validation_decisions:supersession:"
+        "decision_002:not_later_than:decision_001"
+    ) in stdout
 
 
 def test_build_versioned_research_data_package_cli_entrypoint_forwards_argv(

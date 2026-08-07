@@ -132,7 +132,7 @@
     "exact_span_end_offset": 16
   },
   "canonical_competences": {
-    "canonical_competence_id": "canonical_001",
+    "canonical_competence_id": "canonical:cf0b061590185de1ddf1a1408391f0444ebbea4b2fbad36fe6d98cc3be1746eb",
     "validation_decision_id": "decision_001",
     "source_candidate_id": "candidate:60ee5419d9a331802ec55b401c990150e95ded16feabf85cc6947e7ff3b78872",
     "preferred_label": "Ocean governance capability",
@@ -144,7 +144,7 @@
   },
   "sector_competence_assignments": {
     "assignment_id": "assignment_001",
-    "canonical_competence_id": "canonical_001",
+    "canonical_competence_id": "canonical:cf0b061590185de1ddf1a1408391f0444ebbea4b2fbad36fe6d98cc3be1746eb",
     "validation_decision_id": "decision_001",
     "source_candidate_id": "candidate:60ee5419d9a331802ec55b401c990150e95ded16feabf85cc6947e7ff3b78872",
     "sector": "blue_biotech",

@@ -14,6 +14,12 @@ CLI::
 Reads:
     <database-dir>/evidence_records.jsonl
     <database-dir>/competence_demand_signals.jsonl
+    <database-dir>/evidence_fragments.jsonl
+    <database-dir>/semantic_signals.jsonl
+    <database-dir>/competence_candidates.jsonl
+    <database-dir>/validation_decisions.jsonl
+    <database-dir>/canonical_competences.jsonl
+    <database-dir>/sector_competence_assignments.jsonl
 
 Writes:
     <output-dir>/derived_competence_demands.{csv,jsonl}
@@ -261,6 +267,14 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     evidence = _load_jsonl(db_dir / "evidence_records.jsonl")
     signals = _load_jsonl(db_dir / "competence_demand_signals.jsonl")
+    evidence_fragments = _load_jsonl(db_dir / "evidence_fragments.jsonl")
+    semantic_signals = _load_jsonl(db_dir / "semantic_signals.jsonl")
+    competence_candidates = _load_jsonl(db_dir / "competence_candidates.jsonl")
+    validation_decisions = _load_jsonl(db_dir / "validation_decisions.jsonl")
+    canonical_competences = _load_jsonl(db_dir / "canonical_competences.jsonl")
+    sector_competence_assignments = _load_jsonl(
+        db_dir / "sector_competence_assignments.jsonl"
+    )
 
     # Layer readiness audit written first — captures the state before build.
     readiness_report_path = out_dir / "layer_readiness_report.json"
@@ -279,6 +293,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     layer4 = build_layer4(
         evidence_records=evidence,
         competence_signals=signals,
+        evidence_fragments=evidence_fragments,
+        canonical_competences=canonical_competences,
+        sector_competence_assignments=sector_competence_assignments,
+        validation_decisions=validation_decisions,
+        competence_candidates=competence_candidates,
+        semantic_signals=semantic_signals,
         output_dir=out_dir,
         current_run_id=args.current_run_id,
         stats_dir=stats_dir,
