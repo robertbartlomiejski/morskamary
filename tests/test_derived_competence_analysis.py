@@ -708,6 +708,72 @@ def test_validation_backed_demands_enter_gap_measure(tmp_path: Path) -> None:
     assert "no_validated_canonical_demand" not in row.validity_warning
 
 
+def test_layer5_credentials_prefer_legacy_view_when_mixed(
+    tmp_path: Path,
+) -> None:
+    """Mixed view rows must not be merged into one credential aggregate."""
+    legacy_demand = _mk_hydro_demand(1, sector="desalination")
+    validated_demand = _mk_hydro_demand(
+        2,
+        sector="desalination",
+        scientific_status="validated_canonical_competence",
+    )
+    legacy_demand.eqf_relevance = "6"
+    validated_demand.eqf_relevance = "6"
+
+    result = build_layer5(
+        derived_demands=[legacy_demand, validated_demand],
+        evidence_records=[],
+        output_dir=tmp_path / "db-layer5-mixed-view",
+    )
+
+    hydro_eqf6_credentials = [
+        credential
+        for credential in result.credentials
+        if (
+            credential.sector == "desalination"
+            and credential.axis_group == "HYDRONIZATION"
+            and credential.eqf_level == 6
+        )
+    ]
+    assert len(hydro_eqf6_credentials) == 1
+    assert hydro_eqf6_credentials[0].competence_demand_ids == (
+        legacy_demand.competence_demand_id
+    )
+
+
+def test_layer5_credentials_use_validated_view_when_no_legacy_exists(
+    tmp_path: Path,
+) -> None:
+    """Canonical-only sectors keep Layer-5 credential translation operational."""
+    validated_demand = _mk_hydro_demand(
+        1,
+        sector="desalination",
+        scientific_status="validated_canonical_competence",
+    )
+    validated_demand.eqf_relevance = "6"
+
+    result = build_layer5(
+        derived_demands=[validated_demand],
+        evidence_records=[],
+        output_dir=tmp_path / "db-layer5-canonical-only",
+    )
+
+    hydro_eqf6_credentials = [
+        credential
+        for credential in result.credentials
+        if (
+            credential.sector == "desalination"
+            and credential.axis_group == "HYDRONIZATION"
+            and credential.eqf_level == 6
+        )
+    ]
+    assert len(hydro_eqf6_credentials) == 1
+    assert hydro_eqf6_credentials[0].competence_demand_ids == (
+        validated_demand.competence_demand_id
+    )
+
+
 def test_learning_outcome_statement_does_not_use_placeholder_evidence_id(
     tmp_path: Path,
 ) -> None:

@@ -837,7 +837,9 @@ def build_layer5(
     """Build the Layer 5 gap model, credential translation, and outcomes.
 
     Legacy Layer-4 category aggregates remain visible as literature demand, but
-    they do not enter validation-backed coverage or gap measures.
+    they do not enter validation-backed coverage or gap measures. Credential
+    translation keeps sector-axis rows in one analytical view at a time
+    (legacy compatibility preferred; accepted canonical fallback).
     """
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -909,8 +911,9 @@ def build_layer5(
     credentials: List[CredentialTranslation] = []
     outcomes: List[LearningOutcome] = []
     for (sector, axis), demands in sorted(buckets.items()):
+        translation_demands = _credential_translation_demands(demands)
         by_eqf: Dict[int, List[DerivedCompetenceDemand]] = {}
-        for d in demands:
+        for d in translation_demands:
             for lvl in _parse_eqf_levels(d.eqf_relevance):
                 by_eqf.setdefault(lvl, []).append(d)
         for lvl, ds in sorted(by_eqf.items()):
@@ -1595,6 +1598,20 @@ def _legacy_derived_demands(
             and demand.scientific_status
             == LEGACY_DERIVED_DEMAND_SCIENTIFIC_STATUS
         )
+    ]
+
+
+def _credential_translation_demands(
+    demands: Sequence[DerivedCompetenceDemand],
+) -> List[DerivedCompetenceDemand]:
+    """Select one analytical view per sector-axis for credential translation."""
+    legacy_demands = _legacy_derived_demands(demands)
+    if legacy_demands:
+        return legacy_demands
+    return [
+        demand
+        for demand in demands
+        if _accepted_canonical_lineage_required(demand)
     ]
 
 
