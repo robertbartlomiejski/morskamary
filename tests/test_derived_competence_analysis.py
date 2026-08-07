@@ -26,9 +26,12 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List
 
+import pytest
+
 from src.scientific_sources.derived_competence_analysis import (
     ALLOWED_DEMAND_STATUS,
     DERIVED_DEMAND_COLUMNS,
+    DerivedAnalysisError,
     GROWTH_ELIGIBLE_STATUSES,
     LAYER45_CHECKSUMS_FILENAME,
     build_layer4,
@@ -92,6 +95,275 @@ def _mk_signal(idx: int, *, sector: str = "ports", axis: str = "MARITIME",
     }
 
 
+def _accepted_canonical_lineage_rows() -> Dict[str, List[Dict[str, Any]]]:
+    """Return one complete retained schema-v2 acceptance chain."""
+    canonical_label = "Hydrosocial governance capability"
+    canonical_id = "canonical:" + hashlib.sha256(
+        canonical_label.lower().encode("utf-8")
+    ).hexdigest()
+    evidence_id = "E-0001"
+    fragment_id = "fragment:9cb8e123711f6dd1708535ccdc0a9d693470917fc49c3d73821b31b903eb9b32"
+    signal_id = "signal:hydrosocial:001"
+    candidate_id = "candidate:8e9a8f273eee0e2dbcf3b43cb688879876af49c986bff214bffbe01aa95cb524"
+    decision_id = "decision:hydrosocial:001"
+    assignment_id = (
+        "assignment:" + hashlib.sha256(
+            "\x1f".join([
+                canonical_id,
+                "decision:hydrosocial:001",
+                "desalination",
+                "HYDRONIZATION",
+                "H",
+            ]).encode("utf-8")
+        ).hexdigest()
+    )
+    provenance_id = "provenance:hydrosocial:001"
+    definition = "Apply hydrosocial governance in desalination operations."
+    return {
+        "evidence_records": [
+            {
+                "evidence_id": evidence_id,
+                "canonical_doi": "10.1000/hydrosocial-governance",
+                "canonical_title": "Desalination governance competence needs",
+                "provider_source": "crossref",
+                "providers_seen": "crossref",
+                "record_novelty_status": "new_record",
+                "first_seen_run_id": "RUN-HYDRO-001",
+                "latest_seen_run_id": "RUN-HYDRO-001",
+                "first_seen_at_utc": "2026-07-01T00:00:00+00:00",
+                "latest_seen_at_utc": "2026-07-01T00:00:00+00:00",
+                "record_recurrence_count": 1,
+            }
+        ],
+        "evidence_fragments": [
+            {
+                "fragment_id": fragment_id,
+                "evidence_id": evidence_id,
+                "run_id": "RUN-HYDRO-001",
+                "source_provenance_id": provenance_id,
+                "source_retrieved_at_utc": "2026-07-01T00:00:00+00:00",
+            }
+        ],
+        "semantic_signals": [
+            {
+                "signal_id": signal_id,
+                "fragment_id": fragment_id,
+                "evidence_id": evidence_id,
+                "run_id": "RUN-HYDRO-001",
+                "source_provenance_id": provenance_id,
+                "sector": "desalination",
+                "axis_group": "HYDRONIZATION",
+                "axis_code": "H",
+                "query_id": "Q-HYDRO-001",
+                "query_family": "validation_eqf_translation",
+                "signal_type": "governance_skill",
+                "signal_category_description": "Hydrosocial governance skill.",
+                "matched_phrase": "governance",
+                "confidence_score": 0.9,
+                "manual_review_status": "auto_accepted",
+                "validity_warning": "",
+            }
+        ],
+        "competence_candidates": [
+            {
+                "candidate_id": candidate_id,
+                "signal_id": signal_id,
+                "fragment_id": fragment_id,
+                "evidence_id": evidence_id,
+                "run_id": "RUN-HYDRO-001",
+                "sector": "desalination",
+                "axis_group": "HYDRONIZATION",
+                "axis_code": "H",
+                "source_provenance_ids": provenance_id,
+                "fragment_ids": fragment_id,
+                "candidate_label": "Hydrosocial governance",
+                "candidate_definition": definition,
+            }
+        ],
+        "validation_decisions": [
+            {
+                "validation_decision_id": decision_id,
+                "target_candidate_id": candidate_id,
+                "canonical_label": canonical_label,
+                "decision_status": "accepted",
+                "reviewer": "reviewer-hydro-001",
+                "decision_at_utc": "2026-07-10T00:00:00+00:00",
+                "decision_reason": "Accepted retained hydrosocial lineage.",
+                "evidence_ids": evidence_id,
+                "fragment_ids": fragment_id,
+                "source_provenance_ids": provenance_id,
+                "superseded_validation_decision_id": "",
+            }
+        ],
+        "canonical_competences": [
+            {
+                "canonical_competence_id": canonical_id,
+                "validation_decision_id": decision_id,
+                "source_candidate_id": candidate_id,
+                "preferred_label": canonical_label,
+                "canonical_definition": definition,
+                "validation_status": "accepted",
+                "provenance_guard_status": "passed",
+            }
+        ],
+        "sector_competence_assignments": [
+            {
+                "assignment_id": assignment_id,
+                "canonical_competence_id": canonical_id,
+                "validation_decision_id": decision_id,
+                "source_candidate_id": candidate_id,
+                "sector": "desalination",
+                "axis_group": "HYDRONIZATION",
+                "axis_code": "H",
+                "evidence_ids": evidence_id,
+            }
+        ],
+    }
+
+
+def _build_accepted_canonical_lineage(
+    tmp_path: Path,
+    rows: Dict[str, List[Dict[str, Any]]],
+) -> Any:
+    """Build Layer 4 from the explicit v2 chain without legacy signals."""
+    return build_layer4(
+        evidence_records=rows["evidence_records"],
+        competence_signals=[],
+        evidence_fragments=rows["evidence_fragments"],
+        canonical_competences=rows["canonical_competences"],
+        sector_competence_assignments=rows["sector_competence_assignments"],
+        validation_decisions=rows["validation_decisions"],
+        competence_candidates=rows["competence_candidates"],
+        semantic_signals=rows["semantic_signals"],
+        output_dir=tmp_path / "layer4",
+        analysis_timestamp_utc="2026-07-12T00:00:00+00:00",
+    )
+
+
+def test_layer4_emits_only_complete_accepted_canonical_lineage(
+    tmp_path: Path,
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+
+    result = _build_accepted_canonical_lineage(tmp_path, rows)
+
+    assert len(result.derived_demands) == 1
+    demand = result.derived_demands[0]
+    assert demand.view_kind == "accepted_canonical_lineage_view"
+    assert demand.scientific_status == "validated_canonical_competence"
+    assert demand.canonical_competence_id == rows["canonical_competences"][0][
+        "canonical_competence_id"
+    ]
+    assert demand.validation_decision_ids == "decision:hydrosocial:001"
+    assert demand.source_candidate_ids == (
+        "candidate:8e9a8f273eee0e2dbcf3b43cb688879876af49c986bff214bffbe01aa95cb524"
+    )
+    expected_assignment_id = (
+        "assignment:" + hashlib.sha256(
+            "\x1f".join([
+                rows["canonical_competences"][0]["canonical_competence_id"],
+                "decision:hydrosocial:001",
+                "desalination",
+                "HYDRONIZATION",
+                "H",
+            ]).encode("utf-8")
+        ).hexdigest()
+    )
+    assert demand.assignment_ids == expected_assignment_id
+    assert demand.manual_review_status == "manually_reviewed"
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        ("duplicate_assignment", "duplicate sector_competence_assignments"),
+        ("missing_assignment", "missing or has duplicate sector-axis assignments"),
+        ("missing_canonical", "missing its canonical competence"),
+        ("phantom_fragment", "missing evidence fragment"),
+        ("padded_identifier", "padded validation_decisions.validation_decision_id"),
+        ("non_string_identifier", "non-string validation_decisions.validation_decision_id"),
+        ("invalid_reviewer", "invalid reviewer identifier"),
+        ("invalid_timestamp", "invalid UTC timestamp"),
+        ("mismatched_definition", "does not resolve its reviewed decision"),
+        ("forged_candidate_id", "candidate_id does not match recomputed identity"),
+        ("mismatched_span_text", "span text does not match"),
+    ],
+)
+def test_layer4_rejects_incomplete_or_noncanonical_accepted_lineage(
+    tmp_path: Path,
+    mutation: str,
+    message: str,
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    decision = rows["validation_decisions"][0]
+    canonical = rows["canonical_competences"][0]
+    assignment = rows["sector_competence_assignments"][0]
+
+    if mutation == "duplicate_assignment":
+        rows["sector_competence_assignments"].append(dict(assignment))
+    elif mutation == "missing_assignment":
+        rows["sector_competence_assignments"] = []
+    elif mutation == "missing_canonical":
+        rows["canonical_competences"] = []
+    elif mutation == "phantom_fragment":
+        phantom_frag_id = "fragment:" + "f" * 64
+        rows["competence_candidates"][0].update(
+            {
+                "fragment_id": phantom_frag_id,
+                "fragment_ids": phantom_frag_id,
+            }
+        )
+        rows["semantic_signals"][0]["fragment_id"] = phantom_frag_id
+        decision["fragment_ids"] = phantom_frag_id
+    elif mutation == "padded_identifier":
+        decision["validation_decision_id"] = " decision:hydrosocial:001 "
+        canonical["validation_decision_id"] = " decision:hydrosocial:001 "
+        assignment["validation_decision_id"] = " decision:hydrosocial:001 "
+    elif mutation == "non_string_identifier":
+        decision["validation_decision_id"] = 7
+        canonical["validation_decision_id"] = 7
+        assignment["validation_decision_id"] = 7
+    elif mutation == "invalid_reviewer":
+        decision["reviewer"] = "reviewer@example.com"
+    elif mutation == "invalid_timestamp":
+        decision["decision_at_utc"] = "2026-07-10 00:00:00+00:00"
+    elif mutation == "mismatched_definition":
+        canonical["canonical_definition"] = "A forged definition."
+    elif mutation == "forged_candidate_id":
+        # Compute a candidate_id that uses a wrong evidence_id in the preimage.
+        # The recomputation check will compute the correct ID (using "E-0001")
+        # and see it differs from the forged ID (computed with "E-WRONG").
+        forged = "candidate:" + hashlib.sha256(
+            ("\x1f".join(["signal:hydrosocial:001", "E-WRONG", "candidate"])).encode()
+        ).hexdigest()
+        rows["competence_candidates"][0]["candidate_id"] = forged
+        decision["target_candidate_id"] = forged
+        canonical["source_candidate_id"] = forged
+        assignment["source_candidate_id"] = forged
+    elif mutation == "mismatched_span_text":
+        rows["evidence_fragments"][0].update({
+            "context_text": "Desalination governance competence needs for water systems",
+            "span_start_offset": 0,
+            "span_end_offset": 12,
+            "fragment_text": "WRONG_TEXT",
+        })
+    else:  # pragma: no cover - keeps parametrization exhaustive.
+        raise AssertionError(f"unexpected mutation: {mutation}")
+
+    with pytest.raises(DerivedAnalysisError, match=message):
+        _build_accepted_canonical_lineage(tmp_path, rows)
+
+
+def test_layer4_rejects_decision_after_built_at(tmp_path: Path) -> None:
+    """A decision timestamped after built_at_utc must raise DerivedAnalysisError."""
+    rows = _accepted_canonical_lineage_rows()
+    # Base fixture: decision_at_utc=2026-07-10, built_at=2026-07-12 → passes.
+    # Make decision AFTER built_at to trigger the guard:
+    rows["validation_decisions"][0]["decision_at_utc"] = "2026-07-15T00:00:00+00:00"
+    with pytest.raises(DerivedAnalysisError, match="dated after the database built_at_utc"):
+        _build_accepted_canonical_lineage(tmp_path, rows)
+
+
 def test_demand_strength_weights_sum_to_one() -> None:
     # Formula: 0.30 + 0.20 + 0.20 + 0.15 + 0.15 == 1.00
     assert round(0.30 + 0.20 + 0.20 + 0.15 + 0.15, 6) == 1.0
@@ -103,6 +375,8 @@ def test_derived_demand_columns_are_deterministic() -> None:
     assert "demand_strength_score" in DERIVED_DEMAND_COLUMNS
     assert "status" in DERIVED_DEMAND_COLUMNS
     assert "axis_code" in DERIVED_DEMAND_COLUMNS
+    assert "view_kind" in DERIVED_DEMAND_COLUMNS
+    assert "scientific_status" in DERIVED_DEMAND_COLUMNS
 
 
 def test_growth_eligibility_excludes_duplicate_only() -> None:
@@ -151,6 +425,8 @@ def test_build_layer4_layer5_end_to_end(tmp_path: Path) -> None:
     assert rows, "expected at least one derived demand"
     for r in rows:
         assert r["status"] in ALLOWED_DEMAND_STATUS
+        assert r["view_kind"] == "legacy_category_aggregate_compatibility_view"
+        assert r["scientific_status"] == "legacy_not_validated_canonical_competence"
 
     # Layer 5 gap row uses static baseline field, not live availability.
     with gap_csv.open() as fh:
@@ -216,6 +492,27 @@ def test_variable_and_value_labels_written(tmp_path: Path) -> None:
     assert var.exists() and val.exists()
     assert var.read_text(encoding="utf-8").strip() != ""
     assert val.read_text(encoding="utf-8").strip() != ""
+    variable_rows = {row["variable_name"] for row in csv.DictReader(var.open())}
+    value_rows = {
+        (row["variable_name"], row["value_code"]): row["value_label"]
+        for row in csv.DictReader(val.open())
+    }
+    assert {
+        "source_field",
+        "decision_status",
+        "review_status",
+        "view_kind",
+        "scientific_status",
+    }.issubset(variable_rows)
+    assert ("decision_status", "accepted") in value_rows
+    assert ("decision_status", "superseded") in value_rows
+    assert (
+        "view_kind", "accepted_canonical_lineage_view"
+    ) in value_rows
+    assert (
+        "scientific_status", "validated_canonical_competence"
+    ) in value_rows
+    assert value_rows[("axis_group", "")] == "Unbound"
 
 
 # ---------------------------------------------------------------------------
@@ -223,13 +520,35 @@ def test_variable_and_value_labels_written(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _mk_hydro_demand(idx: int, *, sector: str = "ports") -> "Dict[str, Any]":
+def _mk_hydro_demand(
+    idx: int,
+    *,
+    sector: str = "ports",
+    scientific_status: str = "legacy_not_validated_canonical_competence",
+) -> "Dict[str, Any]":
     """Build a minimal HYDRONIZATION DerivedCompetenceDemand-like dict."""
     from src.scientific_sources.derived_competence_analysis import DerivedCompetenceDemand
+    is_validated = (
+        scientific_status == "validated_canonical_competence"
+    )
+    canonical_label = f"hydro demand {idx}"
+    canonical_id = "canonical:" + hashlib.sha256(
+        canonical_label.lower().encode("utf-8")
+    ).hexdigest()
     return DerivedCompetenceDemand(
         competence_demand_id=f"cd:hydro:{sector}:HYDRONIZATION:demand{idx}",
-        competence_label=f"hydro demand {idx}",
+        competence_label=canonical_label,
         competence_definition=f"definition {idx}",
+        view_kind=(
+            "accepted_canonical_lineage_view"
+            if is_validated
+            else "legacy_category_aggregate_compatibility_view"
+        ),
+        scientific_status=scientific_status,
+        canonical_competence_id=canonical_id if is_validated else "",
+        validation_decision_ids=f"decision:hydro:{idx}" if is_validated else "",
+        source_candidate_ids=f"candidate:hydro:{idx}" if is_validated else "",
+        assignment_ids=f"assignment:hydro:{idx}" if is_validated else "",
         sector=sector,
         axis_group="HYDRONIZATION",
         axis_code="H",
@@ -391,6 +710,122 @@ def test_review_required_signals_propagate_to_demand_and_validated_counts(
     gap_rows = [row for row in l5.gap_rows if row.sector == demand.sector and row.axis_group == demand.axis_group]
     assert gap_rows
     assert gap_rows[0].validated_demand_count == 0
+
+
+def test_legacy_demands_do_not_enter_validation_backed_gap_measure(
+    tmp_path: Path,
+) -> None:
+    """Legacy aggregates remain literature demand but cannot imply validation."""
+    demand = _mk_hydro_demand(1)
+    demand.status = "high_demand"
+
+    result = build_layer5(
+        derived_demands=[demand],
+        evidence_records=[],
+        existing_credential_coverage={
+            (demand.sector, demand.axis_group): 1,
+        },
+        output_dir=tmp_path / "db-legacy-gap",
+    )
+
+    row = result.gap_rows[0]
+    assert row.live_literature_demand_count == 1
+    assert row.validated_demand_count == 0
+    assert row.covered_by_existing_credentials_count == 0
+    assert row.uncovered_demand_count == 0
+    assert row.gap_ratio == 0.0
+    assert "no_validated_canonical_demand" in row.validity_warning
+
+
+def test_validation_backed_demands_enter_gap_measure(tmp_path: Path) -> None:
+    """Only a provenance-bearing canonical projection enters the measure."""
+    demand = _mk_hydro_demand(
+        1,
+        scientific_status="validated_canonical_competence",
+    )
+    demand.status = "high_demand"
+
+    result = build_layer5(
+        derived_demands=[demand],
+        evidence_records=[],
+        existing_credential_coverage={
+            (demand.sector, demand.axis_group): 1,
+        },
+        output_dir=tmp_path / "db-validated-gap",
+    )
+
+    row = result.gap_rows[0]
+    assert row.validated_demand_count == 1
+    assert row.covered_by_existing_credentials_count == 1
+    assert row.uncovered_demand_count == 0
+    assert row.gap_ratio == 0.0
+    assert "no_validated_canonical_demand" not in row.validity_warning
+
+
+def test_layer5_credentials_prefer_legacy_view_when_mixed(
+    tmp_path: Path,
+) -> None:
+    """Mixed view rows must not be merged into one credential aggregate."""
+    legacy_demand = _mk_hydro_demand(1, sector="desalination")
+    validated_demand = _mk_hydro_demand(
+        2,
+        sector="desalination",
+        scientific_status="validated_canonical_competence",
+    )
+    legacy_demand.eqf_relevance = "6"
+    validated_demand.eqf_relevance = "6"
+
+    result = build_layer5(
+        derived_demands=[legacy_demand, validated_demand],
+        evidence_records=[],
+        output_dir=tmp_path / "db-layer5-mixed-view",
+    )
+
+    hydro_eqf6_credentials = [
+        credential
+        for credential in result.credentials
+        if (
+            credential.sector == "desalination"
+            and credential.axis_group == "HYDRONIZATION"
+            and credential.eqf_level == 6
+        )
+    ]
+    assert len(hydro_eqf6_credentials) == 1
+    assert hydro_eqf6_credentials[0].competence_demand_ids == (
+        legacy_demand.competence_demand_id
+    )
+
+
+def test_layer5_credentials_use_validated_view_when_no_legacy_exists(
+    tmp_path: Path,
+) -> None:
+    """Canonical-only sectors keep Layer-5 credential translation operational."""
+    validated_demand = _mk_hydro_demand(
+        1,
+        sector="desalination",
+        scientific_status="validated_canonical_competence",
+    )
+    validated_demand.eqf_relevance = "6"
+
+    result = build_layer5(
+        derived_demands=[validated_demand],
+        evidence_records=[],
+        output_dir=tmp_path / "db-layer5-canonical-only",
+    )
+
+    hydro_eqf6_credentials = [
+        credential
+        for credential in result.credentials
+        if (
+            credential.sector == "desalination"
+            and credential.axis_group == "HYDRONIZATION"
+            and credential.eqf_level == 6
+        )
+    ]
+    assert len(hydro_eqf6_credentials) == 1
+    assert hydro_eqf6_credentials[0].competence_demand_ids == (
+        validated_demand.competence_demand_id
+    )
 
 
 def test_learning_outcome_statement_does_not_use_placeholder_evidence_id(
@@ -570,6 +1005,8 @@ def test_h1_signed_direction_controls_interpretation(
             competence_demand_id=f"cd:{axis}:sector:{idx}",
             competence_label=f"{axis} demand {idx}",
             competence_definition="",
+            view_kind="legacy_category_aggregate_compatibility_view",
+            scientific_status="legacy_not_validated_canonical_competence",
             sector="ports",
             axis_group=axis,
             axis_code=axis[0],
@@ -780,7 +1217,13 @@ def test_layer4_honors_stats_dir_and_fixed_timestamp(tmp_path: Path) -> None:
 
 
 def test_h2_consumes_only_validated_demand_level_supply(tmp_path: Path) -> None:
-    demands = [_mk_hydro_demand(index) for index in range(1, 4)]
+    demands = [
+        _mk_hydro_demand(
+            index,
+            scientific_status="validated_canonical_competence",
+        )
+        for index in range(1, 4)
+    ]
     validated_supply = {
         demands[0].competence_demand_id: [6],
         demands[1].competence_demand_id: [5],
@@ -799,8 +1242,41 @@ def test_h2_consumes_only_validated_demand_level_supply(tmp_path: Path) -> None:
     assert h2["interpretation"] == "supported"
 
 
+def test_h2_excludes_legacy_demands_from_validated_counts(
+    tmp_path: Path,
+) -> None:
+    """A legacy compatibility row cannot inflate a validation-backed H2 result."""
+    validated_demand = _mk_hydro_demand(
+        1,
+        scientific_status="validated_canonical_competence",
+    )
+    legacy_demand = _mk_hydro_demand(2)
+    result = build_layer5(
+        derived_demands=[validated_demand, legacy_demand],
+        evidence_records=[],
+        validated_credential_supply={
+            validated_demand.competence_demand_id: [6],
+            legacy_demand.competence_demand_id: [6],
+        },
+        output_dir=tmp_path / "db-h2-legacy-exclusion",
+    )
+
+    h2 = result.hypothesis_results["H2"]
+    assert h2["hydronization_demand_count"] == 2
+    assert h2["validated_hydronization_demand_count"] == 1
+    assert h2["validated_covered_demand_count"] == 1
+    assert h2["validated_missing_demand_count"] == 0
+    assert h2["association_metric_missing_ratio"] == 0.0
+
+
 def test_h2_partial_support_threshold_is_0_25(tmp_path: Path) -> None:
-    demands = [_mk_hydro_demand(index) for index in range(1, 5)]
+    demands = [
+        _mk_hydro_demand(
+            index,
+            scientific_status="validated_canonical_competence",
+        )
+        for index in range(1, 5)
+    ]
     validated_supply = {
         demands[0].competence_demand_id: [6],
         demands[1].competence_demand_id: [7],
@@ -866,6 +1342,8 @@ def test_h3_uses_matched_fragments_and_evidence_level_bridges(tmp_path: Path) ->
         competence_demand_id="cd:marine:1",
         competence_label="marine skill",
         competence_definition="marine",
+        view_kind="legacy_category_aggregate_compatibility_view",
+        scientific_status="legacy_not_validated_canonical_competence",
         sector="ports",
         axis_group="MARINE",
         axis_code="M",
@@ -897,6 +1375,8 @@ def test_h3_uses_matched_fragments_and_evidence_level_bridges(tmp_path: Path) ->
         competence_demand_id="cd:oceanic:1",
         competence_label="oceanic skill",
         competence_definition="oceanic",
+        view_kind="legacy_category_aggregate_compatibility_view",
+        scientific_status="legacy_not_validated_canonical_competence",
         sector="ports",
         axis_group="OCEANIC",
         axis_code="O",
@@ -1125,7 +1605,6 @@ def test_write_layer45_checksums_fails_for_missing_requested_artifact(
     out.mkdir()
     missing = out / "missing.csv"
 
-    import pytest
     with pytest.raises(FileNotFoundError, match="missing_emitted_artifact"):
         write_layer45_checksums([missing], out)
 
@@ -1147,3 +1626,55 @@ def test_write_layer45_checksums_format_is_sha256sum_compatible(tmp_path: Path) 
         assert len(parts) == 2, f"malformed checksum line: {line!r}"
         assert hex64.match(parts[0]), f"digest is not 64 hex chars: {parts[0]!r}"
         assert (out / parts[1]).is_file(), f"checksum references non-existent file: {parts[1]!r}"
+
+
+# ---------------------------------------------------------------------------
+# schema_v2_identity delimiter guard regressions
+# ---------------------------------------------------------------------------
+
+def test_check_no_unit_sep_raises_on_delimiter_in_preimage_field(tmp_path: Path) -> None:
+    """make_signal_id must raise ValueError when a preimage field contains \\x1f.
+
+    This is the negative regression for requirement 3 of the construct-validity
+    audit: a field value that itself contains the ASCII Unit Separator (used as
+    the hash-payload delimiter) would silently corrupt the preimage.  The
+    construction-time guard must detect and refuse it.
+    """
+    from src.scientific_sources.schema_v2_identity import make_signal_id
+
+    with pytest.raises(ValueError, match="ASCII Unit Separator"):
+        make_signal_id(
+            evidence_id="E-0001",
+            signal_type="governance_skill\x1fINJECTED",
+            matched_phrase="governance",
+            evidence_text_hash="abc123",
+            classifier_version="v1",
+        )
+
+
+def test_layer4_rejects_forged_assignment_id(tmp_path: Path) -> None:
+    """Layer 4 must raise DerivedAnalysisError when assignment_id preimage is forged.
+
+    The assignment_id in the fixture is an opaque string that does not match the
+    deterministic preimage formula.  Layer 4 recomputes it from
+    (canonical_competence_id, validation_decision_id, sector, axis_group, axis_code)
+    and must fail closed when the stored ID disagrees.
+    """
+    rows = _accepted_canonical_lineage_rows()
+    # Replace the real assignment_id with a plausible-looking but wrong hash
+    # (uses a deliberately incorrect canonical_competence_id in its preimage).
+    forged_assignment_id = (
+        "assignment:" + hashlib.sha256(
+            "\x1f".join([
+                "canonical:" + "0" * 64,  # wrong canonical_competence_id
+                "decision:hydrosocial:001",
+                "desalination",
+                "HYDRONIZATION",
+                "H",
+            ]).encode("utf-8")
+        ).hexdigest()
+    )
+    rows["sector_competence_assignments"][0]["assignment_id"] = forged_assignment_id
+
+    with pytest.raises(DerivedAnalysisError, match="assignment_id does not match recomputed"):
+        _build_accepted_canonical_lineage(tmp_path, rows)

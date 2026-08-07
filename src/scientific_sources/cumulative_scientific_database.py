@@ -1,4 +1,4 @@
-"""Cumulative Scientific Database — PR-190 Layers 2 & 3.
+"""Cumulative Scientific Database — PR-190 Layers 2 & 3 plus schema-v2 foundations.
 
 This module builds the *live cumulative scientific database* on top of the
 Layer 0 (``config/live_query_protocol.yml``) and Layer 1
@@ -12,12 +12,20 @@ Layer 0 (``config/live_query_protocol.yml``) and Layer 1
 
 * **Layer 3 — Semantic competence-demand signals.** For every evidence row
   associated with the current run we apply a deterministic, rule-based
-  scanner over the available metadata (title, subject_terms, source_query)
-  and, if any competence-demand indicator is present, we emit one signal
-  per matched category. The scanner never invents abstracts or citations —
-  when the evidence is thin the signal is flagged with
-  ``manual_review_status='review_required'`` and, where warranted, a
-  ``metadata_only_limitation`` validity warning is attached.
+  scanner over the available metadata (title, subject_terms, abstract,
+  full_text). When a competence-demand indicator is present we emit:
+
+  - a versioned ``evidence_fragment`` with exact span offsets/text;
+  - a versioned ``semantic_signal`` with explicit lineage to that fragment;
+  - a versioned ``competence_candidate`` that retains fragment + provenance
+    references and is always review-gated;
+  - compatibility projections for the legacy ``competence_demand_signals``
+    and downstream aggregate demand view.
+
+  Canonical competences, sector assignments, and validation decisions are
+  exported as separate versioned tables and remain empty unless explicit
+  validation decisions are supplied. No automatic promotion from candidate to
+  canonical competence is allowed.
 
 The public entry point is :func:`build_cumulative_scientific_database`, which
 returns a :class:`CumulativeDatabaseResult` and writes the following files
@@ -51,7 +59,7 @@ import hashlib
 import json
 import re
 import unicodedata
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import (
@@ -74,20 +82,44 @@ from src.scientific_sources.live_query_protocol import (
     LiveQueryProtocol,
     load_live_query_protocol,
 )
+from src.scientific_sources.schema_v2_identity import (
+    make_assignment_id as _make_assignment_id_shared,
+    make_candidate_id as _make_candidate_id_shared,
+    make_canonical_competence_id as _make_canonical_competence_id_shared,
+    make_fragment_id as _make_fragment_id_shared,
+    make_provenance_id as _make_provenance_id_shared,
+    make_signal_id as _make_signal_id_shared,
+    normalize_source_id as _normalize_source_id_shared,
+)
 
 
 # ---------------------------------------------------------------------------
 # Public constants
 # ---------------------------------------------------------------------------
 
-DATABASE_SCHEMA_VERSION = "1.0.0"
+DATABASE_SCHEMA_VERSION = "2.0.0"
 """Schema version stamped into every manifest produced by this module."""
 
-CLASSIFIER_VERSION = "cumulative-db-semantic-v1"
+CLASSIFIER_VERSION = "cumulative-db-semantic-v3"
 """Deterministic rule-based semantic classifier version tag."""
+
+LEGACY_COMPATIBILITY_CLASSIFIER_VERSION = "cumulative-db-semantic-v1"
+"""Frozen classifier identifier for the legacy demand-signal projection."""
 
 EVIDENCE_RECORDS_CSV = "evidence_records.csv"
 EVIDENCE_RECORDS_JSONL = "evidence_records.jsonl"
+EVIDENCE_FRAGMENTS_CSV = "evidence_fragments.csv"
+EVIDENCE_FRAGMENTS_JSONL = "evidence_fragments.jsonl"
+SEMANTIC_SIGNALS_CSV = "semantic_signals.csv"
+SEMANTIC_SIGNALS_JSONL = "semantic_signals.jsonl"
+COMPETENCE_CANDIDATES_CSV = "competence_candidates.csv"
+COMPETENCE_CANDIDATES_JSONL = "competence_candidates.jsonl"
+CANONICAL_COMPETENCES_CSV = "canonical_competences.csv"
+CANONICAL_COMPETENCES_JSONL = "canonical_competences.jsonl"
+SECTOR_COMPETENCE_ASSIGNMENTS_CSV = "sector_competence_assignments.csv"
+SECTOR_COMPETENCE_ASSIGNMENTS_JSONL = "sector_competence_assignments.jsonl"
+VALIDATION_DECISIONS_CSV = "validation_decisions.csv"
+VALIDATION_DECISIONS_JSONL = "validation_decisions.jsonl"
 COMPETENCE_DEMAND_SIGNALS_CSV = "competence_demand_signals.csv"
 COMPETENCE_DEMAND_SIGNALS_JSONL = "competence_demand_signals.jsonl"
 HYPOTHESIS_SEMANTIC_FRAGMENTS_CSV = "hypothesis_semantic_fragments.csv"
@@ -119,6 +151,114 @@ EVIDENCE_RECORD_COLUMNS: Tuple[str, ...] = (
     "record_recurrence_count",
     "jaccard_group_id",
     "validity_warning",
+)
+
+EVIDENCE_FRAGMENT_COLUMNS: Tuple[str, ...] = (
+    "fragment_id",
+    "evidence_id",
+    "run_id",
+    "source_provenance_id",
+    "source_provider",
+    "source_provider_id",
+    "source_retrieved_at_utc",
+    "source_query_id",
+    "source_query_text",
+    "source_field",
+    "language",
+    "fragment_text",
+    "span_start_offset",
+    "span_end_offset",
+    "surface_text_hash",
+    "provenance_hash",
+)
+
+SEMANTIC_SIGNAL_COLUMNS: Tuple[str, ...] = (
+    "signal_id",
+    "fragment_id",
+    "evidence_id",
+    "run_id",
+    "source_provenance_id",
+    "sector",
+    "axis_group",
+    "axis_code",
+    "query_id",
+    "query_family",
+    "signal_type",
+    "signal_category_label",
+    "signal_category_description",
+    "matched_phrase",
+    "confidence_score",
+    "classifier_version",
+    "negation_status",
+    "speculation_status",
+    "actor_text",
+    "action_text",
+    "object_text",
+    "context_text",
+    "evidence_text_hash",
+    "manual_review_status",
+    "validity_warning",
+)
+
+COMPETENCE_CANDIDATE_COLUMNS: Tuple[str, ...] = (
+    "candidate_id",
+    "signal_id",
+    "fragment_id",
+    "evidence_id",
+    "run_id",
+    "sector",
+    "axis_group",
+    "axis_code",
+    "source_provenance_ids",
+    "fragment_ids",
+    "candidate_label",
+    "candidate_definition",
+    "capability_proposition",
+    "knowledge_dimension",
+    "skill_dimension",
+    "responsibility_autonomy_dimension",
+    "candidate_status",
+    "review_status",
+    "exact_evidence_span",
+    "exact_span_start_offset",
+    "exact_span_end_offset",
+)
+
+CANONICAL_COMPETENCE_COLUMNS: Tuple[str, ...] = (
+    "canonical_competence_id",
+    "validation_decision_id",
+    "source_candidate_id",
+    "preferred_label",
+    "canonical_definition",
+    "aliases",
+    "validation_status",
+    "schema_version",
+    "provenance_guard_status",
+)
+
+SECTOR_COMPETENCE_ASSIGNMENT_COLUMNS: Tuple[str, ...] = (
+    "assignment_id",
+    "canonical_competence_id",
+    "validation_decision_id",
+    "source_candidate_id",
+    "sector",
+    "axis_group",
+    "axis_code",
+    "evidence_ids",
+)
+
+VALIDATION_DECISION_COLUMNS: Tuple[str, ...] = (
+    "validation_decision_id",
+    "target_candidate_id",
+    "canonical_label",
+    "decision_status",
+    "reviewer",
+    "decision_at_utc",
+    "decision_reason",
+    "evidence_ids",
+    "fragment_ids",
+    "source_provenance_ids",
+    "superseded_validation_decision_id",
 )
 
 COMPETENCE_DEMAND_SIGNAL_COLUMNS: Tuple[str, ...] = (
@@ -202,6 +342,12 @@ ALLOWED_MANUAL_REVIEW_STATUSES: Tuple[str, ...] = (
     "rejected",
 )
 
+_REVIEWER_IDENTIFIER_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{2,127}")
+_UTC_TIMESTAMP_RE = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}"
+    r"(?::\d{2}(?:\.\d+)?)?(?:Z|\+00:00)$"
+)
+
 
 class CumulativeDatabaseError(RuntimeError):
     """Raised when the cumulative-database builder cannot produce a bundle."""
@@ -219,6 +365,28 @@ class _SignalPattern:
     label: str
     description: str
     phrases: Tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class _SignalMatch:
+    """One exact retained match used to build v2 fragment/signal rows."""
+
+    pattern: _SignalPattern
+    matched_phrase: str
+    span_text: str
+    source_field: str
+    source_text: str
+    span_start: int
+    span_end: int
+
+
+@dataclass(frozen=True)
+class _SignalComponent:
+    """A bundled v2 construct-validity chain for one observation match."""
+
+    evidence_fragment: "EvidenceFragment"
+    semantic_signal: "SemanticSignal"
+    competence_candidate: "CompetenceCandidate"
 
 
 # Patterns are frozen and ordered — the scanner iterates them deterministically.
@@ -474,6 +642,159 @@ class EvidenceRecord:
 
 
 @dataclass(frozen=True)
+class EvidenceFragment:
+    """A retained exact evidence span tied to one observation provenance."""
+
+    fragment_id: str
+    evidence_id: str
+    run_id: str
+    source_provenance_id: str
+    source_provider: str
+    source_provider_id: str
+    source_retrieved_at_utc: str
+    source_query_id: str
+    source_query_text: str
+    source_field: str
+    language: str
+    fragment_text: str
+    span_start_offset: int
+    span_end_offset: int
+    surface_text_hash: str
+    provenance_hash: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-friendly ordered dict of this evidence-fragment row."""
+        return {col: getattr(self, col) for col in EVIDENCE_FRAGMENT_COLUMNS}
+
+
+@dataclass(frozen=True)
+class SemanticSignal:
+    """Versioned semantic signal with explicit fragment lineage."""
+
+    signal_id: str
+    fragment_id: str
+    evidence_id: str
+    run_id: str
+    source_provenance_id: str
+    sector: str
+    axis_group: str
+    axis_code: str
+    query_id: str
+    query_family: str
+    signal_type: str
+    signal_category_label: str
+    signal_category_description: str
+    matched_phrase: str
+    confidence_score: float
+    classifier_version: str
+    negation_status: str
+    speculation_status: str
+    actor_text: str
+    action_text: str
+    object_text: str
+    context_text: str
+    evidence_text_hash: str
+    manual_review_status: str
+    validity_warning: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-friendly ordered dict of this semantic-signal row."""
+        return {col: getattr(self, col) for col in SEMANTIC_SIGNAL_COLUMNS}
+
+
+@dataclass(frozen=True)
+class CompetenceCandidate:
+    """Review-gated competence candidate derived from one semantic signal."""
+
+    candidate_id: str
+    signal_id: str
+    fragment_id: str
+    evidence_id: str
+    run_id: str
+    sector: str
+    axis_group: str
+    axis_code: str
+    source_provenance_ids: str
+    fragment_ids: str
+    candidate_label: str
+    candidate_definition: str
+    capability_proposition: str
+    knowledge_dimension: str
+    skill_dimension: str
+    responsibility_autonomy_dimension: str
+    candidate_status: str
+    review_status: str
+    exact_evidence_span: str
+    exact_span_start_offset: int
+    exact_span_end_offset: int
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-friendly ordered dict of this candidate row."""
+        return {col: getattr(self, col) for col in COMPETENCE_CANDIDATE_COLUMNS}
+
+
+@dataclass(frozen=True)
+class ValidationDecision:
+    """Explicit reviewer decision required before canonicalization."""
+
+    validation_decision_id: str
+    target_candidate_id: str
+    canonical_label: str
+    decision_status: str
+    reviewer: str
+    decision_at_utc: str
+    decision_reason: str
+    evidence_ids: str
+    fragment_ids: str
+    source_provenance_ids: str
+    superseded_validation_decision_id: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-friendly ordered dict of this validation-decision row."""
+        return {col: getattr(self, col) for col in VALIDATION_DECISION_COLUMNS}
+
+
+@dataclass(frozen=True)
+class CanonicalCompetence:
+    """Validation-backed canonical competence."""
+
+    canonical_competence_id: str
+    validation_decision_id: str
+    source_candidate_id: str
+    preferred_label: str
+    canonical_definition: str
+    aliases: str
+    validation_status: str
+    schema_version: str
+    provenance_guard_status: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-friendly ordered dict of this canonical-competence row."""
+        return {col: getattr(self, col) for col in CANONICAL_COMPETENCE_COLUMNS}
+
+
+@dataclass(frozen=True)
+class SectorCompetenceAssignment:
+    """Explicit sector linkage for one canonical competence."""
+
+    assignment_id: str
+    canonical_competence_id: str
+    validation_decision_id: str
+    source_candidate_id: str
+    sector: str
+    axis_group: str
+    axis_code: str
+    evidence_ids: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-friendly ordered dict of this sector-assignment row."""
+        return {
+            col: getattr(self, col)
+            for col in SECTOR_COMPETENCE_ASSIGNMENT_COLUMNS
+        }
+
+
+@dataclass(frozen=True)
 class CompetenceDemandSignal:
     """A single semantic competence-demand signal row."""
 
@@ -564,6 +885,14 @@ class CumulativeDatabaseResult:
     evidence_records: List[EvidenceRecord]
     competence_demand_signals: List[CompetenceDemandSignal]
     run_novelty_metrics: RunNoveltyMetrics
+    evidence_fragments: List[EvidenceFragment] = field(default_factory=list)
+    semantic_signals: List[SemanticSignal] = field(default_factory=list)
+    competence_candidates: List[CompetenceCandidate] = field(default_factory=list)
+    canonical_competences: List[CanonicalCompetence] = field(default_factory=list)
+    sector_competence_assignments: List[SectorCompetenceAssignment] = field(
+        default_factory=list
+    )
+    validation_decisions: List[ValidationDecision] = field(default_factory=list)
     files: List[Path] = field(default_factory=list)
 
 
@@ -647,9 +976,7 @@ def _title_hash(normalized_title: str) -> str:
 
 def _normalize_source_id(source_id: Any) -> str:
     """Return the lowercased trimmed source_id, or '' if empty."""
-    if not isinstance(source_id, str):
-        return ""
-    return source_id.strip().lower()
+    return _normalize_source_id_shared(source_id)
 
 
 def _canonical_provider_name(value: Any) -> str:
@@ -961,12 +1288,43 @@ def _bind_record(
     return _UNBOUND_BINDING
 
 
-def _record_timestamp(
-    record: Mapping[str, Any], fallback: str
-) -> str:
-    """Return the record's retrieval timestamp or `fallback` if absent."""
+def _require_utc_timestamp(value: Any, *, field_name: str) -> str:
+    """Return a retained ISO-8601 UTC timestamp or fail closed.
+
+    Source-occurrence timestamps are part of the provenance identifier.  A
+    non-UTC value must never be copied into that preimage because it makes
+    ordering and reproducibility ambiguous across consumers.
+    """
+    stamp = str(value or "").strip()
+    if not stamp or not _UTC_TIMESTAMP_RE.fullmatch(stamp):
+        raise CumulativeDatabaseError(
+            f"{field_name} requires an ISO-8601 UTC timestamp"
+        )
+    try:
+        parsed = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise CumulativeDatabaseError(
+            f"{field_name} requires an ISO-8601 UTC timestamp"
+        ) from exc
+    utc_offset = parsed.utcoffset()
+    if (
+        parsed.tzinfo is None
+        or utc_offset is None
+        or utc_offset.total_seconds() != 0
+    ):
+        raise CumulativeDatabaseError(
+            f"{field_name} requires an ISO-8601 UTC timestamp"
+        )
+    return stamp
+
+
+def _record_timestamp(record: Mapping[str, Any], fallback: str) -> str:
+    """Return the record's UTC retrieval timestamp or a UTC fallback."""
     stamp = str(record.get("retrieval_timestamp") or "").strip()
-    return stamp or fallback
+    return _require_utc_timestamp(
+        stamp or fallback,
+        field_name="source_retrieved_at_utc",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -1087,21 +1445,129 @@ def _upgrade_if_enriched(
 # Semantic scanner (Layer 3)
 # ---------------------------------------------------------------------------
 
+_NEGATION_CUE_RE = re.compile(
+    r"\b(?:no|not(?!\s+only\b)|never|without|neither|nor|"
+    r"lack(?:ing|ed|s)?)\b",
+    flags=re.IGNORECASE,
+)
+_SPECULATION_CUE_RE = re.compile(
+    r"\b(?:may|might|could|possibly|potentially|likely|unlikely|"
+    r"suggest(?:s|ed|ing)?|appear(?:s|ed|ing)?|expected)\b",
+    flags=re.IGNORECASE,
+)
+
+
+def _has_negation_or_speculation_cue(
+    source_text: str,
+    span_start: int,
+    span_end: int,
+) -> bool:
+    """Return whether a match's clause has a qualifying inference cue.
+
+    The scanner only emits automatic demand candidates for unqualified positive
+    claims. Negated and speculative clauses need human interpretation and are
+    therefore excluded rather than mislabeled as positive demand evidence.
+    """
+    delimiters = (".", "?", "!", ";", "\n")
+    clause_start = (
+        max(source_text.rfind(delimiter, 0, span_start) for delimiter in delimiters)
+        + 1
+    )
+    following_delimiters = [
+        index
+        for delimiter in delimiters
+        if (index := source_text.find(delimiter, span_end)) != -1
+    ]
+    clause_end = min(following_delimiters) if following_delimiters else len(source_text)
+    clause = source_text[clause_start:clause_end]
+    # Narrow further: split on adversative/concessive conjunctions and keep only
+    # the sub-clause that contains the matched span (relative offset within clause).
+    _ADVERSATIVE_SPLIT_RE = re.compile(
+        r"\s+(?:but|however|although|though|yet|whereas|while|nevertheless|"
+        r"nonetheless|even so|even though)\s+",
+        flags=re.IGNORECASE,
+    )
+    match_offset = span_start - clause_start
+    segments = _ADVERSATIVE_SPLIT_RE.split(clause)
+    running = 0
+    for segment in segments:
+        if running <= match_offset < running + len(segment):
+            clause = segment
+            break
+        # account for the separator (consumed by split, not in segment)
+        separator_match = _ADVERSATIVE_SPLIT_RE.search(
+            source_text[clause_start:clause_end], running + len(segment)
+        )
+        running += len(segment) + (
+            len(separator_match.group()) if separator_match else 0
+        )
+    return bool(
+        _NEGATION_CUE_RE.search(clause) or _SPECULATION_CUE_RE.search(clause)
+    )
+
+
 def _scan_semantic_signals(
+    surfaces: Sequence[Tuple[str, str]],
+    source_query: str,
+) -> List[_SignalMatch]:
+    """Return every exact retained match for every semantic pattern.
+
+    ``source_query`` remains provenance-only and must not contribute to
+    positive semantic matching.
+    """
+    del source_query
+    normalized_surfaces = [
+        (name, text)
+        for name, text in surfaces
+        if str(text or "").strip()
+    ]
+    results: List[_SignalMatch] = []
+    seen_matches: Set[Tuple[str, str, int, int]] = set()
+    for pattern in _SIGNAL_PATTERNS:
+        for source_field, source_text in normalized_surfaces:
+            for phrase in pattern.phrases:
+                phrase_token = phrase.strip()
+                if not phrase_token:
+                    continue
+                for phrase_match in re.finditer(
+                    rf"(?<!\w){re.escape(phrase_token)}(?!\w)",
+                    source_text,
+                    flags=re.IGNORECASE,
+                ):
+                    start, end = phrase_match.span()
+                    match_key = (pattern.signal_type, source_field, start, end)
+                    if match_key in seen_matches:
+                        continue
+                    if _has_negation_or_speculation_cue(source_text, start, end):
+                        continue
+                    seen_matches.add(match_key)
+                    results.append(
+                        _SignalMatch(
+                            pattern=pattern,
+                            matched_phrase=phrase_token,
+                            span_text=source_text[start:end],
+                            source_field=source_field,
+                            source_text=source_text,
+                            span_start=start,
+                            span_end=end,
+                        )
+                    )
+    return results
+
+
+def _scan_legacy_compatibility_signals(
     text: str,
     subject_terms: str,
     source_query: str,
 ) -> List[Tuple[_SignalPattern, str]]:
-    """Return `(pattern, matched_phrase)` tuples for every matching pattern.
+    """Return the frozen v1 matches for the legacy demand-signal export.
 
-    The scan is case-insensitive and inspects retained evidence surfaces:
-    title, subject terms, and legally stored abstract/full text. ``source_query``
-    is provenance metadata and must NOT contribute to positive
-    semantic matching: query-only matches are not empirical evidence and must
-    not produce competence signals, hypothesis fragments, demand scores, or gap
-    evidence.  The ``source_query`` parameter is accepted (and retained) for
-    provenance logging only.
+    Schema-v2 construct-validity tables intentionally use the stricter v3
+    scanner above. The legacy table remains a compatibility projection and
+    therefore preserves its v1 substring matching, one-row-per-pattern
+    cardinality, and signal identity.
     """
+    del source_query
     haystack = f"{text} || {subject_terms}".lower()
     results: List[Tuple[_SignalPattern, str]] = []
     for pattern in _SIGNAL_PATTERNS:
@@ -1121,20 +1587,185 @@ def _make_signal_id(
 ) -> str:
     """Return a stable cross-run semantic signal identity.
 
-    Run identifiers and query metadata are deliberately excluded: recurrence
-    of the same evidence-bound semantic signal must retain the same identity.
+    Delegates to :func:`schema_v2_identity.make_signal_id`.  Run identifiers
+    and query metadata are deliberately excluded.
     """
-    normalized_phrase = re.sub(r"\s+", " ", matched_phrase).strip().lower()
-    payload = "\x1f".join(
-        (
-            evidence_id,
-            signal_type,
-            normalized_phrase,
-            evidence_text_hash,
-            classifier_version,
-        )
+    return _make_signal_id_shared(
+        evidence_id=evidence_id,
+        signal_type=signal_type,
+        matched_phrase=matched_phrase,
+        evidence_text_hash=evidence_text_hash,
+        classifier_version=classifier_version,
     )
-    return f"signal:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
+
+
+def _make_fragment_id(
+    *,
+    evidence_id: str,
+    signal_id: str,
+    provenance_id: str,
+    source_field: str,
+    span_start: int,
+    span_end: int,
+) -> str:
+    """Return a stable evidence-fragment identifier.
+
+    Delegates to :func:`schema_v2_identity.make_fragment_id`.
+    """
+    return _make_fragment_id_shared(
+        evidence_id=evidence_id,
+        signal_id=signal_id,
+        provenance_id=provenance_id,
+        source_field=source_field,
+        span_start=span_start,
+        span_end=span_end,
+    )
+
+
+def _make_candidate_id(*, signal_id: str, evidence_id: str) -> str:
+    """Return a stable cross-run candidate identity for one semantic signal.
+
+    Delegates to :func:`schema_v2_identity.make_candidate_id`.
+    """
+    return _make_candidate_id_shared(signal_id=signal_id, evidence_id=evidence_id)
+
+
+def _source_provenance_fields(
+    *,
+    obs: _RunObservation,
+    evidence_id: str,
+) -> Dict[str, str]:
+    """Return the published preimage fields for one source occurrence."""
+    return {
+        "run_id": obs.run_id,
+        "evidence_id": evidence_id,
+        "source_provider": (
+            _canonical_provider_name(obs.record.get("provider")) or "unknown"
+        ),
+        "source_provider_id": str(obs.record.get("source_id") or "").strip(),
+        "source_retrieved_at_utc": _record_timestamp(
+            obs.record, obs.timestamp_utc
+        ),
+        "source_query_id": obs.binding.query_id,
+        "source_query_text": str(obs.record.get("source_query") or "").strip(),
+    }
+
+
+def _make_provenance_id_from_fields(fields: Mapping[str, str]) -> str:
+    """Return the stable identifier for published source-occurrence fields.
+
+    Delegates to :func:`schema_v2_identity.make_provenance_id`.
+    """
+    return _make_provenance_id_shared(
+        run_id=fields["run_id"],
+        evidence_id=fields["evidence_id"],
+        source_retrieved_at_utc=fields["source_retrieved_at_utc"],
+        source_provider=fields["source_provider"],
+        source_provider_id=fields.get("source_provider_id", ""),
+        source_query_id=fields["source_query_id"],
+        source_query_text=fields.get("source_query_text", ""),
+    )
+
+
+def _make_provenance_id(*, obs: _RunObservation, evidence_id: str) -> str:
+    """Return a stable source-occurrence identifier with a published preimage."""
+    return _make_provenance_id_from_fields(
+        _source_provenance_fields(obs=obs, evidence_id=evidence_id)
+    )
+
+
+def _candidate_label(pattern: _SignalPattern, span_text: str) -> str:
+    token = re.sub(r"\s+", " ", str(span_text or "").strip())
+    if token:
+        return token
+    return pattern.label
+
+
+def _candidate_capability_proposition(
+    *, pattern: _SignalPattern, span_text: str, source_field: str
+) -> str:
+    span = re.sub(r"\s+", " ", str(span_text or "").strip())
+    source = source_field or "retained_text"
+    return f"{pattern.label} evidenced by exact {source} span: {span}"
+
+
+def _candidate_knowledge_dimension(pattern: _SignalPattern) -> str:
+    if pattern.signal_type in {
+        "governance_skill",
+        "policy_regulation_skill",
+        "social_science_skill",
+        "sustainability_skill",
+    }:
+        return "knowledge"
+    return "hybrid"
+
+
+def _candidate_skill_dimension(pattern: _SignalPattern) -> str:
+    if pattern.signal_type in {
+        "digital_skill",
+        "technical_skill",
+        "safety_risk_skill",
+        "education_training_signal",
+    }:
+        return "skill"
+    return "hybrid"
+
+
+def _candidate_ra_dimension(pattern: _SignalPattern) -> str:
+    if pattern.signal_type in {
+        "governance_skill",
+        "policy_regulation_skill",
+        "credential_translation_signal",
+    }:
+        return "responsibility_autonomy"
+    return "hybrid"
+
+
+def canonical_label_is_allowed(
+    label: str,
+    *,
+    retained_source_titles: Sequence[str] = (),
+) -> Tuple[bool, str]:
+    """Return canonical-promotion eligibility and any guard rejection reason."""
+    token = re.sub(r"\s+", " ", str(label or "").strip())
+    if not token:
+        return False, "empty_label"
+    lowered = token.lower()
+    provider_token = re.sub(r"[_\s]+", " ", lowered).strip()
+    provider_aliases = {
+        re.sub(r"[_\s]+", " ", alias).strip()
+        for alias in _PROVIDER_ALIAS_TO_CANONICAL
+    }
+    if any(
+        provider_token == alias
+        or provider_token.startswith(f"{alias}:")
+        or provider_token.startswith(f"{alias} ")
+        for alias in provider_aliases
+    ):
+        return False, "provider_metadata_prefix"
+    if "..." in token or "\u2026" in token:
+        return False, "truncation_ellipsis"
+    if len(token) > 180:
+        return False, "length_over_180"
+    if token.count(" ") >= 8:
+        return False, "space_count_at_least_8"
+    metadata_match = re.search(r"\b(doi|journal|conference|article|paper)\b", lowered)
+    if metadata_match:
+        return False, f"metadata_term:{metadata_match.group(1)}"
+    normalized_label = _normalize_title(token)
+    label_token_count = len(normalized_label.split())
+    for source_title in retained_source_titles:
+        normalized_title = _normalize_title(source_title)
+        if not normalized_title or not normalized_label:
+            continue
+        if normalized_label == normalized_title:
+            return False, "source_title_exact"
+        if (
+            label_token_count >= 3
+            and f" {normalized_label} " in f" {normalized_title} "
+        ):
+            return False, "source_title_fragment"
+    return True, ""
 
 
 def _text_hash(text: str) -> str:
@@ -1159,6 +1790,7 @@ def build_cumulative_scientific_database(
     current_run_id: Optional[str] = None,
     built_at_utc: Optional[str] = None,
     workflow_context: Optional[Mapping[str, Any]] = None,
+    validation_decisions: Optional[Sequence[Mapping[str, Any]]] = None,
 ) -> CumulativeDatabaseResult:
     """Build the Layer 2 + 3 cumulative scientific database.
 
@@ -1181,6 +1813,13 @@ def build_cumulative_scientific_database(
             local development.
         built_at_utc: Optional ISO-8601 timestamp to stamp into the manifest.
         workflow_context: Optional mapping of GitHub Actions env vars.
+        validation_decisions: Optional explicit reviewer decision payloads. Each
+            payload must include a generated ``target_candidate_id`` and a
+            ``decision_status`` of ``accepted``, ``rejected``,
+            ``review_required``, or ``superseded``. Reviewer, decision time,
+            and reason are explicit audit fields. An unknown candidate target,
+            malformed audit field, or invalid status raises
+            :class:`CumulativeDatabaseError`.
 
     Returns:
         A :class:`CumulativeDatabaseResult` describing every file written.
@@ -1196,6 +1835,7 @@ def build_cumulative_scientific_database(
 
     resolved_run_id = (current_run_id or "current").strip() or "current"
     built_at = built_at_utc or datetime.now(timezone.utc).isoformat()
+    built_at = _require_utc_timestamp(built_at, field_name="built_at_utc")
     workflow_ctx: Dict[str, Any] = dict(workflow_context or {})
 
     protocol = _load_protocol_or_none(protocol_path_obj)
@@ -1203,7 +1843,7 @@ def build_cumulative_scientific_database(
 
     output_path.mkdir(parents=True, exist_ok=True)
 
-    observations, run_timestamps, current_records = _collect_observations(
+    observations, run_timestamps, _ = _collect_observations(
         current_run_path=current_run_path,
         current_run_id=resolved_run_id,
         current_run_timestamp=built_at,
@@ -1220,11 +1860,15 @@ def build_cumulative_scientific_database(
         run_timestamps=run_timestamps,
     )
 
+    current_signal_components = _build_current_signal_components(
+        buckets=buckets,
+        evidence_index=evidence_index,
+        current_run_id=resolved_run_id,
+    )
     competence_demand_signals = _make_signals(
         buckets=buckets,
         evidence_index=evidence_index,
         current_run_id=resolved_run_id,
-        current_records=current_records,
     )
     historical_signal_ids = _historical_signal_ids(
         buckets=buckets,
@@ -1249,10 +1893,38 @@ def build_cumulative_scientific_database(
         run_timestamps=run_timestamps,
         historical_signal_ids=historical_signal_ids,
     )
+    construct_validity_components = _build_construct_validity_signal_components(
+        buckets=buckets,
+        evidence_index=evidence_index,
+        current_run_id=resolved_run_id,
+        current_signal_components=current_signal_components,
+    )
+    evidence_titles_by_id = {
+        row.evidence_id: row.canonical_title for row in evidence_records
+    }
+    (
+        evidence_fragments,
+        semantic_signals,
+        competence_candidates,
+        validation_decision_rows,
+        canonical_competences,
+        sector_competence_assignments,
+    ) = _build_construct_validity_tables(
+        signal_components=construct_validity_components,
+        validation_decision_payloads=tuple(validation_decisions or ()),
+        built_at_utc=built_at,
+        evidence_titles_by_id=evidence_titles_by_id,
+    )
 
     written = _write_bundle(
         output_dir=output_path,
         evidence_records=evidence_records,
+        evidence_fragments=evidence_fragments,
+        semantic_signals=semantic_signals,
+        competence_candidates=competence_candidates,
+        canonical_competences=canonical_competences,
+        sector_competence_assignments=sector_competence_assignments,
+        validation_decisions=validation_decision_rows,
         competence_demand_signals=competence_demand_signals,
         novelty_metrics=novelty_metrics,
         current_run_id=resolved_run_id,
@@ -1270,6 +1942,12 @@ def build_cumulative_scientific_database(
         evidence_records=evidence_records,
         competence_demand_signals=competence_demand_signals,
         run_novelty_metrics=novelty_metrics,
+        evidence_fragments=evidence_fragments,
+        semantic_signals=semantic_signals,
+        competence_candidates=competence_candidates,
+        canonical_competences=canonical_competences,
+        sector_competence_assignments=sector_competence_assignments,
+        validation_decisions=validation_decision_rows,
         files=written,
     )
 
@@ -1643,30 +2321,98 @@ def _bucket_sort_key(bucket: Tuple[str, str]) -> Tuple[str, str]:
     return (kind_order.get(kind, "9"), key)
 
 
-def _make_signals(
+def _build_current_signal_components(
     *,
-    buckets: Dict[Tuple[str, str], List[_RunObservation]],
+    buckets: Mapping[Tuple[str, str], Sequence[_RunObservation]],
     evidence_index: Mapping[Tuple[str, str], str],
     current_run_id: str,
-    current_records: Sequence[Mapping[str, Any]],
-) -> List[CompetenceDemandSignal]:
-    """Return de-duplicated semantic signals for the current run only."""
-    del current_records  # retained for backward-compatible public call shape
-    signals_by_id: Dict[str, CompetenceDemandSignal] = {}
-
+) -> List[_SignalComponent]:
+    """Build each current-run observation's signal components exactly once."""
+    components: List[_SignalComponent] = []
     for bucket, observations in sorted(buckets.items(), key=lambda item: item[0]):
+        evidence_id = evidence_index[bucket]
         current_obs = sorted(
-            (o for o in observations if o.run_id == current_run_id),
-            key=lambda o: (
-                o.binding.query_id,
-                str(o.record.get("provider") or ""),
-                o.timestamp_utc,
+            (
+                observation
+                for observation in observations
+                if observation.run_id == current_run_id
+            ),
+            key=lambda observation: (
+                observation.binding.query_id,
+                str(observation.record.get("provider") or ""),
+                observation.timestamp_utc,
             ),
         )
+        for observation in current_obs:
+            components.extend(
+                _build_signal_components_for_observation(
+                    obs=observation,
+                    evidence_id=evidence_id,
+                )
+            )
+    return components
+
+
+def _build_construct_validity_signal_components(
+    *,
+    buckets: Mapping[Tuple[str, str], Sequence[_RunObservation]],
+    evidence_index: Mapping[Tuple[str, str], str],
+    current_run_id: str,
+    current_signal_components: Sequence[_SignalComponent],
+) -> List[_SignalComponent]:
+    """Return historical construct-validity components plus reused current rows."""
+    components = list(current_signal_components)
+    for bucket, observations in sorted(buckets.items(), key=lambda item: item[0]):
         evidence_id = evidence_index[bucket]
-        for obs in current_obs:
+        historical_observations = sorted(
+            (
+                observation
+                for observation in observations
+                if observation.run_id != current_run_id
+            ),
+            key=lambda observation: (
+                observation.run_id,
+                observation.binding.query_id,
+                _canonical_provider_name(observation.record.get("provider")),
+                _normalize_source_id(observation.record.get("source_id")),
+                observation.timestamp_utc,
+            ),
+        )
+        for observation in historical_observations:
+            components.extend(
+                _build_signal_components_for_observation(
+                    obs=observation,
+                    evidence_id=evidence_id,
+                )
+            )
+    return components
+
+
+def _make_signals(
+    *,
+    buckets: Mapping[Tuple[str, str], Sequence[_RunObservation]],
+    evidence_index: Mapping[Tuple[str, str], str],
+    current_run_id: str,
+) -> List[CompetenceDemandSignal]:
+    """Return the frozen-v1, de-duplicated compatibility projection."""
+    signals_by_id: Dict[str, CompetenceDemandSignal] = {}
+    for bucket, observations in sorted(buckets.items(), key=lambda item: item[0]):
+        evidence_id = evidence_index[bucket]
+        current_observations = sorted(
+            (
+                observation
+                for observation in observations
+                if observation.run_id == current_run_id
+            ),
+            key=lambda observation: (
+                observation.binding.query_id,
+                str(observation.record.get("provider") or ""),
+                observation.timestamp_utc,
+            ),
+        )
+        for observation in current_observations:
             for signal in _build_signals_for_observation(
-                obs=obs,
+                obs=observation,
                 evidence_id=evidence_id,
             ):
                 signals_by_id.setdefault(signal.signal_id, signal)
@@ -1702,6 +2448,7 @@ def _build_signals_for_observation(
     obs: _RunObservation,
     evidence_id: str,
 ) -> List[CompetenceDemandSignal]:
+    """Build the frozen-v1 signals for the legacy compatibility projection."""
     record = obs.record
     title = str(record.get("title") or "").strip()
     subject_terms = _flatten_subject_terms(record.get("subject_terms"))
@@ -1720,7 +2467,7 @@ def _build_signals_for_observation(
     if not text_scope:
         return []
 
-    matches = _scan_semantic_signals(
+    matches = _scan_legacy_compatibility_signals(
         " || ".join(part for part in (title, abstract, full_text) if part),
         subject_terms,
         source_query,
@@ -1731,7 +2478,6 @@ def _build_signals_for_observation(
     evidence_text_hash = _text_hash(text_scope)
     is_metadata_only = _is_metadata_only(record)
     warning = "metadata_only_limitation" if is_metadata_only else ""
-
     signals: List[CompetenceDemandSignal] = []
     for pattern, matched_phrase in matches:
         confidence, review_status = _score_confidence(
@@ -1750,7 +2496,7 @@ def _build_signals_for_observation(
                     pattern.signal_type,
                     matched_phrase,
                     evidence_text_hash,
-                    CLASSIFIER_VERSION,
+                    LEGACY_COMPATIBILITY_CLASSIFIER_VERSION,
                 ),
                 evidence_id=evidence_id,
                 run_id=obs.run_id,
@@ -1770,12 +2516,644 @@ def _build_signals_for_observation(
                 evidence_text_scope=text_scope,
                 evidence_text_hash=evidence_text_hash,
                 confidence_score=confidence,
-                classifier_version=CLASSIFIER_VERSION,
+                classifier_version=LEGACY_COMPATIBILITY_CLASSIFIER_VERSION,
                 manual_review_status=review_status,
                 validity_warning=warning,
             )
         )
     return signals
+
+
+def _build_signal_components_for_observation(
+    *,
+    obs: _RunObservation,
+    evidence_id: str,
+) -> List[_SignalComponent]:
+    record = obs.record
+    title = str(record.get("title") or "").strip()
+    subject_terms = _flatten_subject_terms(record.get("subject_terms"))
+    abstract = _flatten_text_surface(record.get("abstract"))
+    full_text = _flatten_text_surface(record.get("full_text"))
+    source_query = str(record.get("source_query") or "").strip()
+
+    surfaces = [
+        ("title", title),
+        ("subject_terms", subject_terms),
+        ("abstract", abstract),
+        ("full_text", full_text),
+    ]
+    text_scope = " || ".join(text for _, text in surfaces if text)
+    if not text_scope:
+        return []
+
+    matches = _scan_semantic_signals(surfaces, source_query)
+    if not matches:
+        return []
+
+    evidence_text_hash = _text_hash(text_scope)
+    is_metadata_only = _is_metadata_only(record)
+    warning = "metadata_only_limitation" if is_metadata_only else ""
+    source_provenance = _source_provenance_fields(
+        obs=obs,
+        evidence_id=evidence_id,
+    )
+    provenance_id = _make_provenance_id_from_fields(source_provenance)
+    provenance_hash = hashlib.sha256(provenance_id.encode("utf-8")).hexdigest()
+
+    components: List[_SignalComponent] = []
+    for match in matches:
+        pattern = match.pattern
+        matched_phrase = match.matched_phrase
+        confidence, review_status = _score_v2_match_confidence(
+            source_field=match.source_field,
+            metadata_only=is_metadata_only,
+        )
+        signal_id = _make_signal_id(
+            evidence_id,
+            pattern.signal_type,
+            matched_phrase,
+            evidence_text_hash,
+            CLASSIFIER_VERSION,
+        )
+        fragment_id = _make_fragment_id(
+            evidence_id=evidence_id,
+            signal_id=signal_id,
+            provenance_id=provenance_id,
+            source_field=match.source_field,
+            span_start=match.span_start,
+            span_end=match.span_end,
+        )
+        candidate_id = _make_candidate_id(
+            signal_id=signal_id,
+            evidence_id=evidence_id,
+        )
+        capability_proposition = _candidate_capability_proposition(
+            pattern=pattern,
+            span_text=match.span_text,
+            source_field=match.source_field,
+        )
+        components.append(
+            _SignalComponent(
+                evidence_fragment=EvidenceFragment(
+                    fragment_id=fragment_id,
+                    evidence_id=evidence_id,
+                    run_id=obs.run_id,
+                    source_provenance_id=provenance_id,
+                    source_provider=source_provenance["source_provider"],
+                    source_provider_id=source_provenance["source_provider_id"],
+                    source_retrieved_at_utc=source_provenance[
+                        "source_retrieved_at_utc"
+                    ],
+                    source_query_id=source_provenance["source_query_id"],
+                    source_query_text=source_provenance["source_query_text"],
+                    source_field=match.source_field,
+                    language=str(record.get("language") or "und").strip() or "und",
+                    fragment_text=match.span_text,
+                    span_start_offset=match.span_start,
+                    span_end_offset=match.span_end,
+                    surface_text_hash=_text_hash(match.source_text),
+                    provenance_hash=provenance_hash,
+                ),
+                semantic_signal=SemanticSignal(
+                    signal_id=signal_id,
+                    fragment_id=fragment_id,
+                    evidence_id=evidence_id,
+                    run_id=obs.run_id,
+                    source_provenance_id=provenance_id,
+                    sector=obs.binding.sector_slug,
+                    axis_group=obs.binding.axis_group,
+                    axis_code=obs.binding.axis_code,
+                    query_id=obs.binding.query_id,
+                    query_family=obs.binding.query_family,
+                    signal_type=pattern.signal_type,
+                    signal_category_label=pattern.label,
+                    signal_category_description=pattern.description,
+                    matched_phrase=match.span_text,
+                    confidence_score=confidence,
+                    classifier_version=CLASSIFIER_VERSION,
+                    negation_status="not_assessed",
+                    speculation_status="not_assessed",
+                    actor_text="",
+                    action_text=matched_phrase,
+                    object_text="",
+                    context_text=match.source_text,
+                    evidence_text_hash=evidence_text_hash,
+                    manual_review_status=review_status,
+                    validity_warning=warning,
+                ),
+                competence_candidate=CompetenceCandidate(
+                    candidate_id=candidate_id,
+                    signal_id=signal_id,
+                    fragment_id=fragment_id,
+                    evidence_id=evidence_id,
+                    run_id=obs.run_id,
+                    sector=obs.binding.sector_slug,
+                    axis_group=obs.binding.axis_group,
+                    axis_code=obs.binding.axis_code,
+                    source_provenance_ids=provenance_id,
+                    fragment_ids=fragment_id,
+                    candidate_label=_candidate_label(pattern, match.span_text),
+                    candidate_definition=pattern.description,
+                    capability_proposition=capability_proposition,
+                    knowledge_dimension=_candidate_knowledge_dimension(pattern),
+                    skill_dimension=_candidate_skill_dimension(pattern),
+                    responsibility_autonomy_dimension=_candidate_ra_dimension(pattern),
+                    candidate_status="candidate",
+                    review_status="review_required",
+                    exact_evidence_span=match.span_text,
+                    exact_span_start_offset=match.span_start,
+                    exact_span_end_offset=match.span_end,
+                ),
+            )
+        )
+    return components
+
+
+def _build_construct_validity_tables(
+    *,
+    signal_components: Sequence[_SignalComponent],
+    validation_decision_payloads: Sequence[Mapping[str, Any]],
+    built_at_utc: str,
+    evidence_titles_by_id: Mapping[str, str],
+) -> Tuple[
+    List[EvidenceFragment],
+    List[SemanticSignal],
+    List[CompetenceCandidate],
+    List[ValidationDecision],
+    List[CanonicalCompetence],
+    List[SectorCompetenceAssignment],
+]:
+    fragments_by_id: Dict[str, EvidenceFragment] = {}
+    semantic_by_id: Dict[Tuple[str, str], SemanticSignal] = {}
+    candidates_by_id: Dict[str, CompetenceCandidate] = {}
+    candidate_fragment_ids: Dict[str, Set[str]] = {}
+    candidate_provenance_ids: Dict[str, Set[str]] = {}
+
+    for component in signal_components:
+        fragments_by_id.setdefault(
+            component.evidence_fragment.fragment_id,
+            component.evidence_fragment,
+        )
+        semantic_key = (
+            component.semantic_signal.signal_id,
+            component.semantic_signal.fragment_id,
+        )
+        semantic_by_id.setdefault(semantic_key, component.semantic_signal)
+        candidate = component.competence_candidate
+        candidate_fragment_ids.setdefault(candidate.candidate_id, set()).add(
+            candidate.fragment_id
+        )
+        candidate_provenance_ids.setdefault(candidate.candidate_id, set()).add(
+            candidate.source_provenance_ids
+        )
+        existing_candidate = candidates_by_id.get(candidate.candidate_id)
+        # Candidate identity is cross-run stable. Select the lexicographically
+        # smallest fragment deterministically as its scalar foreign-key reference.
+        if (
+            existing_candidate is None
+            or candidate.fragment_id < existing_candidate.fragment_id
+        ):
+            candidates_by_id[candidate.candidate_id] = candidate
+
+    for candidate_id, candidate in candidates_by_id.items():
+        candidates_by_id[candidate_id] = replace(
+            candidate,
+            source_provenance_ids="|".join(
+                sorted(candidate_provenance_ids[candidate_id])
+            ),
+            fragment_ids="|".join(sorted(candidate_fragment_ids[candidate_id])),
+        )
+
+    validation_decisions = _build_validation_decisions(
+        candidates_by_id=candidates_by_id,
+        fragments_by_id=fragments_by_id,
+        payloads=validation_decision_payloads,
+        built_at_utc=built_at_utc,
+    )
+    active_validation_decisions = _active_validation_decisions(validation_decisions)
+    canonical_competences = _build_canonical_competences(
+        candidates_by_id=candidates_by_id,
+        validation_decisions=active_validation_decisions,
+        evidence_titles_by_id=evidence_titles_by_id,
+    )
+    semantic_signal_rows = [
+        semantic_by_id[key] for key in sorted(semantic_by_id)
+    ]
+    sector_assignments = _build_sector_competence_assignments(
+        candidates_by_id=candidates_by_id,
+        canonical_competences=canonical_competences,
+        validation_decisions=active_validation_decisions,
+        semantic_signals=semantic_signal_rows,
+    )
+    return (
+        [fragments_by_id[key] for key in sorted(fragments_by_id)],
+        semantic_signal_rows,
+        [candidates_by_id[key] for key in sorted(candidates_by_id)],
+        validation_decisions,
+        canonical_competences,
+        sector_assignments,
+    )
+
+
+def _build_validation_decisions(
+    *,
+    candidates_by_id: Mapping[str, CompetenceCandidate],
+    fragments_by_id: Mapping[str, EvidenceFragment],
+    payloads: Sequence[Mapping[str, Any]],
+    built_at_utc: str,
+) -> List[ValidationDecision]:
+    try:
+        parsed_built_at = datetime.fromisoformat(
+            _require_utc_timestamp(built_at_utc, field_name="built_at_utc").replace(
+                "Z", "+00:00"
+            )
+        )
+    except CumulativeDatabaseError as exc:
+        raise CumulativeDatabaseError(
+            "invalid built_at_utc; require an ISO-8601 UTC timestamp"
+        ) from exc
+    decisions: List[ValidationDecision] = []
+    decision_ids: Set[str] = set()
+    allowed_statuses = {"accepted", "rejected", "review_required", "superseded"}
+    for payload in payloads:
+        candidate_id = str(payload.get("target_candidate_id") or "").strip()
+        if not candidate_id or candidate_id not in candidates_by_id:
+            raise CumulativeDatabaseError(
+                f"unknown validation decision target candidate: {candidate_id or '<empty>'}"
+            )
+        candidate = candidates_by_id[candidate_id]
+        decision_status = str(
+            payload.get("decision_status") or payload.get("decision") or ""
+        ).strip()
+        if decision_status not in allowed_statuses:
+            raise CumulativeDatabaseError(
+                f"invalid validation decision status for {candidate_id}: {decision_status}"
+            )
+        canonical_label = str(payload.get("canonical_label") or "").strip()
+        if decision_status == "accepted" and not canonical_label:
+            raise CumulativeDatabaseError(
+                "accepted validation decision requires canonical_label"
+            )
+        reviewer = str(payload.get("reviewer") or "").strip()
+        if not reviewer:
+            raise CumulativeDatabaseError("validation decision requires reviewer")
+        if not _REVIEWER_IDENTIFIER_RE.fullmatch(reviewer):
+            raise CumulativeDatabaseError(
+                "invalid reviewer identifier; use a stable pseudonymous identifier"
+            )
+        decision_at = str(payload.get("decision_at_utc") or "").strip()
+        if not decision_at:
+            raise CumulativeDatabaseError(
+                "validation decision requires decision_at_utc"
+            )
+        try:
+            decision_at = _require_utc_timestamp(
+                decision_at,
+                field_name="decision_at_utc",
+            )
+        except CumulativeDatabaseError as exc:
+            raise CumulativeDatabaseError(
+                "invalid decision_at_utc; require an ISO-8601 UTC timestamp"
+            ) from exc
+        parsed_decision_at = datetime.fromisoformat(
+            decision_at.replace("Z", "+00:00")
+        )
+        if parsed_decision_at > parsed_built_at:
+            raise CumulativeDatabaseError(
+                f"validation decision {payload.get('target_candidate_id', '<unknown>')!r} "
+                f"has decision_at_utc ({decision_at}) after bundle built_at_utc"
+            )
+        decision_reason = str(payload.get("decision_reason") or "").strip()
+        if not decision_reason:
+            raise CumulativeDatabaseError(
+                "validation decision requires decision_reason"
+            )
+        evidence_ids = _normalize_decision_snapshot_references(
+            payload.get("evidence_ids"),
+            field_name="evidence_ids",
+        )
+        fragment_ids = _normalize_decision_snapshot_references(
+            payload.get("fragment_ids"),
+            field_name="fragment_ids",
+        )
+        source_provenance_ids = _normalize_decision_snapshot_references(
+            payload.get("source_provenance_ids"),
+            field_name="source_provenance_ids",
+        )
+        snapshot_evidence_ids = set(evidence_ids.split("|"))
+        snapshot_fragment_ids = set(fragment_ids.split("|"))
+        snapshot_provenance_ids = set(source_provenance_ids.split("|"))
+        candidate_fragment_ids = {
+            fragment_id.strip()
+            for fragment_id in candidate.fragment_ids.split("|")
+            if fragment_id.strip()
+        }
+        if snapshot_evidence_ids != {candidate.evidence_id}:
+            raise CumulativeDatabaseError(
+                "validation decision evidence_ids must equal the target "
+                "candidate evidence snapshot"
+            )
+        if not snapshot_fragment_ids <= candidate_fragment_ids:
+            raise CumulativeDatabaseError(
+                "validation decision fragment_ids must be a retained subset "
+                "of the target candidate"
+            )
+        snapshot_fragments: List[EvidenceFragment] = []
+        for fragment_id in sorted(snapshot_fragment_ids):
+            fragment = fragments_by_id.get(fragment_id)
+            if fragment is None or fragment.evidence_id != candidate.evidence_id:
+                raise CumulativeDatabaseError(
+                    "validation decision fragment_ids must resolve to target "
+                    "candidate evidence"
+                )
+            fragment_timestamp = datetime.fromisoformat(
+                _require_utc_timestamp(
+                    fragment.source_retrieved_at_utc,
+                    field_name="source_retrieved_at_utc",
+                ).replace("Z", "+00:00")
+            )
+            if fragment_timestamp > parsed_decision_at:
+                raise CumulativeDatabaseError(
+                    "validation decision cannot cite evidence retrieved after "
+                    "decision_at_utc"
+                )
+            snapshot_fragments.append(fragment)
+        expected_snapshot_provenance_ids = {
+            fragment.source_provenance_id for fragment in snapshot_fragments
+        }
+        if snapshot_provenance_ids != expected_snapshot_provenance_ids:
+            raise CumulativeDatabaseError(
+                "validation decision source_provenance_ids must equal the "
+                "snapshot fragment provenance"
+            )
+        superseded_id = str(
+            payload.get("superseded_validation_decision_id") or ""
+        ).strip()
+        decision_id = str(payload.get("validation_decision_id") or "").strip()
+        if not decision_id:
+            seed = "\x1f".join(
+                (
+                    candidate_id,
+                    canonical_label,
+                    decision_status,
+                    reviewer,
+                    decision_at,
+                    decision_reason,
+                    evidence_ids,
+                    fragment_ids,
+                    source_provenance_ids,
+                    superseded_id,
+                )
+            )
+            decision_id = f"decision:{hashlib.sha256(seed.encode('utf-8')).hexdigest()}"
+        if decision_id in decision_ids:
+            raise CumulativeDatabaseError(
+                f"duplicate validation decision identifier: {decision_id}"
+            )
+        decision_ids.add(decision_id)
+        decisions.append(
+            ValidationDecision(
+                validation_decision_id=decision_id,
+                target_candidate_id=candidate_id,
+                canonical_label=canonical_label,
+                decision_status=decision_status,
+                reviewer=reviewer,
+                decision_at_utc=decision_at,
+                decision_reason=decision_reason,
+                evidence_ids=evidence_ids,
+                fragment_ids=fragment_ids,
+                source_provenance_ids=source_provenance_ids,
+                superseded_validation_decision_id=superseded_id,
+            )
+        )
+
+    decisions_by_id = {
+        decision.validation_decision_id: decision for decision in decisions
+    }
+    for decision in decisions:
+        superseded_id = decision.superseded_validation_decision_id
+        if not superseded_id:
+            continue
+        if superseded_id == decision.validation_decision_id:
+            raise CumulativeDatabaseError(
+                "validation decision cannot supersede itself"
+            )
+        superseded_decision = decisions_by_id.get(superseded_id)
+        if superseded_decision is None:
+            raise CumulativeDatabaseError(
+                f"unknown superseded validation decision: {superseded_id}"
+            )
+        if superseded_decision.target_candidate_id != decision.target_candidate_id:
+            raise CumulativeDatabaseError(
+                "superseded validation decision must target the same candidate"
+            )
+    _assert_acyclic_validation_decision_supersession_graph(decisions_by_id)
+    for decision in decisions:
+        superseded_id = decision.superseded_validation_decision_id
+        if not superseded_id:
+            continue
+        superseded_decision = decisions_by_id[superseded_id]
+        superseding_at = datetime.fromisoformat(
+            decision.decision_at_utc.replace("Z", "+00:00")
+        )
+        superseded_at = datetime.fromisoformat(
+            superseded_decision.decision_at_utc.replace("Z", "+00:00")
+        )
+        if superseding_at <= superseded_at:
+            raise CumulativeDatabaseError(
+                "superseding validation decision must be chronologically later"
+            )
+    decisions.sort(key=lambda row: row.validation_decision_id)
+    return decisions
+
+
+def _normalize_decision_snapshot_references(
+    value: Any, *, field_name: str
+) -> str:
+    """Normalize one explicit, immutable reviewer snapshot reference list."""
+    if isinstance(value, str):
+        raw_values = value.split("|")
+    elif isinstance(value, (list, tuple, set)):
+        raw_values = [str(item) for item in value]
+    else:
+        raw_values = []
+    references = [item.strip() for item in raw_values if item.strip()]
+    if not references:
+        raise CumulativeDatabaseError(
+            f"validation decision requires immutable {field_name} snapshot"
+        )
+    if len(set(references)) != len(references):
+        raise CumulativeDatabaseError(
+            f"validation decision {field_name} snapshot cannot contain duplicates"
+        )
+    return "|".join(sorted(references))
+
+
+def _assert_acyclic_validation_decision_supersession_graph(
+    decisions_by_id: Mapping[str, ValidationDecision],
+) -> None:
+    """Reject cyclic validation-decision supersession references."""
+    for decision in decisions_by_id.values():
+        path_ids: Set[str] = set()
+        current: Optional[ValidationDecision] = decision
+        while current is not None:
+            current_id = current.validation_decision_id
+            if current_id in path_ids:
+                raise CumulativeDatabaseError(
+                    "validation decision supersession graph cannot contain cycles"
+                )
+            path_ids.add(current_id)
+            superseded_id = current.superseded_validation_decision_id
+            if not superseded_id:
+                current = None
+                continue
+            current = decisions_by_id.get(superseded_id)
+
+
+def _active_validation_decisions(
+    validation_decisions: Sequence[ValidationDecision],
+) -> List[ValidationDecision]:
+    """Return decisions not superseded by a later ledger entry."""
+    decisions_by_id = {
+        decision.validation_decision_id: decision for decision in validation_decisions
+    }
+    _assert_acyclic_validation_decision_supersession_graph(decisions_by_id)
+    superseded_ids = {
+        decision.superseded_validation_decision_id
+        for decision in validation_decisions
+        if decision.superseded_validation_decision_id
+    }
+    active_decisions = [
+        decision
+        for decision in validation_decisions
+        if decision.validation_decision_id not in superseded_ids
+    ]
+    active_decisions_by_candidate: Dict[str, int] = {}
+    for decision in active_decisions:
+        candidate_id = decision.target_candidate_id
+        count = active_decisions_by_candidate.get(candidate_id, 0) + 1
+        active_decisions_by_candidate[candidate_id] = count
+        if count > 1:
+            raise CumulativeDatabaseError(
+                "validation decision set must not contain multiple active "
+                f"decisions for candidate: {candidate_id}"
+            )
+    return active_decisions
+
+
+def _build_canonical_competences(
+    *,
+    candidates_by_id: Mapping[str, CompetenceCandidate],
+    validation_decisions: Sequence[ValidationDecision],
+    evidence_titles_by_id: Mapping[str, str],
+) -> List[CanonicalCompetence]:
+    rows: Dict[str, CanonicalCompetence] = {}
+    for decision in validation_decisions:
+        if decision.decision_status != "accepted":
+            continue
+        label = re.sub(r"\s+", " ", decision.canonical_label).strip()
+        candidate = candidates_by_id[decision.target_candidate_id]
+        label_allowed, rejection_reason = canonical_label_is_allowed(
+            label,
+            retained_source_titles=(
+                evidence_titles_by_id.get(candidate.evidence_id, ""),
+            ),
+        )
+        if not label_allowed:
+            raise CumulativeDatabaseError(
+                "invalid canonical competence label blocked by provenance guard "
+                f"({rejection_reason}): {label}"
+            )
+        canonical_id = _make_canonical_competence_id_shared(label)
+        rows.setdefault(
+            canonical_id,
+            CanonicalCompetence(
+                canonical_competence_id=canonical_id,
+                validation_decision_id=decision.validation_decision_id,
+                source_candidate_id=candidate.candidate_id,
+                preferred_label=label,
+                canonical_definition=candidate.candidate_definition,
+                aliases=(
+                    candidate.candidate_label
+                    if candidate.candidate_label != label
+                    else ""
+                ),
+                validation_status="accepted",
+                schema_version=DATABASE_SCHEMA_VERSION,
+                provenance_guard_status="passed",
+            ),
+        )
+    return [rows[key] for key in sorted(rows)]
+
+
+def _build_sector_competence_assignments(
+    *,
+    candidates_by_id: Mapping[str, CompetenceCandidate],
+    canonical_competences: Sequence[CanonicalCompetence],
+    validation_decisions: Sequence[ValidationDecision],
+    semantic_signals: Sequence[SemanticSignal],
+) -> List[SectorCompetenceAssignment]:
+    canonical_by_label = {
+        re.sub(r"\s+", " ", row.preferred_label).strip().lower(): row
+        for row in canonical_competences
+    }
+    semantic_by_fragment = {
+        (signal.signal_id, signal.fragment_id): signal
+        for signal in semantic_signals
+    }
+    assignments: Dict[str, SectorCompetenceAssignment] = {}
+    for decision in validation_decisions:
+        if decision.decision_status != "accepted":
+            continue
+        normalized_label = re.sub(r"\s+", " ", decision.canonical_label).strip().lower()
+        canonical = canonical_by_label.get(normalized_label)
+        if canonical is None:
+            continue
+        candidate = candidates_by_id[decision.target_candidate_id]
+        contexts: Dict[Tuple[str, str, str], SemanticSignal] = {}
+        for fragment_id in sorted(
+            fragment_id
+            for fragment_id in decision.fragment_ids.split("|")
+            if fragment_id
+        ):
+            signal = semantic_by_fragment.get((candidate.signal_id, fragment_id))
+            if signal is None:
+                continue
+            context_key = (
+                signal.sector.strip(),
+                signal.axis_group.strip().upper(),
+                signal.axis_code.strip().upper(),
+            )
+            contexts.setdefault(context_key, signal)
+
+        for (sector, axis_group, axis_code), _signal in sorted(contexts.items()):
+            try:
+                canonical_axis = BlueDynamicsAxis[axis_group]
+            except KeyError:
+                continue
+            if not sector or axis_code != canonical_axis.value:
+                continue
+            assignment_id = _make_assignment_id_shared(
+                canonical_competence_id=canonical.canonical_competence_id,
+                validation_decision_id=decision.validation_decision_id,
+                sector=sector,
+                axis_group=axis_group,
+                axis_code=axis_code,
+            )
+            assignments.setdefault(
+                assignment_id,
+                SectorCompetenceAssignment(
+                    assignment_id=assignment_id,
+                    canonical_competence_id=canonical.canonical_competence_id,
+                    validation_decision_id=decision.validation_decision_id,
+                    source_candidate_id=candidate.candidate_id,
+                    sector=sector,
+                    axis_group=axis_group,
+                    axis_code=axis_code,
+                    evidence_ids=candidate.evidence_id,
+                ),
+            )
+    return [assignments[key] for key in sorted(assignments)]
 
 
 def _flatten_subject_terms(value: Any) -> str:
@@ -1865,6 +3243,30 @@ def _score_confidence(
     if metadata_only:
         score -= 0.10
 
+    score = max(0.05, min(0.95, round(score, 3)))
+    review_status = "auto_accepted" if score >= 0.50 else "review_required"
+    return score, review_status
+
+
+def _score_v2_match_confidence(
+    *, source_field: str, metadata_only: bool
+) -> Tuple[float, str]:
+    """Score one retained v2 match from its exact qualified source surface.
+
+    The frozen legacy compatibility projection deliberately continues to use
+    :func:`_score_confidence`, whose record-wide substring accounting is part
+    of the v1 contract.  Schema-v2 rows instead receive credit only for the
+    surface that supplied their exact, qualified match.
+    """
+    field_weight = {
+        "title": 0.55,
+        "subject_terms": 0.20,
+        "abstract": 0.20,
+        "full_text": 0.25,
+    }
+    score = field_weight.get(source_field, 0.0)
+    if metadata_only:
+        score -= 0.10
     score = max(0.05, min(0.95, round(score, 3)))
     review_status = "auto_accepted" if score >= 0.50 else "review_required"
     return score, review_status
@@ -2133,7 +3535,15 @@ def _hypothesis_fragment_rows(
     signals: Sequence[CompetenceDemandSignal],
     protocol: Optional[LiveQueryProtocol],
 ) -> List[Dict[str, Any]]:
-    """Project evidence-bound signals into an auditable hypothesis-fragment ledger."""
+    """Project evidence-bound signals into an auditable hypothesis-fragment ledger.
+
+    This function operates on the frozen-v1 ``CompetenceDemandSignal`` projection
+    rather than on schema-v2 entities directly.  Each row it emits is keyed to a
+    signal produced by ``_make_signals`` and therefore to the same evidence record
+    and canonical record identifier that anchors the corresponding schema-v2
+    ``evidence_fragment`` and ``semantic_signal`` rows.  Downstream consumers
+    should join on ``evidence_id`` to cross-reference with schema-v2 tables.
+    """
     hypothesis_registry = protocol.hypotheses if protocol is not None else {}
     if not hypothesis_registry:
         return []
@@ -2211,6 +3621,12 @@ def _write_bundle(
     *,
     output_dir: Path,
     evidence_records: Sequence[EvidenceRecord],
+    evidence_fragments: Sequence[EvidenceFragment],
+    semantic_signals: Sequence[SemanticSignal],
+    competence_candidates: Sequence[CompetenceCandidate],
+    canonical_competences: Sequence[CanonicalCompetence],
+    sector_competence_assignments: Sequence[SectorCompetenceAssignment],
+    validation_decisions: Sequence[ValidationDecision],
     competence_demand_signals: Sequence[CompetenceDemandSignal],
     novelty_metrics: RunNoveltyMetrics,
     current_run_id: str,
@@ -2223,27 +3639,74 @@ def _write_bundle(
     current_run_dir: Path,
 ) -> List[Path]:
     evidence_rows = [r.to_dict() for r in evidence_records]
+    fragment_v2_rows = [r.to_dict() for r in evidence_fragments]
+    semantic_signal_rows = [r.to_dict() for r in semantic_signals]
+    candidate_rows = [r.to_dict() for r in competence_candidates]
+    canonical_rows = [r.to_dict() for r in canonical_competences]
+    assignment_rows = [r.to_dict() for r in sector_competence_assignments]
+    decision_rows = [r.to_dict() for r in validation_decisions]
     signal_rows = [s.to_dict() for s in competence_demand_signals]
     fragment_rows = _hypothesis_fragment_rows(competence_demand_signals, protocol)
     metrics_row = novelty_metrics.to_dict()
 
     files: List[Path] = []
-
-    evidence_csv = output_dir / EVIDENCE_RECORDS_CSV
-    _write_csv(evidence_csv, EVIDENCE_RECORD_COLUMNS, evidence_rows)
-    files.append(evidence_csv)
-
-    evidence_jsonl = output_dir / EVIDENCE_RECORDS_JSONL
-    _write_jsonl(evidence_jsonl, evidence_rows)
-    files.append(evidence_jsonl)
-
-    signals_csv = output_dir / COMPETENCE_DEMAND_SIGNALS_CSV
-    _write_csv(signals_csv, COMPETENCE_DEMAND_SIGNAL_COLUMNS, signal_rows)
-    files.append(signals_csv)
-
-    signals_jsonl = output_dir / COMPETENCE_DEMAND_SIGNALS_JSONL
-    _write_jsonl(signals_jsonl, signal_rows)
-    files.append(signals_jsonl)
+    tabular_outputs = (
+        (
+            EVIDENCE_RECORDS_CSV,
+            EVIDENCE_RECORDS_JSONL,
+            EVIDENCE_RECORD_COLUMNS,
+            evidence_rows,
+        ),
+        (
+            EVIDENCE_FRAGMENTS_CSV,
+            EVIDENCE_FRAGMENTS_JSONL,
+            EVIDENCE_FRAGMENT_COLUMNS,
+            fragment_v2_rows,
+        ),
+        (
+            SEMANTIC_SIGNALS_CSV,
+            SEMANTIC_SIGNALS_JSONL,
+            SEMANTIC_SIGNAL_COLUMNS,
+            semantic_signal_rows,
+        ),
+        (
+            COMPETENCE_CANDIDATES_CSV,
+            COMPETENCE_CANDIDATES_JSONL,
+            COMPETENCE_CANDIDATE_COLUMNS,
+            candidate_rows,
+        ),
+        (
+            CANONICAL_COMPETENCES_CSV,
+            CANONICAL_COMPETENCES_JSONL,
+            CANONICAL_COMPETENCE_COLUMNS,
+            canonical_rows,
+        ),
+        (
+            SECTOR_COMPETENCE_ASSIGNMENTS_CSV,
+            SECTOR_COMPETENCE_ASSIGNMENTS_JSONL,
+            SECTOR_COMPETENCE_ASSIGNMENT_COLUMNS,
+            assignment_rows,
+        ),
+        (
+            VALIDATION_DECISIONS_CSV,
+            VALIDATION_DECISIONS_JSONL,
+            VALIDATION_DECISION_COLUMNS,
+            decision_rows,
+        ),
+        (
+            COMPETENCE_DEMAND_SIGNALS_CSV,
+            COMPETENCE_DEMAND_SIGNALS_JSONL,
+            COMPETENCE_DEMAND_SIGNAL_COLUMNS,
+            signal_rows,
+        ),
+    )
+    for csv_name, jsonl_name, columns, rows in tabular_outputs:
+        csv_path = output_dir / csv_name
+        _write_csv(csv_path, columns, rows)
+        files.append(csv_path)
+        jsonl_path = output_dir / jsonl_name
+        _write_jsonl(jsonl_path, rows)
+        files.append(jsonl_path)
 
     fragments_csv = output_dir / HYPOTHESIS_SEMANTIC_FRAGMENTS_CSV
     _write_csv(
@@ -2277,6 +3740,12 @@ def _write_bundle(
         protocol_path=protocol_path,
         current_run_dir=current_run_dir,
         evidence_row_count=len(evidence_records),
+        evidence_fragment_count=len(evidence_fragments),
+        semantic_signal_count=len(semantic_signals),
+        competence_candidate_count=len(competence_candidates),
+        canonical_competence_count=len(canonical_competences),
+        sector_competence_assignment_count=len(sector_competence_assignments),
+        validation_decision_count=len(validation_decisions),
         signal_row_count=len(competence_demand_signals),
         hypothesis_fragment_count=len(fragment_rows),
     )
@@ -2314,6 +3783,12 @@ def _build_manifest(
     protocol_path: Optional[Path],
     current_run_dir: Path,
     evidence_row_count: int,
+    evidence_fragment_count: int,
+    semantic_signal_count: int,
+    competence_candidate_count: int,
+    canonical_competence_count: int,
+    sector_competence_assignment_count: int,
+    validation_decision_count: int,
     signal_row_count: int,
     hypothesis_fragment_count: int,
 ) -> Dict[str, Any]:
@@ -2337,6 +3812,12 @@ def _build_manifest(
         ),
         "counts": {
             "evidence_records": evidence_row_count,
+            "evidence_fragments": evidence_fragment_count,
+            "semantic_signals": semantic_signal_count,
+            "competence_candidates": competence_candidate_count,
+            "canonical_competences": canonical_competence_count,
+            "sector_competence_assignments": sector_competence_assignment_count,
+            "validation_decisions": validation_decision_count,
             "competence_demand_signals": signal_row_count,
             "hypothesis_semantic_fragments": hypothesis_fragment_count,
         },
@@ -2399,24 +3880,50 @@ __all__ = [
     "ALLOWED_MANUAL_REVIEW_STATUSES",
     "ALLOWED_RECORD_NOVELTY_STATUS",
     "ALLOWED_SIGNAL_TYPES",
+    "CANONICAL_COMPETENCES_CSV",
+    "CANONICAL_COMPETENCES_JSONL",
     "CLASSIFIER_VERSION",
+    "COMPETENCE_CANDIDATES_CSV",
+    "COMPETENCE_CANDIDATES_JSONL",
     "COMPETENCE_DEMAND_SIGNALS_CSV",
     "COMPETENCE_DEMAND_SIGNALS_JSONL",
     "COMPETENCE_DEMAND_SIGNAL_COLUMNS",
+    "CANONICAL_COMPETENCE_COLUMNS",
+    "COMPETENCE_CANDIDATE_COLUMNS",
+    "CanonicalCompetence",
+    "CompetenceCandidate",
     "CompetenceDemandSignal",
     "CumulativeDatabaseError",
     "CumulativeDatabaseResult",
     "DATABASE_CHECKSUMS_FILENAME",
     "DATABASE_MANIFEST_FILENAME",
     "DATABASE_SCHEMA_VERSION",
+    "EVIDENCE_FRAGMENTS_CSV",
+    "EVIDENCE_FRAGMENTS_JSONL",
+    "EVIDENCE_FRAGMENT_COLUMNS",
+    "EvidenceFragment",
     "EVIDENCE_RECORDS_CSV",
     "EVIDENCE_RECORDS_JSONL",
     "EVIDENCE_RECORD_COLUMNS",
     "EvidenceRecord",
+    "LEGACY_COMPATIBILITY_CLASSIFIER_VERSION",
     "RUN_NOVELTY_METRICS_CSV",
     "RUN_NOVELTY_METRICS_JSON",
     "RunNoveltyMetrics",
+    "SECTOR_COMPETENCE_ASSIGNMENTS_CSV",
+    "SECTOR_COMPETENCE_ASSIGNMENTS_JSONL",
+    "SECTOR_COMPETENCE_ASSIGNMENT_COLUMNS",
+    "SEMANTIC_SIGNALS_CSV",
+    "SEMANTIC_SIGNALS_JSONL",
+    "SEMANTIC_SIGNAL_COLUMNS",
+    "SectorCompetenceAssignment",
+    "SemanticSignal",
+    "VALIDATION_DECISIONS_CSV",
+    "VALIDATION_DECISIONS_JSONL",
+    "VALIDATION_DECISION_COLUMNS",
+    "ValidationDecision",
     "build_cumulative_scientific_database",
+    "canonical_label_is_allowed",
     "competence_demand_signal_from_dict",
     "evidence_record_from_dict",
 ]
