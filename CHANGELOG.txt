@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-08-08 (fix: restore governance manifest reproducibility for dependabot config)
+  Change type fix update
+  Scope governance
+  Files affected .github/dependabot.yml MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Regenerates MANIFEST_SOURCES.csv so the newly added .github/dependabot.yml entry is committed alongside the Dependabot configuration and governance reproducibility checks stop failing on manifest drift.
+  Reason The governance-and-repro GitHub Actions job regenerated MANIFEST_SOURCES.csv and failed because the PR added .github/dependabot.yml without the corresponding deterministic manifest row.
+  Impact No scientific logic or live-provider execution changes. Repository governance metadata remains reproducible and CI can validate the committed Dependabot configuration without local manifest drift.
+  Provenance GitHub Actions run 31249867765 job 93084390547; scripts/generate_manifest.py; .github/workflows/ci.yml.
+  Quality checks python3 scripts/generate_manifest.py (1206 entries written); repeat python3 scripts/generate_manifest.py preserved the same SHA-256 for MANIFEST_SOURCES.csv; python3 scripts/changelog_guard.py --changed-file .github/dependabot.yml --changed-file MANIFEST_SOURCES.csv --changed-file CHANGELOG.txt (passed); python3 -m pytest tests/test_generate_manifest.py -v (28 passed).
+
 - 2026-08-06 (fix: harden post-merge provider accounting and protocol publication)
   Change type fix update
   Scope scripts src tests governance
