@@ -1551,13 +1551,12 @@ def _validate_schema_v2_foreign_keys(
         linked_candidate = candidates.get((candidate_id,))
         if linked_candidate is None:
             continue
-        expected_contexts = {
-            context
-            for context in _candidate_semantic_contexts(
-                linked_candidate, signals
-            )
-            if _is_bound_axis_context(context)
-        }
+        expected_contexts = _decision_semantic_contexts(
+            decision,
+            linked_candidate,
+            fragments,
+            signals,
+        )
         matching_canonicals = [
             canonical
             for canonical in entity_rows["canonical_competences"]
@@ -1611,6 +1610,40 @@ def _validate_schema_v2_foreign_keys(
                 f"{file_name}:L{line_number}:sector_competence_assignments"
             )
     return errors
+
+
+def _decision_semantic_contexts(
+    decision: Dict[str, Any],
+    linked_candidate: Dict[str, Any],
+    fragments: Dict[Tuple[str, ...], Dict[str, Any]],
+    signals: Dict[Tuple[str, ...], Dict[str, Any]],
+) -> set[Tuple[str, str, str]]:
+    """Return bound reviewed contexts from the decision's immutable fragment snapshot."""
+    expected_evidence_id = _identifier(linked_candidate.get("evidence_id"))
+    contexts: set[Tuple[str, str, str]] = set()
+    for fragment_id in _split_references(decision.get("fragment_ids", "")):
+        fragment = fragments.get((fragment_id,))
+        if fragment is None:
+            continue
+        if _identifier(fragment.get("evidence_id")) != expected_evidence_id:
+            continue
+        signal_id = _identifier(linked_candidate.get("signal_id"))
+        signal = signals.get(
+            (
+                signal_id,
+                _identifier(fragment.get("fragment_id")),
+            )
+        )
+        if signal is None:
+            continue
+        context = (
+            _identifier(signal.get("sector")),
+            _identifier(signal.get("axis_group")),
+            _identifier(signal.get("axis_code")),
+        )
+        if _is_bound_axis_context(context):
+            contexts.add(context)
+    return contexts
 
 
 def _projection_value(value: Any) -> str:

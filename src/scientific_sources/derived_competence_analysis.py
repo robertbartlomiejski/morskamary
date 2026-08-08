@@ -1658,6 +1658,75 @@ def _providers_for_lineage_evidence(evidence: Mapping[str, Any]) -> List[str]:
     return providers
 
 
+def _decision_cutoff_timestamp(decision_at_utc: str) -> datetime:
+    """Return the accepted-decision cutoff timestamp for reviewed snapshot metrics."""
+    return datetime.fromisoformat(decision_at_utc.replace("Z", "+00:00"))
+
+
+def _timestamp_on_or_before_cutoff(
+    row: Mapping[str, Any], field_name: str, cutoff: datetime
+) -> str:
+    """Return a lineage timestamp only when it belongs to the reviewed snapshot."""
+    value = _lineage_row_id(row, field_name)
+    if not value:
+        return ""
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    return value if parsed <= cutoff else ""
+
+
+def _accepted_lineage_snapshot_metrics(
+    evidence: List[Mapping[str, Any]], decision_at_utc: str
+) -> Dict[str, Any]:
+    """Freeze accepted-lineage metrics to evidence retained at decision time."""
+    cutoff = _decision_cutoff_timestamp(decision_at_utc)
+    snapshot_rows = [
+        row
+        for row in evidence
+        if _timestamp_on_or_before_cutoff(row, "first_seen_at_utc", cutoff)
+    ]
+    providers = sorted(
+        {
+            provider
+            for row in snapshot_rows
+            for provider in _split_list(row.get("provider_source", ""))
+            if provider
+        }
+    )
+    first_run = min(
+        (_lineage_row_id(row, "first_seen_run_id") for row in snapshot_rows),
+        default="",
+    )
+    latest_run = max(
+        (
+            _lineage_row_id(row, "latest_seen_run_id")
+            if _timestamp_on_or_before_cutoff(row, "latest_seen_at_utc", cutoff)
+            else _lineage_row_id(row, "first_seen_run_id")
+            for row in snapshot_rows
+        ),
+        default="",
+    )
+    first_at = min(
+        (_lineage_row_id(row, "first_seen_at_utc") for row in snapshot_rows),
+        default="",
+    )
+    latest_at = max(
+        (
+            _timestamp_on_or_before_cutoff(row, "latest_seen_at_utc", cutoff)
+            or _lineage_row_id(row, "first_seen_at_utc")
+            for row in snapshot_rows
+        ),
+        default="",
+    )
+    return {
+        "providers": providers,
+        "first_run": first_run,
+        "latest_run": latest_run,
+        "first_at": first_at,
+        "latest_at": latest_at,
+        "occurrence_count": len(snapshot_rows),
+    }
+
+
 def _build_accepted_canonical_lineage_demands(
     *,
     evidence_records: Sequence[Mapping[str, Any]],
@@ -2443,6 +2512,24 @@ def _build_accepted_canonical_lineage_demands(
     ):
         canonical = canonicals_by_id[canonical_id]
         component_assignments = [component[0] for component in components]
+        decision_ids = sorted(
+            {
+                _lineage_row_id(assignment, "validation_decision_id")
+                for assignment in component_assignments
+                if _lineage_row_id(assignment, "validation_decision_id")
+            }
+        )
+        if len(decision_ids) != 1:
+            raise DerivedAnalysisError(
+                "accepted canonical lineage assignments must resolve to exactly one validation decision"
+            )
+        lineage_reviewed_decision: Mapping[str, Any] | None = decisions_by_id.get(
+            decision_ids[0]
+        )
+        if lineage_reviewed_decision is None:
+            raise DerivedAnalysisError(
+                "accepted canonical lineage assignment is missing its reviewed decision"
+            )
         context_signals = [
             signal
             for _assignment, selected_signals in components
@@ -2463,13 +2550,11 @@ def _build_accepted_canonical_lineage_demands(
                 if _lineage_row_id(row, "canonical_doi")
             }
         )
-        providers = sorted(
-            {
-                provider
-                for row in evidence
-                for provider in _providers_for_lineage_evidence(row)
-            }
+        snapshot_metrics = _accepted_lineage_snapshot_metrics(
+            evidence,
+            _lineage_row_id(lineage_reviewed_decision, "decision_at_utc"),
         )
+        providers = snapshot_metrics["providers"]
         query_families = sorted(
             {
                 _lineage_row_id(signal, "query_family")
@@ -2482,30 +2567,10 @@ def _build_accepted_canonical_lineage_demands(
             for signal in context_signals
         ]
         confidence_mean = sum(confidences) / max(1, len(confidences))
-        first_run = min(
-            (_lineage_row_id(row, "first_seen_run_id") for row in evidence),
-            default="",
-        )
-        latest_run = max(
-            (_lineage_row_id(row, "latest_seen_run_id") for row in evidence),
-            default="",
-        )
-        first_at = min(
-            (
-                _lineage_row_id(row, "first_seen_at_utc")
-                for row in evidence
-                if _lineage_row_id(row, "first_seen_at_utc")
-            ),
-            default="",
-        )
-        latest_at = max(
-            (
-                _lineage_row_id(row, "latest_seen_at_utc")
-                for row in evidence
-                if _lineage_row_id(row, "latest_seen_at_utc")
-            ),
-            default="",
-        )
+        first_run = snapshot_metrics["first_run"]
+        latest_run = snapshot_metrics["latest_run"]
+        first_at = snapshot_metrics["first_at"]
+        latest_at = snapshot_metrics["latest_at"]
         provider_diversity = _diversity(len(providers), len(all_providers) or 1)
         query_diversity = _diversity(
             len(query_families), len(all_query_families) or 1
@@ -2559,14 +2624,7 @@ def _build_accepted_canonical_lineage_demands(
                 scientific_status=VALIDATED_CANONICAL_DEMAND_SCIENTIFIC_STATUS,
                 canonical_competence_id=canonical_id,
                 validation_decision_ids="|".join(
-                    sorted(
-                        {
-                            _lineage_row_id(
-                                assignment, "validation_decision_id"
-                            )
-                            for assignment in component_assignments
-                        }
-                    )
+                    decision_ids
                 ),
                 source_candidate_ids="|".join(
                     sorted(
@@ -2594,10 +2652,7 @@ def _build_accepted_canonical_lineage_demands(
                 demand_strength_score=score,
                 evidence_record_count=len(evidence),
                 unique_doi_count=len(dois),
-                record_occurrence_count=sum(
-                    max(1, int(_safe_float(row.get("record_recurrence_count", 1))))
-                    for row in evidence
-                ),
+                record_occurrence_count=snapshot_metrics["occurrence_count"],
                 provider_count=len(providers),
                 providers_seen="|".join(providers),
                 provider_diversity_score=round(provider_diversity, 6),

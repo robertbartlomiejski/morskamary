@@ -236,10 +236,26 @@ def _validate_evidence_record_projection(
         jsonl_line_number = _projection_line_number(
             jsonl_line_numbers, jsonl_file, jsonl_row_index
         )
-        for field_name in required_columns:
-            if _projection_value(csv_row.get(field_name)) == _projection_value(
-                jsonl_row.get(field_name)
-            ):
+        field_union = sorted(set(csv_row) | set(jsonl_row))
+        for field_name in field_union:
+            csv_has = field_name in csv_row
+            jsonl_has = field_name in jsonl_row
+            if csv_has != jsonl_has:
+                errors.append(
+                    "evidence_records_cross_projection_field_presence_mismatch:"
+                    f"{field_name}:csv:L{csv_line_number}:jsonl:L{jsonl_line_number}"
+                )
+                continue
+            csv_value = csv_row.get(field_name)
+            jsonl_value = jsonl_row.get(field_name)
+            if type(csv_value) is not type(jsonl_value):
+                if _projection_value(csv_value) == _projection_value(jsonl_value):
+                    errors.append(
+                        "evidence_records_cross_projection_type_mismatch:"
+                        f"{field_name}:csv:L{csv_line_number}:jsonl:L{jsonl_line_number}"
+                    )
+                    continue
+            if _projection_value(csv_value) == _projection_value(jsonl_value):
                 continue
             errors.append(
                 "evidence_records_cross_projection_value_mismatch:"

@@ -93,6 +93,9 @@ SCHEMA_V2_ENTITY_NAMES: tuple[str, ...] = (
 SCHEMA_V2_SUPPLEMENTARY_ENTITY_NAMES: tuple[str, ...] = (
     "evidence_records",
 )
+SCHEMA_V2_SUPPLEMENTARY_OUTPUT_NAMES = {
+    "evidence_records": "schema_v2_supporting_evidence_records",
+}
 SCHEMA_V2_SOURCE_DIRECTORY = "outputs/cumulative_database"
 SCHEMA_V2_SCHEMA_FILENAMES: tuple[str, ...] = tuple(
     f"{entity_name}.schema.json" for entity_name in SCHEMA_V2_ENTITY_NAMES
@@ -762,6 +765,35 @@ def _candidate_semantic_contexts(
     signal_id = str(candidate.get("signal_id", "")).strip()
     contexts: set[tuple[str, str, str]] = set()
     for fragment_id in _candidate_fragment_ids(candidate):
+        signal = signals_by_key.get((signal_id, fragment_id))
+        if signal is None:
+            continue
+        contexts.add(
+            (
+                str(signal.get("sector", "")).strip(),
+                str(signal.get("axis_group", "")).strip(),
+                str(signal.get("axis_code", "")).strip(),
+            )
+        )
+    return contexts
+
+
+def _decision_semantic_contexts(
+    decision: dict[str, Any],
+    linked_candidate: dict[str, Any],
+    fragments_by_id: dict[tuple[str, ...], dict[str, Any]],
+    signals_by_key: dict[tuple[str, ...], dict[str, Any]],
+) -> set[tuple[str, str, str]]:
+    """Return only the reviewed semantic contexts retained in a decision snapshot."""
+    evidence_id = str(linked_candidate.get("evidence_id", "")).strip()
+    signal_id = str(linked_candidate.get("signal_id", "")).strip()
+    contexts: set[tuple[str, str, str]] = set()
+    for fragment_id in _split_reference_ids(decision.get("fragment_ids")):
+        fragment = fragments_by_id.get((fragment_id,))
+        if fragment is None:
+            continue
+        if str(fragment.get("evidence_id", "")).strip() != evidence_id:
+            continue
         signal = signals_by_key.get((signal_id, fragment_id))
         if signal is None:
             continue
@@ -1555,14 +1587,18 @@ def _validate_schema_v2_projection_and_lineage(
         assignments_by_lineage.setdefault(lineage_key, []).append(assignment)
 
     for lineage_key, assignments in assignments_by_lineage.items():
-        _, _, candidate_id = lineage_key
+        _, decision_id, candidate_id = lineage_key
         candidate_for_lineage = candidates_by_id.get((candidate_id,))
-        if candidate_for_lineage is None:
+        decision_for_lineage = decisions_by_id.get((decision_id,))
+        if candidate_for_lineage is None or decision_for_lineage is None:
             continue
         expected_contexts = {
             context
-            for context in _candidate_semantic_contexts(
-                candidate_for_lineage, signals_by_key
+            for context in _decision_semantic_contexts(
+                decision_for_lineage,
+                candidate_for_lineage,
+                fragments_by_id,
+                signals_by_key,
             )
             if _is_bound_axis_context(context)
         }
@@ -1616,8 +1652,11 @@ def _validate_schema_v2_projection_and_lineage(
         expected_canonical_id = next(iter(canonical_ids))
         expected_contexts = {
             context
-            for context in _candidate_semantic_contexts(
-                linked_candidate, signals_by_key
+            for context in _decision_semantic_contexts(
+                decision,
+                linked_candidate,
+                fragments_by_id,
+                signals_by_key,
             )
             if _is_bound_axis_context(context)
         }
@@ -2246,6 +2285,15 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
             for entity_name in SCHEMA_V2_ENTITY_NAMES
         },
     }
+    package_dir = (
+        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}"
+    )
+    quarantine_dir = package_dir.with_name(f"{package_dir.name}.stale")
+    if quarantine_dir.exists():
+        shutil.rmtree(quarantine_dir)
+    if package_dir.exists():
+        package_dir.replace(quarantine_dir)
+
     validation_errors: list[str] = list(schema_v2_format_errors)
     for table_name, schema_path in schema_map.items():
         validation_errors.extend(
@@ -2277,11 +2325,6 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
             print(f"{status_label('error')} {error}")
         return 1
 
-    package_dir = (
-        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}"
-    )
-    if package_dir.exists():
-        shutil.rmtree(package_dir)
     (package_dir / "data" / "csv").mkdir(parents=True, exist_ok=True)
     (package_dir / "data" / "jsonl").mkdir(parents=True, exist_ok=True)
     (package_dir / "schemas").mkdir(parents=True, exist_ok=True)
@@ -2322,15 +2365,16 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
     for supp_entity in SCHEMA_V2_SUPPLEMENTARY_ENTITY_NAMES:
         supp_csv = repo_root / SCHEMA_V2_SOURCE_DIRECTORY / f"{supp_entity}.csv"
         supp_jsonl = repo_root / SCHEMA_V2_SOURCE_DIRECTORY / f"{supp_entity}.jsonl"
+        output_name = SCHEMA_V2_SUPPLEMENTARY_OUTPUT_NAMES[supp_entity]
         if supp_csv.exists():
             shutil.copyfile(
                 supp_csv,
-                package_dir / "data" / "csv" / f"{supp_entity}.csv",
+                package_dir / "data" / "csv" / f"{output_name}.csv",
             )
         if supp_jsonl.exists():
             shutil.copyfile(
                 supp_jsonl,
-                package_dir / "data" / "jsonl" / f"{supp_entity}.jsonl",
+                package_dir / "data" / "jsonl" / f"{output_name}.jsonl",
             )
 
     variable_labels, value_labels = _load_variable_and_value_labels(schema_dir)

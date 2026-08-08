@@ -273,6 +273,27 @@ def test_layer4_emits_only_complete_accepted_canonical_lineage(
     assert demand.manual_review_status == "manually_reviewed"
 
 
+def test_layer4_freezes_provider_metrics_to_reviewed_occurrences(
+    tmp_path: Path,
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    evidence = rows["evidence_records"][0]
+    evidence["providers_seen"] = "crossref|openalex"
+    evidence["provider_source"] = "crossref"
+    evidence["latest_seen_run_id"] = "RUN-HYDRO-999"
+    evidence["latest_seen_at_utc"] = "2026-07-20T00:00:00+00:00"
+    evidence["record_recurrence_count"] = 5
+
+    result = _build_accepted_canonical_lineage(tmp_path, rows)
+
+    demand = result.derived_demands[0]
+    assert demand.provider_count == 1
+    assert demand.providers_seen == "crossref"
+    assert demand.record_occurrence_count == 1
+    assert demand.latest_seen_run_id == "RUN-HYDRO-001"
+    assert demand.latest_seen_at_utc == "2026-07-01T00:00:00+00:00"
+
+
 @pytest.mark.parametrize(
     ("mutation", "message"),
     [

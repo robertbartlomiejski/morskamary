@@ -2027,6 +2027,62 @@ def test_package_rejects_snapshot_evidence_retrieved_after_decision(
     ) in captured.err
 
 
+def test_package_accepts_later_unreviewed_candidate_context_outside_decision_snapshot(
+    tmp_path: Path, capsys: object
+) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    rows = _schema_v2_rows()
+    second_fragment, second_signal = _additional_fixture_signal_component(
+        rows,
+        sector="coastal_tourism",
+        axis_group="MARITIME",
+        axis_code="T",
+    )
+    rows["evidence_fragments_extra"] = second_fragment  # keep local reference only
+    rows["semantic_signals_extra"] = second_signal
+    candidate_path = db / "competence_candidates.csv"
+    candidate_rows = list(csv.DictReader(candidate_path.open(encoding="utf-8")))
+    candidate_rows[0]["fragment_ids"] = "|".join(
+        sorted(
+            {
+                candidate_rows[0]["fragment_ids"],
+                str(second_fragment["fragment_id"]),
+            }
+        )
+    )
+    candidate_rows[0]["source_provenance_ids"] = "|".join(
+        sorted(
+            {
+                candidate_rows[0]["source_provenance_ids"],
+                str(second_fragment["source_provenance_id"]),
+            }
+        )
+    )
+    _write_csv_rows(
+        candidate_path,
+        CSV_REQUIRED_COLUMNS[candidate_path.name],
+        [dict(candidate_rows[0])],
+    )
+    candidate_jsonl_path = db / "competence_candidates.jsonl"
+    candidate = json.loads(candidate_jsonl_path.read_text(encoding="utf-8"))
+    candidate["fragment_ids"] = candidate_rows[0]["fragment_ids"]
+    candidate["source_provenance_ids"] = candidate_rows[0]["source_provenance_ids"]
+    candidate_jsonl_path.write_text(
+        json.dumps(candidate, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    _append_schema_v2_row(db, "evidence_fragments", second_fragment)
+    _append_schema_v2_row(db, "semantic_signals", second_signal)
+    _rewrite_checksums(db)
+
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 0
+    assert out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert "schema_v2_lineage_mismatch" not in captured.err
+
+
 def test_package_rejects_legacy_metadata_projection_mismatch(
     tmp_path: Path,
 ) -> None:

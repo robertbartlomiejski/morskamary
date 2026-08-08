@@ -94,6 +94,26 @@ def _seed_minimal_outputs(repo_root: Path) -> None:
     (out / "manual_sources").mkdir(parents=True, exist_ok=True)
     cumulative_database = out / "cumulative_database"
     cumulative_database.mkdir(parents=True, exist_ok=True)
+    (cumulative_database / "evidence_records.csv").write_text(
+        "evidence_id,canonical_doi,canonical_title,first_seen_run_id,latest_seen_run_id,providers_seen,record_novelty_status\n"
+        "E-0001,10.1000/demo,Demo title,123-1,123-1,crossref,new_record\n",
+        encoding="utf-8",
+    )
+    (cumulative_database / "evidence_records.jsonl").write_text(
+        json.dumps(
+            {
+                "evidence_id": "E-0001",
+                "canonical_doi": "10.1000/demo",
+                "canonical_title": "Demo title",
+                "first_seen_run_id": "123-1",
+                "latest_seen_run_id": "123-1",
+                "providers_seen": "crossref",
+                "record_novelty_status": "new_record",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
     (out / "run_archive" / "cross_run_run_summary.csv").write_text(
         (
@@ -789,6 +809,31 @@ def test_build_versioned_package_rejects_incomplete_aggregate_assignment_context
     assert "semantic_context_set" in stdout
 
 
+def test_build_versioned_package_accepts_later_unreviewed_candidate_context(
+    tmp_path: Path,
+) -> None:
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+
+    second_fragment = _append_shared_signal_fragment(
+        repo_root,
+        module,
+        sector="coastal_tourism",
+        axis_group="MARITIME",
+        axis_code="T",
+    )
+    _aggregate_candidate_fragment(repo_root, second_fragment)
+
+    exit_code, stdout = _run_package(
+        module, repo_root, tmp_path / "release_out", "v0.1.5-snapshot-ok"
+    )
+
+    assert exit_code == 0, stdout
+
+
 def test_schema_v2_readers_reject_non_finite_numbers(tmp_path: Path) -> None:
     """NaN and infinity are never valid values in schema-v2 projections."""
     module = _load_module()
@@ -1257,6 +1302,58 @@ def test_build_versioned_package_fails_on_missing_prerequisites(
     assert "python" in output.lower() or "scripts/" in output, (
         f"Should mention prerequisite commands, got: {output!r}"
     )
+
+
+def test_build_versioned_package_preserves_distinct_legacy_and_schema_v2_evidence_records(
+    tmp_path: Path,
+) -> None:
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+
+    exit_code, stdout = _run_package(
+        module, repo_root, tmp_path / "release_out", "v0.3.1"
+    )
+
+    assert exit_code == 0, stdout
+    package_dir = tmp_path / "release_out" / "morskamary_cumulative_evidence_v0.3.1"
+    assert (package_dir / "data/csv/evidence_records.csv").exists()
+    assert (package_dir / "data/jsonl/evidence_records.jsonl").exists()
+    assert (
+        package_dir
+        / "data/csv/schema_v2_supporting_evidence_records.csv"
+    ).exists()
+    assert (
+        package_dir
+        / "data/jsonl/schema_v2_supporting_evidence_records.jsonl"
+    ).exists()
+
+
+def test_build_versioned_package_removes_stale_conventional_directory_after_failed_rebuild(
+    tmp_path: Path,
+) -> None:
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+    output_dir = tmp_path / "release_out"
+
+    exit_code, stdout = _run_package(module, repo_root, output_dir, "v0.3.2")
+    assert exit_code == 0, stdout
+    package_dir = output_dir / "morskamary_cumulative_evidence_v0.3.2"
+    assert package_dir.exists()
+
+    decisions = _read_schema_v2_entity_rows(repo_root, "validation_decisions")
+    decisions[0]["decision_at_utc"] = "2026-07-07T25:00:00+00:00"
+    _write_schema_v2_entity_rows(repo_root, "validation_decisions", decisions)
+
+    exit_code, stdout = _run_package(module, repo_root, output_dir, "v0.3.2")
+    assert exit_code == 1
+    assert not package_dir.exists()
+    assert (output_dir / "morskamary_cumulative_evidence_v0.3.2.stale").exists()
 
 
 def test_build_versioned_package_bootstrap_creates_empty_manual_sources(

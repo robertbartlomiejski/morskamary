@@ -1558,6 +1558,45 @@ class TestDOICanonicalization:
         assert len(result.evidence_records) == 1
         assert result.evidence_records[0].canonical_doi == "10.5678/prefix.test"
 
+    def test_ai_and_vet_phrase_matching_works_at_end_of_title(
+        self, tmp_path: Path
+    ) -> None:
+        current = tmp_path / "outputs"
+        output = tmp_path / "cumulative_database"
+        _write_current_run(
+            current,
+            [
+                {
+                    "title": "Maritime governance and AI",
+                    "doi": "10.1000/ai.title",
+                    "source_id": "crossref:10.1000/ai.title",
+                    "provider": "Crossref",
+                    "source_query": BOUND_QUERY_TEXT,
+                    "retrieval_timestamp": "2026-07-01T00:00:00+00:00",
+                },
+                {
+                    "title": "Blue economy workforce pathways through VET",
+                    "doi": "10.1000/vet.title",
+                    "source_id": "crossref:10.1000/vet.title",
+                    "provider": "Crossref",
+                    "source_query": BOUND_QUERY_TEXT,
+                    "retrieval_timestamp": "2026-07-01T00:00:00+00:00",
+                },
+            ],
+        )
+
+        result = build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=output,
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="RUN-PHRASE-001",
+            built_at_utc=FROZEN_TS,
+        )
+
+        matched_phrases = {signal.matched_phrase for signal in result.semantic_signals}
+        assert "AI" in matched_phrases
+        assert "VET" in matched_phrases
+
 
 class TestLatestEnrichedMetadata:
     """Fix 6: year/journal/citation_count use the latest non-empty value."""

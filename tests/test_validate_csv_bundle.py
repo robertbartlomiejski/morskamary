@@ -29,6 +29,17 @@ def _load_package_module() -> Any:
 
 
 _PACKAGE = _load_package_module()
+_VALIDATOR_SPEC = importlib.util.spec_from_file_location(
+    "validate_csv_bundle_under_test", VALIDATOR_PATH
+)
+assert _VALIDATOR_SPEC and _VALIDATOR_SPEC.loader
+_VALIDATOR = importlib.util.module_from_spec(_VALIDATOR_SPEC)
+scripts_dir = str(VALIDATOR_PATH.parent)
+sys.path.insert(0, scripts_dir)
+try:
+    _VALIDATOR_SPEC.loader.exec_module(_VALIDATOR)
+finally:
+    sys.path.pop(0)
 
 
 def _write_csv_rows(
@@ -475,7 +486,7 @@ def test_cli_rejects_incomplete_evidence_record_jsonl_projection(
         "evidence_records.jsonl:L1:canonical_title"
     ) in completed.stderr
     assert (
-        "evidence_records_cross_projection_value_mismatch:"
+        "evidence_records_cross_projection_field_presence_mismatch:"
         "canonical_title:csv:L2:jsonl:L1"
     ) in completed.stderr
 
@@ -496,3 +507,45 @@ def test_cli_rejects_nonfinite_jsonl_number(tmp_path: Path) -> None:
 
     assert completed.returncode == 1
     assert "nonfinite_jsonl_number:semantic_signals.jsonl:L1:NaN" in completed.stderr
+
+
+def test_cli_rejects_nonrequired_evidence_record_field_mismatch(
+    tmp_path: Path,
+) -> None:
+    bundle_dir = tmp_path / "nonrequired-mismatch"
+    _write_valid_bundle(bundle_dir)
+    rows = _read_projection_rows(bundle_dir, "evidence_records")
+    csv_rows = list(csv.DictReader((bundle_dir / "evidence_records.csv").open(encoding="utf-8")))
+    csv_rows[0]["latest_seen_at_utc"] = "2026-07-01T00:00:00+00:00"
+    _write_csv_rows(
+        bundle_dir / "evidence_records.csv",
+        tuple(csv_rows[0].keys()),
+        csv_rows,
+    )
+    rows[0]["latest_seen_at_utc"] = "2026-08-01T00:00:00+00:00"
+    (bundle_dir / "evidence_records.jsonl").write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+
+    completed = _run_validator(bundle_dir)
+
+    assert completed.returncode == 1
+    assert (
+        "evidence_records_cross_projection_value_mismatch:"
+        "latest_seen_at_utc:csv:L2:jsonl:L1"
+    ) in completed.stderr
+
+
+def test_projection_rejects_type_mismatch_even_when_values_stringify_equally() -> None:
+    errors = _VALIDATOR._validate_evidence_record_projection(  # type: ignore[attr-defined]
+        {"evidence_records.csv": [{"evidence_id": "E-0001", "record_recurrence_count": 1}]},
+        {"evidence_records.jsonl": [{"evidence_id": "E-0001", "record_recurrence_count": "1"}]},
+        {"evidence_records.csv": [2]},
+        {"evidence_records.jsonl": [1]},
+    )
+
+    assert (
+        "evidence_records_cross_projection_type_mismatch:"
+        "record_recurrence_count:csv:L2:jsonl:L1"
+    ) in errors
