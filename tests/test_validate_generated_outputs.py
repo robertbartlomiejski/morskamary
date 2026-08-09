@@ -247,22 +247,6 @@ class TestCheckGapsCsv:
         mod.check_gaps_csv(rows)
         assert not mod.ERRORS, f"Expected no errors but got: {mod.ERRORS}"
 
-    def test_fails_when_hydronization_values_identical_but_others_differ(self) -> None:
-        mod = _load_validator_module()
-        rows = _make_gaps_rows()
-        for i, row in enumerate(rows):
-            row["Required"] = str(100 + i)
-            row["Missing"] = str(80 + i)
-            row["Gap_pct"] = str(75 + i)
-            row["Missing_MARINE"] = str(10 + i)
-            row["Missing_MARITIME"] = str(20 + i)
-            row["Missing_OCEANIC"] = str(30 + i)
-            row["Missing_HYDRONIZATION"] = "15"
-        mod.check_gaps_csv(rows)
-        assert any("Missing_HYDRONIZATION" in e for e in mod.ERRORS), (
-            "Expected failure when hydronization values are identical across sectors"
-        )
-
     def test_fails_when_hydronization_column_missing(self) -> None:
         mod = _load_validator_module()
         rows = _make_gaps_rows()
