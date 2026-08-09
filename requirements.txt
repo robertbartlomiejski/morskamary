@@ -5,4 +5,4 @@ jsonschema==4.10.3
 mypy==2.3.0
 pandas-stubs==2.3.3.260113
 pytest==9.1.1
-types-jsonschema==4.24.0.20250528
+types-jsonschema==4.26.0.20260518
