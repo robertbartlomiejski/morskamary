@@ -1,0 +1,459 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/research_question_registry.schema.json",
+  "title": "Research question registry",
+  "description": "Fail-closed Layer 0 registry for proposed research questions and their operationalisation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_version",
+    "status",
+    "authority",
+    "canonical_axes",
+    "allowed_result_statuses",
+    "required_accountability_fields",
+    "hypothesis_reference",
+    "questions",
+    "extended_questions",
+    "unregistered_agenda"
+  ],
+  "properties": {
+    "registry_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "status": {
+      "const": "proposed_for_review"
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hypotheses", "questions"],
+      "properties": {
+        "hypotheses": {
+          "const": "config/live_query_protocol.yml"
+        },
+        "questions": {
+          "const": "maintainer-supplied_research_agenda_2026-08-09"
+        }
+      }
+    },
+    "canonical_axes": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "$ref": "#/$defs/axisIdentity"
+      }
+    },
+    "allowed_result_statuses": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "$ref": "#/$defs/resultStatus"
+      },
+      "uniqueItems": true
+    },
+    "required_accountability_fields": {
+      "type": "array",
+      "minItems": 13,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "hypothesis_reference": {
+      "$ref": "#/$defs/hypothesisReference"
+    },
+    "questions": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "$ref": "#/$defs/researchQuestion"
+      }
+    },
+    "extended_questions": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "$ref": "#/$defs/extendedQuestion"
+      }
+    },
+    "unregistered_agenda": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lisbon_fieldwork_vignette_hypotheses"],
+      "properties": {
+        "lisbon_fieldwork_vignette_hypotheses": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["count_reported_by_maintainer", "status", "rule"],
+          "properties": {
+            "count_reported_by_maintainer": {
+              "const": 4
+            },
+            "status": {
+              "const": "wording_required"
+            },
+            "rule": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repositoryPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z]:)(?!/)(?!\\\\).+"
+    },
+    "stringList": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      },
+      "uniqueItems": true
+    },
+    "axisName": {
+      "type": "string",
+      "enum": ["MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION"]
+    },
+    "axisCode": {
+      "type": "string",
+      "enum": ["M", "T", "O", "H"]
+    },
+    "axisIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical_name", "display_code", "meaning"],
+      "properties": {
+        "canonical_name": {
+          "$ref": "#/$defs/axisName"
+        },
+        "display_code": {
+          "$ref": "#/$defs/axisCode"
+        },
+        "meaning": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "resultStatus": {
+      "type": "string",
+      "enum": [
+        "answered",
+        "partially_answered",
+        "not_computable",
+        "not_operationalised",
+        "not_collected",
+        "review_required"
+      ]
+    },
+    "hypothesisReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authoritative_source",
+        "ordered_ids",
+        "definition_policy",
+        "h2_supply_rule"
+      ],
+      "properties": {
+        "authoritative_source": {
+          "const": "config/live_query_protocol.yml"
+        },
+        "ordered_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^H[0-9]+$"
+          },
+          "uniqueItems": true
+        },
+        "definition_policy": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "h2_supply_rule": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "minimum_eqf_levels",
+            "required_supply_status",
+            "generated_designs_are_supply",
+            "default_without_supply"
+          ],
+          "properties": {
+            "minimum_eqf_levels": {
+              "const": [6, 7]
+            },
+            "required_supply_status": {
+              "const": "independently_validated"
+            },
+            "generated_designs_are_supply": {
+              "const": false
+            },
+            "default_without_supply": {
+              "const": "not_computable"
+            }
+          }
+        }
+      }
+    },
+    "method": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "readiness",
+        "approval_status",
+        "prerequisite"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "readiness": {
+          "type": "string",
+          "enum": ["implemented", "planned", "conditional"]
+        },
+        "approval_status": {
+          "type": "string",
+          "enum": ["repository_approved", "review_required"]
+        },
+        "prerequisite": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "implementation_reference": {
+          "$ref": "#/$defs/repositoryPath"
+        }
+      }
+    },
+    "materialization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "readiness", "artifact_path"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["logical_unmaterialized", "materialized"]
+        },
+        "readiness": {
+          "type": "string",
+          "enum": ["review_required", "conditional", "ready"]
+        },
+        "artifact_path": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "materialized"
+              }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "artifact_path": {
+                "$ref": "#/$defs/repositoryPath"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "researchQuestion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "item_type",
+        "text",
+        "status",
+        "construct",
+        "population_definition",
+        "target_view",
+        "view_kind",
+        "observational_unit",
+        "variables",
+        "indicators",
+        "measures",
+        "denominator",
+        "missing_handling",
+        "excluded_handling",
+        "evidence_boundary",
+        "methods",
+        "permitted_interpretation",
+        "prohibited_interpretation",
+        "materialization",
+        "repository_source_basis"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^RQ(?:[1-9][0-9]*)(?:\\.[1-9][0-9]*)?$"
+        },
+        "item_type": {
+          "const": "research_question"
+        },
+        "parent_id": {
+          "type": "string",
+          "pattern": "^RQ(?:[1-9][0-9]*)$"
+        },
+        "text": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "operationalised_with_validation_limit",
+            "requires_construct_definition_and_review",
+            "conditionally_computable",
+            "operationalised_at_multiple_grains",
+            "requires_reviewed_taxonomy",
+            "design_output_only"
+          ]
+        },
+        "axis_name": {
+          "$ref": "#/$defs/axisName"
+        },
+        "axis_code": {
+          "$ref": "#/$defs/axisCode"
+        },
+        "construct": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "population_definition": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "target_view": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "view_kind": {
+          "type": "string",
+          "enum": [
+            "logical_canonical_view",
+            "logical_assignment_view",
+            "logical_supply_view",
+            "logical_design_view",
+            "logical_hypothesis_result_set"
+          ]
+        },
+        "observational_unit": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "variables": {
+          "$ref": "#/$defs/stringList"
+        },
+        "indicators": {
+          "$ref": "#/$defs/stringList"
+        },
+        "measures": {
+          "$ref": "#/$defs/stringList"
+        },
+        "denominator": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "missing_handling": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "excluded_handling": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "evidence_boundary": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "methods": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/method"
+          }
+        },
+        "permitted_interpretation": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "prohibited_interpretation": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "materialization": {
+          "$ref": "#/$defs/materialization"
+        },
+        "repository_source_basis": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/repositoryPath"
+          },
+          "uniqueItems": true
+        }
+      },
+      "dependentRequired": {
+        "axis_name": ["axis_code"],
+        "axis_code": ["axis_name"]
+      }
+    },
+    "extendedQuestion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "item_type",
+        "text",
+        "status",
+        "prerequisites",
+        "permitted_interpretation",
+        "prohibited_interpretation",
+        "repository_source_basis"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^ETQ[1-9][0-9]*$"
+        },
+        "item_type": {
+          "const": "extended_question"
+        },
+        "text": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["not_operationalised", "not_collected"]
+        },
+        "prerequisites": {
+          "$ref": "#/$defs/stringList"
+        },
+        "permitted_interpretation": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "prohibited_interpretation": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "repository_source_basis": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/repositoryPath"
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}
