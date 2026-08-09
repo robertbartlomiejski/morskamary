@@ -19,7 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
-- 2026-08-09 (chore: merge main into codex/corrective-live-analysis to resolve conflicts)
+- 2026-08-09 (fix: add openalex sort contract to protocol and remove silent fallback)
+  Change type fix update
+  Scope scripts config tests
+  Files affected config/live_query_protocol.yml scripts/export_live_research_records.py tests/test_export_live_research_records.py
+  Summary Adds `openalex: date-desc` to the sort_strategy defaults in config/live_query_protocol.yml so OpenAlex acquisition is explicitly date-sorted by protocol declaration. Removes the silent inferred_provider_fallback path in _lookup_provider_sort_strategy_full that previously borrowed WoS/Scopus sort values for OpenAlex without a corresponding protocol declaration.
+  Reason The Codex review identified that the live workflow's OpenAlex sort was silently borrowed from WoS's date-desc entry even though projection validation does not verify OpenAlex sort; this could change the scientific sample without an auditable protocol declaration. With the explicit protocol entry, projection validation now covers OpenAlex sort alongside Crossref/Scopus/WoS.
+  Impact Acquisition audit rows for OpenAlex now report sort_strategy_source as "declared" rather than "inferred_provider_fallback". No scientific logic or live-provider execution changes; the applied sort value (date-desc → publication_date:desc,relevance_score:desc) is identical to the previously inferred value.
+  Provenance Codex review comment on PR #215 (export_live_research_records.py:292-296); config/live_query_protocol.yml sort_strategy defaults.
+  Quality checks python -m pytest tests/test_export_live_research_records.py tests/test_live_query_protocol.py (149 passed); flake8; mypy clean.
+
+
   Change type fix update
   Scope scripts tests outputs governance
   Files affected scripts/compare_generated_outputs.py tests/test_ci_workflow.py tests/test_compare_generated_outputs.py docs/LIVE_REPLICATION_INFRASTRUCTURE.md .github/workflows/full-analysis.yml .gitattributes MANIFEST_SOURCES.csv outputs/run_archive outputs/sector_dictionaries
