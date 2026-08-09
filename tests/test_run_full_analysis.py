@@ -306,7 +306,7 @@ def test_main_static_recovery_emits_cumulative_metadata(tmp_path: Path) -> None:
         patch("run_full_analysis.export_competences_json"),
         patch("run_full_analysis.export_credentials_json"),
         patch("run_full_analysis.export_pathways_json"),
-        patch("run_full_analysis.export_gaps_summary_csv"),
+        patch("run_full_analysis.export_gaps_summary_csv") as mock_export_gaps_summary_csv,
         patch("run_full_analysis.generate_report_index"),
         patch("run_full_analysis.generate_gaps_html"),
         patch("run_full_analysis.generate_credentials_html"),
@@ -324,6 +324,7 @@ def test_main_static_recovery_emits_cumulative_metadata(tmp_path: Path) -> None:
                 "STATIC_RECOVERY_REASON": "offline-ci",
                 "REQUESTED_PROVIDERS": "crossref,scopus",
                 "GITHUB_RUN_ID": "123456",
+                "GITHUB_RUN_ATTEMPT": "2",
                 "GITHUB_SHA": "",
             },
             clear=False,
@@ -340,9 +341,11 @@ def test_main_static_recovery_emits_cumulative_metadata(tmp_path: Path) -> None:
     assert metadata["allow_static_recovery_mode_env"] == "ALLOW_STATIC_RECOVERY_MODE"
     assert metadata["provider_set"] == "crossref,scopus"
     assert metadata["github_run_id"] == "123456"
+    assert metadata["github_run_attempt"] == "2"
     assert metadata["commit_sha"] == "deadbeef"
     assert metadata["timestamp_utc"]
     assert metadata["warnings"]
+    assert mock_export_gaps_summary_csv.call_args.kwargs["run_id"] == "123456-2"
 
 
 def test_localized_qmbd_repository_tags_live_records_with_origin(
@@ -2018,6 +2021,19 @@ def test_repo_relative_posix_or_redacted_rejects_path_escape(
         assert _repo_relative_posix_or_redacted(candidate_path) == (
             "[redacted-out-of-tree-path]"
         )
+
+
+@pytest.mark.parametrize(
+    "path_kind",
+    ["parent_traversal", "external_symlink"],
+)
+def test_repo_relative_posix_or_redacted_rejects_windows_and_unc_paths() -> None:
+    assert _repo_relative_posix_or_redacted(r"C:\Users\runner\outside.json") == (
+        "[redacted-out-of-tree-path]"
+    )
+    assert _repo_relative_posix_or_redacted(r"\\server\share\outside.json") == (
+        "[redacted-out-of-tree-path]"
+    )
 
 
 @pytest.mark.parametrize(

@@ -37,7 +37,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import (
     Any,
     Dict,
@@ -209,7 +209,10 @@ class CompetenceSource:
 
 def _repo_relative_posix_or_redacted(path_like: str | Path) -> str:
     """Return a repository-relative POSIX path or redact out-of-tree locations."""
-    path = Path(path_like)
+    raw_path = str(path_like).strip()
+    if PureWindowsPath(raw_path).is_absolute():
+        return _REDACTED_OUT_OF_TREE_PATH
+    path = Path(raw_path)
     try:
         resolved = path.resolve(strict=False)
     except OSError:
@@ -559,6 +562,7 @@ def _build_cumulative_run_metadata(
         "allow_static_recovery_mode_env": _ALLOW_STATIC_RECOVERY_ENV,
         "provider_set": os.getenv("REQUESTED_PROVIDERS", "").strip(),
         "github_run_id": os.getenv("GITHUB_RUN_ID", "").strip(),
+        "github_run_attempt": os.getenv("GITHUB_RUN_ATTEMPT", "").strip(),
         "commit_sha": os.getenv("GITHUB_SHA", "").strip() or _get_git_head_sha(),
         "timestamp_utc": _now_utc_iso(),
         "warnings": [warning_message] if static_recovery_enabled else [],
@@ -568,6 +572,32 @@ def _build_cumulative_run_metadata(
             "Static recovery mode explicitly enabled; no reason supplied."
         )
     return metadata
+
+
+def _default_non_publication_run_id(analysis_mode: str) -> str:
+    """Return an explicit non-publication fallback run identifier."""
+    normalized_mode = str(analysis_mode or "").strip().lower()
+    if normalized_mode == "static":
+        return "local-static-recovery"
+    if normalized_mode == "live-enriched":
+        return "local-live-unpublished"
+    return "local-unpublished"
+
+
+def _canonical_public_run_id(
+    *,
+    analysis_mode: str,
+    github_run_id: str,
+    github_run_attempt: str,
+) -> str:
+    """Return the publication-grade run identifier for generated artifacts."""
+    normalized_run_id = str(github_run_id).strip()
+    normalized_attempt = str(github_run_attempt).strip()
+    if normalized_run_id and normalized_attempt:
+        return f"{normalized_run_id}-{normalized_attempt}"
+    if normalized_run_id:
+        return normalized_run_id
+    return _default_non_publication_run_id(analysis_mode)
 
 
 def _serialize_subject_terms(subject_terms: Any) -> str:
@@ -3002,14 +3032,13 @@ def export_gaps_summary_csv(
 
     Gap_pct = Missing / Required * 100, rounded to one decimal place.
 
-    ``Run_id`` falls back to a UUID when empty so every artifact has a
-    non-blank, globally unique run identifier even in non-CI contexts.
+    ``Run_id`` falls back to an explicit non-publication identifier when empty.
     ``Generated_at`` falls back to the current UTC timestamp when not supplied.
     ``Schema_version`` is fixed to ``"2"`` and can be used by consumers to
     detect the schema version without inspecting column names.
     """
     ts = generated_at or _now_utc_iso()
-    effective_run_id = run_id or str(__import__("uuid").uuid4())
+    effective_run_id = run_id or _default_non_publication_run_id(analysis_mode)
     with open(output_path, "w", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh)
         writer.writerow(
@@ -3795,7 +3824,13 @@ def main(
         OUTPUTS_DIR / "gaps_summary.csv",
         generated_at=cumulative_run_metadata.get("timestamp_utc", ""),
         analysis_mode=cumulative_run_metadata.get("analysis_input_mode", ""),
-        run_id=cumulative_run_metadata.get("github_run_id", ""),
+        run_id=_canonical_public_run_id(
+            analysis_mode=str(cumulative_run_metadata.get("analysis_input_mode", "")),
+            github_run_id=str(cumulative_run_metadata.get("github_run_id", "")),
+            github_run_attempt=str(
+                cumulative_run_metadata.get("github_run_attempt", "")
+            ),
+        ),
     )
     export_gaps_detailed_json(gap_model_result, OUTPUTS_DIR / "gaps_detailed.json")
     export_gaps_by_sector_axis_csv(

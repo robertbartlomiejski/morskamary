@@ -341,7 +341,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin Applications in Maritime Systems (Syamsiar Kautsar, Aulia Siti Aisjah, Mat Syai’in, Syamsul Ar, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 414,
           "paper_title": "Digital Twin Applications in Maritime Systems",
           "authors": "Syamsiar Kautsar, Aulia Siti Aisjah, Mat Syai’in, Syamsul Arifin",
@@ -355,7 +355,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A Digital Twin Framework for Cyber-Physical System Detection in Water Treatment Infrastructure (Jonas Chen, Lewis S. Rowles, Rami J. Haddad, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 417,
           "paper_title": "A Digital Twin Framework for Cyber-Physical System Detection in Water Treatment Infrastructure",
           "authors": "Jonas Chen, Lewis S. Rowles, Rami J. Haddad",
@@ -369,7 +369,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cyber-Physical Systems as the Generative Architecture for Digital Twins in Regulated Quality Assurance Infrastructure (Anthony Oppong Kyekyeku, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 425,
           "paper_title": "Cyber-Physical Systems as the Generative Architecture for Digital Twins in Regulated Quality Assurance Infrastructure",
           "authors": "Anthony Oppong Kyekyeku",
@@ -383,7 +383,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Managing Port Congestion During Infrastructure Disruptions: A Digital Twin–Based Decision Framework for Maritime Transpo (Manikandan Chandran, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 426,
           "paper_title": "Managing Port Congestion During Infrastructure Disruptions: A Digital Twin–Based Decision Framework for Maritime Transpo",
           "authors": "Manikandan Chandran",
@@ -397,7 +397,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Modeling Adaptive Cyber Fraud Patterns Using Causal Inference and Digital Twin Simulations in Critical Infrastructure Pr (Unknown, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 433,
           "paper_title": "Modeling Adaptive Cyber Fraud Patterns Using Causal Inference and Digital Twin Simulations in Critical Infrastructure Pr",
           "authors": "Unknown",
@@ -411,7 +411,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Keynote Speech: Toward Smart and Secure Cyber Physical Systems (Unknown, 2018).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 440,
           "paper_title": "Keynote Speech: Toward Smart and Secure Cyber Physical Systems",
           "authors": "Unknown",
@@ -425,7 +425,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin of Zagreb Airport Infrastructure Using Unmanned Aerial Systems (Marijan Car, Irina Stipanović, Matija Bračić, Marin Tica, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 441,
           "paper_title": "Digital Twin of Zagreb Airport Infrastructure Using Unmanned Aerial Systems",
           "authors": "Marijan Car, Irina Stipanović, Matija Bračić, Marin Tica",
@@ -439,7 +439,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Explainable digital twin–driven ensemble anomaly detection framework for cyber-physical infrastructure security (Ismail Erkek, Erdal Irmak, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 442,
           "paper_title": "Explainable digital twin–driven ensemble anomaly detection framework for cyber-physical infrastructure security",
           "authors": "Ismail Erkek, Erdal Irmak",
@@ -453,7 +453,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: When Disasters Trigger Cyber Vulnerabilities: Mapping Physical-Digital Interdependencies in Critical Infrastructure Syst (Dikshya Panta, Sicheng Wang, Aditya Sapkota, Prakash Rangana, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 450,
           "paper_title": "When Disasters Trigger Cyber Vulnerabilities: Mapping Physical-Digital Interdependencies in Critical Infrastructure Syst",
           "authors": "Dikshya Panta, Sicheng Wang, Aditya Sapkota, Prakash Ranganathan",
@@ -467,7 +467,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Infrastructure for Transportation Cyber-Physical Systems (Brandon Posey, Linh Bao Ngo, Mashrur Chowdhury, Amy Apon, 2018).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 455,
           "paper_title": "Infrastructure for Transportation Cyber-Physical Systems",
           "authors": "Brandon Posey, Linh Bao Ngo, Mashrur Chowdhury, Amy Apon",
@@ -481,7 +481,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Security analysis of cyber-physical systems network infrastructure (Daria Lavrova, Maria Poltavtseva, Anna Shtyrkina, 2018).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 456,
           "paper_title": "Security analysis of cyber-physical systems network infrastructure",
           "authors": "Daria Lavrova, Maria Poltavtseva, Anna Shtyrkina",
@@ -495,7 +495,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Infrastructure impacts and vulnerability to coastal flood events (Jamie E. Padgett, Pranavesh Panakkal, Catalina González-Dueñ, 2022).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 498,
           "paper_title": "Infrastructure impacts and vulnerability to coastal flood events",
           "authors": "Jamie E. Padgett, Pranavesh Panakkal, Catalina González-Dueñas",
@@ -509,7 +509,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Green infrastructure-based design in Texas coastal communities (Galen Newman, Dongying Li, 2022).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 500,
           "paper_title": "Green infrastructure-based design in Texas coastal communities",
           "authors": "Galen Newman, Dongying Li",
@@ -523,7 +523,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Coastal buildings and infrastructure flood risk analysis using multi‐attribute decision‐making (S.M.H. Mojtahedi, B.L. Oo, 2014).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 502,
           "paper_title": "Coastal buildings and infrastructure flood risk analysis using multi‐attribute decision‐making",
           "authors": "S.M.H. Mojtahedi, B.L. Oo",
@@ -537,7 +537,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: COASTAL FLOOD RISK TO EUROPEAN CRITICAL INFRASTRUCTURE (Khin Nawarat, Johan Reyns, Michalis I. Vousdoukas, Kees C.H., 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 519,
           "paper_title": "COASTAL FLOOD RISK TO EUROPEAN CRITICAL INFRASTRUCTURE",
           "authors": "Khin Nawarat, Johan Reyns, Michalis I. Vousdoukas, Kees C.H. van Ginkel, Eamonn Mulholland, Roshanka Ranasinghe",
@@ -551,7 +551,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Impact-based risk assessment of coastal infrastructure adaptation to climate change: a case study of hurricane risk in N (Bona Ryan, David Bristow, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 520,
           "paper_title": "Impact-based risk assessment of coastal infrastructure adaptation to climate change: a case study of hurricane risk in N",
           "authors": "Bona Ryan, David Bristow",
@@ -565,7 +565,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Development of a common conceptual framework for the adaptation of coastal flood protection systems (Marc Igigabel, Marissa Yates, Youssef Diab, 2024).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 521,
           "paper_title": "Development of a common conceptual framework for the adaptation of coastal flood protection systems",
           "authors": "Marc Igigabel, Marissa Yates, Youssef Diab",
@@ -579,7 +579,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Green Infrastructure Planning as a Climate Change and Risk Adaptation Tool in Coastal Urban Areas (Renato Monteiro, José Carlos Ferreira, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 522,
           "paper_title": "Green Infrastructure Planning as a Climate Change and Risk Adaptation Tool in Coastal Urban Areas",
           "authors": "Renato Monteiro, José Carlos Ferreira",
@@ -593,7 +593,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cost-benefit analysis of a proposed coastal infrastructure for reducing storm surge-induced impact in the Upper Texas Co (Meri Davlasheridze, Kayode O. Atoba, 2022).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 523,
           "paper_title": "Cost-benefit analysis of a proposed coastal infrastructure for reducing storm surge-induced impact in the Upper Texas Co",
           "authors": "Meri Davlasheridze, Kayode O. Atoba",
@@ -607,7 +607,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: FLOOD AND RIVER/COASTAL DEFENCES (Unknown, ).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 525,
           "paper_title": "FLOOD AND RIVER/COASTAL DEFENCES",
           "authors": "Unknown",
@@ -621,7 +621,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A review of climate change-induced flood impacts and adaptation of coastal infrastructure systems in the United States (Ashish Shrestha, Gregory J Howland, Christopher M Chini, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 531,
           "paper_title": "A review of climate change-induced flood impacts and adaptation of coastal infrastructure systems in the United States",
           "authors": "Ashish Shrestha, Gregory J Howland, Christopher M Chini",
@@ -635,7 +635,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: An evidence based approach to evaluating flood adaptation effectiveness including climate change considerations for coas (Mahesh Prakash, Raymond Cohen, James Hilton, Shariar H. Khan, 2019).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 532,
           "paper_title": "An evidence based approach to evaluating flood adaptation effectiveness including climate change considerations for coas",
           "authors": "Mahesh Prakash, Raymond Cohen, James Hilton, Shariar H. Khan",
@@ -649,7 +649,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Supporting flood risk management through better infrastructure design and management (Paul B. Sayers, Jaap Flikweert, Andreas Kortenhaus, 2012).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 534,
           "paper_title": "Supporting flood risk management through better infrastructure design and management",
           "authors": "Paul B. Sayers, Jaap Flikweert, Andreas Kortenhaus",
@@ -663,7 +663,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Assessing Climate-Driven Flood Risk with the Community Resilience and Adaptation Spatial Infrastructure Database (CRASID (Jeffrey  Lee Ashby, Diane Henshel, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 538,
           "paper_title": "Assessing Climate-Driven Flood Risk with the Community Resilience and Adaptation Spatial Infrastructure Database (CRASID",
           "authors": "Jeffrey  Lee Ashby, Diane Henshel",
@@ -677,7 +677,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Urban infrastructure system adaptation: Un lessons learned in flood management (Ali Mohajervatan, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 539,
           "paper_title": "Urban infrastructure system adaptation: Un lessons learned in flood management",
           "authors": "Ali Mohajervatan",
@@ -691,7 +691,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Impacts of global warming on coastal flood risk to European surface transport infrastructure (Unknown, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 541,
           "paper_title": "Impacts of global warming on coastal flood risk to European surface transport infrastructure",
           "authors": "Unknown",
@@ -705,7 +705,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Climate change impacts and adaptation for coastal transport infrastructure (Unknown, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 544,
           "paper_title": "Climate change impacts and adaptation for coastal transport infrastructure",
           "authors": "Unknown",
@@ -719,7 +719,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Robust decision-making under uncertainty – towards adaptive and resilient flood risk management infrastructure (Paul B. Sayers, Gerald E. Galloway, Jim W. Hall, 2012).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 545,
           "paper_title": "Robust decision-making under uncertainty – towards adaptive and resilient flood risk management infrastructure",
           "authors": "Paul B. Sayers, Gerald E. Galloway, Jim W. Hall",
@@ -2569,7 +2569,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: DIGITAL TWIN FOR INTELLIGENT CYBER-PHYSICAL SYSTEMS (William Danilczyk, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 412,
           "paper_title": "DIGITAL TWIN FOR INTELLIGENT CYBER-PHYSICAL SYSTEMS",
           "authors": "William Danilczyk",
@@ -2583,7 +2583,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A digital twin approach to support the evolution of cyber-physical systems (Joost Mertens, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 413,
           "paper_title": "A digital twin approach to support the evolution of cyber-physical systems",
           "authors": "Joost Mertens",
@@ -2597,7 +2597,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin of Building Heating Substation: An Example of a Digital Twin of a Cyber-Physical System (Oleg Yu. Maryasin, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 415,
           "paper_title": "Digital Twin of Building Heating Substation: An Example of a Digital Twin of a Cyber-Physical System",
           "authors": "Oleg Yu. Maryasin",
@@ -2611,7 +2611,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: An Architecture for Intelligent Agent-Based Digital Twin for Cyber-Physical Systems (Hussein Marah, Moharram Challenger, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 416,
           "paper_title": "An Architecture for Intelligent Agent-Based Digital Twin for Cyber-Physical Systems",
           "authors": "Hussein Marah, Moharram Challenger",
@@ -2625,7 +2625,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin-based Cyber-Attack Detection Framework for Cyber-Physical Manufacturing Systems (Efe C. Balta, Michael Pease, James Moyne, Kira Barton, Dawn , 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 418,
           "paper_title": "Digital Twin-based Cyber-Attack Detection Framework for Cyber-Physical Manufacturing Systems",
           "authors": "Efe C. Balta, Michael Pease, James Moyne, Kira Barton, Dawn Tilbury",
@@ -2639,7 +2639,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A digital twin for production planning based on cyber-physical systems: A Case Study for a Cyber-Physical System-Based C (Florian Biesinger, Davis Meike, Benedikt Kraß, Michael Weyri, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 419,
           "paper_title": "A digital twin for production planning based on cyber-physical systems: A Case Study for a Cyber-Physical System-Based C",
           "authors": "Florian Biesinger, Davis Meike, Benedikt Kraß, Michael Weyrich",
@@ -2653,7 +2653,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The human body: A digital twin of the cyber physical systems (Unknown, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 420,
           "paper_title": "The human body: A digital twin of the cyber physical systems",
           "authors": "Unknown",
@@ -2667,7 +2667,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital twin applications in industrial robotics and cyber-physical systems (Roman Ružarovský, Tibor Horák, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 421,
           "paper_title": "Digital twin applications in industrial robotics and cyber-physical systems",
           "authors": "Roman Ružarovský, Tibor Horák",
@@ -2681,7 +2681,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A Game-Theoretic Approach to Secure Estimation and Control for Cyber-Physical Systems with a Digital Twin (Zhiheng Xu, Arvind Easwaran, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 422,
           "paper_title": "A Game-Theoretic Approach to Secure Estimation and Control for Cyber-Physical Systems with a Digital Twin",
           "authors": "Zhiheng Xu, Arvind Easwaran",
@@ -2695,7 +2695,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Safety Analysis for Cyber-Physical Systems Under Cyber Attacks Using Digital Twin (Ruizhe Wang, Sarad Venugopalan, Sridhar Adepu, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 423,
           "paper_title": "Safety Analysis for Cyber-Physical Systems Under Cyber Attacks Using Digital Twin",
           "authors": "Ruizhe Wang, Sarad Venugopalan, Sridhar Adepu",
@@ -2709,7 +2709,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A Digital Twin for Cyber-Physical Energy Systems (Paolo Pileggi, Jacques Verriet, Jeroen Broekhuijsen, Coen va, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 424,
           "paper_title": "A Digital Twin for Cyber-Physical Energy Systems",
           "authors": "Paolo Pileggi, Jacques Verriet, Jeroen Broekhuijsen, Coen van Leeuwen, Wilco Wijbrandi, Mente Konsman",
@@ -2723,7 +2723,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital twin-based integrated modeling and maintenance framework in the power grid data center scenario (Maodong Xiao, Shuo Cui, Lei Wang, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 427,
           "paper_title": "Digital twin-based integrated modeling and maintenance framework in the power grid data center scenario",
           "authors": "Maodong Xiao, Shuo Cui, Lei Wang",
@@ -2737,7 +2737,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin Analytic Predictive Applications in Cyber-Physical Systems (Anton P. Alekseev, Vladislav V. Efremov, Vyacheslav V. Potek, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 428,
           "paper_title": "Digital Twin Analytic Predictive Applications in Cyber-Physical Systems",
           "authors": "Anton P. Alekseev, Vladislav V. Efremov, Vyacheslav V. Potekhin, Yanan Zhao, Hongwang Du",
@@ -2751,7 +2751,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: An anomaly detection framework for digital twin driven cyber-physical systems (Chuanchao Gao, Heejong Park, Arvind Easwaran, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 429,
           "paper_title": "An anomaly detection framework for digital twin driven cyber-physical systems",
           "authors": "Chuanchao Gao, Heejong Park, Arvind Easwaran",
@@ -2765,7 +2765,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin Approach Toward Modern Power Systems (Sabrieh Choobkar, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 430,
           "paper_title": "Digital Twin Approach Toward Modern Power Systems",
           "authors": "Sabrieh Choobkar",
@@ -2779,7 +2779,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cyber–Physical Fusion in Digital Twin Shop-Floor (Fei Tao, Meng Zhang, A.Y.C. Nee, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 431,
           "paper_title": "Cyber–Physical Fusion in Digital Twin Shop-Floor",
           "authors": "Fei Tao, Meng Zhang, A.Y.C. Nee",
@@ -2793,7 +2793,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A Graph-Based Cross-Vertical Digital Twin Platform for Complex Cyber-Physical Systems (Thierry Coupaye, Sébastien Bolle, Sylvie Derrien, Pauline Fo, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 432,
           "paper_title": "A Graph-Based Cross-Vertical Digital Twin Platform for Complex Cyber-Physical Systems",
           "authors": "Thierry Coupaye, Sébastien Bolle, Sylvie Derrien, Pauline Folz, Pierre Meye, Gilles Privat, Philippe Raïpin-Parvedy",
@@ -2807,7 +2807,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: LLM-Guided Digital Twin Agents for Autonomous Threat Detection and Response in Cyber-Physical Energy Systems (Fatemeh Zahra Hosseini-Moghadam Shadman, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 434,
           "paper_title": "LLM-Guided Digital Twin Agents for Autonomous Threat Detection and Response in Cyber-Physical Energy Systems",
           "authors": "Fatemeh Zahra Hosseini-Moghadam Shadman",
@@ -2821,7 +2821,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin, Cyber–Physical System, and Internet of Things (Fei Tao, Meng Zhang, A.Y.C. Nee, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 435,
           "paper_title": "Digital Twin, Cyber–Physical System, and Internet of Things",
           "authors": "Fei Tao, Meng Zhang, A.Y.C. Nee",
@@ -2835,7 +2835,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin-Enabled Incentive Learning for Dynamic Sensing Agents in Smart Transportation Cyber-Physical Systems (Weiwei Hu, Yuichi Ohsita, Hideyuki Shimonishi, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 436,
           "paper_title": "Digital Twin-Enabled Incentive Learning for Dynamic Sensing Agents in Smart Transportation Cyber-Physical Systems",
           "authors": "Weiwei Hu, Yuichi Ohsita, Hideyuki Shimonishi",
@@ -2849,7 +2849,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin and the Detection and Location of DoS Attacks to Secure Cyber-Physical UAS (Gita Donkal, Anjali Donkal, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 437,
           "paper_title": "Digital Twin and the Detection and Location of DoS Attacks to Secure Cyber-Physical UAS",
           "authors": "Gita Donkal, Anjali Donkal",
@@ -2863,7 +2863,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin Generation: Re-Conceptualizing Agent Systems for Behavior-Centered Cyber-Physical System Development (Christian Stary, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 438,
           "paper_title": "Digital Twin Generation: Re-Conceptualizing Agent Systems for Behavior-Centered Cyber-Physical System Development",
           "authors": "Christian Stary",
@@ -2877,7 +2877,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Machine Tool: From the Digital Twin to the Cyber-Physical Systems (Mikel Armendia, Aitor Alzaga, Flavien Peysson, Tobias Fuertj, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 439,
           "paper_title": "Machine Tool: From the Digital Twin to the Cyber-Physical Systems",
           "authors": "Mikel Armendia, Aitor Alzaga, Flavien Peysson, Tobias Fuertjes, Frédéric Cugnon, Erdem Ozturk, Dominik Flum",
@@ -2891,7 +2891,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: From the Digital-Twin to the Cyber Physical System Using Integrated Multidisciplinary Simulation (Daniele Catelani, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 443,
           "paper_title": "From the Digital-Twin to the Cyber Physical System Using Integrated Multidisciplinary Simulation",
           "authors": "Daniele Catelani",
@@ -2905,7 +2905,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin Architecture Patterns for Real-Time Control Systems (Mainak Majumder, Bianca Wiesmayr, Alois Zoitl, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 444,
           "paper_title": "Digital Twin Architecture Patterns for Real-Time Control Systems",
           "authors": "Mainak Majumder, Bianca Wiesmayr, Alois Zoitl",
@@ -2919,7 +2919,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Physics-Informed Digital Twin for Predictive Maintenance of Aircraft Landing Gear Systems: An Open-Source Cyber-Physical (Mohammed  Bello Sani, Loveth  O. Uhiah, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 445,
           "paper_title": "Physics-Informed Digital Twin for Predictive Maintenance of Aircraft Landing Gear Systems: An Open-Source Cyber-Physical",
           "authors": "Mohammed  Bello Sani, Loveth  O. Uhiah",
@@ -2933,7 +2933,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Healthcare cyberspace: medical cyber physical system in digital twin (Vani Rajasekar, K. Sathya, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 446,
           "paper_title": "Healthcare cyberspace: medical cyber physical system in digital twin",
           "authors": "Vani Rajasekar, K. Sathya",
@@ -2947,7 +2947,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Triple: A Blockchain-Based Digital Twin Framework for Cyber-Physical Systems Security (Sabah Suhail, Mubashar Iqbal, Rasheed Hussain, Saif Ur Rehma, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 447,
           "paper_title": "Triple: A Blockchain-Based Digital Twin Framework for Cyber-Physical Systems Security",
           "authors": "Sabah Suhail, Mubashar Iqbal, Rasheed Hussain, Saif Ur Rehman Malik, Raja Jurdak",
@@ -2961,7 +2961,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Architecture of a Digital Twin for Enabling Digital Services for Battery Systems (Lukas Merkle, Alexander Salinas Segura, Jan Torben Grummel, , 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 448,
           "paper_title": "Architecture of a Digital Twin for Enabling Digital Services for Battery Systems",
           "authors": "Lukas Merkle, Alexander Salinas Segura, Jan Torben Grummel, Markus Lienkamp",
@@ -2975,7 +2975,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Developing Web-based Digital Twin of Assembly Lines for Industrial Cyber-physical Systems (Sergey Konstantinov, Fadi Assad, Wajid Azam, Daniel Vera, Bi, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 449,
           "paper_title": "Developing Web-based Digital Twin of Assembly Lines for Industrial Cyber-physical Systems",
           "authors": "Sergey Konstantinov, Fadi Assad, Wajid Azam, Daniel Vera, Bilal Ahmad, Robert Harrison",
@@ -2989,7 +2989,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Digital (Mission) Twin: an Integrating Concept for Future Adaptive Cyber-Physical-Human Systems (Dennis J. Folds, Thomas A. McDermott, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 451,
           "paper_title": "The Digital (Mission) Twin: an Integrating Concept for Future Adaptive Cyber-Physical-Human Systems",
           "authors": "Dennis J. Folds, Thomas A. McDermott",
@@ -3003,7 +3003,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: IoT-Based Digital Twin for Energy Cyber-Physical Systems: Design and Implementation (Ahmed Saad, Samy Faddel, Osama Mohammed, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 452,
           "paper_title": "IoT-Based Digital Twin for Energy Cyber-Physical Systems: Design and Implementation",
           "authors": "Ahmed Saad, Samy Faddel, Osama Mohammed",
@@ -3017,7 +3017,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin Production Lines: A Perspective on Intelligent Sensing, Prediction, and Cognitive Manufacturing (Yuxing Ding, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 453,
           "paper_title": "Digital Twin Production Lines: A Perspective on Intelligent Sensing, Prediction, and Cognitive Manufacturing",
           "authors": "Yuxing Ding",
@@ -3031,7 +3031,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A Digital Twin Setup for Safety-aware Optimization of a Cyber-physical System (Jalil Boudjadar, Martin Tomko, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 454,
           "paper_title": "A Digital Twin Setup for Safety-aware Optimization of a Cyber-physical System",
           "authors": "Jalil Boudjadar, Martin Tomko",
@@ -3045,7 +3045,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin-Driven Intrusion Detection for Industrial SCADA: A Cyber-Physical Case Study (Ali Sayghe, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 457,
           "paper_title": "Digital Twin-Driven Intrusion Detection for Industrial SCADA: A Cyber-Physical Case Study",
           "authors": "Ali Sayghe",
@@ -3059,7 +3059,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Towards a Digital Twin Framework for Secure and Efficient Cyber-Physical Transportation Systems (Luca Brodo, Giuseppe Scalora, Stefan Henkler, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 458,
           "paper_title": "Towards a Digital Twin Framework for Secure and Efficient Cyber-Physical Transportation Systems",
           "authors": "Luca Brodo, Giuseppe Scalora, Stefan Henkler",
@@ -3073,7 +3073,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Twin Development: Mathematical Modeling (Dennis Krummacker, Mike Reichardt, Christoph Fischer, Hans D, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 459,
           "paper_title": "Digital Twin Development: Mathematical Modeling",
           "authors": "Dennis Krummacker, Mike Reichardt, Christoph Fischer, Hans D. Schotten",
@@ -3087,7 +3087,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Minerals Technology Center (Unknown, 1993).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 460,
           "paper_title": "Marine Minerals Technology Center",
           "authors": "Unknown",
@@ -3101,7 +3101,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Application of robotics in offshore oil and gas industry— A review Part II (Amit Shukla, Hamad Karki, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 461,
           "paper_title": "Application of robotics in offshore oil and gas industry— A review Part II",
           "authors": "Amit Shukla, Hamad Karki",
@@ -3115,7 +3115,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Robust mission planning for Autonomous Marine Vehicle fleets (Fletcher Thompson, Roberto Galeazzi, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 462,
           "paper_title": "Robust mission planning for Autonomous Marine Vehicle fleets",
           "authors": "Fletcher Thompson, Roberto Galeazzi",
@@ -3129,7 +3129,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Execution monitoring in robotics: A survey (Ola Pettersson, 2005).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 463,
           "paper_title": "Execution monitoring in robotics: A survey",
           "authors": "Ola Pettersson",
@@ -3143,7 +3143,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Offshore Subsea IMR Operations: Review of the Automation Potential (Jannic Schurmann Larsen, Simon Pedersen, Jesper Liniger, Fre, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 464,
           "paper_title": "Offshore Subsea IMR Operations: Review of the Automation Potential",
           "authors": "Jannic Schurmann Larsen, Simon Pedersen, Jesper Liniger, Fredrik Fogh Sørensen",
@@ -3157,7 +3157,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A model for a control and monitoring system for an autonomous mobile robot (Volker Turau, 1988).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 465,
           "paper_title": "A model for a control and monitoring system for an autonomous mobile robot",
           "authors": "Volker Turau",
@@ -3171,7 +3171,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Magnetic Surveying and Disturbance Field Monitoring by Autonomous Marine Vehicles (Benny Poedjono, Sudhir Pai, Stefan Maus, Chandrashekaran Man, 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 466,
           "paper_title": "Marine Magnetic Surveying and Disturbance Field Monitoring by Autonomous Marine Vehicles",
           "authors": "Benny Poedjono, Sudhir Pai, Stefan Maus, Chandrashekaran Manoj, Ryan Paynter",
@@ -3185,7 +3185,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Simultaneous search and monitoring by multiple aerial robots (Haoyu Zhang, Sandor Veres, Andreas Kolling, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 467,
           "paper_title": "Simultaneous search and monitoring by multiple aerial robots",
           "authors": "Haoyu Zhang, Sandor Veres, Andreas Kolling",
@@ -3199,7 +3199,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine locomotion: A tethered UAV-Buoy system with surge velocity control (Ahmad Kourani, Naseem Daher, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 468,
           "paper_title": "Marine locomotion: A tethered UAV-Buoy system with surge velocity control",
           "authors": "Ahmad Kourani, Naseem Daher",
@@ -3213,7 +3213,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Autonomous GPU-based UAS for inspection of confined spaces: Application to marine vessel classification (Rune Y. Brogaard, Evangelos Boukas, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 469,
           "paper_title": "Autonomous GPU-based UAS for inspection of confined spaces: Application to marine vessel classification",
           "authors": "Rune Y. Brogaard, Evangelos Boukas",
@@ -3227,7 +3227,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A hydrostatic robot for marine applications (Ravi Vaidyanathan, Hillel J Chiel, Roger D Quinn, 2000).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 470,
           "paper_title": "A hydrostatic robot for marine applications",
           "authors": "Ravi Vaidyanathan, Hillel J Chiel, Roger D Quinn",
@@ -3241,7 +3241,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Real-time wildfire monitoring with a fleet of UAVs (Rafael Bailon-Ruiz, Arthur Bit-Monnot, Simon Lacroix, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 471,
           "paper_title": "Real-time wildfire monitoring with a fleet of UAVs",
           "authors": "Rafael Bailon-Ruiz, Arthur Bit-Monnot, Simon Lacroix",
@@ -3255,7 +3255,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Monitoring the execution of robot plans using semantic knowledge (Abdelbaki Bouguerra, Lars Karlsson, Alessandro Saffiotti, 2008).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 472,
           "paper_title": "Monitoring the execution of robot plans using semantic knowledge",
           "authors": "Abdelbaki Bouguerra, Lars Karlsson, Alessandro Saffiotti",
@@ -3269,7 +3269,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Waterline and obstacle detection in images from low-cost autonomous boats for environmental monitoring (L. Steccanella, D.D. Bloisi, A. Castellini, A. Farinelli, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 473,
           "paper_title": "Waterline and obstacle detection in images from low-cost autonomous boats for environmental monitoring",
           "authors": "L. Steccanella, D.D. Bloisi, A. Castellini, A. Farinelli",
@@ -3283,7 +3283,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Real-time human activity monitoring exploring multiple vision sensors (Paulo Peixoto, Jorge Batista, Helder J Araujo, 2001).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 474,
           "paper_title": "Real-time human activity monitoring exploring multiple vision sensors",
           "authors": "Paulo Peixoto, Jorge Batista, Helder J Araujo",
@@ -3297,7 +3297,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Biomimetic Robotics Special Issue of Robotics and Autonomous Systems (Unknown, 1998).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 475,
           "paper_title": "Biomimetic Robotics Special Issue of Robotics and Autonomous Systems",
           "authors": "Unknown",
@@ -3311,7 +3311,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Intelligent decision-making system for multiple marine autonomous surface ships based on deep reinforcement learning (Wei Guan, Wenzhe Luo, Zhewen Cui, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 476,
           "paper_title": "Intelligent decision-making system for multiple marine autonomous surface ships based on deep reinforcement learning",
           "authors": "Wei Guan, Wenzhe Luo, Zhewen Cui",
@@ -3325,7 +3325,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Robotics and autonomous systems (T.M. Knasel, 1988).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 477,
           "paper_title": "Robotics and autonomous systems",
           "authors": "T.M. Knasel",
@@ -3339,7 +3339,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Expectation-based selective attention for visual monitoring and control of a robot vehicle (Shumeet Baluja, Dean A. Pomerleau, 1997).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 478,
           "paper_title": "Expectation-based selective attention for visual monitoring and control of a robot vehicle",
           "authors": "Shumeet Baluja, Dean A. Pomerleau",
@@ -3353,7 +3353,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Model-based learning of underwater acoustic communication performance for marine robots (George P. Kontoudis, Stephen Krauss, Daniel J. Stilwell, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 479,
           "paper_title": "Model-based learning of underwater acoustic communication performance for marine robots",
           "authors": "George P. Kontoudis, Stephen Krauss, Daniel J. Stilwell",
@@ -3367,7 +3367,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cooperative line of sight target tracking for heterogeneous unmanned marine vehicle teams: From theory to practice (Thomas Glotzbach, Matthias Schneider, Peter Otto, 2015).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 480,
           "paper_title": "Cooperative line of sight target tracking for heterogeneous unmanned marine vehicle teams: From theory to practice",
           "authors": "Thomas Glotzbach, Matthias Schneider, Peter Otto",
@@ -3381,7 +3381,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Introducing article numbering to Robotics and Autonomous Systems (Catherine Carnovale, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 481,
           "paper_title": "Introducing article numbering to Robotics and Autonomous Systems",
           "authors": "Catherine Carnovale",
@@ -3395,7 +3395,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Distributed Autonomous Robotic Systems (Unknown, 1999).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 482,
           "paper_title": "Distributed Autonomous Robotic Systems",
           "authors": "Unknown",
@@ -3409,7 +3409,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A virtual force interaction scheme for multi-robot environment monitoring (Kang Ji, Qian Zhang, Zhi Yuan, Hui Cheng, Dingli Yu, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 483,
           "paper_title": "A virtual force interaction scheme for multi-robot environment monitoring",
           "authors": "Kang Ji, Qian Zhang, Zhi Yuan, Hui Cheng, Dingli Yu",
@@ -3423,7 +3423,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Autonomous control of marine floats in the presence of dynamic, uncertain ocean currents (Martina Troesch, Steve Chien, Yi Chao, John Farrara, James G, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 484,
           "paper_title": "Autonomous control of marine floats in the presence of dynamic, uncertain ocean currents",
           "authors": "Martina Troesch, Steve Chien, Yi Chao, John Farrara, James Girton, John Dunlap",
@@ -3437,7 +3437,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Resident autonomous underwater vehicle: Underwater system for prolonged and continuous monitoring based at a seafloor st (Takumi Matsuda, Toshihiro Maki, Kotohiro Masuda, Takashi Sak, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 485,
           "paper_title": "Resident autonomous underwater vehicle: Underwater system for prolonged and continuous monitoring based at a seafloor st",
           "authors": "Takumi Matsuda, Toshihiro Maki, Kotohiro Masuda, Takashi Sakamaki",
@@ -3451,7 +3451,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Occupation-aware planning method for robotic monitoring missions in dynamic environments (Yaroslav Marchukov, Luis Montano, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 486,
           "paper_title": "Occupation-aware planning method for robotic monitoring missions in dynamic environments",
           "authors": "Yaroslav Marchukov, Luis Montano",
@@ -3465,7 +3465,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Mission-based online generation of probabilistic monitoring models for mobile robot navigation using Petri nets (L. Zouaghi, A. Alexopoulos, A. Wagner, E. Badreddin, 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 487,
           "paper_title": "Mission-based online generation of probabilistic monitoring models for mobile robot navigation using Petri nets",
           "authors": "L. Zouaghi, A. Alexopoulos, A. Wagner, E. Badreddin",
@@ -3479,7 +3479,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Design of a wireless remote monitoring and object tracking robot (M. Karkoub, M.-G. Her, C.-C. Huang, C.-C. Lin, C.-H. Lin, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 488,
           "paper_title": "Design of a wireless remote monitoring and object tracking robot",
           "authors": "M. Karkoub, M.-G. Her, C.-C. Huang, C.-C. Lin, C.-H. Lin",
@@ -3493,7 +3493,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Autonomous systems environments (T.M. Knasel, 1988).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 489,
           "paper_title": "Autonomous systems environments",
           "authors": "T.M. Knasel",
@@ -3507,7 +3507,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Biologically inspired autonomous systems (Erol Gelenbe, 1997).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 490,
           "paper_title": "Biologically inspired autonomous systems",
           "authors": "Erol Gelenbe",
@@ -3521,7 +3521,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cyber-security in robotics and autonomous systems (Vicente Matellán, Tamara Bonaci, Giedre Sabaliauskaite, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 491,
           "paper_title": "Cyber-security in robotics and autonomous systems",
           "authors": "Vicente Matellán, Tamara Bonaci, Giedre Sabaliauskaite",
@@ -3535,7 +3535,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Autonomous systems for space (Ronald Lumia, 1988).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 492,
           "paper_title": "Autonomous systems for space",
           "authors": "Ronald Lumia",
@@ -3549,7 +3549,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Intelligent Autonomous Systems — IAS-3 (Chuck Thorpe, 1993).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 494,
           "paper_title": "Intelligent Autonomous Systems — IAS-3",
           "authors": "Chuck Thorpe",
@@ -3563,7 +3563,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Call for Papers: Intelligent autonomous systems 2 (Unknown, 1989).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 495,
           "paper_title": "Call for Papers: Intelligent autonomous systems 2",
           "authors": "Unknown",
@@ -3577,7 +3577,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Editorial Board (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 496,
           "paper_title": "Editorial Board",
           "authors": "Unknown",
@@ -3591,7 +3591,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Extending robotics capabilities (T.M. Knasel, 1989).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 497,
           "paper_title": "Extending robotics capabilities",
           "authors": "T.M. Knasel",
@@ -3605,7 +3605,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Adaptation of coastal flood protection systems (Marc Igigabel, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 516,
           "paper_title": "Adaptation of coastal flood protection systems",
           "authors": "Marc Igigabel",
@@ -3619,7 +3619,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental gains and losses in flood and coastal erosion risk management (Unknown, 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 533,
           "paper_title": "Environmental gains and losses in flood and coastal erosion risk management",
           "authors": "Unknown",
@@ -3635,7 +3635,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Performance of coastal flood defences (Andreas Kortenhaus, 2012).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 499,
           "paper_title": "Performance of coastal flood defences",
           "authors": "Andreas Kortenhaus",
@@ -3649,7 +3649,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Implications of subsidence for coastal flood risk and adaptation in China (Robert Nicholls, Jiayi Fang, 2022).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 501,
           "paper_title": "Implications of subsidence for coastal flood risk and adaptation in China",
           "authors": "Robert Nicholls, Jiayi Fang",
@@ -3663,7 +3663,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: DEVELOPMENT OF FLOOD RISK REDUCTION INVESTMENT STRATEGIES THROUGH GLOBAL FLOOD RISK TOOL AND APPLICATION OF ADAPTATION P (Matthijs Bos, Michael van de Watering, Joost Trommelen, 2023).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 503,
           "paper_title": "DEVELOPMENT OF FLOOD RISK REDUCTION INVESTMENT STRATEGIES THROUGH GLOBAL FLOOD RISK TOOL AND APPLICATION OF ADAPTATION P",
           "authors": "Matthijs Bos, Michael van de Watering, Joost Trommelen",
@@ -3677,7 +3677,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Recommendation: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and a (Unknown, 2024).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 504,
           "paper_title": "Recommendation: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and a",
           "authors": "Unknown",
@@ -3691,7 +3691,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Decision: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and adaptat (Unknown, 2024).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 505,
           "paper_title": "Decision: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and adaptat",
           "authors": "Unknown",
@@ -3705,7 +3705,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Recommendation: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and a (Unknown, 2023).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 506,
           "paper_title": "Recommendation: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and a",
           "authors": "Unknown",
@@ -3719,7 +3719,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Decision: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and adaptat (Unknown, 2023).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 507,
           "paper_title": "Decision: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and adaptat",
           "authors": "Unknown",
@@ -3733,7 +3733,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Decision: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and adaptat (Unknown, 2024).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 508,
           "paper_title": "Decision: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and adaptat",
           "authors": "Unknown",
@@ -3747,7 +3747,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Climate Adaptation and Flood Risk in Coastal Cities (Jeroen Aerts, Wouter Botzen, Malcolm Bowman, Piet Dircke, Ph, 2013).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 509,
           "paper_title": "Climate Adaptation and Flood Risk in Coastal Cities",
           "authors": "Jeroen Aerts, Wouter Botzen, Malcolm Bowman, Piet Dircke, Philip Ward",
@@ -3761,7 +3761,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Recommendation: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and a (Unknown, 2024).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 510,
           "paper_title": "Recommendation: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and a",
           "authors": "Unknown",
@@ -3775,7 +3775,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Floating and stilted structures as strategies in coastal climate adaptation: Local monsoon adaptation practices and impl (Stefan Huebner, 2025).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 511,
           "paper_title": "Floating and stilted structures as strategies in coastal climate adaptation: Local monsoon adaptation practices and impl",
           "authors": "Stefan Huebner",
@@ -3789,7 +3789,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Author comment: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and a (Elina Apine, 2024).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 512,
           "paper_title": "Author comment: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and a",
           "authors": "Elina Apine",
@@ -3803,7 +3803,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Author comment: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and a (Elina Apine, 2023).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 513,
           "paper_title": "Author comment: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and a",
           "authors": "Elina Apine",
@@ -3817,7 +3817,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Author comment: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and a (Elina Apine, 2023).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 514,
           "paper_title": "Author comment: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and a",
           "authors": "Elina Apine",
@@ -3831,7 +3831,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Towards nature-based and hybrid adaptation to coastal flood risk: a global perspective (Timothy Tiggeloven, Hans de Moel, Philip Ward, 2022).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 515,
           "paper_title": "Towards nature-based and hybrid adaptation to coastal flood risk: a global perspective",
           "authors": "Timothy Tiggeloven, Hans de Moel, Philip Ward",
@@ -3845,7 +3845,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The benefits of coastal adaptation through conservation of foreshore vegetation (Timothy Tiggeloven, Hans de Moel, Vincent T. M. van Zelst, B, 2022).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 517,
           "paper_title": "The benefits of coastal adaptation through conservation of foreshore vegetation",
           "authors": "Timothy Tiggeloven, Hans de Moel, Vincent T. M. van Zelst, Bregje K. van Wesenbeeck, Hessel C. Winsemius, Dirk Eilander,",
@@ -3859,7 +3859,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Designing and implementing coastal dunes for flood risk reduction (Jens Figlus, 2022).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 518,
           "paper_title": "Designing and implementing coastal dunes for flood risk reduction",
           "authors": "Jens Figlus",
@@ -3873,7 +3873,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Explaining communities' adaptation strategies for coastal flood risk: Vulnerability and institutional factors (Stephanie E. Chang, Jackie Z. K. Yip, Tugce Conger, Greg Oul, 2020).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 524,
           "paper_title": "Explaining communities' adaptation strategies for coastal flood risk: Vulnerability and institutional factors",
           "authors": "Stephanie E. Chang, Jackie Z. K. Yip, Tugce Conger, Greg Oulahen, Emily Gray, Michelle Marteleira",
@@ -3887,7 +3887,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: New Hampshire Coastal Flood Risk Summary, Part II: Guidance for Using Scientific Projections (Unknown, 2020).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 526,
           "paper_title": "New Hampshire Coastal Flood Risk Summary, Part II: Guidance for Using Scientific Projections",
           "authors": "Unknown",
@@ -3901,7 +3901,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Introduction to the Coastal Flood Risk Reduction Program (Samuel Brody, Baukje Bee Kothuis, Yoonjeong Lee, 2022).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 527,
           "paper_title": "Introduction to the Coastal Flood Risk Reduction Program",
           "authors": "Samuel Brody, Baukje Bee Kothuis, Yoonjeong Lee",
@@ -3915,7 +3915,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Flood risk assessment due to cyclone induced dike breaching on coastal areas of Bangladesh (Md Feroz Islam, Biswa Bhattacharya, Ioana Popescu, 2018).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 528,
           "paper_title": "Flood risk assessment due to cyclone induced dike breaching on coastal areas of Bangladesh",
           "authors": "Md Feroz Islam, Biswa Bhattacharya, Ioana Popescu",
@@ -3929,7 +3929,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The political complexity of coastal flood risk reduction: lessons for climate adaptation public works in the U.S. (D.J. Rasmussen, Michael Oppenheimer, Robert E Kopp, Rachael , 2020).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 529,
           "paper_title": "The political complexity of coastal flood risk reduction: lessons for climate adaptation public works in the U.S.",
           "authors": "D.J. Rasmussen, Michael Oppenheimer, Robert E Kopp, Rachael Shwom",
@@ -3943,7 +3943,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Adaptation to Flooding in St. Augustine, USA (Ezekiel Grant, Miguel Esteban, Onuki Motoharu, Gerasimos Vou, 2024).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 530,
           "paper_title": "Adaptation to Flooding in St. Augustine, USA",
           "authors": "Ezekiel Grant, Miguel Esteban, Onuki Motoharu, Gerasimos Voulgaris",
@@ -3957,7 +3957,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Coastal Flood Risk Reduction (Unknown, 2022).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 535,
           "paper_title": "Coastal Flood Risk Reduction",
           "authors": "Unknown",
@@ -3971,7 +3971,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Indigenous Landscape as Response to Flood Risk in Coastal Urban Slums (Anubhav Goyal, Maria Matos Silva, Sérgio Barreiros Proença, 2026).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 536,
           "paper_title": "Indigenous Landscape as Response to Flood Risk in Coastal Urban Slums",
           "authors": "Anubhav Goyal, Maria Matos Silva, Sérgio Barreiros Proença",
@@ -3985,7 +3985,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Global scale benefit-cost analysis of coastal flood adaptation to different flood risk drivers (Timothy Tiggeloven, Hans de Moel, Hessel C. Winsemius, Dirk , 2019).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 537,
           "paper_title": "Global scale benefit-cost analysis of coastal flood adaptation to different flood risk drivers",
           "authors": "Timothy Tiggeloven, Hans de Moel, Hessel C. Winsemius, Dirk Eilander, Gilles Erkens, Eskedar Gebremedhin, Andres Diaz Lo",
@@ -3999,7 +3999,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Twenty-first century flood risk management (Will McBain, 2012).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 540,
           "paper_title": "Twenty-first century flood risk management",
           "authors": "Will McBain",
@@ -4013,7 +4013,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Flood risk reduction for Galveston Bay: Preliminary design of a coastal barrier system (Sebastiaan N. Jonkman, Erik. C. van Berchum, 2022).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 542,
           "paper_title": "Flood risk reduction for Galveston Bay: Preliminary design of a coastal barrier system",
           "authors": "Sebastiaan N. Jonkman, Erik. C. van Berchum",
@@ -4027,7 +4027,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Assessing Adaptation Strategies Against Flood Risk In Urban Coastal Areas Through Izmir Karsıyaka Coastline Case (çağla ercanlı, 2022).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 543,
           "paper_title": "Assessing Adaptation Strategies Against Flood Risk In Urban Coastal Areas Through Izmir Karsıyaka Coastline Case",
           "authors": "çağla ercanlı",
@@ -4041,7 +4041,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and adaptation in the (Elina Apine, Tim Stojanovic, 2024).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 546,
           "paper_title": "Is the coastal future green, grey or hybrid? Diverse perspectives on coastal flood risk management and adaptation in the",
           "authors": "Elina Apine, Tim Stojanovic",

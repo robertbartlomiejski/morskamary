@@ -5,7 +5,7 @@
   "timestamp_utc": "2026-07-08T19:07:59+00:00",
   "analysis_timestamp_utc": "2026-07-08T19:07:49+00:00",
   "archived_at": "2026-07-08T19:07:59+00:00",
-  "archive_root": "outputs/run_archive",
+  "archive_root": "/home/runner/work/morskamary/morskamary/outputs/run_archive",
   "run_path": "runs/28967267944.2",
   "copied_targets": [
     "outputs/research_sources",
@@ -72,11 +72,6 @@
   "credentials_count": 26,
   "raw_api_payloads_count": 0,
   "files": [
-    {
-      "path": "MANIFEST_SOURCES.csv",
-      "size_bytes": 126816,
-      "sha256": "01feafce4affb6e6cb1c0e82f8d8f0f5a764d19a0c65988dfd9df3ea550f7ac7"
-    },
     {
       "path": "analysis_outputs/competences_full_database.json",
       "size_bytes": 2636729,
@@ -171,6 +166,11 @@
       "path": "analysis_outputs/sector_dictionaries/ship_repair_tmbd_dictionary.json",
       "size_bytes": 305614,
       "sha256": "5cdf30a50ba4e6f9178b3f9ad04a95b316e5d124a500e083f82ad205b311aa97"
+    },
+    {
+      "path": "MANIFEST_SOURCES.csv",
+      "size_bytes": 126816,
+      "sha256": "01feafce4affb6e6cb1c0e82f8d8f0f5a764d19a0c65988dfd9df3ea550f7ac7"
     },
     {
       "path": "outputs/competences_full_database.json",

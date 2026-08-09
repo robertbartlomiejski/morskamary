@@ -14,10 +14,12 @@ Exit codes:
 """
 
 import csv
+from datetime import datetime, timezone
 import json
 import re
 import sys
 from pathlib import Path
+from typing import cast
 
 REPO_ROOT = Path(__file__).parent.parent
 OUTPUTS_DIR = REPO_ROOT / "outputs"
@@ -73,9 +75,12 @@ REQUIRED_CUMULATIVE_METADATA_FIELDS = (
     "allow_static_recovery_mode_env",
     "provider_set",
     "github_run_id",
+    "github_run_attempt",
     "commit_sha",
     "timestamp_utc",
 )
+
+ALLOWED_ANALYSIS_MODES = {"static", "live-enriched"}
 
 ERRORS: list[str] = []
 WARNINGS: list[str] = []
@@ -88,6 +93,32 @@ def fail(msg: str) -> None:
 
 def ok(msg: str) -> None:
     print(f"  OK:   {msg}")
+
+
+def _is_valid_utc_iso8601(value: str) -> bool:
+    normalized = str(value).strip()
+    if not normalized:
+        return False
+    try:
+        parsed = datetime.fromisoformat(normalized.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return parsed.tzinfo is not None and parsed.utcoffset() == timezone.utc.utcoffset(parsed)
+
+
+def _canonical_run_id_from_metadata(metadata: dict[str, object]) -> str:
+    github_run_id = str(metadata.get("github_run_id", "")).strip()
+    github_run_attempt = str(metadata.get("github_run_attempt", "")).strip()
+    analysis_mode = str(metadata.get("analysis_input_mode", "")).strip()
+    if github_run_id and github_run_attempt:
+        return f"{github_run_id}-{github_run_attempt}"
+    if github_run_id:
+        return github_run_id
+    if analysis_mode == "static":
+        return "local-static-recovery"
+    if analysis_mode == "live-enriched":
+        return "local-live-unpublished"
+    return "local-unpublished"
 
 
 def require_file(path: Path) -> bool:
@@ -353,7 +384,9 @@ def load_sector_dict_ids(path: Path) -> set[str]:
     return ids
 
 
-def load_cumulative_qmbd_records(path: Path) -> list[dict]:
+def load_cumulative_qmbd_records(
+    path: Path, *, return_metadata: bool = False
+) -> list[dict] | tuple[list[dict], dict[str, object]]:
     """Load cumulative_qmbd_records.json and validate required schema fields.
 
     Static records (STATIC_BASELINE, STATIC_LITERATURE) require axis_name and
@@ -366,17 +399,17 @@ def load_cumulative_qmbd_records(path: Path) -> list[dict]:
             content = f.read()
     except OSError as exc:
         fail(f"{path.name}: cannot read file: {exc}")
-        return []
+        return ([], {}) if return_metadata else []
 
     if not content.strip():
         fail(f"{path.name}: file is empty — run 'python run_full_analysis.py' to regenerate")
-        return []
+        return ([], {}) if return_metadata else []
 
     try:
         data = json.loads(content)
     except json.JSONDecodeError as exc:
         fail(f"{path.name}: invalid JSON: {exc}")
-        return []
+        return ([], {}) if return_metadata else []
 
     metadata: dict[str, object] = {}
     if isinstance(data, dict):
@@ -388,14 +421,14 @@ def load_cumulative_qmbd_records(path: Path) -> list[dict]:
             metadata = metadata_candidate
         if not isinstance(records_candidate, list):
             fail(f"{path.name}: top-level 'records' must be a list")
-            return []
+            return ([], {}) if return_metadata else []
         data = records_candidate
     elif not isinstance(data, list):
         fail(
             f"{path.name}: expected a list of records or object payload, got "
             f"{type(data).__name__}"
         )
-        return []
+        return ([], {}) if return_metadata else []
 
     for field in REQUIRED_CUMULATIVE_METADATA_FIELDS:
         if field not in metadata:
@@ -462,6 +495,8 @@ def load_cumulative_qmbd_records(path: Path) -> list[dict]:
                     "has empty sentence"
                 )
 
+    if return_metadata:
+        return data, metadata
     return data
 
 
@@ -470,7 +505,9 @@ def load_cumulative_qmbd_records(path: Path) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 
-def check_gaps_csv(rows: list[dict]) -> None:
+def check_gaps_csv(
+    rows: list[dict], cumulative_metadata: dict[str, object] | None = None
+) -> None:
     """Validate gaps_summary.csv contents."""
     print("\n[gaps_summary.csv]")
 
@@ -482,9 +519,8 @@ def check_gaps_csv(rows: list[dict]) -> None:
     else:
         ok("All 12 canonical sectors present")
 
-    # 2. Legacy gap measures must vary by sector. HYDRONIZATION may legitimately
-    # be cross-sector; its presence is enforced by REQUIRED_GAP_COLUMNS.
-    sector_varying_cols = [
+    # 2. Scientific rows must not collapse into a single repeated profile
+    scientific_cols = [
         "Required",
         "Missing",
         "Gap_pct",
@@ -492,19 +528,101 @@ def check_gaps_csv(rows: list[dict]) -> None:
         "Missing_MARITIME",
         "Missing_OCEANIC",
     ]
-    for col in sector_varying_cols:
-        values = set()
-        for row in rows:
-            val = row.get(col)
-            if val is not None:
-                values.add(val.strip())
-        if len(values) <= 1 and len(rows) > 1:
+    row_profiles = {
+        tuple(str(row.get(col, "")).strip() for col in scientific_cols) for row in rows
+    }
+    if len(row_profiles) <= 1 and len(rows) > 1:
+        fail(
+            "All sector gap profiles are identical across scientific columns — "
+            "outputs appear stale (pre-PR#95)"
+        )
+    else:
+        ok(f"Scientific gap profiles show {len(row_profiles)} distinct sector patterns")
+
+    # 3. Row-level provenance must be complete, valid, and internally consistent
+    provenance_sets: dict[str, set[str]] = {
+        "Generated_at": set(),
+        "Analysis_mode": set(),
+        "Run_id": set(),
+        "Schema_version": set(),
+    }
+    for row in rows:
+        for field in provenance_sets:
+            provenance_sets[field].add(str(row.get(field, "")).strip())
+
+    generated_values = provenance_sets["Generated_at"]
+    if any(not value for value in generated_values):
+        fail("Generated_at must be non-blank for every gaps_summary.csv row")
+    elif any(not _is_valid_utc_iso8601(value) for value in generated_values):
+        fail("Generated_at must be valid UTC ISO-8601 for every gaps_summary.csv row")
+    elif len(generated_values) != 1:
+        fail("Generated_at must be identical across all gaps_summary.csv rows")
+    else:
+        ok(f"Generated_at is valid and consistent ({next(iter(generated_values))})")
+
+    analysis_modes = provenance_sets["Analysis_mode"]
+    if any(not value for value in analysis_modes):
+        fail("Analysis_mode must be non-blank for every gaps_summary.csv row")
+    elif any(value not in ALLOWED_ANALYSIS_MODES for value in analysis_modes):
+        fail(
+            "Analysis_mode must be one of: "
+            + ", ".join(sorted(ALLOWED_ANALYSIS_MODES))
+        )
+    elif len(analysis_modes) != 1:
+        fail("Analysis_mode must be identical across all gaps_summary.csv rows")
+    else:
+        ok(f"Analysis_mode is valid and consistent ({next(iter(analysis_modes))})")
+
+    run_ids = provenance_sets["Run_id"]
+    if any(not value for value in run_ids):
+        fail("Run_id must be non-blank for every gaps_summary.csv row")
+    elif len(run_ids) != 1:
+        fail("Run_id must be identical across all gaps_summary.csv rows")
+    else:
+        ok(f"Run_id is consistent across all rows ({next(iter(run_ids))})")
+
+    schema_versions = provenance_sets["Schema_version"]
+    if schema_versions != {"2"}:
+        fail("Schema_version must equal '2' on every gaps_summary.csv row")
+    else:
+        ok("Schema_version is fixed to 2 across all rows")
+
+    # 4. Companion cumulative metadata must describe the same current run
+    if cumulative_metadata:
+        expected_generated_at = str(cumulative_metadata.get("timestamp_utc", "")).strip()
+        expected_analysis_mode = str(
+            cumulative_metadata.get("analysis_input_mode", "")
+        ).strip()
+        expected_run_id = _canonical_run_id_from_metadata(cumulative_metadata)
+        actual_generated_at = next(iter(generated_values), "")
+        actual_analysis_mode = next(iter(analysis_modes), "")
+        actual_run_id = next(iter(run_ids), "")
+
+        if (
+            actual_generated_at
+            and expected_generated_at
+            and actual_generated_at != expected_generated_at
+        ):
             fail(
-                f"Column '{col}' has identical value ({next(iter(values))!r}) "
-                f"for all sectors — outputs appear stale (pre-PR#95)"
+                "gaps_summary.csv Generated_at does not match "
+                "cumulative_qmbd_records.json metadata.timestamp_utc"
             )
-        else:
-            ok(f"Column '{col}' has {len(values)} distinct values across sectors")
+        if (
+            actual_analysis_mode
+            and expected_analysis_mode
+            and actual_analysis_mode != expected_analysis_mode
+        ):
+            fail(
+                "gaps_summary.csv Analysis_mode does not match "
+                "cumulative_qmbd_records.json metadata.analysis_input_mode"
+            )
+        if actual_run_id and expected_run_id and actual_run_id != expected_run_id:
+            fail(
+                "gaps_summary.csv Run_id does not match "
+                "cumulative_qmbd_records.json current-run metadata"
+            )
+        if not ERRORS:
+            ok("gaps_summary.csv provenance matches cumulative_qmbd_records.json")
 
 
 def check_credentials(
@@ -925,10 +1043,13 @@ def main() -> int:
     rationale = load_generation_rationale(rationale_path)
     pathways = load_learning_pathways(pathways_path)
     gaps_rows = load_gaps_csv(gaps_csv_path)
-    cumulative_records = load_cumulative_qmbd_records(cumulative_path)
+    cumulative_records, cumulative_metadata = cast(
+        tuple[list[dict], dict[str, object]],
+        load_cumulative_qmbd_records(cumulative_path, return_metadata=True),
+    )
 
     # Run semantic checks
-    check_gaps_csv(gaps_rows)
+    check_gaps_csv(gaps_rows, cumulative_metadata)
     check_credentials(credentials, all_comps, rationale=rationale)
     check_cumulative_qmbd_records(cumulative_records)
     check_desalination_integrity(credentials, all_comps)

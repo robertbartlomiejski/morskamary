@@ -423,7 +423,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Lightweight expanded clay aggregates in a coastal ecosystem: a spatial snapshot of an overlooked marine litter component (Mário Cerqueira, 2026).",
         "axis": "MARINE",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 737,
           "paper_title": "Lightweight expanded clay aggregates in a coastal ecosystem: a spatial snapshot of an overlooked marine litter component",
           "authors": "Mário Cerqueira",
@@ -437,7 +437,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Closing marine governance gaps? Sweden's marine spatial planning, the ecosystem approach to management and stakeholders' (Mikael Karlsson, 2019).",
         "axis": "MARINE",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 748,
           "paper_title": "Closing marine governance gaps? Sweden's marine spatial planning, the ecosystem approach to management and stakeholders'",
           "authors": "Mikael Karlsson",
@@ -451,7 +451,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Focusing on Living Marine Resource Governance: The Caribbean Large Marine Ecosystem and Adjacent Areas Project (L. Fanning, R. Mahon, P. McConney, 2009).",
         "axis": "MARINE",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 760,
           "paper_title": "Focusing on Living Marine Resource Governance: The Caribbean Large Marine Ecosystem and Adjacent Areas Project",
           "authors": "L. Fanning, R. Mahon, P. McConney",
@@ -3059,7 +3059,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Governance via persuasion: environmental NGOs and the social licence to operate (Hannah Murphy-Gregory, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 638,
           "paper_title": "Governance via persuasion: environmental NGOs and the social licence to operate",
           "authors": "Hannah Murphy-Gregory",
@@ -3073,7 +3073,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Contemporary Challenges in Environmental Governance: Technology, governance and the social licence (Coco Cullen‐Knox, Richard Eccleston, Marcus Haward, Elizabet, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 639,
           "paper_title": "Contemporary Challenges in Environmental Governance: Technology, governance and the social licence",
           "authors": "Coco Cullen‐Knox, Richard Eccleston, Marcus Haward, Elizabeth Lester, Joanna Vince",
@@ -3087,7 +3087,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Social Licence to Operate (Thomas Clarke, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 640,
           "paper_title": "The Social Licence to Operate",
           "authors": "Thomas Clarke",
@@ -3101,7 +3101,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Socio-environmental impact assessment as a New Governance tool for mining projects (Antonio Aledo Tur, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 647,
           "paper_title": "Socio-environmental impact assessment as a New Governance tool for mining projects",
           "authors": "Antonio Aledo Tur",
@@ -3115,7 +3115,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Process and Development of Stakeholder Engagement in Environmental Impact Assessment for Deep Seabed Mining (Lei Zheng, Yuxin Wang, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 677,
           "paper_title": "Process and Development of Stakeholder Engagement in Environmental Impact Assessment for Deep Seabed Mining",
           "authors": "Lei Zheng, Yuxin Wang",
@@ -3129,7 +3129,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Deep impact: ocean seabed mining (Pradeep Singh, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 678,
           "paper_title": "Deep impact: ocean seabed mining",
           "authors": "Pradeep Singh",
@@ -3143,7 +3143,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The International Seabed Authority and the Seabed Mining Regime (Aline L. Jaeckel, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 679,
           "paper_title": "The International Seabed Authority and the Seabed Mining Regime",
           "authors": "Aline L. Jaeckel",
@@ -3157,7 +3157,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Governance of mining waste (Simone Picarelli, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 680,
           "paper_title": "Governance of mining waste",
           "authors": "Simone Picarelli",
@@ -3171,7 +3171,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Governance and mining governance (J. Andrés Domínguez-Gómez, Alexander Ruser, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 681,
           "paper_title": "Governance and mining governance",
           "authors": "J. Andrés Domínguez-Gómez, Alexander Ruser",
@@ -3185,7 +3185,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Governance and social participation in mining projects (Rocío Muñoz-Moreno, Teresa González Gómez, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 682,
           "paper_title": "Governance and social participation in mining projects",
           "authors": "Rocío Muñoz-Moreno, Teresa González Gómez",
@@ -3199,7 +3199,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: International Seabed Authority and Its Environmental Mandate (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 683,
           "paper_title": "International Seabed Authority and Its Environmental Mandate",
           "authors": "Unknown",
@@ -3213,7 +3213,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Deep Seabed Mining and the Marine Environment (Aline L. Jaeckel, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 684,
           "paper_title": "Deep Seabed Mining and the Marine Environment",
           "authors": "Aline L. Jaeckel",
@@ -3227,7 +3227,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy's Deep Seabed Mining (Pablo Ferrara, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 685,
           "paper_title": "Blue Economy's Deep Seabed Mining",
           "authors": "Pablo Ferrara",
@@ -3241,7 +3241,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Mining Impacts on the Marine Environment and Deep Seabed Mining Regime (Xiangxin Xu, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 686,
           "paper_title": "Mining Impacts on the Marine Environment and Deep Seabed Mining Regime",
           "authors": "Xiangxin Xu",
@@ -3255,7 +3255,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Unveiling gender dynamics for inclusive mining governance (Marion Provencher, Ege Tekinbas, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 687,
           "paper_title": "Unveiling gender dynamics for inclusive mining governance",
           "authors": "Marion Provencher, Ege Tekinbas",
@@ -3269,7 +3269,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: History of governance in mining (Agustín Galán Garcia, Roberto Fernandez Villarino, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 688,
           "paper_title": "History of governance in mining",
           "authors": "Agustín Galán Garcia, Roberto Fernandez Villarino",
@@ -3283,7 +3283,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Developing the isa’s Environmental Mandate Through the Mining Code (Aline L. Jaeckel, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 689,
           "paper_title": "Developing the isa’s Environmental Mandate Through the Mining Code",
           "authors": "Aline L. Jaeckel",
@@ -3297,7 +3297,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Implementation of the Social Licence to Operate (SLO) Concept in Nickel Mining Governance in Kolaka Regency (Umirul Ham, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 690,
           "paper_title": "The Implementation of the Social Licence to Operate (SLO) Concept in Nickel Mining Governance in Kolaka Regency",
           "authors": "Umirul Ham",
@@ -3311,7 +3311,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Public participation in the governance of deep-seabed mining in the Area (Jeff Ardron, Hannah Lily, Aline Jaeckel, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 691,
           "paper_title": "Public participation in the governance of deep-seabed mining in the Area",
           "authors": "Jeff Ardron, Hannah Lily, Aline Jaeckel",
@@ -3325,7 +3325,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Taking Precautionary Approaches to the Governance of Commercial Deep Seabed Mining: Law-Making of International Seabed A (Jinpeng Wang, Wenqi Jiang, Chuanjuan Wang, Dahai Liu, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 692,
           "paper_title": "Taking Precautionary Approaches to the Governance of Commercial Deep Seabed Mining: Law-Making of International Seabed A",
           "authors": "Jinpeng Wang, Wenqi Jiang, Chuanjuan Wang, Dahai Liu",
@@ -3339,7 +3339,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Stakeholder Engagement In Environmental Impact Assessment for Deep Seabed Mining from the Perspective of a Maritime Comm (Lei Zheng, Yuxin Wang, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 693,
           "paper_title": "Stakeholder Engagement In Environmental Impact Assessment for Deep Seabed Mining from the Perspective of a Maritime Comm",
           "authors": "Lei Zheng, Yuxin Wang",
@@ -3353,7 +3353,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: International Environmental Liabilities of the Sponsoring State and the International Seabed Authority (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 694,
           "paper_title": "International Environmental Liabilities of the Sponsoring State and the International Seabed Authority",
           "authors": "Unknown",
@@ -3367,7 +3367,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water governance challenges in Mongolian Gobi Desert and Forest-Steppe mining regions (Bolormaa Purevjav, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 695,
           "paper_title": "Water governance challenges in Mongolian Gobi Desert and Forest-Steppe mining regions",
           "authors": "Bolormaa Purevjav",
@@ -3381,7 +3381,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Key Elements of “Reasonably Appropriate” Sponsoring States’ Environmental Legislation for Deep Seabed Mining in the Area (Xiangxin Xu, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 696,
           "paper_title": "Key Elements of “Reasonably Appropriate” Sponsoring States’ Environmental Legislation for Deep Seabed Mining in the Area",
           "authors": "Xiangxin Xu",
@@ -3395,7 +3395,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: What Gives You a Social Licence? An Exploration of the Social Licence to Operate in the Australian Mining Industry (Sara Bice, 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 697,
           "paper_title": "What Gives You a Social Licence? An Exploration of the Social Licence to Operate in the Australian Mining Industry",
           "authors": "Sara Bice",
@@ -3409,7 +3409,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The International Seabed Authority and the Precautionary Principle (Aline L. Jaeckel, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 698,
           "paper_title": "The International Seabed Authority and the Precautionary Principle",
           "authors": "Aline L. Jaeckel",
@@ -3423,7 +3423,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Advancing the Deep Seabed ‘Mining Code’ (Henning Jessen, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 699,
           "paper_title": "Advancing the Deep Seabed ‘Mining Code’",
           "authors": "Henning Jessen",
@@ -3437,7 +3437,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: China’s Legislation in Relation to Deep Seabed Mining in the Area (Xiangxin Xu, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 700,
           "paper_title": "China’s Legislation in Relation to Deep Seabed Mining in the Area",
           "authors": "Xiangxin Xu",
@@ -3451,7 +3451,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Deep-seabed mining: an environmental concern and a holistic social environmental justice issue (Sandra Cassotta, Michael Goodsite, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 701,
           "paper_title": "Deep-seabed mining: an environmental concern and a holistic social environmental justice issue",
           "authors": "Sandra Cassotta, Michael Goodsite",
@@ -3465,7 +3465,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Main debates in community mining politics (Rodolfo Tarraubella, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 702,
           "paper_title": "Main debates in community mining politics",
           "authors": "Rodolfo Tarraubella",
@@ -3479,7 +3479,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Governance and the social license to operate (Jacques Demajorovic, Adriano Augusto França Pimenta, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 703,
           "paper_title": "Governance and the social license to operate",
           "authors": "Jacques Demajorovic, Adriano Augusto França Pimenta",
@@ -3493,7 +3493,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Social licence and mining: A critical perspective (Unknown, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 704,
           "paper_title": "Social licence and mining: A critical perspective",
           "authors": "Unknown",
@@ -3507,7 +3507,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Potential Impact of Seabed Mining on Critical Mineral Supply Chains and Global Geopolitics (Unknown, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 705,
           "paper_title": "The Potential Impact of Seabed Mining on Critical Mineral Supply Chains and Global Geopolitics",
           "authors": "Unknown",
@@ -3521,7 +3521,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Governance issues in artisanal and small-scale mining (Clara De Holanda Araujo, Bern Klein, André Xavier, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 706,
           "paper_title": "Governance issues in artisanal and small-scale mining",
           "authors": "Clara De Holanda Araujo, Bern Klein, André Xavier",
@@ -3535,7 +3535,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental governance of deep seabed mining - Scientific insights and food for thought (S. Christiansen, H. Ginzky, K. Houghton, A. Vink, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 707,
           "paper_title": "Environmental governance of deep seabed mining - Scientific insights and food for thought",
           "authors": "S. Christiansen, H. Ginzky, K. Houghton, A. Vink",
@@ -3549,7 +3549,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental impact assessment in deep seabed mining: lessons from global best practices for the International Seabed A (Shushmita Ahmed, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 708,
           "paper_title": "Environmental impact assessment in deep seabed mining: lessons from global best practices for the International Seabed A",
           "authors": "Shushmita Ahmed",
@@ -3563,7 +3563,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Environmental Mandate of the ISA (Aline L. Jaeckel, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 709,
           "paper_title": "The Environmental Mandate of the ISA",
           "authors": "Aline L. Jaeckel",
@@ -3577,7 +3577,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Review of Benthic Impact Experiments Related to Seabed Mining (A.T. Jones, 2000).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 710,
           "paper_title": "Review of Benthic Impact Experiments Related to Seabed Mining",
           "authors": "A.T. Jones",
@@ -3591,7 +3591,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Bibliography (Aline L. Jaeckel, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 711,
           "paper_title": "Bibliography",
           "authors": "Aline L. Jaeckel",
@@ -3605,7 +3605,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: International Environmental Obligations and Liabilities in Deep Seabed Mining (Linlin Sun, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 712,
           "paper_title": "International Environmental Obligations and Liabilities in Deep Seabed Mining",
           "authors": "Linlin Sun",
@@ -3619,7 +3619,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Foreword (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 713,
           "paper_title": "Foreword",
           "authors": "Unknown",
@@ -3633,7 +3633,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Deep seabed mining, the International Seabed Authority, and the Sustainable Development Goals (Aline Jaeckel, Pradeep A. Singh, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 714,
           "paper_title": "Deep seabed mining, the International Seabed Authority, and the Sustainable Development Goals",
           "authors": "Aline Jaeckel, Pradeep A. Singh",
@@ -3647,7 +3647,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical minerals and the geopolitics of contemporary industrial mining (Stephen Teeuwen, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 715,
           "paper_title": "Critical minerals and the geopolitics of contemporary industrial mining",
           "authors": "Stephen Teeuwen",
@@ -3661,7 +3661,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sharing Financial Benefits from Deep Seabed Mining: The Case for a Seabed Sustainability Fund (Michael W. Lodge, Marie Bourrel-McKinnon, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 716,
           "paper_title": "Sharing Financial Benefits from Deep Seabed Mining: The Case for a Seabed Sustainability Fund",
           "authors": "Michael W. Lodge, Marie Bourrel-McKinnon",
@@ -3675,7 +3675,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Kanak coastal communities and fisheries meeting new governance challenges and marine issues in New Caledonia (Samuel Cornier, Isabelle Leblic, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 717,
           "paper_title": "Kanak coastal communities and fisheries meeting new governance challenges and marine issues in New Caledonia",
           "authors": "Samuel Cornier, Isabelle Leblic",
@@ -3689,7 +3689,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Coastal Marine Environment Sustainability (Unknown, 2006).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 718,
           "paper_title": "Coastal Marine Environment Sustainability",
           "authors": "Unknown",
@@ -3703,7 +3703,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Governance for Sustainability: Insights from Marine Resource Use in a Tropical Setting in the Western Indian Ocean (Maricela de la Torre-Castro, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 719,
           "paper_title": "Governance for Sustainability: Insights from Marine Resource Use in a Tropical Setting in the Western Indian Ocean",
           "authors": "Maricela de la Torre-Castro",
@@ -3717,7 +3717,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Fisheries Act 2020 of Bangladesh: A Missed Opportunity for Sustainability and Collaborative Governance (Abdullah Al Arif, Md Saiful Karim, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 720,
           "paper_title": "Marine Fisheries Act 2020 of Bangladesh: A Missed Opportunity for Sustainability and Collaborative Governance",
           "authors": "Abdullah Al Arif, Md Saiful Karim",
@@ -3731,7 +3731,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: New Approaches in Coastal and Marine Management: Developing Frameworks of Ocean Services in Governance (Luz Paramio, Fátima Lopes Alves, José António Cabral Vieira, 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 721,
           "paper_title": "New Approaches in Coastal and Marine Management: Developing Frameworks of Ocean Services in Governance",
           "authors": "Luz Paramio, Fátima Lopes Alves, José António Cabral Vieira",
@@ -3745,7 +3745,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Coastal cities governance in the context of integrated coastal zonal management: a sustainable development goal perspect (Shijun Zhang, Qian Wu, M. Jahanzeb Butt, Yan-Ming Lv, Yan-E-, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 722,
           "paper_title": "Coastal cities governance in the context of integrated coastal zonal management: a sustainable development goal perspect",
           "authors": "Shijun Zhang, Qian Wu, M. Jahanzeb Butt, Yan-Ming Lv, Yan-E- Wang",
@@ -3759,7 +3759,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Welfare economics and wicked problems in coastal and marine governance (Rolf A. Groeneveld, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 723,
           "paper_title": "Welfare economics and wicked problems in coastal and marine governance",
           "authors": "Rolf A. Groeneveld",
@@ -3773,7 +3773,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Review: The role of art in coastal and marine sustainability — R0/PR2 (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 724,
           "paper_title": "Review: The role of art in coastal and marine sustainability — R0/PR2",
           "authors": "Unknown",
@@ -3787,7 +3787,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Review: The role of art in coastal and marine sustainability — R1/PR8 (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 725,
           "paper_title": "Review: The role of art in coastal and marine sustainability — R1/PR8",
           "authors": "Unknown",
@@ -3801,7 +3801,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Review: The role of art in coastal and marine sustainability — R1/PR7 (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 726,
           "paper_title": "Review: The role of art in coastal and marine sustainability — R1/PR7",
           "authors": "Unknown",
@@ -3815,7 +3815,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Review: The role of art in coastal and marine sustainability — R0/PR3 (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 727,
           "paper_title": "Review: The role of art in coastal and marine sustainability — R0/PR3",
           "authors": "Unknown",
@@ -3829,7 +3829,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Policy and Governance Approaches for Coastal and Marine Pollution Management (Chandrasekara SSK, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 728,
           "paper_title": "Policy and Governance Approaches for Coastal and Marine Pollution Management",
           "authors": "Chandrasekara SSK",
@@ -3843,7 +3843,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Coastal ecology, conservation, sustainability and management (J. Patrick Doody, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 729,
           "paper_title": "Coastal ecology, conservation, sustainability and management",
           "authors": "J. Patrick Doody",
@@ -3857,7 +3857,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Recommendation: The role of art in coastal and marine sustainability — R0/PR4 (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 730,
           "paper_title": "Recommendation: The role of art in coastal and marine sustainability — R0/PR4",
           "authors": "Unknown",
@@ -3871,7 +3871,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decision: The role of art in coastal and marine sustainability — R0/PR5 (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 731,
           "paper_title": "Decision: The role of art in coastal and marine sustainability — R0/PR5",
           "authors": "Unknown",
@@ -3885,7 +3885,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Policy Formulation of The Marine Governance In The Coastal Southern Lebak Regency Banten Province (Delly Maulana, Arif Nugroho, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 732,
           "paper_title": "Policy Formulation of The Marine Governance In The Coastal Southern Lebak Regency Banten Province",
           "authors": "Delly Maulana, Arif Nugroho",
@@ -3899,7 +3899,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Recommendation: The role of art in coastal and marine sustainability — R1/PR9 (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 733,
           "paper_title": "Recommendation: The role of art in coastal and marine sustainability — R1/PR9",
           "authors": "Unknown",
@@ -3913,7 +3913,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Archetypical patterns of barriers and enablers to policy coherence in European marine and coastal governance: a systemat (Saskia Trubbach, Ellen Johannesen, Froukje Maria Platjouw, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 734,
           "paper_title": "Archetypical patterns of barriers and enablers to policy coherence in European marine and coastal governance: a systemat",
           "authors": "Saskia Trubbach, Ellen Johannesen, Froukje Maria Platjouw",
@@ -3927,7 +3927,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decision: The role of art in coastal and marine sustainability — R1/PR10 (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 735,
           "paper_title": "Decision: The role of art in coastal and marine sustainability — R1/PR10",
           "authors": "Unknown",
@@ -3941,7 +3941,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Modeling to evaluate coastal governance in Brazil (Marinez E.G. Scherer, Milton L. Asmus, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 736,
           "paper_title": "Modeling to evaluate coastal governance in Brazil",
           "authors": "Marinez E.G. Scherer, Milton L. Asmus",
@@ -3955,7 +3955,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Evolution of Marine Environmental Governance Policy in China (Jinkai Yu, Wenjing Bi, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 738,
           "paper_title": "Evolution of Marine Environmental Governance Policy in China",
           "authors": "Jinkai Yu, Wenjing Bi",
@@ -3969,7 +3969,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Author comment: The role of art in coastal and marine sustainability — R1/PR6 (Ana Matias, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 739,
           "paper_title": "Author comment: The role of art in coastal and marine sustainability — R1/PR6",
           "authors": "Ana Matias",
@@ -3983,7 +3983,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Coastal and Marine Governance and Protection (Unknown, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 740,
           "paper_title": "Coastal and Marine Governance and Protection",
           "authors": "Unknown",
@@ -3997,7 +3997,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental Management and Governance (Unknown, 2015).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 741,
           "paper_title": "Environmental Management and Governance",
           "authors": "Unknown",
@@ -4011,7 +4011,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: England's evolving marine and coastal governance framework (Stephen Fletcher, Rebecca Jefferson, Gillian Glegg, Lynda Ro, 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 742,
           "paper_title": "England's evolving marine and coastal governance framework",
           "authors": "Stephen Fletcher, Rebecca Jefferson, Gillian Glegg, Lynda Rodwell, Wendy Dodds",
@@ -4025,7 +4025,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Fisheries and coastal governance as a wicked problem (Svein Jentoft, Ratana Chuenpagdee, 2009).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 743,
           "paper_title": "Fisheries and coastal governance as a wicked problem",
           "authors": "Svein Jentoft, Ratana Chuenpagdee",
@@ -4039,7 +4039,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Early-stage transformation of coastal marine governance in Vietnam? (Derek Armitage, Melissa Marschke, Truong van Tuyen, 2011).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 744,
           "paper_title": "Early-stage transformation of coastal marine governance in Vietnam?",
           "authors": "Derek Armitage, Melissa Marschke, Truong van Tuyen",
@@ -4053,7 +4053,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Author comment: The role of art in coastal and marine sustainability — R0/PR1 (Ana Matias, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 745,
           "paper_title": "Author comment: The role of art in coastal and marine sustainability — R0/PR1",
           "authors": "Ana Matias",
@@ -4067,7 +4067,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Limits of governability: Institutional implications for fisheries and coastal governance (Svein Jentoft, 2007).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 746,
           "paper_title": "Limits of governability: Institutional implications for fisheries and coastal governance",
           "authors": "Svein Jentoft",
@@ -4081,7 +4081,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Is integrated coastal management an effective framework for promoting coastal sustainability in China’s coastal cities? (Guanqiong Ye, Loke Ming Chou, Shengyun Yang, Jiaping Wu, Pei, 2015).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 747,
           "paper_title": "Is integrated coastal management an effective framework for promoting coastal sustainability in China’s coastal cities?",
           "authors": "Guanqiong Ye, Loke Ming Chou, Shengyun Yang, Jiaping Wu, Pei Liu, Changwei Jin",
@@ -4095,7 +4095,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Biogeochemical characterization of MC252 oil:sand aggregates on a coastal headland beach (Marilany Urbano, Vijaikrishnah Elango, John H. Pardue, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 750,
           "paper_title": "Biogeochemical characterization of MC252 oil:sand aggregates on a coastal headland beach",
           "authors": "Marilany Urbano, Vijaikrishnah Elango, John H. Pardue",
@@ -4109,7 +4109,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Community-based governance of coastal zone and marine resources in Madagascar (Lalaina R. Rakotoson, Kathryn Tanner, 2006).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 751,
           "paper_title": "Community-based governance of coastal zone and marine resources in Madagascar",
           "authors": "Lalaina R. Rakotoson, Kathryn Tanner",
@@ -4123,7 +4123,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Strategic coastal governance issues in Fiji: The challenges of integration (Marcus B. Lane, 2008).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 752,
           "paper_title": "Strategic coastal governance issues in Fiji: The challenges of integration",
           "authors": "Marcus B. Lane",
@@ -4137,7 +4137,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Indicator-Based Sustainability Assessment Tool to Support Coastal and Marine Management (Donalda Karnauskaitė, Gerald Schernewski, Josianne G. Støttr, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 753,
           "paper_title": "Indicator-Based Sustainability Assessment Tool to Support Coastal and Marine Management",
           "authors": "Donalda Karnauskaitė, Gerald Schernewski, Josianne G. Støttrup, Marija Kataržytė",
@@ -4151,7 +4151,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Ecological knowledge interactions in marine governance in Kenya (Louisa S. Evans, 2010).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 754,
           "paper_title": "Ecological knowledge interactions in marine governance in Kenya",
           "authors": "Louisa S. Evans",
@@ -4165,7 +4165,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Effects of Corporate Governance on R&amp;D Investment in Marine Technology Enterprises (Shanshan Gu, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 755,
           "paper_title": "Effects of Corporate Governance on R&amp;D Investment in Marine Technology Enterprises",
           "authors": "Shanshan Gu",
@@ -4179,7 +4179,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Fisheries Governance in China: Low-Efficacy Policies and Future Adjustments (Lijun Wang, Tao Li, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 756,
           "paper_title": "Marine Fisheries Governance in China: Low-Efficacy Policies and Future Adjustments",
           "authors": "Lijun Wang, Tao Li",
@@ -4193,7 +4193,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Ecological Evolution Governance of Marine Fishery Communities-Evolutionary Game Model-Based Analysis (Hong Wei, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 757,
           "paper_title": "Ecological Evolution Governance of Marine Fishery Communities-Evolutionary Game Model-Based Analysis",
           "authors": "Hong Wei",
@@ -4207,7 +4207,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Countermeasures for Marine Environmental Pollution Governance: An Ecological Civilization Perspective (Xingmin Chen, Jianguo Zheng, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 758,
           "paper_title": "Countermeasures for Marine Environmental Pollution Governance: An Ecological Civilization Perspective",
           "authors": "Xingmin Chen, Jianguo Zheng",
@@ -4221,7 +4221,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Polycentricity and adaptive governance of transboundary marine socio-ecological systems (Arthur Omondi Tuda, Salit Kark, Alice Newton, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 759,
           "paper_title": "Polycentricity and adaptive governance of transboundary marine socio-ecological systems",
           "authors": "Arthur Omondi Tuda, Salit Kark, Alice Newton",
@@ -4235,7 +4235,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Governance and coastal boundaries in the tropics (Louis Lebel, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 761,
           "paper_title": "Governance and coastal boundaries in the tropics",
           "authors": "Louis Lebel",
@@ -4249,7 +4249,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Coastal climate adaptation planning and evolutionary governance: Insights from Homer, Alaska (S. Jeff Birchall, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 762,
           "paper_title": "Coastal climate adaptation planning and evolutionary governance: Insights from Homer, Alaska",
           "authors": "S. Jeff Birchall",
@@ -4263,7 +4263,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Perspectives on building climate resilience via marine and coastal management from the governance frontline in Victoria, (Anthony Boxshall, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 763,
           "paper_title": "Perspectives on building climate resilience via marine and coastal management from the governance frontline in Victoria,",
           "authors": "Anthony Boxshall",
@@ -4277,7 +4277,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Managing marine resources sustainably – Ecological, societal and governance connectivity, coherence and equivalence in c (Michael Elliott, Ángel Borja, Roland Cormier, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 764,
           "paper_title": "Managing marine resources sustainably – Ecological, societal and governance connectivity, coherence and equivalence in c",
           "authors": "Michael Elliott, Ángel Borja, Roland Cormier",
@@ -4291,7 +4291,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical raw materials (Theo Henckens, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 765,
           "paper_title": "Critical raw materials",
           "authors": "Theo Henckens",
@@ -4305,7 +4305,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Case for Governance of Critical Raw Materials in Fuel Cell Research and Development (Martin David, Stephen M. Lyth, Robert Lindner, George F. Har, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 766,
           "paper_title": "The Case for Governance of Critical Raw Materials in Fuel Cell Research and Development",
           "authors": "Martin David, Stephen M. Lyth, Robert Lindner, George F. Harrington",
@@ -4319,7 +4319,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Advancing Security and Transparency for the Governance of Critical Raw Materials in Central Asia (Unknown, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 767,
           "paper_title": "Advancing Security and Transparency for the Governance of Critical Raw Materials in Central Asia",
           "authors": "Unknown",
@@ -4333,7 +4333,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical Raw Materials in Solid Oxide Fuel Cells (Martin David, Stephen M. Lyth, Robert Lindner, George F. Har, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 768,
           "paper_title": "Critical Raw Materials in Solid Oxide Fuel Cells",
           "authors": "Martin David, Stephen M. Lyth, Robert Lindner, George F. Harrington",
@@ -4347,7 +4347,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical Raw Materials in Polymer Electrolyte Fuel Cells (Martin David, Stephen M. Lyth, Robert Lindner, George F. Har, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 769,
           "paper_title": "Critical Raw Materials in Polymer Electrolyte Fuel Cells",
           "authors": "Martin David, Stephen M. Lyth, Robert Lindner, George F. Harrington",
@@ -4361,7 +4361,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Extraction of Critical Raw Materials from Geothermal Precipitates from Reykjanes, Iceland (Lea Krohn, Maren Brehme, Simona Regenspurg, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 770,
           "paper_title": "Extraction of Critical Raw Materials from Geothermal Precipitates from Reykjanes, Iceland",
           "authors": "Lea Krohn, Maren Brehme, Simona Regenspurg",
@@ -4375,7 +4375,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Alaska and offshore hydrocarbon extraction (Edward T. Canuel, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 771,
           "paper_title": "Alaska and offshore hydrocarbon extraction",
           "authors": "Edward T. Canuel",
@@ -4389,7 +4389,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Processing and extraction of critical raw materials from residues (Olga Chernoburova, Alexandre Chagnes, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 772,
           "paper_title": "Processing and extraction of critical raw materials from residues",
           "authors": "Olga Chernoburova, Alexandre Chagnes",
@@ -4403,7 +4403,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical raw element bio-extraction (Celebex) (Luis Alberto Macias Perez, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 773,
           "paper_title": "Critical raw element bio-extraction (Celebex)",
           "authors": "Luis Alberto Macias Perez",
@@ -4417,7 +4417,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decarbonization and Critical Raw Materials (Andrew DeWit, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 774,
           "paper_title": "Decarbonization and Critical Raw Materials",
           "authors": "Andrew DeWit",
@@ -4431,7 +4431,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Extraction of Critical Raw Materials from Waste Printed Circuit Boards Using Machine Learning and Computer Vision (Muhammad Mohsin, Stefano Rovetta, Francesco Masulli, Alberto, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 775,
           "paper_title": "Extraction of Critical Raw Materials from Waste Printed Circuit Boards Using Machine Learning and Computer Vision",
           "authors": "Muhammad Mohsin, Stefano Rovetta, Francesco Masulli, Alberto Cabri",
@@ -4445,7 +4445,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The ESG Spectrum: Differentiated Market Reactions to Environmental, Social, and Governance Performance in the Critical R (Henry Onomakpo Onomakpo, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 776,
           "paper_title": "The ESG Spectrum: Differentiated Market Reactions to Environmental, Social, and Governance Performance in the Critical R",
           "authors": "Henry Onomakpo Onomakpo",
@@ -4459,7 +4459,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Extraction of Raw Materials (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 777,
           "paper_title": "Extraction of Raw Materials",
           "authors": "Unknown",
@@ -4473,7 +4473,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Extraction of Lattice-Bound Critical Raw Materials from Joma Mine Tailings Via Nano3-H2so4 Lixiviant System (Nikita Malafeevskiy, Mustafa  K. Guner, Vladislav Slabov, Ru, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 778,
           "paper_title": "Extraction of Lattice-Bound Critical Raw Materials from Joma Mine Tailings Via Nano3-H2so4 Lixiviant System",
           "authors": "Nikita Malafeevskiy, Mustafa  K. Guner, Vladislav Slabov, Rune B. Larsen, Kurt Aasly",
@@ -4487,7 +4487,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Practice for Extraction of Tannins from Raw and Spent Materials (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 779,
           "paper_title": "Practice for Extraction of Tannins from Raw and Spent Materials",
           "authors": "Unknown",
@@ -4501,7 +4501,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental, social, and economic implications of critical raw materials’ extraction from residues (Paola Altamura, Francesca Ceruti, Silvio Viglia, Antoine Bey, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 780,
           "paper_title": "Environmental, social, and economic implications of critical raw materials’ extraction from residues",
           "authors": "Paola Altamura, Francesca Ceruti, Silvio Viglia, Antoine Beylot, Laura Cutaia",
@@ -4515,7 +4515,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Technological methods of sesquiterpene lactones extraction from raw materials (I. A. Khabarov, 2009).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 781,
           "paper_title": "Technological methods of sesquiterpene lactones extraction from raw materials",
           "authors": "I. A. Khabarov",
@@ -4529,7 +4529,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sustainable Extraction and Processing of Raw Materials Journal (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 782,
           "paper_title": "Sustainable Extraction and Processing of Raw Materials Journal",
           "authors": "Unknown",
@@ -4543,7 +4543,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Unpacking the Critical Raw Materials Act (Ioannis Kampourakis, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 783,
           "paper_title": "Unpacking the Critical Raw Materials Act",
           "authors": "Ioannis Kampourakis",
@@ -4557,7 +4557,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Innovative Technologies for Waste Reduction in the Extraction and Processing of Critical Raw Materials (Vessela Petrova, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 784,
           "paper_title": "Innovative Technologies for Waste Reduction in the Extraction and Processing of Critical Raw Materials",
           "authors": "Vessela Petrova",
@@ -4571,7 +4571,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: China’s Raw Materials Diplomacy and Governance Cycle: Toward Sustainable Mining and Resource Extraction? (REINHARD BIEDERMANN, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 785,
           "paper_title": "China’s Raw Materials Diplomacy and Governance Cycle: Toward Sustainable Mining and Resource Extraction?",
           "authors": "REINHARD BIEDERMANN",
@@ -4585,7 +4585,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Enrichment conditions of critical raw materials in sphalerite from VMS-type ore deposits – opportunities for more cost-e (Botond Gereczi, Gabriella B. Kiss, Viktor Bertrandsson Erlan, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 786,
           "paper_title": "Enrichment conditions of critical raw materials in sphalerite from VMS-type ore deposits – opportunities for more cost-e",
           "authors": "Botond Gereczi, Gabriella B. Kiss, Viktor Bertrandsson Erlandsson, Vasilios Melfos",
@@ -4599,7 +4599,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Role of Poland in the European Union Supply Chain of Raw Materials, Including Critical Raw Materials (Krzysztof Galos, Alicja Kot-Niewiadomska, Jarosław Kamyk, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 787,
           "paper_title": "The Role of Poland in the European Union Supply Chain of Raw Materials, Including Critical Raw Materials",
           "authors": "Krzysztof Galos, Alicja Kot-Niewiadomska, Jarosław Kamyk",
@@ -4613,7 +4613,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Technology Governance (Martin David, Stephen M. Lyth, Robert Lindner, George F. Har, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 788,
           "paper_title": "Technology Governance",
           "authors": "Martin David, Stephen M. Lyth, Robert Lindner, George F. Harrington",
@@ -4627,7 +4627,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Critical Raw Materials in Cutting Tools for Machining Applications: A Review (Antonella Rizzo, Saurav Goel, Maria Luisa Grilli, Roberto Ig, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 789,
           "paper_title": "The Critical Raw Materials in Cutting Tools for Machining Applications: A Review",
           "authors": "Antonella Rizzo, Saurav Goel, Maria Luisa Grilli, Roberto Iglesias, Lucyna Jaworska, Vjaceslavs Lapkovskis, Pavel Novak,",
@@ -4641,7 +4641,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cutting-edge Global Technologies for Extraction and Processing of Critical and Strategic Raw Materials: A Review (Yoan Hristov, Vessela Petrova, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 790,
           "paper_title": "Cutting-edge Global Technologies for Extraction and Processing of Critical and Strategic Raw Materials: A Review",
           "authors": "Yoan Hristov, Vessela Petrova",
@@ -4655,7 +4655,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical Raw Materials for the Energy Transition (Kathryn Goodenough, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 791,
           "paper_title": "Critical Raw Materials for the Energy Transition",
           "authors": "Kathryn Goodenough",
@@ -4669,7 +4669,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Geoeconomics of Trade in Critical Raw Materials (Hakan Yilmazkuday, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 792,
           "paper_title": "The Geoeconomics of Trade in Critical Raw Materials",
           "authors": "Hakan Yilmazkuday",
@@ -4683,7 +4683,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Mining policy in Spain: Legislative evolution, governance challenges, and alignment with the European critical raw mater (Antonio Alonso-Jiménez, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 793,
           "paper_title": "Mining policy in Spain: Legislative evolution, governance challenges, and alignment with the European critical raw mater",
           "authors": "Antonio Alonso-Jiménez",
@@ -4697,7 +4697,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Good Governance, Security and Mining in Africa1 (Bonnie Campbell, 2006).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 794,
           "paper_title": "Good Governance, Security and Mining in Africa1",
           "authors": "Bonnie Campbell",
@@ -4711,7 +4711,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: TECHNOLOGICAL PARAMETERS OF COUNTERCURRENT EXTRACTION: DERIVING BIOACTIVE COMPOUNDS FROM PLANT RAW MATERIALS (Sergey Garmashov, Sergey Garmashov, Alexander Izgaryshev, Al, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 795,
           "paper_title": "TECHNOLOGICAL PARAMETERS OF COUNTERCURRENT EXTRACTION: DERIVING BIOACTIVE COMPOUNDS FROM PLANT RAW MATERIALS",
           "authors": "Sergey Garmashov, Sergey Garmashov, Alexander Izgaryshev, Alexander Izgaryshev, Egor Kashirskih, Egor Kashirskih",
@@ -4725,7 +4725,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Global Governance for Sustainable Resource Management (Raimund Bleischwitz, Stefan Bringezu, 2008).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 796,
           "paper_title": "Global Governance for Sustainable Resource Management",
           "authors": "Raimund Bleischwitz, Stefan Bringezu",
@@ -4739,7 +4739,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Research Problem on the Profitability of Mining Activities in DRC, Face to New Technologies: Critical Analysis of the Ex (Jimmy Kalenga Kaunde Kasongo, Philippe Ancia, Herve Losaladj, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 797,
           "paper_title": "Research Problem on the Profitability of Mining Activities in DRC, Face to New Technologies: Critical Analysis of the Ex",
           "authors": "Jimmy Kalenga Kaunde Kasongo, Philippe Ancia, Herve Losaladjome Mboyo, Karel Nkale Bolengankoy",
@@ -4753,7 +4753,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: From Critical Raw Materials to Circular Raw Materials (Joost M. van Gaalen, J. Chris Slootweg, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 798,
           "paper_title": "From Critical Raw Materials to Circular Raw Materials",
           "authors": "Joost M. van Gaalen, J. Chris Slootweg",
@@ -4767,7 +4767,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental and social impacts of recycling critical raw materials (Srabani Mishra, Sandeep Panda, Ata Akcil, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 799,
           "paper_title": "Environmental and social impacts of recycling critical raw materials",
           "authors": "Srabani Mishra, Sandeep Panda, Ata Akcil",
@@ -4781,7 +4781,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: ANALYSIS OF THE INTERACTION OF TRADITIONAL AND NEW TECHNOLOGIES FOR THE EXTRACTION OF METALS FROM SUBSTANDARD RAW MATERI (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 800,
           "paper_title": "ANALYSIS OF THE INTERACTION OF TRADITIONAL AND NEW TECHNOLOGIES FOR THE EXTRACTION OF METALS FROM SUBSTANDARD RAW MATERI",
           "authors": "Unknown",
@@ -4795,7 +4795,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Microbial Extraction of Critical Raw Materials (CRM) and Gold Recovery from outdated Printed Circuit Boards (PCBs) (Mahdi Amiribostanabad, Frank Haubrich, Jana Pinka, Mirko Mar, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 801,
           "paper_title": "Microbial Extraction of Critical Raw Materials (CRM) and Gold Recovery from outdated Printed Circuit Boards (PCBs)",
           "authors": "Mahdi Amiribostanabad, Frank Haubrich, Jana Pinka, Mirko Martin",
@@ -4809,7 +4809,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Reactive Extraction and Critical Raw Materials: Industrial Recovery of Tungsten (Stefan Willersinn, Hans‐Jörg Bart, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 802,
           "paper_title": "Reactive Extraction and Critical Raw Materials: Industrial Recovery of Tungsten",
           "authors": "Stefan Willersinn, Hans‐Jörg Bart",
@@ -4823,7 +4823,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Raw materials, or sacred beings? Lithium extraction puts two worldviews into tension (Mario Hernández, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 803,
           "paper_title": "Raw materials, or sacred beings? Lithium extraction puts two worldviews into tension",
           "authors": "Mario Hernández",
@@ -4837,7 +4837,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: General method to declare the use of critical raw materials in energy-related products (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 804,
           "paper_title": "General method to declare the use of critical raw materials in energy-related products",
           "authors": "Unknown",
@@ -4853,7 +4853,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: An ecological survey of the rocky coast adjacent to a bromine extraction works (R. Hoare, K. Hiscock, 1974).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 749,
           "paper_title": "An ecological survey of the rocky coast adjacent to a bromine extraction works",
           "authors": "R. Hoare, K. Hiscock",

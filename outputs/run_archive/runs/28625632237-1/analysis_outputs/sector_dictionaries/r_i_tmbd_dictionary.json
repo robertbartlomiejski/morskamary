@@ -479,7 +479,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A Study of Marine Biodiversity Observation and Monitoring Mechanisms in Taiwan (Cleave Otieno, 2025).",
         "axis": "MARINE",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1374,
           "paper_title": "A Study of Marine Biodiversity Observation and Monitoring Mechanisms in Taiwan",
           "authors": "Cleave Otieno",
@@ -493,7 +493,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: DATA REUSE: FAIR PRINCIPLES AND THE RESEARCH ECOSYSTEM (Sônia Elisa Caregnato, Rafael Port da Rocha, Rene Faustino G, 2024).",
         "axis": "MARINE",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1391,
           "paper_title": "DATA REUSE: FAIR PRINCIPLES AND THE RESEARCH ECOSYSTEM",
           "authors": "Sônia Elisa Caregnato, Rafael Port da Rocha, Rene Faustino Gabriel Junior",
@@ -507,7 +507,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Implementing the CARE Principles for Indigenous Data Governance in Biodiversity Data Management (Riley Taitingfong, Stephanie Carroll, 2023).",
         "axis": "MARINE",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1400,
           "paper_title": "Implementing the CARE Principles for Indigenous Data Governance in Biodiversity Data Management",
           "authors": "Riley Taitingfong, Stephanie Carroll",
@@ -521,7 +521,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Data Stewardship for Open Science (Barend Mons, 2018).",
         "axis": "MARINE",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1402,
           "paper_title": "Data Stewardship for Open Science",
           "authors": "Barend Mons",
@@ -535,7 +535,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Data cycle step 6: Data analysis, interpretation (Barend Mons, 2018).",
         "axis": "MARINE",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1409,
           "paper_title": "Data cycle step 6: Data analysis, interpretation",
           "authors": "Barend Mons",
@@ -549,7 +549,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Data Stewardship Plan templates designed to support the FAIR principles (Erik Schultes, 2023).",
         "axis": "MARINE",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1412,
           "paper_title": "Data Stewardship Plan templates designed to support the FAIR principles",
           "authors": "Erik Schultes",
@@ -563,7 +563,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Data Cycle Step 2: Data Design and Planning (Barend Mons, 2018).",
         "axis": "MARINE",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1414,
           "paper_title": "Data Cycle Step 2: Data Design and Planning",
           "authors": "Barend Mons",
@@ -577,7 +577,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Data cycle step 5: Data linking and ‘integration’ (Barend Mons, 2018).",
         "axis": "MARINE",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1418,
           "paper_title": "Data cycle step 5: Data linking and ‘integration’",
           "authors": "Barend Mons",
@@ -591,7 +591,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Data cycle step 4: Data processing and curation (Barend Mons, 2018).",
         "axis": "MARINE",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1419,
           "paper_title": "Data cycle step 4: Data processing and curation",
           "authors": "Barend Mons",
@@ -605,7 +605,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Data Cycle Step 3: Data Capture (Equipment Phase) (Barend Mons, 2018).",
         "axis": "MARINE",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1421,
           "paper_title": "Data Cycle Step 3: Data Capture (Equipment Phase)",
           "authors": "Barend Mons",
@@ -887,7 +887,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Enhancing SeaDataNet e-infrastructure for ocean and marine data, new opportunities and challenges to foster data re-use (Leda Pecci, Michele Fichaut, Dick Schaap, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1337,
           "paper_title": "Enhancing SeaDataNet e-infrastructure for ocean and marine data, new opportunities and challenges to foster data re-use",
           "authors": "Leda Pecci, Michele Fichaut, Dick Schaap",
@@ -901,7 +901,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Evaluation and Monitoring of Service Quality illustrated by the Example of the German Marine Spatial Data Infrastructure (Christian Seip, 2015).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1339,
           "paper_title": "Evaluation and Monitoring of Service Quality illustrated by the Example of the German Marine Spatial Data Infrastructure",
           "authors": "Christian Seip",
@@ -915,7 +915,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Aeroecological monitoring technique (Valerii F. Frolov, Tamara V. Dudar, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1348,
           "paper_title": "Aeroecological monitoring technique",
           "authors": "Valerii F. Frolov, Tamara V. Dudar",
@@ -929,7 +929,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: SeaDataNet, panEuropean infrastructure for marine and ocean data management and its relations with EMODnet, Blue-Cloud20 (Dick M. A. Schaap, Athanasia Iona, Steven Piel, Marine Verne, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1350,
           "paper_title": "SeaDataNet, panEuropean infrastructure for marine and ocean data management and its relations with EMODnet, Blue-Cloud20",
           "authors": "Dick M. A. Schaap, Athanasia Iona, Steven Piel, Marine Vernet, Serge Scory, Alessandra Giorgetti, Alexandra Kokkinaki",
@@ -943,7 +943,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: SeaDataNet: Development of a Pan-European Infrastructure for Ocean and Marine Data Management (Catherine Maillard, Roy Lowry, G. Maudire, Dick Schaap, SeaD, 2007).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1352,
           "paper_title": "SeaDataNet: Development of a Pan-European Infrastructure for Ocean and Marine Data Management",
           "authors": "Catherine Maillard, Roy Lowry, G. Maudire, Dick Schaap, SeaDataNet Consortium",
@@ -957,7 +957,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: GEOSPATIAL MONITORING OF GREEN INFRASTRUCTURE � CASE STUDY ZAGREB, CROATIA (Mateo Gasparovic, 2017).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1355,
           "paper_title": "GEOSPATIAL MONITORING OF GREEN INFRASTRUCTURE � CASE STUDY ZAGREB, CROATIA",
           "authors": "Mateo Gasparovic",
@@ -971,7 +971,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: STRATEGY OF TECHNICAL DEVELOPMENT OF ASSEMBLY AND WELDING MANUFACTURE OF “OCEAN” SHIPYARD (Olena І. Uhodnikova, 2022).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1356,
           "paper_title": "STRATEGY OF TECHNICAL DEVELOPMENT OF ASSEMBLY AND WELDING MANUFACTURE OF “OCEAN” SHIPYARD",
           "authors": "Olena І. Uhodnikova",
@@ -985,7 +985,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Monitoring of the pan-European marine data management infrastructure in the framework of EU/FP7 SeaDataNet II project: S (A. Lykiardopoulos, S. Balopoulou, S. Iona, P. Vavilis, M. Pa, 2015).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1358,
           "paper_title": "Monitoring of the pan-European marine data management infrastructure in the framework of EU/FP7 SeaDataNet II project: S",
           "authors": "A. Lykiardopoulos, S. Balopoulou, S. Iona, P. Vavilis, M. Pantazi, K. Kalkavouras",
@@ -999,7 +999,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Changes in coastal and marine infrastructure (Unknown, 2021).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1360,
           "paper_title": "Changes in coastal and marine infrastructure",
           "authors": "Unknown",
@@ -1013,7 +1013,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Mauritius Ocean Observatory E-platform - the Marine Spatial Data Infrastructure for the Republic of Mauritius (Sivanee Munnaroo, Hemanaden Runghen, Shameelah A.H. Mamode, , 2022).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1367,
           "paper_title": "Mauritius Ocean Observatory E-platform - the Marine Spatial Data Infrastructure for the Republic of Mauritius",
           "authors": "Sivanee Munnaroo, Hemanaden Runghen, Shameelah A.H. Mamode, Rezah Badal, Koolwantee Damry",
@@ -1027,7 +1027,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: BELUGA: An Integrated Marine Multi-Platform Infrastructure and Near Real-Time Ocean Data Visualization Tool (Patrick Leibold, Nikolaj Diller, Sylvia Reißmann, Claas Fabe, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1373,
           "paper_title": "BELUGA: An Integrated Marine Multi-Platform Infrastructure and Near Real-Time Ocean Data Visualization Tool",
           "authors": "Patrick Leibold, Nikolaj Diller, Sylvia Reißmann, Claas Faber",
@@ -3563,7 +3563,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Conceptualizing the interplay between blue justice, blue economy, and blue governance (Carolijn van Noort, Mia Cassidy Prall, Furqan Asif, Nelson F, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 44,
           "paper_title": "Conceptualizing the interplay between blue justice, blue economy, and blue governance",
           "authors": "Carolijn van Noort, Mia Cassidy Prall, Furqan Asif, Nelson F. Coelho",
@@ -3577,7 +3577,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy Policies and Marine Governance in Developed and Developing Nations: Canada and Sri Lanka as Examples (Chanuka Swarnathilake, K. Udani, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 46,
           "paper_title": "Blue Economy Policies and Marine Governance in Developed and Developing Nations: Canada and Sri Lanka as Examples",
           "authors": "Chanuka Swarnathilake, K. Udani",
@@ -3591,7 +3591,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy Innovation: Enhancing Marine Resilience Through Sustainable Technologies (Thangjam Ravichandra, Smrita Jain, Rashmi Prasad, Anisha Pur, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 48,
           "paper_title": "Blue Economy Innovation: Enhancing Marine Resilience Through Sustainable Technologies",
           "authors": "Thangjam Ravichandra, Smrita Jain, Rashmi Prasad, Anisha Puri, Vijay Prakash Gupta",
@@ -3605,7 +3605,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Strengthening Fisheries Governance for Kenya’s Blue Economy: Policy Priorities for Sustainable Growth and Livelihoods (Anne Mokoro, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 188,
           "paper_title": "Strengthening Fisheries Governance for Kenya’s Blue Economy: Policy Priorities for Sustainable Growth and Livelihoods",
           "authors": "Anne Mokoro",
@@ -3619,7 +3619,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sustainable development of marine macroalgae production: Policy and governance considerations (David Benson, Burcin Demirbilek, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 193,
           "paper_title": "Sustainable development of marine macroalgae production: Policy and governance considerations",
           "authors": "David Benson, Burcin Demirbilek",
@@ -3633,7 +3633,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Behavioral barriers to blue economy reform: A policy synthesis on ESG, emissions, and governance (Muniza Askari, Subhasree Ray, Shoba Suri, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 195,
           "paper_title": "Behavioral barriers to blue economy reform: A policy synthesis on ESG, emissions, and governance",
           "authors": "Muniza Askari, Subhasree Ray, Shoba Suri",
@@ -3647,7 +3647,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Towards defining the Blue Economy: Practical lessons from pacific ocean governance (Meg R. Keen, Anne-Maree Schwarz, Lysa Wini-Simeon, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 201,
           "paper_title": "Towards defining the Blue Economy: Practical lessons from pacific ocean governance",
           "authors": "Meg R. Keen, Anne-Maree Schwarz, Lysa Wini-Simeon",
@@ -3661,7 +3661,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Governance for a Sustainable Blue Economy (Nitin Agarwala, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 204,
           "paper_title": "Smart Governance for a Sustainable Blue Economy",
           "authors": "Nitin Agarwala",
@@ -3675,7 +3675,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Stakeholder perceptions of blue economy governance networks and their equity implications in Bangladesh (Jewel Das, Maheshwaran Govender, Haseeb Md. Irfanullah, Sami, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 210,
           "paper_title": "Stakeholder perceptions of blue economy governance networks and their equity implications in Bangladesh",
           "authors": "Jewel Das, Maheshwaran Govender, Haseeb Md. Irfanullah, Samiya Ahmed Selim, Marion Glaser",
@@ -3689,7 +3689,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Employment Potential in the Marine Sector: Advancing Marginalized Participation Through the Blue Economy (Preeti Tarkar, Asif Mohammad, Himanshu Pandey, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 213,
           "paper_title": "Employment Potential in the Marine Sector: Advancing Marginalized Participation Through the Blue Economy",
           "authors": "Preeti Tarkar, Asif Mohammad, Himanshu Pandey",
@@ -3703,7 +3703,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cities and regions for a blue economy (Oriana Romano, Juliette Lassman, Georges Laimé, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 218,
           "paper_title": "Cities and regions for a blue economy",
           "authors": "Oriana Romano, Juliette Lassman, Georges Laimé",
@@ -3717,7 +3717,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Market Initiatives of Small-Scale Fisheries in the Mediterranean: Innovation in Support of Sustainable Blue Economy (Jerneja Penca, Alicia Said, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 575,
           "paper_title": "Market Initiatives of Small-Scale Fisheries in the Mediterranean: Innovation in Support of Sustainable Blue Economy",
           "authors": "Jerneja Penca, Alicia Said",
@@ -3731,7 +3731,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime governance laws in Nigeria: catalyst for advancement of blue finance and blue economy (Andrew Aondohemba Chenge, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 935,
           "paper_title": "Maritime governance laws in Nigeria: catalyst for advancement of blue finance and blue economy",
           "authors": "Andrew Aondohemba Chenge",
@@ -3745,7 +3745,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Assessing the Impact of Somalia's Maritime Policy on Blue Economy Development (Abdalla Ahmed Abdalla, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 956,
           "paper_title": "Assessing the Impact of Somalia's Maritime Policy on Blue Economy Development",
           "authors": "Abdalla Ahmed Abdalla",
@@ -3759,7 +3759,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The European Marine Data and Observation Network (EMODnet): Your Gateway to European Marine and Coastal Data (Jan-Bart Calewaert, Phil Weaver, Vikki Gunn, Patrick Gorring, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1333,
           "paper_title": "The European Marine Data and Observation Network (EMODnet): Your Gateway to European Marine and Coastal Data",
           "authors": "Jan-Bart Calewaert, Phil Weaver, Vikki Gunn, Patrick Gorringe, Antonio Novellino",
@@ -3773,7 +3773,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine technology � Ocean observation systems � Design criteria of ocean hydro-meteorological observation systems reuse  (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1334,
           "paper_title": "Marine technology � Ocean observation systems � Design criteria of ocean hydro-meteorological observation systems reuse ",
           "authors": "Unknown",
@@ -3787,7 +3787,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Monitoring of Ocean Oil Spills Based on Marine Remote Sensing Big Data (Unknown, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1335,
           "paper_title": "Monitoring of Ocean Oil Spills Based on Marine Remote Sensing Big Data",
           "authors": "Unknown",
@@ -3801,7 +3801,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Vertically Resolved Global Ocean Light Models Using Machine Learning (Pannimpullath Remanan Renosh, Jie Zhang, Raphaëlle Sauzède, , 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1336,
           "paper_title": "Vertically Resolved Global Ocean Light Models Using Machine Learning",
           "authors": "Pannimpullath Remanan Renosh, Jie Zhang, Raphaëlle Sauzède, Hervé Claustre",
@@ -3815,7 +3815,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: From Ocean Observation to Socio-Economic Benefits: Mapping the Value Chains of Open Marine Data (Claire Jolly, James Jolliffe, Claudia Abdallah, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1338,
           "paper_title": "From Ocean Observation to Socio-Economic Benefits: Mapping the Value Chains of Open Marine Data",
           "authors": "Claire Jolly, James Jolliffe, Claudia Abdallah",
@@ -3829,7 +3829,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Ocean observation from NOAA National Data Buoy Center's platforms (Chung-Chu Teng, 2010).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1340,
           "paper_title": "Ocean observation from NOAA National Data Buoy Center's platforms",
           "authors": "Chung-Chu Teng",
@@ -3843,7 +3843,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Observation Satellite MOS-1 (Unknown, 1985).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1341,
           "paper_title": "Marine Observation Satellite MOS-1",
           "authors": "Unknown",
@@ -3857,7 +3857,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Integration and Application of Marine Engineering Environmental Monitoring Data Based on Big Data (Unknown, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1342,
           "paper_title": "Integration and Application of Marine Engineering Environmental Monitoring Data Based on Big Data",
           "authors": "Unknown",
@@ -3871,7 +3871,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Texas coastal ocean observation network: data access and archive software (Gary A. Jeffress, J. Scott Duff, 2011).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1343,
           "paper_title": "Texas coastal ocean observation network: data access and archive software",
           "authors": "Gary A. Jeffress, J. Scott Duff",
@@ -3885,7 +3885,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: SeaDataNet (Dick Schaap, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1344,
           "paper_title": "SeaDataNet",
           "authors": "Dick Schaap",
@@ -3899,7 +3899,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Observation of nearshore crescentic sandbar formation during storm wave conditions using satellite images and video moni (Jong Dae Do, Jae-Youll Jin, Weon Mu Jeong, Byunggil Lee, Cha, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1345,
           "paper_title": "Observation of nearshore crescentic sandbar formation during storm wave conditions using satellite images and video moni",
           "authors": "Jong Dae Do, Jae-Youll Jin, Weon Mu Jeong, Byunggil Lee, Chang Hwan Kim, Yeon S. Chang",
@@ -3913,7 +3913,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Data Analytics for Capturing Marine Engine Operating Regions for Ship Performance Monitoring (Lokukaluge P. Perera, Brage Mo, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1346,
           "paper_title": "Data Analytics for Capturing Marine Engine Operating Regions for Ship Performance Monitoring",
           "authors": "Lokukaluge P. Perera, Brage Mo",
@@ -3927,7 +3927,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Observation of interannual sea level oscillations in the Indian Ocean using Geosat altimeter data (C. M. Kishtwal, M. M. Ali, 1994).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1347,
           "paper_title": "Observation of interannual sea level oscillations in the Indian Ocean using Geosat altimeter data",
           "authors": "C. M. Kishtwal, M. M. Ali",
@@ -3941,7 +3941,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Coastal DIAMONDS (Danish IntegrAted Marine ObservatioN &amp; Data System). Integrating real time data to strengthen moni (Xin Huei Wong, Jose Antonio Arenas, Mai-Britt Kronborg, Ande, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1349,
           "paper_title": "Coastal DIAMONDS (Danish IntegrAted Marine ObservatioN &amp; Data System). Integrating real time data to strengthen moni",
           "authors": "Xin Huei Wong, Jose Antonio Arenas, Mai-Britt Kronborg, Anders Erichsen, Rasmus Fenger-Nielsen, Troels Lange",
@@ -3955,7 +3955,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Debris Monitoring and Data Collection Activities Conducted By the Ocean Conservancy (Charles G. Barr, Seba B. Sheavly, 2005).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1351,
           "paper_title": "Marine Debris Monitoring and Data Collection Activities Conducted By the Ocean Conservancy",
           "authors": "Charles G. Barr, Seba B. Sheavly",
@@ -3969,7 +3969,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Intelligent monitoring of marine vessel dynamics based on data mining (Benben Cui, Chen Wang, Yun Wu, Can Zhu, Jianmin Lin, Tingjie, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1353,
           "paper_title": "Intelligent monitoring of marine vessel dynamics based on data mining",
           "authors": "Benben Cui, Chen Wang, Yun Wu, Can Zhu, Jianmin Lin, Tingjie Yang",
@@ -3983,7 +3983,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Wind-driven upwelling and surface nutrient delivery in a semi-enclosed coastal sea (Ben Moore-Maley, Susan E. Allen, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1354,
           "paper_title": "Wind-driven upwelling and surface nutrient delivery in a semi-enclosed coastal sea",
           "authors": "Ben Moore-Maley, Susan E. Allen",
@@ -3997,7 +3997,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: BEACH MARINE LITTER MONITORING: CITIZEN SCIENCE DATA SERIES FOR COASTAL MONITORING DEVELOPMENT AND GOVERNANCE IN LATVIA (Janis Ulme, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1357,
           "paper_title": "BEACH MARINE LITTER MONITORING: CITIZEN SCIENCE DATA SERIES FOR COASTAL MONITORING DEVELOPMENT AND GOVERNANCE IN LATVIA",
           "authors": "Janis Ulme",
@@ -4011,7 +4011,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Utilizing DAS data in Earth Observation and Marine Traffic Monitoring (Ahmet Anil Dindar, Süleyman Tunç, Aitaro Kato, Nurcan Meral , 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1359,
           "paper_title": "Utilizing DAS data in Earth Observation and Marine Traffic Monitoring",
           "authors": "Ahmet Anil Dindar, Süleyman Tunç, Aitaro Kato, Nurcan Meral Özel, Tuğçe Ergün, Ji Zhang, Yoshiyuki Kaneda",
@@ -4025,7 +4025,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: From satellites to cetaceans: strengthening marine megafauna protection through integrated observation, data governance, (Emily Charry Tissier, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1361,
           "paper_title": "From satellites to cetaceans: strengthening marine megafauna protection through integrated observation, data governance,",
           "authors": "Emily Charry Tissier",
@@ -4039,7 +4039,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Ku– and Ka-band Altimeter Data in the Northwestern Mediterranean Sea: Impact on the Observation of the Coastal Ocean Var (Florence Birol, Fernando Niño, 2015).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1362,
           "paper_title": "Ku– and Ka-band Altimeter Data in the Northwestern Mediterranean Sea: Impact on the Observation of the Coastal Ocean Var",
           "authors": "Florence Birol, Fernando Niño",
@@ -4053,7 +4053,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Comparison of the Shallow-Water Design Wave Height on the Korean East Coast Based on Wave Observation Data and Numerical (Weon-Mu Jeong, Hyukjin Choi, Hong-Yeon Cho, Sang-Ho Oh, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1363,
           "paper_title": "Comparison of the Shallow-Water Design Wave Height on the Korean East Coast Based on Wave Observation Data and Numerical",
           "authors": "Weon-Mu Jeong, Hyukjin Choi, Hong-Yeon Cho, Sang-Ho Oh",
@@ -4067,7 +4067,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Application of Big Data File Segmentation, Uploading, and Breakpoint Continuation in Monitoring the Real-Time Data Trans (Lijuan Cao, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1364,
           "paper_title": "Application of Big Data File Segmentation, Uploading, and Breakpoint Continuation in Monitoring the Real-Time Data Trans",
           "authors": "Lijuan Cao",
@@ -4081,7 +4081,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Retrieval algorithm based on locally sensitive hash for ocean observation data (Meijuan Jia, Xiaodong Mao, Shuai Guo, Xin Li, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1365,
           "paper_title": "Retrieval algorithm based on locally sensitive hash for ocean observation data",
           "authors": "Meijuan Jia, Xiaodong Mao, Shuai Guo, Xin Li",
@@ -4095,7 +4095,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Real Time Transmission Monitoring and Alarm Mechanism of Big Data Ocean Observation Files Combined with Apache Kafka (Lijuan Cao, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1366,
           "paper_title": "Real Time Transmission Monitoring and Alarm Mechanism of Big Data Ocean Observation Files Combined with Apache Kafka",
           "authors": "Lijuan Cao",
@@ -4109,7 +4109,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Trends of the Storm Wave Appearance on the East Coast Analyzed by using Long-term Wave Observation Data (Weon Mu Jeong, Kyong-Ho Ryu, Sang-Ho Oh, Won-dae Baek, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1368,
           "paper_title": "Trends of the Storm Wave Appearance on the East Coast Analyzed by using Long-term Wave Observation Data",
           "authors": "Weon Mu Jeong, Kyong-Ho Ryu, Sang-Ho Oh, Won-dae Baek",
@@ -4123,7 +4123,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A continental-scale ocean observation system to gather biological and oceanographic data for marine resource management (P. Tsang, M.C. Melynchuk, D.W. Welch, 2005).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1369,
           "paper_title": "A continental-scale ocean observation system to gather biological and oceanographic data for marine resource management",
           "authors": "P. Tsang, M.C. Melynchuk, D.W. Welch",
@@ -4137,7 +4137,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Validation of Drifting Buoy Data for Ocean Wave Observation (Yukiharu Hisaki, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1370,
           "paper_title": "Validation of Drifting Buoy Data for Ocean Wave Observation",
           "authors": "Yukiharu Hisaki",
@@ -4151,7 +4151,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Improved YOLOv5 Algorithm for Real-Time Prediction of Fish Yield in All Cage Schools (Lei Wang, Ling-Zhi Chen, Bo Peng, Ying-Tien Lin, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1371,
           "paper_title": "Improved YOLOv5 Algorithm for Real-Time Prediction of Fish Yield in All Cage Schools",
           "authors": "Lei Wang, Ling-Zhi Chen, Bo Peng, Ying-Tien Lin",
@@ -4165,7 +4165,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The use of meteorological and oceanographic sensor data in the German offshore territory for the corrosion monitoring of (A.W. Momber, M. Wilms, D. Brün, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1372,
           "paper_title": "The use of meteorological and oceanographic sensor data in the German offshore territory for the corrosion monitoring of",
           "authors": "A.W. Momber, M. Wilms, D. Brün",
@@ -4179,7 +4179,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Monitoring marine heatwaves in CMEMS ocean analysis systems (Eric de Boisseson, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1375,
           "paper_title": "Monitoring marine heatwaves in CMEMS ocean analysis systems",
           "authors": "Eric de Boisseson",
@@ -4193,7 +4193,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Engineered Marine Biofilms for Ocean Environment Monitoring (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1376,
           "paper_title": "Engineered Marine Biofilms for Ocean Environment Monitoring",
           "authors": "Unknown",
@@ -4207,7 +4207,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Harnessing Open Ocean Data for Global Solutions: Empowering International Collaboration Through FAIR and CARE Principles (Alicia Cheripka, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1377,
           "paper_title": "Harnessing Open Ocean Data for Global Solutions: Empowering International Collaboration Through FAIR and CARE Principles",
           "authors": "Alicia Cheripka",
@@ -4221,7 +4221,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: BeFAIRandCARE: FAIR AND CARE PRINCIPLES IN RESEARCH DATA MANAGEMENT (Silvana Aparecida Borsetti Gregorio Vidotti, Emanuelle Torin, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1378,
           "paper_title": "BeFAIRandCARE: FAIR AND CARE PRINCIPLES IN RESEARCH DATA MANAGEMENT",
           "authors": "Silvana Aparecida Borsetti Gregorio Vidotti, Emanuelle Torino, Caio Saraiva Coneglian",
@@ -4235,7 +4235,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Embedding the FAIR principles into a National Agricultural Data Governance Framework: an Australian perspective (Austral (Leanne Wiseman, Jay Sanderson, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1379,
           "paper_title": "Embedding the FAIR principles into a National Agricultural Data Governance Framework: an Australian perspective (Austral",
           "authors": "Leanne Wiseman, Jay Sanderson",
@@ -4249,7 +4249,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Data Governance, Fair Principles, and Ethics (Łukasz Sułkowski, Andrzej Woźniak, Robert Seliga, Marcin Lis, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1380,
           "paper_title": "Data Governance, Fair Principles, and Ethics",
           "authors": "Łukasz Sułkowski, Andrzej Woźniak, Robert Seliga, Marcin Lis",
@@ -4263,7 +4263,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: iPlaces: Operationalizing FAIR and CARE Data Principles in coastal communities worldwide (Erin Robinson, Neil Davies, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1381,
           "paper_title": "iPlaces: Operationalizing FAIR and CARE Data Principles in coastal communities worldwide",
           "authors": "Erin Robinson, Neil Davies",
@@ -4277,7 +4277,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Techniques to Improve B2B Data Governance Using FAIR Principles (Cristina Georgiana Calancea, Lenuța Alboaie, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1382,
           "paper_title": "Techniques to Improve B2B Data Governance Using FAIR Principles",
           "authors": "Cristina Georgiana Calancea, Lenuța Alboaie",
@@ -4291,7 +4291,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The FAIR data principles (Laura Rothfritz, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1383,
           "paper_title": "The FAIR data principles",
           "authors": "Laura Rothfritz",
@@ -4305,7 +4305,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Federated data analysis: From finding data to data analysis following FAIR principles (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1384,
           "paper_title": "Federated data analysis: From finding data to data analysis following FAIR principles",
           "authors": "Unknown",
@@ -4319,7 +4319,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: INVESTIGATING FAIR PRINCIPLES IN NATIONAL INSTITUTES OF HEALTH (NIH) SCIENTIFIC DATA REPOSITORIES (Marcello Peixoto Bax, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1385,
           "paper_title": "INVESTIGATING FAIR PRINCIPLES IN NATIONAL INSTITUTES OF HEALTH (NIH) SCIENTIFIC DATA REPOSITORIES",
           "authors": "Marcello Peixoto Bax",
@@ -4333,7 +4333,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: FAIR PIDS: THE ROLE OF ORCID IN STRENGTHENING THE FAIR PRINCIPLES (Paloma Marín-Arraiza, Ana Heredia, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1386,
           "paper_title": "FAIR PIDS: THE ROLE OF ORCID IN STRENGTHENING THE FAIR PRINCIPLES",
           "authors": "Paloma Marín-Arraiza, Ana Heredia",
@@ -4347,7 +4347,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Operationalizing the CARE and FAIR Principles for Indigenous data futures (Stephanie Russo Carroll, Edit Herczog, Maui Hudson, Keith Ru, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1387,
           "paper_title": "Operationalizing the CARE and FAIR Principles for Indigenous data futures",
           "authors": "Stephanie Russo Carroll, Edit Herczog, Maui Hudson, Keith Russell, Shelley Stall",
@@ -4361,7 +4361,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The FAIR Data Principles for Research Data (Angelina Kraft, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1388,
           "paper_title": "The FAIR Data Principles for Research Data",
           "authors": "Angelina Kraft",
@@ -4375,7 +4375,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: FAIR PRINCIPLES AND LINKED DATA: PUBLICATION OF OPEN NOTEBOOK SCIENCE (Luciana Candida da Silva, José Eduardo Santarem Segundo, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1389,
           "paper_title": "FAIR PRINCIPLES AND LINKED DATA: PUBLICATION OF OPEN NOTEBOOK SCIENCE",
           "authors": "Luciana Candida da Silva, José Eduardo Santarem Segundo",
@@ -4389,7 +4389,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Geoscience data publication: Practices and perspectives on enabling the FAIR guiding principles (Danie Kinkade, Adam Shepherd, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1390,
           "paper_title": "Geoscience data publication: Practices and perspectives on enabling the FAIR guiding principles",
           "authors": "Danie Kinkade, Adam Shepherd",
@@ -4403,7 +4403,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Data Quality in the Age of AI: A Review of Governance, Ethics, and the FAIR Principles (Miriam Guillen-Aguinaga, Enrique Aguinaga-Ontoso, Laura Guil, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1392,
           "paper_title": "Data Quality in the Age of AI: A Review of Governance, Ethics, and the FAIR Principles",
           "authors": "Miriam Guillen-Aguinaga, Enrique Aguinaga-Ontoso, Laura Guillen-Aguinaga, Francisco Guillen-Grima, Ines Aguinaga-Ontoso",
@@ -4417,7 +4417,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: FAIR PRINCIPLES AND GOVERNMENT DATABASE MANAGEMENT: SHARING VITAL RECORDS DATA THROUGH THE GOVDATA DATA LAKE (Cláudio José Silva Ribeiro, Ana Cristina Meirelles Velho, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1393,
           "paper_title": "FAIR PRINCIPLES AND GOVERNMENT DATABASE MANAGEMENT: SHARING VITAL RECORDS DATA THROUGH THE GOVDATA DATA LAKE",
           "authors": "Cláudio José Silva Ribeiro, Ana Cristina Meirelles Velho",
@@ -4431,7 +4431,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Following fair, transparent and lawful data protection principles (Andrew Gallie, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1394,
           "paper_title": "Following fair, transparent and lawful data protection principles",
           "authors": "Andrew Gallie",
@@ -4445,7 +4445,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: On the Transposition of FAIR Data Principles to Financial Services: An Adapted FAAIR Guideline (Emer Owens, Barry Sheehan, Martin Mullins, Martin Cunneen, B, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1395,
           "paper_title": "On the Transposition of FAIR Data Principles to Financial Services: An Adapted FAAIR Guideline",
           "authors": "Emer Owens, Barry Sheehan, Martin Mullins, Martin Cunneen, Ben O’Connell",
@@ -4459,7 +4459,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Integration of the FAIR Data Principles with Student-Generated Imaging Data and Investigating Its Potential for Reuse (Wing Tung Wong, Louise Cole, Amy L. Bottomley, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1396,
           "paper_title": "Integration of the FAIR Data Principles with Student-Generated Imaging Data and Investigating Its Potential for Reuse",
           "authors": "Wing Tung Wong, Louise Cole, Amy L. Bottomley",
@@ -4473,7 +4473,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Weather data standards assessed against the FAIR principles (Valeria Pesce, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1397,
           "paper_title": "Weather data standards assessed against the FAIR principles",
           "authors": "Valeria Pesce",
@@ -4487,7 +4487,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: USING THE DATAVERSE PROJECT TO MOVE TOWARDS FAIR PRINCIPLES (Laura Vilela Rodrigues Rezende, Sonia Barbosa, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1398,
           "paper_title": "USING THE DATAVERSE PROJECT TO MOVE TOWARDS FAIR PRINCIPLES",
           "authors": "Laura Vilela Rodrigues Rezende, Sonia Barbosa",
@@ -4501,7 +4501,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Datafying the Arctic: Satellite Governance, Indigenous Data Sovereignty, and the FAIR-CARE Conflict in India's Polar Eng (Sumanta Narayan Podder, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1399,
           "paper_title": "Datafying the Arctic: Satellite Governance, Indigenous Data Sovereignty, and the FAIR-CARE Conflict in India's Polar Eng",
           "authors": "Sumanta Narayan Podder",
@@ -4515,7 +4515,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The fair principles: Trusting in fair data repositories (Andy Götz, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1401,
           "paper_title": "The fair principles: Trusting in fair data repositories",
           "authors": "Andy Götz",
@@ -4529,7 +4529,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: IMPLEMENTATION OF FAIR PRINCIPLES IN SCIENTIFIC DATA REPOSITORIES: a comparative analysis of DSpace and Dataverse softwa (Fabiano Couto Corrêa da Silva, Marcello Mundim Rodrigues, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1403,
           "paper_title": "IMPLEMENTATION OF FAIR PRINCIPLES IN SCIENTIFIC DATA REPOSITORIES: a comparative analysis of DSpace and Dataverse softwa",
           "authors": "Fabiano Couto Corrêa da Silva, Marcello Mundim Rodrigues",
@@ -4543,7 +4543,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Desiderata for the Data Governance and FAIR Principles Adoption in Health Data Hubs (Celia Alvarez-Romero, Silvia Rodríguez-Mejias, Carlos Luis P, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1404,
           "paper_title": "Desiderata for the Data Governance and FAIR Principles Adoption in Health Data Hubs",
           "authors": "Celia Alvarez-Romero, Silvia Rodríguez-Mejias, Carlos Luis Parra-Calderón",
@@ -4557,7 +4557,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: FAIR data, fair data: data management principles and data ownership in citizen science (Eran N. Schwarzfuchs, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1405,
           "paper_title": "FAIR data, fair data: data management principles and data ownership in citizen science",
           "authors": "Eran N. Schwarzfuchs",
@@ -4571,7 +4571,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Understanding FAIR, CARE, and&amp;nbsp;TRUST Principles under The Open Science Umbrella: A Comparative Analysis and The  (Lili Zhang, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1406,
           "paper_title": "Understanding FAIR, CARE, and&amp;nbsp;TRUST Principles under The Open Science Umbrella: A Comparative Analysis and The ",
           "authors": "Lili Zhang",
@@ -4585,7 +4585,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Big data management and the FAIR principles: the DataBio use case (Vassilis Protonotarios, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1407,
           "paper_title": "Big data management and the FAIR principles: the DataBio use case",
           "authors": "Vassilis Protonotarios",
@@ -4599,7 +4599,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Artificial intelligence applications in radiotherapy (Πέτρος Καλένδραλης, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1408,
           "paper_title": "Artificial intelligence applications in radiotherapy",
           "authors": "Πέτρος Καλένδραλης",
@@ -4613,7 +4613,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: TECHNOLOGIES FOR RESEARCH DATA MANAGEMENT ACCORDING TO FAIR (Milton Shintaku, André Luiz Appel, Alexandre Faria de Olivei, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1410,
           "paper_title": "TECHNOLOGIES FOR RESEARCH DATA MANAGEMENT ACCORDING TO FAIR",
           "authors": "Milton Shintaku, André Luiz Appel, Alexandre Faria de Oliveira",
@@ -4627,7 +4627,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: AN IMPLEMENTATION MODEL FOR THE INTERNET OF FAIR DATA &amp; SERVICES (Luís Fernando Sayão, Luana Farias Sales, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1411,
           "paper_title": "AN IMPLEMENTATION MODEL FOR THE INTERNET OF FAIR DATA &amp; SERVICES",
           "authors": "Luís Fernando Sayão, Luana Farias Sales",
@@ -4641,7 +4641,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Chapter 6 Big Data Governance Framework (Unknown, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1413,
           "paper_title": "Chapter 6 Big Data Governance Framework",
           "authors": "Unknown",
@@ -4655,7 +4655,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Implementing FAIR Principles on INIA’s data repository (Spain) (Antonio J. Sánchez-Padial, Jorge García, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1415,
           "paper_title": "Implementing FAIR Principles on INIA’s data repository (Spain)",
           "authors": "Antonio J. Sánchez-Padial, Jorge García",
@@ -4669,7 +4669,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: ANALYSIS OF THE DATASETS AVAILABLE IN THE COVID-19 DATA SHARING/BR REPOSITORY IN CONFORMANCE TO THE FAIR PRINCIPLES (Anderson Rafael Castro Simões, Renata Lemos dos Anjos, Guilh, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1416,
           "paper_title": "ANALYSIS OF THE DATASETS AVAILABLE IN THE COVID-19 DATA SHARING/BR REPOSITORY IN CONFORMANCE TO THE FAIR PRINCIPLES",
           "authors": "Anderson Rafael Castro Simões, Renata Lemos dos Anjos, Guilherme Ataíde Dias",
@@ -4683,7 +4683,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Chapter 2 Enterprise Data Governance Directive (Unknown, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1417,
           "paper_title": "Chapter 2 Enterprise Data Governance Directive",
           "authors": "Unknown",
@@ -4697,7 +4697,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Findable accessible interoperable reusable data principles (FAIR) (Jay Gajera, Daniel Bell, Andrew Murphy, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1420,
           "paper_title": "Findable accessible interoperable reusable data principles (FAIR)",
           "authors": "Jay Gajera, Daniel Bell, Andrew Murphy",
@@ -4711,7 +4711,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Transforming Pakistan’s Blue Economy (Muhammad Jawad Akhtar, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1422,
           "paper_title": "Transforming Pakistan’s Blue Economy",
           "authors": "Muhammad Jawad Akhtar",
@@ -4725,7 +4725,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Innovations in Governance (Raymond Fisman, Eric Werker, 2011).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1423,
           "paper_title": "Innovations in Governance",
           "authors": "Raymond Fisman, Eric Werker",
@@ -4739,7 +4739,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Integrating Smart Governance for a Sustainable Blue Economy in Small Islands (Amrik Singh, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1424,
           "paper_title": "Integrating Smart Governance for a Sustainable Blue Economy in Small Islands",
           "authors": "Amrik Singh",
@@ -4753,7 +4753,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Exploring future research and innovation directions for a sustainable blue economy (Lisa A. Pace, Ozcan Saritas, Alan Deidun, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1425,
           "paper_title": "Exploring future research and innovation directions for a sustainable blue economy",
           "authors": "Lisa A. Pace, Ozcan Saritas, Alan Deidun",
@@ -4767,7 +4767,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Advancing Sustainable Blue Economy through Climate Resilience: A Global Research Mapping (Neeru Sidana, Dewanshi, Vijay Prakash Gupta, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1426,
           "paper_title": "Advancing Sustainable Blue Economy through Climate Resilience: A Global Research Mapping",
           "authors": "Neeru Sidana, Dewanshi, Vijay Prakash Gupta",
@@ -4781,7 +4781,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Governance of innovation policy (Turkeli, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1427,
           "paper_title": "Governance of innovation policy",
           "authors": "Turkeli",
@@ -4795,7 +4795,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decentralized Trust: Blockchain Applications in Blue Economy Supply Chain Governance (Shailak Jani, Sandeep Raghuwanshi, Arif Hasan, Vijay Prakash, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1428,
           "paper_title": "Decentralized Trust: Blockchain Applications in Blue Economy Supply Chain Governance",
           "authors": "Shailak Jani, Sandeep Raghuwanshi, Arif Hasan, Vijay Prakash Gupta, Aadil Zeffer",
@@ -4809,7 +4809,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Shaping Blue Economy Decision-Making with Digital Technologies (Gurwinder Singh, Monika Singh, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1429,
           "paper_title": "Shaping Blue Economy Decision-Making with Digital Technologies",
           "authors": "Gurwinder Singh, Monika Singh",
@@ -4823,7 +4823,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Competition Policy Enforcement in the Chinese Digital Economy (Jiwei Qian, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1430,
           "paper_title": "Competition Policy Enforcement in the Chinese Digital Economy",
           "authors": "Jiwei Qian",
@@ -4837,7 +4837,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The theoretical foundation for Swedish innovation policy (Unknown, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1431,
           "paper_title": "The theoretical foundation for Swedish innovation policy",
           "authors": "Unknown",
@@ -4851,7 +4851,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy and Environmental Sustainability (Mohammad Badruddoza Talukder, Sanjeev Kumar, Tonmoy Malaker,, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1432,
           "paper_title": "Blue Economy and Environmental Sustainability",
           "authors": "Mohammad Badruddoza Talukder, Sanjeev Kumar, Tonmoy Malaker, Geetha Manoharan",
@@ -4865,7 +4865,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue sky thinking in water governance (Louise Noble, Stephen Harris, Graham Marshall, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1433,
           "paper_title": "Blue sky thinking in water governance",
           "authors": "Louise Noble, Stephen Harris, Graham Marshall",
@@ -4879,7 +4879,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Innovation in Economy &amp; Policy Research (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1434,
           "paper_title": "Innovation in Economy &amp; Policy Research",
           "authors": "Unknown",
@@ -4893,7 +4893,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The new cultural economy and its discontents: Governance innovation and policy disjuncture in Vancouver (Unknown, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1435,
           "paper_title": "The new cultural economy and its discontents: Governance innovation and policy disjuncture in Vancouver",
           "authors": "Unknown",
@@ -4907,7 +4907,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental Sustainability for a Strong Blue Economy (Mohammad Badruddoza Talukder, Md. Shoeab Akhter, Md. Nymur R, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1436,
           "paper_title": "Environmental Sustainability for a Strong Blue Economy",
           "authors": "Mohammad Badruddoza Talukder, Md. Shoeab Akhter, Md. Nymur Rahman",
@@ -4921,7 +4921,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Benchmarking and governance (Unknown, 2005).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1437,
           "paper_title": "Benchmarking and governance",
           "authors": "Unknown",
@@ -4935,7 +4935,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Policy scripts and practice (Unknown, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1438,
           "paper_title": "Policy scripts and practice",
           "authors": "Unknown",
@@ -4949,7 +4949,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Shaping Blue Economy Decision-Making with Artificial Intelligence: Harnessing Data and Digital Technologies for Sustaina (C. V. Suresh Babu, M. S. Asmaa Begum, P. Kirubakar, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1439,
           "paper_title": "Shaping Blue Economy Decision-Making with Artificial Intelligence: Harnessing Data and Digital Technologies for Sustaina",
           "authors": "C. V. Suresh Babu, M. S. Asmaa Begum, P. Kirubakar",
@@ -4963,7 +4963,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Revolution and the Emerging Blue Economy in Telangana Evaluating Policy Outcomes and Institutional Effectiveness (Dr. Mallikarjuna Naik Vadithe, B. Sudhakar Reddy, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1440,
           "paper_title": "Blue Revolution and the Emerging Blue Economy in Telangana Evaluating Policy Outcomes and Institutional Effectiveness",
           "authors": "Dr. Mallikarjuna Naik Vadithe, B. Sudhakar Reddy",
@@ -4977,7 +4977,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Building a Skilled and Inclusive Workforce for the Blue Economy (Pradhyuman Singh Lakhawat, Poonam Singh, Kenneth Amoah Binfo, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1442,
           "paper_title": "Building a Skilled and Inclusive Workforce for the Blue Economy",
           "authors": "Pradhyuman Singh Lakhawat, Poonam Singh, Kenneth Amoah Binfoh",
@@ -4991,7 +4991,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Chapter: \"Conclusion and Future Pathway: Policy, Ethics, and Governance of Fintech for Sustainability and the Blue Econo (Aarti Mala, Priyanka Garg, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1443,
           "paper_title": "Chapter: \"Conclusion and Future Pathway: Policy, Ethics, and Governance of Fintech for Sustainability and the Blue Econo",
           "authors": "Aarti Mala, Priyanka Garg",
@@ -5005,7 +5005,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Governance and Sustainable Blue Economy (Aidin Salamzadeh, Leo Paul Dana, Morteza Hadizadeh, Yasaman , 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1444,
           "paper_title": "Smart Governance and Sustainable Blue Economy",
           "authors": "Aidin Salamzadeh, Leo Paul Dana, Morteza Hadizadeh, Yasaman Yazdanpanah",
@@ -5019,7 +5019,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Innovation Policy in a Multi-level Governance System (Robert Kaiser, 2003).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1445,
           "paper_title": "Innovation Policy in a Multi-level Governance System",
           "authors": "Robert Kaiser",
@@ -5033,7 +5033,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Interplay of Policy Implementation and Technological Changes in the Chinese Digital Economy (Jiwei Qian, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1446,
           "paper_title": "The Interplay of Policy Implementation and Technological Changes in the Chinese Digital Economy",
           "authors": "Jiwei Qian",
@@ -5047,7 +5047,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Constructing an innovation policy agency: The case of the Swedish Governmental Agency for Innovation Systems (Unknown, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1447,
           "paper_title": "Constructing an innovation policy agency: The case of the Swedish Governmental Agency for Innovation Systems",
           "authors": "Unknown",
@@ -5061,7 +5061,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: MARINE FISHERY GOVERNANCE AND THE BLUE ECONOMY IN INDIA: A POLICY ANALYSIS OF THE NATIONAL FISHERIES POLICY 2020 (AMRITA DAS GUPTA, SOURADYPTA PAUL, ANIRUDDHA CHANDA, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1448,
           "paper_title": "MARINE FISHERY GOVERNANCE AND THE BLUE ECONOMY IN INDIA: A POLICY ANALYSIS OF THE NATIONAL FISHERIES POLICY 2020",
           "authors": "AMRITA DAS GUPTA, SOURADYPTA PAUL, ANIRUDDHA CHANDA",
@@ -5075,7 +5075,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Shades of blue: what do competing interpretations of the Blue Economy mean for oceans governance? (Michelle Voyer, Genevieve Quirk, Alistair McIlgorm, Kamal Az, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1449,
           "paper_title": "Shades of blue: what do competing interpretations of the Blue Economy mean for oceans governance?",
           "authors": "Michelle Voyer, Genevieve Quirk, Alistair McIlgorm, Kamal Azmi",
@@ -5089,7 +5089,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Workforce Development Through Inclusive Education: Empowering Persons with Disabilities in the Blue Economy (Prashant Amin, Sneha Bajaj, Phileep Marteen, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1450,
           "paper_title": "Workforce Development Through Inclusive Education: Empowering Persons with Disabilities in the Blue Economy",
           "authors": "Prashant Amin, Sneha Bajaj, Phileep Marteen",
@@ -5103,7 +5103,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Governance for a Sustainable Blue Economy: The Case of the Bay of Bengal (Mohd Aminul Karim, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1451,
           "paper_title": "Smart Governance for a Sustainable Blue Economy: The Case of the Bay of Bengal",
           "authors": "Mohd Aminul Karim",
@@ -5117,7 +5117,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Changing Landscape of Blue Economy and Ocean Governance in India: A Critical Study of The Policy Framework (Ankit Singh, Anugrah Pratap Singh Rajawat, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1452,
           "paper_title": "Changing Landscape of Blue Economy and Ocean Governance in India: A Critical Study of The Policy Framework",
           "authors": "Ankit Singh, Anugrah Pratap Singh Rajawat",
@@ -5131,7 +5131,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: An Integrated Systems View of Sustainable Blue Economy Governance (Marialuisa Saviano, Majid Heidari, Daniele Verderese, Monica, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1453,
           "paper_title": "An Integrated Systems View of Sustainable Blue Economy Governance",
           "authors": "Marialuisa Saviano, Majid Heidari, Daniele Verderese, Monica Gambino",

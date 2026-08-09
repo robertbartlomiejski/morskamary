@@ -9,7 +9,7 @@ import hashlib
 import json
 import re
 import sys
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
@@ -65,6 +65,8 @@ def _sha256_file(path: Path) -> str:
 
 def _is_safe_relative(path_text: str) -> bool:
     if not path_text or path_text.startswith("/"):
+        return False
+    if PureWindowsPath(path_text).is_absolute():
         return False
     path = Path(path_text)
     return ".." not in path.parts

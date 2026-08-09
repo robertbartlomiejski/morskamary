@@ -68,6 +68,7 @@ def _seed_required_targets(base_dir: Path) -> None:
                 "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
                 "provider_set": "crossref",
                 "github_run_id": "",
+                "github_run_attempt": "",
                 "commit_sha": "abc123",
                 "timestamp_utc": "2026-07-07T00:00:00+00:00",
                 "warnings": [],
@@ -262,6 +263,29 @@ def test_validate_run_archive_integrity_rejects_absolute_archive_root_fields(
     manifest_path = run_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     manifest["archive_root"] = "/home/runner/work/morskamary/morskamary/outputs/run_archive"
+    _write_json(manifest_path, manifest)
+    _write_json(run_dir / "run_manifest.json", manifest)
+
+    csv_path = tmp_path / "outputs" / "run_archive" / "cumulative_runs_index.csv"
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = list(rows[0].keys())
+    rows[-1]["archive_root"] = manifest["archive_root"]
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert _validate_archive(tmp_path) == 1
+
+
+def test_validate_run_archive_integrity_rejects_windows_absolute_archive_root_fields(
+    tmp_path: Path,
+) -> None:
+    run_dir = _create_archive(tmp_path, run_id="run-win-archive-root")
+    manifest_path = run_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["archive_root"] = r"C:\Users\runner\work\morskamary\outputs\run_archive"
     _write_json(manifest_path, manifest)
     _write_json(run_dir / "run_manifest.json", manifest)
 

@@ -6,6 +6,7 @@
         "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
         "provider_set": "",
         "github_run_id": "31302516646",
+        "github_run_attempt": "1",
         "commit_sha": "14324e29f361b98d2fafd7f688fdaafa7d713ecf",
         "timestamp_utc": "2026-08-09T08:02:49+00:00",
         "warnings": []

@@ -845,7 +845,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Coastal and Port Security (Girish Chandrakant Gujar, Adolf K. Y. Ng, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 945,
           "paper_title": "Coastal and Port Security",
           "authors": "Girish Chandrakant Gujar, Adolf K. Y. Ng",
@@ -859,7 +859,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Advancing coordination in critical maritime infrastructure protection: Lessons from maritime piracy and cybersecurity (Tobias Liebetrau, Christian Bueger, 2024).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1007,
           "paper_title": "Advancing coordination in critical maritime infrastructure protection: Lessons from maritime piracy and cybersecurity",
           "authors": "Tobias Liebetrau, Christian Bueger",
@@ -873,7 +873,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Private security services - Protection of critical infrastructure (Unknown, ).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1008,
           "paper_title": "Private security services - Protection of critical infrastructure",
           "authors": "Unknown",
@@ -887,7 +887,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Public–Private Partnerships are no silver bullet: An expanded governance model for Critical Infrastructure Protection (Myriam Dunn-Cavelty, Manuel Suter, 2009).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1009,
           "paper_title": "Public–Private Partnerships are no silver bullet: An expanded governance model for Critical Infrastructure Protection",
           "authors": "Myriam Dunn-Cavelty, Manuel Suter",
@@ -901,7 +901,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Black Sea Offshore Energy Infrastructure Protection and Defense (Mihai Știr, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1010,
           "paper_title": "Black Sea Offshore Energy Infrastructure Protection and Defense",
           "authors": "Mihai Știr",
@@ -915,7 +915,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital transformation of the maritime industry: A cybersecurity systemic approach (Evripidis P. Kechagias, Georgios Chatzistelios, Georgios A. , 2022).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1011,
           "paper_title": "Digital transformation of the maritime industry: A cybersecurity systemic approach",
           "authors": "Evripidis P. Kechagias, Georgios Chatzistelios, Georgios A. Papadopoulos, Panagiotis Apostolou",
@@ -929,7 +929,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Valuable and Vulnerable: Protecting Maritime Infrastructure (Wilson Brian, 2014).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1012,
           "paper_title": "Valuable and Vulnerable: Protecting Maritime Infrastructure",
           "authors": "Wilson Brian",
@@ -943,7 +943,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: National and international maritime situational awareness model examples and the effects of North Stream Pipelines sabot (Tolga Ahmet Gülcan, Kadir Emrah Erginer, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1013,
           "paper_title": "National and international maritime situational awareness model examples and the effects of North Stream Pipelines sabot",
           "authors": "Tolga Ahmet Gülcan, Kadir Emrah Erginer",
@@ -957,7 +957,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: On Critical Infrastructure (Sergiu Mitrescu, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1014,
           "paper_title": "On Critical Infrastructure",
           "authors": "Sergiu Mitrescu",
@@ -971,7 +971,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical maritime infrastructure protection: What’s the trouble? (Christian Bueger, Tobias Liebetrau, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1015,
           "paper_title": "Critical maritime infrastructure protection: What’s the trouble?",
           "authors": "Christian Bueger, Tobias Liebetrau",
@@ -985,7 +985,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical infrastructure protection (Richard George, 2008).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1016,
           "paper_title": "Critical infrastructure protection",
           "authors": "Richard George",
@@ -999,7 +999,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical Maritime Infrastructure in the North and Norwegian Seas: Navigating Security Challenges in the Green Energy Tra (Andrew W. Neal, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1017,
           "paper_title": "Critical Maritime Infrastructure in the North and Norwegian Seas: Navigating Security Challenges in the Green Energy Tra",
           "authors": "Andrew W. Neal",
@@ -1013,7 +1013,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Models of critical information infrastructure protection (Dan Assaf, 2008).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1018,
           "paper_title": "Models of critical information infrastructure protection",
           "authors": "Dan Assaf",
@@ -1027,7 +1027,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: In the Crosshairs: Hybrid Threats and the Challenge to Maritime Infrastructure (Sergiu Mitrescu, Martin Sokolov, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1019,
           "paper_title": "In the Crosshairs: Hybrid Threats and the Challenge to Maritime Infrastructure",
           "authors": "Sergiu Mitrescu, Martin Sokolov",
@@ -1041,7 +1041,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Developments and research directions in maritime cybersecurity: A systematic literature review and bibliometric analysis (Victor Bolbot, Ketki Kulkarni, Päivi Brunou, Osiris Valdez B, 2022).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1020,
           "paper_title": "Developments and research directions in maritime cybersecurity: A systematic literature review and bibliometric analysis",
           "authors": "Victor Bolbot, Ketki Kulkarni, Päivi Brunou, Osiris Valdez Banda, Mashrura Musharraf",
@@ -1055,7 +1055,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Securing Digital Corridors Under Hybrid Threats:Extending SDAF to Cybersecurity Governance of Critical Maritime Infrastr (Rahid Zahid Alekberli, Hikmat Karimov, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1021,
           "paper_title": "Securing Digital Corridors Under Hybrid Threats:Extending SDAF to Cybersecurity Governance of Critical Maritime Infrastr",
           "authors": "Rahid Zahid Alekberli, Hikmat Karimov",
@@ -1069,7 +1069,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Shipping as a critical infrastructure (Magdalena Bogalecka, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1022,
           "paper_title": "Shipping as a critical infrastructure",
           "authors": "Magdalena Bogalecka",
@@ -1083,7 +1083,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: There’s infrastructure and …critical infrastructure (Robert A. Miller, 2009).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1023,
           "paper_title": "There’s infrastructure and …critical infrastructure",
           "authors": "Robert A. Miller",
@@ -1097,7 +1097,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: After Nord Stream: four security dilemmas in critical maritime infrastructure protection (Andrew W Neal, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1024,
           "paper_title": "After Nord Stream: four security dilemmas in critical maritime infrastructure protection",
           "authors": "Andrew W Neal",
@@ -1111,7 +1111,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical thinking: exploring the expansion of critical infrastructure (Russell Lundberg, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1025,
           "paper_title": "Critical thinking: exploring the expansion of critical infrastructure",
           "authors": "Russell Lundberg",
@@ -1125,7 +1125,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Two securities: How contemporary cyber geopolitics impacts critical infrastructure protection (Chris Bronk, 2015).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1026,
           "paper_title": "Two securities: How contemporary cyber geopolitics impacts critical infrastructure protection",
           "authors": "Chris Bronk",
@@ -1139,7 +1139,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Modeling critical infrastructure accident consequences (Magdalena Bogalecka, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1027,
           "paper_title": "Modeling critical infrastructure accident consequences",
           "authors": "Magdalena Bogalecka",
@@ -1153,7 +1153,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Modeling critical infrastructure accident losses (Magdalena Bogalecka, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1028,
           "paper_title": "Modeling critical infrastructure accident losses",
           "authors": "Magdalena Bogalecka",
@@ -1167,7 +1167,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Optimization of critical infrastructure accident losses (Magdalena Bogalecka, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1029,
           "paper_title": "Optimization of critical infrastructure accident losses",
           "authors": "Magdalena Bogalecka",
@@ -1181,7 +1181,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Telecoms Inclusion Principle (Chris W. Johnson, 2013).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1030,
           "paper_title": "The Telecoms Inclusion Principle",
           "authors": "Chris W. Johnson",
@@ -1195,7 +1195,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Identification of critical infrastructure accident consequences (Magdalena Bogalecka, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1031,
           "paper_title": "Identification of critical infrastructure accident consequences",
           "authors": "Magdalena Bogalecka",
@@ -1209,7 +1209,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cyber risk assessment of cyber-enabled autonomous cargo vessel (Awais Yousaf, Ahmed Amro, Philip Teow Huat Kwa, Meixuan Li, , 2024).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1032,
           "paper_title": "Cyber risk assessment of cyber-enabled autonomous cargo vessel",
           "authors": "Awais Yousaf, Ahmed Amro, Philip Teow Huat Kwa, Meixuan Li, Jianying Zhou",
@@ -1223,7 +1223,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Unmanned Surface Vehicles in Maritime Critical Infrastructure Protection Applications — LNG Terminal in Świnoujście (Rafał Miętkiewicz, 2018).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1033,
           "paper_title": "Unmanned Surface Vehicles in Maritime Critical Infrastructure Protection Applications — LNG Terminal in Świnoujście",
           "authors": "Rafał Miętkiewicz",
@@ -1237,7 +1237,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Mitigation of critical infrastructure accident losses (Magdalena Bogalecka, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1034,
           "paper_title": "Mitigation of critical infrastructure accident losses",
           "authors": "Magdalena Bogalecka",
@@ -1251,7 +1251,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Prediction of critical infrastructure accident consequences (Magdalena Bogalecka, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1035,
           "paper_title": "Prediction of critical infrastructure accident consequences",
           "authors": "Magdalena Bogalecka",
@@ -1265,7 +1265,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Legally critical: Defining critical infrastructure in an interconnected world (Jakub Harašta, 2018).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1036,
           "paper_title": "Legally critical: Defining critical infrastructure in an interconnected world",
           "authors": "Jakub Harašta",
@@ -1279,7 +1279,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: GIS-based Command and Control Infrastructure for Critical Infrastructure Protection (S.D. Wolthusen, ).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1037,
           "paper_title": "GIS-based Command and Control Infrastructure for Critical Infrastructure Protection",
           "authors": "S.D. Wolthusen",
@@ -1293,7 +1293,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Vulnerability analysis of critical infrastructure network (A. Kizhakkedath, K. Tai, 2021).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1038,
           "paper_title": "Vulnerability analysis of critical infrastructure network",
           "authors": "A. Kizhakkedath, K. Tai",
@@ -1307,7 +1307,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical infrastructure protection under imperfect attacker perception (Erik Jenelius, Jonas Westin, Åke J. Holmgren, 2010).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1039,
           "paper_title": "Critical infrastructure protection under imperfect attacker perception",
           "authors": "Erik Jenelius, Jonas Westin, Åke J. Holmgren",
@@ -1321,7 +1321,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: New threats and research problems for critical infrastructure (Roberto Setola, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1040,
           "paper_title": "New threats and research problems for critical infrastructure",
           "authors": "Roberto Setola",
@@ -1335,7 +1335,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Consequences of Maritime Critical Infrastructure Accidents (Unknown, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1041,
           "paper_title": "Consequences of Maritime Critical Infrastructure Accidents",
           "authors": "Unknown",
@@ -1349,7 +1349,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Editorial (Unknown, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1042,
           "paper_title": "Editorial",
           "authors": "Unknown",
@@ -1363,7 +1363,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Proceedings. First IEEE International Workshop on Critical Infrastructure Protection (Unknown, 2005).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1043,
           "paper_title": "Proceedings. First IEEE International Workshop on Critical Infrastructure Protection",
           "authors": "Unknown",
@@ -1377,7 +1377,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Protecting Critical Infrastructure: Methods and Techniques (Krzysztof Wysocki, 2024).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1044,
           "paper_title": "Protecting Critical Infrastructure: Methods and Techniques",
           "authors": "Krzysztof Wysocki",
@@ -1391,7 +1391,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Protection of critical infrastructure facilities in Southern Ukraine as an important element of ensuring maritime securi (Oleksandr Yuriyovych Konev, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1045,
           "paper_title": "Protection of critical infrastructure facilities in Southern Ukraine as an important element of ensuring maritime securi",
           "authors": "Oleksandr Yuriyovych Konev",
@@ -1405,7 +1405,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Interactive visualizations for critical infrastructure analysis (William J. Tolone, 2009).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1046,
           "paper_title": "Interactive visualizations for critical infrastructure analysis",
           "authors": "William J. Tolone",
@@ -1419,7 +1419,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Critical Entities Resilience (Roberto Setola, 2024).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1047,
           "paper_title": "Critical Entities Resilience",
           "authors": "Roberto Setola",
@@ -1433,7 +1433,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: SafeCI: Avoiding process anomalies in critical infrastructure (Sridhar adepu, Aditya Mathur, 2021).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1048,
           "paper_title": "SafeCI: Avoiding process anomalies in critical infrastructure",
           "authors": "Sridhar adepu, Aditya Mathur",
@@ -1447,7 +1447,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: European Reference Network for Critical Infrastructure Protection (Adam M. Lewis, David Ward, Lukasz Cyra, Naouma Kourti, 2013).",
         "axis": "MARITIME",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1049,
           "paper_title": "European Reference Network for Critical Infrastructure Protection",
           "authors": "Adam M. Lewis, David Ward, Lukasz Cyra, Naouma Kourti",
@@ -3297,7 +3297,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smart Governance for a Sustainable Blue Economy (Nitin Agarwala, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 204,
           "paper_title": "Smart Governance for a Sustainable Blue Economy",
           "authors": "Nitin Agarwala",
@@ -3311,7 +3311,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Cities and regions for a blue economy (Oriana Romano, Juliette Lassman, Georges Laimé, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 218,
           "paper_title": "Cities and regions for a blue economy",
           "authors": "Oriana Romano, Juliette Lassman, Georges Laimé",
@@ -3325,7 +3325,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Security and the Blue Economy (Anja Menzel, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 920,
           "paper_title": "Maritime Security and the Blue Economy",
           "authors": "Anja Menzel",
@@ -3339,7 +3339,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: IORA, The Blue Economy and Ocean Governance (V. N. Attri, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 921,
           "paper_title": "IORA, The Blue Economy and Ocean Governance",
           "authors": "V. N. Attri",
@@ -3353,7 +3353,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Security in Ghana’s Blue Economy: Exploring Socio-Economic Realities and Governance (Elsie Amelia Tachie-Menson, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 922,
           "paper_title": "Maritime Security in Ghana’s Blue Economy: Exploring Socio-Economic Realities and Governance",
           "authors": "Elsie Amelia Tachie-Menson",
@@ -3367,7 +3367,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Blue Economy Beckons (James Alix Michel, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 923,
           "paper_title": "The Blue Economy Beckons",
           "authors": "James Alix Michel",
@@ -3381,7 +3381,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Ocean governance and the blue economy (Peter B. Myles, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 924,
           "paper_title": "Ocean governance and the blue economy",
           "authors": "Peter B. Myles",
@@ -3395,7 +3395,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Safety and Security and Development of the Blue Economy in the Indian Ocean Rim Association (IORA) (K. V. Bhagirath, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 925,
           "paper_title": "Maritime Safety and Security and Development of the Blue Economy in the Indian Ocean Rim Association (IORA)",
           "authors": "K. V. Bhagirath",
@@ -3409,7 +3409,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Legal Pluralism, Maritime Security, and the Blue Economy (Benson Nyamweno Nyamweno, Nyamira Enock Nyamira, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 926,
           "paper_title": "Legal Pluralism, Maritime Security, and the Blue Economy",
           "authors": "Benson Nyamweno Nyamweno, Nyamira Enock Nyamira",
@@ -3423,7 +3423,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blockchain Technology in Maritime Supply Chains: A Review of Transparency, Traceability, and Governance Impacts (Kim Corbin, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 927,
           "paper_title": "Blockchain Technology in Maritime Supply Chains: A Review of Transparency, Traceability, and Governance Impacts",
           "authors": "Kim Corbin",
@@ -3437,7 +3437,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Role of sustainable development in BIMSTEC maritime security and blue economy framework (Swati Ganeshan, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 928,
           "paper_title": "Role of sustainable development in BIMSTEC maritime security and blue economy framework",
           "authors": "Swati Ganeshan",
@@ -3451,7 +3451,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Security: Call of the Seas (Girish Chandrakant Gujar, Adolf K. Y. Ng, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 929,
           "paper_title": "Maritime Security: Call of the Seas",
           "authors": "Girish Chandrakant Gujar, Adolf K. Y. Ng",
@@ -3465,7 +3465,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Security and the Blue Economy in Southeast Asia (Rosalie Arcala Hall, Alexander C Tan, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 930,
           "paper_title": "Maritime Security and the Blue Economy in Southeast Asia",
           "authors": "Rosalie Arcala Hall, Alexander C Tan",
@@ -3479,7 +3479,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Synchronizing India’s Maritime Security and Blue Economy: A Sustainable Development Approach (Mukund Narvenkar, Rahul Tripathi, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 931,
           "paper_title": "Synchronizing India’s Maritime Security and Blue Economy: A Sustainable Development Approach",
           "authors": "Mukund Narvenkar, Rahul Tripathi",
@@ -3493,7 +3493,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy and Smart Sea Transport Systems (Girish Chandrakant Gujar, Adolf K. Y. Ng, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 932,
           "paper_title": "Blue Economy and Smart Sea Transport Systems",
           "authors": "Girish Chandrakant Gujar, Adolf K. Y. Ng",
@@ -3507,7 +3507,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime safety and security (Jade Lindley, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 933,
           "paper_title": "Maritime safety and security",
           "authors": "Jade Lindley",
@@ -3521,7 +3521,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Building Industries at Sea: 'Blue Growth' and the New Maritime Economy (Kate Johnson, Gordon Dalton, Ian Masters, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 934,
           "paper_title": "Building Industries at Sea: 'Blue Growth' and the New Maritime Economy",
           "authors": "Kate Johnson, Gordon Dalton, Ian Masters",
@@ -3535,7 +3535,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime governance laws in Nigeria: catalyst for advancement of blue finance and blue economy (Andrew Aondohemba Chenge, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 935,
           "paper_title": "Maritime governance laws in Nigeria: catalyst for advancement of blue finance and blue economy",
           "authors": "Andrew Aondohemba Chenge",
@@ -3549,7 +3549,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Clusters (Girish Chandrakant Gujar, Adolf K. Y. Ng, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 936,
           "paper_title": "Maritime Clusters",
           "authors": "Girish Chandrakant Gujar, Adolf K. Y. Ng",
@@ -3563,7 +3563,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Pandemic, the Blue Economy, and the Way Forward (Girish Chandrakant Gujar, Adolf K. Y. Ng, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 937,
           "paper_title": "The Pandemic, the Blue Economy, and the Way Forward",
           "authors": "Girish Chandrakant Gujar, Adolf K. Y. Ng",
@@ -3577,7 +3577,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Global Maritime Security Governance (James Sperling, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 938,
           "paper_title": "Global Maritime Security Governance",
           "authors": "James Sperling",
@@ -3591,7 +3591,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Journal of Maritime and Blue Economy Management (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 939,
           "paper_title": "Journal of Maritime and Blue Economy Management",
           "authors": "Unknown",
@@ -3605,7 +3605,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Safeguarding the Seas and Promoting a Sustainable Blue Economy Through Maritime Security (Burak Şakir Şeker, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 940,
           "paper_title": "Safeguarding the Seas and Promoting a Sustainable Blue Economy Through Maritime Security",
           "authors": "Burak Şakir Şeker",
@@ -3619,7 +3619,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: NAVIGATING THE DARK SIDE OF THE BLUE ECONOMY: INTEGRATING BLUE CRIME GOVERNANCE INTO SUSTAINABLE OCEAN DEVELOPMENT (ALI UMAR AHMAD, MARHAINI MOHD NOOR, JAGAN JEEVAN, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 941,
           "paper_title": "NAVIGATING THE DARK SIDE OF THE BLUE ECONOMY: INTEGRATING BLUE CRIME GOVERNANCE INTO SUSTAINABLE OCEAN DEVELOPMENT",
           "authors": "ALI UMAR AHMAD, MARHAINI MOHD NOOR, JAGAN JEEVAN",
@@ -3633,7 +3633,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: India’s Maritime Security and Policy: An Imperative for the Blue Economy (Rashmi Singh, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 942,
           "paper_title": "India’s Maritime Security and Policy: An Imperative for the Blue Economy",
           "authors": "Rashmi Singh",
@@ -3647,7 +3647,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Irrationality in Politics and Governance of Maritime Affairs: The Collapse of Sovereign Maritime Governance (Okan Duru, 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 943,
           "paper_title": "Irrationality in Politics and Governance of Maritime Affairs: The Collapse of Sovereign Maritime Governance",
           "authors": "Okan Duru",
@@ -3661,7 +3661,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Blue Economy and Chinese Maritime Power (Kathleen A. Walsh, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 944,
           "paper_title": "The Blue Economy and Chinese Maritime Power",
           "authors": "Kathleen A. Walsh",
@@ -3675,7 +3675,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime governance and the blue economy: Between strategic ambitions and implementation constraints (a systematic revie (Rajae Idrissi, Youssef Pheniqi, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 946,
           "paper_title": "Maritime governance and the blue economy: Between strategic ambitions and implementation constraints (a systematic revie",
           "authors": "Rajae Idrissi, Youssef Pheniqi",
@@ -3689,7 +3689,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Private Military and Security Companies in Maritime Security Governance (Carolin Liss, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 947,
           "paper_title": "Private Military and Security Companies in Maritime Security Governance",
           "authors": "Carolin Liss",
@@ -3703,7 +3703,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime security and blue economy development in Nigeria: A structural equation model (Emenyonu Martin Uchenna, Chinedum Onyemechi, G. C. Emeaghara, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 948,
           "paper_title": "Maritime security and blue economy development in Nigeria: A structural equation model",
           "authors": "Emenyonu Martin Uchenna, Chinedum Onyemechi, G. C. Emeaghara, I. C. Nze, O. B. Ndikom",
@@ -3717,7 +3717,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Global Political Ethnography: A Methodological Approach to Studying Maritime Security Governance (Jessica Larsen, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 949,
           "paper_title": "Global Political Ethnography: A Methodological Approach to Studying Maritime Security Governance",
           "authors": "Jessica Larsen",
@@ -3731,7 +3731,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Integrating Technology, Sustainability, and the Blue Economy to Strengthen Maritime Security and Climate Resilience unde (Unknown, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 950,
           "paper_title": "Integrating Technology, Sustainability, and the Blue Economy to Strengthen Maritime Security and Climate Resilience unde",
           "authors": "Unknown",
@@ -3745,7 +3745,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy Beyond Maritime Economics (Thauan Santos, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 951,
           "paper_title": "Blue Economy Beyond Maritime Economics",
           "authors": "Thauan Santos",
@@ -3759,7 +3759,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: International ocean governance framework shaping European maritime planning and innovations for sustainable blue economy (Patrycja Enet, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 952,
           "paper_title": "International ocean governance framework shaping European maritime planning and innovations for sustainable blue economy",
           "authors": "Patrycja Enet",
@@ -3773,7 +3773,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Governance in the Arctic and Antarctic (Geir Hønneland, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 953,
           "paper_title": "Blue Governance in the Arctic and Antarctic",
           "authors": "Geir Hønneland",
@@ -3787,7 +3787,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: 952.1 A Green-Blue Economy? The case of offshore wind power (Espen Moe, Mathias Shabanaj Jankila, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 954,
           "paper_title": "952.1 A Green-Blue Economy? The case of offshore wind power",
           "authors": "Espen Moe, Mathias Shabanaj Jankila",
@@ -3801,7 +3801,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Privatized Maritime Security Governance In War- torn Sierra Leone (Unknown, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 955,
           "paper_title": "Privatized Maritime Security Governance In War- torn Sierra Leone",
           "authors": "Unknown",
@@ -3815,7 +3815,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Assessing the Impact of Somalia's Maritime Policy on Blue Economy Development (Abdalla Ahmed Abdalla, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 956,
           "paper_title": "Assessing the Impact of Somalia's Maritime Policy on Blue Economy Development",
           "authors": "Abdalla Ahmed Abdalla",
@@ -3829,7 +3829,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Lusophone Geopolitics: Blue Economy and Maritime Security in Contemporary Mozambique’s Geopolitics (Francisco Proença Garcia, Sónia Ribeiro, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 957,
           "paper_title": "Lusophone Geopolitics: Blue Economy and Maritime Security in Contemporary Mozambique’s Geopolitics",
           "authors": "Francisco Proença Garcia, Sónia Ribeiro",
@@ -3843,7 +3843,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Integrating Artificial Intelligence and Immersive Technologies into Maritime Education and Training (Zouheir Abd El Fattah Abd El Salam Badawy, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 958,
           "paper_title": "Integrating Artificial Intelligence and Immersive Technologies into Maritime Education and Training",
           "authors": "Zouheir Abd El Fattah Abd El Salam Badawy",
@@ -3857,7 +3857,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime space (Natalie Klein, 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 959,
           "paper_title": "Maritime space",
           "authors": "Natalie Klein",
@@ -3871,7 +3871,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime security (Kenneth Button, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 960,
           "paper_title": "Maritime security",
           "authors": "Kenneth Button",
@@ -3885,7 +3885,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Emerging ‘Shadow Fleet’ as a Maritime Security and Ocean Governance Challenge (Iva Parlov, Ulf Sverdrup, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 961,
           "paper_title": "The Emerging ‘Shadow Fleet’ as a Maritime Security and Ocean Governance Challenge",
           "authors": "Iva Parlov, Ulf Sverdrup",
@@ -3899,7 +3899,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Spain's Fight Against Maritime Piracy: The Legitimacy of Maritime Security Governance (Annina Cristina Bürgin, 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 962,
           "paper_title": "Spain's Fight Against Maritime Piracy: The Legitimacy of Maritime Security Governance",
           "authors": "Annina Cristina Bürgin",
@@ -3913,7 +3913,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Dynamics and Energy Security in the Eastern Mediterranean: Analyzing the Blue Homeland Doctrine (Gökçe Çiçek Ceyhun, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 963,
           "paper_title": "Maritime Dynamics and Energy Security in the Eastern Mediterranean: Analyzing the Blue Homeland Doctrine",
           "authors": "Gökçe Çiçek Ceyhun",
@@ -3927,7 +3927,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Framing Australia's Maritime Domain (Sean A. G. Andrews, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 964,
           "paper_title": "Framing Australia's Maritime Domain",
           "authors": "Sean A. G. Andrews",
@@ -3941,7 +3941,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Trends in the Maritime Domain (Sean A. G. Andrews, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 965,
           "paper_title": "Trends in the Maritime Domain",
           "authors": "Sean A. G. Andrews",
@@ -3955,7 +3955,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Naval Constabulary Operations and Fisheries Governance (Sean A. G. Andrews, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 966,
           "paper_title": "Naval Constabulary Operations and Fisheries Governance",
           "authors": "Sean A. G. Andrews",
@@ -3969,7 +3969,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A Network-Centric Approach to Maritime Domain Awareness (Michael Anderson, Bruce Winterstine, 2005).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 967,
           "paper_title": "A Network-Centric Approach to Maritime Domain Awareness",
           "authors": "Michael Anderson, Bruce Winterstine",
@@ -3983,7 +3983,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Fishing Vessels (Sean A. G. Andrews, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 968,
           "paper_title": "Fishing Vessels",
           "authors": "Sean A. G. Andrews",
@@ -3997,7 +3997,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Introduction: Maritime Interception and the Law of Naval Operations (Martin Fink, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 969,
           "paper_title": "Introduction: Maritime Interception and the Law of Naval Operations",
           "authors": "Martin Fink",
@@ -4011,7 +4011,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Western Ocean (Sean A. G. Andrews, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 970,
           "paper_title": "The Western Ocean",
           "authors": "Sean A. G. Andrews",
@@ -4025,7 +4025,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Eastern Ocean (Sean A. G. Andrews, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 971,
           "paper_title": "The Eastern Ocean",
           "authors": "Sean A. G. Andrews",
@@ -4039,7 +4039,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Southern Ocean (Sean A. G. Andrews, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 972,
           "paper_title": "The Southern Ocean",
           "authors": "Sean A. G. Andrews",
@@ -4053,7 +4053,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Northern Ocean (Sean A. G. Andrews, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 973,
           "paper_title": "The Northern Ocean",
           "authors": "Sean A. G. Andrews",
@@ -4067,7 +4067,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Keynote: Multi-domain situational awareness - From the underwater to the space domain to improve maritime surveillance (Paolo Braca, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 974,
           "paper_title": "Keynote: Multi-domain situational awareness - From the underwater to the space domain to improve maritime surveillance",
           "authors": "Paolo Braca",
@@ -4081,7 +4081,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Some Introductory Remarks on Naval Operations (Martin Fink, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 975,
           "paper_title": "Some Introductory Remarks on Naval Operations",
           "authors": "Martin Fink",
@@ -4095,7 +4095,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Concientización del dominio marítimo y la logística naval (Gustavo Andrés Guerra La Rotta, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 976,
           "paper_title": "Concientización del dominio marítimo y la logística naval",
           "authors": "Gustavo Andrés Guerra La Rotta",
@@ -4109,7 +4109,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Responding to Asymmetric Threats in the Maritime Domain: Diplomacy, Law and Naval Operations (Brian Wilson, 2010).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 977,
           "paper_title": "Responding to Asymmetric Threats in the Maritime Domain: Diplomacy, Law and Naval Operations",
           "authors": "Brian Wilson",
@@ -4123,7 +4123,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: NATO Maritime Strategies and Naval Operations since 1985: Multilateral Naval Arrangements in the “Tanker War” (Tom Duffy, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 978,
           "paper_title": "NATO Maritime Strategies and Naval Operations since 1985: Multilateral Naval Arrangements in the “Tanker War”",
           "authors": "Tom Duffy",
@@ -4137,7 +4137,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Situational Awareness Enhancement using Radar Systems for Maritime and Naval Operations (Jesper Lidh, Jonna Nilsson, Saleh Javadi, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 979,
           "paper_title": "Situational Awareness Enhancement using Radar Systems for Maritime and Naval Operations",
           "authors": "Jesper Lidh, Jonna Nilsson, Saleh Javadi",
@@ -4151,7 +4151,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: India’s Evolving Maritime Domain Awareness Strategy in the Indian Ocean (Darshana M. Baruah, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 980,
           "paper_title": "India’s Evolving Maritime Domain Awareness Strategy in the Indian Ocean",
           "authors": "Darshana M. Baruah",
@@ -4165,7 +4165,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Analytic Support for Maritime Domain Awareness and Counter-Piracy. Working Group 3: Maritime Domain Awareness in the Int (Mark McIntyre, Wayne Renaud, Steve Stephens, Julie Seton, Da, 2009).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 981,
           "paper_title": "Analytic Support for Maritime Domain Awareness and Counter-Piracy. Working Group 3: Maritime Domain Awareness in the Int",
           "authors": "Mark McIntyre, Wayne Renaud, Steve Stephens, Julie Seton, Dale Reding",
@@ -4179,7 +4179,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Militias: Disrupting Naval Operations in the Pacific Theater and the Case for Intermediate Force Capabilities i (Peter Dobias, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 982,
           "paper_title": "Maritime Militias: Disrupting Naval Operations in the Pacific Theater and the Case for Intermediate Force Capabilities i",
           "authors": "Peter Dobias",
@@ -4193,7 +4193,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Strategic Maritime Domain Awareness: Supporting the National Strategy for Maritime Security (Francis J. Campion, 2008).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 983,
           "paper_title": "Strategic Maritime Domain Awareness: Supporting the National Strategy for Maritime Security",
           "authors": "Francis J. Campion",
@@ -4207,7 +4207,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A Short History of Maritime Interception Operations (Martin Fink, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 984,
           "paper_title": "A Short History of Maritime Interception Operations",
           "authors": "Martin Fink",
@@ -4221,7 +4221,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: INTEGRATED MARITIME DOMAIN INFORMATION AWARENESS (Sumali Morapitiya, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 985,
           "paper_title": "INTEGRATED MARITIME DOMAIN INFORMATION AWARENESS",
           "authors": "Sumali Morapitiya",
@@ -4235,7 +4235,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Application of Force in Maritime Interception Operations (Martin Fink, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 986,
           "paper_title": "The Application of Force in Maritime Interception Operations",
           "authors": "Martin Fink",
@@ -4249,7 +4249,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The UN Collective Security System and Maritime Interception Operations (Martin Fink, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 987,
           "paper_title": "The UN Collective Security System and Maritime Interception Operations",
           "authors": "Martin Fink",
@@ -4263,7 +4263,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Interception and the Law of Naval Operations (Martin Fink, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 988,
           "paper_title": "Maritime Interception and the Law of Naval Operations",
           "authors": "Martin Fink",
@@ -4277,7 +4277,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Detention and Maritime Interception (Martin Fink, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 989,
           "paper_title": "Detention and Maritime Interception",
           "authors": "Martin Fink",
@@ -4291,7 +4291,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Domain Awareness: the Key to Maritime Security (Dana a. Goward, 2008).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 990,
           "paper_title": "Maritime Domain Awareness: the Key to Maritime Security",
           "authors": "Dana a. Goward",
@@ -4305,7 +4305,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Risk-driven intent assessment and response generation in maritime surveillance operations (Rafael Falcon, Rami Abielmona, Sean Billings, 2015).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 991,
           "paper_title": "Risk-driven intent assessment and response generation in maritime surveillance operations",
           "authors": "Rafael Falcon, Rami Abielmona, Sean Billings",
@@ -4319,7 +4319,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Non-military Naval Operations (Unknown, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 992,
           "paper_title": "Non-military Naval Operations",
           "authors": "Unknown",
@@ -4333,7 +4333,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Self-Defence and Maritime Interception (Martin Fink, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 993,
           "paper_title": "Self-Defence and Maritime Interception",
           "authors": "Martin Fink",
@@ -4347,7 +4347,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: International Agreements on Maritime Interception (Martin Fink, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 994,
           "paper_title": "International Agreements on Maritime Interception",
           "authors": "Martin Fink",
@@ -4361,7 +4361,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Naval Operations Concept 2010: Implementing the Maritime Strategy (US Department of the Navy, 2010).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 995,
           "paper_title": "Naval Operations Concept 2010: Implementing the Maritime Strategy",
           "authors": "US Department of the Navy",
@@ -4375,7 +4375,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Naval Operations Concept: Implementing the Maritime Strategy (DEPARTMENT OF THE NAVY WASHINGTON DC, 2010).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 996,
           "paper_title": "Naval Operations Concept: Implementing the Maritime Strategy",
           "authors": "DEPARTMENT OF THE NAVY WASHINGTON DC",
@@ -4389,7 +4389,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Naval Operations and Grand Strategy in a New Security Environment (Simon Reich, Peter Dombrowski, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 997,
           "paper_title": "Naval Operations and Grand Strategy in a New Security Environment",
           "authors": "Simon Reich, Peter Dombrowski",
@@ -4403,7 +4403,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Attack on Maritime Trade (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 998,
           "paper_title": "Attack on Maritime Trade",
           "authors": "Unknown",
@@ -4417,7 +4417,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A Study on the ROK’s Maritime Domain Awareness - Focusing on the Change of Maritime Domain - (백병선, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 999,
           "paper_title": "A Study on the ROK’s Maritime Domain Awareness - Focusing on the Change of Maritime Domain -",
           "authors": "백병선",
@@ -4431,7 +4431,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Department of Defense Responsibility for Maritime Domain Awareness (David E. Eyler, Ivan Luke, 2005).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1000,
           "paper_title": "Department of Defense Responsibility for Maritime Domain Awareness",
           "authors": "David E. Eyler, Ivan Luke",
@@ -4445,7 +4445,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: (Ad Hoc) Consent (Martin Fink, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1001,
           "paper_title": "(Ad Hoc) Consent",
           "authors": "Martin Fink",
@@ -4459,7 +4459,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Domain Awareness Architecture Management Hub Strategy (NORTH CAROLINA STATE UNIV AT RALEIGH, 2008).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1002,
           "paper_title": "Maritime Domain Awareness Architecture Management Hub Strategy",
           "authors": "NORTH CAROLINA STATE UNIV AT RALEIGH",
@@ -4473,7 +4473,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: INTEGRATED MARITIME DOMAIN INFORMATIONS AWARENESS (Sumali Morapitiya, Wiraj Leelarathna, Ruwan Bolongho, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1003,
           "paper_title": "INTEGRATED MARITIME DOMAIN INFORMATIONS AWARENESS",
           "authors": "Sumali Morapitiya, Wiraj Leelarathna, Ruwan Bolongho",
@@ -4487,7 +4487,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Improving Situation Awareness in the Maritime Domain (Maurice Glandrup, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1004,
           "paper_title": "Improving Situation Awareness in the Maritime Domain",
           "authors": "Maurice Glandrup",
@@ -4501,7 +4501,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Multinational Maritime Operations (MMOPS) for Naval Doctrine Command (Michael T. Johnson, 1995).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1005,
           "paper_title": "Multinational Maritime Operations (MMOPS) for Naval Doctrine Command",
           "authors": "Michael T. Johnson",
@@ -4515,7 +4515,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Right of Visit (Martin Fink, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "outputs/research_sources/live_records_triangulated.json",
+          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
           "row": 1006,
           "paper_title": "The Right of Visit",
           "authors": "Martin Fink",
