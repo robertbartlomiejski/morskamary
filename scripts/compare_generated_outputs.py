@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import subprocess
 import sys
@@ -29,6 +30,13 @@ NONDETERMINISTIC_KEYS_BY_FILE: dict[str, set[str]] = {
         "generated_supply_audit_only_count",
         "generated_supply_sector_summary",
     },
+}
+
+NONDETERMINISTIC_COLUMNS_BY_FILE: dict[str, set[str]] = {
+    "gaps_summary.csv": {
+        "Generated_at",
+        "Run_id",
+    }
 }
 
 
@@ -70,6 +78,27 @@ def compare_json_payloads(
         normalize_payload(current, ignored_keys)
         == normalize_payload(committed, ignored_keys)
     )
+
+
+def compare_csv_payloads(current: str, committed: str, *, filename: str) -> bool:
+    """Compare a supported generated CSV file after narrow normalization."""
+
+    ignored_columns = NONDETERMINISTIC_COLUMNS_BY_FILE.get(filename)
+    if ignored_columns is None:
+        return current == committed
+
+    def _normalized_rows(payload: str) -> list[dict[str, str]]:
+        reader = csv.DictReader(payload.splitlines())
+        return [
+            {
+                key: value
+                for key, value in sorted(row.items())
+                if key is not None and key not in ignored_columns
+            }
+            for row in reader
+        ]
+
+    return _normalized_rows(current) == _normalized_rows(committed)
 
 
 def _changed_output_paths(root: Path) -> list[Path]:
@@ -120,29 +149,51 @@ def compare_outputs(root: Path) -> list[str]:
             continue
 
         filename = current_path.name
-        if current_path.suffix.lower() != ".json" or filename not in NONDETERMINISTIC_KEYS_BY_FILE:
-            errors.append(f"{relative_path}: substantive generated-output drift")
+        if current_path.suffix.lower() == ".json":
+            if filename not in NONDETERMINISTIC_KEYS_BY_FILE:
+                errors.append(f"{relative_path}: substantive generated-output drift")
+                continue
+
+            try:
+                current_payload = json.loads(current_path.read_text(encoding="utf-8"))
+                committed_payload = json.loads(
+                    _committed_bytes(current_path).decode("utf-8")
+                )
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+                errors.append(f"{relative_path}: cannot compare JSON safely: {exc}")
+                continue
+
+            try:
+                in_sync = compare_json_payloads(
+                    current_payload,
+                    committed_payload,
+                    filename=filename,
+                )
+            except ValueError as exc:
+                errors.append(f"{relative_path}: {exc}")
+                continue
+
+            if not in_sync:
+                errors.append(f"{relative_path}: substantive JSON drift")
             continue
 
-        try:
-            current_payload = json.loads(current_path.read_text(encoding="utf-8"))
-            committed_payload = json.loads(_committed_bytes(current_path).decode("utf-8"))
-        except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
-            errors.append(f"{relative_path}: cannot compare JSON safely: {exc}")
+        if current_path.suffix.lower() == ".csv":
+            if filename not in NONDETERMINISTIC_COLUMNS_BY_FILE:
+                errors.append(f"{relative_path}: substantive generated-output drift")
+                continue
+
+            try:
+                current_text = current_path.read_text(encoding="utf-8")
+                committed_text = _committed_bytes(current_path).decode("utf-8")
+            except (OSError, UnicodeDecodeError, ValueError) as exc:
+                errors.append(f"{relative_path}: cannot compare CSV safely: {exc}")
+                continue
+
+            if not compare_csv_payloads(current_text, committed_text, filename=filename):
+                errors.append(f"{relative_path}: substantive CSV drift")
             continue
 
-        try:
-            in_sync = compare_json_payloads(
-                current_payload,
-                committed_payload,
-                filename=filename,
-            )
-        except ValueError as exc:
-            errors.append(f"{relative_path}: {exc}")
-            continue
-
-        if not in_sync:
-            errors.append(f"{relative_path}: substantive JSON drift")
+        errors.append(f"{relative_path}: substantive generated-output drift")
     return errors
 
 
