@@ -497,6 +497,20 @@ def test_validate_run_archive_integrity_rejects_windows_absolute_archive_root_fi
     assert _validate_archive(tmp_path) == 1
 
 
+def test_validate_run_archive_integrity_rejects_absolute_path_in_manifest(
+    tmp_path: Path,
+) -> None:
+    run_dir = _create_archive(tmp_path, run_id="run-manifest-path-leak")
+    manifest_path = run_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["workflow"]["query_file"] = (
+        "/home/runner/work/morskamary/morskamary/config/research_queries.yml"
+    )
+    _write_json(manifest_path, manifest)
+
+    assert _validate_archive(tmp_path) == 1
+
+
 def test_validate_run_archive_integrity_rejects_public_runner_path_leaks(
     tmp_path: Path,
 ) -> None:

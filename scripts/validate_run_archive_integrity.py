@@ -392,8 +392,23 @@ def _validate_one_run(
             f"(expected {expected_total_bytes}, got {actual_total_bytes})"
         )
     if not grandfathered_legacy_run:
+        manifest_paths = list(
+            dict.fromkeys(
+                path
+                for path in (
+                    manifest_path,
+                    compat_manifest_path,
+                    legacy_manifest_path,
+                )
+                if path.is_file()
+            )
+        )
         errors.extend(
-            _validate_public_path_leaks(run_dir, archived_paths, repo_root=repo_root)
+            _validate_public_path_leaks(
+                run_dir,
+                [*archived_paths, *manifest_paths],
+                repo_root=repo_root,
+            )
         )
 
     return run_id, manifest, errors

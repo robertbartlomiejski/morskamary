@@ -663,11 +663,18 @@ def check_gaps_csv(
                 "gaps_summary.csv Generated_at does not match "
                 "cumulative_qmbd_records.json metadata.timestamp_utc"
             )
-        if (
-            actual_analysis_mode
-            and expected_analysis_mode
-            and actual_analysis_mode != expected_analysis_mode
-        ):
+        if not expected_analysis_mode:
+            fail(
+                "cumulative_qmbd_records.json metadata.analysis_input_mode "
+                "must be non-blank"
+            )
+        elif expected_analysis_mode not in ALLOWED_ANALYSIS_MODES:
+            fail(
+                "cumulative_qmbd_records.json metadata.analysis_input_mode "
+                "must be one of: "
+                + ", ".join(sorted(ALLOWED_ANALYSIS_MODES))
+            )
+        elif actual_analysis_mode != expected_analysis_mode:
             fail(
                 "gaps_summary.csv Analysis_mode does not match "
                 "cumulative_qmbd_records.json metadata.analysis_input_mode"

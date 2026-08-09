@@ -359,6 +359,24 @@ class TestCheckGapsCsv:
             "metadata.timestamp_utc" in error for error in mod.ERRORS
         ), mod.ERRORS
 
+    @pytest.mark.parametrize("analysis_input_mode", ["", "fixture"])
+    def test_fails_when_companion_analysis_mode_is_blank_or_invalid(
+        self, analysis_input_mode: str
+    ) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        self._vary_scientific_columns(rows)
+        metadata = {
+            "analysis_input_mode": analysis_input_mode,
+            "timestamp_utc": "2026-01-01T00:00:00+00:00",
+        }
+
+        mod.check_gaps_csv(rows, metadata)
+
+        assert any(
+            "metadata.analysis_input_mode" in error for error in mod.ERRORS
+        ), mod.ERRORS
+
     def test_passes_when_companion_provenance_identifies_same_run(self) -> None:
         mod = _load_validator_module()
         rows = _make_gaps_rows()

@@ -47,15 +47,23 @@ def test_supply_audit_metadata_drift_is_narrowly_allowed() -> None:
     )
 
 
-def test_rationale_audit_context_drift_is_narrowly_allowed() -> None:
+def test_rationale_audit_context_evidence_id_drift_is_not_allowed() -> None:
     committed = {
         "generated_credentials": [
-            {"id": "credential-1", "generated_supply_audit_context": ["old"]}
+            {
+                "id": "credential-1",
+                "generated_supply_audit_context": ["evidence-1"],
+                "generated_supply_audit_only_count": 1,
+            }
         ]
     }
     current = {
         "generated_credentials": [
-            {"id": "credential-1", "generated_supply_audit_context": ["new"]}
+            {
+                "id": "credential-1",
+                "generated_supply_audit_context": ["evidence-1"],
+                "generated_supply_audit_only_count": 2,
+            }
         ]
     }
     assert compare_json_payloads(
@@ -64,7 +72,9 @@ def test_rationale_audit_context_drift_is_narrowly_allowed() -> None:
         filename="credentials_generation_rationale.json",
     )
 
-    current["generated_credentials"][0]["id"] = "credential-2"
+    current["generated_credentials"][0]["generated_supply_audit_context"] = [
+        "evidence-2"
+    ]
     assert not compare_json_payloads(
         current,
         committed,

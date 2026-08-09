@@ -25,7 +25,6 @@ NONDETERMINISTIC_KEYS_BY_FILE: dict[str, set[str]] = {
         "generated_supply_sector_summary",
     },
     "credentials_generation_rationale.json": {
-        "generated_supply_audit_context",
         "generated_supply_audit_only_count",
         "generated_supply_sector_summary",
     },
