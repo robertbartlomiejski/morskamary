@@ -124,7 +124,8 @@ def _detect_all_themes(record: Dict[str, Any]) -> Dict[BlueDynamicsAxis, List[st
     """Detect per-axis thematic keywords from record text.
 
     Returns a dictionary keyed by all QMBD axes. If no keywords are found,
-    applies a deterministic governance fallback under OCEANIC.
+    leaves all axis lists empty so downstream governance can preserve
+    uncertainty explicitly.
     """
     text = " ".join(
         str(record.get(field, "")) for field in ("title", "abstract", "keywords")
@@ -133,9 +134,6 @@ def _detect_all_themes(record: Dict[str, Any]) -> Dict[BlueDynamicsAxis, List[st
     themes: Dict[BlueDynamicsAxis, List[str]] = {axis: [] for axis in BlueDynamicsAxis}
     for axis, keywords in _AXIS_THEME_KEYWORDS.items():
         themes[axis] = [keyword for keyword in keywords if keyword in text]
-
-    if not any(themes.values()):
-        themes[BlueDynamicsAxis.OCEANIC] = ["[citation needed]"]
 
     return themes
 

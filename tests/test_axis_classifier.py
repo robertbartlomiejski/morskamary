@@ -83,23 +83,23 @@ class TestAxisClassifier:
         )
         assert result == BlueDynamicsAxis.OCEANIC
 
-    def test_classify_empty_text_returns_oceanic_default(self):
-        """Empty text with no dimension should default to OCEANIC."""
+    def test_classify_empty_text_returns_none(self):
+        """Empty text with no dimension should preserve uncertainty."""
         classifier = AxisClassifier()
         result = classifier.classify_axis("")
-        assert result == BlueDynamicsAxis.OCEANIC
+        assert result is None
 
-    def test_classify_whitespace_only_text_returns_oceanic_default(self):
-        """Whitespace-only text with no dimension should default to OCEANIC."""
+    def test_classify_whitespace_only_text_returns_none(self):
+        """Whitespace-only text with no dimension should preserve uncertainty."""
         classifier = AxisClassifier()
         result = classifier.classify_axis("   \n\t   ")
-        assert result == BlueDynamicsAxis.OCEANIC
+        assert result is None
 
-    def test_classify_no_dimension_no_keywords_returns_oceanic(self):
-        """Text without dimension or keywords should default to OCEANIC."""
+    def test_classify_no_dimension_no_keywords_returns_none(self):
+        """Text without dimension or keywords should preserve uncertainty."""
         classifier = AxisClassifier()
         result = classifier.classify_axis("Generic blue economy competence")
-        assert result == BlueDynamicsAxis.OCEANIC
+        assert result is None
 
     def test_dimension_takes_priority_over_keywords(self):
         """When both dimension and keywords present, dimension takes priority."""
@@ -126,7 +126,7 @@ class TestAxisClassifier:
         """Partial-word matches must not trigger false-positive axis assignment."""
         classifier = AxisClassifier()
         result = classifier.classify_axis("Important blue economy transitions")
-        assert result == BlueDynamicsAxis.OCEANIC
+        assert result is None
 
     def test_classify_context_returns_sentence_level_metadata(self):
         """classify_context should emit axis metadata for one sentence."""
@@ -280,14 +280,11 @@ class TestQMBDHydronizationAxis:
             == BlueDynamicsAxis.OCEANIC
         )
 
-    def test_legacy_oceanic_fallback_unchanged(self):
-        """Default fallback (no dimension, no keywords) must still be OCEANIC."""
+    def test_legacy_oceanic_fallback_replaced_by_explicit_uncertainty(self):
+        """No-match free-text classification must no longer invent OCEANIC evidence."""
         classifier = AxisClassifier()
-        assert classifier.classify_axis("") == BlueDynamicsAxis.OCEANIC
-        assert (
-            classifier.classify_axis("Generic blue economy text")
-            == BlueDynamicsAxis.OCEANIC
-        )
+        assert classifier.classify_axis("") is None
+        assert classifier.classify_axis("Generic blue economy text") is None
 
     def test_dimension_path_does_not_route_to_hydronization(self):
         """Dimension-based classification (A/B/C/D) must not produce HYDRONIZATION.
@@ -389,3 +386,31 @@ class TestAxisClassifierInputValidation:
             "is_blue_planetaryism must be False when any QMBD axis keyword "
             "('ecosystem') appears in text, regardless of resolved axis"
         )
+
+    def test_classify_context_emits_unclassified_review_required_for_no_match(self):
+        """No retained vocabulary match must remain explicit and review-required."""
+        classifier = AxisClassifier()
+        result = classifier.classify_context(
+            "Blue economy transitions and resilience",
+            text_scope="test_scope",
+        )
+        assert result["axis"] == "UNCLASSIFIED"
+        assert result["axis_code"] == ""
+        assert result["matched_keywords"] == []
+        assert result["confidence_score"] == 0.0
+        assert result["manual_review_status"] == "review_required"
+        assert result["uncertainty_reason"] == "no_retained_axis_vocabulary_match"
+        assert result["uncertainty_typology"] == "no_signal"
+        assert result["review_path"] == "fail_closed_unclassified"
+        assert result["classifier_version"] == AxisClassifier.CLASSIFIER_VERSION
+
+    def test_classify_context_tags_cross_axis_overlap_as_mediator_review(self):
+        """Multiple-axis retained vocabulary should be routed as mediator review."""
+        classifier = AxisClassifier()
+        result = classifier.classify_context(
+            "Hydrosocial governance connects blue justice and water transitions.",
+            text_scope="test_scope",
+        )
+        assert result["manual_review_status"] == "review_required"
+        assert result["uncertainty_typology"] == "cross_axis_mediator"
+        assert result["review_path"] == "cross_axis_overlap_review"

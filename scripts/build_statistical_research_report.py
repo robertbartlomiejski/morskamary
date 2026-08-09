@@ -106,6 +106,12 @@ def _fmt_hypothesis(result: Dict[str, Any]) -> str:
     return _kv_list([[key, value] for key, value in sorted(result.items())])
 
 
+def _filter_demands_by_view(
+    demands: Sequence[Mapping[str, str]], *, view_kind: str
+) -> List[Mapping[str, str]]:
+    return [row for row in demands if row.get("view_kind", "") == view_kind]
+
+
 def _load_hypothesis_contract(
     protocol_path: Optional[Path] = None,
 ) -> Dict[str, Sequence[str]]:
@@ -266,17 +272,46 @@ def build_html_report(
         "sec-3-axis",
     )
 
+    legacy_demands = _filter_demands_by_view(
+        demands, view_kind="legacy_category_aggregate_compatibility_view"
+    )
+    canonical_demands = _filter_demands_by_view(
+        demands, view_kind="accepted_canonical_lineage_view"
+    )
+
     demand_rows = [
         (
             row.get("sector"),
             row.get("axis_group"),
             row.get("competence_label"),
+            row.get("view_kind"),
+            row.get("scientific_status"),
             row.get("demand_strength_score"),
             row.get("status"),
             row.get("eqf_relevance"),
         )
         for row in sorted(
-            demands,
+            legacy_demands,
+            key=lambda item: (
+                item.get("sector", ""),
+                item.get("axis_group", ""),
+                item.get("competence_label", ""),
+            ),
+        )[:200]
+    ]
+    canonical_rows = [
+        (
+            row.get("sector"),
+            row.get("axis_group"),
+            row.get("competence_label"),
+            row.get("view_kind"),
+            row.get("scientific_status"),
+            row.get("demand_strength_score"),
+            row.get("status"),
+            row.get("eqf_relevance"),
+        )
+        for row in sorted(
+            canonical_demands,
             key=lambda item: (
                 item.get("sector", ""),
                 item.get("axis_group", ""),
@@ -287,18 +322,44 @@ def build_html_report(
     section_demands = _section(
         "4. Competence-demand model",
         (
-            f"<p>Total derived demands: {len(demands)}. "
+            f"<p>Total derived demands across all views: {len(demands)}. "
+            f"Legacy aggregate view rows: {len(legacy_demands)}. "
+            f"Accepted canonical lineage rows: {len(canonical_demands)}. "
             f"Formula: <code>{_e(DEMAND_STRENGTH_FORMULA)}</code>.</p>"
+            + "<p>The primary descriptive demand table below is restricted to the "
+            "legacy category-aggregate compatibility view so reviewed canonical "
+            "lineage rows are not mixed into the empirical denominator.</p>"
             + _table(
                 (
                     "sector",
                     "axis_group",
                     "competence_label",
+                    "view_kind",
+                    "scientific_status",
                     "demand_strength_score",
                     "status",
                     "eqf_relevance",
                 ),
                 demand_rows,
+            )
+            + (
+                "<h3>Accepted canonical lineage review-backed demand rows</h3>"
+                + _table(
+                    (
+                        "sector",
+                        "axis_group",
+                        "competence_label",
+                        "view_kind",
+                        "scientific_status",
+                        "demand_strength_score",
+                        "status",
+                        "eqf_relevance",
+                    ),
+                    canonical_rows,
+                )
+                if canonical_rows
+                else "<h3>Accepted canonical lineage review-backed demand rows</h3>"
+                "<p>No accepted canonical lineage rows are present in this run.</p>"
             )
         ),
         "sec-4-demand",

@@ -54,32 +54,35 @@ def _seed_archive(
         timestamp = str(run["timestamp_utc"])
         run_path = f"runs/{run_id}"
         run_dir = archive_root / run_path
+        query_ids = run.get("query_ids", ["q1"])
+        if not isinstance(query_ids, list):
+            query_ids = ["q1"]
 
-        _write_json(
-            run_dir / "manifest.json",
-            {
-                "run_id": run_id,
-                "timestamp_utc": timestamp,
-                "analysis_timestamp_utc": timestamp,
-                "provider_set": str(run.get("provider_set", provider_set)),
-                "contributing_provider_profile": str(
-                    run.get(
-                        "contributing_provider_profile",
-                        run.get("provider_set", provider_set),
-                    )
-                ),
-                "workflow": {
-                    "inputs": {"providers": str(run.get("provider_set", provider_set))}
-                },
+        manifest_payload = {
+            "run_id": run_id,
+            "timestamp_utc": timestamp,
+            "analysis_timestamp_utc": timestamp,
+            "provider_set": str(run.get("provider_set", provider_set)),
+            "contributing_provider_profile": str(
+                run.get(
+                    "contributing_provider_profile",
+                    run.get("provider_set", provider_set),
+                )
+            ),
+            "workflow": {
+                "inputs": {"providers": str(run.get("provider_set", provider_set))}
             },
-        )
+        }
+        if run.get("is_static_recovery_mode"):
+            manifest_payload["is_static_recovery_mode"] = True
+        _write_json(run_dir / "manifest.json", manifest_payload)
         _write_json(
             run_dir / "research_sources" / "query_protocol_constraints.json",
             {
                 "protocol_version": str(run.get("protocol_version", protocol_version)),
                 "queries": [
                     {
-                        "query_id": "q1",
+                        "query_id": str(query_id),
                         "time_window": {"from_year": 2020, "to_year": 2026},
                         "sampling_strategy": {
                             "mode": "pages",
@@ -88,6 +91,7 @@ def _seed_archive(
                             "dedupe_key": "doi",
                         },
                     }
+                    for query_id in query_ids
                 ],
             },
         )
@@ -471,6 +475,107 @@ def test_missing_contributing_profile_fails_comparability_closed(tmp_path: Path)
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
     assert report["saturation_assessment"]["status"] == "not_assessable"
+
+
+def test_different_query_id_universe_makes_fingerprint_mismatch(tmp_path: Path) -> None:
+    module = _load_module()
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+                "query_ids": ["q1", "q2"],
+            },
+            {
+                "run_id": "run-2",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(21),
+                "query_ids": ["q1", "q3"],
+            },
+        ],
+    )
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert (
+        module.main(
+            ["--archive-root", str(archive_root), "--output-path", str(output_path)]
+        )
+        == 0
+    )
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+    assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
+    assert report["saturation_assessment"]["status"] == "not_assessable"
+
+
+def test_same_query_id_universe_across_runs_is_comparable(tmp_path: Path) -> None:
+    module = _load_module()
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+                "query_ids": ["q1", "q2"],
+            },
+            {
+                "run_id": "run-2",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(21),
+                "query_ids": ["q2", "q1"],
+            },
+        ],
+    )
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert (
+        module.main(
+            ["--archive-root", str(archive_root), "--output-path", str(output_path)]
+        )
+        == 0
+    )
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+    assert report["run_pairs"][0]["comparability_fingerprint_match"] is True
+
+
+def test_static_recovery_run_excluded_from_full_pipeline(tmp_path: Path) -> None:
+    module = _load_module()
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+            },
+            {
+                "run_id": "run-2-static",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(5),
+                "is_static_recovery_mode": True,
+            },
+            {
+                "run_id": "run-3",
+                "timestamp_utc": "2026-07-03T00:00:00+00:00",
+                "dois": _doi_series(21),
+            },
+        ],
+    )
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert (
+        module.main(
+            ["--archive-root", str(archive_root), "--output-path", str(output_path)]
+        )
+        == 0
+    )
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+
+    assert report["runs_analyzed"] == 2
+    run_ids_seen = {pair["run_a"] for pair in report["run_pairs"]} | {
+        pair["run_b"] for pair in report["run_pairs"]
+    }
+    assert "run-2-static" not in run_ids_seen
+    assert run_ids_seen == {"run-1", "run-3"}
 
 
 def test_cli_defaults_match_published_method_thresholds() -> None:
