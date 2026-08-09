@@ -529,7 +529,6 @@ def check_gaps_csv(rows: list[dict]) -> None:
         "Missing_MARITIME",
         "Missing_OCEANIC",
         "Missing_HYDRONIZATION",
-        "Missing_HYDRONIZATION",
     ]
     for col in numeric_cols:
         values = set()

@@ -9,7 +9,7 @@ Requires Python 3.10 or newer.
 param(
     [switch]$Live,
     [ValidateSet("quick", "full-static", "full-live")]
-    [string]$Mode = "full-static"
+    [string]$Mode = "full-live"
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
