@@ -562,6 +562,49 @@ def test_absolute_path_leak_detection_does_not_treat_url_host_as_path(
     )
 
 
+def test_absolute_path_leak_detection_ignores_encoded_html_tags(
+    tmp_path: Path,
+) -> None:
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_encoded_html_test",
+    )
+    encoded_markup = "&lt;/b&gt;&lt;b&gt;&lt;/b&gt;"
+
+    assert (
+        validate_module._count_absolute_path_leaks(
+            encoded_markup,
+            repo_root=tmp_path,
+        )
+        == 0
+    )
+
+
+@pytest.mark.parametrize(
+    "real_path",
+    [
+        "/home/researcher/archive/output.json",
+        r"C:\Users\researcher\archive\output.json",
+        r"\\archive-server\research\output.json",
+    ],
+)
+def test_absolute_path_leak_detection_keeps_real_paths_in_encoded_markup(
+    tmp_path: Path, real_path: str
+) -> None:
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_encoded_html_real_path_test",
+    )
+
+    assert (
+        validate_module._count_absolute_path_leaks(
+            f'&lt;a href="{real_path}"&gt;label&lt;/a&gt;',
+            repo_root=tmp_path,
+        )
+        == 1
+    )
+
+
 def test_legacy_path_grandfathering_is_bound_to_manifest_bytes(tmp_path: Path) -> None:
     validate_module = _load_module(
         VALIDATE_SCRIPT_PATH,

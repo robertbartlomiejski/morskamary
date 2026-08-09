@@ -5,6 +5,7 @@ import hashlib
 import importlib.util
 import json
 import sys
+from unittest.mock import Mock
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
@@ -285,6 +286,41 @@ def test_manifest_matches_json_schema(tmp_path: Path) -> None:
     validator = Draft202012Validator(schema)
     errors = sorted(validator.iter_errors(manifest), key=lambda item: item.path)
     assert not errors
+
+
+def test_archive_reuses_manifest_timestamp_for_jsonl_index(tmp_path: Path) -> None:
+    module = _load_archive_module()
+    _seed_required_targets(tmp_path)
+    first_timestamp = "2026-08-09T15:39:59+00:00"
+    next_second = "2026-08-09T15:40:00+00:00"
+    module._now_utc_iso = Mock(side_effect=[first_timestamp, next_second])
+
+    result = module.main(
+        [
+            "--repo-root",
+            str(tmp_path),
+            "--archive-root",
+            "outputs/run_archive",
+            "--run-id",
+            "run-timestamp-boundary",
+        ]
+    )
+
+    assert result == 0
+    run_dir = (
+        tmp_path
+        / "outputs"
+        / "run_archive"
+        / "runs"
+        / "run-timestamp-boundary"
+    )
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    index_path = tmp_path / "outputs" / "run_archive" / "_index" / "runs_index.jsonl"
+    index_entry = json.loads(index_path.read_text(encoding="utf-8").strip())
+    assert manifest["timestamp_utc"] == first_timestamp
+    assert index_entry["archived_at"] == manifest["timestamp_utc"]
+    assert index_entry["archived_at"] != next_second
+    assert module._now_utc_iso.call_count == 1
 
 
 def test_archive_checksums_match_archived_files(tmp_path: Path) -> None:

@@ -577,6 +577,18 @@ def check_gaps_csv(
     else:
         ok(f"Scientific gap profiles show {len(row_profiles)} distinct sector patterns")
 
+    for column in scientific_cols:
+        values = {str(row.get(column, "")).strip() for row in rows}
+        if "" in values:
+            fail(f"Column '{column}' must be non-blank for every gaps_summary.csv row")
+        elif len(values) <= 1 and len(rows) > 1:
+            fail(
+                f"Column '{column}' does not vary across sectors -- "
+                "outputs appear stale"
+            )
+        else:
+            ok(f"Column '{column}' varies across sectors")
+
     # 3. Row-level provenance must be complete, valid, and internally consistent
     provenance_sets: dict[str, set[str]] = {
         "Generated_at": set(),

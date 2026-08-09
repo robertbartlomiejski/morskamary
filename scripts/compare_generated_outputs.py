@@ -15,6 +15,7 @@ NONDETERMINISTIC_KEYS_BY_FILE: dict[str, set[str]] = {
     "cumulative_qmbd_records.json": {
         "commit_sha",
         "github_run_id",
+        "github_run_attempt",
         "timestamp_utc",
         "analysis_timestamp_utc",
         "static_recovery_reason",

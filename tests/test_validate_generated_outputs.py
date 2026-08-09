@@ -224,6 +224,25 @@ class TestSchemaValidation:
 
 
 class TestCheckGapsCsv:
+    SCIENTIFIC_COLUMNS = [
+        "Required",
+        "Missing",
+        "Gap_pct",
+        "Missing_MARINE",
+        "Missing_MARITIME",
+        "Missing_OCEANIC",
+    ]
+
+    @staticmethod
+    def _vary_scientific_columns(rows: list[dict]) -> None:
+        for i, row in enumerate(rows):
+            row["Required"] = str(100 + i)
+            row["Missing"] = str(85 + i)
+            row["Gap_pct"] = str(85.0 + i)
+            row["Missing_MARINE"] = str(10 + i)
+            row["Missing_MARITIME"] = str(20 + i)
+            row["Missing_OCEANIC"] = str(55 + i)
+
     def test_fails_when_all_rows_identical(self) -> None:
         mod = _load_validator_module()
         rows = _make_gaps_rows(required="100")
@@ -232,19 +251,44 @@ class TestCheckGapsCsv:
             "Expected failure when all sector rows are identical"
         )
 
+    @pytest.mark.parametrize("column", SCIENTIFIC_COLUMNS)
+    def test_fails_when_individual_scientific_column_contains_blank(
+        self, column: str
+    ) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        self._vary_scientific_columns(rows)
+        rows[0][column] = ""
+
+        mod.check_gaps_csv(rows)
+
+        assert any(column in error and "non-blank" in error for error in mod.ERRORS), (
+            f"Expected blank {column} to fail (errors: {mod.ERRORS})"
+        )
+
+    @pytest.mark.parametrize("column", SCIENTIFIC_COLUMNS)
+    def test_fails_when_individual_scientific_column_is_uniform(
+        self, column: str
+    ) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        self._vary_scientific_columns(rows)
+        for row in rows:
+            row[column] = "7"
+
+        mod.check_gaps_csv(rows)
+
+        assert any(column in error and "does not vary" in error for error in mod.ERRORS), (
+            f"Expected uniform {column} to fail (errors: {mod.ERRORS})"
+        )
+
     def test_passes_when_hydronization_is_uniform_but_other_scientific_values_differ(
         self,
     ) -> None:
         mod = _load_validator_module()
         rows = _make_gaps_rows()
-        # Make rows differ
-        for i, row in enumerate(rows):
-            row["Required"] = str(100 + i)
-            row["Missing"] = str(85 + i)
-            row["Gap_pct"] = str(85.0 + i)
-            row["Missing_MARINE"] = str(10 + i)
-            row["Missing_MARITIME"] = str(20 + i)
-            row["Missing_OCEANIC"] = str(55 + i)
+        self._vary_scientific_columns(rows)
+        for row in rows:
             row["Missing_HYDRONIZATION"] = "15"
         mod.check_gaps_csv(rows)
         assert not mod.ERRORS, f"Expected no errors but got: {mod.ERRORS}"
@@ -262,13 +306,7 @@ class TestCheckGapsCsv:
     def test_allows_cross_sector_hydronization_counts(self) -> None:
         mod = _load_validator_module()
         rows = _make_gaps_rows()
-        for i, row in enumerate(rows):
-            row["Required"] = str(100 + i)
-            row["Missing"] = str(85 + i)
-            row["Gap_pct"] = str(85.0 + i)
-            row["Missing_MARINE"] = str(10 + i)
-            row["Missing_MARITIME"] = str(20 + i)
-            row["Missing_OCEANIC"] = str(55 + i)
+        self._vary_scientific_columns(rows)
 
         mod.check_gaps_csv(rows)
 
@@ -324,8 +362,7 @@ class TestCheckGapsCsv:
     def test_passes_when_companion_provenance_identifies_same_run(self) -> None:
         mod = _load_validator_module()
         rows = _make_gaps_rows()
-        for i, row in enumerate(rows):
-            row["Required"] = str(100 + i)
+        self._vary_scientific_columns(rows)
         metadata = {
             "analysis_input_mode": "static",
             "github_run_id": "test-run-001",

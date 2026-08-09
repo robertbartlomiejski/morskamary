@@ -21,8 +21,14 @@ def test_normalization_removes_only_declared_keys() -> None:
 
 
 def test_cumulative_metadata_drift_is_allowed_but_data_drift_is_not() -> None:
-    committed = {"metadata": {"timestamp_utc": "old"}, "records": [{"id": 1}]}
-    current = {"metadata": {"timestamp_utc": "new"}, "records": [{"id": 1}]}
+    committed = {
+        "metadata": {"timestamp_utc": "old", "github_run_attempt": "1"},
+        "records": [{"id": 1}],
+    }
+    current = {
+        "metadata": {"timestamp_utc": "new", "github_run_attempt": "2"},
+        "records": [{"id": 1}],
+    }
     assert compare_json_payloads(
         current, committed, filename="cumulative_qmbd_records.json"
     )

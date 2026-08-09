@@ -103,6 +103,10 @@ ABSOLUTE_PATH_PATTERN = re.compile(
     """,
     re.VERBOSE,
 )
+ENCODED_HTML_CLOSING_TAG_PATTERN = re.compile(
+    r"&lt;/[A-Za-z][A-Za-z0-9:-]*\s*&gt;",
+    re.IGNORECASE,
+)
 
 
 def _sha256_file(path: Path) -> str:
@@ -220,14 +224,15 @@ def _legacy_index_totals(
 
 
 def _count_absolute_path_leaks(text: str, *, repo_root: Path) -> int:
+    scan_text = ENCODED_HTML_CLOSING_TAG_PATTERN.sub(" ", text)
     normalized_repo_root = repo_root.resolve().as_posix().rstrip("/")
-    explicit_root_matches = text.count(normalized_repo_root + "/")
+    explicit_root_matches = scan_text.count(normalized_repo_root + "/")
     portable_matches = sum(
         1
-        for match in ABSOLUTE_PATH_PATTERN.finditer(text)
+        for match in ABSOLUTE_PATH_PATTERN.finditer(scan_text)
         if not (
             match.group().startswith("/")
-            and text[: match.start()].endswith(":/")
+            and scan_text[: match.start()].endswith(":/")
         )
     )
     return max(explicit_root_matches, portable_matches)
