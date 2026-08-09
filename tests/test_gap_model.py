@@ -544,9 +544,20 @@ class TestExportFunctions:
         out = tmp_path / "gaps_summary.csv"
         export_gaps_summary_csv(gaps, out)
         assert out.exists()
-        rows = list(csv.reader(out.open(encoding="utf-8")))
-        assert rows[0][0] == "Sector"
-        assert len(rows) == len(SECTORS) + 1  # header + 12 sectors
+        rows = list(csv.DictReader(out.open(encoding="utf-8")))
+        header = list(csv.reader(out.open(encoding="utf-8")))[0]
+        assert header[0] == "Sector"
+        assert "Gap_pct" in header
+        assert "Missing_HYDRONIZATION" in header
+        assert "Generated_at" in header
+        assert "Analysis_mode" in header
+        assert "Run_id" in header
+        assert "Schema_version" in header
+        # Run_id must be non-blank (UUID fallback)
+        for row in rows:
+            assert row["Run_id"], "Run_id must not be empty"
+            assert row["Schema_version"] == "2", "Schema_version must be '2'"
+        assert len(rows) == len(SECTORS)
 
     def test_export_gaps_detailed_json_is_valid_json(self, tmp_path: Path) -> None:
         result = self._make_result()
