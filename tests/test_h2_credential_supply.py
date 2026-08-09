@@ -20,6 +20,13 @@ _SPEC.loader.exec_module(_MOD)
 
 
 def _write_registry(path: Path, rows: list[dict[str, object]]) -> None:
+    """
+    Write registry records to a CSV file with the expected schema.
+    
+    Parameters:
+    	path (Path): Destination path for the registry CSV file.
+    	rows (list[dict[str, object]]): Registry records to write.
+    """
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(
             handle,

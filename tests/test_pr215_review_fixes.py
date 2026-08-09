@@ -23,6 +23,15 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _load_script(name: str):
+    """
+    Load and execute a script module from the repository's scripts directory.
+    
+    Parameters:
+    	name (str): Script filename stem without the `.py` extension.
+    
+    Returns:
+    	module: The loaded and executed script module.
+    """
     path = REPO_ROOT / "scripts" / f"{name}.py"
     spec = importlib.util.spec_from_file_location(name, str(path))
     mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
@@ -33,6 +42,13 @@ def _load_script(name: str):
 
 
 def _write_json(path: Path, payload: object) -> None:
+    """
+    Write a JSON payload to a file, creating its parent directories as needed.
+    
+    Parameters:
+        path (Path): Destination file path.
+        payload (object): JSON-serializable value to write.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
