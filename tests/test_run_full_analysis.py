@@ -748,9 +748,10 @@ def test_classify_sentence_contexts_marks_no_keyword_sentences_unclassified() ->
     )
 
     assert len(analysis) == 1
-    assert analysis[0]["axis"] == "OCEANIC"
-    assert analysis[0]["classification"] == "UNCLASSIFIED_REVIEW_REQUIRED"
+    assert analysis[0]["axis"] == "UNCLASSIFIED"
+    assert analysis[0]["classification"] == "UNCLASSIFIED_REVIEW_REQUIRED__NO_SIGNAL"
     assert analysis[0]["matched_qmbd_axes"] == []
+    assert analysis[0]["uncertainty_typology"] == "no_signal"
 
 
 def test_serialize_subject_terms_handles_lists_and_scalars() -> None:

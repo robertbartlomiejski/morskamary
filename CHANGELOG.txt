@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-08-09 (add: QMBD measurement-governance uncertainty scaffolding)
+  Change type add fix update
+  Scope src docs schemas tests governance
+  Files affected src/axis_classifier.py src/core.py run_full_analysis.py docs/STATISTICAL_REPORT_METHODOLOGY.md docs/QMBD_MEASUREMENT_GOVERNANCE_EXTENSION.md docs/QMBD_VARIABLE_OPERATIONALISATION_AND_UNCERTAINTY_TYPOLOGY.md docs/review_templates/qmbd_expert_panel_questionnaire_template.md docs/review_templates/qmbd_axis_domain_dictionary_template.md docs/review_templates/qmbd_gold_review_set_template.csv schemas/qmbd_gold_review_set.schema.json tests/test_axis_classifier.py tests/test_core.py tests/test_run_full_analysis.py tests/test_pipeline_matrix.py CHANGELOG.txt MANIFEST_SOURCES.csv
+  Summary Removes the free-text fallback that silently relabelled no-match material as OCEANIC, preserves uncertainty as explicit review metadata, and adds a governance-first uncertainty typology plus reviewer, dictionary, and gold-set scaffolding for future classifier calibration. Multi-axis overlap now routes to review-required cross-axis mediator handling, while true no-match records remain fail-closed as unclassified rather than being promoted by default.
+  Reason The repository's measurement contract requires explicit uncertainty, stable four-axis QMBD coding, and a reviewable variable-operationalisation path before any higher-complexity classifier or external triangulation is scientifically defensible.
+  Impact Downstream sentence classification now distinguishes unclassified review-required records without default axis inflation, and governance artifacts now define uncertainty categories, liminal review prompts, and a schema-backed gold review set template for future expert adjudication.
+  Provenance User governance-extension request; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md; config/live_query_protocol.yml.
+  Quality checks Focused classifier and pipeline pytest coverage passed (118 tests); additional targeted lint, type, and governance checks are run before commit and the required repository suite is recorded with the final update.
+
 - 2026-08-07 (add: schema_v2_identity shared module; refactor all identity builders to single contract)
   Change type add fix update
   Scope scripts tests governance src

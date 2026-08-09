@@ -9,6 +9,10 @@ it must not be described as a completed professor-level scientific-statistical
 validation until the follow-up work replaces the heuristic coverage model with
 evidence-based credential coverage and richer inferential tests.
 
+Measurement-governance rule: no classifier or statistical stage may convert a
+no-match or weak-match state into substantive OCEANIC evidence by default.
+Uncertain classification must remain explicit and reviewable.
+
 ## 1. Layers at a glance
 
 | Layer | Purpose                                                | Primary output                                        |
@@ -121,6 +125,11 @@ association models for hydronization lag.
 Advanced methods (CA, PCA, K-means, hierarchical clustering) are marked
 `method_status: "skipped"` with a clear reason when scipy/sklearn are
 unavailable. This is a deterministic behaviour, not a silent failure.
+
+These methods are exploratory utilities, not automatic validity upgrades.
+They must not be described as empirical proof of the underlying constructs
+without a stabilized observational unit, missingness treatment, and reviewer-
+audited interpretation path.
 
 ## 8. EQF 4-7 credential translation
 

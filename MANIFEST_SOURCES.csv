@@ -740,8 +740,13 @@ docs/policy/Blue Occupation Insurance broker.txt,policy,,,,,,Blue_Occupation_Ins
 docs/policy/Blue Occupation Sailmaker.txt,policy,,,,,,Blue_Occupation_Sailmaker,yes
 docs/policy/Blue_Sociology_Framework_Complete.md,policy,,,,,,Blue_Sociology_Framework_Complete,yes
 docs/providers.md,text,,,,,,providers,yes
+docs/QMBD_MEASUREMENT_GOVERNANCE_EXTENSION.md,text,,,,,,QMBD_MEASUREMENT_GOVERNANCE_EXTENSION,yes
+docs/QMBD_VARIABLE_OPERATIONALISATION_AND_UNCERTAINTY_TYPOLOGY.md,text,,,,,,QMBD_VARIABLE_OPERATIONALISATION_AND_UNC,yes
 docs/RESEARCH_API_CICD_SETUP.md,text,,,,,,RESEARCH_API_CICD_SETUP,yes
 docs/RESEARCH_SOURCE_GOVERNANCE.md,text,,,,,,RESEARCH_SOURCE_GOVERNANCE,yes
+docs/review_templates/qmbd_axis_domain_dictionary_template.md,text,,,,,,qmbd_axis_domain_dictionary_template,yes
+docs/review_templates/qmbd_expert_panel_questionnaire_template.md,text,,,,,,qmbd_expert_panel_questionnaire_template,yes
+docs/review_templates/qmbd_gold_review_set_template.csv,dataset_derived,,,,,,qmbd_gold_review_set_template,yes
 docs/STATISTICAL_ANALYSIS_PLAN.md,text,,,,,,STATISTICAL_ANALYSIS_PLAN,yes
 docs/STATISTICAL_REPORT_METHODOLOGY.md,text,,,,,,STATISTICAL_REPORT_METHODOLOGY,yes
 examples/add_coastal_resilience_competence.py,script,,,,,,add_coastal_resilience_competence,yes
@@ -1020,6 +1025,7 @@ schemas/evidence_segments.schema.json,other,,,,,,evidence_segments_schema,yes
 schemas/gap_clusters.schema.json,other,,,,,,gap_clusters_schema,yes
 schemas/historical_revalidation_report.schema.json,other,,,,,,historical_revalidation_report_schema,yes
 schemas/manual_sources_ledger.schema.json,other,,,,,,manual_sources_ledger_schema,yes
+schemas/qmbd_gold_review_set.schema.json,other,,,,,,qmbd_gold_review_set_schema,yes
 schemas/reliability_metrics.schema.json,other,,,,,,reliability_metrics_schema,yes
 schemas/research_data_package_manifest.schema.json,other,,,,,,research_data_package_manifest_schema,yes
 schemas/research_metadata.schema.json,other,,,,,,research_metadata_schema,yes

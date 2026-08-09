@@ -192,7 +192,8 @@ def qmbd_label_from_text(text: str) -> str:
         return "HYDRONIZATION"
     if not normalized.strip():
         return "UNCLASSIFIED"
-    return AxisClassifier().classify_axis(text).name
+    axis = AxisClassifier().classify_axis(text)
+    return axis.name if axis is not None else "UNCLASSIFIED"
 
 
 def emergent_discovery(text: str) -> Dict[str, Any]:
@@ -275,8 +276,8 @@ def update_state(
             "text": fragment.text,
             "added_at": utc_now_iso(),
             "variant_1": {
-                "tmbd_axis": strict_axis.name,
-                "tmbd_code": strict_axis.value,
+                "tmbd_axis": strict_axis.name if strict_axis is not None else "UNCLASSIFIED",
+                "tmbd_code": strict_axis.value if strict_axis is not None else "U",
                 "qmbd_label": qmbd_label_from_text(fragment.text),
             },
             "variant_2": emergent_discovery(fragment.text),

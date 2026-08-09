@@ -313,6 +313,12 @@ def _classify_sentence_contexts(
             if axis_name in TMBDAxis.__members__ and has_supported_evidence
             else "UNCLASSIFIED_REVIEW_REQUIRED"
         )
+        typology = str(axis_payload.get("uncertainty_typology", "")).strip()
+        if classification_name == "UNCLASSIFIED_REVIEW_REQUIRED" and typology:
+            classification_name = (
+                "UNCLASSIFIED_REVIEW_REQUIRED"
+                f"__{typology.upper()}"
+            )
         classifications.append(
             {
                 "classification": classification_name,
