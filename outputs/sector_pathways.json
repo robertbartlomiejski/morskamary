@@ -807,7 +807,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
     },
     {
       "from_sector": "Infra & Robotics",
@@ -829,7 +831,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
     },
     {
       "from_sector": "Infra & Robotics",
@@ -851,7 +855,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
     },
     {
       "from_sector": "Infra & Robotics",
@@ -873,7 +879,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
     },
     {
       "from_sector": "Infra & Robotics",
@@ -895,7 +903,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
     },
     {
       "from_sector": "Infra & Robotics",
@@ -917,7 +927,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
     },
     {
       "from_sector": "Infra & Robotics",
@@ -939,7 +951,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
     },
     {
       "from_sector": "Infra & Robotics",
@@ -961,7 +975,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
     },
     {
       "from_sector": "Infra & Robotics",
@@ -983,7 +999,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
     },
     {
       "from_sector": "Infra & Robotics",
@@ -1005,7 +1023,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
     },
     {
       "from_sector": "Infra & Robotics",
@@ -1027,7 +1047,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_infra-robotics_eqf5"
+      ]
     },
     {
       "from_sector": "Living Res.",
@@ -1819,7 +1841,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
     },
     {
       "from_sector": "Maritime Defence",
@@ -1841,7 +1865,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
     },
     {
       "from_sector": "Maritime Defence",
@@ -1863,7 +1889,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
     },
     {
       "from_sector": "Maritime Defence",
@@ -1885,7 +1913,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
     },
     {
       "from_sector": "Maritime Defence",
@@ -1907,7 +1937,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
     },
     {
       "from_sector": "Maritime Defence",
@@ -1929,7 +1961,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
     },
     {
       "from_sector": "Maritime Defence",
@@ -1951,7 +1985,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
     },
     {
       "from_sector": "Maritime Defence",
@@ -1973,7 +2009,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
     },
     {
       "from_sector": "Maritime Defence",
@@ -1995,7 +2033,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
     },
     {
       "from_sector": "Maritime Defence",
@@ -2017,7 +2057,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
     },
     {
       "from_sector": "Maritime Defence",
@@ -2039,7 +2081,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_maritime-defence_eqf5"
+      ]
     },
     {
       "from_sector": "Maritime Transport",
@@ -2545,7 +2589,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
     },
     {
       "from_sector": "R&I",
@@ -2567,7 +2613,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
     },
     {
       "from_sector": "R&I",
@@ -2589,7 +2637,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
     },
     {
       "from_sector": "R&I",
@@ -2611,7 +2661,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
     },
     {
       "from_sector": "R&I",
@@ -2633,7 +2685,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
     },
     {
       "from_sector": "R&I",
@@ -2655,7 +2709,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
     },
     {
       "from_sector": "R&I",
@@ -2677,7 +2733,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
     },
     {
       "from_sector": "R&I",
@@ -2699,7 +2757,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
     },
     {
       "from_sector": "R&I",
@@ -2721,7 +2781,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
     },
     {
       "from_sector": "R&I",
@@ -2743,7 +2805,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
     },
     {
       "from_sector": "R&I",
@@ -2765,7 +2829,9 @@
         "baseline_d_3",
         "baseline_d_4"
       ],
-      "bridge_credentials": []
+      "bridge_credentials": [
+        "mc_research-innovation_eqf5"
+      ]
     },
     {
       "from_sector": "Ship Repair",
