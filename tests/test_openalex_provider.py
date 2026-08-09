@@ -392,7 +392,7 @@ def test_registry_and_sort_normalization_include_openalex(monkeypatch) -> None:
     assert normalize_provider_name("OpenAlex") == "openalex"
     assert (
         _lookup_provider_sort_strategy(
-            {"crossref": "published-desc", "scopus": "date-desc"},
+            {"crossref": "published-desc", "scopus": "date-desc", "openalex": "date-desc"},
             "openalex",
         )
         == "date-desc"
