@@ -17,18 +17,10 @@ from scripts.build_validated_credential_supply_map import (
 
 def _write_demands(path: Path, demand_ids: list[str]) -> None:
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(
-            handle, fieldnames=["competence_demand_id", "sector", "axis_group"]
-        )
+        writer = csv.DictWriter(handle, fieldnames=["competence_demand_id", "sector"])
         writer.writeheader()
         for demand_id in demand_ids:
-            writer.writerow(
-                {
-                    "competence_demand_id": demand_id,
-                    "sector": "desalination",
-                    "axis_group": "HYDRONIZATION",
-                }
-            )
+            writer.writerow({"competence_demand_id": demand_id, "sector": "desalination"})
 
 
 def _row(**overrides: str) -> dict[str, str]:

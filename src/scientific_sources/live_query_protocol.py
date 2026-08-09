@@ -232,12 +232,13 @@ class LiveQueryProtocol:
         """Return a per-query list of protocol constraints for the audit log.
 
         Each entry carries the full acquisition parameters declared in the
-        authoritative protocol (``time_window``, ``sort_strategy``,
-        ``sampling_strategy``, ``query_family``, ``evidence_intent``) so
-        that the Layer 1 audit bundle can record which constraints were
-        *declared* versus which were *applied* by each provider adapter.
-        Providers that do not support a given constraint should record it
-        in their validity warning as ``filter_not_applied:<constraint>``.
+        authoritative protocol (``axis_target``, ``time_window``,
+        ``sort_strategy``, ``sampling_strategy``, ``query_family``,
+        ``evidence_intent``) so that the Layer 1 audit bundle can record
+        which constraints were *declared* versus which were *applied* by
+        each provider adapter.  Providers that do not support a given
+        constraint should record it in their validity warning as
+        ``filter_not_applied:<constraint>``.
 
         Returns a list (one dict per query) sorted deterministically by
         ``(sector_slug, query_id)``::
@@ -246,6 +247,7 @@ class LiveQueryProtocol:
                 {
                     "query_id":        str,
                     "sector_slug":     str,
+                    "axis_target":     str,   # BlueDynamicsAxis.name
                     "query_family":    str,
                     "evidence_intent": str,
                     "query_text":      str,
@@ -267,6 +269,7 @@ class LiveQueryProtocol:
                 constraints.append({
                     "query_id": q.query_id,
                     "sector_slug": slug,
+                    "axis_target": q.axis_target.name,
                     "query_family": q.query_family.value,
                     "evidence_intent": q.evidence_intent,
                     "query_text": q.query_text,
@@ -803,6 +806,7 @@ def validate_complete_authoritative_protocol_projection(
     projection_family_counts: Counter[str] = Counter()
     query_text_mismatches: List[str] = []
     sector_mismatches: List[str] = []
+    axis_target_mismatches: List[str] = []
     family_mismatches: List[str] = []
     time_window_mismatches: List[str] = []
     sort_strategy_mismatches: List[str] = []
@@ -816,6 +820,8 @@ def validate_complete_authoritative_protocol_projection(
             query_text_mismatches.append(query_id)
         if str(row.get("sector_slug", "")).strip() != query.sector_slug:
             sector_mismatches.append(query_id)
+        if str(row.get("axis_target", "")).strip() != query.axis_target.name:
+            axis_target_mismatches.append(query_id)
         if str(row.get("query_family", "")).strip() != query.query_family.value:
             family_mismatches.append(query_id)
         expected_time_window = {
@@ -848,6 +854,10 @@ def validate_complete_authoritative_protocol_projection(
     if sector_mismatches:
         raise LiveQueryProtocolError(
             f"protocol/projection sector mismatch IDs: {sector_mismatches}"
+        )
+    if axis_target_mismatches:
+        raise LiveQueryProtocolError(
+            f"protocol/projection axis-target mismatch IDs: {axis_target_mismatches}"
         )
     if family_mismatches:
         raise LiveQueryProtocolError(

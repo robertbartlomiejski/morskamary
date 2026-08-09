@@ -10,10 +10,11 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import sys
 from collections import defaultdict
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
 from typing import Any, Dict, List, Mapping, Sequence, Set
 
 REGISTRY_SCHEMA_VERSION = "1.0.0"
@@ -28,6 +29,8 @@ DEFAULT_OUTPUT_PATH = Path(
 DEFAULT_AUDIT_OUTPUT_PATH = Path(
     "outputs/cumulative_database/validated_credential_supply_audit.json"
 )
+_REPO_ROOT_SUPPLY = Path(__file__).resolve().parents[1]
+_REDACTED_OUT_OF_TREE_PATH = "[redacted-out-of-tree-path]"
 
 REGISTRY_FIELDS: Sequence[str] = (
     "credential_supply_id",
@@ -83,6 +86,191 @@ def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
+def _to_repo_relative_posix(path: Path) -> str:
+    """Return a repository-relative POSIX path; redact if outside the repository."""
+    try:
+        return path.resolve().relative_to(_REPO_ROOT_SUPPLY).as_posix()
+    except ValueError:
+        return _REDACTED_OUT_OF_TREE_PATH
+
+
+def _normalise_lexical_path(
+    path: PurePosixPath | PureWindowsPath,
+) -> PurePosixPath | PureWindowsPath:
+    """Collapse ``.`` and ``..`` without consulting the filesystem."""
+    parts: List[str] = []
+    for part in path.parts:
+        if part in (path.anchor, "", "."):
+            continue
+        if part == "..":
+            if parts and parts[-1] != "..":
+                parts.pop()
+            elif not path.is_absolute():
+                parts.append(part)
+            continue
+        parts.append(part)
+
+    path_type = PureWindowsPath if isinstance(path, PureWindowsPath) else PurePosixPath
+    if path.anchor:
+        return path_type(path.anchor, *parts)
+    return path_type(*parts)
+
+
+def _classify_path_string(
+    text: str,
+) -> tuple[str, PurePosixPath | PureWindowsPath] | None:
+    """Classify raw CLI path syntax before host-native path conversion."""
+    windows_path = PureWindowsPath(text)
+    if text.startswith(("\\\\", "//")):
+        if windows_path.is_absolute():
+            return "windows", _normalise_lexical_path(windows_path)
+        return None
+    if len(text) >= 2 and text[1] == ":":
+        if windows_path.is_absolute():
+            return "windows", _normalise_lexical_path(windows_path)
+        return None
+    if text.startswith("/"):
+        return "posix", _normalise_lexical_path(
+            PurePosixPath(text.replace("\\", "/"))
+        )
+    if text.startswith("\\"):
+        return "posix", _normalise_lexical_path(
+            PurePosixPath(text.replace("\\", "/"))
+        )
+    return "relative", _normalise_lexical_path(
+        PurePosixPath(text.replace("\\", "/"))
+    )
+
+
+def _native_lexical_path(path: Path) -> PurePosixPath | PureWindowsPath:
+    """Represent a genuine host-native path after safe lexical resolution."""
+    resolved_path = path.resolve(strict=False)
+    if os.name == "nt":
+        return _normalise_lexical_path(PureWindowsPath(str(resolved_path)))
+    return _normalise_lexical_path(PurePosixPath(resolved_path.as_posix()))
+
+
+def _repository_lexical_path(
+    repo_root: Path | PurePath,
+) -> PurePosixPath | PureWindowsPath:
+    """Keep concrete roots native while allowing pure-path regression fixtures."""
+    if isinstance(repo_root, Path):
+        return _native_lexical_path(repo_root)
+    if isinstance(repo_root, PureWindowsPath):
+        return _normalise_lexical_path(repo_root)
+    return _normalise_lexical_path(PurePosixPath(str(repo_root)))
+
+
+def _same_path_flavour(
+    first: PurePosixPath | PureWindowsPath,
+    second: PurePosixPath | PureWindowsPath,
+) -> bool:
+    return isinstance(first, PureWindowsPath) == isinstance(second, PureWindowsPath)
+
+
+def _relative_for_flavour(
+    path: PurePosixPath,
+    reference: PurePosixPath | PureWindowsPath,
+) -> PurePosixPath | PureWindowsPath:
+    """Apply separator-neutral relative components to the native root flavour."""
+    if isinstance(reference, PureWindowsPath):
+        return PureWindowsPath(*path.parts)
+    return PurePosixPath(*path.parts)
+
+
+def _repository_relative_display_path(
+    candidate: PurePosixPath | PureWindowsPath,
+    repo_root: PurePosixPath | PureWindowsPath,
+) -> str:
+    """Return a proved repository-relative display path or redact it."""
+    if not _same_path_flavour(candidate, repo_root):
+        return _REDACTED_OUT_OF_TREE_PATH
+    if isinstance(candidate, PureWindowsPath) and isinstance(repo_root, PureWindowsPath):
+        if candidate.drive.casefold() != repo_root.drive.casefold():
+            return _REDACTED_OUT_OF_TREE_PATH
+    try:
+        relative_path = candidate.relative_to(repo_root)
+    except ValueError:
+        return _REDACTED_OUT_OF_TREE_PATH
+    return "/".join(relative_path.parts) or "."
+
+
+def _redact_path_string(text: str, repo_root: Path | PurePath) -> str:
+    """Render one raw CLI path as repository-relative POSIX or a redaction token."""
+    classified_path = _classify_path_string(text)
+    if classified_path is None:
+        return _REDACTED_OUT_OF_TREE_PATH
+
+    path_kind, candidate = classified_path
+    lexical_repo_root = _repository_lexical_path(repo_root)
+    if not lexical_repo_root.is_absolute():
+        return _REDACTED_OUT_OF_TREE_PATH
+    if path_kind == "relative":
+        if not isinstance(candidate, PurePosixPath):
+            return _REDACTED_OUT_OF_TREE_PATH
+        current_directory = _native_lexical_path(Path.cwd())
+        if not _same_path_flavour(current_directory, lexical_repo_root):
+            return _REDACTED_OUT_OF_TREE_PATH
+        relative_candidate = _relative_for_flavour(candidate, lexical_repo_root)
+        candidate = _normalise_lexical_path(
+            current_directory.joinpath(*relative_candidate.parts)
+        )
+
+    return _repository_relative_display_path(candidate, lexical_repo_root)
+
+
+def _path_text_variants(text: str) -> Sequence[str]:
+    """Return the exact supplied spelling and its separator-only variants."""
+    separator_variants = (text, text.replace("\\", "/"), text.replace("/", "\\"))
+    return tuple(
+        dict.fromkeys(
+            candidate
+            for variant in separator_variants
+            for candidate in (variant, repr(variant)[1:-1])
+        )
+    )
+
+
+def _redact_cli_path_text(
+    value: object,
+    raw_paths: Sequence[str],
+    native_paths: Sequence[Path],
+) -> str:
+    """Redact raw and host-native CLI path forms from caught diagnostics."""
+    text = str(value)
+    replacements: Dict[str, str] = {}
+
+    def add_replacement_candidates(path_text: str, safe_path: str) -> None:
+        for candidate_text in _path_text_variants(path_text):
+            if candidate_text and candidate_text != safe_path:
+                replacements[candidate_text] = safe_path
+
+    def add_parent_replacement_candidates(path: Path) -> None:
+        parent = path.parent
+        if not path.is_absolute() or parent == path or parent == parent.parent:
+            return
+        add_replacement_candidates(
+            str(parent), _redact_path_string(str(parent), _REPO_ROOT_SUPPLY)
+        )
+
+    for raw_path, native_path in zip(raw_paths, native_paths, strict=True):
+        safe_path = _redact_path_string(raw_path, _REPO_ROOT_SUPPLY)
+        add_replacement_candidates(raw_path, safe_path)
+        add_replacement_candidates(str(native_path), safe_path)
+        add_parent_replacement_candidates(native_path)
+        try:
+            resolved_native_path = native_path.resolve(strict=False)
+        except (OSError, RuntimeError):
+            pass
+        else:
+            add_replacement_candidates(str(resolved_native_path), safe_path)
+            add_parent_replacement_candidates(resolved_native_path)
+
+    for candidate_text in sorted(replacements, key=lambda item: (-len(item), item)):
+        text = text.replace(candidate_text, replacements[candidate_text])
+    return text
+
+
 def _clean(value: Any) -> str:
     return str(value or "").strip()
 
@@ -109,6 +297,10 @@ def load_derived_demand_ids(path: Path) -> Set[str]:
             demand_id = _clean(row.get("competence_demand_id"))
             if demand_id:
                 demand_ids.add(demand_id)
+        if not demand_ids:
+            raise ValueError(
+                "derived demands JSONL file contains no competence_demand_id values"
+            )
         return demand_ids
 
     with path.open(newline="", encoding="utf-8") as fh:
@@ -121,8 +313,9 @@ def load_derived_demand_ids(path: Path) -> Set[str]:
             demand_id = _clean(row.get("competence_demand_id"))
             if demand_id:
                 demand_ids.add(demand_id)
-    if not demand_ids:
-        raise ValueError("derived demands file contains no competence_demand_id values")
+    # An empty demand set is a valid scientific outcome: live acquisition
+    # produced records but no legally retained semantic competence signals.
+    # Downstream code emits not_computable hypotheses in this case.
     return demand_ids
 
 
@@ -192,46 +385,55 @@ def build_validated_supply_map(
     validated_rows_by_demand: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     excluded_rows: List[Dict[str, Any]] = []
 
-    for index, row in enumerate(registry_rows, start=2):
-        demand_id = _clean(row.get("competence_demand_id"))
-        if not demand_id:
-            raise ValueError(f"registry row {index}: competence_demand_id is required")
-        if demand_id not in demand_ids:
-            raise ValueError(
-                f"registry row {index}: unknown competence_demand_id {demand_id!r}"
-            )
-        eqf_level = _parse_eqf_level(row.get("eqf_level"), row_number=index)
-        status = _clean(row.get("validation_status")).lower()
-        if status not in _ALLOWED_VALIDATION_STATUSES:
-            raise ValueError(
-                f"registry row {index}: unsupported validation_status {status!r}"
-            )
-        if status != "validated":
-            excluded_rows.append(
-                {
-                    "row_number": index,
-                    "credential_supply_id": _clean(row.get("credential_supply_id")),
-                    "competence_demand_id": demand_id,
-                    "eqf_level": eqf_level,
-                    "validation_status": status,
-                    "reason": "not_explicitly_validated",
-                }
-            )
-            continue
+    # Empty demand set: no competence signals survived semantic filtering.
+    # Registry cannot be validated against absent demands; emit not_computable.
+    if not demand_ids:
+        print(
+            "[INFO] derived demands file contains no competence_demand_id values; "
+            "writing not_computable supply map (no demands to validate against)",
+            file=sys.stderr,
+        )
+    else:
+        for index, row in enumerate(registry_rows, start=2):
+            demand_id = _clean(row.get("competence_demand_id"))
+            if not demand_id:
+                raise ValueError(f"registry row {index}: competence_demand_id is required")
+            if demand_id not in demand_ids:
+                raise ValueError(
+                    f"registry row {index}: unknown competence_demand_id {demand_id!r}"
+                )
+            eqf_level = _parse_eqf_level(row.get("eqf_level"), row_number=index)
+            status = _clean(row.get("validation_status")).lower()
+            if status not in _ALLOWED_VALIDATION_STATUSES:
+                raise ValueError(
+                    f"registry row {index}: unsupported validation_status {status!r}"
+                )
+            if status != "validated":
+                excluded_rows.append(
+                    {
+                        "row_number": index,
+                        "credential_supply_id": _clean(row.get("credential_supply_id")),
+                        "competence_demand_id": demand_id,
+                        "eqf_level": eqf_level,
+                        "validation_status": status,
+                        "reason": "not_explicitly_validated",
+                    }
+                )
+                continue
 
-        missing = [field for field in VALIDATED_REQUIRED_FIELDS if not _clean(row.get(field))]
-        if missing:
-            raise ValueError(
-                f"registry row {index}: validated mapping missing required field(s): "
-                f"{missing}"
-            )
-        if not bool(_split_pipe(row.get("validation_evidence_ids", ""))):
-            raise ValueError(
-                f"registry row {index}: validated mapping must supply at least one "
-                "validation_evidence_id (field is blank or contains only separators)"
-            )
-        entry = _validated_entry(row, eqf_level)
-        validated_rows_by_demand[demand_id].append(entry)
+            missing = [field for field in VALIDATED_REQUIRED_FIELDS if not _clean(row.get(field))]
+            if missing:
+                raise ValueError(
+                    f"registry row {index}: validated mapping missing required field(s): "
+                    f"{missing}"
+                )
+            if not bool(_split_pipe(row.get("validation_evidence_ids", ""))):
+                raise ValueError(
+                    f"registry row {index}: validated mapping must supply at least one "
+                    "validation_evidence_id (field is blank or contains only separators)"
+                )
+            entry = _validated_entry(row, eqf_level)
+            validated_rows_by_demand[demand_id].append(entry)
 
     if not validated_rows_by_demand:
         print(
@@ -267,15 +469,15 @@ def build_validated_supply_map(
         "has_validated_supply": has_validated_supply,
         "unit_of_analysis": "competence_demand_id",
         "built_at_utc": built_at,
-        "source_registry_path": str(registry_path),
-        "derived_demands_path": str(derived_demands_path),
+        "source_registry_path": _to_repo_relative_posix(registry_path),
+        "derived_demands_path": _to_repo_relative_posix(derived_demands_path),
         "validated_supply_by_demand_id": supply_by_demand,
     }
     audit = {
         "schema_version": REGISTRY_SCHEMA_VERSION,
         "built_at_utc": built_at,
-        "registry_path": str(registry_path),
-        "derived_demands_path": str(derived_demands_path),
+        "registry_path": _to_repo_relative_posix(registry_path),
+        "derived_demands_path": _to_repo_relative_posix(derived_demands_path),
         "total_registry_rows": len(registry_rows),
         "validated_mapping_rows": sum(len(rows) for rows in validated_rows_by_demand.values()),
         "validated_demand_count": len(validated_rows_by_demand),
@@ -301,22 +503,32 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--audit-output", default=str(DEFAULT_AUDIT_OUTPUT_PATH))
     parser.add_argument("--built-at-utc", default=None)
     args = parser.parse_args(argv)
+    raw_paths = (
+        args.registry,
+        args.derived_demands,
+        args.output,
+        args.audit_output,
+    )
+    native_paths = tuple(Path(raw_path) for raw_path in raw_paths)
 
     try:
         output = build_validated_supply_map(
-            registry_path=Path(args.registry),
-            derived_demands_path=Path(args.derived_demands),
-            output_path=Path(args.output),
-            audit_output_path=Path(args.audit_output),
+            registry_path=native_paths[0],
+            derived_demands_path=native_paths[1],
+            output_path=native_paths[2],
+            audit_output_path=native_paths[3],
             built_at_utc=args.built_at_utc,
         )
     except (OSError, ValueError) as exc:
-        print(f"ERROR: {exc}", file=sys.stderr)
+        print(
+            "ERROR: " + _redact_cli_path_text(exc, raw_paths, native_paths),
+            file=sys.stderr,
+        )
         return 1
     summary = {
         "validated_demand_count": len(output["validated_supply_by_demand_id"]),
-        "output": args.output,
-        "audit_output": args.audit_output,
+        "output": _redact_path_string(args.output, _REPO_ROOT_SUPPLY),
+        "audit_output": _redact_path_string(args.audit_output, _REPO_ROOT_SUPPLY),
     }
     print(json.dumps(summary, sort_keys=True))
     return 0

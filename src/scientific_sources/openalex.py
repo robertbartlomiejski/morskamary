@@ -1,9 +1,10 @@
-"""OpenAlex provider.
+"""OpenAlex provider with licence-safe retained metadata envelopes.
 
-Requires OPENALEX_API_KEY. OpenAlex is used as a low-cost bibliographic
+Requires ``OPENALEX_API_KEY``. OpenAlex is used as a low-cost bibliographic
 retrieval provider, not as proof of upstream independence from Crossref or
-other metadata infrastructures. Store only bibliographic metadata and derived
-subject/topic labels; do not persist abstract text from the inverted index.
+other metadata infrastructures. Normalised records may report whether an
+abstract exists, but reconstructable abstract inverted-index content is never
+persisted in ``ProviderResult.raw_payload``.
 """
 
 from __future__ import annotations
@@ -11,6 +12,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import time
 import urllib.error
 import urllib.parse
@@ -41,13 +43,16 @@ _ALLOWED_FIELDS = [
     "source_query",
     "retrieval_timestamp",
 ]
-
 _OPENALEX_API_BASE = "https://api.openalex.org/works"
 _MAX_RETRY_ATTEMPTS = 3
 _BASE_BACKOFF_SECONDS = 1.0
 _MAX_RETRY_AFTER_SECONDS = 60.0
 _TRANSIENT_SERVER_HTTP_STATUSES = {500, 502, 503}
-
+_PAYLOAD_KIND = "redistribution_safe_metadata_envelope"
+_REDACTED_QUERY_PARAMS = frozenset({"api_key", "apikey", "key", "token", "secret"})
+_SENSITIVE_QUERY_PARAM_RE = re.compile(
+    r"(?i)([?&](?:api_key|apikey|key|token|secret)=)[^&\s'\"<>)]*"
+)
 _LICENCE_NOTE = (
     "OpenAlex bibliographic metadata and topic labels. OpenAlex improves "
     "acquisition-provider diversity but is not upstream-independent from all DOI "
@@ -102,6 +107,35 @@ class OpenAlexProvider(BaseProvider):
         return f"sha256:{digest}"
 
     @staticmethod
+    def _redact_url(value: Any) -> str:
+        text = str(value or "").strip()
+        if not text:
+            return ""
+        try:
+            parsed = urllib.parse.urlparse(text)
+            if not parsed.scheme or not parsed.netloc:
+                return text
+            params = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+            safe_params = [
+                (
+                    key,
+                    "REDACTED" if key.lower() in _REDACTED_QUERY_PARAMS else raw_value,
+                )
+                for key, raw_value in params
+            ]
+            return urllib.parse.urlunparse(
+                parsed._replace(query=urllib.parse.urlencode(safe_params))
+            )
+        except Exception:
+            return "[url-redacted]"
+
+    def _redact_sensitive_text(self, value: Any) -> str:
+        text = _SENSITIVE_QUERY_PARAM_RE.sub(r"\1REDACTED", str(value or ""))
+        if self._api_key:
+            text = text.replace(self._api_key, "REDACTED")
+        return text
+
+    @staticmethod
     def _normalize_doi(raw_doi: Any) -> str:
         value = str(raw_doi or "").strip()
         value = value.removeprefix("https://doi.org/").removeprefix("http://doi.org/")
@@ -143,7 +177,7 @@ class OpenAlexProvider(BaseProvider):
         for key in ("doi", "id"):
             value = str(work.get(key, "")).strip()
             if value:
-                return value
+                return OpenAlexProvider._redact_url(value)
         return ""
 
     @staticmethod
@@ -156,10 +190,59 @@ class OpenAlexProvider(BaseProvider):
             for item in raw_items:
                 if not isinstance(item, dict):
                     continue
-                label = str(item.get("display_name", "") or item.get("keyword", "")).strip()
+                label = str(
+                    item.get("display_name", "") or item.get("keyword", "")
+                ).strip()
                 if label:
                     terms.append(label)
         return list(dict.fromkeys(terms))
+
+    @classmethod
+    def _safe_work_envelope(cls, work: Dict[str, Any]) -> Dict[str, Any]:
+        """Return only redistribution-safe bibliographic fields.
+
+        The boolean ``abstract_available`` is retained, but the reconstructable
+        ``abstract_inverted_index`` object is deliberately excluded.
+        """
+
+        return {
+            "id": str(work.get("id", "") or ""),
+            "display_name": str(work.get("display_name", "") or ""),
+            "title": str(work.get("title", "") or ""),
+            "publication_year": work.get("publication_year"),
+            "publication_date": str(work.get("publication_date", "") or ""),
+            "doi": str(work.get("doi", "") or ""),
+            "authors": cls._extract_authors(work),
+            "source": cls._extract_source(work),
+            "url": cls._extract_url(work),
+            "cited_by_count": work.get("cited_by_count"),
+            "subject_terms": cls._extract_subject_terms(work),
+            "abstract_available": bool(work.get("abstract_inverted_index")),
+        }
+
+    @classmethod
+    def _safe_payload_envelope(cls, payload: Dict[str, Any]) -> Dict[str, Any]:
+        meta = payload.get("meta", {})
+        if not isinstance(meta, dict):
+            meta = {}
+        next_cursor = str(meta.get("next_cursor", "") or "")
+        results = payload.get("results", [])
+        if not isinstance(results, list):
+            results = []
+        return {
+            "payload_kind": _PAYLOAD_KIND,
+            "meta": {
+                "count": meta.get("count"),
+                "next_cursor_marker": (
+                    cls._cursor_marker(next_cursor) if next_cursor else ""
+                ),
+            },
+            "results": [
+                cls._safe_work_envelope(item)
+                for item in results
+                if isinstance(item, dict)
+            ],
+        }
 
     def _parse_items(
         self,
@@ -174,17 +257,16 @@ class OpenAlexProvider(BaseProvider):
             doi = self._normalize_doi(item.get("doi"))
             source_id_raw = str(item.get("id", "")).strip()
             year = str(item.get("publication_year", "") or "").strip()
-            citation_count: Optional[int]
             raw_citation_count = item.get("cited_by_count")
             try:
-                citation_count = (
-                    int(raw_citation_count)
-                    if raw_citation_count is not None
-                    else None
+                citation_count: Optional[int] = (
+                    int(raw_citation_count) if raw_citation_count is not None else None
                 )
             except (TypeError, ValueError):
                 citation_count = None
-            source_id = f"openalex:{doi}" if doi else f"openalex:{source_id_raw or title}"
+            source_id = (
+                f"openalex:{doi}" if doi else f"openalex:{source_id_raw or title}"
+            )
             records.append(
                 LiteratureRecord(
                     title=title,
@@ -213,33 +295,35 @@ class OpenAlexProvider(BaseProvider):
     ) -> List[SourceEvidence]:
         ts = datetime.now(timezone.utc).isoformat()
         evidence: List[SourceEvidence] = []
-        for rec in records:
-            raw = f"openalex|{query}|{rec.doi}|{rec.source_id}|{rec.title}|{ts}"
-            phash = hashlib.sha256(raw.encode()).hexdigest()[:16]
+        for record in records:
+            raw = (
+                f"openalex|{query}|{record.doi}|{record.source_id}|"
+                f"{record.title}|{ts}"
+            )
             evidence.append(
                 SourceEvidence(
-                    record_id=rec.source_id,
+                    record_id=record.source_id,
                     source_provider="OpenAlex",
                     retrieval_mode="live",
                     query=query,
                     api_endpoint_label=endpoint,
                     timestamp=ts,
                     confidence_score=0.9,
-                    provenance_hash=phash,
+                    provenance_hash=hashlib.sha256(raw.encode()).hexdigest()[:16],
                 )
             )
         return evidence
 
     def _request_json(self, url: str) -> Dict[str, Any]:
-        req = urllib.request.Request(
+        request = urllib.request.Request(
             url,
             headers={
                 "Accept": "application/json",
                 "User-Agent": "morskamary-openalex-provider/1.0",
             },
         )
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            payload = json.loads(resp.read().decode())
+        with urllib.request.urlopen(request, timeout=15) as response:
+            payload = json.loads(response.read().decode())
         return cast(Dict[str, Any], payload)
 
     def _request_json_with_backoff(
@@ -247,23 +331,40 @@ class OpenAlexProvider(BaseProvider):
         *,
         url: str,
         context_label: str,
-    ) -> tuple[Dict[str, Any] | None, List[str], str | None, str | None]:
+    ) -> tuple[Dict[str, Any] | None, List[str], str | None, str | None, int]:
+        """Fetch JSON with bounded retry and exact physical-attempt accounting."""
         warnings: List[str] = []
+        physical_request_count = 0
         for attempt in range(1, _MAX_RETRY_ATTEMPTS + 1):
             try:
-                return self._request_json(url), warnings, None, None
+                # Count immediately before the request boundary so timeout,
+                # transport, and response-read failures remain visible.
+                physical_request_count += 1
+                payload = self._request_json(url)
+                return payload, warnings, None, None, physical_request_count
             except urllib.error.HTTPError as exc:
                 if exc.code == 429:
-                    retry_after = self._retry_after_seconds(exc.headers.get("Retry-After", ""))
+                    retry_after = self._retry_after_seconds(
+                        exc.headers.get("Retry-After", "") if exc.headers else ""
+                    )
                     wait_seconds = (
-                        retry_after if retry_after is not None else _BASE_BACKOFF_SECONDS * attempt
+                        retry_after
+                        if retry_after is not None
+                        else _BASE_BACKOFF_SECONDS * attempt
                     )
                     warnings.append(
-                        f"OpenAlex retry {context_label}: attempt={attempt} http_status=429 "
+                        "OpenAlex retry "
+                        f"{context_label}: attempt={attempt} http_status=429 "
                         f"wait_seconds={round(wait_seconds, 3)}"
                     )
                     if attempt >= _MAX_RETRY_ATTEMPTS:
-                        return None, warnings, "OpenAlex rate limited after retries", "rate-limited"
+                        return (
+                            None,
+                            warnings,
+                            "OpenAlex rate limited after retries",
+                            "rate-limited",
+                            physical_request_count,
+                        )
                     time.sleep(max(wait_seconds, 0.0))
                     continue
                 if exc.code not in _TRANSIENT_SERVER_HTTP_STATUSES:
@@ -272,23 +373,63 @@ class OpenAlexProvider(BaseProvider):
                         warnings,
                         f"OpenAlex {context_label} failed (HTTP {exc.code})",
                         None,
+                        physical_request_count,
                     )
                 wait_seconds = _BASE_BACKOFF_SECONDS * attempt
                 warnings.append(
-                    f"OpenAlex retry {context_label}: attempt={attempt} http_status={exc.code} "
+                    "OpenAlex retry "
+                    f"{context_label}: attempt={attempt} http_status={exc.code} "
                     f"wait_seconds={round(wait_seconds, 3)}"
                 )
                 if attempt >= _MAX_RETRY_ATTEMPTS:
                     return (
                         None,
                         warnings,
-                        f"OpenAlex {context_label} failed after retries (HTTP {exc.code})",
+                        f"OpenAlex {context_label} failed after retries "
+                        f"(HTTP {exc.code})",
                         None,
+                        physical_request_count,
                     )
                 time.sleep(max(wait_seconds, 0.0))
-            except Exception as exc:
-                return None, warnings, f"OpenAlex {context_label} error: {exc}", None
-        return None, warnings, "OpenAlex retry loop exhausted", "rate-limited"
+            except (
+                urllib.error.URLError,
+                TimeoutError,
+                ConnectionError,
+                OSError,
+            ) as exc:
+                wait_seconds = _BASE_BACKOFF_SECONDS * attempt
+                warnings.append(
+                    "OpenAlex retry "
+                    f"{context_label}: attempt={attempt} "
+                    f"transport_error={type(exc).__name__} "
+                    f"wait_seconds={round(wait_seconds, 3)}"
+                )
+                if attempt >= _MAX_RETRY_ATTEMPTS:
+                    return (
+                        None,
+                        warnings,
+                        f"OpenAlex {context_label} failed after retries "
+                        "(transport_error)",
+                        None,
+                        physical_request_count,
+                    )
+                time.sleep(max(wait_seconds, 0.0))
+            except Exception as exc:  # pragma: no cover - provider boundary
+                return (
+                    None,
+                    warnings,
+                    "OpenAlex "
+                    f"{context_label} error: {self._redact_sensitive_text(exc)}",
+                    None,
+                    physical_request_count,
+                )
+        return (
+            None,
+            warnings,
+            "OpenAlex retry loop exhausted",
+            "rate-limited",
+            physical_request_count,
+        )
 
     @staticmethod
     def _time_window_filter(time_window: Dict[str, int] | None) -> str:
@@ -351,7 +492,11 @@ class OpenAlexProvider(BaseProvider):
     ) -> Any:
         if not self._api_key:
             result = self._not_configured_result()
-            return (result, result.page_diagnostics) if logical_pages is not None else result
+            return (
+                (result, result.page_diagnostics)
+                if logical_pages is not None
+                else result
+            )
         requested_pages = logical_pages if logical_pages is not None else pages
         safe_pages = max(1, int(requested_pages or 1))
         legacy_api = logical_pages is not None
@@ -361,7 +506,8 @@ class OpenAlexProvider(BaseProvider):
         provenance: List[SourceEvidence] = []
         warnings: List[str] = []
         page_diagnostics: List[Dict[str, Any]] = []
-        raw_pages: List[Dict[str, Any]] = []
+        retained_pages: List[Dict[str, Any]] = []
+        physical_request_count = 0
 
         for logical_page in range(1, safe_pages + 1):
             url = self._build_works_url(
@@ -371,10 +517,17 @@ class OpenAlexProvider(BaseProvider):
                 sort_strategy=sort_strategy,
                 time_window=time_window,
             )
-            payload, retry_warnings, terminal_error, rate_status = self._request_json_with_backoff(
+            (
+                payload,
+                retry_warnings,
+                terminal_error,
+                rate_status,
+                page_physical_request_count,
+            ) = self._request_json_with_backoff(
                 url=url,
                 context_label=f"search page {logical_page}",
             )
+            physical_request_count += page_physical_request_count
             warnings.extend(retry_warnings)
             if terminal_error:
                 page_diagnostics.append(
@@ -397,25 +550,38 @@ class OpenAlexProvider(BaseProvider):
                     warnings=warnings,
                     rate_limit_status=rate_status,
                     provenance=provenance,
-                    raw_payload={"pages": raw_pages} if raw_pages else None,
+                    raw_payload=(
+                        {"payload_kind": _PAYLOAD_KIND, "pages": retained_pages}
+                        if retained_pages
+                        else None
+                    ),
                     page_diagnostics=page_diagnostics,
+                    physical_request_count=physical_request_count,
                 )
-                if legacy_api:
-                    return result, page_diagnostics
-                return result
+                return (result, page_diagnostics) if legacy_api else result
+
             assert payload is not None
             items = payload.get("results", [])
             if not isinstance(items, list):
                 items = []
-            page_records = self._parse_items(items, query)
+            page_records = self._parse_items(
+                [item for item in items if isinstance(item, dict)], query
+            )
             records.extend(page_records)
-            provenance.extend(self._make_evidence(query, "openalex/works", page_records))
-            raw_pages.append({"logical_page": logical_page, "payload": payload})
-            meta = payload.get("meta", {}) if isinstance(payload.get("meta"), dict) else {}
+            provenance.extend(
+                self._make_evidence(query, "openalex/works", page_records)
+            )
+            retained_pages.append(
+                {
+                    "logical_page": logical_page,
+                    "payload": self._safe_payload_envelope(payload),
+                }
+            )
+            meta = payload.get("meta", {})
+            if not isinstance(meta, dict):
+                meta = {}
             next_cursor = str(meta.get("next_cursor", "") or "").strip()
-            status = "applied"
-            if len(items) < safe_rows:
-                status = "end_of_results"
+            status = "end_of_results" if len(items) < safe_rows else "applied"
             page_diagnostics.append(
                 {
                     "provider": "openalex",
@@ -432,7 +598,10 @@ class OpenAlexProvider(BaseProvider):
             if status == "end_of_results":
                 break
             if not next_cursor or next_cursor == cursor:
-                warnings.append("OpenAlex cursor pagination stopped: missing_or_repeated_next_cursor")
+                warnings.append(
+                    "OpenAlex cursor pagination stopped: "
+                    "missing_or_repeated_next_cursor"
+                )
                 break
             cursor = next_cursor
 
@@ -440,19 +609,30 @@ class OpenAlexProvider(BaseProvider):
             records=records,
             warnings=warnings,
             provenance=provenance,
-            raw_payload={"pages": raw_pages},
+            raw_payload={
+                "payload_kind": _PAYLOAD_KIND,
+                "pages": retained_pages,
+            },
             page_diagnostics=page_diagnostics,
+            physical_request_count=physical_request_count,
         )
-        if legacy_api:
-            return result, page_diagnostics
-        return result
+        return (result, page_diagnostics) if legacy_api else result
 
     def verify_doi(self, doi: str) -> ProviderResult:
         if not self._api_key:
             return self._not_configured_result()
         normalized = self._normalize_doi(doi)
-        url = f"{self._api_base}/doi:{urllib.parse.quote(normalized)}?api_key={urllib.parse.quote(self._api_key)}"
-        payload, warnings, terminal_error, rate_status = self._request_json_with_backoff(
+        url = (
+            f"{self._api_base}/doi:{urllib.parse.quote(normalized)}"
+            f"?api_key={urllib.parse.quote(self._api_key)}"
+        )
+        (
+            payload,
+            warnings,
+            terminal_error,
+            rate_status,
+            physical_request_count,
+        ) = self._request_json_with_backoff(
             url=url,
             context_label="DOI verification",
         )
@@ -461,6 +641,7 @@ class OpenAlexProvider(BaseProvider):
                 errors=[terminal_error],
                 warnings=warnings,
                 rate_limit_status=rate_status,
+                physical_request_count=physical_request_count,
             )
         assert payload is not None
         records = self._parse_items([payload], doi)
@@ -470,5 +651,9 @@ class OpenAlexProvider(BaseProvider):
             records=records[:1],
             warnings=warnings,
             provenance=self._make_evidence(doi, "openalex/works/doi", records[:1]),
-            raw_payload=payload,
+            raw_payload={
+                "payload_kind": _PAYLOAD_KIND,
+                "payload": self._safe_work_envelope(payload),
+            },
+            physical_request_count=physical_request_count,
         )

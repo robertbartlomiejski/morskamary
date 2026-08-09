@@ -40,7 +40,7 @@ class TestCrossrefPagination:
                 {"title": [f"Record {offset + index}"], "DOI": f"10.1/{offset + index}"}
                 for index in range(50)
             ]
-            return {"message": {"items": items}}, [], None
+            return {"message": {"items": items}}, [], None, 1
 
         with patch.object(
             provider, "_request_json_with_backoff", side_effect=mock_backoff
@@ -50,6 +50,7 @@ class TestCrossrefPagination:
             )
 
         assert len(result.records) == 150
+        assert result.physical_request_count == 3
         assert offsets_seen == [0, 50, 100]
         assert len(diagnostics) == 3
         for index, diagnostic in enumerate(diagnostics):
@@ -61,7 +62,12 @@ class TestCrossrefPagination:
 
         def mock_backoff(*, url: str, context_label: str, jitter_seed: str):
             del url, context_label, jitter_seed
-            return {"message": {"items": [{"title": ["Test"], "DOI": "10.1/1"}]}}, [], None
+            return (
+                {"message": {"items": [{"title": ["Test"], "DOI": "10.1/1"}]}},
+                [],
+                None,
+                1,
+            )
 
         with patch.object(
             provider, "_request_json_with_backoff", side_effect=mock_backoff
@@ -71,6 +77,7 @@ class TestCrossrefPagination:
             )
 
         assert len(result.records) == 1
+        assert result.physical_request_count == 1
         assert len(diagnostics) == 1
         assert diagnostics[0]["logical_page"] == 1
 
@@ -102,6 +109,7 @@ class TestScopusPagination:
         assert len(result.records) == 50
         assert len(start_indices) == 2
         assert start_indices == [0, 25]
+        assert result.physical_request_count == 2
         assert diagnostics[0]["physical_requests"] == 2
         assert diagnostics[0]["returned_rows"] == 50
 
@@ -128,6 +136,7 @@ class TestScopusPagination:
         assert call_count == 6
         assert len(diagnostics) == 3
         assert len(result.records) == 150
+        assert result.physical_request_count == 6
 
 
 class TestPaginationSamplingStatus:

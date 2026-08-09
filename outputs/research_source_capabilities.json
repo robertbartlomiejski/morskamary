@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T16:53:36.197221+00:00",
+  "generated_at": "2026-07-02T22:30:06.363073+00:00",
   "note": "Provider capability snapshot. Values reflect runtime environment. Re-run after configuring additional provider credentials.",
   "providers": {
     "crossref": {
@@ -24,7 +24,7 @@
     "scopus": {
       "provider": "Elsevier / Scopus",
       "requires_secret": true,
-      "configured": false,
+      "configured": true,
       "live_test_allowed": false,
       "allowed_metadata_fields": [
         "title",
@@ -45,7 +45,7 @@
     "openalex": {
       "provider": "OpenAlex",
       "requires_secret": true,
-      "configured": false,
+      "configured": true,
       "live_test_allowed": false,
       "allowed_metadata_fields": [
         "title",
@@ -66,7 +66,7 @@
     "wos": {
       "provider": "Web of Science (Clarivate)",
       "requires_secret": true,
-      "configured": false,
+      "configured": true,
       "live_test_allowed": false,
       "allowed_metadata_fields": [
         "title",
@@ -87,7 +87,7 @@
     "scival": {
       "provider": "Elsevier SciVal",
       "requires_secret": true,
-      "configured": false,
+      "configured": true,
       "live_test_allowed": false,
       "allowed_metadata_fields": [
         "title",

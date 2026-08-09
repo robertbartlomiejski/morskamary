@@ -2,6 +2,7 @@
   "protocol_version": "1.2.0",
   "queries": [
     {
+      "axis_target": "MARINE",
       "evidence_intent": "workforce_skill",
       "query_family": "competence_demand",
       "query_id": "Q_BLUE_BIOTECH_COMP_001",
@@ -24,6 +25,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "education_training",
       "query_family": "competence_demand",
       "query_id": "Q_BLUE_BIOTECH_COMP_002",
@@ -46,6 +48,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_BLUE_BIOTECH_CORE_001",
@@ -68,6 +71,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_BLUE_BIOTECH_CORE_002",
@@ -90,6 +94,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_BLUE_BIOTECH_CORE_003",
@@ -112,6 +117,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_BLUE_BIOTECH_EMRG_001",
@@ -134,6 +140,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_BLUE_BIOTECH_EMRG_002",
@@ -156,6 +163,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "hypothesis_verification",
       "query_family": "hypothesis_verification",
       "query_id": "Q_BLUE_BIOTECH_HYP_001",
@@ -178,6 +186,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "theory_translation",
       "query_family": "theory_translation",
       "query_id": "Q_BLUE_BIOTECH_THY_001",
@@ -200,6 +209,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "qualification",
       "query_family": "validation_eqf_translation",
       "query_id": "Q_BLUE_BIOTECH_VAL_001",
@@ -222,6 +232,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "workforce_skill",
       "query_family": "competence_demand",
       "query_id": "Q_COASTAL_TOURISM_COMP_001",
@@ -244,6 +255,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "education_training",
       "query_family": "competence_demand",
       "query_id": "Q_COASTAL_TOURISM_COMP_002",
@@ -266,6 +278,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_COASTAL_TOURISM_CORE_001",
@@ -288,6 +301,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_COASTAL_TOURISM_CORE_002",
@@ -310,6 +324,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_COASTAL_TOURISM_CORE_003",
@@ -332,6 +347,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_COASTAL_TOURISM_EMRG_001",
@@ -354,6 +370,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_COASTAL_TOURISM_EMRG_002",
@@ -376,6 +393,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "hypothesis_verification",
       "query_family": "hypothesis_verification",
       "query_id": "Q_COASTAL_TOURISM_HYP_001",
@@ -398,6 +416,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "theory_translation",
       "query_family": "theory_translation",
       "query_id": "Q_COASTAL_TOURISM_THY_001",
@@ -420,6 +439,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "qualification",
       "query_family": "validation_eqf_translation",
       "query_id": "Q_COASTAL_TOURISM_VAL_001",
@@ -442,6 +462,7 @@
       }
     },
     {
+      "axis_target": "HYDRONIZATION",
       "evidence_intent": "workforce_skill",
       "query_family": "competence_demand",
       "query_id": "Q_DESALINATION_COMP_001",
@@ -464,6 +485,7 @@
       }
     },
     {
+      "axis_target": "HYDRONIZATION",
       "evidence_intent": "education_training",
       "query_family": "competence_demand",
       "query_id": "Q_DESALINATION_COMP_002",
@@ -486,6 +508,7 @@
       }
     },
     {
+      "axis_target": "HYDRONIZATION",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_DESALINATION_CORE_001",
@@ -508,6 +531,7 @@
       }
     },
     {
+      "axis_target": "HYDRONIZATION",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_DESALINATION_CORE_002",
@@ -530,6 +554,7 @@
       }
     },
     {
+      "axis_target": "HYDRONIZATION",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_DESALINATION_CORE_003",
@@ -552,6 +577,7 @@
       }
     },
     {
+      "axis_target": "HYDRONIZATION",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_DESALINATION_EMRG_001",
@@ -574,6 +600,7 @@
       }
     },
     {
+      "axis_target": "HYDRONIZATION",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_DESALINATION_EMRG_002",
@@ -596,6 +623,7 @@
       }
     },
     {
+      "axis_target": "HYDRONIZATION",
       "evidence_intent": "hypothesis_verification",
       "query_family": "hypothesis_verification",
       "query_id": "Q_DESALINATION_HYP_001",
@@ -618,6 +646,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "theory_translation",
       "query_family": "theory_translation",
       "query_id": "Q_DESALINATION_THY_001",
@@ -640,6 +669,7 @@
       }
     },
     {
+      "axis_target": "HYDRONIZATION",
       "evidence_intent": "qualification",
       "query_family": "validation_eqf_translation",
       "query_id": "Q_DESALINATION_VAL_001",
@@ -662,6 +692,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "workforce_skill",
       "query_family": "competence_demand",
       "query_id": "Q_INFRA_ROBOTICS_COMP_001",
@@ -684,6 +715,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "education_training",
       "query_family": "competence_demand",
       "query_id": "Q_INFRA_ROBOTICS_COMP_002",
@@ -706,6 +738,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_INFRA_ROBOTICS_CORE_001",
@@ -728,6 +761,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_INFRA_ROBOTICS_CORE_002",
@@ -750,6 +784,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_INFRA_ROBOTICS_CORE_003",
@@ -772,6 +807,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_INFRA_ROBOTICS_EMRG_001",
@@ -794,6 +830,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_INFRA_ROBOTICS_EMRG_002",
@@ -816,6 +853,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "hypothesis_verification",
       "query_family": "hypothesis_verification",
       "query_id": "Q_INFRA_ROBOTICS_HYP_001",
@@ -838,6 +876,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "theory_translation",
       "query_family": "theory_translation",
       "query_id": "Q_INFRA_ROBOTICS_THY_001",
@@ -860,6 +899,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "qualification",
       "query_family": "validation_eqf_translation",
       "query_id": "Q_INFRA_ROBOTICS_VAL_001",
@@ -882,6 +922,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "workforce_skill",
       "query_family": "competence_demand",
       "query_id": "Q_LIVING_RES_COMP_001",
@@ -904,6 +945,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "education_training",
       "query_family": "competence_demand",
       "query_id": "Q_LIVING_RES_COMP_002",
@@ -926,6 +968,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_LIVING_RES_CORE_001",
@@ -948,6 +991,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_LIVING_RES_CORE_002",
@@ -970,6 +1014,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_LIVING_RES_CORE_003",
@@ -992,6 +1037,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_LIVING_RES_EMRG_001",
@@ -1014,6 +1060,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_LIVING_RES_EMRG_002",
@@ -1036,6 +1083,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "hypothesis_verification",
       "query_family": "hypothesis_verification",
       "query_id": "Q_LIVING_RES_HYP_001",
@@ -1058,6 +1106,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "theory_translation",
       "query_family": "theory_translation",
       "query_id": "Q_LIVING_RES_THY_001",
@@ -1080,6 +1129,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "qualification",
       "query_family": "validation_eqf_translation",
       "query_id": "Q_LIVING_RES_VAL_001",
@@ -1102,6 +1152,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "workforce_skill",
       "query_family": "competence_demand",
       "query_id": "Q_MARITIME_DEFENCE_COMP_001",
@@ -1124,6 +1175,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "education_training",
       "query_family": "competence_demand",
       "query_id": "Q_MARITIME_DEFENCE_COMP_002",
@@ -1146,6 +1198,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_MARITIME_DEFENCE_CORE_001",
@@ -1168,6 +1221,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_MARITIME_DEFENCE_CORE_002",
@@ -1190,6 +1244,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_MARITIME_DEFENCE_CORE_003",
@@ -1212,6 +1267,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_MARITIME_DEFENCE_EMRG_001",
@@ -1234,6 +1290,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_MARITIME_DEFENCE_EMRG_002",
@@ -1256,6 +1313,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "hypothesis_verification",
       "query_family": "hypothesis_verification",
       "query_id": "Q_MARITIME_DEFENCE_HYP_001",
@@ -1278,6 +1336,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "theory_translation",
       "query_family": "theory_translation",
       "query_id": "Q_MARITIME_DEFENCE_THY_001",
@@ -1300,6 +1359,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "qualification",
       "query_family": "validation_eqf_translation",
       "query_id": "Q_MARITIME_DEFENCE_VAL_001",
@@ -1322,6 +1382,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "workforce_skill",
       "query_family": "competence_demand",
       "query_id": "Q_MARITIME_TRANSPORT_COMP_001",
@@ -1344,6 +1405,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "education_training",
       "query_family": "competence_demand",
       "query_id": "Q_MARITIME_TRANSPORT_COMP_002",
@@ -1366,6 +1428,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_MARITIME_TRANSPORT_CORE_001",
@@ -1388,6 +1451,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_MARITIME_TRANSPORT_CORE_002",
@@ -1410,6 +1474,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_MARITIME_TRANSPORT_CORE_003",
@@ -1432,6 +1497,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_MARITIME_TRANSPORT_EMRG_001",
@@ -1454,6 +1520,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_MARITIME_TRANSPORT_EMRG_002",
@@ -1476,6 +1543,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "hypothesis_verification",
       "query_family": "hypothesis_verification",
       "query_id": "Q_MARITIME_TRANSPORT_HYP_001",
@@ -1498,6 +1566,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "theory_translation",
       "query_family": "theory_translation",
       "query_id": "Q_MARITIME_TRANSPORT_THY_001",
@@ -1520,6 +1589,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "qualification",
       "query_family": "validation_eqf_translation",
       "query_id": "Q_MARITIME_TRANSPORT_VAL_001",
@@ -1542,6 +1612,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "workforce_skill",
       "query_family": "competence_demand",
       "query_id": "Q_NON_LIVING_RES_COMP_001",
@@ -1564,6 +1635,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "education_training",
       "query_family": "competence_demand",
       "query_id": "Q_NON_LIVING_RES_COMP_002",
@@ -1586,6 +1658,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_NON_LIVING_RES_CORE_001",
@@ -1608,6 +1681,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_NON_LIVING_RES_CORE_002",
@@ -1630,6 +1704,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_NON_LIVING_RES_CORE_003",
@@ -1652,6 +1727,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_NON_LIVING_RES_EMRG_001",
@@ -1674,6 +1750,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_NON_LIVING_RES_EMRG_002",
@@ -1696,6 +1773,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "hypothesis_verification",
       "query_family": "hypothesis_verification",
       "query_id": "Q_NON_LIVING_RES_HYP_001",
@@ -1718,6 +1796,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "theory_translation",
       "query_family": "theory_translation",
       "query_id": "Q_NON_LIVING_RES_THY_001",
@@ -1740,6 +1819,7 @@
       }
     },
     {
+      "axis_target": "MARINE",
       "evidence_intent": "qualification",
       "query_family": "validation_eqf_translation",
       "query_id": "Q_NON_LIVING_RES_VAL_001",
@@ -1762,6 +1842,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "workforce_skill",
       "query_family": "competence_demand",
       "query_id": "Q_PORT_ACTIVITIES_COMP_001",
@@ -1784,6 +1865,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "education_training",
       "query_family": "competence_demand",
       "query_id": "Q_PORT_ACTIVITIES_COMP_002",
@@ -1806,6 +1888,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_PORT_ACTIVITIES_CORE_001",
@@ -1828,6 +1911,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_PORT_ACTIVITIES_CORE_002",
@@ -1850,6 +1934,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_PORT_ACTIVITIES_CORE_003",
@@ -1872,6 +1957,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_PORT_ACTIVITIES_EMRG_001",
@@ -1894,6 +1980,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_PORT_ACTIVITIES_EMRG_002",
@@ -1916,6 +2003,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "hypothesis_verification",
       "query_family": "hypothesis_verification",
       "query_id": "Q_PORT_ACTIVITIES_HYP_001",
@@ -1938,6 +2026,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "theory_translation",
       "query_family": "theory_translation",
       "query_id": "Q_PORT_ACTIVITIES_THY_001",
@@ -1960,6 +2049,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "qualification",
       "query_family": "validation_eqf_translation",
       "query_id": "Q_PORT_ACTIVITIES_VAL_001",
@@ -1982,6 +2072,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "workforce_skill",
       "query_family": "competence_demand",
       "query_id": "Q_R_I_COMP_001",
@@ -2004,6 +2095,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "education_training",
       "query_family": "competence_demand",
       "query_id": "Q_R_I_COMP_002",
@@ -2026,6 +2118,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_R_I_CORE_001",
@@ -2048,6 +2141,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_R_I_CORE_002",
@@ -2070,6 +2164,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_R_I_CORE_003",
@@ -2092,6 +2187,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_R_I_EMRG_001",
@@ -2114,6 +2210,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_R_I_EMRG_002",
@@ -2136,6 +2233,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "hypothesis_verification",
       "query_family": "hypothesis_verification",
       "query_id": "Q_R_I_HYP_001",
@@ -2158,6 +2256,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "theory_translation",
       "query_family": "theory_translation",
       "query_id": "Q_R_I_THY_001",
@@ -2180,6 +2279,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "qualification",
       "query_family": "validation_eqf_translation",
       "query_id": "Q_R_I_VAL_001",
@@ -2202,6 +2302,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "workforce_skill",
       "query_family": "competence_demand",
       "query_id": "Q_RENEWABLE_ENERGY_COMP_001",
@@ -2224,6 +2325,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "education_training",
       "query_family": "competence_demand",
       "query_id": "Q_RENEWABLE_ENERGY_COMP_002",
@@ -2246,6 +2348,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_RENEWABLE_ENERGY_CORE_001",
@@ -2268,6 +2371,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_RENEWABLE_ENERGY_CORE_002",
@@ -2290,6 +2394,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_RENEWABLE_ENERGY_CORE_003",
@@ -2312,6 +2417,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_RENEWABLE_ENERGY_EMRG_001",
@@ -2334,6 +2440,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_RENEWABLE_ENERGY_EMRG_002",
@@ -2356,6 +2463,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "hypothesis_verification",
       "query_family": "hypothesis_verification",
       "query_id": "Q_RENEWABLE_ENERGY_HYP_001",
@@ -2378,6 +2486,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "theory_translation",
       "query_family": "theory_translation",
       "query_id": "Q_RENEWABLE_ENERGY_THY_001",
@@ -2400,6 +2509,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "qualification",
       "query_family": "validation_eqf_translation",
       "query_id": "Q_RENEWABLE_ENERGY_VAL_001",
@@ -2422,6 +2532,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "workforce_skill",
       "query_family": "competence_demand",
       "query_id": "Q_SHIP_REPAIR_COMP_001",
@@ -2444,6 +2555,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "education_training",
       "query_family": "competence_demand",
       "query_id": "Q_SHIP_REPAIR_COMP_002",
@@ -2466,6 +2578,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_SHIP_REPAIR_CORE_001",
@@ -2488,6 +2601,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_SHIP_REPAIR_CORE_002",
@@ -2510,6 +2624,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "competence_demand",
       "query_family": "core_sector",
       "query_id": "Q_SHIP_REPAIR_CORE_003",
@@ -2532,6 +2647,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_SHIP_REPAIR_EMRG_001",
@@ -2554,6 +2670,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "emerging_demand",
       "query_family": "emerging_demand",
       "query_id": "Q_SHIP_REPAIR_EMRG_002",
@@ -2576,6 +2693,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "hypothesis_verification",
       "query_family": "hypothesis_verification",
       "query_id": "Q_SHIP_REPAIR_HYP_001",
@@ -2598,6 +2716,7 @@
       }
     },
     {
+      "axis_target": "OCEANIC",
       "evidence_intent": "theory_translation",
       "query_family": "theory_translation",
       "query_id": "Q_SHIP_REPAIR_THY_001",
@@ -2620,6 +2739,7 @@
       }
     },
     {
+      "axis_target": "MARITIME",
       "evidence_intent": "qualification",
       "query_family": "validation_eqf_translation",
       "query_id": "Q_SHIP_REPAIR_VAL_001",

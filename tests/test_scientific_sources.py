@@ -150,6 +150,7 @@ class TestProviderResult:
         assert "errors" in d
         assert "warnings" in d
         assert d["errors"] == ["err1"]
+        assert d["physical_request_count"] == 0
 
     def test_raw_payload_defaults_to_none(self):
         result = ProviderResult(records=[_make_record()])
@@ -267,13 +268,17 @@ class TestCrossrefProvider:
         import urllib.request
 
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        monkeypatch.setattr(
+            "src.scientific_sources.crossref.time.sleep", lambda _seconds: None
+        )
 
         provider = CrossrefProvider()
         result = provider.search("anything")
 
         assert result.is_empty
         assert result.errors
-        assert "Crossref search error" in result.errors[0]
+        assert "terminal_status=transport_error" in result.errors[0]
+        assert result.physical_request_count == 4
 
     def test_search_retries_http_429_with_retry_after_then_succeeds(self, monkeypatch):
         import time
@@ -302,8 +307,11 @@ class TestCrossrefProvider:
         result = provider.search("blue economy", max_results=1)
 
         assert len(result.records) == 1
+        assert result.physical_request_count == 2
         assert sleep_calls == [3.0]
-        assert any("attempt=1 http_status=429" in warning for warning in result.warnings)
+        assert any(
+            "attempt=1 http_status=429" in warning for warning in result.warnings
+        )
         assert any("terminal_status=success" in warning for warning in result.warnings)
 
     def test_search_retries_http_429_with_bounded_attempts(self, monkeypatch):
@@ -317,7 +325,11 @@ class TestCrossrefProvider:
             {},
             None,
         )
-        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=10: (_ for _ in ()).throw(throttled))
+        monkeypatch.setattr(
+            urllib.request,
+            "urlopen",
+            lambda req, timeout=10: (_ for _ in ()).throw(throttled),
+        )
         monkeypatch.setattr(time, "sleep", lambda _seconds: None)
 
         provider = CrossrefProvider()
@@ -326,6 +338,98 @@ class TestCrossrefProvider:
         assert result.rate_limit_status == "rate-limited"
         assert "failed after 4 attempts" in result.errors[0]
         assert len([w for w in result.warnings if "http_status=429" in w]) == 4
+        assert result.physical_request_count == 4
+
+    def test_search_counts_503_then_429_then_success(self, monkeypatch):
+        """Every transient provider attempt is counted, including retries."""
+        import time
+        import urllib.request
+
+        service_unavailable = urllib.error.HTTPError(
+            "https://api.crossref.org/works",
+            503,
+            "Service Unavailable",
+            {},
+            None,
+        )
+        throttled = urllib.error.HTTPError(
+            "https://api.crossref.org/works",
+            429,
+            "Too Many Requests",
+            {"Retry-After": "0"},
+            None,
+        )
+        responses = [service_unavailable, throttled, _DummyResponse(_CROSSREF_PAYLOAD)]
+        call_count = 0
+
+        def fake_urlopen(req, timeout=10):
+            del req, timeout
+            nonlocal call_count
+            call_count += 1
+            response = responses.pop(0)
+            if isinstance(response, Exception):
+                raise response
+            return response
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        monkeypatch.setattr(time, "sleep", lambda _seconds: None)
+
+        result = CrossrefProvider().search("blue economy", max_results=1)
+
+        assert len(result.records) == 1
+        assert call_count == 3
+        assert result.physical_request_count == 3
+        assert any("http_status=503" in warning for warning in result.warnings)
+        assert any("http_status=429" in warning for warning in result.warnings)
+
+    def test_search_counts_timeout_then_success(self, monkeypatch):
+        """A transport failure counts even when its retry later succeeds."""
+        import time
+        import urllib.request
+
+        responses = [TimeoutError("timed out"), _DummyResponse(_CROSSREF_PAYLOAD)]
+
+        def fake_urlopen(req, timeout=10):
+            del req, timeout
+            response = responses.pop(0)
+            if isinstance(response, Exception):
+                raise response
+            return response
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        monkeypatch.setattr(time, "sleep", lambda _seconds: None)
+
+        result = CrossrefProvider().search("blue economy", max_results=1)
+
+        assert len(result.records) == 1
+        assert result.physical_request_count == 2
+        assert any("transport_error=TimeoutError" in warning for warning in result.warnings)
+
+    def test_search_counts_terminal_decoding_failure(self, monkeypatch):
+        """A response-decoding failure is one initiated physical HTTP attempt."""
+        import urllib.request
+
+        class InvalidJsonResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self) -> bytes:
+                return b"not valid json"
+
+        monkeypatch.setattr(
+            urllib.request,
+            "urlopen",
+            lambda req, timeout=10: InvalidJsonResponse(),
+        )
+
+        result = CrossrefProvider().search("blue economy", max_results=1)
+
+        assert result.is_empty
+        assert "terminal_status=unexpected_error" in result.errors[0]
+        assert result.physical_request_count == 1
 
     def test_verify_doi_parses_result(self, monkeypatch):
         doi_payload = {
@@ -362,7 +466,11 @@ class TestCrossrefProvider:
         """CrossrefProvider.search() must store the raw API JSON in raw_payload."""
         import urllib.request
 
-        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=10: _DummyResponse(_CROSSREF_PAYLOAD))
+        monkeypatch.setattr(
+            urllib.request,
+            "urlopen",
+            lambda req, timeout=10: _DummyResponse(_CROSSREF_PAYLOAD),
+        )
 
         provider = CrossrefProvider()
         result = provider.search("blue economy", max_results=1)
@@ -385,7 +493,11 @@ class TestCrossrefProvider:
                 "container-title": ["Ocean Studies"],
             }
         }
-        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=10: _DummyResponse(doi_payload))
+        monkeypatch.setattr(
+            urllib.request,
+            "urlopen",
+            lambda req, timeout=10: _DummyResponse(doi_payload),
+        )
 
         provider = CrossrefProvider()
         result = provider.verify_doi("10.1234/blue")
@@ -397,7 +509,11 @@ class TestCrossrefProvider:
         """raw_payload must remain None when a network error prevents API response."""
         import urllib.request
 
-        monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=10: (_ for _ in ()).throw(OSError("down")))
+        monkeypatch.setattr(
+            urllib.request,
+            "urlopen",
+            lambda req, timeout=10: (_ for _ in ()).throw(OSError("down")),
+        )
 
         provider = CrossrefProvider()
         result = provider.search("blue economy")
@@ -466,7 +582,9 @@ class TestCrossrefProvider:
         assert any("attempt=1 http_status=429" in w for w in result.warnings)
         assert any("terminal_status=success" in w for w in result.warnings)
 
-    def test_search_preserves_429_retry_warnings_when_later_http_error_occurs(self, monkeypatch):
+    def test_search_preserves_429_retry_warnings_when_later_http_error_occurs(
+        self, monkeypatch
+    ):
         """A 429 retry followed by a terminal non-429 HTTP error must keep retry provenance."""
         import time
         import urllib.request
@@ -485,7 +603,7 @@ class TestCrossrefProvider:
             {},
             None,
         )
-        responses = [throttled, server_error]
+        responses = [throttled, server_error, server_error, server_error]
 
         def fake_urlopen(req, timeout=10):
             response = responses.pop(0)
@@ -500,9 +618,12 @@ class TestCrossrefProvider:
         assert result.records == []
         assert result.errors
         assert "terminal_status=http_500" in result.errors[0]
-        assert any("attempt=1 http_status=429" in warning for warning in result.warnings)
+        assert any(
+            "attempt=1 http_status=429" in warning for warning in result.warnings
+        )
         # rate_limit_status must NOT be "rate-limited" because terminal cause was HTTP 500
         assert result.rate_limit_status != "rate-limited"
+        assert result.physical_request_count == 4
 
 
 class TestElsevierScopusProvider:
@@ -514,6 +635,7 @@ class TestElsevierScopusProvider:
         result = provider.search("blue economy")
         assert result.is_empty
         assert result.warnings
+        assert result.physical_request_count == 0
 
     def test_configured_with_elsevier_key(self, monkeypatch):
         monkeypatch.setenv("ELSEVIER_API_KEY", "testkey")
@@ -532,6 +654,7 @@ class TestElsevierScopusProvider:
         result = provider.verify_doi("10.1234/x")
         assert result.is_empty
         assert result.warnings
+        assert result.physical_request_count == 0
 
     def test_headers_include_api_key(self, monkeypatch):
         monkeypatch.setenv("ELSEVIER_API_KEY", "abc")
@@ -609,6 +732,8 @@ class TestElsevierScopusProvider:
         )
         result = provider.search("blue economy")
         assert result.records == []
+        assert result.physical_request_count == 1
+        assert result.physical_request_count == 1
 
     def test_search_projects_protocol_query_and_clamps_count(self, monkeypatch):
         monkeypatch.setenv("ELSEVIER_API_KEY", "abc")
@@ -621,13 +746,19 @@ class TestElsevierScopusProvider:
 
         monkeypatch.setattr(provider, "_request_json", fake_request_json)
 
-        result = provider.search("infra & robotics qmbd axis translation", max_results=50)
+        result = provider.search(
+            "infra & robotics qmbd axis translation", max_results=50
+        )
 
         assert result.records == []
         assert "count=25" in captured["url"]
         decoded_url = urllib.parse.unquote(captured["url"])
-        assert 'TITLE-ABS-KEY("infra" AND "robotics" AND "qmbd" AND "axis" AND "translation")' in decoded_url
+        assert (
+            'TITLE-ABS-KEY("infra" AND "robotics" AND "qmbd" AND "axis" AND "translation")'
+            in decoded_url
+        )
         assert any("projected_query=" in warning for warning in result.warnings)
+        assert result.physical_request_count == 1
 
     def test_project_protocol_query_normalises_html_amp_before_raw_amp(self):
         """HTML entity &amp; must be resolved before raw & so 'amp' is not injected as a Scopus term."""
@@ -660,7 +791,9 @@ class TestElsevierScopusProvider:
 
     def test_project_protocol_query_preserves_hyphen_terms_only_as_full_tokens(self):
         """Preserved Scopus hyphen terms must not match inside larger hyphenated tokens."""
-        result = ElsevierScopusProvider._project_protocol_query("airport-city port-city")
+        result = ElsevierScopusProvider._project_protocol_query(
+            "airport-city port-city"
+        )
         assert result is not None
         assert '"port-city"' in result
         assert '"airport"' in result
@@ -689,12 +822,28 @@ class TestElsevierScopusProvider:
         """search() must return a ProviderResult with an error when projection yields no tokens."""
         monkeypatch.setenv("ELSEVIER_API_KEY", "abc")
         provider = ElsevierScopusProvider()
+        calls: list[str] = []
+
+        def fail_if_called(url: str) -> dict:
+            calls.append(url)
+            raise AssertionError("pre-network projection rejection called Scopus")
+
+        monkeypatch.setattr(provider, "_request_json", fail_if_called)
 
         result = provider.search("& / ( )")
 
         assert result.records == []
         assert result.errors
         assert "no searchable tokens" in result.errors[0].lower()
+        assert calls == []
+        assert result.physical_request_count == 0
+        assert result.page_diagnostics[0]["pagination_status"] == "skipped"
+
+        paginated_result = provider.search_paginated("& / ( )", pages=3)
+
+        assert calls == []
+        assert paginated_result.physical_request_count == 0
+        assert paginated_result.page_diagnostics[0]["pagination_status"] == "skipped"
 
 
 class TestProviderPagination:
@@ -740,7 +889,7 @@ class TestProviderPagination:
             urls.append(url)
             assert context_label.startswith("search page")
             assert jitter_seed
-            return payloads.pop(0), [], None
+            return payloads.pop(0), [], None, 1
 
         monkeypatch.setattr(
             provider, "_request_json_with_backoff", fake_request_json_with_backoff
@@ -756,16 +905,14 @@ class TestProviderPagination:
         ]
         assert [row["logical_page"] for row in result.page_diagnostics] == [1, 2]
         assert all(
-            row["pagination_status"] == "applied"
-            for row in result.page_diagnostics
+            row["pagination_status"] == "applied" for row in result.page_diagnostics
         )
         assert "cursor=%2A" in urls[0]
         assert "cursor-page-2" in urllib.parse.unquote(urls[1])
         assert "sort=published" in urls[0]
+        assert result.physical_request_count == 2
 
-    def test_scopus_protocol_logical_pages_compose_physical_requests(
-        self, monkeypatch
-    ):
+    def test_scopus_protocol_logical_pages_compose_physical_requests(self, monkeypatch):
         monkeypatch.setenv("SCOPUS_API_KEY", "test-key")
         provider = ElsevierScopusProvider()
         urls: list[str] = []
@@ -783,8 +930,13 @@ class TestProviderPagination:
                     "prism:doi": f"10.2000/{start + offset}",
                     "prism:coverDate": "2024-01-01",
                     "prism:publicationName": "Scopus Journal",
-                    "prism:url": f"https://example.org/{start + offset}",
+                    "prism:url": (
+                        f"https://example.org/{start + offset}"
+                        "?apiKey=credential-like-value"
+                    ),
                     "eid": f"2-s2.0-{start + offset}",
+                    "dc:description": "restricted abstract text",
+                    "raw-only-field": "must not be retained",
                 }
                 for offset in range(count)
             ]
@@ -802,10 +954,25 @@ class TestProviderPagination:
         ]
         assert starts == [0, 25, 50, 75, 100, 125]
         assert len(result.records) == 150
+        assert result.physical_request_count == 6
         assert len(result.page_diagnostics) == 6
         assert {row["logical_page"] for row in result.page_diagnostics} == {1, 2, 3}
         assert all(row["requested_rows"] == 25 for row in result.page_diagnostics)
-        assert all(row["pagination_status"] == "applied" for row in result.page_diagnostics)
+        assert all(
+            row["pagination_status"] == "applied" for row in result.page_diagnostics
+        )
+        assert result.raw_payload is not None
+        assert result.raw_payload["payload_kind"] == (
+            "redistribution_safe_metadata_envelope"
+        )
+        retained = json.dumps(result.raw_payload, sort_keys=True)
+        assert "restricted abstract text" not in retained
+        assert "raw-only-field" not in retained
+        assert "credential-like-value" not in retained
+        first_entry = result.raw_payload["physical_requests"][0]["payload"][
+            "search_results"
+        ]["entries"][0]
+        assert first_entry["url"].endswith("apiKey=REDACTED")
 
     def test_openalex_search_paginated_normalizes_records_and_provenance(
         self, monkeypatch
@@ -821,9 +988,7 @@ class TestProviderPagination:
                         "display_name": "Open blue competence",
                         "doi": "https://doi.org/10.3000/oa1",
                         "publication_year": 2025,
-                        "authorships": [
-                            {"author": {"display_name": "Ada Lovelace"}}
-                        ],
+                        "authorships": [{"author": {"display_name": "Ada Lovelace"}}],
                         "primary_location": {
                             "source": {"display_name": "OpenAlex Journal"}
                         },
@@ -850,7 +1015,7 @@ class TestProviderPagination:
         def fake_request_json_with_backoff(*, url, context_label):
             urls.append(url)
             assert context_label.startswith("search page")
-            return payloads.pop(0), [], None, None
+            return payloads.pop(0), [], None, None, 1
 
         monkeypatch.setattr(
             provider, "_request_json_with_backoff", fake_request_json_with_backoff
@@ -878,6 +1043,7 @@ class TestProviderPagination:
         assert "cursor-two" in urllib.parse.unquote(urls[1])
         assert "from_publication_date%3A2020-01-01" in urls[0]
         assert "sort=publication_date%3Adesc" in urls[0]
+        assert result.physical_request_count == 2
 
 
 class TestWebOfScienceProvider:
@@ -989,6 +1155,7 @@ class TestWebOfScienceProvider:
 
         monkeypatch.setattr(provider, "_request_json", _mock_request)
         import time as _time
+
         monkeypatch.setattr(_time, "sleep", lambda _: None)
 
         result, diagnostics = provider.search_paginated(
@@ -1000,6 +1167,7 @@ class TestWebOfScienceProvider:
         assert diagnostics[0]["pagination_method"] == "wos_starter_page"
         assert diagnostics[0]["returned_rows"] == 25
         assert len(diagnostics) == 2
+        assert result.physical_request_count == 2
 
     def test_search_paginated_not_configured(self, monkeypatch):
         """WoS search_paginated returns not-configured when key absent."""
@@ -1009,7 +1177,157 @@ class TestWebOfScienceProvider:
             "ocean", logical_pages=2, rows_per_page=50
         )
         assert result.is_empty
+        assert diagnostics[0]["provider"] == "wos"
+        assert diagnostics[0]["pagination_status"] == "provider_not_configured"
         assert diagnostics[0].get("error") == "not_configured"
+        assert diagnostics[0]["errors"] == "provider_not_configured"
+
+    def test_search_paginated_timeout_emits_failed_diagnostic(self, monkeypatch):
+        """Timeout/connection exceptions must emit pagination_status='failed', not
+        end_of_results, and must use a stable error code with no raw exception text.
+        The stable code must also appear in ProviderResult.errors."""
+        import urllib.request as _urllib_req
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+
+        def _fake_urlopen(req, timeout=12):
+            raise TimeoutError("connection timed out")
+
+        monkeypatch.setattr(_urllib_req, "urlopen", _fake_urlopen)
+
+        result, diagnostics = provider.search_paginated(
+            "ocean", logical_pages=1, rows_per_page=50
+        )
+        assert len(diagnostics) == 1
+        diag = diagnostics[0]
+        assert diag["provider"] == "wos"
+        assert diag["pagination_status"] == "failed"
+        assert diag["errors"] == "network_timeout_or_connection_error"
+        # Raw exception text must not appear in errors or warnings
+        for w in result.warnings:
+            assert "timed out" not in w.lower() or "logical_page" in w
+        assert "timed out" not in diag["errors"]
+        # Stable error code must also appear in ProviderResult.errors
+        assert "network_timeout_or_connection_error" in result.errors
+        # Raw exception text must not appear in ProviderResult.errors
+        assert not any("timed out" in e for e in result.errors)
+        assert result.physical_request_count == 1
+
+    def test_search_paginated_malformed_json_emits_failed_diagnostic(self, monkeypatch):
+        """Malformed JSON responses must emit pagination_status='failed' and a stable
+        error code, never end_of_results or applied.
+        The stable code must also appear in ProviderResult.errors."""
+        import urllib.request as _urllib_req
+        import json as _json
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+
+        def _fake_urlopen(req, timeout=12):
+            raise _json.JSONDecodeError("not JSON", "", 0)
+
+        monkeypatch.setattr(_urllib_req, "urlopen", _fake_urlopen)
+
+        result, diagnostics = provider.search_paginated(
+            "ports", logical_pages=1, rows_per_page=50
+        )
+        assert len(diagnostics) == 1
+        diag = diagnostics[0]
+        assert diag["pagination_status"] == "failed"
+        assert diag["errors"] == "malformed_response_json_decode_error"
+        # No raw exception text in the errors field
+        assert "not JSON" not in diag["errors"]
+        # Stable error code must also appear in ProviderResult.errors
+        assert "malformed_response_json_decode_error" in result.errors
+        # Raw exception text must not appear in ProviderResult.errors
+        assert not any("not JSON" in e for e in result.errors)
+        assert result.physical_request_count == 1
+
+    def test_search_paginated_physical_requests_aggregated(self, monkeypatch):
+        """physical_requests field in diagnostic must reflect chunked calls per page;
+        a logical page requiring two physical HTTP calls reports physical_requests==2."""
+        import time as _time
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+        call_log: list[str] = []
+
+        def _mock_request(url):
+            call_log.append(url)
+            return {
+                "hits": [{"title": f"rec {len(call_log)}", "source": {}}]
+                * 50  # full chunk = 50 rows
+            }
+
+        monkeypatch.setattr(provider, "_request_json", _mock_request)
+        monkeypatch.setattr(_time, "sleep", lambda _: None)
+
+        # rows_per_page=100 > WoS 50-row limit → two physical calls per logical page
+        result, diagnostics = provider.search_paginated(
+            "maritime", logical_pages=1, rows_per_page=100
+        )
+        assert len(diagnostics) == 1
+        diag = diagnostics[0]
+        assert diag["physical_requests"] == 2
+        assert len(call_log) == 2
+        assert result.physical_request_count == 2
+
+    def test_search_paginated_http_429_counts_one_physical_request(self, monkeypatch):
+        """HTTP 429 after one call must report physical_requests==1 and
+        physical_request_index==1, and 'rate_limited' in ProviderResult.errors."""
+        import urllib.request as _urllib_req
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+
+        rate_limited_exc = urllib.error.HTTPError(
+            "https://example.com", 429, "Too Many Requests", {}, None
+        )
+
+        def _fake_urlopen(req, timeout=12):
+            raise rate_limited_exc
+
+        monkeypatch.setattr(_urllib_req, "urlopen", _fake_urlopen)
+
+        result, diagnostics = provider.search_paginated(
+            "shipping", logical_pages=1, rows_per_page=50
+        )
+        assert len(diagnostics) == 1
+        diag = diagnostics[0]
+        assert diag["pagination_status"] == "rate_limited"
+        assert diag["physical_requests"] == 1
+        assert diag["physical_request_index"] == 1
+        assert "rate_limited" in result.errors
+        assert result.physical_request_count == 1
+
+    def test_search_paginated_non_429_http_counts_one_physical_request(self, monkeypatch):
+        """Non-429 HTTP error after one call must report physical_requests==1 and
+        physical_request_index==1, and a stable error code in ProviderResult.errors."""
+        import urllib.request as _urllib_req
+
+        monkeypatch.setenv("WOS_API_KEY", "woskey")
+        provider = WebOfScienceProvider()
+
+        server_error_exc = urllib.error.HTTPError(
+            "https://example.com", 500, "Internal Server Error", {}, None
+        )
+
+        def _fake_urlopen(req, timeout=12):
+            raise server_error_exc
+
+        monkeypatch.setattr(_urllib_req, "urlopen", _fake_urlopen)
+
+        result, diagnostics = provider.search_paginated(
+            "ports", logical_pages=1, rows_per_page=50
+        )
+        assert len(diagnostics) == 1
+        diag = diagnostics[0]
+        assert diag["pagination_status"] == "failed"
+        assert diag["physical_requests"] == 1
+        assert diag["physical_request_index"] == 1
+        assert "http_500" in result.errors
+        assert result.physical_request_count == 1
 
 
 class TestSciValProvider:
@@ -1020,12 +1338,29 @@ class TestSciValProvider:
         result = provider.search("ocean governance")
         assert result.is_empty
         assert result.warnings
+        assert result.physical_request_count == 0
 
     def test_configured_with_key(self, monkeypatch):
         monkeypatch.setenv("SCIVAL_API_KEY", "scivalkey")
         provider = SciValProvider()
         assert provider.capability.configured is True
         assert "url" in provider.capability.allowed_metadata_fields
+
+    def test_paginated_search_preserves_provider_owned_request_count(self, monkeypatch):
+        monkeypatch.setenv("SCIVAL_API_KEY", "scivalkey")
+        provider = SciValProvider()
+        calls: list[str] = []
+
+        def fake_request(url: str) -> dict:
+            calls.append(url)
+            return {"results": []}
+
+        monkeypatch.setattr(provider, "_request_json", fake_request)
+
+        result = provider.search_paginated("ocean governance", pages=2)
+
+        assert len(calls) == 1
+        assert result.physical_request_count == 1
 
 
 class TestGoogleDriveProvider:
@@ -1036,6 +1371,17 @@ class TestGoogleDriveProvider:
         result = provider.search("blue economy")
         assert result.is_empty
         assert result.warnings
+        assert result.physical_request_count == 0
+
+    def test_paginated_not_configured_is_canonical_zero_attempt(self, monkeypatch):
+        monkeypatch.delenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", raising=False)
+        provider = GoogleDriveProvider()
+
+        result = provider.search_paginated("blue economy", pages=2)
+
+        assert result.physical_request_count == 0
+        assert result.page_diagnostics[0]["physical_request_index"] == 0
+        assert result.page_diagnostics[0]["pagination_status"] == "provider_not_configured"
 
     def test_doi_verification_not_supported(self, monkeypatch):
         monkeypatch.delenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", raising=False)
@@ -1054,6 +1400,7 @@ class TestMicrosoftGraphProvider:
         result = provider.search("ports")
         assert result.is_empty
         assert result.warnings
+        assert result.physical_request_count == 0
 
     def test_configured_when_all_env_vars_set(self, monkeypatch):
         monkeypatch.setenv("MICROSOFT_TENANT_ID", "tid")
@@ -1199,11 +1546,15 @@ class TestCrossrefVerifyDoiNetworkFailure:
         import urllib.request
 
         monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        monkeypatch.setattr(
+            "src.scientific_sources.crossref.time.sleep", lambda _seconds: None
+        )
         provider = CrossrefProvider()
         result = provider.verify_doi("10.1234/x")
         assert result.is_empty
         assert result.errors
-        assert "Crossref DOI verification error" in result.errors[0]
+        assert "terminal_status=transport_error" in result.errors[0]
+        assert result.physical_request_count == 4
 
 
 class TestElsevierScopusConfiguredPaths:
@@ -1448,6 +1799,32 @@ class TestGoogleDriveConfiguredPath:
         assert result.warnings
         assert "not yet implemented" in result.warnings[0].lower()
 
+    def test_paginated_configured_path_is_canonical_zero_attempt(
+        self, monkeypatch, tmp_path
+    ):
+        cred_file = tmp_path / "creds.json"
+        cred_file.write_text("{}")
+        monkeypatch.setenv("GOOGLE_DRIVE_OAUTH_CREDENTIALS", str(cred_file))
+        provider = GoogleDriveProvider()
+
+        result = provider.search_paginated("blue economy", pages=2)
+
+        assert result.physical_request_count == 0
+        assert result.page_diagnostics == [
+            {
+                "provider": "google_drive",
+                "query": "blue economy",
+                "logical_page": 1,
+                "physical_request_index": 0,
+                "cursor_or_offset": "not_implemented",
+                "requested_rows": 100,
+                "returned_rows": 0,
+                "normalized_rows": 0,
+                "pagination_status": "skipped",
+                "errors": "not_implemented",
+            }
+        ]
+
 
 class TestMicrosoftGraphConfiguredPath:
     def test_search_with_credentials_returns_not_implemented_warning(self, monkeypatch):
@@ -1458,6 +1835,20 @@ class TestMicrosoftGraphConfiguredPath:
         result = provider.search("ports")
         assert result.warnings
         assert "not yet implemented" in result.warnings[0].lower()
+        assert result.physical_request_count == 0
+
+    def test_paginated_without_scope_is_canonical_zero_attempt(self, monkeypatch):
+        monkeypatch.setenv("MICROSOFT_TENANT_ID", "tid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_ID", "cid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_SECRET", "csecret")
+        provider = MicrosoftGraphProvider()
+
+        result = provider.search_paginated("ports", pages=2)
+
+        assert result.physical_request_count == 0
+        assert result.page_diagnostics[0]["physical_request_index"] == 0
+        assert result.page_diagnostics[0]["pagination_status"] == "skipped"
+        assert result.page_diagnostics[0]["errors"] == "search_scope_not_configured"
 
     def test_search_with_site_scope_parses_graph_records(self, monkeypatch):
         monkeypatch.setenv("MICROSOFT_TENANT_ID", "tid")
@@ -1478,8 +1869,11 @@ class TestMicrosoftGraphConfiguredPath:
             ]
         }
 
+        urls: list[str] = []
+
         def fake_urlopen(req, timeout=12):
             url = req.full_url
+            urls.append(url)
             if "oauth2/v2.0/token" in url:
                 return _DummyResponse(token_payload)
             return _DummyResponse(search_payload)
@@ -1493,6 +1887,60 @@ class TestMicrosoftGraphConfiguredPath:
         assert result.records[0].provider == "Microsoft Graph (OneDrive/SharePoint)"
         assert result.records[0].doi == "10.5555/graph-doi"
         assert result.provenance
+        assert len(urls) == 2
+        assert result.physical_request_count == 2
+
+    def test_token_failure_counts_the_started_token_request(self, monkeypatch):
+        monkeypatch.setenv("MICROSOFT_TENANT_ID", "tid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_ID", "cid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_SECRET", "csecret")
+        monkeypatch.setenv("MICROSOFT_GRAPH_SITE_ID", "site-1")
+        provider = MicrosoftGraphProvider()
+        calls: list[str] = []
+
+        def fail_token_request(req, timeout=12):
+            calls.append(req.full_url)
+            raise TimeoutError("offline test transport failure")
+
+        import urllib.request
+
+        monkeypatch.setattr(urllib.request, "urlopen", fail_token_request)
+
+        result = provider.search("blue economy")
+
+        assert len(calls) == 1
+        assert "oauth2/v2.0/token" in calls[0]
+        assert result.physical_request_count == 1
+
+    def test_verify_doi_preserves_two_request_count(self, monkeypatch):
+        monkeypatch.setenv("MICROSOFT_TENANT_ID", "tid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_ID", "cid")
+        monkeypatch.setenv("MICROSOFT_CLIENT_SECRET", "csecret")
+        monkeypatch.setenv("MICROSOFT_GRAPH_SITE_ID", "site-1")
+        provider = MicrosoftGraphProvider()
+        token_payload = {"access_token": "graph-token"}
+        search_payload = {
+            "value": [
+                {
+                    "id": "doc-1",
+                    "name": "Blue economy note 10.5555/graph-doi",
+                }
+            ]
+        }
+
+        def fake_urlopen(req, timeout=12):
+            if "oauth2/v2.0/token" in req.full_url:
+                return _DummyResponse(token_payload)
+            return _DummyResponse(search_payload)
+
+        import urllib.request
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        result = provider.verify_doi("10.5555/graph-doi")
+
+        assert len(result.records) == 1
+        assert result.physical_request_count == 2
 
     def test_search_url_escapes_single_quotes_for_odata(self, monkeypatch):
         monkeypatch.setenv("MICROSOFT_TENANT_ID", "tid")
@@ -1557,6 +2005,7 @@ class TestSciValConfiguredPaths:
         assert result.records[0].authors == ""
         assert result.records[0].journal == ""
         assert result.provenance
+        assert result.physical_request_count == 1
 
     def test_verify_doi_with_key_uses_search(self, monkeypatch):
         payload = {"results": [{"id": "topic-2", "name": "DOI topic"}]}
@@ -1572,6 +2021,7 @@ class TestSciValConfiguredPaths:
         result = provider.verify_doi("10.1234/x")
         assert not result.is_empty
         assert result.records[0].provider == "SciVal"
+        assert result.physical_request_count == 1
 
 
 class TestWebOfScienceConfiguredPaths:
@@ -1605,6 +2055,7 @@ class TestWebOfScienceConfiguredPaths:
         assert result.records[0].citation_count == 7
         assert result.provenance
         assert result.provenance[0].source_provider == "Web of Science (Clarivate)"
+        assert result.physical_request_count == 1
 
     def test_verify_doi_with_key_returns_parsed_records(self, monkeypatch):
         payload = {
@@ -1630,6 +2081,7 @@ class TestWebOfScienceConfiguredPaths:
         assert not result.is_empty
         assert result.records[0].doi == "10.1234/x"
         assert result.provenance
+        assert result.physical_request_count == 1
 
     def test_search_without_dois_has_distinct_provenance_hashes(self, monkeypatch):
         payload = {

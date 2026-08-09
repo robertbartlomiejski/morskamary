@@ -62,6 +62,8 @@ _SCOPUS_FIELDS = (
 )
 _SCOPUS_MAX_COUNT = 25
 _SCOPUS_PRESERVED_HYPHEN_TERMS = frozenset({"port-city", "de-base-re"})
+_SCOPUS_PAYLOAD_KIND = "redistribution_safe_metadata_envelope"
+_REDACTED_QUERY_PARAMS = frozenset({"api_key", "apikey", "key", "token", "secret"})
 
 _LICENCE_NOTE = (
     "Elsevier/Scopus institutional metadata (Stage 1 compliant). "
@@ -364,7 +366,83 @@ class ElsevierScopusProvider(BaseProvider):
         return evidence
 
     @staticmethod
-    def _http_error_result(action: str, exc: urllib.error.HTTPError) -> ProviderResult:
+    def _redact_url(value: Any) -> str:
+        text = str(value or "").strip()
+        if not text:
+            return ""
+        try:
+            parsed = urllib.parse.urlparse(text)
+            if not parsed.scheme or not parsed.netloc:
+                return text
+            params = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+            safe_params = [
+                (
+                    key,
+                    "REDACTED" if key.lower() in _REDACTED_QUERY_PARAMS else raw_value,
+                )
+                for key, raw_value in params
+            ]
+            return urllib.parse.urlunparse(
+                parsed._replace(query=urllib.parse.urlencode(safe_params))
+            )
+        except Exception:
+            return "[url-redacted]"
+
+    @classmethod
+    def _safe_entry_envelope(cls, entry: Dict[str, Any]) -> Dict[str, Any]:
+        doi = str(entry.get("prism:doi", "") or "").strip()
+        url = cls._redact_url(entry.get("prism:url"))
+        title = str(entry.get("dc:title", "") or "").strip()
+        source_id = str(entry.get("eid", "") or "").strip()
+        citation_count: int | None
+        raw_citation_count = entry.get("citedby-count")
+        try:
+            citation_count = (
+                int(raw_citation_count) if raw_citation_count is not None else None
+            )
+        except (TypeError, ValueError):
+            citation_count = None
+        return {
+            "title": title,
+            "authors": cls._parse_authors(entry),
+            "year": cls._parse_year(entry),
+            "doi": doi,
+            "journal": str(entry.get("prism:publicationName", "") or "").strip(),
+            "url": url,
+            "citation_count": citation_count,
+            "subject_terms": cls._parse_subject_terms(entry),
+            "source_id": f"scopus:{doi}" if doi else f"scopus:{source_id or title}",
+        }
+
+    @classmethod
+    def _safe_payload_envelope(cls, payload: Dict[str, Any]) -> Dict[str, Any]:
+        search_results = payload.get("search-results", {})
+        if not isinstance(search_results, dict):
+            search_results = {}
+        entries = search_results.get("entry", [])
+        if not isinstance(entries, list):
+            entries = []
+        return {
+            "payload_kind": _SCOPUS_PAYLOAD_KIND,
+            "search_results": {
+                "total_results": search_results.get("opensearch:totalResults"),
+                "start_index": search_results.get("opensearch:startIndex"),
+                "items_per_page": search_results.get("opensearch:itemsPerPage"),
+                "entries": [
+                    cls._safe_entry_envelope(entry)
+                    for entry in entries
+                    if isinstance(entry, dict)
+                ],
+            },
+        }
+
+    @staticmethod
+    def _http_error_result(
+        action: str,
+        exc: urllib.error.HTTPError,
+        *,
+        physical_request_count: int = 0,
+    ) -> ProviderResult:
         body_snippet = ""
         try:
             body_snippet = exc.read(240).decode("utf-8", errors="ignore").strip()
@@ -375,12 +453,39 @@ class ElsevierScopusProvider(BaseProvider):
             return ProviderResult(
                 warnings=[f"Scopus {action} rate limited (HTTP 429).{snippet}"],
                 rate_limit_status="rate-limited",
+                physical_request_count=physical_request_count,
             )
         if exc.code in (401, 403):
             return ProviderResult(
-                errors=[f"Scopus {action} unauthorized (HTTP {exc.code}).{snippet}"]
+                errors=[f"Scopus {action} unauthorized (HTTP {exc.code}).{snippet}"],
+                physical_request_count=physical_request_count,
             )
-        return ProviderResult(errors=[f"Scopus {action} failed (HTTP {exc.code}).{snippet}"])
+        return ProviderResult(
+            errors=[f"Scopus {action} failed (HTTP {exc.code}).{snippet}"],
+            physical_request_count=physical_request_count,
+        )
+
+    @staticmethod
+    def _pre_network_rejected_result(query: str, error: str) -> ProviderResult:
+        """Return a machine-readable zero-attempt result for rejected input."""
+        return ProviderResult(
+            errors=[error],
+            physical_request_count=0,
+            page_diagnostics=[
+                {
+                    "provider": "scopus",
+                    "query": query,
+                    "logical_page": 0,
+                    "physical_request_index": 0,
+                    "cursor_or_offset": "",
+                    "requested_rows": 0,
+                    "returned_rows": 0,
+                    "normalized_rows": 0,
+                    "pagination_status": "skipped",
+                    "errors": error,
+                }
+            ],
+        )
 
     # ------------------------------------------------------------------
     # Public API (BaseProvider contract)
@@ -392,11 +497,12 @@ class ElsevierScopusProvider(BaseProvider):
             return self._not_configured_result()
         projected_query = self._project_protocol_query(query)
         if projected_query is None:
-            return ProviderResult(
-                errors=[
-                    f"Scopus query projection failed: no searchable tokens in query {query!r}. "
-                    "Query rejected to prevent provenance contamination."
-                ]
+            return self._pre_network_rejected_result(
+                query,
+                (
+                    "Scopus query projection failed: no searchable tokens in "
+                    f"query {query!r}. Query rejected to prevent provenance contamination."
+                ),
             )
         requested_count = int(max_results)
         applied_count = self._scopus_count(requested_count)
@@ -405,7 +511,9 @@ class ElsevierScopusProvider(BaseProvider):
             f"{self._api_base}?query={encoded_query}&count={applied_count}&view=STANDARD"
             f"&field={urllib.parse.quote(_SCOPUS_FIELDS)}"
         )
+        physical_request_count = 0
         try:
+            physical_request_count += 1
             payload = self._request_json(url)
             items = payload.get("search-results", {}).get("entry", [])
             if not isinstance(items, list):
@@ -421,15 +529,21 @@ class ElsevierScopusProvider(BaseProvider):
                 records=records,
                 warnings=warnings,
                 provenance=self._make_evidence(query, "scopus/search", records),
-                raw_payload=payload,
+                raw_payload=self._safe_payload_envelope(payload),
+                physical_request_count=physical_request_count,
             )
         except urllib.error.HTTPError as exc:
             return self._http_error_result(
-                f"search projected_query={projected_query!r}", exc
+                f"search projected_query={projected_query!r}",
+                exc,
+                physical_request_count=physical_request_count,
             )
         except Exception as exc:
             return ProviderResult(
-                errors=[f"Scopus search error: {exc} (projected_query={projected_query!r})"]
+                errors=[
+                    f"Scopus search error: {exc} (projected_query={projected_query!r})"
+                ],
+                physical_request_count=physical_request_count,
             )
 
     def search_paginated(
@@ -449,11 +563,12 @@ class ElsevierScopusProvider(BaseProvider):
             return (result, result.page_diagnostics) if legacy_api else result
         projected_query = self._project_protocol_query(query)
         if projected_query is None:
-            result = ProviderResult(
-                errors=[
-                    f"Scopus query projection failed: no searchable tokens in query {query!r}. "
-                    "Query rejected to prevent provenance contamination."
-                ]
+            result = self._pre_network_rejected_result(
+                query,
+                (
+                    "Scopus query projection failed: no searchable tokens in "
+                    f"query {query!r}. Query rejected to prevent provenance contamination."
+                ),
             )
             return (result, result.page_diagnostics) if legacy_api else result
         if time_window:
@@ -465,7 +580,9 @@ class ElsevierScopusProvider(BaseProvider):
             if to_year < 9999:
                 year_clauses.append(f"PUBYEAR < {to_year + 1}")
             if year_clauses:
-                projected_query = f"({projected_query}) AND {' AND '.join(year_clauses)}"
+                projected_query = (
+                    f"({projected_query}) AND {' AND '.join(year_clauses)}"
+                )
         requested_pages = logical_pages if logical_pages is not None else pages
         safe_pages = max(1, int(requested_pages or 1))
         safe_rows = max(1, int(rows_per_page or 1))
@@ -487,6 +604,7 @@ class ElsevierScopusProvider(BaseProvider):
         page_diagnostics: List[Dict[str, Any]] = []
         raw_pages: List[Dict[str, Any]] = []
         physical_request_index = 0
+        physical_request_count = 0
 
         for logical_page in range(1, safe_pages + 1):
             logical_offset = (logical_page - 1) * safe_rows
@@ -504,10 +622,18 @@ class ElsevierScopusProvider(BaseProvider):
                     f"&view=STANDARD&field={field_param}{sort_clause}"
                 )
                 try:
+                    physical_request_count += 1
                     payload = self._request_json(url)
                 except urllib.error.HTTPError as exc:
                     result = self._http_error_result(
-                        f"search projected_query={projected_query!r}", exc
+                        f"search projected_query={projected_query!r}",
+                        exc,
+                        physical_request_count=physical_request_count,
+                    )
+                    _pag_status = (
+                        "rate_limited"
+                        if result.rate_limit_status == "rate-limited"
+                        else "failed"
                     )
                     page_diagnostics.append(
                         {
@@ -519,7 +645,8 @@ class ElsevierScopusProvider(BaseProvider):
                             "requested_rows": count,
                             "returned_rows": 0,
                             "normalized_rows": 0,
-                            "pagination_status": "failed",
+                            "pagination_status": _pag_status,
+                            "rate_limit_status": result.rate_limit_status,
                             "errors": "|".join(result.errors),
                             "warnings": "|".join(result.warnings),
                         }
@@ -527,7 +654,14 @@ class ElsevierScopusProvider(BaseProvider):
                     result.records = records
                     result.provenance = provenance
                     result.page_diagnostics = page_diagnostics
-                    result.raw_payload = {"physical_requests": raw_pages} if raw_pages else None
+                    result.raw_payload = (
+                        {
+                            "payload_kind": _SCOPUS_PAYLOAD_KIND,
+                            "physical_requests": raw_pages,
+                        }
+                        if raw_pages
+                        else None
+                    )
                     result.warnings = warnings + result.warnings
                     if legacy_api:
                         return result, self._legacy_page_diagnostics(
@@ -542,8 +676,16 @@ class ElsevierScopusProvider(BaseProvider):
                         ],
                         warnings=warnings,
                         provenance=provenance,
-                        raw_payload={"physical_requests": raw_pages} if raw_pages else None,
+                        raw_payload=(
+                            {
+                                "payload_kind": _SCOPUS_PAYLOAD_KIND,
+                                "physical_requests": raw_pages,
+                            }
+                            if raw_pages
+                            else None
+                        ),
                         page_diagnostics=page_diagnostics,
+                        physical_request_count=physical_request_count,
                     )
                     if legacy_api:
                         return result, self._legacy_page_diagnostics(
@@ -555,14 +697,16 @@ class ElsevierScopusProvider(BaseProvider):
                     items = []
                 page_records = self._parse_items(items, query)
                 records.extend(page_records)
-                provenance.extend(self._make_evidence(query, "scopus/search", page_records))
+                provenance.extend(
+                    self._make_evidence(query, "scopus/search", page_records)
+                )
                 raw_pages.append(
                     {
                         "logical_page": logical_page,
                         "physical_request_index": physical_request_index,
                         "start": start,
                         "count": count,
-                        "payload": payload,
+                        "payload": self._safe_payload_envelope(payload),
                     }
                 )
                 page_returned += len(items)
@@ -601,8 +745,12 @@ class ElsevierScopusProvider(BaseProvider):
             records=records,
             warnings=warnings,
             provenance=provenance,
-            raw_payload={"physical_requests": raw_pages},
+            raw_payload={
+                "payload_kind": _SCOPUS_PAYLOAD_KIND,
+                "physical_requests": raw_pages,
+            },
             page_diagnostics=page_diagnostics,
+            physical_request_count=physical_request_count,
         )
         if legacy_api:
             return result, self._legacy_page_diagnostics(
@@ -618,9 +766,7 @@ class ElsevierScopusProvider(BaseProvider):
         legacy: List[Dict[str, Any]] = []
         for logical_page in range(1, safe_pages + 1):
             entries = [
-                row
-                for row in diagnostics
-                if row.get("logical_page") == logical_page
+                row for row in diagnostics if row.get("logical_page") == logical_page
             ]
             if not entries:
                 continue
@@ -645,7 +791,9 @@ class ElsevierScopusProvider(BaseProvider):
         query = f'DOI("{doi}")'
         encoded_query = urllib.parse.quote(query)
         url = f"{self._api_base}?query={encoded_query}&count=1&view=STANDARD"
+        physical_request_count = 0
         try:
+            physical_request_count += 1
             payload = self._request_json(url)
             items = payload.get("search-results", {}).get("entry", [])
             if not isinstance(items, list):
@@ -656,9 +804,17 @@ class ElsevierScopusProvider(BaseProvider):
             return ProviderResult(
                 records=records,
                 provenance=self._make_evidence(doi, "scopus/search?query=DOI", records),
-                raw_payload=payload,
+                raw_payload=self._safe_payload_envelope(payload),
+                physical_request_count=physical_request_count,
             )
         except urllib.error.HTTPError as exc:
-            return self._http_error_result("DOI verification", exc)
+            return self._http_error_result(
+                "DOI verification",
+                exc,
+                physical_request_count=physical_request_count,
+            )
         except Exception as exc:
-            return ProviderResult(errors=[f"Scopus DOI verification error: {exc}"])
+            return ProviderResult(
+                errors=[f"Scopus DOI verification error: {exc}"],
+                physical_request_count=physical_request_count,
+            )

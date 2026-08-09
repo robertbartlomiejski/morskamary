@@ -149,17 +149,27 @@ class SciValProvider(BaseProvider):
         return evidence
 
     @staticmethod
-    def _http_error_result(action: str, exc: urllib.error.HTTPError) -> ProviderResult:
+    def _http_error_result(
+        action: str,
+        exc: urllib.error.HTTPError,
+        *,
+        physical_request_count: int = 0,
+    ) -> ProviderResult:
         if exc.code == 429:
             return ProviderResult(
                 warnings=[f"SciVal {action} rate limited (HTTP 429)."],
                 rate_limit_status="rate-limited",
+                physical_request_count=physical_request_count,
             )
         if exc.code in (401, 403):
             return ProviderResult(
-                errors=[f"SciVal {action} unauthorized (HTTP {exc.code})."]
+                errors=[f"SciVal {action} unauthorized (HTTP {exc.code})."],
+                physical_request_count=physical_request_count,
             )
-        return ProviderResult(errors=[f"SciVal {action} failed (HTTP {exc.code})."])
+        return ProviderResult(
+            errors=[f"SciVal {action} failed (HTTP {exc.code})."],
+            physical_request_count=physical_request_count,
+        )
 
     def search(self, query: str, max_results: int = 5) -> ProviderResult:
         """Search SciVal topic analytics."""
@@ -167,7 +177,9 @@ class SciValProvider(BaseProvider):
             return self._not_configured_result()
         encoded_query = urllib.parse.quote(query)
         url = f"{self._api_base}?query={encoded_query}&limit={max_results}"
+        physical_request_count = 0
         try:
+            physical_request_count += 1
             payload = self._request_json(url)
             topics = self._parse_topics(payload)
             records = [
@@ -180,11 +192,17 @@ class SciValProvider(BaseProvider):
                     query, "scival/topicCompetency", records
                 ),
                 raw_payload=payload,
+                physical_request_count=physical_request_count,
             )
         except urllib.error.HTTPError as exc:
-            return self._http_error_result("search", exc)
+            return self._http_error_result(
+                "search", exc, physical_request_count=physical_request_count
+            )
         except Exception as exc:
-            return ProviderResult(errors=[f"SciVal search error: {exc}"])
+            return ProviderResult(
+                errors=[f"SciVal search error: {exc}"],
+                physical_request_count=physical_request_count,
+            )
 
     def verify_doi(self, doi: str) -> ProviderResult:
         """Verify DOI via SciVal-backed topic analytics query."""

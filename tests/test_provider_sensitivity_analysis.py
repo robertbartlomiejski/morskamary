@@ -1,4 +1,4 @@
-"""Tests for offline provider-sensitivity diagnostics."""
+"""Regression tests for fail-closed provider-sensitivity diagnostics."""
 
 from __future__ import annotations
 
@@ -6,28 +6,29 @@ import csv
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts import build_provider_sensitivity_analysis as sensitivity
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
-    path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+    path.write_text(
+        "\n".join(json.dumps(row) for row in rows) + "\n",
+        encoding="utf-8",
+    )
 
 
 def _write_demands(path: Path) -> None:
-    fieldnames = [
-        "competence_demand_id",
-        "competence_label",
-        "sector",
-        "axis_group",
-        "demand_strength_score",
-        "query_families_seen",
-        "semantic_confidence_mean",
-        "latest_seen_at_utc",
-        "providers_seen",
-        "evidence_ids",
-    ]
-    with path.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=fieldnames)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=[
+                "competence_demand_id",
+                "competence_label",
+                "sector",
+                "axis_group",
+            ],
+        )
         writer.writeheader()
         writer.writerows(
             [
@@ -36,176 +37,351 @@ def _write_demands(path: Path) -> None:
                     "competence_label": "safety",
                     "sector": "ports",
                     "axis_group": "MARITIME",
-                    "demand_strength_score": "0.80",
-                    "query_families_seen": "competence_demand|hypothesis_verification",
-                    "semantic_confidence_mean": "0.90",
-                    "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
-                    "providers_seen": "crossref|scopus",
-                    "evidence_ids": "E1|E4",
                 },
                 {
                     "competence_demand_id": "D-OCE-1",
                     "competence_label": "governance",
                     "sector": "coastal_tourism",
                     "axis_group": "OCEANIC",
-                    "demand_strength_score": "0.45",
-                    "query_families_seen": "competence_demand",
-                    "semantic_confidence_mean": "0.70",
-                    "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
-                    "providers_seen": "openalex",
-                    "evidence_ids": "E2",
+                },
+                {
+                    "competence_demand_id": "D-HYD-1",
+                    "competence_label": "hydrosocial governance",
+                    "sector": "desalination",
+                    "axis_group": "HYDRONIZATION",
                 },
                 {
                     "competence_demand_id": "D-CROSSREF-ONLY",
                     "competence_label": "policy",
                     "sector": "ports",
                     "axis_group": "MARITIME",
-                    "demand_strength_score": "0.75",
-                    "query_families_seen": "competence_demand",
-                    "semantic_confidence_mean": "0.80",
-                    "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
-                    "providers_seen": "crossref",
-                    "evidence_ids": "E3",
                 },
-            ]
+            ],
         )
 
 
-def test_provider_sensitivity_uses_archived_rows_without_provider_clients(
-    tmp_path: Path,
-) -> None:
-    script_text = Path(sensitivity.__file__).read_text(encoding="utf-8")
-    assert "SourceRegistry" not in script_text
-    assert "CrossrefProvider" not in script_text
+def _fixture(tmp_path: Path, *, include_wos: bool = False) -> dict[str, Path]:
     evidence = tmp_path / "evidence_records.jsonl"
     signals = tmp_path / "competence_demand_signals.jsonl"
     demands = tmp_path / "derived_competence_demands.csv"
     fragments = tmp_path / "hypothesis_semantic_fragments.jsonl"
-    _write_jsonl(
-        evidence,
-        [
+
+    evidence_rows = [
+        {
+            "evidence_id": "E1",
+            "canonical_doi": "10.1/a",
+            "providers_seen": "crossref|scopus",
+            "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
+        },
+        {
+            "evidence_id": "E2",
+            "canonical_doi": "10.1/b",
+            "providers_seen": "openalex",
+            "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
+        },
+        {
+            "evidence_id": "E3",
+            "canonical_doi": "10.1/c",
+            "providers_seen": "crossref",
+            "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
+        },
+        {
+            "evidence_id": "E4",
+            "canonical_doi": "10.1/d",
+            "providers_seen": "crossref",
+            "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
+        },
+        {
+            "evidence_id": "E5",
+            "canonical_doi": "10.1/e",
+            "providers_seen": "openalex",
+            "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
+        },
+    ]
+    if include_wos:
+        evidence_rows.append(
             {
-                "evidence_id": "E1",
-                "canonical_doi": "10.1/a",
-                "providers_seen": "crossref|scopus",
-                "sector": "ports",
-                "first_seen_at_utc": "2026-07-20T00:00:00+00:00",
+                "evidence_id": "E6",
+                "canonical_doi": "10.1/f",
+                "providers_seen": "wos",
                 "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
-            },
+            }
+        )
+    _write_jsonl(evidence, evidence_rows)
+
+    signal_rows = [
+        {
+            "signal_id": "S1",
+            "evidence_id": "E1",
+            "axis_group": "MARITIME",
+            "competence_label": "safety",
+            "sector": "ports",
+            "query_family": "competence_demand",
+            "confidence_score": 0.95,
+        },
+        {
+            "signal_id": "S2",
+            "evidence_id": "E2",
+            "axis_group": "OCEANIC",
+            "competence_label": "governance",
+            "sector": "coastal_tourism",
+            "query_family": "competence_demand",
+            "confidence_score": 0.75,
+        },
+        {
+            "signal_id": "S3",
+            "evidence_id": "E3",
+            "axis_group": "MARITIME",
+            "competence_label": "policy",
+            "sector": "ports",
+            "query_family": "competence_demand",
+            "confidence_score": 0.80,
+        },
+        {
+            "signal_id": "S4",
+            "evidence_id": "E4",
+            "axis_group": "MARITIME",
+            "competence_label": "safety",
+            "sector": "ports",
+            "query_family": "hypothesis_verification",
+            "confidence_score": 0.60,
+        },
+        {
+            "signal_id": "S5",
+            "evidence_id": "E5",
+            "axis_group": "HYDRONIZATION",
+            "competence_label": "hydrosocial governance",
+            "sector": "desalination",
+            "query_family": "competence_demand",
+            "confidence_score": 0.85,
+        },
+    ]
+    if include_wos:
+        signal_rows.append(
             {
-                "evidence_id": "E2",
-                "canonical_doi": "10.1/b",
-                "providers_seen": "openalex",
-                "sector": "coastal_tourism",
-                "first_seen_at_utc": "2026-07-20T00:00:00+00:00",
-                "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
-            },
-            {
-                "evidence_id": "E3",
-                "canonical_doi": "10.1/c",
-                "providers_seen": "crossref",
-                "sector": "ports",
-                "first_seen_at_utc": "2026-07-20T00:00:00+00:00",
-                "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
-            },
-            {
-                "evidence_id": "E4",
-                "canonical_doi": "10.1/d",
-                "providers_seen": "crossref",
-                "sector": "ports",
-                "first_seen_at_utc": "2026-07-20T00:00:00+00:00",
-                "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
-            },
-        ],
-    )
-    _write_jsonl(
-        signals,
-        [
-            {
-                "signal_id": "S1",
-                "evidence_id": "E1",
-                "axis_group": "MARITIME",
-                "competence_label": "safety",
-                "sector": "ports",
-                "query_family": "competence_demand",
-                "confidence_score": 0.95,
-            },
-            {
-                "signal_id": "S2",
-                "evidence_id": "E2",
+                "signal_id": "S6",
+                "evidence_id": "E6",
                 "axis_group": "OCEANIC",
                 "competence_label": "governance",
                 "sector": "coastal_tourism",
-                "query_family": "competence_demand",
-                "confidence_score": 0.75,
-            },
-            {
-                "signal_id": "S3",
-                "evidence_id": "E3",
-                "axis_group": "MARITIME",
-                "competence_label": "policy",
-                "sector": "ports",
-                "query_family": "competence_demand",
-                "confidence_score": 0.80,
-            },
-            {
-                "signal_id": "S4",
-                "evidence_id": "E4",
-                "axis_group": "MARITIME",
-                "competence_label": "safety",
-                "sector": "ports",
                 "query_family": "hypothesis_verification",
-                "confidence_score": 0.60,
-            },
-        ],
-    )
+                "confidence_score": 0.70,
+            }
+        )
+    _write_jsonl(signals, signal_rows)
     _write_demands(demands)
+    (tmp_path / "layer4_manifest.json").write_text(
+        json.dumps({"analysis_timestamp_utc": "2026-07-29T00:00:00+00:00"}) + "\n",
+        encoding="utf-8",
+    )
     _write_jsonl(
         fragments,
         [
-            {"evidence_id": "E1", "hypothesis_id": "H3", "axis_group": "MARINE"},
-            {"evidence_id": "E2", "hypothesis_id": "H3", "axis_group": "OCEANIC"},
+            {
+                "evidence_id": "E1",
+                "signal_id": "BRIDGE",
+                "hypothesis_id": "H3",
+                "axis_group": "MARINE",
+            },
+            {
+                "evidence_id": "E2",
+                "signal_id": "BRIDGE",
+                "hypothesis_id": "H3",
+                "axis_group": "OCEANIC",
+            },
+            {
+                "evidence_id": "E2",
+                "signal_id": "NOT-H3",
+                "hypothesis_id": "H1",
+                "axis_group": "OCEANIC",
+            },
         ],
     )
+    return {
+        "evidence": evidence,
+        "signals": signals,
+        "demands": demands,
+        "fragments": fragments,
+    }
 
-    result = sensitivity.build_provider_sensitivity_analysis(
-        evidence_path=evidence,
-        signals_path=signals,
-        derived_demands_path=demands,
-        hypothesis_fragments_path=fragments,
-        validated_supply_map_path=None,
+
+def _build(tmp_path: Path, paths: dict[str, Path], supply: Path | None = None) -> dict:
+    return sensitivity.build_provider_sensitivity_analysis(
+        evidence_path=paths["evidence"],
+        signals_path=paths["signals"],
+        derived_demands_path=paths["demands"],
+        hypothesis_fragments_path=paths["fragments"],
+        validated_supply_map_path=supply,
         output_json_path=tmp_path / "provider_sensitivity_analysis.json",
         output_markdown_path=tmp_path / "provider_sensitivity_analysis.md",
     )
 
+
+def test_recomputes_each_provider_subset_and_emits_complete_contract(
+    tmp_path: Path,
+) -> None:
+    paths = _fixture(tmp_path)
+    result = _build(tmp_path, paths)
+
     assert result["api_calls_performed"] == 0
-    assert "not Crossref-independent" in result["sensitivity_note"]
-    assert {"direct_crossref_excluded", "scopus_excluded", "openalex_excluded"} <= set(
-        result["subsets"]
+    assert {
+        "all_canonical",
+        "direct_crossref_excluded",
+        "scopus_excluded",
+        "openalex_excluded",
+        "crossref_only",
+        "scopus_only",
+        "openalex_only",
+    } <= set(result["subsets"])
+
+    direct = result["subsets"]["direct_crossref_excluded"]
+    baseline = result["subsets"]["all_canonical"]
+    retained = next(
+        row for row in direct["top_demands"] if row["competence_demand_id"] == "D-MAR-1"
     )
-    direct_excluded = result["subsets"]["direct_crossref_excluded"]
-    assert direct_excluded["providers"] == ["openalex", "scopus"]
-    assert direct_excluded["evidence_record_count"] == 2
-    assert direct_excluded["unique_doi_count"] == 2
-    assert direct_excluded["semantic_signal_count"] == 2
-    assert direct_excluded["derived_demand_count"] == 2
-    assert direct_excluded["h2"]["interpretation"] == "not_computable"
-    all_canonical = result["subsets"]["all_canonical"]
-    retained_safety = next(
+    original = next(
         row
-        for row in direct_excluded["top_demands"]
+        for row in baseline["top_demands"]
         if row["competence_demand_id"] == "D-MAR-1"
     )
-    baseline_safety = next(
-        row
-        for row in all_canonical["top_demands"]
-        if row["competence_demand_id"] == "D-MAR-1"
-    )
-    assert retained_safety["provider_count"] == 1
-    assert retained_safety["unique_doi_count"] == 1
-    assert retained_safety["demand_strength_score"] < baseline_safety["demand_strength_score"]
+    assert retained["provider_count"] == 1
+    assert retained["unique_doi_count"] == 1
+    assert retained["axis_code"] == "T"
+    assert retained["demand_strength_score"] < original["demand_strength_score"]
     assert all(
         row["competence_demand_id"] != "D-CROSSREF-ONLY"
-        for row in direct_excluded["top_demands"]
+        for row in direct["top_demands"]
     )
+
+    for hypothesis_id in ("h1", "h2", "h3"):
+        assert direct[hypothesis_id]["hypothesis_id"] == hypothesis_id.upper()
+        assert "hypothesis_label" in direct[hypothesis_id]
+        assert "interpretation" in direct[hypothesis_id]
+
+    assert baseline["h3"]["matched_fragment_count"] == 2
+    assert baseline["h3"]["oceanic_fragment_count"] == 1
+    assert baseline["h3"]["semantic_bridge_count"] == 0
+    assert baseline["h3"]["interpretation"] == "not_computable"
+    assert "no_validated_bridge_relation" in baseline["h3"]["validity_warning"]
     assert (tmp_path / "provider_sensitivity_analysis.md").is_file()
+
+
+def test_subsets_follow_actual_contributing_providers_including_wos(
+    tmp_path: Path,
+) -> None:
+    result = _build(tmp_path, _fixture(tmp_path, include_wos=True))
+    assert "wos_only" in result["subsets"]
+    assert "wos_excluded" in result["subsets"]
+    assert "wos" in result["subsets"]["all_canonical"]["providers"]
+
+
+def test_missing_required_input_fails_closed(tmp_path: Path) -> None:
+    paths = _fixture(tmp_path)
+    paths["signals"].unlink()
+    with pytest.raises(ValueError, match="required signals file does not exist"):
+        _build(tmp_path, paths)
+
+
+def test_empty_required_jsonl_and_csv_inputs_fail_closed(tmp_path: Path) -> None:
+    paths = _fixture(tmp_path)
+    paths["signals"].write_text("", encoding="utf-8")
+    with pytest.raises(ValueError, match="signals file contains no rows"):
+        _build(tmp_path, paths)
+
+    paths = _fixture(tmp_path)
+    paths["demands"].write_text(
+        "competence_demand_id,competence_label,sector,axis_group\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="derived demands file contains no rows"):
+        _build(tmp_path, paths)
+
+
+def test_empty_hypothesis_fragments_produces_not_computable(tmp_path: Path) -> None:
+    """Empty hypothesis_semantic_fragments.jsonl is a valid scientific outcome.
+
+    When live evidence produces competence signals but none match any hypothesis
+    indicator registry, Layer 2 writes an empty JSONL file.  The pipeline must
+    accept this and emit not_computable for affected hypotheses rather than
+    aborting with an error.
+    """
+    paths = _fixture(tmp_path)
+    # Write a valid but empty JSONL file (no data rows)
+    paths["fragments"].write_text("", encoding="utf-8")
+    result = _build(tmp_path, paths)
+    # H3 uses fragments; with no fragments it must be not_computable
+    baseline = result["subsets"]["all_canonical"]
+    assert baseline["h3"]["interpretation"] == "not_computable"
+    paths = _fixture(tmp_path)
+    (tmp_path / "layer4_manifest.json").unlink()
+
+    with pytest.raises(ValueError, match="deterministic scoring"):
+        _build(tmp_path, paths)
+
+
+def test_duplicate_layer2_evidence_ids_fail_before_outputs_written(
+    tmp_path: Path,
+) -> None:
+    paths = _fixture(tmp_path)
+    rows = [
+        json.loads(line)
+        for line in paths["evidence"].read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    rows.append(dict(rows[0]))
+    _write_jsonl(paths["evidence"], rows)
+
+    with pytest.raises(ValueError, match="duplicate evidence_id"):
+        _build(tmp_path, paths)
+
+    assert not (tmp_path / "provider_sensitivity_analysis.json").exists()
+    assert not (tmp_path / "provider_sensitivity_analysis.md").exists()
+
+
+def test_explicit_unvalidated_supply_map_is_rejected(tmp_path: Path) -> None:
+    paths = _fixture(tmp_path)
+    supply = tmp_path / "supply.json"
+    supply.write_text(
+        json.dumps(
+            {
+                "validation_status": "candidate",
+                "has_validated_supply": True,
+                "validated_supply_by_demand_id": {
+                    "D-HYD-1": {
+                        "eqf_levels": [6],
+                        "validation_evidence_ids": ["REG-1"],
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="must be validated"):
+        _build(tmp_path, paths, supply)
+
+
+def test_validated_supply_changes_h2_only_with_evidence(tmp_path: Path) -> None:
+    paths = _fixture(tmp_path)
+    supply = tmp_path / "supply.json"
+    supply.write_text(
+        json.dumps(
+            {
+                "validation_status": "validated",
+                "has_validated_supply": True,
+                "validated_supply_by_demand_id": {
+                    "D-HYD-1": {
+                        "validation_status": "validated",
+                        "eqf_levels": [6],
+                        "validation_evidence_ids": ["REG-1"],
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    result = _build(tmp_path, paths, supply)
+    h2 = result["subsets"]["all_canonical"]["h2"]
+    assert h2["validated_supply_map_provided"] is True
+    assert h2["validated_covered_demand_count"] == 1
+    assert h2["validated_missing_demand_count"] == 0
+    assert h2["interpretation"] == "not_supported"
