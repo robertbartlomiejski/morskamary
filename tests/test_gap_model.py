@@ -553,9 +553,9 @@ class TestExportFunctions:
         assert "Analysis_mode" in header
         assert "Run_id" in header
         assert "Schema_version" in header
-        # Run_id must be non-blank (UUID fallback)
+        # Run_id must be non-blank and explicitly non-publication when omitted
         for row in rows:
-            assert row["Run_id"], "Run_id must not be empty"
+            assert row["Run_id"] == "local-unpublished"
             assert row["Schema_version"] == "2", "Schema_version must be '2'"
         assert len(rows) == len(SECTORS)
 

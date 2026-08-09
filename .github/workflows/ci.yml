@@ -151,6 +151,26 @@ jobs:
             echo "No scripts/generate_manifest.py found; skipping manifest determinism check."
           fi
 
+      - name: Verify authoritative protocol projection is committed and in sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/export_live_query_protocol_projection.py \
+            --protocol-path config/live_query_protocol.yml \
+            --output-path outputs/research_sources/research_queries_from_protocol.yml \
+            --emit-summary-path outputs/research_sources/research_queries_from_protocol_summary.json \
+            --emit-constraints-path outputs/research_sources/query_protocol_constraints.json
+          projection_paths=(
+            outputs/research_sources/research_queries_from_protocol.yml
+            outputs/research_sources/research_queries_from_protocol_summary.json
+            outputs/research_sources/query_protocol_constraints.json
+          )
+          git ls-files --error-unmatch -- "${projection_paths[@]}"
+          if ! git diff --exit-code -- "${projection_paths[@]}"; then
+            echo "Authoritative protocol projection outputs are stale. Regenerate and commit them."
+            exit 1
+          fi
+
       - name: Enforce CHANGELOG update on PRs that change tracked artifacts (lightweight rule)
         if: github.event_name == 'pull_request'
         shell: bash

@@ -37,7 +37,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import (
     Any,
     Dict,
@@ -94,6 +94,7 @@ DEFAULT_LIVE_RECORDS_JSON = (
 )
 CUMULATIVE_QMBD_RECORDS_FILENAME = "cumulative_qmbd_records.json"
 REPO_GITHUB_BASE = "https://github.com/robertbartlomiejski/morskamary/blob/main"
+_REDACTED_OUT_OF_TREE_PATH = "[redacted-out-of-tree-path]"
 _AXIS_CLASSIFIER = AxisClassifier()
 
 # Whitelist of uncertainty typology values produced by AxisClassifier.classify_context().
@@ -200,8 +201,26 @@ class CompetenceSource:
     @property
     def github_url(self) -> str:
         """Return GitHub hyperlink to the source file/row"""
+        if not self.file or self.file == _REDACTED_OUT_OF_TREE_PATH:
+            return ""
         encoded = self.file.replace(" ", "%20")
         return f"{REPO_GITHUB_BASE}/{encoded}#L{self.row}"
+
+
+def _repo_relative_posix_or_redacted(path_like: str | Path) -> str:
+    """Return a repository-relative POSIX path or redact out-of-tree locations."""
+    raw_path = str(path_like).strip()
+    path = Path(raw_path)
+    if PureWindowsPath(raw_path).is_absolute() and not path.is_absolute():
+        return _REDACTED_OUT_OF_TREE_PATH
+    try:
+        resolved = path.resolve(strict=False)
+    except OSError:
+        return _REDACTED_OUT_OF_TREE_PATH
+    try:
+        return resolved.relative_to(REPO_ROOT.resolve()).as_posix()
+    except ValueError:
+        return _REDACTED_OUT_OF_TREE_PATH
 
 
 @dataclass
@@ -547,6 +566,7 @@ def _build_cumulative_run_metadata(
         "allow_static_recovery_mode_env": _ALLOW_STATIC_RECOVERY_ENV,
         "provider_set": os.getenv("REQUESTED_PROVIDERS", "").strip(),
         "github_run_id": os.getenv("GITHUB_RUN_ID", "").strip(),
+        "github_run_attempt": os.getenv("GITHUB_RUN_ATTEMPT", "").strip(),
         "commit_sha": os.getenv("GITHUB_SHA", "").strip() or _get_git_head_sha(),
         "timestamp_utc": _now_utc_iso(),
         "warnings": [warning_message] if static_recovery_enabled else [],
@@ -556,6 +576,32 @@ def _build_cumulative_run_metadata(
             "Static recovery mode explicitly enabled; no reason supplied."
         )
     return metadata
+
+
+def _default_non_publication_run_id(analysis_mode: str) -> str:
+    """Return an explicit non-publication fallback run identifier."""
+    normalized_mode = str(analysis_mode or "").strip().lower()
+    if normalized_mode == "static":
+        return "local-static-recovery"
+    if normalized_mode == "live-enriched":
+        return "local-live-unpublished"
+    return "local-unpublished"
+
+
+def _canonical_public_run_id(
+    *,
+    analysis_mode: str,
+    github_run_id: str,
+    github_run_attempt: str,
+) -> str:
+    """Return the publication-grade run identifier for generated artifacts."""
+    normalized_run_id = str(github_run_id).strip()
+    normalized_attempt = str(github_run_attempt).strip()
+    if normalized_run_id and normalized_attempt:
+        return f"{normalized_run_id}-{normalized_attempt}"
+    if normalized_run_id:
+        return normalized_run_id
+    return _default_non_publication_run_id(analysis_mode)
 
 
 def _serialize_subject_terms(subject_terms: Any) -> str:
@@ -1310,11 +1356,7 @@ def extract_live_records_competences(
 
     seen_titles: Set[str] = set(known_titles or set())
     competences: List[Competence] = []
-    try:
-        rel_path = live_records_path.relative_to(REPO_ROOT).as_posix()
-    except ValueError:
-        # Custom paths may live outside REPO_ROOT; keep source metadata usable.
-        rel_path = live_records_path.resolve().as_posix()
+    rel_path = _repo_relative_posix_or_redacted(live_records_path)
 
     canonical_by_norm = {
         re.sub(r"[^a-z0-9]+", " ", sec.lower()).strip(): sec for sec in SECTORS
@@ -1556,6 +1598,8 @@ def _competence_to_gap_evidence(
     doi = getattr(src, "doi", "") or ""
     paper_title = getattr(src, "paper_title", "") or comp.name
     source_file = getattr(src, "file", "") or ""
+    if source_file and Path(source_file).is_absolute():
+        source_file = _repo_relative_posix_or_redacted(source_file)
     source_row = getattr(src, "row", 0) or 0
 
     # Attempt to parse confidence_score from description text
@@ -1624,9 +1668,9 @@ def _collect_supply_from_credentials_db(
     except Exception:
         return supply
     source_file = (
-        db_path.relative_to(REPO_ROOT).as_posix()
-        if db_path.is_absolute() and db_path.is_relative_to(REPO_ROOT)
-        else str(db_path)
+        _repo_relative_posix_or_redacted(db_path)
+        if db_path.is_absolute()
+        else str(db_path).replace("\\", "/")
     )
     for cred in data.get("credentials", []):
         sector = cred.get("sector", "")
@@ -1715,9 +1759,9 @@ def _collect_supply_from_microcredentials_csv(
         import csv as csv_mod
 
         source_file = (
-            csv_path.relative_to(REPO_ROOT).as_posix()
-            if csv_path.is_absolute() and csv_path.is_relative_to(REPO_ROOT)
-            else str(csv_path)
+            _repo_relative_posix_or_redacted(csv_path)
+            if csv_path.is_absolute()
+            else str(csv_path).replace("\\", "/")
         )
         with open(csv_path, newline="", encoding="utf-8-sig") as fh:
             reader = csv_mod.reader(fh)
@@ -2993,14 +3037,13 @@ def export_gaps_summary_csv(
 
     Gap_pct = Missing / Required * 100, rounded to one decimal place.
 
-    ``Run_id`` falls back to a UUID when empty so every artifact has a
-    non-blank, globally unique run identifier even in non-CI contexts.
+    ``Run_id`` falls back to an explicit non-publication identifier when empty.
     ``Generated_at`` falls back to the current UTC timestamp when not supplied.
     ``Schema_version`` is fixed to ``"2"`` and can be used by consumers to
     detect the schema version without inspecting column names.
     """
     ts = generated_at or _now_utc_iso()
-    effective_run_id = run_id or str(__import__("uuid").uuid4())
+    effective_run_id = run_id or _default_non_publication_run_id(analysis_mode)
     with open(output_path, "w", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh)
         writer.writerow(
@@ -3828,7 +3871,13 @@ def main(
         OUTPUTS_DIR / "gaps_summary.csv",
         generated_at=cumulative_run_metadata.get("timestamp_utc", ""),
         analysis_mode=cumulative_run_metadata.get("analysis_input_mode", ""),
-        run_id=cumulative_run_metadata.get("github_run_id", ""),
+        run_id=_canonical_public_run_id(
+            analysis_mode=str(cumulative_run_metadata.get("analysis_input_mode", "")),
+            github_run_id=str(cumulative_run_metadata.get("github_run_id", "")),
+            github_run_attempt=str(
+                cumulative_run_metadata.get("github_run_attempt", "")
+            ),
+        ),
     )
     export_gaps_detailed_json(gap_model_result, OUTPUTS_DIR / "gaps_detailed.json")
     export_gaps_by_sector_axis_csv(

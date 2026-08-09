@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import importlib.util
 import json
 import sys
 from pathlib import Path
+
+import pytest
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -68,6 +71,7 @@ def _seed_required_targets(base_dir: Path) -> None:
                 "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
                 "provider_set": "crossref",
                 "github_run_id": "",
+                "github_run_attempt": "",
                 "commit_sha": "abc123",
                 "timestamp_utc": "2026-07-07T00:00:00+00:00",
                 "warnings": [],
@@ -142,6 +146,33 @@ def _validate_archive(tmp_path: Path) -> int:
             "--require-present",
         ]
     )
+
+
+def _refresh_archived_file_integrity(run_dir: Path, relative_path: str) -> None:
+    archived_path = run_dir / relative_path
+    digest = hashlib.sha256(archived_path.read_bytes()).hexdigest()
+    size_bytes = archived_path.stat().st_size
+
+    manifest_path = run_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    for descriptor in manifest["files"]:
+        if descriptor["path"] == relative_path:
+            descriptor["sha256"] = digest
+            descriptor["size_bytes"] = size_bytes
+            break
+    manifest["total_bytes"] = sum(item["size_bytes"] for item in manifest["files"])
+    _write_json(manifest_path, manifest)
+    _write_json(run_dir / "run_manifest.json", manifest)
+
+    checksums_path = run_dir / "_checksums.sha256"
+    checksum_lines = checksums_path.read_text(encoding="utf-8").splitlines()
+    checksum_lines = [
+        f"{digest}  {relative_path}"
+        if line.endswith(f"  {relative_path}")
+        else line
+        for line in checksum_lines
+    ]
+    _write_text(checksums_path, "\n".join(checksum_lines) + "\n")
 
 
 def test_validate_run_archive_integrity_passes_for_valid_archive(tmp_path: Path) -> None:
@@ -237,7 +268,87 @@ def test_validate_run_archive_integrity_requires_consistent_cumulative_csv_run_p
     assert _validate_archive(tmp_path) == 1
 
 
-def test_validate_run_archive_integrity_accepts_legacy_absolute_cumulative_csv_run_path(
+@pytest.mark.parametrize("field", ["file_count", "total_bytes"])
+def test_validate_run_archive_integrity_rejects_stale_cumulative_csv_total(
+    tmp_path: Path, field: str,
+) -> None:
+    _create_archive(tmp_path, run_id="run-csv-stale-total")
+    csv_path = tmp_path / "outputs" / "run_archive" / "cumulative_runs_index.csv"
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = list(rows[0].keys())
+
+    rows[-1][field] = str(int(rows[-1][field]) + 1)
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert _validate_archive(tmp_path) == 1
+
+
+@pytest.mark.parametrize("field", ["file_count", "total_bytes"])
+def test_validate_run_archive_integrity_rejects_stale_jsonl_total(
+    tmp_path: Path, field: str,
+) -> None:
+    _create_archive(tmp_path, run_id="run-jsonl-stale-total")
+    index_path = tmp_path / "outputs" / "run_archive" / "_index" / "runs_index.jsonl"
+    entries = [
+        json.loads(line)
+        for line in index_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    entries[-1][field] += 1
+    _write_text(
+        index_path,
+        "".join(json.dumps(entry, sort_keys=True) + "\n" for entry in entries),
+    )
+
+    assert _validate_archive(tmp_path) == 1
+
+
+def test_validate_run_archive_integrity_rejects_phantom_csv_run(
+    tmp_path: Path,
+) -> None:
+    _create_archive(tmp_path, run_id="run-csv-present")
+    csv_path = tmp_path / "outputs" / "run_archive" / "cumulative_runs_index.csv"
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = list(rows[0].keys())
+
+    phantom_row = dict(rows[-1])
+    phantom_row["run_id"] = "run-csv-phantom"
+    phantom_row["run_path"] = "runs/run-csv-phantom"
+    rows.append(phantom_row)
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert _validate_archive(tmp_path) == 1
+
+
+def test_validate_run_archive_integrity_rejects_phantom_jsonl_run(
+    tmp_path: Path,
+) -> None:
+    _create_archive(tmp_path, run_id="run-jsonl-present")
+    index_path = tmp_path / "outputs" / "run_archive" / "_index" / "runs_index.jsonl"
+    entry = json.loads(index_path.read_text(encoding="utf-8").strip())
+    phantom_entry = dict(entry)
+    phantom_entry["run_id"] = "run-jsonl-phantom"
+    phantom_entry["run_path"] = "runs/run-jsonl-phantom"
+    _write_text(
+        index_path,
+        json.dumps(entry, sort_keys=True)
+        + "\n"
+        + json.dumps(phantom_entry, sort_keys=True)
+        + "\n",
+    )
+
+    assert _validate_archive(tmp_path) == 1
+
+
+def test_validate_run_archive_integrity_rejects_arbitrary_absolute_cumulative_csv_run_path(
     tmp_path: Path,
 ) -> None:
     run_dir = _create_archive(tmp_path, run_id="run-csv-legacy-abs")
@@ -252,7 +363,321 @@ def test_validate_run_archive_integrity_accepts_legacy_absolute_cumulative_csv_r
         writer.writeheader()
         writer.writerows(rows)
 
-    assert _validate_archive(tmp_path) == 0
+    assert _validate_archive(tmp_path) == 1
+
+
+def test_validate_run_archive_integrity_accepts_fingerprinted_legacy_absolute_csv_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    run_id = "run-csv-fingerprinted-legacy"
+    run_dir = _create_archive(tmp_path, run_id=run_id)
+    csv_path = tmp_path / "outputs" / "run_archive" / "cumulative_runs_index.csv"
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = list(rows[0].keys())
+
+    rows[-1]["run_path"] = run_dir.resolve().as_posix()
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_fingerprinted_legacy_csv_test",
+    )
+    manifest_path = run_dir / "manifest.json"
+    monkeypatch.setitem(
+        validate_module.LEGACY_PATH_METADATA_MANIFEST_SHA256,
+        run_id,
+        hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+    )
+    assert (
+        validate_module.main(
+            [
+                "--repo-root",
+                str(tmp_path),
+                "--archive-root",
+                "outputs/run_archive",
+                "--require-present",
+            ]
+        )
+        == 0
+    )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("timestamp_utc", ""),
+        ("timestamp_utc", "not-a-timestamp"),
+        ("timestamp_utc", "2025-01-01T00:00:00+00:00"),
+        ("analysis_timestamp_utc", ""),
+        ("analysis_timestamp_utc", "not-a-timestamp"),
+        ("analysis_timestamp_utc", "2025-01-01T00:00:00+00:00"),
+    ],
+)
+def test_validate_run_archive_integrity_rejects_invalid_or_stale_csv_timestamp(
+    tmp_path: Path, field: str, value: str
+) -> None:
+    _create_archive(tmp_path, run_id="run-csv-timestamp")
+    csv_path = tmp_path / "outputs" / "run_archive" / "cumulative_runs_index.csv"
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = list(rows[0].keys())
+
+    rows[-1][field] = value
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert _validate_archive(tmp_path) == 1
+
+
+@pytest.mark.parametrize(
+    "archived_at",
+    ["", "not-a-timestamp", "2025-01-01T00:00:00+00:00"],
+)
+def test_validate_run_archive_integrity_rejects_invalid_or_stale_jsonl_timestamp(
+    tmp_path: Path, archived_at: str
+) -> None:
+    _create_archive(tmp_path, run_id="run-jsonl-timestamp")
+    index_path = tmp_path / "outputs" / "run_archive" / "_index" / "runs_index.jsonl"
+    entry = json.loads(index_path.read_text(encoding="utf-8").strip())
+    entry["archived_at"] = archived_at
+    _write_text(index_path, json.dumps(entry, sort_keys=True) + "\n")
+
+    assert _validate_archive(tmp_path) == 1
+
+
+def test_validate_run_archive_integrity_rejects_absolute_archive_root_fields(
+    tmp_path: Path,
+) -> None:
+    run_dir = _create_archive(tmp_path, run_id="run-abs-archive-root")
+    manifest_path = run_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["archive_root"] = "/home/runner/work/morskamary/morskamary/outputs/run_archive"
+    _write_json(manifest_path, manifest)
+    _write_json(run_dir / "run_manifest.json", manifest)
+
+    csv_path = tmp_path / "outputs" / "run_archive" / "cumulative_runs_index.csv"
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = list(rows[0].keys())
+    rows[-1]["archive_root"] = manifest["archive_root"]
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert _validate_archive(tmp_path) == 1
+
+
+def test_validate_run_archive_integrity_rejects_windows_absolute_archive_root_fields(
+    tmp_path: Path,
+) -> None:
+    run_dir = _create_archive(tmp_path, run_id="run-win-archive-root")
+    manifest_path = run_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["archive_root"] = r"C:\Users\runner\work\morskamary\outputs\run_archive"
+    _write_json(manifest_path, manifest)
+    _write_json(run_dir / "run_manifest.json", manifest)
+
+    csv_path = tmp_path / "outputs" / "run_archive" / "cumulative_runs_index.csv"
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = list(rows[0].keys())
+    rows[-1]["archive_root"] = manifest["archive_root"]
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert _validate_archive(tmp_path) == 1
+
+
+def test_validate_run_archive_integrity_rejects_absolute_path_in_manifest(
+    tmp_path: Path,
+) -> None:
+    run_dir = _create_archive(tmp_path, run_id="run-manifest-path-leak")
+    manifest_path = run_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["workflow"]["query_file"] = (
+        "/home/runner/work/morskamary/morskamary/config/research_queries.yml"
+    )
+    _write_json(manifest_path, manifest)
+
+    assert _validate_archive(tmp_path) == 1
+
+
+def test_validate_run_archive_integrity_rejects_public_runner_path_leaks(
+    tmp_path: Path,
+) -> None:
+    run_dir = _create_archive(tmp_path, run_id="run-public-path-leak")
+    leaked_path = run_dir / "analysis_outputs" / "literature_integration.html"
+    leaked_path.write_text(
+        (
+            "<a href='https://github.com/robertbartlomiejski/morskamary/"
+            "blob/main//home/runner/work/morskamary/morskamary/outputs/"
+            "report_index.html'>bad</a>\n"
+        ),
+        encoding="utf-8",
+    )
+    _refresh_archived_file_integrity(
+        run_dir,
+        "analysis_outputs/literature_integration.html",
+    )
+
+    assert _validate_archive(tmp_path) == 1
+
+
+@pytest.mark.parametrize(
+    "leaked_path",
+    [
+        "/Users/researcher/work/morskamary/output.json",
+        "/opt/build/morskamary/output.json",
+        "/data/custom-root/morskamary/output.json",
+        r"C:\Users\researcher\work\morskamary\output.json",
+        r"\\build-server\research\morskamary\output.json",
+    ],
+)
+def test_absolute_path_leak_detection_is_platform_independent(
+    tmp_path: Path, leaked_path: str
+) -> None:
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_portable_path_test",
+    )
+
+    assert (
+        validate_module._count_absolute_path_leaks(
+            json.dumps({"source_path": leaked_path}),
+            repo_root=tmp_path,
+        )
+        == 1
+    )
+
+
+def test_absolute_path_leak_detection_does_not_treat_url_host_as_path(
+    tmp_path: Path,
+) -> None:
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_url_path_test",
+    )
+
+    assert (
+        validate_module._count_absolute_path_leaks(
+            "https://github.com/example/project/blob/main/report.json",
+            repo_root=tmp_path,
+        )
+        == 0
+    )
+
+
+def test_absolute_path_leak_detection_ignores_encoded_html_tags(
+    tmp_path: Path,
+) -> None:
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_encoded_html_test",
+    )
+    encoded_markup = "&lt;/b&gt;&lt;b&gt;&lt;/b&gt;"
+
+    assert (
+        validate_module._count_absolute_path_leaks(
+            encoded_markup,
+            repo_root=tmp_path,
+        )
+        == 0
+    )
+
+
+@pytest.mark.parametrize(
+    "real_path",
+    [
+        "/home/researcher/archive/output.json",
+        r"C:\Users\researcher\archive\output.json",
+        r"\\archive-server\research\output.json",
+    ],
+)
+def test_absolute_path_leak_detection_keeps_real_paths_in_encoded_markup(
+    tmp_path: Path, real_path: str
+) -> None:
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_encoded_html_real_path_test",
+    )
+
+    assert (
+        validate_module._count_absolute_path_leaks(
+            f'&lt;a href="{real_path}"&gt;label&lt;/a&gt;',
+            repo_root=tmp_path,
+        )
+        == 1
+    )
+
+
+def test_legacy_path_grandfathering_is_bound_to_manifest_bytes(tmp_path: Path) -> None:
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_legacy_fingerprint_test",
+    )
+    run_id = "28967267944.2"
+    manifest_path = (
+        REPO_ROOT / "outputs" / "run_archive" / "runs" / run_id / "manifest.json"
+    )
+
+    assert validate_module._is_grandfathered_legacy_run(run_id, manifest_path)
+
+    changed_manifest = tmp_path / "manifest.json"
+    changed_manifest.write_bytes(manifest_path.read_bytes() + b"\n")
+    assert not validate_module._is_grandfathered_legacy_run(run_id, changed_manifest)
+
+
+def test_legacy_index_totals_are_limited_to_fingerprinted_exact_values(
+    tmp_path: Path,
+) -> None:
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_legacy_index_test",
+    )
+    run_id = "28967267944.2"
+    expected_totals = (64, 46631770)
+    index_path = tmp_path / "runs_index.jsonl"
+    archive_root = REPO_ROOT / "outputs" / "run_archive"
+    legacy_entry = {
+        "file_count": 64,
+        "total_bytes": 45636058,
+    }
+    legacy_totals = validate_module._legacy_index_totals(run_id, archive_root)
+
+    assert legacy_totals == (64, 45636058)
+    assert (
+        validate_module._validate_index_totals(
+            index_path,
+            "line 1",
+            run_id,
+            legacy_entry,
+            expected_totals,
+            legacy_totals,
+        )
+        == []
+    )
+
+    legacy_entry["total_bytes"] += 1
+    errors = validate_module._validate_index_totals(
+        index_path,
+        "line 1",
+        run_id,
+        legacy_entry,
+        expected_totals,
+        legacy_totals,
+    )
+
+    assert len(errors) == 1
+    assert "expected 46631770, got 45636059" in errors[0]
 
 
 def test_validate_run_archive_integrity_accepts_legacy_manifest_filename(

@@ -1,8 +1,5 @@
 {
-  "protocol_path": "config/live_query_protocol.yml",
-  "projection_path": "outputs/research_sources/research_queries_from_protocol.yml",
-  "protocol_query_count": 120,
-  "projected_query_count": 120,
+  "constraints_path": "outputs/research_sources/query_protocol_constraints.json",
   "family_counts": {
     "competence_demand": 24,
     "core_sector": 36,
@@ -11,6 +8,10 @@
     "theory_translation": 12,
     "validation_eqf_translation": 12
   },
+  "projected_query_count": 120,
+  "projection_path": "outputs/research_sources/research_queries_from_protocol.yml",
+  "protocol_path": "config/live_query_protocol.yml",
+  "protocol_query_count": 120,
   "sector_counts": {
     "blue_biotech": 10,
     "coastal_tourism": 10,

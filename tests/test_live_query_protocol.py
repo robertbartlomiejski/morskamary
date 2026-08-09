@@ -27,6 +27,9 @@ from src.scientific_sources.live_query_protocol import (
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL_PATH = REPO_ROOT / "config" / "live_query_protocol.yml"
 LEGACY_QUERIES_PATH = REPO_ROOT / "config" / "research_queries.yml"
+TRACKED_CONSTRAINTS_PATH = (
+    REPO_ROOT / "outputs" / "research_sources" / "query_protocol_constraints.json"
+)
 
 
 # ---------- fixtures ----------------------------------------------------
@@ -83,6 +86,7 @@ def _minimal_query(slug: str, family: LiveQueryFamily, idx: int) -> Dict[str, An
             "crossref": "published-desc",
             "scopus": "date-desc",
             "wos": "date-desc",
+            "openalex": "date-desc",
         },
         "sampling_strategy": {
             "mode": "stratified",
@@ -227,6 +231,10 @@ class TestShippedProtocol:
                 lambda projection: projection["queries"][0]["sort_strategy"].__setitem__("crossref", "relevance"),
             ),
             (
+                "sort-strategy",
+                lambda projection: projection["queries"][0]["sort_strategy"].__setitem__("openalex", "relevance"),
+            ),
+            (
                 "sampling-strategy",
                 lambda projection: projection["queries"][0]["sampling_strategy"].__setitem__("pages", 99),
             ),
@@ -235,7 +243,14 @@ class TestShippedProtocol:
                 lambda projection: projection["queries"][0].__setitem__("axis_target", "WRONG_AXIS"),
             ),
         ],
-        ids=["protocol-version", "time-window", "sort-strategy", "sampling-strategy", "axis-target"],
+        ids=[
+            "protocol-version",
+            "time-window",
+            "sort-strategy-crossref",
+            "sort-strategy-openalex",
+            "sampling-strategy",
+            "axis-target",
+        ],
     )
     def test_complete_authoritative_projection_rejects_stale_acquisition_fields(
         self,
@@ -708,6 +723,16 @@ class TestCompleteAuthoritativeProjectionValidation:
         own authoritative projection."""
         constraints = self._valid_constraints(loaded_protocol)
         validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_tracked_constraints_file_matches_authoritative_protocol(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = json.loads(TRACKED_CONSTRAINTS_PATH.read_text(encoding="utf-8"))
+
+        validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+        assert constraints["query_count"] == len(loaded_protocol.to_query_constraints())
+        for row in constraints["queries"]:
+            assert row["sort_strategy"]["openalex"] == "date-desc"
 
     def test_mismatch_aborts_before_provider_search(
         self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
