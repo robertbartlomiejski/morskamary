@@ -190,7 +190,7 @@ def _validate_public_path_leaks(
 
 def _validate_one_run(
     run_dir: Path, validator: Draft202012Validator, *, repo_root: Path
-) -> tuple[str, list[str]]:
+) -> tuple[str, tuple[int, int] | None, list[str]]:
     run_id = run_dir.name
     errors: list[str] = []
 
@@ -209,24 +209,24 @@ def _validate_one_run(
                 f"{run_dir}: missing {CANONICAL_MANIFEST_FILENAME} "
                 f"(or compatibility {RUN_MANIFEST_FILENAME}/{LEGACY_RUN_MANIFEST_FILENAME})"
             )
-            return run_id, errors
+            return run_id, None, errors
     if not checksums_path.is_file():
         errors.append(f"{run_dir}: missing _checksums.sha256")
-        return run_id, errors
+        return run_id, None, errors
 
     manifest, manifest_error = _load_json(manifest_path)
     if manifest_error is not None:
         errors.append(manifest_error)
-        return run_id, errors
+        return run_id, None, errors
     if not isinstance(manifest, dict):
         errors.append(f"{manifest_path}: manifest root must be a JSON object")
-        return run_id, errors
+        return run_id, None, errors
 
     schema_errors = sorted(validator.iter_errors(manifest), key=lambda item: item.path)
     if schema_errors:
         for schema_error in schema_errors:
             errors.append(f"{manifest_path}: schema validation error: {schema_error.message}")
-        return run_id, errors
+        return run_id, None, errors
 
     if str(manifest.get("run_id", "")) != run_id:
         errors.append(f"{manifest_path}: run_id '{manifest.get('run_id')}' != directory '{run_id}'")
@@ -242,7 +242,7 @@ def _validate_one_run(
     manifest_files_raw = manifest.get("files", [])
     if not isinstance(manifest_files_raw, list):
         errors.append(f"{manifest_path}: files must be an array")
-        return run_id, errors
+        return run_id, None, errors
 
     manifest_files: dict[str, dict[str, Any]] = {}
     for item in manifest_files_raw:
@@ -318,10 +318,42 @@ def _validate_one_run(
             _validate_public_path_leaks(run_dir, archived_paths, repo_root=repo_root)
         )
 
-    return run_id, errors
+    return run_id, (expected_file_count, expected_total_bytes), errors
 
 
-def _validate_index_jsonl(archive_root: Path, run_ids: set[str]) -> list[str]:
+def _validate_index_totals(
+    index_path: Path,
+    location: str,
+    run_id: str,
+    entry: dict[str, Any],
+    expected_totals: tuple[int, int],
+) -> list[str]:
+    errors: list[str] = []
+    for field, expected_value in zip(
+        ("file_count", "total_bytes"), expected_totals, strict=True
+    ):
+        raw_value = entry.get(field)
+        try:
+            actual_value = int(str(raw_value).strip())
+        except (TypeError, ValueError):
+            errors.append(
+                f"{index_path}: invalid {field} for run_id '{run_id}' at {location}: "
+                f"{raw_value!r}"
+            )
+            continue
+        if actual_value != expected_value:
+            errors.append(
+                f"{index_path}: inconsistent {field} for run_id '{run_id}' at "
+                f"{location} (expected {expected_value}, got {actual_value})"
+            )
+    return errors
+
+
+def _validate_index_jsonl(
+    archive_root: Path,
+    run_ids: set[str],
+    expected_manifest_totals: dict[str, tuple[int, int]],
+) -> list[str]:
     errors: list[str] = []
     index_path = archive_root / "_index" / "runs_index.jsonl"
     if not index_path.is_file():
@@ -347,10 +379,22 @@ def _validate_index_jsonl(archive_root: Path, run_ids: set[str]) -> list[str]:
         return errors
 
     indexed_runs: set[str] = set()
-    for entry in entries:
+    for line_number, entry in enumerate(entries, start=1):
         run_id = str(entry.get("run_id", ""))
         run_path = str(entry.get("run_path", ""))
         if run_id and run_path == f"runs/{run_id}":
+            expected_totals = expected_manifest_totals.get(run_id)
+            if expected_totals is not None:
+                entry_errors = _validate_index_totals(
+                    index_path,
+                    f"line {line_number}",
+                    run_id,
+                    entry,
+                    expected_totals,
+                )
+                errors.extend(entry_errors)
+                if entry_errors:
+                    continue
             indexed_runs.add(run_id)
 
     missing = sorted(run_id for run_id in run_ids if run_id not in indexed_runs)
@@ -365,6 +409,7 @@ def _validate_index_csv(
     archive_root: Path,
     run_ids: set[str],
     expected_run_paths: dict[str, tuple[str, str]],
+    expected_manifest_totals: dict[str, tuple[int, int]],
 ) -> list[str]:
     errors: list[str] = []
     csv_path = archive_root / INDEX_CSV_FILENAME
@@ -416,6 +461,18 @@ def _validate_index_csv(
                     f"{row_number}: {archive_root_value}"
                 )
                 continue
+            expected_totals = expected_manifest_totals.get(run_id)
+            if expected_totals is not None:
+                row_errors = _validate_index_totals(
+                    csv_path,
+                    f"line {row_number}",
+                    run_id,
+                    row,
+                    expected_totals,
+                )
+                errors.extend(row_errors)
+                if row_errors:
+                    continue
             indexed_runs.add(run_id)
 
     missing = sorted(run_id for run_id in run_ids if run_id not in indexed_runs)
@@ -494,21 +551,33 @@ def main(argv: list[str] | None = None) -> int:
     all_errors: list[str] = []
     run_ids: set[str] = set()
     expected_run_paths: dict[str, tuple[str, str]] = {}
+    expected_manifest_totals: dict[str, tuple[int, int]] = {}
     for run_dir in run_dirs:
-        run_id, run_errors = _validate_one_run(
+        run_id, manifest_totals, run_errors = _validate_one_run(
             run_dir,
             validator,
             repo_root=repo_root,
         )
         run_ids.add(run_id)
+        if manifest_totals is not None:
+            expected_manifest_totals[run_id] = manifest_totals
         expected_run_paths[run_id] = (
             f"runs/{run_id}",
             run_dir.resolve().as_posix(),
         )
         all_errors.extend(run_errors)
 
-    all_errors.extend(_validate_index_jsonl(archive_root, run_ids))
-    all_errors.extend(_validate_index_csv(archive_root, run_ids, expected_run_paths))
+    all_errors.extend(
+        _validate_index_jsonl(archive_root, run_ids, expected_manifest_totals)
+    )
+    all_errors.extend(
+        _validate_index_csv(
+            archive_root,
+            run_ids,
+            expected_run_paths,
+            expected_manifest_totals,
+        )
+    )
 
     if all_errors:
         print("Run archive integrity validation FAILED:")

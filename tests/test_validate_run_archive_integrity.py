@@ -268,6 +268,45 @@ def test_validate_run_archive_integrity_requires_consistent_cumulative_csv_run_p
     assert _validate_archive(tmp_path) == 1
 
 
+@pytest.mark.parametrize("field", ["file_count", "total_bytes"])
+def test_validate_run_archive_integrity_rejects_stale_cumulative_csv_total(
+    tmp_path: Path, field: str,
+) -> None:
+    _create_archive(tmp_path, run_id="run-csv-stale-total")
+    csv_path = tmp_path / "outputs" / "run_archive" / "cumulative_runs_index.csv"
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = list(rows[0].keys())
+
+    rows[-1][field] = str(int(rows[-1][field]) + 1)
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert _validate_archive(tmp_path) == 1
+
+
+@pytest.mark.parametrize("field", ["file_count", "total_bytes"])
+def test_validate_run_archive_integrity_rejects_stale_jsonl_total(
+    tmp_path: Path, field: str,
+) -> None:
+    _create_archive(tmp_path, run_id="run-jsonl-stale-total")
+    index_path = tmp_path / "outputs" / "run_archive" / "_index" / "runs_index.jsonl"
+    entries = [
+        json.loads(line)
+        for line in index_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    entries[-1][field] += 1
+    _write_text(
+        index_path,
+        "".join(json.dumps(entry, sort_keys=True) + "\n" for entry in entries),
+    )
+
+    assert _validate_archive(tmp_path) == 1
+
+
 def test_validate_run_archive_integrity_accepts_legacy_absolute_cumulative_csv_run_path(
     tmp_path: Path,
 ) -> None:
