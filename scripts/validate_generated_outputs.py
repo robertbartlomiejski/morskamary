@@ -505,16 +505,23 @@ def check_gaps_csv(rows: list[dict]) -> None:
         else:
             ok(f"Column '{col}' has {len(values)} distinct values across sectors")
 
-    hydronization_values = {
-        (row.get("Missing_HYDRONIZATION") or "").strip() for row in rows
-    }
-    if not hydronization_values:
+    fieldnames = set(rows[0].keys()) if rows else set()
+    if "Missing_HYDRONIZATION" not in fieldnames:
         fail("Column 'Missing_HYDRONIZATION' is missing from gaps_summary.csv")
     else:
-        ok(
-            "Column 'Missing_HYDRONIZATION' is present across sectors "
-            f"({len(hydronization_values)} distinct values)"
-        )
+        hydronization_values = {
+            (row.get("Missing_HYDRONIZATION") or "").strip() for row in rows
+        }
+        if hydronization_values <= {""}:
+            fail(
+                "Column 'Missing_HYDRONIZATION' is present but blank for all "
+                "sectors — outputs appear to be a stale three-axis artifact"
+            )
+        else:
+            ok(
+                "Column 'Missing_HYDRONIZATION' is present across sectors "
+                f"({len(hydronization_values)} distinct values)"
+            )
 
 
 def check_credentials(

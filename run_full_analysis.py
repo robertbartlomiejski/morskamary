@@ -3238,6 +3238,23 @@ def generate_report_index(
     """Generate master report index HTML."""
     total_comps = len(baseline) + len(literature)
     avg_gap = sum(g.gap_pct for g in gaps.values()) / max(1, len(gaps))
+    credential_sectors = {c.sector for c in credentials}
+    credential_eqf_levels = sorted({c.eqf_level.value for c in credentials})
+    full_stack_sectors = sum(
+        1
+        for sector in credential_sectors
+        if {c.eqf_level.value for c in credentials if c.sector == sector}
+        == {4, 5, 6, 7}
+    )
+    if credential_eqf_levels:
+        eqf_summary = (
+            f"{len(credential_sectors)} sectors, EQF levels "
+            f"{min(credential_eqf_levels)}-{max(credential_eqf_levels)} generated "
+            f"({full_stack_sectors} with the full EQF4-EQF7 stack; "
+            "remaining gaps listed under review_required)"
+        )
+    else:
+        eqf_summary = "No credentials generated"
     static_count = (
         int(static_literature_count)
         if static_literature_count is not None
@@ -3279,7 +3296,7 @@ def generate_report_index(
   <div class="card"><h3>📋 Competences</h3><p style="font-size:2rem;margin:0">{total_comps}</p>
     <p>{competence_breakdown}</p></div>
   <div class="card"><h3>🎓 Credentials</h3><p style="font-size:2rem;margin:0">{len(credentials)}</p>
-  <p>12 sectors, each with stacked EQF4 to EQF7 credentials</p></div>
+    <p>{eqf_summary}</p></div>
   <div class="card"><h3>🏭 Sectors</h3><p style="font-size:2rem;margin:0">{len(SECTORS)}</p>
     <p>EU Blue Economy sectors analysed</p></div>
   <div class="card"><h3>⚠️ Avg Gap</h3><p style="font-size:2rem;margin:0">{avg_gap:.1f}%</p>

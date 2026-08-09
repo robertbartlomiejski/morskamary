@@ -54,6 +54,17 @@ def compare_json_payloads(
 ) -> bool:
     """Compare a supported generated JSON file after narrow normalization."""
 
+    if filename == "cumulative_qmbd_records.json":
+        for label, payload in (("current", current), ("committed", committed)):
+            metadata = payload.get("metadata", {}) if isinstance(payload, dict) else {}
+            if metadata.get("is_static_recovery_mode") and not str(
+                metadata.get("static_recovery_reason", "")
+            ).strip():
+                raise ValueError(
+                    f"{filename}: {label} static_recovery_reason is required and "
+                    "must be nonempty when is_static_recovery_mode is true"
+                )
+
     ignored_keys = NONDETERMINISTIC_KEYS_BY_FILE.get(filename, set())
     return bool(
         normalize_payload(current, ignored_keys)
@@ -120,11 +131,17 @@ def compare_outputs(root: Path) -> list[str]:
             errors.append(f"{relative_path}: cannot compare JSON safely: {exc}")
             continue
 
-        if not compare_json_payloads(
-            current_payload,
-            committed_payload,
-            filename=filename,
-        ):
+        try:
+            in_sync = compare_json_payloads(
+                current_payload,
+                committed_payload,
+                filename=filename,
+            )
+        except ValueError as exc:
+            errors.append(f"{relative_path}: {exc}")
+            continue
+
+        if not in_sync:
             errors.append(f"{relative_path}: substantive JSON drift")
     return errors
 

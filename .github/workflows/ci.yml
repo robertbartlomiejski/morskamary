@@ -167,6 +167,7 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       ALLOW_STATIC_RECOVERY_MODE: "true"
+      STATIC_RECOVERY_REASON: "CI quick-mode-gate deterministic static analysis check"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
