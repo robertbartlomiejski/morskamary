@@ -370,11 +370,11 @@ def _validate_index_csv(
                     f"{row_number} (expected {expected_relative}, got {run_path})"
                 )
                 continue
-            archive_root = str(row.get("archive_root", "")).strip()
-            if archive_root and not _is_safe_relative(archive_root):
+            archive_root_value = str(row.get("archive_root", "")).strip()
+            if archive_root_value and not _is_safe_relative(archive_root_value):
                 errors.append(
                     f"{csv_path}: unsafe archive_root for run_id '{run_id}' on line "
-                    f"{row_number}: {archive_root}"
+                    f"{row_number}: {archive_root_value}"
                 )
                 continue
             indexed_runs.add(run_id)

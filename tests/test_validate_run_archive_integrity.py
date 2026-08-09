@@ -284,7 +284,11 @@ def test_validate_run_archive_integrity_rejects_public_runner_path_leaks(
     run_dir = _create_archive(tmp_path, run_id="run-public-path-leak")
     leaked_path = run_dir / "analysis_outputs" / "literature_integration.html"
     leaked_path.write_text(
-        "<a href='https://github.com/robertbartlomiejski/morskamary/blob/main//home/runner/work/morskamary/morskamary/outputs/report_index.html'>bad</a>\n",
+        (
+            "<a href='https://github.com/robertbartlomiejski/morskamary/"
+            "blob/main//home/runner/work/morskamary/morskamary/outputs/"
+            "report_index.html'>bad</a>\n"
+        ),
         encoding="utf-8",
     )
 
