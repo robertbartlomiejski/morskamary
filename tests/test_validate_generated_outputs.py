@@ -71,10 +71,14 @@ def _make_gaps_rows(required: str = "100") -> list[dict]:
             "Required": required,
             "Available": "15",
             "Missing": "85",
-            "Gap %": "85.0",
-            "Missing MARINE": "10",
-            "Missing MARITIME": "20",
-            "Missing OCEANIC": "55",
+            "Gap_pct": "85.0",
+            "Missing_MARINE": "10",
+            "Missing_MARITIME": "20",
+            "Missing_OCEANIC": "55",
+            "Missing_HYDRONIZATION": "0",
+            "Generated_at": "2026-01-01T00:00:00+00:00",
+            "Analysis_mode": "static",
+            "Run_id": "",
         }
         for s in CANONICAL_SECTORS
     ]
@@ -186,12 +190,16 @@ class TestSchemaValidation:
         """load_gaps_csv must fail loudly when a required column is absent."""
         mod = _load_validator_module()
         bad_csv = tmp_path / "gaps.csv"
-        # Write a CSV missing 'Gap %'
-        bad_csv.write_text("Sector,Required,Available,Missing,Missing MARINE,Missing MARITIME,Missing OCEANIC\n"
-                           "Blue Biotech,100,15,85,10,20,55\n")
+        # Write a CSV missing 'Gap_pct'
+        bad_csv.write_text(
+            "Sector,Required,Available,Missing,"
+            "Missing_MARINE,Missing_MARITIME,Missing_OCEANIC,Missing_HYDRONIZATION,"
+            "Generated_at,Analysis_mode,Run_id\n"
+            "Blue Biotech,100,15,85,10,20,55,0,2026-01-01T00:00:00+00:00,static,\n"
+        )
         mod.load_gaps_csv(bad_csv)
-        assert any("Gap %" in e for e in mod.ERRORS), (
-            f"Expected failure for missing 'Gap %' column (errors: {mod.ERRORS})"
+        assert any("Gap_pct" in e for e in mod.ERRORS), (
+            f"Expected failure for missing 'Gap_pct' column (errors: {mod.ERRORS})"
         )
 
     def test_load_sector_dict_ids_raises_on_missing_dictionary_key(self, tmp_path: Path) -> None:
@@ -230,12 +238,30 @@ class TestCheckGapsCsv:
         for i, row in enumerate(rows):
             row["Required"] = str(100 + i)
             row["Missing"] = str(85 + i)
-            row["Gap %"] = str(85.0 + i)
-            row["Missing MARINE"] = str(10 + i)
-            row["Missing MARITIME"] = str(20 + i)
-            row["Missing OCEANIC"] = str(55 + i)
+            row["Gap_pct"] = str(85.0 + i)
+            row["Missing_MARINE"] = str(10 + i)
+            row["Missing_MARITIME"] = str(20 + i)
+            row["Missing_OCEANIC"] = str(55 + i)
+            row["Missing_HYDRONIZATION"] = str(i)
         mod.check_gaps_csv(rows)
         assert not mod.ERRORS, f"Expected no errors but got: {mod.ERRORS}"
+
+    def test_passes_when_only_hydronization_is_uniform(self) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        for i, row in enumerate(rows):
+            row["Required"] = str(100 + i)
+            row["Missing"] = str(85 + i)
+            row["Gap_pct"] = str(85.0 + i)
+            row["Missing_MARINE"] = str(10 + i)
+            row["Missing_MARITIME"] = str(20 + i)
+            row["Missing_OCEANIC"] = str(55 + i)
+            row["Missing_HYDRONIZATION"] = "15"
+        mod.check_gaps_csv(rows)
+        assert not mod.ERRORS, (
+            "Expected no errors when Missing_HYDRONIZATION is uniform but "
+            f"other stale-output guards vary (errors: {mod.ERRORS})"
+        )
 
     def test_fails_when_sector_missing(self) -> None:
         mod = _load_validator_module()

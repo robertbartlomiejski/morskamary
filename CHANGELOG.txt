@@ -19,6 +19,26 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-08-09 (fix: make gaps_summary.csv reproducible across identical run-analysis reruns)
+  Change type fix update
+  Scope scripts outputs tests governance
+  Files affected run_full_analysis.py outputs/gaps_summary.csv outputs/competences_full_database.json outputs/credentials_database.json outputs/credentials_matrix.html outputs/gap_priority_ranking.csv outputs/gaps_by_sector.html outputs/gaps_by_sector_axis.csv outputs/literature_integration.html outputs/report_index.html outputs/sector_dictionaries/*.json outputs/sector_pathways.json outputs/sector_qmbd_learning_pathways.json tests/test_run_full_analysis.py CHANGELOG.txt
+  Summary Preserves the existing gaps_summary.csv provenance row fields when the sector gap values are unchanged, so repeated run_full_analysis.py executions no longer churn Generated_at/Run_id and the Full Analysis workflow's sync check can pass. Regenerates the committed publication outputs to the current live-enriched snapshot and adds regression coverage proving provenance stays stable for identical rows but refreshes when analytical values change.
+  Reason The run-analysis GitHub Actions failure showed that gaps_summary.csv was the only tracked output still changing across identical reruns because it always rewrote Generated_at with the current timestamp even when the analytical content was unchanged.
+  Impact Full Analysis can now validate committed outputs deterministically. gaps_summary.csv keeps its provenance columns, but they now describe the last substantive analytical change instead of every identical rerun.
+  Provenance GitHub Actions run 31307827358 job 93230867759; .github/workflows/full-analysis.yml; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md.
+  Quality checks python -m pytest tests/test_run_full_analysis.py -k export_gaps_summary_csv -v passed; python -m flake8 src scripts tests run_full_analysis.py main.py passed; python -m mypy src scripts run_full_analysis.py main.py passed; python run_full_analysis.py stable on identical rerun for tracked sync-checked outputs; python scripts/validate_generated_outputs.py passed; python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present passed; python -m pytest tests/ -v passed; secret scan passed.
+
+- 2026-08-09 (update: gaps_summary.csv schema — four-axis QMBD alignment and provenance fields)
+  Change type update
+  Scope scripts outputs tests
+  Files affected run_full_analysis.py scripts/validate_generated_outputs.py outputs/gaps_summary.csv tests/test_gap_model.py tests/test_validate_generated_outputs.py CHANGELOG.txt
+  Summary Aligns gaps_summary.csv with the canonical four-axis QMBD contract by adding Missing_HYDRONIZATION, renames ambiguous spaced column names to underscore variants (Gap_pct, Missing_MARINE, Missing_MARITIME, Missing_OCEANIC), and adds three provenance fields (Generated_at, Analysis_mode, Run_id) to every row so the CSV is self-describing and publication-grade. The upstream export_gaps_summary_csv() function and validator REQUIRED_GAP_COLUMNS are updated to match. Tests updated accordingly.
+  Reason The previous schema omitted HYDRONIZATION (breaking the four-axis contract), used spaced column names that are fragile in tooling, and lacked any provenance metadata required for a publication artifact.
+  Impact gaps_summary.csv consumers must use the new column names. Validator now enforces the full four-axis schema including Missing_HYDRONIZATION.
+  Provenance .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md; problem statement (issue: improve gaps_summary.csv publication artifact).
+  Quality checks 5 targeted pytest tests passed; flake8 clean.
+
 - 2026-08-09 (fix: PR #245 follow-up — axis-classifier None safety, quarantine restore, typology guard, import robustness, schema clarity)
   Change type fix update
   Scope scripts schemas tests run_full_analysis

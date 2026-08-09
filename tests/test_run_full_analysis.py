@@ -1,5 +1,6 @@
 """Tests for orchestration helpers in run_full_analysis."""
 
+import csv
 import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -1175,6 +1176,102 @@ def test_export_gaps_summary_csv_creates_file(tmp_path: Path) -> None:
     content = output_file.read_text()
     assert "Blue Biotech" in content
     assert "66.7" in content
+
+
+def test_export_gaps_summary_csv_preserves_provenance_for_identical_rows(
+    tmp_path: Path,
+) -> None:
+    """Idempotent reruns must not churn gaps_summary provenance-only fields."""
+    from run_full_analysis import export_gaps_summary_csv
+
+    gaps = {
+        "Blue Biotech": GapAnalysis(
+            sector="Blue Biotech",
+            required_ids=["a", "b", "c"],
+            available_ids=["a"],
+            missing_ids=["b", "c"],
+            gap_pct=66.7,
+            by_axis={"MARINE": ["b"], "MARITIME": [], "OCEANIC": ["c"], "HYDRONIZATION": []},
+        ),
+    }
+
+    output_file = tmp_path / "gaps.csv"
+
+    with patch("run_full_analysis.SECTORS", ["Blue Biotech"]):
+        export_gaps_summary_csv(
+            gaps,
+            output_file,
+            generated_at="2026-08-09T10:00:00+00:00",
+            analysis_mode="live-enriched",
+            run_id="3001",
+        )
+        original = output_file.read_text(encoding="utf-8")
+        export_gaps_summary_csv(
+            gaps,
+            output_file,
+            generated_at="2026-08-09T11:00:00+00:00",
+            analysis_mode="live-enriched",
+            run_id="3002",
+        )
+
+    assert output_file.read_text(encoding="utf-8") == original
+
+
+def test_export_gaps_summary_csv_updates_provenance_when_values_change(
+    tmp_path: Path,
+) -> None:
+    """Changed gap values must refresh the row provenance fields."""
+    from run_full_analysis import export_gaps_summary_csv
+
+    initial_gaps = {
+        "Blue Biotech": GapAnalysis(
+            sector="Blue Biotech",
+            required_ids=["a", "b", "c"],
+            available_ids=["a"],
+            missing_ids=["b", "c"],
+            gap_pct=66.7,
+            by_axis={"MARINE": ["b"], "MARITIME": [], "OCEANIC": ["c"], "HYDRONIZATION": []},
+        ),
+    }
+    updated_gaps = {
+        "Blue Biotech": GapAnalysis(
+            sector="Blue Biotech",
+            required_ids=["a", "b", "c", "d"],
+            available_ids=["a"],
+            missing_ids=["b", "c", "d"],
+            gap_pct=75.0,
+            by_axis={
+                "MARINE": ["b"],
+                "MARITIME": ["d"],
+                "OCEANIC": ["c"],
+                "HYDRONIZATION": [],
+            },
+        ),
+    }
+
+    output_file = tmp_path / "gaps.csv"
+
+    with patch("run_full_analysis.SECTORS", ["Blue Biotech"]):
+        export_gaps_summary_csv(
+            initial_gaps,
+            output_file,
+            generated_at="2026-08-09T10:00:00+00:00",
+            analysis_mode="live-enriched",
+            run_id="3001",
+        )
+        export_gaps_summary_csv(
+            updated_gaps,
+            output_file,
+            generated_at="2026-08-09T11:00:00+00:00",
+            analysis_mode="live-enriched",
+            run_id="3002",
+        )
+
+    row = next(csv.DictReader(output_file.open(encoding="utf-8")))
+    assert row["Required"] == "4"
+    assert row["Gap_pct"] == "75.0"
+    assert row["Generated_at"] == "2026-08-09T11:00:00+00:00"
+    assert row["Run_id"] == "3002"
 
 
 def test_export_competences_json_creates_file(tmp_path: Path) -> None:

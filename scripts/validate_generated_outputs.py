@@ -41,10 +41,14 @@ REQUIRED_GAP_COLUMNS = [
     "Sector",
     "Required",
     "Missing",
-    "Gap %",
-    "Missing MARINE",
-    "Missing MARITIME",
-    "Missing OCEANIC",
+    "Gap_pct",
+    "Missing_MARINE",
+    "Missing_MARITIME",
+    "Missing_OCEANIC",
+    "Missing_HYDRONIZATION",
+    "Generated_at",
+    "Analysis_mode",
+    "Run_id",
 ]
 
 REQUIRED_CREDENTIAL_FIELDS = (
@@ -477,16 +481,17 @@ def check_gaps_csv(rows: list[dict]) -> None:
     else:
         ok("All 12 canonical sectors present")
 
-    # 2. Must NOT have identical values for all sectors
-    numeric_cols = [
+    # 2. Must NOT have identical values for all sectors for dynamic columns.
+    # Missing_HYDRONIZATION may legitimately be uniform in static recovery mode.
+    varying_cols = [
         "Required",
         "Missing",
-        "Gap %",
-        "Missing MARINE",
-        "Missing MARITIME",
-        "Missing OCEANIC",
+        "Gap_pct",
+        "Missing_MARINE",
+        "Missing_MARITIME",
+        "Missing_OCEANIC",
     ]
-    for col in numeric_cols:
+    for col in varying_cols:
         values = set()
         for row in rows:
             val = row.get(col)
@@ -499,6 +504,17 @@ def check_gaps_csv(rows: list[dict]) -> None:
             )
         else:
             ok(f"Column '{col}' has {len(values)} distinct values across sectors")
+
+    hyd_values = {
+        row.get("Missing_HYDRONIZATION", "").strip()
+        for row in rows
+        if row.get("Missing_HYDRONIZATION") is not None
+    }
+    ok(
+        "Column 'Missing_HYDRONIZATION' has "
+        f"{len(hyd_values)} distinct values across sectors "
+        "(uniform values are allowed in static recovery mode)"
+    )
 
 
 def check_credentials(

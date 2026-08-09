@@ -2974,8 +2974,26 @@ def compute_sector_pathways(
 def export_gaps_summary_csv(
     gaps: Dict[str, GapAnalysis],
     output_path: Path,
+    *,
+    generated_at: str = "",
+    analysis_mode: str = "",
+    run_id: str = "",
 ) -> None:
-    """Export gaps_summary.csv with gap percentages by sector."""
+    """Export gaps_summary.csv with gap percentages by sector.
+
+    Columns follow the canonical four-axis QMBD contract (MARINE, MARITIME,
+    OCEANIC, HYDRONIZATION).  Provenance fields (Generated_at, Analysis_mode,
+    Run_id) are written to every row so the CSV is self-describing.
+
+    Gap_pct = Missing / Required * 100, rounded to one decimal place.
+    """
+    ts = generated_at or _now_utc_iso()
+    existing_rows: Dict[str, Dict[str, str]] = {}
+    if output_path.exists():
+        with output_path.open(newline="", encoding="utf-8") as fh:
+            existing_rows = {
+                row.get("Sector", ""): row for row in csv.DictReader(fh) if row.get("Sector")
+            }
     with open(output_path, "w", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh)
         writer.writerow(
@@ -2984,24 +3002,52 @@ def export_gaps_summary_csv(
                 "Required",
                 "Available",
                 "Missing",
-                "Gap %",
-                "Missing MARINE",
-                "Missing MARITIME",
-                "Missing OCEANIC",
+                "Gap_pct",
+                "Missing_MARINE",
+                "Missing_MARITIME",
+                "Missing_OCEANIC",
+                "Missing_HYDRONIZATION",
+                "Generated_at",
+                "Analysis_mode",
+                "Run_id",
             ]
         )
         for sector in SECTORS:
             g = gaps[sector]
+            required_count = len(g.required_ids)
+            available_count = len(g.available_ids)
+            missing_count = len(g.missing_ids)
+            gap_pct_value = f"{g.gap_pct:.1f}"
+            missing_marine = len(g.by_axis.get("MARINE", []))
+            missing_maritime = len(g.by_axis.get("MARITIME", []))
+            missing_oceanic = len(g.by_axis.get("OCEANIC", []))
+            missing_hydronization = len(g.by_axis.get("HYDRONIZATION", []))
+            existing_row = existing_rows.get(sector, {})
+            preserve_provenance = (
+                existing_row.get("Required") == str(required_count)
+                and existing_row.get("Available") == str(available_count)
+                and existing_row.get("Missing") == str(missing_count)
+                and existing_row.get("Gap_pct") == gap_pct_value
+                and existing_row.get("Missing_MARINE") == str(missing_marine)
+                and existing_row.get("Missing_MARITIME") == str(missing_maritime)
+                and existing_row.get("Missing_OCEANIC") == str(missing_oceanic)
+                and existing_row.get("Missing_HYDRONIZATION") == str(missing_hydronization)
+                and existing_row.get("Analysis_mode") == analysis_mode
+            )
             writer.writerow(
                 [
                     sector,
-                    len(g.required_ids),
-                    len(g.available_ids),
-                    len(g.missing_ids),
-                    f"{g.gap_pct:.1f}",
-                    len(g.by_axis.get("MARINE", [])),
-                    len(g.by_axis.get("MARITIME", [])),
-                    len(g.by_axis.get("OCEANIC", [])),
+                    required_count,
+                    available_count,
+                    missing_count,
+                    gap_pct_value,
+                    missing_marine,
+                    missing_maritime,
+                    missing_oceanic,
+                    missing_hydronization,
+                    existing_row.get("Generated_at", ts) if preserve_provenance else ts,
+                    analysis_mode,
+                    existing_row.get("Run_id", run_id) if preserve_provenance else run_id,
                 ]
             )
     log.info("  Exported: %s", output_path)
@@ -3746,7 +3792,13 @@ def main(
         learning_pathways, OUTPUTS_DIR / "sector_qmbd_learning_pathways.json"
     )
     export_pathways_json(pathways, OUTPUTS_DIR / "sector_pathways.json")
-    export_gaps_summary_csv(gaps, OUTPUTS_DIR / "gaps_summary.csv")
+    export_gaps_summary_csv(
+        gaps,
+        OUTPUTS_DIR / "gaps_summary.csv",
+        generated_at=cumulative_run_metadata.get("timestamp_utc", ""),
+        analysis_mode=cumulative_run_metadata.get("analysis_input_mode", ""),
+        run_id=cumulative_run_metadata.get("github_run_id", ""),
+    )
     export_gaps_detailed_json(gap_model_result, OUTPUTS_DIR / "gaps_detailed.json")
     export_gaps_by_sector_axis_csv(
         gap_model_result, OUTPUTS_DIR / "gaps_by_sector_axis.csv"
