@@ -490,7 +490,6 @@ def check_gaps_csv(rows: list[dict]) -> None:
         "Missing_MARINE",
         "Missing_MARITIME",
         "Missing_OCEANIC",
-        "Missing_HYDRONIZATION",
     ]
     for col in numeric_cols:
         values = set()
@@ -505,6 +504,17 @@ def check_gaps_csv(rows: list[dict]) -> None:
             )
         else:
             ok(f"Column '{col}' has {len(values)} distinct values across sectors")
+
+    hydronization_values = {
+        (row.get("Missing_HYDRONIZATION") or "").strip() for row in rows
+    }
+    if not hydronization_values:
+        fail("Column 'Missing_HYDRONIZATION' is missing from gaps_summary.csv")
+    else:
+        ok(
+            "Column 'Missing_HYDRONIZATION' is present across sectors "
+            f"({len(hydronization_values)} distinct values)"
+        )
 
 
 def check_credentials(

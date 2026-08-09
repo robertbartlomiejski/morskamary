@@ -528,6 +528,10 @@ def _build_cumulative_run_metadata(
 ) -> Dict[str, Any]:
     """Build explicit metadata for cumulative ledger provenance and recovery state."""
     static_recovery_reason = os.getenv(_STATIC_RECOVERY_REASON_ENV, "").strip()
+    if static_recovery_enabled and not static_recovery_reason:
+        raise ValueError(
+            "STATIC_RECOVERY_REASON must be set when ALLOW_STATIC_RECOVERY_MODE=true"
+        )
     warning_message = (
         "STATIC recovery mode active: deterministic recovery artifacts only; "
         "not cumulative live evidence."
@@ -2246,7 +2250,7 @@ def _build_eqf_learning_outcomes(
         ]
     if level == 5:
         return [
-            f"Apply operational procedures to address {axis_text} gaps in {sector}.",
+            f"Apply operational procedures to address {axis_text} gaps in {sector.rstrip('.')}.",
             f"Implement supervised interventions targeting {focus_text}.",
             "Monitor decisions and delivery outcomes against evidence-backed missing clusters.",
         ]
@@ -2257,7 +2261,7 @@ def _build_eqf_learning_outcomes(
             "Integrate sector evidence and provenance into project-level decisions.",
         ]
     return [
-        f"Lead strategic governance and transformation responses for {sector} ({axis_text}).",
+        f"Lead strategic governance and transformation responses for {sector.rstrip('.')} ({axis_text}).",
         f"Synthesize multi-source evidence to prioritize {focus_text}.",
         "Design system-level interventions with traceable provenance and review controls.",
     ]
@@ -3275,7 +3279,7 @@ def generate_report_index(
   <div class="card"><h3>📋 Competences</h3><p style="font-size:2rem;margin:0">{total_comps}</p>
     <p>{competence_breakdown}</p></div>
   <div class="card"><h3>🎓 Credentials</h3><p style="font-size:2rem;margin:0">{len(credentials)}</p>
-    <p>{len(SECTORS)} sectors × 4 EQF levels</p></div>
+  <p>12 sectors, each with stacked EQF4 to EQF7 credentials</p></div>
   <div class="card"><h3>🏭 Sectors</h3><p style="font-size:2rem;margin:0">{len(SECTORS)}</p>
     <p>EU Blue Economy sectors analysed</p></div>
   <div class="card"><h3>⚠️ Avg Gap</h3><p style="font-size:2rem;margin:0">{avg_gap:.1f}%</p>
