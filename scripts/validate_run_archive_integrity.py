@@ -9,6 +9,7 @@ import hashlib
 import json
 import re
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path, PureWindowsPath
 from typing import Any
 
@@ -21,6 +22,7 @@ LEGACY_RUN_MANIFEST_FILENAME = "_run_manifest.json"
 INDEX_CSV_FILENAME = "cumulative_runs_index.csv"
 INDEX_CSV_REQUIRED_COLUMNS: tuple[str, ...] = (
     "timestamp_utc",
+    "analysis_timestamp_utc",
     "run_id",
     "run_path",
     "github_run_id",
@@ -48,6 +50,32 @@ INDEX_CSV_REQUIRED_COLUMNS: tuple[str, ...] = (
     "file_count",
     "total_bytes",
 )
+INDEX_CSV_MANIFEST_FIELDS: tuple[str, ...] = (
+    "timestamp_utc",
+    "analysis_timestamp_utc",
+    "github_run_id",
+    "github_run_attempt",
+    "github_run_number",
+    "github_job",
+    "workflow_name",
+    "event_name",
+    "commit_sha",
+    "branch_ref",
+    "providers",
+    "max_results_per_query",
+    "offline",
+    "require_live_records",
+    "query_file_sha256",
+    "live_records_count",
+    "triangulated_records_count",
+    "cumulative_qmbd_records_count",
+    "competences_total",
+    "baseline_count",
+    "static_literature_count",
+    "live_enrichment_count",
+    "gaps_summary_available",
+    "credentials_count",
+)
 CHECKSUM_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 CHECKSUM_SEPARATOR = "  "
 TEXT_SCAN_SUFFIXES = frozenset(
@@ -57,6 +85,11 @@ LEGACY_PATH_METADATA_MANIFEST_SHA256 = {
     "28625632237-1": "44b2c5cffa7827d6de2cd0f6de1b896598b7dc027abb8f2f3618b6e254233aa6",
     "28967267944.2": "e425d4eb99dea0295c336c7ba04a53df94921dcedb2b86191a9833cf3b28ebe9",
     "30090903921-1": "e8b66a5d7d2451f19ea6de760985c53fceb7060cbfa6bb513e624a045f8e35d4",
+}
+LEGACY_INDEX_TOTALS: dict[str, tuple[int, int]] = {
+    "28625632237-1": (64, 44642361),
+    "28967267944.2": (64, 45636058),
+    "30090903921-1": (76, 74314641),
 }
 ABSOLUTE_PATH_PATTERN = re.compile(
     r"""
@@ -87,6 +120,28 @@ def _is_safe_relative(path_text: str) -> bool:
         return False
     path = Path(path_text)
     return ".." not in path.parts
+
+
+def _looks_like_absolute_path(path_text: str) -> bool:
+    return Path(path_text).is_absolute() or PureWindowsPath(path_text).is_absolute()
+
+
+def _is_valid_utc_iso8601(value: Any) -> bool:
+    text = str(value or "").strip()
+    if not text:
+        return False
+    normalized = text[:-1] + "+00:00" if text.endswith("Z") else text
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        return False
+    return parsed.tzinfo is not None and parsed.utcoffset() == timedelta(0)
+
+
+def _index_scalar(value: Any) -> str:
+    if isinstance(value, bool):
+        return str(value).lower()
+    return str(value if value is not None else "").strip()
 
 
 def _parse_checksums(path: Path) -> tuple[dict[str, str], list[str]]:
@@ -143,7 +198,25 @@ def _load_json(path: Path) -> tuple[Any | None, str | None]:
 
 def _is_grandfathered_legacy_run(run_id: str, manifest_path: Path) -> bool:
     expected_digest = LEGACY_PATH_METADATA_MANIFEST_SHA256.get(run_id)
-    return expected_digest is not None and _sha256_file(manifest_path) == expected_digest
+    return bool(
+        expected_digest
+        and manifest_path.is_file()
+        and _sha256_file(manifest_path) == expected_digest
+    )
+
+
+def _allows_legacy_absolute_index_path(run_id: str, archive_root: Path) -> bool:
+    return _is_grandfathered_legacy_run(
+        run_id, archive_root / "runs" / run_id / CANONICAL_MANIFEST_FILENAME
+    )
+
+
+def _legacy_index_totals(
+    run_id: str, archive_root: Path
+) -> tuple[int, int] | None:
+    if not _allows_legacy_absolute_index_path(run_id, archive_root):
+        return None
+    return LEGACY_INDEX_TOTALS.get(run_id)
 
 
 def _count_absolute_path_leaks(text: str, *, repo_root: Path) -> int:
@@ -190,7 +263,7 @@ def _validate_public_path_leaks(
 
 def _validate_one_run(
     run_dir: Path, validator: Draft202012Validator, *, repo_root: Path
-) -> tuple[str, tuple[int, int] | None, list[str]]:
+) -> tuple[str, dict[str, Any] | None, list[str]]:
     run_id = run_dir.name
     errors: list[str] = []
 
@@ -318,7 +391,7 @@ def _validate_one_run(
             _validate_public_path_leaks(run_dir, archived_paths, repo_root=repo_root)
         )
 
-    return run_id, (expected_file_count, expected_total_bytes), errors
+    return run_id, manifest, errors
 
 
 def _validate_index_totals(
@@ -327,20 +400,30 @@ def _validate_index_totals(
     run_id: str,
     entry: dict[str, Any],
     expected_totals: tuple[int, int],
+    legacy_totals: tuple[int, int] | None = None,
 ) -> list[str]:
     errors: list[str] = []
-    for field, expected_value in zip(
-        ("file_count", "total_bytes"), expected_totals, strict=True
-    ):
+    fields = ("file_count", "total_bytes")
+    actual_totals: list[int] = []
+    for field in fields:
         raw_value = entry.get(field)
         try:
-            actual_value = int(str(raw_value).strip())
+            actual_totals.append(int(str(raw_value).strip()))
         except (TypeError, ValueError):
             errors.append(
                 f"{index_path}: invalid {field} for run_id '{run_id}' at {location}: "
                 f"{raw_value!r}"
             )
-            continue
+    if errors:
+        return errors
+
+    actual_totals_tuple = tuple(actual_totals)
+    if actual_totals_tuple == expected_totals or actual_totals_tuple == legacy_totals:
+        return []
+
+    for field, expected_value, actual_value in zip(
+        fields, expected_totals, actual_totals_tuple, strict=True
+    ):
         if actual_value != expected_value:
             errors.append(
                 f"{index_path}: inconsistent {field} for run_id '{run_id}' at "
@@ -352,6 +435,7 @@ def _validate_index_totals(
 def _validate_index_jsonl(
     archive_root: Path,
     run_ids: set[str],
+    expected_manifests: dict[str, dict[str, Any]],
     expected_manifest_totals: dict[str, tuple[int, int]],
 ) -> list[str]:
     errors: list[str] = []
@@ -383,6 +467,22 @@ def _validate_index_jsonl(
         run_id = str(entry.get("run_id", ""))
         run_path = str(entry.get("run_path", ""))
         if run_id and run_path == f"runs/{run_id}":
+            archived_at = entry.get("archived_at")
+            if not _is_valid_utc_iso8601(archived_at):
+                errors.append(
+                    f"{index_path}: archived_at for run_id '{run_id}' on line "
+                    f"{line_number} must be a nonblank UTC ISO-8601 timestamp"
+                )
+                continue
+            manifest_timestamp = expected_manifests.get(run_id, {}).get(
+                "timestamp_utc"
+            )
+            if _index_scalar(archived_at) != _index_scalar(manifest_timestamp):
+                errors.append(
+                    f"{index_path}: archived_at for run_id '{run_id}' on line "
+                    f"{line_number} does not match manifest timestamp_utc"
+                )
+                continue
             expected_totals = expected_manifest_totals.get(run_id)
             if expected_totals is not None:
                 entry_errors = _validate_index_totals(
@@ -391,6 +491,7 @@ def _validate_index_jsonl(
                     run_id,
                     entry,
                     expected_totals,
+                    _legacy_index_totals(run_id, archive_root),
                 )
                 errors.extend(entry_errors)
                 if entry_errors:
@@ -408,7 +509,7 @@ def _validate_index_jsonl(
 def _validate_index_csv(
     archive_root: Path,
     run_ids: set[str],
-    expected_run_paths: dict[str, tuple[str, str]],
+    expected_manifests: dict[str, dict[str, Any]],
     expected_manifest_totals: dict[str, tuple[int, int]],
 ) -> list[str]:
     errors: list[str] = []
@@ -447,11 +548,20 @@ def _validate_index_csv(
         if not run_id:
             continue
         if run_id in run_ids:
-            expected_relative, expected_absolute = expected_run_paths.get(run_id, ("", ""))
-            if run_path not in {expected_relative, expected_absolute}:
+            expected_relative = f"runs/{run_id}"
+            legacy_absolute_path_allowed = (
+                _looks_like_absolute_path(run_path)
+                and _allows_legacy_absolute_index_path(run_id, archive_root)
+                and (
+                    Path(run_path).name == run_id
+                    or PureWindowsPath(run_path).name == run_id
+                )
+            )
+            if run_path != expected_relative and not legacy_absolute_path_allowed:
                 errors.append(
                     f"{csv_path}: inconsistent run_path for run_id '{run_id}' on line "
-                    f"{row_number} (expected {expected_relative}, got {run_path})"
+                    f"{row_number} (expected {expected_relative}; absolute paths are "
+                    f"allowed only for fingerprinted legacy manifests, got {run_path})"
                 )
                 continue
             archive_root_value = str(row.get("archive_root", "")).strip()
@@ -461,6 +571,26 @@ def _validate_index_csv(
                     f"{row_number}: {archive_root_value}"
                 )
                 continue
+            manifest = expected_manifests.get(run_id, {})
+            for timestamp_field in ("timestamp_utc", "analysis_timestamp_utc"):
+                timestamp_value = row.get(timestamp_field)
+                if not _is_valid_utc_iso8601(timestamp_value):
+                    errors.append(
+                        f"{csv_path}: {timestamp_field} for run_id '{run_id}' on "
+                        f"line {row_number} must be a nonblank UTC ISO-8601 timestamp"
+                    )
+            metadata_errors = False
+            for field in INDEX_CSV_MANIFEST_FIELDS:
+                if _index_scalar(row.get(field)) != _index_scalar(
+                    manifest.get(field)
+                ):
+                    errors.append(
+                        f"{csv_path}: {field} for run_id '{run_id}' on line "
+                        f"{row_number} does not match manifest metadata"
+                    )
+                    metadata_errors = True
+            if metadata_errors:
+                continue
             expected_totals = expected_manifest_totals.get(run_id)
             if expected_totals is not None:
                 row_errors = _validate_index_totals(
@@ -469,6 +599,7 @@ def _validate_index_csv(
                     run_id,
                     row,
                     expected_totals,
+                    _legacy_index_totals(run_id, archive_root),
                 )
                 errors.extend(row_errors)
                 if row_errors:
@@ -550,31 +681,36 @@ def main(argv: list[str] | None = None) -> int:
 
     all_errors: list[str] = []
     run_ids: set[str] = set()
-    expected_run_paths: dict[str, tuple[str, str]] = {}
+    expected_manifests: dict[str, dict[str, Any]] = {}
     expected_manifest_totals: dict[str, tuple[int, int]] = {}
     for run_dir in run_dirs:
-        run_id, manifest_totals, run_errors = _validate_one_run(
+        run_id, manifest, run_errors = _validate_one_run(
             run_dir,
             validator,
             repo_root=repo_root,
         )
         run_ids.add(run_id)
-        if manifest_totals is not None:
-            expected_manifest_totals[run_id] = manifest_totals
-        expected_run_paths[run_id] = (
-            f"runs/{run_id}",
-            run_dir.resolve().as_posix(),
-        )
+        if manifest is not None:
+            expected_manifests[run_id] = manifest
+            expected_manifest_totals[run_id] = (
+                int(manifest["file_count"]),
+                int(manifest["total_bytes"]),
+            )
         all_errors.extend(run_errors)
 
     all_errors.extend(
-        _validate_index_jsonl(archive_root, run_ids, expected_manifest_totals)
+        _validate_index_jsonl(
+            archive_root,
+            run_ids,
+            expected_manifests,
+            expected_manifest_totals,
+        )
     )
     all_errors.extend(
         _validate_index_csv(
             archive_root,
             run_ids,
-            expected_run_paths,
+            expected_manifests,
             expected_manifest_totals,
         )
     )

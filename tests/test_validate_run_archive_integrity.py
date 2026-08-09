@@ -307,7 +307,7 @@ def test_validate_run_archive_integrity_rejects_stale_jsonl_total(
     assert _validate_archive(tmp_path) == 1
 
 
-def test_validate_run_archive_integrity_accepts_legacy_absolute_cumulative_csv_run_path(
+def test_validate_run_archive_integrity_rejects_arbitrary_absolute_cumulative_csv_run_path(
     tmp_path: Path,
 ) -> None:
     run_dir = _create_archive(tmp_path, run_id="run-csv-legacy-abs")
@@ -322,7 +322,92 @@ def test_validate_run_archive_integrity_accepts_legacy_absolute_cumulative_csv_r
         writer.writeheader()
         writer.writerows(rows)
 
-    assert _validate_archive(tmp_path) == 0
+    assert _validate_archive(tmp_path) == 1
+
+
+def test_validate_run_archive_integrity_accepts_fingerprinted_legacy_absolute_csv_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    run_id = "run-csv-fingerprinted-legacy"
+    run_dir = _create_archive(tmp_path, run_id=run_id)
+    csv_path = tmp_path / "outputs" / "run_archive" / "cumulative_runs_index.csv"
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = list(rows[0].keys())
+
+    rows[-1]["run_path"] = run_dir.resolve().as_posix()
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_fingerprinted_legacy_csv_test",
+    )
+    manifest_path = run_dir / "manifest.json"
+    monkeypatch.setitem(
+        validate_module.LEGACY_PATH_METADATA_MANIFEST_SHA256,
+        run_id,
+        hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+    )
+    assert (
+        validate_module.main(
+            [
+                "--repo-root",
+                str(tmp_path),
+                "--archive-root",
+                "outputs/run_archive",
+                "--require-present",
+            ]
+        )
+        == 0
+    )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("timestamp_utc", ""),
+        ("timestamp_utc", "not-a-timestamp"),
+        ("timestamp_utc", "2025-01-01T00:00:00+00:00"),
+        ("analysis_timestamp_utc", ""),
+        ("analysis_timestamp_utc", "not-a-timestamp"),
+        ("analysis_timestamp_utc", "2025-01-01T00:00:00+00:00"),
+    ],
+)
+def test_validate_run_archive_integrity_rejects_invalid_or_stale_csv_timestamp(
+    tmp_path: Path, field: str, value: str
+) -> None:
+    _create_archive(tmp_path, run_id="run-csv-timestamp")
+    csv_path = tmp_path / "outputs" / "run_archive" / "cumulative_runs_index.csv"
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = list(rows[0].keys())
+
+    rows[-1][field] = value
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert _validate_archive(tmp_path) == 1
+
+
+@pytest.mark.parametrize(
+    "archived_at",
+    ["", "not-a-timestamp", "2025-01-01T00:00:00+00:00"],
+)
+def test_validate_run_archive_integrity_rejects_invalid_or_stale_jsonl_timestamp(
+    tmp_path: Path, archived_at: str
+) -> None:
+    _create_archive(tmp_path, run_id="run-jsonl-timestamp")
+    index_path = tmp_path / "outputs" / "run_archive" / "_index" / "runs_index.jsonl"
+    entry = json.loads(index_path.read_text(encoding="utf-8").strip())
+    entry["archived_at"] = archived_at
+    _write_text(index_path, json.dumps(entry, sort_keys=True) + "\n")
+
+    assert _validate_archive(tmp_path) == 1
 
 
 def test_validate_run_archive_integrity_rejects_absolute_archive_root_fields(
@@ -451,6 +536,50 @@ def test_legacy_path_grandfathering_is_bound_to_manifest_bytes(tmp_path: Path) -
     changed_manifest = tmp_path / "manifest.json"
     changed_manifest.write_bytes(manifest_path.read_bytes() + b"\n")
     assert not validate_module._is_grandfathered_legacy_run(run_id, changed_manifest)
+
+
+def test_legacy_index_totals_are_limited_to_fingerprinted_exact_values(
+    tmp_path: Path,
+) -> None:
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_legacy_index_test",
+    )
+    run_id = "28967267944.2"
+    expected_totals = (64, 46631770)
+    index_path = tmp_path / "runs_index.jsonl"
+    archive_root = REPO_ROOT / "outputs" / "run_archive"
+    legacy_entry = {
+        "file_count": 64,
+        "total_bytes": 45636058,
+    }
+    legacy_totals = validate_module._legacy_index_totals(run_id, archive_root)
+
+    assert legacy_totals == (64, 45636058)
+    assert (
+        validate_module._validate_index_totals(
+            index_path,
+            "line 1",
+            run_id,
+            legacy_entry,
+            expected_totals,
+            legacy_totals,
+        )
+        == []
+    )
+
+    legacy_entry["total_bytes"] += 1
+    errors = validate_module._validate_index_totals(
+        index_path,
+        "line 1",
+        run_id,
+        legacy_entry,
+        expected_totals,
+        legacy_totals,
+    )
+
+    assert len(errors) == 1
+    assert "expected 46631770, got 45636059" in errors[0]
 
 
 def test_validate_run_archive_integrity_accepts_legacy_manifest_filename(

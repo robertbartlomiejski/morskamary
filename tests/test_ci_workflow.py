@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 WORKFLOW_TEXT = (
     Path(__file__).resolve().parents[1] / ".github" / "workflows" / "ci.yml"
