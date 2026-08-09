@@ -19,6 +19,15 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-08-09 (fix: PR #245 follow-up — axis-classifier None safety, quarantine restore, typology guard, import robustness, schema clarity)
+  Change type fix update
+  Scope scripts schemas tests run_full_analysis
+  Files affected run_full_analysis.py scripts/build_versioned_research_data_package.py scripts/validate_csv_bundle.py schemas/canonical_competences.schema.json schemas/validation_decisions.schema.json tests/test_run_full_analysis.py tests/test_build_versioned_research_data_package.py tests/test_validate_csv_bundle.py CHANGELOG.txt
+  Summary Addresses six concrete risks identified in PR #245 code review: (1) restricts UNCLASSIFIED_REVIEW_REQUIRED typology suffix to a bounded whitelist so novel typology values cannot silently expand the label space; (2) restores the previous package directory when versioned-package validation fails so callers are not left without a usable artifact; (3) adds an explicit sys.path guard in validate_csv_bundle.py so the sibling-module import works when loaded as a module from the repo root; (4) adds descriptive documentation to canonical_competences.schema.json aliases field and validation_decisions.schema.json canonical_label field to align producer and consumer understanding. Adds regression tests for each fix.
+  Reason The PR #245 review identified operationally risky patterns: unconstrained label expansion (could silently break downstream label-space consumers), quarantine leaving stale directories on failure (package unrecoverable without manual rename), and a bare relative import that fails when loaded via importlib from repo root. Schema description gaps caused ambiguity about allowed values for aliases and canonical_label.
+  Impact Downstream classification label space is now bounded. Failed versioned-package builds restore the previous good output. validate_csv_bundle.py is importable as a module without sys.path pre-configuration. Schema files now document the accepted value range for aliases and canonical_label.
+  Provenance PR #245 code review findings; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md.
+  Quality checks 1473 pytest tests passed; flake8 and mypy clean on changed files.
 - 2026-08-09 (add: QMBD measurement-governance uncertainty scaffolding)
   Change type add fix update
   Scope src docs schemas tests governance

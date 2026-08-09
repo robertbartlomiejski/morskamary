@@ -21,7 +21,14 @@ from io import StringIO
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, cast
 
-from build_live_cumulative_release_package import (  # type: ignore[import-not-found]
+# Ensure the scripts/ directory is on sys.path so the sibling module can be
+# imported both when this script is run directly (Python already adds the
+# script's directory) and when it is imported as a module from the repo root.
+_SCRIPTS_DIR = str(Path(__file__).resolve().parent)
+if _SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPTS_DIR)
+
+from build_live_cumulative_release_package import (  # type: ignore[import-not-found]  # noqa: E402
     CSV_REQUIRED_COLUMNS,
     SCHEMA_V2_ENTITY_NAMES,
     SCHEMA_V2_REQUIRED_COLUMNS,
