@@ -824,6 +824,67 @@ def test_reports_render_executable_h3(tmp_path: Path) -> None:
         assert "supported" in text
 
 
+def test_report_separates_legacy_and_canonical_demand_views(tmp_path: Path) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    db.mkdir()
+    demand_fields = (
+        "sector",
+        "axis_group",
+        "competence_label",
+        "view_kind",
+        "scientific_status",
+        "demand_strength_score",
+        "status",
+        "eqf_relevance",
+    )
+    _write_csv_rows(
+        db / "derived_competence_demands.csv",
+        demand_fields,
+        [
+            {
+                "sector": "Blue Biotech",
+                "axis_group": "MARINE",
+                "competence_label": "Legacy marine demand",
+                "view_kind": "legacy_category_aggregate_compatibility_view",
+                "scientific_status": "legacy_not_validated_canonical_competence",
+                "demand_strength_score": "0.61",
+                "status": "medium_demand",
+                "eqf_relevance": "EQF6",
+            },
+            {
+                "sector": "Blue Biotech",
+                "axis_group": "MARINE",
+                "competence_label": "Validated canonical demand",
+                "view_kind": "accepted_canonical_lineage_view",
+                "scientific_status": "validated_canonical_competence",
+                "demand_strength_score": "0.91",
+                "status": "high_demand",
+                "eqf_relevance": "EQF7",
+            },
+        ],
+    )
+    (db / "layer5_manifest.json").write_text(
+        json.dumps({"hypothesis_results": _all_hypotheses()}),
+        encoding="utf-8",
+    )
+
+    html_path = _REPORT.build_html_report(
+        database_dir=db,
+        reports_dir=reports,
+        generated_at="2026-07-14T00:00:00+00:00",
+    )
+
+    text = html_path.read_text(encoding="utf-8")
+    assert "Total derived demands across all views: 2." in text
+    assert "Legacy aggregate view rows: 1." in text
+    assert "Accepted canonical lineage rows: 1." in text
+    assert "legacy_category_aggregate_compatibility_view" in text
+    assert "accepted_canonical_lineage_view" in text
+    assert "Validated canonical demand" in text
+    assert "Legacy marine demand" in text
+
+
 def test_package_fails_when_required_csv_missing(tmp_path: Path) -> None:
     """Missing required Layer 5 artifacts must fail non-zero."""
     db = tmp_path / "db"
