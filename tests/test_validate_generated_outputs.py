@@ -296,6 +296,37 @@ class TestCheckGapsCsv:
         assert any("Analysis_mode does not match" in e for e in mod.ERRORS)
         assert any("Run_id does not match" in e for e in mod.ERRORS)
 
+    @pytest.mark.parametrize("timestamp_utc", ["", "not-a-timestamp"])
+    def test_fails_when_companion_timestamp_is_blank_or_invalid(
+        self, timestamp_utc: str
+    ) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        for i, row in enumerate(rows):
+            row["Required"] = str(100 + i)
+
+        mod.check_gaps_csv(rows, {"timestamp_utc": timestamp_utc})
+
+        assert any(
+            "metadata.timestamp_utc" in error for error in mod.ERRORS
+        ), mod.ERRORS
+
+    def test_passes_when_companion_provenance_identifies_same_run(self) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        for i, row in enumerate(rows):
+            row["Required"] = str(100 + i)
+        metadata = {
+            "analysis_input_mode": "static",
+            "github_run_id": "test-run-001",
+            "github_run_attempt": "",
+            "timestamp_utc": "2026-01-01T00:00:00+00:00",
+        }
+
+        mod.check_gaps_csv(rows, metadata)
+
+        assert not mod.ERRORS, mod.ERRORS
+
 
 class TestCheckCredentials:
     def _make_comps(self) -> dict:

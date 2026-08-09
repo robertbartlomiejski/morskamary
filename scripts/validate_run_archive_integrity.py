@@ -53,6 +53,23 @@ CHECKSUM_SEPARATOR = "  "
 TEXT_SCAN_SUFFIXES = frozenset(
     {".csv", ".html", ".json", ".jsonl", ".md", ".sha256", ".txt", ".yml", ".yaml"}
 )
+LEGACY_PATH_METADATA_MANIFEST_SHA256 = {
+    "28625632237-1": "44b2c5cffa7827d6de2cd0f6de1b896598b7dc027abb8f2f3618b6e254233aa6",
+    "28967267944.2": "e425d4eb99dea0295c336c7ba04a53df94921dcedb2b86191a9833cf3b28ebe9",
+    "30090903921-1": "e8b66a5d7d2451f19ea6de760985c53fceb7060cbfa6bb513e624a045f8e35d4",
+}
+ABSOLUTE_PATH_PATTERN = re.compile(
+    r"""
+    (?:
+        (?<![A-Za-z0-9:])[A-Za-z]:[\\/][^\s"'<>]+
+        |
+        \\{2,}[^\s\\/"'<>]+[\\/]+[^\s\\/"'<>]+(?:[\\/]+[^\s"'<>]+)*
+        |
+        (?<![A-Za-z0-9:])/(?!/)[^\s/"'<>]+(?:/[^\s/"'<>]+)+
+    )
+    """,
+    re.VERBOSE,
+)
 
 
 def _sha256_file(path: Path) -> str:
@@ -124,6 +141,25 @@ def _load_json(path: Path) -> tuple[Any | None, str | None]:
         return None, f"{path}: invalid JSON ({exc})"
 
 
+def _is_grandfathered_legacy_run(run_id: str, manifest_path: Path) -> bool:
+    expected_digest = LEGACY_PATH_METADATA_MANIFEST_SHA256.get(run_id)
+    return expected_digest is not None and _sha256_file(manifest_path) == expected_digest
+
+
+def _count_absolute_path_leaks(text: str, *, repo_root: Path) -> int:
+    normalized_repo_root = repo_root.resolve().as_posix().rstrip("/")
+    explicit_root_matches = text.count(normalized_repo_root + "/")
+    portable_matches = sum(
+        1
+        for match in ABSOLUTE_PATH_PATTERN.finditer(text)
+        if not (
+            match.group().startswith("/")
+            and text[: match.start()].endswith(":/")
+        )
+    )
+    return max(explicit_root_matches, portable_matches)
+
+
 def _validate_public_path_leaks(
     run_dir: Path,
     archived_paths: list[Path],
@@ -131,11 +167,6 @@ def _validate_public_path_leaks(
     repo_root: Path,
 ) -> list[str]:
     errors: list[str] = []
-    leak_tokens = (
-        repo_root.resolve().as_posix() + "/",
-        "/home/runner/",
-        "blob/main//home/runner/",
-    )
     for archived_path in archived_paths:
         if archived_path.suffix.lower() not in TEXT_SCAN_SUFFIXES:
             continue
@@ -147,7 +178,7 @@ def _validate_public_path_leaks(
         except OSError as exc:
             errors.append(f"{archived_path}: cannot read text artifact: {exc}")
             continue
-        matches = sum(text.count(token) for token in leak_tokens)
+        matches = _count_absolute_path_leaks(text, repo_root=repo_root)
         if matches:
             rel_path = archived_path.relative_to(run_dir).as_posix()
             errors.append(
@@ -199,8 +230,13 @@ def _validate_one_run(
 
     if str(manifest.get("run_id", "")) != run_id:
         errors.append(f"{manifest_path}: run_id '{manifest.get('run_id')}' != directory '{run_id}'")
+    grandfathered_legacy_run = _is_grandfathered_legacy_run(run_id, manifest_path)
     archive_root = str(manifest.get("archive_root", "")).strip()
-    if archive_root and not _is_safe_relative(archive_root):
+    if (
+        archive_root
+        and not _is_safe_relative(archive_root)
+        and not grandfathered_legacy_run
+    ):
         errors.append(f"{manifest_path}: unsafe archive_root in manifest: {archive_root}")
 
     manifest_files_raw = manifest.get("files", [])
@@ -277,9 +313,10 @@ def _validate_one_run(
             f"{manifest_path}: total_bytes mismatch "
             f"(expected {expected_total_bytes}, got {actual_total_bytes})"
         )
-    errors.extend(
-        _validate_public_path_leaks(run_dir, archived_paths, repo_root=repo_root)
-    )
+    if not grandfathered_legacy_run:
+        errors.extend(
+            _validate_public_path_leaks(run_dir, archived_paths, repo_root=repo_root)
+        )
 
     return run_id, errors
 

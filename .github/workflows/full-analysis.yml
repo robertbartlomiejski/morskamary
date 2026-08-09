@@ -15,8 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      # This workflow verifies deterministic committed static artifacts;
-      # full-live-analysis.yml is the only workflow that runs live enrichment.
+      # This workflow replays retained evidence to check committed-artifact
+      # freshness, then verifies static-recovery determinism. Only
+      # full-live-analysis.yml acquires live evidence from providers.
       ALLOW_STATIC_RECOVERY_MODE: "true"
       STATIC_RECOVERY_REASON: "Full Analysis CI reproducibility check"
 
@@ -34,8 +35,35 @@ jobs:
       - name: Install dependencies
         run: pip install -e ".[dev]"
 
-      - name: Run full analysis pipeline
-        run: python run_full_analysis.py --analysis-input-mode static
+      - name: Snapshot committed outputs and detect their analysis mode
+        id: committed-outputs
+        shell: bash
+        env:
+          COMMITTED_COMPARE_ROOT: ${{ runner.temp }}/full-analysis-committed
+        run: |
+          set -euo pipefail
+          rm -rf "$COMMITTED_COMPARE_ROOT"
+          mkdir -p "$COMMITTED_COMPARE_ROOT"
+          cp -R outputs/. "$COMMITTED_COMPARE_ROOT/"
+          analysis_mode="$(
+            python -c 'import json; print(json.load(open("outputs/cumulative_qmbd_records.json", encoding="utf-8"))["metadata"]["analysis_input_mode"])'
+          )"
+          case "$analysis_mode" in
+            static|live-enriched) ;;
+            *)
+              echo "Unsupported committed output analysis mode: $analysis_mode"
+              exit 1
+              ;;
+          esac
+          echo "analysis_mode=$analysis_mode" >> "$GITHUB_OUTPUT"
+
+      # live-enriched here replays legally retained committed evidence only; it
+      # does not acquire from providers. Static remains recovery-only below.
+      - name: Regenerate outputs in the committed analysis mode
+        run: >-
+          python run_full_analysis.py
+          --analysis-input-mode
+          "${{ steps.committed-outputs.outputs.analysis_mode }}"
 
       - name: Verify output artifacts
         shell: bash
@@ -74,15 +102,33 @@ jobs:
       - name: Validate generated output semantics
         run: python scripts/validate_generated_outputs.py
 
+      - name: Check committed outputs are fresh
+        shell: bash
+        env:
+          COMMITTED_COMPARE_ROOT: ${{ runner.temp }}/full-analysis-committed
+        run: |
+          set -euo pipefail
+          python scripts/compare_generated_outputs.py \
+            --root outputs \
+            --baseline-root "$COMMITTED_COMPARE_ROOT"
+
       - name: Check static outputs are reproducible in isolation
         shell: bash
         env:
-          STATIC_COMPARE_ROOT: /tmp/full-analysis-static-baseline
+          STATIC_INPUT_ROOT: ${{ runner.temp }}/full-analysis-static-input
+          STATIC_COMPARE_ROOT: ${{ runner.temp }}/full-analysis-static-baseline
         run: |
           set -euo pipefail
+          rm -rf "$STATIC_INPUT_ROOT"
           rm -rf "$STATIC_COMPARE_ROOT"
+          mkdir -p "$STATIC_INPUT_ROOT"
           mkdir -p "$STATIC_COMPARE_ROOT"
+          cp -R outputs/. "$STATIC_INPUT_ROOT/"
+          python run_full_analysis.py --analysis-input-mode static
           cp -R outputs/. "$STATIC_COMPARE_ROOT/"
+          rm -rf outputs
+          mkdir -p outputs
+          cp -R "$STATIC_INPUT_ROOT/." outputs/
           python run_full_analysis.py --analysis-input-mode static
           python scripts/compare_generated_outputs.py \
             --root outputs \

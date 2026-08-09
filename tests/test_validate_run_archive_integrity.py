@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import importlib.util
 import json
 import sys
 from pathlib import Path
+
+import pytest
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -143,6 +146,33 @@ def _validate_archive(tmp_path: Path) -> int:
             "--require-present",
         ]
     )
+
+
+def _refresh_archived_file_integrity(run_dir: Path, relative_path: str) -> None:
+    archived_path = run_dir / relative_path
+    digest = hashlib.sha256(archived_path.read_bytes()).hexdigest()
+    size_bytes = archived_path.stat().st_size
+
+    manifest_path = run_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    for descriptor in manifest["files"]:
+        if descriptor["path"] == relative_path:
+            descriptor["sha256"] = digest
+            descriptor["size_bytes"] = size_bytes
+            break
+    manifest["total_bytes"] = sum(item["size_bytes"] for item in manifest["files"])
+    _write_json(manifest_path, manifest)
+    _write_json(run_dir / "run_manifest.json", manifest)
+
+    checksums_path = run_dir / "_checksums.sha256"
+    checksum_lines = checksums_path.read_text(encoding="utf-8").splitlines()
+    checksum_lines = [
+        f"{digest}  {relative_path}"
+        if line.endswith(f"  {relative_path}")
+        else line
+        for line in checksum_lines
+    ]
+    _write_text(checksums_path, "\n".join(checksum_lines) + "\n")
 
 
 def test_validate_run_archive_integrity_passes_for_valid_archive(tmp_path: Path) -> None:
@@ -315,8 +345,73 @@ def test_validate_run_archive_integrity_rejects_public_runner_path_leaks(
         ),
         encoding="utf-8",
     )
+    _refresh_archived_file_integrity(
+        run_dir,
+        "analysis_outputs/literature_integration.html",
+    )
 
     assert _validate_archive(tmp_path) == 1
+
+
+@pytest.mark.parametrize(
+    "leaked_path",
+    [
+        "/Users/researcher/work/morskamary/output.json",
+        "/opt/build/morskamary/output.json",
+        "/data/custom-root/morskamary/output.json",
+        r"C:\Users\researcher\work\morskamary\output.json",
+        r"\\build-server\research\morskamary\output.json",
+    ],
+)
+def test_absolute_path_leak_detection_is_platform_independent(
+    tmp_path: Path, leaked_path: str
+) -> None:
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_portable_path_test",
+    )
+
+    assert (
+        validate_module._count_absolute_path_leaks(
+            json.dumps({"source_path": leaked_path}),
+            repo_root=tmp_path,
+        )
+        == 1
+    )
+
+
+def test_absolute_path_leak_detection_does_not_treat_url_host_as_path(
+    tmp_path: Path,
+) -> None:
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_url_path_test",
+    )
+
+    assert (
+        validate_module._count_absolute_path_leaks(
+            "https://github.com/example/project/blob/main/report.json",
+            repo_root=tmp_path,
+        )
+        == 0
+    )
+
+
+def test_legacy_path_grandfathering_is_bound_to_manifest_bytes(tmp_path: Path) -> None:
+    validate_module = _load_module(
+        VALIDATE_SCRIPT_PATH,
+        "validate_run_archive_integrity_legacy_fingerprint_test",
+    )
+    run_id = "28967267944.2"
+    manifest_path = (
+        REPO_ROOT / "outputs" / "run_archive" / "runs" / run_id / "manifest.json"
+    )
+
+    assert validate_module._is_grandfathered_legacy_run(run_id, manifest_path)
+
+    changed_manifest = tmp_path / "manifest.json"
+    changed_manifest.write_bytes(manifest_path.read_bytes() + b"\n")
+    assert not validate_module._is_grandfathered_legacy_run(run_id, changed_manifest)
 
 
 def test_validate_run_archive_integrity_accepts_legacy_manifest_filename(

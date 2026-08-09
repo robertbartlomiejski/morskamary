@@ -598,11 +598,17 @@ def check_gaps_csv(
         actual_analysis_mode = next(iter(analysis_modes), "")
         actual_run_id = next(iter(run_ids), "")
 
-        if (
-            actual_generated_at
-            and expected_generated_at
-            and actual_generated_at != expected_generated_at
-        ):
+        if not expected_generated_at:
+            fail(
+                "cumulative_qmbd_records.json metadata.timestamp_utc "
+                "must be non-blank"
+            )
+        elif not _is_valid_utc_iso8601(expected_generated_at):
+            fail(
+                "cumulative_qmbd_records.json metadata.timestamp_utc "
+                "must be valid UTC ISO-8601"
+            )
+        elif actual_generated_at != expected_generated_at:
             fail(
                 "gaps_summary.csv Generated_at does not match "
                 "cumulative_qmbd_records.json metadata.timestamp_utc"

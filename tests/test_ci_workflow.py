@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -18,6 +20,30 @@ FULL_ANALYSIS_WORKFLOW_TEXT = (
 ).read_text(encoding="utf-8")
 FULL_ANALYSIS_WORKFLOW = yaml.safe_load(FULL_ANALYSIS_WORKFLOW_TEXT)
 CI_WORKFLOW = yaml.safe_load(WORKFLOW_TEXT)
+STATIC_MODE_PATTERN = re.compile(r"--analysis-input-mode\s+['\"]?static\b")
+
+
+def _static_recovery_scope_errors(workflow: dict[str, Any]) -> tuple[int, list[str]]:
+    job = workflow["jobs"]["run-analysis"]
+    job_env = job.get("env", {})
+    invocation_count = 0
+    errors = []
+
+    for step in job["steps"]:
+        step_invocation_count = len(
+            STATIC_MODE_PATTERN.findall(step.get("run", ""))
+        )
+        if step_invocation_count == 0:
+            continue
+        invocation_count += step_invocation_count
+        effective_env = {**job_env, **step.get("env", {})}
+        if effective_env.get("ALLOW_STATIC_RECOVERY_MODE") != "true":
+            errors.append(step["name"])
+            continue
+        if not effective_env.get("STATIC_RECOVERY_REASON"):
+            errors.append(step["name"])
+
+    return invocation_count, errors
 
 
 def test_quick_mode_gate_validates_run_archive_integrity() -> None:
@@ -45,27 +71,101 @@ def test_ci_static_quality_job_runs_module_based_flake8_and_mypy() -> None:
 def test_full_analysis_workflow_uses_explicit_static_recovery_mode() -> None:
     job = FULL_ANALYSIS_WORKFLOW["jobs"]["run-analysis"]
     job_env = job["env"]
-    static_steps = [
-        step
-        for step in job["steps"]
-        if "python run_full_analysis.py --analysis-input-mode static" in step.get("run", "")
-    ]
+    static_invocation_count, scope_errors = _static_recovery_scope_errors(
+        FULL_ANALYSIS_WORKFLOW
+    )
 
-    assert static_steps
     assert job_env["ALLOW_STATIC_RECOVERY_MODE"] == "true"
     assert (
         job_env["STATIC_RECOVERY_REASON"] == "Full Analysis CI reproducibility check"
     )
-    for step in static_steps:
-        step_env = step.get("env", {})
-        effective_env = {**job_env, **step_env}
-        assert effective_env["ALLOW_STATIC_RECOVERY_MODE"] == "true"
-        assert (
-            effective_env["STATIC_RECOVERY_REASON"]
-            == "Full Analysis CI reproducibility check"
-        )
-
+    assert static_invocation_count > 0
+    assert scope_errors == []
     assert '--baseline-root "$STATIC_COMPARE_ROOT"' in FULL_ANALYSIS_WORKFLOW_TEXT
+
+
+def test_static_recovery_env_from_an_earlier_step_does_not_cover_later_steps() -> None:
+    workflow = {
+        "jobs": {
+            "run-analysis": {
+                "steps": [
+                    {
+                        "name": "First static invocation",
+                        "env": {
+                            "ALLOW_STATIC_RECOVERY_MODE": "true",
+                            "STATIC_RECOVERY_REASON": "Regression fixture",
+                        },
+                        "run": "python run_full_analysis.py --analysis-input-mode static",
+                    },
+                    {
+                        "name": "Second static invocation",
+                        "run": "python run_full_analysis.py --analysis-input-mode static",
+                    },
+                ]
+            }
+        }
+    }
+
+    invocation_count, scope_errors = _static_recovery_scope_errors(workflow)
+
+    assert invocation_count == 2
+    assert scope_errors == ["Second static invocation"]
+
+
+def test_full_analysis_checks_committed_freshness_before_static_determinism() -> None:
+    job = FULL_ANALYSIS_WORKFLOW["jobs"]["run-analysis"]
+    steps = job["steps"]
+    step_names = [step.get("name") for step in steps]
+    snapshot_index = step_names.index(
+        "Snapshot committed outputs and detect their analysis mode"
+    )
+    regeneration_index = step_names.index(
+        "Regenerate outputs in the committed analysis mode"
+    )
+    freshness_index = step_names.index("Check committed outputs are fresh")
+    determinism_index = step_names.index(
+        "Check static outputs are reproducible in isolation"
+    )
+
+    assert snapshot_index < regeneration_index < freshness_index < determinism_index
+    snapshot_step = steps[snapshot_index]
+    assert snapshot_step["id"] == "committed-outputs"
+    assert "cp -R outputs/. \"$COMMITTED_COMPARE_ROOT/\"" in snapshot_step["run"]
+    assert 'static|live-enriched)' in snapshot_step["run"]
+
+    regeneration_step = steps[regeneration_index]
+    assert (
+        '${{ steps.committed-outputs.outputs.analysis_mode }}'
+        in regeneration_step["run"]
+    )
+
+    freshness_step = steps[freshness_index]
+    assert '--baseline-root "$COMMITTED_COMPARE_ROOT"' in freshness_step["run"]
+    assert (
+        freshness_step["env"]["COMMITTED_COMPARE_ROOT"]
+        == "${{ runner.temp }}/full-analysis-committed"
+    )
+
+    determinism_step = steps[determinism_index]
+    determinism_script = determinism_step["run"]
+    static_run = "python run_full_analysis.py --analysis-input-mode static"
+    assert determinism_script.count(static_run) == 2
+    assert (
+        determinism_step["env"]["STATIC_INPUT_ROOT"]
+        == "${{ runner.temp }}/full-analysis-static-input"
+    )
+    snapshot_input = 'cp -R outputs/. "$STATIC_INPUT_ROOT/"'
+    restore_input = 'cp -R "$STATIC_INPUT_ROOT/." outputs/'
+    first_run_index = determinism_script.index(static_run)
+    baseline_index = determinism_script.index(
+        'cp -R outputs/. "$STATIC_COMPARE_ROOT/"'
+    )
+    restore_index = determinism_script.index(restore_input)
+    second_run_index = determinism_script.index(static_run, first_run_index + 1)
+    assert determinism_script.index(snapshot_input) < first_run_index
+    assert first_run_index < baseline_index < restore_index < second_run_index
+    assert "rm -rf outputs" in determinism_script[baseline_index:restore_index]
+    assert '--baseline-root "$STATIC_COMPARE_ROOT"' in determinism_script
 
 
 def test_ci_workflow_revalidates_tracked_protocol_projection_outputs() -> None:

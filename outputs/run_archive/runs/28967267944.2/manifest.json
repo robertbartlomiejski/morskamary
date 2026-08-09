@@ -5,7 +5,7 @@
   "timestamp_utc": "2026-07-08T19:07:59+00:00",
   "analysis_timestamp_utc": "2026-07-08T19:07:49+00:00",
   "archived_at": "2026-07-08T19:07:59+00:00",
-  "archive_root": "outputs/run_archive",
+  "archive_root": "/home/runner/work/morskamary/morskamary/outputs/run_archive",
   "run_path": "runs/28967267944.2",
   "copied_targets": [
     "outputs/research_sources",

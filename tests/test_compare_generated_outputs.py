@@ -142,3 +142,48 @@ def test_compare_output_trees_requires_matching_file_sets(tmp_path) -> None:
     errors = compare_module.compare_output_trees(current_root, baseline_root)
 
     assert errors == ["missing generated files: report_index.html"]
+
+
+def test_two_fresh_trees_can_agree_while_committed_tree_is_stale(tmp_path) -> None:
+    committed_root = tmp_path / "committed"
+    first_generated_root = tmp_path / "generated-first"
+    second_generated_root = tmp_path / "generated-second"
+    for root in (committed_root, first_generated_root, second_generated_root):
+        root.mkdir()
+
+    stale = '{"metadata":{"analysis_input_mode":"static"},"records":[{"id":1}]}\n'
+    fresh = '{"metadata":{"analysis_input_mode":"static"},"records":[{"id":2}]}\n'
+    filename = "cumulative_qmbd_records.json"
+    (committed_root / filename).write_text(stale, encoding="utf-8")
+    (first_generated_root / filename).write_text(fresh, encoding="utf-8")
+    (second_generated_root / filename).write_text(fresh, encoding="utf-8")
+
+    assert (
+        compare_module.compare_output_trees(
+            second_generated_root, first_generated_root
+        )
+        == []
+    )
+    assert compare_module.compare_output_trees(
+        first_generated_root, committed_root
+    ) == [f"{filename}: substantive JSON drift"]
+
+
+def test_output_tree_comparison_rejects_analysis_mode_mismatch(tmp_path) -> None:
+    static_root = tmp_path / "static"
+    live_root = tmp_path / "live"
+    static_root.mkdir()
+    live_root.mkdir()
+    filename = "cumulative_qmbd_records.json"
+    (static_root / filename).write_text(
+        '{"metadata":{"analysis_input_mode":"static"},"records":[]}\n',
+        encoding="utf-8",
+    )
+    (live_root / filename).write_text(
+        '{"metadata":{"analysis_input_mode":"live-enriched"},"records":[]}\n',
+        encoding="utf-8",
+    )
+
+    assert compare_module.compare_output_trees(static_root, live_root) == [
+        f"{filename}: substantive JSON drift"
+    ]
