@@ -123,6 +123,36 @@ class TestDiffChangedFiles:
             "CHANGELOG.txt",
         )
 
+    def test_falls_back_to_two_dot_diff_when_no_merge_base(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A shallow no-merge-base diff should fall back to direct base..head."""
+
+        class Result:
+            def __init__(self, returncode: int, stdout: str, stderr: str) -> None:
+                self.returncode = returncode
+                self.stdout = stdout
+                self.stderr = stderr
+
+        calls: list[tuple[str, ...]] = []
+
+        def fake_run(*args, **kwargs):  # type: ignore[no-untyped-def]
+            command = tuple(args[0])
+            calls.append(command)
+            if command[-1] == "origin/main...HEAD":
+                return Result(1, "", "fatal: origin/main...HEAD: no merge base")
+            if command[-1] == "origin/main..HEAD":
+                return Result(0, "./scripts/tool.py\n", "")
+            raise AssertionError(f"unexpected command: {command}")
+
+        monkeypatch.setattr(changelog_guard.subprocess, "run", fake_run)
+
+        assert changelog_guard.diff_changed_files("main") == ("scripts/tool.py",)
+        assert calls == [
+            ("git", "diff", "--name-only", "origin/main...HEAD"),
+            ("git", "diff", "--name-only", "origin/main..HEAD"),
+        ]
+
 
 class TestMain:
     """CLI tests for the changelog guard."""

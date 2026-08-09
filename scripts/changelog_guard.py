@@ -83,16 +83,25 @@ def diff_changed_files(
     """Return repository-relative changed files between the base ref and head."""
     if not base_ref.strip():
         raise ValueError("base_ref must not be empty")
-    completed = subprocess.run(
-        ["git", "diff", "--name-only", f"origin/{base_ref}...{head_ref}"],
-        cwd=repo_root,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
+
+    def _run_diff(revision_range: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            ["git", "diff", "--name-only", revision_range],
+            cwd=repo_root,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+    completed = _run_diff(f"origin/{base_ref}...{head_ref}")
     if completed.returncode != 0:
         stderr = completed.stderr.strip() or "git diff failed"
-        raise RuntimeError(stderr)
+        if "no merge base" not in stderr.lower():
+            raise RuntimeError(stderr)
+        completed = _run_diff(f"origin/{base_ref}..{head_ref}")
+        if completed.returncode != 0:
+            fallback_stderr = completed.stderr.strip() or "git diff failed"
+            raise RuntimeError(fallback_stderr)
     return tuple(
         normalized
         for line in completed.stdout.splitlines()

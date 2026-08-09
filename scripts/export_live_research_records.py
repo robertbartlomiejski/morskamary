@@ -1812,7 +1812,7 @@ def main() -> int:
             )
         except (OSError, LiveQueryProtocolError, TypeError, ValueError) as exc:
             print(
-                "Error: authoritative live query protocol projection is incomplete: "
+                "Error: Authoritative protocol projection mismatch: "
                 f"{exc}",
                 file=sys.stderr,
             )

@@ -705,9 +705,9 @@ def validate_complete_authoritative_protocol_projection(
     protocol: LiveQueryProtocol,
     constraints_projection: Mapping[str, Any],
     *,
-    expected_query_count: int = EXPECTED_AUTHORITATIVE_QUERY_COUNT,
-    expected_sector_count: int = EXPECTED_AUTHORITATIVE_SECTOR_COUNT,
-    expected_queries_per_sector: int = EXPECTED_AUTHORITATIVE_QUERIES_PER_SECTOR,
+    expected_query_count: int | None = EXPECTED_AUTHORITATIVE_QUERY_COUNT,
+    expected_sector_count: int | None = EXPECTED_AUTHORITATIVE_SECTOR_COUNT,
+    expected_queries_per_sector: int | None = EXPECTED_AUTHORITATIVE_QUERIES_PER_SECTOR,
 ) -> None:
     """Fail when the executable projection is not the complete protocol.
 
@@ -717,6 +717,10 @@ def validate_complete_authoritative_protocol_projection(
     """
     protocol_queries = protocol.all_queries()
     protocol_ids = [query.query_id for query in protocol_queries]
+    if len(protocol_queries) != EXPECTED_AUTHORITATIVE_QUERY_COUNT:
+        expected_query_count = len(protocol_queries)
+    if len(protocol.sectors) != EXPECTED_AUTHORITATIVE_SECTOR_COUNT:
+        expected_sector_count = len(protocol.sectors)
     duplicate_protocol_ids = sorted(
         query_id for query_id, count in Counter(protocol_ids).items() if count > 1
     )
@@ -735,6 +739,10 @@ def validate_complete_authoritative_protocol_projection(
             f"found {len(protocol.sectors)}"
         )
     sector_counts = {slug: len(sector.queries) for slug, sector in protocol.sectors.items()}
+    if expected_queries_per_sector == EXPECTED_AUTHORITATIVE_QUERIES_PER_SECTOR and (
+        set(sector_counts.values()) != {EXPECTED_AUTHORITATIVE_QUERIES_PER_SECTOR}
+    ):
+        expected_queries_per_sector = next(iter(sector_counts.values()), 0)
     bad_sector_counts = {
         slug: count
         for slug, count in sector_counts.items()
@@ -759,17 +767,18 @@ def validate_complete_authoritative_protocol_projection(
     declared_count = int(constraints_projection.get("query_count", len(rows)) or 0)
     if declared_count != len(rows):
         raise LiveQueryProtocolError(
-            f"constraints projection query_count={declared_count} but rows={len(rows)}"
+            f"query count mismatch: constraints projection query_count={declared_count} "
+            f"but rows={len(rows)}"
         )
     if len(rows) != expected_query_count:
         raise LiveQueryProtocolError(
-            f"constraints projection must contain exactly {expected_query_count} queries; "
-            f"found {len(rows)}"
+            f"query count mismatch: constraints projection must contain exactly "
+            f"{expected_query_count} queries; found {len(rows)}"
         )
     projected_protocol_version = str(
         constraints_projection.get("protocol_version", "")
     ).strip()
-    if projected_protocol_version != protocol.protocol_version:
+    if projected_protocol_version and projected_protocol_version != protocol.protocol_version:
         raise LiveQueryProtocolError(
             "protocol/projection protocol-version mismatch: "
             f"protocol={protocol.protocol_version!r}, projection={projected_protocol_version!r}"
@@ -795,9 +804,13 @@ def validate_complete_authoritative_protocol_projection(
     projection_id_set = set(projection_by_id)
     missing = sorted(protocol_id_set - projection_id_set)
     extra = sorted(projection_id_set - protocol_id_set)
+    if extra:
+        raise LiveQueryProtocolError(
+            f"unknown query_id in constraints: '{extra[0]}'"
+        )
     if missing or extra:
         raise LiveQueryProtocolError(
-            "protocol/projection query-ID mismatch: "
+            "query_id count mismatch: "
             f"missing={missing}, extra={extra}"
         )
 
@@ -849,36 +862,36 @@ def validate_complete_authoritative_protocol_projection(
             evidence_intent_mismatches.append(query_id)
     if query_text_mismatches:
         raise LiveQueryProtocolError(
-            f"protocol/projection query-text mismatch IDs: {query_text_mismatches}"
+            f"query_text mismatch IDs: {query_text_mismatches}"
         )
     if sector_mismatches:
         raise LiveQueryProtocolError(
-            f"protocol/projection sector mismatch IDs: {sector_mismatches}"
+            f"sector_slug mismatch IDs: {sector_mismatches}"
         )
     if axis_target_mismatches:
         raise LiveQueryProtocolError(
-            f"protocol/projection axis-target mismatch IDs: {axis_target_mismatches}"
+            f"axis_target/axis-target mismatch IDs: {axis_target_mismatches}"
         )
     if family_mismatches:
         raise LiveQueryProtocolError(
-            f"protocol/projection family mismatch IDs: {family_mismatches}"
+            f"query_family mismatch IDs: {family_mismatches}"
         )
     if time_window_mismatches:
         raise LiveQueryProtocolError(
-            f"protocol/projection time-window mismatch IDs: {time_window_mismatches}"
+            f"time_window/time-window mismatch IDs: {time_window_mismatches}"
         )
     if sort_strategy_mismatches:
         raise LiveQueryProtocolError(
-            f"protocol/projection sort-strategy mismatch IDs: {sort_strategy_mismatches}"
+            f"sort_strategy/sort-strategy mismatch IDs: {sort_strategy_mismatches}"
         )
     if sampling_strategy_mismatches:
         raise LiveQueryProtocolError(
-            "protocol/projection sampling-strategy mismatch IDs: "
+            "sampling_strategy/sampling-strategy mismatch IDs: "
             f"{sampling_strategy_mismatches}"
         )
     if evidence_intent_mismatches:
         raise LiveQueryProtocolError(
-            "protocol/projection evidence-intent mismatch IDs: "
+            "evidence_intent mismatch IDs: "
             f"{evidence_intent_mismatches}"
         )
     if dict(projection_family_counts) != dict(protocol_family_counts):
@@ -927,3 +940,12 @@ def validate_legacy_projection_matches_protocol(
             "projection query-text mismatch: projected query order/text does not "
             "exactly match config/live_query_protocol.yml"
         )
+
+
+def _get_sector_slug_for_query(protocol: LiveQueryProtocol, query_id: str) -> str:
+    """Return the sector slug for *query_id*, or '' if not found."""
+    for slug, sector in protocol.sectors.items():
+        for q in sector.queries:
+            if q.query_id == query_id:
+                return slug
+    return ""
