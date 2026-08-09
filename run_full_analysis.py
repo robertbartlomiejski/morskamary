@@ -999,6 +999,38 @@ def _infer_live_record_sectors(text: str, axis: TMBDAxis) -> List[str]:
     return list(selected_sectors)
 
 
+def _select_literature_theme_for_axis(
+    text: str,
+    *,
+    detected_axis: TMBDAxis,
+    axis_themes: Sequence[tuple[str, str]],
+) -> tuple[str, str] | None:
+    """Choose the closest literature theme without leaking across axis pools.
+
+    If the detected axis has no theme pool or no token-overlap match, return None so
+    the caller can preserve cross-sector scope instead of forcing an arbitrary
+    narrow theme assignment from another axis.
+    """
+    axis_local_themes = [(ax, nm) for ax, nm in axis_themes if ax == detected_axis.name]
+    if not axis_local_themes:
+        return None
+
+    text_tokens = set(_TOKEN_PATTERN.findall(text.lower()))
+    best_theme: tuple[str, str] | None = None
+    best_score = 0
+    for axis_name, theme_name in axis_local_themes:
+        theme_tokens = set(_TOKEN_PATTERN.findall(theme_name.lower()))
+        score = len(text_tokens & theme_tokens)
+        if score > best_score:
+            best_score = score
+            best_theme = (axis_name, theme_name)
+
+    if best_theme is not None:
+        return best_theme
+
+    return None
+
+
 def _extract_live_sentence_classifications(
     row: Dict[str, object],
 ) -> List[Dict[str, object]]:
@@ -1160,15 +1192,18 @@ def extract_literature_competences() -> List[Competence]:
                     sentence_analysis, default_axis=default_axis
                 )
 
-                # Pick the closest theme cluster from the pool for this axis
-                candidate_themes = [
-                    (ax, nm) for ax, nm in axis_themes if ax == detected_axis.name
-                ]
-                if not candidate_themes:
-                    candidate_themes = axis_themes  # fallback: any theme
-
-                # Assign theme deterministically using row index as cycle offset
-                ax_name, theme_name = candidate_themes[row_idx % len(candidate_themes)]
+                theme_selection = _select_literature_theme_for_axis(
+                    combined_text,
+                    detected_axis=detected_axis,
+                    axis_themes=axis_themes,
+                )
+                if theme_selection is None:
+                    ax_name = detected_axis.name
+                    theme_name = f"{detected_axis.name.title()} literature context"
+                    sectors = SECTORS
+                else:
+                    ax_name, theme_name = theme_selection
+                    sectors = _THEME_SECTORS.get(theme_name, SECTORS)
                 axis = _axis_from_name(ax_name, default_axis=detected_axis)
 
                 # Competence name: theme cluster + paper title excerpt (unique per paper)
@@ -1205,7 +1240,7 @@ def extract_literature_competences() -> List[Competence]:
                             "literature",
                             theme_name[:30],
                         ],
-                        sectors=_THEME_SECTORS.get(theme_name, SECTORS),
+                        sectors=sectors,
                     )
                 )
                 file_count += 1
