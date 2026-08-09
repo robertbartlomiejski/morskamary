@@ -21,7 +21,10 @@
     "source_candidate_id": { "type": "string", "minLength": 1 },
     "preferred_label": { "type": "string", "minLength": 1 },
     "canonical_definition": { "type": "string", "minLength": 1 },
-    "aliases": { "type": "string" },
+    "aliases": {
+      "type": "string",
+      "description": "Alternative labels for this canonical competence. May be empty or a single pipe-delimited string of alias terms. The producer serializes at most one alias (the source candidate label when it differs from the preferred label)."
+    },
     "validation_status": { "type": "string", "enum": ["accepted"] },
     "schema_version": { "type": "string", "minLength": 1 },
     "provenance_guard_status": { "type": "string", "enum": ["passed"] }

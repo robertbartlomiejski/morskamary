@@ -1331,9 +1331,16 @@ def test_build_versioned_package_preserves_distinct_legacy_and_schema_v2_evidenc
     ).exists()
 
 
-def test_build_versioned_package_removes_stale_conventional_directory_after_failed_rebuild(
+def test_build_versioned_package_restores_previous_directory_after_failed_rebuild(
     tmp_path: Path,
 ) -> None:
+    """On a failed rebuild, the previous package directory must be restored.
+
+    The quarantine pattern renames the old package to ``.stale`` before
+    validation so that a partial new build cannot corrupt the good output.
+    When validation fails the old directory must be moved back so the user
+    is not left without any usable package.
+    """
     module = _load_module()
     repo_root = tmp_path / "repo"
     repo_root.mkdir(parents=True, exist_ok=True)
@@ -1352,8 +1359,14 @@ def test_build_versioned_package_removes_stale_conventional_directory_after_fail
 
     exit_code, stdout = _run_package(module, repo_root, output_dir, "v0.3.2")
     assert exit_code == 1
-    assert not package_dir.exists()
-    assert (output_dir / "morskamary_cumulative_evidence_v0.3.2.stale").exists()
+    # The previous good package must be restored to its original path so the
+    # caller is not left without any usable artifact.
+    assert package_dir.exists(), (
+        "Previous good package was not restored after failed rebuild"
+    )
+    assert not (output_dir / "morskamary_cumulative_evidence_v0.3.2.stale").exists(), (
+        "Stale quarantine directory must not persist after restoring the previous package"
+    )
 
 
 def test_build_versioned_package_bootstrap_creates_empty_manual_sources(

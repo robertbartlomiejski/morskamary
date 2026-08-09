@@ -754,6 +754,60 @@ def test_classify_sentence_contexts_marks_no_keyword_sentences_unclassified() ->
     assert analysis[0]["uncertainty_typology"] == "no_signal"
 
 
+def test_classify_sentence_contexts_unknown_typology_does_not_expand_label() -> None:
+    """An unexpected uncertainty_typology must not expand the UNCLASSIFIED label.
+
+    The classifier may evolve new typology values.  Only values in
+    _KNOWN_UNCERTAINTY_TYPOLOGIES should be appended to the label so that
+    downstream label-space consumers see a stable, bounded set of names.
+    """
+    from unittest.mock import patch
+    from run_full_analysis import _classify_sentence_contexts, _AXIS_CLASSIFIER
+
+    fake_payload = {
+        "axis": "UNCLASSIFIED",
+        "axis_code": "",
+        "text_scope": "full_sentence",
+        "sentence": "some text",
+        "matched_keywords": [],
+        "confidence_score": 0.0,
+        "is_blue_planetaryism": False,
+        "manual_review_status": "review_required",
+        "uncertainty_reason": "test",
+        "uncertainty_typology": "FUTURE_UNKNOWN_TYPOLOGY",
+        "review_path": "fail_closed_unclassified",
+        "classifier_version": "qmbd-keyword-governance-v1",
+    }
+
+    with patch.object(_AXIS_CLASSIFIER, "classify_context", return_value=fake_payload):
+        analysis = _classify_sentence_contexts(["some text"], "source:test")
+
+    assert len(analysis) == 1
+    # Must stay at the base label, not "UNCLASSIFIED_REVIEW_REQUIRED__FUTURE_UNKNOWN_TYPOLOGY"
+    assert analysis[0]["classification"] == "UNCLASSIFIED_REVIEW_REQUIRED"
+
+
+def test_classify_sentence_contexts_known_typologies_expand_label() -> None:
+    """All _KNOWN_UNCERTAINTY_TYPOLOGIES must produce the expanded label form."""
+    from run_full_analysis import _classify_sentence_contexts, _KNOWN_UNCERTAINTY_TYPOLOGIES
+
+    expected_types = set()
+    for typology in _KNOWN_UNCERTAINTY_TYPOLOGIES:
+        label = f"UNCLASSIFIED_REVIEW_REQUIRED__{typology.upper()}"
+        expected_types.add(label)
+
+    analysis = _classify_sentence_contexts(
+        [
+            "Generic blue economy transition text.",  # no_signal
+            "Port ecosystem co-governance and biodiversity.",  # cross_axis_mediator
+        ],
+        "source:test",
+    )
+    produced_labels = {item["classification"] for item in analysis}
+    # At least one of the known typologies should be represented
+    assert any(label in produced_labels for label in expected_types)
+
+
 def test_serialize_subject_terms_handles_lists_and_scalars() -> None:
     """Subject terms should be serialized deterministically for enrichment text."""
     from run_full_analysis import _serialize_subject_terms

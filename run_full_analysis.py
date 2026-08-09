@@ -96,6 +96,18 @@ CUMULATIVE_QMBD_RECORDS_FILENAME = "cumulative_qmbd_records.json"
 REPO_GITHUB_BASE = "https://github.com/robertbartlomiejski/morskamary/blob/main"
 _AXIS_CLASSIFIER = AxisClassifier()
 
+# Whitelist of uncertainty typology values produced by AxisClassifier.classify_context().
+# Only these values are allowed in the UNCLASSIFIED_REVIEW_REQUIRED__{typology} label.
+# Any unknown typology is silently collapsed to the base UNCLASSIFIED_REVIEW_REQUIRED label.
+_KNOWN_UNCERTAINTY_TYPOLOGIES: frozenset[str] = frozenset(
+    {
+        "no_signal",
+        "ambiguous_context",
+        "cross_axis_mediator",
+        "boundary_threshold",
+    }
+)
+
 # 12 blue economy sectors (canonical names matching the CSV headers)
 SECTORS: List[str] = [
     "Blue Biotech",
@@ -314,7 +326,10 @@ def _classify_sentence_contexts(
             else "UNCLASSIFIED_REVIEW_REQUIRED"
         )
         typology = str(axis_payload.get("uncertainty_typology", "")).strip()
-        if classification_name == "UNCLASSIFIED_REVIEW_REQUIRED" and typology:
+        if (
+            classification_name == "UNCLASSIFIED_REVIEW_REQUIRED"
+            and typology in _KNOWN_UNCERTAINTY_TYPOLOGIES
+        ):
             classification_name = (
                 "UNCLASSIFIED_REVIEW_REQUIRED"
                 f"__{typology.upper()}"

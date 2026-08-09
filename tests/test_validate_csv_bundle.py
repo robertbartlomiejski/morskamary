@@ -549,3 +549,33 @@ def test_projection_rejects_type_mismatch_even_when_values_stringify_equally() -
         "evidence_records_cross_projection_type_mismatch:"
         "record_recurrence_count:csv:L2:jsonl:L1"
     ) in errors
+
+
+def test_validate_csv_bundle_importable_as_module(tmp_path: Path) -> None:
+    """validate_csv_bundle.py must be importable from the repo root.
+
+    The sys.path guard in the module header ensures the scripts/ directory is
+    added before the sibling-module import so that module-level imports work
+    when the file is loaded via importlib rather than via a direct subprocess.
+    """
+    import importlib.util
+
+    repo_root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location(
+        "validate_csv_bundle_import_test",
+        repo_root / "scripts" / "validate_csv_bundle.py",
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    # Simulate import from repo root by NOT having scripts/ on sys.path upfront.
+    scripts_dir = str(repo_root / "scripts")
+    was_present = scripts_dir in sys.path
+    if was_present:
+        sys.path.remove(scripts_dir)
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        if not was_present and scripts_dir in sys.path:
+            sys.path.remove(scripts_dir)
+    # If import succeeded the module must expose the expected validators.
+    assert hasattr(module, "_validate_evidence_record_projection")

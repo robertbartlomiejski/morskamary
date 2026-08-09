@@ -20,7 +20,10 @@
   "properties": {
     "validation_decision_id": { "type": "string", "minLength": 1 },
     "target_candidate_id": { "type": "string", "minLength": 1 },
-    "canonical_label": { "type": "string" },
+    "canonical_label": {
+      "type": "string",
+      "description": "The canonical competence label assigned by the accepted decision. Must be non-empty for accepted decisions (enforced by the allOf conditional below). May be an empty string for rejected, review_required, or superseded decisions."
+    },
     "decision_status": {
       "type": "string",
       "enum": ["accepted", "rejected", "review_required", "superseded"]

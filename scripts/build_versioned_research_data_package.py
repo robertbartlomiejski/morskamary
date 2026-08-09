@@ -2323,6 +2323,10 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
     if validation_errors:
         for error in validation_errors[:50]:
             print(f"{status_label('error')} {error}")
+        # Restore the previous package directory so it is not left as .stale
+        # when validation fails after a quarantine rename.
+        if quarantine_dir.exists() and not package_dir.exists():
+            quarantine_dir.replace(package_dir)
         return 1
 
     (package_dir / "data" / "csv").mkdir(parents=True, exist_ok=True)
