@@ -28,7 +28,6 @@ Use this section for changes in progress that are not yet merged into the main b
   Impact Downstream classification label space is now bounded. Failed versioned-package builds restore the previous good output. validate_csv_bundle.py is importable as a module without sys.path pre-configuration. Schema files now document the accepted value range for aliases and canonical_label.
   Provenance PR #245 code review findings; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md.
   Quality checks 1473 pytest tests passed; flake8 and mypy clean on changed files.
-
 - 2026-08-09 (add: QMBD measurement-governance uncertainty scaffolding)
   Change type add fix update
   Scope src docs schemas tests governance
