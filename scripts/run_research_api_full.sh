@@ -25,7 +25,7 @@
 
 set -euo pipefail
 
-MODE="full-static"
+MODE="full-live"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -103,7 +103,9 @@ $PYTHON scripts/check_research_env.py
 if [[ "$MODE" == "quick" ]]; then
   echo ""
   echo "--- QUICK MODE: static analysis and consistency gates ---"
-  $PYTHON run_full_analysis.py --analysis-input-mode static
+  ALLOW_STATIC_RECOVERY_MODE=true \
+    STATIC_RECOVERY_REASON="${STATIC_RECOVERY_REASON:-Local quick-mode static analysis run}" \
+    $PYTHON run_full_analysis.py --analysis-input-mode static
   $PYTHON scripts/validate_generated_outputs.py
   $PYTHON scripts/validate_research_source_outputs.py
   echo ""
@@ -149,7 +151,9 @@ if [[ "$LIVE" == "true" ]]; then
     --analysis-input-mode live-enriched \
     --live-records-path outputs/research_sources/live_records_triangulated.json
 else
-  $PYTHON run_full_analysis.py --analysis-input-mode static
+  ALLOW_STATIC_RECOVERY_MODE=true \
+    STATIC_RECOVERY_REASON="${STATIC_RECOVERY_REASON:-Local full-static analysis run}" \
+    $PYTHON run_full_analysis.py --analysis-input-mode static
 fi
 $PYTHON scripts/validate_generated_outputs.py
 

@@ -2,7 +2,13 @@ from __future__ import annotations
 
 import subprocess
 
-from scripts.compare_generated_outputs import compare_json_payloads, normalize_payload
+import pytest
+
+from scripts.compare_generated_outputs import (
+    compare_csv_payloads,
+    compare_json_payloads,
+    normalize_payload,
+)
 from scripts import compare_generated_outputs as compare_module
 
 
@@ -33,6 +39,53 @@ def test_supply_audit_metadata_drift_is_narrowly_allowed() -> None:
     assert compare_json_payloads(
         current, committed, filename="credentials_dynamic_database.json"
     )
+
+
+def test_gaps_summary_csv_metadata_drift_is_allowed() -> None:
+    committed = (
+        "Sector,Generated_at,Run_id,Missing\n"
+        "Blue Biotech,2026-01-01T00:00:00+00:00,100,10\n"
+    )
+    current = (
+        "Sector,Generated_at,Run_id,Missing\n"
+        "Blue Biotech,2026-01-02T00:00:00+00:00,101,10\n"
+    )
+    assert compare_csv_payloads(current, committed, filename="gaps_summary.csv")
+
+
+def test_gaps_summary_csv_substantive_drift_is_not_allowed() -> None:
+    committed = (
+        "Sector,Generated_at,Run_id,Missing\n"
+        "Blue Biotech,2026-01-01T00:00:00+00:00,100,10\n"
+    )
+    current = (
+        "Sector,Generated_at,Run_id,Missing\n"
+        "Blue Biotech,2026-01-02T00:00:00+00:00,101,11\n"
+    )
+    assert not compare_csv_payloads(current, committed, filename="gaps_summary.csv")
+
+
+@pytest.mark.parametrize("metadata_value", [None, [], "static", 1])
+def test_cumulative_metadata_non_dict_raises_value_error(metadata_value) -> None:
+    committed = {"metadata": {}, "records": [{"id": 1}]}
+    current = {"metadata": metadata_value, "records": [{"id": 1}]}
+    with pytest.raises(ValueError, match="metadata must be an object"):
+        compare_json_payloads(
+            current, committed, filename="cumulative_qmbd_records.json"
+        )
+
+
+def test_gaps_summary_csv_malformed_row_raises_value_error() -> None:
+    committed = (
+        "Sector,Generated_at,Run_id,Missing\n"
+        "Blue Biotech,2026-01-01T00:00:00+00:00,100,10\n"
+    )
+    current = (
+        "Sector,Generated_at,Run_id,Missing\n"
+        "Blue Biotech,2026-01-01T00:00:00+00:00,100,10,extra\n"
+    )
+    with pytest.raises(ValueError, match="malformed CSV row"):
+        compare_csv_payloads(current, committed, filename="gaps_summary.csv")
 
 
 def test_changed_output_paths_include_untracked_files(monkeypatch) -> None:
