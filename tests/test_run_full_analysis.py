@@ -2023,10 +2023,6 @@ def test_repo_relative_posix_or_redacted_rejects_path_escape(
         )
 
 
-@pytest.mark.parametrize(
-    "path_kind",
-    ["parent_traversal", "external_symlink"],
-)
 def test_repo_relative_posix_or_redacted_rejects_windows_and_unc_paths() -> None:
     assert _repo_relative_posix_or_redacted(r"C:\Users\runner\outside.json") == (
         "[redacted-out-of-tree-path]"
