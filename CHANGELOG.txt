@@ -29,6 +29,16 @@ Use this section for changes in progress that are not yet merged into the main b
   Provenance User governance-extension request; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md; config/live_query_protocol.yml.
   Quality checks Focused classifier and pipeline pytest coverage passed (118 tests); additional targeted lint, type, and governance checks are run before commit and the required repository suite is recorded with the final update.
 
+- 2026-08-08 (fix: restore governance manifest reproducibility for dependabot config)
+  Change type fix update
+  Scope governance
+  Files affected .github/dependabot.yml MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Regenerates MANIFEST_SOURCES.csv so the newly added .github/dependabot.yml entry is committed alongside the Dependabot configuration and governance reproducibility checks stop failing on manifest drift.
+  Reason The governance-and-repro GitHub Actions job regenerated MANIFEST_SOURCES.csv and failed because the PR added .github/dependabot.yml without the corresponding deterministic manifest row.
+  Impact No scientific logic or live-provider execution changes. Repository governance metadata remains reproducible and CI can validate the committed Dependabot configuration without local manifest drift.
+  Provenance GitHub Actions run 31249867765 job 93084390547; scripts/generate_manifest.py; .github/workflows/ci.yml.
+  Quality checks python3 scripts/generate_manifest.py (1206 entries written); repeat python3 scripts/generate_manifest.py preserved the same SHA-256 for MANIFEST_SOURCES.csv; python3 scripts/changelog_guard.py --changed-file .github/dependabot.yml --changed-file MANIFEST_SOURCES.csv --changed-file CHANGELOG.txt (passed); python3 -m pytest tests/test_generate_manifest.py -v (28 passed).
+
 - 2026-08-07 (add: schema_v2_identity shared module; refactor all identity builders to single contract)
   Change type add fix update
   Scope scripts tests governance src
@@ -71,6 +81,16 @@ Use this section for changes in progress that are not yet merged into the main b
   Follow-up review fix Release preflight now honors schema enums that explicitly permit empty strings, reports physical CSV line numbers, uses declared foreign-key targets, and compares nonempty supporting evidence IDs between legacy CSV and JSONL projections. Sector assignments require one of the canonical QMBD codes M, T, O, or H, and regression fixtures require accepted promotion decisions.
   Follow-up quality checks Focused release/schema pytest passed (38 tests); flake8 passed; mypy passed for 71 source files with two informational annotation-unchecked notes; full pytest passed (1330 passed, 5 skipped); generated-output validation passed; and run-archive integrity validation passed for one archived run.
   Follow-up label fix Schema enum fields are now discovered as categorical variables by the versioned-package label generator, and the cumulative Layer 4-5 label writer explicitly covers schema-v2 categorical codes so consumers receive variable and value labels for the new tables.
+
+- 2026-05-19 (fix: salvage stale PR logic with safe performance ports)
+  Change type fix update
+  Scope scripts src tests
+  Files affected scripts/build_derived.py src/competence_mapper.py src/core.py tests/test_e2e_workflows.py
+  Summary Ports safe performance optimizations from stale PRs: vectorizes DataFrame column extraction in build_derived.py write_datadict, hoists repeated lower() call in competence_mapper sector lookup, replaces iterrows with column-wise list extraction in core.py load_competence_matrix, and adds missing assertion in e2e workflow test.
+  Reason Salvaged from stale PRs #58 and #16 as part of PR #165 backlog cleanup. Changes preserve strict QMBD fallback behavior while reducing per-row Python overhead.
+  Impact No scientific logic change. Performance improvement for large competence matrices. Test coverage strengthened with explicit count assertion.
+  Provenance PR #165 (copilot/salvage-logic-pr-60); original PRs #58 and #16.
+  Quality checks Merged without CHANGELOG update; entry added retroactively.
 
 - 2026-08-06 (fix: harden post-merge provider accounting and protocol publication)
   Change type fix update

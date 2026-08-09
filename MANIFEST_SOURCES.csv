@@ -7,6 +7,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/add-competence.prompt.md,text,,,,,,add_competence_prompt,yes
 .github/competence-domain.instructions.md,text,,,,,,competence_domain_instructions,yes
 .github/copilot-instructions.md,text,,,,,,copilot_instructions,yes
+.github/dependabot.yml,other,,,,,,dependabot,no
 .github/github-app.yml,other,,,,,,github_app,no
 .github/instructions/data-pipeline.instructions.md,text,,,,,,data_pipeline_instructions,yes
 .github/integrate-literature.skill.md,text,,,,,,integrate_literature_skill,yes
@@ -34,6 +35,8 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .vscode/test_launch.json,other,,,,,,test_launch,yes
 AGENTS.md,text,,,,,,AGENTS,yes
 branch_reconciliation_2026-04-30.md,text,,,,,,branch_reconciliation_2026_04_30,yes
+CHANGELOG.txt,governance,,,,,,CHANGELOG,yes
+CHANGELOG.txt,governance,,,,,,CHANGELOG,yes
 CHANGELOG.txt,governance,,,,,,CHANGELOG,yes
 CITATION.txt,governance,,,,,,CITATION,yes
 cloudbuild.live.yaml,other,,,,,,cloudbuild_live,no
