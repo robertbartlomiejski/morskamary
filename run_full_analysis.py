@@ -2988,8 +2988,28 @@ def compute_sector_pathways(
 def export_gaps_summary_csv(
     gaps: Dict[str, GapAnalysis],
     output_path: Path,
+    *,
+    generated_at: str = "",
+    analysis_mode: str = "",
+    run_id: str = "",
 ) -> None:
-    """Export gaps_summary.csv with gap percentages by sector."""
+    """Export gaps_summary.csv with gap percentages by sector.
+
+    Columns follow the canonical four-axis QMBD contract (MARINE, MARITIME,
+    OCEANIC, HYDRONIZATION).  Provenance fields (Generated_at, Analysis_mode,
+    Run_id, Schema_version) are written to every row so the CSV is
+    self-describing and publication-grade.
+
+    Gap_pct = Missing / Required * 100, rounded to one decimal place.
+
+    ``Run_id`` falls back to a UUID when empty so every artifact has a
+    non-blank, globally unique run identifier even in non-CI contexts.
+    ``Generated_at`` falls back to the current UTC timestamp when not supplied.
+    ``Schema_version`` is fixed to ``"2"`` and can be used by consumers to
+    detect the schema version without inspecting column names.
+    """
+    ts = generated_at or _now_utc_iso()
+    effective_run_id = run_id or str(__import__("uuid").uuid4())
     with open(output_path, "w", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh)
         writer.writerow(
@@ -2998,10 +3018,15 @@ def export_gaps_summary_csv(
                 "Required",
                 "Available",
                 "Missing",
-                "Gap %",
-                "Missing MARINE",
-                "Missing MARITIME",
-                "Missing OCEANIC",
+                "Gap_pct",
+                "Missing_MARINE",
+                "Missing_MARITIME",
+                "Missing_OCEANIC",
+                "Missing_HYDRONIZATION",
+                "Generated_at",
+                "Analysis_mode",
+                "Run_id",
+                "Schema_version",
             ]
         )
         for sector in SECTORS:
@@ -3016,6 +3041,11 @@ def export_gaps_summary_csv(
                     len(g.by_axis.get("MARINE", [])),
                     len(g.by_axis.get("MARITIME", [])),
                     len(g.by_axis.get("OCEANIC", [])),
+                    len(g.by_axis.get("HYDRONIZATION", [])),
+                    ts,
+                    analysis_mode,
+                    effective_run_id,
+                    "2",
                 ]
             )
     log.info("  Exported: %s", output_path)
@@ -3760,7 +3790,13 @@ def main(
         learning_pathways, OUTPUTS_DIR / "sector_qmbd_learning_pathways.json"
     )
     export_pathways_json(pathways, OUTPUTS_DIR / "sector_pathways.json")
-    export_gaps_summary_csv(gaps, OUTPUTS_DIR / "gaps_summary.csv")
+    export_gaps_summary_csv(
+        gaps,
+        OUTPUTS_DIR / "gaps_summary.csv",
+        generated_at=cumulative_run_metadata.get("timestamp_utc", ""),
+        analysis_mode=cumulative_run_metadata.get("analysis_input_mode", ""),
+        run_id=cumulative_run_metadata.get("github_run_id", ""),
+    )
     export_gaps_detailed_json(gap_model_result, OUTPUTS_DIR / "gaps_detailed.json")
     export_gaps_by_sector_axis_csv(
         gap_model_result, OUTPUTS_DIR / "gaps_by_sector_axis.csv"
