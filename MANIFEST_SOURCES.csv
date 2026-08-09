@@ -36,8 +36,6 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 AGENTS.md,text,,,,,,AGENTS,yes
 branch_reconciliation_2026-04-30.md,text,,,,,,branch_reconciliation_2026_04_30,yes
 CHANGELOG.txt,governance,,,,,,CHANGELOG,yes
-CHANGELOG.txt,governance,,,,,,CHANGELOG,yes
-CHANGELOG.txt,governance,,,,,,CHANGELOG,yes
 CITATION.txt,governance,,,,,,CITATION,yes
 cloudbuild.live.yaml,other,,,,,,cloudbuild_live,no
 cloudbuild.yaml,other,,,,,,cloudbuild,no
