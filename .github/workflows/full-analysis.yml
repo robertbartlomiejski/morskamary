@@ -40,11 +40,13 @@ jobs:
         shell: bash
         env:
           COMMITTED_COMPARE_ROOT: ${{ runner.temp }}/full-analysis-committed
+          RETAINED_INPUT_ROOT: ${{ runner.temp }}/full-analysis-retained-inputs
         run: |
           set -euo pipefail
           rm -rf "$COMMITTED_COMPARE_ROOT"
+          rm -rf "$RETAINED_INPUT_ROOT"
           mkdir -p "$COMMITTED_COMPARE_ROOT"
-          cp -R outputs/. "$COMMITTED_COMPARE_ROOT/"
+          mkdir -p "$RETAINED_INPUT_ROOT"
           analysis_mode="$(
             python -c 'import json; print(json.load(open("outputs/cumulative_qmbd_records.json", encoding="utf-8"))["metadata"]["analysis_input_mode"])'
           )"
@@ -55,6 +57,49 @@ jobs:
               exit 1
               ;;
           esac
+          generated_paths=(
+            "competences_full_database.json"
+            "credentials_database.json"
+            "credentials_dynamic_database.json"
+            "credentials_generation_rationale.json"
+            "credentials_matrix.html"
+            "cumulative_qmbd_records.json"
+            "gap_priority_ranking.csv"
+            "gaps_by_sector.html"
+            "gaps_by_sector_axis.csv"
+            "gaps_detailed.json"
+            "gaps_summary.csv"
+            "literature_integration.html"
+            "report_index.html"
+            "sector_dictionaries"
+            "sector_pathways.json"
+            "sector_qmbd_learning_pathways.json"
+          )
+          for relative_path in "${generated_paths[@]}"; do
+            if [[ ! -e "outputs/$relative_path" ]]; then
+              echo "Missing committed generated output: outputs/$relative_path"
+              exit 1
+            fi
+            mkdir -p "$COMMITTED_COMPARE_ROOT/$(dirname "$relative_path")"
+            cp -R "outputs/$relative_path" "$COMMITTED_COMPARE_ROOT/$relative_path"
+          done
+          if [[ "$analysis_mode" == "live-enriched" ]]; then
+            retained_path="research_sources/live_records_triangulated.json"
+            if [[ ! -f "outputs/$retained_path" ]]; then
+              echo "Missing retained live-enriched input: outputs/$retained_path"
+              exit 1
+            fi
+            mkdir -p "$RETAINED_INPUT_ROOT/$(dirname "$retained_path")"
+            mkdir -p "$COMMITTED_COMPARE_ROOT/$(dirname "$retained_path")"
+            cp "outputs/$retained_path" "$RETAINED_INPUT_ROOT/$retained_path"
+            cp "outputs/$retained_path" "$COMMITTED_COMPARE_ROOT/$retained_path"
+          fi
+          rm -rf outputs
+          mkdir -p outputs
+          if [[ "$analysis_mode" == "live-enriched" ]]; then
+            mkdir -p "outputs/$(dirname "$retained_path")"
+            cp "$RETAINED_INPUT_ROOT/$retained_path" "outputs/$retained_path"
+          fi
           echo "analysis_mode=$analysis_mode" >> "$GITHUB_OUTPUT"
 
       # live-enriched here replays legally retained committed evidence only; it

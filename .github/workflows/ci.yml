@@ -160,10 +160,13 @@ jobs:
             --output-path outputs/research_sources/research_queries_from_protocol.yml \
             --emit-summary-path outputs/research_sources/research_queries_from_protocol_summary.json \
             --emit-constraints-path outputs/research_sources/query_protocol_constraints.json
-          if ! git diff --exit-code -- \
-            outputs/research_sources/research_queries_from_protocol.yml \
-            outputs/research_sources/research_queries_from_protocol_summary.json \
-            outputs/research_sources/query_protocol_constraints.json; then
+          projection_paths=(
+            outputs/research_sources/research_queries_from_protocol.yml
+            outputs/research_sources/research_queries_from_protocol_summary.json
+            outputs/research_sources/query_protocol_constraints.json
+          )
+          git ls-files --error-unmatch -- "${projection_paths[@]}"
+          if ! git diff --exit-code -- "${projection_paths[@]}"; then
             echo "Authoritative protocol projection outputs are stale. Regenerate and commit them."
             exit 1
           fi

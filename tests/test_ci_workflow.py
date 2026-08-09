@@ -112,7 +112,7 @@ def test_static_recovery_env_from_an_earlier_step_does_not_cover_later_steps() -
     assert scope_errors == ["Second static invocation"]
 
 
-def test_full_analysis_checks_committed_freshness_before_static_determinism() -> None:
+def test_full_analysis_clean_tree_blocks_stale_outputs_before_determinism() -> None:
     job = FULL_ANALYSIS_WORKFLOW["jobs"]["run-analysis"]
     steps = job["steps"]
     step_names = [step.get("name") for step in steps]
@@ -130,14 +130,45 @@ def test_full_analysis_checks_committed_freshness_before_static_determinism() ->
     assert snapshot_index < regeneration_index < freshness_index < determinism_index
     snapshot_step = steps[snapshot_index]
     assert snapshot_step["id"] == "committed-outputs"
-    assert "cp -R outputs/. \"$COMMITTED_COMPARE_ROOT/\"" in snapshot_step["run"]
     assert 'static|live-enriched)' in snapshot_step["run"]
+    snapshot_script = snapshot_step["run"]
+    assert (
+        snapshot_step["env"]["RETAINED_INPUT_ROOT"]
+        == "${{ runner.temp }}/full-analysis-retained-inputs"
+    )
+    assert '"research_sources/live_records_triangulated.json"' in snapshot_script
+    assert 'cp -R outputs/. "$COMMITTED_COMPARE_ROOT/"' not in snapshot_script
+    for generated_path in (
+        "competences_full_database.json",
+        "credentials_database.json",
+        "credentials_dynamic_database.json",
+        "credentials_generation_rationale.json",
+        "credentials_matrix.html",
+        "cumulative_qmbd_records.json",
+        "gap_priority_ranking.csv",
+        "gaps_by_sector.html",
+        "gaps_by_sector_axis.csv",
+        "gaps_detailed.json",
+        "gaps_summary.csv",
+        "literature_integration.html",
+        "report_index.html",
+        "sector_dictionaries",
+        "sector_pathways.json",
+        "sector_qmbd_learning_pathways.json",
+    ):
+        assert f'"{generated_path}"' in snapshot_script
 
     regeneration_step = steps[regeneration_index]
     assert (
         '${{ steps.committed-outputs.outputs.analysis_mode }}'
         in regeneration_step["run"]
     )
+    cleanup_index = snapshot_script.index("rm -rf outputs")
+    restore_index = snapshot_script.index(
+        'cp "$RETAINED_INPUT_ROOT/$retained_path" "outputs/$retained_path"'
+    )
+    assert cleanup_index < restore_index
+    assert 'cp -R "$COMMITTED_COMPARE_ROOT/." outputs/' not in snapshot_script
 
     freshness_step = steps[freshness_index]
     assert '--baseline-root "$COMMITTED_COMPARE_ROOT"' in freshness_step["run"]
@@ -185,5 +216,9 @@ def test_ci_workflow_revalidates_tracked_protocol_projection_outputs() -> None:
         "outputs/research_sources/research_queries_from_protocol_summary.json",
         "outputs/research_sources/query_protocol_constraints.json",
     ):
-        assert artifact in run_script
+        assert run_script.count(artifact) >= 2
+    tracked_check_index = run_script.index("git ls-files --error-unmatch --")
+    diff_check_index = run_script.index("git diff --exit-code --")
+    assert tracked_check_index < diff_check_index
+    assert '"${projection_paths[@]}"' in run_script
     assert "git diff --exit-code --" in run_script
