@@ -246,6 +246,23 @@ class TestCheckGapsCsv:
         mod.check_gaps_csv(rows)
         assert not mod.ERRORS, f"Expected no errors but got: {mod.ERRORS}"
 
+    def test_passes_when_only_hydronization_is_uniform(self) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        for i, row in enumerate(rows):
+            row["Required"] = str(100 + i)
+            row["Missing"] = str(85 + i)
+            row["Gap_pct"] = str(85.0 + i)
+            row["Missing_MARINE"] = str(10 + i)
+            row["Missing_MARITIME"] = str(20 + i)
+            row["Missing_OCEANIC"] = str(55 + i)
+            row["Missing_HYDRONIZATION"] = "15"
+        mod.check_gaps_csv(rows)
+        assert not mod.ERRORS, (
+            "Expected no errors when Missing_HYDRONIZATION is uniform but "
+            f"other stale-output guards vary (errors: {mod.ERRORS})"
+        )
+
     def test_fails_when_sector_missing(self) -> None:
         mod = _load_validator_module()
         rows = _make_gaps_rows()
