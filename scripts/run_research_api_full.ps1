@@ -70,7 +70,20 @@ try {
 
     if ($Mode -eq "quick") {
         Step "QUICK MODE: static analysis and consistency gates"
-        RunCmd "python" @("run_full_analysis.py", "--analysis-input-mode", "static")
+        $hadAllow = Test-Path Env:ALLOW_STATIC_RECOVERY_MODE
+        $oldAllow = $env:ALLOW_STATIC_RECOVERY_MODE
+        $hadReason = Test-Path Env:STATIC_RECOVERY_REASON
+        $oldReason = $env:STATIC_RECOVERY_REASON
+        try {
+            $env:ALLOW_STATIC_RECOVERY_MODE = 'true'
+            if ([string]::IsNullOrEmpty($oldReason)) {
+                $env:STATIC_RECOVERY_REASON = "Local quick-mode static analysis run"
+            }
+            RunCmd "python" @("run_full_analysis.py", "--analysis-input-mode", "static")
+        } finally {
+            if ($hadAllow) { $env:ALLOW_STATIC_RECOVERY_MODE = $oldAllow } else { Remove-Item Env:ALLOW_STATIC_RECOVERY_MODE -ErrorAction SilentlyContinue }
+            if ($hadReason) { $env:STATIC_RECOVERY_REASON = $oldReason } else { Remove-Item Env:STATIC_RECOVERY_REASON -ErrorAction SilentlyContinue }
+        }
         RunCmd "python" @("scripts/validate_generated_outputs.py")
         RunCmd "python" @("scripts/validate_research_source_outputs.py")
         Step "Summary"
@@ -119,7 +132,20 @@ try {
             "outputs/research_sources/live_records_triangulated.json"
         )
     } else {
-        RunCmd "python" @("run_full_analysis.py", "--analysis-input-mode", "static")
+        $hadAllow = Test-Path Env:ALLOW_STATIC_RECOVERY_MODE
+        $oldAllow = $env:ALLOW_STATIC_RECOVERY_MODE
+        $hadReason = Test-Path Env:STATIC_RECOVERY_REASON
+        $oldReason = $env:STATIC_RECOVERY_REASON
+        try {
+            $env:ALLOW_STATIC_RECOVERY_MODE = 'true'
+            if ([string]::IsNullOrEmpty($oldReason)) {
+                $env:STATIC_RECOVERY_REASON = "Local full-static analysis run"
+            }
+            RunCmd "python" @("run_full_analysis.py", "--analysis-input-mode", "static")
+        } finally {
+            if ($hadAllow) { $env:ALLOW_STATIC_RECOVERY_MODE = $oldAllow } else { Remove-Item Env:ALLOW_STATIC_RECOVERY_MODE -ErrorAction SilentlyContinue }
+            if ($hadReason) { $env:STATIC_RECOVERY_REASON = $oldReason } else { Remove-Item Env:STATIC_RECOVERY_REASON -ErrorAction SilentlyContinue }
+        }
     }
     RunCmd "python" @("scripts/validate_generated_outputs.py")
 

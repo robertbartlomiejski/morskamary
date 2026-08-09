@@ -25,7 +25,7 @@
 
 set -euo pipefail
 
-MODE="full-static"
+MODE="full-live"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in

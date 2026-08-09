@@ -65,6 +65,11 @@ def compare_json_payloads(
     if filename == "cumulative_qmbd_records.json":
         for label, payload in (("current", current), ("committed", committed)):
             metadata = payload.get("metadata", {}) if isinstance(payload, dict) else {}
+            if not isinstance(metadata, dict):
+                raise ValueError(
+                    f"{filename}: {label} metadata must be an object, got "
+                    f"{type(metadata).__name__}"
+                )
             if metadata.get("is_static_recovery_mode") and not str(
                 metadata.get("static_recovery_reason", "")
             ).strip():
@@ -88,15 +93,22 @@ def compare_csv_payloads(current: str, committed: str, *, filename: str) -> bool
         return current == committed
 
     def _normalized_rows(payload: str) -> list[dict[str, str]]:
-        reader = csv.DictReader(payload.splitlines())
-        return [
-            {
-                key: value
-                for key, value in sorted(row.items())
-                if key is not None and key not in ignored_columns
-            }
-            for row in reader
-        ]
+        reader = csv.DictReader(payload.splitlines(), restkey="__extra__")
+        rows: list[dict[str, str]] = []
+        for index, row in enumerate(reader, start=1):
+            extras = row.get("__extra__")
+            if extras:
+                raise ValueError(
+                    f"{filename}: malformed CSV row {index} with extra column(s): {extras}"
+                )
+            rows.append(
+                {
+                    key: value
+                    for key, value in sorted(row.items())
+                    if key not in ignored_columns and key != "__extra__"
+                }
+            )
+        return rows
 
     return _normalized_rows(current) == _normalized_rows(committed)
 
@@ -189,7 +201,13 @@ def compare_outputs(root: Path) -> list[str]:
                 errors.append(f"{relative_path}: cannot compare CSV safely: {exc}")
                 continue
 
-            if not compare_csv_payloads(current_text, committed_text, filename=filename):
+            try:
+                in_sync = compare_csv_payloads(current_text, committed_text, filename=filename)
+            except ValueError as exc:
+                errors.append(f"{relative_path}: {exc}")
+                continue
+
+            if not in_sync:
                 errors.append(f"{relative_path}: substantive CSV drift")
             continue
 

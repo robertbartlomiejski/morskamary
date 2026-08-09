@@ -3235,8 +3235,10 @@ def generate_report_index(
     analysis_input_mode: str = "static",
     static_literature_count: Optional[int] = None,
     live_enrichment_count: Optional[int] = None,
+    review_required: Optional[List[Dict[str, Any]]] = None,
 ) -> None:
     """Generate master report index HTML."""
+    review_required = review_required if review_required is not None else []
     total_comps = len(baseline) + len(literature)
     avg_gap = sum(g.gap_pct for g in gaps.values()) / max(1, len(gaps))
     credential_sectors = {c.sector for c in credentials}
@@ -3293,8 +3295,8 @@ def generate_report_index(
         )
     generated_sector_levels: Dict[str, Set[int]] = defaultdict(set)
     for credential in credentials:
-        sector = str(credential.get("sector", "")).strip()
-        eqf_level = credential.get("eqf_level")
+        sector = str(credential.sector).strip()
+        eqf_level = credential.eqf_level.value
         if sector and isinstance(eqf_level, int):
             generated_sector_levels[sector].add(eqf_level)
     covered_sectors = len(generated_sector_levels)
@@ -3853,6 +3855,7 @@ def main(
         analysis_input_mode=analysis_input_mode,
         static_literature_count=len(static_literature),
         live_enrichment_count=len(live_competences),
+        review_required=generation_rationale.get("review_required", []),
     )
     generate_gaps_html(gaps, all_comps, OUTPUTS_DIR / "gaps_by_sector.html")
     generate_credentials_html(credentials, OUTPUTS_DIR / "credentials_matrix.html")

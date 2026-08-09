@@ -470,6 +470,44 @@ def load_cumulative_qmbd_records(path: Path) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 
+_ABSOLUTE_PATH_PATTERN = re.compile(
+    r"(?:[A-Za-z]:[\\/]Users[\\/]|/home/[^/\"'\s]+/|/Users/[^/\"'\s]+/)"
+)
+
+
+def check_no_absolute_local_paths(outputs_dir: Path) -> None:
+    """Reject Windows/POSIX absolute local workstation paths in generated
+    outputs. Provenance fields (e.g. source_file) must stay repository-
+    relative POSIX paths so artifacts remain valid on any checkout and do
+    not leak a contributor's username."""
+    print("\n[absolute local path check]")
+
+    offenders: list[str] = []
+    for path in sorted(outputs_dir.rglob("*")):
+        if not path.is_file():
+            continue
+        if "run_archive" in path.parts:
+            # Layer 1 immutable run history is out of scope for this
+            # regenerate-in-place check.
+            continue
+        if path.suffix.lower() not in (".json", ".html", ".csv"):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        if _ABSOLUTE_PATH_PATTERN.search(text):
+            offenders.append(str(path.relative_to(outputs_dir.parent)))
+
+    if offenders:
+        fail(
+            "Absolute local workstation paths found in generated outputs "
+            f"(must be repository-relative POSIX paths): {offenders[:5]}"
+        )
+    else:
+        ok("No absolute local workstation paths found in generated outputs")
+
+
 def check_gaps_csv(rows: list[dict]) -> None:
     """Validate gaps_summary.csv contents."""
     print("\n[gaps_summary.csv]")
@@ -490,6 +528,8 @@ def check_gaps_csv(rows: list[dict]) -> None:
         "Missing_MARINE",
         "Missing_MARITIME",
         "Missing_OCEANIC",
+        "Missing_HYDRONIZATION",
+        "Missing_HYDRONIZATION",
     ]
     for col in numeric_cols:
         values = set()
@@ -498,8 +538,9 @@ def check_gaps_csv(rows: list[dict]) -> None:
             if val is not None:
                 values.add(val.strip())
         if len(values) <= 1 and len(rows) > 1:
+            value_repr = next(iter(values)) if values else None
             fail(
-                f"Column '{col}' has identical value ({next(iter(values))!r}) "
+                f"Column '{col}' has identical value ({value_repr!r}) "
                 f"for all sectors — outputs appear stale (pre-PR#95)"
             )
         else:
@@ -951,6 +992,7 @@ def main() -> int:
     check_desalination_integrity(credentials, all_comps)
     check_sector_dictionaries(sector_dict_dir)
     check_dynamic_outputs(dynamic_credentials, rationale, pathways)
+    check_no_absolute_local_paths(OUTPUTS_DIR)
 
     print()
     if ERRORS:
