@@ -482,17 +482,17 @@ def check_gaps_csv(rows: list[dict]) -> None:
     else:
         ok("All 12 canonical sectors present")
 
-    # 2. Must NOT have identical values for all sectors
-    numeric_cols = [
+    # 2. Legacy gap measures must vary by sector. HYDRONIZATION may legitimately
+    # be cross-sector; its presence is enforced by REQUIRED_GAP_COLUMNS.
+    sector_varying_cols = [
         "Required",
         "Missing",
         "Gap_pct",
         "Missing_MARINE",
         "Missing_MARITIME",
         "Missing_OCEANIC",
-        "Missing_HYDRONIZATION",
     ]
-    for col in numeric_cols:
+    for col in sector_varying_cols:
         values = set()
         for row in rows:
             val = row.get(col)

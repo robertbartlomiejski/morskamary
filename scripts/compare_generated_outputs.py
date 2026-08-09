@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import csv
+import io
 import json
 import filecmp
 import subprocess
@@ -22,6 +24,7 @@ NONDETERMINISTIC_KEYS_BY_FILE: dict[str, set[str]] = {
         "generated_supply_sector_summary",
     },
     "credentials_generation_rationale.json": {
+        "generated_supply_audit_context",
         "generated_supply_audit_only_count",
         "generated_supply_sector_summary",
     },
@@ -29,6 +32,10 @@ NONDETERMINISTIC_KEYS_BY_FILE: dict[str, set[str]] = {
         "generated_supply_audit_only_count",
         "generated_supply_sector_summary",
     },
+}
+
+NONDETERMINISTIC_CSV_COLUMNS_BY_FILE: dict[str, set[str]] = {
+    "gaps_summary.csv": {"Generated_at", "Run_id"},
 }
 
 
@@ -59,6 +66,32 @@ def compare_json_payloads(
         normalize_payload(current, ignored_keys)
         == normalize_payload(committed, ignored_keys)
     )
+
+
+def compare_csv_payloads(
+    current: str,
+    committed: str,
+    *,
+    filename: str,
+) -> bool:
+    """Compare a supported CSV after removing declared run metadata columns."""
+
+    ignored_columns = NONDETERMINISTIC_CSV_COLUMNS_BY_FILE.get(filename, set())
+
+    def normalized_rows(content: str) -> tuple[tuple[str, ...], list[tuple[str, ...]]]:
+        reader = csv.DictReader(io.StringIO(content))
+        fieldnames = tuple(
+            column
+            for column in (reader.fieldnames or [])
+            if column not in ignored_columns
+        )
+        rows = [
+            tuple(row.get(column, "") for column in fieldnames)
+            for row in reader
+        ]
+        return fieldnames, rows
+
+    return normalized_rows(current) == normalized_rows(committed)
 
 
 def _changed_output_paths(root: Path) -> list[Path]:
@@ -126,6 +159,19 @@ def _compare_file_pair(
         ):
             return None
         return f"{relative_path.as_posix()}: substantive JSON drift"
+    if current_path.suffix.lower() == ".csv" and filename in NONDETERMINISTIC_CSV_COLUMNS_BY_FILE:
+        try:
+            current_payload = current_path.read_text(encoding="utf-8")
+            baseline_payload = baseline_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError, csv.Error) as exc:
+            return f"{relative_path.as_posix()}: cannot compare CSV safely: {exc}"
+        if compare_csv_payloads(
+            current_payload,
+            baseline_payload,
+            filename=filename,
+        ):
+            return None
+        return f"{relative_path.as_posix()}: substantive CSV drift"
     if filecmp.cmp(current_path, baseline_path, shallow=False):
         return None
     return f"{relative_path.as_posix()}: substantive generated-output drift"
@@ -142,23 +188,41 @@ def compare_outputs(root: Path) -> list[str]:
             continue
 
         filename = current_path.name
-        if current_path.suffix.lower() != ".json" or filename not in NONDETERMINISTIC_KEYS_BY_FILE:
-            errors.append(f"{relative_path}: substantive generated-output drift")
+        if current_path.suffix.lower() == ".json" and filename in NONDETERMINISTIC_KEYS_BY_FILE:
+            try:
+                current_payload = json.loads(current_path.read_text(encoding="utf-8"))
+                committed_payload = json.loads(
+                    _committed_bytes(current_path).decode("utf-8")
+                )
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+                errors.append(f"{relative_path}: cannot compare JSON safely: {exc}")
+                continue
+
+            if not compare_json_payloads(
+                current_payload,
+                committed_payload,
+                filename=filename,
+            ):
+                errors.append(f"{relative_path}: substantive JSON drift")
             continue
 
-        try:
-            current_payload = json.loads(current_path.read_text(encoding="utf-8"))
-            committed_payload = json.loads(_committed_bytes(current_path).decode("utf-8"))
-        except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
-            errors.append(f"{relative_path}: cannot compare JSON safely: {exc}")
+        if current_path.suffix.lower() == ".csv" and filename in NONDETERMINISTIC_CSV_COLUMNS_BY_FILE:
+            try:
+                current_payload = current_path.read_text(encoding="utf-8")
+                committed_payload = _committed_bytes(current_path).decode("utf-8")
+            except (OSError, UnicodeDecodeError, ValueError) as exc:
+                errors.append(f"{relative_path}: cannot compare CSV safely: {exc}")
+                continue
+
+            if not compare_csv_payloads(
+                current_payload,
+                committed_payload,
+                filename=filename,
+            ):
+                errors.append(f"{relative_path}: substantive CSV drift")
             continue
 
-        if not compare_json_payloads(
-            current_payload,
-            committed_payload,
-            filename=filename,
-        ):
-            errors.append(f"{relative_path}: substantive JSON drift")
+        errors.append(f"{relative_path}: substantive generated-output drift")
     return errors
 
 

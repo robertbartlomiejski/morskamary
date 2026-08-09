@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import subprocess
 
-from scripts.compare_generated_outputs import compare_json_payloads, normalize_payload
+from scripts.compare_generated_outputs import (
+    compare_csv_payloads,
+    compare_json_payloads,
+    normalize_payload,
+)
 from scripts import compare_generated_outputs as compare_module
 
 
@@ -33,6 +37,46 @@ def test_supply_audit_metadata_drift_is_narrowly_allowed() -> None:
     assert compare_json_payloads(
         current, committed, filename="credentials_dynamic_database.json"
     )
+
+
+def test_rationale_audit_context_drift_is_narrowly_allowed() -> None:
+    committed = {
+        "generated_credentials": [
+            {"id": "credential-1", "generated_supply_audit_context": ["old"]}
+        ]
+    }
+    current = {
+        "generated_credentials": [
+            {"id": "credential-1", "generated_supply_audit_context": ["new"]}
+        ]
+    }
+    assert compare_json_payloads(
+        current,
+        committed,
+        filename="credentials_generation_rationale.json",
+    )
+
+    current["generated_credentials"][0]["id"] = "credential-2"
+    assert not compare_json_payloads(
+        current,
+        committed,
+        filename="credentials_generation_rationale.json",
+    )
+
+
+def test_gaps_summary_allows_only_declared_run_metadata_drift() -> None:
+    committed = (
+        "Sector,Missing_HYDRONIZATION,Generated_at,Run_id,Schema_version\n"
+        "Desalination,15,old-time,old-run,2\n"
+    )
+    current = (
+        "Sector,Missing_HYDRONIZATION,Generated_at,Run_id,Schema_version\n"
+        "Desalination,15,new-time,new-run,2\n"
+    )
+    assert compare_csv_payloads(current, committed, filename="gaps_summary.csv")
+
+    changed = current.replace("Desalination,15", "Desalination,16")
+    assert not compare_csv_payloads(changed, committed, filename="gaps_summary.csv")
 
 
 def test_changed_output_paths_include_untracked_files(monkeypatch) -> None:

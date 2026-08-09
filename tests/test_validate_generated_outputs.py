@@ -247,6 +247,23 @@ class TestCheckGapsCsv:
         mod.check_gaps_csv(rows)
         assert not mod.ERRORS, f"Expected no errors but got: {mod.ERRORS}"
 
+    def test_allows_cross_sector_hydronization_counts(self) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        for i, row in enumerate(rows):
+            row["Required"] = str(100 + i)
+            row["Missing"] = str(85 + i)
+            row["Gap_pct"] = str(85.0 + i)
+            row["Missing_MARINE"] = str(10 + i)
+            row["Missing_MARITIME"] = str(20 + i)
+            row["Missing_OCEANIC"] = str(55 + i)
+
+        mod.check_gaps_csv(rows)
+
+        assert not mod.ERRORS, (
+            "Cross-sector HYDRONIZATION evidence must not be reported as stale"
+        )
+
     def test_fails_when_sector_missing(self) -> None:
         mod = _load_validator_module()
         rows = _make_gaps_rows()

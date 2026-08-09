@@ -1980,28 +1980,53 @@ def test_repo_relative_posix_or_redacted_normalizes_repo_absolute_paths(
     )
 
 
-def test_repo_relative_posix_or_redacted_rejects_parent_traversal_and_external_symlink(
+def _external_path_for_redaction_case(
+    repo_root: Path,
+    outside_path: Path,
+    path_kind: str,
+) -> Path:
+    if path_kind == "parent_traversal":
+        return repo_root / ".." / outside_path.name
+
+    symlink_path = repo_root / "linked-live-records.json"
+    try:
+        symlink_path.symlink_to(outside_path)
+    except (NotImplementedError, OSError) as exc:
+        pytest.skip(f"Symlink creation is unavailable: {exc}")
+    return symlink_path
+
+
+@pytest.mark.parametrize(
+    "path_kind",
+    ["parent_traversal", "external_symlink"],
+)
+def test_repo_relative_posix_or_redacted_rejects_path_escape(
     tmp_path: Path,
+    path_kind: str,
 ) -> None:
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
     outside_path = tmp_path / "outside-live-records.json"
     outside_path.write_text("[]\n", encoding="utf-8")
-    traversal_path = repo_root / ".." / outside_path.name
-    symlink_path = repo_root / "linked-live-records.json"
-    symlink_path.symlink_to(outside_path)
+    candidate_path = _external_path_for_redaction_case(
+        repo_root,
+        outside_path,
+        path_kind,
+    )
 
     with patch("run_full_analysis.REPO_ROOT", repo_root):
-        assert _repo_relative_posix_or_redacted(traversal_path) == (
-            "[redacted-out-of-tree-path]"
-        )
-        assert _repo_relative_posix_or_redacted(symlink_path) == (
+        assert _repo_relative_posix_or_redacted(candidate_path) == (
             "[redacted-out-of-tree-path]"
         )
 
 
-def test_extract_live_records_competences_redacts_parent_traversal_and_external_symlink(
+@pytest.mark.parametrize(
+    "path_kind",
+    ["parent_traversal", "external_symlink"],
+)
+def test_extract_live_records_competences_redacts_path_escape(
     tmp_path: Path,
+    path_kind: str,
 ) -> None:
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
@@ -2018,18 +2043,17 @@ def test_extract_live_records_competences_redacts_parent_traversal_and_external_
         ),
         encoding="utf-8",
     )
-    traversal_path = repo_root / ".." / outside_path.name
-    symlink_path = repo_root / "linked-live-records.json"
-    symlink_path.symlink_to(outside_path)
+    candidate_path = _external_path_for_redaction_case(
+        repo_root,
+        outside_path,
+        path_kind,
+    )
 
     with patch("run_full_analysis.REPO_ROOT", repo_root):
-        traversal_competences = extract_live_records_competences(traversal_path)
-        symlink_competences = extract_live_records_competences(symlink_path)
+        competences = extract_live_records_competences(candidate_path)
 
-    assert traversal_competences[0].source.file == "[redacted-out-of-tree-path]"
-    assert traversal_competences[0].source.github_url == ""
-    assert symlink_competences[0].source.file == "[redacted-out-of-tree-path]"
-    assert symlink_competences[0].source.github_url == ""
+    assert competences[0].source.file == "[redacted-out-of-tree-path]"
+    assert competences[0].source.github_url == ""
 
 
 def test_extract_live_records_competences_ignores_fallback_oceanic_sentences(
