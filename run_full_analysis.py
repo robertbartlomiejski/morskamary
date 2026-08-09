@@ -2233,6 +2233,7 @@ def _build_eqf_learning_outcomes(
 ) -> List[str]:
     """Build sector- and evidence-specific learning outcomes."""
     axis_text = ", ".join(axes) if axes else "QMBD axes"
+    normalized_sector = sector.rstrip(".")
     del missing_names
     focus = {
         "MARINE": "ecosystem stewardship and biophysical risk management",
@@ -2244,24 +2245,24 @@ def _build_eqf_learning_outcomes(
     )
     if level == 4:
         return [
-            f"Identify foundational {axis_text} competences required in {sector}.",
-            f"Describe evidence-backed {sector} gaps with focus on {focus_text}.",
+            f"Identify foundational {axis_text} competences required in {normalized_sector}.",
+            f"Describe evidence-backed {normalized_sector} gaps with focus on {focus_text}.",
             "Recognize verified supply evidence versus audit-only generated supply in supervised assessment contexts.",
         ]
     if level == 5:
         return [
-            f"Apply operational procedures to address {axis_text} gaps in {sector.rstrip('.')}.",
+            f"Apply operational procedures to address {axis_text} gaps in {normalized_sector}.",
             f"Implement supervised interventions targeting {focus_text}.",
             "Monitor decisions and delivery outcomes against evidence-backed missing clusters.",
         ]
     if level == 6:
         return [
-            f"Analyze and design independent responses to {axis_text} gaps in {sector}.",
+            f"Analyze and design independent responses to {axis_text} gaps in {normalized_sector}.",
             f"Evaluate strategic alternatives for {focus_text}.",
             "Integrate sector evidence and provenance into project-level decisions.",
         ]
     return [
-        f"Lead strategic governance and transformation responses for {sector.rstrip('.')} ({axis_text}).",
+        f"Lead strategic governance and transformation responses for {normalized_sector} ({axis_text}).",
         f"Synthesize multi-source evidence to prioritize {focus_text}.",
         "Design system-level interventions with traceable provenance and review controls.",
     ]
@@ -3290,13 +3291,36 @@ def generate_report_index(
             f"{len(baseline)} baseline + {static_count} static literature + "
             f"{live_count} live-enriched"
         )
+    generated_sector_levels: Dict[str, Set[int]] = defaultdict(set)
+    for credential in credentials:
+        sector = str(credential.get("sector", "")).strip()
+        eqf_level = credential.get("eqf_level")
+        if sector and isinstance(eqf_level, int):
+            generated_sector_levels[sector].add(eqf_level)
+    covered_sectors = len(generated_sector_levels)
+    covered_levels = sorted({level for levels in generated_sector_levels.values() for level in levels})
+    review_required_sectors = sorted(
+        {
+            str(item.get("sector", "")).strip()
+            for item in review_required
+            if str(item.get("sector", "")).strip()
+        }
+    )
+    generated_coverage_summary = (
+        f"{covered_sectors} sectors with generated "
+        f"{', '.join(f'EQF{level}' for level in covered_levels)} coverage"
+        if covered_levels
+        else "0 sectors with generated EQF coverage"
+    )
     html += f"""
 <h2>Summary Dashboard</h2>
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem">
   <div class="card"><h3>📋 Competences</h3><p style="font-size:2rem;margin:0">{total_comps}</p>
     <p>{competence_breakdown}</p></div>
   <div class="card"><h3>🎓 Credentials</h3><p style="font-size:2rem;margin:0">{len(credentials)}</p>
-    <p>{eqf_summary}</p></div>
+    <p>{generated_coverage_summary}</p>
+    <p>{eqf_summary}</p>
+    <p>{len(review_required_sectors)} sectors have review-required EQF gaps</p></div>
   <div class="card"><h3>🏭 Sectors</h3><p style="font-size:2rem;margin:0">{len(SECTORS)}</p>
     <p>EU Blue Economy sectors analysed</p></div>
   <div class="card"><h3>⚠️ Avg Gap</h3><p style="font-size:2rem;margin:0">{avg_gap:.1f}%</p>

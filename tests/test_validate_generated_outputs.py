@@ -247,6 +247,16 @@ class TestCheckGapsCsv:
         mod.check_gaps_csv(rows)
         assert not mod.ERRORS, f"Expected no errors but got: {mod.ERRORS}"
 
+    def test_fails_when_hydronization_column_missing(self) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        for row in rows:
+            row.pop("Missing_HYDRONIZATION", None)
+        mod.check_gaps_csv(rows)
+        assert any("Missing_HYDRONIZATION" in e for e in mod.ERRORS), (
+            "Expected failure when Missing_HYDRONIZATION column is absent"
+        )
+
     def test_fails_when_sector_missing(self) -> None:
         mod = _load_validator_module()
         rows = _make_gaps_rows()
