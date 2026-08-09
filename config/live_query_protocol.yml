@@ -89,6 +89,7 @@ _defaults:
     crossref: published-desc
     scopus: date-desc
     wos: date-desc
+    openalex: date-desc
   sampling_strategy: &id003
     mode: stratified
     pages: 3
