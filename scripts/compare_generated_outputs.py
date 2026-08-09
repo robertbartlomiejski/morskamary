@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import csv
-import io
 import json
 import filecmp
 import subprocess
@@ -18,6 +17,7 @@ NONDETERMINISTIC_KEYS_BY_FILE: dict[str, set[str]] = {
         "github_run_id",
         "timestamp_utc",
         "analysis_timestamp_utc",
+        "static_recovery_reason",
     },
     "credentials_dynamic_database.json": {
         "generated_supply_audit_only_count",
@@ -34,8 +34,11 @@ NONDETERMINISTIC_KEYS_BY_FILE: dict[str, set[str]] = {
     },
 }
 
-NONDETERMINISTIC_CSV_COLUMNS_BY_FILE: dict[str, set[str]] = {
-    "gaps_summary.csv": {"Generated_at", "Run_id"},
+NONDETERMINISTIC_COLUMNS_BY_FILE: dict[str, set[str]] = {
+    "gaps_summary.csv": {
+        "Generated_at",
+        "Run_id",
+    }
 }
 
 
@@ -61,6 +64,22 @@ def compare_json_payloads(
 ) -> bool:
     """Compare a supported generated JSON file after narrow normalization."""
 
+    if filename == "cumulative_qmbd_records.json":
+        for label, payload in (("current", current), ("committed", committed)):
+            metadata = payload.get("metadata", {}) if isinstance(payload, dict) else {}
+            if not isinstance(metadata, dict):
+                raise ValueError(
+                    f"{filename}: {label} metadata must be an object, got "
+                    f"{type(metadata).__name__}"
+                )
+            if metadata.get("is_static_recovery_mode") and not str(
+                metadata.get("static_recovery_reason", "")
+            ).strip():
+                raise ValueError(
+                    f"{filename}: {label} static_recovery_reason is required and "
+                    "must be nonempty when is_static_recovery_mode is true"
+                )
+
     ignored_keys = NONDETERMINISTIC_KEYS_BY_FILE.get(filename, set())
     return bool(
         normalize_payload(current, ignored_keys)
@@ -68,30 +87,32 @@ def compare_json_payloads(
     )
 
 
-def compare_csv_payloads(
-    current: str,
-    committed: str,
-    *,
-    filename: str,
-) -> bool:
-    """Compare a supported CSV after removing declared run metadata columns."""
+def compare_csv_payloads(current: str, committed: str, *, filename: str) -> bool:
+    """Compare a supported generated CSV file after narrow normalization."""
 
-    ignored_columns = NONDETERMINISTIC_CSV_COLUMNS_BY_FILE.get(filename, set())
+    ignored_columns = NONDETERMINISTIC_COLUMNS_BY_FILE.get(filename)
+    if ignored_columns is None:
+        return current == committed
 
-    def normalized_rows(content: str) -> tuple[tuple[str, ...], list[tuple[str, ...]]]:
-        reader = csv.DictReader(io.StringIO(content))
-        fieldnames = tuple(
-            column
-            for column in (reader.fieldnames or [])
-            if column not in ignored_columns
-        )
-        rows = [
-            tuple(row.get(column, "") for column in fieldnames)
-            for row in reader
-        ]
-        return fieldnames, rows
-
-    return normalized_rows(current) == normalized_rows(committed)
+    def _normalized_rows(payload: str) -> list[dict[str, str]]:
+        reader = csv.DictReader(payload.splitlines(), restkey="__extra__")
+        rows: list[dict[str, str]] = []
+        for index, row in enumerate(reader, start=1):
+            extras = row.get("__extra__")
+            if extras:
+                raise ValueError(
+                    f"{filename}: malformed CSV row {index} with extra column(s): {extras}"
+                )
+            rows.append(
+                {
+                    key: value
+                    for key, value in sorted(row.items())
+                    if key not in ignored_columns and key != "__extra__"
+                }
+            )
+        return rows
+    return _normalized_rows(current) == _normalized_rows(committed)
+    return _normalized_rows(current) == _normalized_rows(committed)
 
 
 def _changed_output_paths(root: Path) -> list[Path]:
@@ -159,7 +180,10 @@ def _compare_file_pair(
         ):
             return None
         return f"{relative_path.as_posix()}: substantive JSON drift"
-    if current_path.suffix.lower() == ".csv" and filename in NONDETERMINISTIC_CSV_COLUMNS_BY_FILE:
+    if (
+        current_path.suffix.lower() == ".csv"
+        and filename in NONDETERMINISTIC_COLUMNS_BY_FILE
+    ):
         try:
             current_payload = current_path.read_text(encoding="utf-8")
             baseline_payload = baseline_path.read_text(encoding="utf-8")
@@ -188,7 +212,11 @@ def compare_outputs(root: Path) -> list[str]:
             continue
 
         filename = current_path.name
-        if current_path.suffix.lower() == ".json" and filename in NONDETERMINISTIC_KEYS_BY_FILE:
+        if current_path.suffix.lower() == ".json":
+            if filename not in NONDETERMINISTIC_KEYS_BY_FILE:
+                errors.append(f"{relative_path}: substantive generated-output drift")
+                continue
+
             try:
                 current_payload = json.loads(current_path.read_text(encoding="utf-8"))
                 committed_payload = json.loads(
@@ -198,27 +226,39 @@ def compare_outputs(root: Path) -> list[str]:
                 errors.append(f"{relative_path}: cannot compare JSON safely: {exc}")
                 continue
 
-            if not compare_json_payloads(
-                current_payload,
-                committed_payload,
-                filename=filename,
-            ):
+            try:
+                in_sync = compare_json_payloads(
+                    current_payload,
+                    committed_payload,
+                    filename=filename,
+                )
+            except ValueError as exc:
+                errors.append(f"{relative_path}: {exc}")
+                continue
+
+            if not in_sync:
                 errors.append(f"{relative_path}: substantive JSON drift")
             continue
 
-        if current_path.suffix.lower() == ".csv" and filename in NONDETERMINISTIC_CSV_COLUMNS_BY_FILE:
+        if current_path.suffix.lower() == ".csv":
+            if filename not in NONDETERMINISTIC_COLUMNS_BY_FILE:
+                errors.append(f"{relative_path}: substantive generated-output drift")
+                continue
+
             try:
-                current_payload = current_path.read_text(encoding="utf-8")
-                committed_payload = _committed_bytes(current_path).decode("utf-8")
+                current_text = current_path.read_text(encoding="utf-8")
+                committed_text = _committed_bytes(current_path).decode("utf-8")
             except (OSError, UnicodeDecodeError, ValueError) as exc:
                 errors.append(f"{relative_path}: cannot compare CSV safely: {exc}")
                 continue
 
-            if not compare_csv_payloads(
-                current_payload,
-                committed_payload,
-                filename=filename,
-            ):
+            try:
+                in_sync = compare_csv_payloads(current_text, committed_text, filename=filename)
+            except ValueError as exc:
+                errors.append(f"{relative_path}: {exc}")
+                continue
+
+            if not in_sync:
                 errors.append(f"{relative_path}: substantive CSV drift")
             continue
 

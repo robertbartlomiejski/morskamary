@@ -48,7 +48,8 @@ present, and query intent alone is never treated as scientific evidence.
 
 - Default research execution uses live-enriched inputs.
 - Static mode is blocked for normal runs and is available only for explicit
-  recovery by setting `ALLOW_STATIC_RECOVERY_MODE=true`.
+  recovery by setting `ALLOW_STATIC_RECOVERY_MODE=true` together with a
+  nonempty `STATIC_RECOVERY_REASON`.
 - Every cumulative QMBD ledger now carries explicit run metadata
   (`analysis_input_mode`, recovery flag/reason, provider set, GitHub run ID,
   commit SHA, `timestamp_utc`) so static recovery outputs remain auditable and
