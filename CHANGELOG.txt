@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-08-09 (chore: merge main into codex/corrective-live-analysis to resolve conflicts)
+  Change type fix update
+  Scope scripts tests outputs governance
+  Files affected scripts/compare_generated_outputs.py tests/test_ci_workflow.py tests/test_compare_generated_outputs.py docs/LIVE_REPLICATION_INFRASTRUCTURE.md .github/workflows/full-analysis.yml .gitattributes MANIFEST_SOURCES.csv outputs/run_archive outputs/sector_dictionaries
+  Summary Merges the main branch (including PR #217 PR-A corrections and Dependabot config) into the codex/corrective-live-analysis branch. Resolves merge conflicts by taking the main branch versions for all conflicting files. Corrects a duplicate TestProviderPagination class that appeared in tests/test_scientific_sources.py after git auto-merge.
+  Reason PR #215 had diverged from main after PR #217 and #244 were merged. The merge conflict resolution ensures the branch reflects all post-merge PR-A hardening corrections without re-introducing superseded or conflicting implementation.
+  Impact No scientific logic or live-provider execution changes. Archive artifacts, sector dictionaries, and governance manifests are now consistent with the main branch baseline. Tests and static-quality checks pass against the merged state.
+  Provenance origin/main commit after PR #217 (#244 #256 #250); branch codex/corrective-live-analysis.
+  Quality checks flake8; mypy; targeted pytest passes; no live provider requests made.
+
 - 2026-05-19 (fix: salvage stale PR logic with safe performance ports)
   Change type fix update
   Scope scripts src tests
