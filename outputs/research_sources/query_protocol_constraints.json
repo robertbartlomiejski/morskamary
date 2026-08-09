@@ -16,6 +16,7 @@
       "sector_slug": "blue_biotech",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -39,6 +40,7 @@
       "sector_slug": "blue_biotech",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -62,6 +64,7 @@
       "sector_slug": "blue_biotech",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -85,6 +88,7 @@
       "sector_slug": "blue_biotech",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -108,6 +112,7 @@
       "sector_slug": "blue_biotech",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -131,6 +136,7 @@
       "sector_slug": "blue_biotech",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -154,6 +160,7 @@
       "sector_slug": "blue_biotech",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -177,6 +184,7 @@
       "sector_slug": "blue_biotech",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -200,6 +208,7 @@
       "sector_slug": "blue_biotech",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -223,6 +232,7 @@
       "sector_slug": "blue_biotech",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -246,6 +256,7 @@
       "sector_slug": "coastal_tourism",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -269,6 +280,7 @@
       "sector_slug": "coastal_tourism",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -292,6 +304,7 @@
       "sector_slug": "coastal_tourism",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -315,6 +328,7 @@
       "sector_slug": "coastal_tourism",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -338,6 +352,7 @@
       "sector_slug": "coastal_tourism",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -361,6 +376,7 @@
       "sector_slug": "coastal_tourism",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -384,6 +400,7 @@
       "sector_slug": "coastal_tourism",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -407,6 +424,7 @@
       "sector_slug": "coastal_tourism",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -430,6 +448,7 @@
       "sector_slug": "coastal_tourism",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -453,6 +472,7 @@
       "sector_slug": "coastal_tourism",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -476,6 +496,7 @@
       "sector_slug": "desalination",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -499,6 +520,7 @@
       "sector_slug": "desalination",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -522,6 +544,7 @@
       "sector_slug": "desalination",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -545,6 +568,7 @@
       "sector_slug": "desalination",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -568,6 +592,7 @@
       "sector_slug": "desalination",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -591,6 +616,7 @@
       "sector_slug": "desalination",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -614,6 +640,7 @@
       "sector_slug": "desalination",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -637,6 +664,7 @@
       "sector_slug": "desalination",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -660,6 +688,7 @@
       "sector_slug": "desalination",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -683,6 +712,7 @@
       "sector_slug": "desalination",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -706,6 +736,7 @@
       "sector_slug": "infra_robotics",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -729,6 +760,7 @@
       "sector_slug": "infra_robotics",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -752,6 +784,7 @@
       "sector_slug": "infra_robotics",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -775,6 +808,7 @@
       "sector_slug": "infra_robotics",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -798,6 +832,7 @@
       "sector_slug": "infra_robotics",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -821,6 +856,7 @@
       "sector_slug": "infra_robotics",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -844,6 +880,7 @@
       "sector_slug": "infra_robotics",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -867,6 +904,7 @@
       "sector_slug": "infra_robotics",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -890,6 +928,7 @@
       "sector_slug": "infra_robotics",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -913,6 +952,7 @@
       "sector_slug": "infra_robotics",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -936,6 +976,7 @@
       "sector_slug": "living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -959,6 +1000,7 @@
       "sector_slug": "living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -982,6 +1024,7 @@
       "sector_slug": "living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1005,6 +1048,7 @@
       "sector_slug": "living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1028,6 +1072,7 @@
       "sector_slug": "living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1051,6 +1096,7 @@
       "sector_slug": "living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1074,6 +1120,7 @@
       "sector_slug": "living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1097,6 +1144,7 @@
       "sector_slug": "living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1120,6 +1168,7 @@
       "sector_slug": "living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1143,6 +1192,7 @@
       "sector_slug": "living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1166,6 +1216,7 @@
       "sector_slug": "maritime_defence",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1189,6 +1240,7 @@
       "sector_slug": "maritime_defence",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1212,6 +1264,7 @@
       "sector_slug": "maritime_defence",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1235,6 +1288,7 @@
       "sector_slug": "maritime_defence",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1258,6 +1312,7 @@
       "sector_slug": "maritime_defence",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1281,6 +1336,7 @@
       "sector_slug": "maritime_defence",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1304,6 +1360,7 @@
       "sector_slug": "maritime_defence",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1327,6 +1384,7 @@
       "sector_slug": "maritime_defence",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1350,6 +1408,7 @@
       "sector_slug": "maritime_defence",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1373,6 +1432,7 @@
       "sector_slug": "maritime_defence",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1396,6 +1456,7 @@
       "sector_slug": "maritime_transport",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1419,6 +1480,7 @@
       "sector_slug": "maritime_transport",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1442,6 +1504,7 @@
       "sector_slug": "maritime_transport",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1465,6 +1528,7 @@
       "sector_slug": "maritime_transport",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1488,6 +1552,7 @@
       "sector_slug": "maritime_transport",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1511,6 +1576,7 @@
       "sector_slug": "maritime_transport",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1534,6 +1600,7 @@
       "sector_slug": "maritime_transport",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1557,6 +1624,7 @@
       "sector_slug": "maritime_transport",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1580,6 +1648,7 @@
       "sector_slug": "maritime_transport",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1603,6 +1672,7 @@
       "sector_slug": "maritime_transport",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1626,6 +1696,7 @@
       "sector_slug": "non_living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1649,6 +1720,7 @@
       "sector_slug": "non_living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1672,6 +1744,7 @@
       "sector_slug": "non_living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1695,6 +1768,7 @@
       "sector_slug": "non_living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1718,6 +1792,7 @@
       "sector_slug": "non_living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1741,6 +1816,7 @@
       "sector_slug": "non_living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1764,6 +1840,7 @@
       "sector_slug": "non_living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1787,6 +1864,7 @@
       "sector_slug": "non_living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1810,6 +1888,7 @@
       "sector_slug": "non_living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1833,6 +1912,7 @@
       "sector_slug": "non_living_res",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1856,6 +1936,7 @@
       "sector_slug": "port_activities",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1879,6 +1960,7 @@
       "sector_slug": "port_activities",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1902,6 +1984,7 @@
       "sector_slug": "port_activities",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1925,6 +2008,7 @@
       "sector_slug": "port_activities",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1948,6 +2032,7 @@
       "sector_slug": "port_activities",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1971,6 +2056,7 @@
       "sector_slug": "port_activities",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -1994,6 +2080,7 @@
       "sector_slug": "port_activities",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2017,6 +2104,7 @@
       "sector_slug": "port_activities",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2040,6 +2128,7 @@
       "sector_slug": "port_activities",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2063,6 +2152,7 @@
       "sector_slug": "port_activities",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2086,6 +2176,7 @@
       "sector_slug": "r_i",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2109,6 +2200,7 @@
       "sector_slug": "r_i",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2132,6 +2224,7 @@
       "sector_slug": "r_i",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2155,6 +2248,7 @@
       "sector_slug": "r_i",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2178,6 +2272,7 @@
       "sector_slug": "r_i",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2201,6 +2296,7 @@
       "sector_slug": "r_i",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2224,6 +2320,7 @@
       "sector_slug": "r_i",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2247,6 +2344,7 @@
       "sector_slug": "r_i",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2270,6 +2368,7 @@
       "sector_slug": "r_i",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2293,6 +2392,7 @@
       "sector_slug": "r_i",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2316,6 +2416,7 @@
       "sector_slug": "renewable_energy",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2339,6 +2440,7 @@
       "sector_slug": "renewable_energy",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2362,6 +2464,7 @@
       "sector_slug": "renewable_energy",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2385,6 +2488,7 @@
       "sector_slug": "renewable_energy",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2408,6 +2512,7 @@
       "sector_slug": "renewable_energy",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2431,6 +2536,7 @@
       "sector_slug": "renewable_energy",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2454,6 +2560,7 @@
       "sector_slug": "renewable_energy",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2477,6 +2584,7 @@
       "sector_slug": "renewable_energy",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2500,6 +2608,7 @@
       "sector_slug": "renewable_energy",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2523,6 +2632,7 @@
       "sector_slug": "renewable_energy",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2546,6 +2656,7 @@
       "sector_slug": "ship_repair",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2569,6 +2680,7 @@
       "sector_slug": "ship_repair",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2592,6 +2704,7 @@
       "sector_slug": "ship_repair",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2615,6 +2728,7 @@
       "sector_slug": "ship_repair",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2638,6 +2752,7 @@
       "sector_slug": "ship_repair",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2661,6 +2776,7 @@
       "sector_slug": "ship_repair",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2684,6 +2800,7 @@
       "sector_slug": "ship_repair",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2707,6 +2824,7 @@
       "sector_slug": "ship_repair",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2730,6 +2848,7 @@
       "sector_slug": "ship_repair",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },
@@ -2753,6 +2872,7 @@
       "sector_slug": "ship_repair",
       "sort_strategy": {
         "crossref": "published-desc",
+        "openalex": "date-desc",
         "scopus": "date-desc",
         "wos": "date-desc"
       },

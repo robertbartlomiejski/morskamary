@@ -27,6 +27,9 @@ from src.scientific_sources.live_query_protocol import (
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL_PATH = REPO_ROOT / "config" / "live_query_protocol.yml"
 LEGACY_QUERIES_PATH = REPO_ROOT / "config" / "research_queries.yml"
+TRACKED_CONSTRAINTS_PATH = (
+    REPO_ROOT / "outputs" / "research_sources" / "query_protocol_constraints.json"
+)
 
 
 # ---------- fixtures ----------------------------------------------------
@@ -720,6 +723,16 @@ class TestCompleteAuthoritativeProjectionValidation:
         own authoritative projection."""
         constraints = self._valid_constraints(loaded_protocol)
         validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_tracked_constraints_file_matches_authoritative_protocol(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        constraints = json.loads(TRACKED_CONSTRAINTS_PATH.read_text(encoding="utf-8"))
+
+        validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+        assert constraints["query_count"] == len(loaded_protocol.to_query_constraints())
+        for row in constraints["queries"]:
+            assert row["sort_strategy"]["openalex"] == "date-desc"
 
     def test_mismatch_aborts_before_provider_search(
         self, tmp_path: Path, capsys: pytest.CaptureFixture[str]

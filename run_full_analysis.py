@@ -1322,10 +1322,7 @@ def extract_live_records_competences(
 
     seen_titles: Set[str] = set(known_titles or set())
     competences: List[Competence] = []
-    try:
-        rel_path = live_records_path.relative_to(REPO_ROOT).as_posix()
-    except ValueError:
-        rel_path = _repo_relative_posix_or_redacted(live_records_path)
+    rel_path = _repo_relative_posix_or_redacted(live_records_path)
 
     canonical_by_norm = {
         re.sub(r"[^a-z0-9]+", " ", sec.lower()).strip(): sec for sec in SECTORS

@@ -1980,6 +1980,58 @@ def test_repo_relative_posix_or_redacted_normalizes_repo_absolute_paths(
     )
 
 
+def test_repo_relative_posix_or_redacted_rejects_parent_traversal_and_external_symlink(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    outside_path = tmp_path / "outside-live-records.json"
+    outside_path.write_text("[]\n", encoding="utf-8")
+    traversal_path = repo_root / ".." / outside_path.name
+    symlink_path = repo_root / "linked-live-records.json"
+    symlink_path.symlink_to(outside_path)
+
+    with patch("run_full_analysis.REPO_ROOT", repo_root):
+        assert _repo_relative_posix_or_redacted(traversal_path) == (
+            "[redacted-out-of-tree-path]"
+        )
+        assert _repo_relative_posix_or_redacted(symlink_path) == (
+            "[redacted-out-of-tree-path]"
+        )
+
+
+def test_extract_live_records_competences_redacts_parent_traversal_and_external_symlink(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    outside_path = tmp_path / "outside-live-records.json"
+    outside_path.write_text(
+        json.dumps(
+            [
+                {
+                    "title": "External record",
+                    "provider": "Crossref",
+                    "journal": "Marine Studies",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    traversal_path = repo_root / ".." / outside_path.name
+    symlink_path = repo_root / "linked-live-records.json"
+    symlink_path.symlink_to(outside_path)
+
+    with patch("run_full_analysis.REPO_ROOT", repo_root):
+        traversal_competences = extract_live_records_competences(traversal_path)
+        symlink_competences = extract_live_records_competences(symlink_path)
+
+    assert traversal_competences[0].source.file == "[redacted-out-of-tree-path]"
+    assert traversal_competences[0].source.github_url == ""
+    assert symlink_competences[0].source.file == "[redacted-out-of-tree-path]"
+    assert symlink_competences[0].source.github_url == ""
+
+
 def test_extract_live_records_competences_ignores_fallback_oceanic_sentences(
     tmp_path: Path,
 ) -> None:
