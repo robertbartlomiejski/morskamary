@@ -2,12 +2,12 @@
     "metadata": {
         "analysis_input_mode": "static",
         "is_static_recovery_mode": true,
-        "static_recovery_reason": "Static recovery mode explicitly enabled; no reason supplied.",
+        "static_recovery_reason": "Local investigation",
         "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
         "provider_set": "",
         "github_run_id": "",
-        "commit_sha": "dbb6af581f8fb47b15beb5ab86e54e8271a2a54f",
-        "timestamp_utc": "2026-08-09T10:56:30+00:00",
+        "commit_sha": "5c71482e673481007f4eb5c21355ac7775b614e4",
+        "timestamp_utc": "2026-08-09T11:12:23+00:00",
         "warnings": [
             "STATIC recovery mode active: deterministic recovery artifacts only; not cumulative live evidence."
         ]

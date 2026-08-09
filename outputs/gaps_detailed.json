@@ -52,18 +52,18 @@
     "Ship Repair": 25
   },
   "generated_supply_sector_summary": {
-    "Blue Biotech": 596,
-    "Coastal Tourism": 531,
-    "Desalination": 524,
-    "Infra & Robotics": 552,
-    "Living Res.": 616,
-    "Non-living Res.": 551,
-    "Renewable Energy": 557,
-    "Maritime Defence": 524,
-    "Maritime Transport": 632,
-    "Port Activities": 645,
-    "R&I": 656,
-    "Ship Repair": 508
+    "Blue Biotech": 297,
+    "Coastal Tourism": 237,
+    "Desalination": 201,
+    "Infra & Robotics": 201,
+    "Living Res.": 286,
+    "Non-living Res.": 244,
+    "Renewable Energy": 247,
+    "Maritime Defence": 217,
+    "Maritime Transport": 271,
+    "Port Activities": 284,
+    "R&I": 294,
+    "Ship Repair": 219
   },
   "all_clusters": [
     {

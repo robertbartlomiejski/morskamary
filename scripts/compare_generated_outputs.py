@@ -15,6 +15,7 @@ NONDETERMINISTIC_KEYS_BY_FILE: dict[str, set[str]] = {
         "github_run_id",
         "timestamp_utc",
         "analysis_timestamp_utc",
+        "static_recovery_reason",
     },
     "credentials_dynamic_database.json": {
         "generated_supply_audit_only_count",
@@ -23,6 +24,7 @@ NONDETERMINISTIC_KEYS_BY_FILE: dict[str, set[str]] = {
     "credentials_generation_rationale.json": {
         "generated_supply_audit_only_count",
         "generated_supply_sector_summary",
+        "generated_supply_audit_context",
     },
     "gaps_detailed.json": {
         "generated_supply_audit_only_count",
