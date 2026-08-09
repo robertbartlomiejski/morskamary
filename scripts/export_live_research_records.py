@@ -468,20 +468,14 @@ def _lookup_provider_sort_strategy_full(
 
     ``declared_sort``       – strategy explicitly configured for *provider_key*
                               in the protocol (empty string when absent).
-    ``applied_sort``        – strategy that will actually be used; may be
-                              inferred from a sibling provider for OpenAlex.
+    ``applied_sort``        – strategy that will actually be used; equals
+                              *declared_sort* when declared, empty otherwise.
     ``sort_strategy_source``– ``"declared"`` |
-                              ``"inferred_provider_fallback"`` |
                               ``"not_declared"``.
     """
     declared = str(sort_strategy.get(provider_key, "")).strip()
     if declared:
         return declared, declared, "declared"
-    if provider_key == "openalex":
-        for fallback_key in ("wos", "scopus", "crossref"):
-            fallback = str(sort_strategy.get(fallback_key, "")).strip()
-            if fallback:
-                return "", fallback, "inferred_provider_fallback"
     return "", "", "not_declared"
 
 
@@ -1812,7 +1806,7 @@ def main() -> int:
             )
         except (OSError, LiveQueryProtocolError, TypeError, ValueError) as exc:
             print(
-                "Error: authoritative live query protocol projection is incomplete: "
+                "Error: Authoritative protocol projection mismatch: "
                 f"{exc}",
                 file=sys.stderr,
             )

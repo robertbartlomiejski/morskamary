@@ -423,7 +423,19 @@ class TestApplyQueryConstraint:
         assert audit["physical_request_count"] == 3
 
 
-def test_resolve_provider_sort_strategies_includes_openalex_fallback() -> None:
+def test_resolve_provider_sort_strategies_uses_declared_openalex_sort() -> None:
+    resolved = _resolve_provider_sort_strategies(
+        {"crossref": "published-desc", "scopus": "date-desc", "openalex": "date-desc"},
+        ["Crossref", "OpenAlex"],
+    )
+
+    assert resolved == {
+        "crossref": "published-desc",
+        "openalex": "date-desc",
+    }
+
+
+def test_resolve_provider_sort_strategies_openalex_undeclared_returns_empty() -> None:
     resolved = _resolve_provider_sort_strategies(
         {"crossref": "published-desc", "scopus": "date-desc"},
         ["Crossref", "OpenAlex"],
@@ -431,7 +443,7 @@ def test_resolve_provider_sort_strategies_includes_openalex_fallback() -> None:
 
     assert resolved == {
         "crossref": "published-desc",
-        "openalex": "date-desc",
+        "openalex": "",
     }
 
 
@@ -443,7 +455,7 @@ def test_provider_sort_strategy_source_uses_canonical_audit_values() -> None:
     assert _lookup_provider_sort_strategy_full(
         {"scopus": "date-desc"},
         "openalex",
-    ) == ("", "date-desc", "inferred_provider_fallback")
+    ) == ("", "", "not_declared")
     assert _lookup_provider_sort_strategy_full({}, "wos") == (
         "",
         "",

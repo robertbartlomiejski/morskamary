@@ -1,0 +1,273 @@
+{
+  "policy_precedence": [
+    "crossref",
+    "scopus",
+    "wos",
+    "scival",
+    "microsoft_graph",
+    "google_drive"
+  ],
+  "primary_identity_providers": [
+    "crossref",
+    "scopus",
+    "wos"
+  ],
+  "collision_events": [
+    {
+      "identity_key": "doi:10.1016/j.marpol.2025.106939",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1016/j.marpol.2025.106939",
+        "doi": "10.1016/j.marpol.2025.106939",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 3
+    },
+    {
+      "identity_key": "doi:10.1007/978-3-032-13638-1_13",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1007/978-3-032-13638-1_13",
+        "doi": "10.1007/978-3-032-13638-1_13",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 3
+    },
+    {
+      "identity_key": "doi:10.1007/978-3-032-13638-1_14",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1007/978-3-032-13638-1_14",
+        "doi": "10.1007/978-3-032-13638-1_14",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 3
+    },
+    {
+      "identity_key": "doi:10.11648/j.jppa.20261001.21",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.11648/j.jppa.20261001.21",
+        "doi": "10.11648/j.jppa.20261001.21",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 3
+    },
+    {
+      "identity_key": "doi:10.1016/b978-0-443-33492-4.00012-7",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1016/b978-0-443-33492-4.00012-7",
+        "doi": "10.1016/b978-0-443-33492-4.00012-7",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.1016/j.marpol.2025.106938",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1016/j.marpol.2025.106938",
+        "doi": "10.1016/j.marpol.2025.106938",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.1016/j.marpol.2017.03.002",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1016/j.marpol.2017.03.002",
+        "doi": "10.1016/j.marpol.2017.03.002",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.1007/978-3-032-19927-0_37",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1007/978-3-032-19927-0_37",
+        "doi": "10.1007/978-3-032-19927-0_37",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 3
+    },
+    {
+      "identity_key": "doi:10.1016/j.marpol.2024.106359",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1016/j.marpol.2024.106359",
+        "doi": "10.1016/j.marpol.2024.106359",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.1007/978-3-032-13638-1_23",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1007/978-3-032-13638-1_23",
+        "doi": "10.1007/978-3-032-13638-1_23",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.24241/notesint.2023/296/en",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.24241/notesint.2023/296/en",
+        "doi": "10.24241/notesint.2023/296/en",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 3
+    },
+    {
+      "identity_key": "doi:10.1080/19443994.2014.984927",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1080/19443994.2014.984927",
+        "doi": "10.1080/19443994.2014.984927",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.1016/j.rser.2017.10.087",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1016/j.rser.2017.10.087",
+        "doi": "10.1016/j.rser.2017.10.087",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.5004/dwt.2021.27106",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.5004/dwt.2021.27106",
+        "doi": "10.5004/dwt.2021.27106",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.1007/978-3-031-20740-2_16",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1007/978-3-031-20740-2_16",
+        "doi": "10.1007/978-3-031-20740-2_16",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.1080/09644016.2017.1373429",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1080/09644016.2017.1373429",
+        "doi": "10.1080/09644016.2017.1373429",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.1002/eet.1743",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1002/eet.1743",
+        "doi": "10.1002/eet.1743",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.4324/9780429294648-5",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.4324/9780429294648-5",
+        "doi": "10.4324/9780429294648-5",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.4324/9781032622828-5",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.4324/9781032622828-5",
+        "doi": "10.4324/9781032622828-5",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.1504/ijplap.2025.10072767",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.1504/ijplap.2025.10072767",
+        "doi": "10.1504/ijplap.2025.10072767",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    },
+    {
+      "identity_key": "doi:10.21275/sr241125124852",
+      "winner": {
+        "provider": "Crossref",
+        "provider_name": "crossref",
+        "source_id": "crossref:10.21275/sr241125124852",
+        "doi": "10.21275/sr241125124852",
+        "reason": "highest-provider-priority"
+      },
+      "losers": [],
+      "candidate_count": 2
+    }
+  ],
+  "dedup_stats": {
+    "doi_duplicates": 29,
+    "title_duplicates": 0
+  }
+}

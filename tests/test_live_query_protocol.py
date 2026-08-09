@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import textwrap
 from pathlib import Path
 from typing import Any, Dict
+from unittest.mock import MagicMock, patch
 
 import pytest
 import yaml
@@ -603,6 +605,171 @@ class TestSuccessfulParse:
         assert isinstance(protocol, LiveQueryProtocol)
 
 
+# ---------- validate_complete_authoritative_protocol_projection ----------
+
+
+class TestCompleteAuthoritativeProjectionValidation:
+    """Tests for `validate_complete_authoritative_protocol_projection`.
+
+    Uses a minimal in-memory protocol (not the shipped config) so each test
+    can cheaply mutate a single acquisition-defining field.
+    """
+
+    @pytest.fixture()
+    def protocol(self, tmp_path: Path) -> LiveQueryProtocol:
+        payload = _minimal_valid_document()
+        path = _write_yaml(tmp_path, payload)
+        return load_live_query_protocol(path)
+
+    @staticmethod
+    def _valid_constraints(protocol: LiveQueryProtocol) -> Dict[str, Any]:
+        return {
+            "protocol_version": protocol.protocol_version,
+            "queries": protocol.to_query_constraints(),
+        }
+
+    def test_valid_projection_passes_silently(self, protocol: LiveQueryProtocol) -> None:
+        constraints = self._valid_constraints(protocol)
+        # Should not raise.
+        validate_complete_authoritative_protocol_projection(protocol, constraints)
+
+    def test_empty_constraint_protocol_version_is_not_checked(
+        self, protocol: LiveQueryProtocol
+    ) -> None:
+        """An absent/blank protocol_version in constraints should not itself
+        trigger a mismatch (only a populated-but-different value should)."""
+        constraints = self._valid_constraints(protocol)
+        constraints["protocol_version"] = ""
+        validate_complete_authoritative_protocol_projection(protocol, constraints)
+
+    def test_non_list_queries_rejected(self, protocol: LiveQueryProtocol) -> None:
+        constraints = self._valid_constraints(protocol)
+        constraints["queries"] = {"not": "a list"}
+        with pytest.raises(LiveQueryProtocolError, match="queries.*list"):
+            validate_complete_authoritative_protocol_projection(protocol, constraints)
+
+    def test_query_count_mismatch_rejected(self, protocol: LiveQueryProtocol) -> None:
+        constraints = self._valid_constraints(protocol)
+        constraints["queries"] = constraints["queries"][:-1]
+        with pytest.raises(LiveQueryProtocolError, match="count mismatch"):
+            validate_complete_authoritative_protocol_projection(protocol, constraints)
+
+    def test_unknown_query_id_rejected(self, protocol: LiveQueryProtocol) -> None:
+        constraints = self._valid_constraints(protocol)
+        constraints["queries"][0] = dict(constraints["queries"][0])
+        constraints["queries"][0]["query_id"] = "Q_DOES_NOT_EXIST"
+        with pytest.raises(LiveQueryProtocolError, match="unknown query_id"):
+            validate_complete_authoritative_protocol_projection(protocol, constraints)
+
+    @pytest.mark.parametrize(
+        "field_name,new_value",
+        [
+            ("query_text", "a completely different query text"),
+            ("sector_slug", "some_other_sector"),
+            ("query_family", "core_sector"),
+            ("evidence_intent", "unexpected_intent"),
+        ],
+    )
+    def test_scalar_acquisition_field_mismatch_rejected(
+        self, protocol: LiveQueryProtocol, field_name: str, new_value: str
+    ) -> None:
+        constraints = self._valid_constraints(protocol)
+        target = dict(constraints["queries"][0])
+        # Ensure the mutated value genuinely differs from the protocol's value.
+        if target[field_name] == new_value:
+            pytest.skip("mutation collided with original value")
+        target[field_name] = new_value
+        constraints["queries"][0] = target
+        with pytest.raises(LiveQueryProtocolError, match=f"{field_name}.*mismatch"):
+            validate_complete_authoritative_protocol_projection(protocol, constraints)
+
+    def test_sort_strategy_mismatch_rejected(self, protocol: LiveQueryProtocol) -> None:
+        constraints = self._valid_constraints(protocol)
+        target = dict(constraints["queries"][0])
+        target["sort_strategy"] = dict(target["sort_strategy"])
+        target["sort_strategy"]["crossref"] = "relevance-desc"
+        constraints["queries"][0] = target
+        with pytest.raises(LiveQueryProtocolError, match="sort_strategy.*mismatch"):
+            validate_complete_authoritative_protocol_projection(protocol, constraints)
+
+    def test_sampling_strategy_mismatch_rejected(self, protocol: LiveQueryProtocol) -> None:
+        constraints = self._valid_constraints(protocol)
+        target = dict(constraints["queries"][0])
+        target["sampling_strategy"] = dict(target["sampling_strategy"])
+        target["sampling_strategy"]["pages"] = 999
+        constraints["queries"][0] = target
+        with pytest.raises(LiveQueryProtocolError, match="sampling_strategy.*mismatch"):
+            validate_complete_authoritative_protocol_projection(protocol, constraints)
+
+    def test_shipped_protocol_projection_round_trips(
+        self, loaded_protocol: LiveQueryProtocol
+    ) -> None:
+        """The real config/live_query_protocol.yml must validate against its
+        own authoritative projection."""
+        constraints = self._valid_constraints(loaded_protocol)
+        validate_complete_authoritative_protocol_projection(loaded_protocol, constraints)
+
+    def test_mismatch_aborts_before_provider_search(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A projected-query constraints mismatch must fail closed pre-acquisition."""
+        from scripts import export_live_research_records as export_script
+
+        protocol = load_live_query_protocol(PROTOCOL_PATH)
+        query_file = tmp_path / "research_queries_from_protocol.yml"
+        query_file.write_text(
+            yaml.safe_dump(protocol.to_legacy_query_groups(), sort_keys=False),
+            encoding="utf-8",
+        )
+
+        constraints = {
+            "protocol_version": protocol.protocol_version,
+            "query_count": len(protocol.to_query_constraints()),
+            "queries": protocol.to_query_constraints(),
+        }
+        constraints["queries"][0] = dict(constraints["queries"][0])
+        constraints["queries"][0]["sampling_strategy"] = dict(
+            constraints["queries"][0]["sampling_strategy"]
+        )
+        constraints["queries"][0]["sampling_strategy"]["pages"] = (
+            constraints["queries"][0]["sampling_strategy"]["pages"] + 1
+        )
+        constraints_file = tmp_path / "query_protocol_constraints.json"
+        constraints_file.write_text(
+            json.dumps(constraints, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+        with patch("scripts.export_live_research_records.SourceRegistry") as mock_registry:
+            mock_instance = MagicMock()
+            capability = MagicMock()
+            capability.name = "crossref"
+            mock_instance.list_capabilities.return_value = [capability]
+            mock_registry.return_value = mock_instance
+
+            with patch(
+                "sys.argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--query-constraints-file",
+                    str(constraints_file),
+                    "--output-dir",
+                    str(tmp_path / "outputs"),
+                    "--providers",
+                    "crossref",
+                ],
+            ):
+                exit_code = export_script.main()
+
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "Authoritative protocol projection mismatch" in captured.err
+        mock_instance.search.assert_not_called()
+        mock_instance.search_paginated.assert_not_called()
+
+
 # ---------- helper: docstring example -----------------------------------
 
 
@@ -625,3 +792,40 @@ def test_textwrap_import_unused_but_module_health() -> None:
     """Regression guard: textwrap import in tests remains available for future
     tests; presence must not fail the collection phase."""
     assert textwrap.dedent("x") == "x"
+
+
+# ---------- integration: pre-acquisition abort ---------------------------
+
+
+def test_projection_mismatch_aborts_before_provider_call(
+    tmp_path: Path,
+) -> None:
+    """validate_complete_authoritative_protocol_projection must raise before any
+    provider acquisition function is invoked.
+
+    The protocol is loaded from a valid minimal document.  The constraints are
+    then mutated to introduce a query_text mismatch.  A mock 'provider search'
+    callable stands in for registry.search(); the test proves it is never reached.
+    """
+    from unittest.mock import MagicMock
+
+    payload = _minimal_valid_document()
+    path = _write_yaml(tmp_path, payload)
+    protocol = load_live_query_protocol(path)
+
+    # Build valid constraints then corrupt the first query_text.
+    constraints: Dict[str, Any] = {
+        "protocol_version": protocol.protocol_version,
+        "queries": [dict(q) for q in protocol.to_query_constraints()],
+    }
+    constraints["queries"][0] = dict(constraints["queries"][0])
+    constraints["queries"][0]["query_text"] = "INJECTED STALE QUERY TEXT"
+
+    provider_search = MagicMock()
+
+    with pytest.raises(LiveQueryProtocolError, match="query_text.*mismatch"):
+        validate_complete_authoritative_protocol_projection(protocol, constraints)
+        # This line must never be reached; the validator raises first.
+        provider_search()
+
+    provider_search.assert_not_called()
