@@ -19,6 +19,15 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-08-09 (fix: PR #240 changelog guard no-merge-base fallback)
+  Change type fix update
+  Scope governance scripts tests
+  Files affected scripts/changelog_guard.py tests/test_changelog_guard.py CHANGELOG.txt
+  Summary Makes the lightweight PR changelog guard tolerate shallow-history `origin/main...HEAD: no merge base` failures by falling back to a direct `origin/main..HEAD` diff, and adds a regression test covering that CI path.
+  Reason The governance-and-repro workflow on PR #240 failed in changelog_guard.py even though the branch already merged main, blocking review closure on a shallow-history diff artifact instead of on actual changelog policy.
+  Impact CHANGELOG enforcement remains active for substantive tracked artifacts while no longer failing spuriously on shallow merge-base gaps in CI.
+  Provenance GitHub Actions run 31305328563 job 93225031062; scripts/changelog_guard.py; tests/test_changelog_guard.py.
+  Quality checks pytest -q tests/test_changelog_guard.py tests/test_check_research_api_health.py tests/test_run_stability.py tests/test_live_query_protocol.py (passed); python scripts/changelog_guard.py --base-ref main (passed)
 - 2026-07-30 (fix: close PR #240 re-review blockers with fail-closed runtime wiring)
   Change type fix update
   Scope scripts src tests governance
