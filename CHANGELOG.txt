@@ -19,6 +19,14 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-08-09 (fix: remediate absolute runner-path leaks and archive_root in committed run archives)
+  Change type fix
+  Scope outputs governance
+  Files affected outputs/run_archive/runs/28625632237-1/ outputs/run_archive/runs/28967267944.2/ outputs/run_archive/runs/30090903921-1/
+  Summary Strips absolute /home/runner/work/morskamary/morskamary/ path prefixes from archived data files (competences_full_database.json, literature_integration.html, sector_dictionaries/*.json) in runs 28625632237-1 and 30090903921-1. Fixes absolute archive_root in manifest.json for runs 28967267944.2 and 30090903921-1 to use the repository-relative path outputs/run_archive. Recalculates _checksums.sha256 and updates sha256/size_bytes in manifest.json for all affected runs.
+  Reason validate_run_archive_integrity.py CI gate (added in PR #263) flagged path leaks in three committed run archives. The archives were generated before the leak-prevention contract was enforced and contained runner-local absolute paths embedded in source-attribution file fields and GitHub blob URLs.
+  Impact Run archive integrity CI gate now passes. Archived JSON/HTML outputs no longer expose absolute CI runner paths in public artifacts.
+
 - 2026-08-09 (fix: preserve OpenAlex protocol sort and sanitize archive/static reproducibility contracts)
   Change type fix update
   Scope scripts src tests docs workflows outputs governance

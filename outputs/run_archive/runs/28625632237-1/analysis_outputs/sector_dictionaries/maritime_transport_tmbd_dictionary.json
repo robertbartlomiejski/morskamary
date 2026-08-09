@@ -1797,7 +1797,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Shipping decarbonization and green ports (Harilaos N. Psaraftis, Thalis Zis, 2022).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1053,
           "paper_title": "Shipping decarbonization and green ports",
           "authors": "Harilaos N. Psaraftis, Thalis Zis",
@@ -1811,7 +1811,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Green shipping networks as drivers of decarbonization in offshore shipping companies (Agnete Hessevik, 2022).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1055,
           "paper_title": "Green shipping networks as drivers of decarbonization in offshore shipping companies",
           "authors": "Agnete Hessevik",
@@ -1825,7 +1825,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Classifying maritime port emissions reporting (Philip Cammin, Kai Brüssau, Stefan Voß, 2022).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1058,
           "paper_title": "Classifying maritime port emissions reporting",
           "authors": "Philip Cammin, Kai Brüssau, Stefan Voß",
@@ -1839,7 +1839,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Shipping decarbonization pathways assessment by solving Tramp Fleet Renewal and Retrofit Problems (Alberto Tamburini, Kjetil Fagerholt, Benjamin Lagemann, Davi, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1061,
           "paper_title": "Shipping decarbonization pathways assessment by solving Tramp Fleet Renewal and Retrofit Problems",
           "authors": "Alberto Tamburini, Kjetil Fagerholt, Benjamin Lagemann, David Pisinger",
@@ -1853,7 +1853,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A comparative evaluation of market based measures for shipping decarbonization (Harilaos N. Psaraftis, Thalis Zis, Sotiria Lagouvardou, 2021).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1063,
           "paper_title": "A comparative evaluation of market based measures for shipping decarbonization",
           "authors": "Harilaos N. Psaraftis, Thalis Zis, Sotiria Lagouvardou",
@@ -1867,7 +1867,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Evaluation of the Green Port Concept for Decarbonized Maritime Industry (İsmail Kurt, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1066,
           "paper_title": "Evaluation of the Green Port Concept for Decarbonized Maritime Industry",
           "authors": "İsmail Kurt",
@@ -1881,7 +1881,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decarbonization of maritime transport: to be or not to be? (Harilaos N. Psaraftis, 2018).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1072,
           "paper_title": "Decarbonization of maritime transport: to be or not to be?",
           "authors": "Harilaos N. Psaraftis",
@@ -1895,7 +1895,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Role of Filipino Early Career Ocean Professionals (ECOPs): Challenges and Opportunities in the Philippine Domestic S (Emerson Madlangbayan Reyes, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1081,
           "paper_title": "The Role of Filipino Early Career Ocean Professionals (ECOPs): Challenges and Opportunities in the Philippine Domestic S",
           "authors": "Emerson Madlangbayan Reyes",
@@ -1909,7 +1909,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Stochastic Air Quality Modelling of Ship Emissions in Port Areas for Maritime Decarbonization Pathways (Ramazan Şener, Yordan Garbatov, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1090,
           "paper_title": "Stochastic Air Quality Modelling of Ship Emissions in Port Areas for Maritime Decarbonization Pathways",
           "authors": "Ramazan Şener, Yordan Garbatov",
@@ -1923,7 +1923,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Port call optimization and CO2-emissions savings – Estimating feasible potential in tramp shipping (Axel Merkel, Joakim Kalantari, Abdalla Mubder, 2022).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1091,
           "paper_title": "Port call optimization and CO2-emissions savings – Estimating feasible potential in tramp shipping",
           "authors": "Axel Merkel, Joakim Kalantari, Abdalla Mubder",
@@ -1937,7 +1937,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Assessing the Efficiency of Taiwanese Shipping Lines Under Imo 2023 Regulations (Ngoc Hiep Nguyen, Phuong-Thuy Thi Nguyen, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1099,
           "paper_title": "Assessing the Efficiency of Taiwanese Shipping Lines Under Imo 2023 Regulations",
           "authors": "Ngoc Hiep Nguyen, Phuong-Thuy Thi Nguyen",
@@ -1951,7 +1951,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: International Maritime Organization (IMO) (Unknown, 2013).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1100,
           "paper_title": "International Maritime Organization (IMO)",
           "authors": "Unknown",
@@ -1965,7 +1965,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The imo, Its Role under unclos and Its Polar Shipping Regulation (Aldo Chircop, 2017).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1101,
           "paper_title": "The imo, Its Role under unclos and Its Polar Shipping Regulation",
           "authors": "Aldo Chircop",
@@ -1979,7 +1979,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Evaluation of Compliance with IMO FAL Regulations in International Shipping Standards: A Comparative Study between Indon (Marisya Agustirani, Surya Desta, Azrul Asyikin, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1102,
           "paper_title": "Evaluation of Compliance with IMO FAL Regulations in International Shipping Standards: A Comparative Study between Indon",
           "authors": "Marisya Agustirani, Surya Desta, Azrul Asyikin",
@@ -1993,7 +1993,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The imo Polar Code: The Emerging Rules of Arctic Shipping Governance (Jiayu Bai, 2015).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1103,
           "paper_title": "The imo Polar Code: The Emerging Rules of Arctic Shipping Governance",
           "authors": "Jiayu Bai",
@@ -2007,7 +2007,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Implications of Recent Developments at Imo on Issues of Private Shipping Law (G.P. Pamborides, 1999).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1104,
           "paper_title": "Implications of Recent Developments at Imo on Issues of Private Shipping Law",
           "authors": "G.P. Pamborides",
@@ -2021,7 +2021,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Effect of Low Sulphur Fuel Oil Use on Korean Container Shipping Companies by IMO Environmental Regulations (Sunghwa Park, Chulhwan Han, Taeil Kim, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1105,
           "paper_title": "Effect of Low Sulphur Fuel Oil Use on Korean Container Shipping Companies by IMO Environmental Regulations",
           "authors": "Sunghwa Park, Chulhwan Han, Taeil Kim",
@@ -2035,7 +2035,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: IMO (Unknown, 2014).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1106,
           "paper_title": "IMO",
           "authors": "Unknown",
@@ -2049,7 +2049,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Indigenous diplomats at the IMO: a case study in successful cross-scale governance for international shipping traffic in (Chanda L. Meek, Amy Lauren Lovecraft, 2021).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1107,
           "paper_title": "Indigenous diplomats at the IMO: a case study in successful cross-scale governance for international shipping traffic in",
           "authors": "Chanda L. Meek, Amy Lauren Lovecraft",
@@ -2063,7 +2063,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Governance of International Shipping in the Era of Decarbonisation: New Challenges for the IMO? (Aldo Chircop, Desai Shan, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1108,
           "paper_title": "Governance of International Shipping in the Era of Decarbonisation: New Challenges for the IMO?",
           "authors": "Aldo Chircop, Desai Shan",
@@ -2077,7 +2077,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: An Interpretive Structural Analysis of the Korean Shipping Industry’s Responses to IMO’s GHG Regulations (Dong-Wook Kwak, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1110,
           "paper_title": "An Interpretive Structural Analysis of the Korean Shipping Industry’s Responses to IMO’s GHG Regulations",
           "authors": "Dong-Wook Kwak",
@@ -2091,7 +2091,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decarbonization Potential for Korean Container Fleet in International Shipping Based on Imo Regulatory Frameworks (Junkeon Ahn, Samkyung Seong, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1111,
           "paper_title": "Decarbonization Potential for Korean Container Fleet in International Shipping Based on Imo Regulatory Frameworks",
           "authors": "Junkeon Ahn, Samkyung Seong",
@@ -2105,7 +2105,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Economic viability of arctic shipping under IMO environmental regulations: a well-to-wake assessment of different carbon (Hongzhi Miao, Xinyuan Feng, Xinwei Li, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1112,
           "paper_title": "Economic viability of arctic shipping under IMO environmental regulations: a well-to-wake assessment of different carbon",
           "authors": "Hongzhi Miao, Xinyuan Feng, Xinwei Li",
@@ -2119,7 +2119,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Readiness Of Shipping Companies In Tegal Region To Implement IMO Regulations  In The Field Of Marine Pollution Preve (Awel Suryadi, Hadi Sunarso, 2024).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1113,
           "paper_title": "The Readiness Of Shipping Companies In Tegal Region To Implement IMO Regulations  In The Field Of Marine Pollution Preve",
           "authors": "Awel Suryadi, Hadi Sunarso",
@@ -2133,7 +2133,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: 4 The imo Response to the Issue of Greenhouse Gas Emissions from International Shipping (Yubing Shi, 2017).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1116,
           "paper_title": "4 The imo Response to the Issue of Greenhouse Gas Emissions from International Shipping",
           "authors": "Yubing Shi",
@@ -2147,7 +2147,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Towards Global Governance in Shipping (Unknown, ).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1117,
           "paper_title": "Towards Global Governance in Shipping",
           "authors": "Unknown",
@@ -2161,7 +2161,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Shipping Regulations (Kelly Gerakoudi, 2026).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1118,
           "paper_title": "Shipping Regulations",
           "authors": "Kelly Gerakoudi",
@@ -2175,7 +2175,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Revision of IMO GHG reduction strategy for global shipping (Unknown, ).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1120,
           "paper_title": "Revision of IMO GHG reduction strategy for global shipping",
           "authors": "Unknown",
@@ -2189,7 +2189,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Chapter 3: The IMO as an International Organization and the Regulation of Arctic Shipping (Laura Luise Wanner, 2024).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1121,
           "paper_title": "Chapter 3: The IMO as an International Organization and the Regulation of Arctic Shipping",
           "authors": "Laura Luise Wanner",
@@ -2203,7 +2203,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The IMO Regulatory Framework for Arctic Shipping: Risk Perspectives and Goal-Based Pathways (Anish Arvind Hebbar, Jens-Uwe Schröder-Hinrichs, Maximo Q. M, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1122,
           "paper_title": "The IMO Regulatory Framework for Arctic Shipping: Risk Perspectives and Goal-Based Pathways",
           "authors": "Anish Arvind Hebbar, Jens-Uwe Schröder-Hinrichs, Maximo Q. Mejia, Heike Deggim, Sascha Pristrom",
@@ -2217,7 +2217,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Earlier Environmental Regulation by the IMO (David A. Deese, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1123,
           "paper_title": "Earlier Environmental Regulation by the IMO",
           "authors": "David A. Deese",
@@ -2231,7 +2231,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Shifting to Sustainable Shipping: Actors and Power Shifts in Shipping Emissions in the IMO (Jennifer Baumann, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1124,
           "paper_title": "Shifting to Sustainable Shipping: Actors and Power Shifts in Shipping Emissions in the IMO",
           "authors": "Jennifer Baumann",
@@ -2245,7 +2245,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: International Chamber Of Shipping &amp;#x0026; International Shipping Federation (Roy Nersesian, Subrina Mahmood, 2010).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1128,
           "paper_title": "International Chamber Of Shipping &amp;#x0026; International Shipping Federation",
           "authors": "Roy Nersesian, Subrina Mahmood",
@@ -2259,7 +2259,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Energy efficiency and decarbonization for container fleet in international shipping based on IMO regulatory frameworks:  (Junkeon Ahn, Samkyung Seong, Jieun Lee, Yeonjoo Yun, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1129,
           "paper_title": "Energy efficiency and decarbonization for container fleet in international shipping based on IMO regulatory frameworks: ",
           "authors": "Junkeon Ahn, Samkyung Seong, Jieun Lee, Yeonjoo Yun",
@@ -2273,7 +2273,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Contract Governance and Sustainable Shipping (Unknown, 2024).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1131,
           "paper_title": "Contract Governance and Sustainable Shipping",
           "authors": "Unknown",
@@ -2287,7 +2287,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Role of the Imo in Promoting Safety at Sea and Protecting the Environment (G.P. Pamborides, 1999).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1133,
           "paper_title": "The Role of the Imo in Promoting Safety at Sea and Protecting the Environment",
           "authors": "G.P. Pamborides",
@@ -2301,7 +2301,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Largely Failed IMO Efforts to Regulate Greenhouse Gas Emissions (David A. Deese, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1142,
           "paper_title": "The Largely Failed IMO Efforts to Regulate Greenhouse Gas Emissions",
           "authors": "David A. Deese",
@@ -2315,7 +2315,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: What Explains These Largely Failed ICAO and IMO Efforts to Date? (David A. Deese, 2023).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1144,
           "paper_title": "What Explains These Largely Failed ICAO and IMO Efforts to Date?",
           "authors": "David A. Deese",
@@ -2329,7 +2329,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The IMO Action Plan to Address Marine Plastic Litter from Ships and Its Follow-Up Timeline (Dae-Jung Hwang, 2020).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1145,
           "paper_title": "The IMO Action Plan to Address Marine Plastic Litter from Ships and Its Follow-Up Timeline",
           "authors": "Dae-Jung Hwang",
@@ -2343,7 +2343,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime safety: Maritime Labour Convention 2006 (Vincent Power, 2018).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1147,
           "paper_title": "Maritime safety: Maritime Labour Convention 2006",
           "authors": "Vincent Power",
@@ -2357,7 +2357,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Analysis of impact of the maritime labour convention, 2006: A seafarer’s perspective (Capt. Deepak Mantoju, 2021).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1159,
           "paper_title": "Analysis of impact of the maritime labour convention, 2006: A seafarer’s perspective",
           "authors": "Capt. Deepak Mantoju",
@@ -2371,7 +2371,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime safety: the European Maritime Safety Agency (Vincent Power, 2018).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1173,
           "paper_title": "Maritime safety: the European Maritime Safety Agency",
           "authors": "Vincent Power",
@@ -2385,7 +2385,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Developing a management framework to position South Africa as a preferred seafarer labour supplier (Tebogo Abia Mojafi, Thea Van Der Westhuizen, 2025).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1179,
           "paper_title": "Developing a management framework to position South Africa as a preferred seafarer labour supplier",
           "authors": "Tebogo Abia Mojafi, Thea Van Der Westhuizen",
@@ -4235,7 +4235,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Towards Maritime Transport Decarbonization: Technological and Emissions Pathways (M. Saafi, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1050,
           "paper_title": "Towards Maritime Transport Decarbonization: Technological and Emissions Pathways",
           "authors": "M. Saafi",
@@ -4249,7 +4249,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Lifecycle Emissions of Fossil Fuels and Biofuels for Maritime Transportation: A Requirement Analysis (Cagatayhan Sevim, Burak Zincir, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1051,
           "paper_title": "Lifecycle Emissions of Fossil Fuels and Biofuels for Maritime Transportation: A Requirement Analysis",
           "authors": "Cagatayhan Sevim, Burak Zincir",
@@ -4263,7 +4263,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Introduction to Decarbonization of Maritime Transport (Burak Zincir, Pravesh Chandra Shukla, Avinash Kumar Agarwal, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1052,
           "paper_title": "Introduction to Decarbonization of Maritime Transport",
           "authors": "Burak Zincir, Pravesh Chandra Shukla, Avinash Kumar Agarwal",
@@ -4277,7 +4277,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Emissions regulations for maritime transportation (Maria Antonietta Costagliola, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1054,
           "paper_title": "Emissions regulations for maritime transportation",
           "authors": "Maria Antonietta Costagliola",
@@ -4291,7 +4291,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Creating a digital twin platform for maritime decarbonization by AI-assisted CII measure prediction: A case of chemical  (Hadi Taghavifar, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1056,
           "paper_title": "Creating a digital twin platform for maritime decarbonization by AI-assisted CII measure prediction: A case of chemical ",
           "authors": "Hadi Taghavifar",
@@ -4305,7 +4305,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Reduction of Greenhouse Gas (GHG) Emissions in the Maritime Sector (Marin Hero, Peter Vidmar, Marko Perkovič, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1057,
           "paper_title": "Reduction of Greenhouse Gas (GHG) Emissions in the Maritime Sector",
           "authors": "Marin Hero, Peter Vidmar, Marko Perkovič",
@@ -4319,7 +4319,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: REDUCTION OF THE METHANE EMISSIONS ON LIVESTOCK SHIPS TO MITIGATE GREENHOUSE GAS EMISSIONS AND PROMOTE FUTURE MARITIME T (Mamdouh Elmallah, Mohamed Shouman, Mohamed Elgohary, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1059,
           "paper_title": "REDUCTION OF THE METHANE EMISSIONS ON LIVESTOCK SHIPS TO MITIGATE GREENHOUSE GAS EMISSIONS AND PROMOTE FUTURE MARITIME T",
           "authors": "Mamdouh Elmallah, Mohamed Shouman, Mohamed Elgohary",
@@ -4333,7 +4333,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Figure 3.7. CO2 emissions from maritime transport by commodity (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1060,
           "paper_title": "Figure 3.7. CO2 emissions from maritime transport by commodity",
           "authors": "Unknown",
@@ -4347,7 +4347,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Figure 5.14. CO2 emissions from maritime freight transport in 2050 (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1062,
           "paper_title": "Figure 5.14. CO2 emissions from maritime freight transport in 2050",
           "authors": "Unknown",
@@ -4361,7 +4361,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Scenario Thinking and Its Place in Maritime Decarbonization (Jeremy B. Bentham, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1064,
           "paper_title": "Scenario Thinking and Its Place in Maritime Decarbonization",
           "authors": "Jeremy B. Bentham",
@@ -4375,7 +4375,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Broadening the Scope of Decarbonization in the Maritime Sector (Alan McKinnon, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1065,
           "paper_title": "Broadening the Scope of Decarbonization in the Maritime Sector",
           "authors": "Alan McKinnon",
@@ -4389,7 +4389,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Replacing Fossil Diesel for All European Inland Waterway Transport: A Prospective Pathway Analysis on Remaining Emission (Florin Thalmann, Elimar Frank, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1067,
           "paper_title": "Replacing Fossil Diesel for All European Inland Waterway Transport: A Prospective Pathway Analysis on Remaining Emission",
           "authors": "Florin Thalmann, Elimar Frank",
@@ -4403,7 +4403,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Review of EU Maritime Transport Greenhouse Gas Emissions Reduction Policies: Better Prospects for Policy Makers in China (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1068,
           "paper_title": "Review of EU Maritime Transport Greenhouse Gas Emissions Reduction Policies: Better Prospects for Policy Makers in China",
           "authors": "Unknown",
@@ -4417,7 +4417,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Perspective Chapter: From Regulation to Realization – Building Governance Capacity for Maritime Decarbonization (Deniece M. Aiken, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1069,
           "paper_title": "Perspective Chapter: From Regulation to Realization – Building Governance Capacity for Maritime Decarbonization",
           "authors": "Deniece M. Aiken",
@@ -4431,7 +4431,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Engaging the Global Research Communities in Maritime Decarbonization (Teemu Manderbacka, Ellinor Forsström, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1070,
           "paper_title": "Engaging the Global Research Communities in Maritime Decarbonization",
           "authors": "Teemu Manderbacka, Ellinor Forsström",
@@ -4445,7 +4445,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Decarbonization—Actions by Cargo Owners: The Shippers’ Perspective (Philip Evans, Audrey Macnab, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1071,
           "paper_title": "Maritime Decarbonization—Actions by Cargo Owners: The Shippers’ Perspective",
           "authors": "Philip Evans, Audrey Macnab",
@@ -4459,7 +4459,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: How a Value Chain Approach Plays Out in Maritime Decarbonization (Katharina Renken, Moritz Petersen, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1073,
           "paper_title": "How a Value Chain Approach Plays Out in Maritime Decarbonization",
           "authors": "Katharina Renken, Moritz Petersen",
@@ -4473,7 +4473,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Operationalizing maritime decarbonization policy through emissions monitoring: lessons from the Straits of Malacca (Mohd Tarmizi Osman, Kasypi Mokhtar, Norjipin Saidi, Wan Nurd, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1074,
           "paper_title": "Operationalizing maritime decarbonization policy through emissions monitoring: lessons from the Straits of Malacca",
           "authors": "Mohd Tarmizi Osman, Kasypi Mokhtar, Norjipin Saidi, Wan Nurdiyana Wan Mansor, Osman Turan, Benjamin Craig Mclellan, Siti",
@@ -4487,7 +4487,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: A Decision Support Tool for Optimizing Fuel Deployment and Emissions Reduction: Advanced Modeling Approach to Sustainabl (Shilpa Mesineni, Ala Eddine Omrani, Nawaf Nazir, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1075,
           "paper_title": "A Decision Support Tool for Optimizing Fuel Deployment and Emissions Reduction: Advanced Modeling Approach to Sustainabl",
           "authors": "Shilpa Mesineni, Ala Eddine Omrani, Nawaf Nazir",
@@ -4501,7 +4501,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decarbonization pathways in Brazilian maritime cabotage: A comparative analysis of very low sulfur fuel oil, marine dies (Gustavo Adolfo Alves da Costa, André Bergsten Mendes, Vanina, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1076,
           "paper_title": "Decarbonization pathways in Brazilian maritime cabotage: A comparative analysis of very low sulfur fuel oil, marine dies",
           "authors": "Gustavo Adolfo Alves da Costa, André Bergsten Mendes, Vanina Macowski Durski Silva",
@@ -4515,7 +4515,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decarbonization of Maritime Transport (Unknown, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1077,
           "paper_title": "Decarbonization of Maritime Transport",
           "authors": "Unknown",
@@ -4529,7 +4529,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decarbonization in Offshore Services: A Study on Efficiency and Emissions Reduction (R. B. Passos, R. B. de Aguiar, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1078,
           "paper_title": "Decarbonization in Offshore Services: A Study on Efficiency and Emissions Reduction",
           "authors": "R. B. Passos, R. B. de Aguiar",
@@ -4543,7 +4543,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Estimating the emissions potential of marine transportation using the Kra Canal (Po-Hsing Tseng, Nick Pilcher, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1079,
           "paper_title": "Estimating the emissions potential of marine transportation using the Kra Canal",
           "authors": "Po-Hsing Tseng, Nick Pilcher",
@@ -4557,7 +4557,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Capesize iron ore freight rates equilibrium and time charter equivalent earnings given Decarbonization targets (Tamara Apostolou, Ioannis N. Lagoudis, Ioannis N. Theotokas,, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1080,
           "paper_title": "Capesize iron ore freight rates equilibrium and time charter equivalent earnings given Decarbonization targets",
           "authors": "Tamara Apostolou, Ioannis N. Lagoudis, Ioannis N. Theotokas, Victor Kasper",
@@ -4571,7 +4571,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Figure 3.9. International aviation and maritime transport account for more CO2 emissions than most countries (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1082,
           "paper_title": "Figure 3.9. International aviation and maritime transport account for more CO2 emissions than most countries",
           "authors": "Unknown",
@@ -4585,7 +4585,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: ‘Sustainable waterway transport development: digitalization and decarbonization’ (Paul Tae-Woo Lee, Stephen Petitt, Ran Yan, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1083,
           "paper_title": "‘Sustainable waterway transport development: digitalization and decarbonization’",
           "authors": "Paul Tae-Woo Lee, Stephen Petitt, Ran Yan",
@@ -4599,7 +4599,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Hydrogen as Maritime Transportation Fuel: A Pathway for Decarbonization (Omer Berkehan Inal, Burak Zincir, Caglar Dere, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1084,
           "paper_title": "Hydrogen as Maritime Transportation Fuel: A Pathway for Decarbonization",
           "authors": "Omer Berkehan Inal, Burak Zincir, Caglar Dere",
@@ -4613,7 +4613,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: XIV. Commentary on Regulation (EU) 2015/757 on the Monitoring, Reporting and Verification of Carbon Dioxide Emissions fr (Henning Jessen, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1085,
           "paper_title": "XIV. Commentary on Regulation (EU) 2015/757 on the Monitoring, Reporting and Verification of Carbon Dioxide Emissions fr",
           "authors": "Henning Jessen",
@@ -4627,7 +4627,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: LCA Studies on Marine Alternative Fuels (Levent Bilgili, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1086,
           "paper_title": "LCA Studies on Marine Alternative Fuels",
           "authors": "Levent Bilgili",
@@ -4641,7 +4641,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: SWOT Analysis of Carbon Capture, Storage, and Transportation for Maritime Industry (Bugra Arda Zincir, Burak Zincir, Yasin Arslanoglu, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1087,
           "paper_title": "SWOT Analysis of Carbon Capture, Storage, and Transportation for Maritime Industry",
           "authors": "Bugra Arda Zincir, Burak Zincir, Yasin Arslanoglu",
@@ -4655,7 +4655,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Effective Partnerships to Support Maritime Decarbonization (Mikael Lind, Wolfgang Lehmacher, Sanjay Kuttan, Jillian Cars, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1088,
           "paper_title": "Effective Partnerships to Support Maritime Decarbonization",
           "authors": "Mikael Lind, Wolfgang Lehmacher, Sanjay Kuttan, Jillian Carson-Jackson, David Cummins, Margi van Gogh, Torbjörn Rydbergh",
@@ -4669,7 +4669,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Concentrating Solar Power for Cement Decarbonization (Nathaniel Schroeder, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1089,
           "paper_title": "Concentrating Solar Power for Cement Decarbonization",
           "authors": "Nathaniel Schroeder",
@@ -4683,7 +4683,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Risk assessment of maritime industry decarbonization (Yuwan Li, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1092,
           "paper_title": "Risk assessment of maritime industry decarbonization",
           "authors": "Yuwan Li",
@@ -4697,7 +4697,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Foundations of Maritime Decarbonization (Vahit Çalışır, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1093,
           "paper_title": "Foundations of Maritime Decarbonization",
           "authors": "Vahit Çalışır",
@@ -4711,7 +4711,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: How to Assess Decarbonization Enablers (Kirsi Tikka, Steve Esau, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1094,
           "paper_title": "How to Assess Decarbonization Enablers",
           "authors": "Kirsi Tikka, Steve Esau",
@@ -4725,7 +4725,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Greenhouse gas emissions reduction potential by using antifouling coatings in a maritime transport industry (Andrea Farkas, Nastia Degiuli, Ivana Martić, Milan Vujanović, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1095,
           "paper_title": "Greenhouse gas emissions reduction potential by using antifouling coatings in a maritime transport industry",
           "authors": "Andrea Farkas, Nastia Degiuli, Ivana Martić, Milan Vujanović",
@@ -4739,7 +4739,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Green Concept of Ports and Transition Model (M. Ziya Sogut, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1096,
           "paper_title": "Green Concept of Ports and Transition Model",
           "authors": "M. Ziya Sogut",
@@ -4753,7 +4753,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decarbonization Support from Digital Solutions Providers (Pekka Pakkanen, Roberto Vettor, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1097,
           "paper_title": "Decarbonization Support from Digital Solutions Providers",
           "authors": "Pekka Pakkanen, Roberto Vettor",
@@ -4767,7 +4767,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Decarbonizing the Maritime Industry: Current Environmental Targets and Potential Outcomes (Zeeshan Raza, Sukhjit Singh, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1098,
           "paper_title": "Decarbonizing the Maritime Industry: Current Environmental Targets and Potential Outcomes",
           "authors": "Zeeshan Raza, Sukhjit Singh",
@@ -4781,7 +4781,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: IMO International Maritime Law Institute (David Joseph Attard, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1109,
           "paper_title": "IMO International Maritime Law Institute",
           "authors": "David Joseph Attard",
@@ -4795,7 +4795,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Comparison with effect of IMO 2020 regulations (Unknown, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1114,
           "paper_title": "Comparison with effect of IMO 2020 regulations",
           "authors": "Unknown",
@@ -4809,7 +4809,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Enforcement of Existing IMO Regulations (Unknown, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1115,
           "paper_title": "Enforcement of Existing IMO Regulations",
           "authors": "Unknown",
@@ -4823,7 +4823,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Implementing IMO Regulations and Oceans Policy (G.E. Kurz, 1999).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1119,
           "paper_title": "Implementing IMO Regulations and Oceans Policy",
           "authors": "G.E. Kurz",
@@ -4837,7 +4837,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The IMO, Technical Cooperation, and Global Ocean Governance (Jonathan Pace, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1125,
           "paper_title": "The IMO, Technical Cooperation, and Global Ocean Governance",
           "authors": "Jonathan Pace",
@@ -4851,7 +4851,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The IMO: Liability, Compensation, and Global Ocean Governance (Måns Jacobsson, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1126,
           "paper_title": "The IMO: Liability, Compensation, and Global Ocean Governance",
           "authors": "Måns Jacobsson",
@@ -4865,7 +4865,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Regulations (Hans-Dietrich Gronau, Hanns-Heinrich Langmann, Dierk Schleic, 2010).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1127,
           "paper_title": "Regulations",
           "authors": "Hans-Dietrich Gronau, Hanns-Heinrich Langmann, Dierk Schleicher",
@@ -4879,7 +4879,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The IMO: Maritime Terrorism/Security and Global Ocean Governance (Jan Engel de Boer, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1130,
           "paper_title": "The IMO: Maritime Terrorism/Security and Global Ocean Governance",
           "authors": "Jan Engel de Boer",
@@ -4893,7 +4893,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: IMO regulations (Henryk Pepliński, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1132,
           "paper_title": "IMO regulations",
           "authors": "Henryk Pepliński",
@@ -4907,7 +4907,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The IMO and Global Ocean Governance (Rosalie P Balkin, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1134,
           "paper_title": "The IMO and Global Ocean Governance",
           "authors": "Rosalie P Balkin",
@@ -4921,7 +4921,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The IMO: Working within the UNCLOS Framework and Global Ocean Governance (Agustín Blanco-Bazán, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1135,
           "paper_title": "The IMO: Working within the UNCLOS Framework and Global Ocean Governance",
           "authors": "Agustín Blanco-Bazán",
@@ -4935,7 +4935,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The IMO: Ship-sourced Emissions, Climate Change, and Global Ocean Governance (Edmund Hughes, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1136,
           "paper_title": "The IMO: Ship-sourced Emissions, Climate Change, and Global Ocean Governance",
           "authors": "Edmund Hughes",
@@ -4949,7 +4949,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The IMO: Adoption of Counter-piracy Measures to Promote Global Ocean Governance (Hartmut Guenther Hesse, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1137,
           "paper_title": "The IMO: Adoption of Counter-piracy Measures to Promote Global Ocean Governance",
           "authors": "Hartmut Guenther Hesse",
@@ -4963,7 +4963,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The IMO, the Audit Scheme, and Its Role in Global Ocean Governance (Lawrence Barchue, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1138,
           "paper_title": "The IMO, the Audit Scheme, and Its Role in Global Ocean Governance",
           "authors": "Lawrence Barchue",
@@ -4977,7 +4977,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Machine Learning-Based Forecasting of Maritime Operational Costs Under Imo 2028 Regulations (Eliseo Curcio, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1139,
           "paper_title": "Machine Learning-Based Forecasting of Maritime Operational Costs Under Imo 2028 Regulations",
           "authors": "Eliseo Curcio",
@@ -4991,7 +4991,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The IMO, the Polar Regions, and Global Ocean Governance (Turid Stemre, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1140,
           "paper_title": "The IMO, the Polar Regions, and Global Ocean Governance",
           "authors": "Turid Stemre",
@@ -5005,7 +5005,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Impact of IMO Environmental Regulations and Carbon Border Tax on Trade (Sung-Woo RYOO, Yang-Kee LEE, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1141,
           "paper_title": "Impact of IMO Environmental Regulations and Carbon Border Tax on Trade",
           "authors": "Sung-Woo RYOO, Yang-Kee LEE",
@@ -5019,7 +5019,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: New Regulatory Formulation Approaches for IMO Maritime Safety Regulations (Joo sung Park, Weon jae Ha, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1143,
           "paper_title": "New Regulatory Formulation Approaches for IMO Maritime Safety Regulations",
           "authors": "Joo sung Park, Weon jae Ha",
@@ -5033,7 +5033,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The IMO: The Role of the Classification Societies in Promoting Global Ocean Governance (Ismael Cobos Delgado, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1146,
           "paper_title": "The IMO: The Role of the Classification Societies in Promoting Global Ocean Governance",
           "authors": "Ismael Cobos Delgado",
@@ -5047,7 +5047,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: On maritime labour and maritime labour markets in Germany, 1700-1900 (Unknown, 2007).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1148,
           "paper_title": "On maritime labour and maritime labour markets in Germany, 1700-1900",
           "authors": "Unknown",
@@ -5061,7 +5061,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Implementation of a New Maritime Labour Policy: the Maritime Labour Convention (MLC, 2006) (F Piniella, J González-Gil, F Bernal, 2015).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1149,
           "paper_title": "The Implementation of a New Maritime Labour Policy: the Maritime Labour Convention (MLC, 2006)",
           "authors": "F Piniella, J González-Gil, F Bernal",
@@ -5075,7 +5075,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Five Years Before the Mast: Observations on the Conditions of Maritime Labour in Finland and Elsewhere (Yrjö Kaukiainen, 2004).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1150,
           "paper_title": "Five Years Before the Mast: Observations on the Conditions of Maritime Labour in Finland and Elsewhere",
           "authors": "Yrjö Kaukiainen",
@@ -5089,7 +5089,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: IMPLEMENTATION OF THE MARITIME LABOUR CONVENTION 2006 (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1151,
           "paper_title": "IMPLEMENTATION OF THE MARITIME LABOUR CONVENTION 2006",
           "authors": "Unknown",
@@ -5103,7 +5103,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: YACHTING AND THE MARITIME LABOUR CONVENTION 2006 (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1152,
           "paper_title": "YACHTING AND THE MARITIME LABOUR CONVENTION 2006",
           "authors": "Unknown",
@@ -5117,7 +5117,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: CREWING INSURANCE UNDER THE MARITIME LABOUR CONVENTION 2006 (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1153,
           "paper_title": "CREWING INSURANCE UNDER THE MARITIME LABOUR CONVENTION 2006",
           "authors": "Unknown",
@@ -5131,7 +5131,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Labour (Frank Broeze, 2000).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1154,
           "paper_title": "Maritime Labour",
           "authors": "Frank Broeze",
@@ -5145,7 +5145,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: THE SHIPMASTER AND THE MARITIME LABOUR CONVENTION 2006 (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1155,
           "paper_title": "THE SHIPMASTER AND THE MARITIME LABOUR CONVENTION 2006",
           "authors": "Unknown",
@@ -5159,7 +5159,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Labour Conditions (Femme Gaastra, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1156,
           "paper_title": "Labour Conditions",
           "authors": "Femme Gaastra",
@@ -5173,7 +5173,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: The Historians and Maritime Labour, c. 1850-1930 (Luke Trainor, 1995).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1157,
           "paper_title": "The Historians and Maritime Labour, c. 1850-1930",
           "authors": "Luke Trainor",
@@ -5187,7 +5187,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: THE MARITIME LABOUR CONVENTION 2006 IN THE EUROPEAN UNION (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1158,
           "paper_title": "THE MARITIME LABOUR CONVENTION 2006 IN THE EUROPEAN UNION",
           "authors": "Unknown",
@@ -5201,7 +5201,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: THE ENFORCEMENT PROCEDURES OF THE MARITIME LABOUR CONVENTION 2006 (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1160,
           "paper_title": "THE ENFORCEMENT PROCEDURES OF THE MARITIME LABOUR CONVENTION 2006",
           "authors": "Unknown",
@@ -5215,7 +5215,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Safety and Security in the Bay of Bengal (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1161,
           "paper_title": "Maritime Safety and Security in the Bay of Bengal",
           "authors": "Unknown",
@@ -5229,7 +5229,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Safety Culture in the Baltic Sea (F Hjorth, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1162,
           "paper_title": "Safety Culture in the Baltic Sea",
           "authors": "F Hjorth",
@@ -5243,7 +5243,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Culture and maritime safety (Unknown, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1163,
           "paper_title": "Culture and maritime safety",
           "authors": "Unknown",
@@ -5257,7 +5257,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: INCREASED SEAFARER PROTECTION UNDER THE MARITIME LABOUR CONVENTION 2006: A MALTESE FLAG PERSPECTIVE (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1164,
           "paper_title": "INCREASED SEAFARER PROTECTION UNDER THE MARITIME LABOUR CONVENTION 2006: A MALTESE FLAG PERSPECTIVE",
           "authors": "Unknown",
@@ -5271,7 +5271,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Violence and Bullying in Maritime Transport: The Contribution of the Maritime Labour Convention of 2006 (Alexandre Charbonneau, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1165,
           "paper_title": "Violence and Bullying in Maritime Transport: The Contribution of the Maritime Labour Convention of 2006",
           "authors": "Alexandre Charbonneau",
@@ -5285,7 +5285,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Setting the stage for maritime safety management (Unknown, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1166,
           "paper_title": "Setting the stage for maritime safety management",
           "authors": "Unknown",
@@ -5299,7 +5299,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime Labour in the Netherlands, 1570-1870 (Karel Davids, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1167,
           "paper_title": "Maritime Labour in the Netherlands, 1570-1870",
           "authors": "Karel Davids",
@@ -5313,7 +5313,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Vocational Education and Training (VET) for Maritime Safety (Unknown, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1168,
           "paper_title": "Vocational Education and Training (VET) for Maritime Safety",
           "authors": "Unknown",
@@ -5327,7 +5327,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime safety (Igor Vio, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1169,
           "paper_title": "Maritime safety",
           "authors": "Igor Vio",
@@ -5341,7 +5341,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Comparative maritime safety (Frank Stevens, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1170,
           "paper_title": "Comparative maritime safety",
           "authors": "Frank Stevens",
@@ -5355,7 +5355,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Compendium of maritime labour instruments (Unknown, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1171,
           "paper_title": "Compendium of maritime labour instruments",
           "authors": "Unknown",
@@ -5369,7 +5369,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: ILO maritime labour Conventions and Recommendations (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1172,
           "paper_title": "ILO maritime labour Conventions and Recommendations",
           "authors": "Unknown",
@@ -5383,7 +5383,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The International Maritime Labour Market (Sixteenth-Nineteenth Centuries) (Jan Lucassen, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1174,
           "paper_title": "The International Maritime Labour Market (Sixteenth-Nineteenth Centuries)",
           "authors": "Jan Lucassen",
@@ -5397,7 +5397,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime safety in Turkey (Ahmet Gelgeç, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1175,
           "paper_title": "Maritime safety in Turkey",
           "authors": "Ahmet Gelgeç",
@@ -5411,7 +5411,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: German maritime safety laws (Henning Jessen, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1176,
           "paper_title": "German maritime safety laws",
           "authors": "Henning Jessen",
@@ -5425,7 +5425,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Implementation of Automatic Identification System for Safety Operation of Maritime Installation (Unknown, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1177,
           "paper_title": "Implementation of Automatic Identification System for Safety Operation of Maritime Installation",
           "authors": "Unknown",
@@ -5439,7 +5439,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Regulation 4.3: Health and Safety Protection and Accident Prevention (Unknown, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1178,
           "paper_title": "Regulation 4.3: Health and Safety Protection and Accident Prevention",
           "authors": "Unknown",
@@ -5453,7 +5453,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Maritime safety in Belgium (Eric Van Hooydonk, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1180,
           "paper_title": "Maritime safety in Belgium",
           "authors": "Eric Van Hooydonk",
@@ -5467,7 +5467,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: 2 Promulgation of maritime safety information (Unknown, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1181,
           "paper_title": "2 Promulgation of maritime safety information",
           "authors": "Unknown",
@@ -5481,7 +5481,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: EU maritime safety rules (Lemonia Tsaroucha, Jacob Terling, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1182,
           "paper_title": "EU maritime safety rules",
           "authors": "Lemonia Tsaroucha, Jacob Terling",
@@ -5495,7 +5495,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Maritime Labour Convention, 2006, as an ally for International Maritime Health Association (Rosa María Aguirre Donadío, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1183,
           "paper_title": "The Maritime Labour Convention, 2006, as an ally for International Maritime Health Association",
           "authors": "Rosa María Aguirre Donadío",
@@ -5509,7 +5509,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Maritime Labour Convention (Julia Constantino Chagas Lessa, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1184,
           "paper_title": "The Maritime Labour Convention",
           "authors": "Julia Constantino Chagas Lessa",
@@ -5523,7 +5523,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Collective Labour Relations and Private International Law (Laura Carballo Piñeiro, 2015).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1185,
           "paper_title": "Collective Labour Relations and Private International Law",
           "authors": "Laura Carballo Piñeiro",
@@ -5537,7 +5537,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Analysis on Marine Accident Statistics and Maritime Safety Supervisor System (Gi-nam Kim, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1186,
           "paper_title": "Analysis on Marine Accident Statistics and Maritime Safety Supervisor System",
           "authors": "Gi-nam Kim",
@@ -5551,7 +5551,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Study of the Influence of Initial Conditions on Jacket Structure Launching Operation (Unknown, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 1187,
           "paper_title": "Study of the Influence of Initial Conditions on Jacket Structure Launching Operation",
           "authors": "Unknown",

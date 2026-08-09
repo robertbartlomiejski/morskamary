@@ -59,7 +59,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Advances in Brine Disposal and Dispersion in the Coastal Ecosystem from Desalination Plants (Ramasamy Manivanan, 2014).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 271,
           "paper_title": "Advances in Brine Disposal and Dispersion in the Coastal Ecosystem from Desalination Plants",
           "authors": "Ramasamy Manivanan",
@@ -73,7 +73,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Spatiotemporal evolution of water-linked ecosystem service values in the Pearl River Basin: A GIS-based approach for sus (Yuanzhu Wang, Rajah Rasiah, 2025).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 387,
           "paper_title": "Spatiotemporal evolution of water-linked ecosystem service values in the Pearl River Basin: A GIS-based approach for sus",
           "authors": "Yuanzhu Wang, Rajah Rasiah",
@@ -87,7 +87,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Payment for ecosystem services in Lima’s watersheds: power and imaginaries in an urban-rural hydrosocial territory (Sonja Bleeker, Jeroen Vos, 2020).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 398,
           "paper_title": "Payment for ecosystem services in Lima’s watersheds: power and imaginaries in an urban-rural hydrosocial territory",
           "authors": "Sonja Bleeker, Jeroen Vos",
@@ -2219,7 +2219,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental impact of waste brine disposal of desalination plants, Red Sea, Egypt (Badr Mabrook, 1994).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 268,
           "paper_title": "Environmental impact of waste brine disposal of desalination plants, Red Sea, Egypt",
           "authors": "Badr Mabrook",
@@ -2233,7 +2233,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental impact of brine disposal on Posidonia seagrasses (Manuel Latorre, 2005).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 269,
           "paper_title": "Environmental impact of brine disposal on Posidonia seagrasses",
           "authors": "Manuel Latorre",
@@ -2247,7 +2247,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Erratum to: “Environmental impact of brine disposal on Posidonia seagrass”* [Desalination 182 (2005) 517–524] (Manuel Latorre, 2006).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 270,
           "paper_title": "Erratum to: “Environmental impact of brine disposal on Posidonia seagrass”* [Desalination 182 (2005) 517–524]",
           "authors": "Manuel Latorre",
@@ -2261,7 +2261,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Inland Desalination and Brine Management: Salt Recovery and Beneficial Uses of Brine (L. De Buren, A. Sharbat, 2015).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 272,
           "paper_title": "Inland Desalination and Brine Management: Salt Recovery and Beneficial Uses of Brine",
           "authors": "L. De Buren, A. Sharbat",
@@ -2275,7 +2275,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental impact of Laayoune plant’s desalination and brine management: challenges and mitigation measures (H. Elaouani, D. Beqqour, A. Taouallah, L. Salama, K. Abderra, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 273,
           "paper_title": "Environmental impact of Laayoune plant’s desalination and brine management: challenges and mitigation measures",
           "authors": "H. Elaouani, D. Beqqour, A. Taouallah, L. Salama, K. Abderrafi, K. Jaafari, S. Mailainine, K. Benkhouja, M. Ouammou, S. ",
@@ -2289,7 +2289,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Evaluating environmental requirements for the management of brine discharges in Spain (Iván Sola, Domingo Zarzo, José Luis Sánchez-Lizaso, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 274,
           "paper_title": "Evaluating environmental requirements for the management of brine discharges in Spain",
           "authors": "Iván Sola, Domingo Zarzo, José Luis Sánchez-Lizaso",
@@ -2303,7 +2303,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Reject Brine Management (Muftah H., 2011).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 275,
           "paper_title": "Reject Brine Management",
           "authors": "Muftah H.",
@@ -2317,7 +2317,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental Quality Standards for Brine Discharge from Desalination Plants (Anton Purnama, 2015).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 276,
           "paper_title": "Environmental Quality Standards for Brine Discharge from Desalination Plants",
           "authors": "Anton Purnama",
@@ -2331,7 +2331,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Harnessing halophytes to mitigate the environmental impact of membrane desalination brine (Nesrine Kalboussi, Karim Ben Hamed, Hamza Elfil, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 277,
           "paper_title": "Harnessing halophytes to mitigate the environmental impact of membrane desalination brine",
           "authors": "Nesrine Kalboussi, Karim Ben Hamed, Hamza Elfil",
@@ -2345,7 +2345,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Design of marine outfalls for reducing environmental impact of brine (Eloy Pita, Pablo Pita, Mario Sánchez-Barriga, Lucas Martín, , 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 278,
           "paper_title": "Design of marine outfalls for reducing environmental impact of brine",
           "authors": "Eloy Pita, Pablo Pita, Mario Sánchez-Barriga, Lucas Martín, Javier Olalde",
@@ -2359,7 +2359,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Brine Management (Christopher Bellona, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 279,
           "paper_title": "Brine Management",
           "authors": "Christopher Bellona",
@@ -2373,7 +2373,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Brine Management in Desalination Plants (Shefaa Mansour, Hassan A. Arafat, Shadi W. Hasan, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 280,
           "paper_title": "Brine Management in Desalination Plants",
           "authors": "Shefaa Mansour, Hassan A. Arafat, Shadi W. Hasan",
@@ -2387,7 +2387,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Processing of Desalination Reject Brine for Optimization of Process Efficiency, Cost Effectiveness and Environmental Saf (M. Gamal Khedr, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 281,
           "paper_title": "Processing of Desalination Reject Brine for Optimization of Process Efficiency, Cost Effectiveness and Environmental Saf",
           "authors": "M. Gamal Khedr",
@@ -2401,7 +2401,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sustainable management of brine effluent from desalination plants: the SOL-BRINE system (D. Xevgenos, A. Vidalis, K. Moustakas, D. Malamis, M. Loizid, 2015).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 282,
           "paper_title": "Sustainable management of brine effluent from desalination plants: the SOL-BRINE system",
           "authors": "D. Xevgenos, A. Vidalis, K. Moustakas, D. Malamis, M. Loizidou",
@@ -2415,7 +2415,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental impact and economic costs of brine disposal methods from RO desalination plants in arid coastal regions (Aya Lamei, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 283,
           "paper_title": "Environmental impact and economic costs of brine disposal methods from RO desalination plants in arid coastal regions",
           "authors": "Aya Lamei",
@@ -2429,7 +2429,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Desalination Brine Management: Effect on Outfall Design (Ishita Shrivastava, Edward Eric Adams, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 284,
           "paper_title": "Desalination Brine Management: Effect on Outfall Design",
           "authors": "Ishita Shrivastava, Edward Eric Adams",
@@ -2443,7 +2443,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Re-assessing the impact of desalination plants brine discharges on eroding beaches (H.H. Al-Barwani, Anton Purnama, 2007).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 285,
           "paper_title": "Re-assessing the impact of desalination plants brine discharges on eroding beaches",
           "authors": "H.H. Al-Barwani, Anton Purnama",
@@ -2457,7 +2457,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Desalination and transboundary water governance in conflict settings (Maureen Walschot, David Katz, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 286,
           "paper_title": "Desalination and transboundary water governance in conflict settings",
           "authors": "Maureen Walschot, David Katz",
@@ -2471,7 +2471,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Seawater intake and pre-treatment/brine discharge — environmental issues (Thomas Peters, Domènec Pintó, 2008).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 287,
           "paper_title": "Seawater intake and pre-treatment/brine discharge — environmental issues",
           "authors": "Thomas Peters, Domènec Pintó",
@@ -2485,7 +2485,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Modelling and environmentally sound management of brine discharges from desalination plants (Tobias Bleninger, Gerhard H. Jirka, 2008).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 288,
           "paper_title": "Modelling and environmentally sound management of brine discharges from desalination plants",
           "authors": "Tobias Bleninger, Gerhard H. Jirka",
@@ -2499,7 +2499,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Some criteria to minimize the impact of brine dischargeinto the sea (Anton Purnama, H.H. Al-Barwani, 2005).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 289,
           "paper_title": "Some criteria to minimize the impact of brine dischargeinto the sea",
           "authors": "Anton Purnama, H.H. Al-Barwani",
@@ -2513,7 +2513,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: An improved life cycle impact assessment (LCIA) approach for assessing aquatic eco-toxic impact of brine disposal from s (Jin Zhou, Victor W.-C. Chang, Anthony G. Fane, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 290,
           "paper_title": "An improved life cycle impact assessment (LCIA) approach for assessing aquatic eco-toxic impact of brine disposal from s",
           "authors": "Jin Zhou, Victor W.-C. Chang, Anthony G. Fane",
@@ -2527,7 +2527,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Impact of land disposal of reject brine from desalination plants on soil and groundwater (A.M.O. Mohamed, M. Maraqa, J. Al Handhaly, 2005).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 291,
           "paper_title": "Impact of land disposal of reject brine from desalination plants on soil and groundwater",
           "authors": "A.M.O. Mohamed, M. Maraqa, J. Al Handhaly",
@@ -2541,7 +2541,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Woodchip bioreactors provide sustained denitrification of brine from groundwater desalination plants (Carolina Díaz-García, Juan J. Martínez-Sánchez, Bryan M. Max, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 292,
           "paper_title": "Woodchip bioreactors provide sustained denitrification of brine from groundwater desalination plants",
           "authors": "Carolina Díaz-García, Juan J. Martínez-Sánchez, Bryan M. Maxwell, José Antonio Franco, José Álvarez-Rogel",
@@ -2555,7 +2555,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water Desalination: Environmental Impacts and Brine Management (Abdulrahman S. Alsharhan, Zeinelabidin E. Rizk, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 293,
           "paper_title": "Water Desalination: Environmental Impacts and Brine Management",
           "authors": "Abdulrahman S. Alsharhan, Zeinelabidin E. Rizk",
@@ -2569,7 +2569,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Electrodialysis for sustainable management of seawater-brine: Increasing water recovery via production of hypersaline so (F. Giacalone, A. Filingeri, A. Tamburini, A. Cipollina, G. M, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 294,
           "paper_title": "Electrodialysis for sustainable management of seawater-brine: Increasing water recovery via production of hypersaline so",
           "authors": "F. Giacalone, A. Filingeri, A. Tamburini, A. Cipollina, G. Micale",
@@ -2583,7 +2583,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Numerical Assessment of Environmental Impact of Brine Discharge from a Desalination Plant on Coastal Water (Jian Sun, Kun Yang, Hong Li Wang, Wei Li, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 295,
           "paper_title": "Numerical Assessment of Environmental Impact of Brine Discharge from a Desalination Plant on Coastal Water",
           "authors": "Jian Sun, Kun Yang, Hong Li Wang, Wei Li",
@@ -2597,7 +2597,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Brine Disposal and Management—Planning, Design, and Implementation (Ozeair Abessi, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 296,
           "paper_title": "Brine Disposal and Management—Planning, Design, and Implementation",
           "authors": "Ozeair Abessi",
@@ -2611,7 +2611,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Brine Discharge from Desalination Plants: Environmental Contaminants, Pollution Control Processes and Mitigation Strateg (Mahdi Belhadj, Cherif Rezzoug, Youcef Benmoussa, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 297,
           "paper_title": "Brine Discharge from Desalination Plants: Environmental Contaminants, Pollution Control Processes and Mitigation Strateg",
           "authors": "Mahdi Belhadj, Cherif Rezzoug, Youcef Benmoussa",
@@ -2625,7 +2625,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Impact of chemical composition of reject brine from inland desalination plants on soil and groundwater, UAE (Juma K. Al-Handhaly, A.M.O. Mohamed, Munjed Maraqa, 2003).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 298,
           "paper_title": "Impact of chemical composition of reject brine from inland desalination plants on soil and groundwater, UAE",
           "authors": "Juma K. Al-Handhaly, A.M.O. Mohamed, Munjed Maraqa",
@@ -2639,7 +2639,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Reuse of brine from inland desalination plants with duckweed, fish and halophytes toward increased food production and i (Gideon Oron, Samuel Appelbaum, Ofer Guy, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 299,
           "paper_title": "Reuse of brine from inland desalination plants with duckweed, fish and halophytes toward increased food production and i",
           "authors": "Gideon Oron, Samuel Appelbaum, Ofer Guy",
@@ -2653,7 +2653,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental and technological perspectives on SWRO brine minimization: Toward sustainable desalination (K. Khoiruddin, Tuti M. Lim, Tzyy H. Chong, S. Kawi, I.G. Wen, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 300,
           "paper_title": "Environmental and technological perspectives on SWRO brine minimization: Toward sustainable desalination",
           "authors": "K. Khoiruddin, Tuti M. Lim, Tzyy H. Chong, S. Kawi, I.G. Wenten",
@@ -2667,7 +2667,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Microcosm approach for brine impact assessment from seawater desalination on benthic assemblages (Sung Jin Yoon, Gyung Soo Park, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 301,
           "paper_title": "Microcosm approach for brine impact assessment from seawater desalination on benthic assemblages",
           "authors": "Sung Jin Yoon, Gyung Soo Park",
@@ -2681,7 +2681,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Minimizing the Environmental Impact of Sea Brine Disposal by Coupling Desalination Plants with Solar Saltworks: A Case S (Chrysi Laspidou, Kimon Hadjibiros, Stylianos Gialis, 2010).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 302,
           "paper_title": "Minimizing the Environmental Impact of Sea Brine Disposal by Coupling Desalination Plants with Solar Saltworks: A Case S",
           "authors": "Chrysi Laspidou, Kimon Hadjibiros, Stylianos Gialis",
@@ -2695,7 +2695,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Brackish water vs. brine outfall: impact of desalination plant discharge in vulnerable coastal sites (Francesca De Serio, Diana De Padova, Giancarlo Chiaia, Mould, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 303,
           "paper_title": "Brackish water vs. brine outfall: impact of desalination plant discharge in vulnerable coastal sites",
           "authors": "Francesca De Serio, Diana De Padova, Giancarlo Chiaia, Mouldi Ben Meftah, Michele Mossa",
@@ -2709,7 +2709,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental Impact Assessment of Brine Discharge from Desalination Facilities via Bioindicators (Nassar et al., 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 304,
           "paper_title": "Environmental Impact Assessment of Brine Discharge from Desalination Facilities via Bioindicators",
           "authors": "Nassar et al.",
@@ -2723,7 +2723,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Brine management systems using membrane concentrators: Future directions for membrane development in desalination (Kiho Park, Jungbin Kim, Seungkwan Hong, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 305,
           "paper_title": "Brine management systems using membrane concentrators: Future directions for membrane development in desalination",
           "authors": "Kiho Park, Jungbin Kim, Seungkwan Hong",
@@ -2737,7 +2737,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Comparative study of brine management technologies for desalination plants (José Morillo, José Usero, Daniel Rosado, Hicham El Bakouri, , 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 306,
           "paper_title": "Comparative study of brine management technologies for desalination plants",
           "authors": "José Morillo, José Usero, Daniel Rosado, Hicham El Bakouri, Abel Riaza, Francisco-Javier Bernaola",
@@ -2751,7 +2751,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: An overview on desalination &amp; sustainability: renewable energy-driven desalination and brine management (D. Xevgenos, K. Moustakas, D. Malamis, M. Loizidou, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 307,
           "paper_title": "An overview on desalination &amp; sustainability: renewable energy-driven desalination and brine management",
           "authors": "D. Xevgenos, K. Moustakas, D. Malamis, M. Loizidou",
@@ -2765,7 +2765,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Impact of brine discharge from desalination plants on marine ecosystems: A review (Priyansha Gupta, Manuel D. Arciniegas-Pérez, Héctor A. Barri, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 308,
           "paper_title": "Impact of brine discharge from desalination plants on marine ecosystems: A review",
           "authors": "Priyansha Gupta, Manuel D. Arciniegas-Pérez, Héctor A. Barrios-Piña",
@@ -2779,7 +2779,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Impact of environmental management accounting adoption on sustainability performance: Mediating role of corporate govern (Sulaiman Alsughayer, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 309,
           "paper_title": "Impact of environmental management accounting adoption on sustainability performance: Mediating role of corporate govern",
           "authors": "Sulaiman Alsughayer",
@@ -2793,7 +2793,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Impact of desalination plants brine injection wells on coastal aquifers (Mohamed K. K. Nassar, Reda M. El-Damak, Ashraf H. M. Ghanem, 2007).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 310,
           "paper_title": "Impact of desalination plants brine injection wells on coastal aquifers",
           "authors": "Mohamed K. K. Nassar, Reda M. El-Damak, Ashraf H. M. Ghanem",
@@ -2807,7 +2807,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Mineral carbonation in seawater desalination brine: Review and future perspective (Linitho Suu, Joowan Lim, June-Seok Choi, Youngkwon Choi, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 311,
           "paper_title": "Mineral carbonation in seawater desalination brine: Review and future perspective",
           "authors": "Linitho Suu, Joowan Lim, June-Seok Choi, Youngkwon Choi",
@@ -2821,7 +2821,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A review of circular brine management for supporting sustainable desalination in agricultural irrigation (Hande Gulcan, Elifnur Gezmis-Yavuz, Derya Y. Koseoglu-Imer, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 312,
           "paper_title": "A review of circular brine management for supporting sustainable desalination in agricultural irrigation",
           "authors": "Hande Gulcan, Elifnur Gezmis-Yavuz, Derya Y. Koseoglu-Imer",
@@ -2835,7 +2835,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Extracting minerals from desalination brine using innovative capacitive photo electrocatalytic desalination cells (cPEDC (Arezoo Ahmadiaras, Nasser Mehrdadi, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 313,
           "paper_title": "Extracting minerals from desalination brine using innovative capacitive photo electrocatalytic desalination cells (cPEDC",
           "authors": "Arezoo Ahmadiaras, Nasser Mehrdadi",
@@ -2849,7 +2849,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A sustainable resource recovery approach through micro-algae integrated brine management in minimal liquid discharge sys (Ricky Rajamanickam, Rangabhashiyam Selvasembian, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 314,
           "paper_title": "A sustainable resource recovery approach through micro-algae integrated brine management in minimal liquid discharge sys",
           "authors": "Ricky Rajamanickam, Rangabhashiyam Selvasembian",
@@ -2863,7 +2863,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental impact of seawater desalination: relations between improvement in efficiency and environmental impact (C. Sommariva, H. Hogg, K. Callister, 2004).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 315,
           "paper_title": "Environmental impact of seawater desalination: relations between improvement in efficiency and environmental impact",
           "authors": "C. Sommariva, H. Hogg, K. Callister",
@@ -2877,7 +2877,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Control and management of brine disposal for inland desalination plants (Arina Shulman, Inbal David, Elena Gelman, Menahem Priel, 2011).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 316,
           "paper_title": "Control and management of brine disposal for inland desalination plants",
           "authors": "Arina Shulman, Inbal David, Elena Gelman, Menahem Priel",
@@ -2891,7 +2891,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental Impact Assessment of Desalination Projects (Unknown, 2010).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 317,
           "paper_title": "Environmental Impact Assessment of Desalination Projects",
           "authors": "Unknown",
@@ -2905,7 +2905,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Energy-water-environment nexus underpinning future desalination sustainability (Muhammad Wakil Shahzad, Muhammad Burhan, Li Ang, Kim Choon N, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 318,
           "paper_title": "Energy-water-environment nexus underpinning future desalination sustainability",
           "authors": "Muhammad Wakil Shahzad, Muhammad Burhan, Li Ang, Kim Choon Ng",
@@ -2919,7 +2919,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Optimal Operation Strategy for Island Multi-Energy Microgrids Considering the Water-Energy Nexus of Wastewater Treatment (Wang Pan, Wei Zhang, Dong Han, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 319,
           "paper_title": "Optimal Operation Strategy for Island Multi-Energy Microgrids Considering the Water-Energy Nexus of Wastewater Treatment",
           "authors": "Wang Pan, Wei Zhang, Dong Han",
@@ -2933,7 +2933,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water-energy Nexus: Studies On Salinity Gradient Energy Harvest And Desalination (Guangcai Tan, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 320,
           "paper_title": "Water-energy Nexus: Studies On Salinity Gradient Energy Harvest And Desalination",
           "authors": "Guangcai Tan",
@@ -2947,7 +2947,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Addressing water scarcity and energy sustainability through PV-desalination systems: A case study on the southern coast  (Mohammad Javad Ranjbar, Hossein Yousefi, Mahmood abdoos, Fat, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 321,
           "paper_title": "Addressing water scarcity and energy sustainability through PV-desalination systems: A case study on the southern coast ",
           "authors": "Mohammad Javad Ranjbar, Hossein Yousefi, Mahmood abdoos, Fatemeh Razi Astaraei, Mohammad Amin Vaziri Rad",
@@ -2961,7 +2961,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Optimisation of desalination-based water system with integrated renewable energy and storage within the water-energy nex (Goran Stunjek, Goran Krajačić, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 322,
           "paper_title": "Optimisation of desalination-based water system with integrated renewable energy and storage within the water-energy nex",
           "authors": "Goran Stunjek, Goran Krajačić",
@@ -2975,7 +2975,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Implementation of Brackish Groundwater Desalination Using Wind-Generated Electricity: A Case Study of the Energy-Water N (Mary Clayton, Ashlynn Stillwell, Michael Webber, 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 323,
           "paper_title": "Implementation of Brackish Groundwater Desalination Using Wind-Generated Electricity: A Case Study of the Energy-Water N",
           "authors": "Mary Clayton, Ashlynn Stillwell, Michael Webber",
@@ -2989,7 +2989,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Desalination as a power reliability service: An economic framework for the energy–water nexus (Khaled Alshehri, Ali T. Al-Awami, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 324,
           "paper_title": "Desalination as a power reliability service: An economic framework for the energy–water nexus",
           "authors": "Khaled Alshehri, Ali T. Al-Awami",
@@ -3003,7 +3003,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Desalination and Long-Haul Water Transfer: A Case Study of the Energy-Water Nexus in Texas (Ashlynn S. Stillwell, Carey W. King, Michael E. Webber, 2009).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 325,
           "paper_title": "Desalination and Long-Haul Water Transfer: A Case Study of the Energy-Water Nexus in Texas",
           "authors": "Ashlynn S. Stillwell, Carey W. King, Michael E. Webber",
@@ -3017,7 +3017,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water–energy nexus and the Arab Gulf countries case (Mohamed Ali Darwish, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 326,
           "paper_title": "Water–energy nexus and the Arab Gulf countries case",
           "authors": "Mohamed Ali Darwish",
@@ -3031,7 +3031,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Metamodeling life cycle assessment to explore interactions in the water-energy nexus of desalination processes (Esra Aleisa, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 327,
           "paper_title": "Metamodeling life cycle assessment to explore interactions in the water-energy nexus of desalination processes",
           "authors": "Esra Aleisa",
@@ -3045,7 +3045,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Developments in the microbial desalination cell technology: A review (Abubakari Zarouk Imoro, Moses Mensah, Richard Buamah, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 328,
           "paper_title": "Developments in the microbial desalination cell technology: A review",
           "authors": "Abubakari Zarouk Imoro, Moses Mensah, Richard Buamah",
@@ -3059,7 +3059,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water – energy nexus: case study of Rwanda (Clarisse Nishimwe Nibagwire, Nadjib Drouiche, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 329,
           "paper_title": "Water – energy nexus: case study of Rwanda",
           "authors": "Clarisse Nishimwe Nibagwire, Nadjib Drouiche",
@@ -3073,7 +3073,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Emerging technologies in water desalination: A review and future outlook (Anwur Alenezi, Yousef Alabaiadly, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 330,
           "paper_title": "Emerging technologies in water desalination: A review and future outlook",
           "authors": "Anwur Alenezi, Yousef Alabaiadly",
@@ -3087,7 +3087,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Energy Implications of Desalination (Heather Cooley, 2011).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 331,
           "paper_title": "The Energy Implications of Desalination",
           "authors": "Heather Cooley",
@@ -3101,7 +3101,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Towards sustainability in water-energy nexus: Ocean energy for seawater desalination (Zhenyu Li, Afreen Siddiqi, Laura Diaz Anadon, Venkatesh Nara, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 332,
           "paper_title": "Towards sustainability in water-energy nexus: Ocean energy for seawater desalination",
           "authors": "Zhenyu Li, Afreen Siddiqi, Laura Diaz Anadon, Venkatesh Narayanamurti",
@@ -3115,7 +3115,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water Energy Nexus as Manifested in Desalination based Water Sector: the case of Israel (Elad Salomons, Mashor Housh, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 333,
           "paper_title": "Water Energy Nexus as Manifested in Desalination based Water Sector: the case of Israel",
           "authors": "Elad Salomons, Mashor Housh",
@@ -3129,7 +3129,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water Energy Nexus Opportunities for the Planned Aqaba Amman Water Desalination and Conveyance Project (Aawdcp) (Abbas Al Omari, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 334,
           "paper_title": "Water Energy Nexus Opportunities for the Planned Aqaba Amman Water Desalination and Conveyance Project (Aawdcp)",
           "authors": "Abbas Al Omari",
@@ -3143,7 +3143,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Feasibility of Wind Power for Brackish Groundwater Desalination: A Case Study of the Energy-Water Nexus in Texas (Ashlynn S. Stillwell, Michael E. Webber, 2010).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 335,
           "paper_title": "Feasibility of Wind Power for Brackish Groundwater Desalination: A Case Study of the Energy-Water Nexus in Texas",
           "authors": "Ashlynn S. Stillwell, Michael E. Webber",
@@ -3157,7 +3157,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Promoting sustainability transition in the nexus of water, energy, and food (Suhas P. Wani, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 336,
           "paper_title": "Promoting sustainability transition in the nexus of water, energy, and food",
           "authors": "Suhas P. Wani",
@@ -3171,7 +3171,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Development of sustainability indicators for the assessment of coal-based power generation pathways (Babkir Ali, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 337,
           "paper_title": "Development of sustainability indicators for the assessment of coal-based power generation pathways",
           "authors": "Babkir Ali",
@@ -3185,7 +3185,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Hybrid desalination technologies for sustainable water-energy nexus: innovation in integrated membrane module developmen (Hyuk Soo Son, Muhammad Saqib Nawaz, Sofiane Soukane, Noreddi, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 338,
           "paper_title": "Hybrid desalination technologies for sustainable water-energy nexus: innovation in integrated membrane module developmen",
           "authors": "Hyuk Soo Son, Muhammad Saqib Nawaz, Sofiane Soukane, Noreddine Ghaffour",
@@ -3199,7 +3199,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Desalination, Energy and Environment Nexus (Hilla Shemer, Raphael Semiat, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 339,
           "paper_title": "Desalination, Energy and Environment Nexus",
           "authors": "Hilla Shemer, Raphael Semiat",
@@ -3213,7 +3213,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Role of desalination technologies and water reuse in Water-Energy-Food nexus: an opportunity for Algeria (Nadjib Drouiche, Omar Rodriguez Villarreal, Sara Ouali, Seif, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 340,
           "paper_title": "Role of desalination technologies and water reuse in Water-Energy-Food nexus: an opportunity for Algeria",
           "authors": "Nadjib Drouiche, Omar Rodriguez Villarreal, Sara Ouali, Seif El Islam Lebouachera, Richa Soni",
@@ -3227,7 +3227,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Ionogels at the Water-Energy Nexus for Desalination Powered by Ultralow-Grade Heat (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 341,
           "paper_title": "Ionogels at the Water-Energy Nexus for Desalination Powered by Ultralow-Grade Heat",
           "authors": "Unknown",
@@ -3241,7 +3241,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water transfer projects and “Water-Energy-Food Nexus” governance from the perspective of game theory (Shuang Yang, Jiancheng Chen, Xiuru Wang, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 342,
           "paper_title": "Water transfer projects and “Water-Energy-Food Nexus” governance from the perspective of game theory",
           "authors": "Shuang Yang, Jiancheng Chen, Xiuru Wang",
@@ -3255,7 +3255,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The sustainability of desalination as a remedy to the water crisis in the agriculture sector: An analysis from the clima (Babak Zolghadr-Asli, Neil McIntyre, Slobodan Djordjevic, Raz, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 343,
           "paper_title": "The sustainability of desalination as a remedy to the water crisis in the agriculture sector: An analysis from the clima",
           "authors": "Babak Zolghadr-Asli, Neil McIntyre, Slobodan Djordjevic, Raziyeh Farmani, Liliana Pagliero",
@@ -3269,7 +3269,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water and Energy Nexus (Michael Hightower, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 344,
           "paper_title": "Water and Energy Nexus",
           "authors": "Michael Hightower",
@@ -3283,7 +3283,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sustainable Approach to Water-Energy Nexus: Sea-Water Reverse Osmosis Desalination and its Future Directions (Anirban Roy, Asim K. Ghosh, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 345,
           "paper_title": "Sustainable Approach to Water-Energy Nexus: Sea-Water Reverse Osmosis Desalination and its Future Directions",
           "authors": "Anirban Roy, Asim K. Ghosh",
@@ -3297,7 +3297,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: An Uncertain Water-Energy Nexus: What Role for Hydropower, Desalination, Energy Positive Wastewater Treatment and Leakag (Hald-Mortensen C, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 346,
           "paper_title": "An Uncertain Water-Energy Nexus: What Role for Hydropower, Desalination, Energy Positive Wastewater Treatment and Leakag",
           "authors": "Hald-Mortensen C",
@@ -3311,7 +3311,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Special issue on the 3rd EWaS International Conference on “Insights on the Water-Energy-Food Nexus”: Editorial (Vasilis Kanakoudis, Stavroula Tsitsifli, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 347,
           "paper_title": "Special issue on the 3rd EWaS International Conference on “Insights on the Water-Energy-Food Nexus”: Editorial",
           "authors": "Vasilis Kanakoudis, Stavroula Tsitsifli",
@@ -3325,7 +3325,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: An introduction to food–energy–water nexus thinking and sustainability governance (Laura M. Pereira, Caitlin A. McElroy, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 348,
           "paper_title": "An introduction to food–energy–water nexus thinking and sustainability governance",
           "authors": "Laura M. Pereira, Caitlin A. McElroy",
@@ -3339,7 +3339,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Advancing Food-Energy-Water Sustainability with Scalable Perovskite Tandem Agrivoltaics (Xueyu Tian, Fengqi You, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 349,
           "paper_title": "Advancing Food-Energy-Water Sustainability with Scalable Perovskite Tandem Agrivoltaics",
           "authors": "Xueyu Tian, Fengqi You",
@@ -3353,7 +3353,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Smoother Hydraulics and Energy Optimization in SWRO Desalination: Lowering SEC and Protecting the Membrane with Hybrid G (Kaouthar TABSISSI, Atae SEMMAR, Loubna EL ANSARI, Yassin BEL, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 350,
           "paper_title": "Smoother Hydraulics and Energy Optimization in SWRO Desalination: Lowering SEC and Protecting the Membrane with Hybrid G",
           "authors": "Kaouthar TABSISSI, Atae SEMMAR, Loubna EL ANSARI, Yassin BELKOURCHIA, Nabila RABBAH, Hicham MEDROMI, Nadia MACHKOUR",
@@ -3367,7 +3367,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Multi-criteria sustainability assessment of water desalination and energy systems — Kuwait case (Naim Hamdia Afgan, Mohammed Darwish, 2011).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 351,
           "paper_title": "Multi-criteria sustainability assessment of water desalination and energy systems — Kuwait case",
           "authors": "Naim Hamdia Afgan, Mohammed Darwish",
@@ -3381,7 +3381,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Techno-economic optimization of a trigeneration system attaining water-heat-energy nexus considering an underground grav (Hamid Jabari, Ardalan Shafiei Ghazani, Farkhondeh Jabari, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 352,
           "paper_title": "Techno-economic optimization of a trigeneration system attaining water-heat-energy nexus considering an underground grav",
           "authors": "Hamid Jabari, Ardalan Shafiei Ghazani, Farkhondeh Jabari",
@@ -3395,7 +3395,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water-Energy Nexus for Thermal Desalination Processes (Mahmoud M. El-halwagi, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 353,
           "paper_title": "Water-Energy Nexus for Thermal Desalination Processes",
           "authors": "Mahmoud M. El-halwagi",
@@ -3409,7 +3409,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Comparative sustainability assessment of hybrid desalination systems for freshwater production (Nadira Salsabila, Asifa Anwar, Haya Talib Shubbar, M. Imran , 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 354,
           "paper_title": "Comparative sustainability assessment of hybrid desalination systems for freshwater production",
           "authors": "Nadira Salsabila, Asifa Anwar, Haya Talib Shubbar, M. Imran Khan, Tareq Al-Ansari, Yusuf Bicer",
@@ -3423,7 +3423,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Solar Driven Agricultural Greenhouse Integrated with Desalination System; Energy-Water-Food Nexus (Kabir Abdullahi, Alaa Salah, Hassan Fath, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 355,
           "paper_title": "Solar Driven Agricultural Greenhouse Integrated with Desalination System; Energy-Water-Food Nexus",
           "authors": "Kabir Abdullahi, Alaa Salah, Hassan Fath",
@@ -3437,7 +3437,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Water Nexus and Desalination (Farid Benyahia, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 356,
           "paper_title": "The Water Nexus and Desalination",
           "authors": "Farid Benyahia",
@@ -3451,7 +3451,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Surveying and Projecting Sustainability and Urban-Water-Energy-Nexus Applications in Rhode Island (Fabian Wagner, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 357,
           "paper_title": "Surveying and Projecting Sustainability and Urban-Water-Energy-Nexus Applications in Rhode Island",
           "authors": "Fabian Wagner",
@@ -3465,7 +3465,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Analysis on energy–water nexus by Sankey diagram: the case of Beijing (Guangping Hu, Xunmin Ou, Qian Zhang, Valerie J. Karplus, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 358,
           "paper_title": "Analysis on energy–water nexus by Sankey diagram: the case of Beijing",
           "authors": "Guangping Hu, Xunmin Ou, Qian Zhang, Valerie J. Karplus",
@@ -3479,7 +3479,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Optimization of Energy in Seawater Desalination Plants (Case: Palm Beach Desalination Plant, Algiers) (Loughraichi Yazid, Bouziane Mohamed Tewfik, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 359,
           "paper_title": "Optimization of Energy in Seawater Desalination Plants (Case: Palm Beach Desalination Plant, Algiers)",
           "authors": "Loughraichi Yazid, Bouziane Mohamed Tewfik",
@@ -3493,7 +3493,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The nexus approach to water–energy–food security: an option for adaptation to climate change in Algeria (Rafika Khacheba, Maya Cherfaoui, Tarik Hartani, Nadjib Droui, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 360,
           "paper_title": "The nexus approach to water–energy–food security: an option for adaptation to climate change in Algeria",
           "authors": "Rafika Khacheba, Maya Cherfaoui, Tarik Hartani, Nadjib Drouiche",
@@ -3507,7 +3507,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Desalination technologies and potential mathematical modeling for sustainable water–energy nexus (Mashura Shammi, Md. Rahman Mostafizur, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 361,
           "paper_title": "Desalination technologies and potential mathematical modeling for sustainable water–energy nexus",
           "authors": "Mashura Shammi, Md. Rahman Mostafizur",
@@ -3521,7 +3521,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water grammar (Unknown, 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 362,
           "paper_title": "Water grammar",
           "authors": "Unknown",
@@ -3535,7 +3535,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water markets and the food–energy–water nexus in Australia (Michael Valli, Alexandra M. Girard, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 363,
           "paper_title": "Water markets and the food–energy–water nexus in Australia",
           "authors": "Michael Valli, Alexandra M. Girard",
@@ -3549,7 +3549,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water governance and desalination in Baja California Sur, Mexico (Jamie McEvoy, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 373,
           "paper_title": "Water governance and desalination in Baja California Sur, Mexico",
           "authors": "Jamie McEvoy",
@@ -3563,7 +3563,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Race, austerity and water justice in the United States (Cristy Clark, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 376,
           "paper_title": "Race, austerity and water justice in the United States",
           "authors": "Cristy Clark",
@@ -3577,7 +3577,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Ensuring Justice in Water Governance in the Mekong Region (Unknown, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 382,
           "paper_title": "Ensuring Justice in Water Governance in the Mekong Region",
           "authors": "Unknown",
@@ -3591,7 +3591,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The practice of engineering and the idea of justice: concepts and challenges illustrated by the development of membrane  (W. Richard Bowen, 2011).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 384,
           "paper_title": "The practice of engineering and the idea of justice: concepts and challenges illustrated by the development of membrane ",
           "authors": "W. Richard Bowen",
@@ -3605,7 +3605,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water Politics (Unknown, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 386,
           "paper_title": "Water Politics",
           "authors": "Unknown",
@@ -3619,7 +3619,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Valuing water (Jeremy J. Schmidt, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 388,
           "paper_title": "Valuing water",
           "authors": "Jeremy J. Schmidt",
@@ -3633,7 +3633,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Polypropylene–zeolite polymer composites for water purification: synthesis, characterisation and application (Machawe Mxolisi Motsa, Titus Alfred Makudali Msagati, Justic, 2015).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 389,
           "paper_title": "Polypropylene–zeolite polymer composites for water purification: synthesis, characterisation and application",
           "authors": "Machawe Mxolisi Motsa, Titus Alfred Makudali Msagati, Justice M. Thwala, Bhekie Brilliance Mamba",
@@ -3647,7 +3647,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marginal Remarks Concerning Water Policy Regimes; Governance, Rights, Justice, and Development: An Epilogue (Upendra Baxi, 2010).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 390,
           "paper_title": "Marginal Remarks Concerning Water Policy Regimes; Governance, Rights, Justice, and Development: An Epilogue",
           "authors": "Upendra Baxi",
@@ -3661,7 +3661,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: A review of environmental governance and its effects on concentrate discharge from desalination plants in the Kingdom of (Riaan van der Merwe, Sabine Lattemann, Gary Amy, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 391,
           "paper_title": "A review of environmental governance and its effects on concentrate discharge from desalination plants in the Kingdom of",
           "authors": "Riaan van der Merwe, Sabine Lattemann, Gary Amy",
@@ -3675,7 +3675,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water Governance as a Question of Justice (Dik Roth, Margreet Zwarteveen, K. J. Joy, Seema Kulkarni, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 392,
           "paper_title": "Water Governance as a Question of Justice",
           "authors": "Dik Roth, Margreet Zwarteveen, K. J. Joy, Seema Kulkarni",
@@ -3689,7 +3689,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Dynamics in green governance in China: Exploring the relationship between carbon emissions, water consumption and econom (Rongqing Ding, Jie Dai, Ying Zhang, Tingting Tan, Li-Chen Ch, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 393,
           "paper_title": "Dynamics in green governance in China: Exploring the relationship between carbon emissions, water consumption and econom",
           "authors": "Rongqing Ding, Jie Dai, Ying Zhang, Tingting Tan, Li-Chen Chou",
@@ -3703,7 +3703,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Turning to traditions (Christiana Zenner, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 395,
           "paper_title": "Turning to traditions",
           "authors": "Christiana Zenner",
@@ -3717,7 +3717,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Against the trend (Andreas Bieler, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 396,
           "paper_title": "Against the trend",
           "authors": "Andreas Bieler",
@@ -3731,7 +3731,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Beyond Water Justice and Water Security (Catalina Quiroga, Anyi Castelblanco, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 397,
           "paper_title": "Beyond Water Justice and Water Security",
           "authors": "Catalina Quiroga, Anyi Castelblanco",
@@ -3745,7 +3745,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Human right to water and bottled water consumption (Raúl Pacheco-Vega, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 400,
           "paper_title": "Human right to water and bottled water consumption",
           "authors": "Raúl Pacheco-Vega",
@@ -3759,7 +3759,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Reallocation and Coordination for Improved Water Governance (Unknown, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 401,
           "paper_title": "Reallocation and Coordination for Improved Water Governance",
           "authors": "Unknown",
@@ -3773,7 +3773,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water Governance and Water Rights in the Mekong Region (Unknown, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 402,
           "paper_title": "Water Governance and Water Rights in the Mekong Region",
           "authors": "Unknown",
@@ -3787,7 +3787,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Why justice matters in water governance: some ideas for a ‘water justice framework’ (Marian J. Neal, A. Lukasiewicz, G. J. Syme, 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 403,
           "paper_title": "Why justice matters in water governance: some ideas for a ‘water justice framework’",
           "authors": "Marian J. Neal, A. Lukasiewicz, G. J. Syme",
@@ -3801,7 +3801,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The rights to water and food (Lyla Mehta, Daniel Langmeier, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 404,
           "paper_title": "The rights to water and food",
           "authors": "Lyla Mehta, Daniel Langmeier",
@@ -3815,7 +3815,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Making space for practical authority (Katie Meehan, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 405,
           "paper_title": "Making space for practical authority",
           "authors": "Katie Meehan",
@@ -3829,7 +3829,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Remunicipalization and the human right to water (David A. McDonald, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 406,
           "paper_title": "Remunicipalization and the human right to water",
           "authors": "David A. McDonald",
@@ -3843,7 +3843,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: What kind of governance for what kind of equity? Towards a theorization of justice in water governance (Tom Perreault, 2014).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 407,
           "paper_title": "What kind of governance for what kind of equity? Towards a theorization of justice in water governance",
           "authors": "Tom Perreault",
@@ -3857,7 +3857,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Politicizing water governance and canal allocations (Muhammad Arfan, Nabeel Ali Khan, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 408,
           "paper_title": "Politicizing water governance and canal allocations",
           "authors": "Muhammad Arfan, Nabeel Ali Khan",
@@ -3871,7 +3871,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The right to water in a global context (Farhana Sultana, Alex Loftus, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 410,
           "paper_title": "The right to water in a global context",
           "authors": "Farhana Sultana, Alex Loftus",
@@ -3887,7 +3887,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Hydrosocial territories, agro-export and water scarcity: capitalist territorial transformations and water governance in  (Gerardo Damonte, Rutgerd Boelens, 2020).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 364,
           "paper_title": "Hydrosocial territories, agro-export and water scarcity: capitalist territorial transformations and water governance in ",
           "authors": "Gerardo Damonte, Rutgerd Boelens",
@@ -3901,7 +3901,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Introduction: Hydrosocial De-Patterning and Re-Composition (Rutgerd Boelens, Tom Perreault, Vos Jeroen, ).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 365,
           "paper_title": "Introduction: Hydrosocial De-Patterning and Re-Composition",
           "authors": "Rutgerd Boelens, Tom Perreault, Vos Jeroen",
@@ -3915,7 +3915,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Hydrosocial Governance and Agricultural Development in Semi-Arid Northwest China (Unknown, 2016).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 366,
           "paper_title": "Hydrosocial Governance and Agricultural Development in Semi-Arid Northwest China",
           "authors": "Unknown",
@@ -3929,7 +3929,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Reconfiguration of Hydrosocial Territories and Struggles for Water Justice (Lena Hommes, Rutgerd Boelens, Bibiana Duarte-Abadía, Juan Pa, ).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 367,
           "paper_title": "Reconfiguration of Hydrosocial Territories and Struggles for Water Justice",
           "authors": "Lena Hommes, Rutgerd Boelens, Bibiana Duarte-Abadía, Juan Pablo Hidalgo-Bastidas, Jaime Hoogesteger",
@@ -3943,7 +3943,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Environmental Crises And Hydrosocial Networks (Elizabeth Brunner, 2020).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 368,
           "paper_title": "Environmental Crises And Hydrosocial Networks",
           "authors": "Elizabeth Brunner",
@@ -3957,7 +3957,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Urban Water Governance as a Function of the ‘Urban Hydrosocial Transition’ (Chad Staddon, Robert Sarkozi, Sean Langberg, 2016).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 369,
           "paper_title": "Urban Water Governance as a Function of the ‘Urban Hydrosocial Transition’",
           "authors": "Chad Staddon, Robert Sarkozi, Sean Langberg",
@@ -3971,7 +3971,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Indigenous Water Governance in the Anthropocene: Non-Conventional Hydrosocial Relations Among the Wayuu of the Guajira P (David A Robles, ).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 370,
           "paper_title": "Indigenous Water Governance in the Anthropocene: Non-Conventional Hydrosocial Relations Among the Wayuu of the Guajira P",
           "authors": "David A Robles",
@@ -3985,7 +3985,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Smooth flows? Hydrosocial communities, water governance and infrastructural discord in Peru’s southern highlands (Karsten Paerregaard, Susann Baez Ullberg, Malene Brandshaug, 2020).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 371,
           "paper_title": "Smooth flows? Hydrosocial communities, water governance and infrastructural discord in Peru’s southern highlands",
           "authors": "Karsten Paerregaard, Susann Baez Ullberg, Malene Brandshaug",
@@ -3999,7 +3999,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: From Water Injustice to the Coproduction of a New Hydrosocial Territory: Working-Class Inhabitants and University Activi (Amaël Marchand, 2023).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 372,
           "paper_title": "From Water Injustice to the Coproduction of a New Hydrosocial Territory: Working-Class Inhabitants and University Activi",
           "authors": "Amaël Marchand",
@@ -4013,7 +4013,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Hidden Hydrosocial Imbalances in Virtual Water Trade:\nA Bilateral Resource Integrated Diagnostic for Governance Equity ( (marcello ruberti, stefania massari, 2025).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 374,
           "paper_title": "Hidden Hydrosocial Imbalances in Virtual Water Trade:\nA Bilateral Resource Integrated Diagnostic for Governance Equity (",
           "authors": "marcello ruberti, stefania massari",
@@ -4027,7 +4027,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Editorial: Innovating a new knowledge base for water justice studies: hydrosocial, sociohydrology, and beyond (Melissa Haeffner, Rebecca Lave, Jamie Linton, Jenia Mukherje, 2024).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 375,
           "paper_title": "Editorial: Innovating a new knowledge base for water justice studies: hydrosocial, sociohydrology, and beyond",
           "authors": "Melissa Haeffner, Rebecca Lave, Jamie Linton, Jenia Mukherjee, John Ndiritu, Raul Pacheco-Vega, Maria Rusca, Margreet Zw",
@@ -4041,7 +4041,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Space, Time, and Hydrosocial Imaginaries: Water Quality Governance of the Pyramid Lake Paiute Tribe (Kate A. Berry, Teresa Cavazos Cohn, 2022).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 377,
           "paper_title": "Space, Time, and Hydrosocial Imaginaries: Water Quality Governance of the Pyramid Lake Paiute Tribe",
           "authors": "Kate A. Berry, Teresa Cavazos Cohn",
@@ -4055,7 +4055,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Reforming Water Governance in Chile: A Hydrosocial Relations Perspective / Reforma a la gobernanza de agua en Chile: una (Jessica Budds, Kathleen O'Reilly, 2023).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 378,
           "paper_title": "Reforming Water Governance in Chile: A Hydrosocial Relations Perspective / Reforma a la gobernanza de agua en Chile: una",
           "authors": "Jessica Budds, Kathleen O'Reilly",
@@ -4069,7 +4069,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Structuring Hydrosocial Relations in Urban Water Governance (Joshua J. Cousins, 2017).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 379,
           "paper_title": "Structuring Hydrosocial Relations in Urban Water Governance",
           "authors": "Joshua J. Cousins",
@@ -4083,7 +4083,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Contested hydrosocial territories and disputed water governance: Struggles and competing claims over the Ilisu Dam devel (Lena Hommes, Rutgerd Boelens, Harro Maat, 2016).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 380,
           "paper_title": "Contested hydrosocial territories and disputed water governance: Struggles and competing claims over the Ilisu Dam devel",
           "authors": "Lena Hommes, Rutgerd Boelens, Harro Maat",
@@ -4097,7 +4097,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water Governance and the Hydrosocial Territory of the Teles Pires River Basin in the Brazilian Amazon (Daniela Maimoni Figueiredo, Antonio Augusto Rossotto Ioris, 2021).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 381,
           "paper_title": "Water Governance and the Hydrosocial Territory of the Teles Pires River Basin in the Brazilian Amazon",
           "authors": "Daniela Maimoni Figueiredo, Antonio Augusto Rossotto Ioris",
@@ -4111,7 +4111,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Hydrosocial territories in the context of diverse and changing ruralities: the case of Cochabamba’s drinking water provi (Paul Hoogendam, 2020).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 383,
           "paper_title": "Hydrosocial territories in the context of diverse and changing ruralities: the case of Cochabamba’s drinking water provi",
           "authors": "Paul Hoogendam",
@@ -4125,7 +4125,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Water crisis through the analytic of urban transformation: an analysis of Bangalore’s hydrosocial regimes (Michael Goldman, Devika Narayan, 2020).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 385,
           "paper_title": "Water crisis through the analytic of urban transformation: an analysis of Bangalore’s hydrosocial regimes",
           "authors": "Michael Goldman, Devika Narayan",
@@ -4139,7 +4139,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Mining Extractivism, Climate Stress, and Water Injustice: A Case Study of the Proposed Jindal Iron-Ore Mine in Melmoth,  (Llewellyn Leonard, 2025).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 394,
           "paper_title": "Mining Extractivism, Climate Stress, and Water Injustice: A Case Study of the Proposed Jindal Iron-Ore Mine in Melmoth, ",
           "authors": "Llewellyn Leonard",
@@ -4153,7 +4153,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Politics of Water in Rural China : Governmentality, hydrosocial territories, and ecological civilization (Qinhong Xu, ).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 399,
           "paper_title": "The Politics of Water in Rural China : Governmentality, hydrosocial territories, and ecological civilization",
           "authors": "Qinhong Xu",
@@ -4167,7 +4167,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Reimagining water governance through feminist perspectives: Women’s everyday experiences in the Toltén Hydrosocial Terri (Maite Hernando-Arrese, María Ignacia Ibarra, Paola Bolados, 2026).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 409,
           "paper_title": "Reimagining water governance through feminist perspectives: Women’s everyday experiences in the Toltén Hydrosocial Terri",
           "authors": "Maite Hernando-Arrese, María Ignacia Ibarra, Paola Bolados",
@@ -4181,7 +4181,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Hydrosocial research for better understanding, managing, and modeling human-nature interactions (Sandra Ricart, Nicholas Kirk, 2022).",
         "axis": "HYDRONIZATION",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 411,
           "paper_title": "Hydrosocial research for better understanding, managing, and modeling human-nature interactions",
           "authors": "Sandra Ricart, Nicholas Kirk",

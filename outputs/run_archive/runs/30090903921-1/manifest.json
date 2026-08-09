@@ -5,7 +5,7 @@
   "timestamp_utc": "2026-07-24T11:52:31+00:00",
   "analysis_timestamp_utc": "2026-07-24T11:52:25+00:00",
   "archived_at": "2026-07-24T11:52:31+00:00",
-  "archive_root": "/home/runner/work/morskamary/morskamary/outputs/run_archive",
+  "archive_root": "outputs/run_archive",
   "run_path": "runs/30090903921-1",
   "copied_targets": [
     "outputs/research_sources",
@@ -24,7 +24,7 @@
     "outputs/validation_state.json"
   ],
   "file_count": 76,
-  "total_bytes": 75923413,
+  "total_bytes": 74851379,
   "workflow": {
     "name": "Full Live-Enriched Analysis",
     "event": "workflow_dispatch",
@@ -74,8 +74,8 @@
   "files": [
     {
       "path": "analysis_outputs/competences_full_database.json",
-      "size_bytes": 3997106,
-      "sha256": "76f3a6dec82312a117be9e1c729101002fbdbc6c60e98a6c65f75b9df875d025"
+      "size_bytes": 3716575,
+      "sha256": "681ceaf0ccb60eaeb30f8f9b691f2115849f3221b72d4618b41962fc5dc7de46"
     },
     {
       "path": "analysis_outputs/credentials_database.json",
@@ -104,8 +104,8 @@
     },
     {
       "path": "analysis_outputs/literature_integration.html",
-      "size_bytes": 299363,
-      "sha256": "b6b42f8cd6c8ffb2dbebe4e9abad15832abe3c973994b986c822497715777036"
+      "size_bytes": 290072,
+      "sha256": "6252ab23154ee24a8dee1526c16df68ca4d57029362d31e1d484b15f985f47a7"
     },
     {
       "path": "analysis_outputs/report_index.html",
@@ -114,63 +114,63 @@
     },
     {
       "path": "analysis_outputs/sector_dictionaries/blue_biotech_tmbd_dictionary.json",
-      "size_bytes": 474197,
-      "sha256": "c45b13810883f314ee08e92f6c50627eab9d2da3de871a6a5a41b27eb223774a"
+      "size_bytes": 454922,
+      "sha256": "0f23fe4611f5be578f357b712caa561373ac1b3ff44b7ce9c7bdee8b0f7a6bbf"
     },
     {
       "path": "analysis_outputs/sector_dictionaries/coastal_tourism_tmbd_dictionary.json",
-      "size_bytes": 474759,
-      "sha256": "33846546edaded6f13e67f8e8233bcfe6dca86bffe9e3f88afad3fe09d394502"
+      "size_bytes": 455698,
+      "sha256": "269030c3bad5a262977c8d5149f260df8eb1affb9016585f7d8a75b8525c78b9"
     },
     {
       "path": "analysis_outputs/sector_dictionaries/desalination_tmbd_dictionary.json",
-      "size_bytes": 439796,
-      "sha256": "fe5d408903abd4cd6f0905b0692c332b44205a07d5e27827ca3e154e661c3a13"
+      "size_bytes": 420177,
+      "sha256": "ae02758e40d67a9a76a6ee113b921f8a5701de1ca7509e414557dec63e7df123"
     },
     {
       "path": "analysis_outputs/sector_dictionaries/infra_robotics_tmbd_dictionary.json",
-      "size_bytes": 466485,
-      "sha256": "9ecbd0a85222167e9f9bbde6ef0a8b082f346a98bb013c559d92bc19f71deb28"
+      "size_bytes": 445354,
+      "sha256": "7886f63497a4b9d974c89c025b61f65a23d3758ca4af5145a849b96682dfb325"
     },
     {
       "path": "analysis_outputs/sector_dictionaries/living_res_tmbd_dictionary.json",
-      "size_bytes": 557201,
-      "sha256": "a4400233c829a27b6e57f136a66e0b2f986970ed04636078252c0d4d79ca51d3"
+      "size_bytes": 535497,
+      "sha256": "b5bc2d03df1ba4c74a751fb80a766f0d8c226e41a08ab18b770ca3b3027305c8"
     },
     {
       "path": "analysis_outputs/sector_dictionaries/maritime_defence_tmbd_dictionary.json",
-      "size_bytes": 449806,
-      "sha256": "32c3f1e51f4f311ace01ab42763d5014b578a616c2d344b5f06d2e4c26d7df14"
+      "size_bytes": 430548,
+      "sha256": "5ef430f1de93915a7bd6ad756ccd1c46ee8103006dfdd8a8771d78101afe8c51"
     },
     {
       "path": "analysis_outputs/sector_dictionaries/maritime_transport_tmbd_dictionary.json",
-      "size_bytes": 558658,
-      "sha256": "0dfc24f125a9db4f4b6d978a0c15c431b2727d592a0bf3467bcee7fb00153700"
+      "size_bytes": 535532,
+      "sha256": "070fd34cf0a73a26367ab5487b863ca9ed6339c2548bd3fecff24e255f0215b6"
     },
     {
       "path": "analysis_outputs/sector_dictionaries/non_living_res_tmbd_dictionary.json",
-      "size_bytes": 474722,
-      "sha256": "4b462a1aeeb9ac0453c23508226af79c99f173ff7c5ed5cb14f97a175a8a42c7"
+      "size_bytes": 455128,
+      "sha256": "4e2624e04eba460e01b70a9e900012817658aa4e28eaa9af78d7e5f6aff256cd"
     },
     {
       "path": "analysis_outputs/sector_dictionaries/port_activities_tmbd_dictionary.json",
-      "size_bytes": 535759,
-      "sha256": "19ae3650ddb4464e7e1cdc6a764989e44193ec18c16a4f0f6bf9abb1b3f94973"
+      "size_bytes": 513024,
+      "sha256": "175a908ef61e399ff0cc6569de944b8db0f5fd3e5b8fb6dac0121bd565b02195"
     },
     {
       "path": "analysis_outputs/sector_dictionaries/r_i_tmbd_dictionary.json",
-      "size_bytes": 547675,
-      "sha256": "141b9891ec41ff1d37bbfc3a1e47ce8ca1d32e9bf5c5d03021378830b4f1f516"
+      "size_bytes": 524859,
+      "sha256": "5e2769d4d5b93369191918b7201b91ff1859f94e3f3d901b89bd85d9aa960335"
     },
     {
       "path": "analysis_outputs/sector_dictionaries/renewable_energy_tmbd_dictionary.json",
-      "size_bytes": 464099,
-      "sha256": "1b2e61ad9a637cef51a0f0ae9b38963c8d61f70539dcefad6b0ce3380a42447d"
+      "size_bytes": 444678,
+      "sha256": "f12e86fae13108ccc51ccde5343fe4c7cba7f92e7b6564b89c10b52f3f9bafcf"
     },
     {
       "path": "analysis_outputs/sector_dictionaries/ship_repair_tmbd_dictionary.json",
-      "size_bytes": 449225,
-      "sha256": "20d81ea2a3896f1cf57b679cbd8c55c8f1f403d5d13b332e02bd8dcb0eff17c0"
+      "size_bytes": 430770,
+      "sha256": "ac31631208020020eee58aadd41831e81518e8e35888ef12070f3be04ec67da7"
     },
     {
       "path": "MANIFEST_SOURCES.csv",
@@ -179,8 +179,8 @@
     },
     {
       "path": "outputs/competences_full_database.json",
-      "size_bytes": 3997106,
-      "sha256": "76f3a6dec82312a117be9e1c729101002fbdbc6c60e98a6c65f75b9df875d025"
+      "size_bytes": 3716575,
+      "sha256": "681ceaf0ccb60eaeb30f8f9b691f2115849f3221b72d4618b41962fc5dc7de46"
     },
     {
       "path": "outputs/credentials_database.json",
@@ -209,8 +209,8 @@
     },
     {
       "path": "outputs/literature_integration.html",
-      "size_bytes": 299363,
-      "sha256": "b6b42f8cd6c8ffb2dbebe4e9abad15832abe3c973994b986c822497715777036"
+      "size_bytes": 290072,
+      "sha256": "6252ab23154ee24a8dee1526c16df68ca4d57029362d31e1d484b15f985f47a7"
     },
     {
       "path": "outputs/report_index.html",
@@ -309,63 +309,63 @@
     },
     {
       "path": "outputs/sector_dictionaries/blue_biotech_tmbd_dictionary.json",
-      "size_bytes": 474197,
-      "sha256": "c45b13810883f314ee08e92f6c50627eab9d2da3de871a6a5a41b27eb223774a"
+      "size_bytes": 454922,
+      "sha256": "0f23fe4611f5be578f357b712caa561373ac1b3ff44b7ce9c7bdee8b0f7a6bbf"
     },
     {
       "path": "outputs/sector_dictionaries/coastal_tourism_tmbd_dictionary.json",
-      "size_bytes": 474759,
-      "sha256": "33846546edaded6f13e67f8e8233bcfe6dca86bffe9e3f88afad3fe09d394502"
+      "size_bytes": 455698,
+      "sha256": "269030c3bad5a262977c8d5149f260df8eb1affb9016585f7d8a75b8525c78b9"
     },
     {
       "path": "outputs/sector_dictionaries/desalination_tmbd_dictionary.json",
-      "size_bytes": 439796,
-      "sha256": "fe5d408903abd4cd6f0905b0692c332b44205a07d5e27827ca3e154e661c3a13"
+      "size_bytes": 420177,
+      "sha256": "ae02758e40d67a9a76a6ee113b921f8a5701de1ca7509e414557dec63e7df123"
     },
     {
       "path": "outputs/sector_dictionaries/infra_robotics_tmbd_dictionary.json",
-      "size_bytes": 466485,
-      "sha256": "9ecbd0a85222167e9f9bbde6ef0a8b082f346a98bb013c559d92bc19f71deb28"
+      "size_bytes": 445354,
+      "sha256": "7886f63497a4b9d974c89c025b61f65a23d3758ca4af5145a849b96682dfb325"
     },
     {
       "path": "outputs/sector_dictionaries/living_res_tmbd_dictionary.json",
-      "size_bytes": 557201,
-      "sha256": "a4400233c829a27b6e57f136a66e0b2f986970ed04636078252c0d4d79ca51d3"
+      "size_bytes": 535497,
+      "sha256": "b5bc2d03df1ba4c74a751fb80a766f0d8c226e41a08ab18b770ca3b3027305c8"
     },
     {
       "path": "outputs/sector_dictionaries/maritime_defence_tmbd_dictionary.json",
-      "size_bytes": 449806,
-      "sha256": "32c3f1e51f4f311ace01ab42763d5014b578a616c2d344b5f06d2e4c26d7df14"
+      "size_bytes": 430548,
+      "sha256": "5ef430f1de93915a7bd6ad756ccd1c46ee8103006dfdd8a8771d78101afe8c51"
     },
     {
       "path": "outputs/sector_dictionaries/maritime_transport_tmbd_dictionary.json",
-      "size_bytes": 558658,
-      "sha256": "0dfc24f125a9db4f4b6d978a0c15c431b2727d592a0bf3467bcee7fb00153700"
+      "size_bytes": 535532,
+      "sha256": "070fd34cf0a73a26367ab5487b863ca9ed6339c2548bd3fecff24e255f0215b6"
     },
     {
       "path": "outputs/sector_dictionaries/non_living_res_tmbd_dictionary.json",
-      "size_bytes": 474722,
-      "sha256": "4b462a1aeeb9ac0453c23508226af79c99f173ff7c5ed5cb14f97a175a8a42c7"
+      "size_bytes": 455128,
+      "sha256": "4e2624e04eba460e01b70a9e900012817658aa4e28eaa9af78d7e5f6aff256cd"
     },
     {
       "path": "outputs/sector_dictionaries/port_activities_tmbd_dictionary.json",
-      "size_bytes": 535759,
-      "sha256": "19ae3650ddb4464e7e1cdc6a764989e44193ec18c16a4f0f6bf9abb1b3f94973"
+      "size_bytes": 513024,
+      "sha256": "175a908ef61e399ff0cc6569de944b8db0f5fd3e5b8fb6dac0121bd565b02195"
     },
     {
       "path": "outputs/sector_dictionaries/r_i_tmbd_dictionary.json",
-      "size_bytes": 547675,
-      "sha256": "141b9891ec41ff1d37bbfc3a1e47ce8ca1d32e9bf5c5d03021378830b4f1f516"
+      "size_bytes": 524859,
+      "sha256": "5e2769d4d5b93369191918b7201b91ff1859f94e3f3d901b89bd85d9aa960335"
     },
     {
       "path": "outputs/sector_dictionaries/renewable_energy_tmbd_dictionary.json",
-      "size_bytes": 464099,
-      "sha256": "1b2e61ad9a637cef51a0f0ae9b38963c8d61f70539dcefad6b0ce3380a42447d"
+      "size_bytes": 444678,
+      "sha256": "f12e86fae13108ccc51ccde5343fe4c7cba7f92e7b6564b89c10b52f3f9bafcf"
     },
     {
       "path": "outputs/sector_dictionaries/ship_repair_tmbd_dictionary.json",
-      "size_bytes": 449225,
-      "sha256": "20d81ea2a3896f1cf57b679cbd8c55c8f1f403d5d13b332e02bd8dcb0eff17c0"
+      "size_bytes": 430770,
+      "sha256": "ac31631208020020eee58aadd41831e81518e8e35888ef12070f3be04ec67da7"
     },
     {
       "path": "outputs/validation_state.json",

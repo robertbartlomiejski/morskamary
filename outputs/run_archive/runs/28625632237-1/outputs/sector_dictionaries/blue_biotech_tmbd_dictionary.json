@@ -381,7 +381,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Digital Sequence Information: Possible Implications for the Law on Access to Genetic Resources and Benefit Sharing from  (Christian Prip, 2024).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 53,
           "paper_title": "Digital Sequence Information: Possible Implications for the Law on Access to Genetic Resources and Benefit Sharing from ",
           "authors": "Christian Prip",
@@ -395,7 +395,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Regulating Access to Genetic Resources and Benefit-Sharing: the Legal Aspects (Kerry ten Kate, 2019).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 61,
           "paper_title": "Regulating Access to Genetic Resources and Benefit-Sharing: the Legal Aspects",
           "authors": "Kerry ten Kate",
@@ -409,7 +409,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Role of the National Biodiversity Institute in the Use of Biodiversity for Sustainable Development – Forming Biopros (Unknown, 2009).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 62,
           "paper_title": "The Role of the National Biodiversity Institute in the Use of Biodiversity for Sustainable Development – Forming Biopros",
           "authors": "Unknown",
@@ -423,7 +423,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Reshaping the international access to genetic resources and benefit sharing process? (Manuel Ruiz Muller, 2018).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 63,
           "paper_title": "Reshaping the international access to genetic resources and benefit sharing process?",
           "authors": "Manuel Ruiz Muller",
@@ -437,7 +437,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Access to and benefit-sharing of marine genetic resources beyond national jurisdiction (Carlos M. Correa, 2017).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 68,
           "paper_title": "Access to and benefit-sharing of marine genetic resources beyond national jurisdiction",
           "authors": "Carlos M. Correa",
@@ -451,7 +451,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Banking on a patent solution for sharing Antarctica’s ex situ genetic resources * (Fran Humphries, 2018).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 76,
           "paper_title": "Banking on a patent solution for sharing Antarctica’s ex situ genetic resources *",
           "authors": "Fran Humphries",
@@ -465,7 +465,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Access and Benefit Sharing and Biodiversity Conservation (Rachel Wynberg, Sarah Laird, 2022).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 79,
           "paper_title": "Access and Benefit Sharing and Biodiversity Conservation",
           "authors": "Rachel Wynberg, Sarah Laird",
@@ -479,7 +479,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Benefit-Sharing and Bioprospecting for Cosmeceuticals (Pravi Prasad, Sreejith Parameswara Panicker, 2024).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 83,
           "paper_title": "Benefit-Sharing and Bioprospecting for Cosmeceuticals",
           "authors": "Pravi Prasad, Sreejith Parameswara Panicker",
@@ -493,7 +493,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Bioprospecting from Medicinal Plants and Benefit Sharing (Nilayangode Preetha, V. Balakrishnan, George Thomas, 2024).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 90,
           "paper_title": "Bioprospecting from Medicinal Plants and Benefit Sharing",
           "authors": "Nilayangode Preetha, V. Balakrishnan, George Thomas",
@@ -507,7 +507,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Access to genetic resources and benefit sharing (Marc Auer, 2001).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 97,
           "paper_title": "Access to genetic resources and benefit sharing",
           "authors": "Marc Auer",
@@ -521,7 +521,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine ecosystem restoration through different bioremediation tools (Sweta Sinha, 2026).",
         "axis": "MARINE",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 111,
           "paper_title": "Marine ecosystem restoration through different bioremediation tools",
           "authors": "Sweta Sinha",
@@ -803,7 +803,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: BBNJ Agreement: A New Infrastructure to Foster Benefit Sharing of Marine Genetic Resources (Hiroko Muraki Gottlieb, Jeff Ardron, Abbe E.L. Brown, 2024).",
         "axis": "MARITIME",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 64,
           "paper_title": "BBNJ Agreement: A New Infrastructure to Foster Benefit Sharing of Marine Genetic Resources",
           "authors": "Hiroko Muraki Gottlieb, Jeff Ardron, Abbe E.L. Brown",
@@ -3297,7 +3297,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Bioeconomy and Industrial Innovation (Olusola Tosin Lawal, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 2,
           "paper_title": "Blue Bioeconomy and Industrial Innovation",
           "authors": "Olusola Tosin Lawal",
@@ -3311,7 +3311,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Bioeconomy and Agricultural Innovation (Manish Kumar Gautam, Sandip Mondal, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 3,
           "paper_title": "Blue Bioeconomy and Agricultural Innovation",
           "authors": "Manish Kumar Gautam, Sandip Mondal",
@@ -3325,7 +3325,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Major Sectors of Blue Bioeconomy (KKA Sanjeewa, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 4,
           "paper_title": "Major Sectors of Blue Bioeconomy",
           "authors": "KKA Sanjeewa",
@@ -3339,7 +3339,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Aquatic Resources for Blue Bioeconomy Prospecting (Rakesh Das, Sandip Mondal, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 5,
           "paper_title": "Aquatic Resources for Blue Bioeconomy Prospecting",
           "authors": "Rakesh Das, Sandip Mondal",
@@ -3353,7 +3353,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Circular Economy Principles Related to the Blue Bioeconomy (KKA Sanjeewa, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 6,
           "paper_title": "Circular Economy Principles Related to the Blue Bioeconomy",
           "authors": "KKA Sanjeewa",
@@ -3367,7 +3367,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Bioeconomy and Biomedical Innovation (Mustapha Abdulsalam, Innocent Ojeba Musa, Miracle Uwa Livinu, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 7,
           "paper_title": "Blue Bioeconomy and Biomedical Innovation",
           "authors": "Mustapha Abdulsalam, Innocent Ojeba Musa, Miracle Uwa Livinus, Shehu-Alimi Elelu, Ganiyat Omotayo Ibrahim, Olaitan Latee",
@@ -3381,7 +3381,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Fungi (KKA Sanjeewa, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 8,
           "paper_title": "Marine Fungi",
           "authors": "KKA Sanjeewa",
@@ -3395,7 +3395,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Microalgae (KKA Sanjeewa, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 9,
           "paper_title": "Marine Microalgae",
           "authors": "KKA Sanjeewa",
@@ -3409,7 +3409,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Nematodes (KKA Sanjeewa, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 10,
           "paper_title": "Marine Nematodes",
           "authors": "KKA Sanjeewa",
@@ -3423,7 +3423,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Exploring the Blue Bioeconomy (Sanjeewa KKA, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 11,
           "paper_title": "Exploring the Blue Bioeconomy",
           "authors": "Sanjeewa KKA",
@@ -3437,7 +3437,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Bacteria and Cyanobacteria (KKA Sanjeewa, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 12,
           "paper_title": "Marine Bacteria and Cyanobacteria",
           "authors": "KKA Sanjeewa",
@@ -3451,7 +3451,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Greens Prospecting: Untapped Blue Resources (Satyanarayana Swamy Vyshnava, K. Swetha, Muralidhara Rao Dow, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 13,
           "paper_title": "Marine Greens Prospecting: Untapped Blue Resources",
           "authors": "Satyanarayana Swamy Vyshnava, K. Swetha, Muralidhara Rao Dowlathabad",
@@ -3465,7 +3465,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Applications of Marine Bioresources (KKA Sanjeewa, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 14,
           "paper_title": "Applications of Marine Bioresources",
           "authors": "KKA Sanjeewa",
@@ -3479,7 +3479,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: MUNICIPAL BIOECONOMY: HOW BIOTECHNOLOGY (INCLUDING CRISPR) CREATES NEW MARKETS, JOBS, AND INNOVATION ECOSYSTEMS (Anna Gennadyevna Kraevskaya, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 15,
           "paper_title": "MUNICIPAL BIOECONOMY: HOW BIOTECHNOLOGY (INCLUDING CRISPR) CREATES NEW MARKETS, JOBS, AND INNOVATION ECOSYSTEMS",
           "authors": "Anna Gennadyevna Kraevskaya",
@@ -3493,7 +3493,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Sustainable blue biomass production for a circular bioeconomy (C Lee, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 16,
           "paper_title": "Sustainable blue biomass production for a circular bioeconomy",
           "authors": "C Lee",
@@ -3507,7 +3507,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue bioeconomy and biotechnology: towards a sustainably growing microalgae industry (Doris Ying Ying Tang, Cendy Ooi, Pau Loke Show, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 17,
           "paper_title": "Blue bioeconomy and biotechnology: towards a sustainably growing microalgae industry",
           "authors": "Doris Ying Ying Tang, Cendy Ooi, Pau Loke Show",
@@ -3521,7 +3521,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Seaweeds (KKA Sanjeewa, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 18,
           "paper_title": "Seaweeds",
           "authors": "KKA Sanjeewa",
@@ -3535,7 +3535,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Preface (Unknown, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 19,
           "paper_title": "Preface",
           "authors": "Unknown",
@@ -3549,7 +3549,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Prospects of Microbial Enzymes in Marine Blue Economy (Hafida Baoune, Mounia Arab, Waffa Bouafia, Fatma Zohra Saada, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 20,
           "paper_title": "Prospects of Microbial Enzymes in Marine Blue Economy",
           "authors": "Hafida Baoune, Mounia Arab, Waffa Bouafia, Fatma Zohra Saadane, Kaouther Boudiaf",
@@ -3563,7 +3563,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Global Regulations of Blue Bioeconomy: Opportunities and Challenges (Stella Suanu Leh-Togi Zobeashia, Amoge Chidinma Ogu, Hilda A, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 21,
           "paper_title": "Global Regulations of Blue Bioeconomy: Opportunities and Challenges",
           "authors": "Stella Suanu Leh-Togi Zobeashia, Amoge Chidinma Ogu, Hilda Atabo Uyo, Lovina Chinyere Ogbu, Itoroabasi Joseph Okon",
@@ -3577,7 +3577,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Contents (Unknown, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 22,
           "paper_title": "Contents",
           "authors": "Unknown",
@@ -3591,7 +3591,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Disclaimer (Unknown, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 23,
           "paper_title": "Disclaimer",
           "authors": "Unknown",
@@ -3605,7 +3605,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Unknown Title (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 24,
           "paper_title": "Unknown Title",
           "authors": "Unknown",
@@ -3619,7 +3619,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Alliance-driven governance and the relationship of firms to territories in the bioeconomy (Nicolas Befort, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 25,
           "paper_title": "Alliance-driven governance and the relationship of firms to territories in the bioeconomy",
           "authors": "Nicolas Befort",
@@ -3633,7 +3633,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Genetic Resources of Blue Economy (Miracle Uwa Livinus, Sunday Zeal Bala, Mustapha Abdulsalam, , 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 26,
           "paper_title": "Marine Genetic Resources of Blue Economy",
           "authors": "Miracle Uwa Livinus, Sunday Zeal Bala, Mustapha Abdulsalam, Innocent Ojeba Musa, Madinat Hassan, Priscilla Kini",
@@ -3647,7 +3647,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Front Matter (Unknown, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 27,
           "paper_title": "Front Matter",
           "authors": "Unknown",
@@ -3661,7 +3661,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Subject Index (Unknown, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 28,
           "paper_title": "Subject Index",
           "authors": "Unknown",
@@ -3675,7 +3675,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Securing the U.S. Bioeconomy: A Managed Access Framework For Biotechnology Innovation (Jon Judd, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 29,
           "paper_title": "Securing the U.S. Bioeconomy: A Managed Access Framework For Biotechnology Innovation",
           "authors": "Jon Judd",
@@ -3689,7 +3689,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Biomass Production for Renewable Energy (K. Ukoba, M. I. Adeoba, Samuel Fatoba, T. C. Jen, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 30,
           "paper_title": "Blue Biomass Production for Renewable Energy",
           "authors": "K. Ukoba, M. I. Adeoba, Samuel Fatoba, T. C. Jen",
@@ -3703,7 +3703,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: From Marine Carbon Dioxide Removal to Circular Blue Bioeconomy: A Systematic Review of Seaweed Cultivation, Verification (Sri Mulyani, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 31,
           "paper_title": "From Marine Carbon Dioxide Removal to Circular Blue Bioeconomy: A Systematic Review of Seaweed Cultivation, Verification",
           "authors": "Sri Mulyani",
@@ -3717,7 +3717,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Bioprospecting for Sustainable Blue-bioeconomy (Unknown, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 32,
           "paper_title": "Marine Bioprospecting for Sustainable Blue-bioeconomy",
           "authors": "Unknown",
@@ -3731,7 +3731,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Driving the development of the bioeconomy through innovation (Ian Archer, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 33,
           "paper_title": "Driving the development of the bioeconomy through innovation",
           "authors": "Ian Archer",
@@ -3745,7 +3745,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Bioeconomy (Unknown, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 34,
           "paper_title": "Blue Bioeconomy",
           "authors": "Unknown",
@@ -3759,7 +3759,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue-bioeconomy; marine specialized metabolites at the forefront (Thilina Diwankara, Tharuka Dissanayake, K.H.I.N.M Herath, K., 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 35,
           "paper_title": "Blue-bioeconomy; marine specialized metabolites at the forefront",
           "authors": "Thilina Diwankara, Tharuka Dissanayake, K.H.I.N.M Herath, K.K Asanka Sanjeewa",
@@ -3773,7 +3773,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: What kind of innovation policy does the bioeconomy need? (Georg Schütte, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 36,
           "paper_title": "What kind of innovation policy does the bioeconomy need?",
           "authors": "Georg Schütte",
@@ -3787,7 +3787,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Generation of Renewable Energy by Blue Resources for a Clean Environment (Mariam I. Adeoba, Thanyani Pandelani, Harry Ngwagwa, Tracy M, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 37,
           "paper_title": "Generation of Renewable Energy by Blue Resources for a Clean Environment",
           "authors": "Mariam I. Adeoba, Thanyani Pandelani, Harry Ngwagwa, Tracy Masebe",
@@ -3801,7 +3801,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Macroalgae: Sustainable Practices and Environmental Impact (Nour Sh. El-Gendy, Hussein N. Nassar, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 38,
           "paper_title": "Marine Macroalgae: Sustainable Practices and Environmental Impact",
           "authors": "Nour Sh. El-Gendy, Hussein N. Nassar",
@@ -3815,7 +3815,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Carbon: Roles in Climate Change and Energy Generation, and Effects on Coastal Communities (Mariam I. Adeoba, Kingsley Ukoba, Fadekemi Osaye, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 39,
           "paper_title": "Blue Carbon: Roles in Climate Change and Energy Generation, and Effects on Coastal Communities",
           "authors": "Mariam I. Adeoba, Kingsley Ukoba, Fadekemi Osaye",
@@ -3829,7 +3829,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Remediation of Marine Pollutants for Biorefinery Innovations (Katleho Keneuwe Khoaele, Ipoteng Justice Mphahlele, Oluwatoy, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 40,
           "paper_title": "Remediation of Marine Pollutants for Biorefinery Innovations",
           "authors": "Katleho Keneuwe Khoaele, Ipoteng Justice Mphahlele, Oluwatoyin Joseph Gbadeyan, Bruce Sithole, Viren Chunilall",
@@ -3843,7 +3843,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Transnational Governance Frameworks for Sustainable  Innovation: The Case Of The Blue Bioeconomy In The  Mediterranean (David Fernández-Guerrero, Riccardo Palazzolo-Henkes, Martin , 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 41,
           "paper_title": "Transnational Governance Frameworks for Sustainable  Innovation: The Case Of The Blue Bioeconomy In The  Mediterranean",
           "authors": "David Fernández-Guerrero, Riccardo Palazzolo-Henkes, Martin Federico Alba, Saray Ramírez-Rodríguez, Lourdes Reig-Puig",
@@ -3857,7 +3857,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Integrating Ethics, Innovation, and Inclusivity in Maritime Governance (R. Vettriselvan, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 42,
           "paper_title": "Integrating Ethics, Innovation, and Inclusivity in Maritime Governance",
           "authors": "R. Vettriselvan",
@@ -3871,7 +3871,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Microbiomes and Their Endless Potential for the Bioeconomy (Ashwini Kumar, Puneet Raina, Rajan Bhandari, Baljinder Singh, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 43,
           "paper_title": "Marine Microbiomes and Their Endless Potential for the Bioeconomy",
           "authors": "Ashwini Kumar, Puneet Raina, Rajan Bhandari, Baljinder Singh",
@@ -3885,7 +3885,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Conceptualizing the interplay between blue justice, blue economy, and blue governance (Carolijn van Noort, Mia Cassidy Prall, Furqan Asif, Nelson F, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 44,
           "paper_title": "Conceptualizing the interplay between blue justice, blue economy, and blue governance",
           "authors": "Carolijn van Noort, Mia Cassidy Prall, Furqan Asif, Nelson F. Coelho",
@@ -3899,7 +3899,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Market formation in the circular bioeconomy: Innovation systems, governance and industry emergence in Sargassum valorisa (Stephani  Cetimia Mariotti Ruiz, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 45,
           "paper_title": "Market formation in the circular bioeconomy: Innovation systems, governance and industry emergence in Sargassum valorisa",
           "authors": "Stephani  Cetimia Mariotti Ruiz",
@@ -3913,7 +3913,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy Policies and Marine Governance in Developed and Developing Nations: Canada and Sri Lanka as Examples (Chanuka Swarnathilake, K. Udani, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 46,
           "paper_title": "Blue Economy Policies and Marine Governance in Developed and Developing Nations: Canada and Sri Lanka as Examples",
           "authors": "Chanuka Swarnathilake, K. Udani",
@@ -3927,7 +3927,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: IAR—The French Bioeconomy Innovation Catalyst (Antoine Peeters, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 47,
           "paper_title": "IAR—The French Bioeconomy Innovation Catalyst",
           "authors": "Antoine Peeters",
@@ -3941,7 +3941,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Blue Economy Innovation: Enhancing Marine Resilience Through Sustainable Technologies (Thangjam Ravichandra, Smrita Jain, Rashmi Prasad, Anisha Pur, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 48,
           "paper_title": "Blue Economy Innovation: Enhancing Marine Resilience Through Sustainable Technologies",
           "authors": "Thangjam Ravichandra, Smrita Jain, Rashmi Prasad, Anisha Puri, Vijay Prakash Gupta",
@@ -3955,7 +3955,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Mapping the governance landscape of the blue bioeconomy: A systems approach to understanding innovation barriers and ena (Björn Persson, Niklas Fernqvist, Mari Wøien Meijer, Daniel B, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 49,
           "paper_title": "Mapping the governance landscape of the blue bioeconomy: A systems approach to understanding innovation barriers and ena",
           "authors": "Björn Persson, Niklas Fernqvist, Mari Wøien Meijer, Daniel Bengtsson, Daniel Mattisson",
@@ -3969,7 +3969,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Coordinating Innovation Systems in the Circular Bioeconomy Transition: Multiscalar Governance for High-Value Bioproducts (Hannah Churton, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 50,
           "paper_title": "Coordinating Innovation Systems in the Circular Bioeconomy Transition: Multiscalar Governance for High-Value Bioproducts",
           "authors": "Hannah Churton",
@@ -3983,7 +3983,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Access and benefit sharing in the marine realm (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 51,
           "paper_title": "Access and benefit sharing in the marine realm",
           "authors": "Unknown",
@@ -3997,7 +3997,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Genetic Resources, Access and Benefit Sharing (Bevis Fedder, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 52,
           "paper_title": "Marine Genetic Resources, Access and Benefit Sharing",
           "authors": "Bevis Fedder",
@@ -4011,7 +4011,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Weak points of the access and benefit sharing regime (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 54,
           "paper_title": "Weak points of the access and benefit sharing regime",
           "authors": "Unknown",
@@ -4025,7 +4025,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Genetic Resources: Access, Benefit‐Sharing, and Bioprospecting Issues (Santiago Carrizosa, 2004).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 55,
           "paper_title": "Genetic Resources: Access, Benefit‐Sharing, and Bioprospecting Issues",
           "authors": "Santiago Carrizosa",
@@ -4039,7 +4039,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Conclusions (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 56,
           "paper_title": "Conclusions",
           "authors": "Unknown",
@@ -4053,7 +4053,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Introduction (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 57,
           "paper_title": "Introduction",
           "authors": "Unknown",
@@ -4067,7 +4067,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Factual background (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 58,
           "paper_title": "Factual background",
           "authors": "Unknown",
@@ -4081,7 +4081,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=2. Source paper: Ocean justice? Marine genetic resources and monetary benefit-sharing under the BBNJ Agreement (Niels Krabbe, Tanya Wagenaar, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 59,
           "paper_title": "Ocean justice? Marine genetic resources and monetary benefit-sharing under the BBNJ Agreement",
           "authors": "Niels Krabbe, Tanya Wagenaar",
@@ -4095,7 +4095,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Biological databases for improving the ABS system (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 60,
           "paper_title": "Biological databases for improving the ABS system",
           "authors": "Unknown",
@@ -4109,7 +4109,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: ABS in Relation to Marine GRs (Unknown, 2009).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 65,
           "paper_title": "ABS in Relation to Marine GRs",
           "authors": "Unknown",
@@ -4123,7 +4123,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine genetic resources and bioprospecting in the Western Indian Ocean (Rachel Wynberg, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 66,
           "paper_title": "Marine genetic resources and bioprospecting in the Western Indian Ocean",
           "authors": "Rachel Wynberg",
@@ -4137,7 +4137,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Genetic Resources and the Access and Benefit-Sharing Legal Framework (Laura E. Lallier, Arianna Broggiato, Dominic Muyldermans, Th, 2016).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 67,
           "paper_title": "Marine Genetic Resources and the Access and Benefit-Sharing Legal Framework",
           "authors": "Laura E. Lallier, Arianna Broggiato, Dominic Muyldermans, Thomas Vanagt",
@@ -4151,7 +4151,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Benefit sharing of marine genetic resources and intellectual property protection under the BBNJ agreement (Qing Xu, Yongfeng Jin, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 69,
           "paper_title": "Benefit sharing of marine genetic resources and intellectual property protection under the BBNJ agreement",
           "authors": "Qing Xu, Yongfeng Jin",
@@ -4165,7 +4165,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Classical Marine Bioprospecting: Biochemistry and Genetic Engineering (Unknown, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 70,
           "paper_title": "Classical Marine Bioprospecting: Biochemistry and Genetic Engineering",
           "authors": "Unknown",
@@ -4179,7 +4179,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Enforcement of Benefit-Sharing Duties in User Countries (Unknown, 2009).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 71,
           "paper_title": "Enforcement of Benefit-Sharing Duties in User Countries",
           "authors": "Unknown",
@@ -4193,7 +4193,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Genetic Resources under BBNJ Agreement: interactions with TRIPS, CBD and GRATK and the challenges for effective i (Paulo Henrique Reis de Oliveira, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 72,
           "paper_title": "Marine Genetic Resources under BBNJ Agreement: interactions with TRIPS, CBD and GRATK and the challenges for effective i",
           "authors": "Paulo Henrique Reis de Oliveira",
@@ -4207,7 +4207,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Inter-State Benefit-Sharing from Access to Genetic Resources (Elisa Morgera, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 73,
           "paper_title": "Inter-State Benefit-Sharing from Access to Genetic Resources",
           "authors": "Elisa Morgera",
@@ -4221,7 +4221,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Plant genetic resources for food and agriculture (Charles Lawson, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 74,
           "paper_title": "Plant genetic resources for food and agriculture",
           "authors": "Charles Lawson",
@@ -4235,7 +4235,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Genetic Resources in Areas Beyond National Jurisdiction: Access and Benefit-Sharing (Kexin Zhu, 2023).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 75,
           "paper_title": "Marine Genetic Resources in Areas Beyond National Jurisdiction: Access and Benefit-Sharing",
           "authors": "Kexin Zhu",
@@ -4249,7 +4249,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Modern Marine Bioprospecting: Metagenomics (Unknown, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 77,
           "paper_title": "Modern Marine Bioprospecting: Metagenomics",
           "authors": "Unknown",
@@ -4263,7 +4263,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Genetic Resources: a Practical Legal Approach to Stimulate Research, Conservation and Benefit Sharing (Morten Walløe Tvedt, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 78,
           "paper_title": "Marine Genetic Resources: a Practical Legal Approach to Stimulate Research, Conservation and Benefit Sharing",
           "authors": "Morten Walløe Tvedt",
@@ -4277,7 +4277,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Access and benefit-sharing procedures for genetic resources in aquaculture countries (Fran Humphries, Charles Lawson, John A.H. Benzie, Clare Morr, 2024).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 80,
           "paper_title": "Access and benefit-sharing procedures for genetic resources in aquaculture countries",
           "authors": "Fran Humphries, Charles Lawson, John A.H. Benzie, Clare Morrison",
@@ -4291,7 +4291,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Bioprospecting, Access and Benefit Sharing: Revisiting the ‘Grand Bargain’ (Rachel Wynberg, Sarah Laird, 2009).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 81,
           "paper_title": "Bioprospecting, Access and Benefit Sharing: Revisiting the ‘Grand Bargain’",
           "authors": "Rachel Wynberg, Sarah Laird",
@@ -4305,7 +4305,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Genetic resources within the jurisdiction of Nation States (Charles Lawson, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 82,
           "paper_title": "Genetic resources within the jurisdiction of Nation States",
           "authors": "Charles Lawson",
@@ -4319,7 +4319,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The CIESM Charter on Access and Benefit – Sharing of Marine Genetic Resources (Unknown, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 84,
           "paper_title": "The CIESM Charter on Access and Benefit – Sharing of Marine Genetic Resources",
           "authors": "Unknown",
@@ -4333,7 +4333,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Ethical Guidance for Access and Benefit-Sharing (Kelly Bannister, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 85,
           "paper_title": "Ethical Guidance for Access and Benefit-Sharing",
           "authors": "Kelly Bannister",
@@ -4347,7 +4347,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Access and Benefit Sharing and Digital Sequence Information (Christine Frison, Elsa Tsioumani, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 86,
           "paper_title": "Access and Benefit Sharing and Digital Sequence Information",
           "authors": "Christine Frison, Elsa Tsioumani",
@@ -4361,7 +4361,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Diversity of Principles Underlying the Concept of Benefit Sharing (Unknown, 2009).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 87,
           "paper_title": "The Diversity of Principles Underlying the Concept of Benefit Sharing",
           "authors": "Unknown",
@@ -4375,7 +4375,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Unlocking the global commons: legal analysis of benefit-sharing for marine genetic resources in the BBNJ agreement (Steel Rometius, Wei Wang, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 88,
           "paper_title": "Unlocking the global commons: legal analysis of benefit-sharing for marine genetic resources in the BBNJ agreement",
           "authors": "Steel Rometius, Wei Wang",
@@ -4389,7 +4389,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Regulating Genetic Resources (Charles Lawson, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 89,
           "paper_title": "Regulating Genetic Resources",
           "authors": "Charles Lawson",
@@ -4403,7 +4403,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Access and Benefit Sharing and Biocultural Protocols in the Pacific (Daniel Robinson, Margaret Raven, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 91,
           "paper_title": "Access and Benefit Sharing and Biocultural Protocols in the Pacific",
           "authors": "Daniel Robinson, Margaret Raven",
@@ -4417,7 +4417,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Index (Charles Lawson, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 92,
           "paper_title": "Index",
           "authors": "Charles Lawson",
@@ -4431,7 +4431,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Access and Benefit Sharing and Digital Sequence Information in Africa (Titilayo Adebola, Daniele Manzella, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 93,
           "paper_title": "Access and Benefit Sharing and Digital Sequence Information in Africa",
           "authors": "Titilayo Adebola, Daniele Manzella",
@@ -4445,7 +4445,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Access and benefit sharing measures (Camena Guneratne, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 94,
           "paper_title": "Access and benefit sharing measures",
           "authors": "Camena Guneratne",
@@ -4459,7 +4459,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Copyright (Charles Lawson, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 95,
           "paper_title": "Copyright",
           "authors": "Charles Lawson",
@@ -4473,7 +4473,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Antarctica (Charles Lawson, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 96,
           "paper_title": "Antarctica",
           "authors": "Charles Lawson",
@@ -4487,7 +4487,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Abbreviations (Charles Lawson, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 98,
           "paper_title": "Abbreviations",
           "authors": "Charles Lawson",
@@ -4501,7 +4501,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine-Derived Polysaccharides: Prospects for Future Pharmaceuticals and Drug Delivery Systems (Sana Sharifian, Ahmad Homaei, 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 99,
           "paper_title": "Marine-Derived Polysaccharides: Prospects for Future Pharmaceuticals and Drug Delivery Systems",
           "authors": "Sana Sharifian, Ahmad Homaei",
@@ -4515,7 +4515,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Get Rid of Marine Pollution: Bioremediation an Innovative, Attractive, and Successful Cleaning Strategy (Valbona Aliko, Cristiana Roberta Multisanti, Blerta Turani, , 2022).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 100,
           "paper_title": "Get Rid of Marine Pollution: Bioremediation an Innovative, Attractive, and Successful Cleaning Strategy",
           "authors": "Valbona Aliko, Cristiana Roberta Multisanti, Blerta Turani, Caterina Faggio",
@@ -4529,7 +4529,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Obligate Marine Fungi and Bioremediation (V. Venkateswara Sarma, 2018).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 101,
           "paper_title": "Obligate Marine Fungi and Bioremediation",
           "authors": "V. Venkateswara Sarma",
@@ -4543,7 +4543,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Microbes in Bioremediation: Current Status and Future Trends (Neetu Sharma, Abhinashi Singh, Sonu Bhatia, Navneet Batra, 2019).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 102,
           "paper_title": "Marine Microbes in Bioremediation: Current Status and Future Trends",
           "authors": "Neetu Sharma, Abhinashi Singh, Sonu Bhatia, Navneet Batra",
@@ -4557,7 +4557,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Microalgae as Sources of Biomaterials and Pharmaceuticals (Kyong-Hwa Kang, Se-Kwon Kim, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 103,
           "paper_title": "Microalgae as Sources of Biomaterials and Pharmaceuticals",
           "authors": "Kyong-Hwa Kang, Se-Kwon Kim",
@@ -4571,7 +4571,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: From Sea to Therapy: Marine Biomaterials for Drug Delivery and Wound Healing (Mansi Chilwant, Valentina Paganini, Mariacristina Di Gangi, , 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 104,
           "paper_title": "From Sea to Therapy: Marine Biomaterials for Drug Delivery and Wound Healing",
           "authors": "Mansi Chilwant, Valentina Paganini, Mariacristina Di Gangi, Sofia Gisella Brignone, Patrizia Chetoni, Susi Burgalassi, D",
@@ -4585,7 +4585,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Bioremediation Markers in Marine Environment (Ananya Mitra, Neelam M. Nathani, Chandrashekar Mootapally, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 105,
           "paper_title": "Bioremediation Markers in Marine Environment",
           "authors": "Ananya Mitra, Neelam M. Nathani, Chandrashekar Mootapally",
@@ -4599,7 +4599,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Antarctic Marine Fungi and Their Potential Application in Bioremediation (Mayara Baptistucci Ogaki, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 106,
           "paper_title": "Antarctic Marine Fungi and Their Potential Application in Bioremediation",
           "authors": "Mayara Baptistucci Ogaki",
@@ -4613,7 +4613,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Bioremediation of Pharmaceuticals in Water and Wastewater (Chhaya, Trishikhi Raychoudhury, Sanjeev Kumar Prajapati, 2020).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 107,
           "paper_title": "Bioremediation of Pharmaceuticals in Water and Wastewater",
           "authors": "Chhaya, Trishikhi Raychoudhury, Sanjeev Kumar Prajapati",
@@ -4627,7 +4627,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Biodegradable Polymers: Advances in Sustainable Biomaterials (Satish Mandlik, Deepa Mandlik, Amarjitsing Rajput, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 108,
           "paper_title": "Biodegradable Polymers: Advances in Sustainable Biomaterials",
           "authors": "Satish Mandlik, Deepa Mandlik, Amarjitsing Rajput",
@@ -4641,7 +4641,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: German Journal of Pharmaceuticals and Biomaterials (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 109,
           "paper_title": "German Journal of Pharmaceuticals and Biomaterials",
           "authors": "Unknown",
@@ -4655,7 +4655,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Design and Processing of Green Materials (Unknown, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 110,
           "paper_title": "Design and Processing of Green Materials",
           "authors": "Unknown",
@@ -4669,7 +4669,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Elements of Sustainability and Bioremediation (Ackmez Mudhoo, Romeela Mohee, 2012).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 112,
           "paper_title": "Elements of Sustainability and Bioremediation",
           "authors": "Ackmez Mudhoo, Romeela Mohee",
@@ -4683,7 +4683,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine-Derived Fungi: Prospective Candidates for Bioremediation (Anjana K. Vala, Bharti P. Dave, 2017).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 113,
           "paper_title": "Marine-Derived Fungi: Prospective Candidates for Bioremediation",
           "authors": "Anjana K. Vala, Bharti P. Dave",
@@ -4697,7 +4697,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Bioremediation in Marine Oil Spills (Unknown, 2005).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 114,
           "paper_title": "Bioremediation in Marine Oil Spills",
           "authors": "Unknown",
@@ -4711,7 +4711,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Green Chemistry Approaches in Biomaterials Synthesis (Priya Jain, Juhi Bhadoriya, Sheetal Mane, Kuldeep Vinchurkar, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 115,
           "paper_title": "Green Chemistry Approaches in Biomaterials Synthesis",
           "authors": "Priya Jain, Juhi Bhadoriya, Sheetal Mane, Kuldeep Vinchurkar, Meghraj Vivekanand Suryawanshi",
@@ -4725,7 +4725,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: The Role of Bioremediation in Achieving Environmental Sustainability (Wafaa M. Abd El-Rahim, Hassan Moawad, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 116,
           "paper_title": "The Role of Bioremediation in Achieving Environmental Sustainability",
           "authors": "Wafaa M. Abd El-Rahim, Hassan Moawad",
@@ -4739,7 +4739,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Bioremediation for Environmental Sustainability (Unknown, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 117,
           "paper_title": "Bioremediation for Environmental Sustainability",
           "authors": "Unknown",
@@ -4753,7 +4753,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Tissue Engineering Strategies for Environmental Sustainability (Hasan Ali, Md. Faiyazuddin, Md. Akbar, Nodirali Normakhamato, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 118,
           "paper_title": "Tissue Engineering Strategies for Environmental Sustainability",
           "authors": "Hasan Ali, Md. Faiyazuddin, Md. Akbar, Nodirali Normakhamatov",
@@ -4767,7 +4767,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Life Cycle Assessment of Biomaterials: Towards Sustainable Production and Consumption (Sonia Gupta, Dinesh Kumar, Monika Sharma, Rajni Tanwar, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 119,
           "paper_title": "Life Cycle Assessment of Biomaterials: Towards Sustainable Production and Consumption",
           "authors": "Sonia Gupta, Dinesh Kumar, Monika Sharma, Rajni Tanwar",
@@ -4781,7 +4781,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Green Biomaterials: Challenges and Opportunities (Bindiya Chauhan, Bhuvnesh Kumar Singh, Anil Kumar, Neelancha, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 120,
           "paper_title": "Green Biomaterials: Challenges and Opportunities",
           "authors": "Bindiya Chauhan, Bhuvnesh Kumar Singh, Anil Kumar, Neelanchal Trivedi, Md. Faiyazuddin, Thomas J. Webster",
@@ -4795,7 +4795,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: - Introduction to Marine Biomaterials (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 121,
           "paper_title": "- Introduction to Marine Biomaterials",
           "authors": "Unknown",
@@ -4809,7 +4809,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Soil Bioremediation and Sustainability (Nour Sh. El-Gendy, Hussein N. Nassar, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 122,
           "paper_title": "Soil Bioremediation and Sustainability",
           "authors": "Nour Sh. El-Gendy, Hussein N. Nassar",
@@ -4823,7 +4823,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Bioremediation of Marine Oil&amp;#x2009;Spills (Unknown, ).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 123,
           "paper_title": "Bioremediation of Marine Oil&amp;#x2009;Spills",
           "authors": "Unknown",
@@ -4837,7 +4837,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Bioremediation of marine microplastics: Emerging technologies and challenges (Niti Chawla, Lalita Gupta, Sanjeev Kumar, 2026).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 124,
           "paper_title": "Bioremediation of marine microplastics: Emerging technologies and challenges",
           "authors": "Niti Chawla, Lalita Gupta, Sanjeev Kumar",
@@ -4851,7 +4851,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: - Marine Biomaterials for Antiallergic Therapeutics (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 125,
           "paper_title": "- Marine Biomaterials for Antiallergic Therapeutics",
           "authors": "Unknown",
@@ -4865,7 +4865,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: - Biological Applications of Marine Biomaterials (Unknown, 2013).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 126,
           "paper_title": "- Biological Applications of Marine Biomaterials",
           "authors": "Unknown",
@@ -4879,7 +4879,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Bioremediation: principles and applications in environmental management (Bhawna Tyagi, Naveen Kumar, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 127,
           "paper_title": "Bioremediation: principles and applications in environmental management",
           "authors": "Bhawna Tyagi, Naveen Kumar",
@@ -4893,7 +4893,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Acknowledgements (Unknown, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 128,
           "paper_title": "Acknowledgements",
           "authors": "Unknown",
@@ -4907,7 +4907,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Dedication (Unknown, 2021).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 129,
           "paper_title": "Dedication",
           "authors": "Unknown",
@@ -4921,7 +4921,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Biomimetic Materials: Nature-Inspired Solutions for Sustainability (Mohammad Intakhab Alam, Md Sajid Ali, Nawazish Alam, Md. Fai, 2025).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 130,
           "paper_title": "Biomimetic Materials: Nature-Inspired Solutions for Sustainability",
           "authors": "Mohammad Intakhab Alam, Md Sajid Ali, Nawazish Alam, Md. Faiyazuddin, Sarfaraz Ahmad",
@@ -4935,7 +4935,7 @@
         "description": "Live-API-derived literature competence from provider Crossref. overlap=single-source. confidence=0.90. sentence_classifications=1. Source paper: Marine Bioremediation - A Sustainable Biotechnology of Petroleum Hydrocarbons Biodegradation in Coastal and Marine Envir (Paniagua Michel J, 2015).",
         "axis": "OCEANIC",
         "source": {
-          "file": "/home/runner/work/morskamary/morskamary/outputs/research_sources/live_records_triangulated.json",
+          "file": "outputs/research_sources/live_records_triangulated.json",
           "row": 131,
           "paper_title": "Marine Bioremediation - A Sustainable Biotechnology of Petroleum Hydrocarbons Biodegradation in Coastal and Marine Envir",
           "authors": "Paniagua Michel J",
