@@ -41,10 +41,15 @@ REQUIRED_GAP_COLUMNS = [
     "Sector",
     "Required",
     "Missing",
-    "Gap %",
-    "Missing MARINE",
-    "Missing MARITIME",
-    "Missing OCEANIC",
+    "Gap_pct",
+    "Missing_MARINE",
+    "Missing_MARITIME",
+    "Missing_OCEANIC",
+    "Missing_HYDRONIZATION",
+    "Generated_at",
+    "Analysis_mode",
+    "Run_id",
+    "Schema_version",
 ]
 
 REQUIRED_CREDENTIAL_FIELDS = (
@@ -481,10 +486,11 @@ def check_gaps_csv(rows: list[dict]) -> None:
     numeric_cols = [
         "Required",
         "Missing",
-        "Gap %",
-        "Missing MARINE",
-        "Missing MARITIME",
-        "Missing OCEANIC",
+        "Gap_pct",
+        "Missing_MARINE",
+        "Missing_MARITIME",
+        "Missing_OCEANIC",
+        "Missing_HYDRONIZATION",
     ]
     for col in numeric_cols:
         values = set()
