@@ -210,9 +210,9 @@ class CompetenceSource:
 def _repo_relative_posix_or_redacted(path_like: str | Path) -> str:
     """Return a repository-relative POSIX path or redact out-of-tree locations."""
     raw_path = str(path_like).strip()
-    if PureWindowsPath(raw_path).is_absolute():
-        return _REDACTED_OUT_OF_TREE_PATH
     path = Path(raw_path)
+    if PureWindowsPath(raw_path).is_absolute() and not path.is_absolute():
+        return _REDACTED_OUT_OF_TREE_PATH
     try:
         resolved = path.resolve(strict=False)
     except OSError:
