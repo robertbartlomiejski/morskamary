@@ -307,6 +307,47 @@ def test_validate_run_archive_integrity_rejects_stale_jsonl_total(
     assert _validate_archive(tmp_path) == 1
 
 
+def test_validate_run_archive_integrity_rejects_phantom_csv_run(
+    tmp_path: Path,
+) -> None:
+    _create_archive(tmp_path, run_id="run-csv-present")
+    csv_path = tmp_path / "outputs" / "run_archive" / "cumulative_runs_index.csv"
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = list(rows[0].keys())
+
+    phantom_row = dict(rows[-1])
+    phantom_row["run_id"] = "run-csv-phantom"
+    phantom_row["run_path"] = "runs/run-csv-phantom"
+    rows.append(phantom_row)
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert _validate_archive(tmp_path) == 1
+
+
+def test_validate_run_archive_integrity_rejects_phantom_jsonl_run(
+    tmp_path: Path,
+) -> None:
+    _create_archive(tmp_path, run_id="run-jsonl-present")
+    index_path = tmp_path / "outputs" / "run_archive" / "_index" / "runs_index.jsonl"
+    entry = json.loads(index_path.read_text(encoding="utf-8").strip())
+    phantom_entry = dict(entry)
+    phantom_entry["run_id"] = "run-jsonl-phantom"
+    phantom_entry["run_path"] = "runs/run-jsonl-phantom"
+    _write_text(
+        index_path,
+        json.dumps(entry, sort_keys=True)
+        + "\n"
+        + json.dumps(phantom_entry, sort_keys=True)
+        + "\n",
+    )
+
+    assert _validate_archive(tmp_path) == 1
+
+
 def test_validate_run_archive_integrity_rejects_arbitrary_absolute_cumulative_csv_run_path(
     tmp_path: Path,
 ) -> None:

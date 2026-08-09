@@ -466,6 +466,15 @@ def _validate_index_jsonl(
     for line_number, entry in enumerate(entries, start=1):
         run_id = str(entry.get("run_id", ""))
         run_path = str(entry.get("run_path", ""))
+        if not run_id:
+            errors.append(f"{index_path}: line {line_number} has a blank run_id")
+            continue
+        if run_id not in run_ids:
+            errors.append(
+                f"{index_path}: line {line_number} references unknown run_id "
+                f"'{run_id}'"
+            )
+            continue
         if run_id and run_path == f"runs/{run_id}":
             archived_at = entry.get("archived_at")
             if not _is_valid_utc_iso8601(archived_at):
@@ -546,6 +555,12 @@ def _validate_index_csv(
         run_id = str(row.get("run_id", "")).strip()
         run_path = str(row.get("run_path", "")).strip()
         if not run_id:
+            errors.append(f"{csv_path}: line {row_number} has a blank run_id")
+            continue
+        if run_id not in run_ids:
+            errors.append(
+                f"{csv_path}: line {row_number} references unknown run_id '{run_id}'"
+            )
             continue
         if run_id in run_ids:
             expected_relative = f"runs/{run_id}"
