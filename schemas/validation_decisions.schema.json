@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/validation_decisions.schema.json",
+  "title": "Validation decisions row",
+  "type": "object",
+  "required": [
+    "validation_decision_id",
+    "target_candidate_id",
+    "canonical_label",
+    "decision_status",
+    "reviewer",
+    "decision_at_utc",
+    "decision_reason",
+    "evidence_ids",
+    "fragment_ids",
+    "source_provenance_ids",
+    "superseded_validation_decision_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "validation_decision_id": { "type": "string", "minLength": 1 },
+    "target_candidate_id": { "type": "string", "minLength": 1 },
+    "canonical_label": {
+      "type": "string",
+      "description": "The canonical competence label assigned by the accepted decision. Must be non-empty for accepted decisions (enforced by the allOf conditional below). May be an empty string for rejected, review_required, or superseded decisions."
+    },
+    "decision_status": {
+      "type": "string",
+      "enum": ["accepted", "rejected", "review_required", "superseded"]
+    },
+    "reviewer": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$",
+      "description": "Stable pseudonymous reviewer identifier; identity mapping is retained outside published artifacts."
+    },
+    "decision_at_utc": {
+      "type": "string",
+      "minLength": 1,
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d+)?)?(?:Z|\\+00:00)$"
+    },
+    "decision_reason": { "type": "string", "minLength": 1 },
+    "evidence_ids": { "type": "string", "minLength": 1 },
+    "fragment_ids": { "type": "string", "minLength": 1 },
+    "source_provenance_ids": { "type": "string", "minLength": 1 },
+    "superseded_validation_decision_id": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "decision_status": { "const": "accepted" }
+        },
+        "required": ["decision_status"]
+      },
+      "then": {
+        "properties": {
+          "canonical_label": { "minLength": 1 }
+        }
+      }
+    }
+  ]
+}

@@ -122,6 +122,7 @@ class TestClaimOrigin:
             "DYNAMIC_API_SCIVAL",
             "DYNAMIC_API_GOOGLE_DRIVE",
             "DYNAMIC_API_MICROSOFT_GRAPH",
+            "DYNAMIC_API_OPENALEX",
         }
         assert {m.name for m in ClaimOrigin} == expected
 
@@ -131,6 +132,7 @@ class TestClaimOrigin:
         assert ClaimOrigin.DYNAMIC_API_SCIVAL.value == "dynamic_api_scival"
         assert ClaimOrigin.DYNAMIC_API_GOOGLE_DRIVE.value == "dynamic_api_google_drive"
         assert ClaimOrigin.DYNAMIC_API_MICROSOFT_GRAPH.value == "dynamic_api_microsoft_graph"
+        assert ClaimOrigin.DYNAMIC_API_OPENALEX.value == "dynamic_api_openalex"
 
 
 class TestClaimOriginForProvider:
@@ -156,6 +158,9 @@ class TestClaimOriginForProvider:
 
     def test_microsoft_graph_maps_correctly(self):
         assert _claim_origin_for_provider("Microsoft Graph (OneDrive/SharePoint)") == ClaimOrigin.DYNAMIC_API_MICROSOFT_GRAPH
+
+    def test_openalex_maps_correctly(self):
+        assert _claim_origin_for_provider("OpenAlex") == ClaimOrigin.DYNAMIC_API_OPENALEX
 
     def test_case_insensitive_matching(self):
         assert _claim_origin_for_provider("CROSSREF") == ClaimOrigin.DYNAMIC_API_CROSSREF

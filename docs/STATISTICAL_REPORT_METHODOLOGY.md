@@ -9,6 +9,10 @@ it must not be described as a completed professor-level scientific-statistical
 validation until the follow-up work replaces the heuristic coverage model with
 evidence-based credential coverage and richer inferential tests.
 
+Measurement-governance rule: no classifier or statistical stage may convert a
+no-match or weak-match state into substantive OCEANIC evidence by default.
+Uncertain classification must remain explicit and reviewable.
+
 ## 1. Layers at a glance
 
 | Layer | Purpose                                                | Primary output                                        |
@@ -16,8 +20,8 @@ evidence-based credential coverage and richer inferential tests.
 | 0     | Query protocol registry                                | `config/live_query_protocol.yml`                      |
 | 1     | Raw provider acquisition                               | `outputs/live_runs/<run_id>/raw/`                     |
 | 2     | Deduplicated cumulative evidence records               | `evidence_records.{csv,jsonl}`                        |
-| 3     | Semantic competence-demand signals                     | `competence_demand_signals.{csv,jsonl}`               |
-| 4     | Derived competence demand + statistical indices        | `derived_competence_demands.{csv,jsonl}` + statistics |
+| 3     | Versioned fragments, semantic signals, candidates and validation chain | `evidence_fragments.{csv,jsonl}`, `semantic_signals.{csv,jsonl}`, `competence_candidates.{csv,jsonl}`, `canonical_competences.{csv,jsonl}`, `sector_competence_assignments.{csv,jsonl}`, `validation_decisions.{csv,jsonl}` |
+| 4     | Legacy category-aggregate compatibility view, accepted canonical-lineage view, and statistical indices | `derived_competence_demands.{csv,jsonl}` + statistics |
 | 5     | Sector gap model + EQF 4-7 credential translation      | `sector_axis_gap_model.csv` + credentials + outcomes  |
 
 ## 2. Mandated demand-strength formula
@@ -62,6 +66,14 @@ evidence rows with `record_novelty_status` in
 
 `duplicate_only` records are **excluded** from novelty growth so that
 package version bumps and re-runs cannot inflate the corpus size.
+
+Accepted canonical lineage is a separate reviewed construct-validity view.
+It is built only from an accepted canonical competence, its retained decision,
+candidate, semantic context, and sector assignment; it does not convert a
+legacy category aggregate into a canonical claim. Legacy rows alone feed the
+Layer-4 descriptive indices, cross-tables, and the Layer-5 live-literature
+counter. Accepted canonical rows supply the validation-backed Layer-5/H2
+denominator without double-counting those empirical compatibility measures.
 
 ## 4. Classification vocabularies
 
@@ -113,6 +125,11 @@ association models for hydronization lag.
 Advanced methods (CA, PCA, K-means, hierarchical clustering) are marked
 `method_status: "skipped"` with a clear reason when scipy/sklearn are
 unavailable. This is a deterministic behaviour, not a silent failure.
+
+These methods are exploratory utilities, not automatic validity upgrades.
+They must not be described as empirical proof of the underlying constructs
+without a stabilized observational unit, missingness treatment, and reviewer-
+audited interpretation path.
 
 ## 8. EQF 4-7 credential translation
 

@@ -12,7 +12,9 @@ SCRIPT_PATH = REPO_ROOT / "scripts" / "build_run_stability_report.py"
 
 
 def _load_module():
-    spec = importlib.util.spec_from_file_location("build_run_stability_report", SCRIPT_PATH)
+    spec = importlib.util.spec_from_file_location(
+        "build_run_stability_report", SCRIPT_PATH
+    )
     module = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
     assert spec and spec.loader
     sys.modules[spec.name] = module
@@ -52,26 +54,35 @@ def _seed_archive(
         timestamp = str(run["timestamp_utc"])
         run_path = f"runs/{run_id}"
         run_dir = archive_root / run_path
+        query_ids = run.get("query_ids", ["q1"])
+        if not isinstance(query_ids, list):
+            query_ids = ["q1"]
 
-        manifest_payload: dict[str, Any] = {
+        manifest_payload = {
             "run_id": run_id,
             "timestamp_utc": timestamp,
             "analysis_timestamp_utc": timestamp,
             "provider_set": str(run.get("provider_set", provider_set)),
-            "workflow": {"inputs": {"providers": str(run.get("provider_set", provider_set))}},
+            "contributing_provider_profile": str(
+                run.get(
+                    "contributing_provider_profile",
+                    run.get("provider_set", provider_set),
+                )
+            ),
+            "workflow": {
+                "inputs": {"providers": str(run.get("provider_set", provider_set))}
+            },
         }
         if run.get("is_static_recovery_mode"):
             manifest_payload["is_static_recovery_mode"] = True
         _write_json(run_dir / "manifest.json", manifest_payload)
-
-        query_ids = run.get("query_ids", ["q1"])
         _write_json(
             run_dir / "research_sources" / "query_protocol_constraints.json",
             {
                 "protocol_version": str(run.get("protocol_version", protocol_version)),
                 "queries": [
                     {
-                        "query_id": query_id,
+                        "query_id": str(query_id),
                         "time_window": {"from_year": 2020, "to_year": 2026},
                         "sampling_strategy": {
                             "mode": "pages",
@@ -89,7 +100,15 @@ def _seed_archive(
             dois = []
         _write_json(
             run_dir / "research_sources" / "live_records.json",
-            [{"doi": str(doi), "title": f"Title {doi}"} for doi in dois],
+            [
+                {
+                    "doi": str(doi),
+                    "title": f"Title {doi}",
+                    "record_origin": "dynamic_api_crossref",
+                    "source_id": f"crossref:{doi}",
+                }
+                for doi in dois
+            ],
         )
         axis_distribution = run.get("axis_distribution")
         if not isinstance(axis_distribution, dict):
@@ -102,14 +121,19 @@ def _seed_archive(
         qmbd_records: list[dict[str, object]] = []
         for axis_name, count in axis_distribution.items():
             for idx in range(int(count)):
+                stable_identifier = f"{run_id}-{axis_name}-{idx}"
                 qmbd_records.append(
                     {
-                        "doi": f"{run_id}-{axis_name}-{idx}",
+                        "doi": stable_identifier,
                         "title": f"{axis_name} evidence {idx}",
                         "axis_name": axis_name,
+                        "record_origin": "dynamic_api_crossref",
+                        "source_id": f"crossref:{stable_identifier}",
                     }
                 )
-        _write_json(run_dir / "analysis_outputs" / "cumulative_qmbd_records.json", qmbd_records)
+        _write_json(
+            run_dir / "analysis_outputs" / "cumulative_qmbd_records.json", qmbd_records
+        )
 
         jsonl_lines.append(
             json.dumps(
@@ -128,10 +152,15 @@ def _seed_archive(
             }
         )
 
-    _write_text(index_dir / "runs_index.jsonl", "\n".join(jsonl_lines) + ("\n" if jsonl_lines else ""))
+    _write_text(
+        index_dir / "runs_index.jsonl",
+        "\n".join(jsonl_lines) + ("\n" if jsonl_lines else ""),
+    )
     csv_path = archive_root / "cumulative_runs_index.csv"
     with csv_path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=["timestamp_utc", "run_id", "run_path"])
+        writer = csv.DictWriter(
+            handle, fieldnames=["timestamp_utc", "run_id", "run_path"]
+        )
         writer.writeheader()
         writer.writerows(csv_rows)
     return archive_root
@@ -145,29 +174,95 @@ def test_compute_jaccard_similarity() -> None:
     assert module.compute_jaccard_similarity(set(), set()) == 1.0
 
 
+def test_live_provenance_allow_list_remains_fail_closed() -> None:
+    module = _load_module()
+
+    assert module._is_live_like_record({}) is False
+    assert (
+        module._is_live_like_record(
+            {"record_origin": "synthetic_fixture", "source_id": "unknown:10.1000/test"}
+        )
+        is False
+    )
+    assert module._is_live_like_record({"record_origin": "dynamic_api_synthetic"}) is False
+    assert module._is_live_like_record({"record_origin": "live-fabricated"}) is False
+    assert (
+        module._is_live_like_record(
+            {"record_origin": "synthetic_fixture", "source_id": "crossref:10.1000/test"}
+        )
+        is False
+    )
+    assert (
+        module._is_live_like_record({"record_origin": "dynamic_api_crossref"}) is True
+    )
+    assert module._is_live_like_record({"record_origin": "live-crossref"}) is True
+    assert module._is_live_like_record({"source_id": "crossref:10.1000/test"}) is True
+
+
 def test_build_comparability_fingerprint_matches_only_for_same_payload() -> None:
     module = _load_module()
     fingerprint_a, payload_a = module.build_comparability_fingerprint(
         providers_used=["crossref", "scopus"],
         query_protocol_version="1.0.0",
         time_windows=['{"from_year":2020,"to_year":2026}'],
-        sampling_strategies=['{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'],
+        sampling_strategies=[
+            '{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'
+        ],
+        classifier_version="classifier-v1",
+        requested_provider_profile=["crossref", "scopus"],
+        contributing_provider_profile=["crossref", "scopus"],
+        logical_pages=2,
+        rows_per_page=50,
+        sort_strategy_contract=['{"crossref":"published-desc","scopus":"date-desc"}'],
     )
     fingerprint_b, payload_b = module.build_comparability_fingerprint(
         providers_used=["scopus", "crossref"],
         query_protocol_version="1.0.0",
         time_windows=['{"from_year":2020,"to_year":2026}'],
-        sampling_strategies=['{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'],
+        sampling_strategies=[
+            '{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'
+        ],
+        classifier_version="classifier-v1",
+        requested_provider_profile=["crossref", "scopus"],
+        contributing_provider_profile=["crossref", "scopus"],
+        logical_pages=2,
+        rows_per_page=50,
+        sort_strategy_contract=['{"crossref":"published-desc","scopus":"date-desc"}'],
     )
     fingerprint_c, _ = module.build_comparability_fingerprint(
         providers_used=["crossref"],
         query_protocol_version="1.0.0",
         time_windows=['{"from_year":2020,"to_year":2026}'],
-        sampling_strategies=['{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'],
+        sampling_strategies=[
+            '{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'
+        ],
+        classifier_version="classifier-v1",
+        requested_provider_profile=["crossref"],
+        contributing_provider_profile=["crossref"],
+        logical_pages=2,
+        rows_per_page=50,
+        sort_strategy_contract=['{"crossref":"published-desc"}'],
     )
     assert payload_a == payload_b
     assert fingerprint_a == fingerprint_b
     assert fingerprint_a != fingerprint_c
+    fingerprint_d, payload_d = module.build_comparability_fingerprint(
+        providers_used=["crossref", "scopus"],
+        query_protocol_version="1.0.0",
+        time_windows=['{"from_year":2020,"to_year":2026}'],
+        sampling_strategies=[
+            '{"dedupe_key":"doi","mode":"pages","pages":2,"rows_per_page":50}'
+        ],
+        classifier_version="classifier-v2",
+        requested_provider_profile=["crossref", "scopus"],
+        contributing_provider_profile=["crossref", "scopus"],
+        logical_pages=3,
+        rows_per_page=50,
+        sort_strategy_contract=['{"crossref":"published-desc","scopus":"date-desc"}'],
+    )
+    assert payload_d["classifier_version"] == "classifier-v2"
+    assert payload_d["logical_pages"] == 3
+    assert fingerprint_d != fingerprint_a
 
 
 def test_compute_axis_stability_score_uses_max_ratio_gap() -> None:
@@ -182,17 +277,33 @@ def test_report_is_not_assessable_with_zero_or_one_run(tmp_path: Path) -> None:
 
     empty_archive = _seed_archive(tmp_path / "empty", [])
     empty_output = tmp_path / "empty" / "outputs" / "run_stability_report.json"
-    assert module.main(["--archive-root", str(empty_archive), "--output-path", str(empty_output)]) == 0
+    assert (
+        module.main(
+            ["--archive-root", str(empty_archive), "--output-path", str(empty_output)]
+        )
+        == 0
+    )
     empty_report = json.loads(empty_output.read_text(encoding="utf-8"))
     assert empty_report["runs_analyzed"] == 0
     assert empty_report["saturation_assessment"]["status"] == "not_assessable"
 
     single_archive = _seed_archive(
         tmp_path / "single",
-        [{"run_id": "run-1", "timestamp_utc": "2026-07-01T00:00:00+00:00", "dois": _doi_series(20)}],
+        [
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+            }
+        ],
     )
     single_output = tmp_path / "single" / "outputs" / "run_stability_report.json"
-    assert module.main(["--archive-root", str(single_archive), "--output-path", str(single_output)]) == 0
+    assert (
+        module.main(
+            ["--archive-root", str(single_archive), "--output-path", str(single_output)]
+        )
+        == 0
+    )
     single_report = json.loads(single_output.read_text(encoding="utf-8"))
     assert single_report["runs_analyzed"] == 1
     assert single_report["saturation_assessment"]["status"] == "not_assessable"
@@ -203,12 +314,25 @@ def test_two_runs_can_be_comparable_but_not_yet_saturated(tmp_path: Path) -> Non
     archive_root = _seed_archive(
         tmp_path,
         [
-            {"run_id": "run-1", "timestamp_utc": "2026-07-01T00:00:00+00:00", "dois": _doi_series(20)},
-            {"run_id": "run-2", "timestamp_utc": "2026-07-02T00:00:00+00:00", "dois": _doi_series(21)},
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+            },
+            {
+                "run_id": "run-2",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(21),
+            },
         ],
     )
     output_path = tmp_path / "outputs" / "run_stability_report.json"
-    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    assert (
+        module.main(
+            ["--archive-root", str(archive_root), "--output-path", str(output_path)]
+        )
+        == 0
+    )
     report = json.loads(output_path.read_text(encoding="utf-8"))
 
     assert report["runs_analyzed"] == 2
@@ -223,13 +347,30 @@ def test_three_runs_trigger_provisional_saturation(tmp_path: Path) -> None:
     archive_root = _seed_archive(
         tmp_path,
         [
-            {"run_id": "run-1", "timestamp_utc": "2026-07-01T00:00:00+00:00", "dois": _doi_series(20)},
-            {"run_id": "run-2", "timestamp_utc": "2026-07-02T00:00:00+00:00", "dois": _doi_series(21)},
-            {"run_id": "run-3", "timestamp_utc": "2026-07-03T00:00:00+00:00", "dois": _doi_series(22)},
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+            },
+            {
+                "run_id": "run-2",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(21),
+            },
+            {
+                "run_id": "run-3",
+                "timestamp_utc": "2026-07-03T00:00:00+00:00",
+                "dois": _doi_series(22),
+            },
         ],
     )
     output_path = tmp_path / "outputs" / "run_stability_report.json"
-    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    assert (
+        module.main(
+            ["--archive-root", str(archive_root), "--output-path", str(output_path)]
+        )
+        == 0
+    )
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["saturation_assessment"]["status"] == "provisional_saturation"
     assert report["saturation_assessment"]["consecutive_stable_transitions"] == 2
@@ -240,14 +381,35 @@ def test_four_runs_trigger_saturated_status(tmp_path: Path) -> None:
     archive_root = _seed_archive(
         tmp_path,
         [
-            {"run_id": "run-1", "timestamp_utc": "2026-07-01T00:00:00+00:00", "dois": _doi_series(20)},
-            {"run_id": "run-2", "timestamp_utc": "2026-07-02T00:00:00+00:00", "dois": _doi_series(21)},
-            {"run_id": "run-3", "timestamp_utc": "2026-07-03T00:00:00+00:00", "dois": _doi_series(22)},
-            {"run_id": "run-4", "timestamp_utc": "2026-07-04T00:00:00+00:00", "dois": _doi_series(23)},
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+            },
+            {
+                "run_id": "run-2",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(21),
+            },
+            {
+                "run_id": "run-3",
+                "timestamp_utc": "2026-07-03T00:00:00+00:00",
+                "dois": _doi_series(22),
+            },
+            {
+                "run_id": "run-4",
+                "timestamp_utc": "2026-07-04T00:00:00+00:00",
+                "dois": _doi_series(23),
+            },
         ],
     )
     output_path = tmp_path / "outputs" / "run_stability_report.json"
-    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    assert (
+        module.main(
+            ["--archive-root", str(archive_root), "--output-path", str(output_path)]
+        )
+        == 0
+    )
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["saturation_assessment"]["status"] == "saturated"
     assert report["saturation_assessment"]["consecutive_stable_transitions"] == 3
@@ -273,15 +435,49 @@ def test_fingerprint_mismatch_makes_report_not_assessable(tmp_path: Path) -> Non
         ],
     )
     output_path = tmp_path / "outputs" / "run_stability_report.json"
-    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    assert (
+        module.main(
+            ["--archive-root", str(archive_root), "--output-path", str(output_path)]
+        )
+        == 0
+    )
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+    assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
+    assert report["saturation_assessment"]["status"] == "not_assessable"
+
+
+def test_missing_contributing_profile_fails_comparability_closed(tmp_path: Path) -> None:
+    module = _load_module()
+    archive_root = _seed_archive(
+        tmp_path,
+        [
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+                "contributing_provider_profile": "",
+            },
+            {
+                "run_id": "run-2",
+                "timestamp_utc": "2026-07-02T00:00:00+00:00",
+                "dois": _doi_series(21),
+                "contributing_provider_profile": "",
+            },
+        ],
+    )
+    output_path = tmp_path / "outputs" / "run_stability_report.json"
+    assert (
+        module.main(
+            ["--archive-root", str(archive_root), "--output-path", str(output_path)]
+        )
+        == 0
+    )
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
     assert report["saturation_assessment"]["status"] == "not_assessable"
 
 
 def test_different_query_id_universe_makes_fingerprint_mismatch(tmp_path: Path) -> None:
-    """Two runs with identical providers/time windows but a different set of
-    executed query_ids must not be treated as comparable."""
     module = _load_module()
     archive_root = _seed_archive(
         tmp_path,
@@ -301,14 +497,18 @@ def test_different_query_id_universe_makes_fingerprint_mismatch(tmp_path: Path) 
         ],
     )
     output_path = tmp_path / "outputs" / "run_stability_report.json"
-    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    assert (
+        module.main(
+            ["--archive-root", str(archive_root), "--output-path", str(output_path)]
+        )
+        == 0
+    )
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["run_pairs"][0]["comparability_fingerprint_match"] is False
     assert report["saturation_assessment"]["status"] == "not_assessable"
 
 
 def test_same_query_id_universe_across_runs_is_comparable(tmp_path: Path) -> None:
-    """Sanity counterpart: identical query_id sets must still match fingerprints."""
     module = _load_module()
     archive_root = _seed_archive(
         tmp_path,
@@ -328,30 +528,46 @@ def test_same_query_id_universe_across_runs_is_comparable(tmp_path: Path) -> Non
         ],
     )
     output_path = tmp_path / "outputs" / "run_stability_report.json"
-    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    assert (
+        module.main(
+            ["--archive-root", str(archive_root), "--output-path", str(output_path)]
+        )
+        == 0
+    )
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["run_pairs"][0]["comparability_fingerprint_match"] is True
 
 
 def test_static_recovery_run_excluded_from_full_pipeline(tmp_path: Path) -> None:
-    """A static-recovery archived run must be dropped from analysis entirely,
-    both from the runs_analyzed count and from any run-pair comparison."""
     module = _load_module()
     archive_root = _seed_archive(
         tmp_path,
         [
-            {"run_id": "run-1", "timestamp_utc": "2026-07-01T00:00:00+00:00", "dois": _doi_series(20)},
+            {
+                "run_id": "run-1",
+                "timestamp_utc": "2026-07-01T00:00:00+00:00",
+                "dois": _doi_series(20),
+            },
             {
                 "run_id": "run-2-static",
                 "timestamp_utc": "2026-07-02T00:00:00+00:00",
                 "dois": _doi_series(5),
                 "is_static_recovery_mode": True,
             },
-            {"run_id": "run-3", "timestamp_utc": "2026-07-03T00:00:00+00:00", "dois": _doi_series(21)},
+            {
+                "run_id": "run-3",
+                "timestamp_utc": "2026-07-03T00:00:00+00:00",
+                "dois": _doi_series(21),
+            },
         ],
     )
     output_path = tmp_path / "outputs" / "run_stability_report.json"
-    assert module.main(["--archive-root", str(archive_root), "--output-path", str(output_path)]) == 0
+    assert (
+        module.main(
+            ["--archive-root", str(archive_root), "--output-path", str(output_path)]
+        )
+        == 0
+    )
     report = json.loads(output_path.read_text(encoding="utf-8"))
 
     assert report["runs_analyzed"] == 2
@@ -360,3 +576,41 @@ def test_static_recovery_run_excluded_from_full_pipeline(tmp_path: Path) -> None
     }
     assert "run-2-static" not in run_ids_seen
     assert run_ids_seen == {"run-1", "run-3"}
+
+
+def test_cli_defaults_match_published_method_thresholds() -> None:
+    """CLI defaults must match the documented saturation thresholds (Jaccard 0.90,
+    axis stability 0.95, new-DOI ratio 0.05) so that default drift cannot silently
+    change the published method."""
+    module = _load_module()
+    args = module.parse_args([])
+    assert (
+        args.jaccard_threshold == 0.90
+    ), f"jaccard_threshold default must be 0.90; got {args.jaccard_threshold}"
+    assert (
+        args.axis_stability_threshold == 0.95
+    ), f"axis_stability_threshold default must be 0.95; got {args.axis_stability_threshold}"
+    assert (
+        args.new_doi_threshold == 0.05
+    ), f"new_doi_threshold default must be 0.05; got {args.new_doi_threshold}"
+
+
+def test_parse_args_none_honours_real_sys_argv(monkeypatch, tmp_path: Path) -> None:
+    module = _load_module()
+    output_path = tmp_path / "custom_stability.json"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "build_run_stability_report.py",
+            "--output-path",
+            str(output_path),
+            "--jaccard-threshold",
+            "0.99",
+        ],
+    )
+
+    args = module.parse_args(None)
+
+    assert args.output_path == str(output_path)
+    assert args.jaccard_threshold == 0.99

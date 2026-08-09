@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/canonical_competences.schema.json",
+  "title": "Canonical competences row",
+  "type": "object",
+  "required": [
+    "canonical_competence_id",
+    "validation_decision_id",
+    "source_candidate_id",
+    "preferred_label",
+    "canonical_definition",
+    "aliases",
+    "validation_status",
+    "schema_version",
+    "provenance_guard_status"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "canonical_competence_id": { "type": "string", "minLength": 1 },
+    "validation_decision_id": { "type": "string", "minLength": 1 },
+    "source_candidate_id": { "type": "string", "minLength": 1 },
+    "preferred_label": { "type": "string", "minLength": 1 },
+    "canonical_definition": { "type": "string", "minLength": 1 },
+    "aliases": {
+      "type": "string",
+      "description": "Alternative labels for this canonical competence. May be empty or a single pipe-delimited string of alias terms. The producer serializes at most one alias (the source candidate label when it differs from the preferred label)."
+    },
+    "validation_status": { "type": "string", "enum": ["accepted"] },
+    "schema_version": { "type": "string", "minLength": 1 },
+    "provenance_guard_status": { "type": "string", "enum": ["passed"] }
+  }
+}

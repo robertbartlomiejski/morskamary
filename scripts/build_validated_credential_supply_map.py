@@ -1,408 +1,538 @@
-#!/usr/bin/env python3
-"""Build a preliminary H2 credential supply registry map for HYDRONIZATION."""
+"""Build an explicitly validated H2 credential-supply map.
+
+The input registry is an auditable external credential/programme mapping table.
+Only rows with validation_status=validated are eligible for the H2 supply map;
+candidate or review-required rows are preserved in the audit and never promoted.
+"""
 
 from __future__ import annotations
 
 import argparse
 import csv
 import json
-from dataclasses import dataclass
+import os
+import sys
+from collections import defaultdict
 from datetime import datetime, timezone
-from pathlib import Path
-import re
-from typing import Any, Dict, Iterable, List, Mapping, Sequence
+from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
+from typing import Any, Dict, List, Mapping, Sequence, Set
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_REGISTRY_PATH = REPO_ROOT / "data" / "validated" / "credential_supply_registry.csv"
-DEFAULT_DEMAND_SIGNALS_PATH = (
-    REPO_ROOT / "outputs" / "cumulative_database" / "competence_demand_signals.jsonl"
+REGISTRY_SCHEMA_VERSION = "1.0.0"
+MAP_SCHEMA_VERSION = "1.0.0"
+DEFAULT_REGISTRY_PATH = Path("data/validated/credential_supply_registry.csv")
+DEFAULT_DERIVED_DEMANDS_PATH = Path(
+    "outputs/cumulative_database/derived_competence_demands.csv"
 )
-DEFAULT_OUTPUT_DIR = REPO_ROOT / "outputs"
-OUTPUT_FILENAME = "h2_credential_supply_map.json"
-HYPOTHESIS_ID = "H2"
-HYPOTHESIS_LABEL = "Hydronization Lag"
-HYDRONIZATION = "HYDRONIZATION"
-ALLOWED_PRELIMINARY_STATUSES = {"validated", "review_required"}
-_TOKEN_RE = re.compile(r"[a-z0-9]+")
-_STOPWORDS = {
-    "and",
+DEFAULT_OUTPUT_PATH = Path(
+    "outputs/cumulative_database/validated_credential_supply_map.json"
+)
+DEFAULT_AUDIT_OUTPUT_PATH = Path(
+    "outputs/cumulative_database/validated_credential_supply_audit.json"
+)
+_REPO_ROOT_SUPPLY = Path(__file__).resolve().parents[1]
+_REDACTED_OUT_OF_TREE_PATH = "[redacted-out-of-tree-path]"
+
+REGISTRY_FIELDS: Sequence[str] = (
+    "credential_supply_id",
+    "programme_title",
+    "awarding_institution",
+    "country",
+    "programme_url",
+    "source_type",
+    "source_access_date",
+    "eqf_level",
+    "qualification_framework",
+    "competence_demand_id",
+    "mapping_basis",
+    "mapping_evidence",
+    "mapping_confidence",
+    "validation_status",
+    "validated_by",
+    "validation_date",
+    "validation_evidence_ids",
+    "notes",
+)
+
+VALIDATED_REQUIRED_FIELDS: Sequence[str] = (
+    "credential_supply_id",
+    "programme_title",
+    "awarding_institution",
+    "country",
+    "programme_url",
+    "source_type",
+    "source_access_date",
+    "eqf_level",
+    "qualification_framework",
+    "competence_demand_id",
+    "mapping_basis",
+    "mapping_evidence",
+    "mapping_confidence",
+    "validation_status",
+    "validated_by",
+    "validation_date",
+    "validation_evidence_ids",
+)
+
+_ALLOWED_VALIDATION_STATUSES = {
     "candidate",
-    "certificate",
-    "competence",
-    "course",
-    "credential",
-    "demand",
-    "diploma",
-    "for",
-    "graduate",
-    "in",
-    "learning",
-    "manual",
-    "master",
-    "msc",
-    "of",
-    "operations",
-    "placeholder",
-    "program",
-    "required",
-    "review",
-    "skill",
-    "the",
-    "to",
-    "validation",
+    "review_required",
+    "unvalidated",
+    "rejected",
+    "validated",
 }
 
 
-@dataclass(frozen=True)
-class RegistryEntry:
-    credential_id: str
-    credential_name: str
-    eqf_level: int
-    issuing_body: str
-    country_iso: str
-    axis_coverage: tuple[str, ...]
-    validation_status: str
-    source_url: str
-    validation_evidence_ids: tuple[str, ...]
-    notes: str
-
-    @property
-    def searchable_tokens(self) -> set[str]:
-        return _search_tokens(
-            " ".join(
-                [
-                    self.credential_name,
-                    self.issuing_body,
-                    self.notes,
-                    " ".join(self.axis_coverage),
-                ]
-            )
-        )
-
-
-@dataclass(frozen=True)
-class DemandSignal:
-    signal_id: str
-    axis_group: str
-    sector: str
-    competence_label: str
-    competence_description: str
-    demand_phrase: str
-    learning_outcome_candidate: str
-
-    @property
-    def searchable_tokens(self) -> set[str]:
-        return _search_tokens(
-            " ".join(
-                [
-                    self.sector,
-                    self.competence_label,
-                    self.competence_description,
-                    self.demand_phrase,
-                    self.learning_outcome_candidate,
-                ]
-            )
-        )
-
-
-def _timestamp_utc() -> str:
+def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
-def _repo_relative_posix(path: Path) -> str:
+def _to_repo_relative_posix(path: Path) -> str:
+    """Return a repository-relative POSIX path; redact if outside the repository."""
     try:
-        return path.resolve().relative_to(REPO_ROOT).as_posix()
+        return path.resolve().relative_to(_REPO_ROOT_SUPPLY).as_posix()
     except ValueError:
-        return "<redacted>/" + path.name
+        return _REDACTED_OUT_OF_TREE_PATH
 
 
-def _parse_axis_coverage(raw_value: str) -> tuple[str, ...]:
-    axes = [token.strip().upper() for token in str(raw_value or "").split("|")]
-    return tuple(axis for axis in axes if axis)
-
-
-def _parse_evidence_ids(raw_value: str) -> tuple[str, ...]:
-    tokens = [token.strip() for token in str(raw_value or "").split("|")]
-    return tuple(token for token in tokens if token)
-
-
-def _search_tokens(*parts: str) -> set[str]:
-    tokens: set[str] = set()
-    for part in parts:
-        for token in _TOKEN_RE.findall(str(part or "").lower()):
-            if len(token) < 4:
-                continue
-            if token in _STOPWORDS:
-                continue
-            tokens.add(token)
-    return tokens
-
-
-def load_registry(path: Path) -> List[RegistryEntry]:
-    with path.open("r", encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle)
-        rows: List[RegistryEntry] = []
-        for row in reader:
-            rows.append(
-                RegistryEntry(
-                    credential_id=str(row.get("credential_id", "")).strip(),
-                    credential_name=str(row.get("credential_name", "")).strip(),
-                    eqf_level=int(str(row.get("eqf_level", "")).strip() or 0),
-                    issuing_body=str(row.get("issuing_body", "")).strip(),
-                    country_iso=str(row.get("country_iso", "")).strip(),
-                    axis_coverage=_parse_axis_coverage(row.get("axis_coverage", "")),
-                    validation_status=str(
-                        row.get("validation_status", "")
-                    ).strip().lower(),
-                    source_url=str(row.get("source_url", "")).strip(),
-                    validation_evidence_ids=_parse_evidence_ids(
-                        row.get("validation_evidence_ids", "")
-                    ),
-                    notes=str(row.get("notes", "")).strip(),
-                )
-            )
-    return rows
-
-
-def load_demand_signals(path: Path) -> List[DemandSignal]:
-    if not path.is_file():
-        return []
-    signals: Dict[str, DemandSignal] = {}
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line:
+def _normalise_lexical_path(
+    path: PurePosixPath | PureWindowsPath,
+) -> PurePosixPath | PureWindowsPath:
+    """Collapse ``.`` and ``..`` without consulting the filesystem."""
+    parts: List[str] = []
+    for part in path.parts:
+        if part in (path.anchor, "", "."):
             continue
-        payload = json.loads(line)
-        signal = DemandSignal(
-            signal_id=str(payload.get("signal_id", "")).strip(),
-            axis_group=str(payload.get("axis_group", "")).strip().upper(),
-            sector=str(payload.get("sector", "")).strip(),
-            competence_label=str(payload.get("competence_label", "")).strip(),
-            competence_description=str(
-                payload.get("competence_description", "")
-            ).strip(),
-            demand_phrase=str(payload.get("demand_phrase", "")).strip(),
-            learning_outcome_candidate=str(
-                payload.get("learning_outcome_candidate", "")
-            ).strip(),
+        if part == "..":
+            if parts and parts[-1] != "..":
+                parts.pop()
+            elif not path.is_absolute():
+                parts.append(part)
+            continue
+        parts.append(part)
+
+    path_type = PureWindowsPath if isinstance(path, PureWindowsPath) else PurePosixPath
+    if path.anchor:
+        return path_type(path.anchor, *parts)
+    return path_type(*parts)
+
+
+def _classify_path_string(
+    text: str,
+) -> tuple[str, PurePosixPath | PureWindowsPath] | None:
+    """Classify raw CLI path syntax before host-native path conversion."""
+    windows_path = PureWindowsPath(text)
+    if text.startswith(("\\\\", "//")):
+        if windows_path.is_absolute():
+            return "windows", _normalise_lexical_path(windows_path)
+        return None
+    if len(text) >= 2 and text[1] == ":":
+        if windows_path.is_absolute():
+            return "windows", _normalise_lexical_path(windows_path)
+        return None
+    if text.startswith("/"):
+        return "posix", _normalise_lexical_path(
+            PurePosixPath(text.replace("\\", "/"))
         )
-        if signal.signal_id:
-            signals[signal.signal_id] = signal
-    return list(signals.values())
-
-
-def _status_distribution(entries: Iterable[RegistryEntry]) -> Dict[str, int]:
-    distribution = {"review_required": 0, "validated": 0, "rejected": 0}
-    for entry in entries:
-        if entry.validation_status not in distribution:
-            distribution[entry.validation_status] = 0
-        distribution[entry.validation_status] += 1
-    return distribution
-
-
-def _entry_matches_demand(entry: RegistryEntry, demand: DemandSignal) -> bool:
-    if demand.axis_group not in entry.axis_coverage:
-        return False
-    demand_tokens = demand.searchable_tokens
-    if not demand_tokens:
-        return True
-    overlap = demand_tokens & entry.searchable_tokens
-    if len(overlap) >= 2:
-        return True
-    demand_phrase_tokens = _search_tokens(demand.demand_phrase)
-    return bool(demand_phrase_tokens & entry.searchable_tokens)
-
-
-def _count_matches(
-    demands: Sequence[DemandSignal], entries: Sequence[RegistryEntry]
-) -> Mapping[str, List[str]]:
-    matched: Dict[str, List[str]] = {}
-    for demand in demands:
-        credential_ids = [
-            entry.credential_id
-            for entry in entries
-            if _entry_matches_demand(entry, demand)
-        ]
-        if credential_ids:
-            matched[demand.signal_id] = sorted(credential_ids)
-    return matched
-
-
-def _interpretation_from_ratio(missing_ratio: float) -> str:
-    if missing_ratio > 0.5:
-        return "supported"
-    if missing_ratio >= 0.25:
-        return "partially_supported"
-    return "not_supported"
-
-
-def compute_h2_supply_map(
-    *,
-    registry_entries: Sequence[RegistryEntry],
-    demand_signals: Sequence[DemandSignal],
-    eqf_min: int = 6,
-    eqf_max: int = 7,
-    registry_path: Path | None = None,
-    demand_signals_path: Path | None = None,
-) -> Dict[str, Any]:
-    hydronization_demands = [
-        demand for demand in demand_signals if demand.axis_group == HYDRONIZATION
-    ]
-    status_distribution = _status_distribution(registry_entries)
-    eqf_window_entries = [
-        entry for entry in registry_entries if eqf_min <= entry.eqf_level <= eqf_max
-    ]
-    hydronization_eqf_entries = [
-        entry for entry in eqf_window_entries if HYDRONIZATION in entry.axis_coverage
-    ]
-    validated_entries = [
-        entry
-        for entry in hydronization_eqf_entries
-        if entry.validation_status == "validated"
-        and entry.validation_evidence_ids
-    ]
-    preliminary_entries = [
-        entry
-        for entry in hydronization_eqf_entries
-        if entry.validation_status in ALLOWED_PRELIMINARY_STATUSES
-    ]
-
-    preliminary_matches = _count_matches(hydronization_demands, preliminary_entries)
-    validated_matches = _count_matches(hydronization_demands, validated_entries)
-
-    hydronization_demand_count = len(hydronization_demands)
-    validated_covered_demand_count = len(validated_matches)
-    validated_missing_demand_count = max(
-        hydronization_demand_count - validated_covered_demand_count, 0
-    )
-    preliminary_covered_demand_count = len(preliminary_matches)
-    preliminary_missing_demand_count = max(
-        hydronization_demand_count - preliminary_covered_demand_count, 0
-    )
-
-    missing_ratio = (
-        round(validated_missing_demand_count / hydronization_demand_count, 6)
-        if hydronization_demand_count
-        else None
-    )
-    preliminary_missing_ratio = (
-        round(preliminary_missing_demand_count / hydronization_demand_count, 6)
-        if hydronization_demand_count
-        else None
-    )
-
-    if not validated_entries:
-        interpretation = "not_computable"
-        interpretation_note = (
-            "All registry entries are review_required; H2 result is preliminary until "
-            "human validation."
+    if text.startswith("\\"):
+        return "posix", _normalise_lexical_path(
+            PurePosixPath(text.replace("\\", "/"))
         )
-    elif missing_ratio is None:
-        interpretation = "not_computable"
-        interpretation_note = "No HYDRONIZATION demand signals were available for H2."
-    else:
-        interpretation = _interpretation_from_ratio(missing_ratio)
-        interpretation_note = (
-            "Interpretation is computed only from explicitly validated EQF "
-            f"{eqf_min}-{eqf_max} credential entries."
+    return "relative", _normalise_lexical_path(
+        PurePosixPath(text.replace("\\", "/"))
+    )
+
+
+def _native_lexical_path(path: Path) -> PurePosixPath | PureWindowsPath:
+    """Represent a genuine host-native path after safe lexical resolution."""
+    resolved_path = path.resolve(strict=False)
+    if os.name == "nt":
+        return _normalise_lexical_path(PureWindowsPath(str(resolved_path)))
+    return _normalise_lexical_path(PurePosixPath(resolved_path.as_posix()))
+
+
+def _repository_lexical_path(
+    repo_root: Path | PurePath,
+) -> PurePosixPath | PureWindowsPath:
+    """Keep concrete roots native while allowing pure-path regression fixtures."""
+    if isinstance(repo_root, Path):
+        return _native_lexical_path(repo_root)
+    if isinstance(repo_root, PureWindowsPath):
+        return _normalise_lexical_path(repo_root)
+    return _normalise_lexical_path(PurePosixPath(str(repo_root)))
+
+
+def _same_path_flavour(
+    first: PurePosixPath | PureWindowsPath,
+    second: PurePosixPath | PureWindowsPath,
+) -> bool:
+    return isinstance(first, PureWindowsPath) == isinstance(second, PureWindowsPath)
+
+
+def _relative_for_flavour(
+    path: PurePosixPath,
+    reference: PurePosixPath | PureWindowsPath,
+) -> PurePosixPath | PureWindowsPath:
+    """Apply separator-neutral relative components to the native root flavour."""
+    if isinstance(reference, PureWindowsPath):
+        return PureWindowsPath(*path.parts)
+    return PurePosixPath(*path.parts)
+
+
+def _repository_relative_display_path(
+    candidate: PurePosixPath | PureWindowsPath,
+    repo_root: PurePosixPath | PureWindowsPath,
+) -> str:
+    """Return a proved repository-relative display path or redact it."""
+    if not _same_path_flavour(candidate, repo_root):
+        return _REDACTED_OUT_OF_TREE_PATH
+    if isinstance(candidate, PureWindowsPath) and isinstance(repo_root, PureWindowsPath):
+        if candidate.drive.casefold() != repo_root.drive.casefold():
+            return _REDACTED_OUT_OF_TREE_PATH
+    try:
+        relative_path = candidate.relative_to(repo_root)
+    except ValueError:
+        return _REDACTED_OUT_OF_TREE_PATH
+    return "/".join(relative_path.parts) or "."
+
+
+def _redact_path_string(text: str, repo_root: Path | PurePath) -> str:
+    """Render one raw CLI path as repository-relative POSIX or a redaction token."""
+    classified_path = _classify_path_string(text)
+    if classified_path is None:
+        return _REDACTED_OUT_OF_TREE_PATH
+
+    path_kind, candidate = classified_path
+    lexical_repo_root = _repository_lexical_path(repo_root)
+    if not lexical_repo_root.is_absolute():
+        return _REDACTED_OUT_OF_TREE_PATH
+    if path_kind == "relative":
+        if not isinstance(candidate, PurePosixPath):
+            return _REDACTED_OUT_OF_TREE_PATH
+        current_directory = _native_lexical_path(Path.cwd())
+        if not _same_path_flavour(current_directory, lexical_repo_root):
+            return _REDACTED_OUT_OF_TREE_PATH
+        relative_candidate = _relative_for_flavour(candidate, lexical_repo_root)
+        candidate = _normalise_lexical_path(
+            current_directory.joinpath(*relative_candidate.parts)
         )
 
-    payload: Dict[str, Any] = {
-        "hypothesis_id": HYPOTHESIS_ID,
-        "hypothesis_label": HYPOTHESIS_LABEL,
-        "timestamp_utc": _timestamp_utc(),
-        "registry_path": _repo_relative_posix(registry_path or DEFAULT_REGISTRY_PATH),
-        "demand_signals_path": _repo_relative_posix(
-            demand_signals_path or DEFAULT_DEMAND_SIGNALS_PATH
-        ),
-        "registry_entries_total": len(registry_entries),
-        "registry_entries_eqf_6_7": len(eqf_window_entries),
-        "registry_entries_hydronization_eqf_6_7": len(hydronization_eqf_entries),
-        "hydronization_demand_count": hydronization_demand_count,
-        "validated_covered_demand_count": validated_covered_demand_count,
-        "validated_missing_demand_count": validated_missing_demand_count,
-        "missing_ratio": missing_ratio,
-        "interpretation": interpretation,
-        "interpretation_note": interpretation_note,
-        "validation_status_distribution": status_distribution,
-        "preliminary_covered_demand_count": preliminary_covered_demand_count,
-        "preliminary_missing_demand_count": preliminary_missing_demand_count,
-        "preliminary_missing_ratio": preliminary_missing_ratio,
-        "validated_entries_hydronization_eqf_6_7": len(validated_entries),
-        "eligible_preliminary_statuses": sorted(ALLOWED_PRELIMINARY_STATUSES),
-        "mapping_method": (
-            "Axis-constrained lexical overlap between HYDRONIZATION demand-signal "
-            "text and candidate credential registry metadata."
-        ),
+    return _repository_relative_display_path(candidate, lexical_repo_root)
+
+
+def _path_text_variants(text: str) -> Sequence[str]:
+    """Return the exact supplied spelling and its separator-only variants."""
+    separator_variants = (text, text.replace("\\", "/"), text.replace("/", "\\"))
+    return tuple(
+        dict.fromkeys(
+            candidate
+            for variant in separator_variants
+            for candidate in (variant, repr(variant)[1:-1])
+        )
+    )
+
+
+def _redact_cli_path_text(
+    value: object,
+    raw_paths: Sequence[str],
+    native_paths: Sequence[Path],
+) -> str:
+    """Redact raw and host-native CLI path forms from caught diagnostics."""
+    text = str(value)
+    replacements: Dict[str, str] = {}
+
+    def add_replacement_candidates(path_text: str, safe_path: str) -> None:
+        for candidate_text in _path_text_variants(path_text):
+            if candidate_text and candidate_text != safe_path:
+                replacements[candidate_text] = safe_path
+
+    def add_parent_replacement_candidates(path: Path) -> None:
+        parent = path.parent
+        if not path.is_absolute() or parent == path or parent == parent.parent:
+            return
+        add_replacement_candidates(
+            str(parent), _redact_path_string(str(parent), _REPO_ROOT_SUPPLY)
+        )
+
+    for raw_path, native_path in zip(raw_paths, native_paths, strict=True):
+        safe_path = _redact_path_string(raw_path, _REPO_ROOT_SUPPLY)
+        add_replacement_candidates(raw_path, safe_path)
+        add_replacement_candidates(str(native_path), safe_path)
+        add_parent_replacement_candidates(native_path)
+        try:
+            resolved_native_path = native_path.resolve(strict=False)
+        except (OSError, RuntimeError):
+            pass
+        else:
+            add_replacement_candidates(str(resolved_native_path), safe_path)
+            add_parent_replacement_candidates(resolved_native_path)
+
+    for candidate_text in sorted(replacements, key=lambda item: (-len(item), item)):
+        text = text.replace(candidate_text, replacements[candidate_text])
+    return text
+
+
+def _clean(value: Any) -> str:
+    return str(value or "").strip()
+
+
+def _split_pipe(value: Any) -> list[str]:
+    return [item.strip() for item in str(value or "").split("|") if item.strip()]
+
+
+def load_derived_demand_ids(path: Path) -> Set[str]:
+    """Read valid competence_demand_id values from Layer 4 demand outputs."""
+    if not path.is_file():
+        raise ValueError(f"derived demands file does not exist: {path}")
+    demand_ids: Set[str] = set()
+    if path.suffix.lower() == ".jsonl":
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(
+                    f"invalid JSONL derived demand row {line_number}: {exc}"
+                ) from exc
+            demand_id = _clean(row.get("competence_demand_id"))
+            if demand_id:
+                demand_ids.add(demand_id)
+        if not demand_ids:
+            raise ValueError(
+                "derived demands JSONL file contains no competence_demand_id values"
+            )
+        return demand_ids
+
+    with path.open(newline="", encoding="utf-8") as fh:
+        reader = csv.DictReader(fh)
+        if reader.fieldnames is None:
+            raise ValueError("derived demands CSV is missing a header")
+        if "competence_demand_id" not in reader.fieldnames:
+            raise ValueError("derived demands CSV must contain competence_demand_id")
+        for row in reader:
+            demand_id = _clean(row.get("competence_demand_id"))
+            if demand_id:
+                demand_ids.add(demand_id)
+    # An empty demand set is a valid scientific outcome: live acquisition
+    # produced records but no legally retained semantic competence signals.
+    # Downstream code emits not_computable hypotheses in this case.
+    return demand_ids
+
+
+def _load_registry_rows(path: Path) -> List[Dict[str, str]]:
+    if not path.is_file():
+        raise ValueError(f"credential supply registry does not exist: {path}")
+    with path.open(newline="", encoding="utf-8") as fh:
+        reader = csv.DictReader(fh)
+        if reader.fieldnames is None:
+            raise ValueError("credential supply registry is missing a header")
+        missing = [field for field in REGISTRY_FIELDS if field not in reader.fieldnames]
+        if missing:
+            raise ValueError(
+                "credential supply registry missing required column(s): "
+                f"{missing}"
+            )
+        return [dict(row) for row in reader]
+
+
+def _parse_eqf_level(raw_level: Any, *, row_number: int) -> int:
+    value = _clean(raw_level)
+    if not value.isdigit():
+        raise ValueError(f"registry row {row_number}: eqf_level must be an integer")
+    level = int(value)
+    if level < 4 or level > 7:
+        raise ValueError(
+            f"registry row {row_number}: eqf_level={level} is outside EQF 4-7 scope"
+        )
+    return level
+
+
+def _validated_entry(row: Mapping[str, str], eqf_level: int) -> Dict[str, Any]:
+    return {
+        "credential_supply_id": _clean(row.get("credential_supply_id")),
+        "programme_title": _clean(row.get("programme_title")),
+        "awarding_institution": _clean(row.get("awarding_institution")),
+        "country": _clean(row.get("country")),
+        "programme_url": _clean(row.get("programme_url")),
+        "source_type": _clean(row.get("source_type")),
+        "source_access_date": _clean(row.get("source_access_date")),
+        "eqf_level": eqf_level,
+        "qualification_framework": _clean(row.get("qualification_framework")),
+        "mapping_basis": _clean(row.get("mapping_basis")),
+        "mapping_evidence": _clean(row.get("mapping_evidence")),
+        "mapping_confidence": _clean(row.get("mapping_confidence")),
+        "validated_by": _clean(row.get("validated_by")),
+        "validation_date": _clean(row.get("validation_date")),
+        "validation_evidence_ids": _clean(row.get("validation_evidence_ids")),
+        "notes": _clean(row.get("notes")),
     }
-    return payload
 
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--registry-path",
-        default=str(DEFAULT_REGISTRY_PATH),
-        help="Path to credential_supply_registry.csv.",
+def build_validated_supply_map(
+    *,
+    registry_path: Path,
+    derived_demands_path: Path,
+    output_path: Path,
+    audit_output_path: Path,
+    built_at_utc: str | None = None,
+) -> Dict[str, Any]:
+    """Validate the external registry and write the accepted H2 supply map."""
+    demand_ids = load_derived_demand_ids(derived_demands_path)
+    registry_rows = _load_registry_rows(registry_path)
+    built_at = built_at_utc or _utc_now_iso()
+
+    supply_by_demand: Dict[str, Dict[str, Any]] = {}
+    validated_rows_by_demand: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    excluded_rows: List[Dict[str, Any]] = []
+
+    # Empty demand set: no competence signals survived semantic filtering.
+    # Registry cannot be validated against absent demands; emit not_computable.
+    if not demand_ids:
+        print(
+            "[INFO] derived demands file contains no competence_demand_id values; "
+            "writing not_computable supply map (no demands to validate against)",
+            file=sys.stderr,
+        )
+    else:
+        for index, row in enumerate(registry_rows, start=2):
+            demand_id = _clean(row.get("competence_demand_id"))
+            if not demand_id:
+                raise ValueError(f"registry row {index}: competence_demand_id is required")
+            if demand_id not in demand_ids:
+                raise ValueError(
+                    f"registry row {index}: unknown competence_demand_id {demand_id!r}"
+                )
+            eqf_level = _parse_eqf_level(row.get("eqf_level"), row_number=index)
+            status = _clean(row.get("validation_status")).lower()
+            if status not in _ALLOWED_VALIDATION_STATUSES:
+                raise ValueError(
+                    f"registry row {index}: unsupported validation_status {status!r}"
+                )
+            if status != "validated":
+                excluded_rows.append(
+                    {
+                        "row_number": index,
+                        "credential_supply_id": _clean(row.get("credential_supply_id")),
+                        "competence_demand_id": demand_id,
+                        "eqf_level": eqf_level,
+                        "validation_status": status,
+                        "reason": "not_explicitly_validated",
+                    }
+                )
+                continue
+
+            missing = [field for field in VALIDATED_REQUIRED_FIELDS if not _clean(row.get(field))]
+            if missing:
+                raise ValueError(
+                    f"registry row {index}: validated mapping missing required field(s): "
+                    f"{missing}"
+                )
+            if not bool(_split_pipe(row.get("validation_evidence_ids", ""))):
+                raise ValueError(
+                    f"registry row {index}: validated mapping must supply at least one "
+                    "validation_evidence_id (field is blank or contains only separators)"
+                )
+            entry = _validated_entry(row, eqf_level)
+            validated_rows_by_demand[demand_id].append(entry)
+
+    if not validated_rows_by_demand:
+        print(
+            "[INFO] credential supply registry contains no explicitly validated mappings; "
+            "writing not_computable supply map",
+            file=sys.stderr,
+        )
+
+    for demand_id, rows in sorted(validated_rows_by_demand.items()):
+        eqf_levels = sorted({int(row["eqf_level"]) for row in rows})
+        supply_by_demand[demand_id] = {
+            "validation_status": "validated",
+            "eqf_levels": eqf_levels,
+            "credential_supply_ids": sorted(
+                {str(row["credential_supply_id"]) for row in rows}
+            ),
+            "programme_titles": sorted({str(row["programme_title"]) for row in rows}),
+            "validation_evidence_ids": sorted(
+                {
+                    evidence_id
+                    for row in rows
+                    for evidence_id in _split_pipe(row.get("validation_evidence_ids"))
+                    if evidence_id
+                }
+            ),
+            "mapping_count": len(rows),
+        }
+
+    has_validated_supply = bool(supply_by_demand)
+    output = {
+        "schema_version": MAP_SCHEMA_VERSION,
+        "validation_status": "validated" if has_validated_supply else "not_computable",
+        "has_validated_supply": has_validated_supply,
+        "unit_of_analysis": "competence_demand_id",
+        "built_at_utc": built_at,
+        "source_registry_path": _to_repo_relative_posix(registry_path),
+        "derived_demands_path": _to_repo_relative_posix(derived_demands_path),
+        "validated_supply_by_demand_id": supply_by_demand,
+    }
+    audit = {
+        "schema_version": REGISTRY_SCHEMA_VERSION,
+        "built_at_utc": built_at,
+        "registry_path": _to_repo_relative_posix(registry_path),
+        "derived_demands_path": _to_repo_relative_posix(derived_demands_path),
+        "total_registry_rows": len(registry_rows),
+        "validated_mapping_rows": sum(len(rows) for rows in validated_rows_by_demand.values()),
+        "validated_demand_count": len(validated_rows_by_demand),
+        "excluded_row_count": len(excluded_rows),
+        "excluded_rows": excluded_rows,
+        "validated_rows_by_demand_id": dict(sorted(validated_rows_by_demand.items())),
+    }
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    audit_output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(output, indent=2, ensure_ascii=False), encoding="utf-8")
+    audit_output_path.write_text(
+        json.dumps(audit, indent=2, ensure_ascii=False), encoding="utf-8"
     )
-    parser.add_argument(
-        "--demand-signals",
-        default=str(DEFAULT_DEMAND_SIGNALS_PATH),
-        help="Path to competence_demand_signals.jsonl.",
-    )
-    parser.add_argument(
-        "--output-dir",
-        default=str(DEFAULT_OUTPUT_DIR),
-        help="Directory for h2_credential_supply_map.json.",
-    )
-    parser.add_argument(
-        "--eqf-min",
-        type=int,
-        default=6,
-        help="Minimum EQF level to include in coverage calculations.",
-    )
-    parser.add_argument(
-        "--eqf-max",
-        type=int,
-        default=7,
-        help="Maximum EQF level to include in coverage calculations.",
-    )
-    return parser
+    return output
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
-    registry_path = Path(args.registry_path)
-    demand_signals_path = Path(args.demand_signals)
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    registry_entries = load_registry(registry_path)
-    demand_signals = load_demand_signals(demand_signals_path)
-    payload = compute_h2_supply_map(
-        registry_entries=registry_entries,
-        demand_signals=demand_signals,
-        eqf_min=args.eqf_min,
-        eqf_max=args.eqf_max,
-        registry_path=registry_path,
-        demand_signals_path=demand_signals_path,
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--registry", default=str(DEFAULT_REGISTRY_PATH))
+    parser.add_argument("--derived-demands", default=str(DEFAULT_DERIVED_DEMANDS_PATH))
+    parser.add_argument("--output", default=str(DEFAULT_OUTPUT_PATH))
+    parser.add_argument("--audit-output", default=str(DEFAULT_AUDIT_OUTPUT_PATH))
+    parser.add_argument("--built-at-utc", default=None)
+    args = parser.parse_args(argv)
+    raw_paths = (
+        args.registry,
+        args.derived_demands,
+        args.output,
+        args.audit_output,
     )
+    native_paths = tuple(Path(raw_path) for raw_path in raw_paths)
 
-    output_path = output_dir / OUTPUT_FILENAME
-    output_path.write_text(
-        json.dumps(payload, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-    print(
-        json.dumps(
-            {
-                "output_path": _repo_relative_posix(output_path),
-                "interpretation": payload["interpretation"],
-            }
+    try:
+        output = build_validated_supply_map(
+            registry_path=native_paths[0],
+            derived_demands_path=native_paths[1],
+            output_path=native_paths[2],
+            audit_output_path=native_paths[3],
+            built_at_utc=args.built_at_utc,
         )
-    )
+    except (OSError, ValueError) as exc:
+        print(
+            "ERROR: " + _redact_cli_path_text(exc, raw_paths, native_paths),
+            file=sys.stderr,
+        )
+        return 1
+    summary = {
+        "validated_demand_count": len(output["validated_supply_by_demand_id"]),
+        "output": _redact_path_string(args.output, _REPO_ROOT_SUPPLY),
+        "audit_output": _redact_path_string(args.audit_output, _REPO_ROOT_SUPPLY),
+    }
+    print(json.dumps(summary, sort_keys=True))
     return 0
 
 
 if __name__ == "__main__":  # pragma: no cover
-    raise SystemExit(main())
+    sys.exit(main())

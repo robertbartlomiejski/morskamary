@@ -1,7 +1,10 @@
-"""Tests for the OpenAlex scientific source provider."""
+"""Contract tests for the OpenAlex scientific source provider."""
 
 from __future__ import annotations
 
+import json
+import urllib.error
+import urllib.parse
 from unittest.mock import patch
 
 from scripts.export_live_research_records import (
@@ -12,341 +15,385 @@ from src.scientific_sources.openalex import OpenAlexProvider
 from src.scientific_sources.source_registry import SourceRegistry
 
 
-def _mock_works_response(n: int = 5, page: int = 1) -> dict:
-    """Build a mock OpenAlex works search response."""
-    works = []
-    for i in range(n):
-        offset = (page - 1) * n + i
-        works.append(
-            {
-                "id": f"https://openalex.org/W{1000 + offset}",
-                "display_name": f"Test Article {offset}",
-                "publication_year": 2024,
-                "publication_date": "2024-01-15",
-                "doi": f"https://doi.org/10.5555/test.{offset}",
-                "authorships": [
-                    {"author": {"display_name": f"Author {offset}"}},
-                ],
-                "primary_location": {
-                    "source": {"display_name": f"Journal {offset}"},
-                },
-                "cited_by_count": 10 + offset,
-                "topics": [
-                    {"display_name": "Marine Science"},
-                    {"display_name": "Blue Economy"},
-                ],
-                "keywords": [
-                    {"keyword": "maritime"},
-                ],
-            }
-        )
+def _work(index: int, *, include_abstract_index: bool = False) -> dict:
+    work = {
+        "id": f"https://openalex.org/W{1000 + index}",
+        "display_name": f"Test Article {index}",
+        "publication_year": 2024,
+        "publication_date": "2024-01-15",
+        "doi": f"https://doi.org/10.5555/test.{index}",
+        "authorships": [{"author": {"display_name": f"Author {index}"}}],
+        "primary_location": {"source": {"display_name": f"Journal {index}"}},
+        "cited_by_count": 10 + index,
+        "topics": [{"display_name": "Marine Science"}],
+        "keywords": [{"keyword": "maritime"}],
+    }
+    if include_abstract_index:
+        work["abstract_inverted_index"] = {
+            "Restricted": [0],
+            "abstract": [1],
+            "content": [2],
+        }
+    return work
+
+
+def _response(
+    start: int,
+    count: int,
+    next_cursor: str = "",
+    *,
+    include_abstract_index: bool = False,
+) -> dict:
     return {
-        "meta": {"count": 100, "page": page, "per_page": n},
-        "results": works,
+        "meta": {"count": 1000, "next_cursor": next_cursor},
+        "results": [
+            _work(start + index, include_abstract_index=include_abstract_index)
+            for index in range(count)
+        ],
     }
 
 
-class TestOpenAlexProviderCapability:
-    def test_provider_name_is_openalex(self) -> None:
-        provider = OpenAlexProvider()
-        assert provider.capability.name == "openalex"
-
-    def test_always_configured(self) -> None:
-        provider = OpenAlexProvider()
-        assert provider.capability.configured is True
-
-    def test_does_not_require_secret(self) -> None:
-        provider = OpenAlexProvider()
-        assert provider.capability.requires_secret is False
-
-    def test_licence_note_mentions_aggregator(self) -> None:
-        provider = OpenAlexProvider()
-        assert "aggregator" in provider.capability.licence_note.lower()
+def _provider(monkeypatch) -> OpenAlexProvider:
+    monkeypatch.setenv("OPENALEX_API_KEY", "test-key")
+    return OpenAlexProvider()
 
 
-class TestOpenAlexSearch:
-    def test_search_parses_works(self) -> None:
-        provider = OpenAlexProvider()
-        response = _mock_works_response(3)
-
-        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
-            del url, context_label
-            return response, [], None
-
-        with patch.object(
-            provider,
-            "_request_json_with_backoff",
-            side_effect=mock_backoff,
-        ):
-            result = provider.search("blue economy", max_results=3)
-
-        assert len(result.records) == 3
-        assert result.records[0].provider == "OpenAlex"
-        assert result.records[0].doi == "10.5555/test.0"
-        assert result.records[0].source_id.startswith("openalex:")
-        assert "Author 0" in result.records[0].authors
-
-    def test_doi_prefix_stripped(self) -> None:
-        provider = OpenAlexProvider()
-        response = _mock_works_response(1)
-
-        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
-            del url, context_label
-            return response, [], None
-
-        with patch.object(
-            provider,
-            "_request_json_with_backoff",
-            side_effect=mock_backoff,
-        ):
-            result = provider.search("test", max_results=1)
-
-        assert not result.records[0].doi.startswith("https://")
-
-    def test_subject_terms_populated(self) -> None:
-        provider = OpenAlexProvider()
-        response = _mock_works_response(1)
-
-        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
-            del url, context_label
-            return response, [], None
-
-        with patch.object(
-            provider,
-            "_request_json_with_backoff",
-            side_effect=mock_backoff,
-        ):
-            result = provider.search("test", max_results=1)
-
-        assert "Marine Science" in result.records[0].subject_terms
-        assert "maritime" in result.records[0].subject_terms
-
-    def test_error_returns_structured_result(self) -> None:
-        provider = OpenAlexProvider()
-
-        def mock_backoff(
-            *,
-            url: str,
-            context_label: str,
-        ) -> tuple[None, list[str], str]:
-            del url, context_label
-            return None, ["retry warning"], "OpenAlex search failed (terminal_status=http_500)"
-
-        with patch.object(
-            provider,
-            "_request_json_with_backoff",
-            side_effect=mock_backoff,
-        ):
-            result = provider.search("test", max_results=5)
-
-        assert result.errors
-        assert result.records == []
+def test_capability_requires_configured_openalex_key(monkeypatch) -> None:
+    monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
+    provider = OpenAlexProvider()
+    assert provider.capability.name == "openalex"
+    assert provider.capability.configured is False
+    assert provider.capability.requires_secret is True
 
 
-class TestOpenAlexPagination:
-    def test_three_pages_use_distinct_page_params(self) -> None:
-        provider = OpenAlexProvider()
-        pages_requested: list[int] = []
+def test_unconfigured_operations_are_zero_network_and_zero_count(monkeypatch) -> None:
+    """OpenAlex rejects missing credentials before every HTTP request boundary."""
+    monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
+    provider = OpenAlexProvider()
 
-        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
-            import urllib.parse
+    with (
+        patch.object(provider, "_request_json_with_backoff") as mocked_backoff,
+        patch.object(provider, "_request_json") as mocked_request_json,
+        patch("src.scientific_sources.openalex.urllib.request.urlopen") as mocked_urlopen,
+    ):
+        search_result = provider.search("blue economy")
+        modern_result = provider.search_paginated("blue economy", pages=1)
+        legacy_result, legacy_diagnostics = provider.search_paginated(
+            "blue economy", logical_pages=1
+        )
+        doi_result = provider.verify_doi("10.1234/example")
 
-            del context_label
-            parsed = urllib.parse.urlparse(url)
-            params = urllib.parse.parse_qs(parsed.query)
-            page = int(params.get("page", [1])[0])
-            pages_requested.append(page)
-            return _mock_works_response(50, page=page), [], None
+    for result in (search_result, modern_result, legacy_result, doi_result):
+        assert result.is_empty
+        assert result.physical_request_count == 0
+        assert "No live API call was made." in result.warnings[0]
+    assert legacy_diagnostics == []
+    mocked_backoff.assert_not_called()
+    mocked_request_json.assert_not_called()
+    mocked_urlopen.assert_not_called()
 
-        with patch.object(
-            provider,
-            "_request_json_with_backoff",
-            side_effect=mock_backoff,
-        ):
-            result, diagnostics = provider.search_paginated(
-                "test query",
-                logical_pages=3,
-                rows_per_page=50,
+
+def test_search_normalizes_work_and_sends_api_key(monkeypatch) -> None:
+    provider = _provider(monkeypatch)
+    captured: list[str] = []
+
+    def mocked(*, url: str, context_label: str):
+        del context_label
+        captured.append(url)
+        return _response(0, 2), [], None, None, 1
+
+    with patch.object(provider, "_request_json_with_backoff", side_effect=mocked):
+        result = provider.search("blue economy", max_results=2)
+
+    assert len(result.records) == 2
+    assert result.records[0].provider == "OpenAlex"
+    assert result.records[0].doi == "10.5555/test.0"
+    assert result.records[0].source_id == "openalex:10.5555/test.0"
+    assert "Marine Science" in result.records[0].subject_terms
+    assert result.physical_request_count == 1
+    assert urllib.parse.parse_qs(urllib.parse.urlparse(captured[0]).query)[
+        "api_key"
+    ] == ["test-key"]
+
+
+def test_configured_request_uses_query_key_without_credential_leakage(
+    monkeypatch, capsys, tmp_path
+) -> None:
+    """The OpenAlex key travels only in the URL query and never reaches output."""
+    provider = _provider(monkeypatch)
+    captured_requests = []
+
+    class Response:
+        def read(self) -> bytes:
+            return json.dumps(_response(0, 1)).encode("utf-8")
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args) -> None:
+            return None
+
+    def mocked_urlopen(request, timeout: int):
+        del timeout
+        captured_requests.append(request)
+        return Response()
+
+    with patch(
+        "src.scientific_sources.openalex.urllib.request.urlopen",
+        side_effect=mocked_urlopen,
+    ):
+        result = provider.search("credential-safe query", max_results=1)
+
+    assert len(captured_requests) == 1
+    outbound = captured_requests[0]
+    parsed_url = urllib.parse.urlparse(outbound.full_url)
+    assert urllib.parse.parse_qs(parsed_url.query)["api_key"] == ["test-key"]
+    header_items = dict(outbound.header_items())
+    assert not any(name.lower() == "authorization" for name in header_items)
+    assert not any("bearer" in value.lower() for value in header_items.values())
+
+    rendered_result = json.dumps(
+        {
+            "warnings": result.warnings,
+            "errors": result.errors,
+            "page_diagnostics": result.page_diagnostics,
+            "raw_payload": result.raw_payload,
+        },
+        sort_keys=True,
+    )
+    persisted_artifact = tmp_path / "openalex_provider_result.json"
+    persisted_artifact.write_text(
+        json.dumps(result.to_dict(), sort_keys=True), encoding="utf-8"
+    )
+    captured = capsys.readouterr()
+    assert "test-key" not in rendered_result
+    assert "test-key" not in persisted_artifact.read_text(encoding="utf-8")
+    assert "test-key" not in captured.out
+    assert "test-key" not in captured.err
+
+
+def test_paginated_search_uses_distinct_cursor_requests(monkeypatch) -> None:
+    provider = _provider(monkeypatch)
+    captured: list[str] = []
+    responses = iter(
+        [
+            _response(0, 2, "cursor-2"),
+            _response(2, 2, "cursor-3"),
+            _response(4, 1),
+        ]
+    )
+
+    def mocked(url: str):
+        captured.append(url)
+        return next(responses)
+
+    with patch.object(provider, "_request_json", side_effect=mocked):
+        result = provider.search_paginated(
+            "test query",
+            pages=3,
+            rows_per_page=2,
+            time_window={"from_year": 2019, "to_year": 2026},
+        )
+
+    assert len(result.records) == 5
+    assert len(result.page_diagnostics) == 3
+    assert result.physical_request_count == 3
+    cursors = [
+        urllib.parse.parse_qs(urllib.parse.urlparse(url).query)["cursor"][0]
+        for url in captured
+    ]
+    assert cursors == ["*", "cursor-2", "cursor-3"]
+    assert "from_publication_date%3A2019" in captured[0]
+
+
+def test_retained_payload_strips_abstract_index(monkeypatch) -> None:
+    provider = _provider(monkeypatch)
+
+    def mocked(*, url: str, context_label: str):
+        del url, context_label
+        return _response(0, 1, include_abstract_index=True), [], None, None, 1
+
+    with patch.object(provider, "_request_json_with_backoff", side_effect=mocked):
+        result = provider.search("abstract governance", max_results=2)
+
+    assert result.records[0].abstract_available is True
+    assert result.records[0].abstract_stored is False
+    assert result.raw_payload is not None
+    assert result.raw_payload["payload_kind"] == (
+        "redistribution_safe_metadata_envelope"
+    )
+    retained = json.dumps(result.raw_payload, sort_keys=True)
+    assert "abstract_inverted_index" not in retained
+    assert "Restricted" not in retained
+    safe_result = result.raw_payload["pages"][0]["payload"]["results"][0]
+    assert safe_result["abstract_available"] is True
+
+
+def test_retained_payload_hashes_next_cursor(monkeypatch) -> None:
+    provider = _provider(monkeypatch)
+
+    def mocked(*, url: str, context_label: str):
+        del url, context_label
+        return _response(0, 1, "sensitive-cursor"), [], None, None, 1
+
+    with patch.object(provider, "_request_json_with_backoff", side_effect=mocked):
+        result = provider.search_paginated(
+            "cursor governance", pages=1, rows_per_page=1
+        )
+
+    retained = json.dumps(result.raw_payload, sort_keys=True)
+    assert "sensitive-cursor" not in retained
+    marker = result.raw_payload["pages"][0]["payload"]["meta"]["next_cursor_marker"]
+    assert marker.startswith("sha256:")
+
+
+def test_terminal_page_failure_is_returned_as_provider_error(monkeypatch) -> None:
+    provider = _provider(monkeypatch)
+
+    def mocked(*, url: str, context_label: str):
+        del url, context_label
+        return None, ["retry warning"], "OpenAlex search failed", "rate-limited", 2
+
+    with patch.object(provider, "_request_json_with_backoff", side_effect=mocked):
+        result = provider.search("test", max_results=5)
+
+    assert result.errors == ["OpenAlex search failed"]
+    assert result.rate_limit_status == "rate-limited"
+    assert result.page_diagnostics[0]["pagination_status"] == "failed"
+    assert result.physical_request_count == 2
+
+
+def test_provider_exception_redacts_api_key_from_errors(monkeypatch) -> None:
+    provider = _provider(monkeypatch)
+
+    def mocked_request(url: str):
+        raise RuntimeError(f"failed URL {url}")
+
+    with patch.object(provider, "_request_json", side_effect=mocked_request):
+        result = provider.search("credential redaction", max_results=1)
+
+    rendered = json.dumps(
+        {
+            "errors": result.errors,
+            "diagnostics": result.page_diagnostics,
+        },
+        sort_keys=True,
+    )
+    assert "test-key" not in rendered
+    assert "api_key=REDACTED" in rendered
+    assert result.physical_request_count == 1
+
+
+def test_verify_doi_uses_api_key_and_normalizes_doi(monkeypatch) -> None:
+    provider = _provider(monkeypatch)
+    captured: list[str] = []
+
+    def mocked(*, url: str, context_label: str):
+        del context_label
+        captured.append(url)
+        return _work(1, include_abstract_index=True), [], None, None, 1
+
+    with patch.object(provider, "_request_json_with_backoff", side_effect=mocked):
+        result = provider.verify_doi("10.1234/test")
+
+    assert result.records[0].doi == "10.5555/test.1"
+    assert "api_key=test-key" in captured[0]
+    assert "abstract_inverted_index" not in json.dumps(result.raw_payload)
+    assert result.raw_payload["payload"]["abstract_available"] is True
+    assert result.physical_request_count == 1
+
+
+def test_transient_server_errors_are_retried(monkeypatch) -> None:
+    provider = _provider(monkeypatch)
+    http_error = urllib.error.HTTPError(
+        "https://api.openalex.org/works",
+        503,
+        "Service Unavailable",
+        hdrs=None,
+        fp=None,
+    )
+    calls = iter([http_error, {"results": []}])
+
+    def mocked_request(url: str):
+        result = next(calls)
+        if isinstance(result, Exception):
+            raise result
+        return result
+
+    with (
+        patch.object(provider, "_request_json", side_effect=mocked_request) as mocked,
+        patch("src.scientific_sources.openalex.time.sleep") as mocked_sleep,
+    ):
+        payload, warnings, error, rate_limit, physical_request_count = (
+            provider._request_json_with_backoff(
+                url="https://api.openalex.org/works",
+                context_label="search",
             )
+        )
 
-        assert pages_requested == [1, 2, 3]
-        assert len(diagnostics) == 3
-        assert all(d["pagination_method"] == "openalex_page" for d in diagnostics)
-        assert len(result.records) == 150
+    assert payload == {"results": []}
+    assert error is None
+    assert rate_limit is None
+    assert physical_request_count == 2
+    assert mocked.call_count == 2
+    mocked_sleep.assert_called_once()
+    assert any("http_status=503" in warning for warning in warnings)
 
-    def test_stops_when_results_exhausted(self) -> None:
-        provider = OpenAlexProvider()
-        call_count = 0
 
-        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
-            nonlocal call_count
-            del url, context_label
-            call_count += 1
-            if call_count == 1:
-                return _mock_works_response(50), [], None
-            return _mock_works_response(10), [], None
+def test_retry_helper_counts_503_then_429_then_success(monkeypatch) -> None:
+    provider = _provider(monkeypatch)
+    service_unavailable = urllib.error.HTTPError(
+        "https://api.openalex.org/works",
+        503,
+        "Service Unavailable",
+        hdrs=None,
+        fp=None,
+    )
+    throttled = urllib.error.HTTPError(
+        "https://api.openalex.org/works",
+        429,
+        "Too Many Requests",
+        hdrs={"Retry-After": "0"},
+        fp=None,
+    )
+    calls = iter([service_unavailable, throttled, {"results": []}])
 
-        with patch.object(
-            provider,
-            "_request_json_with_backoff",
-            side_effect=mock_backoff,
-        ):
-            _, diagnostics = provider.search_paginated(
-                "test",
-                logical_pages=3,
-                rows_per_page=50,
+    def mocked_request(url: str):
+        del url
+        result = next(calls)
+        if isinstance(result, Exception):
+            raise result
+        return result
+
+    with (
+        patch.object(provider, "_request_json", side_effect=mocked_request) as mocked,
+        patch("src.scientific_sources.openalex.time.sleep"),
+    ):
+        payload, warnings, error, rate_limit, physical_request_count = (
+            provider._request_json_with_backoff(
+                url="https://api.openalex.org/works",
+                context_label="search",
             )
+        )
 
-        assert call_count == 2
-        assert len(diagnostics) == 2
-
-    def test_time_window_filter_included(self) -> None:
-        provider = OpenAlexProvider()
-        captured_url: list[str] = []
-
-        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
-            del context_label
-            captured_url.append(url)
-            return _mock_works_response(5), [], None
-
-        with patch.object(
-            provider,
-            "_request_json_with_backoff",
-            side_effect=mock_backoff,
-        ):
-            provider.search_paginated(
-                "test",
-                logical_pages=1,
-                rows_per_page=50,
-                time_window={"from_year": 2019, "to_year": 2026},
-            )
-
-        assert "publication_year" in captured_url[0]
-        assert "2019" in captured_url[0]
+    assert payload == {"results": []}
+    assert error is None
+    assert rate_limit is None
+    assert physical_request_count == 3
+    assert mocked.call_count == 3
+    assert any("http_status=503" in warning for warning in warnings)
+    assert any("http_status=429" in warning for warning in warnings)
 
 
-class TestOpenAlexVerifyDoi:
-    def test_verify_doi_returns_record(self) -> None:
-        provider = OpenAlexProvider()
-        work = {
-            "id": "https://openalex.org/W123",
-            "display_name": "Test Article",
-            "publication_year": 2024,
-            "doi": "https://doi.org/10.1234/test",
-            "authorships": [{"author": {"display_name": "Test Author"}}],
-            "primary_location": {"source": {"display_name": "Test Journal"}},
-            "cited_by_count": 5,
-            "topics": [],
-            "keywords": [],
-        }
-
-        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
-            del url, context_label
-            return work, [], None
-
-        with patch.object(
-            provider,
-            "_request_json_with_backoff",
-            side_effect=mock_backoff,
-        ):
-            result = provider.verify_doi("10.1234/test")
-
-        assert len(result.records) == 1
-        assert result.records[0].doi == "10.1234/test"
-
-    def test_verify_doi_raw_payload_strips_abstract_inverted_index(self) -> None:
-        """No-abstract-retention contract: verify_doi's raw_payload must not
-        carry abstract_inverted_index even when the upstream API returns it."""
-        provider = OpenAlexProvider()
-        work = {
-            "id": "https://openalex.org/W123",
-            "display_name": "Test Article",
-            "publication_year": 2024,
-            "doi": "https://doi.org/10.1234/test",
-            "authorships": [{"author": {"display_name": "Test Author"}}],
-            "primary_location": {"source": {"display_name": "Test Journal"}},
-            "cited_by_count": 5,
-            "topics": [],
-            "keywords": [],
-            "abstract_inverted_index": {"The": [0], "study": [1]},
-        }
-
-        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
-            del url, context_label
-            return work, [], None
-
-        with patch.object(
-            provider,
-            "_request_json_with_backoff",
-            side_effect=mock_backoff,
-        ):
-            result = provider.verify_doi("10.1234/test")
-
-        assert result.raw_payload is not None
-        assert "abstract_inverted_index" not in result.raw_payload
-        assert result.raw_payload["id"] == "https://openalex.org/W123"
-
-
-class TestOpenAlexAbstractRetentionContract:
-    """Integration coverage that search()/verify_doi() enforce the
-    no-abstract-retention contract via `_strip_abstract_fields`."""
-
-    def test_search_raw_payload_strips_abstract_inverted_index_from_results(self) -> None:
-        provider = OpenAlexProvider()
-        response = _mock_works_response(2)
-        response["results"][0]["abstract_inverted_index"] = {"The": [0], "sea": [1]}
-        response["results"][1]["abstract_inverted_index"] = {"Ocean": [0]}
-
-        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
-            del url, context_label
-            return response, [], None
-
-        with patch.object(
-            provider,
-            "_request_json_with_backoff",
-            side_effect=mock_backoff,
-        ):
-            result = provider.search("blue economy", max_results=2)
-
-        assert result.raw_payload is not None
-        for work in result.raw_payload["results"]:
-            assert "abstract_inverted_index" not in work
-        # Untouched sibling fields must survive the strip.
-        assert result.raw_payload["results"][0]["display_name"] == "Test Article 0"
-        assert result.raw_payload["meta"]["count"] == 100
-
-    def test_search_raw_payload_without_abstract_field_is_unaffected(self) -> None:
-        """Responses that never contained abstracts should pass through intact."""
-        provider = OpenAlexProvider()
-        response = _mock_works_response(1)
-
-        def mock_backoff(*, url: str, context_label: str) -> tuple[dict, list[str], None]:
-            del url, context_label
-            return response, [], None
-
-        with patch.object(
-            provider,
-            "_request_json_with_backoff",
-            side_effect=mock_backoff,
-        ):
-            result = provider.search("test", max_results=1)
-
-        assert result.raw_payload["results"][0]["id"] == "https://openalex.org/W1000"
-
-
-class TestOpenAlexIntegration:
-    def test_registry_lists_openalex_provider(self) -> None:
-        registry = SourceRegistry()
-        names = [cap.name for cap in registry.list_capabilities()]
-        assert "openalex" in names
-
-    def test_provider_name_normalization_handles_openalex(self) -> None:
-        assert normalize_provider_name("OpenAlex") == "openalex"
-
-    def test_sort_lookup_falls_back_to_wos_for_openalex(self) -> None:
-        strategies = {
-            "crossref": "published-desc",
-            "scopus": "date-desc",
-            "wos": "date-desc",
-        }
-        assert _lookup_provider_sort_strategy(strategies, "openalex") == "date-desc"
+def test_registry_and_sort_normalization_include_openalex(monkeypatch) -> None:
+    _provider(monkeypatch)
+    names = [cap.name for cap in SourceRegistry().list_capabilities()]
+    assert "openalex" in names
+    assert normalize_provider_name("OpenAlex") == "openalex"
+    assert (
+        _lookup_provider_sort_strategy(
+            {"crossref": "published-desc", "scopus": "date-desc"},
+            "openalex",
+        )
+        == "date-desc"
+    )

@@ -48,6 +48,7 @@ _MAX_RETRY_ATTEMPTS = 4
 _BASE_BACKOFF_SECONDS = 1.0
 _MAX_BACKOFF_SECONDS = 30.0
 _MAX_RETRY_AFTER_SECONDS = 120.0
+_TRANSIENT_SERVER_HTTP_STATUSES = frozenset({500, 502, 503, 504})
 
 
 class CrossrefProvider(BaseProvider):
@@ -205,20 +206,30 @@ class CrossrefProvider(BaseProvider):
         url: str,
         context_label: str,
         jitter_seed: str,
-    ) -> tuple[Dict[str, Any] | None, List[str], str | None]:
+    ) -> tuple[Dict[str, Any] | None, List[str], str | None, int]:
+        """Fetch JSON with bounded retry and exact physical-attempt accounting."""
         warnings: List[str] = []
+        physical_request_count = 0
         for attempt in range(1, _MAX_RETRY_ATTEMPTS + 1):
-            req = urllib.request.Request(url, headers={"User-Agent": self._user_agent()})
             try:
+                req = urllib.request.Request(
+                    url, headers={"User-Agent": self._user_agent()}
+                )
+                # Count immediately before urlopen so response-read, timeout, and
+                # transport failures are retained as initiated HTTP attempts.
+                physical_request_count += 1
                 with urllib.request.urlopen(req, timeout=10) as resp:
                     data = json.loads(resp.read().decode())
                 if warnings:
                     warnings.append(
                         f"Crossref retry terminal_status=success attempt={attempt}"
                     )
-                return data, warnings, None
+                return data, warnings, None, physical_request_count
             except urllib.error.HTTPError as exc:
-                if exc.code != 429:
+                if (
+                    exc.code != 429
+                    and exc.code not in _TRANSIENT_SERVER_HTTP_STATUSES
+                ):
                     body_snippet = ""
                     try:
                         body_snippet = exc.read(240).decode(
@@ -231,8 +242,11 @@ class CrossrefProvider(BaseProvider):
                         f"Crossref {context_label} failed after attempt={attempt} "
                         f"(terminal_status=http_{exc.code}).{snippet}"
                     )
-                    return None, warnings, terminal
-                retry_after = self._retry_after_seconds(exc.headers.get("Retry-After", ""))
+                    return None, warnings, terminal, physical_request_count
+                retry_after_header = ""
+                if exc.code == 429 and exc.headers:
+                    retry_after_header = exc.headers.get("Retry-After", "")
+                retry_after = self._retry_after_seconds(retry_after_header)
                 backoff = min(
                     _BASE_BACKOFF_SECONDS * (2 ** (attempt - 1)),
                     _MAX_BACKOFF_SECONDS,
@@ -240,21 +254,56 @@ class CrossrefProvider(BaseProvider):
                 jitter = self._deterministic_jitter_seconds(jitter_seed, attempt)
                 wait_seconds = retry_after if retry_after is not None else backoff + jitter
                 warnings.append(
-                    f"Crossref retry {context_label}: attempt={attempt} http_status=429 "
+                    f"Crossref retry {context_label}: attempt={attempt} http_status={exc.code} "
                     f"retry_after_seconds={retry_after!r} backoff_seconds={round(backoff, 3)} "
                     f"jitter_seconds={round(jitter, 3)} wait_seconds={round(wait_seconds, 3)}"
                 )
                 if attempt >= _MAX_RETRY_ATTEMPTS:
+                    terminal_status = (
+                        "rate_limited" if exc.code == 429 else f"http_{exc.code}"
+                    )
                     terminal = (
                         f"Crossref {context_label} failed after {_MAX_RETRY_ATTEMPTS} attempts "
-                        "(terminal_status=rate_limited)"
+                        f"(terminal_status={terminal_status})"
                     )
-                    return None, warnings, terminal
+                    return None, warnings, terminal, physical_request_count
                 time.sleep(max(wait_seconds, 0.0))
+            except (
+                urllib.error.URLError,
+                TimeoutError,
+                ConnectionError,
+                OSError,
+            ) as exc:
+                backoff = min(
+                    _BASE_BACKOFF_SECONDS * (2 ** (attempt - 1)),
+                    _MAX_BACKOFF_SECONDS,
+                )
+                jitter = self._deterministic_jitter_seconds(jitter_seed, attempt)
+                wait_seconds = backoff + jitter
+                warnings.append(
+                    f"Crossref retry {context_label}: attempt={attempt} "
+                    f"transport_error={type(exc).__name__} "
+                    f"backoff_seconds={round(backoff, 3)} "
+                    f"jitter_seconds={round(jitter, 3)} "
+                    f"wait_seconds={round(wait_seconds, 3)}"
+                )
+                if attempt >= _MAX_RETRY_ATTEMPTS:
+                    terminal = (
+                        f"Crossref {context_label} failed after {_MAX_RETRY_ATTEMPTS} attempts "
+                        "(terminal_status=transport_error)"
+                    )
+                    return None, warnings, terminal, physical_request_count
+                time.sleep(max(wait_seconds, 0.0))
+            except Exception:
+                terminal = (
+                    f"Crossref {context_label} failed after attempt={attempt} "
+                    "(terminal_status=unexpected_error)"
+                )
+                return None, warnings, terminal, physical_request_count
         return None, warnings, (
             f"Crossref {context_label} failed after {_MAX_RETRY_ATTEMPTS} attempts "
             "(terminal_status=rate_limited)"
-        )
+        ), physical_request_count
 
     def search(self, query: str, max_results: int = 5) -> ProviderResult:
         """Search Crossref for records matching *query*."""
@@ -264,8 +313,14 @@ class CrossrefProvider(BaseProvider):
             f"&select=title,author,URL,DOI,published,container-title,subject"
             f"&rows={max_results}"
         )
+        physical_request_count = 0
         try:
-            data, retry_warnings, terminal_error = self._request_json_with_backoff(
+            (
+                data,
+                retry_warnings,
+                terminal_error,
+                physical_request_count,
+            ) = self._request_json_with_backoff(
                 url=url,
                 context_label="search",
                 jitter_seed=query,
@@ -278,6 +333,7 @@ class CrossrefProvider(BaseProvider):
                     errors=[terminal_error],
                     warnings=retry_warnings,
                     rate_limit_status=rate_limit_status,
+                    physical_request_count=physical_request_count,
                 )
             assert data is not None
             items = data.get("message", {}).get("items", [])
@@ -288,125 +344,177 @@ class CrossrefProvider(BaseProvider):
                 warnings=retry_warnings,
                 provenance=evidence,
                 raw_payload=data,
+                physical_request_count=physical_request_count,
             )
         except Exception as exc:
-            return ProviderResult(errors=[f"Crossref search error: {exc}"])
+            return ProviderResult(
+                errors=[f"Crossref search error: {exc}"],
+                physical_request_count=physical_request_count,
+            )
+
+    @staticmethod
+    def _cursor_marker(cursor: str) -> str:
+        """Return a compact persisted marker for a Crossref cursor token."""
+        if cursor == "*":
+            return "*"
+        digest = hashlib.sha256(cursor.encode("utf-8")).hexdigest()[:16]
+        return f"sha256:{digest}"
 
     def search_paginated(
         self,
         query: str,
         *,
-        logical_pages: int = 1,
+        pages: int = 1,
+        logical_pages: int | None = None,
         rows_per_page: int = 50,
-        time_window: dict | None = None,
         sort_strategy: str = "",
-    ) -> tuple[ProviderResult, list[dict]]:
-        """Paginated Crossref search using the offset parameter."""
-        del time_window
-        all_records: List[LiteratureRecord] = []
-        all_errors: List[str] = []
-        all_warnings: List[str] = []
-        all_provenance: List[SourceEvidence] = []
-        raw_pages: List[Dict[str, Any]] = []
+        time_window: Dict[str, int] | None = None,
+    ) -> Any:
+        """Search Crossref using provider cursor paging."""
+        legacy_api = logical_pages is not None
+        requested_pages = logical_pages if logical_pages is not None else pages
+        safe_pages = max(1, int(requested_pages or 1))
+        safe_rows = max(1, min(int(rows_per_page or 1), 1000))
+        cursor = "*"
+        records: List[LiteratureRecord] = []
+        provenance: List[SourceEvidence] = []
+        warnings: List[str] = []
         page_diagnostics: List[Dict[str, Any]] = []
+        raw_pages: List[Dict[str, Any]] = []
+        physical_request_count = 0
+        sort_clause = ""
+        if sort_strategy == "published-desc":
+            sort_clause = "&sort=published&order=desc"
 
-        for page_num in range(logical_pages):
-            offset = page_num * rows_per_page
+        for logical_page in range(1, safe_pages + 1):
+            endpoint = "crossref/works?offset" if legacy_api else "crossref/works?cursor"
+            offset = (logical_page - 1) * safe_rows
+            page_clause = (
+                f"&offset={offset}"
+                if legacy_api
+                else f"&cursor={urllib.parse.quote(cursor, safe='')}"
+            )
             url = (
                 f"{_API_BASE}/works"
                 f"?query={urllib.parse.quote(query)}"
                 f"&select=title,author,URL,DOI,published,container-title,subject"
-                f"&rows={rows_per_page}"
-                f"&offset={offset}"
+                f"&rows={safe_rows}"
+                f"{page_clause}"
+                f"{sort_clause}"
             )
-            if sort_strategy == "published-desc":
-                url += "&sort=published&order=desc"
-
-            try:
-                data, retry_warnings, terminal_error = self._request_json_with_backoff(
-                    url=url,
-                    context_label=f"search_page_{page_num + 1}",
-                    jitter_seed=f"{query}|page{page_num}",
+            if time_window:
+                from_year = int(time_window.get("from_year", 0) or 0)
+                to_year = int(time_window.get("to_year", 9999) or 9999)
+                filters: List[str] = []
+                if from_year > 0:
+                    filters.append(f"from-pub-date:{from_year:04d}-01-01")
+                if to_year < 9999:
+                    filters.append(f"until-pub-date:{to_year:04d}-12-31")
+                if filters:
+                    url += f"&filter={urllib.parse.quote(','.join(filters), safe=':,')}"
+            (
+                data,
+                retry_warnings,
+                terminal_error,
+                page_physical_request_count,
+            ) = self._request_json_with_backoff(
+                url=url,
+                context_label=f"search page {logical_page}",
+                jitter_seed=f"{query}|{logical_page}",
+            )
+            physical_request_count += page_physical_request_count
+            warnings.extend(retry_warnings)
+            if terminal_error:
+                rate_limit_status = (
+                    "rate-limited" if "terminal_status=rate_limited" in terminal_error else None
                 )
-                all_warnings.extend(retry_warnings)
-
-                if terminal_error:
-                    page_diagnostics.append(
-                        {
-                            "logical_page": page_num + 1,
-                            "physical_requests": 1,
-                            "requested_rows": rows_per_page,
-                            "returned_rows": 0,
-                            "pagination_method": "crossref_offset",
-                            "offset": offset,
-                            "error": terminal_error,
-                        }
-                    )
-                    all_errors.append(terminal_error)
-                    break
-
-                assert data is not None
-                raw_pages.append(data)
-                items = data.get("message", {}).get("items", [])
-                records = self._parse_items(items, query)
-                evidence = self._make_evidence(
-                    query, f"crossref/works?offset={offset}", records
-                )
-
                 page_diagnostics.append(
                     {
-                        "logical_page": page_num + 1,
-                        "physical_requests": 1,
-                        "requested_rows": rows_per_page,
-                        "returned_rows": len(records),
-                        "pagination_method": "crossref_offset",
-                        "offset": offset,
-                    }
-                )
-
-                all_records.extend(records)
-                all_provenance.extend(evidence)
-
-                if len(records) < rows_per_page:
-                    break
-            except Exception as exc:
-                page_diagnostics.append(
-                    {
-                        "logical_page": page_num + 1,
-                        "physical_requests": 1,
-                        "requested_rows": rows_per_page,
+                        "provider": "crossref",
+                        "query": query,
+                        "logical_page": logical_page,
+                        "physical_request_index": logical_page,
+                        "cursor_or_offset": self._cursor_marker(cursor),
+                        "requested_rows": safe_rows,
                         "returned_rows": 0,
-                        "pagination_method": "crossref_offset",
-                        "offset": offset,
-                        "error": str(exc),
+                        "normalized_rows": 0,
+                        "pagination_status": "failed",
+                        "errors": terminal_error,
                     }
                 )
-                all_errors.append(f"Crossref page {page_num + 1} error: {exc}")
+                result = ProviderResult(
+                    records=records,
+                    errors=[terminal_error],
+                    warnings=warnings,
+                    rate_limit_status=rate_limit_status,
+                    provenance=provenance,
+                    raw_payload={"pages": raw_pages} if raw_pages else None,
+                    page_diagnostics=page_diagnostics,
+                    physical_request_count=physical_request_count,
+                )
+                if legacy_api:
+                    return result, page_diagnostics
+                return result
+            assert data is not None
+            message = data.get("message", {})
+            items = message.get("items", [])
+            if not isinstance(items, list):
+                items = []
+            page_records = self._parse_items(items, query)
+            records.extend(page_records)
+            provenance.extend(self._make_evidence(query, endpoint, page_records))
+            raw_pages.append({"logical_page": logical_page, "payload": data})
+            next_cursor = str(message.get("next-cursor", "") or "").strip()
+            status = "applied"
+            if len(items) < safe_rows:
+                status = "end_of_results"
+            diagnostic = {
+                "provider": "crossref",
+                "query": query,
+                "logical_page": logical_page,
+                "physical_request_index": logical_page,
+                "cursor_or_offset": str(offset) if legacy_api else self._cursor_marker(cursor),
+                "requested_rows": safe_rows,
+                "returned_rows": len(items),
+                "normalized_rows": len(page_records),
+                "pagination_status": status,
+            }
+            if legacy_api:
+                diagnostic["offset"] = offset
+                diagnostic["pagination_method"] = "crossref_offset"
+            page_diagnostics.append(diagnostic)
+            if status == "end_of_results":
                 break
+            if legacy_api:
+                continue
+            if not next_cursor or next_cursor == cursor:
+                warnings.append("Crossref cursor pagination stopped: missing_or_repeated_next_cursor")
+                break
+            cursor = next_cursor
 
-        rate_limit_status = (
-            "rate-limited"
-            if any("terminal_status=rate_limited" in msg for msg in all_errors)
-            or any("http_status=429" in msg for msg in all_warnings)
-            else None
+        result = ProviderResult(
+            records=records,
+            warnings=warnings,
+            provenance=provenance,
+            raw_payload={"pages": raw_pages},
+            page_diagnostics=page_diagnostics,
+            physical_request_count=physical_request_count,
         )
-        return (
-            ProviderResult(
-                records=all_records,
-                errors=all_errors,
-                warnings=all_warnings,
-                provenance=all_provenance,
-                raw_payload={"pages": raw_pages} if raw_pages else None,
-                rate_limit_status=rate_limit_status,
-            ),
-            page_diagnostics,
-        )
+        if legacy_api:
+            return result, page_diagnostics
+        return result
 
     def verify_doi(self, doi: str) -> ProviderResult:
         """Verify a specific DOI via Crossref."""
         url = f"{_API_BASE}/works/{urllib.parse.quote(doi)}"
+        physical_request_count = 0
         try:
-            data, retry_warnings, terminal_error = self._request_json_with_backoff(
+            (
+                data,
+                retry_warnings,
+                terminal_error,
+                physical_request_count,
+            ) = self._request_json_with_backoff(
                 url=url,
                 context_label="DOI verification",
                 jitter_seed=doi,
@@ -419,6 +527,7 @@ class CrossrefProvider(BaseProvider):
                     errors=[terminal_error],
                     warnings=retry_warnings,
                     rate_limit_status=rate_limit_status,
+                    physical_request_count=physical_request_count,
                 )
             assert data is not None
             item = data.get("message", {})
@@ -429,6 +538,10 @@ class CrossrefProvider(BaseProvider):
                 warnings=retry_warnings,
                 provenance=evidence,
                 raw_payload=data,
+                physical_request_count=physical_request_count,
             )
         except Exception as exc:
-            return ProviderResult(errors=[f"Crossref DOI verification error: {exc}"])
+            return ProviderResult(
+                errors=[f"Crossref DOI verification error: {exc}"],
+                physical_request_count=physical_request_count,
+            )

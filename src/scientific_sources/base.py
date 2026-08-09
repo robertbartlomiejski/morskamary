@@ -14,8 +14,11 @@ raising an exception when a required secret is absent.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Any
 
 from src.scientific_sources.models import ProviderResult, SourceCapability
+
+_PAGINATION_UNSUPPORTED = "pagination_not_supported_by_provider"
 
 
 class BaseProvider(ABC):
@@ -41,6 +44,55 @@ class BaseProvider(ABC):
             with an explanatory warning rather than raising.
         """
 
+    def search_paginated(
+        self,
+        query: str,
+        *,
+        pages: int = 1,
+        logical_pages: int | None = None,
+        rows_per_page: int = 50,
+        sort_strategy: str = "",
+        time_window: dict[str, int] | None = None,
+    ) -> Any:
+        """Search using protocol-defined logical pages when supported.
+
+        The default implementation preserves the historical provider contract by
+        delegating to ``search(query, max_results)``. Providers with native
+        pagination override this method. Multi-page scientific acquisitions must
+        inspect ``page_diagnostics`` before claiming the sampling strategy was
+        applied.
+        """
+        del sort_strategy, time_window
+        legacy_api = logical_pages is not None
+        requested_pages = logical_pages if logical_pages is not None else pages
+        safe_pages = max(1, int(requested_pages or 1))
+        safe_rows = max(1, int(rows_per_page or 1))
+        result = self.search(query, safe_pages * safe_rows)
+        result.page_diagnostics.append(
+            {
+                "provider": self.capability.name,
+                "query": query,
+                "logical_page": 1,
+                "physical_request_index": 1,
+                "cursor_or_offset": "single_request_fallback",
+                "requested_rows": safe_pages * safe_rows,
+                "returned_rows": len(result.records),
+                "normalized_rows": len(result.records),
+                "pagination_status": (
+                    "single_page_fallback"
+                    if safe_pages == 1
+                    else _PAGINATION_UNSUPPORTED
+                ),
+            }
+        )
+        if safe_pages > 1:
+            result.warnings.append(_PAGINATION_UNSUPPORTED)
+        if legacy_api:
+            diagnostic = dict(result.page_diagnostics[0])
+            diagnostic["pagination_method"] = "single_request_fallback"
+            return result, [diagnostic]
+        return result
+
     @abstractmethod
     def verify_doi(self, doi: str) -> ProviderResult:
         """
@@ -53,30 +105,6 @@ class BaseProvider(ABC):
             ProviderResult with at most one LiteratureRecord.
         """
 
-    def search_paginated(
-        self,
-        query: str,
-        *,
-        logical_pages: int = 1,
-        rows_per_page: int = 50,
-        time_window: dict | None = None,
-        sort_strategy: str = "",
-    ) -> tuple[ProviderResult, list[dict]]:
-        """Paginated search with a single-request fallback implementation."""
-        del time_window, sort_strategy
-        total = logical_pages * rows_per_page
-        result = self.search(query, max_results=total)
-        diagnostics = [
-            {
-                "logical_page": 1,
-                "physical_requests": 1,
-                "requested_rows": total,
-                "returned_rows": len(result.records),
-                "pagination_method": "single_request_fallback",
-            }
-        ]
-        return result, diagnostics
-
     def _not_configured_result(self) -> ProviderResult:
         """Return a standard "provider not configured" result."""
         cap = self.capability
@@ -86,6 +114,7 @@ class BaseProvider(ABC):
                 "CROSSREF_MAILTO",
                 "ELSEVIER_API_KEY",
                 "SCOPUS_API_KEY",
+                "OPENALEX_API_KEY",
                 "WOS_API_KEY",
                 "SCIVAL_API_KEY",
                 "GOOGLE_DRIVE_OAUTH_CREDENTIALS",

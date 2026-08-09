@@ -202,7 +202,8 @@ def _compute_axis_fragment_counts(
     for record in records:
         for fragment in _record_fragments(record):
             axis = classifier.classify_axis(fragment)
-            counts[axis.name] += 1
+            if axis is not None:
+                counts[axis.name] += 1
     return counts
 
 

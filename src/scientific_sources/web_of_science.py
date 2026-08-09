@@ -27,7 +27,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 import time
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Any, Dict, List, Optional, cast
 
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
@@ -317,18 +317,26 @@ class WebOfScienceProvider(BaseProvider):
         return evidence
 
     @staticmethod
-    def _http_error_result(action: str, exc: urllib.error.HTTPError) -> ProviderResult:
+    def _http_error_result(
+        action: str,
+        exc: urllib.error.HTTPError,
+        *,
+        physical_request_count: int = 0,
+    ) -> ProviderResult:
         if exc.code == 429:
             return ProviderResult(
                 warnings=[f"Web of Science {action} rate limited (HTTP 429)."],
                 rate_limit_status="rate-limited",
+                physical_request_count=physical_request_count,
             )
         if exc.code in (401, 403):
             return ProviderResult(
-                errors=[f"Web of Science {action} unauthorized (HTTP {exc.code})."]
+                errors=[f"Web of Science {action} unauthorized (HTTP {exc.code})."],
+                physical_request_count=physical_request_count,
             )
         return ProviderResult(
-            errors=[f"Web of Science {action} failed (HTTP {exc.code})."]
+            errors=[f"Web of Science {action} failed (HTTP {exc.code})."],
+            physical_request_count=physical_request_count,
         )
 
     # ------------------------------------------------------------------
@@ -341,7 +349,9 @@ class WebOfScienceProvider(BaseProvider):
             return self._not_configured_result()
         wos_query = urllib.parse.quote(f"TS=({query})")
         url = f"{self._api_base}?q={wos_query}&limit={max_results}&page=1"
+        physical_request_count = 0
         try:
+            physical_request_count += 1
             payload = self._request_json(url)
             items = payload.get("hits", [])
             if not isinstance(items, list):
@@ -351,21 +361,28 @@ class WebOfScienceProvider(BaseProvider):
                 records=records,
                 provenance=self._make_evidence(query, "wos/documents", records),
                 raw_payload=payload,
+                physical_request_count=physical_request_count,
             )
         except urllib.error.HTTPError as exc:
-            return self._http_error_result("search", exc)
+            return self._http_error_result(
+                "search", exc, physical_request_count=physical_request_count
+            )
         except Exception as exc:
-            return ProviderResult(errors=[f"Web of Science search error: {exc}"])
+            return ProviderResult(
+                errors=[f"Web of Science search error: {exc}"],
+                physical_request_count=physical_request_count,
+            )
 
     def search_paginated(
         self,
         query: str,
         *,
-        logical_pages: int = 1,
+        pages: int = 1,
+        logical_pages: int | None = None,
         rows_per_page: int = 50,
-        time_window: Optional[Dict[str, Any]] = None,
+        time_window: Optional[Dict[str, int]] = None,
         sort_strategy: str = "",
-    ) -> Tuple[ProviderResult, List[Dict[str, Any]]]:
+    ) -> Any:
         """Paginated WoS search using native page parameter.
 
         WoS Starter API supports ``limit`` up to 50 per request and a
@@ -374,22 +391,43 @@ class WebOfScienceProvider(BaseProvider):
         page (same approach Scopus uses).
         """
         del time_window, sort_strategy  # not used by WoS Starter
+        legacy_api = logical_pages is not None
+        requested_pages = logical_pages if logical_pages is not None else pages
+        safe_pages = max(1, int(requested_pages or 1))
+        safe_rows = max(1, int(rows_per_page or 1))
         if not self._api_key:
             result = self._not_configured_result()
-            return result, [{"logical_page": 1, "error": "not_configured"}]
+            result.page_diagnostics = [
+                {
+                    "provider": "wos",
+                    "query": query,
+                    "logical_page": 1,
+                    "physical_request_index": 0,
+                    "cursor_or_offset": "not_configured",
+                    "requested_rows": safe_rows,
+                    "returned_rows": 0,
+                    "normalized_rows": 0,
+                    "pagination_status": "provider_not_configured",
+                    "error": "not_configured",
+                    "errors": "provider_not_configured",
+                }
+            ]
+            return (result, result.page_diagnostics) if legacy_api else result
 
         _WOS_MAX_LIMIT = 50
         all_records: List[LiteratureRecord] = []
         all_warnings: List[str] = []
+        all_errors: List[str] = []
         all_provenance: List[SourceEvidence] = []
         page_diagnostics: List[Dict[str, Any]] = []
 
         wos_query = urllib.parse.quote(f"TS=({query})")
         # Global physical page counter across all logical pages
         physical_page = 1
+        physical_request_count = 0
 
-        for logical_page_idx in range(logical_pages):
-            rows_remaining = rows_per_page
+        for logical_page_idx in range(safe_pages):
+            rows_remaining = safe_rows
             page_records: List[LiteratureRecord] = []
             physical_requests = 0
 
@@ -399,6 +437,11 @@ class WebOfScienceProvider(BaseProvider):
                     f"{self._api_base}?q={wos_query}"
                     f"&limit={chunk_size}&page={physical_page}"
                 )
+                # Count the attempt before making the request so that every
+                # outcome (success, HTTP error, timeout, malformed JSON) is
+                # accounted for exactly once.
+                physical_requests += 1
+                physical_request_count += 1
                 try:
                     payload = self._request_json(url)
                     items = payload.get("hits", [])
@@ -406,7 +449,6 @@ class WebOfScienceProvider(BaseProvider):
                         items = []
                     records = self._parse_items(items, query)
                     page_records.extend(records)
-                    physical_requests += 1
                     physical_page += 1
                     rows_remaining -= chunk_size
                     # Early stop if fewer results than requested
@@ -417,30 +459,70 @@ class WebOfScienceProvider(BaseProvider):
                         all_warnings.append(
                             f"WoS page={physical_page} rate-limited (429)"
                         )
-                        page_diagnostics.append({
-                            "logical_page": logical_page_idx + 1,
-                            "physical_requests": physical_requests,
-                            "requested_rows": rows_per_page,
-                            "returned_rows": len(page_records),
-                            "pagination_method": "wos_starter_page",
-                            "error": "rate_limited",
-                        })
+                        all_errors.append("rate_limited")
+                        page_diagnostics.append(
+                            {
+                                "provider": "wos",
+                                "query": query,
+                                "logical_page": logical_page_idx + 1,
+                                "physical_request_index": physical_requests,
+                                "cursor_or_offset": f"page:{physical_page}",
+                                "physical_requests": physical_requests,
+                                "requested_rows": safe_rows,
+                                "returned_rows": len(page_records),
+                                "normalized_rows": len(page_records),
+                                "pagination_method": "wos_starter_page",
+                                "pagination_status": "rate_limited",
+                                "errors": "rate_limited",
+                            }
+                        )
                         break
-                    all_warnings.append(
-                        f"WoS page={physical_page} HTTP {exc.code}"
+                    _http_code = f"http_{exc.code}"
+                    all_warnings.append(f"WoS page={physical_page} HTTP {exc.code}")
+                    all_errors.append(_http_code)
+                    page_diagnostics.append(
+                        {
+                            "provider": "wos",
+                            "query": query,
+                            "logical_page": logical_page_idx + 1,
+                            "physical_request_index": physical_requests,
+                            "cursor_or_offset": f"page:{physical_page}",
+                            "physical_requests": physical_requests,
+                            "requested_rows": safe_rows,
+                            "returned_rows": len(page_records),
+                            "normalized_rows": len(page_records),
+                            "pagination_method": "wos_starter_page",
+                            "pagination_status": "failed",
+                            "errors": _http_code,
+                        }
                     )
-                    page_diagnostics.append({
-                        "logical_page": logical_page_idx + 1,
-                        "physical_requests": physical_requests,
-                        "requested_rows": rows_per_page,
-                        "returned_rows": len(page_records),
-                        "pagination_method": "wos_starter_page",
-                        "error": f"http_{exc.code}",
-                    })
                     break
                 except Exception as exc:
+                    if isinstance(exc, (urllib.error.URLError, TimeoutError, OSError)):
+                        _stable_error = "network_timeout_or_connection_error"
+                    elif isinstance(exc, (json.JSONDecodeError, ValueError)):
+                        _stable_error = "malformed_response_json_decode_error"
+                    else:
+                        _stable_error = "acquisition_error"
                     all_warnings.append(
-                        f"WoS page={physical_page} error: {exc}"
+                        f"WoS logical_page={logical_page_idx + 1} {_stable_error}"
+                    )
+                    all_errors.append(_stable_error)
+                    page_diagnostics.append(
+                        {
+                            "provider": "wos",
+                            "query": query,
+                            "logical_page": logical_page_idx + 1,
+                            "physical_request_index": physical_requests,
+                            "cursor_or_offset": f"page:{physical_page}",
+                            "physical_requests": physical_requests,
+                            "requested_rows": safe_rows,
+                            "returned_rows": len(page_records),
+                            "normalized_rows": len(page_records),
+                            "pagination_method": "wos_starter_page",
+                            "pagination_status": "failed",
+                            "errors": _stable_error,
+                        }
                     )
                     break
 
@@ -457,19 +539,30 @@ class WebOfScienceProvider(BaseProvider):
                 )
             )
             if not any(
-                d.get("logical_page") == logical_page_idx + 1
-                for d in page_diagnostics
+                d.get("logical_page") == logical_page_idx + 1 for d in page_diagnostics
             ):
-                page_diagnostics.append({
-                    "logical_page": logical_page_idx + 1,
-                    "physical_requests": physical_requests,
-                    "requested_rows": rows_per_page,
-                    "returned_rows": len(page_records),
-                    "pagination_method": "wos_starter_page",
-                })
+                _page_status = (
+                    "end_of_results" if len(page_records) < safe_rows else "applied"
+                )
+                page_diagnostics.append(
+                    {
+                        "provider": "wos",
+                        "query": query,
+                        "logical_page": logical_page_idx + 1,
+                        "physical_request_index": physical_requests,
+                        "cursor_or_offset": f"page:{physical_page - physical_requests}",
+                        "physical_requests": physical_requests,
+                        "requested_rows": safe_rows,
+                        "returned_rows": len(page_records),
+                        "normalized_rows": len(page_records),
+                        "pagination_method": "wos_starter_page",
+                        "pagination_status": _page_status,
+                        "errors": "",
+                    }
+                )
 
             # Stop paging if last logical page returned fewer than expected
-            if len(page_records) < rows_per_page:
+            if len(page_records) < safe_rows:
                 break
 
         rate_limit_status = (
@@ -477,15 +570,16 @@ class WebOfScienceProvider(BaseProvider):
             if any("rate-limited" in w or "rate_limited" in w for w in all_warnings)
             else None
         )
-        return (
-            ProviderResult(
-                records=all_records,
-                warnings=all_warnings,
-                provenance=all_provenance,
-                rate_limit_status=rate_limit_status,
-            ),
-            page_diagnostics,
+        result = ProviderResult(
+            records=all_records,
+            errors=all_errors,
+            warnings=all_warnings,
+            provenance=all_provenance,
+            rate_limit_status=rate_limit_status,
+            page_diagnostics=page_diagnostics,
+            physical_request_count=physical_request_count,
         )
+        return (result, page_diagnostics) if legacy_api else result
 
     def verify_doi(self, doi: str) -> ProviderResult:
         """Verify DOI via Web of Science."""
@@ -493,7 +587,9 @@ class WebOfScienceProvider(BaseProvider):
             return self._not_configured_result()
         wos_query = urllib.parse.quote(f"DO=({doi})")
         url = f"{self._api_base}?q={wos_query}&limit=1&page=1"
+        physical_request_count = 0
         try:
+            physical_request_count += 1
             payload = self._request_json(url)
             items = payload.get("hits", [])
             if not isinstance(items, list):
@@ -505,10 +601,14 @@ class WebOfScienceProvider(BaseProvider):
                 records=records,
                 provenance=self._make_evidence(doi, "wos/documents?doi", records),
                 raw_payload=payload,
+                physical_request_count=physical_request_count,
             )
         except urllib.error.HTTPError as exc:
-            return self._http_error_result("DOI verification", exc)
+            return self._http_error_result(
+                "DOI verification", exc, physical_request_count=physical_request_count
+            )
         except Exception as exc:
             return ProviderResult(
-                errors=[f"Web of Science DOI verification error: {exc}"]
+                errors=[f"Web of Science DOI verification error: {exc}"],
+                physical_request_count=physical_request_count,
             )
