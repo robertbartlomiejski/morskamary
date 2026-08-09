@@ -748,9 +748,10 @@ def test_classify_sentence_contexts_marks_no_keyword_sentences_unclassified() ->
     )
 
     assert len(analysis) == 1
-    assert analysis[0]["axis"] == "OCEANIC"
-    assert analysis[0]["classification"] == "UNCLASSIFIED_REVIEW_REQUIRED"
+    assert analysis[0]["axis"] == "UNCLASSIFIED"
+    assert analysis[0]["classification"] == "UNCLASSIFIED_REVIEW_REQUIRED__NO_SIGNAL"
     assert analysis[0]["matched_qmbd_axes"] == []
+    assert analysis[0]["uncertainty_typology"] == "no_signal"
 
 
 def test_serialize_subject_terms_handles_lists_and_scalars() -> None:
@@ -943,6 +944,51 @@ def test_extract_literature_competences_deduplicates_titles(tmp_path: Path) -> N
     assert len(competences) == 2
     titles = [c.source.paper_title for c in competences]
     assert titles.count("Duplicate Paper") == 1
+
+
+def test_extract_literature_competences_does_not_force_cross_axis_theme_scope(
+    tmp_path: Path,
+) -> None:
+    """No axis-local theme match must remain cross-sector instead of arbitrarily narrowed."""
+    from run_full_analysis import extract_literature_competences
+
+    csv_content = (
+        '"Paper Title","Abstract","Author Names","Publication Year","DOI"\n'
+        '"Blue economy transition overview",'
+        '"Resilience transition framing without retained maritime or marine theme terms.",'
+        '"Author A","2025","10.1234/no-axis-theme"\n'
+    )
+    csv_file = tmp_path / "scope_guard.csv"
+    csv_file.write_text(csv_content, encoding="utf-8")
+
+    lit_files = [
+        {
+            "filename": csv_file.name,
+            "theme": "test_scope",
+            "description": "Test scope",
+            "primary_axis": "MARITIME",
+        }
+    ]
+    mock_themes = {
+        "test_scope": {
+            "MARITIME": ["Port labour systems"],
+            "MARINE": ["Marine biodiversity restoration"],
+            "OCEANIC": ["Ocean governance frameworks"],
+        }
+    }
+
+    with (
+        patch("run_full_analysis.LITERATURE_FILES", lit_files),
+        patch("run_full_analysis.DATA_DERIVED", tmp_path),
+        patch("run_full_analysis.REPO_ROOT", tmp_path),
+        patch("run_full_analysis._LIT_THEMES", mock_themes),
+    ):
+        competences = extract_literature_competences()
+
+    assert len(competences) == 1
+    assert competences[0].sectors == SECTORS
+    assert competences[0].axis == TMBDAxis.MARITIME
+    assert competences[0].name.startswith("Maritime literature context:")
 
 
 def test_run_gap_analysis_calculates_correctly() -> None:

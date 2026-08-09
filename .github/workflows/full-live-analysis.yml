@@ -116,6 +116,7 @@ jobs:
       MICROSOFT_TENANT_ID: ${{ secrets.MICROSOFT_TENANT_ID }}
       MICROSOFT_CLIENT_ID: ${{ secrets.MICROSOFT_CLIENT_ID }}
       MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
+      VALIDATION_DECISION_LEDGER_JSON: ${{ secrets.VALIDATION_DECISION_LEDGER_JSON }}
       GH_CONTEXT_RUN_ID: ${{ github.run_id }}
       GH_CONTEXT_RUN_ATTEMPT: ${{ github.run_attempt }}
       GH_CONTEXT_RUN_NUMBER: ${{ github.run_number }}
@@ -286,6 +287,13 @@ jobs:
       - name: Build cumulative database and provisional Layers 4-5
         run: |
           set -euo pipefail
+          LEDGER_ARGS=()
+          if [ -n "${VALIDATION_DECISION_LEDGER_JSON:-}" ]; then
+            LEDGER_PATH="$RUNNER_TEMP/validation-decision-ledger.json"
+            umask 077
+            printf '%s' "$VALIDATION_DECISION_LEDGER_JSON" > "$LEDGER_PATH"
+            LEDGER_ARGS+=(--validation-decision-ledger "$LEDGER_PATH")
+          fi
           python scripts/build_cumulative_scientific_database.py \
             --current-run outputs \
             --archive-root outputs/run_archive \
@@ -293,6 +301,7 @@ jobs:
             --query-protocol config/live_query_protocol.yml \
             --output-dir outputs/cumulative_database \
             --current-run-id "$CURRENT_RUN_ID" \
+            "${LEDGER_ARGS[@]}" \
             --emit-summary
           python scripts/build_layer4_5_scientific_analysis.py \
             --database-dir outputs/cumulative_database \

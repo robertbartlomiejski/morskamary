@@ -1,0 +1,3 @@
+gold_set_version,review_case_id,evidence_scope,evidence_text,sector,domain,discipline,proposed_axis_group,proposed_axis_code,uncertainty_typology,indicator_rule,review_status,adjudication_note
+0.1.0,case-0001,sentence,"hydrosocial governance mediates coastal adaptation policy",coastal_tourism,water_governance,sociology,HYDRONIZATION,H,cross_axis_mediator,multi_axis_vocabulary_overlap,proposed,
+0.1.0,case-0002,title,"blue economy resilience in port transition",maritime_transport,governance,policy_studies,,,boundary_threshold,broad_blue_planetaryism_without_retained_axis_signal,proposed,

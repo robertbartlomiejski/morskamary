@@ -35,11 +35,23 @@ consistently reproducible from the same inputs.
 The builder writes the following files under
 `outputs/cumulative_database/`:
 
-```
+```text
 cumulative_database_manifest.json
 _checksums.sha256
 evidence_records.csv
 evidence_records.jsonl
+evidence_fragments.csv
+evidence_fragments.jsonl
+semantic_signals.csv
+semantic_signals.jsonl
+competence_candidates.csv
+competence_candidates.jsonl
+canonical_competences.csv
+canonical_competences.jsonl
+sector_competence_assignments.csv
+sector_competence_assignments.jsonl
+validation_decisions.csv
+validation_decisions.jsonl
 competence_demand_signals.csv
 competence_demand_signals.jsonl
 run_novelty_metrics.csv
@@ -56,7 +68,7 @@ using chunked 1 MB reads for reproducibility across large runs.
 Each row in `evidence_records.{csv,jsonl}` represents one deduplicated
 scientific work observed across all runs contributing to the bundle.
 
-### Columns
+### Evidence-record columns (Layer 2)
 
 1. `evidence_id`
 2. `canonical_doi`
@@ -121,7 +133,6 @@ operate solely on the title. This warning is propagated into
 any Layer 3 signals derived from that record so downstream consumers can
 distinguish weak from strong evidence.
 
-
 ## Raw payload provenance note
 
 `outputs/live_runs/<run_id>/raw/raw_api_payloads/` preserves the exporter-level
@@ -143,12 +154,109 @@ tracking only and never contributes to positive semantic matching or
 confidence scoring. Query intent is not scientific evidence; matched semantic
 fragments are evidence candidates.
 
-## Competence-demand signals (Layer 3)
+## Versioned construct-valid chain (Layer 3 foundation)
+
+Schema v2 adds an explicit construct-valid chain:
+
+`evidence_record -> evidence_fragment -> semantic_signal -> competence_candidate -> validation_decision -> canonical_competence -> sector_competence_assignment`
+
+- `competence_demand_signals.{csv,jsonl}` remain deterministic compatibility
+  projections for legacy consumers.
+- `canonical_competences.{csv,jsonl}` and
+  `sector_competence_assignments.{csv,jsonl}` stay empty unless explicit
+  validation decisions are supplied.
+- No candidate is promoted to a canonical competence without an explicit
+  `validation_decisions.{csv,jsonl}` row.
+- Each evidence fragment retains its `source_provenance_id` together with its
+  provider, provider source identifier, retrieval time, query identifier, and
+  source-query text. These fields are the published preimage/crosswalk for the
+  occurrence identifier; `source_retrieved_at_utc` is always an ISO-8601 UTC
+  timestamp. They remain retrieval provenance, not empirical evidence.
+- `semantic_signals.context_text` is the exact normalized surface scanned for
+  that signal. Therefore an evidence fragment's stored offsets resolve against
+  it even when a retained abstract, full-text field, or subject-term field was
+  originally structured as a list or mapping.
+- `semantic_signals.evidence_text_hash` is the retained whole-observation hash
+  used in the stable signal identity. It permits package preflight to recreate
+  that identity without changing the exact fragment surface retained in
+  `context_text`.
+- A reviewer ledger entry must carry its own non-empty `evidence_ids`,
+  `fragment_ids`, and `source_provenance_ids` snapshot. Those references are
+  checked against the target candidate and preserved as supplied; later
+  occurrences may expand a candidate, but cannot rewrite a prior decision's
+  cited evidence.
+- A non-empty `superseded_validation_decision_id` must identify a decision for
+  the same candidate, and the superseding row's `decision_at_utc` must be
+  strictly later than the referenced decision; equal or earlier replacement
+  timestamps are rejected.
+- Semantic signals and competence candidates may carry any of the four
+  canonical bound sector-axis pairs — `MARINE/M`, `MARITIME/T`, `OCEANIC/O`,
+  or `HYDRONIZATION/H` — or the fully unbound pair `("", "")`. The fully
+  unbound pair `("", "")` is the **only** permitted incomplete pair; any other
+  combination where exactly one of the two fields is empty is invalid. Sector
+  competence assignments are emitted only for one of the four canonical bound
+  pairs. A stable candidate retains every occurrence-level
+  fragment/provenance reference and emits one assignment for each distinct
+  valid bound sector-axis context; an accepted but unbound candidate remains
+  canonical without an invented sector-axis assignment.
+
+### Validation-decision privacy and canonical-label guard
+
+`reviewer` is a stable pseudonymous ASCII identifier matching
+`[A-Za-z0-9][A-Za-z0-9._-]{2,127}` (for example,
+`reviewer-fixture-001`). It must not contain an email address or other direct
+identity. Any mapping from this identifier to a person is retained outside
+published artifacts.
+
+`canonical_label` remains a required string in every validation-decision row.
+It must be non-empty when `decision_status='accepted'`; it may be empty for
+`rejected`, `review_required`, or `superseded` decisions because those decisions
+do not promote a candidate.
+
+For accepted decisions, the canonical-label promotion guard normalizes
+whitespace and rejects labels that are blank; begin with any configured provider
+alias; duplicate a retained evidence title or a three-or-more-token title
+fragment; contain `...` or `…`; exceed 180 characters; contain eight or more
+spaces; or contain the standalone, case-insensitive terms `doi`, `journal`,
+`conference`, `article`, or `paper`. These thresholds prevent provider metadata
+and truncated source text from becoming canonical labels.
+
+## Competence-demand signals (legacy compatibility projection)
 
 Each row in `competence_demand_signals.{csv,jsonl}` is one deterministic
 semantic hit against the metadata available for an evidence record in the
 current run. The scanner is intentionally rule-based (no LLM, no external
 services) and reproducible.
+
+This compatibility projection deliberately retains its frozen v1 classifier
+identifier, signal identities, substring matching, and one-row-per-pattern
+cardinality. The schema-v2 construct-validity tables use the separately
+versioned v3 scanner, which retains every exact, unqualified evidence span.
+Its confidence score is calculated only from the exact qualified match surface;
+it never receives credit from a record-wide legacy substring match.
+Neither projection turns a legacy aggregate row into a validated canonical
+competence.
+
+### Accepted canonical lineage view (Layer 4)
+
+`scripts/build_layer4_5_scientific_analysis.py` loads the retained schema-v2
+evidence-fragment, semantic-signal, candidate, decision, canonical, and
+assignment JSONL tables alongside the legacy projections. For every fully resolved accepted
+`canonical_competence_id` × sector × QMBD-axis context, Layer 4 emits one
+`accepted_canonical_lineage_view` row with
+`scientific_status=validated_canonical_competence`. The row retains its
+canonical, decision, candidate, and assignment identifiers plus the exact
+assignment evidence IDs. It is not generated from a label match alone; broken
+or partial lineage fails closed. Retained primary keys, foreign keys, and
+pipe-delimited reference snapshots must be exact, unpadded serializations, so
+published canonical provenance cannot be reconstructed from a normalized
+forgery.
+
+Legacy category-aggregate rows remain the population for Layer-4 descriptive
+statistics and Layer-5 `live_literature_demand_count`. The separate canonical
+view supplies only validation-backed Layer-5/H2 counts, avoiding double
+counting. An accepted but unbound canonical competence creates no invented
+sector-axis demand.
 
 ### Columns
 
@@ -285,12 +393,39 @@ Arguments:
   `scripts/build_live_run_audit.py`.
 - `--built-at-utc` — optional ISO-8601 timestamp to freeze into the manifest
   for reproducible bundles.
+- `--validation-decision-ledger` — optional reviewer-approved JSON list (or
+  object containing `validation_decisions`) of explicit decisions. Each entry
+  must provide a candidate ID, decision status, pseudonymous reviewer,
+  UTC decision time, decision reason, and immutable evidence, fragment, and
+  source-provenance reference snapshots; accepted entries also require a
+  canonical label. In live use, materialize this file only through the
+  reviewer-protected `live-research` environment; its contents are never echoed.
 - `--emit-summary` — print a one-line JSON summary to stdout on success.
 
 Missing optional inputs degrade gracefully: absent `--archive-root` limits
 the run to the current run only, absent `--live-runs-root` disables Layer 1
 protocol binding, and absent `--query-protocol` disables Layer 0 fallback
 binding.
+
+### Offline schema-v2 bundle preflight
+
+Before a bundle is handed to the full release-package builder, maintainers can
+run the non-publication preflight locally:
+
+```bash
+python scripts/validate_csv_bundle.py \
+  --bundle-dir outputs/cumulative_database
+```
+
+The command validates `evidence_records` and all six schema-v2 entities in
+both CSV and JSONL form. It reuses the release builder's Draft-2020-12 schema,
+required-field, finite-number, deterministic-ID, lineage, immutable-decision,
+cross-projection, and manifest-count checks. It does not call providers,
+create a release, or modify the bundle. A CSV table with no records must still
+retain its header; zero-byte CSV files fail because they cannot be validated
+against the required field contract. A legacy bundle that predates the six
+schema-v2 files is intentionally rejected rather than silently treated as a
+valid construct-validity export.
 
 ## Workflow integration
 

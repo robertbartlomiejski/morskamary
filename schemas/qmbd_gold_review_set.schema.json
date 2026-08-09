@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/qmbd_gold_review_set.schema.json",
+  "title": "QMBD Gold Review Set",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "gold_set_version",
+      "review_case_id",
+      "evidence_scope",
+      "evidence_text",
+      "sector",
+      "domain",
+      "discipline",
+      "uncertainty_typology",
+      "indicator_rule",
+      "review_status"
+    ],
+    "properties": {
+      "gold_set_version": { "type": "string", "minLength": 1 },
+      "review_case_id": { "type": "string", "minLength": 1 },
+      "evidence_scope": {
+        "type": "string",
+        "enum": ["title", "subject_terms", "abstract", "sentence", "full_text_fragment"]
+      },
+      "evidence_text": { "type": "string", "minLength": 1 },
+      "sector": { "type": "string", "minLength": 1 },
+      "domain": { "type": "string", "minLength": 1 },
+      "discipline": { "type": "string", "minLength": 1 },
+      "proposed_axis_group": {
+        "type": "string",
+        "enum": ["", "MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION"]
+      },
+      "proposed_axis_code": {
+        "type": "string",
+        "enum": ["", "M", "T", "O", "H"]
+      },
+      "uncertainty_typology": {
+        "type": "string",
+        "enum": [
+          "no_signal",
+          "ambiguous_context",
+          "polysemic_term",
+          "boundary_threshold",
+          "cross_axis_mediator",
+          "sector_dependent_meaning",
+          "discipline_dependent_meaning"
+        ]
+      },
+      "indicator_rule": { "type": "string", "minLength": 1 },
+      "review_status": {
+        "type": "string",
+        "enum": ["proposed", "reviewed", "accepted", "rejected"]
+      },
+      "adjudication_note": { "type": "string" }
+    }
+  }
+}

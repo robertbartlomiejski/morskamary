@@ -204,10 +204,17 @@ def test_validated_mapping_rejects_separator_only_evidence_ids(tmp_path: Path) -
 
 
 def _hydro_demand(demand_id: str) -> DerivedCompetenceDemand:
+    """Build an explicitly validation-backed demand for the H2 supply test."""
     return DerivedCompetenceDemand(
         competence_demand_id=demand_id,
         competence_label="hydronization governance",
         competence_definition="validated hydronization competence",
+        view_kind="accepted_canonical_lineage_view",
+        scientific_status="validated_canonical_competence",
+        canonical_competence_id="canonical:hydronization-governance",
+        validation_decision_ids="decision:hydronization-governance",
+        source_candidate_ids="candidate:hydronization-governance",
+        assignment_ids="assignment:hydronization-governance",
         sector="desalination",
         axis_group="HYDRONIZATION",
         axis_code="H",
@@ -230,7 +237,7 @@ def _hydro_demand(demand_id: str) -> DerivedCompetenceDemand:
         first_seen_at_utc="2026-07-25T00:00:00+00:00",
         latest_seen_at_utc="2026-07-25T00:00:00+00:00",
         status="high_demand",
-        manual_review_status="validated",
+        manual_review_status="manually_reviewed",
         validity_warning="",
         evidence_ids="E-1",
         signal_types="competence_demand",

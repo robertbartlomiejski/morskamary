@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/semantic_signals.schema.json",
+  "title": "Semantic signals row",
+  "type": "object",
+  "required": [
+    "signal_id",
+    "fragment_id",
+    "evidence_id",
+    "run_id",
+    "source_provenance_id",
+    "sector",
+    "axis_group",
+    "axis_code",
+    "query_id",
+    "query_family",
+    "signal_type",
+    "signal_category_label",
+    "signal_category_description",
+    "matched_phrase",
+    "confidence_score",
+    "classifier_version",
+    "negation_status",
+    "speculation_status",
+    "actor_text",
+    "action_text",
+    "object_text",
+    "context_text",
+    "evidence_text_hash",
+    "manual_review_status",
+    "validity_warning"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "signal_id": { "type": "string", "minLength": 1 },
+    "fragment_id": { "type": "string", "minLength": 1 },
+    "evidence_id": { "type": "string", "minLength": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "source_provenance_id": { "type": "string", "minLength": 1 },
+    "sector": { "type": "string" },
+    "axis_group": {
+      "type": "string",
+      "enum": ["MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION", ""]
+    },
+    "axis_code": { "type": "string", "enum": ["M", "T", "O", "H", ""] },
+    "query_id": { "type": "string" },
+    "query_family": { "type": "string" },
+    "signal_type": { "type": "string", "minLength": 1 },
+    "signal_category_label": { "type": "string", "minLength": 1 },
+    "signal_category_description": { "type": "string", "minLength": 1 },
+    "matched_phrase": { "type": "string", "minLength": 1 },
+    "confidence_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "classifier_version": { "type": "string", "minLength": 1 },
+    "negation_status": { "type": "string", "enum": ["not_detected", "not_assessed"] },
+    "speculation_status": { "type": "string", "enum": ["not_detected", "not_assessed"] },
+    "actor_text": { "type": "string" },
+    "action_text": { "type": "string" },
+    "object_text": { "type": "string" },
+    "context_text": { "type": "string" },
+    "evidence_text_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "manual_review_status": {
+      "type": "string",
+      "enum": ["auto_accepted", "review_required", "manually_reviewed", "rejected"]
+    },
+    "validity_warning": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "anyOf": [
+        { "properties": { "axis_group": { "const": "MARINE" }, "axis_code": { "const": "M" } } },
+        { "properties": { "axis_group": { "const": "MARITIME" }, "axis_code": { "const": "T" } } },
+        { "properties": { "axis_group": { "const": "OCEANIC" }, "axis_code": { "const": "O" } } },
+        { "properties": { "axis_group": { "const": "HYDRONIZATION" }, "axis_code": { "const": "H" } } },
+        { "properties": { "axis_group": { "const": "" }, "axis_code": { "const": "" } } }
+      ]
+    }
+  ]
+}
