@@ -19,6 +19,15 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-08-09 (add: fail-closed research-question registry and accountability contract)
+  Change type add update
+  Scope config schemas src scripts tests governance
+  Files affected config/research_question_registry.yml schemas/research_question_registry.schema.json schemas/research_question_accountability.schema.json src/scientific_sources/research_question_registry.py scripts/validate_research_question_registry.py tests/test_research_question_registry.py CHANGELOG.txt MANIFEST_SOURCES.csv
+  Summary Adds the maintainer-approved RQ1-RQ8, RQ4.1-RQ4.4 and ETQ1-ETQ7 wording as a proposed_for_review machine-readable registry with explicit populations, observational units, variables, indicators, measures, denominators, missing/excluded handling, evidence boundaries, method readiness, interpretation limits and honest logical-view materialization status. Adds typed schema and semantic validation for canonical QMBD axes, protocol-only H1-H3 references, independent EQF 6-7 supply restrictions for H2, and complete future accountability ledgers that retain unresolved outcomes rather than manufacturing answers.
+  Reason Research questions previously lacked an executable accountability and operationalisation contract, allowing omitted questions, invalid parent or axis links, planned methods to appear implemented, unmaterialized views to appear resolved, protocol hypothesis drift, incomplete ledgers and unsupported answered states.
+  Impact No empirical output, provider acquisition, occurrence identity, gap result, credential supply or publication package is changed. The registry remains proposed_for_review; all target views are logical_unmaterialized and review_required, ETQs remain not_operationalised or not_collected, generated credentials/pathways remain design candidates, and H2 remains not_computable without independently validated EQF 6-7 supply.
+  Provenance Maintainer-supplied research agenda dated 2026-08-09 for question wording; config/live_query_protocol.yml for authoritative H1-H3 declarations; docs/AGENT_WORKING_AGREEMENT.md, docs/STATISTICAL_ANALYSIS_PLAN.md, schema-v2 cumulative database contracts and outputs/cumulative_database/VARIABLE_LABELS.csv for repository governance and analytical conventions.
+  Quality checks Focused registry/accountability suite passed (27 tests); full pytest passed (1604 passed, 2 expected skips); full flake8 and mypy passed; the registry CLI, generated-output validator and immutable run-archive validator passed; research-source validation passed with one informational missing-smoke-report warning; sync audit passed with only the expected pre-commit dirty-tree warning; changelog enforcement, deterministic manifest regeneration and independent code review passed. No provider calls, live run or output regeneration were performed.
 - 2026-08-09 (fix: preserve OpenAlex protocol sort and sanitize archive/static reproducibility contracts)
   Change type fix update
   Scope scripts src tests docs workflows outputs governance
