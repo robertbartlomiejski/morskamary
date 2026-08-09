@@ -741,8 +741,13 @@ docs/policy/Blue Occupation Insurance broker.txt,policy,,,,,,Blue_Occupation_Ins
 docs/policy/Blue Occupation Sailmaker.txt,policy,,,,,,Blue_Occupation_Sailmaker,yes
 docs/policy/Blue_Sociology_Framework_Complete.md,policy,,,,,,Blue_Sociology_Framework_Complete,yes
 docs/providers.md,text,,,,,,providers,yes
+docs/QMBD_MEASUREMENT_GOVERNANCE_EXTENSION.md,text,,,,,,QMBD_MEASUREMENT_GOVERNANCE_EXTENSION,yes
+docs/QMBD_VARIABLE_OPERATIONALISATION_AND_UNCERTAINTY_TYPOLOGY.md,text,,,,,,QMBD_VARIABLE_OPERATIONALISATION_AND_UNC,yes
 docs/RESEARCH_API_CICD_SETUP.md,text,,,,,,RESEARCH_API_CICD_SETUP,yes
 docs/RESEARCH_SOURCE_GOVERNANCE.md,text,,,,,,RESEARCH_SOURCE_GOVERNANCE,yes
+docs/review_templates/qmbd_axis_domain_dictionary_template.md,text,,,,,,qmbd_axis_domain_dictionary_template,yes
+docs/review_templates/qmbd_expert_panel_questionnaire_template.md,text,,,,,,qmbd_expert_panel_questionnaire_template,yes
+docs/review_templates/qmbd_gold_review_set_template.csv,dataset_derived,,,,,,qmbd_gold_review_set_template,yes
 docs/STATISTICAL_ANALYSIS_PLAN.md,text,,,,,,STATISTICAL_ANALYSIS_PLAN,yes
 docs/STATISTICAL_REPORT_METHODOLOGY.md,text,,,,,,STATISTICAL_REPORT_METHODOLOGY,yes
 examples/add_coastal_resilience_competence.py,script,,,,,,add_coastal_resilience_competence,yes
@@ -1008,22 +1013,29 @@ reports/scientific_report.csv,dataset_derived,,,,,,scientific_report,yes
 reports/scientific_report.md,text,,,,,,scientific_report,yes
 requirements.txt,script,,,,,,requirements,yes
 run_full_analysis.py,script,,,,,,run_full_analysis,yes
+schemas/canonical_competences.schema.json,other,,,,,,canonical_competences_schema,yes
 schemas/coding_assignments.schema.json,other,,,,,,coding_assignments_schema,yes
+schemas/competence_candidates.schema.json,other,,,,,,competence_candidates_schema,yes
 schemas/cross_run_evidence.schema.json,other,,,,,,cross_run_evidence_schema,yes
 schemas/data_quality_indicators.schema.json,other,,,,,,data_quality_indicators_schema,yes
 schemas/dynamic_credentials.schema.json,other,,,,,,dynamic_credentials_schema,yes
+schemas/evidence_fragments.schema.json,other,,,,,,evidence_fragments_schema,yes
 schemas/evidence_occurrences.schema.json,other,,,,,,evidence_occurrences_schema,yes
 schemas/evidence_records.schema.json,other,,,,,,evidence_records_schema,yes
 schemas/evidence_segments.schema.json,other,,,,,,evidence_segments_schema,yes
 schemas/gap_clusters.schema.json,other,,,,,,gap_clusters_schema,yes
 schemas/historical_revalidation_report.schema.json,other,,,,,,historical_revalidation_report_schema,yes
 schemas/manual_sources_ledger.schema.json,other,,,,,,manual_sources_ledger_schema,yes
+schemas/qmbd_gold_review_set.schema.json,other,,,,,,qmbd_gold_review_set_schema,yes
 schemas/reliability_metrics.schema.json,other,,,,,,reliability_metrics_schema,yes
 schemas/research_data_package_manifest.schema.json,other,,,,,,research_data_package_manifest_schema,yes
 schemas/research_metadata.schema.json,other,,,,,,research_metadata_schema,yes
 schemas/run_archive_manifest.schema.json,other,,,,,,run_archive_manifest_schema,yes
 schemas/runs.schema.json,other,,,,,,runs_schema,yes
+schemas/sector_competence_assignments.schema.json,other,,,,,,sector_competence_assignments_schema,yes
+schemas/semantic_signals.schema.json,other,,,,,,semantic_signals_schema,yes
 schemas/source_bundles.schema.json,other,,,,,,source_bundles_schema,yes
+schemas/validation_decisions.schema.json,other,,,,,,validation_decisions_schema,yes
 scientific_bridge.py,script,,,,,,scientific_bridge,yes
 scripts/40152_2021_Article_238.PDF,script,,,,,,40152_2021_Article_238,no
 scripts/Aaa Hab 4_250621_114734.txt,script,,,,,,Aaa_Hab_4_250621_114734,yes
@@ -1086,6 +1098,7 @@ scripts/run_research_api_full.sh,script,,,,,,run_research_api_full,no
 scripts/smoke_scientific_bridge.py,script,,,,,,smoke_scientific_bridge,yes
 scripts/sync_audit.py,script,,,,,,sync_audit,yes
 scripts/Tripatle Blue Value Model WOW.txt,script,,,,,,Tripatle_Blue_Value_Model_WOW,yes
+scripts/validate_csv_bundle.py,script,,,,,,validate_csv_bundle,yes
 scripts/validate_generated_outputs.py,script,,,,,,validate_generated_outputs,yes
 scripts/validate_manual_sources_gatekeeper.py,script,,,,,,validate_manual_sources_gatekeeper,yes
 scripts/validate_research_source_outputs.py,script,,,,,,validate_research_source_outputs,yes
@@ -1123,6 +1136,7 @@ src/scientific_sources/microsoft_graph.py,script,,,,,,microsoft_graph,yes
 src/scientific_sources/models.py,script,,,,,,models,yes
 src/scientific_sources/openalex.py,script,,,,,,openalex,yes
 src/scientific_sources/provenance.py,script,,,,,,provenance,yes
+src/scientific_sources/schema_v2_identity.py,script,,,,,,schema_v2_identity,yes
 src/scientific_sources/scival.py,script,,,,,,scival,yes
 src/scientific_sources/source_registry.py,script,,,,,,source_registry,yes
 src/scientific_sources/web_of_science.py,script,,,,,,web_of_science,yes
@@ -1201,6 +1215,7 @@ tests/test_script_cli.py,script,,,,,,test_script_cli,yes
 tests/test_smoke_scientific_bridge.py,script,,,,,,test_smoke_scientific_bridge,yes
 tests/test_stage2_schema.py,script,,,,,,test_stage2_schema,yes
 tests/test_sync_audit.py,script,,,,,,test_sync_audit,yes
+tests/test_validate_csv_bundle.py,script,,,,,,test_validate_csv_bundle,yes
 tests/test_validate_generated_outputs.py,script,,,,,,test_validate_generated_outputs,yes
 tests/test_validate_manual_sources_gatekeeper.py,script,,,,,,test_validate_manual_sources_gatekeeper,yes
 tests/test_validate_run_archive_integrity.py,script,,,,,,test_validate_run_archive_integrity,yes

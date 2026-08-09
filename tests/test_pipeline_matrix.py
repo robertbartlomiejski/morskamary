@@ -277,7 +277,9 @@ class TestQMBDPipelineMatrix:
 
         assert analysis, "Classification must produce at least one item for record 2"
         for item in analysis:
-            assert item["classification"] == "UNCLASSIFIED_REVIEW_REQUIRED", (
+            assert str(item["classification"]).startswith(
+                "UNCLASSIFIED_REVIEW_REQUIRED"
+            ), (
                 f"Expected UNCLASSIFIED_REVIEW_REQUIRED for blue-economy-only record, "
                 f"got {item['classification']!r} (sentence: {item.get('sentence', '')!r})"
             )

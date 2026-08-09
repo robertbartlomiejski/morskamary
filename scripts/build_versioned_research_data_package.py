@@ -7,6 +7,8 @@ import argparse
 import csv
 import hashlib
 import json
+import math
+import re
 import shutil
 import subprocess
 import sys
@@ -16,7 +18,22 @@ from pathlib import Path
 from typing import Any
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
+# Ensure the repository root is on sys.path so that ``src.*`` is importable
+# when this script is invoked directly (e.g. ``python scripts/<name>.py``).
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from jsonschema import Draft202012Validator, FormatChecker  # type: ignore[import-untyped]  # noqa: E402
+
+from src.scientific_sources.schema_v2_identity import (  # noqa: E402
+    make_candidate_id as _make_candidate_id_v2,
+    make_canonical_competence_id as _make_canonical_competence_id_v2,
+    make_fragment_id as _make_fragment_id_v2,
+    make_provenance_id as _make_provenance_id_v2,
+    make_signal_id as _make_signal_id_v2,
+    normalize_canonical_label as _normalize_canonical_label_v2,
+)
 
 STATUS = {
     "ok": "[OK]",
@@ -24,6 +41,21 @@ STATUS = {
     "error": "[ERROR]",
     "info": "[INFO]",
 }
+
+SCHEMA_FORMAT_CHECKER = FormatChecker()
+
+
+@SCHEMA_FORMAT_CHECKER.checks("date-time")
+def _is_valid_datetime_format(value: object) -> bool:
+    """Validate RFC-3339-like datetimes when optional jsonschema extras lack it."""
+    if not isinstance(value, str):
+        return True
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return parsed.tzinfo is not None and parsed.utcoffset() is not None
+
 
 SECTOR_CODE = {
     "Blue Biotech": 1,
@@ -43,6 +75,39 @@ SECTOR_CODE = {
 AXIS_CODE = {"MARINE": 1, "MARITIME": 2, "OCEANIC": 3, "HYDRONIZATION": 4}
 MISSING_CODE = -98
 MISSING_LABEL = "Not extracted"
+
+# Schema-v2 tables are materialized by the cumulative scientific database
+# builder.  Keep the list here so the research-data package carries the whole
+# review-gated construct-validity chain, rather than only its legacy views.
+# Note: "evidence_records" is the cumulative projection keyed by evidence_id;
+# it is copied as a supplementary file without schema validation because its
+# schema diverges from the legacy evidence_records.schema.json (record_pk PK).
+SCHEMA_V2_ENTITY_NAMES: tuple[str, ...] = (
+    "evidence_fragments",
+    "semantic_signals",
+    "competence_candidates",
+    "canonical_competences",
+    "sector_competence_assignments",
+    "validation_decisions",
+)
+SCHEMA_V2_SUPPLEMENTARY_ENTITY_NAMES: tuple[str, ...] = (
+    "evidence_records",
+)
+SCHEMA_V2_SUPPLEMENTARY_OUTPUT_NAMES = {
+    "evidence_records": "schema_v2_supporting_evidence_records",
+}
+SCHEMA_V2_SOURCE_DIRECTORY = "outputs/cumulative_database"
+SCHEMA_V2_SCHEMA_FILENAMES: tuple[str, ...] = tuple(
+    f"{entity_name}.schema.json" for entity_name in SCHEMA_V2_ENTITY_NAMES
+)
+SCHEMA_V2_PRIMARY_KEY_FIELDS: dict[str, tuple[str, ...]] = {
+    "evidence_fragments": ("fragment_id",),
+    "semantic_signals": ("signal_id", "fragment_id"),
+    "competence_candidates": ("candidate_id",),
+    "validation_decisions": ("validation_decision_id",),
+    "canonical_competences": ("canonical_competence_id",),
+    "sector_competence_assignments": ("assignment_id",),
+}
 
 
 @dataclass(frozen=True)
@@ -85,6 +150,159 @@ def _load_json(path: Path) -> Any:
 def _read_csv(path: Path) -> list[dict[str, str]]:
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         return list(csv.DictReader(handle))
+
+
+def _coerce_schema_csv_value(value: Any, definition: dict[str, Any]) -> Any:
+    """Restore scalar types lost when a schema-v2 row is serialized to CSV."""
+    if value is None:
+        return None
+    raw_type = definition.get("type")
+    types = (raw_type,) if isinstance(raw_type, str) else tuple(raw_type or ())
+    if "integer" in types:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return value
+    if "number" in types:
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return value
+    if "boolean" in types:
+        if value == "true":
+            return True
+        if value == "false":
+            return False
+    return value
+
+
+def _is_non_finite_schema_number(value: Any, definition: dict[str, Any]) -> bool:
+    """Return whether a CSV scalar is a non-finite value for a numeric field."""
+    raw_type = definition.get("type")
+    types = (raw_type,) if isinstance(raw_type, str) else tuple(raw_type or ())
+    if not {"integer", "number"}.intersection(types):
+        return False
+    try:
+        return not math.isfinite(float(value))
+    except (TypeError, ValueError):
+        return False
+
+
+def _reject_non_finite_json_constant(_: str) -> Any:
+    """Reject JSON's non-standard NaN and Infinity constants."""
+    raise ValueError("non-finite JSON number")
+
+
+def _contains_non_finite_number(value: Any) -> bool:
+    """Return whether a parsed JSON value contains NaN or infinity."""
+    if isinstance(value, float):
+        return not math.isfinite(value)
+    if isinstance(value, dict):
+        return any(_contains_non_finite_number(item) for item in value.values())
+    if isinstance(value, (list, tuple)):
+        return any(_contains_non_finite_number(item) for item in value)
+    return False
+
+
+def _read_schema_v2_csv(
+    path: Path, schema_path: Path, table_name: str
+) -> tuple[list[dict[str, Any]], list[str]]:
+    """Read a schema-v2 CSV and verify its header before row validation.
+
+    Header validation is necessary for intentionally empty review-gated tables:
+    a header-only file still has to preserve the complete schema contract.
+    """
+    schema = _load_json(schema_path)
+    properties = schema.get("properties", {}) if isinstance(schema, dict) else {}
+    expected_columns = set(properties) if isinstance(properties, dict) else set()
+    errors: list[str] = []
+    rows: list[dict[str, Any]] = []
+
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        headers = reader.fieldnames or []
+        actual_columns = {header for header in headers if header is not None}
+        missing_columns = sorted(expected_columns - actual_columns)
+        unexpected_columns = sorted(actual_columns - expected_columns)
+        if not headers:
+            errors.append(f"{table_name}.csv is missing its schema-v2 header")
+        if len(headers) != len(actual_columns):
+            errors.append(f"{table_name}.csv has duplicate column headers")
+        if missing_columns:
+            errors.append(
+                f"{table_name}.csv is missing schema columns: "
+                f"{', '.join(missing_columns)}"
+            )
+        if unexpected_columns:
+            errors.append(
+                f"{table_name}.csv has unexpected schema columns: "
+                f"{', '.join(unexpected_columns)}"
+            )
+        for row_index, raw_row in enumerate(reader, start=2):
+            if None in raw_row:
+                errors.append(
+                    f"{table_name}.csv row {row_index} has more values than headers"
+                )
+            for key, value in raw_row.items():
+                if key is None:
+                    continue
+                definition = (
+                    properties.get(key, {}) if isinstance(properties, dict) else {}
+                )
+                if _is_non_finite_schema_number(value, definition):
+                    errors.append(
+                        f"{table_name}.csv row {row_index} column {key} "
+                        "contains a non-finite numeric value"
+                    )
+            rows.append(
+                {
+                    key: _coerce_schema_csv_value(
+                        value,
+                        properties.get(key, {}) if isinstance(properties, dict) else {},
+                    )
+                    for key, value in raw_row.items()
+                    if key is not None
+                }
+            )
+    return rows, errors
+
+
+def _read_schema_v2_jsonl(
+    path: Path, table_name: str
+) -> tuple[list[dict[str, Any]], list[str]]:
+    """Read JSONL without echoing source content if a row is malformed."""
+    rows: list[dict[str, Any]] = []
+    errors: list[str] = []
+    for line_number, raw_line in enumerate(
+        path.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        if not raw_line.strip():
+            errors.append(f"{table_name}.jsonl line {line_number} is blank")
+            continue
+        try:
+            payload = json.loads(
+                raw_line, parse_constant=_reject_non_finite_json_constant
+            )
+        except json.JSONDecodeError:
+            errors.append(f"{table_name}.jsonl line {line_number} is not valid JSON")
+            continue
+        except ValueError:
+            errors.append(
+                f"{table_name}.jsonl line {line_number} "
+                "contains a non-finite numeric value"
+            )
+            continue
+        if not isinstance(payload, dict):
+            errors.append(f"{table_name}.jsonl line {line_number} is not an object")
+            continue
+        if _contains_non_finite_number(payload):
+            errors.append(
+                f"{table_name}.jsonl line {line_number} "
+                "contains a non-finite numeric value"
+            )
+            continue
+        rows.append(payload)
+    return rows, errors
 
 
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -179,6 +397,7 @@ def _axis_code(value: str) -> tuple[int, str]:
 def _load_variable_and_value_labels(
     schema_dir: Path,
 ) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """Load declared categorical metadata and enum-backed schema categories."""
     variable_rows: list[dict[str, str]] = []
     value_rows: list[dict[str, str]] = []
     for schema_path in sorted(schema_dir.glob("*.schema.json")):
@@ -191,7 +410,9 @@ def _load_variable_and_value_labels(
         for field_name, definition in props.items():
             if not isinstance(definition, dict):
                 continue
-            if not definition.get("x-categorical"):
+            enum_values = definition.get("enum")
+            is_enum_category = isinstance(enum_values, list) and bool(enum_values)
+            if not definition.get("x-categorical") and not is_enum_category:
                 continue
             variable_rows.append(
                 {
@@ -203,11 +424,24 @@ def _load_variable_and_value_labels(
                         str(i) for i in definition.get("x-missing-codes", [])
                     ),
                     "allowed_values": "|".join(
-                        str(i) for i in definition.get("x-allowed-values", [])
+                        str(i)
+                        for i in (
+                            definition.get("x-allowed-values")
+                            or (enum_values if enum_values is not None else [])
+                        )
                     ),
                 }
             )
             value_labels = definition.get("x-value-labels", {})
+            if not value_labels and is_enum_category:
+                value_labels = {
+                    str(value): (
+                        "Unbound"
+                        if value == ""
+                        else str(value).replace("_", " ").title()
+                    )
+                    for value in (enum_values or [])
+                }
             if isinstance(value_labels, dict):
                 for code, label in sorted(value_labels.items(), key=lambda kv: kv[0]):
                     value_rows.append(
@@ -221,12 +455,240 @@ def _load_variable_and_value_labels(
     return variable_rows, value_rows
 
 
+# ---------------------------------------------------------------------------
+# Schema-v2 string-enum categorical fields: explicitly registered because
+# they use string codes (not integer codes) and therefore do not carry the
+# x-categorical / x-label-field / x-missing-codes contract used by the
+# legacy integer-coded tables.  Both VARIABLE_LABELS.csv and VALUE_LABELS.csv
+# produced by _build_label_tables() are supplemented with these entries.
+# ---------------------------------------------------------------------------
+_SCHEMA_V2_VARIABLE_LABELS: list[dict[str, str]] = [
+    {
+        "schema_file": "evidence_fragments.schema.json",
+        "variable_name": "source_field",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "title|subject_terms|abstract|full_text",
+    },
+    {
+        "schema_file": "semantic_signals.schema.json",
+        "variable_name": "axis_group",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "MARINE|MARITIME|OCEANIC|HYDRONIZATION|",
+    },
+    {
+        "schema_file": "semantic_signals.schema.json",
+        "variable_name": "axis_code",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "M|T|O|H|",
+    },
+    {
+        "schema_file": "semantic_signals.schema.json",
+        "variable_name": "negation_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "not_detected|not_assessed",
+    },
+    {
+        "schema_file": "semantic_signals.schema.json",
+        "variable_name": "speculation_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "not_detected|not_assessed",
+    },
+    {
+        "schema_file": "semantic_signals.schema.json",
+        "variable_name": "manual_review_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "auto_accepted|review_required|manually_reviewed|rejected",
+    },
+    {
+        "schema_file": "competence_candidates.schema.json",
+        "variable_name": "axis_group",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "MARINE|MARITIME|OCEANIC|HYDRONIZATION|",
+    },
+    {
+        "schema_file": "competence_candidates.schema.json",
+        "variable_name": "axis_code",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "M|T|O|H|",
+    },
+    {
+        "schema_file": "competence_candidates.schema.json",
+        "variable_name": "candidate_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "candidate",
+    },
+    {
+        "schema_file": "competence_candidates.schema.json",
+        "variable_name": "review_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "auto_accepted|review_required|manually_reviewed|rejected",
+    },
+    {
+        "schema_file": "validation_decisions.schema.json",
+        "variable_name": "decision_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "accepted|rejected|review_required|superseded",
+    },
+    {
+        "schema_file": "canonical_competences.schema.json",
+        "variable_name": "validation_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "accepted",
+    },
+    {
+        "schema_file": "canonical_competences.schema.json",
+        "variable_name": "provenance_guard_status",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "passed",
+    },
+    {
+        "schema_file": "sector_competence_assignments.schema.json",
+        "variable_name": "axis_group",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "MARINE|MARITIME|OCEANIC|HYDRONIZATION",
+    },
+    {
+        "schema_file": "sector_competence_assignments.schema.json",
+        "variable_name": "axis_code",
+        "label_field": "",
+        "measurement_level": "nominal",
+        "missing_codes": "",
+        "allowed_values": "M|T|O|H",
+    },
+]
+
+
+def _v2vl(schema_file: str, variable_name: str, code: str, label: str) -> dict[str, str]:
+    """Shorthand constructor for schema-v2 value-label rows."""
+    return {
+        "schema_file": schema_file,
+        "variable_name": variable_name,
+        "code": code,
+        "label": label,
+    }
+
+
+_EF = "evidence_fragments.schema.json"
+_SS = "semantic_signals.schema.json"
+_CC = "competence_candidates.schema.json"
+_VD = "validation_decisions.schema.json"
+_CN = "canonical_competences.schema.json"
+_SA = "sector_competence_assignments.schema.json"
+
+_AXIS_GROUP_LABELS = [
+    ("MARINE", "Marine \u2014 biophysical, ecological and more-than-human agency or constraints"),
+    ("MARITIME", "Maritime \u2014 labour, technology, infrastructure, economy and institutional mediation"),
+    ("OCEANIC", "Oceanic \u2014 planetary coupling, transboundary governance and hydrosocial responsibility"),
+    ("HYDRONIZATION", "Hydronization \u2014 water-mediated transformation and hydro-social relations"),
+]
+_AXIS_CODE_LABELS = [
+    ("M", "Marine"), ("T", "Maritime"), ("O", "Oceanic"), ("H", "Hydronization"),
+]
+_REVIEW_STATUS_LABELS = [
+    ("auto_accepted", "Automatically accepted by classifier"),
+    ("review_required", "Manual review required"),
+    ("manually_reviewed", "Manually reviewed and accepted"),
+    ("rejected", "Rejected after review"),
+]
+
+_SCHEMA_V2_VALUE_LABELS: list[dict[str, str]] = (
+    # evidence_fragments.source_field
+    [_v2vl(_EF, "source_field", "title", "Title field")]
+    + [_v2vl(_EF, "source_field", "subject_terms", "Subject terms / keywords field")]
+    + [_v2vl(_EF, "source_field", "abstract", "Abstract field")]
+    + [_v2vl(_EF, "source_field", "full_text", "Full text field")]
+    # semantic_signals
+    + [
+        _v2vl(_SS, "axis_group", code, label)
+        for code, label in _AXIS_GROUP_LABELS
+    ]
+    + [_v2vl(_SS, "axis_group", "", "Unbound / not assigned")]
+    + [
+        _v2vl(_SS, "axis_code", code, label)
+        for code, label in _AXIS_CODE_LABELS
+    ]
+    + [_v2vl(_SS, "axis_code", "", "Unbound / not assigned")]
+    + [_v2vl(_SS, "negation_status", "not_detected", "Negation not detected in text span")]
+    + [_v2vl(_SS, "negation_status", "not_assessed", "Negation assessment not run")]
+    + [_v2vl(_SS, "speculation_status", "not_detected", "Speculation not detected in text span")]
+    + [_v2vl(_SS, "speculation_status", "not_assessed", "Speculation assessment not run")]
+    + [
+        _v2vl(_SS, "manual_review_status", code, label)
+        for code, label in _REVIEW_STATUS_LABELS
+    ]
+    # competence_candidates
+    + [
+        _v2vl(_CC, "axis_group", code, label)
+        for code, label in _AXIS_GROUP_LABELS
+    ]
+    + [_v2vl(_CC, "axis_group", "", "Unbound / not assigned")]
+    + [
+        _v2vl(_CC, "axis_code", code, label)
+        for code, label in _AXIS_CODE_LABELS
+    ]
+    + [_v2vl(_CC, "axis_code", "", "Unbound / not assigned")]
+    + [_v2vl(_CC, "candidate_status", "candidate", "Proposed competence candidate awaiting validation")]
+    + [
+        _v2vl(_CC, "review_status", code, label)
+        for code, label in _REVIEW_STATUS_LABELS
+    ]
+    # validation_decisions
+    + [_v2vl(_VD, "decision_status", "accepted", "Candidate accepted and promoted to canonical competence")]
+    + [_v2vl(_VD, "decision_status", "rejected", "Candidate rejected; not promoted")]
+    + [_v2vl(_VD, "decision_status", "review_required", "Decision deferred pending further review")]
+    + [_v2vl(_VD, "decision_status", "superseded", "Decision superseded by a later validation decision")]
+    # canonical_competences
+    + [_v2vl(_CN, "validation_status", "accepted", "Canonical competence accepted via validated decision")]
+    + [_v2vl(_CN, "provenance_guard_status", "passed", "Canonical-label provenance guard passed")]
+    # sector_competence_assignments
+    + [
+        _v2vl(_SA, "axis_group", code, label)
+        for code, label in _AXIS_GROUP_LABELS
+    ]
+    + [
+        _v2vl(_SA, "axis_code", code, label)
+        for code, label in _AXIS_CODE_LABELS
+    ]
+)
+
+
 def _validate_rows(
     rows: list[dict[str, Any]], schema_path: Path, table_name: str
 ) -> list[str]:
     payload = _load_json(schema_path)
     Draft202012Validator.check_schema(payload)
-    validator = Draft202012Validator(payload)
+    validator = Draft202012Validator(
+        payload,
+        format_checker=SCHEMA_FORMAT_CHECKER,
+    )
     errors: list[str] = []
     for idx, row in enumerate(rows):
         for err in validator.iter_errors(row):
@@ -237,8 +699,1036 @@ def _validate_rows(
 def _validate_manifest(manifest: dict[str, Any], schema_path: Path) -> list[str]:
     payload = _load_json(schema_path)
     Draft202012Validator.check_schema(payload)
-    validator = Draft202012Validator(payload)
+    validator = Draft202012Validator(
+        payload,
+        format_checker=SCHEMA_FORMAT_CHECKER,
+    )
     return [error.message for error in validator.iter_errors(manifest)]
+
+
+def _merge_label_rows(
+    generated_rows: list[dict[str, str]],
+    curated_rows: list[dict[str, str]],
+    key_fields: tuple[str, ...],
+) -> list[dict[str, str]]:
+    """Merge generated and curated label rows with curated-key override."""
+    merged: dict[tuple[str, ...], dict[str, str]] = {
+        tuple(str(row.get(field, "")) for field in key_fields): row
+        for row in generated_rows
+    }
+    for row in curated_rows:
+        key = tuple(str(row.get(field, "")) for field in key_fields)
+        merged[key] = row
+    return sorted(
+        merged.values(),
+        key=lambda row: tuple(str(row.get(field, "")) for field in key_fields),
+    )
+
+
+def _row_key(row: dict[str, Any], fields: tuple[str, ...]) -> tuple[str, ...]:
+    """Return a normalized composite key without admitting blank components."""
+    return tuple(str(row.get(field, "")).strip() for field in fields)
+
+
+def _format_row_key(key: tuple[str, ...]) -> str:
+    """Render a composite key deterministically for a non-sensitive error."""
+    return "|".join(key)
+
+
+def _split_reference_ids(value: Any) -> set[str]:
+    """Return non-empty pipe-delimited lineage references."""
+    return {item.strip() for item in str(value or "").split("|") if item.strip()}
+
+
+def _candidate_fragment_ids(candidate: dict[str, Any]) -> set[str]:
+    """Return a candidate's retained fragments, falling back to its scalar key."""
+    fragment_ids = _split_reference_ids(candidate.get("fragment_ids"))
+    if fragment_ids:
+        return fragment_ids
+    fragment_id = str(candidate.get("fragment_id", "")).strip()
+    return {fragment_id} if fragment_id else set()
+
+
+_BOUND_AXIS_CONTEXTS = {
+    ("MARINE", "M"),
+    ("MARITIME", "T"),
+    ("OCEANIC", "O"),
+    ("HYDRONIZATION", "H"),
+}
+
+
+def _candidate_semantic_contexts(
+    candidate: dict[str, Any],
+    signals_by_key: dict[tuple[str, ...], dict[str, Any]],
+) -> set[tuple[str, str, str]]:
+    """Return all semantic sector/axis contexts retained by a candidate."""
+    signal_id = str(candidate.get("signal_id", "")).strip()
+    contexts: set[tuple[str, str, str]] = set()
+    for fragment_id in _candidate_fragment_ids(candidate):
+        signal = signals_by_key.get((signal_id, fragment_id))
+        if signal is None:
+            continue
+        contexts.add(
+            (
+                str(signal.get("sector", "")).strip(),
+                str(signal.get("axis_group", "")).strip(),
+                str(signal.get("axis_code", "")).strip(),
+            )
+        )
+    return contexts
+
+
+def _decision_semantic_contexts(
+    decision: dict[str, Any],
+    linked_candidate: dict[str, Any],
+    fragments_by_id: dict[tuple[str, ...], dict[str, Any]],
+    signals_by_key: dict[tuple[str, ...], dict[str, Any]],
+) -> set[tuple[str, str, str]]:
+    """Return only the reviewed semantic contexts retained in a decision snapshot."""
+    evidence_id = str(linked_candidate.get("evidence_id", "")).strip()
+    signal_id = str(linked_candidate.get("signal_id", "")).strip()
+    contexts: set[tuple[str, str, str]] = set()
+    for fragment_id in _split_reference_ids(decision.get("fragment_ids")):
+        fragment = fragments_by_id.get((fragment_id,))
+        if fragment is None:
+            continue
+        if str(fragment.get("evidence_id", "")).strip() != evidence_id:
+            continue
+        signal = signals_by_key.get((signal_id, fragment_id))
+        if signal is None:
+            continue
+        contexts.add(
+            (
+                str(signal.get("sector", "")).strip(),
+                str(signal.get("axis_group", "")).strip(),
+                str(signal.get("axis_code", "")).strip(),
+            )
+        )
+    return contexts
+
+
+def _is_bound_axis_context(context: tuple[str, str, str]) -> bool:
+    """Return whether a semantic context can emit a sector assignment."""
+    sector, axis_group, axis_code = context
+    return bool(sector) and (axis_group, axis_code) in _BOUND_AXIS_CONTEXTS
+
+
+def _string_value(value: Any) -> str:
+    """Return a scalar string without changing its retained value."""
+    return "" if value is None else str(value)
+
+
+def _normalized_label(value: Any) -> str:
+    """Normalize a human-facing label before comparing published links."""
+    return re.sub(r"\s+", " ", _string_value(value)).strip().casefold()
+
+
+def _runtime_canonical_label(value: Any) -> str:
+    """Normalize a canonical label exactly as the runtime identity does.
+
+    Delegates to :func:`schema_v2_identity.normalize_canonical_label`.
+    """
+    return _normalize_canonical_label_v2(value).lower()
+
+
+# Provider aliases used by the canonical-label provenance guard.  Must stay in
+# sync with _CANONICAL_LABEL_PROVIDER_ALIASES in build_live_cumulative_release_package.py.
+_CANONICAL_LABEL_PROVIDER_ALIASES: frozenset[str] = frozenset({
+    "crossref",
+    "cr",
+    "scopus",
+    "elsevier scopus",
+    "wos",
+    "web of science",
+    "web of science clarivate",
+    "web of science (clarivate)",
+    "web_of_science",
+    "web_of_science_clarivate",
+    "clarivate",
+    "clarivate wos",
+    "clarivate web of science",
+    "clarivate_web_of_science",
+    "scival",
+    "microsoft graph",
+    "microsoft_graph",
+    "google drive",
+    "google_drive",
+})
+
+
+def _normalize_title_for_label_guard(value: Any) -> str:
+    """Strip punctuation and collapse whitespace for title-overlap detection."""
+    raw = re.sub(r"\s+", " ", _string_value(value)).strip().lower()
+    return re.sub(r"[^\w\s]", "", raw).strip()
+
+
+def _canonical_label_guard_reason(
+    label: Any, retained_source_titles: tuple[str, ...] = ()
+) -> str:
+    """Return the rejection reason for a canonical label, or '' if it is valid.
+
+    Mirrors the guard in build_live_cumulative_release_package.py so that the
+    versioned-package validator enforces the same provenance rules.
+    """
+    token = re.sub(r"\s+", " ", _string_value(label)).strip()
+    if not token:
+        return "empty_label"
+    lowered = token.lower()
+    provider_token = re.sub(r"[_\s]+", " ", lowered).strip()
+    provider_aliases = {
+        re.sub(r"[_\s]+", " ", alias).strip()
+        for alias in _CANONICAL_LABEL_PROVIDER_ALIASES
+    }
+    if any(
+        provider_token == alias
+        or provider_token.startswith(f"{alias}:")
+        or provider_token.startswith(f"{alias} ")
+        for alias in provider_aliases
+    ):
+        return "provider_metadata_prefix"
+    if "..." in token or "\u2026" in token:
+        return "truncation_ellipsis"
+    if len(token) > 180:
+        return "length_over_180"
+    if token.count(" ") >= 8:
+        return "space_count_at_least_8"
+    metadata_match = re.search(
+        r"\b(doi|journal|conference|article|paper)\b", lowered
+    )
+    if metadata_match:
+        return f"metadata_term:{metadata_match.group(1)}"
+    normalized_label = _normalize_title_for_label_guard(token)
+    label_token_count = len(normalized_label.split())
+    for source_title in retained_source_titles:
+        normalized_title = _normalize_title_for_label_guard(source_title)
+        if not normalized_title or not normalized_label:
+            continue
+        if normalized_label == normalized_title:
+            return "source_title_exact"
+        if (
+            label_token_count >= 3
+            and f" {normalized_label} " in f" {normalized_title} "
+        ):
+            return "source_title_fragment"
+    return ""
+
+
+def _normalized_text_hash(value: Any) -> str:
+    """Return the runtime-compatible hash for a retained text surface."""
+    normalized = re.sub(r"\s+", " ", _string_value(value)).strip().lower()
+    if not normalized:
+        return ""
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
+def _expected_fragment_provenance_id(fragment: dict[str, Any]) -> str:
+    """Recompute a source occurrence identifier from its public preimage.
+
+    Delegates to :func:`schema_v2_identity.make_provenance_id`.
+    """
+    return _make_provenance_id_v2(
+        run_id=_string_value(fragment.get("run_id")),
+        evidence_id=_string_value(fragment.get("evidence_id")),
+        source_retrieved_at_utc=_string_value(
+            fragment.get("source_retrieved_at_utc")
+        ),
+        source_provider=_string_value(fragment.get("source_provider")),
+        source_provider_id=_string_value(fragment.get("source_provider_id")),
+        source_query_id=_string_value(fragment.get("source_query_id")),
+        source_query_text=_string_value(fragment.get("source_query_text")),
+    )
+
+
+def _parse_utc_iso_datetime(value: Any) -> datetime | None:
+    """Parse an ISO-8601 UTC timestamp, returning None when it is invalid."""
+    token = _string_value(value).strip()
+    if not token:
+        return None
+    try:
+        parsed = datetime.fromisoformat(token.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    utc_offset = parsed.utcoffset()
+    if (
+        parsed.tzinfo is None
+        or utc_offset is None
+        or utc_offset.total_seconds() != 0
+    ):
+        return None
+    return parsed.astimezone(timezone.utc)
+
+
+def _expected_signal_id(signal: dict[str, Any]) -> str:
+    """Recompute the runtime's stable semantic-signal identity.
+
+    Delegates to :func:`schema_v2_identity.make_signal_id`.
+    """
+    return _make_signal_id_v2(
+        evidence_id=_string_value(signal.get("evidence_id")),
+        signal_type=_string_value(signal.get("signal_type")),
+        matched_phrase=_string_value(signal.get("matched_phrase")),
+        evidence_text_hash=_string_value(signal.get("evidence_text_hash")),
+        classifier_version=_string_value(signal.get("classifier_version")),
+    )
+
+
+def _expected_fragment_id(fragment: dict[str, Any], signal_id: str) -> str | None:
+    """Recompute the runtime's stable evidence-fragment identity.
+
+    Delegates to :func:`schema_v2_identity.make_fragment_id`.  Returns ``None``
+    when span offsets are not integers (pre-v2 rows without span data).
+    """
+    span_start = fragment.get("span_start_offset")
+    span_end = fragment.get("span_end_offset")
+    if not isinstance(span_start, int) or not isinstance(span_end, int):
+        return None
+    return _make_fragment_id_v2(
+        evidence_id=_string_value(fragment.get("evidence_id")),
+        signal_id=signal_id,
+        provenance_id=_expected_fragment_provenance_id(fragment),
+        source_field=_string_value(fragment.get("source_field")),
+        span_start=span_start,
+        span_end=span_end,
+    )
+
+
+def _expected_candidate_id(candidate: dict[str, Any]) -> str:
+    """Recompute the runtime's stable competence-candidate identity.
+
+    Delegates to :func:`schema_v2_identity.make_candidate_id`.
+    """
+    return _make_candidate_id_v2(
+        signal_id=_string_value(candidate.get("signal_id")),
+        evidence_id=_string_value(candidate.get("evidence_id")),
+    )
+
+
+def _expected_canonical_competence_id(canonical: dict[str, Any]) -> str:
+    """Recompute the runtime canonical-competence identity from its label.
+
+    Delegates to :func:`schema_v2_identity.make_canonical_competence_id`.
+    """
+    return _make_canonical_competence_id_v2(canonical.get("preferred_label"))
+
+
+def _validate_schema_v2_projection_and_lineage(
+    schema_v2_csv_rows: dict[str, list[dict[str, Any]]],
+    schema_v2_jsonl_rows: dict[str, list[dict[str, Any]]],
+) -> list[str]:
+    """Fail closed if schema-v2 CSV/JSONL projections or lineage diverge."""
+
+    errors: list[str] = []
+
+    def _index_rows(
+        table_name: str, rows: list[dict[str, Any]]
+    ) -> dict[tuple[str, ...], dict[str, Any]]:
+        key_fields = SCHEMA_V2_PRIMARY_KEY_FIELDS[table_name]
+        indexed: dict[tuple[str, ...], dict[str, Any]] = {}
+        for idx, row in enumerate(rows, start=1):
+            key = _row_key(row, key_fields)
+            if not all(key):
+                errors.append(
+                    f"{table_name}:L{idx}:{'|'.join(key_fields)}:missing_primary_key"
+                )
+                continue
+            if key in indexed:
+                errors.append(
+                    f"{table_name}:L{idx}:{'|'.join(key_fields)}:"
+                    f"duplicate_primary_key:{_format_row_key(key)}"
+                )
+                continue
+            indexed[key] = row
+        return indexed
+
+    csv_index = {
+        table_name: _index_rows(table_name, schema_v2_csv_rows[table_name])
+        for table_name in SCHEMA_V2_ENTITY_NAMES
+    }
+    jsonl_index = {
+        table_name: _index_rows(table_name, schema_v2_jsonl_rows[table_name])
+        for table_name in SCHEMA_V2_ENTITY_NAMES
+    }
+
+    for table_name in SCHEMA_V2_ENTITY_NAMES:
+        csv_ids = set(csv_index[table_name])
+        jsonl_ids = set(jsonl_index[table_name])
+        if csv_ids != jsonl_ids:
+            missing_in_jsonl = sorted(csv_ids - jsonl_ids)
+            missing_in_csv = sorted(jsonl_ids - csv_ids)
+            if missing_in_jsonl:
+                errors.append(
+                    f"{table_name}:projection_parity:missing_in_jsonl:"
+                    f"{'|'.join(_format_row_key(key) for key in missing_in_jsonl)}"
+                )
+            if missing_in_csv:
+                errors.append(
+                    f"{table_name}:projection_parity:missing_in_csv:"
+                    f"{'|'.join(_format_row_key(key) for key in missing_in_csv)}"
+                )
+            continue
+        for row_id in sorted(csv_ids):
+            if csv_index[table_name][row_id] != jsonl_index[table_name][row_id]:
+                errors.append(
+                    f"{table_name}:projection_parity:row_mismatch:"
+                    f"{_format_row_key(row_id)}"
+                )
+
+    fragments_by_id = csv_index["evidence_fragments"]
+    signals_by_key = csv_index["semantic_signals"]
+    candidates_by_id = csv_index["competence_candidates"]
+    decisions_by_id = csv_index["validation_decisions"]
+    canonicals_by_id = csv_index["canonical_competences"]
+
+    signals_by_fragment_id: dict[str, list[dict[str, Any]]] = {}
+    for signal_key, signal in signals_by_key.items():
+        signals_by_fragment_id.setdefault(signal_key[1], []).append(signal)
+
+    for fragment_key, fragment in fragments_by_id.items():
+        fragment_id = fragment_key[0]
+        expected_provenance_id = _expected_fragment_provenance_id(fragment)
+        retained_provenance_id = _string_value(
+            fragment.get("source_provenance_id")
+        )
+        if _parse_utc_iso_datetime(fragment.get("source_retrieved_at_utc")) is None:
+            errors.append(
+                f"evidence_fragments:lineage:{fragment_id}:source_retrieved_at_utc"
+            )
+        if retained_provenance_id != expected_provenance_id:
+            errors.append(
+                f"evidence_fragments:lineage:{fragment_id}:source_provenance_id"
+            )
+        expected_provenance_hash = hashlib.sha256(
+            retained_provenance_id.encode("utf-8")
+        ).hexdigest()
+        if _string_value(fragment.get("provenance_hash")) != expected_provenance_hash:
+            errors.append(
+                f"evidence_fragments:lineage:{fragment_id}:provenance_hash"
+            )
+        linked_signals = signals_by_fragment_id.get(fragment_id, [])
+        if len(linked_signals) != 1:
+            errors.append(
+                f"evidence_fragments:lineage:{fragment_id}:fragment_identity"
+            )
+            continue
+        expected_fragment_id = _expected_fragment_id(
+            fragment, _string_value(linked_signals[0].get("signal_id"))
+        )
+        if fragment_id != expected_fragment_id:
+            errors.append(
+                f"evidence_fragments:identity:{fragment_id}:fragment_id_mismatch"
+            )
+
+    for signal_key, signal in signals_by_key.items():
+        signal_id, fragment_id = signal_key
+        expected_signal_id = _expected_signal_id(signal)
+        if signal_id != expected_signal_id:
+            errors.append(
+                "semantic_signals:identity:"
+                f"{_format_row_key(signal_key)}:signal_id_mismatch"
+            )
+        linked_fragment = fragments_by_id.get((fragment_id,))
+        if linked_fragment is None:
+            errors.append(
+                f"semantic_signals:lineage:{signal_id}:missing_fragment:{fragment_id}"
+            )
+            continue
+        if _string_value(signal.get("evidence_id")).strip() != _string_value(
+            linked_fragment.get("evidence_id")
+        ).strip():
+            errors.append(
+                f"semantic_signals:lineage:{signal_id}:fragment_evidence_mismatch"
+            )
+        if _string_value(signal.get("run_id")).strip() != _string_value(
+            linked_fragment.get("run_id")
+        ).strip():
+            errors.append(
+                f"semantic_signals:lineage:{signal_id}:fragment_run_mismatch"
+            )
+        if _string_value(signal.get("source_provenance_id")).strip() != _string_value(
+            linked_fragment.get("source_provenance_id")
+        ).strip():
+            errors.append(
+                f"semantic_signals:lineage:{signal_id}:fragment_provenance_mismatch"
+            )
+        matched_phrase = re.sub(
+            r"\s+", " ", _string_value(signal.get("matched_phrase"))
+        ).strip()
+        fragment_text = re.sub(
+            r"\s+", " ", _string_value(linked_fragment.get("fragment_text"))
+        ).strip()
+        if not matched_phrase or re.search(
+            rf"(?<!\w){re.escape(matched_phrase)}(?!\w)",
+            fragment_text,
+            flags=re.IGNORECASE,
+        ) is None:
+            errors.append(
+                f"semantic_signals:lineage:{signal_id}:matched_phrase"
+            )
+        context_text = str(signal.get("context_text", ""))
+        start = linked_fragment.get("span_start_offset")
+        end = linked_fragment.get("span_end_offset")
+        if isinstance(start, int) and isinstance(end, int):
+            if start < 0 or end < start or end > len(context_text):
+                errors.append(
+                    f"semantic_signals:lineage:{signal_id}:invalid_context_span:{start}:{end}:{len(context_text)}"
+                )
+            else:
+                span = context_text[start:end]
+                if span != str(linked_fragment.get("fragment_text", "")):
+                    errors.append(
+                        f"semantic_signals:lineage:{signal_id}:context_span_mismatch"
+                    )
+        if _normalized_text_hash(context_text) != _string_value(
+            linked_fragment.get("surface_text_hash")
+        ):
+            errors.append(
+                f"semantic_signals:lineage:{signal_id}:surface_text_hash"
+            )
+
+    for candidate_key, candidate in candidates_by_id.items():
+        candidate_id = candidate_key[0]
+        if candidate_id != _expected_candidate_id(candidate):
+            errors.append(
+                f"competence_candidates:identity:{candidate_id}:candidate_id_mismatch"
+            )
+        signal_id = _string_value(candidate.get("signal_id")).strip()
+        fragment_ids = _candidate_fragment_ids(candidate)
+        scalar_fragment_id = _string_value(candidate.get("fragment_id")).strip()
+        selected_fragment = fragments_by_id.get((scalar_fragment_id,))
+        expected_fragment_ids = {
+            fragment_id
+            for (signal_key, fragment_id), signal in signals_by_key.items()
+            if (
+                signal_key == signal_id
+                and _string_value(signal.get("evidence_id")).strip()
+                == _string_value(candidate.get("evidence_id")).strip()
+            )
+        }
+        if fragment_ids != expected_fragment_ids:
+            errors.append(
+                f"competence_candidates:lineage:{candidate_id}:fragment_ids"
+            )
+        if scalar_fragment_id and scalar_fragment_id not in fragment_ids:
+            errors.append(
+                f"competence_candidates:lineage:{candidate_id}:"
+                "scalar_fragment_not_retained"
+            )
+        for fragment_id in sorted(fragment_ids):
+            signal_row = signals_by_key.get((signal_id, fragment_id))
+            if signal_row is None:
+                errors.append(
+                    "competence_candidates:lineage:"
+                    f"{candidate_id}:missing_signal_fragment:"
+                    f"{signal_id}|{fragment_id}"
+                )
+                continue
+            linked_fragment = fragments_by_id.get((fragment_id,))
+            if (
+                linked_fragment is None
+                or _string_value(candidate.get("evidence_id")).strip()
+                != _string_value(linked_fragment.get("evidence_id")).strip()
+                or _string_value(candidate.get("evidence_id")).strip()
+                != _string_value(signal_row.get("evidence_id")).strip()
+            ):
+                errors.append(
+                    f"competence_candidates:lineage:{candidate_id}:"
+                    "signal_evidence_mismatch"
+                )
+        expected_provenance_ids = {
+            _string_value(fragment.get("source_provenance_id")).strip()
+            for fragment_id in expected_fragment_ids
+            for fragment in [fragments_by_id.get((fragment_id,))]
+            if fragment is not None
+        }
+        if _split_reference_ids(candidate.get("source_provenance_ids")) != (
+            expected_provenance_ids
+        ):
+            errors.append(
+                f"competence_candidates:lineage:{candidate_id}:source_provenance_ids"
+            )
+        if selected_fragment is not None and any(
+            _string_value(candidate.get(candidate_field)).strip()
+            != _string_value(selected_fragment.get(fragment_field)).strip()
+            for candidate_field, fragment_field in (
+                ("evidence_id", "evidence_id"),
+                ("run_id", "run_id"),
+                ("exact_evidence_span", "fragment_text"),
+                ("exact_span_start_offset", "span_start_offset"),
+                ("exact_span_end_offset", "span_end_offset"),
+            )
+        ):
+            errors.append(
+                f"competence_candidates:lineage:{candidate_id}:selected_fragment_content"
+            )
+
+    superseded_ids: set[str] = set()
+    for decision_key, decision in decisions_by_id.items():
+        decision_id = decision_key[0]
+        candidate_id = str(decision.get("target_candidate_id", ""))
+        if (candidate_id,) not in candidates_by_id:
+            errors.append(
+                f"validation_decisions:lineage:{decision_id}:missing_candidate:{candidate_id}"
+            )
+        superseded_id = str(
+            decision.get("superseded_validation_decision_id", "")
+        ).strip()
+        if not superseded_id:
+            continue
+        superseded_ids.add(superseded_id)
+        if superseded_id == decision_id:
+            errors.append(
+                f"validation_decisions:supersession:{decision_id}:self_reference"
+            )
+            continue
+        superseded = decisions_by_id.get((superseded_id,))
+        if superseded is None:
+            errors.append(
+                "validation_decisions:supersession:"
+                f"{decision_id}:missing_superseded_decision:{superseded_id}"
+            )
+            continue
+        if candidate_id != str(superseded.get("target_candidate_id", "")).strip():
+            errors.append(
+                "validation_decisions:supersession:"
+                f"{decision_id}:cross_candidate_reference"
+            )
+        superseding_at = _parse_utc_iso_datetime(decision.get("decision_at_utc"))
+        superseded_at = _parse_utc_iso_datetime(
+            superseded.get("decision_at_utc")
+        )
+        if (
+            superseding_at is not None
+            and superseded_at is not None
+            and superseding_at <= superseded_at
+        ):
+            errors.append(
+                "validation_decisions:supersession:"
+                f"{decision_id}:not_later_than:{superseded_id}"
+            )
+
+    reported_cycles: set[tuple[str, ...]] = set()
+    for decision_id in sorted(decision_key[0] for decision_key in decisions_by_id):
+        path: list[str] = []
+        current_id = decision_id
+        while current_id:
+            if current_id in path:
+                cycle = tuple(path[path.index(current_id) :])
+                cycle_key = tuple(sorted(cycle))
+                if cycle_key not in reported_cycles:
+                    reported_cycles.add(cycle_key)
+                    errors.append(
+                        "validation_decisions:supersession:cycle:"
+                        f"{'|'.join(cycle)}"
+                    )
+                break
+            path.append(current_id)
+            current = decisions_by_id.get((current_id,))
+            if current is None:
+                break
+            next_id = str(
+                current.get("superseded_validation_decision_id", "")
+            ).strip()
+            if not next_id or (next_id,) not in decisions_by_id:
+                break
+            current_id = next_id
+
+    active_decision_ids = {
+        decision_key[0]
+        for decision_key in decisions_by_id
+        if decision_key[0] not in superseded_ids
+    }
+    active_decisions_by_candidate: dict[str, int] = {}
+    for decision_key, decision in decisions_by_id.items():
+        decision_id = decision_key[0]
+        if decision_id not in active_decision_ids:
+            continue
+        candidate_id = str(decision.get("target_candidate_id", "")).strip()
+        active_decisions_by_candidate[candidate_id] = (
+            active_decisions_by_candidate.get(candidate_id, 0) + 1
+        )
+    for candidate_id, count in sorted(active_decisions_by_candidate.items()):
+        if count > 1:
+            errors.append(
+                "validation_decisions:supersession:"
+                f"multiple_active_decisions:{candidate_id}"
+            )
+
+    for decision_key, decision in decisions_by_id.items():
+        decision_id = decision_key[0]
+        candidate_id = _string_value(
+            decision.get("target_candidate_id")
+        ).strip()
+        linked_candidate = candidates_by_id.get((candidate_id,))
+        if linked_candidate is None:
+            continue
+        snapshot_evidence_ids = _split_reference_ids(decision.get("evidence_ids"))
+        snapshot_fragment_ids = _split_reference_ids(decision.get("fragment_ids"))
+        snapshot_provenance_ids = _split_reference_ids(
+            decision.get("source_provenance_ids")
+        )
+        candidate_fragment_ids = _candidate_fragment_ids(linked_candidate)
+        if not snapshot_evidence_ids:
+            errors.append(
+                f"validation_decisions:lineage:{decision_id}:evidence_ids"
+            )
+        if not snapshot_fragment_ids or not snapshot_fragment_ids.issubset(
+            candidate_fragment_ids
+        ):
+            errors.append(
+                f"validation_decisions:lineage:{decision_id}:fragment_ids"
+            )
+        if not snapshot_provenance_ids:
+            errors.append(
+                f"validation_decisions:lineage:{decision_id}:source_provenance_ids"
+            )
+        snapshot_fragments = [
+            fragments_by_id[(fragment_id,)]
+            for fragment_id in sorted(snapshot_fragment_ids)
+            if (fragment_id,) in fragments_by_id
+        ]
+        expected_snapshot_evidence_ids = {
+            _string_value(fragment.get("evidence_id")).strip()
+            for fragment in snapshot_fragments
+            if _string_value(fragment.get("evidence_id")).strip()
+        }
+        expected_snapshot_provenance_ids = {
+            _string_value(fragment.get("source_provenance_id")).strip()
+            for fragment in snapshot_fragments
+            if _string_value(fragment.get("source_provenance_id")).strip()
+        }
+        candidate_evidence_ids = {
+            _string_value(linked_candidate.get("evidence_id")).strip()
+        }
+        if (
+            snapshot_evidence_ids != expected_snapshot_evidence_ids
+            or snapshot_evidence_ids != candidate_evidence_ids
+        ):
+            errors.append(
+                f"validation_decisions:lineage:{decision_id}:evidence_ids"
+            )
+        if snapshot_provenance_ids != expected_snapshot_provenance_ids:
+            errors.append(
+                f"validation_decisions:lineage:{decision_id}:source_provenance_ids"
+            )
+        decision_at = _parse_utc_iso_datetime(decision.get("decision_at_utc"))
+        if decision_at is not None:
+            for fragment in snapshot_fragments:
+                retrieved_at = _parse_utc_iso_datetime(
+                    fragment.get("source_retrieved_at_utc")
+                )
+                if retrieved_at is not None and retrieved_at > decision_at:
+                    errors.append(
+                        "validation_decisions:lineage:"
+                        f"{decision_id}:source_retrieved_at_utc"
+                    )
+                    break
+
+    for canonical_key, canonical in canonicals_by_id.items():
+        canonical_id = canonical_key[0]
+        if _string_value(canonical.get("canonical_competence_id")) != (
+            _expected_canonical_competence_id(canonical)
+        ):
+            errors.append(
+                "canonical_competences:identity:"
+                f"{canonical_id}:canonical_competence_id_mismatch"
+            )
+        decision_id = _string_value(
+            canonical.get("validation_decision_id")
+        ).strip()
+        candidate_id = _string_value(canonical.get("source_candidate_id")).strip()
+        decision_row = decisions_by_id.get((decision_id,))
+        if decision_row is None:
+            errors.append(
+                f"canonical_competences:lineage:{canonical_id}:missing_decision:{decision_id}"
+            )
+        else:
+            if decision_id not in active_decision_ids:
+                errors.append(
+                    f"canonical_competences:lineage:{canonical_id}:"
+                    "inactive_validation_decision_id"
+                )
+            if (
+                _string_value(decision_row.get("decision_status")).strip()
+                != "accepted"
+                or candidate_id
+                != _string_value(decision_row.get("target_candidate_id")).strip()
+            ):
+                errors.append(
+                    f"canonical_competences:lineage:{canonical_id}:"
+                    "validation_decision_id"
+                )
+            if _runtime_canonical_label(canonical.get("preferred_label")) != _runtime_canonical_label(
+                decision_row.get("canonical_label")
+            ):
+                errors.append(
+                    f"canonical_competences:lineage:{canonical_id}:canonical_label"
+                )
+            if (
+                _string_value(decision_row.get("decision_status")).strip()
+                == "accepted"
+            ):
+                retained_source_titles: tuple[str, ...] = ()
+                candidate_row = candidates_by_id.get((candidate_id,))
+                if candidate_row is not None:
+                    evidence_id = _string_value(
+                        candidate_row.get("evidence_id")
+                    ).strip()
+                    evidence_records_index = csv_index.get("evidence_records", {})
+                    evidence_record = evidence_records_index.get((evidence_id,))
+                    if evidence_record is not None:
+                        retained_source_titles = (
+                            _string_value(evidence_record.get("canonical_title")),
+                        )
+                guard_reason = _canonical_label_guard_reason(
+                    canonical.get("preferred_label"), retained_source_titles
+                )
+                if guard_reason:
+                    errors.append(
+                        f"canonical_competences:lineage:{canonical_id}:"
+                        f"canonical_label_guard:{guard_reason}"
+                    )
+        if (candidate_id,) not in candidates_by_id:
+            errors.append(
+                f"canonical_competences:lineage:{canonical_id}:missing_candidate:{candidate_id}"
+            )
+
+    assignments_by_lineage: dict[
+        tuple[str, str, str], list[dict[str, Any]]
+    ] = {}
+    for assignment in csv_index["sector_competence_assignments"].values():
+        for field_name in (
+            "assignment_id",
+            "canonical_competence_id",
+            "validation_decision_id",
+            "source_candidate_id",
+        ):
+            retained_value = _string_value(assignment.get(field_name))
+            if retained_value != retained_value.strip():
+                errors.append(
+                    "sector_competence_assignments:lineage:"
+                    f"{retained_value.strip()}:{field_name}:outer_whitespace"
+                )
+        assignment_id = _string_value(assignment.get("assignment_id")).strip()
+        canonical_id = _string_value(
+            assignment.get("canonical_competence_id")
+        ).strip()
+        canonical_row = canonicals_by_id.get((canonical_id,))
+        if canonical_row is None:
+            errors.append(
+                f"sector_competence_assignments:lineage:{assignment_id}:missing_canonical:{canonical_id}"
+            )
+            continue
+        decision_id = _string_value(
+            assignment.get("validation_decision_id")
+        ).strip()
+        candidate_id = _string_value(assignment.get("source_candidate_id")).strip()
+        linked_decision = decisions_by_id.get((decision_id,))
+        if linked_decision is None:
+            errors.append(
+                f"sector_competence_assignments:lineage:{assignment_id}:"
+                f"missing_decision:{decision_id}"
+            )
+        else:
+            if decision_id not in active_decision_ids:
+                errors.append(
+                    f"sector_competence_assignments:lineage:{assignment_id}:"
+                    "inactive_validation_decision_id"
+                )
+            if (
+                _string_value(linked_decision.get("decision_status")).strip()
+                != "accepted"
+                or candidate_id
+                != _string_value(linked_decision.get("target_candidate_id")).strip()
+            ):
+                errors.append(
+                    f"sector_competence_assignments:lineage:{assignment_id}:"
+                    "validation_decision_id"
+                )
+            if _runtime_canonical_label(canonical_row.get("preferred_label")) != _runtime_canonical_label(
+                linked_decision.get("canonical_label")
+            ):
+                errors.append(
+                    f"sector_competence_assignments:lineage:{assignment_id}:"
+                    "canonical_label"
+                )
+        linked_candidate = candidates_by_id.get((candidate_id,))
+        if linked_candidate is None:
+            errors.append(
+                f"sector_competence_assignments:lineage:{assignment_id}:"
+                f"missing_candidate:{candidate_id}"
+            )
+            continue
+        expected_evidence_ids = {
+            str(linked_candidate.get("evidence_id", "")).strip()
+        }
+        assignment_evidence_raw = _string_value(assignment.get("evidence_ids"))
+        assignment_evidence_ids = _split_reference_ids(assignment_evidence_raw)
+        expected_evidence_serialization = "|".join(sorted(expected_evidence_ids))
+        if (
+            assignment_evidence_ids != expected_evidence_ids
+            or assignment_evidence_raw != expected_evidence_serialization
+        ):
+            errors.append(
+                f"sector_competence_assignments:lineage:{assignment_id}:evidence_ids"
+            )
+        assignment_context = (
+            str(assignment.get("sector", "")).strip(),
+            str(assignment.get("axis_group", "")).strip(),
+            str(assignment.get("axis_code", "")).strip(),
+        )
+        semantic_contexts = _candidate_semantic_contexts(
+            linked_candidate, signals_by_key
+        )
+        if assignment_context not in semantic_contexts:
+            errors.append(
+                f"sector_competence_assignments:lineage:{assignment_id}:semantic_context"
+            )
+        lineage_key = (canonical_id, decision_id, candidate_id)
+        assignments_by_lineage.setdefault(lineage_key, []).append(assignment)
+
+    for lineage_key, assignments in assignments_by_lineage.items():
+        _, decision_id, candidate_id = lineage_key
+        candidate_for_lineage = candidates_by_id.get((candidate_id,))
+        decision_for_lineage = decisions_by_id.get((decision_id,))
+        if candidate_for_lineage is None or decision_for_lineage is None:
+            continue
+        expected_contexts = {
+            context
+            for context in _decision_semantic_contexts(
+                decision_for_lineage,
+                candidate_for_lineage,
+                fragments_by_id,
+                signals_by_key,
+            )
+            if _is_bound_axis_context(context)
+        }
+        assignment_contexts = {
+            (
+                str(assignment.get("sector", "")).strip(),
+                str(assignment.get("axis_group", "")).strip(),
+                str(assignment.get("axis_code", "")).strip(),
+            )
+            for assignment in assignments
+        }
+        if (
+            assignment_contexts != expected_contexts
+            or len(assignments) != len(expected_contexts)
+        ):
+            assignment_id = str(assignments[0].get("assignment_id", ""))
+            errors.append(
+                "sector_competence_assignments:lineage:"
+                f"{assignment_id}:semantic_context_set"
+            )
+
+    for decision_key, decision in decisions_by_id.items():
+        decision_id = decision_key[0]
+        if (
+            decision_id not in active_decision_ids
+            or _string_value(decision.get("decision_status")).strip() != "accepted"
+        ):
+            continue
+        candidate_id = _string_value(
+            decision.get("target_candidate_id")
+        ).strip()
+        linked_candidate = candidates_by_id.get((candidate_id,))
+        if linked_candidate is None:
+            continue
+        matching_canonicals = [
+            canonical
+            for canonical in canonicals_by_id.values()
+            if _runtime_canonical_label(canonical.get("preferred_label"))
+            == _runtime_canonical_label(decision.get("canonical_label"))
+        ]
+        canonical_ids = {
+            _string_value(canonical.get("canonical_competence_id")).strip()
+            for canonical in matching_canonicals
+            if _string_value(canonical.get("canonical_competence_id")).strip()
+        }
+        if len(canonical_ids) != 1:
+            errors.append(
+                f"validation_decisions:lineage:{decision_id}:canonical_competence"
+            )
+            continue
+        expected_canonical_id = next(iter(canonical_ids))
+        expected_contexts = {
+            context
+            for context in _decision_semantic_contexts(
+                decision,
+                linked_candidate,
+                fragments_by_id,
+                signals_by_key,
+            )
+            if _is_bound_axis_context(context)
+        }
+        matching_assignments = [
+            assignment
+            for assignment in csv_index["sector_competence_assignments"].values()
+            if (
+                _string_value(assignment.get("validation_decision_id")).strip()
+                == decision_id
+                and _string_value(assignment.get("source_candidate_id")).strip()
+                == candidate_id
+            )
+        ]
+        assignment_contexts = {
+            (
+                _string_value(assignment.get("sector")).strip(),
+                _string_value(assignment.get("axis_group")).strip(),
+                _string_value(assignment.get("axis_code")).strip(),
+            )
+            for assignment in matching_assignments
+        }
+        assignment_canonical_ids = {
+            _string_value(assignment.get("canonical_competence_id")).strip()
+            for assignment in matching_assignments
+        }
+        if (
+            assignment_contexts != expected_contexts
+            or len(matching_assignments) != len(expected_contexts)
+            or (
+                matching_assignments
+                and assignment_canonical_ids != {expected_canonical_id}
+            )
+        ):
+            errors.append(
+                "validation_decisions:lineage:"
+                f"{decision_id}:sector_competence_assignments"
+            )
+
+    return errors
+
+
+def _validate_schema_v2_manifest_counts(
+    manifest_path: Path,
+    schema_v2_csv_rows: dict[str, list[dict[str, Any]]],
+    schema_v2_jsonl_rows: dict[str, list[dict[str, Any]]],
+) -> list[str]:
+    """Require source manifest counts to match both validated v2 projections."""
+    try:
+        manifest = _load_json(manifest_path)
+    except (OSError, json.JSONDecodeError):
+        return [f"schema_v2_manifest_invalid:{manifest_path.name}"]
+    counts = manifest.get("counts") if isinstance(manifest, dict) else None
+    if not isinstance(counts, dict):
+        return [f"schema_v2_manifest_missing_counts:{manifest_path.name}"]
+
+    errors: list[str] = []
+    for entity_name in SCHEMA_V2_ENTITY_NAMES:
+        declared_count = counts.get(entity_name)
+        if isinstance(declared_count, bool) or not isinstance(declared_count, int):
+            errors.append(
+                f"schema_v2_manifest_invalid_count:{manifest_path.name}:{entity_name}"
+            )
+            continue
+        csv_count = len(schema_v2_csv_rows[entity_name])
+        jsonl_count = len(schema_v2_jsonl_rows[entity_name])
+        if declared_count != csv_count or declared_count != jsonl_count:
+            errors.append(
+                "schema_v2_manifest_count_mismatch:"
+                f"{manifest_path.name}:{entity_name}:"
+                f"manifest={declared_count}:csv={csv_count}:jsonl={jsonl_count}"
+            )
+    return errors
 
 
 def _write_xlsx(workbook_path: Path, tables: dict[str, list[dict[str, Any]]]) -> bool:
@@ -301,6 +1791,17 @@ MANUAL_SOURCE_FILES: tuple[str, ...] = (
     "outputs/manual_sources/historical_compatibility.csv",
     "outputs/manual_sources/manual_sources_index.csv",
 )
+REQUIRED_SCHEMA_V2_FILES: tuple[str, ...] = tuple(
+    f"{SCHEMA_V2_SOURCE_DIRECTORY}/{entity_name}.{suffix}"
+    for entity_name in SCHEMA_V2_ENTITY_NAMES
+    for suffix in ("csv", "jsonl")
+)
+REQUIRED_SCHEMA_V2_CONTRACT_FILES: tuple[str, ...] = tuple(
+    f"schemas/{schema_name}" for schema_name in SCHEMA_V2_SCHEMA_FILENAMES
+)
+REQUIRED_SCHEMA_V2_MANIFEST_FILE = (
+    f"{SCHEMA_V2_SOURCE_DIRECTORY}/cumulative_database_manifest.json"
+)
 
 HISTORICAL_COMPAT_HEADER = (
     "bundle_id,source_path,extracted_dir,status,reason,"
@@ -322,7 +1823,13 @@ def _check_preflight(repo_root: Path, bootstrap_empty_manual_sources: bool) -> i
     """
     missing: list[str] = []
 
-    for rel in (*REQUIRED_CROSS_RUN_FILES, *REQUIRED_ANALYSIS_FILES):
+    for rel in (
+        *REQUIRED_CROSS_RUN_FILES,
+        *REQUIRED_ANALYSIS_FILES,
+        *REQUIRED_SCHEMA_V2_FILES,
+        *REQUIRED_SCHEMA_V2_CONTRACT_FILES,
+        REQUIRED_SCHEMA_V2_MANIFEST_FILE,
+    ):
         if not (repo_root / rel).is_file():
             missing.append(rel)
 
@@ -376,6 +1883,11 @@ def _check_preflight(repo_root: Path, bootstrap_empty_manual_sources: bool) -> i
             )
         ):
             print("  python run_full_analysis.py")
+        if any(rel.startswith(SCHEMA_V2_SOURCE_DIRECTORY) for rel in missing):
+            print(
+                "  python scripts/build_cumulative_scientific_database.py "
+                "--output-dir outputs/cumulative_database"
+            )
         for rel in missing:
             print(f"    missing: {rel}")
         return 1
@@ -391,14 +1903,6 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
     )
     if preflight_code != 0:
         return preflight_code
-
-    package_dir = (
-        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}"
-    )
-    if package_dir.exists():
-        shutil.rmtree(package_dir)
-    (package_dir / "data" / "csv").mkdir(parents=True, exist_ok=True)
-    (package_dir / "data" / "jsonl").mkdir(parents=True, exist_ok=True)
 
     cross_run_summary = _read_csv(
         repo_root / "outputs/run_archive/cross_run_run_summary.csv"
@@ -419,6 +1923,30 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
     build_report = _load_json(
         repo_root / "outputs/run_archive/cross_run_evidence_build_report.json"
     )
+    schema_dir = repo_root / "schemas"
+    schema_v2_csv_paths: dict[str, Path] = {}
+    schema_v2_jsonl_paths: dict[str, Path] = {}
+    schema_v2_csv_rows: dict[str, list[dict[str, Any]]] = {}
+    schema_v2_jsonl_rows: dict[str, list[dict[str, Any]]] = {}
+    schema_v2_format_errors: list[str] = []
+    for entity_name in SCHEMA_V2_ENTITY_NAMES:
+        schema_path = schema_dir / f"{entity_name}.schema.json"
+        csv_path = (
+            repo_root / SCHEMA_V2_SOURCE_DIRECTORY / f"{entity_name}.csv"
+        )
+        jsonl_path = (
+            repo_root / SCHEMA_V2_SOURCE_DIRECTORY / f"{entity_name}.jsonl"
+        )
+        schema_v2_csv_paths[entity_name] = csv_path
+        schema_v2_jsonl_paths[entity_name] = jsonl_path
+        csv_rows, csv_errors = _read_schema_v2_csv(
+            csv_path, schema_path, entity_name
+        )
+        jsonl_rows, jsonl_errors = _read_schema_v2_jsonl(jsonl_path, entity_name)
+        schema_v2_csv_rows[entity_name] = csv_rows
+        schema_v2_jsonl_rows[entity_name] = jsonl_rows
+        schema_v2_format_errors.extend(csv_errors)
+        schema_v2_format_errors.extend(jsonl_errors)
 
     runs_rows: list[dict[str, Any]] = []
     for row in cross_run_summary:
@@ -741,9 +2269,9 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         "analysis_view_sector_axis_gap_level": analysis_view_sector_axis_gap,
         "analysis_view_provider_sector_level": analysis_view_provider_sector,
         "analysis_view_credential_level": analysis_view_credential,
+        **schema_v2_csv_rows,
     }
 
-    schema_dir = repo_root / "schemas"
     schema_map = {
         "runs": schema_dir / "runs.schema.json",
         "source_bundles": schema_dir / "source_bundles.schema.json",
@@ -752,18 +2280,58 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         "gap_clusters": schema_dir / "gap_clusters.schema.json",
         "dynamic_credentials": schema_dir / "dynamic_credentials.schema.json",
         "data_quality_indicators": schema_dir / "data_quality_indicators.schema.json",
+        **{
+            entity_name: schema_dir / f"{entity_name}.schema.json"
+            for entity_name in SCHEMA_V2_ENTITY_NAMES
+        },
     }
-    validation_errors: list[str] = []
+    package_dir = (
+        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}"
+    )
+    quarantine_dir = package_dir.with_name(f"{package_dir.name}.stale")
+    if quarantine_dir.exists():
+        shutil.rmtree(quarantine_dir)
+    if package_dir.exists():
+        package_dir.replace(quarantine_dir)
+
+    validation_errors: list[str] = list(schema_v2_format_errors)
     for table_name, schema_path in schema_map.items():
         validation_errors.extend(
             _validate_rows(csv_tables[table_name], schema_path, table_name)
         )
+    for entity_name in SCHEMA_V2_ENTITY_NAMES:
+        validation_errors.extend(
+            _validate_rows(
+                schema_v2_jsonl_rows[entity_name],
+                schema_map[entity_name],
+                f"{entity_name}.jsonl",
+            )
+        )
+    validation_errors.extend(
+        _validate_schema_v2_projection_and_lineage(
+            schema_v2_csv_rows=schema_v2_csv_rows,
+            schema_v2_jsonl_rows=schema_v2_jsonl_rows,
+        )
+    )
+    validation_errors.extend(
+        _validate_schema_v2_manifest_counts(
+            repo_root / REQUIRED_SCHEMA_V2_MANIFEST_FILE,
+            schema_v2_csv_rows,
+            schema_v2_jsonl_rows,
+        )
+    )
     if validation_errors:
         for error in validation_errors[:50]:
             print(f"{status_label('error')} {error}")
         return 1
 
+    (package_dir / "data" / "csv").mkdir(parents=True, exist_ok=True)
+    (package_dir / "data" / "jsonl").mkdir(parents=True, exist_ok=True)
+    (package_dir / "schemas").mkdir(parents=True, exist_ok=True)
+
     for table_name, rows in csv_tables.items():
+        if table_name in SCHEMA_V2_ENTITY_NAMES:
+            continue
         _write_csv(package_dir / "data" / "csv" / f"{table_name}.csv", rows)
     _write_jsonl(
         package_dir / "data" / "jsonl" / "evidence_records.jsonl", evidence_record_rows
@@ -775,8 +2343,51 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
     _write_jsonl(
         package_dir / "data" / "jsonl" / "dynamic_credentials.jsonl", credential_rows
     )
+    for entity_name in SCHEMA_V2_ENTITY_NAMES:
+        shutil.copyfile(
+            schema_v2_csv_paths[entity_name],
+            package_dir / "data" / "csv" / f"{entity_name}.csv",
+        )
+        shutil.copyfile(
+            schema_v2_jsonl_paths[entity_name],
+            package_dir / "data" / "jsonl" / f"{entity_name}.jsonl",
+        )
+        shutil.copyfile(
+            schema_dir / f"{entity_name}.schema.json",
+            package_dir / "schemas" / f"{entity_name}.schema.json",
+        )
+
+    # Supplementary: copy the cumulative evidence_records projection (keyed by
+    # evidence_id) alongside the schema-v2 chain so consumers can resolve
+    # fragment/signal/candidate evidence_id references to their source record.
+    # This table uses a different primary key than the legacy evidence_records
+    # output, so it is packaged without schema validation.
+    for supp_entity in SCHEMA_V2_SUPPLEMENTARY_ENTITY_NAMES:
+        supp_csv = repo_root / SCHEMA_V2_SOURCE_DIRECTORY / f"{supp_entity}.csv"
+        supp_jsonl = repo_root / SCHEMA_V2_SOURCE_DIRECTORY / f"{supp_entity}.jsonl"
+        output_name = SCHEMA_V2_SUPPLEMENTARY_OUTPUT_NAMES[supp_entity]
+        if supp_csv.exists():
+            shutil.copyfile(
+                supp_csv,
+                package_dir / "data" / "csv" / f"{output_name}.csv",
+            )
+        if supp_jsonl.exists():
+            shutil.copyfile(
+                supp_jsonl,
+                package_dir / "data" / "jsonl" / f"{output_name}.jsonl",
+            )
 
     variable_labels, value_labels = _load_variable_and_value_labels(schema_dir)
+    variable_labels = _merge_label_rows(
+        variable_labels,
+        _SCHEMA_V2_VARIABLE_LABELS,
+        key_fields=("schema_file", "variable_name"),
+    )
+    value_labels = _merge_label_rows(
+        value_labels,
+        _SCHEMA_V2_VALUE_LABELS,
+        key_fields=("schema_file", "variable_name", "code"),
+    )
     _write_csv(package_dir / "VARIABLE_LABELS.csv", variable_labels)
     _write_csv(package_dir / "VALUE_LABELS.csv", value_labels)
 
@@ -819,6 +2430,17 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
     )
     (package_dir / "CITATION_APA.txt").write_text(citation_text, encoding="utf-8")
 
+    schema_v2_package_paths = {
+        entity_name: {
+            "csv": f"data/csv/{entity_name}.csv",
+            "jsonl": f"data/jsonl/{entity_name}.jsonl",
+        }
+        for entity_name in SCHEMA_V2_ENTITY_NAMES
+    }
+    schema_v2_contract_paths = {
+        entity_name: f"schemas/{entity_name}.schema.json"
+        for entity_name in SCHEMA_V2_ENTITY_NAMES
+    }
     manifest_payload = {
         "package_name": f"morskamary_cumulative_evidence_{config.version_tag}",
         "version_tag": config.version_tag,
@@ -834,7 +2456,24 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         "data_release_policy_path": "docs/DATA_RELEASE_POLICY.md",
         "schema_validation": {
             "validated_tables": sorted(schema_map.keys()),
+            "validated_exports": {
+                "csv": list(SCHEMA_V2_ENTITY_NAMES),
+                "jsonl": list(SCHEMA_V2_ENTITY_NAMES),
+            },
             "errors": [],
+        },
+        "schema_v2_entities": {
+            "source_directory": SCHEMA_V2_SOURCE_DIRECTORY,
+            "entities": list(SCHEMA_V2_ENTITY_NAMES),
+            "package_paths": schema_v2_package_paths,
+            "contract_paths": schema_v2_contract_paths,
+            "row_counts": {
+                entity_name: {
+                    "csv": len(schema_v2_csv_rows[entity_name]),
+                    "jsonl": len(schema_v2_jsonl_rows[entity_name]),
+                }
+                for entity_name in SCHEMA_V2_ENTITY_NAMES
+            },
         },
         "exports": {
             "csv_utf8": True,

@@ -19,15 +19,15 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
-- 2026-05-19 (fix: salvage stale PR logic with safe performance ports)
-  Change type fix update
-  Scope scripts src tests
-  Files affected scripts/build_derived.py src/competence_mapper.py src/core.py tests/test_e2e_workflows.py
-  Summary Ports safe performance optimizations from stale PRs: vectorizes DataFrame column extraction in build_derived.py write_datadict, hoists repeated lower() call in competence_mapper sector lookup, replaces iterrows with column-wise list extraction in core.py load_competence_matrix, and adds missing assertion in e2e workflow test.
-  Reason Salvaged from stale PRs #58 and #16 as part of PR #165 backlog cleanup. Changes preserve strict QMBD fallback behavior while reducing per-row Python overhead.
-  Impact No scientific logic change. Performance improvement for large competence matrices. Test coverage strengthened with explicit count assertion.
-  Provenance PR #165 (copilot/salvage-logic-pr-60); original PRs #58 and #16.
-  Quality checks Merged without CHANGELOG update; entry added retroactively.
+- 2026-08-09 (add: QMBD measurement-governance uncertainty scaffolding)
+  Change type add fix update
+  Scope src docs schemas tests governance
+  Files affected src/axis_classifier.py src/core.py run_full_analysis.py docs/STATISTICAL_REPORT_METHODOLOGY.md docs/QMBD_MEASUREMENT_GOVERNANCE_EXTENSION.md docs/QMBD_VARIABLE_OPERATIONALISATION_AND_UNCERTAINTY_TYPOLOGY.md docs/review_templates/qmbd_expert_panel_questionnaire_template.md docs/review_templates/qmbd_axis_domain_dictionary_template.md docs/review_templates/qmbd_gold_review_set_template.csv schemas/qmbd_gold_review_set.schema.json tests/test_axis_classifier.py tests/test_core.py tests/test_run_full_analysis.py tests/test_pipeline_matrix.py CHANGELOG.txt MANIFEST_SOURCES.csv
+  Summary Removes the free-text fallback that silently relabelled no-match material as OCEANIC, preserves uncertainty as explicit review metadata, and adds a governance-first uncertainty typology plus reviewer, dictionary, and gold-set scaffolding for future classifier calibration. Multi-axis overlap now routes to review-required cross-axis mediator handling, while true no-match records remain fail-closed as unclassified rather than being promoted by default.
+  Reason The repository's measurement contract requires explicit uncertainty, stable four-axis QMBD coding, and a reviewable variable-operationalisation path before any higher-complexity classifier or external triangulation is scientifically defensible.
+  Impact Downstream sentence classification now distinguishes unclassified review-required records without default axis inflation, and governance artifacts now define uncertainty categories, liminal review prompts, and a schema-backed gold review set template for future expert adjudication.
+  Provenance User governance-extension request; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md; config/live_query_protocol.yml.
+  Quality checks Focused classifier and pipeline pytest coverage passed (118 tests); additional targeted lint, type, and governance checks are run before commit and the required repository suite is recorded with the final update.
 
 - 2026-08-08 (fix: restore governance manifest reproducibility for dependabot config)
   Change type fix update
@@ -38,6 +38,59 @@ Use this section for changes in progress that are not yet merged into the main b
   Impact No scientific logic or live-provider execution changes. Repository governance metadata remains reproducible and CI can validate the committed Dependabot configuration without local manifest drift.
   Provenance GitHub Actions run 31249867765 job 93084390547; scripts/generate_manifest.py; .github/workflows/ci.yml.
   Quality checks python3 scripts/generate_manifest.py (1206 entries written); repeat python3 scripts/generate_manifest.py preserved the same SHA-256 for MANIFEST_SOURCES.csv; python3 scripts/changelog_guard.py --changed-file .github/dependabot.yml --changed-file MANIFEST_SOURCES.csv --changed-file CHANGELOG.txt (passed); python3 -m pytest tests/test_generate_manifest.py -v (28 passed).
+
+- 2026-08-07 (add: schema_v2_identity shared module; refactor all identity builders to single contract)
+  Change type add fix update
+  Scope scripts tests governance src
+  Files affected src/scientific_sources/schema_v2_identity.py src/scientific_sources/cumulative_scientific_database.py src/scientific_sources/derived_competence_analysis.py scripts/build_live_cumulative_release_package.py scripts/build_versioned_research_data_package.py tests/test_derived_competence_analysis.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Creates a single authoritative module (schema_v2_identity.py) that defines all SHA-256 preimage builders (make_provenance_id, make_signal_id, make_fragment_id, make_candidate_id, make_canonical_competence_id, make_assignment_id, make_decision_content_hash) with an ASCII Unit Separator (\x1f) delimiter-injection guard. All four prior duplicate inline implementations (cumulative_scientific_database.py, derived_competence_analysis.py, build_live_cumulative_release_package.py, build_versioned_research_data_package.py) are refactored to delegate to the shared module. Layer-4 validation now recomputes assignment_id from its canonical preimage in addition to the previously added candidate/fragment/provenance/signal recomputations. Two new negative regression tests assert that (a) a preimage field containing \x1f raises ValueError and (b) a forged assignment_id preimage causes Layer-4 to fail closed. The validation_decision_id remains an externally supplied opaque public contract; its integrity is covered by the separate make_decision_content_hash builder. The fixture assignment_id in test_derived_competence_analysis.py is updated from an opaque legacy stub to the correct deterministic hash.
+  Reason Requirement 2 of the construct-validity audit: all identity-building paths must share one contract so drift between the cumulative producer, Layer-4 promotion gate, and publication preflights is structurally impossible. Requirement 3: \x1f delimiter guard. Requirement 4: Layer-4 assignment_id recomputation. Requirement 6: negative regressions for forged lineage.
+  Impact No change to generated identities (same SHA-256 + \x1f formula throughout). Scripts gain a _REPO_ROOT sys.path guard so they remain executable both as CLI tools and as pytest subprocess targets.
+  Provenance Issue #218; PR #245 construct-validity audit; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md.
+  Quality checks flake8 clean; mypy 0 errors (73 files); 1458 tests passed; full test suite run.
+
+- 2026-08-07 (add: schema-v2 offline bundle preflight)
+  Change type add fix update
+  Scope scripts tests governance
+  Files affected .github/workflows/ci.yml docs/LIVE_CUMULATIVE_SCIENTIFIC_DATABASE.md scripts/build_versioned_research_data_package.py scripts/validate_csv_bundle.py tests/test_validate_csv_bundle.py CHANGELOG.txt MANIFEST_SOURCES.csv
+  Summary Adds a repository-owned, fail-closed schema-v2 bundle CLI and a non-live PR check that proves a fully linked fixture passes while a deliberately corrupted fixture fails. It reuses the release builder's current Draft-2020-12, lineage, identity, projection-parity, finite-number, and manifest-count contracts rather than copying the stale appendix validator. The remaining ambiguous one-letter label iterator is renamed without changing generated labels.
+  Reason The supplied validation appendices describe a useful reproducible pre-merge integration gate, but their external CSV-only implementation accepts weaker and obsolete contracts. The sole remaining PR #245 tooling thread also identifies ambiguous iterator names despite the configured Flake8 command already passing.
+  Impact Offline bundle validation becomes directly runnable without release publication or live acquisition. Zero-byte CSV files remain rejected because a required schema header must be retained; no scientific output, archive, provider configuration, or legacy compatibility projection changes.
+  Provenance Issue #218; PR #245 appendix reconciliation; `.github/copilot-instructions.md`; `docs/AGENT_WORKING_AGREEMENT.md`; `config/live_query_protocol.yml`; supplied validation/workflow appendices.
+  Quality checks Focused lint, mypy, and pytest validation are run before the PR update; the required repository suite and governance checks are recorded with the final PR evidence.
+
+- 2026-08-07 (fix: reconcile schema-v2 publication blockers for PR #245)
+  Change type fix update
+  Scope scripts src tests governance
+  Files affected CHANGELOG.txt docs/LIVE_CUMULATIVE_SCIENTIFIC_DATABASE.md docs/STATISTICAL_REPORT_METHODOLOGY.md scripts/build_layer4_5_scientific_analysis.py scripts/build_live_cumulative_release_package.py scripts/build_versioned_research_data_package.py src/scientific_sources/cumulative_scientific_database.py src/scientific_sources/derived_competence_analysis.py tests/fixtures/cumulative_database_schema_samples.json tests/test_build_layer4_5_scientific_analysis.py tests/test_build_validated_credential_supply_map.py tests/test_build_versioned_research_data_package.py tests/test_cumulative_scientific_database.py tests/test_derived_competence_analysis.py tests/test_live_cumulative_release_package.py tests/test_validate_csv_bundle.py
+  Summary Reconciles the remaining PR #245 schema-v2 blockers by recomputing canonical identities with the runtime whitespace/lowercase preimage, rejecting noncanonical package serialization, and enforcing strict chronological supersession in the runtime and both publication gates. Layer 4 now loads and validates the complete evidence -> fragment -> signal -> candidate -> decision -> canonical -> assignment chain, then emits a separate fail-closed accepted-canonical lineage view while preserving legacy compatibility aggregates as the empirical statistics population.
+  Reason Issue #218 requires publication-safe construct validity across CSV, JSONL, package, and release preflight paths while preserving the frozen legacy compatibility projection.
+  Impact Schema-v2 publication fails closed for malformed or padded lineage, forged canonical IDs, incomplete Layer-4 projections, non-finite values, invalid or non-chronological decision timestamps, mutable decision evidence, incompatible assignment contexts, and count mismatches. Legacy aggregate demand rows remain legacy; separate reviewed canonical-lineage rows now supply validation-backed Layer-5/H2 counts without changing legacy statistical denominators.
+  Provenance Issue #218; PR #245 review reconciliation; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md; config/live_query_protocol.yml.
+  Quality checks Focused contract regressions and the required repository validation suite are run before PR update; results are recorded in the PR evidence report.
+
+- 2026-08-06 (add: schema-v2 construct-valid cumulative foundation for issue #218)
+  Change type add update
+  Scope scripts src tests governance
+  Files affected src/scientific_sources/cumulative_scientific_database.py src/scientific_sources/derived_competence_analysis.py scripts/build_live_cumulative_release_package.py schemas/evidence_fragments.schema.json schemas/semantic_signals.schema.json schemas/competence_candidates.schema.json schemas/canonical_competences.schema.json schemas/sector_competence_assignments.schema.json schemas/validation_decisions.schema.json tests/fixtures/cumulative_database_schema_samples.json tests/test_cumulative_scientific_database.py tests/test_publication_cumulative_database.py tests/test_live_cumulative_release_package.py tests/test_derived_competence_analysis.py tests/test_build_validated_credential_supply_map.py tests/test_build_versioned_research_data_package.py docs/LIVE_CUMULATIVE_SCIENTIFIC_DATABASE.md docs/STATISTICAL_REPORT_METHODOLOGY.md CHANGELOG.txt MANIFEST_SOURCES.csv
+  Summary Adds schema-v2 exports for evidence fragments, semantic signals, competence candidates, canonical competences, sector competence assignments, and validation decisions; keeps `derived_competence_demands` explicitly marked as a legacy category-aggregate compatibility view; and strengthens release-package/test contracts so provenance spans, separate counts, and validation-decision gating are enforced offline.
+  Reason Issue #218 requires a construct-valid chain that separates evidence spans, semantic signals, review-gated candidates, explicit canonical promotion, sector linkage, and reviewer validation decisions, without scientifically relabelling legacy aggregate rows as validated canonical competences.
+  Impact Cumulative database manifests now count construct-validity entities separately; canonical competence exports remain empty unless explicit validation decisions are provided; release-package SQLite/CSV/JSONL contents stay aligned with the new schemas; and negative regressions block title/provider/truncation leakage into canonical labels.
+  Provenance Issue #218; .github/copilot-instructions.md; docs/AGENT_WORKING_AGREEMENT.md; config/live_query_protocol.yml.
+  Quality checks Focused pytest set passed (105 tests): test_cumulative_scientific_database.py, test_publication_cumulative_database.py, test_live_cumulative_release_package.py, test_derived_competence_analysis.py, test_build_versioned_research_data_package.py. Post-review focused regression passed (93 tests): test_cumulative_scientific_database.py, test_publication_cumulative_database.py, test_live_cumulative_release_package.py. Full validation passed: python -m flake8 src scripts tests run_full_analysis.py main.py; python -m mypy src scripts run_full_analysis.py main.py (71 source files; two existing annotation-unchecked notes); python -m pytest tests/ -v (1331 passed); python scripts/validate_generated_outputs.py; python scripts/validate_research_source_outputs.py (passed with one informational missing-smoke-report warning); python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present.
+  Follow-up review fix Release preflight now honors schema enums that explicitly permit empty strings, reports physical CSV line numbers, uses declared foreign-key targets, and compares nonempty supporting evidence IDs between legacy CSV and JSONL projections. Sector assignments require one of the canonical QMBD codes M, T, O, or H, and regression fixtures require accepted promotion decisions.
+  Follow-up quality checks Focused release/schema pytest passed (38 tests); flake8 passed; mypy passed for 71 source files with two informational annotation-unchecked notes; full pytest passed (1330 passed, 5 skipped); generated-output validation passed; and run-archive integrity validation passed for one archived run.
+  Follow-up label fix Schema enum fields are now discovered as categorical variables by the versioned-package label generator, and the cumulative Layer 4-5 label writer explicitly covers schema-v2 categorical codes so consumers receive variable and value labels for the new tables.
+
+- 2026-05-19 (fix: salvage stale PR logic with safe performance ports)
+  Change type fix update
+  Scope scripts src tests
+  Files affected scripts/build_derived.py src/competence_mapper.py src/core.py tests/test_e2e_workflows.py
+  Summary Ports safe performance optimizations from stale PRs: vectorizes DataFrame column extraction in build_derived.py write_datadict, hoists repeated lower() call in competence_mapper sector lookup, replaces iterrows with column-wise list extraction in core.py load_competence_matrix, and adds missing assertion in e2e workflow test.
+  Reason Salvaged from stale PRs #58 and #16 as part of PR #165 backlog cleanup. Changes preserve strict QMBD fallback behavior while reducing per-row Python overhead.
+  Impact No scientific logic change. Performance improvement for large competence matrices. Test coverage strengthened with explicit count assertion.
+  Provenance PR #165 (copilot/salvage-logic-pr-60); original PRs #58 and #16.
+  Quality checks Merged without CHANGELOG update; entry added retroactively.
 
 - 2026-08-06 (fix: harden post-merge provider accounting and protocol publication)
   Change type fix update

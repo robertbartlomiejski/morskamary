@@ -1,4 +1,11 @@
-"""Production module for TMBD/QMBD axis classification."""
+"""Production module for TMBD/QMBD axis classification.
+
+Governance note:
+    This classifier is intentionally heuristic and evidence-conservative. When a
+    text does not contain retained QMBD vocabulary or when the match signal is
+    too weak, it must surface uncertainty explicitly rather than silently
+    defaulting to OCEANIC.
+"""
 
 from __future__ import annotations
 
@@ -14,16 +21,14 @@ class AxisClassifier:
     """Classifier facade for assigning QMBD axis labels.
 
     Supports all four axes of the Quadripartite Model of Blue Dynamics (QMBD):
-    Marine, Maritime, Oceanic, and Hydronization.  The TMBD three-axis logic
-    (Marine/Maritime/Oceanic) is preserved unchanged; the Hydronization axis is
-    an additive extension inserted *before* the OCEANIC fallback so that
-    Hydronization-specific keywords are matched in preference to the generic
-    governance-first default.
+    Marine, Maritime, Oceanic, and Hydronization. The TMBD three-axis logic is
+    preserved for explicit dimension mapping, while free-text fallback now uses
+    explicit uncertainty rather than a governance-first OCEANIC default.
 
     Fallback order when no dimension is supplied:
       1. Keyword scan in KEYWORD_AXIS_MAP order (MARINE → MARITIME →
          HYDRONIZATION → OCEANIC).
-      2. Default → OCEANIC (governance-first bias, as per TMBD/QMBD spec).
+      2. No match → explicit unclassified / review-required metadata.
     """
 
     KEYWORD_AXIS_MAP = {
@@ -126,6 +131,17 @@ class AxisClassifier:
     _compiled_keyword_map: (
         dict[BlueDynamicsAxis, tuple[re.Pattern[str], ...]] | None
     ) = None
+    CLASSIFIER_VERSION = "qmbd-keyword-governance-v1"
+    LOW_CONFIDENCE_THRESHOLD = 0.4
+    UNCERTAINTY_TYPOLOGY = (
+        "no_signal",
+        "ambiguous_context",
+        "polysemic_term",
+        "boundary_threshold",
+        "cross_axis_mediator",
+        "sector_dependent_meaning",
+        "discipline_dependent_meaning",
+    )
 
     @classmethod
     def _normalize_text(cls, text: str) -> str:
@@ -165,7 +181,7 @@ class AxisClassifier:
 
     def classify_axis(
         self, text: str, dimension: str | None = None
-    ) -> BlueDynamicsAxis:
+    ) -> BlueDynamicsAxis | None:
         """Classify axis using dimension-first logic and a text fallback.
 
         When a dimension code is provided (e.g. 'A.1', 'B', 'C.3', 'D'),
@@ -176,7 +192,8 @@ class AxisClassifier:
 
         When no dimension is provided, the KEYWORD_AXIS_MAP is scanned in
         declaration order (MARINE → MARITIME → HYDRONIZATION → OCEANIC).
-        If no keywords match, the default is OCEANIC (governance-first bias).
+        If no retained vocabulary matches, the classifier returns ``None`` so
+        the caller must preserve uncertainty explicitly.
 
         Raises:
             TypeError: If ``text`` is not a str, or if ``dimension`` is neither
@@ -193,7 +210,7 @@ class AxisClassifier:
             return map_dimension_to_axis(dimension.strip().upper())
 
         if not text or not text.strip():
-            return BlueDynamicsAxis.OCEANIC
+            return None
 
         normalized = self._normalize_text(text)
 
@@ -201,7 +218,7 @@ class AxisClassifier:
             if self._matches_any_keyword(normalized, keyword_patterns):
                 return axis
 
-        return BlueDynamicsAxis.OCEANIC
+        return None
 
     def classify_context(
         self,
@@ -228,14 +245,20 @@ class AxisClassifier:
         normalized = self._normalize_text(sentence) if sentence else ""
 
         matched_keywords: list[str] = []
-        keyword_patterns = self._get_compiled_keyword_map().get(axis, ())
-        for keyword, pattern in zip(
-            self.KEYWORD_AXIS_MAP.get(axis, ()), keyword_patterns
-        ):
-            if pattern.search(normalized):
-                matched_keywords.append(keyword)
+        matched_axis_names = {
+            candidate_axis.name
+            for candidate_axis, patterns in self._get_compiled_keyword_map().items()
+            if self._matches_any_keyword(normalized, patterns)
+        }
+        if axis is not None:
+            keyword_patterns = self._get_compiled_keyword_map().get(axis, ())
+            for keyword, pattern in zip(
+                self.KEYWORD_AXIS_MAP.get(axis, ()), keyword_patterns
+            ):
+                if pattern.search(normalized):
+                    matched_keywords.append(keyword)
 
-        confidence_score = 0.95 if matched_keywords else 0.6
+        confidence_score = 0.95 if matched_keywords else 0.0
 
         # Check the full keyword map — independent of the resolved axis — so
         # that providing a `dimension` argument never produces a false positive.
@@ -248,13 +271,42 @@ class AxisClassifier:
             and self._BLUE_WORD_RE.search(normalized)
             and self._BLUE_PLANETARYISM_TERMS_RE.search(normalized)
         )
+        uncertainty_reason = ""
+        uncertainty_typology = "no_signal"
+        manual_review_status = "auto_accepted"
+        review_path = "keyword_evidence"
+        if axis is None:
+            uncertainty_reason = "no_retained_axis_vocabulary_match"
+            uncertainty_typology = "no_signal"
+            manual_review_status = "review_required"
+            review_path = "fail_closed_unclassified"
+        elif confidence_score < self.LOW_CONFIDENCE_THRESHOLD:
+            uncertainty_reason = "low_confidence_axis_assignment"
+            uncertainty_typology = "ambiguous_context"
+            manual_review_status = "review_required"
+            review_path = "low_confidence_review"
+        elif len(matched_axis_names) > 1:
+            uncertainty_reason = "multiple_axis_vocabulary_overlap"
+            uncertainty_typology = "cross_axis_mediator"
+            manual_review_status = "review_required"
+            review_path = "cross_axis_overlap_review"
+        elif is_blue_planetaryism:
+            uncertainty_reason = "broad_blue_planetaryism_without_retained_axis_signal"
+            uncertainty_typology = "boundary_threshold"
+            manual_review_status = "review_required"
+            review_path = "boundary_case_review"
 
         return {
-            "axis": axis.name,
-            "axis_code": axis.value,
+            "axis": axis.name if axis is not None else "UNCLASSIFIED",
+            "axis_code": axis.value if axis is not None else "",
             "text_scope": text_scope,
             "sentence": sentence,
             "matched_keywords": matched_keywords,
             "confidence_score": confidence_score,
             "is_blue_planetaryism": is_blue_planetaryism,
+            "manual_review_status": manual_review_status,
+            "uncertainty_reason": uncertainty_reason,
+            "uncertainty_typology": uncertainty_typology,
+            "review_path": review_path,
+            "classifier_version": self.CLASSIFIER_VERSION,
         }

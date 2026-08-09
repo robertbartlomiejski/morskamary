@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/competence_candidates.schema.json",
+  "title": "Competence candidates row",
+  "type": "object",
+  "required": [
+    "candidate_id",
+    "signal_id",
+    "fragment_id",
+    "evidence_id",
+    "run_id",
+    "sector",
+    "axis_group",
+    "axis_code",
+    "source_provenance_ids",
+    "fragment_ids",
+    "candidate_label",
+    "candidate_definition",
+    "capability_proposition",
+    "knowledge_dimension",
+    "skill_dimension",
+    "responsibility_autonomy_dimension",
+    "candidate_status",
+    "review_status",
+    "exact_evidence_span",
+    "exact_span_start_offset",
+    "exact_span_end_offset"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "candidate_id": { "type": "string", "minLength": 1 },
+    "signal_id": { "type": "string", "minLength": 1 },
+    "fragment_id": { "type": "string", "minLength": 1 },
+    "evidence_id": { "type": "string", "minLength": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "sector": { "type": "string" },
+    "axis_group": {
+      "type": "string",
+      "enum": ["MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION", ""]
+    },
+    "axis_code": { "type": "string", "enum": ["M", "T", "O", "H", ""] },
+    "source_provenance_ids": { "type": "string", "minLength": 1 },
+    "fragment_ids": { "type": "string", "minLength": 1 },
+    "candidate_label": { "type": "string", "minLength": 1 },
+    "candidate_definition": { "type": "string", "minLength": 1 },
+    "capability_proposition": { "type": "string", "minLength": 1 },
+    "knowledge_dimension": { "type": "string", "minLength": 1 },
+    "skill_dimension": { "type": "string", "minLength": 1 },
+    "responsibility_autonomy_dimension": { "type": "string", "minLength": 1 },
+    "candidate_status": { "type": "string", "enum": ["candidate"] },
+    "review_status": {
+      "type": "string",
+      "enum": ["auto_accepted", "review_required", "manually_reviewed", "rejected"]
+    },
+    "exact_evidence_span": { "type": "string", "minLength": 1 },
+    "exact_span_start_offset": { "type": "integer", "minimum": 0 },
+    "exact_span_end_offset": { "type": "integer", "minimum": 0 }
+  },
+  "allOf": [
+    {
+      "anyOf": [
+        { "properties": { "axis_group": { "const": "MARINE" }, "axis_code": { "const": "M" } } },
+        { "properties": { "axis_group": { "const": "MARITIME" }, "axis_code": { "const": "T" } } },
+        { "properties": { "axis_group": { "const": "OCEANIC" }, "axis_code": { "const": "O" } } },
+        { "properties": { "axis_group": { "const": "HYDRONIZATION" }, "axis_code": { "const": "H" } } },
+        { "properties": { "axis_group": { "const": "" }, "axis_code": { "const": "" } } }
+      ]
+    }
+  ]
+}

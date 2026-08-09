@@ -299,10 +299,10 @@ class TestDetectAllThemes:
         assert "port" in themes[BlueDynamicsAxis.MARITIME]
         assert "marine" in themes[BlueDynamicsAxis.MARINE]
 
-    def test_detect_all_themes_fallback_marker(self):
+    def test_detect_all_themes_no_longer_invents_oceanic_fallback_marker(self):
         themes = _detect_all_themes({"title": "", "abstract": "", "keywords": ""})
 
-        assert themes[BlueDynamicsAxis.OCEANIC] == ["[citation needed]"]
+        assert all(values == [] for values in themes.values())
 
     def test_detect_all_themes_expanded_marine_keywords(self):
         record = {
@@ -389,7 +389,7 @@ class TestDetectAllThemes:
         themes = _detect_all_themes(record)
 
         assert themes[BlueDynamicsAxis.HYDRONIZATION] == []
-        assert themes[BlueDynamicsAxis.OCEANIC] == ["[citation needed]"]
+        assert themes[BlueDynamicsAxis.OCEANIC] == []
 
 
 class TestLoadCompetenceMatrixImportError:
