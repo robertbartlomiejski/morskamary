@@ -67,3 +67,34 @@ def test_main_consumes_sys_argv_when_argv_none(monkeypatch, capsys) -> None:
     captured = capsys.readouterr()
     assert exit_code == 1
     assert str(root) in captured.err
+
+
+def test_compare_output_trees_allows_declared_json_metadata_drift(tmp_path) -> None:
+    baseline_root = tmp_path / "baseline"
+    current_root = tmp_path / "current"
+    baseline_root.mkdir()
+    current_root.mkdir()
+    baseline = baseline_root / "cumulative_qmbd_records.json"
+    current = current_root / "cumulative_qmbd_records.json"
+    baseline.write_text(
+        '{"metadata":{"timestamp_utc":"old"},"records":[{"id":1}]}\n',
+        encoding="utf-8",
+    )
+    current.write_text(
+        '{"metadata":{"timestamp_utc":"new"},"records":[{"id":1}]}\n',
+        encoding="utf-8",
+    )
+
+    assert compare_module.compare_output_trees(current_root, baseline_root) == []
+
+
+def test_compare_output_trees_requires_matching_file_sets(tmp_path) -> None:
+    baseline_root = tmp_path / "baseline"
+    current_root = tmp_path / "current"
+    baseline_root.mkdir()
+    current_root.mkdir()
+    (baseline_root / "report_index.html").write_text("old\n", encoding="utf-8")
+
+    errors = compare_module.compare_output_trees(current_root, baseline_root)
+
+    assert errors == ["missing generated files: report_index.html"]

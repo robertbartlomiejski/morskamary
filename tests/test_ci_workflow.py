@@ -46,3 +46,4 @@ def test_full_analysis_workflow_uses_explicit_static_recovery_mode() -> None:
     assert "python run_full_analysis.py --analysis-input-mode static" in (
         FULL_ANALYSIS_WORKFLOW_TEXT
     )
+    assert '--baseline-root "$STATIC_COMPARE_ROOT"' in FULL_ANALYSIS_WORKFLOW_TEXT

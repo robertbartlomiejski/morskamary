@@ -255,6 +255,42 @@ def test_validate_run_archive_integrity_accepts_legacy_absolute_cumulative_csv_r
     assert _validate_archive(tmp_path) == 0
 
 
+def test_validate_run_archive_integrity_rejects_absolute_archive_root_fields(
+    tmp_path: Path,
+) -> None:
+    run_dir = _create_archive(tmp_path, run_id="run-abs-archive-root")
+    manifest_path = run_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["archive_root"] = "/home/runner/work/morskamary/morskamary/outputs/run_archive"
+    _write_json(manifest_path, manifest)
+    _write_json(run_dir / "run_manifest.json", manifest)
+
+    csv_path = tmp_path / "outputs" / "run_archive" / "cumulative_runs_index.csv"
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = list(rows[0].keys())
+    rows[-1]["archive_root"] = manifest["archive_root"]
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert _validate_archive(tmp_path) == 1
+
+
+def test_validate_run_archive_integrity_rejects_public_runner_path_leaks(
+    tmp_path: Path,
+) -> None:
+    run_dir = _create_archive(tmp_path, run_id="run-public-path-leak")
+    leaked_path = run_dir / "analysis_outputs" / "literature_integration.html"
+    leaked_path.write_text(
+        "<a href='https://github.com/robertbartlomiejski/morskamary/blob/main//home/runner/work/morskamary/morskamary/outputs/report_index.html'>bad</a>\n",
+        encoding="utf-8",
+    )
+
+    assert _validate_archive(tmp_path) == 1
+
+
 def test_validate_run_archive_integrity_accepts_legacy_manifest_filename(
     tmp_path: Path,
 ) -> None:

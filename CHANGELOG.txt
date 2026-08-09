@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-08-09 (fix: preserve OpenAlex protocol sort and sanitize archive/static reproducibility contracts)
+  Change type fix update
+  Scope scripts src tests docs workflows outputs governance
+  Files affected src/scientific_sources/live_query_protocol.py run_full_analysis.py scripts/compare_generated_outputs.py scripts/validate_run_archive_integrity.py .github/workflows/full-analysis.yml docs/LIVE_REPLICATION_INFRASTRUCTURE.md tests/test_live_query_protocol.py tests/test_compare_generated_outputs.py tests/test_validate_run_archive_integrity.py tests/test_run_full_analysis.py tests/test_ci_workflow.py CHANGELOG.txt outputs/run_archive
+  Summary Extends the authoritative live-query sort contract to retain OpenAlex declarations through parsing, projection, and projection validation. Switches full-analysis CI reproducibility from committed live-enriched outputs to an isolated static baseline rerun, hardens run-full-analysis path serialization to repo-relative/redacted values, and rejects/publicly sanitizes runner-path leaks in archived outputs.
+  Reason Issue #215 follow-up review identified three publication-facing failures: OpenAlex sort declarations were silently dropped, static recovery CI was comparing against incompatible live-enriched artifacts, and committed historical archives contained machine-local runner paths and malformed GitHub links. The infrastructure note also reported stale quantitative totals that no longer matched the tracked CSV.
+  Impact OpenAlex date sorting remains auditable in Layer 0/1 projections, static CI now checks deterministic static reruns without mutating or comparing against committed live-enriched outputs, archive validation now fails on absolute archive_root/public-path leaks, and the documented gap totals match outputs/gaps_summary.csv.
+  Provenance Issue #215 / PR review comments on config/live_query_protocol.yml, .github/workflows/full-analysis.yml, outputs/run_archive/*, and docs/LIVE_REPLICATION_INFRASTRUCTURE.md.
+  Quality checks targeted pytest for protocol/workflow/archive/run_full_analysis regressions; flake8; mypy; validate_generated_outputs; validate_run_archive_integrity; secret scan; CodeQL review.
+
 - 2026-08-09 (fix: add openalex sort contract to protocol and remove silent fallback)
   Change type fix update
   Scope scripts config tests

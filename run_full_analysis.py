@@ -94,6 +94,7 @@ DEFAULT_LIVE_RECORDS_JSON = (
 )
 CUMULATIVE_QMBD_RECORDS_FILENAME = "cumulative_qmbd_records.json"
 REPO_GITHUB_BASE = "https://github.com/robertbartlomiejski/morskamary/blob/main"
+_REDACTED_OUT_OF_TREE_PATH = "[redacted-out-of-tree-path]"
 _AXIS_CLASSIFIER = AxisClassifier()
 
 # Whitelist of uncertainty typology values produced by AxisClassifier.classify_context().
@@ -200,8 +201,23 @@ class CompetenceSource:
     @property
     def github_url(self) -> str:
         """Return GitHub hyperlink to the source file/row"""
+        if not self.file or self.file == _REDACTED_OUT_OF_TREE_PATH:
+            return ""
         encoded = self.file.replace(" ", "%20")
         return f"{REPO_GITHUB_BASE}/{encoded}#L{self.row}"
+
+
+def _repo_relative_posix_or_redacted(path_like: str | Path) -> str:
+    """Return a repository-relative POSIX path or redact out-of-tree locations."""
+    path = Path(path_like)
+    try:
+        resolved = path.resolve(strict=False)
+    except OSError:
+        return _REDACTED_OUT_OF_TREE_PATH
+    try:
+        return resolved.relative_to(REPO_ROOT.resolve()).as_posix()
+    except ValueError:
+        return _REDACTED_OUT_OF_TREE_PATH
 
 
 @dataclass
@@ -1309,8 +1325,7 @@ def extract_live_records_competences(
     try:
         rel_path = live_records_path.relative_to(REPO_ROOT).as_posix()
     except ValueError:
-        # Custom paths may live outside REPO_ROOT; keep source metadata usable.
-        rel_path = live_records_path.resolve().as_posix()
+        rel_path = _repo_relative_posix_or_redacted(live_records_path)
 
     canonical_by_norm = {
         re.sub(r"[^a-z0-9]+", " ", sec.lower()).strip(): sec for sec in SECTORS
@@ -1552,6 +1567,8 @@ def _competence_to_gap_evidence(
     doi = getattr(src, "doi", "") or ""
     paper_title = getattr(src, "paper_title", "") or comp.name
     source_file = getattr(src, "file", "") or ""
+    if source_file and Path(source_file).is_absolute():
+        source_file = _repo_relative_posix_or_redacted(source_file)
     source_row = getattr(src, "row", 0) or 0
 
     # Attempt to parse confidence_score from description text
@@ -1620,9 +1637,9 @@ def _collect_supply_from_credentials_db(
     except Exception:
         return supply
     source_file = (
-        db_path.relative_to(REPO_ROOT).as_posix()
-        if db_path.is_absolute() and db_path.is_relative_to(REPO_ROOT)
-        else str(db_path)
+        _repo_relative_posix_or_redacted(db_path)
+        if db_path.is_absolute()
+        else str(db_path).replace("\\", "/")
     )
     for cred in data.get("credentials", []):
         sector = cred.get("sector", "")
@@ -1711,9 +1728,9 @@ def _collect_supply_from_microcredentials_csv(
         import csv as csv_mod
 
         source_file = (
-            csv_path.relative_to(REPO_ROOT).as_posix()
-            if csv_path.is_absolute() and csv_path.is_relative_to(REPO_ROOT)
-            else str(csv_path)
+            _repo_relative_posix_or_redacted(csv_path)
+            if csv_path.is_absolute()
+            else str(csv_path).replace("\\", "/")
         )
         with open(csv_path, newline="", encoding="utf-8-sig") as fh:
             reader = csv_mod.reader(fh)

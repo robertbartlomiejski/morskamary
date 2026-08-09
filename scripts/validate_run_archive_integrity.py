@@ -50,6 +50,9 @@ INDEX_CSV_REQUIRED_COLUMNS: tuple[str, ...] = (
 )
 CHECKSUM_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 CHECKSUM_SEPARATOR = "  "
+TEXT_SCAN_SUFFIXES = frozenset(
+    {".csv", ".html", ".json", ".jsonl", ".md", ".sha256", ".txt", ".yml", ".yaml"}
+)
 
 
 def _sha256_file(path: Path) -> str:
@@ -119,8 +122,41 @@ def _load_json(path: Path) -> tuple[Any | None, str | None]:
         return None, f"{path}: invalid JSON ({exc})"
 
 
+def _validate_public_path_leaks(
+    run_dir: Path,
+    archived_paths: list[Path],
+    *,
+    repo_root: Path,
+) -> list[str]:
+    errors: list[str] = []
+    leak_tokens = (
+        repo_root.resolve().as_posix() + "/",
+        "/home/runner/",
+        "blob/main//home/runner/",
+    )
+    for archived_path in archived_paths:
+        if archived_path.suffix.lower() not in TEXT_SCAN_SUFFIXES:
+            continue
+        try:
+            text = archived_path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            errors.append(f"{archived_path}: expected UTF-8 text artifact")
+            continue
+        except OSError as exc:
+            errors.append(f"{archived_path}: cannot read text artifact: {exc}")
+            continue
+        matches = sum(text.count(token) for token in leak_tokens)
+        if matches:
+            rel_path = archived_path.relative_to(run_dir).as_posix()
+            errors.append(
+                f"{run_dir / CANONICAL_MANIFEST_FILENAME}: public artifact path leak in "
+                f"{rel_path} ({matches} occurrence(s))"
+            )
+    return errors
+
+
 def _validate_one_run(
-    run_dir: Path, validator: Draft202012Validator
+    run_dir: Path, validator: Draft202012Validator, *, repo_root: Path
 ) -> tuple[str, list[str]]:
     run_id = run_dir.name
     errors: list[str] = []
@@ -161,6 +197,9 @@ def _validate_one_run(
 
     if str(manifest.get("run_id", "")) != run_id:
         errors.append(f"{manifest_path}: run_id '{manifest.get('run_id')}' != directory '{run_id}'")
+    archive_root = str(manifest.get("archive_root", "")).strip()
+    if archive_root and not _is_safe_relative(archive_root):
+        errors.append(f"{manifest_path}: unsafe archive_root in manifest: {archive_root}")
 
     manifest_files_raw = manifest.get("files", [])
     if not isinstance(manifest_files_raw, list):
@@ -236,6 +275,9 @@ def _validate_one_run(
             f"{manifest_path}: total_bytes mismatch "
             f"(expected {expected_total_bytes}, got {actual_total_bytes})"
         )
+    errors.extend(
+        _validate_public_path_leaks(run_dir, archived_paths, repo_root=repo_root)
+    )
 
     return run_id, errors
 
@@ -328,6 +370,13 @@ def _validate_index_csv(
                     f"{row_number} (expected {expected_relative}, got {run_path})"
                 )
                 continue
+            archive_root = str(row.get("archive_root", "")).strip()
+            if archive_root and not _is_safe_relative(archive_root):
+                errors.append(
+                    f"{csv_path}: unsafe archive_root for run_id '{run_id}' on line "
+                    f"{row_number}: {archive_root}"
+                )
+                continue
             indexed_runs.add(run_id)
 
     missing = sorted(run_id for run_id in run_ids if run_id not in indexed_runs)
@@ -407,7 +456,11 @@ def main(argv: list[str] | None = None) -> int:
     run_ids: set[str] = set()
     expected_run_paths: dict[str, tuple[str, str]] = {}
     for run_dir in run_dirs:
-        run_id, run_errors = _validate_one_run(run_dir, validator)
+        run_id, run_errors = _validate_one_run(
+            run_dir,
+            validator,
+            repo_root=repo_root,
+        )
         run_ids.add(run_id)
         expected_run_paths[run_id] = (
             f"runs/{run_id}",

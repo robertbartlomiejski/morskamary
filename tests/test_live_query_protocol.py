@@ -83,6 +83,7 @@ def _minimal_query(slug: str, family: LiveQueryFamily, idx: int) -> Dict[str, An
             "crossref": "published-desc",
             "scopus": "date-desc",
             "wos": "date-desc",
+            "openalex": "date-desc",
         },
         "sampling_strategy": {
             "mode": "stratified",
@@ -227,6 +228,10 @@ class TestShippedProtocol:
                 lambda projection: projection["queries"][0]["sort_strategy"].__setitem__("crossref", "relevance"),
             ),
             (
+                "sort-strategy",
+                lambda projection: projection["queries"][0]["sort_strategy"].__setitem__("openalex", "relevance"),
+            ),
+            (
                 "sampling-strategy",
                 lambda projection: projection["queries"][0]["sampling_strategy"].__setitem__("pages", 99),
             ),
@@ -235,7 +240,14 @@ class TestShippedProtocol:
                 lambda projection: projection["queries"][0].__setitem__("axis_target", "WRONG_AXIS"),
             ),
         ],
-        ids=["protocol-version", "time-window", "sort-strategy", "sampling-strategy", "axis-target"],
+        ids=[
+            "protocol-version",
+            "time-window",
+            "sort-strategy-crossref",
+            "sort-strategy-openalex",
+            "sampling-strategy",
+            "axis-target",
+        ],
     )
     def test_complete_authoritative_projection_rejects_stale_acquisition_fields(
         self,

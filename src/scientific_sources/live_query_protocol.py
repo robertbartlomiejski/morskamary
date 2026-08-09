@@ -47,7 +47,7 @@ REQUIRED_QUERY_FIELDS = (
 )
 
 REQUIRED_TIME_WINDOW_FIELDS = ("from_year", "to_year")
-REQUIRED_SORT_STRATEGY_FIELDS = ("crossref", "scopus", "wos")
+REQUIRED_SORT_STRATEGY_FIELDS = ("crossref", "scopus", "wos", "openalex")
 REQUIRED_SAMPLING_STRATEGY_FIELDS = (
     "mode",
     "pages",
@@ -111,6 +111,7 @@ class SortStrategy:
     crossref: str
     scopus: str
     wos: str
+    openalex: str
 
 
 @dataclass(frozen=True)
@@ -252,7 +253,12 @@ class LiveQueryProtocol:
                     "evidence_intent": str,
                     "query_text":      str,
                     "time_window":     {"from_year": int, "to_year": int},
-                    "sort_strategy":   {"crossref": str, "scopus": str, "wos": str},
+                    "sort_strategy":   {
+                        "crossref": str,
+                        "scopus": str,
+                        "wos": str,
+                        "openalex": str,
+                    },
                     "sampling_strategy": {
                         "mode":          str,
                         "pages":         int,
@@ -281,6 +287,7 @@ class LiveQueryProtocol:
                         "crossref": q.sort_strategy.crossref,
                         "scopus": q.sort_strategy.scopus,
                         "wos": q.sort_strategy.wos,
+                        "openalex": q.sort_strategy.openalex,
                     },
                     "sampling_strategy": {
                         "mode": q.sampling_strategy.mode,
@@ -365,6 +372,7 @@ def _parse_sort_strategy(payload: Any, ctx: str) -> SortStrategy:
         crossref=_require_non_empty_str(mapping["crossref"], f"{ctx}.crossref"),
         scopus=_require_non_empty_str(mapping["scopus"], f"{ctx}.scopus"),
         wos=_require_non_empty_str(mapping["wos"], f"{ctx}.wos"),
+        openalex=_require_non_empty_str(mapping["openalex"], f"{ctx}.openalex"),
     )
 
 
@@ -847,6 +855,7 @@ def validate_complete_authoritative_protocol_projection(
             "crossref": query.sort_strategy.crossref,
             "scopus": query.sort_strategy.scopus,
             "wos": query.sort_strategy.wos,
+            "openalex": query.sort_strategy.openalex,
         }
         if row.get("sort_strategy") != expected_sort_strategy:
             sort_strategy_mismatches.append(query_id)

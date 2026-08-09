@@ -15,6 +15,7 @@ from run_full_analysis import (
     LocalizedQMBDRecordRepository,
     MicroCredential,
     TMBDAxis,
+    _repo_relative_posix_or_redacted,
     extract_live_records_competences,
     export_sector_dictionaries,
     generate_micro_credentials,
@@ -1941,6 +1942,42 @@ def test_extract_live_records_competences_accepts_sanitized_sentence_metadata(
     competences = extract_live_records_competences(live_file)
     assert len(competences) == 1
     assert competences[0].axis == TMBDAxis.MARITIME
+
+
+def test_extract_live_records_competences_redacts_out_of_tree_source_paths(
+    tmp_path: Path,
+) -> None:
+    """Out-of-repo live-record fixtures must not persist absolute source paths."""
+    live_file = tmp_path / "live_records.json"
+    live_file.write_text(
+        json.dumps(
+            [
+                {
+                    "title": "Ocean governance pathways",
+                    "provider": "OpenAlex",
+                    "journal": "Ocean Studies",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    competences = extract_live_records_competences(live_file)
+
+    assert len(competences) == 1
+    assert competences[0].source.file == "[redacted-out-of-tree-path]"
+    assert competences[0].source.github_url == ""
+
+
+def test_repo_relative_posix_or_redacted_normalizes_repo_absolute_paths(
+    tmp_path: Path,
+) -> None:
+    assert _repo_relative_posix_or_redacted(Path(__file__).resolve()) == (
+        "tests/test_run_full_analysis.py"
+    )
+    assert _repo_relative_posix_or_redacted(tmp_path / "outside.txt") == (
+        "[redacted-out-of-tree-path]"
+    )
 
 
 def test_extract_live_records_competences_ignores_fallback_oceanic_sentences(

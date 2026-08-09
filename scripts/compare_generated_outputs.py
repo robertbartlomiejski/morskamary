@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import filecmp
 import subprocess
 import sys
 from pathlib import Path
@@ -97,6 +98,39 @@ def _committed_bytes(path: Path) -> bytes:
     return completed.stdout
 
 
+def _relative_files(root: Path) -> set[Path]:
+    return {
+        path.relative_to(root)
+        for path in root.rglob("*")
+        if path.is_file()
+    }
+
+
+def _compare_file_pair(
+    current_path: Path,
+    baseline_path: Path,
+    *,
+    relative_path: Path,
+) -> str | None:
+    filename = current_path.name
+    if current_path.suffix.lower() == ".json" and filename in NONDETERMINISTIC_KEYS_BY_FILE:
+        try:
+            current_payload = json.loads(current_path.read_text(encoding="utf-8"))
+            baseline_payload = json.loads(baseline_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            return f"{relative_path.as_posix()}: cannot compare JSON safely: {exc}"
+        if compare_json_payloads(
+            current_payload,
+            baseline_payload,
+            filename=filename,
+        ):
+            return None
+        return f"{relative_path.as_posix()}: substantive JSON drift"
+    if filecmp.cmp(current_path, baseline_path, shallow=False):
+        return None
+    return f"{relative_path.as_posix()}: substantive generated-output drift"
+
+
 def compare_outputs(root: Path) -> list[str]:
     """Return substantive output-drift errors for the current worktree."""
 
@@ -128,12 +162,41 @@ def compare_outputs(root: Path) -> list[str]:
     return errors
 
 
+def compare_output_trees(root: Path, baseline_root: Path) -> list[str]:
+    """Return substantive drift errors between two generated-output trees."""
+
+    errors: list[str] = []
+    current_files = _relative_files(root)
+    baseline_files = _relative_files(baseline_root)
+    missing = sorted(path.as_posix() for path in baseline_files - current_files)
+    extra = sorted(path.as_posix() for path in current_files - baseline_files)
+    if missing:
+        errors.append(f"missing generated files: {', '.join(missing)}")
+    if extra:
+        errors.append(f"unexpected generated files: {', '.join(extra)}")
+    for relative_path in sorted(current_files & baseline_files):
+        error = _compare_file_pair(
+            root / relative_path,
+            baseline_root / relative_path,
+            relative_path=relative_path,
+        )
+        if error is not None:
+            errors.append(error)
+    return errors
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default="outputs")
+    parser.add_argument("--baseline-root")
     args = parser.parse_args(argv)
 
-    errors = compare_outputs(Path(args.root))
+    root = Path(args.root)
+    errors = (
+        compare_output_trees(root, Path(args.baseline_root))
+        if args.baseline_root
+        else compare_outputs(root)
+    )
     if errors:
         print("Generated output comparison failed:", file=sys.stderr)
         for error in errors:
