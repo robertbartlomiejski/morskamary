@@ -66,9 +66,9 @@ or workforce supply across the 12 sectors.
 
 Consequently, its `Missing` and `Gap %` fields are project-baseline coverage
 diagnostics. They must not be reported as national, European, or real-world
-qualification deficits. The current tracked output contains 2,548 candidate
-units absent from 2,728 required units (93.4%); 1,818 of those are OCEANIC
-(71.35%). Historical figures such as 16,929 missing, 13,583 OCEANIC, or
+qualification deficits. The current tracked output contains 6,897 candidate
+units absent from 7,077 required units (97.46%); 5,217 of those are OCEANIC
+(75.64%). Historical figures such as 16,929 missing, 13,583 OCEANIC, or
 98.8-99.1% sector gaps are not the current repository result and must not be
 carried into a manuscript without a run-specific archived source.
 

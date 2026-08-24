@@ -352,13 +352,14 @@ def _append_jsonl_index(
     run_id: str,
     archived_files: list[ArchivedFile],
     workflow_metadata: dict[str, Any],
+    archived_at: str,
 ) -> None:
     index_dir = archive_root / "_index"
     index_dir.mkdir(parents=True, exist_ok=True)
     index_path = index_dir / "runs_index.jsonl"
     summary = {
         "run_id": run_id,
-        "archived_at": _now_utc_iso(),
+        "archived_at": archived_at,
         "run_path": f"runs/{run_id}",
         "file_count": len(archived_files),
         "total_bytes": sum(item.size_bytes for item in archived_files),
@@ -634,6 +635,7 @@ def archive_run_outputs(
         run_id=resolved_run_id,
         archived_files=archived_files,
         workflow_metadata=workflow_metadata,
+        archived_at=timestamp_utc,
     )
     _append_csv_index(archive_root, manifest_payload)
 

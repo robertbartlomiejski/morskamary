@@ -37,7 +37,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import (
     Any,
     Dict,
@@ -94,6 +94,7 @@ DEFAULT_LIVE_RECORDS_JSON = (
 )
 CUMULATIVE_QMBD_RECORDS_FILENAME = "cumulative_qmbd_records.json"
 REPO_GITHUB_BASE = "https://github.com/robertbartlomiejski/morskamary/blob/main"
+_REDACTED_OUT_OF_TREE_PATH = "[redacted-out-of-tree-path]"
 _AXIS_CLASSIFIER = AxisClassifier()
 
 # Whitelist of uncertainty typology values produced by AxisClassifier.classify_context().
@@ -200,8 +201,26 @@ class CompetenceSource:
     @property
     def github_url(self) -> str:
         """Return GitHub hyperlink to the source file/row"""
+        if not self.file or self.file == _REDACTED_OUT_OF_TREE_PATH:
+            return ""
         encoded = self.file.replace(" ", "%20")
         return f"{REPO_GITHUB_BASE}/{encoded}#L{self.row}"
+
+
+def _repo_relative_posix_or_redacted(path_like: str | Path) -> str:
+    """Return a repository-relative POSIX path or redact out-of-tree locations."""
+    raw_path = str(path_like).strip()
+    path = Path(raw_path)
+    if PureWindowsPath(raw_path).is_absolute() and not path.is_absolute():
+        return _REDACTED_OUT_OF_TREE_PATH
+    try:
+        resolved = path.resolve(strict=False)
+    except OSError:
+        return _REDACTED_OUT_OF_TREE_PATH
+    try:
+        return resolved.relative_to(REPO_ROOT.resolve()).as_posix()
+    except ValueError:
+        return _REDACTED_OUT_OF_TREE_PATH
 
 
 @dataclass
@@ -528,6 +547,10 @@ def _build_cumulative_run_metadata(
 ) -> Dict[str, Any]:
     """Build explicit metadata for cumulative ledger provenance and recovery state."""
     static_recovery_reason = os.getenv(_STATIC_RECOVERY_REASON_ENV, "").strip()
+    if static_recovery_enabled and not static_recovery_reason:
+        raise ValueError(
+            "STATIC_RECOVERY_REASON must be set when ALLOW_STATIC_RECOVERY_MODE=true"
+        )
     warning_message = (
         "STATIC recovery mode active: deterministic recovery artifacts only; "
         "not cumulative live evidence."
@@ -543,6 +566,7 @@ def _build_cumulative_run_metadata(
         "allow_static_recovery_mode_env": _ALLOW_STATIC_RECOVERY_ENV,
         "provider_set": os.getenv("REQUESTED_PROVIDERS", "").strip(),
         "github_run_id": os.getenv("GITHUB_RUN_ID", "").strip(),
+        "github_run_attempt": os.getenv("GITHUB_RUN_ATTEMPT", "").strip(),
         "commit_sha": os.getenv("GITHUB_SHA", "").strip() or _get_git_head_sha(),
         "timestamp_utc": _now_utc_iso(),
         "warnings": [warning_message] if static_recovery_enabled else [],
@@ -552,6 +576,32 @@ def _build_cumulative_run_metadata(
             "Static recovery mode explicitly enabled; no reason supplied."
         )
     return metadata
+
+
+def _default_non_publication_run_id(analysis_mode: str) -> str:
+    """Return an explicit non-publication fallback run identifier."""
+    normalized_mode = str(analysis_mode or "").strip().lower()
+    if normalized_mode == "static":
+        return "local-static-recovery"
+    if normalized_mode == "live-enriched":
+        return "local-live-unpublished"
+    return "local-unpublished"
+
+
+def _canonical_public_run_id(
+    *,
+    analysis_mode: str,
+    github_run_id: str,
+    github_run_attempt: str,
+) -> str:
+    """Return the publication-grade run identifier for generated artifacts."""
+    normalized_run_id = str(github_run_id).strip()
+    normalized_attempt = str(github_run_attempt).strip()
+    if normalized_run_id and normalized_attempt:
+        return f"{normalized_run_id}-{normalized_attempt}"
+    if normalized_run_id:
+        return normalized_run_id
+    return _default_non_publication_run_id(analysis_mode)
 
 
 def _serialize_subject_terms(subject_terms: Any) -> str:
@@ -1306,11 +1356,7 @@ def extract_live_records_competences(
 
     seen_titles: Set[str] = set(known_titles or set())
     competences: List[Competence] = []
-    try:
-        rel_path = live_records_path.relative_to(REPO_ROOT).as_posix()
-    except ValueError:
-        # Custom paths may live outside REPO_ROOT; keep source metadata usable.
-        rel_path = live_records_path.resolve().as_posix()
+    rel_path = _repo_relative_posix_or_redacted(live_records_path)
 
     canonical_by_norm = {
         re.sub(r"[^a-z0-9]+", " ", sec.lower()).strip(): sec for sec in SECTORS
@@ -1552,6 +1598,8 @@ def _competence_to_gap_evidence(
     doi = getattr(src, "doi", "") or ""
     paper_title = getattr(src, "paper_title", "") or comp.name
     source_file = getattr(src, "file", "") or ""
+    if source_file and Path(source_file).is_absolute():
+        source_file = _repo_relative_posix_or_redacted(source_file)
     source_row = getattr(src, "row", 0) or 0
 
     # Attempt to parse confidence_score from description text
@@ -1620,9 +1668,9 @@ def _collect_supply_from_credentials_db(
     except Exception:
         return supply
     source_file = (
-        db_path.relative_to(REPO_ROOT).as_posix()
-        if db_path.is_absolute() and db_path.is_relative_to(REPO_ROOT)
-        else str(db_path)
+        _repo_relative_posix_or_redacted(db_path)
+        if db_path.is_absolute()
+        else str(db_path).replace("\\", "/")
     )
     for cred in data.get("credentials", []):
         sector = cred.get("sector", "")
@@ -1711,9 +1759,9 @@ def _collect_supply_from_microcredentials_csv(
         import csv as csv_mod
 
         source_file = (
-            csv_path.relative_to(REPO_ROOT).as_posix()
-            if csv_path.is_absolute() and csv_path.is_relative_to(REPO_ROOT)
-            else str(csv_path)
+            _repo_relative_posix_or_redacted(csv_path)
+            if csv_path.is_absolute()
+            else str(csv_path).replace("\\", "/")
         )
         with open(csv_path, newline="", encoding="utf-8-sig") as fh:
             reader = csv_mod.reader(fh)
@@ -2229,6 +2277,7 @@ def _build_eqf_learning_outcomes(
 ) -> List[str]:
     """Build sector- and evidence-specific learning outcomes."""
     axis_text = ", ".join(axes) if axes else "QMBD axes"
+    normalized_sector = sector.rstrip(".")
     del missing_names
     focus = {
         "MARINE": "ecosystem stewardship and biophysical risk management",
@@ -2240,24 +2289,24 @@ def _build_eqf_learning_outcomes(
     )
     if level == 4:
         return [
-            f"Identify foundational {axis_text} competences required in {sector}.",
-            f"Describe evidence-backed {sector} gaps with focus on {focus_text}.",
+            f"Identify foundational {axis_text} competences required in {normalized_sector}.",
+            f"Describe evidence-backed {normalized_sector} gaps with focus on {focus_text}.",
             "Recognize verified supply evidence versus audit-only generated supply in supervised assessment contexts.",
         ]
     if level == 5:
         return [
-            f"Apply operational procedures to address {axis_text} gaps in {sector}.",
+            f"Apply operational procedures to address {axis_text} gaps in {normalized_sector}.",
             f"Implement supervised interventions targeting {focus_text}.",
             "Monitor decisions and delivery outcomes against evidence-backed missing clusters.",
         ]
     if level == 6:
         return [
-            f"Analyze and design independent responses to {axis_text} gaps in {sector}.",
+            f"Analyze and design independent responses to {axis_text} gaps in {normalized_sector}.",
             f"Evaluate strategic alternatives for {focus_text}.",
             "Integrate sector evidence and provenance into project-level decisions.",
         ]
     return [
-        f"Lead strategic governance and transformation responses for {sector} ({axis_text}).",
+        f"Lead strategic governance and transformation responses for {normalized_sector} ({axis_text}).",
         f"Synthesize multi-source evidence to prioritize {focus_text}.",
         "Design system-level interventions with traceable provenance and review controls.",
     ]
@@ -2988,14 +3037,13 @@ def export_gaps_summary_csv(
 
     Gap_pct = Missing / Required * 100, rounded to one decimal place.
 
-    ``Run_id`` falls back to a UUID when empty so every artifact has a
-    non-blank, globally unique run identifier even in non-CI contexts.
+    ``Run_id`` falls back to an explicit non-publication identifier when empty.
     ``Generated_at`` falls back to the current UTC timestamp when not supplied.
     ``Schema_version`` is fixed to ``"2"`` and can be used by consumers to
     detect the schema version without inspecting column names.
     """
     ts = generated_at or _now_utc_iso()
-    effective_run_id = run_id or str(__import__("uuid").uuid4())
+    effective_run_id = run_id or _default_non_publication_run_id(analysis_mode)
     with open(output_path, "w", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh)
         writer.writerow(
@@ -3230,10 +3278,29 @@ def generate_report_index(
     analysis_input_mode: str = "static",
     static_literature_count: Optional[int] = None,
     live_enrichment_count: Optional[int] = None,
+    review_required: Optional[List[Dict[str, Any]]] = None,
 ) -> None:
     """Generate master report index HTML."""
+    review_required = review_required if review_required is not None else []
     total_comps = len(baseline) + len(literature)
     avg_gap = sum(g.gap_pct for g in gaps.values()) / max(1, len(gaps))
+    credential_sectors = {c.sector for c in credentials}
+    credential_eqf_levels = sorted({c.eqf_level.value for c in credentials})
+    full_stack_sectors = sum(
+        1
+        for sector in credential_sectors
+        if {c.eqf_level.value for c in credentials if c.sector == sector}
+        == {4, 5, 6, 7}
+    )
+    if credential_eqf_levels:
+        eqf_summary = (
+            f"{len(credential_sectors)} sectors, EQF levels "
+            f"{min(credential_eqf_levels)}-{max(credential_eqf_levels)} generated "
+            f"({full_stack_sectors} with the full EQF4-EQF7 stack; "
+            "remaining gaps listed under review_required)"
+        )
+    else:
+        eqf_summary = "No credentials generated"
     static_count = (
         int(static_literature_count)
         if static_literature_count is not None
@@ -3269,13 +3336,36 @@ def generate_report_index(
             f"{len(baseline)} baseline + {static_count} static literature + "
             f"{live_count} live-enriched"
         )
+    generated_sector_levels: Dict[str, Set[int]] = defaultdict(set)
+    for credential in credentials:
+        sector = str(credential.sector).strip()
+        eqf_level = credential.eqf_level.value
+        if sector and isinstance(eqf_level, int):
+            generated_sector_levels[sector].add(eqf_level)
+    covered_sectors = len(generated_sector_levels)
+    covered_levels = sorted({level for levels in generated_sector_levels.values() for level in levels})
+    review_required_sectors = sorted(
+        {
+            str(item.get("sector", "")).strip()
+            for item in review_required
+            if str(item.get("sector", "")).strip()
+        }
+    )
+    generated_coverage_summary = (
+        f"{covered_sectors} sectors with generated "
+        f"{', '.join(f'EQF{level}' for level in covered_levels)} coverage"
+        if covered_levels
+        else "0 sectors with generated EQF coverage"
+    )
     html += f"""
 <h2>Summary Dashboard</h2>
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem">
   <div class="card"><h3>📋 Competences</h3><p style="font-size:2rem;margin:0">{total_comps}</p>
     <p>{competence_breakdown}</p></div>
   <div class="card"><h3>🎓 Credentials</h3><p style="font-size:2rem;margin:0">{len(credentials)}</p>
-    <p>{len(SECTORS)} sectors × 4 EQF levels</p></div>
+    <p>{generated_coverage_summary}</p>
+    <p>{eqf_summary}</p>
+    <p>{len(review_required_sectors)} sectors have review-required EQF gaps</p></div>
   <div class="card"><h3>🏭 Sectors</h3><p style="font-size:2rem;margin:0">{len(SECTORS)}</p>
     <p>EU Blue Economy sectors analysed</p></div>
   <div class="card"><h3>⚠️ Avg Gap</h3><p style="font-size:2rem;margin:0">{avg_gap:.1f}%</p>
@@ -3781,7 +3871,13 @@ def main(
         OUTPUTS_DIR / "gaps_summary.csv",
         generated_at=cumulative_run_metadata.get("timestamp_utc", ""),
         analysis_mode=cumulative_run_metadata.get("analysis_input_mode", ""),
-        run_id=cumulative_run_metadata.get("github_run_id", ""),
+        run_id=_canonical_public_run_id(
+            analysis_mode=str(cumulative_run_metadata.get("analysis_input_mode", "")),
+            github_run_id=str(cumulative_run_metadata.get("github_run_id", "")),
+            github_run_attempt=str(
+                cumulative_run_metadata.get("github_run_attempt", "")
+            ),
+        ),
     )
     export_gaps_detailed_json(gap_model_result, OUTPUTS_DIR / "gaps_detailed.json")
     export_gaps_by_sector_axis_csv(
@@ -3808,6 +3904,7 @@ def main(
         analysis_input_mode=analysis_input_mode,
         static_literature_count=len(static_literature),
         live_enrichment_count=len(live_competences),
+        review_required=generation_rationale.get("review_required", []),
     )
     generate_gaps_html(gaps, all_comps, OUTPUTS_DIR / "gaps_by_sector.html")
     generate_credentials_html(credentials, OUTPUTS_DIR / "credentials_matrix.html")

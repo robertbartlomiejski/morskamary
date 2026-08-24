@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/research_question_accountability.schema.json",
+  "title": "Research question accountability ledger",
+  "description": "Complete question-level accountability ledger. Non-results and review states are retained rather than omitted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ledger_version", "entries"],
+  "properties": {
+    "ledger_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/accountabilityEntry"
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nullableCount": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "accountabilityEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "question_id",
+        "item_type",
+        "result_status",
+        "view_kind",
+        "scientific_status",
+        "observational_unit",
+        "population_definition",
+        "n",
+        "missing_n",
+        "excluded_n",
+        "denominator",
+        "method",
+        "method_readiness",
+        "evidence_references",
+        "validity_threats",
+        "permitted_interpretation",
+        "prohibited_interpretation",
+        "registry_version",
+        "registry_fingerprint",
+        "protocol_version",
+        "protocol_fingerprint",
+        "identity_schema_version",
+        "classifier_version",
+        "analysis_timestamp",
+        "warnings"
+      ],
+      "properties": {
+        "question_id": {
+          "type": "string",
+          "pattern": "^(?:RQ(?:[1-9][0-9]*)(?:\\.[1-9][0-9]*)?|ETQ[1-9][0-9]*)$"
+        },
+        "item_type": {
+          "type": "string",
+          "enum": ["research_question", "extended_question"]
+        },
+        "result_status": {
+          "type": "string",
+          "enum": [
+            "answered",
+            "partially_answered",
+            "not_computable",
+            "not_operationalised",
+            "not_collected",
+            "review_required"
+          ]
+        },
+        "view_kind": {
+          "type": "string",
+          "enum": [
+            "logical_canonical_view",
+            "logical_assignment_view",
+            "logical_supply_view",
+            "logical_design_view",
+            "logical_hypothesis_result_set",
+            "not_defined"
+          ]
+        },
+        "scientific_status": {
+          "type": "string",
+          "enum": [
+            "answer_established",
+            "answer_not_established",
+            "computation_blocked",
+            "operationalisation_required",
+            "collection_not_started",
+            "review_required"
+          ]
+        },
+        "observational_unit": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "population_definition": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "n": {
+          "$ref": "#/$defs/nullableCount"
+        },
+        "missing_n": {
+          "$ref": "#/$defs/nullableCount"
+        },
+        "excluded_n": {
+          "$ref": "#/$defs/nullableCount"
+        },
+        "denominator": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "method": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "method_readiness": {
+          "type": "string",
+          "enum": ["implemented", "planned", "conditional", "not_applicable"]
+        },
+        "evidence_references": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "uniqueItems": true
+        },
+        "validity_threats": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "uniqueItems": true
+        },
+        "permitted_interpretation": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "prohibited_interpretation": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "registry_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "registry_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "protocol_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "protocol_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "identity_schema_version": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "classifier_version": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "analysis_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "uniqueItems": true
+        },
+        "hypothesis_results": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/hypothesisResult"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "question_id": {
+                "const": "RQ8"
+              }
+            },
+            "required": ["question_id"]
+          },
+          "then": {
+            "required": ["hypothesis_results"]
+          }
+        }
+      ]
+    },
+    "hypothesisResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hypothesis_id",
+        "outcome",
+        "validated_supply_status",
+        "evidence_references",
+        "warnings"
+      ],
+      "properties": {
+        "hypothesis_id": {
+          "type": "string",
+          "pattern": "^H[0-9]+$"
+        },
+        "outcome": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "validated_supply_status": {
+          "type": "string",
+          "enum": [
+            "independently_validated",
+            "not_available",
+            "not_applicable"
+          ]
+        },
+        "evidence_references": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "uniqueItems": true
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

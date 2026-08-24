@@ -224,18 +224,17 @@ class TestSchemaValidation:
 
 
 class TestCheckGapsCsv:
-    def test_fails_when_all_rows_identical(self) -> None:
-        mod = _load_validator_module()
-        rows = _make_gaps_rows(required="100")
-        mod.check_gaps_csv(rows)
-        assert any("identical" in e for e in mod.ERRORS), (
-            "Expected failure when all sector rows are identical"
-        )
+    SCIENTIFIC_COLUMNS = [
+        "Required",
+        "Missing",
+        "Gap_pct",
+        "Missing_MARINE",
+        "Missing_MARITIME",
+        "Missing_OCEANIC",
+    ]
 
-    def test_passes_when_rows_differ(self) -> None:
-        mod = _load_validator_module()
-        rows = _make_gaps_rows()
-        # Make rows differ
+    @staticmethod
+    def _vary_scientific_columns(rows: list[dict]) -> None:
         for i, row in enumerate(rows):
             row["Required"] = str(100 + i)
             row["Missing"] = str(85 + i)
@@ -243,9 +242,77 @@ class TestCheckGapsCsv:
             row["Missing_MARINE"] = str(10 + i)
             row["Missing_MARITIME"] = str(20 + i)
             row["Missing_OCEANIC"] = str(55 + i)
-            row["Missing_HYDRONIZATION"] = str(i)
+
+    def test_fails_when_all_rows_identical(self) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows(required="100")
+        mod.check_gaps_csv(rows)
+        assert any("stale" in e for e in mod.ERRORS), (
+            "Expected failure when all sector rows are identical"
+        )
+
+    @pytest.mark.parametrize("column", SCIENTIFIC_COLUMNS)
+    def test_fails_when_individual_scientific_column_contains_blank(
+        self, column: str
+    ) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        self._vary_scientific_columns(rows)
+        rows[0][column] = ""
+
+        mod.check_gaps_csv(rows)
+
+        assert any(column in error and "non-blank" in error for error in mod.ERRORS), (
+            f"Expected blank {column} to fail (errors: {mod.ERRORS})"
+        )
+
+    @pytest.mark.parametrize("column", SCIENTIFIC_COLUMNS)
+    def test_fails_when_individual_scientific_column_is_uniform(
+        self, column: str
+    ) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        self._vary_scientific_columns(rows)
+        for row in rows:
+            row[column] = "7"
+
+        mod.check_gaps_csv(rows)
+
+        assert any(column in error and "does not vary" in error for error in mod.ERRORS), (
+            f"Expected uniform {column} to fail (errors: {mod.ERRORS})"
+        )
+
+    def test_passes_when_hydronization_is_uniform_but_other_scientific_values_differ(
+        self,
+    ) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        self._vary_scientific_columns(rows)
+        for row in rows:
+            row["Missing_HYDRONIZATION"] = "15"
         mod.check_gaps_csv(rows)
         assert not mod.ERRORS, f"Expected no errors but got: {mod.ERRORS}"
+
+    def test_fails_when_hydronization_column_missing(self) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        for row in rows:
+            row.pop("Missing_HYDRONIZATION", None)
+        mod.check_gaps_csv(rows)
+        assert any("Missing_HYDRONIZATION" in e for e in mod.ERRORS), (
+            "Expected failure when Missing_HYDRONIZATION column is absent"
+        )
+
+    def test_allows_cross_sector_hydronization_counts(self) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        self._vary_scientific_columns(rows)
+
+        mod.check_gaps_csv(rows)
+
+        assert not mod.ERRORS, (
+            "Cross-sector HYDRONIZATION evidence must not be reported as stale"
+        )
 
     def test_fails_when_sector_missing(self) -> None:
         mod = _load_validator_module()
@@ -253,6 +320,77 @@ class TestCheckGapsCsv:
         rows_partial = [r for r in rows if r["Sector"] != "Desalination"]
         mod.check_gaps_csv(rows_partial)
         assert any("Desalination" in e for e in mod.ERRORS)
+
+    def test_fails_when_gaps_provenance_conflicts_with_companion_metadata(self) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        for i, row in enumerate(rows):
+            row["Required"] = str(100 + i)
+        metadata = {
+            "analysis_input_mode": "live-enriched",
+            "is_static_recovery_mode": False,
+            "static_recovery_reason": "",
+            "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
+            "provider_set": "crossref",
+            "github_run_id": "321",
+            "github_run_attempt": "4",
+            "commit_sha": "abc123",
+            "timestamp_utc": "2026-07-07T00:00:00+00:00",
+        }
+
+        mod.check_gaps_csv(rows, metadata)
+
+        assert any("Generated_at does not match" in e for e in mod.ERRORS)
+        assert any("Analysis_mode does not match" in e for e in mod.ERRORS)
+        assert any("Run_id does not match" in e for e in mod.ERRORS)
+
+    @pytest.mark.parametrize("timestamp_utc", ["", "not-a-timestamp"])
+    def test_fails_when_companion_timestamp_is_blank_or_invalid(
+        self, timestamp_utc: str
+    ) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        for i, row in enumerate(rows):
+            row["Required"] = str(100 + i)
+
+        mod.check_gaps_csv(rows, {"timestamp_utc": timestamp_utc})
+
+        assert any(
+            "metadata.timestamp_utc" in error for error in mod.ERRORS
+        ), mod.ERRORS
+
+    @pytest.mark.parametrize("analysis_input_mode", ["", "fixture"])
+    def test_fails_when_companion_analysis_mode_is_blank_or_invalid(
+        self, analysis_input_mode: str
+    ) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        self._vary_scientific_columns(rows)
+        metadata = {
+            "analysis_input_mode": analysis_input_mode,
+            "timestamp_utc": "2026-01-01T00:00:00+00:00",
+        }
+
+        mod.check_gaps_csv(rows, metadata)
+
+        assert any(
+            "metadata.analysis_input_mode" in error for error in mod.ERRORS
+        ), mod.ERRORS
+
+    def test_passes_when_companion_provenance_identifies_same_run(self) -> None:
+        mod = _load_validator_module()
+        rows = _make_gaps_rows()
+        self._vary_scientific_columns(rows)
+        metadata = {
+            "analysis_input_mode": "static",
+            "github_run_id": "test-run-001",
+            "github_run_attempt": "",
+            "timestamp_utc": "2026-01-01T00:00:00+00:00",
+        }
+
+        mod.check_gaps_csv(rows, metadata)
+
+        assert not mod.ERRORS, mod.ERRORS
 
 
 class TestCheckCredentials:
@@ -436,6 +574,7 @@ class TestCumulativeQmbdValidation:
                 "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
                 "provider_set": "crossref",
                 "github_run_id": "123",
+                "github_run_attempt": "1",
                 "commit_sha": "abc123",
                 "timestamp_utc": "2026-07-07T00:00:00+00:00",
                 "warnings": [],
@@ -539,6 +678,7 @@ class TestCumulativeQmbdValidation:
                 "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
                 "provider_set": "crossref",
                 "github_run_id": "123",
+                "github_run_attempt": "1",
                 "commit_sha": "abc123",
                 "timestamp_utc": "2026-07-07T00:00:00+00:00",
                 "warnings": [],
@@ -578,6 +718,7 @@ class TestCumulativeQmbdValidation:
                 "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
                 "provider_set": "",
                 "github_run_id": "",
+                "github_run_attempt": "",
                 "commit_sha": "abc123",
                 "timestamp_utc": "2026-07-07T00:00:00+00:00",
                 "warnings": [],
@@ -612,6 +753,7 @@ class TestCumulativeQmbdValidation:
                 "allow_static_recovery_mode_env": "ALLOW_STATIC_RECOVERY_MODE",
                 "provider_set": "",
                 "github_run_id": "",
+                "github_run_attempt": "",
                 "commit_sha": "abc123",
                 "timestamp_utc": "2026-07-07T00:00:00+00:00",
             },

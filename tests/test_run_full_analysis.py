@@ -15,6 +15,7 @@ from run_full_analysis import (
     LocalizedQMBDRecordRepository,
     MicroCredential,
     TMBDAxis,
+    _repo_relative_posix_or_redacted,
     extract_live_records_competences,
     export_sector_dictionaries,
     generate_micro_credentials,
@@ -305,7 +306,7 @@ def test_main_static_recovery_emits_cumulative_metadata(tmp_path: Path) -> None:
         patch("run_full_analysis.export_competences_json"),
         patch("run_full_analysis.export_credentials_json"),
         patch("run_full_analysis.export_pathways_json"),
-        patch("run_full_analysis.export_gaps_summary_csv"),
+        patch("run_full_analysis.export_gaps_summary_csv") as mock_export_gaps_summary_csv,
         patch("run_full_analysis.generate_report_index"),
         patch("run_full_analysis.generate_gaps_html"),
         patch("run_full_analysis.generate_credentials_html"),
@@ -323,6 +324,7 @@ def test_main_static_recovery_emits_cumulative_metadata(tmp_path: Path) -> None:
                 "STATIC_RECOVERY_REASON": "offline-ci",
                 "REQUESTED_PROVIDERS": "crossref,scopus",
                 "GITHUB_RUN_ID": "123456",
+                "GITHUB_RUN_ATTEMPT": "2",
                 "GITHUB_SHA": "",
             },
             clear=False,
@@ -339,9 +341,11 @@ def test_main_static_recovery_emits_cumulative_metadata(tmp_path: Path) -> None:
     assert metadata["allow_static_recovery_mode_env"] == "ALLOW_STATIC_RECOVERY_MODE"
     assert metadata["provider_set"] == "crossref,scopus"
     assert metadata["github_run_id"] == "123456"
+    assert metadata["github_run_attempt"] == "2"
     assert metadata["commit_sha"] == "deadbeef"
     assert metadata["timestamp_utc"]
     assert metadata["warnings"]
+    assert mock_export_gaps_summary_csv.call_args.kwargs["run_id"] == "123456-2"
 
 
 def test_localized_qmbd_repository_tags_live_records_with_origin(
@@ -1941,6 +1945,127 @@ def test_extract_live_records_competences_accepts_sanitized_sentence_metadata(
     competences = extract_live_records_competences(live_file)
     assert len(competences) == 1
     assert competences[0].axis == TMBDAxis.MARITIME
+
+
+def test_extract_live_records_competences_redacts_out_of_tree_source_paths(
+    tmp_path: Path,
+) -> None:
+    """Out-of-repo live-record fixtures must not persist absolute source paths."""
+    live_file = tmp_path / "live_records.json"
+    live_file.write_text(
+        json.dumps(
+            [
+                {
+                    "title": "Ocean governance pathways",
+                    "provider": "OpenAlex",
+                    "journal": "Ocean Studies",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    competences = extract_live_records_competences(live_file)
+
+    assert len(competences) == 1
+    assert competences[0].source.file == "[redacted-out-of-tree-path]"
+    assert competences[0].source.github_url == ""
+
+
+def test_repo_relative_posix_or_redacted_normalizes_repo_absolute_paths(
+    tmp_path: Path,
+) -> None:
+    assert _repo_relative_posix_or_redacted(Path(__file__).resolve()) == (
+        "tests/test_run_full_analysis.py"
+    )
+    assert _repo_relative_posix_or_redacted(tmp_path / "outside.txt") == (
+        "[redacted-out-of-tree-path]"
+    )
+
+
+def _external_path_for_redaction_case(
+    repo_root: Path,
+    outside_path: Path,
+    path_kind: str,
+) -> Path:
+    if path_kind == "parent_traversal":
+        return repo_root / ".." / outside_path.name
+
+    symlink_path = repo_root / "linked-live-records.json"
+    try:
+        symlink_path.symlink_to(outside_path)
+    except (NotImplementedError, OSError) as exc:
+        pytest.skip(f"Symlink creation is unavailable: {exc}")
+    return symlink_path
+
+
+@pytest.mark.parametrize(
+    "path_kind",
+    ["parent_traversal", "external_symlink"],
+)
+def test_repo_relative_posix_or_redacted_rejects_path_escape(
+    tmp_path: Path,
+    path_kind: str,
+) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    outside_path = tmp_path / "outside-live-records.json"
+    outside_path.write_text("[]\n", encoding="utf-8")
+    candidate_path = _external_path_for_redaction_case(
+        repo_root,
+        outside_path,
+        path_kind,
+    )
+
+    with patch("run_full_analysis.REPO_ROOT", repo_root):
+        assert _repo_relative_posix_or_redacted(candidate_path) == (
+            "[redacted-out-of-tree-path]"
+        )
+
+
+def test_repo_relative_posix_or_redacted_rejects_windows_and_unc_paths() -> None:
+    assert _repo_relative_posix_or_redacted(r"C:\Users\runner\outside.json") == (
+        "[redacted-out-of-tree-path]"
+    )
+    assert _repo_relative_posix_or_redacted(r"\\server\share\outside.json") == (
+        "[redacted-out-of-tree-path]"
+    )
+
+
+@pytest.mark.parametrize(
+    "path_kind",
+    ["parent_traversal", "external_symlink"],
+)
+def test_extract_live_records_competences_redacts_path_escape(
+    tmp_path: Path,
+    path_kind: str,
+) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    outside_path = tmp_path / "outside-live-records.json"
+    outside_path.write_text(
+        json.dumps(
+            [
+                {
+                    "title": "External record",
+                    "provider": "Crossref",
+                    "journal": "Marine Studies",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    candidate_path = _external_path_for_redaction_case(
+        repo_root,
+        outside_path,
+        path_kind,
+    )
+
+    with patch("run_full_analysis.REPO_ROOT", repo_root):
+        competences = extract_live_records_competences(candidate_path)
+
+    assert competences[0].source.file == "[redacted-out-of-tree-path]"
+    assert competences[0].source.github_url == ""
 
 
 def test_extract_live_records_competences_ignores_fallback_oceanic_sentences(
