@@ -118,7 +118,8 @@ def build_unique_evidence_map(demands: pd.DataFrame) -> pd.DataFrame:
     links = demands[list(required)].copy()
     links["evidence_id"] = links["evidence_ids"].map(split_pipe)
     links = links.explode("evidence_id")
-    links = links.loc[links["evidence_id"].astype(str).ne("")]
+    links = links.loc[links["evidence_id"].notna()]
+    links = links.loc[links["evidence_id"].astype(str).str.strip().ne("")]
     evidence_map = links[["evidence_id", "sector", "axis_group"]].drop_duplicates()
 
     sectors_per_id = evidence_map.groupby("evidence_id")["sector"].nunique()
