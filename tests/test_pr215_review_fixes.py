@@ -12,7 +12,7 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -23,15 +23,6 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _load_script(name: str):
-    """
-    Load and execute a script module from the repository's scripts directory.
-    
-    Parameters:
-    	name (str): Script filename stem without the `.py` extension.
-    
-    Returns:
-    	module: The loaded and executed script module.
-    """
     path = REPO_ROOT / "scripts" / f"{name}.py"
     spec = importlib.util.spec_from_file_location(name, str(path))
     mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
@@ -42,13 +33,6 @@ def _load_script(name: str):
 
 
 def _write_json(path: Path, payload: object) -> None:
-    """
-    Write a JSON payload to a file, creating its parent directories as needed.
-    
-    Parameters:
-        path (Path): Destination file path.
-        payload (object): JSON-serializable value to write.
-    """
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
@@ -327,6 +311,104 @@ class TestProtocolProjectionValidation:
         }
         with pytest.raises(LiveQueryProtocolError, match="protocol_version mismatch"):
             validate_complete_authoritative_protocol_projection(protocol, bad_constraints)
+
+
+# ── 8b. acquisition path invokes the validator before any provider search ────
+
+
+class TestAcquisitionAbortsOnStaleConstraints:
+    """Thread: 'Invoke the validator before acquisition' (CodeRabbit follow-up).
+
+    `validate_complete_authoritative_protocol_projection` previously had no
+    production call site: `scripts/export_live_research_records.py` consumed
+    `query_protocol_constraints.json` without checking it against the
+    authoritative protocol, so a stale/modified artifact could reach provider
+    searches. This integration test proves a tampered constraints artifact
+    causes ``main()`` to abort before any ``SourceRegistry.search*`` call.
+    """
+
+    def test_stale_constraints_abort_before_provider_search(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import yaml  # type: ignore[import-untyped]
+
+        from src.scientific_sources.live_query_protocol import load_live_query_protocol
+
+        protocol = load_live_query_protocol(
+            REPO_ROOT / "config" / "live_query_protocol.yml"
+        )
+
+        run_dir = tmp_path / "outputs" / "research_sources"
+        run_dir.mkdir(parents=True)
+
+        query_file = run_dir / "research_queries_from_protocol.yml"
+        query_file.write_text(
+            yaml.safe_dump(protocol.to_legacy_query_groups(), sort_keys=False),
+            encoding="utf-8",
+        )
+
+        constraints = protocol.to_query_constraints()
+        # Tamper with one acquisition-defining field to simulate a stale or
+        # modified constraints artifact reaching the acquisition script.
+        constraints[0] = dict(constraints[0])
+        constraints[0]["time_window"] = {"from_year": 1900, "to_year": 1901}
+        constraints_file = run_dir / "query_protocol_constraints.json"
+        constraints_file.write_text(
+            json.dumps(
+                {
+                    "protocol_version": protocol.protocol_version,
+                    "query_count": len(constraints),
+                    "queries": constraints,
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        output_dir = tmp_path / "out"
+        search_called = False
+
+        def _fail_if_called(*_args: object, **_kwargs: object) -> None:
+            nonlocal search_called
+            search_called = True
+            raise AssertionError("provider search must not be called")
+
+        with patch(
+            "scripts.export_live_research_records.SourceRegistry"
+        ) as MockRegistry:
+            mock_instance = MagicMock()
+            mock_instance.search.side_effect = _fail_if_called
+            mock_instance.search_paginated.side_effect = _fail_if_called
+            cap = MagicMock()
+            cap.name = "crossref"
+            mock_instance.list_capabilities.return_value = [cap]
+            MockRegistry.return_value = mock_instance
+
+            monkeypatch.setattr(
+                sys,
+                "argv",
+                [
+                    "export_live_research_records.py",
+                    "--query-file",
+                    str(query_file),
+                    "--query-constraints-file",
+                    str(constraints_file),
+                    "--protocol-path",
+                    str(REPO_ROOT / "config" / "live_query_protocol.yml"),
+                    "--output-dir",
+                    str(output_dir),
+                    "--offline",
+                    "false",
+                    "--providers",
+                    "crossref",
+                ],
+            )
+
+            from scripts.export_live_research_records import main
+
+            result = main()
+
+        assert result == 1
+        assert not search_called
 
 
 # ── 9. workflow YAML structure ────────────────────────────────────────────────

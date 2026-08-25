@@ -51,21 +51,57 @@ class TestOpenAlexProviderCapability:
         provider = OpenAlexProvider()
         assert provider.capability.name == "openalex"
 
-    def test_always_configured(self) -> None:
+    def test_not_configured_without_key(self, monkeypatch) -> None:
+        monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
+        provider = OpenAlexProvider()
+        assert provider.capability.configured is False
+
+    def test_configured_with_key(self, monkeypatch) -> None:
+        monkeypatch.setenv("OPENALEX_API_KEY", "openalexkey")
         provider = OpenAlexProvider()
         assert provider.capability.configured is True
 
-    def test_does_not_require_secret(self) -> None:
+    def test_requires_secret(self) -> None:
         provider = OpenAlexProvider()
-        assert provider.capability.requires_secret is False
+        assert provider.capability.requires_secret is True
 
     def test_licence_note_mentions_aggregator(self) -> None:
         provider = OpenAlexProvider()
         assert "aggregator" in provider.capability.licence_note.lower()
 
 
+class TestOpenAlexNotConfigured:
+    """OpenAlex is required for live acquisition; absent key must short-circuit."""
+
+    def test_search_returns_not_configured_without_key(self, monkeypatch) -> None:
+        monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
+        provider = OpenAlexProvider()
+        result = provider.search("blue economy")
+        assert result.is_empty
+        assert result.warnings
+
+    def test_search_paginated_returns_not_configured_without_key(
+        self, monkeypatch
+    ) -> None:
+        monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
+        provider = OpenAlexProvider()
+        result, diagnostics = provider.search_paginated(
+            "blue economy", logical_pages=2, rows_per_page=50
+        )
+        assert result.is_empty
+        assert diagnostics[0].get("error") == "not_configured"
+
+    def test_verify_doi_returns_not_configured_without_key(self, monkeypatch) -> None:
+        monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
+        provider = OpenAlexProvider()
+        result = provider.verify_doi("10.1234/test")
+        assert result.is_empty
+        assert result.warnings
+
+
 class TestOpenAlexSearch:
-    def test_search_parses_works(self) -> None:
+    def test_search_parses_works(self, monkeypatch) -> None:
+        monkeypatch.setenv("OPENALEX_API_KEY", "openalexkey")
         provider = OpenAlexProvider()
         response = _mock_works_response(3)
 
@@ -86,7 +122,8 @@ class TestOpenAlexSearch:
         assert result.records[0].source_id.startswith("openalex:")
         assert "Author 0" in result.records[0].authors
 
-    def test_doi_prefix_stripped(self) -> None:
+    def test_doi_prefix_stripped(self, monkeypatch) -> None:
+        monkeypatch.setenv("OPENALEX_API_KEY", "openalexkey")
         provider = OpenAlexProvider()
         response = _mock_works_response(1)
 
@@ -103,7 +140,8 @@ class TestOpenAlexSearch:
 
         assert not result.records[0].doi.startswith("https://")
 
-    def test_subject_terms_populated(self) -> None:
+    def test_subject_terms_populated(self, monkeypatch) -> None:
+        monkeypatch.setenv("OPENALEX_API_KEY", "openalexkey")
         provider = OpenAlexProvider()
         response = _mock_works_response(1)
 
@@ -121,7 +159,8 @@ class TestOpenAlexSearch:
         assert "Marine Science" in result.records[0].subject_terms
         assert "maritime" in result.records[0].subject_terms
 
-    def test_error_returns_structured_result(self) -> None:
+    def test_error_returns_structured_result(self, monkeypatch) -> None:
+        monkeypatch.setenv("OPENALEX_API_KEY", "openalexkey")
         provider = OpenAlexProvider()
 
         def mock_backoff(
@@ -144,7 +183,8 @@ class TestOpenAlexSearch:
 
 
 class TestOpenAlexPagination:
-    def test_three_pages_use_distinct_page_params(self) -> None:
+    def test_three_pages_use_distinct_page_params(self, monkeypatch) -> None:
+        monkeypatch.setenv("OPENALEX_API_KEY", "openalexkey")
         provider = OpenAlexProvider()
         pages_requested: list[int] = []
 
@@ -174,7 +214,8 @@ class TestOpenAlexPagination:
         assert all(d["pagination_method"] == "openalex_page" for d in diagnostics)
         assert len(result.records) == 150
 
-    def test_stops_when_results_exhausted(self) -> None:
+    def test_stops_when_results_exhausted(self, monkeypatch) -> None:
+        monkeypatch.setenv("OPENALEX_API_KEY", "openalexkey")
         provider = OpenAlexProvider()
         call_count = 0
 
@@ -200,7 +241,8 @@ class TestOpenAlexPagination:
         assert call_count == 2
         assert len(diagnostics) == 2
 
-    def test_time_window_filter_included(self) -> None:
+    def test_time_window_filter_included(self, monkeypatch) -> None:
+        monkeypatch.setenv("OPENALEX_API_KEY", "openalexkey")
         provider = OpenAlexProvider()
         captured_url: list[str] = []
 
@@ -226,7 +268,8 @@ class TestOpenAlexPagination:
 
 
 class TestOpenAlexVerifyDoi:
-    def test_verify_doi_returns_record(self) -> None:
+    def test_verify_doi_returns_record(self, monkeypatch) -> None:
+        monkeypatch.setenv("OPENALEX_API_KEY", "openalexkey")
         provider = OpenAlexProvider()
         work = {
             "id": "https://openalex.org/W123",

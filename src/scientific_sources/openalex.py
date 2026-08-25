@@ -6,7 +6,8 @@ literature. It serves as the canonical low-cost replacement for Web of Science
 in the morskamary provider profile.
 
 API documentation: https://docs.openalex.org/
-Authentication: Optional API key via OPENALEX_API_KEY (increases rate limits).
+Authentication: Required API key via OPENALEX_API_KEY for live acquisition.
+Returns a structured "not configured" result when the key is absent.
 
 Allowed metadata fields:
 - title, authors, year, doi, journal, url, subject_terms, citation_count
@@ -68,15 +69,10 @@ _LICENCE_NOTE = (
 
 
 def _strip_abstract_fields(payload: Any) -> Any:
-    """
-    Remove abstract inverted-index data from an API payload before retention.
-    
-    Parameters:
-        payload (Any): API payload to clean.
-    
-    Returns:
-        Any: A cleaned copy of dictionary payloads, with nested result items processed recursively;
-            other values are returned unchanged.
+    """Remove abstract_inverted_index from raw API responses before retention.
+
+    OpenAlex work responses can contain `abstract_inverted_index` which must
+    not be persisted per the provider's no-abstract-retention contract.
     """
     if isinstance(payload, dict):
         cleaned = {
@@ -103,9 +99,9 @@ class OpenAlexProvider(BaseProvider):
         return SourceCapability(
             name="openalex",
             provider="OpenAlex",
-            requires_secret=False,
-            configured=True,
-            live_test_allowed=live,
+            requires_secret=True,
+            configured=bool(self._api_key),
+            live_test_allowed=live and bool(self._api_key),
             allowed_metadata_fields=_ALLOWED_FIELDS,
             licence_note=_LICENCE_NOTE,
         )
@@ -349,16 +345,9 @@ class OpenAlexProvider(BaseProvider):
         return f"{_API_BASE}/works?{urllib.parse.urlencode(params)}"
 
     def search(self, query: str, max_results: int = 5) -> ProviderResult:
-        """
-        Search OpenAlex for scholarly records matching a query.
-        
-        Parameters:
-        	query (str): Search terms to match.
-        	max_results (int): Maximum number of records to return.
-        
-        Returns:
-        	ProviderResult: Search records, provenance, warnings, and any terminal errors.
-        """
+        """Search OpenAlex for records matching query."""
+        if not self._api_key:
+            return self._not_configured_result()
         url = self._build_search_url(
             query,
             per_page=min(max_results, _MAX_PER_PAGE),
@@ -405,19 +394,11 @@ class OpenAlexProvider(BaseProvider):
         time_window: Optional[Dict[str, Any]] = None,
         sort_strategy: str = "",
     ) -> Tuple[ProviderResult, List[Dict[str, Any]]]:
-        """
-        Search OpenAlex across multiple pages and collect records, provenance, warnings, and page diagnostics.
-        
-        Parameters:
-        	query (str): Search query.
-        	logical_pages (int): Maximum number of pages to request.
-        	rows_per_page (int): Maximum number of records to request per page.
-        	time_window (Optional[Dict[str, Any]]): Optional publication-year filter.
-        	sort_strategy (str): Optional result ordering strategy.
-        
-        Returns:
-        	Tuple[ProviderResult, List[Dict[str, Any]]]: Combined search results and diagnostics for each attempted page.
-        """
+        """Paginated OpenAlex search using native page parameters."""
+        if not self._api_key:
+            result = self._not_configured_result()
+            return result, [{"logical_page": 1, "error": "not_configured"}]
+
         all_records: List[LiteratureRecord] = []
         all_warnings: List[str] = []
         all_provenance: List[SourceEvidence] = []
@@ -495,15 +476,9 @@ class OpenAlexProvider(BaseProvider):
         )
 
     def verify_doi(self, doi: str) -> ProviderResult:
-        """
-        Verify a DOI against OpenAlex and provide the matching literature record and provenance.
-        
-        Parameters:
-        	doi (str): DOI to verify.
-        
-        Returns:
-        	ProviderResult: Verification result containing the matching record and provenance, or errors when the request fails.
-        """
+        """Verify a specific DOI via OpenAlex."""
+        if not self._api_key:
+            return self._not_configured_result()
         encoded_doi = urllib.parse.quote(doi, safe="")
         url = f"{_API_BASE}/works/https://doi.org/{encoded_doi}"
         data, retry_warnings, terminal_error = self._request_json_with_backoff(
