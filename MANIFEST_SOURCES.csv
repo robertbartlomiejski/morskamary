@@ -734,6 +734,7 @@ docs/LIVE_REPLICATION_INFRASTRUCTURE.md,text,,,,,,LIVE_REPLICATION_INFRASTRUCTUR
 docs/onboarding_new_provider.md,text,,,,,,onboarding_new_provider,yes
 docs/ONE_CLICK_RESEARCH_RUNBOOK.md,text,,,,,,ONE_CLICK_RESEARCH_RUNBOOK,yes
 docs/overview.md,text,,,,,,overview,yes
+docs/PERFORMATIVE_DEMAND_CROSS_AXIS_METHOD.md,text,,,,,,PERFORMATIVE_DEMAND_CROSS_AXIS_METHOD,yes
 docs/policy/Blue Economy_ Social Soul Revival Blue Skills Diplomat.docx,policy,,,,,,Blue_Economy__Social_Soul_Revival_Blue_S,yes
 docs/policy/Blue Occupation Boatbuilder.txt,policy,,,,,,Blue_Occupation_Boatbuilder,yes
 docs/policy/Blue Occupation Boutyard manager.txt,policy,,,,,,Blue_Occupation_Boutyard_manager,yes
@@ -870,6 +871,15 @@ outputs/manual_sources/gatekeeper_cumulative_growth_delta.json,other,,,,,,gateke
 outputs/manual_sources/gatekeeper_duplicate_ids.json,other,,,,,,gatekeeper_duplicate_ids,yes
 outputs/manual_sources/historical_compatibility.csv,dataset_derived,,,,,,historical_compatibility,yes
 outputs/manual_sources/manual_sources_index.csv,dataset_derived,,,,,,manual_sources_index,yes
+outputs/performative_demand_cross_axis/axis_screening_feature_shares.csv,dataset_derived,,,,,,axis_screening_feature_shares,yes
+outputs/performative_demand_cross_axis/coastal_tourism_axis_realm_case.csv,dataset_derived,,,,,,coastal_tourism_axis_realm_case,yes
+outputs/performative_demand_cross_axis/sector_axis_expected.csv,dataset_derived,,,,,,sector_axis_expected,yes
+outputs/performative_demand_cross_axis/sector_axis_observed.csv,dataset_derived,,,,,,sector_axis_observed,yes
+outputs/performative_demand_cross_axis/sector_axis_realm_screening.csv,dataset_derived,,,,,,sector_axis_realm_screening,yes
+outputs/performative_demand_cross_axis/sector_axis_residuals.csv,dataset_derived,,,,,,sector_axis_residuals,yes
+outputs/performative_demand_cross_axis/sector_axis_screening_features.csv,dataset_derived,,,,,,sector_axis_screening_features,yes
+outputs/performative_demand_cross_axis/sector_deficit_profile.csv,dataset_derived,,,,,,sector_deficit_profile,yes
+outputs/performative_demand_cross_axis/statistics_summary.json,other,,,,,,statistics_summary,yes
 outputs/release_packages/morskamary_cumulative_evidence_v1.0.0.zip,other,,,,,,morskamary_cumulative_evidence_v1_0_0,no
 outputs/release_packages/morskamary_cumulative_evidence_v1.0.0/CHECKSUMS.sha256,other,,,,,,CHECKSUMS,no
 outputs/release_packages/morskamary_cumulative_evidence_v1.0.0/CITATION_APA.txt,text,,,,,,CITATION_APA,yes
@@ -1189,6 +1199,7 @@ scripts/build_derived.py,script,,,,,,build_derived,yes
 scripts/build_layer4_5_scientific_analysis.py,script,,,,,,build_layer4_5_scientific_analysis,yes
 scripts/build_live_cumulative_release_package.py,script,,,,,,build_live_cumulative_release_package,yes
 scripts/build_live_run_audit.py,script,,,,,,build_live_run_audit,yes
+scripts/build_performative_demand_cross_axis_analysis.py,script,,,,,,build_performative_demand_cross_axis_analysis,yes
 scripts/build_provider_sensitivity_analysis.py,script,,,,,,build_provider_sensitivity_analysis,yes
 scripts/build_run_stability_report.py,script,,,,,,build_run_stability_report,yes
 scripts/build_statistical_research_report.py,script,,,,,,build_statistical_research_report,yes
@@ -1272,6 +1283,7 @@ src/scientific_sources/live_run_audit.py,script,,,,,,live_run_audit,yes
 src/scientific_sources/microsoft_graph.py,script,,,,,,microsoft_graph,yes
 src/scientific_sources/models.py,script,,,,,,models,yes
 src/scientific_sources/openalex.py,script,,,,,,openalex,yes
+src/scientific_sources/performative_demand_analysis.py,script,,,,,,performative_demand_analysis,yes
 src/scientific_sources/provenance.py,script,,,,,,provenance,yes
 src/scientific_sources/schema_v2_identity.py,script,,,,,,schema_v2_identity,yes
 src/scientific_sources/scival.py,script,,,,,,scival,yes
@@ -1336,6 +1348,7 @@ tests/test_main_entrypoints.py,script,,,,,,test_main_entrypoints,yes
 tests/test_nlp_reliability.py,script,,,,,,test_nlp_reliability,yes
 tests/test_openalex_provider.py,script,,,,,,test_openalex_provider,yes
 tests/test_pagination.py,script,,,,,,test_pagination,yes
+tests/test_performative_demand_analysis.py,script,,,,,,test_performative_demand_analysis,yes
 tests/test_pipeline_matrix.py,script,,,,,,test_pipeline_matrix,yes
 tests/test_pre_acquisition_assertion.py,script,,,,,,test_pre_acquisition_assertion,yes
 tests/test_prepare_live_acquisition_plan.py,script,,,,,,test_prepare_live_acquisition_plan,yes

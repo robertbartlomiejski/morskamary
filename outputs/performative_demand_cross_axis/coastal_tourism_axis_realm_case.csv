@@ -1,0 +1,17 @@
+sector,axis_group,realm,title_fragment_count,validated_demand_count,validated_bridge_count,evidence_surface,manual_validation_status,source_note
+coastal_tourism,MARINE,ECONOMY,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,MARINE,TECHNOLOGY,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,MARINE,POLICY_GOVERNANCE,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,MARINE,CULTURE_LEARNING,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,MARITIME,ECONOMY,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,MARITIME,TECHNOLOGY,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,MARITIME,POLICY_GOVERNANCE,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,MARITIME,CULTURE_LEARNING,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,OCEANIC,ECONOMY,1,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,OCEANIC,TECHNOLOGY,2,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,OCEANIC,POLICY_GOVERNANCE,11,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,OCEANIC,CULTURE_LEARNING,7,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,HYDRONIZATION,ECONOMY,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,HYDRONIZATION,TECHNOLOGY,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,HYDRONIZATION,POLICY_GOVERNANCE,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+coastal_tourism,HYDRONIZATION,CULTURE_LEARNING,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field

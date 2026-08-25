@@ -966,6 +966,17 @@ Provenance config/research_provider_policy.yml (new); src/scientific_sources/mic
 Quality checks python -m pytest -q passed locally.
 Reviewer GitHub Copilot Coding Agent
 
+2026-08-25
+Change type add
+Scope evidence-level cross-axis analysis documentation tests outputs
+Files affected src/scientific_sources/performative_demand_analysis.py scripts/build_performative_demand_cross_axis_analysis.py tests/test_performative_demand_analysis.py docs/PERFORMATIVE_DEMAND_CROSS_AXIS_METHOD.md outputs/performative_demand_cross_axis/* MANIFEST_SOURCES.csv CHANGELOG.txt
+Summary Added a complete 12-sector x 4-axis x 4-realm analytical extension using 978 unique linked evidence identities, adjusted residuals with multiplicity control, 50,000 fixed-margin label permutations, bias-corrected Cramer's V, title-screening feature profiles, and explicit validation/supply boundaries.
+Reason Prevent duplicated derived-demand rows from acting as independent observations and replace incomplete non-zero-only tables with auditable zero-preserving tables.
+Impact The repository can now report exact corpus-structure and screening results while keeping validated demand, translation, performativity, and independent credential-supply claims separate.
+Provenance Current cumulative database at base commit 560d3eb59105934c2e44139c406653f492b68443; coastal-tourism realm totals are aggregate recoding supplied in the empirical brief and are labelled separately.
+Quality checks Focused pytest, flake8, mypy, deterministic output regeneration, and changelog guard passed; the repository-wide semantic validator passed every available check but could not inspect the omitted outputs/sector_dictionaries directory in this sparse worktree.
+Reviewer OpenAI Codex
+
 2026-05-14
 Change type fix add
 Scope scripts tests
