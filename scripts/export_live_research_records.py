@@ -46,6 +46,11 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from src.scientific_sources.live_query_protocol import (  # noqa: E402
+    LiveQueryProtocolError,
+    load_live_query_protocol,
+    validate_complete_authoritative_protocol_projection,
+)
 from src.scientific_sources.models import (  # noqa: E402
     LiteratureRecord,
     SourceEvidence,
@@ -1211,6 +1216,11 @@ def main() -> int:
         default="outputs/research_sources/query_protocol_constraints.json",
         help="Authoritative per-query acquisition constraints JSON.",
     )
+    parser.add_argument(
+        "--protocol-path",
+        default="config/live_query_protocol.yml",
+        help="Path to the authoritative live query protocol YAML.",
+    )
 
     args = parser.parse_args()
 
@@ -1405,6 +1415,28 @@ def main() -> int:
     ]
 
     if protocol_projected_query:
+        try:
+            raw_constraints_payload = json.loads(
+                constraints_path.read_text(encoding="utf-8")
+            )
+            protocol = load_live_query_protocol(Path(args.protocol_path))
+            validate_complete_authoritative_protocol_projection(
+                protocol, raw_constraints_payload
+            )
+        except (
+            OSError,
+            ValueError,
+            json.JSONDecodeError,
+            LiveQueryProtocolError,
+        ) as exc:
+            print(
+                "ERROR: Constraints artifact failed authoritative protocol "
+                "validation. No provider API calls will be made.",
+                file=sys.stderr,
+            )
+            print(f"  - {exc}", file=sys.stderr)
+            return 1
+
         completeness_errors = validate_protocol_completeness(
             query_groups, constraints_by_query
         )

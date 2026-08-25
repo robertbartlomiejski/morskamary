@@ -88,6 +88,7 @@ class BaseProvider(ABC):
                 "SCOPUS_API_KEY",
                 "WOS_API_KEY",
                 "SCIVAL_API_KEY",
+                "OPENALEX_API_KEY",
                 "GOOGLE_DRIVE_OAUTH_CREDENTIALS",
                 "MICROSOFT_TENANT_ID",
             ]

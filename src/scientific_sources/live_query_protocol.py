@@ -696,13 +696,7 @@ def validate_legacy_projection_matches_protocol(
     protocol: LiveQueryProtocol,
     projection: Mapping[str, Any],
 ) -> None:
-    """
-    Validate that a legacy query-group projection exactly matches the protocol's query texts and order.
-    
-    Parameters:
-    	protocol (LiveQueryProtocol): Authoritative live query protocol.
-    	projection (Mapping[str, Any]): Legacy projection containing query groups.
-    """
+    """Fail when a legacy query_groups projection diverges from protocol queries."""
     query_groups = projection.get("query_groups")
     if not isinstance(query_groups, Mapping):
         raise LiveQueryProtocolError("projection must contain mapping key 'query_groups'")
@@ -733,20 +727,12 @@ def validate_complete_authoritative_protocol_projection(
     protocol: "LiveQueryProtocol",
     constraints: Mapping[str, Any],
 ) -> None:
-    """
-    Validate that a constraints artifact exactly matches the authoritative protocol.
-    
-    The artifact may include a protocol version, which must match when provided.
-    Each query must correspond to a protocol query and match its acquisition-defining
-    fields.
-    
-    Parameters:
-        protocol (LiveQueryProtocol): Authoritative live query protocol.
-        constraints (Mapping[str, Any]): Constraints artifact to validate.
-    
-    Raises:
-        LiveQueryProtocolError: If the artifact is missing required query data or
-            differs from the protocol.
+    """Fail closed when a constraints artifact diverges from the protocol.
+
+    Compares every acquisition-defining field — protocol_version, query text,
+    sector, family, time_window, sort_strategy, sampling_strategy, and
+    evidence_intent — so a stale or modified executable contract is rejected
+    before any provider calls.
     """
     constraint_version = str(constraints.get("protocol_version", "")).strip()
     if constraint_version and constraint_version != protocol.protocol_version:
@@ -801,12 +787,3 @@ def validate_complete_authoritative_protocol_projection(
         raise LiveQueryProtocolError(
             f"constraints missing required query_id(s): {sorted(missing_ids)}"
         )
-        expected = protocol_by_id[qid]
-        for acq_field in _ACQUISITION_FIELDS:
-            projected_val = cq.get(acq_field)
-            expected_val = expected.get(acq_field)
-            if projected_val != expected_val:
-                raise LiveQueryProtocolError(
-                    f"query '{qid}' field '{acq_field}' mismatch: "
-                    f"constraints={projected_val!r} vs protocol={expected_val!r}"
-                )

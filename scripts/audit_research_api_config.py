@@ -41,6 +41,7 @@ def main() -> int:
                 "scopus": "ELSEVIER_API_KEY or SCOPUS_API_KEY",
                 "wos": "WOS_API_KEY",
                 "scival": "SCIVAL_API_KEY",
+                "openalex": "OPENALEX_API_KEY",
                 "google_drive": "GOOGLE_DRIVE_OAUTH_CREDENTIALS",
                 "microsoft_graph": (
                     "MICROSOFT_TENANT_ID, MICROSOFT_CLIENT_ID, "
