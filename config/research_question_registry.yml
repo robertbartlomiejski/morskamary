@@ -1,0 +1,746 @@
+registry_version: 1.0.0
+status: proposed_for_review
+authority:
+  hypotheses: config/live_query_protocol.yml
+  questions: maintainer-supplied_research_agenda_2026-08-09
+canonical_axes:
+  - canonical_name: MARINE
+    display_code: M
+    meaning: biophysical, ecological and more-than-human agency or constraints
+  - canonical_name: MARITIME
+    display_code: T
+    meaning: labour, technology, infrastructure, economy and institutional mediation
+  - canonical_name: OCEANIC
+    display_code: O
+    meaning: planetary coupling, transboundary governance and hydrosocial responsibility
+  - canonical_name: HYDRONIZATION
+    display_code: H
+    meaning: water-mediated transformation, hydro-social relations and translation across terrestrial and aquatic systems
+allowed_result_statuses:
+  - answered
+  - partially_answered
+  - not_computable
+  - not_operationalised
+  - not_collected
+  - review_required
+required_accountability_fields:
+  - question_id
+  - result_status
+  - view_kind
+  - scientific_status
+  - observational_unit
+  - n
+  - missing_n
+  - denominator
+  - method
+  - evidence_references
+  - validity_threats
+  - permitted_interpretation
+  - prohibited_interpretation
+hypothesis_reference:
+  authoritative_source: config/live_query_protocol.yml
+  ordered_ids: [H1, H2, H3]
+  definition_policy: Definitions and tests are loaded only from the authoritative protocol and are not duplicated in this registry.
+  h2_supply_rule:
+    minimum_eqf_levels: [6, 7]
+    required_supply_status: independently_validated
+    generated_designs_are_supply: false
+    default_without_supply: not_computable
+
+questions:
+  - id: RQ1
+    item_type: research_question
+    text: What detailed competences does the Blue Economy demand across the four QMBD axes and 12 Blue Economy sectors?
+    status: operationalised_with_validation_limit
+    construct: reviewed competence demand
+    population_definition: Accepted canonical competences assigned to an eligible Blue Economy sector and canonical QMBD axis within a declared analysis snapshot.
+    target_view: vw_canonical_competence
+    view_kind: logical_canonical_view
+    observational_unit: validated canonical competence assignment
+    variables:
+      - canonical_competence_id
+      - validation_status
+      - sector
+      - axis_group
+      - axis_code
+    indicators:
+      - accepted canonical competence assignments by sector and axis
+      - distinct accepted canonical competences within each sector and axis
+    measures:
+      - count
+      - percentage
+      - sector_by_axis_crosstab
+    denominator: All eligible accepted canonical competence assignments in the declared analysis population; distinct-competence measures must state their separate denominator.
+    missing_handling: Retain missing sector or axis assignments as missing and report missing_n; do not impute an axis from query text or source_query.
+    excluded_handling: Exclude rejected, superseded, candidate-only and review-required competence records from validated-demand counts and report excluded_n.
+    evidence_boundary: Positive demand evidence requires legally retained title, subject terms, abstract or full text linked through reviewed provenance; query text and source_query are provenance only.
+    methods:
+      - name: count
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Materialize the canonical competence view from accepted validation decisions and freeze the analysis snapshot.
+      - name: percentage
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Approve assignment and distinct-competence denominators.
+      - name: sector_by_axis_crosstab
+        readiness: planned
+        approval_status: review_required
+        prerequisite: Materialize validated sector-axis assignments without mixing analytical grains.
+    permitted_interpretation: Descriptive distribution of reviewed competence demand within the declared retained-evidence population after the logical view is materialized and validated.
+    prohibited_interpretation: Legacy labels or semantic signals alone must not be reported as validated competences, and observed distributions must not be generalized to the entire Blue Economy.
+    materialization:
+      status: logical_unmaterialized
+      readiness: review_required
+      artifact_path: ""
+    repository_source_basis:
+      - config/live_query_protocol.yml
+      - docs/STATISTICAL_ANALYSIS_PLAN.md
+      - src/scientific_sources/cumulative_scientific_database.py
+
+  - id: RQ2
+    item_type: research_question
+    text: What unique skills does the Blue Economy demand across the four QMBD axes and 12 Blue Economy sectors?
+    status: requires_construct_definition_and_review
+    construct: unique reviewed skill
+    population_definition: Candidate subset of accepted canonical competences that can be classified as skills after a uniqueness rule and review protocol are approved.
+    target_view: vw_canonical_competence
+    view_kind: logical_canonical_view
+    observational_unit: validated canonical skill construct
+    variables:
+      - canonical_competence_id
+      - preferred_label
+      - skill_dimension
+      - sector
+      - axis_group
+    indicators:
+      - reviewed skill classification
+      - reviewed uniqueness decision under an approved comparison rule
+    measures:
+      - count
+      - frequency
+      - mode
+    denominator: Not approved until the skill construct, comparison universe and uniqueness rule are registered.
+    missing_handling: Report unclassified skill_dimension and unresolved uniqueness decisions as missing_n; do not derive uniqueness from keyword rarity.
+    excluded_handling: Exclude generated learning outcomes, unmatched keywords and unreviewed candidates from observed-skill counts and report excluded_n.
+    evidence_boundary: Skill evidence must retain reviewed canonical identity and exact evidence provenance; generated learning outcomes and query text are not observations of unique skills.
+    methods:
+      - name: count
+        readiness: planned
+        approval_status: review_required
+        prerequisite: Approve the skill construct and uniqueness decision rule.
+      - name: frequency
+        readiness: planned
+        approval_status: review_required
+        prerequisite: Define the comparison population and repeated-label treatment.
+      - name: mode
+        readiness: planned
+        approval_status: review_required
+        prerequisite: Establish a valid categorical skill variable with reviewed values.
+    permitted_interpretation: Exploratory inventory of reviewed skills after construct and uniqueness approval, limited to the declared evidence population.
+    prohibited_interpretation: Generated learning outcomes, unique keywords or low-frequency labels must not be presented as observed unique skills.
+    materialization:
+      status: logical_unmaterialized
+      readiness: review_required
+      artifact_path: ""
+    repository_source_basis:
+      - docs/STATISTICAL_ANALYSIS_PLAN.md
+      - src/scientific_sources/cumulative_scientific_database.py
+
+  - id: RQ3
+    item_type: research_question
+    text: What sector gaps are communicated across the four QMBD axes and 12 Blue Economy sectors?
+    status: conditionally_computable
+    construct: validated uncovered canonical demand
+    population_definition: Accepted canonical demand assignments for which independently validated supply coverage can be evaluated at a declared sector, axis and qualification scope.
+    target_view: vw_validated_supply
+    view_kind: logical_supply_view
+    observational_unit: accepted canonical demand identity
+    variables:
+      - canonical_competence_id
+      - sector
+      - axis_group
+      - validated_supply_status
+      - validated_supply_eqf_level
+    indicators:
+      - accepted demand with independently validated matching supply
+      - accepted demand without independently validated matching supply
+    measures:
+      - count
+      - percentage
+      - uncovered_demand_ratio
+    denominator: All eligible accepted canonical demand identities for which the independently validated supply registry has completed matching at the declared scope.
+    missing_handling: Unresolved supply matching is missing, not uncovered; report missing_n and do not convert it to a gap.
+    excluded_handling: Exclude generated credential designs, candidate pathways, static undercoverage proxies and unvalidated supply records; report excluded_n.
+    evidence_boundary: Gap evidence requires accepted demand plus an independent validated-supply assessment; source_query, baseline undercoverage and generated designs cannot establish a gap.
+    methods:
+      - name: count
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Materialize an independently validated demand-supply matching view.
+      - name: percentage
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Complete supply matching for the declared denominator.
+    permitted_interpretation: Descriptive uncovered-demand estimates within a completely assessed, independently validated supply scope.
+    prohibited_interpretation: Baseline undercoverage or generated credentials must not be called a validated sector gap.
+    materialization:
+      status: logical_unmaterialized
+      readiness: review_required
+      artifact_path: ""
+    repository_source_basis:
+      - config/live_query_protocol.yml
+      - docs/STATISTICAL_ANALYSIS_PLAN.md
+      - src/scientific_sources/derived_competence_analysis.py
+
+  - id: RQ4
+    item_type: research_question
+    text: How are the 12 Blue Economy sectors distributed across cumulative competences and QMBD axes?
+    status: operationalised_at_multiple_grains
+    construct: sector by QMBD distribution
+    population_definition: Accepted sector-to-canonical-competence assignments in a fixed cumulative analysis snapshot, with assignment and distinct-competence grains reported separately.
+    target_view: vw_sector_competence_assignment
+    view_kind: logical_assignment_view
+    observational_unit: sector by validated canonical competence assignment
+    variables:
+      - assignment_id
+      - canonical_competence_id
+      - sector
+      - axis_group
+      - axis_code
+    indicators:
+      - accepted assignments by sector and axis
+      - distinct canonical competences by sector and axis
+    measures:
+      - crosstab
+      - row_percentage
+      - column_percentage
+      - cramers_v
+    denominator: Assignment-level totals for assignment distributions and distinct canonical-competence totals for competence distributions, reported separately.
+    missing_handling: Retain missing sector or canonical axis assignments as missing_n and exclude them from axis-specific percentages only with an explicit denominator note.
+    excluded_handling: Exclude rejected, superseded, candidate-only and review-required assignments from validated distributions and report excluded_n.
+    evidence_boundary: Distribution inputs require accepted canonical competences and accepted sector-axis assignments linked to retained evidence; fragments and semantic signals remain upstream evidence, not analytical units.
+    methods:
+      - name: crosstab
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Materialize one declared grain at a time from accepted assignments.
+      - name: row_percentage
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Approve row denominators and missing-value treatment.
+      - name: column_percentage
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Approve column denominators and missing-value treatment.
+      - name: cramers_v
+        readiness: planned
+        approval_status: review_required
+        prerequisite: Confirm independent observational units and adequate expected cell counts.
+    permitted_interpretation: Descriptive association between sectors and canonical axes at an explicitly declared analytical grain.
+    prohibited_interpretation: Records, fragments, signals, competences and assignments must not be mixed in one denominator, and association must not be described as causation.
+    materialization:
+      status: logical_unmaterialized
+      readiness: review_required
+      artifact_path: ""
+    repository_source_basis:
+      - docs/STATISTICAL_ANALYSIS_PLAN.md
+      - src/scientific_sources/cumulative_scientific_database.py
+
+  - id: RQ4.1
+    item_type: research_question
+    parent_id: RQ4
+    text: What is the sector cross-table for the MARINE axis?
+    status: operationalised_at_multiple_grains
+    axis_name: MARINE
+    axis_code: M
+    construct: sector distribution within the MARINE axis
+    population_definition: Accepted MARINE sector-to-canonical-competence assignments in a fixed cumulative analysis snapshot.
+    target_view: vw_sector_competence_assignment
+    view_kind: logical_assignment_view
+    observational_unit: sector by validated canonical competence assignment
+    variables:
+      - assignment_id
+      - canonical_competence_id
+      - sector
+      - axis_group
+      - axis_code
+    indicators:
+      - accepted MARINE assignments by sector
+      - distinct MARINE canonical competences by sector
+    measures:
+      - count
+      - row_percentage
+      - column_percentage
+    denominator: Eligible accepted assignments with axis_name MARINE and axis_code M; distinct-competence summaries must use a separately stated denominator.
+    missing_handling: Missing axes remain missing and cannot be assigned to MARINE from query provenance.
+    excluded_handling: Exclude non-MARINE, rejected, superseded, candidate-only and review-required assignments and report excluded_n by reason.
+    evidence_boundary: MARINE membership requires the canonical MARINE/M assignment pair on accepted reviewed evidence.
+    methods:
+      - name: count
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Materialize accepted MARINE/M assignments.
+      - name: row_percentage
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Approve sector-row denominators.
+      - name: column_percentage
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Approve MARINE-column denominators.
+    permitted_interpretation: Descriptive sector distribution of reviewed MARINE/M assignments at the declared grain.
+    prohibited_interpretation: Sentence-level signals or query targeting must not be silently promoted to MARINE canonical competences.
+    materialization:
+      status: logical_unmaterialized
+      readiness: review_required
+      artifact_path: ""
+    repository_source_basis:
+      - docs/STATISTICAL_ANALYSIS_PLAN.md
+      - src/scientific_sources/cumulative_scientific_database.py
+
+  - id: RQ4.2
+    item_type: research_question
+    parent_id: RQ4
+    text: What is the sector cross-table for the MARITIME axis?
+    status: operationalised_at_multiple_grains
+    axis_name: MARITIME
+    axis_code: T
+    construct: sector distribution within the MARITIME axis
+    population_definition: Accepted MARITIME sector-to-canonical-competence assignments in a fixed cumulative analysis snapshot.
+    target_view: vw_sector_competence_assignment
+    view_kind: logical_assignment_view
+    observational_unit: sector by validated canonical competence assignment
+    variables:
+      - assignment_id
+      - canonical_competence_id
+      - sector
+      - axis_group
+      - axis_code
+    indicators:
+      - accepted MARITIME assignments by sector
+      - distinct MARITIME canonical competences by sector
+    measures:
+      - count
+      - row_percentage
+      - column_percentage
+    denominator: Eligible accepted assignments with axis_name MARITIME and axis_code T; distinct-competence summaries must use a separately stated denominator.
+    missing_handling: Missing axes remain missing and cannot be assigned to MARITIME from query provenance.
+    excluded_handling: Exclude non-MARITIME, rejected, superseded, candidate-only and review-required assignments and report excluded_n by reason.
+    evidence_boundary: MARITIME membership requires the canonical MARITIME/T assignment pair on accepted reviewed evidence.
+    methods:
+      - name: count
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Materialize accepted MARITIME/T assignments.
+      - name: row_percentage
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Approve sector-row denominators.
+      - name: column_percentage
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Approve MARITIME-column denominators.
+    permitted_interpretation: Descriptive sector distribution of reviewed MARITIME/T assignments at the declared grain.
+    prohibited_interpretation: Sentence-level signals or query targeting must not be silently promoted to MARITIME canonical competences.
+    materialization:
+      status: logical_unmaterialized
+      readiness: review_required
+      artifact_path: ""
+    repository_source_basis:
+      - docs/STATISTICAL_ANALYSIS_PLAN.md
+      - src/scientific_sources/cumulative_scientific_database.py
+
+  - id: RQ4.3
+    item_type: research_question
+    parent_id: RQ4
+    text: What is the sector cross-table for the OCEANIC axis?
+    status: operationalised_at_multiple_grains
+    axis_name: OCEANIC
+    axis_code: O
+    construct: sector distribution within the OCEANIC axis
+    population_definition: Accepted OCEANIC sector-to-canonical-competence assignments in a fixed cumulative analysis snapshot.
+    target_view: vw_sector_competence_assignment
+    view_kind: logical_assignment_view
+    observational_unit: sector by validated canonical competence assignment
+    variables:
+      - assignment_id
+      - canonical_competence_id
+      - sector
+      - axis_group
+      - axis_code
+    indicators:
+      - accepted OCEANIC assignments by sector
+      - distinct OCEANIC canonical competences by sector
+    measures:
+      - count
+      - row_percentage
+      - column_percentage
+    denominator: Eligible accepted assignments with axis_name OCEANIC and axis_code O; distinct-competence summaries must use a separately stated denominator.
+    missing_handling: Missing axes remain missing and cannot be assigned to OCEANIC from query provenance.
+    excluded_handling: Exclude non-OCEANIC, rejected, superseded, candidate-only and review-required assignments and report excluded_n by reason.
+    evidence_boundary: OCEANIC membership requires the canonical OCEANIC/O assignment pair on accepted reviewed evidence.
+    methods:
+      - name: count
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Materialize accepted OCEANIC/O assignments.
+      - name: row_percentage
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Approve sector-row denominators.
+      - name: column_percentage
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Approve OCEANIC-column denominators.
+    permitted_interpretation: Descriptive sector distribution of reviewed OCEANIC/O assignments at the declared grain.
+    prohibited_interpretation: Sentence-level signals or query targeting must not be silently promoted to OCEANIC canonical competences.
+    materialization:
+      status: logical_unmaterialized
+      readiness: review_required
+      artifact_path: ""
+    repository_source_basis:
+      - docs/STATISTICAL_ANALYSIS_PLAN.md
+      - src/scientific_sources/cumulative_scientific_database.py
+
+  - id: RQ4.4
+    item_type: research_question
+    parent_id: RQ4
+    text: What is the sector cross-table for the HYDRONIZATION axis?
+    status: operationalised_at_multiple_grains
+    axis_name: HYDRONIZATION
+    axis_code: H
+    construct: sector distribution within the HYDRONIZATION axis
+    population_definition: Accepted HYDRONIZATION sector-to-canonical-competence assignments in a fixed cumulative analysis snapshot.
+    target_view: vw_sector_competence_assignment
+    view_kind: logical_assignment_view
+    observational_unit: sector by validated canonical competence assignment
+    variables:
+      - assignment_id
+      - canonical_competence_id
+      - sector
+      - axis_group
+      - axis_code
+    indicators:
+      - accepted HYDRONIZATION assignments by sector
+      - distinct HYDRONIZATION canonical competences by sector
+    measures:
+      - count
+      - row_percentage
+      - column_percentage
+    denominator: Eligible accepted assignments with axis_name HYDRONIZATION and axis_code H; distinct-competence summaries must use a separately stated denominator.
+    missing_handling: Missing axes remain missing and cannot be assigned to HYDRONIZATION from query provenance.
+    excluded_handling: Exclude non-HYDRONIZATION, rejected, superseded, candidate-only and review-required assignments and report excluded_n by reason.
+    evidence_boundary: HYDRONIZATION membership requires the canonical HYDRONIZATION/H assignment pair on accepted reviewed evidence.
+    methods:
+      - name: count
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Materialize accepted HYDRONIZATION/H assignments.
+      - name: row_percentage
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Approve sector-row denominators.
+      - name: column_percentage
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Approve HYDRONIZATION-column denominators.
+    permitted_interpretation: Descriptive sector distribution of reviewed HYDRONIZATION/H assignments at the declared grain.
+    prohibited_interpretation: Sentence-level signals must not be silently promoted to canonical competences, and generated credentials cannot establish HYDRONIZATION supply.
+    materialization:
+      status: logical_unmaterialized
+      readiness: review_required
+      artifact_path: ""
+    repository_source_basis:
+      - config/live_query_protocol.yml
+      - docs/STATISTICAL_ANALYSIS_PLAN.md
+      - src/scientific_sources/cumulative_scientific_database.py
+
+  - id: RQ5
+    item_type: research_question
+    text: What is the taxonomy of competences and skills needed to accelerate the Blue Economy?
+    status: requires_reviewed_taxonomy
+    construct: reviewed competence and skill taxonomy
+    population_definition: Accepted canonical competences and reviewed skill constructs eligible for classification under a preregistered taxonomy protocol.
+    target_view: vw_canonical_competence
+    view_kind: logical_canonical_view
+    observational_unit: validated canonical construct
+    variables:
+      - canonical_competence_id
+      - preferred_label
+      - canonical_definition
+      - knowledge_dimension
+      - skill_dimension
+      - responsibility_autonomy_dimension
+    indicators:
+      - reviewed taxonomy membership
+      - reviewed hierarchical relation
+      - classification stability where estimable
+    measures:
+      - frequency
+      - modal_category
+      - hierarchical_or_factor_method_if_valid
+    denominator: All eligible accepted canonical constructs included by the approved taxonomy protocol.
+    missing_handling: Report constructs without an approved taxonomy assignment as missing_n; do not auto-fill from classifier clusters.
+    excluded_handling: Exclude rejected, superseded and review-required candidates and report excluded_n.
+    evidence_boundary: Taxonomy membership requires reviewed canonical constructs and an approved classification decision; classifier output is exploratory evidence only.
+    methods:
+      - name: frequency
+        readiness: planned
+        approval_status: review_required
+        prerequisite: Approve taxonomy categories and membership decisions.
+      - name: modal_category
+        readiness: planned
+        approval_status: review_required
+        prerequisite: Materialize a reviewed categorical taxonomy assignment.
+      - name: hierarchical_or_factor_method_if_valid
+        readiness: planned
+        approval_status: review_required
+        prerequisite: Preregister the method and establish adequate sample size, measurement level and stability diagnostics.
+    permitted_interpretation: Reviewed descriptive taxonomy within the declared canonical-construct population after taxonomy validation.
+    prohibited_interpretation: A classifier cluster is exploratory and must not be presented as a validated taxonomy.
+    materialization:
+      status: logical_unmaterialized
+      readiness: review_required
+      artifact_path: ""
+    repository_source_basis:
+      - docs/STATISTICAL_ANALYSIS_PLAN.md
+      - src/scientific_sources/cumulative_scientific_database.py
+
+  - id: RQ6
+    item_type: research_question
+    text: What is the taxonomy of structural competence and skill gaps constraining Blue Economy demands?
+    status: conditionally_computable
+    construct: reviewed taxonomy of validated uncovered demand
+    population_definition: Validated uncovered canonical demand identities after complete independent supply matching and approved gap-taxonomy review.
+    target_view: vw_validated_supply
+    view_kind: logical_supply_view
+    observational_unit: validated uncovered canonical demand
+    variables:
+      - canonical_competence_id
+      - sector
+      - axis_group
+      - validated_supply_status
+      - reviewed_gap_taxonomy_category
+    indicators:
+      - validated uncovered demand
+      - reviewed structural-gap taxonomy membership
+      - cluster stability if an exploratory clustering method is approved
+    measures:
+      - frequency
+      - percentage
+      - cluster_stability
+    denominator: All eligible validated uncovered canonical demand identities after complete matching within the declared independent supply scope.
+    missing_handling: Unresolved supply matches or taxonomy assignments are missing and must not be coded as structural gaps.
+    excluded_handling: Exclude generated credentials, candidate pathways, incomplete supply assessments and unreviewed clusters; report excluded_n.
+    evidence_boundary: Structural-gap evidence requires accepted demand, independent validated-supply assessment and reviewed taxonomy assignment.
+    methods:
+      - name: frequency
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Complete validated supply matching and approve taxonomy categories.
+      - name: percentage
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Establish a complete eligible denominator.
+      - name: cluster_stability
+        readiness: planned
+        approval_status: review_required
+        prerequisite: Preregister clustering inputs, population, selection rule and stability thresholds.
+    permitted_interpretation: Descriptive taxonomy of reviewed uncovered demand within a complete declared validation scope.
+    prohibited_interpretation: A four-cluster solution is not validated until population, stability and external supply readiness are reported.
+    materialization:
+      status: logical_unmaterialized
+      readiness: review_required
+      artifact_path: ""
+    repository_source_basis:
+      - config/live_query_protocol.yml
+      - docs/STATISTICAL_ANALYSIS_PLAN.md
+      - src/scientific_sources/derived_competence_analysis.py
+
+  - id: RQ7
+    item_type: research_question
+    text: What micro-credential pathways across the 12 sectors are proposed to address identified competence gaps?
+    status: design_output_only
+    construct: credential-design pathway candidate
+    population_definition: Generated credential-design candidates and directed pathway relations explicitly labelled candidate or review_required.
+    target_view: vw_credential_design_candidate
+    view_kind: logical_design_view
+    observational_unit: credential-design candidate or directed pathway
+    variables:
+      - credential_id
+      - credential_status
+      - review_required
+      - sector
+      - axis_group
+      - pathway_source_id
+      - pathway_target_id
+    indicators:
+      - design candidates by sector and axis
+      - proposed directed pathway relations
+    measures:
+      - count
+      - frequency
+      - network_descriptive
+    denominator: All generated design candidates or all eligible directed pathway relations in the declared design snapshot, reported separately.
+    missing_handling: Missing sector, axis or pathway endpoints remain missing and must not be inferred as validated coverage.
+    excluded_handling: Exclude malformed or superseded designs from descriptive candidate counts and report excluded_n; never reclassify candidates as validated supply.
+    evidence_boundary: These are design proposals derived from prior analytical inputs and are not empirical observations of credential availability, effectiveness or uptake.
+    methods:
+      - name: count
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Materialize a versioned candidate-design view with candidate status preserved.
+      - name: frequency
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Approve design-candidate categories and denominator.
+      - name: network_descriptive
+        readiness: planned
+        approval_status: review_required
+        prerequisite: Validate directed pathway endpoints and network grain.
+    permitted_interpretation: Descriptive account of proposed, review-required credential designs and pathway relations.
+    prohibited_interpretation: Necessary pathways, effectiveness, learner outcomes, real provision and validated supply coverage cannot be inferred from generated designs.
+    materialization:
+      status: logical_unmaterialized
+      readiness: review_required
+      artifact_path: ""
+    repository_source_basis:
+      - docs/STATISTICAL_ANALYSIS_PLAN.md
+      - schemas/dynamic_credentials.schema.json
+      - src/scientific_sources/derived_competence_analysis.py
+
+  - id: RQ8
+    item_type: research_question
+    text: How do competence-demand and validated-credential distributions align with or challenge H1, H2 and H3?
+    status: conditionally_computable
+    construct: hypothesis-specific distributions
+    population_definition: Hypothesis-specific eligible observations and declared outcomes loaded from the authoritative protocol, with each hypothesis reported independently.
+    target_view: hypothesis_result
+    view_kind: logical_hypothesis_result_set
+    observational_unit: hypothesis-specific result
+    variables:
+      - hypothesis_id
+      - declared_outcome
+      - required_result_fields
+      - eligible_evidence_count
+      - validated_supply_status
+    indicators:
+      - protocol-declared hypothesis result
+      - hypothesis-specific sample size and effect or coverage measure
+      - explicit not_computable status when prerequisites fail
+    measures:
+      - declared_hypothesis_test
+      - effect_size_if_valid
+      - uncertainty_if_valid
+    denominator: The hypothesis-specific eligible population declared by the authoritative protocol and method implementation; denominators must be reported independently for H1, H2 and H3.
+    missing_handling: Missing required inputs produce not_computable with warnings; no hypothesis may be omitted or inferred from another hypothesis.
+    excluded_handling: Exclude query-only signals, unreviewed candidates and generated credential designs from empirical hypothesis inputs; report excluded_n.
+    evidence_boundary: H1-H3 definitions, tests, axes, outcomes and required fields come only from config/live_query_protocol.yml; retained evidence and independently validated supply must satisfy each declared method.
+    methods:
+      - name: declared_hypothesis_test
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Load every authoritative hypothesis declaration and satisfy its required inputs.
+      - name: effect_size_if_valid
+        readiness: conditional
+        approval_status: review_required
+        prerequisite: Use only the effect measure declared for the hypothesis and report its eligible sample.
+      - name: uncertainty_if_valid
+        readiness: planned
+        approval_status: review_required
+        prerequisite: Preregister an uncertainty method appropriate to the hypothesis-specific observational unit.
+    permitted_interpretation: Hypothesis-specific support, partial support, non-support or non-computability within the declared retained-evidence and validation boundaries.
+    prohibited_interpretation: H2 cannot be computed from generated credentials; historical legacy results cannot be upgraded to canonical evidence, and an absent result cannot be treated as support.
+    materialization:
+      status: logical_unmaterialized
+      readiness: review_required
+      artifact_path: ""
+    repository_source_basis:
+      - config/live_query_protocol.yml
+      - docs/STATISTICAL_ANALYSIS_PLAN.md
+      - src/scientific_sources/derived_competence_analysis.py
+
+extended_questions:
+  - id: ETQ1
+    item_type: extended_question
+    text: How do structural competence gaps across the 12 sectors reveal a systemic deficit in sociological, ethical and governance skills?
+    status: not_operationalised
+    prerequisites:
+      - Define and validate the sociological, ethical and governance construct registry and external supply denominator.
+    permitted_interpretation: No empirical interpretation is permitted before the construct registry and denominator are approved.
+    prohibited_interpretation: Existing gap labels must not be reinterpreted as evidence of a systemic sociological, ethical or governance deficit.
+    repository_source_basis:
+      - docs/AGENT_WORKING_AGREEMENT.md
+      - docs/STATISTICAL_ANALYSIS_PLAN.md
+  - id: ETQ2
+    item_type: extended_question
+    text: What reviewed relations connect evidence authors, publishers and source scope to baselines, validated credentials, EQF levels, target groups, sectors, axes, dictionaries, competences and gaps?
+    status: not_operationalised
+    prerequisites:
+      - Build normalized typed link tables with provenance, cardinality and validation status; exclude generated supply from validated links.
+    permitted_interpretation: No relational result is permitted until typed link tables and validation states are registered.
+    prohibited_interpretation: Co-occurrence, shared labels or generated designs must not be reported as reviewed relations.
+    repository_source_basis:
+      - docs/AGENT_WORKING_AGREEMENT.md
+      - src/scientific_sources/cumulative_scientific_database.py
+  - id: ETQ3
+    item_type: extended_question
+    text: How does QMBD translate Blue Economy and Blue Sustainability from political ideology toward socio-technical reality?
+    status: not_operationalised
+    prerequisites:
+      - Predeclare observable translation mechanisms, comparison cases and reviewed indicators.
+    permitted_interpretation: No translation claim is permitted before mechanisms, cases and indicators are approved.
+    prohibited_interpretation: Retrieval terms or theoretical language must not be treated as observed socio-technical transformation.
+    repository_source_basis:
+      - config/live_query_protocol.yml
+      - docs/AGENT_WORKING_AGREEMENT.md
+  - id: ETQ4
+    item_type: extended_question
+    text: What is the performativity of the World Ocean in competence demand, educational deficits, courses, EQF mappings, credentials and dictionaries?
+    status: not_operationalised
+    prerequisites:
+      - Operationalise actant, mediation, translation, performed change and retained textual evidence without treating rhetoric as effect.
+    permitted_interpretation: No performativity result is permitted until the actant and performed-change constructs are operationalised.
+    prohibited_interpretation: Rhetorical reference to the World Ocean must not be reported as an observed performative effect.
+    repository_source_basis:
+      - config/live_query_protocol.yml
+      - docs/AGENT_WORKING_AGREEMENT.md
+  - id: ETQ5
+    item_type: extended_question
+    text: What is the performativity of the Blue Economy in competence demand, educational deficits, courses, EQF mappings, credentials and dictionaries?
+    status: not_operationalised
+    prerequisites:
+      - Distinguish discourse manifestation from observed institutional or labour-market effects.
+    permitted_interpretation: No performativity result is permitted until discourse and observed effects have separate operational definitions.
+    prohibited_interpretation: Blue Economy discourse frequency must not be reported as institutional or labour-market effect.
+    repository_source_basis:
+      - config/live_query_protocol.yml
+      - docs/AGENT_WORKING_AGREEMENT.md
+  - id: ETQ6
+    item_type: extended_question
+    text: How are Blue Economy demands mediated across credentials, competences, gaps, courses and EQF through marinization, maritimization, oceanization and hydronization across sectors, domains and realms?
+    status: not_operationalised
+    prerequisites:
+      - Approve a finite codebook and typed multi-level network; use association rather than causal impact language for observational text data.
+    permitted_interpretation: No mediation result is permitted before the finite codebook and typed network are approved.
+    prohibited_interpretation: Observational text associations must not be described as causal mediation or impact.
+    repository_source_basis:
+      - config/live_query_protocol.yml
+      - docs/AGENT_WORKING_AGREEMENT.md
+  - id: ETQ7
+    item_type: extended_question
+    text: How do FAIR and CARE principles in maritime data governance protect local and Indigenous knowledge during Marine Spatial Planning?
+    status: not_collected
+    prerequisites:
+      - Add an approved protocol, governance indicators and appropriately governed evidence corpus before analysis.
+    permitted_interpretation: No protection outcome is permitted until appropriately governed evidence is collected under an approved protocol.
+    prohibited_interpretation: Repository governance intentions must not be reported as observed protection of local or Indigenous knowledge.
+    repository_source_basis:
+      - docs/AGENT_WORKING_AGREEMENT.md
+
+unregistered_agenda:
+  lisbon_fieldwork_vignette_hypotheses:
+    count_reported_by_maintainer: 4
+    status: wording_required
+    rule: Do not infer or operationalise until exact statements, population, measures and governance approval are supplied.

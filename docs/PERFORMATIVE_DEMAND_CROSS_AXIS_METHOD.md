@@ -94,4 +94,3 @@ python scripts/build_performative_demand_cross_axis_analysis.py
 ```
 
 The package is written to `outputs/performative_demand_cross_axis/`.
-
