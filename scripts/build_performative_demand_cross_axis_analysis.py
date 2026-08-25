@@ -77,12 +77,14 @@ def _write_long_matrix(
     value_name: str,
     path: Path,
 ) -> None:
-    long = (
-        matrix.rename_axis(index="sector", columns="axis_group")
-        .stack(future_stack=True)
-        .rename(value_name)
-        .reset_index()
+    long_series = cast(
+        pd.Series,
+        matrix.rename_axis(index="sector", columns="axis_group").stack(
+            future_stack=True
+        ),
     )
+    long_series.name = value_name
+    long = long_series.reset_index()
     long.to_csv(path, index=False)
 
 

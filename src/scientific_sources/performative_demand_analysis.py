@@ -401,28 +401,48 @@ def build_performative_demand_analysis(
     linked_signals = linked_signals.rename(
         columns={"sector_linked": "sector", "axis_group_linked": "axis_group"}
     )
-    signal_sets = (
-        linked_signals.groupby(["evidence_id", "sector", "axis_group"])[
-            "signal_type"
-        ]
-        .agg(lambda values: frozenset(str(value) for value in values))
-        .reset_index(name="signal_types")
-    )
+    signal_set_rows: list[dict[str, Any]] = []
+    for group_key, group in linked_signals.groupby(
+        ["evidence_id", "sector", "axis_group"], sort=False
+    ):
+        typed_group_key = cast(tuple[Any, Any, Any], group_key)
+        evidence_key = str(typed_group_key[0])
+        sector_key = str(typed_group_key[1])
+        axis_group_key = str(typed_group_key[2])
+        signal_set_rows.append(
+            {
+                "evidence_id": evidence_key,
+                "sector": sector_key,
+                "axis_group": axis_group_key,
+                "signal_types": frozenset(
+                    str(value) for value in group["signal_type"].tolist()
+                ),
+            }
+        )
+    signal_sets = pd.DataFrame(signal_set_rows)
     all_linked = evidence_map.merge(
         signal_sets, on=["evidence_id", "sector", "axis_group"], how="left"
     )
-    all_linked["signal_types"] = all_linked["signal_types"].map(
-        lambda value: value if isinstance(value, frozenset) else frozenset()
+    normalized_signal_types = pd.Series(
+        [
+            value if isinstance(value, frozenset) else frozenset()
+            for value in all_linked["signal_types"].tolist()
+        ],
+        index=all_linked.index,
+        dtype=object,
     )
+    all_linked["signal_types"] = normalized_signal_types
     all_linked["signal_type_richness"] = all_linked["signal_types"].map(len)
     for feature, members in PERFORMATIVE_FEATURE_SIGNAL_TYPES.items():
-        all_linked[feature] = all_linked["signal_types"].map(
-            lambda values, feature_members=members: bool(values & feature_members)
-        )
+        all_linked[feature] = [
+            bool(values & members)
+            for values in all_linked["signal_types"].tolist()
+        ]
     for realm, members in REALM_SIGNAL_TYPES.items():
-        all_linked[f"realm_{realm}"] = all_linked["signal_types"].map(
-            lambda values, realm_members=members: bool(values & realm_members)
-        )
+        all_linked[f"realm_{realm}"] = [
+            bool(values & members)
+            for values in all_linked["signal_types"].tolist()
+        ]
     realm_columns = [f"realm_{realm}" for realm in REALMS]
     all_linked["realm_count"] = all_linked[realm_columns].sum(axis=1)
     if (all_linked["realm_count"] == 0).any():
