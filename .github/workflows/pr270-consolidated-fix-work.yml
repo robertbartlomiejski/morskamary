@@ -45,6 +45,11 @@ jobs:
       - name: Regenerate governed PR270 artifacts
         run: python scripts/build_performative_demand_cross_axis_analysis.py
 
+      - name: Remove temporary patch helpers
+        run: |
+          rm -f scripts/_pr270_consolidated_patch.py
+          rm -f scripts/_pr270_run_patch.py
+
       - name: Focused validation
         run: |
           python -m pytest tests/test_performative_demand_analysis.py -v
@@ -61,8 +66,6 @@ jobs:
         shell: bash
         run: |
           rm -f .github/workflows/pr270-consolidated-fix-work.yml
-          rm -f scripts/_pr270_consolidated_patch.py
-          rm -f scripts/_pr270_run_patch.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
