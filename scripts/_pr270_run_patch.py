@@ -25,11 +25,21 @@ def _indent_block(block: str, width: int) -> str:
     )
 
 
+def _leading_width(block: str) -> int:
+    for line in block.splitlines():
+        if line.strip():
+            return len(line) - len(line.lstrip(" "))
+    return 0
+
+
 def robust_replace_once(path: str, old: str, new: str) -> None:
     target = ROOT / path
     text = target.read_text(encoding="utf-8")
     if text.count(old) == 1:
-        target.write_text(text.replace(old, new, 1), encoding="utf-8")
+        old_width = _leading_width(old)
+        new_width = _leading_width(new)
+        replacement = _indent_block(new, old_width - new_width) if old_width > new_width else new
+        target.write_text(text.replace(old, replacement, 1), encoding="utf-8")
         return
     matches: list[tuple[str, str]] = []
     for width in range(4, 41, 4):
