@@ -6,7 +6,7 @@ on:
       - codex/pr270-consolidated-fix-work
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   remediate:
@@ -15,6 +15,7 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       PR270_HEAD: fbc0e2aa0660fb7fc36c1278d38ef7f774b04014
+      TEMP_VALIDATED_BRANCH: codex/pr270-validated-reconciliation-tree
     steps:
       - name: Checkout exact PR270 head
         uses: actions/checkout@v6
@@ -119,3 +120,22 @@ jobs:
           path: reconciliation-artifact/
           if-no-files-found: error
           retention-days: 3
+
+      - name: Materialize one corrective commit on temporary ref
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mapfile -t changed_files < reconciliation-artifact/changed-files.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "${changed_files[@]}"
+          git diff --cached --check
+          git diff --cached --name-only | sort > /tmp/staged-files.txt
+          sort reconciliation-artifact/changed-files.txt > /tmp/expected-files.txt
+          diff -u /tmp/expected-files.txt /tmp/staged-files.txt
+          git commit -m "fix: reconcile PR270 review blockers"
+          test "$(git rev-parse HEAD^)" = "$PR270_HEAD"
+          auth_header="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git -c http.https://github.com/.extraheader="$auth_header" push origin "HEAD:refs/heads/$TEMP_VALIDATED_BRANCH"
