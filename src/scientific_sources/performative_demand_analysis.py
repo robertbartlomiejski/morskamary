@@ -22,6 +22,12 @@ import pandas as pd
 from numpy.typing import NDArray
 
 AXES = ("MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION")
+AXIS_CODES: Mapping[str, str] = {
+    "MARINE": "M",
+    "MARITIME": "T",
+    "OCEANIC": "O",
+    "HYDRONIZATION": "H",
+}
 REALMS = ("ECONOMY", "TECHNOLOGY", "POLICY_GOVERNANCE", "CULTURE_LEARNING")
 
 # These are deterministic screening groups, not validated performativity stages.
@@ -58,9 +64,7 @@ REALM_SIGNAL_TYPES: Mapping[str, frozenset[str]] = {
             "implicit_competence_demand",
         }
     ),
-    "TECHNOLOGY": frozenset(
-        {"digital_skill", "technical_skill", "safety_risk_skill"}
-    ),
+    "TECHNOLOGY": frozenset({"digital_skill", "technical_skill", "safety_risk_skill"}),
     "POLICY_GOVERNANCE": frozenset(
         {"governance_skill", "policy_regulation_skill", "sustainability_skill"}
     ),
@@ -99,6 +103,29 @@ def split_pipe(value: object) -> list[str]:
     if value is None or (isinstance(value, float) and math.isnan(value)):
         return []
     return [part.strip() for part in str(value).split("|") if part.strip()]
+
+
+def _normalized_scope_set(values: Sequence[object]) -> frozenset[str]:
+    """Normalize retained semantic scopes without manufacturing ``nan`` labels."""
+    normalized: set[str] = set()
+    for value in values:
+        if value is None or (isinstance(value, float) and math.isnan(value)):
+            continue
+        text = str(value).strip().lower()
+        if text:
+            normalized.add(text)
+    return frozenset(normalized)
+
+
+def _evidence_surface(frame: pd.DataFrame) -> str:
+    """Return a deterministic union of retained semantic scopes for a frame."""
+    scopes: set[str] = set()
+    if "semantic_scopes" not in frame.columns:
+        return ""
+    for value in frame["semantic_scopes"].tolist():
+        if isinstance(value, (frozenset, set, tuple, list)):
+            scopes.update(str(item).strip() for item in value if str(item).strip())
+    return "|".join(sorted(scopes))
 
 
 def build_unique_evidence_map(demands: pd.DataFrame) -> pd.DataFrame:
@@ -162,9 +189,7 @@ def _bias_corrected_cramers_v(chi2: float, n: int, rows: int, cols: int) -> floa
     if n <= 1:
         return 0.0
     phi2 = chi2 / n
-    phi2_corrected = max(
-        0.0, phi2 - ((cols - 1) * (rows - 1)) / (n - 1)
-    )
+    phi2_corrected = max(0.0, phi2 - ((cols - 1) * (rows - 1)) / (n - 1))
     rows_corrected = rows - ((rows - 1) ** 2) / (n - 1)
     cols_corrected = cols - ((cols - 1) ** 2) / (n - 1)
     denominator = min(rows_corrected - 1, cols_corrected - 1)
@@ -176,9 +201,7 @@ def _normalized_entropy(counts: np.ndarray) -> float:
     if len(positive) <= 1:
         return 0.0
     probabilities = positive / positive.sum()
-    return float(
-        -(probabilities * np.log(probabilities)).sum() / np.log(len(counts))
-    )
+    return float(-(probabilities * np.log(probabilities)).sum() / np.log(len(counts)))
 
 
 def _wilson_interval(
@@ -191,9 +214,11 @@ def _wilson_interval(
     proportion = successes / total
     denominator = 1 + z * z / total
     centre = (proportion + z * z / (2 * total)) / denominator
-    margin = z * math.sqrt(
-        (proportion * (1 - proportion) + z * z / (4 * total)) / total
-    ) / denominator
+    margin = (
+        z
+        * math.sqrt((proportion * (1 - proportion) + z * z / (4 * total)) / total)
+        / denominator
+    )
     return (max(0.0, centre - margin), min(1.0, centre + margin))
 
 
@@ -328,12 +353,8 @@ def build_performative_demand_analysis(
     holm_p = _adjust_holm(cell_p).reshape(adjusted_residuals.shape)
     bh_p = _adjust_bh(cell_p).reshape(adjusted_residuals.shape)
 
-    row_codes = pd.Categorical(
-        evidence_map["sector"], categories=sector_order
-    ).codes
-    column_codes = pd.Categorical(
-        evidence_map["axis_group"], categories=AXES
-    ).codes
+    row_codes = pd.Categorical(evidence_map["sector"], categories=sector_order).codes
+    column_codes = pd.Categorical(evidence_map["axis_group"], categories=AXES).codes
     permutation_p, permutation_exceedances = _permutation_chi2_p(
         row_codes,
         column_codes,
@@ -342,9 +363,7 @@ def build_performative_demand_analysis(
         permutations,
         seed,
     )
-    corrected_v = _bias_corrected_cramers_v(
-        chi2, total, len(sector_order), len(AXES)
-    )
+    corrected_v = _bias_corrected_cramers_v(chi2, total, len(sector_order), len(AXES))
 
     residual_rows: list[dict[str, Any]] = []
     for row_index, sector in enumerate(sector_order):
@@ -355,6 +374,7 @@ def build_performative_demand_analysis(
                     "sector": sector,
                     "sector_label": sector_labels[sector],
                     "axis_group": axis,
+                    "axis_code": AXIS_CODES[axis],
                     "observed_evidence_count": observed_count,
                     "expected_evidence_count": float(
                         expected_array[row_index, column_index]
@@ -372,9 +392,7 @@ def build_performative_demand_analysis(
                     "holm_significant_0_05": bool(
                         holm_p[row_index, column_index] < 0.05
                     ),
-                    "bh_significant_0_05": bool(
-                        bh_p[row_index, column_index] < 0.05
-                    ),
+                    "bh_significant_0_05": bool(bh_p[row_index, column_index] < 0.05),
                     "cell_status": (
                         "empty_current_linked_corpus"
                         if observed_count == 0
@@ -418,6 +436,9 @@ def build_performative_demand_analysis(
                 "signal_types": frozenset(
                     str(value) for value in group["signal_type"].tolist()
                 ),
+                "semantic_scopes": _normalized_scope_set(
+                    group["semantic_scope"].tolist()
+                ),
             }
         )
     signal_sets = pd.DataFrame(signal_set_rows)
@@ -433,16 +454,23 @@ def build_performative_demand_analysis(
         dtype=object,
     )
     all_linked["signal_types"] = normalized_signal_types
+    normalized_semantic_scopes = pd.Series(
+        [
+            value if isinstance(value, frozenset) else frozenset()
+            for value in all_linked["semantic_scopes"].tolist()
+        ],
+        index=all_linked.index,
+        dtype=object,
+    )
+    all_linked["semantic_scopes"] = normalized_semantic_scopes
     all_linked["signal_type_richness"] = all_linked["signal_types"].map(len)
     for feature, members in PERFORMATIVE_FEATURE_SIGNAL_TYPES.items():
         all_linked[feature] = [
-            bool(values & members)
-            for values in all_linked["signal_types"].tolist()
+            bool(values & members) for values in all_linked["signal_types"].tolist()
         ]
     for realm, members in REALM_SIGNAL_TYPES.items():
         all_linked[f"realm_{realm}"] = [
-            bool(values & members)
-            for values in all_linked["signal_types"].tolist()
+            bool(values & members) for values in all_linked["signal_types"].tolist()
         ]
     realm_columns = [f"realm_{realm}" for realm in REALMS]
     all_linked["realm_count"] = all_linked[realm_columns].sum(axis=1)
@@ -456,8 +484,7 @@ def build_performative_demand_analysis(
     for sector in sector_order:
         for axis in AXES:
             group = all_linked.loc[
-                all_linked["sector"].eq(sector)
-                & all_linked["axis_group"].eq(axis)
+                all_linked["sector"].eq(sector) & all_linked["axis_group"].eq(axis)
             ]
             demand_group = demands.loc[
                 demands["sector"].eq(sector) & demands["axis_group"].eq(axis)
@@ -465,10 +492,13 @@ def build_performative_demand_analysis(
             signal_union: set[str] = set()
             for values in group["signal_types"]:
                 signal_union.update(values)
+            evidence_surface = _evidence_surface(group)
             feature_row: dict[str, Any] = {
                 "sector": sector,
                 "sector_label": sector_labels[sector],
                 "axis_group": axis,
+                "axis_code": AXIS_CODES[axis],
+                "evidence_surface": evidence_surface,
                 "unique_evidence_count": int(len(group)),
                 "derived_demand_count": int(len(demand_group)),
                 "distinct_signal_type_count": len(signal_union),
@@ -487,7 +517,7 @@ def build_performative_demand_analysis(
                 "validated_supply_count": math.nan,
                 "supply_gap_status": "not_computable_no_independent_supply",
                 "evidence_status": (
-                    "screening_only_title_level"
+                    "screening_not_human_validated"
                     if len(group)
                     else "empty_current_linked_corpus"
                 ),
@@ -513,15 +543,15 @@ def build_performative_demand_analysis(
                         "sector": sector,
                         "sector_label": sector_labels[sector],
                         "axis_group": axis,
+                        "axis_code": AXIS_CODES[axis],
+                        "evidence_surface": evidence_surface,
                         "realm": realm,
                         "candidate_evidence_count": candidate_count,
                         "fractional_candidate_weight": fractional_weight,
                         "validated_demand_count": 0,
                         "validated_translation_count": 0,
                         "validated_supply_count": math.nan,
-                        "coding_status": (
-                            "deterministic_title_screening_not_human_validated"
-                        ),
+                        "coding_status": "deterministic_screening_not_human_validated",
                         "zero_interpretation": (
                             "not_observed_in_current_screening_run"
                             if candidate_count == 0
@@ -535,19 +565,22 @@ def build_performative_demand_analysis(
     axis_feature_rows: list[dict[str, Any]] = []
     for axis in AXES:
         group = all_linked.loc[all_linked["axis_group"].eq(axis)]
+        evidence_surface = _evidence_surface(group)
         for feature in PERFORMATIVE_FEATURE_SIGNAL_TYPES:
             hits = int(group[feature].sum())
             lower, upper = _wilson_interval(hits, len(group))
             axis_feature_rows.append(
                 {
                     "axis_group": axis,
+                    "axis_code": AXIS_CODES[axis],
+                    "evidence_surface": evidence_surface,
                     "feature": feature,
                     "evidence_with_feature": hits,
                     "axis_evidence_total": int(len(group)),
                     "feature_share": hits / len(group) if len(group) else math.nan,
                     "wilson_95_lower": lower,
                     "wilson_95_upper": upper,
-                    "status": "title_screening_not_validated_performativity",
+                    "status": "screening_not_validated_performativity",
                 }
             )
     axis_features = pd.DataFrame(axis_feature_rows)
@@ -560,6 +593,7 @@ def build_performative_demand_analysis(
             dtype=float,
         )
         demand_group = demands.loc[demands["sector"].eq(sector)]
+        dominant_axis = AXES[int(axis_counts.argmax())] if axis_counts.sum() else None
         row: dict[str, Any] = {
             "sector": sector,
             "sector_label": sector_labels[sector],
@@ -567,8 +601,9 @@ def build_performative_demand_analysis(
             "derived_demand_count": int(len(demand_group)),
             "axes_observed": int((axis_counts > 0).sum()),
             "empty_axis_cells": int((axis_counts == 0).sum()),
-            "dominant_axis": (
-                AXES[int(axis_counts.argmax())] if axis_counts.sum() else None
+            "dominant_axis": dominant_axis,
+            "dominant_axis_code": (
+                AXIS_CODES[dominant_axis] if dominant_axis is not None else None
             ),
             "dominant_axis_share": (
                 float(axis_counts.max() / axis_counts.sum())
@@ -577,9 +612,7 @@ def build_performative_demand_analysis(
             ),
             "normalized_axis_entropy": _normalized_entropy(axis_counts),
             "mean_signal_type_richness": (
-                float(group["signal_type_richness"].mean())
-                if len(group)
-                else math.nan
+                float(group["signal_type_richness"].mean()) if len(group) else math.nan
             ),
             "candidate_realms_observed": int(
                 sum(bool(group[column].any()) for column in realm_columns)
@@ -633,9 +666,7 @@ def build_performative_demand_analysis(
             ),
         },
         "screening_feature_boundary": {
-            "all_title_level": bool(
-                linked_signals["semantic_scope"].eq("title").all()
-            ),
+            "all_title_level": bool(linked_signals["semantic_scope"].eq("title").all()),
             "all_review_required": bool(
                 linked_signals["manual_review_status"].eq("review_required").all()
             ),
@@ -654,7 +685,7 @@ def build_performative_demand_analysis(
                 sector_axis_realms["fractional_candidate_weight"].sum()
             ),
             "fractional_weight_expected": total,
-            "status": "multi-label title screening; fractional weights prevent double count",
+            "status": "multi-label screening; fractional weights prevent double count",
         },
     }
     return PerformativeDemandAnalysis(

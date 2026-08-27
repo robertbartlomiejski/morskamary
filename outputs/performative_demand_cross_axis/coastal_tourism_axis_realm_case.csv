@@ -1,17 +1,17 @@
-sector,axis_group,realm,title_fragment_count,validated_demand_count,validated_bridge_count,evidence_surface,manual_validation_status,source_note
-coastal_tourism,MARINE,ECONOMY,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,MARINE,TECHNOLOGY,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,MARINE,POLICY_GOVERNANCE,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,MARINE,CULTURE_LEARNING,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,MARITIME,ECONOMY,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,MARITIME,TECHNOLOGY,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,MARITIME,POLICY_GOVERNANCE,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,MARITIME,CULTURE_LEARNING,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,OCEANIC,ECONOMY,1,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,OCEANIC,TECHNOLOGY,2,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,OCEANIC,POLICY_GOVERNANCE,11,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,OCEANIC,CULTURE_LEARNING,7,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,HYDRONIZATION,ECONOMY,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,HYDRONIZATION,TECHNOLOGY,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,HYDRONIZATION,POLICY_GOVERNANCE,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
-coastal_tourism,HYDRONIZATION,CULTURE_LEARNING,0,0,0,title,not_started,aggregate realm recoding supplied in the empirical brief; repository H3 rows contain no realm field
+sector,axis_group,axis_code,realm,title_fragment_count,validated_demand_count,validated_bridge_count,evidence_surface,manual_validation_status,citation_needed,source_status,source_note
+coastal_tourism,MARINE,M,ECONOMY,0,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,MARINE,M,TECHNOLOGY,0,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,MARINE,M,POLICY_GOVERNANCE,0,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,MARINE,M,CULTURE_LEARNING,0,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,MARITIME,T,ECONOMY,0,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,MARITIME,T,TECHNOLOGY,0,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,MARITIME,T,POLICY_GOVERNANCE,0,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,MARITIME,T,CULTURE_LEARNING,0,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,OCEANIC,O,ECONOMY,1,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,OCEANIC,O,TECHNOLOGY,2,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,OCEANIC,O,POLICY_GOVERNANCE,11,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,OCEANIC,O,CULTURE_LEARNING,7,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,HYDRONIZATION,H,ECONOMY,0,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,HYDRONIZATION,H,TECHNOLOGY,0,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,HYDRONIZATION,H,POLICY_GOVERNANCE,0,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available
+coastal_tourism,HYDRONIZATION,H,CULTURE_LEARNING,0,0,0,title,not_started,True,comparison_data_not_repository_evidence,aggregate realm recoding supplied outside retained repository evidence; no retained citable source is available

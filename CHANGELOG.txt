@@ -1413,3 +1413,4 @@ Reason The live-enriched outputs commit (run 30090903921/1) added new output fil
 Impact governance-and-repro CI job passes; MANIFEST_SOURCES.csv now reflects all 1315 tracked repository files.
 Quality checks python3 scripts/generate_manifest.py → Wrote MANIFEST_SOURCES.csv with 1315 entries; git diff --exit-code MANIFEST_SOURCES.csv → clean.
 Reviewer GitHub Copilot Coding Agent
+PR #270 review reconciliation: pandas>=1.5 compatibility; canonical axis_code; evidence-surface provenance; tourism citation boundary; deterministic generated-output validation.

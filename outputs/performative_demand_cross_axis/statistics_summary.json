@@ -8,7 +8,7 @@
     "binary_candidate_count": 1238,
     "fractional_candidate_weight": 978.0,
     "fractional_weight_expected": 978,
-    "status": "multi-label title screening; fractional weights prevent double count"
+    "status": "multi-label screening; fractional weights prevent double count"
   },
   "screening_feature_boundary": {
     "all_review_required": true,

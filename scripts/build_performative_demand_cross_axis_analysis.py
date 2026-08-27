@@ -18,6 +18,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from src.scientific_sources.performative_demand_analysis import (  # noqa: E402
     AXES,
+    AXIS_CODES,
     REALMS,
     build_performative_demand_analysis,
 )
@@ -52,6 +53,7 @@ def _tourism_case_table() -> pd.DataFrame:
                 {
                     "sector": "coastal_tourism",
                     "axis_group": axis,
+                    "axis_code": AXIS_CODES[axis],
                     "realm": realm,
                     "title_fragment_count": (
                         title_counts[realm] if axis == "OCEANIC" else 0
@@ -60,9 +62,11 @@ def _tourism_case_table() -> pd.DataFrame:
                     "validated_bridge_count": 0,
                     "evidence_surface": "title",
                     "manual_validation_status": "not_started",
+                    "citation_needed": True,
+                    "source_status": "comparison_data_not_repository_evidence",
                     "source_note": (
-                        "aggregate realm recoding supplied in the empirical brief; "
-                        "repository H3 rows contain no realm field"
+                        "aggregate realm recoding supplied outside retained repository "
+                        "evidence; no retained citable source is available"
                     ),
                 }
             )
@@ -79,12 +83,14 @@ def _write_long_matrix(
 ) -> None:
     long_series = cast(
         pd.Series,
-        matrix.rename_axis(index="sector", columns="axis_group").stack(
-            future_stack=True
-        ),
+        matrix.rename_axis(index="sector", columns="axis_group").stack(),
     )
     long_series.name = value_name
     long = long_series.reset_index()
+    long["axis_code"] = long["axis_group"].map(AXIS_CODES)
+    if long["axis_code"].isna().any():
+        raise RuntimeError("matrix contains a non-canonical axis without axis_code")
+    long = long[["sector", "axis_group", "axis_code", value_name]]
     long.to_csv(path, index=False)
 
 
@@ -92,8 +98,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
     protocol = yaml.safe_load(args.protocol.read_text(encoding="utf-8"))
     sector_labels = {
-        sector: str(config["label"])
-        for sector, config in protocol["sectors"].items()
+        sector: str(config["label"]) for sector, config in protocol["sectors"].items()
     }
     database = args.database_dir
     demands = pd.read_csv(database / "derived_competence_demands.csv")
@@ -111,10 +116,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     output = args.output_dir
     output.mkdir(parents=True, exist_ok=True)
     _write_long_matrix(
-        analysis.observed, "observed_evidence_count", output / "sector_axis_observed.csv"
+        analysis.observed,
+        "observed_evidence_count",
+        output / "sector_axis_observed.csv",
     )
     _write_long_matrix(
-        analysis.expected, "expected_evidence_count", output / "sector_axis_expected.csv"
+        analysis.expected,
+        "expected_evidence_count",
+        output / "sector_axis_expected.csv",
     )
     analysis.residuals.to_csv(output / "sector_axis_residuals.csv", index=False)
     analysis.sector_axis_features.to_csv(

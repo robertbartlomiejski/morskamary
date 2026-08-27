@@ -6,6 +6,7 @@ import pandas as pd
 
 from src.scientific_sources.performative_demand_analysis import (
     AXES,
+    AXIS_CODES,
     REALMS,
     build_performative_demand_analysis,
     build_unique_evidence_map,
@@ -118,3 +119,69 @@ def test_repository_outputs_reproduce_current_evidence_counts() -> None:
         "HYDRONIZATION": 84,
     }
     assert len(analysis.sector_axis_realms) == 192
+
+
+def test_axis_codes_are_explicit_in_analysis_tables() -> None:
+    demands, evidence, signals = _frames()
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+    for frame in (
+        analysis.residuals,
+        analysis.sector_axis_features,
+        analysis.sector_axis_realms,
+        analysis.axis_features,
+    ):
+        assert "axis_code" in frame.columns
+        assert all(
+            row.axis_code == AXIS_CODES[row.axis_group]
+            for row in frame.itertuples(index=False)
+        )
+    assert "dominant_axis_code" in analysis.sector_profile.columns
+    assert all(
+        row.dominant_axis_code == AXIS_CODES[row.dominant_axis]
+        for row in analysis.sector_profile.itertuples(index=False)
+        if row.dominant_axis is not None
+    )
+
+
+def test_screening_surface_tracks_retained_semantic_scope() -> None:
+    demands, evidence, signals = _frames()
+    signals.loc[signals["evidence_id"].eq("E-1"), "semantic_scope"] = "abstract"
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+    row = analysis.sector_axis_features.loc[
+        analysis.sector_axis_features["sector"].eq("sector_a")
+        & analysis.sector_axis_features["axis_group"].eq("MARINE")
+    ].iloc[0]
+    assert row["evidence_surface"] == "abstract|title"
+    assert row["evidence_status"] == "screening_not_human_validated"
+
+
+def test_builder_is_pandas_15_compatible_and_tourism_is_uncited_comparison() -> None:
+    import inspect
+
+    from scripts.build_performative_demand_cross_axis_analysis import (
+        _tourism_case_table,
+        _write_long_matrix,
+    )
+
+    assert "future_stack" not in inspect.getsource(_write_long_matrix)
+    tourism = _tourism_case_table()
+    assert tourism["citation_needed"].all()
+    assert set(tourism["source_status"]) == {"comparison_data_not_repository_evidence"}
+    assert all(
+        row.axis_code == AXIS_CODES[row.axis_group]
+        for row in tourism.itertuples(index=False)
+    )

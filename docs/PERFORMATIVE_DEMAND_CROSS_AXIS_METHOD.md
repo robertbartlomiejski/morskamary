@@ -94,3 +94,7 @@ python scripts/build_performative_demand_cross_axis_analysis.py
 ```
 
 The package is written to `outputs/performative_demand_cross_axis/`.
+
+## Review reconciliation: output identity and provenance
+
+All axis-bearing publication tables retain both the canonical `axis_group` and its non-inferred display `axis_code` (`M`, `T`, `O`, `H`). Screening rows carry the actual retained `evidence_surface` derived from `semantic_scope`; they are not assumed to be title-only. The supplied 21-fragment coastal-tourism 4 × 4 recoding remains comparison data, explicitly marked `citation_needed`, because no retained citable source for that aggregate exists in the repository. It is not repository evidence and cannot establish validated translation or performativity.
