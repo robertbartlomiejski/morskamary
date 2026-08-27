@@ -93,6 +93,7 @@ jobs:
           outputs/performative_demand_cross_axis/sector_axis_residuals.csv
           outputs/performative_demand_cross_axis/sector_axis_screening_features.csv
           outputs/performative_demand_cross_axis/sector_deficit_profile.csv
+          outputs/performative_demand_cross_axis/statistics_summary.json
           scripts/build_performative_demand_cross_axis_analysis.py
           scripts/validate_generated_outputs.py
           src/scientific_sources/performative_demand_analysis.py
