@@ -6,7 +6,7 @@ on:
       - codex/pr270-consolidated-fix-work
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   remediate:
@@ -14,13 +14,21 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      PR270_HEAD: fbc0e2aa0660fb7fc36c1278d38ef7f774b04014
     steps:
-      - name: Checkout work branch
+      - name: Checkout exact PR270 head
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.PR270_HEAD }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout bounded patch helpers
         uses: actions/checkout@v6
         with:
           ref: codex/pr270-consolidated-fix-work
-          fetch-depth: 0
-          persist-credentials: true
+          path: .pr270-helper-source
+          persist-credentials: false
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -34,6 +42,9 @@ jobs:
 
       - name: Apply five bounded review fixes
         run: |
+          cp .pr270-helper-source/scripts/_pr270_consolidated_patch.py scripts/
+          cp .pr270-helper-source/scripts/_pr270_run_patch.py scripts/
+          cp .pr270-helper-source/scripts/_pr270_changelog_fix.py scripts/
           python scripts/_pr270_run_patch.py
           python scripts/_pr270_changelog_fix.py
 
@@ -47,11 +58,12 @@ jobs:
       - name: Regenerate governed PR270 artifacts
         run: python scripts/build_performative_demand_cross_axis_analysis.py
 
-      - name: Remove temporary patch helpers
+      - name: Remove temporary staging material
         run: |
           rm -f scripts/_pr270_consolidated_patch.py
           rm -f scripts/_pr270_run_patch.py
           rm -f scripts/_pr270_changelog_fix.py
+          rm -rf .pr270-helper-source
 
       - name: Focused validation
         run: |
@@ -65,13 +77,44 @@ jobs:
       - name: Full test suite
         run: python -m pytest tests/ -v
 
-      - name: Commit validated final tree on staging branch
+      - name: Enforce bounded changed-file set
         shell: bash
         run: |
-          rm -f .github/workflows/pr270-consolidated-fix-work.yml
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git diff --cached --check
-          git commit -m "fix: reconcile PR270 review blockers"
-          git push origin HEAD:codex/pr270-consolidated-fix-work
+          set -euo pipefail
+          git diff --name-only "$PR270_HEAD" | sort > /tmp/pr270-changed.txt
+          cat > /tmp/pr270-allowed.txt <<'EOF'
+          CHANGELOG.txt
+          docs/PERFORMATIVE_DEMAND_CROSS_AXIS_METHOD.md
+          outputs/performative_demand_cross_axis/axis_screening_feature_shares.csv
+          outputs/performative_demand_cross_axis/coastal_tourism_axis_realm_case.csv
+          outputs/performative_demand_cross_axis/sector_axis_expected.csv
+          outputs/performative_demand_cross_axis/sector_axis_observed.csv
+          outputs/performative_demand_cross_axis/sector_axis_realm_screening.csv
+          outputs/performative_demand_cross_axis/sector_axis_residuals.csv
+          outputs/performative_demand_cross_axis/sector_axis_screening_features.csv
+          outputs/performative_demand_cross_axis/sector_deficit_profile.csv
+          scripts/build_performative_demand_cross_axis_analysis.py
+          scripts/validate_generated_outputs.py
+          src/scientific_sources/performative_demand_analysis.py
+          tests/test_performative_demand_analysis.py
+          EOF
+          sed -i 's/^          //' /tmp/pr270-allowed.txt
+          diff -u /tmp/pr270-allowed.txt /tmp/pr270-changed.txt
+
+      - name: Package validated reconciliation tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reconciliation-artifact
+          git diff --full-index "$PR270_HEAD" > reconciliation-artifact/pr270-reconciliation.patch
+          git diff --name-only "$PR270_HEAD" > reconciliation-artifact/changed-files.txt
+          tar -czf reconciliation-artifact/final-files.tar.gz $(cat reconciliation-artifact/changed-files.txt)
+          git rev-parse HEAD > reconciliation-artifact/source-head.txt
+
+      - name: Upload validated reconciliation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr270-validated-reconciliation
+          path: reconciliation-artifact/
+          if-no-files-found: error
+          retention-days: 3
