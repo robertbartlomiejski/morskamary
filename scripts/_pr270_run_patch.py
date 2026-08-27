@@ -1,10 +1,20 @@
 from __future__ import annotations
 
+import importlib.util
 from pathlib import Path
-
-from scripts import _pr270_consolidated_patch as patch
+from types import ModuleType
 
 ROOT = Path(__file__).resolve().parents[1]
+PATCH_PATH = ROOT / "scripts" / "_pr270_consolidated_patch.py"
+
+
+def _load_patch_module() -> ModuleType:
+    spec = importlib.util.spec_from_file_location("pr270_consolidated_patch", PATCH_PATH)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Cannot load temporary patch module from {PATCH_PATH}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def _indent_block(block: str, width: int) -> str:
@@ -35,5 +45,6 @@ def robust_replace_once(path: str, old: str, new: str) -> None:
     target.write_text(text.replace(candidate, replacement, 1), encoding="utf-8")
 
 
+patch = _load_patch_module()
 patch.replace_once = robust_replace_once
 patch.main()
