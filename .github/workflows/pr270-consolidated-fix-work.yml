@@ -33,7 +33,9 @@ jobs:
           python -m pip install -e ".[dev]"
 
       - name: Apply five bounded review fixes
-        run: python scripts/_pr270_run_patch.py
+        run: |
+          python scripts/_pr270_run_patch.py
+          python scripts/_pr270_changelog_fix.py
 
       - name: Format bounded patch
         run: |
@@ -49,6 +51,7 @@ jobs:
         run: |
           rm -f scripts/_pr270_consolidated_patch.py
           rm -f scripts/_pr270_run_patch.py
+          rm -f scripts/_pr270_changelog_fix.py
 
       - name: Focused validation
         run: |
