@@ -55,6 +55,16 @@ jobs:
           PY
           cp .helper/scripts/_pr270_followup_patch.py scripts/
           python scripts/_pr270_followup_patch.py
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/build_performative_demand_cross_axis_analysis.py')
+          text = p.read_text(encoding='utf-8')
+          needle = '        result_fields = {'
+          replacement = '        result_fields: dict[str, Any] = {'
+          if needle not in text:
+              raise SystemExit('result_fields assignment not found')
+          p.write_text(text.replace(needle, replacement, 1), encoding='utf-8')
+          PY
           rm -f scripts/_pr270_followup_patch.py
           rm -rf .helper
 
