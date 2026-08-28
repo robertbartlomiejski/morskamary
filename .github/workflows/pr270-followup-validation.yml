@@ -1,0 +1,141 @@
+name: PR270 follow-up validation
+
+on:
+  push:
+    branches:
+      - codex/pr270-followup-validation
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      TARGET_HEAD: 44f041c5cf3c6315bfb1880b9c24bedb8006384b
+      ALLOW_STATIC_RECOVERY_MODE: "true"
+      STATIC_RECOVERY_REASON: "PR270 follow-up validation"
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TARGET_HEAD }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout helper source
+        uses: actions/checkout@v6
+        with:
+          ref: codex/pr270-followup-validation
+          path: .helper
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install repository and validation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Apply bounded follow-up patch
+        run: |
+          cp .helper/scripts/_pr270_followup_patch.py scripts/
+          python scripts/_pr270_followup_patch.py
+          rm -f scripts/_pr270_followup_patch.py
+          rm -rf .helper
+
+      - name: Format changed Python
+        run: |
+          python -m black \
+            src/scientific_sources/performative_demand_analysis.py \
+            scripts/build_performative_demand_cross_axis_analysis.py \
+            scripts/validate_generated_outputs.py \
+            tests/test_performative_demand_analysis.py
+
+      - name: Regenerate governed performative package
+        run: python scripts/build_performative_demand_cross_axis_analysis.py
+
+      - name: Focused validation
+        run: |
+          python -m pytest tests/test_performative_demand_analysis.py -v
+          python -m flake8 \
+            src/scientific_sources/performative_demand_analysis.py \
+            scripts/build_performative_demand_cross_axis_analysis.py \
+            scripts/validate_generated_outputs.py \
+            tests/test_performative_demand_analysis.py
+          python -m mypy src scripts run_full_analysis.py main.py
+          python scripts/validate_generated_outputs.py
+          python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present
+          git -c core.whitespace=cr-at-eol diff --check
+
+      - name: Full test suite
+        run: python -m pytest tests/ -v
+
+      - name: Simulate Full Analysis replay including performative package
+        shell: bash
+        run: |
+          set -euo pipefail
+          retained="${RUNNER_TEMP}/pr270-cumulative-database"
+          regenerated="${RUNNER_TEMP}/pr270-performative-regenerated"
+          rm -rf "$retained" "$regenerated"
+          cp -R outputs/cumulative_database "$retained"
+          analysis_mode="$(python -c 'import json; print(json.load(open("outputs/cumulative_qmbd_records.json", encoding="utf-8"))["metadata"]["analysis_input_mode"])')"
+          if [[ "$analysis_mode" == "live-enriched" ]]; then
+            mkdir -p "${RUNNER_TEMP}/retained-live/research_sources"
+            cp outputs/research_sources/live_records_triangulated.json "${RUNNER_TEMP}/retained-live/research_sources/"
+          fi
+          rm -rf outputs
+          mkdir -p outputs
+          if [[ "$analysis_mode" == "live-enriched" ]]; then
+            mkdir -p outputs/research_sources
+            cp "${RUNNER_TEMP}/retained-live/research_sources/live_records_triangulated.json" outputs/research_sources/
+          fi
+          python run_full_analysis.py --analysis-input-mode "$analysis_mode"
+          MORSKAMARY_CUMULATIVE_DATABASE_DIR="$retained" python scripts/build_performative_demand_cross_axis_analysis.py --database-dir "$retained"
+          MORSKAMARY_CUMULATIVE_DATABASE_DIR="$retained" python scripts/validate_generated_outputs.py
+          cp -R outputs/performative_demand_cross_axis "$regenerated"
+          git checkout "$TARGET_HEAD" -- outputs
+          rm -rf outputs/performative_demand_cross_axis
+          cp -R "$regenerated" outputs/performative_demand_cross_axis
+
+      - name: Enforce bounded diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --name-only "$TARGET_HEAD" > /tmp/changed.txt
+          while IFS= read -r path; do
+            case "$path" in
+              .github/workflows/full-analysis.yml|CHANGELOG.txt|docs/PERFORMATIVE_DEMAND_CROSS_AXIS_METHOD.md|scripts/build_performative_demand_cross_axis_analysis.py|scripts/validate_generated_outputs.py|src/scientific_sources/performative_demand_analysis.py|tests/test_performative_demand_analysis.py|outputs/performative_demand_cross_axis/*) ;;
+              *) echo "Out-of-scope changed path: $path"; exit 1 ;;
+            esac
+          done < /tmp/changed.txt
+          git diff --check
+          cat /tmp/changed.txt
+
+      - name: Package validated final tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reconciliation-artifact/files
+          git diff --name-only "$TARGET_HEAD" > reconciliation-artifact/changed-files.txt
+          git diff --name-only --diff-filter=D "$TARGET_HEAD" > reconciliation-artifact/deleted-files.txt
+          while IFS= read -r path; do
+            if [[ -n "$path" && -e "$path" ]]; then
+              mkdir -p "reconciliation-artifact/files/$(dirname "$path")"
+              cp "$path" "reconciliation-artifact/files/$path"
+            fi
+          done < reconciliation-artifact/changed-files.txt
+          git diff --full-index "$TARGET_HEAD" > reconciliation-artifact/followup.patch
+          git rev-parse "$TARGET_HEAD" > reconciliation-artifact/parent-head.txt
+
+      - name: Upload validated reconciliation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr270-followup-validated-tree
+          path: reconciliation-artifact/
+          if-no-files-found: error
+          retention-days: 3
