@@ -126,7 +126,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git diff --name-only "$TARGET_HEAD" > /tmp/changed.txt
+          { git diff --name-only "$TARGET_HEAD"; git ls-files --others --exclude-standard; } | sort -u > /tmp/changed.txt
           while IFS= read -r path; do
             case "$path" in
               .github/workflows/full-analysis.yml|CHANGELOG.txt|docs/PERFORMATIVE_DEMAND_CROSS_AXIS_METHOD.md|scripts/build_performative_demand_cross_axis_analysis.py|scripts/validate_generated_outputs.py|src/scientific_sources/performative_demand_analysis.py|tests/test_performative_demand_analysis.py|outputs/performative_demand_cross_axis/*) ;;
@@ -141,7 +141,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p reconciliation-artifact/files
-          git diff --name-only "$TARGET_HEAD" > reconciliation-artifact/changed-files.txt
+          { git diff --name-only "$TARGET_HEAD"; git ls-files --others --exclude-standard; } | sort -u > reconciliation-artifact/changed-files.txt
           git diff --name-only --diff-filter=D "$TARGET_HEAD" > reconciliation-artifact/deleted-files.txt
           while IFS= read -r path; do
             if [[ -n "$path" && -e "$path" ]]; then
