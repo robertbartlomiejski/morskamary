@@ -43,6 +43,16 @@ jobs:
 
       - name: Apply bounded follow-up patch
         run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('.helper/scripts/_pr270_followup_patch.py')
+          text = p.read_text(encoding='utf-8')
+          needle = "    block = dedent('''\n    def _sha256"
+          replacement = "    block = dedent(r'''\n    def _sha256"
+          if needle not in text:
+              raise SystemExit('builder insertion block not found')
+          p.write_text(text.replace(needle, replacement, 1), encoding='utf-8')
+          PY
           cp .helper/scripts/_pr270_followup_patch.py scripts/
           python scripts/_pr270_followup_patch.py
           rm -f scripts/_pr270_followup_patch.py
