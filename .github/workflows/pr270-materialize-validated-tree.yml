@@ -1,0 +1,153 @@
+name: PR270 materialize validated tree
+
+on:
+  push:
+    branches:
+      - codex/pr270-followup-validation
+    paths:
+      - .github/workflows/pr270-materialize-validated-tree.yml
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      TARGET_HEAD: 44f041c5cf3c6315bfb1880b9c24bedb8006384b
+      MATERIALIZED_REF: codex/pr270-followup-materialized
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TARGET_HEAD }}
+          fetch-depth: 0
+
+      - name: Checkout validated helper source
+        uses: actions/checkout@v6
+        with:
+          ref: codex/pr270-followup-validation
+          path: .helper
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install repository dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Reproduce staging-6 bounded tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('.helper/scripts/_pr270_followup_patch.py')
+          text = p.read_text(encoding='utf-8')
+          needle = "    block = dedent('''\n    def _sha256"
+          replacement = "    block = dedent(r'''\n    def _sha256"
+          if needle not in text:
+              raise SystemExit('builder insertion block not found')
+          p.write_text(text.replace(needle, replacement, 1), encoding='utf-8')
+          PY
+          cp .helper/scripts/_pr270_followup_patch.py scripts/
+          python scripts/_pr270_followup_patch.py
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/build_performative_demand_cross_axis_analysis.py')
+          text = p.read_text(encoding='utf-8')
+          needle = '        result_fields = {'
+          replacement = '        result_fields: dict[str, Any] = {'
+          if needle not in text:
+              raise SystemExit('result_fields assignment not found')
+          p.write_text(text.replace(needle, replacement, 1), encoding='utf-8')
+          PY
+          rm -f scripts/_pr270_followup_patch.py
+          rm -rf .helper
+          python -m black \
+            src/scientific_sources/performative_demand_analysis.py \
+            scripts/build_performative_demand_cross_axis_analysis.py \
+            scripts/validate_generated_outputs.py \
+            tests/test_performative_demand_analysis.py
+          python scripts/build_performative_demand_cross_axis_analysis.py
+
+      - name: Require exact staging-6 bytes and bounded paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/expected-hashes.txt <<'EOF'
+          c358a61e85b318eccd26364e751cb7c802905363  .github/workflows/full-analysis.yml
+          f13fc29cb335ffec8ec3a12ff05cdbb832ed19a3  CHANGELOG.txt
+          b48734363e9895e6d147b389ad00361ebd57f0d4  docs/PERFORMATIVE_DEMAND_CROSS_AXIS_METHOD.md
+          143dba9f3ab5367135c80934bbdbe071e15e0582  outputs/performative_demand_cross_axis/hypothesis_outcomes.json
+          a0c8ec60af72f36fbeed0921bb4008427bb49827  outputs/performative_demand_cross_axis/linked_evidence_sector_axis_lineage.csv
+          b4d98147f31eff3e8ed0899c2593503de7e984d7  outputs/performative_demand_cross_axis/package_manifest.json
+          a8da484098859037b5be73ce54c2fb7e1ae9969c  outputs/performative_demand_cross_axis/sector_screening_profile.csv
+          a8ee957334657296716a19d080d51bf3e99d7045  outputs/performative_demand_cross_axis/statistics_summary.json
+          2f73122a8500ddf047b1b734d72c1cb30c063f26  outputs/performative_demand_cross_axis/validity_threats.json
+          65572fbf9db05aec31adc701f03cafad5e382d51  outputs/performative_demand_cross_axis/value_labels.json
+          bb9d0a4fedab2b10643da8fce5005b233c57541b  scripts/build_performative_demand_cross_axis_analysis.py
+          5a3a890b680039a772b3e1e5360d4584fb2994e7  scripts/validate_generated_outputs.py
+          a312f6f1e03e4ab636d9ae50efc02447e3c4d038  src/scientific_sources/performative_demand_analysis.py
+          c96cc21e908425157bd12dc0fd8677c2ecf16e3b  tests/test_performative_demand_analysis.py
+          EOF
+          while read -r expected path; do
+            [[ -f "$path" ]] || { echo "Missing expected file: $path"; exit 1; }
+            actual="$(git hash-object "$path")"
+            [[ "$actual" == "$expected" ]] || { echo "Byte mismatch: $path expected=$expected actual=$actual"; exit 1; }
+          done < /tmp/expected-hashes.txt
+          [[ ! -e outputs/performative_demand_cross_axis/sector_deficit_profile.csv ]] || { echo "Deprecated sector_deficit_profile.csv still exists"; exit 1; }
+          cat > /tmp/expected-paths.txt <<'EOF'
+          .github/workflows/full-analysis.yml
+          CHANGELOG.txt
+          docs/PERFORMATIVE_DEMAND_CROSS_AXIS_METHOD.md
+          outputs/performative_demand_cross_axis/hypothesis_outcomes.json
+          outputs/performative_demand_cross_axis/linked_evidence_sector_axis_lineage.csv
+          outputs/performative_demand_cross_axis/package_manifest.json
+          outputs/performative_demand_cross_axis/sector_deficit_profile.csv
+          outputs/performative_demand_cross_axis/sector_screening_profile.csv
+          outputs/performative_demand_cross_axis/statistics_summary.json
+          outputs/performative_demand_cross_axis/validity_threats.json
+          outputs/performative_demand_cross_axis/value_labels.json
+          scripts/build_performative_demand_cross_axis_analysis.py
+          scripts/validate_generated_outputs.py
+          src/scientific_sources/performative_demand_analysis.py
+          tests/test_performative_demand_analysis.py
+          EOF
+          { git diff --name-only "$TARGET_HEAD"; git ls-files --others --exclude-standard; } | sort -u > /tmp/actual-paths.txt
+          diff -u /tmp/expected-paths.txt /tmp/actual-paths.txt
+          git -c core.whitespace=cr-at-eol diff --check
+
+      - name: Commit exact validated tree to temporary ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$(git rev-parse HEAD)" == "$TARGET_HEAD" ]]
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- \
+            .github/workflows/full-analysis.yml \
+            CHANGELOG.txt \
+            docs/PERFORMATIVE_DEMAND_CROSS_AXIS_METHOD.md \
+            outputs/performative_demand_cross_axis/hypothesis_outcomes.json \
+            outputs/performative_demand_cross_axis/linked_evidence_sector_axis_lineage.csv \
+            outputs/performative_demand_cross_axis/package_manifest.json \
+            outputs/performative_demand_cross_axis/sector_deficit_profile.csv \
+            outputs/performative_demand_cross_axis/sector_screening_profile.csv \
+            outputs/performative_demand_cross_axis/statistics_summary.json \
+            outputs/performative_demand_cross_axis/validity_threats.json \
+            outputs/performative_demand_cross_axis/value_labels.json \
+            scripts/build_performative_demand_cross_axis_analysis.py \
+            scripts/validate_generated_outputs.py \
+            src/scientific_sources/performative_demand_analysis.py \
+            tests/test_performative_demand_analysis.py
+          git diff --cached --name-only | sort -u > /tmp/staged-paths.txt
+          diff -u /tmp/expected-paths.txt /tmp/staged-paths.txt
+          git commit -m "fix: finalize PR270 follow-up reconciliation"
+          [[ "$(git rev-parse HEAD^)" == "$TARGET_HEAD" ]]
+          git push origin "HEAD:refs/heads/$MATERIALIZED_REF"
