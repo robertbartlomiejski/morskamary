@@ -117,8 +117,6 @@ jobs:
           cp -R "$regenerated" outputs/performative_demand_cross_axis
           python scripts/generate_manifest.py
 
-          # Nothing after the byte-restore is allowed to mutate the frozen DB.
-          git diff --name-status --no-renames "$TARGET_HEAD" -- outputs/cumulative_database || true
           git diff --exit-code "$TARGET_HEAD" -- outputs/cumulative_database
           expected_blob="$(git rev-parse "$TARGET_HEAD:outputs/cumulative_database/competence_demand_signals.csv")"
           actual_blob="$(git hash-object outputs/cumulative_database/competence_demand_signals.csv)"
@@ -130,23 +128,25 @@ jobs:
         if: always()
         shell: bash
         run: |
-          mkdir -p bounded-diagnostics
-          git diff --name-status --no-renames "$TARGET_HEAD" > bounded-diagnostics/name-status.txt || true
-          { git diff --name-only --no-renames "$TARGET_HEAD"; git ls-files --others --exclude-standard; } | sort -u > bounded-diagnostics/changed-files.txt
-          git status --short > bounded-diagnostics/status.txt || true
-          git diff --no-renames "$TARGET_HEAD" -- outputs/cumulative_database > bounded-diagnostics/cumulative.patch || true
+          diag="${RUNNER_TEMP}/pr270-bounded-diagnostics"
+          rm -rf "$diag"
+          mkdir -p "$diag"
+          git diff --name-status --no-renames "$TARGET_HEAD" > "$diag/name-status.txt" || true
+          { git diff --name-only --no-renames "$TARGET_HEAD"; git ls-files --others --exclude-standard; } | sort -u > "$diag/changed-files.txt"
+          git status --short > "$diag/status.txt" || true
+          git diff --no-renames "$TARGET_HEAD" -- outputs/cumulative_database > "$diag/cumulative.patch" || true
           {
             echo "TARGET_HEAD=$TARGET_HEAD"
             echo "expected_signals_blob=$(git rev-parse "$TARGET_HEAD:outputs/cumulative_database/competence_demand_signals.csv")"
             echo "actual_signals_blob=$(git hash-object outputs/cumulative_database/competence_demand_signals.csv 2>/dev/null || echo missing)"
-          } > bounded-diagnostics/blob-check.txt
+          } > "$diag/blob-check.txt"
 
       - name: Upload bounded diff diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: pr270-bounded-diff-diagnostics
-          path: bounded-diagnostics/
+          path: ${{ runner.temp }}/pr270-bounded-diagnostics/
           if-no-files-found: error
           retention-days: 3
 
@@ -154,7 +154,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cp bounded-diagnostics/changed-files.txt /tmp/changed.txt
+          cp "${RUNNER_TEMP}/pr270-bounded-diagnostics/changed-files.txt" /tmp/changed.txt
           echo "--- bounded changed paths ---"
           cat /tmp/changed.txt
           echo "--- end bounded changed paths ---"
@@ -170,23 +170,25 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p reconciliation-artifact/files
-          cp bounded-diagnostics/changed-files.txt reconciliation-artifact/changed-files.txt
-          git diff --name-only --no-renames --diff-filter=D "$TARGET_HEAD" > reconciliation-artifact/deleted-files.txt
+          artifact="${RUNNER_TEMP}/pr270-reconciliation-artifact"
+          rm -rf "$artifact"
+          mkdir -p "$artifact/files"
+          cp "${RUNNER_TEMP}/pr270-bounded-diagnostics/changed-files.txt" "$artifact/changed-files.txt"
+          git diff --name-only --no-renames --diff-filter=D "$TARGET_HEAD" > "$artifact/deleted-files.txt"
           while IFS= read -r path; do
             if [[ -n "$path" && -e "$path" ]]; then
-              mkdir -p "reconciliation-artifact/files/$(dirname "$path")"
-              cp "$path" "reconciliation-artifact/files/$path"
+              mkdir -p "$artifact/files/$(dirname "$path")"
+              cp "$path" "$artifact/files/$path"
             fi
-          done < reconciliation-artifact/changed-files.txt
-          git diff --full-index --no-renames "$TARGET_HEAD" > reconciliation-artifact/followup.patch
-          git rev-parse "$TARGET_HEAD" > reconciliation-artifact/parent-head.txt
+          done < "$artifact/changed-files.txt"
+          git diff --full-index --no-renames "$TARGET_HEAD" > "$artifact/followup.patch"
+          git rev-parse "$TARGET_HEAD" > "$artifact/parent-head.txt"
 
       - name: Upload validated reconciliation artifact
         uses: actions/upload-artifact@v4
         with:
           name: pr270-followup-validated-tree
-          path: reconciliation-artifact/
+          path: ${{ runner.temp }}/pr270-reconciliation-artifact/
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 3
