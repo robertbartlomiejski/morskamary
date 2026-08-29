@@ -3,11 +3,13 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from src.scientific_sources.performative_demand_analysis import (
     AXES,
     AXIS_CODES,
     REALMS,
+    PerformativeDemandAnalysisError,
     build_performative_demand_analysis,
     build_unique_evidence_map,
 )
@@ -185,3 +187,74 @@ def test_builder_is_pandas_15_compatible_and_tourism_is_uncited_comparison() -> 
         row.axis_code == AXIS_CODES[row.axis_group]
         for row in tourism.itertuples(index=False)
     )
+
+
+def test_rejected_signals_are_excluded_fail_closed() -> None:
+    demands, evidence, signals = _frames()
+    rejected = signals.iloc[[0]].copy()
+    rejected["signal_type"] = "digital_skill"
+    rejected["manual_review_status"] = "rejected"
+    signals = pd.concat([signals, rejected], ignore_index=True)
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+    row = analysis.sector_axis_features.loc[
+        analysis.sector_axis_features["sector"].eq("sector_a")
+        & analysis.sector_axis_features["axis_group"].eq("MARINE")
+    ].iloc[0]
+    assert row["technical_operational_capability_count"] == 1
+    assert (
+        analysis.summary["screening_feature_boundary"]["rejected_signal_rows_excluded"]
+        == 1
+    )
+
+
+def test_non_screening_review_status_requires_validation_ledger() -> None:
+    demands, evidence, signals = _frames()
+    signals.loc[0, "manual_review_status"] = "manually_reviewed"
+    with pytest.raises(PerformativeDemandAnalysisError, match="validation ledger"):
+        build_performative_demand_analysis(
+            demands,
+            evidence,
+            signals,
+            {"sector_a": "Sector A", "sector_b": "Sector B"},
+            permutations=9,
+            seed=42,
+        )
+
+
+def test_title_level_audit_uses_normalized_scopes() -> None:
+    demands, evidence, signals = _frames()
+    signals.loc[0, "semantic_scope"] = " Title "
+    signals.loc[1, "semantic_scope"] = "TITLE"
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+    assert analysis.summary["screening_feature_boundary"]["all_title_level"] is True
+
+
+def test_zero_margin_dimensions_are_excluded_from_inference() -> None:
+    demands, evidence, signals = _frames()
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+    inference = analysis.summary["sector_axis_independence"]
+    assert inference["active_rows_for_inference"] == 2
+    assert inference["active_columns_for_inference"] == 2
+    assert inference["degrees_of_freedom"] == 1
+    assert inference["inferential_status"] == "computed_on_nonzero_margins"

@@ -321,19 +321,31 @@ def build_performative_demand_analysis(
     )
     observed_array = observed.to_numpy(dtype=float)
     total = int(observed_array.sum())
+    if total <= 0:
+        raise PerformativeDemandAnalysisError(
+            "no observed evidence is available for inference"
+        )
     row_totals = observed_array.sum(axis=1)
     column_totals = observed_array.sum(axis=0)
     expected_array = np.outer(row_totals, column_totals) / total
     expected = pd.DataFrame(expected_array, index=sector_order, columns=AXES)
-
+    active_row_mask = row_totals > 0
+    active_column_mask = column_totals > 0
+    active_row_count = int(active_row_mask.sum())
+    active_column_count = int(active_column_mask.sum())
+    inferential_computable = active_row_count >= 2 and active_column_count >= 2
     chi2_contributions = np.divide(
         (observed_array - expected_array) ** 2,
         expected_array,
         out=np.zeros_like(expected_array),
         where=expected_array > 0,
     )
-    chi2 = float(chi2_contributions.sum())
-    degrees_of_freedom = (len(sector_order) - 1) * (len(AXES) - 1)
+    chi2 = float(chi2_contributions.sum()) if inferential_computable else math.nan
+    degrees_of_freedom = (
+        (active_row_count - 1) * (active_column_count - 1)
+        if inferential_computable
+        else 0
+    )
     row_proportions = row_totals / total
     column_proportions = column_totals / total
     residual_denominator = np.sqrt(
@@ -344,26 +356,34 @@ def build_performative_demand_analysis(
     adjusted_residuals = np.divide(
         observed_array - expected_array,
         residual_denominator,
-        out=np.zeros_like(expected_array),
+        out=np.full_like(expected_array, np.nan),
         where=residual_denominator > 0,
     )
-    cell_p = np.array(
-        [math.erfc(abs(value) / math.sqrt(2)) for value in adjusted_residuals.ravel()]
-    )
-    holm_p = _adjust_holm(cell_p).reshape(adjusted_residuals.shape)
-    bh_p = _adjust_bh(cell_p).reshape(adjusted_residuals.shape)
-
+    valid_residual_mask = np.isfinite(adjusted_residuals) & (expected_array > 0)
+    cell_p = np.full(adjusted_residuals.shape, np.nan, dtype=float)
+    holm_p = np.full(adjusted_residuals.shape, np.nan, dtype=float)
+    bh_p = np.full(adjusted_residuals.shape, np.nan, dtype=float)
+    if valid_residual_mask.any():
+        valid_p = np.array(
+            [
+                math.erfc(abs(value) / math.sqrt(2))
+                for value in adjusted_residuals[valid_residual_mask]
+            ]
+        )
+        cell_p[valid_residual_mask] = valid_p
+        holm_p[valid_residual_mask] = _adjust_holm(valid_p)
+        bh_p[valid_residual_mask] = _adjust_bh(valid_p)
     row_codes = pd.Categorical(evidence_map["sector"], categories=sector_order).codes
     column_codes = pd.Categorical(evidence_map["axis_group"], categories=AXES).codes
-    permutation_p, permutation_exceedances = _permutation_chi2_p(
-        row_codes,
-        column_codes,
-        expected_array,
-        chi2,
-        permutations,
-        seed,
-    )
-    corrected_v = _bias_corrected_cramers_v(chi2, total, len(sector_order), len(AXES))
+    if inferential_computable:
+        permutation_p, permutation_exceedances = _permutation_chi2_p(
+            row_codes, column_codes, expected_array, chi2, permutations, seed
+        )
+        corrected_v = _bias_corrected_cramers_v(
+            chi2, total, active_row_count, active_column_count
+        )
+    else:
+        permutation_p, permutation_exceedances, corrected_v = math.nan, 0, math.nan
 
     residual_rows: list[dict[str, Any]] = []
     for row_index, sector in enumerate(sector_order):
@@ -382,17 +402,17 @@ def build_performative_demand_analysis(
                     "adjusted_standardized_residual": float(
                         adjusted_residuals[row_index, column_index]
                     ),
-                    "raw_cell_p": float(
-                        cell_p.reshape(adjusted_residuals.shape)[
-                            row_index, column_index
-                        ]
-                    ),
+                    "raw_cell_p": float(cell_p[row_index, column_index]),
                     "holm_p": float(holm_p[row_index, column_index]),
                     "bh_p": float(bh_p[row_index, column_index]),
                     "holm_significant_0_05": bool(
-                        holm_p[row_index, column_index] < 0.05
+                        np.isfinite(holm_p[row_index, column_index])
+                        and holm_p[row_index, column_index] < 0.05
                     ),
-                    "bh_significant_0_05": bool(bh_p[row_index, column_index] < 0.05),
+                    "bh_significant_0_05": bool(
+                        np.isfinite(bh_p[row_index, column_index])
+                        and bh_p[row_index, column_index] < 0.05
+                    ),
                     "cell_status": (
                         "empty_current_linked_corpus"
                         if observed_count == 0
@@ -416,6 +436,27 @@ def build_performative_demand_analysis(
     ):
         raise PerformativeDemandAnalysisError(
             "linked signal sector/axis assignments conflict with demand lineage"
+        )
+    linked_signals["manual_review_status"] = (
+        linked_signals["manual_review_status"].astype(str).str.strip().str.lower()
+    )
+    rejected_signal_rows_excluded = int(
+        linked_signals["manual_review_status"].eq("rejected").sum()
+    )
+    linked_signals = linked_signals.loc[
+        ~linked_signals["manual_review_status"].eq("rejected")
+    ].copy()
+    unsupported_review_statuses = set(linked_signals["manual_review_status"]) - {
+        "review_required"
+    }
+    if unsupported_review_statuses:
+        raise PerformativeDemandAnalysisError(
+            "validated/manual review statuses require an accepted validation ledger; unsupported screening statuses: "
+            + ", ".join(sorted(unsupported_review_statuses))
+        )
+    if linked_signals.empty:
+        raise PerformativeDemandAnalysisError(
+            "no non-rejected review_required signals remain for screening"
         )
     linked_signals = linked_signals.rename(
         columns={"sector_linked": "sector", "axis_group_linked": "axis_group"}
@@ -474,17 +515,19 @@ def build_performative_demand_analysis(
         ]
     realm_columns = [f"realm_{realm}" for realm in REALMS]
     all_linked["realm_count"] = all_linked[realm_columns].sum(axis=1)
-    if (all_linked["realm_count"] == 0).any():
+    screening_linked = all_linked.loc[all_linked["signal_type_richness"].gt(0)].copy()
+    if (screening_linked["realm_count"] == 0).any():
         raise PerformativeDemandAnalysisError(
-            "at least one linked evidence identity has no candidate realm mapping"
+            "at least one non-rejected linked evidence identity has no candidate realm mapping"
         )
 
     sector_axis_feature_rows: list[dict[str, Any]] = []
     sector_axis_realm_rows: list[dict[str, Any]] = []
     for sector in sector_order:
         for axis in AXES:
-            group = all_linked.loc[
-                all_linked["sector"].eq(sector) & all_linked["axis_group"].eq(axis)
+            group = screening_linked.loc[
+                screening_linked["sector"].eq(sector)
+                & screening_linked["axis_group"].eq(axis)
             ]
             demand_group = demands.loc[
                 demands["sector"].eq(sector) & demands["axis_group"].eq(axis)
@@ -564,7 +607,7 @@ def build_performative_demand_analysis(
 
     axis_feature_rows: list[dict[str, Any]] = []
     for axis in AXES:
-        group = all_linked.loc[all_linked["axis_group"].eq(axis)]
+        group = screening_linked.loc[screening_linked["axis_group"].eq(axis)]
         evidence_surface = _evidence_surface(group)
         for feature in PERFORMATIVE_FEATURE_SIGNAL_TYPES:
             hits = int(group[feature].sum())
@@ -587,7 +630,7 @@ def build_performative_demand_analysis(
 
     sector_rows: list[dict[str, Any]] = []
     for sector in sector_order:
-        group = all_linked.loc[all_linked["sector"].eq(sector)]
+        group = screening_linked.loc[screening_linked["sector"].eq(sector)]
         axis_counts = np.array(
             [int(group["axis_group"].eq(axis).sum()) for axis in AXES],
             dtype=float,
@@ -640,6 +683,13 @@ def build_performative_demand_analysis(
             "n": total,
             "rows": len(sector_order),
             "columns": len(AXES),
+            "active_rows_for_inference": active_row_count,
+            "active_columns_for_inference": active_column_count,
+            "inferential_status": (
+                "computed_on_nonzero_margins"
+                if inferential_computable
+                else "not_computable_insufficient_nonzero_margins"
+            ),
             "degrees_of_freedom": degrees_of_freedom,
             "pearson_chi_square": chi2,
             "permutation_method": (
@@ -657,8 +707,8 @@ def build_performative_demand_analysis(
             "expected_cells_below_1_share": float((expected_array < 1).mean()),
             "minimum_expected_count": float(expected_array.min()),
             "observed_zero_cells": int((observed_array == 0).sum()),
-            "holm_significant_cells": int((holm_p < 0.05).sum()),
-            "bh_significant_cells": int((bh_p < 0.05).sum()),
+            "holm_significant_cells": int(np.nansum(holm_p < 0.05)),
+            "bh_significant_cells": int(np.nansum(bh_p < 0.05)),
             "interpretation_boundary": (
                 "association describes the acquired/classified corpus and is "
                 "confounded by retrieval/classification design; it is not "
@@ -666,7 +716,11 @@ def build_performative_demand_analysis(
             ),
         },
         "screening_feature_boundary": {
-            "all_title_level": bool(linked_signals["semantic_scope"].eq("title").all()),
+            "all_title_level": (
+                _normalized_scope_set(linked_signals["semantic_scope"].tolist())
+                == frozenset({"title"})
+            ),
+            "rejected_signal_rows_excluded": rejected_signal_rows_excluded,
             "all_review_required": bool(
                 linked_signals["manual_review_status"].eq("review_required").all()
             ),

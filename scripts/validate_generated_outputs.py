@@ -15,7 +15,9 @@ Exit codes:
 
 import csv
 from datetime import datetime, timezone
+import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -1121,7 +1123,17 @@ def check_performative_demand_outputs() -> None:
             "evidence_surface",
             "feature",
         },
-        "sector_deficit_profile.csv": {"sector", "dominant_axis", "dominant_axis_code"},
+        "sector_screening_profile.csv": {
+            "sector",
+            "dominant_axis",
+            "dominant_axis_code",
+        },
+        "linked_evidence_sector_axis_lineage.csv": {
+            "evidence_id",
+            "sector",
+            "axis_group",
+            "axis_code",
+        },
         "coastal_tourism_axis_realm_case.csv": {
             "sector",
             "axis_group",
@@ -1137,7 +1149,13 @@ def check_performative_demand_outputs() -> None:
         "OCEANIC": "O",
         "HYDRONIZATION": "H",
     }
-    expected_names = set(schemas) | {"statistics_summary.json"}
+    expected_names = set(schemas) | {
+        "statistics_summary.json",
+        "hypothesis_outcomes.json",
+        "validity_threats.json",
+        "value_labels.json",
+        "package_manifest.json",
+    }
     if not output_dir.exists():
         fail(f"Performative-demand output directory missing: {output_dir}")
         return
@@ -1181,12 +1199,60 @@ def check_performative_demand_outputs() -> None:
 
     summary_path = output_dir / "statistics_summary.json"
     require_file(summary_path)
+    if (output_dir / "sector_deficit_profile.csv").exists():
+        fail(
+            "legacy sector_deficit_profile.csv must not be published as a supply-gap claim"
+        )
+    manifest_path = output_dir / "package_manifest.json"
+    hypothesis_path = output_dir / "hypothesis_outcomes.json"
+    require_file(manifest_path)
+    require_file(hypothesis_path)
+    if manifest_path.exists():
+        package_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest_files = package_manifest.get("files", {})
+        expected_manifest_files = expected_names - {"package_manifest.json"}
+        if (
+            not isinstance(manifest_files, dict)
+            or set(manifest_files) != expected_manifest_files
+        ):
+            fail("package_manifest.json file set does not match governed artifacts")
+        elif isinstance(manifest_files, dict):
+            for name, metadata in manifest_files.items():
+                artifact = output_dir / name
+                if artifact.exists():
+                    digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+                    if (
+                        not isinstance(metadata, dict)
+                        or metadata.get("sha256") != digest
+                    ):
+                        fail(f"package manifest checksum mismatch: {name}")
+    if hypothesis_path.exists():
+        rows_h = json.loads(hypothesis_path.read_text(encoding="utf-8"))
+        if {row.get("hypothesis_id") for row in rows_h if isinstance(row, dict)} != {
+            "H1",
+            "H2",
+            "H3",
+        }:
+            fail("hypothesis_outcomes.json must serialize H1, H2, and H3")
     if len(ERRORS) != local_errors_before:
         return
 
     with tempfile.TemporaryDirectory(prefix="morskamary-performative-") as tmp:
+        database_dir = Path(
+            os.environ.get(
+                "MORSKAMARY_CUMULATIVE_DATABASE_DIR",
+                str(OUTPUTS_DIR / "cumulative_database"),
+            )
+        )
         completed = subprocess.run(
-            [sys.executable, str(builder), "--output-dir", tmp],
+            [
+                sys.executable,
+                str(builder),
+                "--database-dir",
+                str(database_dir),
+                "--output-dir",
+                tmp,
+            ],
             cwd=REPO_ROOT,
             text=True,
             stdout=subprocess.PIPE,

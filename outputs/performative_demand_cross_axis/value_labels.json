@@ -1,0 +1,15 @@
+{
+  "axis_group_to_axis_code": {
+    "HYDRONIZATION": "H",
+    "MARINE": "M",
+    "MARITIME": "T",
+    "OCEANIC": "O"
+  },
+  "review_status_contract": {
+    "other": "fail closed until accepted validation ledger is ingested",
+    "rejected": "excluded from positive screening aggregates",
+    "review_required": "eligible for deterministic screening only"
+  },
+  "supply_gap_status": "not_computable_no_independent_supply",
+  "zero_interpretation": "not observed in declared screening state, not absent in reality"
+}

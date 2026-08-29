@@ -98,3 +98,9 @@ The package is written to `outputs/performative_demand_cross_axis/`.
 ## Review reconciliation: output identity and provenance
 
 All axis-bearing publication tables retain both the canonical `axis_group` and its non-inferred display `axis_code` (`M`, `T`, `O`, `H`). Screening rows carry the actual retained `evidence_surface` derived from `semantic_scope`; they are not assumed to be title-only. The supplied 21-fragment coastal-tourism 4 × 4 recoding remains comparison data, explicitly marked `citation_needed`, because no retained citable source for that aggregate exists in the repository. It is not repository evidence and cannot establish validated translation or performativity.
+
+## PR #270 follow-up governance contract
+
+This publication directory is a deterministic screening package, not a validated supply-gap package. `sector_screening_profile.csv` replaces the misleading deficit-profile name. Rejected semantic signals are excluded from positive screening aggregates; any reviewed state other than `review_required` fails closed until an accepted validation ledger is ingested.
+
+`linked_evidence_sector_axis_lineage.csv` preserves exact evidence-identity lineage. `package_manifest.json`, `validity_threats.json`, `value_labels.json`, and `hypothesis_outcomes.json` provide machine-readable governance. H1–H3 retain the authoritative protocol definitions and are emitted as `not_computable` where this package lacks the required evidence. Full Analysis regenerates this package only from the retained cumulative snapshot; it performs no live acquisition.

@@ -1414,3 +1414,10 @@ Impact governance-and-repro CI job passes; MANIFEST_SOURCES.csv now reflects all
 Quality checks python3 scripts/generate_manifest.py → Wrote MANIFEST_SOURCES.csv with 1315 entries; git diff --exit-code MANIFEST_SOURCES.csv → clean.
 Reviewer GitHub Copilot Coding Agent
 PR #270 review reconciliation: pandas>=1.5 compatibility; canonical axis_code; evidence-surface provenance; tourism citation boundary; deterministic generated-output validation.
+
+PR #270 follow-up completion hardening
+- Regenerate performative-demand outputs inside Full Analysis from the retained cumulative snapshot.
+- Exclude rejected review signals and fail closed on unsupported reviewed statuses.
+- Add evidence lineage, source provenance, checksums, validity threats, value labels, and H1–H3 outcomes.
+- Rename the screening profile to avoid implying an independently validated supply deficit.
+- Restrict inferential dimensions to non-zero margins while retaining all zero cells descriptively.
