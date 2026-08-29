@@ -20,7 +20,6 @@ jobs:
       # full-live-analysis.yml acquires live evidence from providers.
       ALLOW_STATIC_RECOVERY_MODE: "true"
       STATIC_RECOVERY_REASON: "Full Analysis CI reproducibility check"
-      MORSKAMARY_CUMULATIVE_DATABASE_DIR: ${{ runner.temp }}/full-analysis-retained-inputs/cumulative_database
 
     steps:
       - name: Checkout
@@ -118,6 +117,8 @@ jobs:
           "${{ steps.committed-outputs.outputs.analysis_mode }}"
 
       - name: Regenerate performative-demand package from retained cumulative database
+        env:
+          MORSKAMARY_CUMULATIVE_DATABASE_DIR: ${{ runner.temp }}/full-analysis-retained-inputs/cumulative_database
         run: >-
           python scripts/build_performative_demand_cross_axis_analysis.py
           --database-dir "$MORSKAMARY_CUMULATIVE_DATABASE_DIR"
@@ -174,6 +175,7 @@ jobs:
         env:
           STATIC_INPUT_ROOT: ${{ runner.temp }}/full-analysis-static-input
           STATIC_COMPARE_ROOT: ${{ runner.temp }}/full-analysis-static-baseline
+          MORSKAMARY_CUMULATIVE_DATABASE_DIR: ${{ runner.temp }}/full-analysis-retained-inputs/cumulative_database
         run: |
           set -euo pipefail
           rm -rf "$STATIC_INPUT_ROOT"
