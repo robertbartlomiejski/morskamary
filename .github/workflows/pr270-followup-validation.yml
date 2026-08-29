@@ -105,12 +105,15 @@ jobs:
           MORSKAMARY_CUMULATIVE_DATABASE_DIR="$retained" python scripts/validate_generated_outputs.py
           cp -R outputs/performative_demand_cross_axis "$regenerated"
 
-          # Restore all unrelated committed outputs, then byte-restore the frozen
-          # cumulative snapshot from Git objects. The simulation is not allowed
-          # to leak cumulative-database churn into the PR reconciliation tree.
+          # Restore all unrelated committed outputs, then reconstruct the frozen
+          # cumulative snapshot from raw Git blobs. Avoid checkout/archive text
+          # filters so the byte-level diff is exactly the committed tree.
           git checkout "$TARGET_HEAD" -- outputs
           rm -rf outputs/cumulative_database
-          git archive "$TARGET_HEAD" outputs/cumulative_database | tar -x
+          while IFS= read -r path; do
+            mkdir -p "$(dirname "$path")"
+            git cat-file blob "$TARGET_HEAD:$path" > "$path"
+          done < <(git ls-tree -r --name-only "$TARGET_HEAD" -- outputs/cumulative_database)
           git diff --exit-code "$TARGET_HEAD" -- outputs/cumulative_database
 
           rm -rf outputs/performative_demand_cross_axis
@@ -121,7 +124,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          { git diff --name-only "$TARGET_HEAD"; git ls-files --others --exclude-standard; } | sort -u > /tmp/changed.txt
+          git diff --name-status --no-renames "$TARGET_HEAD" || true
+          { git diff --name-only --no-renames "$TARGET_HEAD"; git ls-files --others --exclude-standard; } | sort -u > /tmp/changed.txt
+          echo "--- bounded changed paths ---"
+          cat /tmp/changed.txt
+          echo "--- end bounded changed paths ---"
           while IFS= read -r path; do
             case "$path" in
               .github/workflows/full-analysis.yml|CHANGELOG.txt|MANIFEST_SOURCES.csv|docs/PERFORMATIVE_DEMAND_CROSS_AXIS_METHOD.md|scripts/build_performative_demand_cross_axis_analysis.py|scripts/validate_generated_outputs.py|src/scientific_sources/performative_demand_analysis.py|tests/test_performative_demand_analysis.py|outputs/performative_demand_cross_axis/*) ;;
@@ -129,22 +136,21 @@ jobs:
             esac
           done < /tmp/changed.txt
           git diff --check
-          cat /tmp/changed.txt
 
       - name: Package validated final tree
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p reconciliation-artifact/files
-          { git diff --name-only "$TARGET_HEAD"; git ls-files --others --exclude-standard; } | sort -u > reconciliation-artifact/changed-files.txt
-          git diff --name-only --diff-filter=D "$TARGET_HEAD" > reconciliation-artifact/deleted-files.txt
+          { git diff --name-only --no-renames "$TARGET_HEAD"; git ls-files --others --exclude-standard; } | sort -u > reconciliation-artifact/changed-files.txt
+          git diff --name-only --no-renames --diff-filter=D "$TARGET_HEAD" > reconciliation-artifact/deleted-files.txt
           while IFS= read -r path; do
             if [[ -n "$path" && -e "$path" ]]; then
               mkdir -p "reconciliation-artifact/files/$(dirname "$path")"
               cp "$path" "reconciliation-artifact/files/$path"
             fi
           done < reconciliation-artifact/changed-files.txt
-          git diff --full-index "$TARGET_HEAD" > reconciliation-artifact/followup.patch
+          git diff --full-index --no-renames "$TARGET_HEAD" > reconciliation-artifact/followup.patch
           git rev-parse "$TARGET_HEAD" > reconciliation-artifact/parent-head.txt
 
       - name: Upload validated reconciliation artifact
