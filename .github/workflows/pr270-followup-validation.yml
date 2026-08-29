@@ -104,7 +104,15 @@ jobs:
           python scripts/build_performative_demand_cross_axis_analysis.py --database-dir "$retained"
           MORSKAMARY_CUMULATIVE_DATABASE_DIR="$retained" python scripts/validate_generated_outputs.py
           cp -R outputs/performative_demand_cross_axis "$regenerated"
+
+          # Restore all unrelated committed outputs, then byte-restore the frozen
+          # cumulative snapshot from Git objects. The simulation is not allowed
+          # to leak cumulative-database churn into the PR reconciliation tree.
           git checkout "$TARGET_HEAD" -- outputs
+          rm -rf outputs/cumulative_database
+          git archive "$TARGET_HEAD" outputs/cumulative_database | tar -x
+          git diff --exit-code "$TARGET_HEAD" -- outputs/cumulative_database
+
           rm -rf outputs/performative_demand_cross_axis
           cp -R "$regenerated" outputs/performative_demand_cross_axis
           python scripts/generate_manifest.py
