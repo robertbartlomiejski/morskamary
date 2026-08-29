@@ -146,7 +146,7 @@ jobs:
             scripts/validate_generated_outputs.py \
             src/scientific_sources/performative_demand_analysis.py \
             tests/test_performative_demand_analysis.py
-          git diff --cached --name-only | sort -u > /tmp/staged-paths.txt
+          git diff --cached --name-only --no-renames | sort -u > /tmp/staged-paths.txt
           diff -u /tmp/expected-paths.txt /tmp/staged-paths.txt
           git commit -m "fix: finalize PR270 follow-up reconciliation"
           [[ "$(git rev-parse HEAD^)" == "$TARGET_HEAD" ]]
