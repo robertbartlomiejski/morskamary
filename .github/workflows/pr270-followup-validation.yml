@@ -157,5 +157,6 @@ jobs:
         with:
           name: pr270-followup-validated-tree
           path: reconciliation-artifact/
+          include-hidden-files: true
           if-no-files-found: error
           retention-days: 3
