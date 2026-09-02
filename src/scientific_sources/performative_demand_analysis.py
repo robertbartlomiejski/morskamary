@@ -78,6 +78,8 @@ REALM_SIGNAL_TYPES: Mapping[str, frozenset[str]] = {
     ),
 }
 
+ALLOWED_SEMANTIC_SCOPES = frozenset({"title", "subject_terms", "abstract", "full_text"})
+
 
 class PerformativeDemandAnalysisError(RuntimeError):
     """Raised when evidence-level analytical invariants do not hold."""
@@ -440,6 +442,19 @@ def build_performative_demand_analysis(
     linked_signals["manual_review_status"] = (
         linked_signals["manual_review_status"].astype(str).str.strip().str.lower()
     )
+    linked_signals["semantic_scope"] = (
+        linked_signals["semantic_scope"].astype(str).str.strip().str.lower()
+    )
+    illegal_semantic_scopes = {
+        scope
+        for scope in set(linked_signals["semantic_scope"])
+        if scope not in ALLOWED_SEMANTIC_SCOPES
+    }
+    if illegal_semantic_scopes:
+        raise PerformativeDemandAnalysisError(
+            "signals contain unsupported semantic_scope values: "
+            + ", ".join(sorted(illegal_semantic_scopes))
+        )
     rejected_signal_rows_excluded = int(
         linked_signals["manual_review_status"].eq("rejected").sum()
     )
@@ -516,6 +531,7 @@ def build_performative_demand_analysis(
     realm_columns = [f"realm_{realm}" for realm in REALMS]
     all_linked["realm_count"] = all_linked[realm_columns].sum(axis=1)
     screening_linked = all_linked.loc[all_linked["signal_type_richness"].gt(0)].copy()
+    screening_linked_total = int(len(screening_linked))
     if (screening_linked["realm_count"] == 0).any():
         raise PerformativeDemandAnalysisError(
             "at least one non-rejected linked evidence identity has no candidate realm mapping"
@@ -738,7 +754,7 @@ def build_performative_demand_analysis(
             "fractional_candidate_weight": float(
                 sector_axis_realms["fractional_candidate_weight"].sum()
             ),
-            "fractional_weight_expected": total,
+            "fractional_weight_expected": screening_linked_total,
             "status": "multi-label screening; fractional weights prevent double count",
         },
     }

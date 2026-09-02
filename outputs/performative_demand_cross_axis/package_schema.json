@@ -1,0 +1,85 @@
+{
+  "allowed_semantic_surfaces": [
+    "title",
+    "subject_terms",
+    "abstract",
+    "full_text"
+  ],
+  "artifacts": {
+    "axis_screening_feature_shares.csv": [
+      "axis_group",
+      "axis_code",
+      "evidence_surface",
+      "feature"
+    ],
+    "coastal_tourism_axis_realm_case.csv": [
+      "sector",
+      "axis_group",
+      "axis_code",
+      "realm",
+      "citation_needed",
+      "source_status"
+    ],
+    "linked_evidence_sector_axis_lineage.csv": [
+      "evidence_id",
+      "sector",
+      "axis_group",
+      "axis_code"
+    ],
+    "sector_axis_expected.csv": [
+      "sector",
+      "axis_group",
+      "axis_code",
+      "expected_evidence_count"
+    ],
+    "sector_axis_observed.csv": [
+      "sector",
+      "axis_group",
+      "axis_code",
+      "observed_evidence_count"
+    ],
+    "sector_axis_realm_screening.csv": [
+      "sector",
+      "axis_group",
+      "axis_code",
+      "evidence_surface",
+      "realm"
+    ],
+    "sector_axis_residuals.csv": [
+      "sector",
+      "axis_group",
+      "axis_code",
+      "observed_evidence_count"
+    ],
+    "sector_axis_screening_features.csv": [
+      "sector",
+      "axis_group",
+      "axis_code",
+      "evidence_surface"
+    ],
+    "sector_screening_profile.csv": [
+      "sector",
+      "dominant_axis",
+      "dominant_axis_code"
+    ]
+  },
+  "axis_contract": {
+    "axis_codes": {
+      "HYDRONIZATION": "H",
+      "MARINE": "M",
+      "MARITIME": "T",
+      "OCEANIC": "O"
+    },
+    "canonical_names": [
+      "MARINE",
+      "MARITIME",
+      "OCEANIC",
+      "HYDRONIZATION"
+    ]
+  },
+  "review_status_enum": [
+    "review_required",
+    "rejected"
+  ],
+  "schema_version": "1.0"
+}

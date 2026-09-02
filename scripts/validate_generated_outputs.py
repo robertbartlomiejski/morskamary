@@ -25,8 +25,11 @@ import tempfile
 from pathlib import Path
 from typing import cast
 
+import yaml  # type: ignore[import-untyped]
+
 REPO_ROOT = Path(__file__).parent.parent
 OUTPUTS_DIR = REPO_ROOT / "outputs"
+PROTOCOL_PATH = REPO_ROOT / "config" / "live_query_protocol.yml"
 
 CANONICAL_SECTORS = [
     "Blue Biotech",
@@ -125,6 +128,13 @@ def _canonical_run_id_from_metadata(metadata: dict[str, object]) -> str:
     if analysis_mode == "live-enriched":
         return "local-live-unpublished"
     return "local-unpublished"
+
+
+def _load_strict_json(path: Path) -> object:
+    def _reject_non_finite(token: str) -> object:
+        raise ValueError(f"non-finite JSON literal is not allowed: {token}")
+
+    return json.loads(path.read_text(encoding="utf-8"), parse_constant=_reject_non_finite)
 
 
 def require_file(path: Path) -> bool:
@@ -1085,6 +1095,8 @@ def check_performative_demand_outputs() -> None:
     print("\n[performative_demand_cross_axis/]")
     output_dir = OUTPUTS_DIR / "performative_demand_cross_axis"
     builder = REPO_ROOT / "scripts" / "build_performative_demand_cross_axis_analysis.py"
+    protocol = yaml.safe_load(PROTOCOL_PATH.read_text(encoding="utf-8"))
+    declared_hypothesis_ids = set(cast(dict[str, object], protocol.get("hypotheses", {})))
     schemas: dict[str, set[str]] = {
         "sector_axis_observed.csv": {
             "sector",
@@ -1154,12 +1166,42 @@ def check_performative_demand_outputs() -> None:
         "hypothesis_outcomes.json",
         "validity_threats.json",
         "value_labels.json",
+        "package_schema.json",
         "package_manifest.json",
     }
     if not output_dir.exists():
         fail(f"Performative-demand output directory missing: {output_dir}")
         return
     local_errors_before = len(ERRORS)
+    package_schema_path = output_dir / "package_schema.json"
+    schema_columns: dict[str, set[str]] = {}
+    if require_file(package_schema_path):
+        try:
+            package_schema = cast(dict[str, object], _load_strict_json(package_schema_path))
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+            fail(f"package_schema.json is not strict valid JSON: {exc}")
+            package_schema = {}
+        artifacts_spec = package_schema.get("artifacts", {})
+        if not isinstance(artifacts_spec, dict):
+            fail("package_schema.json: artifacts must be an object")
+        else:
+            for name, columns in artifacts_spec.items():
+                if isinstance(columns, list) and all(
+                    isinstance(column, str) for column in columns
+                ):
+                    schema_columns[str(name)] = set(columns)
+                else:
+                    fail(
+                        f"package_schema.json: artifacts.{name} must be a list of strings"
+                    )
+        allowed_surfaces = package_schema.get("allowed_semantic_surfaces", [])
+        if (
+            isinstance(allowed_surfaces, list)
+            and {"query", "source_query"} & set(str(item) for item in allowed_surfaces)
+        ):
+            fail("package_schema.json must not declare query/source_query as evidence surfaces")
+    if schema_columns:
+        schemas = schema_columns
     for name, required_columns in schemas.items():
         artifact = output_dir / name
         if not require_file(artifact):
@@ -1197,6 +1239,22 @@ def check_performative_demand_outputs() -> None:
                     "comparison data"
                 )
 
+    for json_name in (
+        "statistics_summary.json",
+        "hypothesis_outcomes.json",
+        "validity_threats.json",
+        "value_labels.json",
+        "package_schema.json",
+        "package_manifest.json",
+    ):
+        json_path = output_dir / json_name
+        if not require_file(json_path):
+            continue
+        try:
+            _load_strict_json(json_path)
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+            fail(f"{json_name} is not strict valid JSON: {exc}")
+
     summary_path = output_dir / "statistics_summary.json"
     require_file(summary_path)
     if (output_dir / "sector_deficit_profile.csv").exists():
@@ -1208,7 +1266,11 @@ def check_performative_demand_outputs() -> None:
     require_file(manifest_path)
     require_file(hypothesis_path)
     if manifest_path.exists():
-        package_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        try:
+            package_manifest = cast(dict[str, object], _load_strict_json(manifest_path))
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+            fail(f"package_manifest.json is not strict valid JSON: {exc}")
+            package_manifest = {}
         manifest_files = package_manifest.get("files", {})
         expected_manifest_files = expected_names - {"package_manifest.json"}
         if (
@@ -1227,13 +1289,19 @@ def check_performative_demand_outputs() -> None:
                     ):
                         fail(f"package manifest checksum mismatch: {name}")
     if hypothesis_path.exists():
-        rows_h = json.loads(hypothesis_path.read_text(encoding="utf-8"))
-        if {row.get("hypothesis_id") for row in rows_h if isinstance(row, dict)} != {
-            "H1",
-            "H2",
-            "H3",
-        }:
-            fail("hypothesis_outcomes.json must serialize H1, H2, and H3")
+        try:
+            rows_h = cast(list[object], _load_strict_json(hypothesis_path))
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+            fail(f"hypothesis_outcomes.json is not strict valid JSON: {exc}")
+            rows_h = []
+        observed_hypothesis_ids = {
+            row.get("hypothesis_id") for row in rows_h if isinstance(row, dict)
+        }
+        if observed_hypothesis_ids != declared_hypothesis_ids:
+            fail(
+                "hypothesis_outcomes.json must serialize configured hypotheses exactly: "
+                f"expected {sorted(declared_hypothesis_ids)} got {sorted(observed_hypothesis_ids, key=str)}"
+            )
     if len(ERRORS) != local_errors_before:
         return
 

@@ -80,7 +80,9 @@ jobs:
             echo "Missing retained cumulative database required by performative-demand analysis"
             exit 1
           fi
-          cp -R "outputs/cumulative_database" "$RETAINED_INPUT_ROOT/cumulative_database"
+          retained_cumulative_database_dir="$RETAINED_INPUT_ROOT/cumulative_database"
+          cp -R "outputs/cumulative_database" "$retained_cumulative_database_dir"
+          echo "MORSKAMARY_CUMULATIVE_DATABASE_DIR=$retained_cumulative_database_dir" >> "$GITHUB_ENV"
           for relative_path in "${generated_paths[@]}"; do
             if [[ ! -e "outputs/$relative_path" ]]; then
               echo "Missing committed generated output: outputs/$relative_path"
@@ -117,8 +119,6 @@ jobs:
           "${{ steps.committed-outputs.outputs.analysis_mode }}"
 
       - name: Regenerate performative-demand package from retained cumulative database
-        env:
-          MORSKAMARY_CUMULATIVE_DATABASE_DIR: ${{ runner.temp }}/full-analysis-retained-inputs/cumulative_database
         run: >-
           python scripts/build_performative_demand_cross_axis_analysis.py
           --database-dir "$MORSKAMARY_CUMULATIVE_DATABASE_DIR"
@@ -157,6 +157,14 @@ jobs:
           echo "✓ $sector_dir ($sector_count files)"
           echo "All output artifacts verified, including sector dictionaries."
 
+      - name: Verify retained cumulative database path propagation
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${MORSKAMARY_CUMULATIVE_DATABASE_DIR:-}" ]]
+          [[ -d "$MORSKAMARY_CUMULATIVE_DATABASE_DIR" ]]
+          echo "Retained cumulative database path exported: $MORSKAMARY_CUMULATIVE_DATABASE_DIR"
+
       - name: Validate generated output semantics
         run: python scripts/validate_generated_outputs.py
 
@@ -175,7 +183,6 @@ jobs:
         env:
           STATIC_INPUT_ROOT: ${{ runner.temp }}/full-analysis-static-input
           STATIC_COMPARE_ROOT: ${{ runner.temp }}/full-analysis-static-baseline
-          MORSKAMARY_CUMULATIVE_DATABASE_DIR: ${{ runner.temp }}/full-analysis-retained-inputs/cumulative_database
         run: |
           set -euo pipefail
           rm -rf "$STATIC_INPUT_ROOT"

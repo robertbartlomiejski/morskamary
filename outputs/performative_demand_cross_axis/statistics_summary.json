@@ -46,15 +46,15 @@
     "unit": "unique linked evidence identity"
   },
   "source_provenance": {
-    "cumulative_manifest_generated_at_utc": null,
-    "cumulative_manifest_generated_by": null,
+    "cumulative_manifest_generated_at_utc": "2026-07-24T11:52:32.006447+00:00",
+    "cumulative_manifest_generated_by": "Full Live-Enriched Analysis",
     "cumulative_manifest_schema_version": "1.0.0",
-    "cumulative_manifest_status": null,
-    "demand_profile_rows": null,
-    "evidence_map_exact_rows": null,
-    "joined_evidence_id_count": null,
-    "qmbd_assignment_methodology": null,
-    "records_in_database": null,
+    "cumulative_manifest_status": "layer_readiness_usable",
+    "demand_profile_rows": 157,
+    "evidence_map_exact_rows": 157,
+    "joined_evidence_id_count": 3129,
+    "qmbd_assignment_methodology": "0.30*normalized_unique_doi_count + 0.20*provider_diversity_score + 0.20*temporal_recency_score + 0.15*query_diversity_score + 0.15*semantic_confidence_mean",
+    "records_in_database": 3129,
     "run_classifier_identity": {
       "classifier_version": "cumulative-db-semantic-v1",
       "current_run_id": "30090903921-1",

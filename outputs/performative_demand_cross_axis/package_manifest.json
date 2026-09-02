@@ -16,6 +16,10 @@
       "bytes": 63460,
       "sha256": "1c6295170ae0233609a8a8e79415ac4bb72dc1915728f0d672e4a007c43e11b1"
     },
+    "package_schema.json": {
+      "bytes": 1675,
+      "sha256": "81f3b626368a16f1f80dd3bdf770be3431c2d729ca1b27dde4fa51df496d281c"
+    },
     "sector_axis_expected.csv": {
       "bytes": 2164,
       "sha256": "42c7df420b4cad99ea4ed3d474c6bcb02f260cc21c4b97912a644f98ab25f90e"
@@ -41,8 +45,8 @@
       "sha256": "231c95c48caba9b15189ee2b7d4562e0e0aabeb703a527355822a6a74638ad8a"
     },
     "statistics_summary.json": {
-      "bytes": 3035,
-      "sha256": "f43e1b53932c693d20c6357796e3a95f4b6b353aa50e8c58d8e561713ac7ac8c"
+      "bytes": 3261,
+      "sha256": "75ba1fdac1b23d427d69c7aff20e7f79739873bc9aadd9899bdc735f5b432719"
     },
     "validity_threats.json": {
       "bytes": 658,
@@ -57,15 +61,15 @@
   "package_schema_version": "1.0",
   "protocol_version": "1.2.0",
   "source_provenance": {
-    "cumulative_manifest_generated_at_utc": null,
-    "cumulative_manifest_generated_by": null,
+    "cumulative_manifest_generated_at_utc": "2026-07-24T11:52:32.006447+00:00",
+    "cumulative_manifest_generated_by": "Full Live-Enriched Analysis",
     "cumulative_manifest_schema_version": "1.0.0",
-    "cumulative_manifest_status": null,
-    "demand_profile_rows": null,
-    "evidence_map_exact_rows": null,
-    "joined_evidence_id_count": null,
-    "qmbd_assignment_methodology": null,
-    "records_in_database": null,
+    "cumulative_manifest_status": "layer_readiness_usable",
+    "demand_profile_rows": 157,
+    "evidence_map_exact_rows": 157,
+    "joined_evidence_id_count": 3129,
+    "qmbd_assignment_methodology": "0.30*normalized_unique_doi_count + 0.20*provider_diversity_score + 0.20*temporal_recency_score + 0.15*query_diversity_score + 0.15*semantic_confidence_mean",
+    "records_in_database": 3129,
     "run_classifier_identity": {
       "classifier_version": "cumulative-db-semantic-v1",
       "current_run_id": "30090903921-1",
