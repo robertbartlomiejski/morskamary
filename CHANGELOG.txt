@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-09-02 (update: tighten PR #270 screening-boundary interpretation and provenance labels)
+  Change type update rename
+  Scope src scripts tests docs outputs governance
+  Files affected src/scientific_sources/performative_demand_analysis.py scripts/build_performative_demand_cross_axis_analysis.py scripts/validate_generated_outputs.py tests/test_performative_demand_analysis.py docs/PERFORMATIVE_DEMAND_CROSS_AXIS_METHOD.md outputs/performative_demand_cross_axis/* MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Clarifies in-code and artifact-level boundaries that sector-axis statistics and permutation outputs are descriptive of curated corpus structure, not external prevalence or causal demand inference, and records explicit non-iid caveats for linked evidence units. Refactors screening preparation into named fail-closed helper stages, repeats screening-only status in profile/realm/feature outputs, and tightens candidate-zero interpretation wording to exact-text-review language. Renames the tourism comparison artifact to `external_comparison_coastal_tourism_axis_realm_case.csv` and adds explicit package-scope/reproducibility governance metadata.
+  Reason PR #270 review requested stronger methodological boundaries on analysis-unit independence, inferential interpretation, screening heuristics, and external-comparison provenance visibility for downstream consumers.
+  Impact Deterministic package regeneration remains stable while reducing risk of over-reading screening tables as validated demand/supply evidence; legacy tourism comparison filename now fails validation to enforce stronger provenance labeling.
+  Provenance PR #270 comment 5516209496; config/live_query_protocol.yml canonical axis/hypothesis contract; docs/AGENT_WORKING_AGREEMENT.md evidence-boundary requirements.
+  Quality checks Focused pytest for performative-demand analysis passed; package rebuild passed with strict lineage metadata and updated governed artifacts. Full repository validation commands pending in this working entry.
+
 - 2026-08-09 (add: fail-closed research-question registry and accountability contract)
   Change type add update
   Scope config schemas src scripts tests governance

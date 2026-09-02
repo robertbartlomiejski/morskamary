@@ -295,6 +295,90 @@ def _validate_inputs(
         raise PerformativeDemandAnalysisError("no linked demand evidence is available")
 
 
+def _prepare_linked_signals_for_screening(
+    signals: pd.DataFrame,
+    evidence_map: pd.DataFrame,
+) -> tuple[pd.DataFrame, int]:
+    """Normalize and gate screening signals with fail-closed validation status."""
+    linked_signals = signals.merge(
+        evidence_map,
+        on="evidence_id",
+        how="inner",
+        suffixes=("_signal", "_linked"),
+    )
+    if not (
+        linked_signals["sector_signal"].eq(linked_signals["sector_linked"]).all()
+        and linked_signals["axis_group_signal"]
+        .eq(linked_signals["axis_group_linked"])
+        .all()
+    ):
+        raise PerformativeDemandAnalysisError(
+            "linked signal sector/axis assignments conflict with demand lineage"
+        )
+    linked_signals["manual_review_status"] = (
+        linked_signals["manual_review_status"].astype(str).str.strip().str.lower()
+    )
+    linked_signals["semantic_scope"] = (
+        linked_signals["semantic_scope"].astype(str).str.strip().str.lower()
+    )
+    illegal_semantic_scopes = {
+        scope
+        for scope in set(linked_signals["semantic_scope"])
+        if scope not in ALLOWED_SEMANTIC_SCOPES
+    }
+    if illegal_semantic_scopes:
+        raise PerformativeDemandAnalysisError(
+            "signals contain unsupported semantic_scope values: "
+            + ", ".join(sorted(illegal_semantic_scopes))
+        )
+    rejected_signal_rows_excluded = int(
+        linked_signals["manual_review_status"].eq("rejected").sum()
+    )
+    linked_signals = linked_signals.loc[
+        ~linked_signals["manual_review_status"].eq("rejected")
+    ].copy()
+    unsupported_review_statuses = set(linked_signals["manual_review_status"]) - {
+        "review_required"
+    }
+    if unsupported_review_statuses:
+        raise PerformativeDemandAnalysisError(
+            "validated/manual review statuses require an accepted validation ledger; unsupported screening statuses: "
+            + ", ".join(sorted(unsupported_review_statuses))
+        )
+    if linked_signals.empty:
+        raise PerformativeDemandAnalysisError(
+            "no non-rejected review_required signals remain for screening"
+        )
+    linked_signals = linked_signals.rename(
+        columns={"sector_linked": "sector", "axis_group_linked": "axis_group"}
+    )
+    return linked_signals, rejected_signal_rows_excluded
+
+
+def _signal_sets_by_linked_evidence(linked_signals: pd.DataFrame) -> pd.DataFrame:
+    """Collapse screening signal rows to one row per linked evidence identity."""
+    signal_set_rows: list[dict[str, Any]] = []
+    for group_key, group in linked_signals.groupby(
+        ["evidence_id", "sector", "axis_group"], sort=False
+    ):
+        typed_group_key = cast(tuple[Any, Any, Any], group_key)
+        evidence_key = str(typed_group_key[0])
+        sector_key = str(typed_group_key[1])
+        axis_group_key = str(typed_group_key[2])
+        signal_set_rows.append(
+            {
+                "evidence_id": evidence_key,
+                "sector": sector_key,
+                "axis_group": axis_group_key,
+                "signal_types": frozenset(
+                    str(value) for value in group["signal_type"].tolist()
+                ),
+                "semantic_scopes": _normalized_scope_set(group["semantic_scope"].tolist()),
+            }
+        )
+    return pd.DataFrame(signal_set_rows)
+
+
 def build_performative_demand_analysis(
     demands: pd.DataFrame,
     evidence: pd.DataFrame,
@@ -306,10 +390,12 @@ def build_performative_demand_analysis(
 ) -> PerformativeDemandAnalysis:
     """Build complete sector-axis tables and candidate screening summaries.
 
-    The sector-axis association is descriptive of the acquired and classified
-    corpus.  Permuting axis labels with fixed sector labels and fixed margins
-    tests whether the observed table is more structured than random assignment
-    within that corpus.  It does not estimate population or workforce demand.
+    The sector-axis association is descriptive of the acquired and classified corpus.
+    Permuting axis labels with fixed sector labels and fixed margins tests whether
+    the observed table is more structured than random assignment within that corpus.
+    It does not estimate population or workforce demand, and it does not create an
+    iid sample assumption. One linked evidence identity remains a curated corpus unit
+    that may carry correlated signal context across screening pathways.
     """
     sector_order = list(sector_labels)
     evidence_map = build_unique_evidence_map(demands)
@@ -377,6 +463,7 @@ def build_performative_demand_analysis(
         bh_p[valid_residual_mask] = _adjust_bh(valid_p)
     row_codes = pd.Categorical(evidence_map["sector"], categories=sector_order).codes
     column_codes = pd.Categorical(evidence_map["axis_group"], categories=AXES).codes
+    # Permutation and residual diagnostics quantify corpus structure, not prevalence.
     if inferential_computable:
         permutation_p, permutation_exceedances = _permutation_chi2_p(
             row_codes, column_codes, expected_array, chi2, permutations, seed
@@ -424,80 +511,10 @@ def build_performative_demand_analysis(
             )
     residuals = pd.DataFrame(residual_rows)
 
-    linked_signals = signals.merge(
-        evidence_map,
-        on="evidence_id",
-        how="inner",
-        suffixes=("_signal", "_linked"),
+    linked_signals, rejected_signal_rows_excluded = _prepare_linked_signals_for_screening(
+        signals, evidence_map
     )
-    if not (
-        linked_signals["sector_signal"].eq(linked_signals["sector_linked"]).all()
-        and linked_signals["axis_group_signal"]
-        .eq(linked_signals["axis_group_linked"])
-        .all()
-    ):
-        raise PerformativeDemandAnalysisError(
-            "linked signal sector/axis assignments conflict with demand lineage"
-        )
-    linked_signals["manual_review_status"] = (
-        linked_signals["manual_review_status"].astype(str).str.strip().str.lower()
-    )
-    linked_signals["semantic_scope"] = (
-        linked_signals["semantic_scope"].astype(str).str.strip().str.lower()
-    )
-    illegal_semantic_scopes = {
-        scope
-        for scope in set(linked_signals["semantic_scope"])
-        if scope not in ALLOWED_SEMANTIC_SCOPES
-    }
-    if illegal_semantic_scopes:
-        raise PerformativeDemandAnalysisError(
-            "signals contain unsupported semantic_scope values: "
-            + ", ".join(sorted(illegal_semantic_scopes))
-        )
-    rejected_signal_rows_excluded = int(
-        linked_signals["manual_review_status"].eq("rejected").sum()
-    )
-    linked_signals = linked_signals.loc[
-        ~linked_signals["manual_review_status"].eq("rejected")
-    ].copy()
-    unsupported_review_statuses = set(linked_signals["manual_review_status"]) - {
-        "review_required"
-    }
-    if unsupported_review_statuses:
-        raise PerformativeDemandAnalysisError(
-            "validated/manual review statuses require an accepted validation ledger; unsupported screening statuses: "
-            + ", ".join(sorted(unsupported_review_statuses))
-        )
-    if linked_signals.empty:
-        raise PerformativeDemandAnalysisError(
-            "no non-rejected review_required signals remain for screening"
-        )
-    linked_signals = linked_signals.rename(
-        columns={"sector_linked": "sector", "axis_group_linked": "axis_group"}
-    )
-    signal_set_rows: list[dict[str, Any]] = []
-    for group_key, group in linked_signals.groupby(
-        ["evidence_id", "sector", "axis_group"], sort=False
-    ):
-        typed_group_key = cast(tuple[Any, Any, Any], group_key)
-        evidence_key = str(typed_group_key[0])
-        sector_key = str(typed_group_key[1])
-        axis_group_key = str(typed_group_key[2])
-        signal_set_rows.append(
-            {
-                "evidence_id": evidence_key,
-                "sector": sector_key,
-                "axis_group": axis_group_key,
-                "signal_types": frozenset(
-                    str(value) for value in group["signal_type"].tolist()
-                ),
-                "semantic_scopes": _normalized_scope_set(
-                    group["semantic_scope"].tolist()
-                ),
-            }
-        )
-    signal_sets = pd.DataFrame(signal_set_rows)
+    signal_sets = _signal_sets_by_linked_evidence(linked_signals)
     all_linked = evidence_map.merge(
         signal_sets, on=["evidence_id", "sector", "axis_group"], how="left"
     )
@@ -580,6 +597,7 @@ def build_performative_demand_analysis(
                     if len(group)
                     else "empty_current_linked_corpus"
                 ),
+                "analysis_scope": "deterministic_screening_only_not_validated",
             }
             for feature in PERFORMATIVE_FEATURE_SIGNAL_TYPES:
                 hits = int(group[feature].sum()) if len(group) else 0
@@ -611,10 +629,11 @@ def build_performative_demand_analysis(
                         "validated_translation_count": 0,
                         "validated_supply_count": math.nan,
                         "coding_status": "deterministic_screening_not_human_validated",
+                        "analysis_scope": "deterministic_screening_only_not_validated",
                         "zero_interpretation": (
                             "not_observed_in_current_screening_run"
                             if candidate_count == 0
-                            else "candidate_for_text_review"
+                            else "candidate_for_exact_text_review_not_validated"
                         ),
                     }
                 )
@@ -679,6 +698,7 @@ def build_performative_demand_analysis(
             "validated_translation_events": 0,
             "independent_validated_supply_available": False,
             "shortage_claim_status": "not_computable",
+            "analysis_scope": "deterministic_screening_profile_not_validated",
         }
         for feature in PERFORMATIVE_FEATURE_SIGNAL_TYPES:
             row[f"{feature}_count"] = int(group[feature].sum())
@@ -697,6 +717,11 @@ def build_performative_demand_analysis(
         "sector_axis_independence": {
             "unit": "unique linked evidence identity",
             "n": total,
+            "unit_independence_note": (
+                "deduplicated evidence IDs avoid duplicated demand rows, but this "
+                "curated corpus is not an iid sample and may retain correlated "
+                "screening context"
+            ),
             "rows": len(sector_order),
             "columns": len(AXES),
             "active_rows_for_inference": active_row_count,
@@ -711,6 +736,10 @@ def build_performative_demand_analysis(
             "permutation_method": (
                 f"{permutations:,} unrestricted axis-label permutations with fixed "
                 "sector labels and fixed axis margins"
+            ),
+            "permutation_interpretation": (
+                "small p-values indicate non-random corpus structure under the "
+                "curated design, not external prevalence or causal demand effects"
             ),
             "permutation_seed": seed,
             "permutations": permutations,
@@ -756,6 +785,10 @@ def build_performative_demand_analysis(
             ),
             "fractional_weight_expected": screening_linked_total,
             "status": "multi-label screening; fractional weights prevent double count",
+            "mapping_basis": (
+                "deterministic signal-type to realm crosswalk for screening triage; "
+                "conceptual overlap remains and requires exact-span validation"
+            ),
         },
     }
     return PerformativeDemandAnalysis(

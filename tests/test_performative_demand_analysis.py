@@ -170,6 +170,7 @@ def test_screening_surface_tracks_retained_semantic_scope() -> None:
     ].iloc[0]
     assert row["evidence_surface"] == "abstract|title"
     assert row["evidence_status"] == "screening_not_human_validated"
+    assert row["analysis_scope"] == "deterministic_screening_only_not_validated"
 
 
 def test_builder_is_pandas_15_compatible_and_tourism_is_uncited_comparison() -> None:
@@ -259,6 +260,8 @@ def test_zero_margin_dimensions_are_excluded_from_inference() -> None:
     assert inference["active_columns_for_inference"] == 2
     assert inference["degrees_of_freedom"] == 1
     assert inference["inferential_status"] == "computed_on_nonzero_margins"
+    assert "not an iid sample" in inference["unit_independence_note"]
+    assert "non-random corpus structure" in inference["permutation_interpretation"]
 
 
 def test_query_scopes_are_rejected_from_positive_screening() -> None:
@@ -304,6 +307,35 @@ def test_fractional_weight_denominator_uses_screening_population() -> None:
     )
     assert analysis.summary["linked_evidence"] == 5
     assert analysis.summary["realm_screening_audit"]["fractional_weight_expected"] == 4
+    assert (
+        "deterministic signal-type to realm crosswalk"
+        in analysis.summary["realm_screening_audit"]["mapping_basis"]
+    )
+
+
+def test_realm_rows_and_profile_repeat_screening_only_scope() -> None:
+    demands, evidence, signals = _frames()
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+    candidate_rows = analysis.sector_axis_realms.loc[
+        analysis.sector_axis_realms["candidate_evidence_count"].gt(0)
+    ]
+    assert not candidate_rows.empty
+    assert set(candidate_rows["analysis_scope"]) == {
+        "deterministic_screening_only_not_validated"
+    }
+    assert set(candidate_rows["zero_interpretation"]) == {
+        "candidate_for_exact_text_review_not_validated"
+    }
+    assert set(analysis.sector_profile["analysis_scope"]) == {
+        "deterministic_screening_profile_not_validated"
+    }
 
 
 def test_source_provenance_rejects_run_id_alias_mismatch(tmp_path: Path) -> None:
@@ -399,3 +431,4 @@ def test_source_provenance_maps_aliases_to_current_run_id(tmp_path: Path) -> Non
     )
     assert provenance["run_classifier_identity"]["current_run_id"] == "RUN-A"
     assert provenance["cumulative_manifest_generated_at_utc"] == "2026-01-01T00:00:00+00:00"
+    assert provenance["lineage_validation_mode"] == "fail_closed"

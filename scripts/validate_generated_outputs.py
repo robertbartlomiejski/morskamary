@@ -1146,7 +1146,7 @@ def check_performative_demand_outputs() -> None:
             "axis_group",
             "axis_code",
         },
-        "coastal_tourism_axis_realm_case.csv": {
+        "external_comparison_coastal_tourism_axis_realm_case.csv": {
             "sector",
             "axis_group",
             "axis_code",
@@ -1222,7 +1222,7 @@ def check_performative_demand_outputs() -> None:
                     f"does not match canonical {axis_codes[axis]!r} for {axis}"
                 )
                 break
-        if name == "coastal_tourism_axis_realm_case.csv":
+        if name == "external_comparison_coastal_tourism_axis_realm_case.csv":
             if any(
                 str(row.get("citation_needed", "")).lower() != "true" for row in rows
             ):
@@ -1260,6 +1260,10 @@ def check_performative_demand_outputs() -> None:
     if (output_dir / "sector_deficit_profile.csv").exists():
         fail(
             "legacy sector_deficit_profile.csv must not be published as a supply-gap claim"
+        )
+    if (output_dir / "coastal_tourism_axis_realm_case.csv").exists():
+        fail(
+            "legacy coastal_tourism_axis_realm_case.csv must not be published; use external_comparison_* provenance naming"
         )
     manifest_path = output_dir / "package_manifest.json"
     hypothesis_path = output_dir / "hypothesis_outcomes.json"
@@ -1344,8 +1348,8 @@ def check_performative_demand_outputs() -> None:
                 fail(f"Performative-demand artifact is stale/non-deterministic: {name}")
         if len(ERRORS) == local_errors_before:
             ok(
-                "Performative-demand schemas and deterministic regeneration "
-                "match committed artifacts"
+                "Performative-demand scientific schemas/invariants and byte-identity "
+                "deterministic regeneration match committed artifacts"
             )
 
 

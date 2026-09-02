@@ -8,6 +8,7 @@
     "binary_candidate_count": 1238,
     "fractional_candidate_weight": 978.0,
     "fractional_weight_expected": 978,
+    "mapping_basis": "deterministic signal-type to realm crosswalk for screening triage; conceptual overlap remains and requires exact-span validation",
     "status": "multi-label screening; fractional weights prevent double count"
   },
   "screening_feature_boundary": {
@@ -38,12 +39,14 @@
     "observed_zero_cells": 26,
     "pearson_chi_square": 2358.8433714747907,
     "permutation_exceedances": 0,
+    "permutation_interpretation": "small p-values indicate non-random corpus structure under the curated design, not external prevalence or causal demand effects",
     "permutation_method": "50,000 unrestricted axis-label permutations with fixed sector labels and fixed axis margins",
     "permutation_p": 1.999960000799984e-05,
     "permutation_seed": 20260825,
     "permutations": 50000,
     "rows": 12,
-    "unit": "unique linked evidence identity"
+    "unit": "unique linked evidence identity",
+    "unit_independence_note": "deduplicated evidence IDs avoid duplicated demand rows, but this curated corpus is not an iid sample and may retain correlated screening context"
   },
   "source_provenance": {
     "cumulative_manifest_generated_at_utc": "2026-07-24T11:52:32.006447+00:00",
@@ -53,6 +56,7 @@
     "demand_profile_rows": 157,
     "evidence_map_exact_rows": 157,
     "joined_evidence_id_count": 3129,
+    "lineage_validation_mode": "fail_closed",
     "qmbd_assignment_methodology": "0.30*normalized_unique_doi_count + 0.20*provider_diversity_score + 0.20*temporal_recency_score + 0.15*query_diversity_score + 0.15*semantic_confidence_mean",
     "records_in_database": 3129,
     "run_classifier_identity": {

@@ -9,7 +9,20 @@
   ],
   "known_design_threats": [
     "retrieval/classification design confounds prevalence interpretation",
+    "deduplicated evidence IDs are corpus units, not iid observations",
     "semantic signals require exact-span human validation",
     "multi-label screening is not an independent-event design"
-  ]
+  ],
+  "package_scope": "deterministic_corpus_screening_not_validated_performativity_or_supply_gap",
+  "reproducibility_contract": {
+    "packaging_identity": [
+      "byte-for-byte artifact determinism for governed output files",
+      "checksum parity between package_manifest and artifact bytes"
+    ],
+    "scientific_invariants": [
+      "canonical four-axis contract",
+      "configured hypothesis serialization with not_computable when required evidence is absent",
+      "strict provenance lineage consistency"
+    ]
+  }
 }

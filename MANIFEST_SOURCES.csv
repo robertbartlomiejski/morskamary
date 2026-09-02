@@ -873,10 +873,11 @@ outputs/manual_sources/gatekeeper_duplicate_ids.json,other,,,,,,gatekeeper_dupli
 outputs/manual_sources/historical_compatibility.csv,dataset_derived,,,,,,historical_compatibility,yes
 outputs/manual_sources/manual_sources_index.csv,dataset_derived,,,,,,manual_sources_index,yes
 outputs/performative_demand_cross_axis/axis_screening_feature_shares.csv,dataset_derived,,,,,,axis_screening_feature_shares,yes
-outputs/performative_demand_cross_axis/coastal_tourism_axis_realm_case.csv,dataset_derived,,,,,,coastal_tourism_axis_realm_case,yes
+outputs/performative_demand_cross_axis/external_comparison_coastal_tourism_axis_realm_case.csv,dataset_derived,,,,,,external_comparison_coastal_tourism_axis,yes
 outputs/performative_demand_cross_axis/hypothesis_outcomes.json,other,,,,,,hypothesis_outcomes,yes
 outputs/performative_demand_cross_axis/linked_evidence_sector_axis_lineage.csv,dataset_derived,,,,,,linked_evidence_sector_axis_lineage,yes
 outputs/performative_demand_cross_axis/package_manifest.json,other,,,,,,package_manifest,yes
+outputs/performative_demand_cross_axis/package_schema.json,other,,,,,,package_schema,yes
 outputs/performative_demand_cross_axis/sector_axis_expected.csv,dataset_derived,,,,,,sector_axis_expected,yes
 outputs/performative_demand_cross_axis/sector_axis_observed.csv,dataset_derived,,,,,,sector_axis_observed,yes
 outputs/performative_demand_cross_axis/sector_axis_realm_screening.csv,dataset_derived,,,,,,sector_axis_realm_screening,yes

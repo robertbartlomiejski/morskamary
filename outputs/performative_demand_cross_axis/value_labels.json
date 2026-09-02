@@ -1,4 +1,5 @@
 {
+  "analysis_scope_label": "deterministic_screening_only_not_validated",
   "axis_group_to_axis_code": {
     "HYDRONIZATION": "H",
     "MARINE": "M",

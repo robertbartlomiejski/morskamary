@@ -8,6 +8,10 @@ evidence identity can support several demand work packages. The current table
 therefore has 978 observations, 12 sectors, four canonical axes, and all 48
 cells—including zeros.
 
+This choice removes duplicate work-package inflation, but it does not make the
+dataset an iid sample. A linked evidence identity can still carry correlated
+screening context across multiple signals.
+
 The method separates four objects that answer different questions:
 
 1. **Observed evidence structure** — where the acquired and classified texts sit.
@@ -47,12 +51,15 @@ The analysis reports:
 - all observed zero cells.
 
 The test describes structure in the acquired/classified corpus. Sector and axis
-were part of retrieval and classification, so a strong association is expected
-and is not a workforce prevalence estimate or a causal sector-demand effect.
+were part of retrieval and classification, so a strong association is expected.
+Small p-values or large residuals indicate non-random corpus structure under
+this design; they are not workforce prevalence estimates or causal
+sector-demand effects.
 
 ## Candidate performative-feature screen
 
-Existing title-level signal types are grouped into five review queues:
+Existing screening signal types (from retained `semantic_scope` values) are
+grouped into five review queues:
 
 | Feature | Signal types | Meaning now |
 |---|---|---|
@@ -63,7 +70,9 @@ Existing title-level signal types are grouped into five review queues:
 | Reflexive/cultural capability | social-science skill | Candidate reflexive or cultural capability |
 
 These features are deterministic screening results, not validated
-performativity. The current signals are title-only and `review_required`.
+performativity. The current package allows retained title/subject-term/abstract/full-text
+surfaces but still requires `review_required` status and exact-span validation
+before any performativity claim.
 
 ## Human-validation grain for the next run
 
@@ -94,6 +103,20 @@ python scripts/build_performative_demand_cross_axis_analysis.py
 ```
 
 The package is written to `outputs/performative_demand_cross_axis/`.
+
+## How to read the files
+
+- `sector_axis_observed.csv`, `sector_axis_expected.csv`, `sector_axis_residuals.csv`:
+  descriptive corpus-structure diagnostics only.
+- `sector_axis_screening_features.csv`, `sector_axis_realm_screening.csv`,
+  `axis_screening_feature_shares.csv`, `sector_screening_profile.csv`:
+  deterministic screening outputs only; not validated demand, translation, or
+  supply evidence.
+- `external_comparison_coastal_tourism_axis_realm_case.csv`: external
+  comparison-only aggregate; not retained repository evidence.
+- `statistics_summary.json`, `validity_threats.json`, `value_labels.json`,
+  `hypothesis_outcomes.json`, `package_schema.json`, `package_manifest.json`:
+  governance and interpretation-boundary metadata that must be read with tables.
 
 ## Review reconciliation: output identity and provenance
 

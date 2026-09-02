@@ -73,7 +73,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 
 def _tourism_case_table() -> pd.DataFrame:
-    """Return the supplied H3 aggregate recoding as an explicit 4 x 4 table."""
+    """Return external comparison-only H3 aggregate recoding as an explicit 4 x 4 table."""
     title_counts = {
         "ECONOMY": 1,
         "TECHNOLOGY": 2,
@@ -135,6 +135,7 @@ def _sha256(path: Path) -> str:
 def _source_provenance(
     database: Path, frames: Mapping[str, pd.DataFrame]
 ) -> dict[str, Any]:
+    """Return strict fail-closed lineage metadata from cumulative inputs."""
     manifest_path = database / "cumulative_database_manifest.json"
     if not manifest_path.exists():
         raise RuntimeError(
@@ -275,6 +276,7 @@ def _source_provenance(
             "current_run_id": next(iter(run_id_values), None),
             "classifier_version": next(iter(classifier_values), None),
         },
+        "lineage_validation_mode": "fail_closed",
     }
 
 
@@ -319,6 +321,7 @@ def _write_governance_artifacts(
     _write_json(
         output / "validity_threats.json",
         {
+            "package_scope": "deterministic_corpus_screening_not_validated_performativity_or_supply_gap",
             "claim_boundary": [
                 "association describes the acquired/classified corpus, not population prevalence",
                 "screening signal is not a validated competence demand",
@@ -329,9 +332,21 @@ def _write_governance_artifacts(
             ],
             "known_design_threats": [
                 "retrieval/classification design confounds prevalence interpretation",
+                "deduplicated evidence IDs are corpus units, not iid observations",
                 "semantic signals require exact-span human validation",
                 "multi-label screening is not an independent-event design",
             ],
+            "reproducibility_contract": {
+                "scientific_invariants": [
+                    "canonical four-axis contract",
+                    "configured hypothesis serialization with not_computable when required evidence is absent",
+                    "strict provenance lineage consistency",
+                ],
+                "packaging_identity": [
+                    "byte-for-byte artifact determinism for governed output files",
+                    "checksum parity between package_manifest and artifact bytes",
+                ],
+            },
         },
     )
     _write_json(
@@ -343,6 +358,7 @@ def _write_governance_artifacts(
                 "rejected": "excluded from positive screening aggregates",
                 "other": "fail closed until accepted validation ledger is ingested",
             },
+            "analysis_scope_label": "deterministic_screening_only_not_validated",
             "zero_interpretation": "not observed in declared screening state, not absent in reality",
             "supply_gap_status": "not_computable_no_independent_supply",
         },
@@ -352,6 +368,7 @@ def _write_governance_artifacts(
         output / "package_schema.json",
         {
             "schema_version": "1.0",
+            "package_scope": "deterministic_corpus_screening_not_validated_performativity_or_supply_gap",
             "axis_contract": {"canonical_names": list(AXES), "axis_codes": AXIS_CODES},
             "allowed_semantic_surfaces": list(ALLOWED_EVIDENCE_SURFACES),
             "review_status_enum": ["review_required", "rejected"],
@@ -404,7 +421,7 @@ def _write_governance_artifacts(
                     "axis_group",
                     "axis_code",
                 ],
-                "coastal_tourism_axis_realm_case.csv": [
+                "external_comparison_coastal_tourism_axis_realm_case.csv": [
                     "sector",
                     "axis_group",
                     "axis_code",
@@ -427,6 +444,7 @@ def _write_governance_artifacts(
         {
             "package_schema_version": "1.0",
             "generated_by": "scripts/build_performative_demand_cross_axis_analysis.py",
+            "package_scope": "deterministic_corpus_screening_not_validated_performativity_or_supply_gap",
             "protocol_version": protocol.get("protocol_version"),
             "source_provenance": source_provenance,
             "files": files,
@@ -461,6 +479,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     legacy_profile = output / "sector_deficit_profile.csv"
     if legacy_profile.exists():
         legacy_profile.unlink()
+    legacy_comparison = output / "coastal_tourism_axis_realm_case.csv"
+    if legacy_comparison.exists():
+        legacy_comparison.unlink()
     _write_long_matrix(
         analysis.observed,
         "observed_evidence_count",
@@ -483,7 +504,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         lineage.sort_values(["evidence_id", "sector", "axis_group"]),
         output / "linked_evidence_sector_axis_lineage.csv",
     )
-    _write_csv(_tourism_case_table(), output / "coastal_tourism_axis_realm_case.csv")
+    _write_csv(
+        _tourism_case_table(),
+        output / "external_comparison_coastal_tourism_axis_realm_case.csv",
+    )
     summary = dict(analysis.summary)
     summary["source_provenance"] = source_provenance
     _write_json(output / "statistics_summary.json", summary)

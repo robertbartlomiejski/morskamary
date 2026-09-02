@@ -12,7 +12,7 @@
       "evidence_surface",
       "feature"
     ],
-    "coastal_tourism_axis_realm_case.csv": [
+    "external_comparison_coastal_tourism_axis_realm_case.csv": [
       "sector",
       "axis_group",
       "axis_code",
@@ -77,6 +77,7 @@
       "HYDRONIZATION"
     ]
   },
+  "package_scope": "deterministic_corpus_screening_not_validated_performativity_or_supply_gap",
   "review_status_enum": [
     "review_required",
     "rejected"

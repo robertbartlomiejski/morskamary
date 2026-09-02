@@ -4,7 +4,7 @@
       "bytes": 3147,
       "sha256": "ef56458cab5a2bf60e67507766c2171557ec2249dc2cb0f530316994165c0e86"
     },
-    "coastal_tourism_axis_realm_case.csv": {
+    "external_comparison_coastal_tourism_axis_realm_case.csv": {
       "bytes": 3738,
       "sha256": "b3dd488a6cb15d928ba9fc2f963c1c2abeb6d385b5901e837319331952c6d4c0"
     },
@@ -17,8 +17,8 @@
       "sha256": "1c6295170ae0233609a8a8e79415ac4bb72dc1915728f0d672e4a007c43e11b1"
     },
     "package_schema.json": {
-      "bytes": 1675,
-      "sha256": "81f3b626368a16f1f80dd3bdf770be3431c2d729ca1b27dde4fa51df496d281c"
+      "bytes": 1791,
+      "sha256": "8f5a5dc216c475c5b71c03b74ecaa943bbc66adb9afca07c16569684ffb7ae8f"
     },
     "sector_axis_expected.csv": {
       "bytes": 2164,
@@ -29,36 +29,37 @@
       "sha256": "fcc4328b271bf0d259b197c179cb11d569637dd85fc2e4b5efc9c3f20bc2da05"
     },
     "sector_axis_realm_screening.csv": {
-      "bytes": 28455,
-      "sha256": "396a4007363041a536c944d00c963d09995848d4588087469a9b331f197af2f1"
+      "bytes": 38066,
+      "sha256": "e9bad6459e6362cb6fc85295f8a8b760736d456e0f86a1fddd5a19779e1fa2b3"
     },
     "sector_axis_residuals.csv": {
       "bytes": 8984,
       "sha256": "0d8936ec2505fe3e5fff195ee14e79d6d389258fbe31df157e8a7658cff9af26"
     },
     "sector_axis_screening_features.csv": {
-      "bytes": 8895,
-      "sha256": "b6940799046afba8dae0483f5d1e15ef8a5b5f9bd5ee314062563694ca25b9d8"
+      "bytes": 10974,
+      "sha256": "edce84cf58d5c7fbbdf7a8eb1defd9d3f02923ac51be7f22b778c95939861c01"
     },
     "sector_screening_profile.csv": {
-      "bytes": 3286,
-      "sha256": "231c95c48caba9b15189ee2b7d4562e0e0aabeb703a527355822a6a74638ad8a"
+      "bytes": 3853,
+      "sha256": "0063c06e80a589f4433ef5d3328dfd6a522c3bf11a85d359b1b6b74668d89c7f"
     },
     "statistics_summary.json": {
-      "bytes": 3261,
-      "sha256": "75ba1fdac1b23d427d69c7aff20e7f79739873bc9aadd9899bdc735f5b432719"
+      "bytes": 3802,
+      "sha256": "cc79e762114a585955c5faa9631f2cc160b5f7b094d9fda2e5f743aaa95d3510"
     },
     "validity_threats.json": {
-      "bytes": 658,
-      "sha256": "4e11c5bec489abda4c04e630ec73f3575e4092c639d0be3b0052f3c8c375463b"
+      "bytes": 1255,
+      "sha256": "6edc57d2cd5c6c27ab7de2354b16880f4e658cd430c40a379cae31eaaabfe432"
     },
     "value_labels.json": {
-      "bytes": 517,
-      "sha256": "3286f7de1b42b049cde854412c5200f944b25eeb2c6b03d6f72cf56c4f0f1acf"
+      "bytes": 589,
+      "sha256": "ac19a16dd7453b42afbe2fde1301e8dba393d2f3916499b95904c0b374aa0a42"
     }
   },
   "generated_by": "scripts/build_performative_demand_cross_axis_analysis.py",
   "package_schema_version": "1.0",
+  "package_scope": "deterministic_corpus_screening_not_validated_performativity_or_supply_gap",
   "protocol_version": "1.2.0",
   "source_provenance": {
     "cumulative_manifest_generated_at_utc": "2026-07-24T11:52:32.006447+00:00",
@@ -68,6 +69,7 @@
     "demand_profile_rows": 157,
     "evidence_map_exact_rows": 157,
     "joined_evidence_id_count": 3129,
+    "lineage_validation_mode": "fail_closed",
     "qmbd_assignment_methodology": "0.30*normalized_unique_doi_count + 0.20*provider_diversity_score + 0.20*temporal_recency_score + 0.15*query_diversity_score + 0.15*semantic_confidence_mean",
     "records_in_database": 3129,
     "run_classifier_identity": {
