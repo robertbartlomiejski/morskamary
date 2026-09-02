@@ -130,6 +130,33 @@ def _evidence_surface(frame: pd.DataFrame) -> str:
     return "|".join(sorted(scopes))
 
 
+def _linkage_dependence_audit(demands: pd.DataFrame) -> dict[str, Any]:
+    """Quantify evidence-to-demand reuse to keep independence limits explicit."""
+    links = demands[["evidence_ids"]].copy()
+    links["evidence_id"] = links["evidence_ids"].map(split_pipe)
+    links = links.explode("evidence_id")
+    links = links.loc[links["evidence_id"].notna()]
+    links = links.loc[links["evidence_id"].astype(str).str.strip().ne("")]
+    if links.empty:
+        return {
+            "total_demand_link_rows": 0,
+            "unique_linked_evidence_ids": 0,
+            "duplicated_linked_evidence_ids": 0,
+            "max_demand_links_per_evidence_id": 0,
+            "mean_demand_links_per_evidence_id": 0.0,
+            "independence_risk_flag": False,
+        }
+    counts = links.groupby("evidence_id").size()
+    return {
+        "total_demand_link_rows": int(len(links)),
+        "unique_linked_evidence_ids": int(len(counts)),
+        "duplicated_linked_evidence_ids": int((counts > 1).sum()),
+        "max_demand_links_per_evidence_id": int(counts.max()),
+        "mean_demand_links_per_evidence_id": float(counts.mean()),
+        "independence_risk_flag": bool((counts > 1).any()),
+    }
+
+
 def build_unique_evidence_map(demands: pd.DataFrame) -> pd.DataFrame:
     """Return one sector/axis assignment per linked evidence identity.
 
@@ -398,6 +425,7 @@ def build_performative_demand_analysis(
     that may carry correlated signal context across screening pathways.
     """
     sector_order = list(sector_labels)
+    linkage_dependence = _linkage_dependence_audit(demands)
     evidence_map = build_unique_evidence_map(demands)
     _validate_inputs(demands, evidence, signals, evidence_map, sector_order)
 
@@ -717,6 +745,7 @@ def build_performative_demand_analysis(
         "sector_axis_independence": {
             "unit": "unique linked evidence identity",
             "n": total,
+            "linkage_dependence_audit": linkage_dependence,
             "unit_independence_note": (
                 "deduplicated evidence IDs avoid duplicated demand rows, but this "
                 "curated corpus is not an iid sample and may retain correlated "
@@ -765,6 +794,20 @@ def build_performative_demand_analysis(
                 _normalized_scope_set(linked_signals["semantic_scope"].tolist())
                 == frozenset({"title"})
             ),
+            "observed_semantic_scopes": sorted(
+                _normalized_scope_set(linked_signals["semantic_scope"].tolist())
+            ),
+            "screening_scope_policy": (
+                "screening accepts retained title/subject_terms/abstract/full_text "
+                "surfaces; all_title_level is only a corpus-condition flag for the "
+                "current run"
+            ),
+            "title_only_interpretation": (
+                "title_only_screening_condition"
+                if _normalized_scope_set(linked_signals["semantic_scope"].tolist())
+                == frozenset({"title"})
+                else "mixed_semantic_surfaces_screening_condition"
+            ),
             "rejected_signal_rows_excluded": rejected_signal_rows_excluded,
             "all_review_required": bool(
                 linked_signals["manual_review_status"].eq("review_required").all()
@@ -788,6 +831,25 @@ def build_performative_demand_analysis(
             "mapping_basis": (
                 "deterministic signal-type to realm crosswalk for screening triage; "
                 "conceptual overlap remains and requires exact-span validation"
+            ),
+            "overlap_audit": {
+                "multi_realm_evidence_count": int(
+                    screening_linked["realm_count"].gt(1).sum()
+                ),
+                "multi_realm_evidence_share": (
+                    float(screening_linked["realm_count"].gt(1).mean())
+                    if screening_linked_total
+                    else 0.0
+                ),
+                "max_candidate_realms_per_evidence": int(
+                    screening_linked["realm_count"].max()
+                )
+                if screening_linked_total
+                else 0,
+            },
+            "robustness_boundary": (
+                "realm assignment is deterministic screening triage with allowed "
+                "multi-realm overlap; it is not a validated exclusive coding frame"
             ),
         },
     }

@@ -45,12 +45,12 @@
       "sha256": "0063c06e80a589f4433ef5d3328dfd6a522c3bf11a85d359b1b6b74668d89c7f"
     },
     "statistics_summary.json": {
-      "bytes": 3802,
-      "sha256": "cc79e762114a585955c5faa9631f2cc160b5f7b094d9fda2e5f743aaa95d3510"
+      "bytes": 4742,
+      "sha256": "b531df20e1e4275d2994bf5df25326736e38e724efec8b17d25326d19e343e0f"
     },
     "validity_threats.json": {
-      "bytes": 1255,
-      "sha256": "6edc57d2cd5c6c27ab7de2354b16880f4e658cd430c40a379cae31eaaabfe432"
+      "bytes": 1351,
+      "sha256": "89f1d4ae3976e314d00d68fd134427c6fc5fd7b33598b0e189a10d6c5f879a8e"
     },
     "value_labels.json": {
       "bytes": 589,

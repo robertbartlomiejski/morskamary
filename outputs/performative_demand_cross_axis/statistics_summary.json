@@ -9,14 +9,25 @@
     "fractional_candidate_weight": 978.0,
     "fractional_weight_expected": 978,
     "mapping_basis": "deterministic signal-type to realm crosswalk for screening triage; conceptual overlap remains and requires exact-span validation",
+    "overlap_audit": {
+      "max_candidate_realms_per_evidence": 3,
+      "multi_realm_evidence_count": 240,
+      "multi_realm_evidence_share": 0.24539877300613497
+    },
+    "robustness_boundary": "realm assignment is deterministic screening triage with allowed multi-realm overlap; it is not a validated exclusive coding frame",
     "status": "multi-label screening; fractional weights prevent double count"
   },
   "screening_feature_boundary": {
     "all_review_required": true,
     "all_title_level": true,
     "independently_validated_supply_rows": 0,
+    "observed_semantic_scopes": [
+      "title"
+    ],
     "performative_stage_conclusion": "not computable until exact text spans and two-coder decisions exist",
     "rejected_signal_rows_excluded": 0,
+    "screening_scope_policy": "screening accepts retained title/subject_terms/abstract/full_text surfaces; all_title_level is only a corpus-condition flag for the current run",
+    "title_only_interpretation": "title_only_screening_condition",
     "validated_demand_events": 0,
     "validated_translation_events": 0
   },
@@ -34,6 +45,14 @@
     "holm_significant_cells": 37,
     "inferential_status": "computed_on_nonzero_margins",
     "interpretation_boundary": "association describes the acquired/classified corpus and is confounded by retrieval/classification design; it is not workforce prevalence or causal sector demand",
+    "linkage_dependence_audit": {
+      "duplicated_linked_evidence_ids": 390,
+      "independence_risk_flag": true,
+      "max_demand_links_per_evidence_id": 5,
+      "mean_demand_links_per_evidence_id": 1.49079754601227,
+      "total_demand_link_rows": 1458,
+      "unique_linked_evidence_ids": 978
+    },
     "minimum_expected_count": 1.7177914110429449,
     "n": 978,
     "observed_zero_cells": 26,

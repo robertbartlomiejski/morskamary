@@ -70,9 +70,17 @@ grouped into five review queues:
 | Reflexive/cultural capability | social-science skill | Candidate reflexive or cultural capability |
 
 These features are deterministic screening results, not validated
-performativity. The current package allows retained title/subject-term/abstract/full-text
-surfaces but still requires `review_required` status and exact-span validation
-before any performativity claim.
+performativity. The package intentionally accepts retained title, subject-term,
+abstract, and full-text surfaces in one screening pass and records the observed
+surface mix per run. `all_title_level=true` therefore means only that the
+current retained signals happen to be title-only; it is not a methodological
+requirement.
+
+Realm mapping is deterministic and multi-label by design: one evidence identity
+may activate multiple realms in the same pass. Fractional weighting prevents
+double-count inflation in aggregates, but this does not remove conceptual
+overlap. Realm assignments remain triage candidates and require exact-span
+human validation before any validated translation or performativity claim.
 
 ## Human-validation grain for the next run
 

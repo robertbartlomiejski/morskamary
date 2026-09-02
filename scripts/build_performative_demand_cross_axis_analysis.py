@@ -333,6 +333,7 @@ def _write_governance_artifacts(
             "known_design_threats": [
                 "retrieval/classification design confounds prevalence interpretation",
                 "deduplicated evidence IDs are corpus units, not iid observations",
+                "a linked evidence identity can support multiple demand work packages and screening paths",
                 "semantic signals require exact-span human validation",
                 "multi-label screening is not an independent-event design",
             ],

@@ -262,6 +262,12 @@ def test_zero_margin_dimensions_are_excluded_from_inference() -> None:
     assert inference["inferential_status"] == "computed_on_nonzero_margins"
     assert "not an iid sample" in inference["unit_independence_note"]
     assert "non-random corpus structure" in inference["permutation_interpretation"]
+    dependence = inference["linkage_dependence_audit"]
+    assert dependence["total_demand_link_rows"] == 5
+    assert dependence["unique_linked_evidence_ids"] == 4
+    assert dependence["duplicated_linked_evidence_ids"] == 1
+    assert dependence["max_demand_links_per_evidence_id"] == 2
+    assert dependence["independence_risk_flag"] is True
 
 
 def test_query_scopes_are_rejected_from_positive_screening() -> None:
@@ -311,6 +317,55 @@ def test_fractional_weight_denominator_uses_screening_population() -> None:
         "deterministic signal-type to realm crosswalk"
         in analysis.summary["realm_screening_audit"]["mapping_basis"]
     )
+    assert (
+        analysis.summary["screening_feature_boundary"]["title_only_interpretation"]
+        == "title_only_screening_condition"
+    )
+
+
+def test_screening_boundary_reports_non_title_scope_mix() -> None:
+    demands, evidence, signals = _frames()
+    signals.loc[signals["evidence_id"].eq("E-1"), "semantic_scope"] = "abstract"
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+    boundary = analysis.summary["screening_feature_boundary"]
+    assert boundary["all_title_level"] is False
+    assert boundary["observed_semantic_scopes"] == ["abstract", "title"]
+    assert (
+        boundary["title_only_interpretation"]
+        == "mixed_semantic_surfaces_screening_condition"
+    )
+
+
+def test_realm_overlap_audit_flags_multi_realm_candidates() -> None:
+    demands, evidence, signals = _frames()
+    overlap_row = {
+        "evidence_id": "E-1",
+        "sector": "sector_a",
+        "axis_group": "MARINE",
+        "signal_type": "governance_skill",
+        "semantic_scope": "title",
+        "manual_review_status": "review_required",
+    }
+    signals = pd.concat([signals, pd.DataFrame([overlap_row])], ignore_index=True)
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+    overlap = analysis.summary["realm_screening_audit"]["overlap_audit"]
+    assert overlap["multi_realm_evidence_count"] >= 1
+    assert overlap["multi_realm_evidence_share"] > 0
+    assert overlap["max_candidate_realms_per_evidence"] >= 2
 
 
 def test_realm_rows_and_profile_repeat_screening_only_scope() -> None:

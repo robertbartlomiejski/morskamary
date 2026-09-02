@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-09-02 (update: explicit methodological boundaries for performative screening package)
+  Change type update
+  Scope src scripts tests docs outputs governance
+  Files affected src/scientific_sources/performative_demand_analysis.py scripts/build_performative_demand_cross_axis_analysis.py tests/test_performative_demand_analysis.py docs/PERFORMATIVE_DEMAND_CROSS_AXIS_METHOD.md outputs/performative_demand_cross_axis/statistics_summary.json outputs/performative_demand_cross_axis/validity_threats.json outputs/performative_demand_cross_axis/package_manifest.json CHANGELOG.txt
+  Summary Adds explicit linkage-dependence diagnostics (evidence reused across demand work packages), semantic-surface boundary metadata for screening, and deterministic realm-overlap audit fields to keep interpretation fail-closed. Extends governance threats text to state that one evidence identity may contribute through multiple screening paths and documents that title-only is a contingent run condition rather than a required screening basis.
+  Reason Follow-up on PR #270 methodological concerns to tighten boundaries around observation independence, inferential interpretation, and heuristic realm/surface screening without broadening scientific claims.
+  Impact The package remains deterministic and non-inferential for validated demand/supply claims while exposing machine-readable diagnostics that reduce over-interpretation risk in downstream use.
+  Provenance PR follow-up request on three methodological points; config/live_query_protocol.yml canonical axis/hypothesis contract.
+  Quality checks python -m pytest tests/test_performative_demand_analysis.py -v (17 passed); python -m flake8 src scripts tests run_full_analysis.py main.py (passed); python -m mypy src scripts run_full_analysis.py main.py (passed); python -m pytest tests/ -v (1623 passed); python scripts/validate_generated_outputs.py (passed); python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present (passed).
+
 - 2026-09-02 (update: tighten PR #270 screening-boundary interpretation and provenance labels)
   Change type update rename
   Scope src scripts tests docs outputs governance
