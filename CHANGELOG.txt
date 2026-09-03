@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-09-03 (fix: align pyproject dev floors with pinned requirements toolchain)
+  Change type fix update
+  Scope governance dependencies tests
+  Files affected pyproject.toml tests/test_ci_workflow.py CHANGELOG.txt
+  Summary Raised every `project.optional-dependencies.dev` minimum in pyproject.toml to the exact versions already pinned in requirements.txt and added a regression test that fails if the pyproject dev-toolchain floor drifts below the pinned requirements set for black, flake8, jsonschema, mypy, pandas-stubs, pytest, or types-jsonschema.
+  Reason The current branch only bumped requirements.txt for jsonschema/types-jsonschema, leaving pyproject.toml advertising older compatible minimums. That drift can publish stale dependency metadata to tooling that reads pyproject.toml, including the repository's dependency-submission workflow, and weakens review confidence that the declared dev toolchain matches the validated pinned setup.
+  Impact Dependency declarations are now internally consistent across the two repository-managed manifests, and future version bumps to the pinned validation toolchain will fail fast in tests if pyproject.toml is not updated in lockstep. No scientific outputs, provider acquisition, or runtime analysis logic changed.
+  Provenance requirements.txt and pyproject.toml are the repository-managed dependency sources consumed by .github/workflows/dependency-submission.yml and .github/workflows/copilot-setup-steps.yml.
+  Quality checks Pending: targeted pytest for tests/test_ci_workflow.py, targeted secret scan, and final security review.
+
 - 2026-08-09 (add: fail-closed research-question registry and accountability contract)
   Change type add update
   Scope config schemas src scripts tests governance

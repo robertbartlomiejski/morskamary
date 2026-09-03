@@ -21,6 +21,12 @@ FULL_ANALYSIS_WORKFLOW_TEXT = (
 FULL_ANALYSIS_WORKFLOW = yaml.safe_load(FULL_ANALYSIS_WORKFLOW_TEXT)
 CI_WORKFLOW = yaml.safe_load(WORKFLOW_TEXT)
 STATIC_MODE_PATTERN = re.compile(r"--analysis-input-mode\s+['\"]?static\b")
+PYPROJECT_TEXT = (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(
+    encoding="utf-8"
+)
+REQUIREMENTS_TEXT = (
+    Path(__file__).resolve().parents[1] / "requirements.txt"
+).read_text(encoding="utf-8")
 
 
 def _static_recovery_scope_errors(workflow: dict[str, Any]) -> tuple[int, list[str]]:
@@ -222,3 +228,30 @@ def test_ci_workflow_revalidates_tracked_protocol_projection_outputs() -> None:
     assert tracked_check_index < diff_check_index
     assert '"${projection_paths[@]}"' in run_script
     assert "git diff --exit-code --" in run_script
+
+
+def test_pyproject_dev_toolchain_matches_pinned_requirements_floor() -> None:
+    expected = {
+        package: version
+        for package, version in re.findall(
+            r"^([A-Za-z0-9_-]+)==([^\s;#]+)", REQUIREMENTS_TEXT, re.MULTILINE
+        )
+    }
+    dev_section_match = re.search(
+        r"^\[project\.optional-dependencies\]\s+dev\s*=\s*\[(?P<section>.*?)^\]",
+        PYPROJECT_TEXT,
+        re.MULTILINE | re.DOTALL,
+    )
+    assert dev_section_match is not None, "pyproject.toml is missing project.optional-dependencies.dev"
+    dev_section = dev_section_match.group("section")
+
+    for package in (
+        "black",
+        "flake8",
+        "jsonschema",
+        "mypy",
+        "pandas-stubs",
+        "pytest",
+        "types-jsonschema",
+    ):
+        assert f'"{package}>={expected[package]}"' in dev_section
