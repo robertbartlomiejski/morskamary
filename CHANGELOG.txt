@@ -23,11 +23,11 @@ Use this section for changes in progress that are not yet merged into the main b
   Change type fix update
   Scope governance scripts tests workflows
   Files affected .github/workflows/ci.yml scripts/changelog_guard.py tests/test_changelog_guard.py CHANGELOG.txt
-  Summary Hardens the CI PR changelog-enforcement step by replacing the depth=1 base fetch with an unshallow-plus-full-base fetch, then updates changelog_guard.py to resolve git merge-base first and diff from merge-base..HEAD. If merge-base is genuinely unavailable, the guard now falls back to origin/base..HEAD instead of failing immediately, preserving enforcement behavior for tracked artifacts while avoiding brittle no-merge-base crashes.
-  Reason CI job 93232500739 in workflow run 31308188848 failed with RuntimeError fatal: origin/main...HEAD: no merge base due to shallow/incomplete ancestry in PR validation.
-  Impact PR changelog governance remains active, but no longer fails on merge-base lookup edge cases caused by shallow history.
+  Summary Keeps the CI PR changelog-enforcement workflow compatible with the existing base-ref invocation while hardening changelog_guard.py for shallow-history edge cases. The guard still prefers git merge-base when available, now retries a targeted deepen fetch when the repository is shallow, and only then falls back to origin/base..HEAD with distinct actionable merge-base and diff failure messages.
+  Reason PR validation can still encounter shallow or incomplete ancestry topologies where merge-base is unavailable even after the workflow fetches the base branch, causing brittle guard failures unrelated to actual CHANGELOG policy.
+  Impact PR changelog governance remains deterministic and fail-closed for substantive tracked artifacts while becoming more resilient to shallow-history CI topologies and easier to debug when git ancestry or diff resolution fails.
   Provenance CI failure logs for workflow run 31308188848 / job 93232500739 and scripts/changelog_guard.py call path.
-  Quality checks python -m pytest tests/test_changelog_guard.py -v (passed).
+  Quality checks python -m pytest tests/test_changelog_guard.py tests/test_ci_workflow.py -v (37 passed); python -m flake8 scripts/changelog_guard.py tests/test_changelog_guard.py tests/test_ci_workflow.py (passed); python -m mypy scripts/changelog_guard.py (passed); python scripts/changelog_guard.py --changed-file scripts/changelog_guard.py --changed-file CHANGELOG.txt (passed).
 
 - 2026-08-09 (add: fail-closed research-question registry and accountability contract)
   Change type add update
