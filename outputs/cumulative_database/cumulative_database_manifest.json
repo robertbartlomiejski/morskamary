@@ -53,6 +53,11 @@
     "run_novelty_metrics.csv",
     "run_novelty_metrics.json"
   ],
+  "protocol_binding": {
+    "protocol_path": "config/live_query_protocol.yml",
+    "protocol_sha256": "2ce250b3a1f67006db7e659e58f8c0b798733484946148866f8e46d6ce602151",
+    "protocol_version": "1.2.0"
+  },
   "schema_version": "1.0.0",
   "workflow_context": {
     "github_event_name": "workflow_dispatch",

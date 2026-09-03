@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 
 import pandas as pd
@@ -23,18 +24,21 @@ def _frames() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
                 "competence_demand_id": "D-1",
                 "sector": "sector_a",
                 "axis_group": "MARINE",
+                "axis_code": "M",
                 "evidence_ids": "E-1|E-2",
             },
             {
                 "competence_demand_id": "D-2",
                 "sector": "sector_a",
                 "axis_group": "MARINE",
+                "axis_code": "M",
                 "evidence_ids": "E-1",
             },
             {
                 "competence_demand_id": "D-3",
                 "sector": "sector_b",
                 "axis_group": "OCEANIC",
+                "axis_code": "O",
                 "evidence_ids": "E-3|E-4",
             },
         ]
@@ -151,6 +155,13 @@ def test_axis_codes_are_explicit_in_analysis_tables() -> None:
         for row in analysis.sector_profile.itertuples(index=False)
         if row.dominant_axis is not None
     )
+
+
+def test_build_unique_evidence_map_rejects_mismatched_axis_group_axis_code() -> None:
+    demands, _, _ = _frames()
+    demands.loc[0, "axis_code"] = "T"
+    with pytest.raises(PerformativeDemandAnalysisError, match="axis_group/axis_code"):
+        build_unique_evidence_map(demands)
 
 
 def test_screening_surface_tracks_retained_semantic_scope() -> None:
@@ -291,6 +302,20 @@ def test_query_scopes_are_rejected_from_positive_screening() -> None:
         )
 
 
+def test_unmapped_signal_types_are_rejected_fail_closed() -> None:
+    demands, evidence, signals = _frames()
+    signals.loc[0, "signal_type"] = "new_signal_type_not_in_mapping"
+    with pytest.raises(PerformativeDemandAnalysisError, match="unsupported signal_type"):
+        build_performative_demand_analysis(
+            demands,
+            evidence,
+            signals,
+            {"sector_a": "Sector A", "sector_b": "Sector B"},
+            permutations=9,
+            seed=42,
+        )
+
+
 def test_fractional_weight_denominator_uses_screening_population() -> None:
     demands, evidence, signals = _frames()
     demands = pd.concat(
@@ -302,6 +327,7 @@ def test_fractional_weight_denominator_uses_screening_population() -> None:
                         "competence_demand_id": "D-4",
                         "sector": "sector_a",
                         "axis_group": "MARINE",
+                        "axis_code": "M",
                         "evidence_ids": "E-5",
                     }
                 ]
@@ -454,6 +480,7 @@ def test_source_provenance_rejects_run_id_alias_mismatch(tmp_path: Path) -> None
             "competence_demand_id": ["D-1"],
             "sector": ["sector_a"],
             "axis_group": ["MARINE"],
+            "axis_code": ["M"],
             "evidence_ids": ["E-1"],
             "current_run_id": ["RUN-A"],
         }
@@ -509,6 +536,7 @@ def test_source_provenance_maps_aliases_to_current_run_id(tmp_path: Path) -> Non
             "competence_demand_id": ["D-1"],
             "sector": ["sector_a"],
             "axis_group": ["MARINE"],
+            "axis_code": ["M"],
             "evidence_ids": ["E-1"],
             "current_run_id": ["RUN-A"],
         }
@@ -655,6 +683,7 @@ def test_source_provenance_fails_closed_on_empty_layer_readiness(tmp_path: Path)
             "competence_demand_id": ["D-1"],
             "sector": ["sector_a"],
             "axis_group": ["MARINE"],
+            "axis_code": ["M"],
             "evidence_ids": ["E-1"],
             "current_run_id": ["RUN-A"],
         }
@@ -687,6 +716,7 @@ def test_source_provenance_fails_closed_on_unusable_layer(tmp_path: Path) -> Non
             "competence_demand_id": ["D-1"],
             "sector": ["sector_a"],
             "axis_group": ["MARINE"],
+            "axis_code": ["M"],
             "evidence_ids": ["E-1"],
             "current_run_id": ["RUN-A"],
         }
@@ -712,6 +742,7 @@ def test_source_provenance_evidence_map_excludes_unlinked_evidence_ids(
             "competence_demand_id": ["D-1"],
             "sector": ["sector_a"],
             "axis_group": ["MARINE"],
+            "axis_code": ["M"],
             "evidence_ids": ["E-1"],
             "current_run_id": ["RUN-A"],
         }
@@ -752,3 +783,73 @@ def test_staged_output_dir_preserves_original_on_failure(tmp_path: Path) -> None
             raise RuntimeError("boom")
     assert (output / "original.csv").read_text(encoding="utf-8") == "original"
     assert not (output / "partial.csv").exists()
+
+
+def test_verify_retained_inputs_fails_on_checksum_mismatch(tmp_path: Path) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _verify_retained_inputs
+
+    db = tmp_path / "db"
+    db.mkdir()
+    files = {
+        "derived_competence_demands.csv": "a\n1\n",
+        "evidence_records.csv": "evidence_id\nE-1\n",
+        "competence_demand_signals.csv": "evidence_id\nE-1\n",
+        "cumulative_database_manifest.json": (
+            '{"protocol_binding":{"protocol_path":"config/live_query_protocol.yml",'
+            '"protocol_version":"1.2.0","protocol_sha256":"x"}}\n'
+        ),
+        "layer4_manifest.json": "{}\n",
+        "layer_readiness_report.json": '{"layers":[{"usable_for_layer4":true}]}\n',
+    }
+    for rel, content in files.items():
+        (db / rel).write_text(content, encoding="utf-8")
+    lines = []
+    for rel in files:
+        digest = hashlib.sha256((db / rel).read_bytes()).hexdigest()
+        if rel == "evidence_records.csv":
+            digest = "0" * 64
+        lines.append(f"{digest}  {rel}")
+    (db / "_checksums.sha256").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    with pytest.raises(RuntimeError, match="checksum mismatch"):
+        _verify_retained_inputs(db)
+
+
+def test_verified_protocol_identity_rejects_digest_mismatch() -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import (
+        _verified_protocol_identity,
+    )
+
+    protocol_path = Path(__file__).resolve().parents[1] / "config" / "live_query_protocol.yml"
+    manifest = {
+        "protocol_binding": {
+            "protocol_path": "config/live_query_protocol.yml",
+            "protocol_version": "1.2.0",
+            "protocol_sha256": "0" * 64,
+        }
+    }
+    with pytest.raises(RuntimeError, match="protocol digest mismatch"):
+        _verified_protocol_identity(
+            manifest=manifest,
+            protocol_path=protocol_path,
+            protocol={"protocol_version": "1.2.0"},
+        )
+
+
+def test_governance_schema_requires_residual_measure_columns(tmp_path: Path) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import (
+        _write_governance_artifacts,
+    )
+
+    out = tmp_path / "out"
+    out.mkdir()
+    _write_governance_artifacts(
+        out,
+        {"hypotheses": {}, "protocol_version": "1.2.0"},
+        {"protocol_identity": {"verification_status": "verified_against_retained_snapshot"}},
+    )
+    schema = json.loads((out / "package_schema.json").read_text(encoding="utf-8"))
+    residual_fields = schema["artifacts"]["sector_axis_residuals.csv"]
+    assert "adjusted_standardized_residual" in residual_fields
+    assert "raw_cell_p" in residual_fields
+    assert "holm_p" in residual_fields
+    assert "bh_p" in residual_fields

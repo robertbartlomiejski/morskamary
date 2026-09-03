@@ -78,6 +78,12 @@ REALM_SIGNAL_TYPES: Mapping[str, frozenset[str]] = {
     ),
 }
 
+ALLOWED_SIGNAL_TYPES = frozenset(
+    signal_type
+    for members in PERFORMATIVE_FEATURE_SIGNAL_TYPES.values()
+    for signal_type in members
+)
+
 ALLOWED_SEMANTIC_SCOPES = frozenset({"title", "subject_terms", "abstract", "full_text"})
 
 
@@ -196,7 +202,13 @@ def build_unique_evidence_map(demands: pd.DataFrame) -> pd.DataFrame:
     identity may appear in several demand rows, so it is exploded and
     deduplicated before any sector/axis inference.
     """
-    required = ("competence_demand_id", "sector", "axis_group", "evidence_ids")
+    required = (
+        "competence_demand_id",
+        "sector",
+        "axis_group",
+        "axis_code",
+        "evidence_ids",
+    )
     missing = set(required) - set(demands.columns)
     if missing:
         raise PerformativeDemandAnalysisError(
@@ -204,6 +216,34 @@ def build_unique_evidence_map(demands: pd.DataFrame) -> pd.DataFrame:
         )
 
     links = demands[list(required)].copy()
+    links["axis_group"] = links["axis_group"].astype(str).str.strip()
+    links["axis_code"] = links["axis_code"].astype(str).str.strip()
+    if links["axis_group"].eq("").any() or links["axis_code"].eq("").any():
+        raise PerformativeDemandAnalysisError(
+            "derived demands contain blank axis_group/axis_code values"
+        )
+    unknown_axis_groups = sorted(set(links["axis_group"]) - set(AXES))
+    if unknown_axis_groups:
+        raise PerformativeDemandAnalysisError(
+            "derived demands contain non-canonical axis_group values: "
+            + ", ".join(unknown_axis_groups)
+        )
+    unknown_axis_codes = sorted(set(links["axis_code"]) - set(AXIS_CODES.values()))
+    if unknown_axis_codes:
+        raise PerformativeDemandAnalysisError(
+            "derived demands contain unsupported axis_code values: "
+            + ", ".join(unknown_axis_codes)
+        )
+    expected_axis_codes = links["axis_group"].map(AXIS_CODES)
+    mismatched_axis_pairs = links.loc[links["axis_code"].ne(expected_axis_codes)]
+    if not mismatched_axis_pairs.empty:
+        sample = ", ".join(
+            f"{row.axis_group}:{row.axis_code}"
+            for row in mismatched_axis_pairs.head(5).itertuples(index=False)
+        )
+        raise PerformativeDemandAnalysisError(
+            "derived demands contain axis_group/axis_code mismatches: " + sample
+        )
     links["evidence_id"] = links["evidence_ids"].map(split_pipe)
     links = links.explode("evidence_id")
     links = links.loc[links["evidence_id"].notna()]
@@ -365,6 +405,15 @@ def _prepare_linked_signals_for_screening(
     linked_signals["semantic_scope"] = (
         linked_signals["semantic_scope"].astype(str).str.strip().str.lower()
     )
+    linked_signals["signal_type"] = linked_signals["signal_type"].astype(str).str.strip()
+    unsupported_signal_types = sorted(
+        set(linked_signals["signal_type"]) - set(ALLOWED_SIGNAL_TYPES)
+    )
+    if unsupported_signal_types:
+        raise PerformativeDemandAnalysisError(
+            "signals contain unsupported signal_type values: "
+            + ", ".join(unsupported_signal_types)
+        )
     # Step 2: enforce retained semantic-surface policy (never query/source_query).
     illegal_semantic_scopes = {
         scope

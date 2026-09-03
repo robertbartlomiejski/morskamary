@@ -8,6 +8,7 @@ import contextlib
 import hashlib
 import json
 import math
+import re
 import shutil
 import sys
 import tempfile
@@ -35,6 +36,15 @@ DEFAULT_OUTPUT = REPO_ROOT / "outputs" / "performative_demand_cross_axis"
 DEFAULT_PROTOCOL = REPO_ROOT / "config" / "live_query_protocol.yml"
 RUN_ID_ALIASES = ("current_run_id", "run_id")
 ALLOWED_EVIDENCE_SURFACES = ("title", "subject_terms", "abstract", "full_text")
+CHECKSUM_REQUIRED_INPUTS = (
+    "derived_competence_demands.csv",
+    "evidence_records.csv",
+    "competence_demand_signals.csv",
+    "cumulative_database_manifest.json",
+    "layer4_manifest.json",
+    "layer_readiness_report.json",
+)
+CHECKSUM_LINE_RE = re.compile(r"^([0-9a-f]{64})\s{2}(.+)$")
 
 
 def _first_non_empty(*values: object) -> str | None:
@@ -142,6 +152,113 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _parse_checksum_manifest(path: Path) -> dict[str, str]:
+    if not path.exists():
+        raise RuntimeError(f"missing retained checksum manifest: {path}")
+    checksums: dict[str, str] = {}
+    for line_number, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        line = raw_line.strip()
+        if not line:
+            continue
+        match = CHECKSUM_LINE_RE.match(line)
+        if not match:
+            raise RuntimeError(
+                f"malformed checksum entry at line {line_number} in {path.name}: {raw_line!r}"
+            )
+        digest, rel = match.group(1), match.group(2).strip()
+        rel_path = Path(rel)
+        if rel_path.is_absolute() or ".." in rel_path.parts:
+            # Keep existing legacy out-of-directory rows untouched, but they cannot
+            # be used for retained-input validation.
+            continue
+        normalized_rel = rel_path.as_posix()
+        if normalized_rel in checksums:
+            raise RuntimeError(
+                f"duplicate checksum entry for {normalized_rel!r} in {path.name}"
+            )
+        checksums[normalized_rel] = digest
+    return checksums
+
+
+def _verify_retained_inputs(database: Path) -> dict[str, str]:
+    checksums = _parse_checksum_manifest(database / "_checksums.sha256")
+    verified: dict[str, str] = {}
+    for rel in CHECKSUM_REQUIRED_INPUTS:
+        if rel not in checksums:
+            raise RuntimeError(
+                f"required retained input {rel!r} is missing from _checksums.sha256"
+            )
+        resolved = (database / rel).resolve()
+        if not resolved.is_file():
+            raise RuntimeError(f"required retained input file is missing: {database / rel}")
+        if database.resolve() not in resolved.parents:
+            raise RuntimeError(
+                f"retained input path escapes database directory: {database / rel}"
+            )
+        actual = _sha256(resolved)
+        expected = checksums[rel]
+        if actual != expected:
+            raise RuntimeError(
+                f"retained input checksum mismatch for {rel}: expected {expected}, got {actual}"
+            )
+        verified[rel] = expected
+    return verified
+
+
+def _verified_protocol_identity(
+    *,
+    manifest: Mapping[str, Any],
+    protocol_path: Path,
+    protocol: Mapping[str, Any],
+) -> dict[str, str]:
+    binding = manifest.get("protocol_binding")
+    if not isinstance(binding, dict):
+        raise RuntimeError(
+            "cumulative_database_manifest.json is missing protocol_binding; "
+            "retained snapshot must declare protocol_path/protocol_version/protocol_sha256"
+        )
+    retained_protocol_path = str(binding.get("protocol_path", "")).strip()
+    retained_protocol_version = str(binding.get("protocol_version", "")).strip()
+    retained_protocol_sha256 = str(binding.get("protocol_sha256", "")).strip().lower()
+    if not retained_protocol_path or not retained_protocol_version or not retained_protocol_sha256:
+        raise RuntimeError(
+            "protocol_binding must include non-empty protocol_path, protocol_version, and protocol_sha256"
+        )
+    if not re.fullmatch(r"[0-9a-f]{64}", retained_protocol_sha256):
+        raise RuntimeError("protocol_binding.protocol_sha256 must be a 64-char lowercase hex digest")
+    protocol_version = str(protocol.get("protocol_version", "")).strip()
+    if not protocol_version:
+        raise RuntimeError("protocol is missing protocol_version")
+    if protocol_version != retained_protocol_version:
+        raise RuntimeError(
+            "protocol version mismatch between checkout and retained snapshot: "
+            f"checkout={protocol_version}, retained={retained_protocol_version}"
+        )
+    try:
+        protocol_rel = protocol_path.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+    except ValueError as exc:
+        raise RuntimeError(
+            f"protocol path must be inside repository root: {protocol_path}"
+        ) from exc
+    if protocol_rel != retained_protocol_path:
+        raise RuntimeError(
+            "protocol path mismatch between checkout and retained snapshot: "
+            f"checkout={protocol_rel}, retained={retained_protocol_path}"
+        )
+    checkout_digest = _sha256(protocol_path)
+    if checkout_digest != retained_protocol_sha256:
+        raise RuntimeError(
+            "protocol digest mismatch between checkout and retained snapshot: "
+            f"checkout={checkout_digest}, retained={retained_protocol_sha256}"
+        )
+    return {
+        "protocol_path": protocol_rel,
+        "protocol_version": retained_protocol_version,
+        "protocol_sha256": retained_protocol_sha256,
+        "verification_status": "verified_against_retained_snapshot",
+    }
+
+
 @contextlib.contextmanager
 def _staged_output_dir(output: Path) -> Iterator[Path]:
     """Build artifacts in an isolated staging directory, then promote atomically.
@@ -176,7 +293,11 @@ def _staged_output_dir(output: Path) -> Iterator[Path]:
 
 
 def _source_provenance(
-    database: Path, frames: Mapping[str, pd.DataFrame]
+    database: Path,
+    frames: Mapping[str, pd.DataFrame],
+    *,
+    verified_source_hashes: Mapping[str, str] | None = None,
+    verified_protocol_identity: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
     """Return strict fail-closed lineage metadata from cumulative inputs.
 
@@ -330,7 +451,19 @@ def _source_provenance(
             ),
         ),
         "records_in_database": records_in_database,
-        "source_file_sha256": {name: _sha256(database / name) for name in source_names},
+        "source_file_sha256": {
+            name: (
+                verified_source_hashes[name]
+                if verified_source_hashes is not None and name in verified_source_hashes
+                else _sha256(database / name)
+            )
+            for name in source_names
+        },
+        "protocol_identity": (
+            dict(verified_protocol_identity)
+            if verified_protocol_identity is not None
+            else dict(manifest.get("protocol_binding", {}))
+        ),
         "run_classifier_identity": {
             "status": (
                 "verified_from_available_fields"
@@ -465,6 +598,10 @@ def _write_governance_artifacts(
                     "axis_group",
                     "axis_code",
                     "observed_evidence_count",
+                    "adjusted_standardized_residual",
+                    "raw_cell_p",
+                    "holm_p",
+                    "bh_p",
                 ],
                 "sector_axis_screening_features.csv": [
                     "sector",
@@ -538,12 +675,20 @@ def main(argv: Sequence[str] | None = None) -> int:
         sector: str(config["label"]) for sector, config in protocol["sectors"].items()
     }
     database = args.database_dir
+    retained_hashes = _verify_retained_inputs(database)
+    manifest = json.loads((database / "cumulative_database_manifest.json").read_text(encoding="utf-8"))
+    verified_protocol_identity = _verified_protocol_identity(
+        manifest=manifest, protocol_path=args.protocol, protocol=protocol
+    )
     demands = pd.read_csv(database / "derived_competence_demands.csv")
     evidence = pd.read_csv(database / "evidence_records.csv")
     signals = pd.read_csv(database / "competence_demand_signals.csv")
     validate_evidence_identities(evidence)
     source_provenance = _source_provenance(
-        database, {"demands": demands, "evidence": evidence, "signals": signals}
+        database,
+        {"demands": demands, "evidence": evidence, "signals": signals},
+        verified_source_hashes=retained_hashes,
+        verified_protocol_identity=verified_protocol_identity,
     )
 
     analysis = build_performative_demand_analysis(

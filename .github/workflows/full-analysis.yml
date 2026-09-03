@@ -209,11 +209,17 @@ jobs:
         shell: bash
         env:
           STATIC_INPUT_ROOT: ${{ runner.temp }}/full-analysis-static-input
+          RETAINED_INPUT_ROOT: ${{ runner.temp }}/full-analysis-retained-inputs
         run: |
           set -euo pipefail
           rm -rf outputs
           mkdir -p outputs
           cp -R "$STATIC_INPUT_ROOT/." outputs/
+          if [[ ! -d "$RETAINED_INPUT_ROOT/cumulative_database" ]]; then
+            echo "Missing retained cumulative database snapshot: $RETAINED_INPUT_ROOT/cumulative_database"
+            exit 1
+          fi
+          cp -R "$RETAINED_INPUT_ROOT/cumulative_database" outputs/cumulative_database
           echo "Restored committed-mode/live-enriched output snapshot before upload step."
 
       - name: Verify restored outputs match committed-mode snapshot exactly

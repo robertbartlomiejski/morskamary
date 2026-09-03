@@ -250,6 +250,24 @@ def test_full_analysis_exports_retained_db_before_semantic_validation() -> None:
     )
 
 
+def test_full_analysis_restores_retained_cumulative_database_before_upload() -> None:
+    job = FULL_ANALYSIS_WORKFLOW["jobs"]["run-analysis"]
+    steps = job["steps"]
+    restore_step = next(
+        step
+        for step in steps
+        if step.get("name")
+        == "Restore committed-mode output snapshot after reproducibility check"
+    )
+    assert (
+        restore_step["env"]["RETAINED_INPUT_ROOT"]
+        == "${{ runner.temp }}/full-analysis-retained-inputs"
+    )
+    restore_script = restore_step["run"]
+    assert 'if [[ ! -d "$RETAINED_INPUT_ROOT/cumulative_database" ]]; then' in restore_script
+    assert 'cp -R "$RETAINED_INPUT_ROOT/cumulative_database" outputs/cumulative_database' in restore_script
+
+
 def test_ci_changelog_guard_step_fetches_non_shallow_base_history() -> None:
     job = CI_WORKFLOW["jobs"]["governance-and-repro"]
     changelog_step = next(
@@ -261,5 +279,4 @@ def test_ci_changelog_guard_step_fetches_non_shallow_base_history() -> None:
     run_script = changelog_step["run"]
     assert "git fetch --no-tags --prune --unshallow origin || true" in run_script
     assert 'git fetch --no-tags --prune origin "$base_ref"' in run_script
-    assert '--depth=1' not in run_script
     assert '--depth=1' not in run_script

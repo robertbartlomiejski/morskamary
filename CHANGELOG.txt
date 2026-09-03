@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-09-03 (fix: enforce retained protocol/input integrity for performative package rebuild)
+  Change type fix update
+  Scope scripts src tests workflows outputs governance
+  Files affected scripts/build_performative_demand_cross_axis_analysis.py src/scientific_sources/performative_demand_analysis.py .github/workflows/full-analysis.yml tests/test_performative_demand_analysis.py tests/test_ci_workflow.py outputs/cumulative_database/cumulative_database_manifest.json outputs/cumulative_database/_checksums.sha256 CHANGELOG.txt
+  Summary Adds fail-closed retained-input checksum validation (three analytical CSVs plus authoritative manifests) before performative analysis reads any retained bytes, and verifies protocol identity against retained snapshot metadata via a required protocol_binding (path, version, sha256) recorded in source provenance/package metadata. Adds fail-closed validation for derived-demand axis_group/axis_code source pairs and rejects unmapped signal_type values before screening aggregation. Extends package schema requirements for sector_axis_residuals.csv to include residual magnitude and p-value columns. Full Analysis now restores retained cumulative_database into outputs before upload so published audit artifacts include evidence rows referenced by lineage tables.
+  Reason PR #272 non-outdated findings required one bounded corrective slice to prevent protocol/snapshot drift, stale or corrupted retained inputs, hidden axis provenance defects, silent signal-type drift, and upload artifacts missing retained evidence needed for audit traceability.
+  Impact Strengthens fail-closed reproducibility and provenance integrity without widening scientific claim scope; outputs remain deterministic corpus-screening diagnostics and now carry explicit verified protocol identity linkage.
+  Provenance PR #272 non-outdated review findings PRRT_kwDORS_RKM6e5X6U, PRRT_kwDORS_RKM6e5X6V, PRRT_kwDORS_RKM6e5X6k, PRRT_kwDORS_RKM6e5X6a, PRRT_kwDORS_RKM6e5X6g, PRRT_kwDORS_RKM6e5X6t.
+  Quality checks python -m pytest tests/test_performative_demand_analysis.py tests/test_ci_workflow.py -v; python -m flake8 src/scientific_sources/performative_demand_analysis.py scripts/build_performative_demand_cross_axis_analysis.py tests/test_performative_demand_analysis.py tests/test_ci_workflow.py; python scripts/build_performative_demand_cross_axis_analysis.py --database-dir outputs/cumulative_database --output-dir /tmp/performative_check_output.
+
 - 2026-09-03 (fix: close PR #270/#272 methodological boundary review blockers)
   Change type fix update
   Scope scripts tests workflows governance docs
