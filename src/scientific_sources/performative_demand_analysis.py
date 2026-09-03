@@ -300,6 +300,7 @@ def _validate_inputs(
     evidence_map: pd.DataFrame,
     sector_order: Sequence[str],
 ) -> None:
+    validate_evidence_identities(evidence)
     if len(set(sector_order)) != len(sector_order):
         raise PerformativeDemandAnalysisError("sector order contains duplicates")
     unknown_sectors = set(evidence_map["sector"]) - set(sector_order)
@@ -314,7 +315,8 @@ def _validate_inputs(
             "linked evidence contains non-canonical axes: "
             + ", ".join(sorted(unknown_axes))
         )
-    orphan_ids = set(evidence_map["evidence_id"]) - set(evidence["evidence_id"])
+    canonical_evidence_ids = set(evidence["evidence_id"].astype(str).str.strip())
+    orphan_ids = set(evidence_map["evidence_id"]) - canonical_evidence_ids
     if orphan_ids:
         raise PerformativeDemandAnalysisError(
             f"{len(orphan_ids)} linked evidence identities are absent from evidence_records"
