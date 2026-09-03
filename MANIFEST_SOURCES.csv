@@ -840,6 +840,7 @@ outputs/cumulative_database/layer5_manifest.json,other,,,,,,layer5_manifest,yes
 outputs/cumulative_database/layer_readiness_report.json,other,,,,,,layer_readiness_report,yes
 outputs/cumulative_database/learning_outcomes.csv,dataset_derived,,,,,,learning_outcomes,yes
 outputs/cumulative_database/novelty_gate_report.json,other,,,,,,novelty_gate_report,yes
+outputs/cumulative_database/retained_protocol/live_query_protocol.yml,other,,,,,,live_query_protocol,no
 outputs/cumulative_database/run_novelty_metrics.csv,dataset_derived,,,,,,run_novelty_metrics,yes
 outputs/cumulative_database/run_novelty_metrics.json,other,,,,,,run_novelty_metrics,yes
 outputs/cumulative_database/sector_axis_gap_model.csv,dataset_derived,,,,,,sector_axis_gap_model,yes

@@ -814,25 +814,41 @@ def test_verify_retained_inputs_fails_on_checksum_mismatch(tmp_path: Path) -> No
         _verify_retained_inputs(db)
 
 
-def test_verified_protocol_identity_rejects_digest_mismatch() -> None:
+def test_verified_protocol_identity_rejects_unverifiable_source_identity(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     from scripts.build_performative_demand_cross_axis_analysis import (
         _verified_protocol_identity,
     )
 
-    protocol_path = Path(__file__).resolve().parents[1] / "config" / "live_query_protocol.yml"
+    db = tmp_path / "db"
+    db.mkdir()
+    protocol_rel = "retained_protocol/live_query_protocol.yml"
+    protocol_bytes = b"protocol_version: 1.2.0\nsectors: {}\nhypotheses: {}\n"
+    (db / "retained_protocol").mkdir()
+    (db / protocol_rel).write_bytes(protocol_bytes)
     manifest = {
+        "workflow_context": {"github_sha": "4eb044988659e51219a2ad62137091f0cb0f97c4"},
         "protocol_binding": {
             "protocol_path": "config/live_query_protocol.yml",
+            "retained_protocol_artifact": protocol_rel,
+            "source_commit": "4eb044988659e51219a2ad62137091f0cb0f97c4",
+            "source_path": "config/live_query_protocol.yml",
+            "source_blob_sha1": "0bb256b0139af99d494e39b95ee20261005c40d5",
             "protocol_version": "1.2.0",
-            "protocol_sha256": "0" * 64,
+            "protocol_sha256": hashlib.sha256(protocol_bytes).hexdigest(),
         }
     }
-    with pytest.raises(RuntimeError, match="protocol digest mismatch"):
-        _verified_protocol_identity(
-            manifest=manifest,
-            protocol_path=protocol_path,
-            protocol={"protocol_version": "1.2.0"},
-        )
+    monkeypatch.setattr(
+        "scripts.build_performative_demand_cross_axis_analysis._git_show_bytes",
+        lambda commit, path: b"different protocol bytes\n",
+    )
+    monkeypatch.setattr(
+        "scripts.build_performative_demand_cross_axis_analysis._git_blob_id",
+        lambda commit, path: "0bb256b0139af99d494e39b95ee20261005c40d5",
+    )
+    with pytest.raises(RuntimeError, match="do not match recorded source commit/path"):
+        _verified_protocol_identity(manifest=manifest, database=db)
 
 
 def test_governance_schema_requires_residual_measure_columns(tmp_path: Path) -> None:
@@ -849,7 +865,18 @@ def test_governance_schema_requires_residual_measure_columns(tmp_path: Path) -> 
     )
     schema = json.loads((out / "package_schema.json").read_text(encoding="utf-8"))
     residual_fields = schema["artifacts"]["sector_axis_residuals.csv"]
-    assert "adjusted_standardized_residual" in residual_fields
-    assert "raw_cell_p" in residual_fields
-    assert "holm_p" in residual_fields
-    assert "bh_p" in residual_fields
+    assert residual_fields == [
+        "sector",
+        "sector_label",
+        "axis_group",
+        "axis_code",
+        "observed_evidence_count",
+        "expected_evidence_count",
+        "adjusted_standardized_residual",
+        "raw_cell_p",
+        "holm_p",
+        "bh_p",
+        "holm_significant_0_05",
+        "bh_significant_0_05",
+        "cell_status",
+    ]

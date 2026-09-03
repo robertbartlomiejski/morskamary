@@ -78,6 +78,16 @@
     "evidence_map_exact_rows": 978,
     "joined_evidence_id_count": 978,
     "lineage_validation_mode": "fail_closed",
+    "protocol_identity": {
+      "protocol_path": "config/live_query_protocol.yml",
+      "protocol_sha256": "5ed07bb561abb5fc8444bc9c337c9ec6d50376a64bb922eea832f684df79cd76",
+      "protocol_version": "1.2.0",
+      "retained_protocol_artifact": "retained_protocol/live_query_protocol.yml",
+      "source_blob_sha1": "0bb256b0139af99d494e39b95ee20261005c40d5",
+      "source_commit": "4eb044988659e51219a2ad62137091f0cb0f97c4",
+      "source_path": "config/live_query_protocol.yml",
+      "verification_status": "verified_against_retained_snapshot"
+    },
     "qmbd_assignment_methodology": "0.30*normalized_unique_doi_count + 0.20*provider_diversity_score + 0.20*temporal_recency_score + 0.15*query_diversity_score + 0.15*semantic_confidence_mean",
     "records_in_database": 3129,
     "run_classifier_identity": {

@@ -10,6 +10,7 @@ import json
 import math
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -45,6 +46,7 @@ CHECKSUM_REQUIRED_INPUTS = (
     "layer_readiness_report.json",
 )
 CHECKSUM_LINE_RE = re.compile(r"^([0-9a-f]{64})\s{2}(.+)$")
+GIT_SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 
 
 def _first_non_empty(*values: object) -> str | None:
@@ -205,58 +207,142 @@ def _verify_retained_inputs(database: Path) -> dict[str, str]:
     return verified
 
 
+def _git_show_bytes(commit: str, path: str) -> bytes:
+    result = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "show", f"{commit}:{path}"],
+        check=False,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        stderr = result.stderr.decode("utf-8", errors="replace").strip()
+        raise RuntimeError(
+            f"unable to read retained protocol source {commit}:{path}: {stderr}"
+        )
+    return result.stdout
+
+
+def _git_blob_id(commit: str, path: str) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "rev-parse", f"{commit}:{path}"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        stderr = (result.stderr or "").strip()
+        raise RuntimeError(
+            f"unable to resolve retained protocol blob id {commit}:{path}: {stderr}"
+        )
+    blob = result.stdout.strip()
+    if not GIT_SHA1_RE.fullmatch(blob):
+        raise RuntimeError(
+            f"retained protocol blob id is invalid for {commit}:{path}: {blob!r}"
+        )
+    return blob
+
+
 def _verified_protocol_identity(
     *,
     manifest: Mapping[str, Any],
-    protocol_path: Path,
-    protocol: Mapping[str, Any],
-) -> dict[str, str]:
+    database: Path,
+) -> tuple[dict[str, str], dict[str, Any]]:
     binding = manifest.get("protocol_binding")
     if not isinstance(binding, dict):
         raise RuntimeError(
             "cumulative_database_manifest.json is missing protocol_binding; "
-            "retained snapshot must declare protocol_path/protocol_version/protocol_sha256"
+            "retained snapshot must declare protocol binding/source identity metadata"
         )
-    retained_protocol_path = str(binding.get("protocol_path", "")).strip()
+    retained_protocol_artifact = str(binding.get("retained_protocol_artifact", "")).strip()
+    source_commit = str(binding.get("source_commit", "")).strip()
+    source_path = str(binding.get("source_path", "")).strip()
+    source_blob_sha1 = str(binding.get("source_blob_sha1", "")).strip().lower()
     retained_protocol_version = str(binding.get("protocol_version", "")).strip()
     retained_protocol_sha256 = str(binding.get("protocol_sha256", "")).strip().lower()
-    if not retained_protocol_path or not retained_protocol_version or not retained_protocol_sha256:
+    retained_protocol_path = str(binding.get("protocol_path", "")).strip()
+    if not (
+        retained_protocol_artifact
+        and source_commit
+        and source_path
+        and source_blob_sha1
+        and retained_protocol_path
+        and retained_protocol_version
+        and retained_protocol_sha256
+    ):
         raise RuntimeError(
-            "protocol_binding must include non-empty protocol_path, protocol_version, and protocol_sha256"
+            "protocol_binding must include retained_protocol_artifact, source_commit, "
+            "source_path, source_blob_sha1, protocol_path, protocol_version, and protocol_sha256"
         )
+    if not GIT_SHA1_RE.fullmatch(source_commit):
+        raise RuntimeError("protocol_binding.source_commit must be a 40-char hex git commit id")
+    if not GIT_SHA1_RE.fullmatch(source_blob_sha1):
+        raise RuntimeError("protocol_binding.source_blob_sha1 must be a 40-char hex git blob id")
     if not re.fullmatch(r"[0-9a-f]{64}", retained_protocol_sha256):
         raise RuntimeError("protocol_binding.protocol_sha256 must be a 64-char lowercase hex digest")
+    if Path(source_path).is_absolute() or ".." in Path(source_path).parts:
+        raise RuntimeError("protocol_binding.source_path must be a repository-relative safe path")
+    if Path(retained_protocol_artifact).is_absolute() or ".." in Path(retained_protocol_artifact).parts:
+        raise RuntimeError(
+            "protocol_binding.retained_protocol_artifact must be a database-relative safe path"
+        )
+
+    workflow_context = manifest.get("workflow_context", {})
+    source_sha_from_manifest = ""
+    if isinstance(workflow_context, dict):
+        source_sha_from_manifest = str(workflow_context.get("github_sha", "")).strip()
+    if source_sha_from_manifest and source_sha_from_manifest != source_commit:
+        raise RuntimeError(
+            "protocol_binding.source_commit does not match cumulative manifest workflow_context.github_sha: "
+            f"{source_commit} vs {source_sha_from_manifest}"
+        )
+
+    if source_path != retained_protocol_path:
+        raise RuntimeError(
+            "protocol_binding.source_path and protocol_path must match exactly for retained binding"
+        )
+    protocol_artifact_path = database / retained_protocol_artifact
+    if not protocol_artifact_path.is_file():
+        raise RuntimeError(f"retained protocol artifact is missing: {protocol_artifact_path}")
+    if database.resolve() not in protocol_artifact_path.resolve().parents:
+        raise RuntimeError(
+            f"retained protocol artifact path escapes cumulative database dir: {protocol_artifact_path}"
+        )
+    artifact_bytes = protocol_artifact_path.read_bytes()
+    artifact_sha256 = hashlib.sha256(artifact_bytes).hexdigest()
+    if artifact_sha256 != retained_protocol_sha256:
+        raise RuntimeError(
+            "retained protocol artifact digest mismatch: "
+            f"expected {retained_protocol_sha256}, got {artifact_sha256}"
+        )
+    source_bytes = _git_show_bytes(source_commit, source_path)
+    if source_bytes != artifact_bytes:
+        raise RuntimeError(
+            "retained protocol artifact bytes do not match recorded source commit/path"
+        )
+    resolved_source_blob_sha1 = _git_blob_id(source_commit, source_path)
+    if resolved_source_blob_sha1 != source_blob_sha1:
+        raise RuntimeError(
+            "retained protocol source blob id mismatch: "
+            f"expected {source_blob_sha1}, got {resolved_source_blob_sha1}"
+        )
+    protocol = yaml.safe_load(artifact_bytes.decode("utf-8"))
     protocol_version = str(protocol.get("protocol_version", "")).strip()
     if not protocol_version:
-        raise RuntimeError("protocol is missing protocol_version")
+        raise RuntimeError("retained protocol artifact is missing protocol_version")
     if protocol_version != retained_protocol_version:
         raise RuntimeError(
-            "protocol version mismatch between checkout and retained snapshot: "
-            f"checkout={protocol_version}, retained={retained_protocol_version}"
+            "retained protocol version mismatch: "
+            f"artifact={protocol_version}, binding={retained_protocol_version}"
         )
-    try:
-        protocol_rel = protocol_path.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
-    except ValueError as exc:
-        raise RuntimeError(
-            f"protocol path must be inside repository root: {protocol_path}"
-        ) from exc
-    if protocol_rel != retained_protocol_path:
-        raise RuntimeError(
-            "protocol path mismatch between checkout and retained snapshot: "
-            f"checkout={protocol_rel}, retained={retained_protocol_path}"
-        )
-    checkout_digest = _sha256(protocol_path)
-    if checkout_digest != retained_protocol_sha256:
-        raise RuntimeError(
-            "protocol digest mismatch between checkout and retained snapshot: "
-            f"checkout={checkout_digest}, retained={retained_protocol_sha256}"
-        )
-    return {
-        "protocol_path": protocol_rel,
+    return ({
+        "protocol_path": source_path,
         "protocol_version": retained_protocol_version,
         "protocol_sha256": retained_protocol_sha256,
+        "retained_protocol_artifact": retained_protocol_artifact,
+        "source_commit": source_commit,
+        "source_path": source_path,
+        "source_blob_sha1": source_blob_sha1,
         "verification_status": "verified_against_retained_snapshot",
-    }
+    }, protocol)
 
 
 @contextlib.contextmanager
@@ -595,13 +681,18 @@ def _write_governance_artifacts(
                 ],
                 "sector_axis_residuals.csv": [
                     "sector",
+                    "sector_label",
                     "axis_group",
                     "axis_code",
                     "observed_evidence_count",
+                    "expected_evidence_count",
                     "adjusted_standardized_residual",
                     "raw_cell_p",
                     "holm_p",
                     "bh_p",
+                    "holm_significant_0_05",
+                    "bh_significant_0_05",
+                    "cell_status",
                 ],
                 "sector_axis_screening_features.csv": [
                     "sector",
@@ -670,16 +761,17 @@ def _write_governance_artifacts(
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
-    protocol = yaml.safe_load(args.protocol.read_text(encoding="utf-8"))
+    database = args.database_dir
+    retained_hashes = _verify_retained_inputs(database)
+    manifest = json.loads(
+        (database / "cumulative_database_manifest.json").read_text(encoding="utf-8")
+    )
+    verified_protocol_identity, protocol = _verified_protocol_identity(
+        manifest=manifest, database=database
+    )
     sector_labels = {
         sector: str(config["label"]) for sector, config in protocol["sectors"].items()
     }
-    database = args.database_dir
-    retained_hashes = _verify_retained_inputs(database)
-    manifest = json.loads((database / "cumulative_database_manifest.json").read_text(encoding="utf-8"))
-    verified_protocol_identity = _verified_protocol_identity(
-        manifest=manifest, protocol_path=args.protocol, protocol=protocol
-    )
     demands = pd.read_csv(database / "derived_competence_demands.csv")
     evidence = pd.read_csv(database / "evidence_records.csv")
     signals = pd.read_csv(database / "competence_demand_signals.csv")

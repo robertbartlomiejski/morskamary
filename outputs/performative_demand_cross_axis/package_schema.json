@@ -49,9 +49,18 @@
     ],
     "sector_axis_residuals.csv": [
       "sector",
+      "sector_label",
       "axis_group",
       "axis_code",
-      "observed_evidence_count"
+      "observed_evidence_count",
+      "expected_evidence_count",
+      "adjusted_standardized_residual",
+      "raw_cell_p",
+      "holm_p",
+      "bh_p",
+      "holm_significant_0_05",
+      "bh_significant_0_05",
+      "cell_status"
     ],
     "sector_axis_screening_features.csv": [
       "sector",

@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-09-03 (fix: bind retained performative corpus to verified historical protocol snapshot)
+  Change type fix update
+  Scope scripts outputs tests governance workflows
+  Files affected scripts/build_performative_demand_cross_axis_analysis.py outputs/cumulative_database/cumulative_database_manifest.json outputs/cumulative_database/_checksums.sha256 outputs/cumulative_database/retained_protocol/live_query_protocol.yml outputs/performative_demand_cross_axis/package_schema.json outputs/performative_demand_cross_axis/package_manifest.json outputs/performative_demand_cross_axis/statistics_summary.json tests/test_performative_demand_analysis.py tests/test_ci_workflow.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Replaces checkout-protocol substitution with a fail-closed retained protocol identity contract: performative package build now requires cumulative_database_manifest protocol_binding metadata (retained protocol artifact, source commit/path/blob, version, sha256), verifies retained protocol bytes and digest, verifies git source commit/blob identity, and uses the verified retained protocol artifact to drive sector/hypothesis serialization. Keeps retained-input checksum verification, axis_group/axis_code fail-closed validation, unknown signal_type rejection, and retained cumulative_database restore before upload. Completes residual schema contract by requiring the full residual measure fields list (including expected count, residual magnitude, p-values, significance flags, and cell status).
+  Reason Landing-gate audit confirmed remaining provenance risk: current protocol digest had been retrofitted into a historical retained snapshot, which could misstate source identity; residual schema requirement was also incomplete and allowed producer/validator drift.
+  Impact Preserves the retained 3,129-record corpus while making protocol provenance reproducible and auditable against historical source commit identity. Regenerated performative governed artifacts and manifest now match the producer contract and include verified protocol identity in source provenance.
+  Provenance PR #272 comment 5527276342 and review findings PRRT_kwDORS_RKM6e5X6U / PRRT_kwDORS_RKM6e5X6g.
+  Quality checks focused negative regressions for checksum tamper, protocol-source mismatch, axis mismatch, unknown signal type, full residual schema, and retained-db upload restore; full pytest suite; flake8; mypy; generated-output validation; run-archive integrity validation; deterministic performative package regeneration comparison.
+
 - 2026-09-03 (fix: enforce retained protocol/input integrity for performative package rebuild)
   Change type fix update
   Scope scripts src tests workflows outputs governance
