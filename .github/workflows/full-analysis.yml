@@ -158,6 +158,8 @@ jobs:
           echo "All output artifacts verified, including sector dictionaries."
 
       - name: Validate generated output semantics
+        env:
+          MORSKAMARY_CUMULATIVE_DATABASE_DIR: ${{ runner.temp }}/full-analysis-retained-inputs/cumulative_database
         run: python scripts/validate_generated_outputs.py
 
       - name: Check committed outputs are fresh
