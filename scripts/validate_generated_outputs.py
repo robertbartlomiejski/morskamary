@@ -105,7 +105,7 @@ def ok(msg: str) -> None:
 
 def warn(msg: str) -> None:
     WARNINGS.append(msg)
-    print(f"  WARN: {msg}")
+    print(f"  [WARN] {msg}")
 
 
 def _is_valid_utc_iso8601(value: str) -> bool:

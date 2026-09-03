@@ -454,7 +454,7 @@ class TestValidateResearchSourceOutputs:
         monkeypatch.setattr(script, "OUTPUTS_DIR", str(outputs_dir))
         assert script.main(["--require-health"]) == 0
         out = capsys.readouterr().out
-        assert "WARN:  provider health contains invalid/rate-limited statuses" in out
+        assert "[WARN] provider health contains invalid/rate-limited statuses" in out
         assert "Validation passed (warnings are informational)." in out
 
 

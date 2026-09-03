@@ -205,6 +205,27 @@ jobs:
             --root outputs \
             --baseline-root "$STATIC_COMPARE_ROOT"
 
+      - name: Restore committed-mode output snapshot after reproducibility check
+        shell: bash
+        env:
+          STATIC_INPUT_ROOT: ${{ runner.temp }}/full-analysis-static-input
+        run: |
+          set -euo pipefail
+          rm -rf outputs
+          mkdir -p outputs
+          cp -R "$STATIC_INPUT_ROOT/." outputs/
+          echo "Restored committed-mode/live-enriched output snapshot before upload step."
+
+      - name: Verify restored outputs match committed-mode snapshot exactly
+        shell: bash
+        env:
+          COMMITTED_COMPARE_ROOT: ${{ runner.temp }}/full-analysis-committed
+        run: |
+          set -euo pipefail
+          python scripts/compare_generated_outputs.py \
+            --root outputs \
+            --baseline-root "$COMMITTED_COMPARE_ROOT"
+
       - name: Upload analysis outputs
         if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
         uses: actions/upload-artifact@v4

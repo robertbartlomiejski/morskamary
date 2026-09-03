@@ -85,6 +85,38 @@ class PerformativeDemandAnalysisError(RuntimeError):
     """Raised when evidence-level analytical invariants do not hold."""
 
 
+def validate_evidence_identities(evidence: pd.DataFrame) -> None:
+    """Fail closed on blank, null, or duplicated Layer-2 evidence identities.
+
+    This must run before any ``set()``, merge, explode, or deduplication can
+    conceal identity defects (see
+    ``scripts/build_provider_sensitivity_analysis.py`` for the equivalent
+    Layer-2 convention).
+    """
+    if "evidence_id" not in evidence.columns:
+        raise PerformativeDemandAnalysisError(
+            "evidence_records is missing the required evidence_id column"
+        )
+    raw_ids = evidence["evidence_id"]
+    null_count = int(raw_ids.isna().sum())
+    stripped = raw_ids.map(lambda value: str(value).strip() if pd.notna(value) else "")
+    blank_count = int((stripped.eq("") & raw_ids.notna()).sum())
+    if null_count or blank_count:
+        raise PerformativeDemandAnalysisError(
+            f"evidence_records contains {null_count} null and {blank_count} blank "
+            "evidence_id values (Layer 2 structural violation)"
+        )
+    duplicate_ids = sorted(
+        set(stripped[stripped.duplicated(keep=False)].tolist())
+    )
+    if duplicate_ids:
+        raise PerformativeDemandAnalysisError(
+            f"evidence_records contains {len(duplicate_ids)} duplicate evidence_id "
+            "values (Layer 2 structural violation — deduplicate before performative "
+            "demand analysis): " + ", ".join(duplicate_ids[:10])
+        )
+
+
 @dataclass(frozen=True)
 class PerformativeDemandAnalysis:
     """Complete analysis tables and audit summary."""
@@ -231,24 +263,6 @@ def _normalized_entropy(counts: np.ndarray) -> float:
         return 0.0
     probabilities = positive / positive.sum()
     return float(-(probabilities * np.log(probabilities)).sum() / np.log(len(counts)))
-
-
-def _wilson_interval(
-    successes: int,
-    total: int,
-    z: float = 1.959963984540054,
-) -> tuple[float, float]:
-    if total == 0:
-        return (math.nan, math.nan)
-    proportion = successes / total
-    denominator = 1 + z * z / total
-    centre = (proportion + z * z / (2 * total)) / denominator
-    margin = (
-        z
-        * math.sqrt((proportion * (1 - proportion) + z * z / (4 * total)) / total)
-        / denominator
-    )
-    return (max(0.0, centre - margin), min(1.0, centre + margin))
 
 
 def _permutation_chi2_p(
@@ -432,6 +446,7 @@ def build_performative_demand_analysis(
     One linked evidence identity remains a curated corpus unit that may carry
     correlated signal context across screening pathways.
     """
+    validate_evidence_identities(evidence)
     sector_order = list(sector_labels)
     linkage_dependence = _linkage_dependence_audit(demands)
     evidence_map = build_unique_evidence_map(demands)
@@ -458,6 +473,11 @@ def build_performative_demand_analysis(
     active_row_count = int(active_row_mask.sum())
     active_column_count = int(active_column_mask.sum())
     inferential_computable = active_row_count >= 2 and active_column_count >= 2
+    # Sparse-cell diagnostics must describe the active inferential margins used
+    # for chi-square, degrees of freedom, and permutation inference, not the
+    # preserved full display matrix (which still keeps structural zero rows and
+    # columns for descriptive sector x axis output).
+    active_expected_array = expected_array[np.ix_(active_row_mask, active_column_mask)]
     chi2_contributions = np.divide(
         (observed_array - expected_array) ** 2,
         expected_array,
@@ -541,7 +561,7 @@ def build_performative_demand_analysis(
                     "cell_status": (
                         "empty_current_linked_corpus"
                         if observed_count == 0
-                        else "observed_screening_evidence"
+                        else "observed_linked_evidence"
                     ),
                 }
             )
@@ -685,7 +705,6 @@ def build_performative_demand_analysis(
         evidence_surface = _evidence_surface(group)
         for feature in PERFORMATIVE_FEATURE_SIGNAL_TYPES:
             hits = int(group[feature].sum())
-            lower, upper = _wilson_interval(hits, len(group))
             axis_feature_rows.append(
                 {
                     "axis_group": axis,
@@ -695,8 +714,6 @@ def build_performative_demand_analysis(
                     "evidence_with_feature": hits,
                     "axis_evidence_total": int(len(group)),
                     "feature_share": hits / len(group) if len(group) else math.nan,
-                    "wilson_95_lower": lower,
-                    "wilson_95_upper": upper,
                     "status": "screening_not_validated_performativity",
                 }
             )
@@ -705,6 +722,7 @@ def build_performative_demand_analysis(
     sector_rows: list[dict[str, Any]] = []
     for sector in sector_order:
         group = screening_linked.loc[screening_linked["sector"].eq(sector)]
+        linked_group = evidence_map.loc[evidence_map["sector"].eq(sector)]
         axis_counts = np.array(
             [int(group["axis_group"].eq(axis).sum()) for axis in AXES],
             dtype=float,
@@ -714,7 +732,8 @@ def build_performative_demand_analysis(
         row: dict[str, Any] = {
             "sector": sector,
             "sector_label": sector_labels[sector],
-            "linked_evidence_count": int(len(group)),
+            "linked_evidence_count": int(linked_group["evidence_id"].nunique()),
+            "screening_eligible_linked_evidence_count": int(len(group)),
             "derived_demand_count": int(len(demand_group)),
             "axes_observed": int((axis_counts > 0).sum()),
             "empty_axis_cells": int((axis_counts == 0).sum()),
@@ -790,11 +809,26 @@ def build_performative_demand_analysis(
             "permutation_exceedances": permutation_exceedances,
             "permutation_p": permutation_p,
             "bias_corrected_cramers_v": corrected_v,
-            "expected_cells_below_5": int((expected_array < 5).sum()),
-            "expected_cells_below_5_share": float((expected_array < 5).mean()),
-            "expected_cells_below_1": int((expected_array < 1).sum()),
-            "expected_cells_below_1_share": float((expected_array < 1).mean()),
-            "minimum_expected_count": float(expected_array.min()),
+            "expected_cells_below_5": int((active_expected_array < 5).sum()),
+            "expected_cells_below_5_share": (
+                float((active_expected_array < 5).mean())
+                if active_expected_array.size
+                else math.nan
+            ),
+            "expected_cells_below_1": int((active_expected_array < 1).sum()),
+            "expected_cells_below_1_share": (
+                float((active_expected_array < 1).mean())
+                if active_expected_array.size
+                else math.nan
+            ),
+            "minimum_expected_count": (
+                float(active_expected_array.min())
+                if active_expected_array.size
+                else math.nan
+            ),
+            "sparse_cell_diagnostic_scope": (
+                "active_inferential_margins_only_not_full_display_matrix"
+            ),
             "observed_zero_cells": int((observed_array == 0).sum()),
             "holm_significant_cells": int(np.nansum(holm_p < 0.05)),
             "bh_significant_cells": int(np.nansum(bh_p < 0.05)),

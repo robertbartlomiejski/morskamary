@@ -4,12 +4,15 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
 import math
+import shutil
 import sys
+import tempfile
 from pathlib import Path
-from typing import Any, Mapping, Sequence, cast
+from typing import Any, Iterator, Mapping, Sequence, cast
 
 import pandas as pd
 import yaml  # type: ignore[import-untyped]
@@ -23,6 +26,9 @@ from src.scientific_sources.performative_demand_analysis import (  # noqa: E402
     AXIS_CODES,
     REALMS,
     build_performative_demand_analysis,
+    build_unique_evidence_map,
+    split_pipe,
+    validate_evidence_identities,
 )
 
 DEFAULT_DATABASE = REPO_ROOT / "outputs" / "cumulative_database"
@@ -137,6 +143,39 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+@contextlib.contextmanager
+def _staged_output_dir(output: Path) -> Iterator[Path]:
+    """Build artifacts in an isolated staging directory, then promote atomically.
+
+    Building directly into an existing output directory can leave stale or
+    unrelated files (from a prior run, a manual edit, or a partially failed
+    build) present alongside the newly generated artifacts, corrupting
+    ``package_manifest.json`` file listing and checksum integrity. Writing
+    into a fresh, empty staging directory and only promoting it to the final
+    location on success guarantees the published package contains exactly
+    the files this run generated.
+    """
+    output.parent.mkdir(parents=True, exist_ok=True)
+    staging = Path(
+        tempfile.mkdtemp(prefix=".performative_demand_staging_", dir=str(output.parent))
+    )
+    try:
+        yield staging
+    except Exception:
+        shutil.rmtree(staging, ignore_errors=True)
+        raise
+    else:
+        backup: Path | None = None
+        if output.exists():
+            backup = output.parent / f"{output.name}.stale_replaced"
+            if backup.exists():
+                shutil.rmtree(backup)
+            output.rename(backup)
+        staging.rename(output)
+        if backup is not None:
+            shutil.rmtree(backup, ignore_errors=True)
+
+
 def _source_provenance(
     database: Path, frames: Mapping[str, pd.DataFrame]
 ) -> dict[str, Any]:
@@ -212,12 +251,25 @@ def _source_provenance(
     readiness_layers = layer_readiness.get("layers", [])
     if not isinstance(readiness_layers, list):
         raise RuntimeError("layer_readiness_report layers must be a list")
-    cumulative_status = (
-        "layer_readiness_usable"
-        if readiness_layers
-        and all(bool(layer.get("usable_for_layer4")) for layer in readiness_layers)
-        else "layer_readiness_not_usable"
-    )
+    if not readiness_layers:
+        raise RuntimeError(
+            "layer_readiness_report.json contains no usable layer entries; "
+            "publication package cannot be built"
+        )
+    unusable_layers = [
+        layer
+        for layer in readiness_layers
+        if not isinstance(layer, dict)
+        or "usable_for_layer4" not in layer
+        or not bool(layer.get("usable_for_layer4"))
+    ]
+    if unusable_layers:
+        raise RuntimeError(
+            "one or more layer_readiness_report.json entries are not usable for "
+            "Layer 4; publication package cannot be built: "
+            + json.dumps(unusable_layers, sort_keys=True)
+        )
+    cumulative_status = "layer_readiness_usable"
     workflow_context = manifest.get("workflow_context", {})
     generated_at = _first_non_empty(
         manifest.get("generated_at_utc"),
@@ -235,9 +287,10 @@ def _source_provenance(
         manifest.get("qmbd_assignment_methodology"),
         layer4_manifest.get("demand_strength_formula"),
     )
+    evidence_map_for_provenance = build_unique_evidence_map(frames["demands"])
     evidence_rows = manifest.get("evidence_map_exact_rows")
     if evidence_rows is None:
-        evidence_rows = int(frames["demands"]["evidence_ids"].notna().sum())
+        evidence_rows = int(len(evidence_map_for_provenance))
     records_in_database = manifest.get("records_in_database")
     if records_in_database is None:
         manifest_counts = manifest.get("counts", {})
@@ -271,7 +324,11 @@ def _source_provenance(
         "evidence_map_exact_rows": evidence_rows,
         "demand_profile_rows": manifest.get("demand_profile_rows", len(frames["demands"])),
         "joined_evidence_id_count": manifest.get(
-            "joined_evidence_id_count", frames["evidence"]["evidence_id"].nunique()
+            "joined_evidence_id_count",
+            len(
+                set(evidence_map_for_provenance["evidence_id"])
+                & set(frames["evidence"]["evidence_id"])
+            ),
         ),
         "records_in_database": records_in_database,
         "source_file_sha256": {name: _sha256(database / name) for name in source_names},
@@ -485,6 +542,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     demands = pd.read_csv(database / "derived_competence_demands.csv")
     evidence = pd.read_csv(database / "evidence_records.csv")
     signals = pd.read_csv(database / "competence_demand_signals.csv")
+    validate_evidence_identities(evidence)
     source_provenance = _source_provenance(
         database, {"demands": demands, "evidence": evidence, "signals": signals}
     )
@@ -498,43 +556,39 @@ def main(argv: Sequence[str] | None = None) -> int:
         seed=args.seed,
     )
     output = args.output_dir
-    output.mkdir(parents=True, exist_ok=True)
-    legacy_profile = output / "sector_deficit_profile.csv"
-    if legacy_profile.exists():
-        legacy_profile.unlink()
-    legacy_comparison = output / "coastal_tourism_axis_realm_case.csv"
-    if legacy_comparison.exists():
-        legacy_comparison.unlink()
-    _write_long_matrix(
-        analysis.observed,
-        "observed_evidence_count",
-        output / "sector_axis_observed.csv",
-    )
-    _write_long_matrix(
-        analysis.expected,
-        "expected_evidence_count",
-        output / "sector_axis_expected.csv",
-    )
-    _write_csv(analysis.residuals, output / "sector_axis_residuals.csv")
-    _write_csv(analysis.sector_axis_features, output / "sector_axis_screening_features.csv")
-    _write_csv(analysis.sector_axis_realms, output / "sector_axis_realm_screening.csv")
-    _write_csv(analysis.axis_features, output / "axis_screening_feature_shares.csv")
-    _write_csv(analysis.sector_profile, output / "sector_screening_profile.csv")
-    lineage = analysis.evidence_map.copy()
-    lineage["axis_code"] = lineage["axis_group"].map(AXIS_CODES)
-    lineage = lineage[["evidence_id", "sector", "axis_group", "axis_code"]]
-    _write_csv(
-        lineage.sort_values(["evidence_id", "sector", "axis_group"]),
-        output / "linked_evidence_sector_axis_lineage.csv",
-    )
-    _write_csv(
-        _tourism_case_table(),
-        output / "external_comparison_coastal_tourism_axis_realm_case.csv",
-    )
-    summary = dict(analysis.summary)
-    summary["source_provenance"] = source_provenance
-    _write_json(output / "statistics_summary.json", summary)
-    _write_governance_artifacts(output, protocol, source_provenance)
+    with _staged_output_dir(output) as staging:
+        _write_long_matrix(
+            analysis.observed,
+            "observed_evidence_count",
+            staging / "sector_axis_observed.csv",
+        )
+        _write_long_matrix(
+            analysis.expected,
+            "expected_evidence_count",
+            staging / "sector_axis_expected.csv",
+        )
+        _write_csv(analysis.residuals, staging / "sector_axis_residuals.csv")
+        _write_csv(
+            analysis.sector_axis_features, staging / "sector_axis_screening_features.csv"
+        )
+        _write_csv(analysis.sector_axis_realms, staging / "sector_axis_realm_screening.csv")
+        _write_csv(analysis.axis_features, staging / "axis_screening_feature_shares.csv")
+        _write_csv(analysis.sector_profile, staging / "sector_screening_profile.csv")
+        lineage = analysis.evidence_map.copy()
+        lineage["axis_code"] = lineage["axis_group"].map(AXIS_CODES)
+        lineage = lineage[["evidence_id", "sector", "axis_group", "axis_code"]]
+        _write_csv(
+            lineage.sort_values(["evidence_id", "sector", "axis_group"]),
+            staging / "linked_evidence_sector_axis_lineage.csv",
+        )
+        _write_csv(
+            _tourism_case_table(),
+            staging / "external_comparison_coastal_tourism_axis_realm_case.csv",
+        )
+        summary = dict(analysis.summary)
+        summary["source_provenance"] = source_provenance
+        _write_json(staging / "statistics_summary.json", summary)
+        _write_governance_artifacts(staging, protocol, source_provenance)
     print(
         json.dumps(
             _normalize_json_value(summary),

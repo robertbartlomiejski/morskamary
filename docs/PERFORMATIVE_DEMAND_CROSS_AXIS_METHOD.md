@@ -35,7 +35,8 @@ This creates 192 explicit cells. A zero means “not observed in the current
 screening run,” not “the competence does not exist.” Realm screening is
 multi-label. Each evidence identity receives fractional weight
 `1 / number_of_candidate_realms` so the 192-cell fractional total returns to
-the 978 independent evidence identities.
+the 978 deduplicated evidence identities. Deduplication defines the unit of
+analysis; it does not establish iid statistical independence.
 
 ## Sector-axis statistics
 
@@ -47,7 +48,9 @@ The analysis reports:
 - Pearson chi-square as a table diagnostic;
 - a deterministic 50,000-permutation p-value with fixed margins;
 - bias-corrected Cramer's V;
-- the number of expected cells below five and below one;
+- the number of expected cells below five and below one, computed only on the
+  active (nonzero-margin) rows and columns used for chi-square, degrees of
+  freedom, and permutation inference;
 - all observed zero cells.
 
 The test describes structure in the acquired/classified corpus. Sector and axis
