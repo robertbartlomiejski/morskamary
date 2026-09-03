@@ -222,3 +222,29 @@ def test_ci_workflow_revalidates_tracked_protocol_projection_outputs() -> None:
     assert tracked_check_index < diff_check_index
     assert '"${projection_paths[@]}"' in run_script
     assert "git diff --exit-code --" in run_script
+
+
+def test_full_analysis_exports_retained_db_before_semantic_validation() -> None:
+    job = FULL_ANALYSIS_WORKFLOW["jobs"]["run-analysis"]
+    steps = job["steps"]
+    step_names = [step.get("name") for step in steps]
+    snapshot_index = step_names.index(
+        "Snapshot committed outputs and detect their analysis mode"
+    )
+    propagation_index = step_names.index(
+        "Verify retained cumulative database path propagation"
+    )
+    validation_index = step_names.index("Validate generated output semantics")
+    assert snapshot_index < propagation_index < validation_index
+
+    snapshot_script = steps[snapshot_index]["run"]
+    assert (
+        'echo "MORSKAMARY_CUMULATIVE_DATABASE_DIR=$retained_cumulative_database_dir" '
+        '>> "$GITHUB_ENV"'
+    ) in snapshot_script
+
+    validate_step = steps[validation_index]
+    assert (
+        validate_step["env"]["MORSKAMARY_CUMULATIVE_DATABASE_DIR"]
+        == "${{ env.MORSKAMARY_CUMULATIVE_DATABASE_DIR }}"
+    )

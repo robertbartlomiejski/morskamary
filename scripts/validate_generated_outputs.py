@@ -22,6 +22,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import cast
 
@@ -102,6 +103,11 @@ def ok(msg: str) -> None:
     print(f"  OK:   {msg}")
 
 
+def warn(msg: str) -> None:
+    WARNINGS.append(msg)
+    print(f"  WARN: {msg}")
+
+
 def _is_valid_utc_iso8601(value: str) -> bool:
     normalized = str(value).strip()
     if not normalized:
@@ -143,6 +149,13 @@ def require_file(path: Path) -> bool:
         fail(f"Required file missing: {path}")
         return False
     return True
+
+
+def _resolve_performative_database_dir() -> tuple[Path, bool]:
+    env_value = os.environ.get("MORSKAMARY_CUMULATIVE_DATABASE_DIR", "").strip()
+    if env_value:
+        return Path(env_value), True
+    return OUTPUTS_DIR / "cumulative_database", False
 
 
 # ---------------------------------------------------------------------------
@@ -1285,6 +1298,8 @@ def check_performative_demand_outputs() -> None:
         elif isinstance(manifest_files, dict):
             for name, metadata in manifest_files.items():
                 artifact = output_dir / name
+                # Missing artifacts are fail-closed via require_file checks above.
+                # This branch verifies checksums only for files that exist locally.
                 if artifact.exists():
                     digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
                     if (
@@ -1310,12 +1325,18 @@ def check_performative_demand_outputs() -> None:
         return
 
     with tempfile.TemporaryDirectory(prefix="morskamary-performative-") as tmp:
-        database_dir = Path(
-            os.environ.get(
-                "MORSKAMARY_CUMULATIVE_DATABASE_DIR",
-                str(OUTPUTS_DIR / "cumulative_database"),
+        database_dir, used_env = _resolve_performative_database_dir()
+        if used_env:
+            ok(
+                "Performative deterministic rebuild uses MORSKAMARY_CUMULATIVE_DATABASE_DIR "
+                f"({database_dir})"
             )
-        )
+        else:
+            warn(
+                "MORSKAMARY_CUMULATIVE_DATABASE_DIR is not set; using fallback "
+                f"{database_dir} for deterministic rebuild"
+            )
+        started = time.monotonic()
         completed = subprocess.run(
             [
                 sys.executable,
@@ -1331,12 +1352,18 @@ def check_performative_demand_outputs() -> None:
             stderr=subprocess.STDOUT,
             check=False,
         )
+        elapsed_seconds = time.monotonic() - started
         if completed.returncode != 0:
             fail(
                 "Performative-demand deterministic regeneration failed: "
                 + completed.stdout[-2000:]
             )
             return
+        if elapsed_seconds > 600:
+            warn(
+                "Performative deterministic rebuild exceeded 10 minutes "
+                f"({elapsed_seconds:.1f}s); consider CI performance tuning"
+            )
         regenerated = Path(tmp)
         for name in sorted(expected_names):
             committed = output_dir / name
@@ -1349,7 +1376,8 @@ def check_performative_demand_outputs() -> None:
         if len(ERRORS) == local_errors_before:
             ok(
                 "Performative-demand scientific schemas/invariants and byte-identity "
-                "deterministic regeneration match committed artifacts"
+                "deterministic regeneration match committed artifacts "
+                f"({elapsed_seconds:.1f}s)"
             )
 
 
@@ -1414,6 +1442,8 @@ def main() -> int:
     check_no_absolute_local_paths(OUTPUTS_DIR)
 
     print()
+    if WARNINGS:
+        print(f"Warnings: {len(WARNINGS)} (informational)")
     if ERRORS:
         print("=" * 65)
         print(f"VALIDATION FAILED — {len(ERRORS)} error(s):")

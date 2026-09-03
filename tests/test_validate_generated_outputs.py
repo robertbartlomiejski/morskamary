@@ -519,6 +519,25 @@ class TestCheckCredentials:
         )
 
 
+class TestPerformativeDeterministicRebuildPath:
+    def test_prefers_explicit_env_database_dir(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        mod = _load_validator_module()
+        expected = "/tmp/custom-performative-db"
+        monkeypatch.setenv("MORSKAMARY_CUMULATIVE_DATABASE_DIR", expected)
+        path, used_env = mod._resolve_performative_database_dir()
+        assert str(path) == expected
+        assert used_env is True
+
+    def test_falls_back_to_outputs_cumulative_database(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        mod = _load_validator_module()
+        monkeypatch.delenv("MORSKAMARY_CUMULATIVE_DATABASE_DIR", raising=False)
+        path, used_env = mod._resolve_performative_database_dir()
+        assert path == mod.OUTPUTS_DIR / "cumulative_database"
+        assert used_env is False
+
+
 class TestCheckSectorDictionaries:
     def _write_dict_files(self, tmp_path: Path, ids_by_sector: dict[str, list[str]]) -> Path:
         """Write mock sector dictionary JSON files and return the directory."""

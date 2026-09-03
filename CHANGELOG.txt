@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-09-03 (fix: clarify retained-db propagation and monitor performative rebuild runtime)
+  Change type fix update
+  Scope workflows scripts tests governance
+  Files affected .github/workflows/full-analysis.yml scripts/validate_generated_outputs.py tests/test_ci_workflow.py tests/test_validate_generated_outputs.py CHANGELOG.txt
+  Summary Makes retained cumulative database propagation explicit in Full Analysis by asserting same-job export before semantic validation and binding the variable into the validation step environment. The performative deterministic rebuild validator now reports whether it used the explicit env path or fallback default, emits informational warnings when fallback is used, and flags rebuild durations above 10 minutes for CI performance monitoring.
+  Reason Follow-up review requested explicit verification/documentation of MORSKAMARY_CUMULATIVE_DATABASE_DIR step ordering and clearer operational visibility for permutation-heavy deterministic rebuild performance.
+  Impact No scientific interpretation or hypothesis status changed; controls remain fail-closed for missing governed artifacts and checksum/schema mismatches while improving diagnostics for CI integration and runtime monitoring.
+  Provenance PR review follow-up request on full-analysis env propagation and validator performance observability.
+  Quality checks python -m pytest tests/test_ci_workflow.py tests/test_validate_generated_outputs.py -v; python -m flake8 src scripts tests run_full_analysis.py main.py; python -m mypy src scripts run_full_analysis.py main.py; python -m pytest tests/ -v; python scripts/validate_generated_outputs.py; python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present.
+
 - 2026-09-02 (update: explicit methodological boundaries for performative screening package)
   Change type update
   Scope src scripts tests docs outputs governance
