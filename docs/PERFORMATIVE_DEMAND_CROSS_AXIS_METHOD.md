@@ -35,8 +35,9 @@ This creates 192 explicit cells. A zero means “not observed in the current
 screening run,” not “the competence does not exist.” Realm screening is
 multi-label. Each evidence identity receives fractional weight
 `1 / number_of_candidate_realms` so the 192-cell fractional total returns to
-the 978 deduplicated evidence identities. Deduplication defines the unit of
-analysis; it does not establish iid statistical independence.
+the 978 linked evidence identities.
+Deduplication defines the analysis unit; it does not establish iid statistical
+independence.
 
 ## Sector-axis statistics
 
