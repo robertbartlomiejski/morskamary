@@ -248,3 +248,18 @@ def test_full_analysis_exports_retained_db_before_semantic_validation() -> None:
         validate_step["env"]["MORSKAMARY_CUMULATIVE_DATABASE_DIR"]
         == "${{ env.MORSKAMARY_CUMULATIVE_DATABASE_DIR }}"
     )
+
+
+def test_ci_changelog_guard_step_fetches_non_shallow_base_history() -> None:
+    job = CI_WORKFLOW["jobs"]["governance-and-repro"]
+    changelog_step = next(
+        step
+        for step in job["steps"]
+        if step.get("name")
+        == "Enforce CHANGELOG update on PRs that change tracked artifacts (lightweight rule)"
+    )
+    run_script = changelog_step["run"]
+    assert "git fetch --no-tags --prune --unshallow origin || true" in run_script
+    assert 'git fetch --no-tags --prune origin "$base_ref"' in run_script
+    assert '--depth=1' not in run_script
+    assert '--depth=1' not in run_script

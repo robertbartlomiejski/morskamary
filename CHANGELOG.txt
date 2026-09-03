@@ -58,6 +58,15 @@ Use this section for changes in progress that are not yet merged into the main b
   Impact Deterministic package regeneration remains stable while reducing risk of over-reading screening tables as validated demand/supply evidence; legacy tourism comparison filename now fails validation to enforce stronger provenance labeling.
   Provenance PR #270 comment 5516209496; config/live_query_protocol.yml canonical axis/hypothesis contract; docs/AGENT_WORKING_AGREEMENT.md evidence-boundary requirements.
   Quality checks Focused pytest for performative-demand analysis passed; package rebuild passed with strict lineage metadata and updated governed artifacts. Full repository validation commands pending in this working entry.
+- 2026-09-03 (fix: make PR changelog guard resilient to shallow merge-base gaps)
+  Change type fix update
+  Scope governance scripts tests workflows
+  Files affected .github/workflows/ci.yml scripts/changelog_guard.py tests/test_changelog_guard.py CHANGELOG.txt
+  Summary Hardens the CI PR changelog-enforcement step by replacing the depth=1 base fetch with an unshallow-plus-full-base fetch, then updates changelog_guard.py to resolve git merge-base first and diff from merge-base..HEAD. If merge-base is genuinely unavailable, the guard now falls back to origin/base..HEAD instead of failing immediately, preserving enforcement behavior for tracked artifacts while avoiding brittle no-merge-base crashes.
+  Reason CI job 93232500739 in workflow run 31308188848 failed with RuntimeError fatal: origin/main...HEAD: no merge base due to shallow/incomplete ancestry in PR validation.
+  Impact PR changelog governance remains active, but no longer fails on merge-base lookup edge cases caused by shallow history.
+  Provenance CI failure logs for workflow run 31308188848 / job 93232500739 and scripts/changelog_guard.py call path.
+  Quality checks python -m pytest tests/test_changelog_guard.py -v (passed).
 
 - 2026-08-09 (add: fail-closed research-question registry and accountability contract)
   Change type add update
