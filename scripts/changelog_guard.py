@@ -84,21 +84,29 @@ def diff_changed_files(
     if not base_ref.strip():
         raise ValueError("base_ref must not be empty")
 
-    def _run_diff(revision_range: str) -> subprocess.CompletedProcess[str]:
+    def _run_git(command: Sequence[str]) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            ["git", "diff", "--name-only", revision_range],
+            list(command),
             cwd=repo_root,
             check=False,
             capture_output=True,
             text=True,
         )
 
-    completed = _run_diff(f"origin/{base_ref}...{head_ref}")
-    if completed.returncode != 0:
-        stderr = completed.stderr.strip() or "git diff failed"
+    merge_base_completed = _run_git(["git", "merge-base", f"origin/{base_ref}", head_ref])
+    if merge_base_completed.returncode == 0:
+        merge_base = merge_base_completed.stdout.strip()
+        if not merge_base:
+            raise RuntimeError("git merge-base returned an empty commit")
+        completed = _run_git(["git", "diff", "--name-only", f"{merge_base}..{head_ref}"])
+        if completed.returncode != 0:
+            stderr = completed.stderr.strip() or "git diff failed"
+            raise RuntimeError(stderr)
+    else:
+        stderr = merge_base_completed.stderr.strip() or "git merge-base failed"
         if "no merge base" not in stderr.lower():
             raise RuntimeError(stderr)
-        completed = _run_diff(f"origin/{base_ref}..{head_ref}")
+        completed = _run_git(["git", "diff", "--name-only", f"origin/{base_ref}..{head_ref}"])
         if completed.returncode != 0:
             fallback_stderr = completed.stderr.strip() or "git diff failed"
             raise RuntimeError(fallback_stderr)
