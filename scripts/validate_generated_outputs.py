@@ -15,9 +15,13 @@ Exit codes:
 
 import csv
 from datetime import datetime, timezone
+import hashlib
 import json
+import os
 import re
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import cast
 
@@ -103,7 +107,9 @@ def _is_valid_utc_iso8601(value: str) -> bool:
         parsed = datetime.fromisoformat(normalized.replace("Z", "+00:00"))
     except ValueError:
         return False
-    return parsed.tzinfo is not None and parsed.utcoffset() == timezone.utc.utcoffset(parsed)
+    return parsed.tzinfo is not None and parsed.utcoffset() == timezone.utc.utcoffset(
+        parsed
+    )
 
 
 def _canonical_run_id_from_metadata(metadata: dict[str, object]) -> str:
@@ -151,9 +157,7 @@ def load_competences(path: Path) -> dict[str, dict]:
 
     for key in ("baseline", "literature"):
         if key not in data:
-            fail(
-                f"{path.name}: required top-level key '{key}' is missing"
-            )
+            fail(f"{path.name}: required top-level key '{key}' is missing")
 
     comps: dict[str, dict] = {}
     required_comp_fields = ("id", "dimension", "sectors")
@@ -167,9 +171,7 @@ def load_competences(path: Path) -> dict[str, dict]:
             continue
         for i, c in enumerate(entries):
             if not isinstance(c, dict):
-                fail(
-                    f"{path.name}: {section}[{i}] is not an object"
-                )
+                fail(f"{path.name}: {section}[{i}] is not an object")
                 continue
             for field in required_comp_fields:
                 if field not in c:
@@ -199,9 +201,7 @@ def load_credentials(path: Path) -> list[dict]:
         return []
 
     if "credentials" not in data:
-        fail(
-            f"{path.name}: required top-level key 'credentials' is missing"
-        )
+        fail(f"{path.name}: required top-level key 'credentials' is missing")
         return []
 
     entries = data["credentials"]
@@ -239,9 +239,7 @@ def load_dynamic_credentials(path: Path) -> list[dict]:
         return []
 
     if "credentials" not in data:
-        fail(
-            f"{path.name}: required top-level key 'credentials' is missing"
-        )
+        fail(f"{path.name}: required top-level key 'credentials' is missing")
         return []
 
     entries = data["credentials"]
@@ -402,7 +400,9 @@ def load_cumulative_qmbd_records(
         return ([], {}) if return_metadata else []
 
     if not content.strip():
-        fail(f"{path.name}: file is empty — run 'python run_full_analysis.py' to regenerate")
+        fail(
+            f"{path.name}: file is empty — run 'python run_full_analysis.py' to regenerate"
+        )
         return ([], {}) if return_metadata else []
 
     try:
@@ -463,9 +463,7 @@ def load_cumulative_qmbd_records(
 
         qmbd_analysis = item.get("qmbd_analysis")
         if not isinstance(qmbd_analysis, list):
-            fail(
-                f"{path.name}: record[{idx}] field 'qmbd_analysis' must be a list"
-            )
+            fail(f"{path.name}: record[{idx}] field 'qmbd_analysis' must be a list")
             continue
         if not qmbd_analysis:
             fail(f"{path.name}: record[{idx}] has empty qmbd_analysis")
@@ -615,8 +613,7 @@ def check_gaps_csv(
         fail("Analysis_mode must be non-blank for every gaps_summary.csv row")
     elif any(value not in ALLOWED_ANALYSIS_MODES for value in analysis_modes):
         fail(
-            "Analysis_mode must be one of: "
-            + ", ".join(sorted(ALLOWED_ANALYSIS_MODES))
+            "Analysis_mode must be one of: " + ", ".join(sorted(ALLOWED_ANALYSIS_MODES))
         )
     elif len(analysis_modes) != 1:
         fail("Analysis_mode must be identical across all gaps_summary.csv rows")
@@ -639,7 +636,9 @@ def check_gaps_csv(
 
     # 4. Companion cumulative metadata must describe the same current run
     if cumulative_metadata:
-        expected_generated_at = str(cumulative_metadata.get("timestamp_utc", "")).strip()
+        expected_generated_at = str(
+            cumulative_metadata.get("timestamp_utc", "")
+        ).strip()
         expected_analysis_mode = str(
             cumulative_metadata.get("analysis_input_mode", "")
         ).strip()
@@ -671,8 +670,7 @@ def check_gaps_csv(
         elif expected_analysis_mode not in ALLOWED_ANALYSIS_MODES:
             fail(
                 "cumulative_qmbd_records.json metadata.analysis_input_mode "
-                "must be one of: "
-                + ", ".join(sorted(ALLOWED_ANALYSIS_MODES))
+                "must be one of: " + ", ".join(sorted(ALLOWED_ANALYSIS_MODES))
             )
         elif actual_analysis_mode != expected_analysis_mode:
             fail(
@@ -766,8 +764,7 @@ def check_credentials(
                 eqf_ok = False
         else:
             fail(
-                f"Sector '{sector}' is missing EQF levels: "
-                f"{sorted(missing_levels)}"
+                f"Sector '{sector}' is missing EQF levels: " f"{sorted(missing_levels)}"
             )
             eqf_ok = False
 
@@ -918,7 +915,9 @@ def check_desalination_integrity(
                 desal_ok = False
 
     if desal_ok:
-        ok("Desalination EQF6/EQF7 credentials contain only Desalination-valid literature")
+        ok(
+            "Desalination EQF6/EQF7 credentials contain only Desalination-valid literature"
+        )
 
 
 def check_sector_dictionaries(sector_dict_dir: Path) -> None:
@@ -1036,7 +1035,9 @@ def check_dynamic_outputs(
     generated_entries = rationale.get("generated_credentials", [])
     review_required = rationale.get("review_required", [])
     if not isinstance(generated_entries, list) or not isinstance(review_required, list):
-        fail("credentials_generation_rationale.json has invalid generated/review sections")
+        fail(
+            "credentials_generation_rationale.json has invalid generated/review sections"
+        )
         return
 
     rationale_ids = {
@@ -1077,6 +1078,207 @@ def check_dynamic_outputs(
         fail("sector_qmbd_learning_pathways.json has no pathway nodes")
     else:
         ok(f"Pathway nodes present: {len(pathway_nodes)}")
+
+
+def check_performative_demand_outputs() -> None:
+    """Validate PR #270 scientific artifacts by schema and deterministic rebuild."""
+    print("\n[performative_demand_cross_axis/]")
+    output_dir = OUTPUTS_DIR / "performative_demand_cross_axis"
+    builder = REPO_ROOT / "scripts" / "build_performative_demand_cross_axis_analysis.py"
+    schemas: dict[str, set[str]] = {
+        "sector_axis_observed.csv": {
+            "sector",
+            "axis_group",
+            "axis_code",
+            "observed_evidence_count",
+        },
+        "sector_axis_expected.csv": {
+            "sector",
+            "axis_group",
+            "axis_code",
+            "expected_evidence_count",
+        },
+        "sector_axis_residuals.csv": {
+            "sector",
+            "axis_group",
+            "axis_code",
+            "observed_evidence_count",
+        },
+        "sector_axis_screening_features.csv": {
+            "sector",
+            "axis_group",
+            "axis_code",
+            "evidence_surface",
+        },
+        "sector_axis_realm_screening.csv": {
+            "sector",
+            "axis_group",
+            "axis_code",
+            "evidence_surface",
+            "realm",
+        },
+        "axis_screening_feature_shares.csv": {
+            "axis_group",
+            "axis_code",
+            "evidence_surface",
+            "feature",
+        },
+        "sector_screening_profile.csv": {
+            "sector",
+            "dominant_axis",
+            "dominant_axis_code",
+        },
+        "linked_evidence_sector_axis_lineage.csv": {
+            "evidence_id",
+            "sector",
+            "axis_group",
+            "axis_code",
+        },
+        "coastal_tourism_axis_realm_case.csv": {
+            "sector",
+            "axis_group",
+            "axis_code",
+            "realm",
+            "citation_needed",
+            "source_status",
+        },
+    }
+    axis_codes = {
+        "MARINE": "M",
+        "MARITIME": "T",
+        "OCEANIC": "O",
+        "HYDRONIZATION": "H",
+    }
+    expected_names = set(schemas) | {
+        "statistics_summary.json",
+        "hypothesis_outcomes.json",
+        "validity_threats.json",
+        "value_labels.json",
+        "package_manifest.json",
+    }
+    if not output_dir.exists():
+        fail(f"Performative-demand output directory missing: {output_dir}")
+        return
+    local_errors_before = len(ERRORS)
+    for name, required_columns in schemas.items():
+        artifact = output_dir / name
+        if not require_file(artifact):
+            continue
+        with artifact.open(newline="", encoding="utf-8") as handle:
+            reader = csv.DictReader(handle)
+            fieldnames = set(reader.fieldnames or [])
+            missing = required_columns - fieldnames
+            if missing:
+                fail(f"{name}: missing required columns {sorted(missing)}")
+                continue
+            rows = list(reader)
+        for row_index, row in enumerate(rows, 2):
+            axis = str(row.get("axis_group", "")).strip()
+            if axis and axis in axis_codes and row.get("axis_code") != axis_codes[axis]:
+                fail(
+                    f"{name}:{row_index}: axis_code {row.get('axis_code')!r} "
+                    f"does not match canonical {axis_codes[axis]!r} for {axis}"
+                )
+                break
+        if name == "coastal_tourism_axis_realm_case.csv":
+            if any(
+                str(row.get("citation_needed", "")).lower() != "true" for row in rows
+            ):
+                fail(
+                    f"{name}: every supplied aggregate row must remain "
+                    "citation_needed=true"
+                )
+            if any(
+                row.get("source_status") != "comparison_data_not_repository_evidence"
+                for row in rows
+            ):
+                fail(
+                    f"{name}: supplied aggregate rows must be labelled "
+                    "comparison data"
+                )
+
+    summary_path = output_dir / "statistics_summary.json"
+    require_file(summary_path)
+    if (output_dir / "sector_deficit_profile.csv").exists():
+        fail(
+            "legacy sector_deficit_profile.csv must not be published as a supply-gap claim"
+        )
+    manifest_path = output_dir / "package_manifest.json"
+    hypothesis_path = output_dir / "hypothesis_outcomes.json"
+    require_file(manifest_path)
+    require_file(hypothesis_path)
+    if manifest_path.exists():
+        package_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest_files = package_manifest.get("files", {})
+        expected_manifest_files = expected_names - {"package_manifest.json"}
+        if (
+            not isinstance(manifest_files, dict)
+            or set(manifest_files) != expected_manifest_files
+        ):
+            fail("package_manifest.json file set does not match governed artifacts")
+        elif isinstance(manifest_files, dict):
+            for name, metadata in manifest_files.items():
+                artifact = output_dir / name
+                if artifact.exists():
+                    digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+                    if (
+                        not isinstance(metadata, dict)
+                        or metadata.get("sha256") != digest
+                    ):
+                        fail(f"package manifest checksum mismatch: {name}")
+    if hypothesis_path.exists():
+        rows_h = json.loads(hypothesis_path.read_text(encoding="utf-8"))
+        if {row.get("hypothesis_id") for row in rows_h if isinstance(row, dict)} != {
+            "H1",
+            "H2",
+            "H3",
+        }:
+            fail("hypothesis_outcomes.json must serialize H1, H2, and H3")
+    if len(ERRORS) != local_errors_before:
+        return
+
+    with tempfile.TemporaryDirectory(prefix="morskamary-performative-") as tmp:
+        database_dir = Path(
+            os.environ.get(
+                "MORSKAMARY_CUMULATIVE_DATABASE_DIR",
+                str(OUTPUTS_DIR / "cumulative_database"),
+            )
+        )
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(builder),
+                "--database-dir",
+                str(database_dir),
+                "--output-dir",
+                tmp,
+            ],
+            cwd=REPO_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        if completed.returncode != 0:
+            fail(
+                "Performative-demand deterministic regeneration failed: "
+                + completed.stdout[-2000:]
+            )
+            return
+        regenerated = Path(tmp)
+        for name in sorted(expected_names):
+            committed = output_dir / name
+            rebuilt = regenerated / name
+            if not rebuilt.exists():
+                fail(f"Deterministic rebuild did not emit required artifact: {name}")
+                continue
+            if committed.read_bytes() != rebuilt.read_bytes():
+                fail(f"Performative-demand artifact is stale/non-deterministic: {name}")
+        if len(ERRORS) == local_errors_before:
+            ok(
+                "Performative-demand schemas and deterministic regeneration "
+                "match committed artifacts"
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -1136,6 +1338,7 @@ def main() -> int:
     check_desalination_integrity(credentials, all_comps)
     check_sector_dictionaries(sector_dict_dir)
     check_dynamic_outputs(dynamic_credentials, rationale, pathways)
+    check_performative_demand_outputs()
     check_no_absolute_local_paths(OUTPUTS_DIR)
 
     print()

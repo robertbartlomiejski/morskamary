@@ -1,0 +1,77 @@
+{
+  "derived_demands": 157,
+  "evidence_records": 3129,
+  "linked_evidence": 978,
+  "linked_evidence_with_signals": 978,
+  "linked_signal_rows": 1458,
+  "realm_screening_audit": {
+    "binary_candidate_count": 1238,
+    "fractional_candidate_weight": 978.0,
+    "fractional_weight_expected": 978,
+    "status": "multi-label screening; fractional weights prevent double count"
+  },
+  "screening_feature_boundary": {
+    "all_review_required": true,
+    "all_title_level": true,
+    "independently_validated_supply_rows": 0,
+    "performative_stage_conclusion": "not computable until exact text spans and two-coder decisions exist",
+    "rejected_signal_rows_excluded": 0,
+    "validated_demand_events": 0,
+    "validated_translation_events": 0
+  },
+  "sector_axis_independence": {
+    "active_columns_for_inference": 4,
+    "active_rows_for_inference": 12,
+    "bh_significant_cells": 42,
+    "bias_corrected_cramers_v": 0.8917124444395967,
+    "columns": 4,
+    "degrees_of_freedom": 33,
+    "expected_cells_below_1": 0,
+    "expected_cells_below_1_share": 0.0,
+    "expected_cells_below_5": 4,
+    "expected_cells_below_5_share": 0.08333333333333333,
+    "holm_significant_cells": 37,
+    "inferential_status": "computed_on_nonzero_margins",
+    "interpretation_boundary": "association describes the acquired/classified corpus and is confounded by retrieval/classification design; it is not workforce prevalence or causal sector demand",
+    "minimum_expected_count": 1.7177914110429449,
+    "n": 978,
+    "observed_zero_cells": 26,
+    "pearson_chi_square": 2358.8433714747907,
+    "permutation_exceedances": 0,
+    "permutation_method": "50,000 unrestricted axis-label permutations with fixed sector labels and fixed axis margins",
+    "permutation_p": 1.999960000799984e-05,
+    "permutation_seed": 20260825,
+    "permutations": 50000,
+    "rows": 12,
+    "unit": "unique linked evidence identity"
+  },
+  "source_provenance": {
+    "cumulative_manifest_generated_at_utc": null,
+    "cumulative_manifest_generated_by": null,
+    "cumulative_manifest_schema_version": "1.0.0",
+    "cumulative_manifest_status": null,
+    "demand_profile_rows": null,
+    "evidence_map_exact_rows": null,
+    "joined_evidence_id_count": null,
+    "qmbd_assignment_methodology": null,
+    "records_in_database": null,
+    "run_classifier_identity": {
+      "classifier_version": "cumulative-db-semantic-v1",
+      "current_run_id": "30090903921-1",
+      "observed_fields": {
+        "classifier_version": {
+          "signals": "cumulative-db-semantic-v1"
+        },
+        "run_id": {
+          "signals": "30090903921-1"
+        }
+      },
+      "status": "verified_from_available_fields"
+    },
+    "source_file_sha256": {
+      "competence_demand_signals.csv": "9c16ecc352413a93e6bf19c58baf7da1eb38ca2c2c5c5598a873406dcb1e3bd9",
+      "derived_competence_demands.csv": "9d0096f4adea231e6f434bdf7f6154288257b976b4fe65660b5082481bc58f83",
+      "evidence_records.csv": "7062166a0a3a572f64cbc294a2ce2a67558a5c0f789f6fdb61dfe377079d94f6"
+    }
+  }
+}

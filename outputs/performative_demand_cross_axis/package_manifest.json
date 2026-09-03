@@ -1,0 +1,88 @@
+{
+  "files": {
+    "axis_screening_feature_shares.csv": {
+      "bytes": 3147,
+      "sha256": "ef56458cab5a2bf60e67507766c2171557ec2249dc2cb0f530316994165c0e86"
+    },
+    "coastal_tourism_axis_realm_case.csv": {
+      "bytes": 3738,
+      "sha256": "b3dd488a6cb15d928ba9fc2f963c1c2abeb6d385b5901e837319331952c6d4c0"
+    },
+    "hypothesis_outcomes.json": {
+      "bytes": 3324,
+      "sha256": "854d44295a417d4c591dfa43744ea71dde693d87cff29fa90f57e4c6bdf6afda"
+    },
+    "linked_evidence_sector_axis_lineage.csv": {
+      "bytes": 63460,
+      "sha256": "1c6295170ae0233609a8a8e79415ac4bb72dc1915728f0d672e4a007c43e11b1"
+    },
+    "sector_axis_expected.csv": {
+      "bytes": 2164,
+      "sha256": "42c7df420b4cad99ea4ed3d474c6bcb02f260cc21c4b97912a644f98ab25f90e"
+    },
+    "sector_axis_observed.csv": {
+      "bytes": 1393,
+      "sha256": "fcc4328b271bf0d259b197c179cb11d569637dd85fc2e4b5efc9c3f20bc2da05"
+    },
+    "sector_axis_realm_screening.csv": {
+      "bytes": 28455,
+      "sha256": "396a4007363041a536c944d00c963d09995848d4588087469a9b331f197af2f1"
+    },
+    "sector_axis_residuals.csv": {
+      "bytes": 8984,
+      "sha256": "0d8936ec2505fe3e5fff195ee14e79d6d389258fbe31df157e8a7658cff9af26"
+    },
+    "sector_axis_screening_features.csv": {
+      "bytes": 8895,
+      "sha256": "b6940799046afba8dae0483f5d1e15ef8a5b5f9bd5ee314062563694ca25b9d8"
+    },
+    "sector_screening_profile.csv": {
+      "bytes": 3286,
+      "sha256": "231c95c48caba9b15189ee2b7d4562e0e0aabeb703a527355822a6a74638ad8a"
+    },
+    "statistics_summary.json": {
+      "bytes": 3035,
+      "sha256": "f43e1b53932c693d20c6357796e3a95f4b6b353aa50e8c58d8e561713ac7ac8c"
+    },
+    "validity_threats.json": {
+      "bytes": 658,
+      "sha256": "4e11c5bec489abda4c04e630ec73f3575e4092c639d0be3b0052f3c8c375463b"
+    },
+    "value_labels.json": {
+      "bytes": 517,
+      "sha256": "3286f7de1b42b049cde854412c5200f944b25eeb2c6b03d6f72cf56c4f0f1acf"
+    }
+  },
+  "generated_by": "scripts/build_performative_demand_cross_axis_analysis.py",
+  "package_schema_version": "1.0",
+  "protocol_version": "1.2.0",
+  "source_provenance": {
+    "cumulative_manifest_generated_at_utc": null,
+    "cumulative_manifest_generated_by": null,
+    "cumulative_manifest_schema_version": "1.0.0",
+    "cumulative_manifest_status": null,
+    "demand_profile_rows": null,
+    "evidence_map_exact_rows": null,
+    "joined_evidence_id_count": null,
+    "qmbd_assignment_methodology": null,
+    "records_in_database": null,
+    "run_classifier_identity": {
+      "classifier_version": "cumulative-db-semantic-v1",
+      "current_run_id": "30090903921-1",
+      "observed_fields": {
+        "classifier_version": {
+          "signals": "cumulative-db-semantic-v1"
+        },
+        "run_id": {
+          "signals": "30090903921-1"
+        }
+      },
+      "status": "verified_from_available_fields"
+    },
+    "source_file_sha256": {
+      "competence_demand_signals.csv": "9c16ecc352413a93e6bf19c58baf7da1eb38ca2c2c5c5598a873406dcb1e3bd9",
+      "derived_competence_demands.csv": "9d0096f4adea231e6f434bdf7f6154288257b976b4fe65660b5082481bc58f83",
+      "evidence_records.csv": "7062166a0a3a572f64cbc294a2ce2a67558a5c0f789f6fdb61dfe377079d94f6"
+    }
+  }
+}

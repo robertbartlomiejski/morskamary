@@ -70,11 +70,17 @@ jobs:
             "gaps_detailed.json"
             "gaps_summary.csv"
             "literature_integration.html"
+            "performative_demand_cross_axis"
             "report_index.html"
             "sector_dictionaries"
             "sector_pathways.json"
             "sector_qmbd_learning_pathways.json"
           )
+          if [[ ! -d "outputs/cumulative_database" ]]; then
+            echo "Missing retained cumulative database required by performative-demand analysis"
+            exit 1
+          fi
+          cp -R "outputs/cumulative_database" "$RETAINED_INPUT_ROOT/cumulative_database"
           for relative_path in "${generated_paths[@]}"; do
             if [[ ! -e "outputs/$relative_path" ]]; then
               echo "Missing committed generated output: outputs/$relative_path"
@@ -109,6 +115,13 @@ jobs:
           python run_full_analysis.py
           --analysis-input-mode
           "${{ steps.committed-outputs.outputs.analysis_mode }}"
+
+      - name: Regenerate performative-demand package from retained cumulative database
+        env:
+          MORSKAMARY_CUMULATIVE_DATABASE_DIR: ${{ runner.temp }}/full-analysis-retained-inputs/cumulative_database
+        run: >-
+          python scripts/build_performative_demand_cross_axis_analysis.py
+          --database-dir "$MORSKAMARY_CUMULATIVE_DATABASE_DIR"
 
       - name: Verify output artifacts
         shell: bash
@@ -145,6 +158,8 @@ jobs:
           echo "All output artifacts verified, including sector dictionaries."
 
       - name: Validate generated output semantics
+        env:
+          MORSKAMARY_CUMULATIVE_DATABASE_DIR: ${{ runner.temp }}/full-analysis-retained-inputs/cumulative_database
         run: python scripts/validate_generated_outputs.py
 
       - name: Check committed outputs are fresh
@@ -162,6 +177,7 @@ jobs:
         env:
           STATIC_INPUT_ROOT: ${{ runner.temp }}/full-analysis-static-input
           STATIC_COMPARE_ROOT: ${{ runner.temp }}/full-analysis-static-baseline
+          MORSKAMARY_CUMULATIVE_DATABASE_DIR: ${{ runner.temp }}/full-analysis-retained-inputs/cumulative_database
         run: |
           set -euo pipefail
           rm -rf "$STATIC_INPUT_ROOT"
@@ -170,11 +186,13 @@ jobs:
           mkdir -p "$STATIC_COMPARE_ROOT"
           cp -R outputs/. "$STATIC_INPUT_ROOT/"
           python run_full_analysis.py --analysis-input-mode static
+          python scripts/build_performative_demand_cross_axis_analysis.py --database-dir "$MORSKAMARY_CUMULATIVE_DATABASE_DIR"
           cp -R outputs/. "$STATIC_COMPARE_ROOT/"
           rm -rf outputs
           mkdir -p outputs
           cp -R "$STATIC_INPUT_ROOT/." outputs/
           python run_full_analysis.py --analysis-input-mode static
+          python scripts/build_performative_demand_cross_axis_analysis.py --database-dir "$MORSKAMARY_CUMULATIVE_DATABASE_DIR"
           python scripts/compare_generated_outputs.py \
             --root outputs \
             --baseline-root "$STATIC_COMPARE_ROOT"

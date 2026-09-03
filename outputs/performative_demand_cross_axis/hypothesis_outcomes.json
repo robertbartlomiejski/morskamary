@@ -1,0 +1,82 @@
+[
+  {
+    "declared_outcomes": [
+      "supported_maritime_dominance",
+      "partially_supported_maritime",
+      "not_supported",
+      "not_computable"
+    ],
+    "definition": "Blue-economy competence demand is structurally concentrated in the MARITIME (techno-economic, labour, infrastructure) axis relative to the OCEANIC (planetary governance, hydrosocial responsibility) axis.",
+    "direction": "positive cohens_d = MARITIME > OCEANIC supports H1",
+    "hypothesis_id": "H1",
+    "hypothesis_label": "Maritimisation Shift",
+    "required_axes": [
+      "MARITIME",
+      "OCEANIC"
+    ],
+    "result_fields": {
+      "effect_size_cohens_d": null,
+      "hypothesis_id": "H1",
+      "hypothesis_label": "Maritimisation Shift",
+      "interpretation": "this evidence-structure package does not recompute demand_strength_score effect sizes",
+      "sample_size_maritime": null,
+      "sample_size_oceanic": null
+    },
+    "status": "not_computable",
+    "test": "Cohen's d (signed) on demand_strength_score by axis group",
+    "warning": "this evidence-structure package does not recompute demand_strength_score effect sizes"
+  },
+  {
+    "declared_outcomes": [
+      "supported",
+      "partially_supported",
+      "not_supported",
+      "not_computable"
+    ],
+    "definition": "Competence demands in the HYDRONIZATION (hydrosocial governance, water-body coupling) axis lack corresponding EQF 6-7 validated credential supply relative to other axes.",
+    "direction": "high missing ratio supports H2",
+    "hypothesis_id": "H2",
+    "hypothesis_label": "Hydronization Lag",
+    "required_axes": [
+      "HYDRONIZATION"
+    ],
+    "result_fields": {
+      "hydronization_demand_count": null,
+      "hypothesis_id": "H2",
+      "hypothesis_label": "Hydronization Lag",
+      "interpretation": "independently validated EQF 6-7 supply is unavailable in this package",
+      "validated_covered_demand_count": null,
+      "validated_missing_demand_count": null
+    },
+    "status": "not_computable",
+    "test": "missing-ratio of HYDRONIZATION demands without validated EQF 6-7 supply",
+    "warning": "independently validated EQF 6-7 supply is unavailable in this package"
+  },
+  {
+    "declared_outcomes": [
+      "supported",
+      "partially_supported",
+      "not_supported",
+      "not_computable"
+    ],
+    "definition": "The MARINE (biophysical, ecological) and OCEANIC (planetary, governance) axes show balanced evidence coverage and shared competence labels indicating cross-axis knowledge transfer.",
+    "direction": "high balance and semantic bridges support H3",
+    "hypothesis_id": "H3",
+    "hypothesis_label": "MARINE vs OCEANIC Differential Coverage",
+    "required_axes": [
+      "MARINE",
+      "OCEANIC"
+    ],
+    "result_fields": {
+      "hypothesis_id": "H3",
+      "hypothesis_label": "MARINE vs OCEANIC Differential Coverage",
+      "interpretation": "validated semantic translation bridges are unavailable in this package",
+      "marine_fragment_count": null,
+      "oceanic_fragment_count": null,
+      "semantic_bridge_count": null
+    },
+    "status": "not_computable",
+    "test": "normalized MARINE-OCEANIC fragment difference, balance score, sector coverage, and shared competence labels",
+    "warning": "validated semantic translation bridges are unavailable in this package"
+  }
+]
