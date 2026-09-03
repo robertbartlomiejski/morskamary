@@ -327,6 +327,7 @@ def _prepare_linked_signals_for_screening(
     evidence_map: pd.DataFrame,
 ) -> tuple[pd.DataFrame, int]:
     """Normalize and gate screening signals with fail-closed validation status."""
+    # Step 1: restrict screening to linked lineage and enforce sector/axis parity.
     linked_signals = signals.merge(
         evidence_map,
         on="evidence_id",
@@ -348,6 +349,7 @@ def _prepare_linked_signals_for_screening(
     linked_signals["semantic_scope"] = (
         linked_signals["semantic_scope"].astype(str).str.strip().str.lower()
     )
+    # Step 2: enforce retained semantic-surface policy (never query/source_query).
     illegal_semantic_scopes = {
         scope
         for scope in set(linked_signals["semantic_scope"])
@@ -361,6 +363,7 @@ def _prepare_linked_signals_for_screening(
     rejected_signal_rows_excluded = int(
         linked_signals["manual_review_status"].eq("rejected").sum()
     )
+    # Step 3: fail closed unless rows remain review_required screening candidates.
     linked_signals = linked_signals.loc[
         ~linked_signals["manual_review_status"].eq("rejected")
     ].copy()
@@ -383,7 +386,11 @@ def _prepare_linked_signals_for_screening(
 
 
 def _signal_sets_by_linked_evidence(linked_signals: pd.DataFrame) -> pd.DataFrame:
-    """Collapse screening signal rows to one row per linked evidence identity."""
+    """Collapse to one row per linked evidence identity for corpus diagnostics.
+
+    This removes repeated signal rows per evidence/sector/axis key, but it does
+    not guarantee independent observations in a strict inferential sense.
+    """
     signal_set_rows: list[dict[str, Any]] = []
     for group_key, group in linked_signals.groupby(
         ["evidence_id", "sector", "axis_group"], sort=False
@@ -415,14 +422,15 @@ def build_performative_demand_analysis(
     permutations: int = 50_000,
     seed: int = 20_260_825,
 ) -> PerformativeDemandAnalysis:
-    """Build complete sector-axis tables and candidate screening summaries.
+    """Build corpus-structure tables and deterministic screening summaries.
 
-    The sector-axis association is descriptive of the acquired and classified corpus.
+    The sector-axis association is descriptive of the acquired/classified corpus.
     Permuting axis labels with fixed sector labels and fixed margins tests whether
     the observed table is more structured than random assignment within that corpus.
-    It does not estimate population or workforce demand, and it does not create an
-    iid sample assumption. One linked evidence identity remains a curated corpus unit
-    that may carry correlated signal context across screening pathways.
+    It does not estimate population or workforce demand, and inferential statistics
+    here are table diagnostics under curated design assumptions, not iid estimators.
+    One linked evidence identity remains a curated corpus unit that may carry
+    correlated signal context across screening pathways.
     """
     sector_order = list(sector_labels)
     linkage_dependence = _linkage_dependence_audit(demands)
@@ -491,7 +499,7 @@ def build_performative_demand_analysis(
         bh_p[valid_residual_mask] = _adjust_bh(valid_p)
     row_codes = pd.Categorical(evidence_map["sector"], categories=sector_order).codes
     column_codes = pd.Categorical(evidence_map["axis_group"], categories=AXES).codes
-    # Permutation and residual diagnostics quantify corpus structure, not prevalence.
+    # Permutation/residual outputs are corpus-structure diagnostics, not prevalence.
     if inferential_computable:
         permutation_p, permutation_exceedances = _permutation_chi2_p(
             row_codes, column_codes, expected_array, chi2, permutations, seed
@@ -573,6 +581,7 @@ def build_performative_demand_analysis(
         all_linked[f"realm_{realm}"] = [
             bool(values & members) for values in all_linked["signal_types"].tolist()
         ]
+    # Deterministic multi-label realm crosswalk for screening triage only.
     realm_columns = [f"realm_{realm}" for realm in REALMS]
     all_linked["realm_count"] = all_linked[realm_columns].sum(axis=1)
     screening_linked = all_linked.loc[all_linked["signal_type_richness"].gt(0)].copy()
@@ -620,6 +629,7 @@ def build_performative_demand_analysis(
                 "validated_translation_count": 0,
                 "validated_supply_count": math.nan,
                 "supply_gap_status": "not_computable_no_independent_supply",
+                "screening_validation_state": "screening_only_not_validated",
                 "evidence_status": (
                     "screening_not_human_validated"
                     if len(group)
@@ -656,6 +666,7 @@ def build_performative_demand_analysis(
                         "validated_demand_count": 0,
                         "validated_translation_count": 0,
                         "validated_supply_count": math.nan,
+                        "screening_validation_state": "screening_only_not_validated",
                         "coding_status": "deterministic_screening_not_human_validated",
                         "analysis_scope": "deterministic_screening_only_not_validated",
                         "zero_interpretation": (
@@ -726,6 +737,7 @@ def build_performative_demand_analysis(
             "validated_translation_events": 0,
             "independent_validated_supply_available": False,
             "shortage_claim_status": "not_computable",
+            "screening_validation_state": "screening_only_not_validated",
             "analysis_scope": "deterministic_screening_profile_not_validated",
         }
         for feature in PERFORMATIVE_FEATURE_SIGNAL_TYPES:
@@ -750,6 +762,9 @@ def build_performative_demand_analysis(
                 "deduplicated evidence IDs avoid duplicated demand rows, but this "
                 "curated corpus is not an iid sample and may retain correlated "
                 "screening context"
+            ),
+            "inferential_table_use": (
+                "descriptive_corpus_structure_diagnostic_only_not_population_inference"
             ),
             "rows": len(sector_order),
             "columns": len(AXES),

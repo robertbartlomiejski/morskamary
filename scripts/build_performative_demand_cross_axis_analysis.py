@@ -73,7 +73,11 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 
 def _tourism_case_table() -> pd.DataFrame:
-    """Return external comparison-only H3 aggregate recoding as an explicit 4 x 4 table."""
+    """Return external comparison-only H3 aggregate recoding as an explicit 4 x 4 table.
+
+    This table is intentionally isolated as non-repository evidence and must not
+    be interpreted as retained empirical support from the cumulative database.
+    """
     title_counts = {
         "ECONOMY": 1,
         "TECHNOLOGY": 2,
@@ -98,6 +102,7 @@ def _tourism_case_table() -> pd.DataFrame:
                     "manual_validation_status": "not_started",
                     "citation_needed": True,
                     "source_status": "comparison_data_not_repository_evidence",
+                    "provenance_class": "external_comparison_only_not_repository_evidence",
                     "source_note": (
                         "aggregate realm recoding supplied outside retained repository "
                         "evidence; no retained citable source is available"
@@ -135,7 +140,11 @@ def _sha256(path: Path) -> str:
 def _source_provenance(
     database: Path, frames: Mapping[str, pd.DataFrame]
 ) -> dict[str, Any]:
-    """Return strict fail-closed lineage metadata from cumulative inputs."""
+    """Return strict fail-closed lineage metadata from cumulative inputs.
+
+    This is intentionally hard-fail coupled to lineage consistency. Build output
+    publication must stop when run/classifier identity is ambiguous.
+    """
     manifest_path = database / "cumulative_database_manifest.json"
     if not manifest_path.exists():
         raise RuntimeError(
@@ -347,6 +356,10 @@ def _write_governance_artifacts(
                     "byte-for-byte artifact determinism for governed output files",
                     "checksum parity between package_manifest and artifact bytes",
                 ],
+                "consumer_read_order": [
+                    "read validity_threats.json and value_labels.json before interpreting screening tables",
+                    "treat sector/axis/realm CSV files as deterministic corpus-screening diagnostics only",
+                ],
             },
         },
     )
@@ -362,6 +375,11 @@ def _write_governance_artifacts(
             "analysis_scope_label": "deterministic_screening_only_not_validated",
             "zero_interpretation": "not observed in declared screening state, not absent in reality",
             "supply_gap_status": "not_computable_no_independent_supply",
+            "consumer_warning": (
+                "screening outputs are deterministic corpus diagnostics; they are not "
+                "validated demand, validated translation, validated performativity, or "
+                "independently validated supply prevalence"
+            ),
         },
     )
     _write_json(output / "hypothesis_outcomes.json", _hypothesis_outcomes(protocol))
@@ -397,6 +415,7 @@ def _write_governance_artifacts(
                     "axis_group",
                     "axis_code",
                     "evidence_surface",
+                    "screening_validation_state",
                 ],
                 "sector_axis_realm_screening.csv": [
                     "sector",
@@ -404,6 +423,7 @@ def _write_governance_artifacts(
                     "axis_code",
                     "evidence_surface",
                     "realm",
+                    "screening_validation_state",
                 ],
                 "axis_screening_feature_shares.csv": [
                     "axis_group",
@@ -415,6 +435,7 @@ def _write_governance_artifacts(
                     "sector",
                     "dominant_axis",
                     "dominant_axis_code",
+                    "screening_validation_state",
                 ],
                 "linked_evidence_sector_axis_lineage.csv": [
                     "evidence_id",
@@ -429,6 +450,7 @@ def _write_governance_artifacts(
                     "realm",
                     "citation_needed",
                     "source_status",
+                    "provenance_class",
                 ],
             },
         },

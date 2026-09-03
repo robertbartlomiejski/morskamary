@@ -1441,3 +1441,5 @@ PR #270 follow-up completion hardening
 - Add evidence lineage, source provenance, checksums, validity threats, value labels, and H1–H3 outcomes.
 - Rename the screening profile to avoid implying an independently validated supply deficit.
 - Restrict inferential dimensions to non-zero margins while retaining all zero cells descriptively.
+
+PR #270 review-address pass: reinforce corpus-screening interpretation boundaries, add explicit `screening_validation_state` flags to screening rows, and strengthen external-comparison provenance labels/consumer read-order guidance.

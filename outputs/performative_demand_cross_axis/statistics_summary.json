@@ -44,6 +44,7 @@
     "expected_cells_below_5_share": 0.08333333333333333,
     "holm_significant_cells": 37,
     "inferential_status": "computed_on_nonzero_margins",
+    "inferential_table_use": "descriptive_corpus_structure_diagnostic_only_not_population_inference",
     "interpretation_boundary": "association describes the acquired/classified corpus and is confounded by retrieval/classification design; it is not workforce prevalence or causal sector demand",
     "linkage_dependence_audit": {
       "duplicated_linked_evidence_ids": 390,

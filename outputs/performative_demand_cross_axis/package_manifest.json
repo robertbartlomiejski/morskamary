@@ -5,8 +5,8 @@
       "sha256": "ef56458cab5a2bf60e67507766c2171557ec2249dc2cb0f530316994165c0e86"
     },
     "external_comparison_coastal_tourism_axis_realm_case.csv": {
-      "bytes": 3738,
-      "sha256": "b3dd488a6cb15d928ba9fc2f963c1c2abeb6d385b5901e837319331952c6d4c0"
+      "bytes": 4539,
+      "sha256": "a7001ea25216c2a2ecc920f66fc537f70e24e8435d15ea2f2f90ed4edc06a511"
     },
     "hypothesis_outcomes.json": {
       "bytes": 3324,
@@ -17,8 +17,8 @@
       "sha256": "1c6295170ae0233609a8a8e79415ac4bb72dc1915728f0d672e4a007c43e11b1"
     },
     "package_schema.json": {
-      "bytes": 1791,
-      "sha256": "8f5a5dc216c475c5b71c03b74ecaa943bbc66adb9afca07c16569684ffb7ae8f"
+      "bytes": 1925,
+      "sha256": "8fb9b0ebee9e3bcf15609d2db7f054ef049f7bf979d6e984cadd9586e215dfd6"
     },
     "sector_axis_expected.csv": {
       "bytes": 2164,
@@ -29,32 +29,32 @@
       "sha256": "fcc4328b271bf0d259b197c179cb11d569637dd85fc2e4b5efc9c3f20bc2da05"
     },
     "sector_axis_realm_screening.csv": {
-      "bytes": 38066,
-      "sha256": "e9bad6459e6362cb6fc85295f8a8b760736d456e0f86a1fddd5a19779e1fa2b3"
+      "bytes": 43661,
+      "sha256": "5c527c6383766a332374a871a8f7f720e6214e17aa8bc47ae07a716ccb76f7ed"
     },
     "sector_axis_residuals.csv": {
       "bytes": 8984,
       "sha256": "0d8936ec2505fe3e5fff195ee14e79d6d389258fbe31df157e8a7658cff9af26"
     },
     "sector_axis_screening_features.csv": {
-      "bytes": 10974,
-      "sha256": "edce84cf58d5c7fbbdf7a8eb1defd9d3f02923ac51be7f22b778c95939861c01"
+      "bytes": 12393,
+      "sha256": "8a1eb33a3019fc7d7da8a8641580c441b2a9a140e3996ef8d32b775c54a6abf1"
     },
     "sector_screening_profile.csv": {
-      "bytes": 3853,
-      "sha256": "0063c06e80a589f4433ef5d3328dfd6a522c3bf11a85d359b1b6b74668d89c7f"
+      "bytes": 4228,
+      "sha256": "39310195e6987f43a7adddb65b48707b1b1c6191066c0c566f2740e1b64dbdb3"
     },
     "statistics_summary.json": {
-      "bytes": 4742,
-      "sha256": "b531df20e1e4275d2994bf5df25326736e38e724efec8b17d25326d19e343e0f"
+      "bytes": 4844,
+      "sha256": "44897ce6eec2577a889b53ed2ab8abc89bba8084164ebd0b67629430df834deb"
     },
     "validity_threats.json": {
-      "bytes": 1351,
-      "sha256": "89f1d4ae3976e314d00d68fd134427c6fc5fd7b33598b0e189a10d6c5f879a8e"
+      "bytes": 1575,
+      "sha256": "d80e381b6358b18e2dd79902be5d364a22c75da21ad5ac3fdd0cff50e0fbecf4"
     },
     "value_labels.json": {
-      "bytes": 589,
-      "sha256": "ac19a16dd7453b42afbe2fde1301e8dba393d2f3916499b95904c0b374aa0a42"
+      "bytes": 795,
+      "sha256": "be45fd93187ee1a2c08feab50123ae6ffebbddf4eadd5b28663ab801d63fe24d"
     }
   },
   "generated_by": "scripts/build_performative_demand_cross_axis_analysis.py",

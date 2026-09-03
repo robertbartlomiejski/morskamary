@@ -185,6 +185,9 @@ def test_builder_is_pandas_15_compatible_and_tourism_is_uncited_comparison() -> 
     tourism = _tourism_case_table()
     assert tourism["citation_needed"].all()
     assert set(tourism["source_status"]) == {"comparison_data_not_repository_evidence"}
+    assert set(tourism["provenance_class"]) == {
+        "external_comparison_only_not_repository_evidence"
+    }
     assert all(
         row.axis_code == AXIS_CODES[row.axis_group]
         for row in tourism.itertuples(index=False)
@@ -261,6 +264,10 @@ def test_zero_margin_dimensions_are_excluded_from_inference() -> None:
     assert inference["degrees_of_freedom"] == 1
     assert inference["inferential_status"] == "computed_on_nonzero_margins"
     assert "not an iid sample" in inference["unit_independence_note"]
+    assert (
+        inference["inferential_table_use"]
+        == "descriptive_corpus_structure_diagnostic_only_not_population_inference"
+    )
     assert "non-random corpus structure" in inference["permutation_interpretation"]
     dependence = inference["linkage_dependence_audit"]
     assert dependence["total_demand_link_rows"] == 5
@@ -385,11 +392,17 @@ def test_realm_rows_and_profile_repeat_screening_only_scope() -> None:
     assert set(candidate_rows["analysis_scope"]) == {
         "deterministic_screening_only_not_validated"
     }
+    assert set(candidate_rows["screening_validation_state"]) == {
+        "screening_only_not_validated"
+    }
     assert set(candidate_rows["zero_interpretation"]) == {
         "candidate_for_exact_text_review_not_validated"
     }
     assert set(analysis.sector_profile["analysis_scope"]) == {
         "deterministic_screening_profile_not_validated"
+    }
+    assert set(analysis.sector_profile["screening_validation_state"]) == {
+        "screening_only_not_validated"
     }
 
 

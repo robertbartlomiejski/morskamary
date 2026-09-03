@@ -6,6 +6,7 @@
     "MARITIME": "T",
     "OCEANIC": "O"
   },
+  "consumer_warning": "screening outputs are deterministic corpus diagnostics; they are not validated demand, validated translation, validated performativity, or independently validated supply prevalence",
   "review_status_contract": {
     "other": "fail closed until accepted validation ledger is ingested",
     "rejected": "excluded from positive screening aggregates",

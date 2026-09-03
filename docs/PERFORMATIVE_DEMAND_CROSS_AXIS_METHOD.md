@@ -119,12 +119,17 @@ The package is written to `outputs/performative_demand_cross_axis/`.
 - `sector_axis_screening_features.csv`, `sector_axis_realm_screening.csv`,
   `axis_screening_feature_shares.csv`, `sector_screening_profile.csv`:
   deterministic screening outputs only; not validated demand, translation, or
-  supply evidence.
+  supply evidence. Read `screening_validation_state`, `coding_status`,
+  `analysis_scope`, and `zero_interpretation` before interpreting counts.
 - `external_comparison_coastal_tourism_axis_realm_case.csv`: external
-  comparison-only aggregate; not retained repository evidence.
+  comparison-only aggregate; not retained repository evidence. Use
+  `provenance_class=external_comparison_only_not_repository_evidence` as a
+  hard provenance boundary.
 - `statistics_summary.json`, `validity_threats.json`, `value_labels.json`,
   `hypothesis_outcomes.json`, `package_schema.json`, `package_manifest.json`:
   governance and interpretation-boundary metadata that must be read with tables.
+  Start with `validity_threats.json` and `value_labels.json` before any
+  sector-level interpretation.
 
 ## Review reconciliation: output identity and provenance
 

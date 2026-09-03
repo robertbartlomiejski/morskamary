@@ -16,6 +16,10 @@
   ],
   "package_scope": "deterministic_corpus_screening_not_validated_performativity_or_supply_gap",
   "reproducibility_contract": {
+    "consumer_read_order": [
+      "read validity_threats.json and value_labels.json before interpreting screening tables",
+      "treat sector/axis/realm CSV files as deterministic corpus-screening diagnostics only"
+    ],
     "packaging_identity": [
       "byte-for-byte artifact determinism for governed output files",
       "checksum parity between package_manifest and artifact bytes"

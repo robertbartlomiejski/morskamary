@@ -18,7 +18,8 @@
       "axis_code",
       "realm",
       "citation_needed",
-      "source_status"
+      "source_status",
+      "provenance_class"
     ],
     "linked_evidence_sector_axis_lineage.csv": [
       "evidence_id",
@@ -43,7 +44,8 @@
       "axis_group",
       "axis_code",
       "evidence_surface",
-      "realm"
+      "realm",
+      "screening_validation_state"
     ],
     "sector_axis_residuals.csv": [
       "sector",
@@ -55,12 +57,14 @@
       "sector",
       "axis_group",
       "axis_code",
-      "evidence_surface"
+      "evidence_surface",
+      "screening_validation_state"
     ],
     "sector_screening_profile.csv": [
       "sector",
       "dominant_axis",
-      "dominant_axis_code"
+      "dominant_axis_code",
+      "screening_validation_state"
     ]
   },
   "axis_contract": {
