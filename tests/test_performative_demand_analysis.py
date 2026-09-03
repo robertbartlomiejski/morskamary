@@ -142,12 +142,12 @@ def test_axis_codes_are_explicit_in_analysis_tables() -> None:
     ):
         assert "axis_code" in frame.columns
         assert all(
-            row.axis_code == AXIS_CODES[row.axis_group]
+            row.axis_code == AXIS_CODES[str(row.axis_group)]
             for row in frame.itertuples(index=False)
         )
     assert "dominant_axis_code" in analysis.sector_profile.columns
     assert all(
-        row.dominant_axis_code == AXIS_CODES[row.dominant_axis]
+        row.dominant_axis_code == AXIS_CODES[str(row.dominant_axis)]  # type: ignore[index]
         for row in analysis.sector_profile.itertuples(index=False)
         if row.dominant_axis is not None
     )

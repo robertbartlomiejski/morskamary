@@ -11,6 +11,7 @@
     "tests"
 ],
 
-"githubPullRequests.pullRequestDescription": "Copilot"
+"githubPullRequests.pullRequestDescription": "Copilot",
+"chat.sessionSync.enabled": true
 
 }
