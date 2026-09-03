@@ -2,7 +2,7 @@
 
 ## Decision
 
-Use **unique linked evidence identities** as the independent unit for the
+Use **unique linked evidence identities** as the deduplicated analysis unit for the
 sector × axis table. Do not use derived-demand rows as observations because one
 evidence identity can support several demand work packages. The current table
 therefore has 978 observations, 12 sectors, four canonical axes, and all 48

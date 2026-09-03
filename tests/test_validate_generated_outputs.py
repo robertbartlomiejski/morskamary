@@ -47,6 +47,15 @@ def _load_validator_module():
     return mod
 
 
+def test_warn_uses_governed_ascii_safe_prefix(capsys: pytest.CaptureFixture[str]) -> None:
+    mod = _load_validator_module()
+
+    mod.warn("diagnostic")
+
+    assert capsys.readouterr().out == "[WARN] diagnostic\n"
+    assert mod.WARNINGS == ["diagnostic"]
+
+
 CANONICAL_SECTORS = [
     "Blue Biotech",
     "Coastal Tourism",
