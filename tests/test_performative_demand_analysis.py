@@ -328,6 +328,11 @@ def test_fractional_weight_denominator_uses_screening_population() -> None:
         analysis.summary["screening_feature_boundary"]["title_only_interpretation"]
         == "title_only_screening_condition"
     )
+    sector_a_profile = analysis.sector_profile.loc[
+        analysis.sector_profile["sector"].eq("sector_a")
+    ].iloc[0]
+    assert sector_a_profile["linked_evidence_count"] == 3
+    assert sector_a_profile["screening_eligible_linked_evidence_count"] == 2
 
 
 def test_screening_boundary_reports_non_title_scope_mix() -> None:
@@ -444,7 +449,15 @@ def test_source_provenance_rejects_run_id_alias_mismatch(tmp_path: Path) -> None
         "competence_demand_signals.csv",
     ):
         (db / name).write_text("id\n1\n", encoding="utf-8")
-    demands = pd.DataFrame({"evidence_ids": ["E-1"], "current_run_id": ["RUN-A"]})
+    demands = pd.DataFrame(
+        {
+            "competence_demand_id": ["D-1"],
+            "sector": ["sector_a"],
+            "axis_group": ["MARINE"],
+            "evidence_ids": ["E-1"],
+            "current_run_id": ["RUN-A"],
+        }
+    )
     evidence = pd.DataFrame({"evidence_id": ["E-1"]})
     signals = pd.DataFrame({"run_id": ["RUN-B"], "classifier_version": ["model-v1"]})
     with pytest.raises(RuntimeError, match="run lineage aliases conflict"):
@@ -491,7 +504,15 @@ def test_source_provenance_maps_aliases_to_current_run_id(tmp_path: Path) -> Non
         "competence_demand_signals.csv",
     ):
         (db / name).write_text("id\n1\n", encoding="utf-8")
-    demands = pd.DataFrame({"evidence_ids": ["E-1"], "current_run_id": ["RUN-A"]})
+    demands = pd.DataFrame(
+        {
+            "competence_demand_id": ["D-1"],
+            "sector": ["sector_a"],
+            "axis_group": ["MARINE"],
+            "evidence_ids": ["E-1"],
+            "current_run_id": ["RUN-A"],
+        }
+    )
     evidence = pd.DataFrame({"evidence_id": ["E-1"]})
     signals = pd.DataFrame({"run_id": ["RUN-A"], "classifier_version": ["model-v1"]})
     provenance = _source_provenance(
@@ -499,4 +520,235 @@ def test_source_provenance_maps_aliases_to_current_run_id(tmp_path: Path) -> Non
     )
     assert provenance["run_classifier_identity"]["current_run_id"] == "RUN-A"
     assert provenance["cumulative_manifest_generated_at_utc"] == "2026-01-01T00:00:00+00:00"
+    assert provenance["evidence_map_exact_rows"] == 1
+    assert provenance["joined_evidence_id_count"] == 1
     assert provenance["lineage_validation_mode"] == "fail_closed"
+
+
+def test_axis_features_do_not_report_wilson_confidence_intervals() -> None:
+    demands, evidence, signals = _frames()
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+    assert "wilson_95_lower" not in analysis.axis_features.columns
+    assert "wilson_95_upper" not in analysis.axis_features.columns
+
+
+def test_residual_cells_use_observed_linked_evidence_label() -> None:
+    demands, evidence, signals = _frames()
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+    assert "observed_screening_evidence" not in set(analysis.residuals["cell_status"])
+    assert "observed_linked_evidence" in set(analysis.residuals["cell_status"])
+
+
+def test_validate_evidence_identities_rejects_blank_or_null_ids() -> None:
+    from src.scientific_sources.performative_demand_analysis import (
+        validate_evidence_identities,
+    )
+
+    evidence = pd.DataFrame({"evidence_id": ["E-1", "", None]})
+    with pytest.raises(PerformativeDemandAnalysisError, match="null and 1 blank"):
+        validate_evidence_identities(evidence)
+
+
+def test_validate_evidence_identities_rejects_duplicates() -> None:
+    from src.scientific_sources.performative_demand_analysis import (
+        validate_evidence_identities,
+    )
+
+    evidence = pd.DataFrame({"evidence_id": ["E-1", "E-1", "E-2"]})
+    with pytest.raises(PerformativeDemandAnalysisError, match="duplicate evidence_id"):
+        validate_evidence_identities(evidence)
+
+
+def test_build_performative_demand_analysis_fails_closed_on_duplicate_evidence_id() -> None:
+    demands, evidence, signals = _frames()
+    evidence = pd.concat([evidence, pd.DataFrame([{"evidence_id": "E-1"}])], ignore_index=True)
+    with pytest.raises(PerformativeDemandAnalysisError, match="duplicate evidence_id"):
+        build_performative_demand_analysis(
+            demands,
+            evidence,
+            signals,
+            {"sector_a": "Sector A", "sector_b": "Sector B"},
+            permutations=9,
+            seed=42,
+        )
+
+
+def test_sparse_cell_diagnostics_are_scoped_to_active_margins() -> None:
+    demands, evidence, signals = _frames()
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+    inference = analysis.summary["sector_axis_independence"]
+    assert (
+        inference["sparse_cell_diagnostic_scope"]
+        == "active_inferential_margins_only_not_full_display_matrix"
+    )
+    # Full display matrix is 2 sectors x 4 axes = 8 cells, but only the
+    # 2x2 active (nonzero-margin) submatrix should be used for diagnostics.
+    assert inference["expected_cells_below_5"] <= 4
+    assert inference["expected_cells_below_1"] <= 4
+
+
+def _readiness_db(tmp_path: Path, readiness_payload: str) -> Path:
+    db = tmp_path / "db"
+    db.mkdir()
+    (db / "cumulative_database_manifest.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0.0",
+                "current_run_id": "RUN-A",
+                "built_at_utc": "2026-01-01T00:00:00+00:00",
+                "workflow_context": {"github_workflow": "Full Live-Enriched Analysis"},
+                "counts": {"evidence_records": 1},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (db / "layer4_manifest.json").write_text(
+        json.dumps(
+            {
+                "run_id": "RUN-A",
+                "classifier_version": "model-v1",
+                "demand_strength_formula": "x",
+                "built_at_utc": "2026-01-01T00:00:01+00:00",
+            }
+        ),
+        encoding="utf-8",
+    )
+    (db / "layer_readiness_report.json").write_text(readiness_payload, encoding="utf-8")
+    for name in (
+        "derived_competence_demands.csv",
+        "evidence_records.csv",
+        "competence_demand_signals.csv",
+    ):
+        (db / name).write_text("id\n1\n", encoding="utf-8")
+    return db
+
+
+def test_source_provenance_fails_closed_on_empty_layer_readiness(tmp_path: Path) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _source_provenance
+
+    db = _readiness_db(
+        tmp_path, '{"generated_at_utc":"2026-01-01T00:00:02+00:00","layers":[]}'
+    )
+    demands = pd.DataFrame(
+        {
+            "competence_demand_id": ["D-1"],
+            "sector": ["sector_a"],
+            "axis_group": ["MARINE"],
+            "evidence_ids": ["E-1"],
+            "current_run_id": ["RUN-A"],
+        }
+    )
+    evidence = pd.DataFrame({"evidence_id": ["E-1"]})
+    signals = pd.DataFrame({"run_id": ["RUN-A"], "classifier_version": ["model-v1"]})
+    with pytest.raises(RuntimeError, match="no usable layer entries"):
+        _source_provenance(
+            db, {"demands": demands, "evidence": evidence, "signals": signals}
+        )
+
+
+def test_source_provenance_fails_closed_on_unusable_layer(tmp_path: Path) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _source_provenance
+
+    db = _readiness_db(
+        tmp_path,
+        json.dumps(
+            {
+                "generated_at_utc": "2026-01-01T00:00:02+00:00",
+                "layers": [
+                    {"name": "layer2", "usable_for_layer4": True},
+                    {"name": "layer3", "usable_for_layer4": False},
+                ],
+            }
+        ),
+    )
+    demands = pd.DataFrame(
+        {
+            "competence_demand_id": ["D-1"],
+            "sector": ["sector_a"],
+            "axis_group": ["MARINE"],
+            "evidence_ids": ["E-1"],
+            "current_run_id": ["RUN-A"],
+        }
+    )
+    evidence = pd.DataFrame({"evidence_id": ["E-1"]})
+    signals = pd.DataFrame({"run_id": ["RUN-A"], "classifier_version": ["model-v1"]})
+    with pytest.raises(RuntimeError, match="not usable for Layer 4"):
+        _source_provenance(
+            db, {"demands": demands, "evidence": evidence, "signals": signals}
+        )
+
+
+def test_source_provenance_evidence_map_excludes_unlinked_evidence_ids(
+    tmp_path: Path,
+) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _source_provenance
+
+    db = _readiness_db(
+        tmp_path, '{"generated_at_utc":"2026-01-01T00:00:02+00:00","layers":[{"usable_for_layer4":true}]}'
+    )
+    demands = pd.DataFrame(
+        {
+            "competence_demand_id": ["D-1"],
+            "sector": ["sector_a"],
+            "axis_group": ["MARINE"],
+            "evidence_ids": ["E-1"],
+            "current_run_id": ["RUN-A"],
+        }
+    )
+    # E-2 is a valid evidence record that is never linked to any demand.
+    evidence = pd.DataFrame({"evidence_id": ["E-1", "E-2"]})
+    signals = pd.DataFrame({"run_id": ["RUN-A"], "classifier_version": ["model-v1"]})
+    provenance = _source_provenance(
+        db, {"demands": demands, "evidence": evidence, "signals": signals}
+    )
+    assert provenance["evidence_map_exact_rows"] == 1
+    assert provenance["joined_evidence_id_count"] == 1
+
+
+def test_staged_output_dir_removes_stale_files_on_promotion(tmp_path: Path) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _staged_output_dir
+
+    output = tmp_path / "out"
+    output.mkdir()
+    stale = output / "stale_artifact.csv"
+    stale.write_text("old", encoding="utf-8")
+    with _staged_output_dir(output) as staging:
+        (staging / "new_artifact.csv").write_text("new", encoding="utf-8")
+    assert not (output / "stale_artifact.csv").exists()
+    assert (output / "new_artifact.csv").read_text(encoding="utf-8") == "new"
+
+
+def test_staged_output_dir_preserves_original_on_failure(tmp_path: Path) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _staged_output_dir
+
+    output = tmp_path / "out"
+    output.mkdir()
+    original = output / "original.csv"
+    original.write_text("original", encoding="utf-8")
+    with pytest.raises(RuntimeError):
+        with _staged_output_dir(output) as staging:
+            (staging / "partial.csv").write_text("partial", encoding="utf-8")
+            raise RuntimeError("boom")
+    assert (output / "original.csv").read_text(encoding="utf-8") == "original"
+    assert not (output / "partial.csv").exists()

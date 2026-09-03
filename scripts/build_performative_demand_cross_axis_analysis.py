@@ -27,7 +27,6 @@ from src.scientific_sources.performative_demand_analysis import (  # noqa: E402
     REALMS,
     build_performative_demand_analysis,
     build_unique_evidence_map,
-    split_pipe,
     validate_evidence_identities,
 )
 

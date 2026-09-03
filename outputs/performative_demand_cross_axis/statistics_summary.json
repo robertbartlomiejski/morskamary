@@ -65,6 +65,7 @@
     "permutation_seed": 20260825,
     "permutations": 50000,
     "rows": 12,
+    "sparse_cell_diagnostic_scope": "active_inferential_margins_only_not_full_display_matrix",
     "unit": "unique linked evidence identity",
     "unit_independence_note": "deduplicated evidence IDs avoid duplicated demand rows, but this curated corpus is not an iid sample and may retain correlated screening context"
   },
@@ -74,8 +75,8 @@
     "cumulative_manifest_schema_version": "1.0.0",
     "cumulative_manifest_status": "layer_readiness_usable",
     "demand_profile_rows": 157,
-    "evidence_map_exact_rows": 157,
-    "joined_evidence_id_count": 3129,
+    "evidence_map_exact_rows": 978,
+    "joined_evidence_id_count": 978,
     "lineage_validation_mode": "fail_closed",
     "qmbd_assignment_methodology": "0.30*normalized_unique_doi_count + 0.20*provider_diversity_score + 0.20*temporal_recency_score + 0.15*query_diversity_score + 0.15*semantic_confidence_mean",
     "records_in_database": 3129,

@@ -1,8 +1,8 @@
 {
   "files": {
     "axis_screening_feature_shares.csv": {
-      "bytes": 3147,
-      "sha256": "ef56458cab5a2bf60e67507766c2171557ec2249dc2cb0f530316994165c0e86"
+      "bytes": 2331,
+      "sha256": "239f883afb4b8721273c3e61fa004c2de2ceeffe4de4121eec7c93cb91b71047"
     },
     "external_comparison_coastal_tourism_axis_realm_case.csv": {
       "bytes": 4539,
@@ -33,20 +33,20 @@
       "sha256": "5c527c6383766a332374a871a8f7f720e6214e17aa8bc47ae07a716ccb76f7ed"
     },
     "sector_axis_residuals.csv": {
-      "bytes": 8984,
-      "sha256": "0d8936ec2505fe3e5fff195ee14e79d6d389258fbe31df157e8a7658cff9af26"
+      "bytes": 8918,
+      "sha256": "25ce8d10a6c7d7751e34b264f1f0c57b5484b302bc02e05ac534cc6bbf6866e9"
     },
     "sector_axis_screening_features.csv": {
       "bytes": 12393,
       "sha256": "8a1eb33a3019fc7d7da8a8641580c441b2a9a140e3996ef8d32b775c54a6abf1"
     },
     "sector_screening_profile.csv": {
-      "bytes": 4228,
-      "sha256": "39310195e6987f43a7adddb65b48707b1b1c6191066c0c566f2740e1b64dbdb3"
+      "bytes": 4308,
+      "sha256": "66f5e97268bcff904faa1b76faea2126e07449f6cb554a23824a0ea5bda8cfae"
     },
     "statistics_summary.json": {
-      "bytes": 4844,
-      "sha256": "44897ce6eec2577a889b53ed2ab8abc89bba8084164ebd0b67629430df834deb"
+      "bytes": 4938,
+      "sha256": "5d2740e822a802f0bee62020034cbc51b10943c69973c19c5b6a78fee54eb6d9"
     },
     "validity_threats.json": {
       "bytes": 1575,
@@ -67,8 +67,8 @@
     "cumulative_manifest_schema_version": "1.0.0",
     "cumulative_manifest_status": "layer_readiness_usable",
     "demand_profile_rows": 157,
-    "evidence_map_exact_rows": 157,
-    "joined_evidence_id_count": 3129,
+    "evidence_map_exact_rows": 978,
+    "joined_evidence_id_count": 978,
     "lineage_validation_mode": "fail_closed",
     "qmbd_assignment_methodology": "0.30*normalized_unique_doi_count + 0.20*provider_diversity_score + 0.20*temporal_recency_score + 0.15*query_diversity_score + 0.15*semantic_confidence_mean",
     "records_in_database": 3129,
