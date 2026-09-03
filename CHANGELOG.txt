@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-09-03 (fix: auto-fetch retained protocol source commit for shallow CI clones)
+  Change type fix update
+  Scope scripts tests governance
+  Files affected scripts/build_performative_demand_cross_axis_analysis.py tests/test_performative_demand_analysis.py CHANGELOG.txt
+  Summary The retained-protocol verifier now fail-closed checks whether the recorded source commit exists locally and, when missing in a shallow checkout, performs a targeted `git fetch --filter=blob:none origin <source_commit>` before validating source bytes/blob identity. This keeps historical protocol verification strict while removing the shallow-history integration failure seen in CI and validator regression runs.
+  Reason Full Analysis and Research Pipeline failed on shallow checkouts because `git show <source_commit>:config/live_query_protocol.yml` could not read the historical commit required by protocol/snapshot binding.
+  Impact No scientific output contract changed; provenance remains fail-closed and still rejects unverifiable protocol source identity.
+  Provenance PR #272 comment 5104645390 and failing Full Analysis/Research Pipeline logs on head fcedd3c.
+  Quality checks python -m pytest tests/test_performative_demand_analysis.py -k "ensure_commit_available_fetches_missing_commit or verified_protocol_identity_rejects_unverifiable_source_identity"; python -m pytest tests/test_validate_generated_outputs.py -k main_state_reset_between_calls; python -m pytest tests/ -v; python -m flake8 src scripts tests run_full_analysis.py main.py; python -m mypy src scripts run_full_analysis.py main.py; python scripts/validate_generated_outputs.py; python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present.
+
 - 2026-09-03 (fix: bind retained performative corpus to verified historical protocol snapshot)
   Change type fix update
   Scope scripts outputs tests governance workflows

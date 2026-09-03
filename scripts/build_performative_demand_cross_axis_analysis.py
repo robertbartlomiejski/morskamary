@@ -207,7 +207,36 @@ def _verify_retained_inputs(database: Path) -> dict[str, str]:
     return verified
 
 
+def _ensure_commit_available(commit: str) -> None:
+    if subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "cat-file", "-e", f"{commit}^{{commit}}"],
+        check=False,
+        capture_output=True,
+    ).returncode == 0:
+        return
+    fetch = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "fetch", "--filter=blob:none", "origin", commit],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if fetch.returncode != 0:
+        stderr = (fetch.stderr or "").strip()
+        raise RuntimeError(
+            f"unable to fetch retained protocol source commit {commit}: {stderr}"
+        )
+    if subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "cat-file", "-e", f"{commit}^{{commit}}"],
+        check=False,
+        capture_output=True,
+    ).returncode != 0:
+        raise RuntimeError(
+            f"retained protocol source commit is unavailable after fetch: {commit}"
+        )
+
+
 def _git_show_bytes(commit: str, path: str) -> bytes:
+    _ensure_commit_available(commit)
     result = subprocess.run(
         ["git", "-C", str(REPO_ROOT), "show", f"{commit}:{path}"],
         check=False,
@@ -222,6 +251,7 @@ def _git_show_bytes(commit: str, path: str) -> bytes:
 
 
 def _git_blob_id(commit: str, path: str) -> str:
+    _ensure_commit_available(commit)
     result = subprocess.run(
         ["git", "-C", str(REPO_ROOT), "rev-parse", f"{commit}:{path}"],
         check=False,

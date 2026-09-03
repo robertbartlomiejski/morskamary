@@ -880,3 +880,30 @@ def test_governance_schema_requires_residual_measure_columns(tmp_path: Path) -> 
         "bh_significant_0_05",
         "cell_status",
     ]
+
+
+def test_ensure_commit_available_fetches_missing_commit(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _ensure_commit_available
+
+    calls: list[list[str]] = []
+    state = {"cat_file_checks": 0}
+
+    def _fake_run(*args, **kwargs):  # type: ignore[no-untyped-def]
+        import subprocess
+
+        cmd = list(args[0])
+        calls.append(cmd)
+        if "cat-file" in cmd:
+            state["cat_file_checks"] += 1
+            if state["cat_file_checks"] == 1:
+                return subprocess.CompletedProcess(cmd, 1, b"", b"missing")
+            return subprocess.CompletedProcess(cmd, 0, b"", b"")
+        if "fetch" in cmd:
+            return subprocess.CompletedProcess(cmd, 0, "", "")
+        return subprocess.CompletedProcess(cmd, 0, b"", b"")
+
+    monkeypatch.setattr("scripts.build_performative_demand_cross_axis_analysis.subprocess.run", _fake_run)
+    _ensure_commit_available("4eb044988659e51219a2ad62137091f0cb0f97c4")
+    assert any("fetch" in cmd for cmd in calls)
