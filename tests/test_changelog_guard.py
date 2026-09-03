@@ -90,20 +90,37 @@ class TestDiffChangedFiles:
     def test_raises_when_git_merge_base_fails(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """A merge-base failure should surface as a runtime error."""
+        """Unrecoverable merge-base failures should surface actionable context."""
+
+        calls: list[tuple[str, ...]] = []
 
         def fake_run(*args, **kwargs):  # type: ignore[no-untyped-def]
+            command = tuple(args[0])
+            calls.append(command)
+
             class Result:
                 returncode = 1
                 stdout = ""
                 stderr = "fatal: bad revision"
 
+            if command == ("git", "rev-parse", "--is-shallow-repository"):
+                Result.returncode = 0
+                Result.stdout = "false\n"
+                Result.stderr = ""
+
             return Result()
 
         monkeypatch.setattr(changelog_guard.subprocess, "run", fake_run)
 
-        with pytest.raises(RuntimeError, match="fatal: bad revision"):
+        with pytest.raises(
+            RuntimeError,
+            match=r"git merge-base origin/main HEAD failed: fatal: bad revision",
+        ):
             changelog_guard.diff_changed_files("main")
+        assert calls == [
+            ("git", "merge-base", "origin/main", "HEAD"),
+            ("git", "rev-parse", "--is-shallow-repository"),
+        ]
 
     def test_returns_normalized_changed_files(
         self, monkeypatch: pytest.MonkeyPatch
@@ -149,6 +166,8 @@ class TestDiffChangedFiles:
             calls.append(command)
             if command == ("git", "merge-base", "origin/main", "HEAD"):
                 return Result(1, "", "fatal: no merge base")
+            if command == ("git", "rev-parse", "--is-shallow-repository"):
+                return Result(0, "false\n", "")
             if command == ("git", "diff", "--name-only", "origin/main..HEAD"):
                 return Result(0, "./scripts/tool.py\n", "")
             raise AssertionError(f"unexpected command: {command}")
@@ -158,8 +177,87 @@ class TestDiffChangedFiles:
         assert changelog_guard.diff_changed_files("main") == ("scripts/tool.py",)
         assert calls == [
             ("git", "merge-base", "origin/main", "HEAD"),
+            ("git", "rev-parse", "--is-shallow-repository"),
             ("git", "diff", "--name-only", "origin/main..HEAD"),
         ]
+
+    def test_retries_fetch_for_shallow_history_before_diff_fallback(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A shallow clone should retry fetch/deepen before falling back."""
+
+        class Result:
+            def __init__(self, returncode: int, stdout: str, stderr: str) -> None:
+                self.returncode = returncode
+                self.stdout = stdout
+                self.stderr = stderr
+
+        calls: list[tuple[str, ...]] = []
+
+        def fake_run(*args, **kwargs):  # type: ignore[no-untyped-def]
+            command = tuple(args[0])
+            calls.append(command)
+            if command == ("git", "merge-base", "origin/main", "HEAD"):
+                if calls.count(command) == 1:
+                    return Result(1, "", "fatal: no merge base")
+                return Result(0, "def456\n", "")
+            if command == ("git", "rev-parse", "--is-shallow-repository"):
+                return Result(0, "true\n", "")
+            if command == ("git", "fetch", "--no-tags", "--deepen=200", "origin", "main"):
+                return Result(0, "", "")
+            if command == ("git", "diff", "--name-only", "def456..HEAD"):
+                return Result(0, "scripts/tool.py\nCHANGELOG.txt\n", "")
+            raise AssertionError(f"unexpected command: {command}")
+
+        monkeypatch.setattr(changelog_guard.subprocess, "run", fake_run)
+
+        assert changelog_guard.diff_changed_files("main") == (
+            "scripts/tool.py",
+            "CHANGELOG.txt",
+        )
+        assert calls == [
+            ("git", "merge-base", "origin/main", "HEAD"),
+            ("git", "rev-parse", "--is-shallow-repository"),
+            ("git", "fetch", "--no-tags", "--deepen=200", "origin", "main"),
+            ("git", "merge-base", "origin/main", "HEAD"),
+            ("git", "diff", "--name-only", "def456..HEAD"),
+        ]
+
+    def test_raises_with_distinct_merge_base_and_diff_failures(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Failure messaging should distinguish merge-base and fallback diff errors."""
+
+        class Result:
+            def __init__(self, returncode: int, stdout: str, stderr: str) -> None:
+                self.returncode = returncode
+                self.stdout = stdout
+                self.stderr = stderr
+
+        def fake_run(*args, **kwargs):  # type: ignore[no-untyped-def]
+            command = tuple(args[0])
+            if command == ("git", "merge-base", "origin/main", "HEAD"):
+                return Result(1, "", "fatal: no merge base")
+            if command == ("git", "rev-parse", "--is-shallow-repository"):
+                return Result(0, "true\n", "")
+            if command == ("git", "fetch", "--no-tags", "--deepen=200", "origin", "main"):
+                return Result(1, "", "fatal: could not deepen history")
+            if command == ("git", "diff", "--name-only", "origin/main..HEAD"):
+                return Result(1, "", "fatal: bad revision 'origin/main..HEAD'")
+            raise AssertionError(f"unexpected command: {command}")
+
+        monkeypatch.setattr(changelog_guard.subprocess, "run", fake_run)
+
+        with pytest.raises(
+            RuntimeError,
+            match=(
+                r"git merge-base origin/main HEAD failed: fatal: no merge base; "
+                r"git fetch --no-tags --deepen=200 origin main failed: fatal: could not deepen history; "
+                r"fallback git diff --name-only origin/main\.\.HEAD failed: "
+                r"fatal: bad revision 'origin/main\.\.HEAD'"
+            ),
+        ):
+            changelog_guard.diff_changed_files("main")
 
 
 class TestMain:
