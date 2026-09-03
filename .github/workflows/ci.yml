@@ -178,7 +178,8 @@ jobs:
           set -euo pipefail
 
           base_ref="${{ github.base_ref }}"
-          git fetch origin "$base_ref" --depth=1 || true
+          git fetch --no-tags --prune --unshallow origin || true
+          git fetch --no-tags --prune origin "$base_ref"
           python3 scripts/changelog_guard.py --base-ref "$base_ref"
 
   quick-mode-gate:

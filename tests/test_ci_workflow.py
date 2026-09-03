@@ -222,3 +222,18 @@ def test_ci_workflow_revalidates_tracked_protocol_projection_outputs() -> None:
     assert tracked_check_index < diff_check_index
     assert '"${projection_paths[@]}"' in run_script
     assert "git diff --exit-code --" in run_script
+
+
+def test_ci_changelog_guard_step_fetches_non_shallow_base_history() -> None:
+    job = CI_WORKFLOW["jobs"]["governance-and-repro"]
+    changelog_step = next(
+        step
+        for step in job["steps"]
+        if step.get("name")
+        == "Enforce CHANGELOG update on PRs that change tracked artifacts (lightweight rule)"
+    )
+    run_script = changelog_step["run"]
+
+    assert "git fetch --no-tags --prune --unshallow origin || true" in run_script
+    assert 'git fetch --no-tags --prune origin "$base_ref"' in run_script
+    assert '--depth=1' not in run_script

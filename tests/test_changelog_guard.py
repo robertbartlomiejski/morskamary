@@ -87,8 +87,10 @@ class TestDiffChangedFiles:
         with pytest.raises(ValueError, match="base_ref must not be empty"):
             changelog_guard.diff_changed_files(" ")
 
-    def test_raises_when_git_diff_fails(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """A git diff failure should surface as a runtime error."""
+    def test_raises_when_git_merge_base_fails(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A merge-base failure should surface as a runtime error."""
 
         def fake_run(*args, **kwargs):  # type: ignore[no-untyped-def]
             class Result:
@@ -106,15 +108,21 @@ class TestDiffChangedFiles:
     def test_returns_normalized_changed_files(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """git diff output should be normalized and filtered."""
+        """git merge-base + diff output should be normalized and filtered."""
+
+        class Result:
+            def __init__(self, returncode: int, stdout: str, stderr: str) -> None:
+                self.returncode = returncode
+                self.stdout = stdout
+                self.stderr = stderr
 
         def fake_run(*args, **kwargs):  # type: ignore[no-untyped-def]
-            class Result:
-                returncode = 0
-                stdout = "./scripts/tool.py\nCHANGELOG.txt\n\n"
-                stderr = ""
-
-            return Result()
+            command = tuple(args[0])
+            if command[:3] == ("git", "merge-base", "origin/main"):
+                return Result(0, "abc123\n", "")
+            if command == ("git", "diff", "--name-only", "abc123..HEAD"):
+                return Result(0, "./scripts/tool.py\nCHANGELOG.txt\n\n", "")
+            raise AssertionError(f"unexpected command: {command}")
 
         monkeypatch.setattr(changelog_guard.subprocess, "run", fake_run)
 
@@ -126,7 +134,7 @@ class TestDiffChangedFiles:
     def test_falls_back_to_two_dot_diff_when_no_merge_base(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """A shallow no-merge-base diff should fall back to direct base..head."""
+        """A no-merge-base merge-base call should fall back to direct base..head."""
 
         class Result:
             def __init__(self, returncode: int, stdout: str, stderr: str) -> None:
@@ -139,9 +147,9 @@ class TestDiffChangedFiles:
         def fake_run(*args, **kwargs):  # type: ignore[no-untyped-def]
             command = tuple(args[0])
             calls.append(command)
-            if command[-1] == "origin/main...HEAD":
-                return Result(1, "", "fatal: origin/main...HEAD: no merge base")
-            if command[-1] == "origin/main..HEAD":
+            if command == ("git", "merge-base", "origin/main", "HEAD"):
+                return Result(1, "", "fatal: no merge base")
+            if command == ("git", "diff", "--name-only", "origin/main..HEAD"):
                 return Result(0, "./scripts/tool.py\n", "")
             raise AssertionError(f"unexpected command: {command}")
 
@@ -149,7 +157,7 @@ class TestDiffChangedFiles:
 
         assert changelog_guard.diff_changed_files("main") == ("scripts/tool.py",)
         assert calls == [
-            ("git", "diff", "--name-only", "origin/main...HEAD"),
+            ("git", "merge-base", "origin/main", "HEAD"),
             ("git", "diff", "--name-only", "origin/main..HEAD"),
         ]
 
