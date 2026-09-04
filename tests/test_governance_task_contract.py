@@ -16,8 +16,16 @@ def test_root_agents_declares_required_task_start_contract() -> None:
         "validation commands",
         "live-research",
         "Never print `.env` contents.",
+        "task-attached context file paths",
     ):
         assert token in content
+
+
+def test_copilot_instructions_require_review_of_attached_context() -> None:
+    content = (REPO_ROOT / ".github" / "copilot-instructions.md").read_text(
+        encoding="utf-8"
+    )
+    assert "attached context file paths" in content
 
 
 def test_pr_template_requires_start_state_and_validation_reporting() -> None:

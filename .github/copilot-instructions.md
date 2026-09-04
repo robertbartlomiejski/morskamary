@@ -70,6 +70,7 @@ Report provider failure, throttling, invalid credentials and zero contribution s
 ## Agent work discipline
 
 Start every task by reading `.github/copilot-instructions.md`, `docs/AGENT_WORKING_AGREEMENT.md`, `config/live_query_protocol.yml`, the nearest `AGENTS.md`, and applicable `.github/instructions/*.instructions.md`.
+When a task provides attached context file paths, review those files before editing and keep initial changes scoped to that context unless repository evidence requires expansion.
 
 Use one canonical branch and one PR per coherent objective. Before editing, reconcile the current base SHA, open PRs and overlapping paths. Record the current branch/base SHA, objective, paths in scope, authoritative scientific/configuration source, acceptance criteria, and validation commands before proceeding. Do not start a parallel implementation of active PR work. State objective, source basis, axis logic, expected artifact, acceptance criteria and validation commands in the PR.
 
