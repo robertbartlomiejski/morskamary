@@ -272,6 +272,19 @@ def build_unique_evidence_map(demands: pd.DataFrame) -> pd.DataFrame:
             f"found {int(missing_evidence_link_mask.sum())} null, blank, or "
             f"delimiter-only evidence_ids value(s) (demand IDs: {sample})"
         )
+    duplicate_member_mask = normalized_evidence_links.map(
+        lambda values: len(values) != len(set(values))
+    )
+    if duplicate_member_mask.any():
+        invalid_demand_ids = links.loc[
+            duplicate_member_mask, "competence_demand_id"
+        ].astype(str)
+        sample = ", ".join(invalid_demand_ids.head(10).tolist())
+        raise PerformativeDemandAnalysisError(
+            "derived demands must not repeat canonical evidence IDs within one "
+            "competence_demand_id; repeated evidence_ids member(s) found for demand "
+            f"IDs: {sample}"
+        )
     links["axis_group"] = links["axis_group"].astype(str).str.strip()
     links["axis_code"] = links["axis_code"].astype(str).str.strip()
     if links["axis_group"].eq("").any() or links["axis_code"].eq("").any():
@@ -422,6 +435,7 @@ def _validate_inputs(
         "evidence_id",
         "sector",
         "axis_group",
+        "axis_code",
         "signal_type",
         "semantic_scope",
         "manual_review_status",
@@ -537,7 +551,49 @@ def _normalize_and_validate_signal_identities(
             "signals contain Layer 3 evidence_id values absent from evidence_records: "
             + ", ".join(orphan_ids[:10])
         )
+    for column in ("axis_group", "axis_code"):
+        if column not in normalized.columns:
+            raise PerformativeDemandAnalysisError(
+                f"signals missing required column: {column}"
+            )
+    raw_axis_groups = normalized["axis_group"]
+    raw_axis_codes = normalized["axis_code"]
+    axis_groups = raw_axis_groups.map(
+        lambda value: str(value).strip() if pd.notna(value) else ""
+    )
+    axis_codes = raw_axis_codes.map(
+        lambda value: str(value).strip() if pd.notna(value) else ""
+    )
+    if axis_groups.eq("").any() or axis_codes.eq("").any():
+        raise PerformativeDemandAnalysisError(
+            "signals contain null or blank axis_group/axis_code values "
+            "(Layer 3 structural violation)"
+        )
+    unknown_axis_groups = sorted(set(axis_groups) - set(AXES))
+    if unknown_axis_groups:
+        raise PerformativeDemandAnalysisError(
+            "signals contain non-canonical axis_group values: "
+            + ", ".join(unknown_axis_groups)
+        )
+    unknown_axis_codes = sorted(set(axis_codes) - set(AXIS_CODES.values()))
+    if unknown_axis_codes:
+        raise PerformativeDemandAnalysisError(
+            "signals contain non-canonical axis_code values: "
+            + ", ".join(unknown_axis_codes)
+        )
+    expected_axis_codes = axis_groups.map(AXIS_CODES)
+    mismatched_axis_pairs = axis_codes.ne(expected_axis_codes)
+    if mismatched_axis_pairs.any():
+        sample = ", ".join(
+            f"{axis_groups.loc[index]}:{axis_codes.loc[index]}"
+            for index in axis_groups.index[mismatched_axis_pairs][:5]
+        )
+        raise PerformativeDemandAnalysisError(
+            "signals contain axis_group/axis_code mismatches: " + sample
+        )
     normalized["evidence_id"] = normalized_ids
+    normalized["axis_group"] = axis_groups
+    normalized["axis_code"] = axis_codes
     return cast(pd.DataFrame, normalized)
 
 

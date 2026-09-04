@@ -96,6 +96,31 @@ def _drop_csv_column(path: Path, column: str) -> None:
         writer.writerows(rows)
 
 
+def _drop_schema_column(path: Path, artifact: str, column: str) -> None:
+    schema = json.loads(path.read_text(encoding="utf-8"))
+    fields = schema["artifacts"][artifact]
+    schema["artifacts"][artifact] = [field for field in fields if field != column]
+    path.write_text(json.dumps(schema, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+SECTOR_AXIS_SCREENING_SUBSTANTIVE_MEASURES = (
+    "unique_evidence_count",
+    "derived_demand_count",
+    "distinct_signal_type_count",
+    "mean_signal_type_richness",
+    "demand_articulation_count",
+    "demand_articulation_share",
+    "technical_operational_capability_count",
+    "technical_operational_capability_share",
+)
+
+AXIS_SCREENING_SHARE_NUMERIC_MEASURES = (
+    "evidence_with_feature",
+    "axis_evidence_total",
+    "feature_share",
+)
+
+
 def test_warn_uses_governed_ascii_safe_prefix(capsys: pytest.CaptureFixture[str]) -> None:
     mod = _load_validator_module()
 
@@ -635,6 +660,86 @@ def test_performative_validator_requires_realm_screening_measures(
     assert any(
         "sector_axis_realm_screening.csv" in error
         and "missing required columns" in error
+        and measure in error
+        for error in mod.ERRORS
+    ), mod.ERRORS
+
+
+@pytest.mark.parametrize("measure", SECTOR_AXIS_SCREENING_SUBSTANTIVE_MEASURES)
+def test_performative_validator_requires_sector_axis_screening_feature_measures(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    measure: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    _drop_csv_column(package / "sector_axis_screening_features.csv", measure)
+
+    mod.check_performative_demand_outputs()
+
+    assert any(
+        "sector_axis_screening_features.csv" in error
+        and "missing required columns" in error
+        and measure in error
+        for error in mod.ERRORS
+    ), mod.ERRORS
+
+
+@pytest.mark.parametrize("measure", SECTOR_AXIS_SCREENING_SUBSTANTIVE_MEASURES)
+def test_performative_validator_schema_cannot_weaken_sector_axis_screening_contract(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    measure: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    _drop_schema_column(
+        package / "package_schema.json", "sector_axis_screening_features.csv", measure
+    )
+
+    mod.check_performative_demand_outputs()
+
+    assert any(
+        "sector_axis_screening_features.csv" in error
+        and "omits required columns" in error
+        and measure in error
+        for error in mod.ERRORS
+    ), mod.ERRORS
+
+
+@pytest.mark.parametrize("measure", AXIS_SCREENING_SHARE_NUMERIC_MEASURES)
+def test_performative_validator_requires_axis_screening_share_numeric_measures(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    measure: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    _drop_csv_column(package / "axis_screening_feature_shares.csv", measure)
+
+    mod.check_performative_demand_outputs()
+
+    assert any(
+        "axis_screening_feature_shares.csv" in error
+        and "missing required columns" in error
+        and measure in error
+        for error in mod.ERRORS
+    ), mod.ERRORS
+
+
+@pytest.mark.parametrize("measure", AXIS_SCREENING_SHARE_NUMERIC_MEASURES)
+def test_performative_validator_schema_cannot_weaken_axis_share_contract(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    measure: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    _drop_schema_column(
+        package / "package_schema.json", "axis_screening_feature_shares.csv", measure
+    )
+
+    mod.check_performative_demand_outputs()
+
+    assert any(
+        "axis_screening_feature_shares.csv" in error
+        and "omits required columns" in error
         and measure in error
         for error in mod.ERRORS
     ), mod.ERRORS

@@ -34,7 +34,6 @@ from src.scientific_sources.performative_demand_analysis import (  # noqa: E402
 
 DEFAULT_DATABASE = REPO_ROOT / "outputs" / "cumulative_database"
 DEFAULT_OUTPUT = REPO_ROOT / "outputs" / "performative_demand_cross_axis"
-DEFAULT_PROTOCOL = REPO_ROOT / "config" / "live_query_protocol.yml"
 RUN_ID_ALIASES = ("current_run_id", "run_id")
 ALLOWED_EVIDENCE_SURFACES = ("title", "subject_terms", "abstract", "full_text")
 CHECKSUM_REQUIRED_INPUTS = (
@@ -89,7 +88,6 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--database-dir", type=Path, default=DEFAULT_DATABASE)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--protocol", type=Path, default=DEFAULT_PROTOCOL)
     parser.add_argument("--permutations", type=int, default=50_000)
     parser.add_argument("--seed", type=int, default=20_260_825)
     return parser.parse_args(argv)
@@ -414,6 +412,42 @@ def _staged_output_dir(output: Path) -> Iterator[Path]:
             shutil.rmtree(backup, ignore_errors=True)
 
 
+def _validate_signal_row_lineage(signals: pd.DataFrame) -> None:
+    """Require complete canonical run/classifier lineage on every Layer-3 row."""
+    if signals.empty:
+        return
+    run_columns = [column for column in RUN_ID_ALIASES if column in signals.columns]
+    if not run_columns:
+        raise RuntimeError(
+            "competence_demand_signals.csv is missing a canonical run_id column"
+        )
+    if "classifier_version" not in signals.columns:
+        raise RuntimeError(
+            "competence_demand_signals.csv is missing classifier_version"
+        )
+    invalid_rows: list[str] = []
+    for row_index, row in signals.iterrows():
+        run_values = {
+            str(row[column]).strip()
+            for column in run_columns
+            if pd.notna(row[column]) and str(row[column]).strip()
+        }
+        classifier_version = (
+            str(row["classifier_version"]).strip()
+            if pd.notna(row["classifier_version"])
+            else ""
+        )
+        if len(run_values) != 1 or not classifier_version:
+            invalid_rows.append(str(row_index))
+    if invalid_rows:
+        raise RuntimeError(
+            "competence_demand_signals.csv contains row-level incomplete run_id/"
+            "classifier_version lineage (rows: "
+            + ", ".join(invalid_rows[:10])
+            + ")"
+        )
+
+
 def _source_provenance(
     database: Path,
     frames: Mapping[str, pd.DataFrame],
@@ -447,6 +481,7 @@ def _source_provenance(
         "evidence_records.csv",
         "competence_demand_signals.csv",
     ]
+    _validate_signal_row_lineage(frames["signals"])
     observed: dict[str, dict[str, str]] = {}
     for table_name, frame in frames.items():
         for field in (*RUN_ID_ALIASES, "classifier_version"):
@@ -736,10 +771,32 @@ def _write_governance_artifacts(
                 ],
                 "sector_axis_screening_features.csv": [
                     "sector",
+                    "sector_label",
                     "axis_group",
                     "axis_code",
                     "evidence_surface",
+                    "unique_evidence_count",
+                    "derived_demand_count",
+                    "distinct_signal_type_count",
+                    "mean_signal_type_richness",
+                    "median_signal_type_richness",
+                    "validated_demand_count",
+                    "validated_translation_count",
+                    "validated_supply_count",
+                    "supply_gap_status",
                     "screening_validation_state",
+                    "evidence_status",
+                    "analysis_scope",
+                    "demand_articulation_count",
+                    "demand_articulation_share",
+                    "learning_credential_translation_count",
+                    "learning_credential_translation_share",
+                    "technical_operational_capability_count",
+                    "technical_operational_capability_share",
+                    "institutional_governance_count",
+                    "institutional_governance_share",
+                    "reflexive_cultural_capability_count",
+                    "reflexive_cultural_capability_share",
                 ],
                 "sector_axis_realm_screening.csv": [
                     "sector",
@@ -757,6 +814,10 @@ def _write_governance_artifacts(
                     "axis_code",
                     "evidence_surface",
                     "feature",
+                    "evidence_with_feature",
+                    "axis_evidence_total",
+                    "feature_share",
+                    "status",
                 ],
                 "sector_screening_profile.csv": [
                     "sector",

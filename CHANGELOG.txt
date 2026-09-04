@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-09-04 (fix: fail closed on Layer-3 lineage and screening schemas)
+  Change type fix update
+  Scope scripts tests outputs governance
+  Files affected src/scientific_sources/performative_demand_analysis.py scripts/build_performative_demand_cross_axis_analysis.py scripts/validate_generated_outputs.py tests/test_performative_demand_analysis.py tests/test_validate_generated_outputs.py outputs/performative_demand_cross_axis/package_schema.json outputs/performative_demand_cross_axis/package_manifest.json CHANGELOG.txt
+  Summary Requires every Layer-3 signal row to carry a canonical axis_group/axis_code pair and complete run_id/classifier_version provenance before any join or aggregation. The governed screening schemas now require all published substantive measures, duplicate evidence members within a single derived demand are rejected, and the unsupported --protocol argument is unavailable.
+  Reason The six non-outdated fresh-review findings on PR #272 identified lineage, row-provenance, schema-contract, duplicate-linkage, and unused-interface paths that could otherwise permit malformed records or a weakened governance contract.
+  Impact The retained 3,129-record corpus, historical retained-protocol binding, checksum gates, Layer-2/Layer-4 safeguards, run archive, and deterministic screening results are unchanged. Regenerated package metadata records the expanded schemas while retaining their governed output values.
+  Provenance PR #272 review threads PRRT_kwDORS_RKM6fRJJF, PRRT_kwDORS_RKM6fRJJL, PRRT_kwDORS_RKM6fRJJP, PRRT_kwDORS_RKM6fRJJT, PRRT_kwDORS_RKM6fRJJX, and PRRT_kwDORS_RKM6fRJJb; retained protocol outputs/cumulative_database/retained_protocol/live_query_protocol.yml.
+  Quality checks Focused performative-analysis and generated-output tests passed (147 tests); full pytest passed (1707 passed, 2 skipped); flake8 and mypy passed (78 checked source files); generated-output semantic and byte-determinism validation passed with one informational fallback-path warning; archive-integrity validation, manifest regeneration/no-diff check, git diff check, and conflict-marker scan passed.
+
 - 2026-09-04 (fix: close final performative identity and schema review findings)
   Change type fix update
   Scope scripts tests outputs governance

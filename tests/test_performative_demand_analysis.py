@@ -52,6 +52,7 @@ def _frames() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
                 "evidence_id": evidence_id,
                 "sector": sector,
                 "axis_group": axis,
+                "axis_code": AXIS_CODES[axis],
                 "signal_type": signal_type,
                 "semantic_scope": "title",
                 "manual_review_status": "review_required",
@@ -72,6 +73,17 @@ def test_unique_evidence_is_not_inflated_by_duplicate_demand_links() -> None:
     result = build_unique_evidence_map(demands)
     assert len(result) == 4
     assert result["evidence_id"].nunique() == 4
+
+
+def test_duplicate_evidence_member_within_one_demand_is_rejected_before_audit() -> None:
+    demands, _, _ = _frames()
+    demands.loc[0, "evidence_ids"] = "E-1| E-1"
+
+    with pytest.raises(
+        PerformativeDemandAnalysisError,
+        match="must not repeat canonical evidence IDs",
+    ):
+        build_unique_evidence_map(demands)
 
 
 def test_analysis_keeps_complete_zero_cells_and_fractional_audit() -> None:
@@ -235,6 +247,35 @@ def test_layer3_signals_with_null_or_blank_evidence_ids_are_rejected_before_join
         PerformativeDemandAnalysisError,
         match="signals contain .* evidence_id",
     ):
+        build_performative_demand_analysis(
+            demands,
+            evidence,
+            signals,
+            {"sector_a": "Sector A", "sector_b": "Sector B"},
+            permutations=9,
+            seed=42,
+        )
+
+
+@pytest.mark.parametrize(
+    ("column", "value", "error_match"),
+    [
+        ("axis_code", None, "null or blank axis_group/axis_code"),
+        ("axis_code", "", "null or blank axis_group/axis_code"),
+        ("axis_group", "UNKNOWN", "non-canonical axis_group"),
+        ("axis_code", "X", "non-canonical axis_code"),
+        ("axis_code", "T", "axis_group/axis_code mismatches"),
+    ],
+)
+def test_layer3_signal_axis_lineage_is_fail_closed_before_join(
+    column: str,
+    value: object,
+    error_match: str,
+) -> None:
+    demands, evidence, signals = _frames()
+    signals.loc[0, column] = value
+
+    with pytest.raises(PerformativeDemandAnalysisError, match=error_match):
         build_performative_demand_analysis(
             demands,
             evidence,
@@ -617,6 +658,7 @@ def test_realm_overlap_audit_flags_multi_realm_candidates() -> None:
         "evidence_id": "E-1",
         "sector": "sector_a",
         "axis_group": "MARINE",
+        "axis_code": "M",
         "signal_type": "governance_skill",
         "semantic_scope": "title",
         "manual_review_status": "review_required",
@@ -840,8 +882,8 @@ def _set_database_lineage(
 @pytest.mark.parametrize(
     ("run_id", "classifier_version", "error_match"),
     [
-        ("RUN-A", None, "exactly one nonblank classifier_version"),
-        (None, "model-v1", "exactly one nonblank run identity"),
+        ("RUN-A", None, "missing classifier_version"),
+        (None, "model-v1", "missing a canonical run_id"),
         (None, None, "exactly one nonblank run identity"),
     ],
 )
@@ -887,6 +929,31 @@ def test_source_provenance_rejects_conflicting_classifier_versions(
         )
 
 
+@pytest.mark.parametrize(
+    ("column", "value"),
+    [("run_id", ""), ("classifier_version", None)],
+)
+def test_source_provenance_rejects_incomplete_lineage_on_any_signal_row(
+    tmp_path: Path,
+    column: str,
+    value: object,
+) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _source_provenance
+
+    database = _readiness_db(
+        tmp_path,
+        '{"generated_at_utc":"2026-01-01T00:00:02+00:00","layers":[{"usable_for_layer4":true}]}',
+    )
+    frames = _lineage_frames(run_id="RUN-A", classifier_version="model-v1")
+    frames["signals"] = pd.concat(
+        [frames["signals"], frames["signals"].copy()], ignore_index=True
+    )
+    frames["signals"].loc[1, column] = value
+
+    with pytest.raises(RuntimeError, match="row-level incomplete run_id/classifier_version"):
+        _source_provenance(database, frames)
+
+
 def test_axis_features_do_not_report_wilson_confidence_intervals() -> None:
     demands, evidence, signals = _frames()
     analysis = build_performative_demand_analysis(
@@ -899,6 +966,13 @@ def test_axis_features_do_not_report_wilson_confidence_intervals() -> None:
     )
     assert "wilson_95_lower" not in analysis.axis_features.columns
     assert "wilson_95_upper" not in analysis.axis_features.columns
+
+
+def test_performative_builder_rejects_unused_protocol_option() -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _parse_args
+
+    with pytest.raises(SystemExit):
+        _parse_args(["--protocol", "unverified-protocol.yml"])
 
 
 def test_residual_cells_use_observed_linked_evidence_label() -> None:
@@ -1227,6 +1301,49 @@ def test_governance_schema_requires_residual_measure_columns(tmp_path: Path) -> 
         "fractional_candidate_weight",
         "screening_validation_state",
     } <= realm_fields
+
+    sector_feature_fields = set(schema["artifacts"]["sector_axis_screening_features.csv"])
+    assert {
+        "sector",
+        "sector_label",
+        "axis_group",
+        "axis_code",
+        "evidence_surface",
+        "unique_evidence_count",
+        "derived_demand_count",
+        "distinct_signal_type_count",
+        "mean_signal_type_richness",
+        "median_signal_type_richness",
+        "validated_demand_count",
+        "validated_translation_count",
+        "validated_supply_count",
+        "supply_gap_status",
+        "screening_validation_state",
+        "evidence_status",
+        "analysis_scope",
+        "demand_articulation_count",
+        "demand_articulation_share",
+        "learning_credential_translation_count",
+        "learning_credential_translation_share",
+        "technical_operational_capability_count",
+        "technical_operational_capability_share",
+        "institutional_governance_count",
+        "institutional_governance_share",
+        "reflexive_cultural_capability_count",
+        "reflexive_cultural_capability_share",
+    } <= sector_feature_fields
+
+    axis_share_fields = set(schema["artifacts"]["axis_screening_feature_shares.csv"])
+    assert {
+        "axis_group",
+        "axis_code",
+        "evidence_surface",
+        "feature",
+        "evidence_with_feature",
+        "axis_evidence_total",
+        "feature_share",
+        "status",
+    } <= axis_share_fields
 
 
 def test_ensure_commit_available_fetches_missing_commit(

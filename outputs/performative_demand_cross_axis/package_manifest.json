@@ -17,8 +17,8 @@
       "sha256": "1c6295170ae0233609a8a8e79415ac4bb72dc1915728f0d672e4a007c43e11b1"
     },
     "package_schema.json": {
-      "bytes": 2244,
-      "sha256": "e9278971c1c6c613bc3200343787b4fd594b9165aedb30b6f695e7fe540f9674"
+      "bytes": 3141,
+      "sha256": "14919ba64771e27cbb5503acb8ce5ec5587f8061de704bbaf379cfabec9c81fe"
     },
     "sector_axis_expected.csv": {
       "bytes": 1944,
