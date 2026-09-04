@@ -219,7 +219,11 @@ def build_unique_evidence_map(demands: pd.DataFrame) -> pd.DataFrame:
 
     links = demands[list(required)].copy()
     raw_evidence_links = links["evidence_ids"]
-    normalized_evidence_links = raw_evidence_links.map(split_pipe)
+    normalized_evidence_links: pd.Series[Any] = pd.Series(
+        [split_pipe(value) for value in raw_evidence_links.tolist()],
+        index=raw_evidence_links.index,
+        dtype=object,
+    )
     missing_evidence_link_mask = normalized_evidence_links.map(lambda values: not values)
     if missing_evidence_link_mask.any():
         invalid_demand_ids = links.loc[
