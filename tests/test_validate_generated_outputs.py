@@ -534,7 +534,7 @@ class TestPerformativeDeterministicRebuildPath:
         expected = "/tmp/custom-performative-db"
         monkeypatch.setenv("MORSKAMARY_CUMULATIVE_DATABASE_DIR", expected)
         path, used_env = mod._resolve_performative_database_dir()
-        assert str(path) == expected
+        assert path.as_posix() == expected
         assert used_env is True
 
     def test_falls_back_to_outputs_cumulative_database(

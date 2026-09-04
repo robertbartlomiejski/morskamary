@@ -1,8 +1,8 @@
 {
   "files": {
     "axis_screening_feature_shares.csv": {
-      "bytes": 2331,
-      "sha256": "239f883afb4b8721273c3e61fa004c2de2ceeffe4de4121eec7c93cb91b71047"
+      "bytes": 2238,
+      "sha256": "4c51b37b586dc1f70d636610b13df5b83a1a4dcc21daa4e5bec3e0db78f36a96"
     },
     "external_comparison_coastal_tourism_axis_realm_case.csv": {
       "bytes": 4539,
@@ -21,28 +21,28 @@
       "sha256": "a56e026a3ab93b337f9829000aecb7273963dfc79d62ff0fe539158c4abaa991"
     },
     "sector_axis_expected.csv": {
-      "bytes": 2164,
-      "sha256": "42c7df420b4cad99ea4ed3d474c6bcb02f260cc21c4b97912a644f98ab25f90e"
+      "bytes": 1944,
+      "sha256": "917b93b2c9d4730fa3f1268b4a1ffd7748c5d9c53c753fd17af493fb1a00eaa0"
     },
     "sector_axis_observed.csv": {
       "bytes": 1393,
       "sha256": "fcc4328b271bf0d259b197c179cb11d569637dd85fc2e4b5efc9c3f20bc2da05"
     },
     "sector_axis_realm_screening.csv": {
-      "bytes": 43661,
-      "sha256": "5c527c6383766a332374a871a8f7f720e6214e17aa8bc47ae07a716ccb76f7ed"
+      "bytes": 43293,
+      "sha256": "1f16ead657df841280f46aaf12ad51bb6bd93fc4e039de53bb1a81e605091998"
     },
     "sector_axis_residuals.csv": {
-      "bytes": 8918,
-      "sha256": "25ce8d10a6c7d7751e34b264f1f0c57b5484b302bc02e05ac534cc6bbf6866e9"
+      "bytes": 7848,
+      "sha256": "b5c2b72b43c0951af0effb7f92b006e2ca07a6cb85d0ccbc9ff6cca7c35eea18"
     },
     "sector_axis_screening_features.csv": {
-      "bytes": 12393,
-      "sha256": "8a1eb33a3019fc7d7da8a8641580c441b2a9a140e3996ef8d32b775c54a6abf1"
+      "bytes": 11932,
+      "sha256": "a6eafa4371edf2dea4abc5cc887cc1214a62e11586ccb04473f2b0ab6fce2834"
     },
     "sector_screening_profile.csv": {
-      "bytes": 4308,
-      "sha256": "66f5e97268bcff904faa1b76faea2126e07449f6cb554a23824a0ea5bda8cfae"
+      "bytes": 3942,
+      "sha256": "0937d20a947048ec37cc83eae710a91efd767284fafe0e976bbb5ee34fe5984e"
     },
     "statistics_summary.json": {
       "bytes": 5496,

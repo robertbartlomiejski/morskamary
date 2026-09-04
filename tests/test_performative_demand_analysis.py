@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+import math
 from pathlib import Path
 
 import pandas as pd
@@ -164,6 +165,82 @@ def test_build_unique_evidence_map_rejects_mismatched_axis_group_axis_code() -> 
         build_unique_evidence_map(demands)
 
 
+@pytest.mark.parametrize("invalid_evidence_ids", [None, "", " |  | "])
+def test_derived_demands_with_empty_evidence_links_are_rejected(
+    invalid_evidence_ids: object,
+) -> None:
+    demands, evidence, signals = _frames()
+    demands.loc[0, "evidence_ids"] = invalid_evidence_ids
+
+    with pytest.raises(
+        PerformativeDemandAnalysisError,
+        match="must each contain at least one canonical evidence ID",
+    ):
+        build_performative_demand_analysis(
+            demands,
+            evidence,
+            signals,
+            {"sector_a": "Sector A", "sector_b": "Sector B"},
+            permutations=9,
+            seed=42,
+        )
+
+
+@pytest.mark.parametrize("invalid_evidence_id", [None, "   "])
+def test_layer3_signals_with_null_or_blank_evidence_ids_are_rejected_before_join(
+    invalid_evidence_id: object,
+) -> None:
+    demands, evidence, signals = _frames()
+    signals.loc[0, "evidence_id"] = invalid_evidence_id
+
+    with pytest.raises(
+        PerformativeDemandAnalysisError,
+        match="signals contain .* evidence_id",
+    ):
+        build_performative_demand_analysis(
+            demands,
+            evidence,
+            signals,
+            {"sector_a": "Sector A", "sector_b": "Sector B"},
+            permutations=9,
+            seed=42,
+        )
+
+
+def test_layer3_signal_evidence_ids_are_normalized_before_linked_demand_join() -> None:
+    demands, evidence, signals = _frames()
+    signals.loc[0, "evidence_id"] = " E-1 "
+
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+
+    assert analysis.summary["linked_evidence_with_signals"] == 4
+
+
+def test_layer3_signals_with_orphaned_evidence_ids_are_rejected_before_join() -> None:
+    demands, evidence, signals = _frames()
+    signals.loc[0, "evidence_id"] = "E-orphan"
+
+    with pytest.raises(
+        PerformativeDemandAnalysisError,
+        match="absent from evidence_records",
+    ):
+        build_performative_demand_analysis(
+            demands,
+            evidence,
+            signals,
+            {"sector_a": "Sector A", "sector_b": "Sector B"},
+            permutations=9,
+            seed=42,
+        )
+
+
 def test_screening_surface_tracks_retained_semantic_scope() -> None:
     demands, evidence, signals = _frames()
     signals.loc[signals["evidence_id"].eq("E-1"), "semantic_scope"] = "abstract"
@@ -203,6 +280,40 @@ def test_builder_is_pandas_15_compatible_and_tourism_is_uncited_comparison() -> 
         row.axis_code == AXIS_CODES[row.axis_group]
         for row in tourism.itertuples(index=False)
     )
+
+
+def test_performative_package_writers_use_lf_line_endings(tmp_path: Path) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import (
+        _write_csv,
+        _write_json,
+    )
+
+    csv_path = tmp_path / "table.csv"
+    json_path = tmp_path / "payload.json"
+    _write_csv(pd.DataFrame([{"column": "value"}]), csv_path)
+    _write_json(json_path, {"value": "payload"})
+
+    assert b"\r\n" not in csv_path.read_bytes()
+    assert b"\r\n" not in json_path.read_bytes()
+    assert csv_path.read_bytes().endswith(b"\n")
+    assert json_path.read_bytes().endswith(b"\n")
+
+
+def test_performative_csv_writer_canonicalizes_one_ulp_float_variants(
+    tmp_path: Path,
+) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _write_csv
+
+    linux_value = 2.3062040545529316e-05
+    windows_value = math.nextafter(linux_value, 0.0)
+    assert linux_value != windows_value
+
+    linux_path = tmp_path / "linux.csv"
+    windows_path = tmp_path / "windows.csv"
+    _write_csv(pd.DataFrame([{"value": linux_value}]), linux_path)
+    _write_csv(pd.DataFrame([{"value": windows_value}]), windows_path)
+
+    assert linux_path.read_bytes() == windows_path.read_bytes()
 
 
 def test_rejected_signals_are_excluded_fail_closed() -> None:

@@ -47,6 +47,7 @@ CHECKSUM_REQUIRED_INPUTS = (
 )
 CHECKSUM_LINE_RE = re.compile(r"^([0-9a-f]{64})\s{2}(.+)$")
 GIT_SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
+CSV_FLOAT_FORMAT = "%.12g"
 
 
 def _first_non_empty(*values: object) -> str | None:
@@ -69,14 +70,19 @@ def _normalize_json_value(value: Any) -> Any:
 
 def _write_json(path: Path, payload: Any) -> None:
     normalized = _normalize_json_value(payload)
-    path.write_text(
-        json.dumps(normalized, indent=2, sort_keys=True, allow_nan=False) + "\n",
-        encoding="utf-8",
-    )
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps(normalized, indent=2, sort_keys=True, allow_nan=False))
+        handle.write("\n")
 
 
 def _write_csv(frame: pd.DataFrame, path: Path) -> None:
-    frame.to_csv(path, index=False, lineterminator="\n")
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        frame.to_csv(
+            handle,
+            index=False,
+            lineterminator="\n",
+            float_format=CSV_FLOAT_FORMAT,
+        )
 
 
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:

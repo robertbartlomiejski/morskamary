@@ -140,7 +140,9 @@ class PerformativeDemandAnalysis:
 
 def split_pipe(value: object) -> list[str]:
     """Split a pipe-delimited database field without creating a ``nan`` ID."""
-    if value is None or (isinstance(value, float) and math.isnan(value)):
+    if value is None or value is pd.NA or value is pd.NaT:
+        return []
+    if isinstance(value, (float, np.floating)) and math.isnan(float(value)):
         return []
     return [part.strip() for part in str(value).split("|") if part.strip()]
 
@@ -216,6 +218,19 @@ def build_unique_evidence_map(demands: pd.DataFrame) -> pd.DataFrame:
         )
 
     links = demands[list(required)].copy()
+    raw_evidence_links = links["evidence_ids"]
+    normalized_evidence_links = raw_evidence_links.map(split_pipe)
+    missing_evidence_link_mask = normalized_evidence_links.map(lambda values: not values)
+    if missing_evidence_link_mask.any():
+        invalid_demand_ids = links.loc[
+            missing_evidence_link_mask, "competence_demand_id"
+        ].astype(str)
+        sample = ", ".join(invalid_demand_ids.head(10).tolist())
+        raise PerformativeDemandAnalysisError(
+            "derived demands must each contain at least one canonical evidence ID; "
+            f"found {int(missing_evidence_link_mask.sum())} null, blank, or "
+            f"delimiter-only evidence_ids value(s) (demand IDs: {sample})"
+        )
     links["axis_group"] = links["axis_group"].astype(str).str.strip()
     links["axis_code"] = links["axis_code"].astype(str).str.strip()
     if links["axis_group"].eq("").any() or links["axis_code"].eq("").any():
@@ -244,7 +259,7 @@ def build_unique_evidence_map(demands: pd.DataFrame) -> pd.DataFrame:
         raise PerformativeDemandAnalysisError(
             "derived demands contain axis_group/axis_code mismatches: " + sample
         )
-    links["evidence_id"] = links["evidence_ids"].map(split_pipe)
+    links["evidence_id"] = normalized_evidence_links
     links = links.explode("evidence_id")
     links = links.loc[links["evidence_id"].notna()]
     links = links.loc[links["evidence_id"].astype(str).str.strip().ne("")]
@@ -450,6 +465,40 @@ def _prepare_linked_signals_for_screening(
     return linked_signals, rejected_signal_rows_excluded
 
 
+def _normalize_and_validate_signal_evidence_ids(
+    signals: pd.DataFrame,
+    evidence: pd.DataFrame,
+) -> pd.DataFrame:
+    """Normalize Layer-3 keys and verify their Layer-2 foreign-key contract.
+
+    This must happen before the linked-demand inner join.  Otherwise a blank,
+    whitespace-variant, or orphaned Layer-3 identity can vanish during that
+    join instead of being reported as a structural data-contract violation.
+    """
+    normalized = signals.copy()
+    raw_ids = normalized["evidence_id"]
+    null_count = int(raw_ids.isna().sum())
+    normalized_ids = raw_ids.map(
+        lambda value: str(value).strip() if pd.notna(value) else ""
+    )
+    blank_count = int((normalized_ids.eq("") & raw_ids.notna()).sum())
+    if null_count or blank_count:
+        raise PerformativeDemandAnalysisError(
+            f"signals contain {null_count} null and {blank_count} blank evidence_id "
+            "values (Layer 3 structural violation)"
+        )
+
+    canonical_evidence_ids = set(evidence["evidence_id"].astype(str).str.strip())
+    orphan_ids = sorted(set(normalized_ids) - canonical_evidence_ids)
+    if orphan_ids:
+        raise PerformativeDemandAnalysisError(
+            "signals contain Layer 3 evidence_id values absent from evidence_records: "
+            + ", ".join(orphan_ids[:10])
+        )
+    normalized["evidence_id"] = normalized_ids
+    return cast(pd.DataFrame, normalized)
+
+
 def _signal_sets_by_linked_evidence(linked_signals: pd.DataFrame) -> pd.DataFrame:
     """Collapse to one row per linked evidence identity for corpus diagnostics.
 
@@ -475,7 +524,7 @@ def _signal_sets_by_linked_evidence(linked_signals: pd.DataFrame) -> pd.DataFram
                 "semantic_scopes": _normalized_scope_set(group["semantic_scope"].tolist()),
             }
         )
-    return pd.DataFrame(signal_set_rows)
+    return cast(pd.DataFrame, pd.DataFrame(signal_set_rows))
 
 
 def build_performative_demand_analysis(
@@ -499,9 +548,10 @@ def build_performative_demand_analysis(
     """
     validate_evidence_identities(evidence)
     sector_order = list(sector_labels)
-    linkage_dependence = _linkage_dependence_audit(demands)
     evidence_map = build_unique_evidence_map(demands)
+    linkage_dependence = _linkage_dependence_audit(demands)
     _validate_inputs(demands, evidence, signals, evidence_map, sector_order)
+    signals = _normalize_and_validate_signal_evidence_ids(signals, evidence)
 
     observed = (
         evidence_map.groupby(["sector", "axis_group"])["evidence_id"]

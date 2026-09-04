@@ -250,22 +250,56 @@ def test_full_analysis_exports_retained_db_before_semantic_validation() -> None:
     )
 
 
-def test_full_analysis_restores_retained_cumulative_database_before_upload() -> None:
+def test_full_analysis_compares_snapshot_before_retained_db_final_audit_and_upload() -> None:
     job = FULL_ANALYSIS_WORKFLOW["jobs"]["run-analysis"]
     steps = job["steps"]
-    restore_step = next(
-        step
-        for step in steps
-        if step.get("name")
-        == "Restore committed-mode output snapshot after reproducibility check"
+    step_names = [step.get("name") for step in steps]
+    restore_snapshot_index = step_names.index(
+        "Restore committed-mode output snapshot after reproducibility check"
     )
+    exact_comparison_index = step_names.index(
+        "Verify restored outputs match committed-mode snapshot exactly"
+    )
+    restore_database_index = step_names.index(
+        "Restore retained cumulative database for final audit and upload"
+    )
+    final_audit_index = step_names.index(
+        "Validate retained cumulative database for final audit"
+    )
+    upload_index = step_names.index("Upload analysis outputs")
+
+    restore_snapshot_step = steps[restore_snapshot_index]
     assert (
-        restore_step["env"]["RETAINED_INPUT_ROOT"]
+        restore_snapshot_step["env"]["STATIC_INPUT_ROOT"]
+        == "${{ runner.temp }}/full-analysis-static-input"
+    )
+    assert "cumulative_database" not in restore_snapshot_step["run"]
+
+    comparison_step = steps[exact_comparison_index]
+    assert '--baseline-root "$COMMITTED_COMPARE_ROOT"' in comparison_step["run"]
+
+    restore_database_step = steps[restore_database_index]
+    assert (
+        restore_database_step["env"]["RETAINED_INPUT_ROOT"]
         == "${{ runner.temp }}/full-analysis-retained-inputs"
     )
-    restore_script = restore_step["run"]
+    restore_script = restore_database_step["run"]
     assert 'if [[ ! -d "$RETAINED_INPUT_ROOT/cumulative_database" ]]; then' in restore_script
     assert 'cp -R "$RETAINED_INPUT_ROOT/cumulative_database" outputs/cumulative_database' in restore_script
+
+    final_audit_step = steps[final_audit_index]
+    assert (
+        final_audit_step["env"]["MORSKAMARY_CUMULATIVE_DATABASE_DIR"]
+        == "outputs/cumulative_database"
+    )
+    assert final_audit_step["run"] == "python scripts/validate_generated_outputs.py"
+    assert (
+        restore_snapshot_index
+        < exact_comparison_index
+        < restore_database_index
+        < final_audit_index
+        < upload_index
+    )
 
 
 def test_ci_changelog_guard_step_fetches_non_shallow_base_history() -> None:
