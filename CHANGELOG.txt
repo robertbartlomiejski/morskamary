@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-09-04 (fix: close final performative identity and schema review findings)
+  Change type fix update
+  Scope scripts tests outputs governance
+  Files affected src/scientific_sources/performative_demand_analysis.py scripts/build_performative_demand_cross_axis_analysis.py scripts/validate_generated_outputs.py tests/test_performative_demand_analysis.py tests/test_validate_generated_outputs.py outputs/performative_demand_cross_axis/package_schema.json outputs/performative_demand_cross_axis/package_manifest.json outputs/performative_demand_cross_axis/statistics_summary.json CHANGELOG.txt
+  Summary Enforces globally unique nonblank Layer-3 signal_id and Layer-4 competence_demand_id values before joins, evidence explosion, linkage audits, or derived-demand counts; requires complete nonconflicting run/classifier provenance; and retains an all-rejected signal set as an explicit zero-candidate screening result. The generated-output gate now rejects unknown/mismatched QMBD axes, requires the realm-screening count and fractional-weight measures, and enforces exactly one outcome for every hypothesis declared by the retained protocol.
+  Reason Seven non-outdated PR #272 review findings identified fail-open identity, provenance, schema, and outcome-cardinality paths after the faf9a16 all-green boundary. These paths could inflate deterministic screening measures, hide malformed lineage or duplicate hypothesis results, or incorrectly convert a meaningful zero screening result into pipeline failure.
+  Impact The retained 3,129-record corpus, H1/H2/H3 declarations, association statistics, and screening measures are unchanged. Governed metadata now reports complete run/classifier verification and explicit accepted-candidate counts/outcome state; package schema and checksums are regenerated from the corrected producer.
+  Provenance PR #272 review threads PRRT_kwDORS_RKM6fO2ay, PRRT_kwDORS_RKM6fO2a1, PRRT_kwDORS_RKM6fO2a7, PRRT_kwDORS_RKM6fO2a_, PRRT_kwDORS_RKM6fO2bB, PRRT_kwDORS_RKM6fO2bE, and PRRT_kwDORS_RKM6fO2bI; retained protocol outputs/cumulative_database/retained_protocol/live_query_protocol.yml; canonical QMBD contract in config/live_query_protocol.yml.
+  Quality checks Focused negative/integration suite passed (126 tests); full pytest passed (1673 passed, 5 skipped); flake8 and mypy passed (78 checked source files); generated-output semantic and byte-determinism validation passed with one informational fallback-path warning; archive integrity passed for three retained runs; research-source validation passed with one informational missing-smoke-report warning; deterministic package comparison passed; MANIFEST_SOURCES.csv regeneration produced no diff; git diff check and conflict-marker scan passed.
+
 - 2026-09-04 (fix: enforce exact snapshot comparison before retained-db audit)
   Change type fix update
   Scope scripts workflows tests governance

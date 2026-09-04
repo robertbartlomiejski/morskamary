@@ -41,10 +41,13 @@
     ],
     "sector_axis_realm_screening.csv": [
       "sector",
+      "sector_label",
       "axis_group",
       "axis_code",
       "evidence_surface",
       "realm",
+      "candidate_evidence_count",
+      "fractional_candidate_weight",
       "screening_validation_state"
     ],
     "sector_axis_residuals.csv": [

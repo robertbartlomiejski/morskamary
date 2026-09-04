@@ -147,6 +147,39 @@ def split_pipe(value: object) -> list[str]:
     return [part.strip() for part in str(value).split("|") if part.strip()]
 
 
+def _normalize_required_unique_id(
+    frame: pd.DataFrame,
+    column: str,
+    entity: str,
+) -> pd.DataFrame:
+    """Return a copy with one nonblank, globally unique canonical identity per row."""
+    if column not in frame.columns:
+        raise PerformativeDemandAnalysisError(f"{entity} missing required column: {column}")
+    normalized = frame.copy()
+    raw_ids = normalized[column]
+    null_count = int(raw_ids.isna().sum())
+    canonical_ids = pd.Series(
+        [str(value).strip() if pd.notna(value) else "" for value in raw_ids.tolist()],
+        index=raw_ids.index,
+        dtype=object,
+    )
+    blank_count = int((canonical_ids.eq("") & raw_ids.notna()).sum())
+    if null_count or blank_count:
+        raise PerformativeDemandAnalysisError(
+            f"{entity} contain {null_count} null and {blank_count} blank {column} "
+            "values (structural identity violation)"
+        )
+    duplicate_mask = canonical_ids.duplicated(keep=False)
+    if duplicate_mask.any():
+        duplicate_ids = sorted(set(canonical_ids.loc[duplicate_mask].tolist()))
+        raise PerformativeDemandAnalysisError(
+            f"{entity} contain duplicate {column} values: "
+            + ", ".join(duplicate_ids[:10])
+        )
+    normalized[column] = canonical_ids
+    return cast(pd.DataFrame, normalized)
+
+
 def _normalized_scope_set(values: Sequence[object]) -> frozenset[str]:
     """Normalize retained semantic scopes without manufacturing ``nan`` labels."""
     normalized: set[str] = set()
@@ -217,7 +250,11 @@ def build_unique_evidence_map(demands: pd.DataFrame) -> pd.DataFrame:
             "derived demands missing columns: " + ", ".join(sorted(missing))
         )
 
-    links = demands[list(required)].copy()
+    links = _normalize_required_unique_id(
+        demands[list(required)].copy(),
+        "competence_demand_id",
+        "derived demands",
+    )
     raw_evidence_links = links["evidence_ids"]
     normalized_evidence_links: pd.Series[Any] = pd.Series(
         [split_pipe(value) for value in raw_evidence_links.tolist()],
@@ -381,6 +418,7 @@ def _validate_inputs(
             f"{len(orphan_ids)} linked evidence identities are absent from evidence_records"
         )
     required_signal_columns = {
+        "signal_id",
         "evidence_id",
         "sector",
         "axis_group",
@@ -447,7 +485,7 @@ def _prepare_linked_signals_for_screening(
     rejected_signal_rows_excluded = int(
         linked_signals["manual_review_status"].eq("rejected").sum()
     )
-    # Step 3: fail closed unless rows remain review_required screening candidates.
+    # Step 3: retain a legitimate all-rejected result as an empty screening set.
     linked_signals = linked_signals.loc[
         ~linked_signals["manual_review_status"].eq("rejected")
     ].copy()
@@ -459,27 +497,27 @@ def _prepare_linked_signals_for_screening(
             "validated/manual review statuses require an accepted validation ledger; unsupported screening statuses: "
             + ", ".join(sorted(unsupported_review_statuses))
         )
-    if linked_signals.empty:
-        raise PerformativeDemandAnalysisError(
-            "no non-rejected review_required signals remain for screening"
-        )
     linked_signals = linked_signals.rename(
         columns={"sector_linked": "sector", "axis_group_linked": "axis_group"}
     )
     return linked_signals, rejected_signal_rows_excluded
 
 
-def _normalize_and_validate_signal_evidence_ids(
+def _normalize_and_validate_signal_identities(
     signals: pd.DataFrame,
     evidence: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Normalize Layer-3 keys and verify their Layer-2 foreign-key contract.
+    """Normalize Layer-3 identities and verify their Layer-2 foreign-key contract.
 
-    This must happen before the linked-demand inner join.  Otherwise a blank,
-    whitespace-variant, or orphaned Layer-3 identity can vanish during that
-    join instead of being reported as a structural data-contract violation.
+    This must happen before the linked-demand inner join. Otherwise duplicate
+    semantic-signal identities can inflate screening aggregates, while a blank,
+    whitespace-variant, or orphaned evidence identity can vanish during the join.
     """
-    normalized = signals.copy()
+    normalized = _normalize_required_unique_id(signals, "signal_id", "signals")
+    if "evidence_id" not in normalized.columns:
+        raise PerformativeDemandAnalysisError(
+            "signals missing required column: evidence_id"
+        )
     raw_ids = normalized["evidence_id"]
     null_count = int(raw_ids.isna().sum())
     normalized_ids = raw_ids.map(
@@ -528,7 +566,19 @@ def _signal_sets_by_linked_evidence(linked_signals: pd.DataFrame) -> pd.DataFram
                 "semantic_scopes": _normalized_scope_set(group["semantic_scope"].tolist()),
             }
         )
-    return cast(pd.DataFrame, pd.DataFrame(signal_set_rows))
+    return cast(
+        pd.DataFrame,
+        pd.DataFrame(
+            signal_set_rows,
+            columns=(
+                "evidence_id",
+                "sector",
+                "axis_group",
+                "signal_types",
+                "semantic_scopes",
+            ),
+        ),
+    )
 
 
 def build_performative_demand_analysis(
@@ -551,11 +601,14 @@ def build_performative_demand_analysis(
     correlated signal context across screening pathways.
     """
     validate_evidence_identities(evidence)
+    demands = _normalize_required_unique_id(
+        demands, "competence_demand_id", "derived demands"
+    )
+    signals = _normalize_and_validate_signal_identities(signals, evidence)
     sector_order = list(sector_labels)
     evidence_map = build_unique_evidence_map(demands)
     linkage_dependence = _linkage_dependence_audit(demands)
     _validate_inputs(demands, evidence, signals, evidence_map, sector_order)
-    signals = _normalize_and_validate_signal_evidence_ids(signals, evidence)
 
     observed = (
         evidence_map.groupby(["sector", "axis_group"])["evidence_id"]
@@ -724,6 +777,10 @@ def build_performative_demand_analysis(
                 screening_linked["sector"].eq(sector)
                 & screening_linked["axis_group"].eq(axis)
             ]
+            linked_cell = evidence_map.loc[
+                evidence_map["sector"].eq(sector)
+                & evidence_map["axis_group"].eq(axis)
+            ]
             demand_group = demands.loc[
                 demands["sector"].eq(sector) & demands["axis_group"].eq(axis)
             ]
@@ -758,7 +815,11 @@ def build_performative_demand_analysis(
                 "evidence_status": (
                     "screening_not_human_validated"
                     if len(group)
-                    else "empty_current_linked_corpus"
+                    else (
+                        "linked_evidence_zero_accepted_candidate_screening"
+                        if len(linked_cell)
+                        else "empty_current_linked_corpus"
+                    )
                 ),
                 "analysis_scope": "deterministic_screening_only_not_validated",
             }
@@ -795,9 +856,13 @@ def build_performative_demand_analysis(
                         "coding_status": "deterministic_screening_not_human_validated",
                         "analysis_scope": "deterministic_screening_only_not_validated",
                         "zero_interpretation": (
-                            "not_observed_in_current_screening_run"
-                            if candidate_count == 0
-                            else "candidate_for_exact_text_review_not_validated"
+                            "candidate_for_exact_text_review_not_validated"
+                            if candidate_count
+                            else (
+                                "zero_accepted_candidate_screening_evidence"
+                                if len(linked_cell) and not len(group)
+                                else "not_observed_in_current_screening_run"
+                            )
                         ),
                     }
                 )
@@ -960,11 +1025,22 @@ def build_performative_demand_analysis(
                 "title_only_screening_condition"
                 if _normalized_scope_set(linked_signals["semantic_scope"].tolist())
                 == frozenset({"title"})
-                else "mixed_semantic_surfaces_screening_condition"
+                else (
+                    "zero_accepted_candidate_screening_evidence"
+                    if linked_signals.empty
+                    else "mixed_semantic_surfaces_screening_condition"
+                )
             ),
             "rejected_signal_rows_excluded": rejected_signal_rows_excluded,
+            "accepted_candidate_signal_rows": int(len(linked_signals)),
+            "screening_outcome": (
+                "zero_accepted_candidate_screening_evidence"
+                if linked_signals.empty
+                else "candidate_screening_evidence_present"
+            ),
             "all_review_required": bool(
-                linked_signals["manual_review_status"].eq("review_required").all()
+                len(linked_signals)
+                and linked_signals["manual_review_status"].eq("review_required").all()
             ),
             "validated_demand_events": 0,
             "validated_translation_events": 0,

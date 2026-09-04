@@ -1103,12 +1103,40 @@ def check_dynamic_outputs(
         ok(f"Pathway nodes present: {len(pathway_nodes)}")
 
 
+def _load_retained_performative_protocol(database_dir: Path) -> dict[str, object]:
+    """Load the exact retained protocol bound to the cumulative evidence snapshot."""
+    manifest_path = database_dir / "cumulative_database_manifest.json"
+    manifest = cast(dict[str, object], _load_strict_json(manifest_path))
+    binding = manifest.get("protocol_binding")
+    if not isinstance(binding, dict):
+        raise ValueError("cumulative database manifest is missing protocol_binding")
+    relative_artifact = str(binding.get("retained_protocol_artifact", "")).strip()
+    artifact_path = database_dir / relative_artifact
+    if (
+        not relative_artifact
+        or Path(relative_artifact).is_absolute()
+        or ".." in Path(relative_artifact).parts
+        or not artifact_path.is_file()
+        or database_dir.resolve() not in artifact_path.resolve().parents
+    ):
+        raise ValueError("retained protocol artifact path is missing or unsafe")
+    protocol = yaml.safe_load(artifact_path.read_text(encoding="utf-8"))
+    if not isinstance(protocol, dict):
+        raise ValueError("retained protocol artifact must contain a YAML object")
+    return cast(dict[str, object], protocol)
+
+
 def check_performative_demand_outputs() -> None:
     """Validate PR #270 scientific artifacts by schema and deterministic rebuild."""
     print("\n[performative_demand_cross_axis/]")
     output_dir = OUTPUTS_DIR / "performative_demand_cross_axis"
     builder = REPO_ROOT / "scripts" / "build_performative_demand_cross_axis_analysis.py"
-    protocol = yaml.safe_load(PROTOCOL_PATH.read_text(encoding="utf-8"))
+    database_dir, used_env = _resolve_performative_database_dir()
+    try:
+        protocol = _load_retained_performative_protocol(database_dir)
+    except (OSError, ValueError, TypeError, json.JSONDecodeError, yaml.YAMLError) as exc:
+        fail(f"unable to load retained performative protocol: {exc}")
+        return
     declared_hypothesis_ids = set(cast(dict[str, object], protocol.get("hypotheses", {})))
     schemas: dict[str, set[str]] = {
         "sector_axis_observed.csv": {
@@ -1137,10 +1165,14 @@ def check_performative_demand_outputs() -> None:
         },
         "sector_axis_realm_screening.csv": {
             "sector",
+            "sector_label",
             "axis_group",
             "axis_code",
             "evidence_surface",
             "realm",
+            "candidate_evidence_count",
+            "fractional_candidate_weight",
+            "screening_validation_state",
         },
         "axis_screening_feature_shares.csv": {
             "axis_group",
@@ -1214,7 +1246,21 @@ def check_performative_demand_outputs() -> None:
         ):
             fail("package_schema.json must not declare query/source_query as evidence surfaces")
     if schema_columns:
-        schemas = schema_columns
+        for name, required_columns in schemas.items():
+            declared_columns = schema_columns.get(name)
+            if declared_columns is None:
+                fail(f"package_schema.json must declare governed artifact {name}")
+                continue
+            missing_contract_columns = required_columns - declared_columns
+            if missing_contract_columns:
+                fail(
+                    f"package_schema.json: artifacts.{name} omits required columns "
+                    f"{sorted(missing_contract_columns)}"
+                )
+        schemas = {
+            name: required_columns | schema_columns.get(name, set())
+            for name, required_columns in schemas.items()
+        }
     for name, required_columns in schemas.items():
         artifact = output_dir / name
         if not require_file(artifact):
@@ -1227,14 +1273,28 @@ def check_performative_demand_outputs() -> None:
                 fail(f"{name}: missing required columns {sorted(missing)}")
                 continue
             rows = list(reader)
-        for row_index, row in enumerate(rows, 2):
-            axis = str(row.get("axis_group", "")).strip()
-            if axis and axis in axis_codes and row.get("axis_code") != axis_codes[axis]:
-                fail(
-                    f"{name}:{row_index}: axis_code {row.get('axis_code')!r} "
-                    f"does not match canonical {axis_codes[axis]!r} for {axis}"
-                )
-                break
+        if {"axis_group", "axis_code"} <= fieldnames:
+            for row_index, row in enumerate(rows, 2):
+                axis = str(row.get("axis_group", "")).strip()
+                axis_code = str(row.get("axis_code", "")).strip()
+                if axis not in axis_codes:
+                    fail(
+                        f"{name}:{row_index}: axis_group {axis!r} is not one of the "
+                        f"canonical QMBD axes {list(axis_codes)}"
+                    )
+                    break
+                if axis_code not in set(axis_codes.values()):
+                    fail(
+                        f"{name}:{row_index}: axis_code {axis_code!r} is not a canonical "
+                        "QMBD axis code"
+                    )
+                    break
+                if axis_code != axis_codes[axis]:
+                    fail(
+                        f"{name}:{row_index}: axis_code {axis_code!r} "
+                        f"does not match canonical {axis_codes[axis]!r} for {axis}"
+                    )
+                    break
         if name == "external_comparison_coastal_tourism_axis_realm_case.csv":
             if any(
                 str(row.get("citation_needed", "")).lower() != "true" for row in rows
@@ -1309,23 +1369,47 @@ def check_performative_demand_outputs() -> None:
                         fail(f"package manifest checksum mismatch: {name}")
     if hypothesis_path.exists():
         try:
-            rows_h = cast(list[object], _load_strict_json(hypothesis_path))
+            raw_hypotheses = _load_strict_json(hypothesis_path)
         except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
             fail(f"hypothesis_outcomes.json is not strict valid JSON: {exc}")
-            rows_h = []
-        observed_hypothesis_ids = {
-            row.get("hypothesis_id") for row in rows_h if isinstance(row, dict)
-        }
-        if observed_hypothesis_ids != declared_hypothesis_ids:
+            raw_hypotheses = []
+        if not isinstance(raw_hypotheses, list):
+            fail("hypothesis_outcomes.json must contain a list of outcome rows")
+            rows_h: list[object] = []
+        else:
+            rows_h = raw_hypotheses
+        if any(not isinstance(row, dict) for row in rows_h):
+            fail("hypothesis_outcomes.json rows must all be objects")
+        hypothesis_ids = [
+            str(row.get("hypothesis_id", "")).strip()
+            for row in rows_h
+            if isinstance(row, dict)
+        ]
+        duplicate_hypothesis_ids = sorted(
+            {item for item in hypothesis_ids if hypothesis_ids.count(item) > 1}
+        )
+        if duplicate_hypothesis_ids:
             fail(
-                "hypothesis_outcomes.json must serialize configured hypotheses exactly: "
-                f"expected {sorted(declared_hypothesis_ids)} got {sorted(observed_hypothesis_ids, key=str)}"
+                "hypothesis_outcomes.json must contain exactly one row per declared "
+                f"hypothesis; duplicate IDs: {duplicate_hypothesis_ids}"
+            )
+        observed_hypothesis_ids = set(hypothesis_ids)
+        missing_hypothesis_ids = declared_hypothesis_ids - observed_hypothesis_ids
+        unknown_hypothesis_ids = observed_hypothesis_ids - declared_hypothesis_ids
+        if missing_hypothesis_ids:
+            fail(
+                "hypothesis_outcomes.json is missing declared hypotheses: "
+                f"{sorted(missing_hypothesis_ids)}"
+            )
+        if unknown_hypothesis_ids:
+            fail(
+                "hypothesis_outcomes.json contains unknown hypotheses: "
+                f"{sorted(unknown_hypothesis_ids)}"
             )
     if len(ERRORS) != local_errors_before:
         return
 
     with tempfile.TemporaryDirectory(prefix="morskamary-performative-") as tmp:
-        database_dir, used_env = _resolve_performative_database_dir()
         if used_env:
             ok(
                 "Performative deterministic rebuild uses MORSKAMARY_CUMULATIVE_DATABASE_DIR "

@@ -18,6 +18,7 @@
     "status": "multi-label screening; fractional weights prevent double count"
   },
   "screening_feature_boundary": {
+    "accepted_candidate_signal_rows": 1458,
     "all_review_required": true,
     "all_title_level": true,
     "independently_validated_supply_rows": 0,
@@ -26,6 +27,7 @@
     ],
     "performative_stage_conclusion": "not computable until exact text spans and two-coder decisions exist",
     "rejected_signal_rows_excluded": 0,
+    "screening_outcome": "candidate_screening_evidence_present",
     "screening_scope_policy": "screening accepts retained title/subject_terms/abstract/full_text surfaces; all_title_level is only a corpus-condition flag for the current run",
     "title_only_interpretation": "title_only_screening_condition",
     "validated_demand_events": 0,
@@ -101,7 +103,7 @@
           "signals": "30090903921-1"
         }
       },
-      "status": "verified_from_available_fields"
+      "status": "verified_complete_run_classifier_identity"
     },
     "source_file_sha256": {
       "competence_demand_signals.csv": "9c16ecc352413a93e6bf19c58baf7da1eb38ca2c2c5c5598a873406dcb1e3bd9",

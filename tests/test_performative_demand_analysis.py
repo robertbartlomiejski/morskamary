@@ -48,6 +48,7 @@ def _frames() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     signals = pd.DataFrame(
         [
             {
+                "signal_id": f"S-{index}",
                 "evidence_id": evidence_id,
                 "sector": sector,
                 "axis_group": axis,
@@ -55,12 +56,12 @@ def _frames() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
                 "semantic_scope": "title",
                 "manual_review_status": "review_required",
             }
-            for evidence_id, sector, axis, signal_type in [
+            for index, (evidence_id, sector, axis, signal_type) in enumerate([
                 ("E-1", "sector_a", "MARINE", "workforce_skill"),
                 ("E-2", "sector_a", "MARINE", "technical_skill"),
                 ("E-3", "sector_b", "OCEANIC", "governance_skill"),
                 ("E-4", "sector_b", "OCEANIC", "social_science_skill"),
-            ]
+            ])
         ]
     )
     return demands, evidence, signals
@@ -186,6 +187,43 @@ def test_derived_demands_with_empty_evidence_links_are_rejected(
         )
 
 
+@pytest.mark.parametrize("invalid_demand_id", [None, "", "   "])
+def test_layer4_blank_demand_id_fails_before_evidence_explosion(
+    invalid_demand_id: object,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    demands, _, _ = _frames()
+    demands.loc[0, "competence_demand_id"] = invalid_demand_id
+    monkeypatch.setattr(
+        "src.scientific_sources.performative_demand_analysis.split_pipe",
+        lambda _value: pytest.fail("evidence links were exploded before identity validation"),
+    )
+
+    with pytest.raises(PerformativeDemandAnalysisError, match="blank competence_demand_id"):
+        build_unique_evidence_map(demands)
+
+
+def test_duplicate_layer4_demand_id_fails_before_linkage_or_demand_counts(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    demands, evidence, signals = _frames()
+    demands = pd.concat([demands, demands.iloc[[0]]], ignore_index=True)
+    monkeypatch.setattr(
+        "src.scientific_sources.performative_demand_analysis._linkage_dependence_audit",
+        lambda _demands: pytest.fail("linkage totals ran before identity validation"),
+    )
+
+    with pytest.raises(PerformativeDemandAnalysisError, match="duplicate competence_demand_id"):
+        build_performative_demand_analysis(
+            demands,
+            evidence,
+            signals,
+            {"sector_a": "Sector A", "sector_b": "Sector B"},
+            permutations=9,
+            seed=42,
+        )
+
+
 @pytest.mark.parametrize("invalid_evidence_id", [None, "   "])
 def test_layer3_signals_with_null_or_blank_evidence_ids_are_rejected_before_join(
     invalid_evidence_id: object,
@@ -197,6 +235,57 @@ def test_layer3_signals_with_null_or_blank_evidence_ids_are_rejected_before_join
         PerformativeDemandAnalysisError,
         match="signals contain .* evidence_id",
     ):
+        build_performative_demand_analysis(
+            demands,
+            evidence,
+            signals,
+            {"sector_a": "Sector A", "sector_b": "Sector B"},
+            permutations=9,
+            seed=42,
+        )
+
+
+@pytest.mark.parametrize("invalid_signal_id", [None, "", "   "])
+def test_layer3_blank_signal_ids_are_rejected_before_join(
+    invalid_signal_id: object,
+) -> None:
+    demands, evidence, signals = _frames()
+    signals.loc[0, "signal_id"] = invalid_signal_id
+
+    with pytest.raises(PerformativeDemandAnalysisError, match="blank signal_id"):
+        build_performative_demand_analysis(
+            demands,
+            evidence,
+            signals,
+            {"sector_a": "Sector A", "sector_b": "Sector B"},
+            permutations=9,
+            seed=42,
+        )
+
+
+def test_duplicate_identical_layer3_signal_id_is_rejected_before_join() -> None:
+    demands, evidence, signals = _frames()
+    signals = pd.concat([signals, signals.iloc[[0]]], ignore_index=True)
+
+    with pytest.raises(PerformativeDemandAnalysisError, match="duplicate signal_id"):
+        build_performative_demand_analysis(
+            demands,
+            evidence,
+            signals,
+            {"sector_a": "Sector A", "sector_b": "Sector B"},
+            permutations=9,
+            seed=42,
+        )
+
+
+def test_duplicate_divergent_layer3_signal_id_is_rejected_before_join() -> None:
+    demands, evidence, signals = _frames()
+    divergent = signals.iloc[[0]].copy()
+    divergent["signal_type"] = "governance_skill"
+    divergent["semantic_scope"] = "abstract"
+    signals = pd.concat([signals, divergent], ignore_index=True)
+
+    with pytest.raises(PerformativeDemandAnalysisError, match="duplicate signal_id"):
         build_performative_demand_analysis(
             demands,
             evidence,
@@ -319,6 +408,7 @@ def test_performative_csv_writer_canonicalizes_one_ulp_float_variants(
 def test_rejected_signals_are_excluded_fail_closed() -> None:
     demands, evidence, signals = _frames()
     rejected = signals.iloc[[0]].copy()
+    rejected["signal_id"] = "S-rejected"
     rejected["signal_type"] = "digital_skill"
     rejected["manual_review_status"] = "rejected"
     signals = pd.concat([signals, rejected], ignore_index=True)
@@ -338,6 +428,34 @@ def test_rejected_signals_are_excluded_fail_closed() -> None:
     assert (
         analysis.summary["screening_feature_boundary"]["rejected_signal_rows_excluded"]
         == 1
+    )
+
+
+def test_all_rejected_signals_preserve_linked_structure_as_zero_screening() -> None:
+    demands, evidence, signals = _frames()
+    signals["manual_review_status"] = "rejected"
+
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+
+    assert int(analysis.observed.to_numpy().sum()) == 4
+    assert analysis.summary["linked_evidence"] == 4
+    assert analysis.summary["linked_signal_rows"] == 0
+    boundary = analysis.summary["screening_feature_boundary"]
+    assert boundary["rejected_signal_rows_excluded"] == 4
+    assert boundary["accepted_candidate_signal_rows"] == 0
+    assert boundary["screening_outcome"] == "zero_accepted_candidate_screening_evidence"
+    assert int(analysis.sector_axis_realms["candidate_evidence_count"].sum()) == 0
+    assert float(analysis.sector_axis_realms["fractional_candidate_weight"].sum()) == 0
+    assert analysis.summary["realm_screening_audit"]["fractional_weight_expected"] == 0
+    assert "linked_evidence_zero_accepted_candidate_screening" in set(
+        analysis.sector_axis_features["evidence_status"]
     )
 
 
@@ -495,6 +613,7 @@ def test_screening_boundary_reports_non_title_scope_mix() -> None:
 def test_realm_overlap_audit_flags_multi_realm_candidates() -> None:
     demands, evidence, signals = _frames()
     overlap_row = {
+        "signal_id": "S-overlap",
         "evidence_id": "E-1",
         "sector": "sector_a",
         "axis_group": "MARINE",
@@ -662,6 +781,110 @@ def test_source_provenance_maps_aliases_to_current_run_id(tmp_path: Path) -> Non
     assert provenance["evidence_map_exact_rows"] == 1
     assert provenance["joined_evidence_id_count"] == 1
     assert provenance["lineage_validation_mode"] == "fail_closed"
+    assert (
+        provenance["run_classifier_identity"]["status"]
+        == "verified_complete_run_classifier_identity"
+    )
+
+
+def _lineage_frames(
+    *, run_id: str | None, classifier_version: str | None
+) -> dict[str, pd.DataFrame]:
+    demand_data: dict[str, list[str]] = {
+        "competence_demand_id": ["D-1"],
+        "sector": ["sector_a"],
+        "axis_group": ["MARINE"],
+        "axis_code": ["M"],
+        "evidence_ids": ["E-1"],
+    }
+    signal_data: dict[str, list[str]] = {}
+    if run_id is not None:
+        demand_data["current_run_id"] = [run_id]
+        signal_data["run_id"] = [run_id]
+    if classifier_version is not None:
+        signal_data["classifier_version"] = [classifier_version]
+    return {
+        "demands": pd.DataFrame(demand_data),
+        "evidence": pd.DataFrame({"evidence_id": ["E-1"]}),
+        "signals": pd.DataFrame(signal_data, index=[0]),
+    }
+
+
+def _set_database_lineage(
+    database: Path,
+    *,
+    run_id: str | None,
+    classifier_version: str | None,
+) -> None:
+    manifest_path = database / "cumulative_database_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest.pop("current_run_id", None)
+    manifest.pop("run_id", None)
+    manifest.pop("classifier_version", None)
+    if run_id is not None:
+        manifest["current_run_id"] = run_id
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    layer4_path = database / "layer4_manifest.json"
+    layer4 = json.loads(layer4_path.read_text(encoding="utf-8"))
+    layer4.pop("current_run_id", None)
+    layer4.pop("run_id", None)
+    layer4.pop("classifier_version", None)
+    if run_id is not None:
+        layer4["run_id"] = run_id
+    if classifier_version is not None:
+        layer4["classifier_version"] = classifier_version
+    layer4_path.write_text(json.dumps(layer4), encoding="utf-8")
+
+
+@pytest.mark.parametrize(
+    ("run_id", "classifier_version", "error_match"),
+    [
+        ("RUN-A", None, "exactly one nonblank classifier_version"),
+        (None, "model-v1", "exactly one nonblank run identity"),
+        (None, None, "exactly one nonblank run identity"),
+    ],
+)
+def test_source_provenance_requires_complete_run_and_classifier_identity(
+    tmp_path: Path,
+    run_id: str | None,
+    classifier_version: str | None,
+    error_match: str,
+) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _source_provenance
+
+    database = _readiness_db(
+        tmp_path,
+        '{"generated_at_utc":"2026-01-01T00:00:02+00:00","layers":[{"usable_for_layer4":true}]}',
+    )
+    _set_database_lineage(
+        database, run_id=run_id, classifier_version=classifier_version
+    )
+
+    with pytest.raises(RuntimeError, match=error_match):
+        _source_provenance(
+            database,
+            _lineage_frames(
+                run_id=run_id, classifier_version=classifier_version
+            ),
+        )
+
+
+def test_source_provenance_rejects_conflicting_classifier_versions(
+    tmp_path: Path,
+) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _source_provenance
+
+    database = _readiness_db(
+        tmp_path,
+        '{"generated_at_utc":"2026-01-01T00:00:02+00:00","layers":[{"usable_for_layer4":true}]}',
+    )
+
+    with pytest.raises(RuntimeError, match="classifier_version conflicts"):
+        _source_provenance(
+            database,
+            _lineage_frames(run_id="RUN-A", classifier_version="model-v2"),
+        )
 
 
 def test_axis_features_do_not_report_wilson_confidence_intervals() -> None:
@@ -991,6 +1214,19 @@ def test_governance_schema_requires_residual_measure_columns(tmp_path: Path) -> 
         "bh_significant_0_05",
         "cell_status",
     ]
+
+    realm_fields = set(schema["artifacts"]["sector_axis_realm_screening.csv"])
+    assert {
+        "sector",
+        "sector_label",
+        "axis_group",
+        "axis_code",
+        "evidence_surface",
+        "realm",
+        "candidate_evidence_count",
+        "fractional_candidate_weight",
+        "screening_validation_state",
+    } <= realm_fields
 
 
 def test_ensure_commit_available_fetches_missing_commit(

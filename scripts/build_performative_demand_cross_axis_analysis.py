@@ -478,6 +478,10 @@ def _source_provenance(
             "run lineage aliases conflict across cumulative inputs: "
             + ", ".join(sorted(run_id_values))
         )
+    if not run_id_values:
+        raise RuntimeError(
+            "retained provenance must expose exactly one nonblank run identity"
+        )
 
     classifier_values: set[str] = set(observed.get("classifier_version", {}).values())
     for source in (manifest, layer4_manifest):
@@ -488,6 +492,10 @@ def _source_provenance(
         raise RuntimeError(
             "classifier_version conflicts across cumulative inputs: "
             + ", ".join(sorted(classifier_values))
+        )
+    if not classifier_values:
+        raise RuntimeError(
+            "retained provenance must expose exactly one nonblank classifier_version"
         )
 
     readiness_layers = layer_readiness.get("layers", [])
@@ -587,14 +595,10 @@ def _source_provenance(
             else dict(manifest.get("protocol_binding", {}))
         ),
         "run_classifier_identity": {
-            "status": (
-                "verified_from_available_fields"
-                if observed
-                else "not_exposed_in_frozen_snapshot"
-            ),
+            "status": "verified_complete_run_classifier_identity",
             "observed_fields": observed,
-            "current_run_id": next(iter(run_id_values), None),
-            "classifier_version": next(iter(classifier_values), None),
+            "current_run_id": next(iter(run_id_values)),
+            "classifier_version": next(iter(classifier_values)),
         },
         "lineage_validation_mode": "fail_closed",
     }
@@ -739,10 +743,13 @@ def _write_governance_artifacts(
                 ],
                 "sector_axis_realm_screening.csv": [
                     "sector",
+                    "sector_label",
                     "axis_group",
                     "axis_code",
                     "evidence_surface",
                     "realm",
+                    "candidate_evidence_count",
+                    "fractional_candidate_weight",
                     "screening_validation_state",
                 ],
                 "axis_screening_feature_shares.csv": [

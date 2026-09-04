@@ -1,6 +1,8 @@
 """Tests for scripts/validate_generated_outputs.py."""
 
+import csv
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -45,6 +47,53 @@ def _load_validator_module():
     mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
     spec.loader.exec_module(mod)  # type: ignore[union-attr]
     return mod
+
+
+def _copied_performative_validator(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    mod = _load_validator_module()
+    copied_outputs = tmp_path / "outputs"
+    copied_package = copied_outputs / "performative_demand_cross_axis"
+    shutil.copytree(
+        REPO_ROOT / "outputs" / "performative_demand_cross_axis",
+        copied_package,
+    )
+    monkeypatch.setattr(mod, "OUTPUTS_DIR", copied_outputs)
+    monkeypatch.setattr(
+        mod,
+        "_resolve_performative_database_dir",
+        lambda: (REPO_ROOT / "outputs" / "cumulative_database", False),
+    )
+    return mod, copied_package
+
+
+def _rewrite_csv_cell(path: Path, column: str, value: str) -> None:
+    with path.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        fieldnames = list(reader.fieldnames or [])
+        rows = list(reader)
+    rows[0][column] = value
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def _drop_csv_column(path: Path, column: str) -> None:
+    with path.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        fieldnames = [name for name in (reader.fieldnames or []) if name != column]
+        rows = list(reader)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=fieldnames,
+            extrasaction="ignore",
+            lineterminator="\n",
+        )
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def test_warn_uses_governed_ascii_safe_prefix(capsys: pytest.CaptureFixture[str]) -> None:
@@ -545,6 +594,90 @@ class TestPerformativeDeterministicRebuildPath:
         path, used_env = mod._resolve_performative_database_dir()
         assert path == mod.OUTPUTS_DIR / "cumulative_database"
         assert used_env is False
+
+
+@pytest.mark.parametrize(
+    ("column", "value", "error_match"),
+    [
+        ("axis_group", "LEGACY_TMDB", "axis_group 'LEGACY_TMDB'"),
+        ("axis_code", "T", "does not match canonical 'M' for MARINE"),
+        ("axis_code", "X", "axis_code 'X' is not a canonical QMBD axis code"),
+    ],
+)
+def test_performative_validator_rejects_noncanonical_axis_pairs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    column: str,
+    value: str,
+    error_match: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    _rewrite_csv_cell(package / "sector_axis_observed.csv", column, value)
+
+    mod.check_performative_demand_outputs()
+
+    assert any(error_match in error for error in mod.ERRORS), mod.ERRORS
+
+
+@pytest.mark.parametrize(
+    "measure", ["candidate_evidence_count", "fractional_candidate_weight"]
+)
+def test_performative_validator_requires_realm_screening_measures(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    measure: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    _drop_csv_column(package / "sector_axis_realm_screening.csv", measure)
+
+    mod.check_performative_demand_outputs()
+
+    assert any(
+        "sector_axis_realm_screening.csv" in error
+        and "missing required columns" in error
+        and measure in error
+        for error in mod.ERRORS
+    ), mod.ERRORS
+
+
+@pytest.mark.parametrize(
+    ("mutation", "error_match"),
+    [
+        ("duplicate_identical_h1", "duplicate IDs: ['H1']"),
+        ("duplicate_conflicting_h2", "duplicate IDs: ['H2']"),
+        ("missing_h3", "missing declared hypotheses: ['H3']"),
+        ("unknown_h4", "contains unknown hypotheses: ['H4']"),
+    ],
+)
+def test_performative_validator_requires_exactly_one_declared_hypothesis_outcome(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: str,
+    error_match: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    hypothesis_path = package / "hypothesis_outcomes.json"
+    rows = json.loads(hypothesis_path.read_text(encoding="utf-8"))
+    if mutation == "duplicate_identical_h1":
+        rows.append(dict(next(row for row in rows if row["hypothesis_id"] == "H1")))
+    elif mutation == "duplicate_conflicting_h2":
+        duplicate = dict(next(row for row in rows if row["hypothesis_id"] == "H2"))
+        duplicate["status"] = "supported"
+        rows.append(duplicate)
+    elif mutation == "missing_h3":
+        rows = [row for row in rows if row["hypothesis_id"] != "H3"]
+    else:
+        unknown = dict(rows[0])
+        unknown["hypothesis_id"] = "H4"
+        rows.append(unknown)
+    hypothesis_path.write_text(
+        json.dumps(rows, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    mod.check_performative_demand_outputs()
+
+    assert any(error_match in error for error in mod.ERRORS), mod.ERRORS
 
 
 class TestCheckSectorDictionaries:
