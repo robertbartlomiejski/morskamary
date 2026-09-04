@@ -65,13 +65,13 @@ sector-demand effects.
 Existing screening signal types (from retained `semantic_scope` values) are
 grouped into five review queues:
 
-| Feature | Signal types | Meaning now |
+|Feature|Signal types|Meaning now|
 |---|---|---|
-| Demand articulation | explicit/implicit competence demand, workforce skill | Candidate statement of need |
-| Learning/credential translation | education/training, learning outcome, credential translation | Candidate movement into learning or credentials |
-| Technical/operational capability | digital, technical, safety/risk | Candidate operational capability |
-| Institutional governance | governance, policy/regulation, sustainability | Candidate institutional mechanism |
-| Reflexive/cultural capability | social-science skill | Candidate reflexive or cultural capability |
+|Demand articulation|explicit/implicit competence demand, workforce skill|Candidate statement of need|
+|Learning/credential translation|education/training, learning outcome, credential translation|Candidate movement into learning or credentials|
+|Technical/operational capability|digital, technical, safety/risk|Candidate operational capability|
+|Institutional governance|governance, policy/regulation, sustainability|Candidate institutional mechanism|
+|Reflexive/cultural capability|social-science skill|Candidate reflexive or cultural capability|
 
 These features are deterministic screening results, not validated
 performativity. The package intentionally accepts retained title, subject-term,
