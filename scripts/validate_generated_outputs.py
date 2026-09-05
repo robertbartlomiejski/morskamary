@@ -1209,8 +1209,36 @@ def check_performative_demand_outputs() -> None:
         },
         "sector_screening_profile.csv": {
             "sector",
+            "sector_label",
+            "linked_evidence_count",
+            "screening_eligible_linked_evidence_count",
+            "derived_demand_count",
+            "axes_observed",
+            "empty_axis_cells",
             "dominant_axis",
             "dominant_axis_code",
+            "dominant_axis_status",
+            "dominant_axes",
+            "dominant_axis_codes",
+            "dominant_axis_share",
+            "normalized_axis_entropy",
+            "mean_signal_type_richness",
+            "candidate_realms_observed",
+            "validated_translation_events",
+            "independent_validated_supply_available",
+            "shortage_claim_status",
+            "screening_validation_state",
+            "analysis_scope",
+            "demand_articulation_count",
+            "demand_articulation_share",
+            "learning_credential_translation_count",
+            "learning_credential_translation_share",
+            "technical_operational_capability_count",
+            "technical_operational_capability_share",
+            "institutional_governance_count",
+            "institutional_governance_share",
+            "reflexive_cultural_capability_count",
+            "reflexive_cultural_capability_share",
         },
         "linked_evidence_sector_axis_lineage.csv": {
             "evidence_id",
@@ -1394,6 +1422,98 @@ def check_performative_demand_outputs() -> None:
                         or metadata.get("sha256") != digest
                     ):
                         fail(f"package manifest checksum mismatch: {name}")
+        source_provenance = package_manifest.get("source_provenance")
+        if not isinstance(source_provenance, dict):
+            fail("package_manifest.json: source_provenance must be a non-null object")
+        else:
+            if source_provenance.get("lineage_validation_mode") != "fail_closed":
+                fail(
+                    "package_manifest.json.source_provenance.lineage_validation_mode "
+                    "must be 'fail_closed'"
+                )
+            protocol_identity = source_provenance.get("protocol_identity")
+            if not isinstance(protocol_identity, dict):
+                fail(
+                    "package_manifest.json.source_provenance.protocol_identity must be "
+                    "an object"
+                )
+            else:
+                required_protocol_fields = (
+                    "retained_protocol_artifact",
+                    "source_commit",
+                    "source_path",
+                    "source_blob_sha1",
+                    "protocol_version",
+                    "protocol_sha256",
+                    "verification_status",
+                )
+                for field in required_protocol_fields:
+                    if not str(protocol_identity.get(field, "")).strip():
+                        fail(
+                            "package_manifest.json.source_provenance.protocol_identity."
+                            f"{field} must be nonblank"
+                        )
+            source_file_sha256 = source_provenance.get("source_file_sha256")
+            if not isinstance(source_file_sha256, dict):
+                fail(
+                    "package_manifest.json.source_provenance.source_file_sha256 must be "
+                    "an object"
+                )
+            else:
+                for file_name in (
+                    "derived_competence_demands.csv",
+                    "evidence_records.csv",
+                    "competence_demand_signals.csv",
+                ):
+                    digest = str(source_file_sha256.get(file_name, "")).strip()
+                    if not digest:
+                        fail(
+                            "package_manifest.json.source_provenance.source_file_sha256."
+                            f"{file_name} must be present and nonblank"
+                        )
+                    elif not re.fullmatch(r"[0-9a-f]{64}", digest):
+                        fail(
+                            "package_manifest.json.source_provenance.source_file_sha256."
+                            f"{file_name} must be a lowercase sha256 digest"
+                        )
+            run_classifier_identity = source_provenance.get("run_classifier_identity")
+            if not isinstance(run_classifier_identity, dict):
+                fail(
+                    "package_manifest.json.source_provenance.run_classifier_identity "
+                    "must be an object"
+                )
+            else:
+                if (
+                    run_classifier_identity.get("status")
+                    != "verified_complete_run_classifier_identity"
+                ):
+                    fail(
+                        "package_manifest.json.source_provenance.run_classifier_identity."
+                        "status must be 'verified_complete_run_classifier_identity'"
+                    )
+                for field in ("current_run_id", "classifier_version"):
+                    if not str(run_classifier_identity.get(field, "")).strip():
+                        fail(
+                            "package_manifest.json.source_provenance.run_classifier_identity."
+                            f"{field} must be nonblank"
+                        )
+            for field in (
+                "evidence_map_exact_rows",
+                "joined_evidence_id_count",
+                "records_in_database",
+                "demand_profile_rows",
+            ):
+                value = source_provenance.get(field)
+                if not isinstance(value, int):
+                    fail(
+                        "package_manifest.json.source_provenance."
+                        f"{field} must be an integer"
+                    )
+                elif value < 0:
+                    fail(
+                        "package_manifest.json.source_provenance."
+                        f"{field} must be >= 0"
+                    )
     if hypothesis_path.exists():
         try:
             raw_hypotheses = _load_strict_json(hypothesis_path)
@@ -1433,6 +1553,88 @@ def check_performative_demand_outputs() -> None:
                 "hypothesis_outcomes.json contains unknown hypotheses: "
                 f"{sorted(unknown_hypothesis_ids)}"
             )
+        hypotheses_protocol = cast(
+            dict[str, object], cast(dict[str, object], protocol).get("hypotheses", {})
+        )
+        for hypothesis_row in rows_h:
+            if not isinstance(hypothesis_row, dict):
+                continue
+            hypothesis_id = str(hypothesis_row.get("hypothesis_id", "")).strip()
+            config = hypotheses_protocol.get(hypothesis_id)
+            if not isinstance(config, dict):
+                continue
+            hypothesis_label = str(hypothesis_row.get("hypothesis_label", "")).strip()
+            expected_label = str(config.get("label", "")).strip()
+            if not hypothesis_label or hypothesis_label != expected_label:
+                fail(
+                    "hypothesis_outcomes.json row "
+                    f"{hypothesis_id}: hypothesis_label must match retained protocol label"
+                )
+            status = str(hypothesis_row.get("status", "")).strip()
+            declared_outcomes = config.get("declared_outcomes", [])
+            if (
+                not isinstance(declared_outcomes, list)
+                or not all(isinstance(item, str) for item in declared_outcomes)
+                or status not in set(declared_outcomes)
+            ):
+                fail(
+                    "hypothesis_outcomes.json row "
+                    f"{hypothesis_id}: status must be one of retained declared_outcomes"
+                )
+            for context_field in (
+                "definition",
+                "test",
+                "direction",
+                "required_axes",
+                "declared_outcomes",
+            ):
+                if context_field not in hypothesis_row:
+                    fail(
+                        "hypothesis_outcomes.json row "
+                        f"{hypothesis_id}: missing declared protocol context field "
+                        f"{context_field}"
+                    )
+            result_fields = hypothesis_row.get("result_fields")
+            if not isinstance(result_fields, dict):
+                fail(
+                    f"hypothesis_outcomes.json row {hypothesis_id}: result_fields must be an object"
+                )
+                continue
+            required_result_fields = config.get("required_result_fields", [])
+            if not isinstance(required_result_fields, list) or not all(
+                isinstance(item, str) for item in required_result_fields
+            ):
+                fail(
+                    f"retained protocol hypothesis {hypothesis_id} has invalid required_result_fields"
+                )
+                continue
+            missing_required_result_fields = [
+                field for field in required_result_fields if field not in result_fields
+            ]
+            if missing_required_result_fields:
+                fail(
+                    "hypothesis_outcomes.json row "
+                    f"{hypothesis_id}: result_fields missing retained required keys "
+                    f"{missing_required_result_fields}"
+                )
+            if (
+                str(result_fields.get("hypothesis_id", "")).strip() != hypothesis_id
+                or str(result_fields.get("hypothesis_label", "")).strip() != expected_label
+            ):
+                fail(
+                    "hypothesis_outcomes.json row "
+                    f"{hypothesis_id}: result_fields hypothesis identity/label mismatch"
+                )
+            interpretation = str(result_fields.get("interpretation", "")).strip()
+            warning = str(hypothesis_row.get("warning", "")).strip()
+            if not interpretation:
+                fail(
+                    f"hypothesis_outcomes.json row {hypothesis_id}: result_fields.interpretation must be nonblank"
+                )
+            if not warning:
+                fail(
+                    f"hypothesis_outcomes.json row {hypothesis_id}: warning must be nonblank"
+                )
     if len(ERRORS) != local_errors_before:
         return
 

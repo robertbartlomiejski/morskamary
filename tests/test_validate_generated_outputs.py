@@ -120,6 +120,36 @@ AXIS_SCREENING_SHARE_NUMERIC_MEASURES = (
     "feature_share",
 )
 
+SECTOR_SCREENING_PROFILE_SUBSTANTIVE_FIELDS = (
+    "sector_label",
+    "linked_evidence_count",
+    "screening_eligible_linked_evidence_count",
+    "derived_demand_count",
+    "axes_observed",
+    "empty_axis_cells",
+    "dominant_axis_status",
+    "dominant_axes",
+    "dominant_axis_codes",
+    "dominant_axis_share",
+    "normalized_axis_entropy",
+    "mean_signal_type_richness",
+    "candidate_realms_observed",
+    "validated_translation_events",
+    "independent_validated_supply_available",
+    "shortage_claim_status",
+    "analysis_scope",
+    "demand_articulation_count",
+    "demand_articulation_share",
+    "learning_credential_translation_count",
+    "learning_credential_translation_share",
+    "technical_operational_capability_count",
+    "technical_operational_capability_share",
+    "institutional_governance_count",
+    "institutional_governance_share",
+    "reflexive_cultural_capability_count",
+    "reflexive_cultural_capability_share",
+)
+
 
 def test_warn_uses_governed_ascii_safe_prefix(capsys: pytest.CaptureFixture[str]) -> None:
     mod = _load_validator_module()
@@ -745,6 +775,85 @@ def test_performative_validator_schema_cannot_weaken_axis_share_contract(
     ), mod.ERRORS
 
 
+@pytest.mark.parametrize("field", SECTOR_SCREENING_PROFILE_SUBSTANTIVE_FIELDS)
+def test_performative_validator_requires_sector_screening_profile_fields(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    field: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    _drop_csv_column(package / "sector_screening_profile.csv", field)
+
+    mod.check_performative_demand_outputs()
+
+    assert any(
+        "sector_screening_profile.csv" in error
+        and "missing required columns" in error
+        and field in error
+        for error in mod.ERRORS
+    ), mod.ERRORS
+
+
+@pytest.mark.parametrize("field", SECTOR_SCREENING_PROFILE_SUBSTANTIVE_FIELDS)
+def test_performative_validator_schema_cannot_weaken_sector_screening_profile(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    field: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    _drop_schema_column(package / "package_schema.json", "sector_screening_profile.csv", field)
+
+    mod.check_performative_demand_outputs()
+
+    assert any(
+        "sector_screening_profile.csv" in error
+        and "omits required columns" in error
+        and field in error
+        for error in mod.ERRORS
+    ), mod.ERRORS
+
+
+def test_performative_validator_requires_manifest_source_provenance_object(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    manifest_path = package / "package_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest.pop("source_provenance", None)
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+    mod.check_performative_demand_outputs()
+
+    assert any("source_provenance must be a non-null object" in error for error in mod.ERRORS), mod.ERRORS
+
+
+def test_performative_validator_requires_fail_closed_manifest_provenance_contract(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    manifest_path = package / "package_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    source_provenance = manifest["source_provenance"]
+    source_provenance["lineage_validation_mode"] = "warn_only"
+    source_provenance["protocol_identity"]["source_commit"] = ""
+    source_provenance["joined_evidence_id_count"] = "3129"
+    source_provenance["run_classifier_identity"]["current_run_id"] = ""
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+    mod.check_performative_demand_outputs()
+
+    assert any("lineage_validation_mode" in error for error in mod.ERRORS), mod.ERRORS
+    assert any("protocol_identity.source_commit" in error for error in mod.ERRORS), mod.ERRORS
+    assert any("joined_evidence_id_count must be an integer" in error for error in mod.ERRORS), mod.ERRORS
+    assert any("run_classifier_identity.current_run_id must be nonblank" in error for error in mod.ERRORS), mod.ERRORS
+
+
 @pytest.mark.parametrize(
     ("mutation", "error_match"),
     [
@@ -775,6 +884,47 @@ def test_performative_validator_requires_exactly_one_declared_hypothesis_outcome
         unknown = dict(rows[0])
         unknown["hypothesis_id"] = "H4"
         rows.append(unknown)
+    hypothesis_path.write_text(
+        json.dumps(rows, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    mod.check_performative_demand_outputs()
+
+    assert any(error_match in error for error in mod.ERRORS), mod.ERRORS
+
+
+@pytest.mark.parametrize(
+    ("mutation", "error_match"),
+    [
+        ("missing_required_result_key", "missing retained required keys"),
+        ("malformed_result_fields", "result_fields must be an object"),
+        ("label_mismatch", "hypothesis identity/label mismatch"),
+        ("unknown_status", "status must be one of retained declared_outcomes"),
+        ("blank_interpretation_warning", "must be nonblank"),
+    ],
+)
+def test_performative_validator_enforces_retained_hypothesis_result_contract(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: str,
+    error_match: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    hypothesis_path = package / "hypothesis_outcomes.json"
+    rows = json.loads(hypothesis_path.read_text(encoding="utf-8"))
+    row = next(item for item in rows if item["hypothesis_id"] == "H1")
+    if mutation == "missing_required_result_key":
+        row["result_fields"].pop("effect_size_cohens_d", None)
+    elif mutation == "malformed_result_fields":
+        row["result_fields"] = []
+    elif mutation == "label_mismatch":
+        row["result_fields"]["hypothesis_label"] = "Not H1"
+    elif mutation == "unknown_status":
+        row["status"] = "unsupported_status"
+    else:
+        row["result_fields"]["interpretation"] = "   "
+        row["warning"] = ""
     hypothesis_path.write_text(
         json.dumps(rows, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",

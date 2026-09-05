@@ -171,6 +171,68 @@ def test_axis_codes_are_explicit_in_analysis_tables() -> None:
     )
 
 
+def test_sector_profile_reports_tied_dominant_axes_explicitly() -> None:
+    root = Path(__file__).resolve().parents[1]
+    database = root / "outputs" / "cumulative_database"
+    demands = pd.read_csv(database / "derived_competence_demands.csv")
+    evidence = pd.read_csv(database / "evidence_records.csv")
+    signals = pd.read_csv(database / "competence_demand_signals.csv")
+    sector_labels = {
+        "blue_biotech": "Blue Biotech",
+        "coastal_tourism": "Coastal Tourism",
+        "desalination": "Desalination",
+        "infra_robotics": "Infra & Robotics",
+        "living_res": "Living Res.",
+        "non_living_res": "Non-living Res.",
+        "renewable_energy": "Renewable Energy",
+        "maritime_defence": "Maritime Defence",
+        "maritime_transport": "Maritime Transport",
+        "port_activities": "Port Activities",
+        "r_i": "R&I",
+        "ship_repair": "Ship Repair",
+    }
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        sector_labels,
+        permutations=9,
+        seed=42,
+    )
+    ship_repair = analysis.sector_profile.loc[
+        analysis.sector_profile["sector"].eq("ship_repair")
+    ].iloc[0]
+    assert ship_repair["dominant_axis_status"] == "tied_maximum_axes"
+    assert ship_repair["dominant_axes"] == "MARITIME|OCEANIC"
+    assert ship_repair["dominant_axis_codes"] == "T|O"
+    assert pd.isna(ship_repair["dominant_axis"])
+    assert pd.isna(ship_repair["dominant_axis_code"])
+
+
+def test_derived_demand_counts_use_canonicalized_sector_axis_values() -> None:
+    demands, evidence, signals = _frames()
+    demands.loc[0, "sector"] = " sector_a "
+    demands.loc[0, "axis_group"] = " MARINE "
+    demands.loc[0, "axis_code"] = " M "
+    analysis = build_performative_demand_analysis(
+        demands,
+        evidence,
+        signals,
+        {"sector_a": "Sector A", "sector_b": "Sector B"},
+        permutations=9,
+        seed=42,
+    )
+    feature_row = analysis.sector_axis_features.loc[
+        analysis.sector_axis_features["sector"].eq("sector_a")
+        & analysis.sector_axis_features["axis_group"].eq("MARINE")
+    ].iloc[0]
+    profile_row = analysis.sector_profile.loc[
+        analysis.sector_profile["sector"].eq("sector_a")
+    ].iloc[0]
+    assert int(feature_row["derived_demand_count"]) == 2
+    assert int(profile_row["derived_demand_count"]) == 2
+
+
 def test_build_unique_evidence_map_rejects_mismatched_axis_group_axis_code() -> None:
     demands, _, _ = _frames()
     demands.loc[0, "axis_code"] = "T"
@@ -738,7 +800,7 @@ def test_source_provenance_rejects_run_id_alias_mismatch(tmp_path: Path) -> None
         encoding="utf-8",
     )
     (db / "layer_readiness_report.json").write_text(
-        '{"generated_at_utc":"2026-01-01T00:00:02+00:00","layers":[{"usable_for_layer4":true}]}',
+        _canonical_layer_readiness_payload(),
         encoding="utf-8",
     )
     for name in (
@@ -794,7 +856,7 @@ def test_source_provenance_maps_aliases_to_current_run_id(tmp_path: Path) -> Non
         encoding="utf-8",
     )
     (db / "layer_readiness_report.json").write_text(
-        '{"generated_at_utc":"2026-01-01T00:00:02+00:00","layers":[{"usable_for_layer4":true}]}',
+        _canonical_layer_readiness_payload(),
         encoding="utf-8",
     )
     for name in (
@@ -897,7 +959,7 @@ def test_source_provenance_requires_complete_run_and_classifier_identity(
 
     database = _readiness_db(
         tmp_path,
-        '{"generated_at_utc":"2026-01-01T00:00:02+00:00","layers":[{"usable_for_layer4":true}]}',
+        _canonical_layer_readiness_payload(),
     )
     _set_database_lineage(
         database, run_id=run_id, classifier_version=classifier_version
@@ -919,7 +981,7 @@ def test_source_provenance_rejects_conflicting_classifier_versions(
 
     database = _readiness_db(
         tmp_path,
-        '{"generated_at_utc":"2026-01-01T00:00:02+00:00","layers":[{"usable_for_layer4":true}]}',
+        _canonical_layer_readiness_payload(),
     )
 
     with pytest.raises(RuntimeError, match="classifier_version conflicts"):
@@ -942,7 +1004,7 @@ def test_source_provenance_rejects_incomplete_lineage_on_any_signal_row(
 
     database = _readiness_db(
         tmp_path,
-        '{"generated_at_utc":"2026-01-01T00:00:02+00:00","layers":[{"usable_for_layer4":true}]}',
+        _canonical_layer_readiness_payload(),
     )
     frames = _lineage_frames(run_id="RUN-A", classifier_version="model-v1")
     frames["signals"] = pd.concat(
@@ -1080,6 +1142,36 @@ def _readiness_db(tmp_path: Path, readiness_payload: str) -> Path:
     return db
 
 
+def _canonical_layer_readiness_payload() -> str:
+    return json.dumps(
+        {
+            "generated_at_utc": "2026-01-01T00:00:02+00:00",
+            "layers": [
+                {
+                    "layer_name": "Layer 0",
+                    "schema_valid": True,
+                    "usable_for_layer4": True,
+                },
+                {
+                    "layer_name": "Layer 1",
+                    "schema_valid": True,
+                    "usable_for_layer4": True,
+                },
+                {
+                    "layer_name": "Layer 2",
+                    "schema_valid": True,
+                    "usable_for_layer4": True,
+                },
+                {
+                    "layer_name": "Layer 3",
+                    "schema_valid": True,
+                    "usable_for_layer4": True,
+                },
+            ],
+        }
+    )
+
+
 def test_source_provenance_fails_closed_on_empty_layer_readiness(tmp_path: Path) -> None:
     from scripts.build_performative_demand_cross_axis_analysis import _source_provenance
 
@@ -1131,7 +1223,44 @@ def test_source_provenance_fails_closed_on_unusable_layer(tmp_path: Path) -> Non
     )
     evidence = pd.DataFrame({"evidence_id": ["E-1"]})
     signals = pd.DataFrame({"run_id": ["RUN-A"], "classifier_version": ["model-v1"]})
-    with pytest.raises(RuntimeError, match="not usable for Layer 4"):
+    with pytest.raises(RuntimeError, match="canonical Layer 0-3 rows"):
+        _source_provenance(
+            db, {"demands": demands, "evidence": evidence, "signals": signals}
+        )
+
+
+def test_source_provenance_fails_on_noncanonical_layer_readiness_cardinality(
+    tmp_path: Path,
+) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _source_provenance
+
+    db = _readiness_db(
+        tmp_path,
+        json.dumps(
+            {
+                "generated_at_utc": "2026-01-01T00:00:02+00:00",
+                "layers": [
+                    {"layer_name": "Layer 0", "schema_valid": True, "usable_for_layer4": True},
+                    {"layer_name": "Layer 1", "schema_valid": True, "usable_for_layer4": True},
+                    {"layer_name": "Layer 1", "schema_valid": True, "usable_for_layer4": True},
+                    {"layer_name": "Layer X", "schema_valid": True, "usable_for_layer4": True},
+                ],
+            }
+        ),
+    )
+    demands = pd.DataFrame(
+        {
+            "competence_demand_id": ["D-1"],
+            "sector": ["sector_a"],
+            "axis_group": ["MARINE"],
+            "axis_code": ["M"],
+            "evidence_ids": ["E-1"],
+            "current_run_id": ["RUN-A"],
+        }
+    )
+    evidence = pd.DataFrame({"evidence_id": ["E-1"]})
+    signals = pd.DataFrame({"run_id": ["RUN-A"], "classifier_version": ["model-v1"]})
+    with pytest.raises(RuntimeError, match="canonical Layer 0-3 rows"):
         _source_provenance(
             db, {"demands": demands, "evidence": evidence, "signals": signals}
         )
@@ -1142,9 +1271,7 @@ def test_source_provenance_evidence_map_excludes_unlinked_evidence_ids(
 ) -> None:
     from scripts.build_performative_demand_cross_axis_analysis import _source_provenance
 
-    db = _readiness_db(
-        tmp_path, '{"generated_at_utc":"2026-01-01T00:00:02+00:00","layers":[{"usable_for_layer4":true}]}'
-    )
+    db = _readiness_db(tmp_path, _canonical_layer_readiness_payload())
     demands = pd.DataFrame(
         {
             "competence_demand_id": ["D-1"],
@@ -1162,6 +1289,34 @@ def test_source_provenance_evidence_map_excludes_unlinked_evidence_ids(
         db, {"demands": demands, "evidence": evidence, "signals": signals}
     )
     assert provenance["evidence_map_exact_rows"] == 1
+    assert provenance["joined_evidence_id_count"] == 1
+
+
+def test_source_provenance_canonicalizes_joined_evidence_identity_count(
+    tmp_path: Path,
+) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _source_provenance
+
+    db = _readiness_db(tmp_path, _canonical_layer_readiness_payload())
+    manifest_path = db / "cumulative_database_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["joined_evidence_id_count"] = 1
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    demands = pd.DataFrame(
+        {
+            "competence_demand_id": ["D-1"],
+            "sector": ["sector_a"],
+            "axis_group": ["MARINE"],
+            "axis_code": ["M"],
+            "evidence_ids": [" E-1 "],
+            "current_run_id": ["RUN-A"],
+        }
+    )
+    evidence = pd.DataFrame({"evidence_id": ["  E-1  ", "E-2"]})
+    signals = pd.DataFrame({"run_id": ["RUN-A"], "classifier_version": ["model-v1"]})
+    provenance = _source_provenance(
+        db, {"demands": demands, "evidence": evidence, "signals": signals}
+    )
     assert provenance["joined_evidence_id_count"] == 1
 
 
@@ -1207,7 +1362,7 @@ def test_verify_retained_inputs_fails_on_checksum_mismatch(tmp_path: Path) -> No
             '"protocol_version":"1.2.0","protocol_sha256":"x"}}\n'
         ),
         "layer4_manifest.json": "{}\n",
-        "layer_readiness_report.json": '{"layers":[{"usable_for_layer4":true}]}\n',
+        "layer_readiness_report.json": _canonical_layer_readiness_payload() + "\n",
     }
     for rel, content in files.items():
         (db / rel).write_text(content, encoding="utf-8")
@@ -1344,6 +1499,41 @@ def test_governance_schema_requires_residual_measure_columns(tmp_path: Path) -> 
         "feature_share",
         "status",
     } <= axis_share_fields
+
+    sector_profile_fields = set(schema["artifacts"]["sector_screening_profile.csv"])
+    assert {
+        "sector",
+        "sector_label",
+        "linked_evidence_count",
+        "screening_eligible_linked_evidence_count",
+        "derived_demand_count",
+        "axes_observed",
+        "empty_axis_cells",
+        "dominant_axis",
+        "dominant_axis_code",
+        "dominant_axis_status",
+        "dominant_axes",
+        "dominant_axis_codes",
+        "dominant_axis_share",
+        "normalized_axis_entropy",
+        "mean_signal_type_richness",
+        "candidate_realms_observed",
+        "validated_translation_events",
+        "independent_validated_supply_available",
+        "shortage_claim_status",
+        "screening_validation_state",
+        "analysis_scope",
+        "demand_articulation_count",
+        "demand_articulation_share",
+        "learning_credential_translation_count",
+        "learning_credential_translation_share",
+        "technical_operational_capability_count",
+        "technical_operational_capability_share",
+        "institutional_governance_count",
+        "institutional_governance_share",
+        "reflexive_cultural_capability_count",
+        "reflexive_cultural_capability_share",
+    } <= sector_profile_fields
 
 
 def test_ensure_commit_available_fetches_missing_commit(

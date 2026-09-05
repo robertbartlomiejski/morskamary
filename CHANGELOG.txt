@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-09-05 (fix: enforce seven performative landing-gate contracts)
+  Change type fix update
+  Scope scripts src tests outputs governance
+  Files affected src/scientific_sources/performative_demand_analysis.py scripts/build_performative_demand_cross_axis_analysis.py scripts/validate_generated_outputs.py tests/test_performative_demand_analysis.py tests/test_validate_generated_outputs.py outputs/performative_demand_cross_axis/sector_screening_profile.csv outputs/performative_demand_cross_axis/package_schema.json outputs/performative_demand_cross_axis/package_manifest.json CHANGELOG.txt
+  Summary Enforces exact Layer 0/1/2/3 readiness cardinality and usability before packaging, canonicalizes joined evidence IDs for fail-closed join-cardinality provenance, and expands `sector_screening_profile.csv` to an explicit governed contract including deterministic dominant-axis tie metadata. The validator now fail-closes when `package_manifest.json.source_provenance` is absent or structurally weakened and validates each hypothesis outcome row against the retained protocol contract (ID/label parity, declared outcomes, required result fields, nonblank interpretation/warning). Derived-demand aggregation now uses canonicalized sector/axis values before counting so whitespace variants cannot drift per-cell and per-sector demand counts.
+  Reason Fresh review blockers on PR #272 identified remaining fail-open cardinality, provenance-contract, hypothesis-contract, whitespace-canonicalization, and dominant-axis tie-reporting gaps at exact head bc24d84192a86f3dafbb0bb539868db0dc1659c6.
+  Impact Retained 3,129-record corpus, retained historical protocol artifact, and run archive remain unchanged. Governed performative package metadata and screening profile were regenerated from the corrected producer with deterministic byte parity.
+  Provenance PR #272 comment 5549576976 and seven bounded landing-gate findings.
+  Quality checks Focused regressions (`tests/test_performative_demand_analysis.py` and `tests/test_validate_generated_outputs.py`) passed (212). Full test suite passed (1774). Flake8 and mypy passed (78 source files). `python scripts/build_performative_demand_cross_axis_analysis.py --database-dir outputs/cumulative_database --output-dir outputs/performative_demand_cross_axis`, `python scripts/validate_generated_outputs.py`, and `python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present` passed. Deterministic package rebuild byte-compare passed, `python scripts/generate_manifest.py` ran, `git diff --check` passed, and conflict-marker scan passed.
+
 - 2026-09-04 (fix: fail closed on Layer-3 lineage and screening schemas)
   Change type fix update
   Scope scripts tests outputs governance

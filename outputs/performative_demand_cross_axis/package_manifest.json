@@ -17,8 +17,8 @@
       "sha256": "1c6295170ae0233609a8a8e79415ac4bb72dc1915728f0d672e4a007c43e11b1"
     },
     "package_schema.json": {
-      "bytes": 3141,
-      "sha256": "14919ba64771e27cbb5503acb8ce5ec5587f8061de704bbaf379cfabec9c81fe"
+      "bytes": 4108,
+      "sha256": "b2bd34c6d796cf9ce094632f94eb34b0384b3cb486368564696f0aab7eae2e75"
     },
     "sector_axis_expected.csv": {
       "bytes": 1944,
@@ -41,8 +41,8 @@
       "sha256": "a6eafa4371edf2dea4abc5cc887cc1214a62e11586ccb04473f2b0ab6fce2834"
     },
     "sector_screening_profile.csv": {
-      "bytes": 3942,
-      "sha256": "0937d20a947048ec37cc83eae710a91efd767284fafe0e976bbb5ee34fe5984e"
+      "bytes": 4365,
+      "sha256": "7881ee2f92aa0cb8abe43422cbddd45458112768487edfb2ca2c04e7fb92d958"
     },
     "statistics_summary.json": {
       "bytes": 5616,

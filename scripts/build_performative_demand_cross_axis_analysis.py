@@ -541,18 +541,37 @@ def _source_provenance(
             "layer_readiness_report.json contains no usable layer entries; "
             "publication package cannot be built"
         )
-    unusable_layers = [
-        layer
-        for layer in readiness_layers
-        if not isinstance(layer, dict)
-        or "usable_for_layer4" not in layer
-        or not bool(layer.get("usable_for_layer4"))
-    ]
+    expected_layer_names = {"Layer 0", "Layer 1", "Layer 2", "Layer 3"}
+    observed_layer_names: list[str] = []
+    unusable_layers: list[object] = []
+    for layer in readiness_layers:
+        if not isinstance(layer, dict):
+            unusable_layers.append(layer)
+            continue
+        layer_name = str(layer.get("layer_name", "")).strip()
+        if (
+            not layer_name
+            or layer_name not in expected_layer_names
+            or layer.get("schema_valid") is not True
+            or layer.get("usable_for_layer4") is not True
+        ):
+            unusable_layers.append(layer)
+            continue
+        observed_layer_names.append(layer_name)
     if unusable_layers:
         raise RuntimeError(
-            "one or more layer_readiness_report.json entries are not usable for "
-            "Layer 4; publication package cannot be built: "
+            "one or more layer_readiness_report.json entries are not structurally "
+            "valid canonical Layer 0-3 rows usable for Layer 4; publication package "
+            "cannot be built: "
             + json.dumps(unusable_layers, sort_keys=True)
+        )
+    observed_layer_set = set(observed_layer_names)
+    if observed_layer_set != expected_layer_names or len(observed_layer_names) != len(
+        expected_layer_names
+    ):
+        raise RuntimeError(
+            "layer_readiness_report.json must contain exactly one usable row each for "
+            "Layer 0, Layer 1, Layer 2, and Layer 3"
         )
     cumulative_status = "layer_readiness_usable"
     workflow_context = manifest.get("workflow_context", {})
@@ -573,6 +592,28 @@ def _source_provenance(
         layer4_manifest.get("demand_strength_formula"),
     )
     evidence_map_for_provenance = build_unique_evidence_map(frames["demands"])
+    canonical_linked_evidence_ids = {
+        str(value).strip() for value in evidence_map_for_provenance["evidence_id"].tolist()
+    }
+    canonical_evidence_record_ids = {
+        str(value).strip() for value in frames["evidence"]["evidence_id"].tolist()
+    }
+    joined_evidence_id_count = len(
+        canonical_linked_evidence_ids & canonical_evidence_record_ids
+    )
+    manifest_joined_count = manifest.get("joined_evidence_id_count")
+    if manifest_joined_count is not None:
+        try:
+            manifest_joined_count_int = int(manifest_joined_count)
+        except (TypeError, ValueError) as exc:
+            raise RuntimeError(
+                "cumulative_database_manifest joined_evidence_id_count must be an integer"
+            ) from exc
+        if manifest_joined_count_int != joined_evidence_id_count:
+            raise RuntimeError(
+                "cumulative_database_manifest joined_evidence_id_count does not match "
+                "canonical Layer 2 join cardinality"
+            )
     evidence_rows = manifest.get("evidence_map_exact_rows")
     if evidence_rows is None:
         evidence_rows = int(len(evidence_map_for_provenance))
@@ -608,13 +649,7 @@ def _source_provenance(
         "qmbd_assignment_methodology": qmbd_methodology,
         "evidence_map_exact_rows": evidence_rows,
         "demand_profile_rows": manifest.get("demand_profile_rows", len(frames["demands"])),
-        "joined_evidence_id_count": manifest.get(
-            "joined_evidence_id_count",
-            len(
-                set(evidence_map_for_provenance["evidence_id"])
-                & set(frames["evidence"]["evidence_id"])
-            ),
-        ),
+        "joined_evidence_id_count": joined_evidence_id_count,
         "records_in_database": records_in_database,
         "source_file_sha256": {
             name: (
@@ -821,9 +856,36 @@ def _write_governance_artifacts(
                 ],
                 "sector_screening_profile.csv": [
                     "sector",
+                    "sector_label",
+                    "linked_evidence_count",
+                    "screening_eligible_linked_evidence_count",
+                    "derived_demand_count",
+                    "axes_observed",
+                    "empty_axis_cells",
                     "dominant_axis",
                     "dominant_axis_code",
+                    "dominant_axis_status",
+                    "dominant_axes",
+                    "dominant_axis_codes",
+                    "dominant_axis_share",
+                    "normalized_axis_entropy",
+                    "mean_signal_type_richness",
+                    "candidate_realms_observed",
+                    "validated_translation_events",
+                    "independent_validated_supply_available",
+                    "shortage_claim_status",
                     "screening_validation_state",
+                    "analysis_scope",
+                    "demand_articulation_count",
+                    "demand_articulation_share",
+                    "learning_credential_translation_count",
+                    "learning_credential_translation_share",
+                    "technical_operational_capability_count",
+                    "technical_operational_capability_share",
+                    "institutional_governance_count",
+                    "institutional_governance_share",
+                    "reflexive_cultural_capability_count",
+                    "reflexive_cultural_capability_share",
                 ],
                 "linked_evidence_sector_axis_lineage.csv": [
                     "evidence_id",

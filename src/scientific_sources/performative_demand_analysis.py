@@ -255,6 +255,11 @@ def build_unique_evidence_map(demands: pd.DataFrame) -> pd.DataFrame:
         "competence_demand_id",
         "derived demands",
     )
+    links["sector"] = links["sector"].astype(str).str.strip()
+    if links["sector"].eq("").any():
+        raise PerformativeDemandAnalysisError(
+            "derived demands contain blank sector values"
+        )
     raw_evidence_links = links["evidence_ids"]
     normalized_evidence_links: pd.Series[Any] = pd.Series(
         [split_pipe(value) for value in raw_evidence_links.tolist()],
@@ -660,6 +665,28 @@ def build_performative_demand_analysis(
     demands = _normalize_required_unique_id(
         demands, "competence_demand_id", "derived demands"
     )
+    for column in ("sector", "axis_group", "axis_code"):
+        if column not in demands.columns:
+            raise PerformativeDemandAnalysisError(
+                f"derived demands missing required column: {column}"
+            )
+        demands[column] = demands[column].astype(str).str.strip()
+        if demands[column].eq("").any():
+            raise PerformativeDemandAnalysisError(
+                f"derived demands contain blank {column} values"
+            )
+    expected_axis_codes = demands["axis_group"].map(AXIS_CODES)
+    mismatched_axis_pairs = demands["axis_code"].ne(expected_axis_codes)
+    if mismatched_axis_pairs.any():
+        sample = ", ".join(
+            f"{row.axis_group}:{row.axis_code}"
+            for row in demands.loc[mismatched_axis_pairs, ["axis_group", "axis_code"]]
+            .head(5)
+            .itertuples(index=False)
+        )
+        raise PerformativeDemandAnalysisError(
+            "derived demands contain axis_group/axis_code mismatches: " + sample
+        )
     signals = _normalize_and_validate_signal_identities(signals, evidence)
     sector_order = list(sector_labels)
     evidence_map = build_unique_evidence_map(demands)
@@ -954,7 +981,22 @@ def build_performative_demand_analysis(
             dtype=float,
         )
         demand_group = demands.loc[demands["sector"].eq(sector)]
-        dominant_axis = AXES[int(axis_counts.argmax())] if axis_counts.sum() else None
+        dominant_axis: str | None = None
+        dominant_axis_code: str | None = None
+        dominant_axis_status = "no_screening_eligible_evidence"
+        dominant_axes = ""
+        dominant_axis_codes = ""
+        if axis_counts.sum():
+            maximum = float(axis_counts.max())
+            winners = [AXES[index] for index, count in enumerate(axis_counts) if count == maximum]
+            dominant_axes = "|".join(winners)
+            dominant_axis_codes = "|".join(AXIS_CODES[axis] for axis in winners)
+            if len(winners) == 1:
+                dominant_axis_status = "single_axis_maximum"
+                dominant_axis = winners[0]
+                dominant_axis_code = AXIS_CODES[winners[0]]
+            else:
+                dominant_axis_status = "tied_maximum_axes"
         row: dict[str, Any] = {
             "sector": sector,
             "sector_label": sector_labels[sector],
@@ -964,9 +1006,10 @@ def build_performative_demand_analysis(
             "axes_observed": int((axis_counts > 0).sum()),
             "empty_axis_cells": int((axis_counts == 0).sum()),
             "dominant_axis": dominant_axis,
-            "dominant_axis_code": (
-                AXIS_CODES[dominant_axis] if dominant_axis is not None else None
-            ),
+            "dominant_axis_code": dominant_axis_code,
+            "dominant_axis_status": dominant_axis_status,
+            "dominant_axes": dominant_axes,
+            "dominant_axis_codes": dominant_axis_codes,
             "dominant_axis_share": (
                 float(axis_counts.max() / axis_counts.sum())
                 if axis_counts.sum()
