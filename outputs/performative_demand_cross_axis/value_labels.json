@@ -1,0 +1,17 @@
+{
+  "analysis_scope_label": "deterministic_screening_only_not_validated",
+  "axis_group_to_axis_code": {
+    "HYDRONIZATION": "H",
+    "MARINE": "M",
+    "MARITIME": "T",
+    "OCEANIC": "O"
+  },
+  "consumer_warning": "screening outputs are deterministic corpus diagnostics; they are not validated demand, validated translation, validated performativity, or independently validated supply prevalence",
+  "review_status_contract": {
+    "other": "fail closed until accepted validation ledger is ingested",
+    "rejected": "excluded from positive screening aggregates",
+    "review_required": "eligible for deterministic screening only"
+  },
+  "supply_gap_status": "not_computable_no_independent_supply",
+  "zero_interpretation": "not observed in declared screening state, not absent in reality"
+}

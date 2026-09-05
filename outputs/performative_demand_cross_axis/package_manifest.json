@@ -1,0 +1,104 @@
+{
+  "files": {
+    "axis_screening_feature_shares.csv": {
+      "bytes": 2238,
+      "sha256": "4c51b37b586dc1f70d636610b13df5b83a1a4dcc21daa4e5bec3e0db78f36a96"
+    },
+    "external_comparison_coastal_tourism_axis_realm_case.csv": {
+      "bytes": 4539,
+      "sha256": "a7001ea25216c2a2ecc920f66fc537f70e24e8435d15ea2f2f90ed4edc06a511"
+    },
+    "hypothesis_outcomes.json": {
+      "bytes": 3324,
+      "sha256": "854d44295a417d4c591dfa43744ea71dde693d87cff29fa90f57e4c6bdf6afda"
+    },
+    "linked_evidence_sector_axis_lineage.csv": {
+      "bytes": 63460,
+      "sha256": "1c6295170ae0233609a8a8e79415ac4bb72dc1915728f0d672e4a007c43e11b1"
+    },
+    "package_schema.json": {
+      "bytes": 4108,
+      "sha256": "b2bd34c6d796cf9ce094632f94eb34b0384b3cb486368564696f0aab7eae2e75"
+    },
+    "sector_axis_expected.csv": {
+      "bytes": 1944,
+      "sha256": "917b93b2c9d4730fa3f1268b4a1ffd7748c5d9c53c753fd17af493fb1a00eaa0"
+    },
+    "sector_axis_observed.csv": {
+      "bytes": 1393,
+      "sha256": "fcc4328b271bf0d259b197c179cb11d569637dd85fc2e4b5efc9c3f20bc2da05"
+    },
+    "sector_axis_realm_screening.csv": {
+      "bytes": 43293,
+      "sha256": "1f16ead657df841280f46aaf12ad51bb6bd93fc4e039de53bb1a81e605091998"
+    },
+    "sector_axis_residuals.csv": {
+      "bytes": 7848,
+      "sha256": "b5c2b72b43c0951af0effb7f92b006e2ca07a6cb85d0ccbc9ff6cca7c35eea18"
+    },
+    "sector_axis_screening_features.csv": {
+      "bytes": 11932,
+      "sha256": "a6eafa4371edf2dea4abc5cc887cc1214a62e11586ccb04473f2b0ab6fce2834"
+    },
+    "sector_screening_profile.csv": {
+      "bytes": 4365,
+      "sha256": "7881ee2f92aa0cb8abe43422cbddd45458112768487edfb2ca2c04e7fb92d958"
+    },
+    "statistics_summary.json": {
+      "bytes": 5616,
+      "sha256": "c78c93ec5b048244e1b050417629d5566955aa01f900cb28f6a2ee35035794cb"
+    },
+    "validity_threats.json": {
+      "bytes": 1575,
+      "sha256": "d80e381b6358b18e2dd79902be5d364a22c75da21ad5ac3fdd0cff50e0fbecf4"
+    },
+    "value_labels.json": {
+      "bytes": 795,
+      "sha256": "be45fd93187ee1a2c08feab50123ae6ffebbddf4eadd5b28663ab801d63fe24d"
+    }
+  },
+  "generated_by": "scripts/build_performative_demand_cross_axis_analysis.py",
+  "package_schema_version": "1.0",
+  "package_scope": "deterministic_corpus_screening_not_validated_performativity_or_supply_gap",
+  "protocol_version": "1.2.0",
+  "source_provenance": {
+    "cumulative_manifest_generated_at_utc": "2026-07-24T11:52:32.006447+00:00",
+    "cumulative_manifest_generated_by": "Full Live-Enriched Analysis",
+    "cumulative_manifest_schema_version": "1.0.0",
+    "cumulative_manifest_status": "layer_readiness_usable",
+    "demand_profile_rows": 157,
+    "evidence_map_exact_rows": 978,
+    "joined_evidence_id_count": 978,
+    "lineage_validation_mode": "fail_closed",
+    "protocol_identity": {
+      "protocol_path": "config/live_query_protocol.yml",
+      "protocol_sha256": "5ed07bb561abb5fc8444bc9c337c9ec6d50376a64bb922eea832f684df79cd76",
+      "protocol_version": "1.2.0",
+      "retained_protocol_artifact": "retained_protocol/live_query_protocol.yml",
+      "source_blob_sha1": "0bb256b0139af99d494e39b95ee20261005c40d5",
+      "source_commit": "4eb044988659e51219a2ad62137091f0cb0f97c4",
+      "source_path": "config/live_query_protocol.yml",
+      "verification_status": "verified_against_retained_snapshot"
+    },
+    "qmbd_assignment_methodology": "0.30*normalized_unique_doi_count + 0.20*provider_diversity_score + 0.20*temporal_recency_score + 0.15*query_diversity_score + 0.15*semantic_confidence_mean",
+    "records_in_database": 3129,
+    "run_classifier_identity": {
+      "classifier_version": "cumulative-db-semantic-v1",
+      "current_run_id": "30090903921-1",
+      "observed_fields": {
+        "classifier_version": {
+          "signals": "cumulative-db-semantic-v1"
+        },
+        "run_id": {
+          "signals": "30090903921-1"
+        }
+      },
+      "status": "verified_complete_run_classifier_identity"
+    },
+    "source_file_sha256": {
+      "competence_demand_signals.csv": "9c16ecc352413a93e6bf19c58baf7da1eb38ca2c2c5c5598a873406dcb1e3bd9",
+      "derived_competence_demands.csv": "9d0096f4adea231e6f434bdf7f6154288257b976b4fe65660b5082481bc58f83",
+      "evidence_records.csv": "7062166a0a3a572f64cbc294a2ce2a67558a5c0f789f6fdb61dfe377079d94f6"
+    }
+  }
+}

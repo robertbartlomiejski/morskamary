@@ -1,0 +1,155 @@
+{
+  "allowed_semantic_surfaces": [
+    "title",
+    "subject_terms",
+    "abstract",
+    "full_text"
+  ],
+  "artifacts": {
+    "axis_screening_feature_shares.csv": [
+      "axis_group",
+      "axis_code",
+      "evidence_surface",
+      "feature",
+      "evidence_with_feature",
+      "axis_evidence_total",
+      "feature_share",
+      "status"
+    ],
+    "external_comparison_coastal_tourism_axis_realm_case.csv": [
+      "sector",
+      "axis_group",
+      "axis_code",
+      "realm",
+      "citation_needed",
+      "source_status",
+      "provenance_class"
+    ],
+    "linked_evidence_sector_axis_lineage.csv": [
+      "evidence_id",
+      "sector",
+      "axis_group",
+      "axis_code"
+    ],
+    "sector_axis_expected.csv": [
+      "sector",
+      "axis_group",
+      "axis_code",
+      "expected_evidence_count"
+    ],
+    "sector_axis_observed.csv": [
+      "sector",
+      "axis_group",
+      "axis_code",
+      "observed_evidence_count"
+    ],
+    "sector_axis_realm_screening.csv": [
+      "sector",
+      "sector_label",
+      "axis_group",
+      "axis_code",
+      "evidence_surface",
+      "realm",
+      "candidate_evidence_count",
+      "fractional_candidate_weight",
+      "screening_validation_state"
+    ],
+    "sector_axis_residuals.csv": [
+      "sector",
+      "sector_label",
+      "axis_group",
+      "axis_code",
+      "observed_evidence_count",
+      "expected_evidence_count",
+      "adjusted_standardized_residual",
+      "raw_cell_p",
+      "holm_p",
+      "bh_p",
+      "holm_significant_0_05",
+      "bh_significant_0_05",
+      "cell_status"
+    ],
+    "sector_axis_screening_features.csv": [
+      "sector",
+      "sector_label",
+      "axis_group",
+      "axis_code",
+      "evidence_surface",
+      "unique_evidence_count",
+      "derived_demand_count",
+      "distinct_signal_type_count",
+      "mean_signal_type_richness",
+      "median_signal_type_richness",
+      "validated_demand_count",
+      "validated_translation_count",
+      "validated_supply_count",
+      "supply_gap_status",
+      "screening_validation_state",
+      "evidence_status",
+      "analysis_scope",
+      "demand_articulation_count",
+      "demand_articulation_share",
+      "learning_credential_translation_count",
+      "learning_credential_translation_share",
+      "technical_operational_capability_count",
+      "technical_operational_capability_share",
+      "institutional_governance_count",
+      "institutional_governance_share",
+      "reflexive_cultural_capability_count",
+      "reflexive_cultural_capability_share"
+    ],
+    "sector_screening_profile.csv": [
+      "sector",
+      "sector_label",
+      "linked_evidence_count",
+      "screening_eligible_linked_evidence_count",
+      "derived_demand_count",
+      "axes_observed",
+      "empty_axis_cells",
+      "dominant_axis",
+      "dominant_axis_code",
+      "dominant_axis_status",
+      "dominant_axes",
+      "dominant_axis_codes",
+      "dominant_axis_share",
+      "normalized_axis_entropy",
+      "mean_signal_type_richness",
+      "candidate_realms_observed",
+      "validated_translation_events",
+      "independent_validated_supply_available",
+      "shortage_claim_status",
+      "screening_validation_state",
+      "analysis_scope",
+      "demand_articulation_count",
+      "demand_articulation_share",
+      "learning_credential_translation_count",
+      "learning_credential_translation_share",
+      "technical_operational_capability_count",
+      "technical_operational_capability_share",
+      "institutional_governance_count",
+      "institutional_governance_share",
+      "reflexive_cultural_capability_count",
+      "reflexive_cultural_capability_share"
+    ]
+  },
+  "axis_contract": {
+    "axis_codes": {
+      "HYDRONIZATION": "H",
+      "MARINE": "M",
+      "MARITIME": "T",
+      "OCEANIC": "O"
+    },
+    "canonical_names": [
+      "MARINE",
+      "MARITIME",
+      "OCEANIC",
+      "HYDRONIZATION"
+    ]
+  },
+  "package_scope": "deterministic_corpus_screening_not_validated_performativity_or_supply_gap",
+  "review_status_enum": [
+    "review_required",
+    "rejected"
+  ],
+  "schema_version": "1.0"
+}

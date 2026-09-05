@@ -1,0 +1,114 @@
+{
+  "derived_demands": 157,
+  "evidence_records": 3129,
+  "linked_evidence": 978,
+  "linked_evidence_with_signals": 978,
+  "linked_signal_rows": 1458,
+  "realm_screening_audit": {
+    "binary_candidate_count": 1238,
+    "fractional_candidate_weight": 978.0,
+    "fractional_weight_expected": 978,
+    "mapping_basis": "deterministic signal-type to realm crosswalk for screening triage; conceptual overlap remains and requires exact-span validation",
+    "overlap_audit": {
+      "max_candidate_realms_per_evidence": 3,
+      "multi_realm_evidence_count": 240,
+      "multi_realm_evidence_share": 0.24539877300613497
+    },
+    "robustness_boundary": "realm assignment is deterministic screening triage with allowed multi-realm overlap; it is not a validated exclusive coding frame",
+    "status": "multi-label screening; fractional weights prevent double count"
+  },
+  "screening_feature_boundary": {
+    "accepted_candidate_signal_rows": 1458,
+    "all_review_required": true,
+    "all_title_level": true,
+    "independently_validated_supply_rows": 0,
+    "observed_semantic_scopes": [
+      "title"
+    ],
+    "performative_stage_conclusion": "not computable until exact text spans and two-coder decisions exist",
+    "rejected_signal_rows_excluded": 0,
+    "screening_outcome": "candidate_screening_evidence_present",
+    "screening_scope_policy": "screening accepts retained title/subject_terms/abstract/full_text surfaces; all_title_level is only a corpus-condition flag for the current run",
+    "title_only_interpretation": "title_only_screening_condition",
+    "validated_demand_events": 0,
+    "validated_translation_events": 0
+  },
+  "sector_axis_independence": {
+    "active_columns_for_inference": 4,
+    "active_rows_for_inference": 12,
+    "bh_significant_cells": 42,
+    "bias_corrected_cramers_v": 0.8917124444395967,
+    "columns": 4,
+    "degrees_of_freedom": 33,
+    "expected_cells_below_1": 0,
+    "expected_cells_below_1_share": 0.0,
+    "expected_cells_below_5": 4,
+    "expected_cells_below_5_share": 0.08333333333333333,
+    "holm_significant_cells": 37,
+    "inferential_status": "computed_on_nonzero_margins",
+    "inferential_table_use": "descriptive_corpus_structure_diagnostic_only_not_population_inference",
+    "interpretation_boundary": "association describes the acquired/classified corpus and is confounded by retrieval/classification design; it is not workforce prevalence or causal sector demand",
+    "linkage_dependence_audit": {
+      "duplicated_linked_evidence_ids": 390,
+      "independence_risk_flag": true,
+      "max_demand_links_per_evidence_id": 5,
+      "mean_demand_links_per_evidence_id": 1.49079754601227,
+      "total_demand_link_rows": 1458,
+      "unique_linked_evidence_ids": 978
+    },
+    "minimum_expected_count": 1.7177914110429449,
+    "n": 978,
+    "observed_zero_cells": 26,
+    "pearson_chi_square": 2358.8433714747907,
+    "permutation_exceedances": 0,
+    "permutation_interpretation": "small p-values indicate non-random corpus structure under the curated design, not external prevalence or causal demand effects",
+    "permutation_method": "50,000 unrestricted axis-label permutations with fixed sector labels and fixed axis margins",
+    "permutation_p": 1.999960000799984e-05,
+    "permutation_seed": 20260825,
+    "permutations": 50000,
+    "rows": 12,
+    "sparse_cell_diagnostic_scope": "active_inferential_margins_only_not_full_display_matrix",
+    "unit": "unique linked evidence identity",
+    "unit_independence_note": "deduplicated evidence IDs avoid duplicated demand rows, but this curated corpus is not an iid sample and may retain correlated screening context"
+  },
+  "source_provenance": {
+    "cumulative_manifest_generated_at_utc": "2026-07-24T11:52:32.006447+00:00",
+    "cumulative_manifest_generated_by": "Full Live-Enriched Analysis",
+    "cumulative_manifest_schema_version": "1.0.0",
+    "cumulative_manifest_status": "layer_readiness_usable",
+    "demand_profile_rows": 157,
+    "evidence_map_exact_rows": 978,
+    "joined_evidence_id_count": 978,
+    "lineage_validation_mode": "fail_closed",
+    "protocol_identity": {
+      "protocol_path": "config/live_query_protocol.yml",
+      "protocol_sha256": "5ed07bb561abb5fc8444bc9c337c9ec6d50376a64bb922eea832f684df79cd76",
+      "protocol_version": "1.2.0",
+      "retained_protocol_artifact": "retained_protocol/live_query_protocol.yml",
+      "source_blob_sha1": "0bb256b0139af99d494e39b95ee20261005c40d5",
+      "source_commit": "4eb044988659e51219a2ad62137091f0cb0f97c4",
+      "source_path": "config/live_query_protocol.yml",
+      "verification_status": "verified_against_retained_snapshot"
+    },
+    "qmbd_assignment_methodology": "0.30*normalized_unique_doi_count + 0.20*provider_diversity_score + 0.20*temporal_recency_score + 0.15*query_diversity_score + 0.15*semantic_confidence_mean",
+    "records_in_database": 3129,
+    "run_classifier_identity": {
+      "classifier_version": "cumulative-db-semantic-v1",
+      "current_run_id": "30090903921-1",
+      "observed_fields": {
+        "classifier_version": {
+          "signals": "cumulative-db-semantic-v1"
+        },
+        "run_id": {
+          "signals": "30090903921-1"
+        }
+      },
+      "status": "verified_complete_run_classifier_identity"
+    },
+    "source_file_sha256": {
+      "competence_demand_signals.csv": "9c16ecc352413a93e6bf19c58baf7da1eb38ca2c2c5c5598a873406dcb1e3bd9",
+      "derived_competence_demands.csv": "9d0096f4adea231e6f434bdf7f6154288257b976b4fe65660b5082481bc58f83",
+      "evidence_records.csv": "7062166a0a3a572f64cbc294a2ce2a67558a5c0f789f6fdb61dfe377079d94f6"
+    }
+  }
+}

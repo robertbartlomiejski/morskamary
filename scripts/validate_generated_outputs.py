@@ -15,14 +15,22 @@ Exit codes:
 
 import csv
 from datetime import datetime, timezone
+import hashlib
 import json
+import os
 import re
+import subprocess
 import sys
+import tempfile
+import time
 from pathlib import Path
 from typing import cast
 
+import yaml  # type: ignore[import-untyped]
+
 REPO_ROOT = Path(__file__).parent.parent
 OUTPUTS_DIR = REPO_ROOT / "outputs"
+PROTOCOL_PATH = REPO_ROOT / "config" / "live_query_protocol.yml"
 
 CANONICAL_SECTORS = [
     "Blue Biotech",
@@ -95,6 +103,11 @@ def ok(msg: str) -> None:
     print(f"  OK:   {msg}")
 
 
+def warn(msg: str) -> None:
+    WARNINGS.append(msg)
+    print(f"[WARN] {msg}")
+
+
 def _is_valid_utc_iso8601(value: str) -> bool:
     normalized = str(value).strip()
     if not normalized:
@@ -103,7 +116,9 @@ def _is_valid_utc_iso8601(value: str) -> bool:
         parsed = datetime.fromisoformat(normalized.replace("Z", "+00:00"))
     except ValueError:
         return False
-    return parsed.tzinfo is not None and parsed.utcoffset() == timezone.utc.utcoffset(parsed)
+    return parsed.tzinfo is not None and parsed.utcoffset() == timezone.utc.utcoffset(
+        parsed
+    )
 
 
 def _canonical_run_id_from_metadata(metadata: dict[str, object]) -> str:
@@ -121,12 +136,26 @@ def _canonical_run_id_from_metadata(metadata: dict[str, object]) -> str:
     return "local-unpublished"
 
 
+def _load_strict_json(path: Path) -> object:
+    def _reject_non_finite(token: str) -> object:
+        raise ValueError(f"non-finite JSON literal is not allowed: {token}")
+
+    return json.loads(path.read_text(encoding="utf-8"), parse_constant=_reject_non_finite)
+
+
 def require_file(path: Path) -> bool:
     """Check that a required file exists. Returns False if missing."""
     if not path.exists():
         fail(f"Required file missing: {path}")
         return False
     return True
+
+
+def _resolve_performative_database_dir() -> tuple[Path, bool]:
+    env_value = os.environ.get("MORSKAMARY_CUMULATIVE_DATABASE_DIR", "").strip()
+    if env_value:
+        return Path(env_value), True
+    return OUTPUTS_DIR / "cumulative_database", False
 
 
 # ---------------------------------------------------------------------------
@@ -151,9 +180,7 @@ def load_competences(path: Path) -> dict[str, dict]:
 
     for key in ("baseline", "literature"):
         if key not in data:
-            fail(
-                f"{path.name}: required top-level key '{key}' is missing"
-            )
+            fail(f"{path.name}: required top-level key '{key}' is missing")
 
     comps: dict[str, dict] = {}
     required_comp_fields = ("id", "dimension", "sectors")
@@ -167,9 +194,7 @@ def load_competences(path: Path) -> dict[str, dict]:
             continue
         for i, c in enumerate(entries):
             if not isinstance(c, dict):
-                fail(
-                    f"{path.name}: {section}[{i}] is not an object"
-                )
+                fail(f"{path.name}: {section}[{i}] is not an object")
                 continue
             for field in required_comp_fields:
                 if field not in c:
@@ -199,9 +224,7 @@ def load_credentials(path: Path) -> list[dict]:
         return []
 
     if "credentials" not in data:
-        fail(
-            f"{path.name}: required top-level key 'credentials' is missing"
-        )
+        fail(f"{path.name}: required top-level key 'credentials' is missing")
         return []
 
     entries = data["credentials"]
@@ -239,9 +262,7 @@ def load_dynamic_credentials(path: Path) -> list[dict]:
         return []
 
     if "credentials" not in data:
-        fail(
-            f"{path.name}: required top-level key 'credentials' is missing"
-        )
+        fail(f"{path.name}: required top-level key 'credentials' is missing")
         return []
 
     entries = data["credentials"]
@@ -402,7 +423,9 @@ def load_cumulative_qmbd_records(
         return ([], {}) if return_metadata else []
 
     if not content.strip():
-        fail(f"{path.name}: file is empty — run 'python run_full_analysis.py' to regenerate")
+        fail(
+            f"{path.name}: file is empty — run 'python run_full_analysis.py' to regenerate"
+        )
         return ([], {}) if return_metadata else []
 
     try:
@@ -463,9 +486,7 @@ def load_cumulative_qmbd_records(
 
         qmbd_analysis = item.get("qmbd_analysis")
         if not isinstance(qmbd_analysis, list):
-            fail(
-                f"{path.name}: record[{idx}] field 'qmbd_analysis' must be a list"
-            )
+            fail(f"{path.name}: record[{idx}] field 'qmbd_analysis' must be a list")
             continue
         if not qmbd_analysis:
             fail(f"{path.name}: record[{idx}] has empty qmbd_analysis")
@@ -615,8 +636,7 @@ def check_gaps_csv(
         fail("Analysis_mode must be non-blank for every gaps_summary.csv row")
     elif any(value not in ALLOWED_ANALYSIS_MODES for value in analysis_modes):
         fail(
-            "Analysis_mode must be one of: "
-            + ", ".join(sorted(ALLOWED_ANALYSIS_MODES))
+            "Analysis_mode must be one of: " + ", ".join(sorted(ALLOWED_ANALYSIS_MODES))
         )
     elif len(analysis_modes) != 1:
         fail("Analysis_mode must be identical across all gaps_summary.csv rows")
@@ -639,7 +659,9 @@ def check_gaps_csv(
 
     # 4. Companion cumulative metadata must describe the same current run
     if cumulative_metadata:
-        expected_generated_at = str(cumulative_metadata.get("timestamp_utc", "")).strip()
+        expected_generated_at = str(
+            cumulative_metadata.get("timestamp_utc", "")
+        ).strip()
         expected_analysis_mode = str(
             cumulative_metadata.get("analysis_input_mode", "")
         ).strip()
@@ -671,8 +693,7 @@ def check_gaps_csv(
         elif expected_analysis_mode not in ALLOWED_ANALYSIS_MODES:
             fail(
                 "cumulative_qmbd_records.json metadata.analysis_input_mode "
-                "must be one of: "
-                + ", ".join(sorted(ALLOWED_ANALYSIS_MODES))
+                "must be one of: " + ", ".join(sorted(ALLOWED_ANALYSIS_MODES))
             )
         elif actual_analysis_mode != expected_analysis_mode:
             fail(
@@ -766,8 +787,7 @@ def check_credentials(
                 eqf_ok = False
         else:
             fail(
-                f"Sector '{sector}' is missing EQF levels: "
-                f"{sorted(missing_levels)}"
+                f"Sector '{sector}' is missing EQF levels: " f"{sorted(missing_levels)}"
             )
             eqf_ok = False
 
@@ -918,7 +938,9 @@ def check_desalination_integrity(
                 desal_ok = False
 
     if desal_ok:
-        ok("Desalination EQF6/EQF7 credentials contain only Desalination-valid literature")
+        ok(
+            "Desalination EQF6/EQF7 credentials contain only Desalination-valid literature"
+        )
 
 
 def check_sector_dictionaries(sector_dict_dir: Path) -> None:
@@ -1036,7 +1058,9 @@ def check_dynamic_outputs(
     generated_entries = rationale.get("generated_credentials", [])
     review_required = rationale.get("review_required", [])
     if not isinstance(generated_entries, list) or not isinstance(review_required, list):
-        fail("credentials_generation_rationale.json has invalid generated/review sections")
+        fail(
+            "credentials_generation_rationale.json has invalid generated/review sections"
+        )
         return
 
     rationale_ids = {
@@ -1077,6 +1101,597 @@ def check_dynamic_outputs(
         fail("sector_qmbd_learning_pathways.json has no pathway nodes")
     else:
         ok(f"Pathway nodes present: {len(pathway_nodes)}")
+
+
+def _load_retained_performative_protocol(database_dir: Path) -> dict[str, object]:
+    """Load the exact retained protocol bound to the cumulative evidence snapshot."""
+    manifest_path = database_dir / "cumulative_database_manifest.json"
+    manifest = cast(dict[str, object], _load_strict_json(manifest_path))
+    binding = manifest.get("protocol_binding")
+    if not isinstance(binding, dict):
+        raise ValueError("cumulative database manifest is missing protocol_binding")
+    relative_artifact = str(binding.get("retained_protocol_artifact", "")).strip()
+    artifact_path = database_dir / relative_artifact
+    if (
+        not relative_artifact
+        or Path(relative_artifact).is_absolute()
+        or ".." in Path(relative_artifact).parts
+        or not artifact_path.is_file()
+        or database_dir.resolve() not in artifact_path.resolve().parents
+    ):
+        raise ValueError("retained protocol artifact path is missing or unsafe")
+    protocol = yaml.safe_load(artifact_path.read_text(encoding="utf-8"))
+    if not isinstance(protocol, dict):
+        raise ValueError("retained protocol artifact must contain a YAML object")
+    return cast(dict[str, object], protocol)
+
+
+def check_performative_demand_outputs() -> None:
+    """Validate PR #270 scientific artifacts by schema and deterministic rebuild."""
+    print("\n[performative_demand_cross_axis/]")
+    output_dir = OUTPUTS_DIR / "performative_demand_cross_axis"
+    builder = REPO_ROOT / "scripts" / "build_performative_demand_cross_axis_analysis.py"
+    database_dir, used_env = _resolve_performative_database_dir()
+    try:
+        protocol = _load_retained_performative_protocol(database_dir)
+    except (OSError, ValueError, TypeError, json.JSONDecodeError, yaml.YAMLError) as exc:
+        fail(f"unable to load retained performative protocol: {exc}")
+        return
+    declared_hypothesis_ids = set(cast(dict[str, object], protocol.get("hypotheses", {})))
+    schemas: dict[str, set[str]] = {
+        "sector_axis_observed.csv": {
+            "sector",
+            "axis_group",
+            "axis_code",
+            "observed_evidence_count",
+        },
+        "sector_axis_expected.csv": {
+            "sector",
+            "axis_group",
+            "axis_code",
+            "expected_evidence_count",
+        },
+        "sector_axis_residuals.csv": {
+            "sector",
+            "axis_group",
+            "axis_code",
+            "observed_evidence_count",
+        },
+        "sector_axis_screening_features.csv": {
+            "sector",
+            "sector_label",
+            "axis_group",
+            "axis_code",
+            "evidence_surface",
+            "unique_evidence_count",
+            "derived_demand_count",
+            "distinct_signal_type_count",
+            "mean_signal_type_richness",
+            "median_signal_type_richness",
+            "validated_demand_count",
+            "validated_translation_count",
+            "validated_supply_count",
+            "supply_gap_status",
+            "screening_validation_state",
+            "evidence_status",
+            "analysis_scope",
+            "demand_articulation_count",
+            "demand_articulation_share",
+            "learning_credential_translation_count",
+            "learning_credential_translation_share",
+            "technical_operational_capability_count",
+            "technical_operational_capability_share",
+            "institutional_governance_count",
+            "institutional_governance_share",
+            "reflexive_cultural_capability_count",
+            "reflexive_cultural_capability_share",
+        },
+        "sector_axis_realm_screening.csv": {
+            "sector",
+            "sector_label",
+            "axis_group",
+            "axis_code",
+            "evidence_surface",
+            "realm",
+            "candidate_evidence_count",
+            "fractional_candidate_weight",
+            "screening_validation_state",
+        },
+        "axis_screening_feature_shares.csv": {
+            "axis_group",
+            "axis_code",
+            "evidence_surface",
+            "feature",
+            "evidence_with_feature",
+            "axis_evidence_total",
+            "feature_share",
+            "status",
+        },
+        "sector_screening_profile.csv": {
+            "sector",
+            "sector_label",
+            "linked_evidence_count",
+            "screening_eligible_linked_evidence_count",
+            "derived_demand_count",
+            "axes_observed",
+            "empty_axis_cells",
+            "dominant_axis",
+            "dominant_axis_code",
+            "dominant_axis_status",
+            "dominant_axes",
+            "dominant_axis_codes",
+            "dominant_axis_share",
+            "normalized_axis_entropy",
+            "mean_signal_type_richness",
+            "candidate_realms_observed",
+            "validated_translation_events",
+            "independent_validated_supply_available",
+            "shortage_claim_status",
+            "screening_validation_state",
+            "analysis_scope",
+            "demand_articulation_count",
+            "demand_articulation_share",
+            "learning_credential_translation_count",
+            "learning_credential_translation_share",
+            "technical_operational_capability_count",
+            "technical_operational_capability_share",
+            "institutional_governance_count",
+            "institutional_governance_share",
+            "reflexive_cultural_capability_count",
+            "reflexive_cultural_capability_share",
+        },
+        "linked_evidence_sector_axis_lineage.csv": {
+            "evidence_id",
+            "sector",
+            "axis_group",
+            "axis_code",
+        },
+        "external_comparison_coastal_tourism_axis_realm_case.csv": {
+            "sector",
+            "axis_group",
+            "axis_code",
+            "realm",
+            "citation_needed",
+            "source_status",
+        },
+    }
+    axis_codes = {
+        "MARINE": "M",
+        "MARITIME": "T",
+        "OCEANIC": "O",
+        "HYDRONIZATION": "H",
+    }
+    expected_names = set(schemas) | {
+        "statistics_summary.json",
+        "hypothesis_outcomes.json",
+        "validity_threats.json",
+        "value_labels.json",
+        "package_schema.json",
+        "package_manifest.json",
+    }
+    if not output_dir.exists():
+        fail(f"Performative-demand output directory missing: {output_dir}")
+        return
+    local_errors_before = len(ERRORS)
+    package_schema_path = output_dir / "package_schema.json"
+    schema_columns: dict[str, set[str]] = {}
+    if require_file(package_schema_path):
+        try:
+            package_schema = cast(dict[str, object], _load_strict_json(package_schema_path))
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+            fail(f"package_schema.json is not strict valid JSON: {exc}")
+            package_schema = {}
+        artifacts_spec = package_schema.get("artifacts", {})
+        if not isinstance(artifacts_spec, dict):
+            fail("package_schema.json: artifacts must be an object")
+        else:
+            for name, columns in artifacts_spec.items():
+                if isinstance(columns, list) and all(
+                    isinstance(column, str) for column in columns
+                ):
+                    schema_columns[str(name)] = set(columns)
+                else:
+                    fail(
+                        f"package_schema.json: artifacts.{name} must be a list of strings"
+                    )
+        allowed_surfaces = package_schema.get("allowed_semantic_surfaces", [])
+        if (
+            isinstance(allowed_surfaces, list)
+            and {"query", "source_query"} & set(str(item) for item in allowed_surfaces)
+        ):
+            fail("package_schema.json must not declare query/source_query as evidence surfaces")
+    if schema_columns:
+        for name, required_columns in schemas.items():
+            declared_columns = schema_columns.get(name)
+            if declared_columns is None:
+                fail(f"package_schema.json must declare governed artifact {name}")
+                continue
+            missing_contract_columns = required_columns - declared_columns
+            if missing_contract_columns:
+                fail(
+                    f"package_schema.json: artifacts.{name} omits required columns "
+                    f"{sorted(missing_contract_columns)}"
+                )
+        schemas = {
+            name: required_columns | schema_columns.get(name, set())
+            for name, required_columns in schemas.items()
+        }
+    for name, required_columns in schemas.items():
+        artifact = output_dir / name
+        if not require_file(artifact):
+            continue
+        with artifact.open(newline="", encoding="utf-8") as handle:
+            reader = csv.DictReader(handle)
+            fieldnames = set(reader.fieldnames or [])
+            missing = required_columns - fieldnames
+            if missing:
+                fail(f"{name}: missing required columns {sorted(missing)}")
+                continue
+            rows = list(reader)
+        if {"axis_group", "axis_code"} <= fieldnames:
+            for row_index, row in enumerate(rows, 2):
+                axis = str(row.get("axis_group", "")).strip()
+                axis_code = str(row.get("axis_code", "")).strip()
+                if axis not in axis_codes:
+                    fail(
+                        f"{name}:{row_index}: axis_group {axis!r} is not one of the "
+                        f"canonical QMBD axes {list(axis_codes)}"
+                    )
+                    break
+                if axis_code not in set(axis_codes.values()):
+                    fail(
+                        f"{name}:{row_index}: axis_code {axis_code!r} is not a canonical "
+                        "QMBD axis code"
+                    )
+                    break
+                if axis_code != axis_codes[axis]:
+                    fail(
+                        f"{name}:{row_index}: axis_code {axis_code!r} "
+                        f"does not match canonical {axis_codes[axis]!r} for {axis}"
+                    )
+                    break
+        if name == "external_comparison_coastal_tourism_axis_realm_case.csv":
+            if any(
+                str(row.get("citation_needed", "")).lower() != "true" for row in rows
+            ):
+                fail(
+                    f"{name}: every supplied aggregate row must remain "
+                    "citation_needed=true"
+                )
+            if any(
+                row.get("source_status") != "comparison_data_not_repository_evidence"
+                for row in rows
+            ):
+                fail(
+                    f"{name}: supplied aggregate rows must be labelled "
+                    "comparison data"
+                )
+
+    for json_name in (
+        "statistics_summary.json",
+        "hypothesis_outcomes.json",
+        "validity_threats.json",
+        "value_labels.json",
+        "package_schema.json",
+        "package_manifest.json",
+    ):
+        json_path = output_dir / json_name
+        if not require_file(json_path):
+            continue
+        try:
+            _load_strict_json(json_path)
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+            fail(f"{json_name} is not strict valid JSON: {exc}")
+
+    summary_path = output_dir / "statistics_summary.json"
+    require_file(summary_path)
+    if (output_dir / "sector_deficit_profile.csv").exists():
+        fail(
+            "legacy sector_deficit_profile.csv must not be published as a supply-gap claim"
+        )
+    if (output_dir / "coastal_tourism_axis_realm_case.csv").exists():
+        fail(
+            "legacy coastal_tourism_axis_realm_case.csv must not be published; use external_comparison_* provenance naming"
+        )
+    manifest_path = output_dir / "package_manifest.json"
+    hypothesis_path = output_dir / "hypothesis_outcomes.json"
+    require_file(manifest_path)
+    require_file(hypothesis_path)
+    if manifest_path.exists():
+        try:
+            package_manifest = cast(dict[str, object], _load_strict_json(manifest_path))
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+            fail(f"package_manifest.json is not strict valid JSON: {exc}")
+            package_manifest = {}
+        manifest_files = package_manifest.get("files", {})
+        expected_manifest_files = expected_names - {"package_manifest.json"}
+        if (
+            not isinstance(manifest_files, dict)
+            or set(manifest_files) != expected_manifest_files
+        ):
+            fail("package_manifest.json file set does not match governed artifacts")
+        elif isinstance(manifest_files, dict):
+            for name, metadata in manifest_files.items():
+                artifact = output_dir / name
+                # Missing artifacts are fail-closed via require_file checks above.
+                # This branch verifies checksums only for files that exist locally.
+                if artifact.exists():
+                    digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+                    if (
+                        not isinstance(metadata, dict)
+                        or metadata.get("sha256") != digest
+                    ):
+                        fail(f"package manifest checksum mismatch: {name}")
+        source_provenance = package_manifest.get("source_provenance")
+        if not isinstance(source_provenance, dict):
+            fail("package_manifest.json: source_provenance must be a non-null object")
+        else:
+            if source_provenance.get("lineage_validation_mode") != "fail_closed":
+                fail(
+                    "package_manifest.json.source_provenance.lineage_validation_mode "
+                    "must be 'fail_closed'"
+                )
+            protocol_identity = source_provenance.get("protocol_identity")
+            if not isinstance(protocol_identity, dict):
+                fail(
+                    "package_manifest.json.source_provenance.protocol_identity must be "
+                    "an object"
+                )
+            else:
+                required_protocol_fields = (
+                    "retained_protocol_artifact",
+                    "source_commit",
+                    "source_path",
+                    "source_blob_sha1",
+                    "protocol_version",
+                    "protocol_sha256",
+                    "verification_status",
+                )
+                for field in required_protocol_fields:
+                    if not str(protocol_identity.get(field, "")).strip():
+                        fail(
+                            "package_manifest.json.source_provenance.protocol_identity."
+                            f"{field} must be nonblank"
+                        )
+            source_file_sha256 = source_provenance.get("source_file_sha256")
+            if not isinstance(source_file_sha256, dict):
+                fail(
+                    "package_manifest.json.source_provenance.source_file_sha256 must be "
+                    "an object"
+                )
+            else:
+                for file_name in (
+                    "derived_competence_demands.csv",
+                    "evidence_records.csv",
+                    "competence_demand_signals.csv",
+                ):
+                    digest = str(source_file_sha256.get(file_name, "")).strip()
+                    if not digest:
+                        fail(
+                            "package_manifest.json.source_provenance.source_file_sha256."
+                            f"{file_name} must be present and nonblank"
+                        )
+                    elif not re.fullmatch(r"[0-9a-f]{64}", digest):
+                        fail(
+                            "package_manifest.json.source_provenance.source_file_sha256."
+                            f"{file_name} must be a lowercase sha256 digest"
+                        )
+            run_classifier_identity = source_provenance.get("run_classifier_identity")
+            if not isinstance(run_classifier_identity, dict):
+                fail(
+                    "package_manifest.json.source_provenance.run_classifier_identity "
+                    "must be an object"
+                )
+            else:
+                if (
+                    run_classifier_identity.get("status")
+                    != "verified_complete_run_classifier_identity"
+                ):
+                    fail(
+                        "package_manifest.json.source_provenance.run_classifier_identity."
+                        "status must be 'verified_complete_run_classifier_identity'"
+                    )
+                for field in ("current_run_id", "classifier_version"):
+                    if not str(run_classifier_identity.get(field, "")).strip():
+                        fail(
+                            "package_manifest.json.source_provenance.run_classifier_identity."
+                            f"{field} must be nonblank"
+                        )
+            for field in (
+                "evidence_map_exact_rows",
+                "joined_evidence_id_count",
+                "records_in_database",
+                "demand_profile_rows",
+            ):
+                value = source_provenance.get(field)
+                if not isinstance(value, int):
+                    fail(
+                        "package_manifest.json.source_provenance."
+                        f"{field} must be an integer"
+                    )
+                elif value < 0:
+                    fail(
+                        "package_manifest.json.source_provenance."
+                        f"{field} must be >= 0"
+                    )
+    if hypothesis_path.exists():
+        try:
+            raw_hypotheses = _load_strict_json(hypothesis_path)
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+            fail(f"hypothesis_outcomes.json is not strict valid JSON: {exc}")
+            raw_hypotheses = []
+        if not isinstance(raw_hypotheses, list):
+            fail("hypothesis_outcomes.json must contain a list of outcome rows")
+            rows_h: list[object] = []
+        else:
+            rows_h = raw_hypotheses
+        if any(not isinstance(row, dict) for row in rows_h):
+            fail("hypothesis_outcomes.json rows must all be objects")
+        hypothesis_ids = [
+            str(row.get("hypothesis_id", "")).strip()
+            for row in rows_h
+            if isinstance(row, dict)
+        ]
+        duplicate_hypothesis_ids = sorted(
+            {item for item in hypothesis_ids if hypothesis_ids.count(item) > 1}
+        )
+        if duplicate_hypothesis_ids:
+            fail(
+                "hypothesis_outcomes.json must contain exactly one row per declared "
+                f"hypothesis; duplicate IDs: {duplicate_hypothesis_ids}"
+            )
+        observed_hypothesis_ids = set(hypothesis_ids)
+        missing_hypothesis_ids = declared_hypothesis_ids - observed_hypothesis_ids
+        unknown_hypothesis_ids = observed_hypothesis_ids - declared_hypothesis_ids
+        if missing_hypothesis_ids:
+            fail(
+                "hypothesis_outcomes.json is missing declared hypotheses: "
+                f"{sorted(missing_hypothesis_ids)}"
+            )
+        if unknown_hypothesis_ids:
+            fail(
+                "hypothesis_outcomes.json contains unknown hypotheses: "
+                f"{sorted(unknown_hypothesis_ids)}"
+            )
+        hypotheses_protocol = cast(
+            dict[str, object], cast(dict[str, object], protocol).get("hypotheses", {})
+        )
+        for hypothesis_row in rows_h:
+            if not isinstance(hypothesis_row, dict):
+                continue
+            hypothesis_id = str(hypothesis_row.get("hypothesis_id", "")).strip()
+            config = hypotheses_protocol.get(hypothesis_id)
+            if not isinstance(config, dict):
+                continue
+            hypothesis_label = str(hypothesis_row.get("hypothesis_label", "")).strip()
+            expected_label = str(config.get("label", "")).strip()
+            if not hypothesis_label or hypothesis_label != expected_label:
+                fail(
+                    "hypothesis_outcomes.json row "
+                    f"{hypothesis_id}: hypothesis_label must match retained protocol label"
+                )
+            status = str(hypothesis_row.get("status", "")).strip()
+            declared_outcomes = config.get("declared_outcomes", [])
+            if (
+                not isinstance(declared_outcomes, list)
+                or not all(isinstance(item, str) for item in declared_outcomes)
+                or status not in set(declared_outcomes)
+            ):
+                fail(
+                    "hypothesis_outcomes.json row "
+                    f"{hypothesis_id}: status must be one of retained declared_outcomes"
+                )
+            for context_field in (
+                "definition",
+                "test",
+                "direction",
+                "required_axes",
+                "declared_outcomes",
+            ):
+                if context_field not in hypothesis_row:
+                    fail(
+                        "hypothesis_outcomes.json row "
+                        f"{hypothesis_id}: missing declared protocol context field "
+                        f"{context_field}"
+                    )
+            result_fields = hypothesis_row.get("result_fields")
+            if not isinstance(result_fields, dict):
+                fail(
+                    f"hypothesis_outcomes.json row {hypothesis_id}: result_fields must be an object"
+                )
+                continue
+            required_result_fields = config.get("required_result_fields", [])
+            if not isinstance(required_result_fields, list) or not all(
+                isinstance(item, str) for item in required_result_fields
+            ):
+                fail(
+                    f"retained protocol hypothesis {hypothesis_id} has invalid required_result_fields"
+                )
+                continue
+            missing_required_result_fields = [
+                field for field in required_result_fields if field not in result_fields
+            ]
+            if missing_required_result_fields:
+                fail(
+                    "hypothesis_outcomes.json row "
+                    f"{hypothesis_id}: result_fields missing retained required keys "
+                    f"{missing_required_result_fields}"
+                )
+            if (
+                str(result_fields.get("hypothesis_id", "")).strip() != hypothesis_id
+                or str(result_fields.get("hypothesis_label", "")).strip() != expected_label
+            ):
+                fail(
+                    "hypothesis_outcomes.json row "
+                    f"{hypothesis_id}: result_fields hypothesis identity/label mismatch"
+                )
+            interpretation = str(result_fields.get("interpretation", "")).strip()
+            warning = str(hypothesis_row.get("warning", "")).strip()
+            if not interpretation:
+                fail(
+                    f"hypothesis_outcomes.json row {hypothesis_id}: result_fields.interpretation must be nonblank"
+                )
+            if not warning:
+                fail(
+                    f"hypothesis_outcomes.json row {hypothesis_id}: warning must be nonblank"
+                )
+    if len(ERRORS) != local_errors_before:
+        return
+
+    with tempfile.TemporaryDirectory(prefix="morskamary-performative-") as tmp:
+        if used_env:
+            ok(
+                "Performative deterministic rebuild uses MORSKAMARY_CUMULATIVE_DATABASE_DIR "
+                f"({database_dir})"
+            )
+        else:
+            warn(
+                "MORSKAMARY_CUMULATIVE_DATABASE_DIR is not set; using fallback "
+                f"{database_dir} for deterministic rebuild"
+            )
+        started = time.monotonic()
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(builder),
+                "--database-dir",
+                str(database_dir),
+                "--output-dir",
+                tmp,
+            ],
+            cwd=REPO_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        elapsed_seconds = time.monotonic() - started
+        if completed.returncode != 0:
+            fail(
+                "Performative-demand deterministic regeneration failed: "
+                + completed.stdout[-2000:]
+            )
+            return
+        if elapsed_seconds > 600:
+            warn(
+                "Performative deterministic rebuild exceeded 10 minutes "
+                f"({elapsed_seconds:.1f}s); consider CI performance tuning"
+            )
+        regenerated = Path(tmp)
+        for name in sorted(expected_names):
+            committed = output_dir / name
+            rebuilt = regenerated / name
+            if not rebuilt.exists():
+                fail(f"Deterministic rebuild did not emit required artifact: {name}")
+                continue
+            if committed.read_bytes() != rebuilt.read_bytes():
+                fail(f"Performative-demand artifact is stale/non-deterministic: {name}")
+        if len(ERRORS) == local_errors_before:
+            ok(
+                "Performative-demand scientific schemas/invariants and byte-identity "
+                "deterministic regeneration match committed artifacts "
+                f"({elapsed_seconds:.1f}s)"
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -1136,9 +1751,12 @@ def main() -> int:
     check_desalination_integrity(credentials, all_comps)
     check_sector_dictionaries(sector_dict_dir)
     check_dynamic_outputs(dynamic_credentials, rationale, pathways)
+    check_performative_demand_outputs()
     check_no_absolute_local_paths(OUTPUTS_DIR)
 
     print()
+    if WARNINGS:
+        print(f"Warnings: {len(WARNINGS)} (informational)")
     if ERRORS:
         print("=" * 65)
         print(f"VALIDATION FAILED — {len(ERRORS)} error(s):")
