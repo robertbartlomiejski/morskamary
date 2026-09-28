@@ -120,6 +120,29 @@ AXIS_SCREENING_SHARE_NUMERIC_MEASURES = (
     "feature_share",
 )
 
+REALM_SCREENING_CONTRACT_FIELDS = (
+    "candidate_evidence_count",
+    "fractional_candidate_weight",
+    "validated_demand_count",
+    "validated_translation_count",
+    "validated_supply_count",
+    "coding_status",
+    "analysis_scope",
+    "zero_interpretation",
+)
+
+RESIDUAL_CONTRACT_FIELDS = (
+    "sector_label",
+    "expected_evidence_count",
+    "adjusted_standardized_residual",
+    "raw_cell_p",
+    "holm_p",
+    "bh_p",
+    "holm_significant_0_05",
+    "bh_significant_0_05",
+    "cell_status",
+)
+
 SECTOR_SCREENING_PROFILE_SUBSTANTIVE_FIELDS = (
     "sector_label",
     "linked_evidence_count",
@@ -674,9 +697,47 @@ def test_performative_validator_rejects_noncanonical_axis_pairs(
     assert any(error_match in error for error in mod.ERRORS), mod.ERRORS
 
 
-@pytest.mark.parametrize(
-    "measure", ["candidate_evidence_count", "fractional_candidate_weight"]
-)
+@pytest.mark.parametrize("measure", RESIDUAL_CONTRACT_FIELDS)
+def test_performative_validator_requires_residual_statistics(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    measure: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    _drop_csv_column(package / "sector_axis_residuals.csv", measure)
+
+    mod.check_performative_demand_outputs()
+
+    assert any(
+        "sector_axis_residuals.csv" in error
+        and "missing required columns" in error
+        and measure in error
+        for error in mod.ERRORS
+    ), mod.ERRORS
+
+
+@pytest.mark.parametrize("measure", RESIDUAL_CONTRACT_FIELDS)
+def test_performative_validator_schema_cannot_weaken_residual_contract(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    measure: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    _drop_schema_column(
+        package / "package_schema.json", "sector_axis_residuals.csv", measure
+    )
+
+    mod.check_performative_demand_outputs()
+
+    assert any(
+        "sector_axis_residuals.csv" in error
+        and "omits required columns" in error
+        and measure in error
+        for error in mod.ERRORS
+    ), mod.ERRORS
+
+
+@pytest.mark.parametrize("measure", REALM_SCREENING_CONTRACT_FIELDS)
 def test_performative_validator_requires_realm_screening_measures(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -690,6 +751,27 @@ def test_performative_validator_requires_realm_screening_measures(
     assert any(
         "sector_axis_realm_screening.csv" in error
         and "missing required columns" in error
+        and measure in error
+        for error in mod.ERRORS
+    ), mod.ERRORS
+
+
+@pytest.mark.parametrize("measure", REALM_SCREENING_CONTRACT_FIELDS)
+def test_performative_validator_schema_cannot_weaken_realm_screening_contract(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    measure: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    _drop_schema_column(
+        package / "package_schema.json", "sector_axis_realm_screening.csv", measure
+    )
+
+    mod.check_performative_demand_outputs()
+
+    assert any(
+        "sector_axis_realm_screening.csv" in error
+        and "omits required columns" in error
         and measure in error
         for error in mod.ERRORS
     ), mod.ERRORS
@@ -830,6 +912,33 @@ def test_performative_validator_schema_cannot_weaken_sector_screening_profile(
         "sector_screening_profile.csv" in error
         and "omits required columns" in error
         and field in error
+        for error in mod.ERRORS
+    ), mod.ERRORS
+
+
+@pytest.mark.parametrize("mutation", ["missing", "empty", "malformed"])
+def test_performative_validator_requires_nonempty_artifact_schema(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: str,
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    schema_path = package / "package_schema.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    if mutation == "missing":
+        schema.pop("artifacts", None)
+    elif mutation == "empty":
+        schema["artifacts"] = {}
+    else:
+        schema["artifacts"] = []
+    schema_path.write_text(
+        json.dumps(schema, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+    mod.check_performative_demand_outputs()
+
+    assert any(
+        "package_schema.json: artifacts must be a non-empty object" in error
         for error in mod.ERRORS
     ), mod.ERRORS
 

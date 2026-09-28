@@ -1154,9 +1154,18 @@ def check_performative_demand_outputs() -> None:
         },
         "sector_axis_residuals.csv": {
             "sector",
+            "sector_label",
             "axis_group",
             "axis_code",
             "observed_evidence_count",
+            "expected_evidence_count",
+            "adjusted_standardized_residual",
+            "raw_cell_p",
+            "holm_p",
+            "bh_p",
+            "holm_significant_0_05",
+            "bh_significant_0_05",
+            "cell_status",
         },
         "sector_axis_screening_features.csv": {
             "sector",
@@ -1196,7 +1205,13 @@ def check_performative_demand_outputs() -> None:
             "realm",
             "candidate_evidence_count",
             "fractional_candidate_weight",
+            "validated_demand_count",
+            "validated_translation_count",
+            "validated_supply_count",
             "screening_validation_state",
+            "coding_status",
+            "analysis_scope",
+            "zero_interpretation",
         },
         "axis_screening_feature_shares.csv": {
             "axis_group",
@@ -1289,9 +1304,9 @@ def check_performative_demand_outputs() -> None:
         except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
             fail(f"package_schema.json is not strict valid JSON: {exc}")
             package_schema = {}
-        artifacts_spec = package_schema.get("artifacts", {})
-        if not isinstance(artifacts_spec, dict):
-            fail("package_schema.json: artifacts must be an object")
+        artifacts_spec = package_schema.get("artifacts")
+        if not isinstance(artifacts_spec, dict) or not artifacts_spec:
+            fail("package_schema.json: artifacts must be a non-empty object")
         else:
             for name, columns in artifacts_spec.items():
                 if isinstance(columns, list) and all(
@@ -1308,22 +1323,21 @@ def check_performative_demand_outputs() -> None:
             and {"query", "source_query"} & set(str(item) for item in allowed_surfaces)
         ):
             fail("package_schema.json must not declare query/source_query as evidence surfaces")
-    if schema_columns:
-        for name, required_columns in schemas.items():
-            declared_columns = schema_columns.get(name)
-            if declared_columns is None:
-                fail(f"package_schema.json must declare governed artifact {name}")
-                continue
-            missing_contract_columns = required_columns - declared_columns
-            if missing_contract_columns:
-                fail(
-                    f"package_schema.json: artifacts.{name} omits required columns "
-                    f"{sorted(missing_contract_columns)}"
-                )
-        schemas = {
-            name: required_columns | schema_columns.get(name, set())
-            for name, required_columns in schemas.items()
-        }
+    for name, required_columns in schemas.items():
+        declared_columns = schema_columns.get(name)
+        if declared_columns is None:
+            fail(f"package_schema.json must declare governed artifact {name}")
+            continue
+        missing_contract_columns = required_columns - declared_columns
+        if missing_contract_columns:
+            fail(
+                f"package_schema.json: artifacts.{name} omits required columns "
+                f"{sorted(missing_contract_columns)}"
+            )
+    schemas = {
+        name: required_columns | schema_columns.get(name, set())
+        for name, required_columns in schemas.items()
+    }
     for name, required_columns in schemas.items():
         artifact = output_dir / name
         if not require_file(artifact):

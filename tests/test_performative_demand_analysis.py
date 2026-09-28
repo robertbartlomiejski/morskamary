@@ -1133,6 +1133,16 @@ def _readiness_db(tmp_path: Path, readiness_payload: str) -> Path:
         encoding="utf-8",
     )
     (db / "layer_readiness_report.json").write_text(readiness_payload, encoding="utf-8")
+    (db / "layer5_manifest.json").write_text(
+        json.dumps(
+            {
+                "current_run_id": "RUN-A",
+                "classifier_version": "model-v1",
+                "hypothesis_results": {},
+            }
+        ),
+        encoding="utf-8",
+    )
     for name in (
         "derived_competence_demands.csv",
         "evidence_records.csv",
@@ -1206,6 +1216,137 @@ def test_provenance_rejects_stale_retained_evidence_count(
     }
     with pytest.raises(RuntimeError, match="does not match retained evidence_records.csv rows"):
         _source_provenance(db, frames)
+
+
+@pytest.mark.parametrize(
+    ("field", "declared"),
+    [
+        ("evidence_map_exact_rows", 2),
+        ("demand_profile_rows", 2),
+    ],
+)
+def test_source_provenance_rejects_stale_analysis_cardinality(
+    tmp_path: Path, field: str, declared: int
+) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _source_provenance
+
+    db = _readiness_db(tmp_path, _canonical_layer_readiness_payload())
+    manifest_path = db / "cumulative_database_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest[field] = declared
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    frames = {
+        "demands": pd.DataFrame(
+            {
+                "competence_demand_id": ["D-1"],
+                "evidence_ids": ["E-1"],
+                "sector": ["sector_a"],
+                "axis_group": ["MARINE"],
+                "axis_code": ["M"],
+                "current_run_id": ["RUN-A"],
+            }
+        ),
+        "evidence": pd.DataFrame({"evidence_id": ["E-1"]}),
+        "signals": pd.DataFrame(
+            {"run_id": ["RUN-A"], "classifier_version": ["model-v1"]}
+        ),
+    }
+    with pytest.raises(RuntimeError, match=f"{field} does not match retained analysis rows"):
+        _source_provenance(db, frames)
+
+
+def test_verify_retained_inputs_rejects_tampered_layer5_manifest(
+    tmp_path: Path,
+) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import (
+        CHECKSUM_REQUIRED_INPUTS,
+        _verify_retained_inputs,
+    )
+
+    db = _readiness_db(tmp_path, _canonical_layer_readiness_payload())
+    checksum_path = db / "_checksums.sha256"
+    checksum_path.write_text(
+        "".join(
+            f"{hashlib.sha256((db / name).read_bytes()).hexdigest()}  {name}\n"
+            for name in CHECKSUM_REQUIRED_INPUTS
+        ),
+        encoding="utf-8",
+    )
+    layer5_path = db / "layer5_manifest.json"
+    layer5_path.write_text('{"tampered": true}\n', encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="checksum mismatch for layer5_manifest.json"):
+        _verify_retained_inputs(db)
+
+
+def test_h1_zero_pooled_variance_is_reconciled_as_not_computable(
+    tmp_path: Path,
+) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _verified_h1_result
+
+    protocol = {
+        "hypotheses": {
+            "H1": {
+                "label": "Maritimisation Shift",
+                "test": "Cohen's d (signed) on demand_strength_score by axis group",
+                "required_axes": ["MARITIME", "OCEANIC"],
+                "declared_outcomes": [
+                    "supported_maritime_dominance",
+                    "partially_supported_maritime",
+                    "not_supported",
+                    "not_computable",
+                ],
+                "required_result_fields": [
+                    "hypothesis_id",
+                    "hypothesis_label",
+                    "sample_size_maritime",
+                    "sample_size_oceanic",
+                    "effect_size_cohens_d",
+                    "interpretation",
+                ],
+            }
+        }
+    }
+    demands = pd.DataFrame(
+        {
+            "axis_group": ["MARITIME", "MARITIME", "OCEANIC", "OCEANIC"],
+            "demand_strength_score": [1.0, 1.0, 1.0, 1.0],
+        }
+    )
+    layer5 = {
+        "current_run_id": "RUN-A",
+        "classifier_version": "model-v1",
+        "hypothesis_results": {
+            "H1": {
+                "hypothesis_id": "H1",
+                "hypothesis_label": "Maritimisation Shift",
+                "test_used": "Cohen's d (signed) on demand_strength_score by axis group",
+                "sample_size_maritime": 2,
+                "sample_size_oceanic": 2,
+                "mean_maritime": 1.0,
+                "mean_oceanic": 1.0,
+                "effect_size_cohens_d": None,
+                "interpretation": "not_computable",
+                "validity_warning": "zero_pooled_sd",
+            }
+        },
+    }
+    (tmp_path / "layer5_manifest.json").write_text(
+        json.dumps(layer5), encoding="utf-8"
+    )
+    source = {
+        "run_classifier_identity": {
+            "current_run_id": "RUN-A",
+            "classifier_version": "model-v1",
+        }
+    }
+
+    outcome = _verified_h1_result(tmp_path, demands, protocol, source)
+
+    assert outcome["sample_size_maritime"] == 2
+    assert outcome["sample_size_oceanic"] == 2
+    assert outcome["effect_size_cohens_d"] is None
+    assert outcome["interpretation"] == "not_computable"
 
 
 def test_h1_reconciles_checked_retained_scores_and_rejects_manifest_drift(

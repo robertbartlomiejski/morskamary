@@ -17,8 +17,8 @@
       "sha256": "1c6295170ae0233609a8a8e79415ac4bb72dc1915728f0d672e4a007c43e11b1"
     },
     "package_schema.json": {
-      "bytes": 4283,
-      "sha256": "8e3f96a08a3e7f7f4807347f084fde451af0445302183659629b9ef351d3f6ea"
+      "bytes": 4460,
+      "sha256": "7f036ce729050ccf32e1590f1de689624381ad1b5ff098188ce0f8252c2b0a84"
     },
     "sector_axis_expected.csv": {
       "bytes": 1944,
@@ -98,7 +98,8 @@
     "source_file_sha256": {
       "competence_demand_signals.csv": "9c16ecc352413a93e6bf19c58baf7da1eb38ca2c2c5c5598a873406dcb1e3bd9",
       "derived_competence_demands.csv": "9d0096f4adea231e6f434bdf7f6154288257b976b4fe65660b5082481bc58f83",
-      "evidence_records.csv": "7062166a0a3a572f64cbc294a2ce2a67558a5c0f789f6fdb61dfe377079d94f6"
+      "evidence_records.csv": "7062166a0a3a572f64cbc294a2ce2a67558a5c0f789f6fdb61dfe377079d94f6",
+      "layer5_manifest.json": "5ea012ac83dff82c25e4e7759e29221d31693145fb4e9cb67bd39840a5f92d63"
     }
   }
 }

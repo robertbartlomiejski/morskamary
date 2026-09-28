@@ -62,8 +62,9 @@ sector-demand effects.
 
 ## Candidate performative-feature screen
 
-Existing screening signal types (from retained `semantic_scope` values) are
-grouped into five review queues:
+Existing screening signal types (retained Layer-3 `signal_type` values, each
+recorded with its retained `semantic_scope` evidence surface) are grouped into
+five review queues:
 
 | Feature | Signal types | Meaning now |
 |---|---|---|

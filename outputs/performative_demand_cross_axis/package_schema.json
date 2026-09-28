@@ -58,7 +58,13 @@
       "realm",
       "candidate_evidence_count",
       "fractional_candidate_weight",
-      "screening_validation_state"
+      "validated_demand_count",
+      "validated_translation_count",
+      "validated_supply_count",
+      "screening_validation_state",
+      "coding_status",
+      "analysis_scope",
+      "zero_interpretation"
     ],
     "sector_axis_residuals.csv": [
       "sector",

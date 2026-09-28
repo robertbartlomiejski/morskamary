@@ -42,6 +42,7 @@ CHECKSUM_REQUIRED_INPUTS = (
     "competence_demand_signals.csv",
     "cumulative_database_manifest.json",
     "layer4_manifest.json",
+    "layer5_manifest.json",
     "layer_readiness_report.json",
 )
 CHECKSUM_LINE_RE = re.compile(r"^([0-9a-f]{64})\s{2}(.+)$")
@@ -481,6 +482,11 @@ def _source_provenance(
         "evidence_records.csv",
         "competence_demand_signals.csv",
     ]
+    if (
+        verified_source_hashes is not None
+        and "layer5_manifest.json" in verified_source_hashes
+    ):
+        source_names.append("layer5_manifest.json")
     _validate_signal_row_lineage(frames["signals"])
     observed: dict[str, dict[str, str]] = {}
     for table_name, frame in frames.items():
@@ -614,9 +620,24 @@ def _source_provenance(
                 "cumulative_database_manifest joined_evidence_id_count does not match "
                 "canonical Layer 2 join cardinality"
             )
-    evidence_rows = manifest.get("evidence_map_exact_rows")
-    if evidence_rows is None:
-        evidence_rows = int(len(evidence_map_for_provenance))
+    evidence_rows = len(evidence_map_for_provenance)
+    demand_rows = len(frames["demands"])
+    for name, actual in (
+        ("evidence_map_exact_rows", evidence_rows),
+        ("demand_profile_rows", demand_rows),
+    ):
+        declared = manifest.get(name)
+        if declared is None:
+            continue
+        if isinstance(declared, bool) or not isinstance(declared, int):
+            raise RuntimeError(
+                f"cumulative_database_manifest {name} must be an integer"
+            )
+        if declared != actual:
+            raise RuntimeError(
+                f"cumulative_database_manifest {name} does not match retained "
+                f"analysis rows ({declared} != {actual})"
+            )
     actual_records = int(len(frames["evidence"]))
     manifest_counts = manifest.get("counts", {})
     if not isinstance(manifest_counts, dict):
@@ -659,7 +680,7 @@ def _source_provenance(
         ),
         "qmbd_assignment_methodology": qmbd_methodology,
         "evidence_map_exact_rows": evidence_rows,
-        "demand_profile_rows": manifest.get("demand_profile_rows", len(frames["demands"])),
+        "demand_profile_rows": demand_rows,
         "joined_evidence_id_count": joined_evidence_id_count,
         "records_in_database": records_in_database,
         "source_file_sha256": {
@@ -728,26 +749,45 @@ def _verified_h1_result(
         + sum((value - mean_o) ** 2 for value in oceanic)
     ) / (len(maritime) + len(oceanic) - 2)
     if pooled_variance <= 0:
-        raise RuntimeError("retained H1 pooled variance is zero; cannot reconcile effect")
-    effect = round((mean_m - mean_o) / math.sqrt(pooled_variance), 6)
-    status = (
-        "supported_maritime_dominance" if effect >= 0.5
-        else "partially_supported_maritime" if effect >= 0.2
-        else "not_supported"
-    )
-    expected = {
-        "sample_size_maritime": len(maritime),
-        "sample_size_oceanic": len(oceanic),
-        "mean_maritime": round(mean_m, 6),
-        "mean_oceanic": round(mean_o, 6),
-        "effect_size_cohens_d": effect,
-        "interpretation": status,
-    }
+        status = "not_computable"
+        if status not in config.get("declared_outcomes", []):
+            raise RuntimeError(
+                "verified H1 protocol does not declare not_computable for zero "
+                "pooled variance"
+            )
+        expected = {
+            "sample_size_maritime": len(maritime),
+            "sample_size_oceanic": len(oceanic),
+            "mean_maritime": round(mean_m, 6),
+            "mean_oceanic": round(mean_o, 6),
+            "effect_size_cohens_d": None,
+            "interpretation": status,
+        }
+        validity_warning = str(retained.get("validity_warning", ""))
+        if "zero_pooled_sd" not in validity_warning.split("|"):
+            raise RuntimeError(
+                "retained H1 zero-variance result lacks zero_pooled_sd validity warning"
+            )
+    else:
+        effect = round((mean_m - mean_o) / math.sqrt(pooled_variance), 6)
+        status = (
+            "supported_maritime_dominance" if effect >= 0.5
+            else "partially_supported_maritime" if effect >= 0.2
+            else "not_supported"
+        )
+        if status not in config.get("declared_outcomes", []):
+            raise RuntimeError("computed H1 status is not declared in verified protocol")
+        expected = {
+            "sample_size_maritime": len(maritime),
+            "sample_size_oceanic": len(oceanic),
+            "mean_maritime": round(mean_m, 6),
+            "mean_oceanic": round(mean_o, 6),
+            "effect_size_cohens_d": effect,
+            "interpretation": status,
+        }
     for field, value in expected.items():
         if retained.get(field) != value:
             raise RuntimeError(f"retained H1 {field} disagrees with checked Layer-4 scores")
-    if status not in config.get("declared_outcomes", []):
-        raise RuntimeError("computed H1 status is not declared in verified protocol")
     return {field: retained[field] for field in config["required_result_fields"]}
 
 
@@ -927,7 +967,13 @@ def _write_governance_artifacts(
                     "realm",
                     "candidate_evidence_count",
                     "fractional_candidate_weight",
+                    "validated_demand_count",
+                    "validated_translation_count",
+                    "validated_supply_count",
                     "screening_validation_state",
+                    "coding_status",
+                    "analysis_scope",
+                    "zero_interpretation",
                 ],
                 "axis_screening_feature_shares.csv": [
                     "axis_group",
