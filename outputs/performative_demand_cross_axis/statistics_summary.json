@@ -6,7 +6,7 @@
   "linked_signal_rows": 1458,
   "realm_screening_audit": {
     "binary_candidate_count": 1238,
-    "fractional_candidate_weight": 978,
+    "fractional_candidate_weight": 978.0,
     "fractional_weight_expected": 978,
     "mapping_basis": "deterministic signal-type to realm crosswalk for screening triage; conceptual overlap remains and requires exact-span validation",
     "overlap_audit": {
@@ -41,7 +41,7 @@
     "columns": 4,
     "degrees_of_freedom": 33,
     "expected_cells_below_1": 0,
-    "expected_cells_below_1_share": 0,
+    "expected_cells_below_1_share": 0.0,
     "expected_cells_below_5": 4,
     "expected_cells_below_5_share": 0.08333333333333333,
     "holm_significant_cells": 37,
@@ -63,7 +63,7 @@
     "permutation_exceedances": 0,
     "permutation_interpretation": "small p-values indicate non-random corpus structure under the curated design, not external prevalence or causal demand effects",
     "permutation_method": "50,000 unrestricted axis-label permutations with fixed sector labels and fixed axis margins",
-    "permutation_p": 0.00001999960000799984,
+    "permutation_p": 1.999960000799984e-05,
     "permutation_seed": 20260825,
     "permutations": 50000,
     "rows": 12,
