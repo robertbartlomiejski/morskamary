@@ -839,7 +839,7 @@ def test_source_provenance_maps_aliases_to_current_run_id(tmp_path: Path) -> Non
                 "current_run_id": "RUN-A",
                 "built_at_utc": "2026-01-01T00:00:00+00:00",
                 "workflow_context": {"github_workflow": "Full Live-Enriched Analysis"},
-                "counts": {"evidence_records": 2},
+                "counts": {"evidence_records": 1},
             }
         ),
         encoding="utf-8",
@@ -1172,6 +1172,76 @@ def _canonical_layer_readiness_payload() -> str:
     )
 
 
+@pytest.mark.parametrize("field", ["counts.evidence_records", "records_in_database"])
+def test_provenance_rejects_stale_retained_evidence_count(
+    tmp_path: Path, field: str
+) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import (
+        CHECKSUM_REQUIRED_INPUTS, _source_provenance, _verify_retained_inputs,
+    )
+
+    db = _readiness_db(tmp_path, _canonical_layer_readiness_payload())
+    manifest_path = db / "cumulative_database_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if field == "counts.evidence_records":
+        manifest["counts"]["evidence_records"] = 3
+    else:
+        manifest["records_in_database"] = 3
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    (db / "_checksums.sha256").write_text(
+        "".join(
+            f"{hashlib.sha256((db / name).read_bytes()).hexdigest()}  {name}\n"
+            for name in CHECKSUM_REQUIRED_INPUTS
+        ),
+        encoding="utf-8",
+    )
+    assert len(_verify_retained_inputs(db)) == len(CHECKSUM_REQUIRED_INPUTS)
+    frames = {
+        "demands": pd.DataFrame({
+            "competence_demand_id": ["D-1"], "evidence_ids": ["E-1"],
+            "sector": ["sector_a"], "axis_group": ["MARINE"], "axis_code": ["M"],
+        }),
+        "evidence": pd.DataFrame({"evidence_id": ["E-1"]}),
+        "signals": pd.DataFrame({"run_id": ["RUN-A"], "classifier_version": ["model-v1"]}),
+    }
+    with pytest.raises(RuntimeError, match="does not match retained evidence_records.csv rows"):
+        _source_provenance(db, frames)
+
+
+def test_h1_reconciles_checked_retained_scores_and_rejects_manifest_drift(
+    tmp_path: Path,
+) -> None:
+    from scripts.build_performative_demand_cross_axis_analysis import _verified_h1_result
+    import yaml
+
+    database = Path("outputs/cumulative_database")
+    demands = pd.read_csv(database / "derived_competence_demands.csv")
+    protocol = yaml.safe_load(
+        (database / "retained_protocol/live_query_protocol.yml").read_text(encoding="utf-8")
+    )
+    layer5 = json.loads((database / "layer5_manifest.json").read_text(encoding="utf-8"))
+    source = {"run_classifier_identity": {
+        "current_run_id": layer5["current_run_id"],
+        "classifier_version": layer5["classifier_version"],
+    }}
+    outcome = _verified_h1_result(database, demands, protocol, source)
+    assert outcome["effect_size_cohens_d"] == 0.616339
+    assert outcome["sample_size_maritime"] == 53
+    assert outcome["sample_size_oceanic"] == 65
+    assert outcome["interpretation"] == "supported_maritime_dominance"
+    changed = demands.copy()
+    changed.loc[changed["axis_group"].eq("MARITIME").idxmax(), "demand_strength_score"] = 0.01
+    with pytest.raises(RuntimeError, match="disagrees with checked Layer-4 scores"):
+        _verified_h1_result(database, changed, protocol, source)
+    with pytest.raises(RuntimeError, match="classifier_version disagrees"):
+        _verified_h1_result(database, demands, protocol, {
+            "run_classifier_identity": {
+                "current_run_id": layer5["current_run_id"],
+                "classifier_version": "wrong",
+            }
+        })
+
+
 def test_source_provenance_fails_closed_on_empty_layer_readiness(tmp_path: Path) -> None:
     from scripts.build_performative_demand_cross_axis_analysis import _source_provenance
 
@@ -1272,6 +1342,10 @@ def test_source_provenance_evidence_map_excludes_unlinked_evidence_ids(
     from scripts.build_performative_demand_cross_axis_analysis import _source_provenance
 
     db = _readiness_db(tmp_path, _canonical_layer_readiness_payload())
+    manifest_path = db / "cumulative_database_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["counts"]["evidence_records"] = 2
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     demands = pd.DataFrame(
         {
             "competence_demand_id": ["D-1"],
@@ -1301,6 +1375,7 @@ def test_source_provenance_canonicalizes_joined_evidence_identity_count(
     manifest_path = db / "cumulative_database_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     manifest["joined_evidence_id_count"] = 1
+    manifest["counts"]["evidence_records"] = 2
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     demands = pd.DataFrame(
         {
@@ -1425,6 +1500,7 @@ def test_governance_schema_requires_residual_measure_columns(tmp_path: Path) -> 
         out,
         {"hypotheses": {}, "protocol_version": "1.2.0"},
         {"protocol_identity": {"verification_status": "verified_against_retained_snapshot"}},
+        {},
     )
     schema = json.loads((out / "package_schema.json").read_text(encoding="utf-8"))
     residual_fields = schema["artifacts"]["sector_axis_residuals.csv"]

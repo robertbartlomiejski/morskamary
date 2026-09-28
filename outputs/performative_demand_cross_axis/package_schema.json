@@ -21,9 +21,15 @@
       "axis_group",
       "axis_code",
       "realm",
+      "title_fragment_count",
+      "validated_demand_count",
+      "validated_bridge_count",
+      "evidence_surface",
+      "manual_validation_status",
       "citation_needed",
       "source_status",
-      "provenance_class"
+      "provenance_class",
+      "source_note"
     ],
     "linked_evidence_sector_axis_lineage.csv": [
       "evidence_id",

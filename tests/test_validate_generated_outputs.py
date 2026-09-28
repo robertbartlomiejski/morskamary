@@ -775,6 +775,27 @@ def test_performative_validator_schema_cannot_weaken_axis_share_contract(
     ), mod.ERRORS
 
 
+EXTERNAL_COMPARISON_FIELDS = (
+    "title_fragment_count", "validated_demand_count", "validated_bridge_count",
+    "evidence_surface", "manual_validation_status", "provenance_class", "source_note",
+)
+
+
+@pytest.mark.parametrize("field", EXTERNAL_COMPARISON_FIELDS)
+@pytest.mark.parametrize("location", ["csv", "schema"])
+def test_external_comparison_requires_full_measure_and_provenance_contract(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, field: str, location: str
+) -> None:
+    mod, package = _copied_performative_validator(tmp_path, monkeypatch)
+    artifact = "external_comparison_coastal_tourism_axis_realm_case.csv"
+    if location == "csv":
+        _drop_csv_column(package / artifact, field)
+    else:
+        _drop_schema_column(package / "package_schema.json", artifact, field)
+    mod.check_performative_demand_outputs()
+    assert any(artifact in error and field in error for error in mod.ERRORS), mod.ERRORS
+
+
 @pytest.mark.parametrize("field", SECTOR_SCREENING_PROFILE_SUBSTANTIVE_FIELDS)
 def test_performative_validator_requires_sector_screening_profile_fields(
     tmp_path: Path,

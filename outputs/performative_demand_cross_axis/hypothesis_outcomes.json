@@ -15,16 +15,16 @@
       "OCEANIC"
     ],
     "result_fields": {
-      "effect_size_cohens_d": null,
+      "effect_size_cohens_d": 0.616339,
       "hypothesis_id": "H1",
       "hypothesis_label": "Maritimisation Shift",
-      "interpretation": "this evidence-structure package does not recompute demand_strength_score effect sizes",
-      "sample_size_maritime": null,
-      "sample_size_oceanic": null
+      "interpretation": "supported_maritime_dominance",
+      "sample_size_maritime": 53,
+      "sample_size_oceanic": 65
     },
-    "status": "not_computable",
+    "status": "supported_maritime_dominance",
     "test": "Cohen's d (signed) on demand_strength_score by axis group",
-    "warning": "this evidence-structure package does not recompute demand_strength_score effect sizes"
+    "warning": "retained Layer-5 H1 reconciled against checked Layer-4 scores; curated corpus result, not population inference"
   },
   {
     "declared_outcomes": [

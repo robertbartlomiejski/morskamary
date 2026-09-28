@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-09-28 (fix: reconcile retained H1 and complete package contracts)
+  Change type fix update
+  Scope scripts tests outputs governance
+  Files affected scripts/build_performative_demand_cross_axis_analysis.py scripts/validate_generated_outputs.py tests/test_performative_demand_analysis.py tests/test_validate_generated_outputs.py docs/PERFORMATIVE_DEMAND_CROSS_AXIS_METHOD.md outputs/performative_demand_cross_axis/hypothesis_outcomes.json outputs/performative_demand_cross_axis/package_schema.json outputs/performative_demand_cross_axis/package_manifest.json CHANGELOG.txt
+  Summary Rejects cumulative evidence counts inconsistent with checked retained rows; requires all substantive external-comparison fields in both independent and producer schemas; recomputes H1 from retained Layer-4 demand scores and reconciles it with Layer-5 outcome, run/classifier identity, and verified protocol before packaging.
+  Reason PR #272 review found that valid checksums did not ensure correct manifest counts, the comparison schema permitted missing measures, and an intentionally skipped H1 calculation had been misreported as not_computable.
+  Impact H1 is reported as a curated-corpus supported_maritime_dominance outcome (Cohen's d 0.616339; n=53/65). H2/H3 remain marked not_computable in this package. Retained inputs and archive are unchanged.
+  Provenance Checked retained Layer-4 demand_strength_score and layer5_manifest.json against retained protocol 1.2.0; no live acquisition.
+  Quality checks Focused negative regressions, flake8, mypy, full pytest, deterministic package regeneration, generated-output validation and run-archive integrity validation; see exact-head PR validation record for results.
+
 - 2026-09-05 (fix: enforce seven performative landing-gate contracts)
   Change type fix update
   Scope scripts src tests outputs governance

@@ -617,13 +617,24 @@ def _source_provenance(
     evidence_rows = manifest.get("evidence_map_exact_rows")
     if evidence_rows is None:
         evidence_rows = int(len(evidence_map_for_provenance))
-    records_in_database = manifest.get("records_in_database")
-    if records_in_database is None:
-        manifest_counts = manifest.get("counts", {})
-        if isinstance(manifest_counts, dict):
-            records_in_database = manifest_counts.get("evidence_records")
-    if records_in_database is None:
-        records_in_database = int(len(frames["evidence"]))
+    actual_records = int(len(frames["evidence"]))
+    manifest_counts = manifest.get("counts", {})
+    if not isinstance(manifest_counts, dict):
+        raise RuntimeError("cumulative_database_manifest counts must be an object")
+    for name, value in (
+        ("counts.evidence_records", manifest_counts.get("evidence_records")),
+        ("records_in_database", manifest.get("records_in_database")),
+    ):
+        if value is None:
+            continue
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise RuntimeError(f"cumulative_database_manifest {name} must be an integer")
+        if value != actual_records:
+            raise RuntimeError(
+                f"cumulative_database_manifest {name} does not match retained "
+                f"evidence_records.csv rows ({value} != {actual_records})"
+            )
+    records_in_database = actual_records
 
     required_scalar_fields = {
         "cumulative_manifest_generated_at_utc": generated_at,
@@ -674,9 +685,76 @@ def _source_provenance(
     }
 
 
-def _hypothesis_outcomes(protocol: Mapping[str, Any]) -> list[dict[str, Any]]:
+def _verified_h1_result(
+    database: Path, demands: pd.DataFrame, protocol: Mapping[str, Any],
+    source_provenance: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Recompute H1 on the checked Layer-4 rows and reconcile retained Layer 5."""
+    layer5_path = database / "layer5_manifest.json"
+    if not layer5_path.is_file():
+        raise RuntimeError("layer5_manifest.json is required to reconcile H1")
+    layer5 = json.loads(layer5_path.read_text(encoding="utf-8"))
+    identity = source_provenance["run_classifier_identity"]
+    for field, expected in (
+        ("current_run_id", identity["current_run_id"]),
+        ("classifier_version", identity["classifier_version"]),
+    ):
+        if layer5.get(field) != expected:
+            raise RuntimeError(f"layer5_manifest.json {field} disagrees with retained inputs")
+    retained = layer5.get("hypothesis_results", {}).get("H1")
+    config = protocol.get("hypotheses", {}).get("H1")
+    if not isinstance(retained, dict) or not isinstance(config, dict):
+        raise RuntimeError("retained Layer 5 or protocol lacks declared H1")
+    if retained.get("hypothesis_id") != "H1" or retained.get("hypothesis_label") != config.get("label"):
+        raise RuntimeError("retained H1 identity differs from verified protocol")
+    if retained.get("test_used") != config.get("test"):
+        raise RuntimeError("retained H1 test differs from verified protocol")
+    if set(config.get("required_axes", [])) != {"MARITIME", "OCEANIC"}:
+        raise RuntimeError("verified H1 required axes differ from computable score contract")
+    if "demand_strength_score" not in demands.columns or "axis_group" not in demands.columns:
+        raise RuntimeError("retained demand rows lack H1 score or axis")
+    axes = demands["axis_group"].astype(str).str.strip()
+    scores: dict[str, list[float]] = {}
+    for axis in ("MARITIME", "OCEANIC"):
+        selected = demands.loc[axes.eq(axis), "demand_strength_score"]
+        numeric = pd.to_numeric(selected, errors="coerce")
+        if len(numeric) < 2 or numeric.isna().any() or not all(math.isfinite(float(v)) for v in numeric):
+            raise RuntimeError(f"retained H1 {axis} scores are missing or non-finite")
+        scores[axis] = [float(value) for value in numeric]
+    maritime, oceanic = scores["MARITIME"], scores["OCEANIC"]
+    mean_m, mean_o = sum(maritime) / len(maritime), sum(oceanic) / len(oceanic)
+    pooled_variance = (
+        sum((value - mean_m) ** 2 for value in maritime)
+        + sum((value - mean_o) ** 2 for value in oceanic)
+    ) / (len(maritime) + len(oceanic) - 2)
+    if pooled_variance <= 0:
+        raise RuntimeError("retained H1 pooled variance is zero; cannot reconcile effect")
+    effect = round((mean_m - mean_o) / math.sqrt(pooled_variance), 6)
+    status = (
+        "supported_maritime_dominance" if effect >= 0.5
+        else "partially_supported_maritime" if effect >= 0.2
+        else "not_supported"
+    )
+    expected = {
+        "sample_size_maritime": len(maritime),
+        "sample_size_oceanic": len(oceanic),
+        "mean_maritime": round(mean_m, 6),
+        "mean_oceanic": round(mean_o, 6),
+        "effect_size_cohens_d": effect,
+        "interpretation": status,
+    }
+    for field, value in expected.items():
+        if retained.get(field) != value:
+            raise RuntimeError(f"retained H1 {field} disagrees with checked Layer-4 scores")
+    if status not in config.get("declared_outcomes", []):
+        raise RuntimeError("computed H1 status is not declared in verified protocol")
+    return {field: retained[field] for field in config["required_result_fields"]}
+
+
+def _hypothesis_outcomes(
+    protocol: Mapping[str, Any], h1_result: Mapping[str, Any]
+) -> list[dict[str, Any]]:
     reasons = {
-        "H1": "this evidence-structure package does not recompute demand_strength_score effect sizes",
         "H2": "independently validated EQF 6-7 supply is unavailable in this package",
         "H3": "validated semantic translation bridges are unavailable in this package",
     }
@@ -690,6 +768,8 @@ def _hypothesis_outcomes(protocol: Mapping[str, Any]) -> list[dict[str, Any]]:
         result_fields["interpretation"] = reasons.get(
             hypothesis_id, "required evidence is outside this package"
         )
+        if hypothesis_id == "H1":
+            result_fields.update(h1_result)
         rows.append(
             {
                 "hypothesis_id": hypothesis_id,
@@ -699,10 +779,14 @@ def _hypothesis_outcomes(protocol: Mapping[str, Any]) -> list[dict[str, Any]]:
                 "direction": config.get("direction"),
                 "required_axes": config.get("required_axes", []),
                 "declared_outcomes": config.get("declared_outcomes", []),
-                "status": "not_computable",
+                "status": result_fields["interpretation"] if hypothesis_id == "H1" else "not_computable",
                 "result_fields": result_fields,
-                "warning": reasons.get(
-                    hypothesis_id, "required evidence is outside this package"
+                "warning": (
+                    "retained Layer-5 H1 reconciled against checked Layer-4 scores; "
+                    "curated corpus result, not population inference"
+                    if hypothesis_id == "H1" else reasons.get(
+                        hypothesis_id, "required evidence is outside this package"
+                    )
                 ),
             }
         )
@@ -710,7 +794,8 @@ def _hypothesis_outcomes(protocol: Mapping[str, Any]) -> list[dict[str, Any]]:
 
 
 def _write_governance_artifacts(
-    output: Path, protocol: Mapping[str, Any], source_provenance: Mapping[str, Any]
+    output: Path, protocol: Mapping[str, Any], source_provenance: Mapping[str, Any],
+    h1_result: Mapping[str, Any],
 ) -> None:
     _write_json(
         output / "validity_threats.json",
@@ -767,7 +852,7 @@ def _write_governance_artifacts(
             ),
         },
     )
-    _write_json(output / "hypothesis_outcomes.json", _hypothesis_outcomes(protocol))
+    _write_json(output / "hypothesis_outcomes.json", _hypothesis_outcomes(protocol, h1_result))
     _write_json(
         output / "package_schema.json",
         {
@@ -898,9 +983,15 @@ def _write_governance_artifacts(
                     "axis_group",
                     "axis_code",
                     "realm",
+                    "title_fragment_count",
+                    "validated_demand_count",
+                    "validated_bridge_count",
+                    "evidence_surface",
+                    "manual_validation_status",
                     "citation_needed",
                     "source_status",
                     "provenance_class",
+                    "source_note",
                 ],
             },
         },
@@ -948,6 +1039,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         verified_source_hashes=retained_hashes,
         verified_protocol_identity=verified_protocol_identity,
     )
+    h1_result = _verified_h1_result(database, demands, protocol, source_provenance)
 
     analysis = build_performative_demand_analysis(
         demands,
@@ -990,7 +1082,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         summary = dict(analysis.summary)
         summary["source_provenance"] = source_provenance
         _write_json(staging / "statistics_summary.json", summary)
-        _write_governance_artifacts(staging, protocol, source_provenance)
+        _write_governance_artifacts(staging, protocol, source_provenance, h1_result)
     print(
         json.dumps(
             _normalize_json_value(summary),

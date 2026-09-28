@@ -17,6 +17,7 @@ import csv
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 import os
 import re
 import subprocess
@@ -1251,8 +1252,15 @@ def check_performative_demand_outputs() -> None:
             "axis_group",
             "axis_code",
             "realm",
+            "title_fragment_count",
+            "validated_demand_count",
+            "validated_bridge_count",
+            "evidence_surface",
+            "manual_validation_status",
             "citation_needed",
             "source_status",
+            "provenance_class",
+            "source_note",
         },
     }
     axis_codes = {
@@ -1635,6 +1643,16 @@ def check_performative_demand_outputs() -> None:
                 fail(
                     f"hypothesis_outcomes.json row {hypothesis_id}: warning must be nonblank"
                 )
+            if hypothesis_id == "H1" and status != "not_computable":
+                for field in ("sample_size_maritime", "sample_size_oceanic"):
+                    value = result_fields.get(field)
+                    if isinstance(value, bool) or not isinstance(value, int) or value < 2:
+                        fail(f"hypothesis_outcomes.json row H1: {field} must be >= 2")
+                effect = result_fields.get("effect_size_cohens_d")
+                if isinstance(effect, bool) or not isinstance(effect, (int, float)) or not math.isfinite(effect):
+                    fail("hypothesis_outcomes.json row H1: effect_size_cohens_d must be finite")
+                if result_fields.get("interpretation") != status:
+                    fail("hypothesis_outcomes.json row H1: interpretation must match status")
     if len(ERRORS) != local_errors_before:
         return
 
