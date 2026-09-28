@@ -6,7 +6,7 @@
   "linked_signal_rows": 1458,
   "realm_screening_audit": {
     "binary_candidate_count": 1238,
-    "fractional_candidate_weight": 978.0,
+    "fractional_candidate_weight": 978,
     "fractional_weight_expected": 978,
     "mapping_basis": "deterministic signal-type to realm crosswalk for screening triage; conceptual overlap remains and requires exact-span validation",
     "overlap_audit": {
@@ -41,7 +41,7 @@
     "columns": 4,
     "degrees_of_freedom": 33,
     "expected_cells_below_1": 0,
-    "expected_cells_below_1_share": 0.0,
+    "expected_cells_below_1_share": 0,
     "expected_cells_below_5": 4,
     "expected_cells_below_5_share": 0.08333333333333333,
     "holm_significant_cells": 37,
@@ -63,7 +63,7 @@
     "permutation_exceedances": 0,
     "permutation_interpretation": "small p-values indicate non-random corpus structure under the curated design, not external prevalence or causal demand effects",
     "permutation_method": "50,000 unrestricted axis-label permutations with fixed sector labels and fixed axis margins",
-    "permutation_p": 1.999960000799984e-05,
+    "permutation_p": 0.00001999960000799984,
     "permutation_seed": 20260825,
     "permutations": 50000,
     "rows": 12,
@@ -108,7 +108,8 @@
     "source_file_sha256": {
       "competence_demand_signals.csv": "9c16ecc352413a93e6bf19c58baf7da1eb38ca2c2c5c5598a873406dcb1e3bd9",
       "derived_competence_demands.csv": "9d0096f4adea231e6f434bdf7f6154288257b976b4fe65660b5082481bc58f83",
-      "evidence_records.csv": "7062166a0a3a572f64cbc294a2ce2a67558a5c0f789f6fdb61dfe377079d94f6"
+      "evidence_records.csv": "7062166a0a3a572f64cbc294a2ce2a67558a5c0f789f6fdb61dfe377079d94f6",
+      "layer5_manifest.json": "5ea012ac83dff82c25e4e7759e29221d31693145fb4e9cb67bd39840a5f92d63"
     }
   }
 }
