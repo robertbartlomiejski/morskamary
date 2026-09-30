@@ -70,11 +70,19 @@ jobs:
             "gaps_detailed.json"
             "gaps_summary.csv"
             "literature_integration.html"
+            "performative_demand_cross_axis"
             "report_index.html"
             "sector_dictionaries"
             "sector_pathways.json"
             "sector_qmbd_learning_pathways.json"
           )
+          if [[ ! -d "outputs/cumulative_database" ]]; then
+            echo "Missing retained cumulative database required by performative-demand analysis"
+            exit 1
+          fi
+          retained_cumulative_database_dir="$RETAINED_INPUT_ROOT/cumulative_database"
+          cp -R "outputs/cumulative_database" "$retained_cumulative_database_dir"
+          echo "MORSKAMARY_CUMULATIVE_DATABASE_DIR=$retained_cumulative_database_dir" >> "$GITHUB_ENV"
           for relative_path in "${generated_paths[@]}"; do
             if [[ ! -e "outputs/$relative_path" ]]; then
               echo "Missing committed generated output: outputs/$relative_path"
@@ -110,6 +118,11 @@ jobs:
           --analysis-input-mode
           "${{ steps.committed-outputs.outputs.analysis_mode }}"
 
+      - name: Regenerate performative-demand package from retained cumulative database
+        run: >-
+          python scripts/build_performative_demand_cross_axis_analysis.py
+          --database-dir "$MORSKAMARY_CUMULATIVE_DATABASE_DIR"
+
       - name: Verify output artifacts
         shell: bash
         run: |
@@ -144,7 +157,18 @@ jobs:
           echo "✓ $sector_dir ($sector_count files)"
           echo "All output artifacts verified, including sector dictionaries."
 
+      - name: Verify retained cumulative database path propagation
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${MORSKAMARY_CUMULATIVE_DATABASE_DIR:-}" ]]
+          [[ -d "$MORSKAMARY_CUMULATIVE_DATABASE_DIR" ]]
+          echo "Retained cumulative database path exported: $MORSKAMARY_CUMULATIVE_DATABASE_DIR"
+          echo "Validator should read this path in the same job; fallback is local-only safety."
+
       - name: Validate generated output semantics
+        env:
+          MORSKAMARY_CUMULATIVE_DATABASE_DIR: ${{ env.MORSKAMARY_CUMULATIVE_DATABASE_DIR }}
         run: python scripts/validate_generated_outputs.py
 
       - name: Check committed outputs are fresh
@@ -170,14 +194,55 @@ jobs:
           mkdir -p "$STATIC_COMPARE_ROOT"
           cp -R outputs/. "$STATIC_INPUT_ROOT/"
           python run_full_analysis.py --analysis-input-mode static
+          python scripts/build_performative_demand_cross_axis_analysis.py --database-dir "$MORSKAMARY_CUMULATIVE_DATABASE_DIR"
           cp -R outputs/. "$STATIC_COMPARE_ROOT/"
           rm -rf outputs
           mkdir -p outputs
           cp -R "$STATIC_INPUT_ROOT/." outputs/
           python run_full_analysis.py --analysis-input-mode static
+          python scripts/build_performative_demand_cross_axis_analysis.py --database-dir "$MORSKAMARY_CUMULATIVE_DATABASE_DIR"
           python scripts/compare_generated_outputs.py \
             --root outputs \
             --baseline-root "$STATIC_COMPARE_ROOT"
+
+      - name: Restore committed-mode output snapshot after reproducibility check
+        shell: bash
+        env:
+          STATIC_INPUT_ROOT: ${{ runner.temp }}/full-analysis-static-input
+        run: |
+          set -euo pipefail
+          rm -rf outputs
+          mkdir -p outputs
+          cp -R "$STATIC_INPUT_ROOT/." outputs/
+          echo "Restored committed-mode/live-enriched output snapshot for exact comparison."
+
+      - name: Verify restored outputs match committed-mode snapshot exactly
+        shell: bash
+        env:
+          COMMITTED_COMPARE_ROOT: ${{ runner.temp }}/full-analysis-committed
+        run: |
+          set -euo pipefail
+          python scripts/compare_generated_outputs.py \
+            --root outputs \
+            --baseline-root "$COMMITTED_COMPARE_ROOT"
+
+      - name: Restore retained cumulative database for final audit and upload
+        shell: bash
+        env:
+          RETAINED_INPUT_ROOT: ${{ runner.temp }}/full-analysis-retained-inputs
+        run: |
+          set -euo pipefail
+          if [[ ! -d "$RETAINED_INPUT_ROOT/cumulative_database" ]]; then
+            echo "Missing retained cumulative database snapshot: $RETAINED_INPUT_ROOT/cumulative_database"
+            exit 1
+          fi
+          cp -R "$RETAINED_INPUT_ROOT/cumulative_database" outputs/cumulative_database
+          echo "Restored retained cumulative database for final audit and upload."
+
+      - name: Validate retained cumulative database for final audit
+        env:
+          MORSKAMARY_CUMULATIVE_DATABASE_DIR: outputs/cumulative_database
+        run: python scripts/validate_generated_outputs.py
 
       - name: Upload analysis outputs
         if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
