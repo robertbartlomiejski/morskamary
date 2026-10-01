@@ -1,6 +1,6 @@
 -e .
 black==26.5.1
-flake8==7.3.0
+flake8==7.4.1
 jsonschema==4.26.0
 mypy==2.3.1
 pandas-stubs==2.3.3.260113
