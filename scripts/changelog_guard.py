@@ -93,23 +93,77 @@ def diff_changed_files(
             text=True,
         )
 
-    merge_base_completed = _run_git(["git", "merge-base", f"origin/{base_ref}", head_ref])
+    def _git_stderr(completed: subprocess.CompletedProcess[str], fallback: str) -> str:
+        return completed.stderr.strip() or fallback
+
+    def _run_name_only_diff(diff_base: str) -> subprocess.CompletedProcess[str]:
+        return _run_git(["git", "diff", "--name-only", f"{diff_base}..{head_ref}"])
+
+    origin_base_ref = f"origin/{base_ref}"
+    merge_base_completed = _run_git(["git", "merge-base", origin_base_ref, head_ref])
     if merge_base_completed.returncode == 0:
         merge_base = merge_base_completed.stdout.strip()
         if not merge_base:
-            raise RuntimeError("git merge-base returned an empty commit")
-        completed = _run_git(["git", "diff", "--name-only", f"{merge_base}..{head_ref}"])
+            raise RuntimeError(
+                f"git merge-base {origin_base_ref} {head_ref} returned an empty commit"
+            )
+        completed = _run_name_only_diff(merge_base)
         if completed.returncode != 0:
-            stderr = completed.stderr.strip() or "git diff failed"
-            raise RuntimeError(stderr)
+            stderr = _git_stderr(completed, "git diff failed")
+            raise RuntimeError(
+                f"git diff --name-only {merge_base}..{head_ref} failed: {stderr}"
+            )
     else:
-        stderr = merge_base_completed.stderr.strip() or "git merge-base failed"
-        if "no merge base" not in stderr.lower():
-            raise RuntimeError(stderr)
-        completed = _run_git(["git", "diff", "--name-only", f"origin/{base_ref}..{head_ref}"])
-        if completed.returncode != 0:
-            fallback_stderr = completed.stderr.strip() or "git diff failed"
-            raise RuntimeError(fallback_stderr)
+        merge_base_stderr = _git_stderr(
+            merge_base_completed, f"git merge-base {origin_base_ref} {head_ref} failed"
+        )
+        shallow_check = _run_git(["git", "rev-parse", "--is-shallow-repository"])
+        is_shallow_repository = shallow_check.returncode == 0 and (
+            shallow_check.stdout.strip().lower() == "true"
+        )
+        allow_fallback_diff = is_shallow_repository or (
+            "no merge base" in merge_base_stderr.lower()
+        )
+        if is_shallow_repository:
+            deepen_completed = _run_git(
+                ["git", "fetch", "--no-tags", "--deepen=200", "origin", base_ref]
+            )
+            if deepen_completed.returncode == 0:
+                merge_base_completed = _run_git(["git", "merge-base", origin_base_ref, head_ref])
+                if merge_base_completed.returncode == 0:
+                    merge_base = merge_base_completed.stdout.strip()
+                    if not merge_base:
+                        raise RuntimeError(
+                            f"git merge-base {origin_base_ref} {head_ref} returned an empty commit after fetch retry"
+                        )
+                    completed = _run_name_only_diff(merge_base)
+                    if completed.returncode != 0:
+                        stderr = _git_stderr(completed, "git diff failed")
+                        raise RuntimeError(
+                            f"git diff --name-only {merge_base}..{head_ref} failed after fetch retry: {stderr}"
+                        )
+                else:
+                    merge_base_stderr = _git_stderr(
+                        merge_base_completed,
+                        f"git merge-base {origin_base_ref} {head_ref} failed after fetch retry",
+                    )
+            else:
+                merge_base_stderr = (
+                    f"{merge_base_stderr}; git fetch --no-tags --deepen=200 origin {base_ref} "
+                    f"failed: {_git_stderr(deepen_completed, 'git fetch failed')}"
+                )
+        if merge_base_completed.returncode != 0:
+            if not allow_fallback_diff:
+                raise RuntimeError(
+                    f"git merge-base {origin_base_ref} {head_ref} failed: {merge_base_stderr}"
+                )
+            completed = _run_name_only_diff(origin_base_ref)
+            if completed.returncode != 0:
+                fallback_stderr = _git_stderr(completed, "git diff failed")
+                raise RuntimeError(
+                    f"git merge-base {origin_base_ref} {head_ref} failed: {merge_base_stderr}; "
+                    f"fallback git diff --name-only {origin_base_ref}..{head_ref} failed: {fallback_stderr}"
+                )
     return tuple(
         normalized
         for line in completed.stdout.splitlines()
