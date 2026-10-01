@@ -8,6 +8,7 @@ Before changing anything, read:
 - `docs/AGENT_WORKING_AGREEMENT.md`
 - `config/live_query_protocol.yml`
 - applicable `.github/instructions/*.instructions.md`
+- any task-attached context file paths first, and keep initial edits scoped to that context unless repository evidence requires expansion
 
 Start every task by recording:
 
