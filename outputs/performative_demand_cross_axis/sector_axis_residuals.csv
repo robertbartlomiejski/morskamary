@@ -1,0 +1,49 @@
+sector,sector_label,axis_group,axis_code,observed_evidence_count,expected_evidence_count,adjusted_standardized_residual,raw_cell_p,holm_p,bh_p,holm_significant_0_05,bh_significant_0_05,cell_status
+blue_biotech,Blue Biotech,MARINE,M,116,27.3946830266,20.4166242371,1.19009163845e-92,5.59343070073e-91,2.85621993229e-91,True,True,observed_linked_evidence
+blue_biotech,Blue Biotech,MARITIME,T,0,55.9018404908,-10.49988689,8.64836919777e-26,3.63231506306e-24,5.93031030704e-25,True,True,empty_current_linked_corpus
+blue_biotech,Blue Biotech,OCEANIC,O,20,41.0224948875,-4.23297475067,2.30620405455e-05,0.000461240810911,3.81716533167e-05,True,True,observed_linked_evidence
+blue_biotech,Blue Biotech,HYDRONIZATION,H,0,11.6809815951,-3.85259821838,0.000116871073331,0.00210367931996,0.000180961661932,True,True,empty_current_linked_corpus
+coastal_tourism,Coastal Tourism,MARINE,M,0,22.963190184,-5.70522239064,1.16191284369e-08,3.48573853107e-07,2.93535876301e-08,True,True,empty_current_linked_corpus
+coastal_tourism,Coastal Tourism,MARITIME,T,0,46.8588957055,-9.49001211069,2.31007427139e-21,9.24029708556e-20,1.23203961141e-20,True,True,empty_current_linked_corpus
+coastal_tourism,Coastal Tourism,OCEANIC,O,114,34.3865030675,17.2847986837,6.12347728482e-67,2.81679955102e-65,9.79756365571e-66,True,True,observed_linked_evidence
+coastal_tourism,Coastal Tourism,HYDRONIZATION,H,0,9.79141104294,-3.48205691481,0.000497577923104,0.00845882469278,0.000746366884657,True,True,empty_current_linked_corpus
+desalination,Desalination,MARINE,M,0,17.3231083845,-4.87689967907,1.07766207989e-06,2.58638899174e-05,2.06911119339e-06,True,True,empty_current_linked_corpus
+desalination,Desalination,MARITIME,T,0,35.3496932515,-8.11218807052,4.97162718863e-16,1.83950205979e-14,1.98865087545e-15,True,True,empty_current_linked_corpus
+desalination,Desalination,OCEANIC,O,2,25.9406952965,-5.8896844695,3.8693367809e-09,1.23818776989e-07,1.09251862049e-08,True,True,observed_linked_evidence
+desalination,Desalination,HYDRONIZATION,H,84,7.38650306748,30.8726217924,2.78483520582e-209,1.3367208988e-207,1.3367208988e-207,True,True,observed_linked_evidence
+infra_robotics,Infra & Robotics,MARINE,M,0,21.754601227,-5.53387410758,3.13233837615e-08,9.08378129083e-07,7.51761210276e-08,True,True,empty_current_linked_corpus
+infra_robotics,Infra & Robotics,MARITIME,T,105,44.3926380368,12.5671816022,3.19926782022e-36,1.3756851627e-34,2.55941425618e-35,True,True,observed_linked_evidence
+infra_robotics,Infra & Robotics,OCEANIC,O,3,32.5766871166,-6.57453354164,4.88059274902e-11,1.61059560718e-09,1.4641778247e-10,True,True,observed_linked_evidence
+infra_robotics,Infra & Robotics,HYDRONIZATION,H,0,9.27607361963,-3.37747826159,0.000731537350567,0.0117045976091,0.0010640543281,True,True,empty_current_linked_corpus
+living_res,Living Res.,MARINE,M,57,12.0858895706,14.9222904466,2.36030204097e-50,1.06213591844e-48,2.83236244917e-49,True,True,observed_linked_evidence
+living_res,Living Res.,MARITIME,T,0,24.6625766871,-6.6792161295,2.40223667823e-11,8.16760470597e-10,7.68715737033e-11,True,True,empty_current_linked_corpus
+living_res,Living Res.,OCEANIC,O,3,18.0981595092,-4.38342889238,1.16825792724e-05,0.000245334164721,2.00272787528e-05,True,True,observed_linked_evidence
+living_res,Living Res.,HYDRONIZATION,H,0,5.15337423313,-2.45072508211,0.0142568795883,0.128311916295,0.017108255506,False,True,empty_current_linked_corpus
+non_living_res,Non-living Res.,MARINE,M,24,7.45296523517,6.91471297823,4.68811589598e-12,1.64084056359e-10,1.60735402148e-11,True,True,observed_linked_evidence
+non_living_res,Non-living Res.,MARITIME,T,0,15.2085889571,-5.18056661544,2.21212908681e-07,5.93425202159e-06,4.61661722466e-07,True,True,empty_current_linked_corpus
+non_living_res,Non-living Res.,OCEANIC,O,13,11.1605316973,0.67171269633,0.501766617054,0.82791147201,0.501766617054,False,False,observed_linked_evidence
+non_living_res,Non-living Res.,HYDRONIZATION,H,0,3.17791411043,-1.90084349688,0.0573225148293,0.304982165991,0.0625336525411,False,False,empty_current_linked_corpus
+renewable_energy,Renewable Energy,MARINE,M,0,19.3374233129,-5.18177256731,2.19787111911e-07,5.93425202159e-06,4.61661722466e-07,True,True,empty_current_linked_corpus
+renewable_energy,Renewable Energy,MARITIME,T,79,39.4601226994,8.63673157421,5.78440805191e-18,2.19807505972e-16,2.52410533174e-17,True,True,observed_linked_evidence
+renewable_energy,Renewable Energy,OCEANIC,O,17,28.9570552147,-2.79989179575,0.00511197389133,0.0562317128046,0.00645723017852,False,True,observed_linked_evidence
+renewable_energy,Renewable Energy,HYDRONIZATION,H,0,8.24539877301,-3.16258083621,0.00156377313322,0.0218928238651,0.00214460315413,True,True,empty_current_linked_corpus
+maritime_defence,Maritime Defence,MARINE,M,0,11.6830265849,-3.94363858043,8.02545799946e-05,0.0015248370199,0.000128407327991,True,True,empty_current_linked_corpus
+maritime_defence,Maritime Defence,MARITIME,T,45,23.8404907975,5.8221272523,5.81032813651e-09,1.80120172232e-07,1.5494208364e-08,True,True,observed_linked_evidence
+maritime_defence,Maritime Defence,OCEANIC,O,13,17.4948875256,-1.32586052609,0.184885900192,0.664121012995,0.192924417592,False,False,observed_linked_evidence
+maritime_defence,Maritime Defence,HYDRONIZATION,H,0,4.98159509202,-2.40691300851,0.0160880015278,0.128704012222,0.0188347334959,False,True,empty_current_linked_corpus
+maritime_transport,Maritime Transport,MARINE,M,0,19.7402862986,-5.24141714908,1.59348021691e-07,4.46174460734e-06,3.64224049578e-07,True,True,empty_current_linked_corpus
+maritime_transport,Maritime Transport,MARITIME,T,81,40.282208589,8.81279876225,1.22059543916e-18,4.76032221273e-17,5.85885810797e-18,True,True,observed_linked_evidence
+maritime_transport,Maritime Transport,OCEANIC,O,17,29.5603271984,-2.91429493439,0.0035649293316,0.0427791519792,0.00462477318694,True,True,observed_linked_evidence
+maritime_transport,Maritime Transport,HYDRONIZATION,H,0,8.41717791411,-3.19898359392,0.0013791301685,0.0206869525275,0.0019470072967,True,True,empty_current_linked_corpus
+port_activities,Port Activities,MARINE,M,0,18.3302658487,-5.03078676589,4.88471178821e-07,1.22117794705e-05,9.76942357643e-07,True,True,empty_current_linked_corpus
+port_activities,Port Activities,MARITIME,T,82,37.4049079755,9.97673811445,1.92697585516e-23,7.90060100614e-22,1.15618551309e-22,True,True,observed_linked_evidence
+port_activities,Port Activities,OCEANIC,O,9,27.4488752556,-4.42460301166,9.66197923099e-06,0.000212563543082,1.71768519662e-05,True,True,observed_linked_evidence
+port_activities,Port Activities,HYDRONIZATION,H,0,7.81595092025,-3.07042997549,0.00213750802567,0.0277876043338,0.0028500107009,True,True,empty_current_linked_corpus
+r_i,R&I,MARINE,M,0,14.9059304703,-4.49374752118,6.99805935416e-06,0.000160955365146,1.29194941923e-05,True,True,empty_current_linked_corpus
+r_i,R&I,MARITIME,T,0,30.4171779141,-7.47485645229,7.7288174334e-14,2.78237427602e-12,2.85371720618e-13,True,True,empty_current_linked_corpus
+r_i,R&I,OCEANIC,O,74,22.3210633947,13.6144598616,3.28565901179e-42,1.44568996519e-40,3.15423265132e-41,True,True,observed_linked_evidence
+r_i,R&I,HYDRONIZATION,H,0,6.35582822086,-2.74265989266,0.00609437713665,0.0609437713665,0.00750077186049,False,True,empty_current_linked_corpus
+ship_repair,Ship Repair,MARINE,M,0,4.02862985685,-2.26939067933,0.0232445784936,0.162712049455,0.0265652325641,False,True,empty_current_linked_corpus
+ship_repair,Ship Repair,MARITIME,T,10,8.22085889571,0.816952215826,0.413955736005,0.82791147201,0.422763304856,False,False,observed_linked_evidence
+ship_repair,Ship Repair,OCEANIC,O,10,6.0327198364,1.9529091525,0.0508303609986,0.304982165991,0.0567408680914,False,False,observed_linked_evidence
+ship_repair,Ship Repair,HYDRONIZATION,H,0,1.71779141104,-1.38507265209,0.166030253249,0.664121012995,0.177098936799,False,False,empty_current_linked_corpus
