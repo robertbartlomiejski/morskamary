@@ -611,7 +611,11 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
                 (
                     "<html><body>"
                     "Scientific hypothesis verification H1 H2 H3 "
-                    "Validity threats Reproducibility appendix"
+                    "Validity threats Reproducibility appendix "
+                    "Candidate-demand validation deficit "
+                    "Credential-design candidates "
+                    "Cannot conclude "
+                    "Observational unit"
                     "</body></html>"
                 ),
                 encoding="utf-8",
@@ -936,6 +940,44 @@ def test_package_accepts_omitted_optional_pdf(tmp_path: Path) -> None:
     out = tmp_path / "pkg.zip"
     assert _build_fixture_package(db, reports, out) == 0
     assert out.exists()
+
+
+def test_package_rejects_readiness_hypothesis_mismatch(
+    tmp_path: Path, capsys: object
+) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    readiness_path = reports / "publication_readiness.json"
+    payload = json.loads(readiness_path.read_text(encoding="utf-8"))
+    payload["hypotheses"]["H2"] = "supported"
+    readiness_path.write_text(
+        json.dumps(payload, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert "publication_readiness_hypothesis_mismatch:H2" in captured.err
+
+
+def test_package_rejects_unsafe_public_report_terminology(
+    tmp_path: Path, capsys: object
+) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    report_path = reports / "morskamary_statistical_report.html"
+    report_path.write_text(
+        report_path.read_text(encoding="utf-8") + " competence gap ",
+        encoding="utf-8",
+    )
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert "publication_report_prohibited_term:competence_gap" in captured.err
 
 
 def test_package_rejects_invalid_publication_readiness(
