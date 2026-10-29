@@ -19,6 +19,17 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+
+- 2026-10-29 (fix: MOR-12 publication-safe release qualification)
+  Change type fix add update
+  Scope reporting packaging schemas tests workflow governance
+  Files affected scripts/build_statistical_research_report.py scripts/build_live_cumulative_release_package.py schemas/publication_readiness.schema.json tests/test_live_cumulative_release_package.py tests/test_e2e_checksum_pipeline.py .github/workflows/full-live-analysis.yml MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Adds a machine-readable publication-readiness decision, separates engineering/scientific/publication status, makes PDF output optional-but-genuine instead of permitting text stubs, reconciles readiness hypothesis status with Layer 5, and updates public report terminology and claim boundaries to prohibit unsupported competence-gap/supply claims.
+  Reason MOR-12 requires fail-closed publication qualification, a genuine-PDF-or-omit contract, current-run and hypothesis agreement, explicit claim boundaries, and terminology that separates candidate demand, validated competences, credential-design candidates and independently validated supply.
+  Impact No retained empirical inputs, hypothesis calculations, validation decisions or historical archives are changed. The reporting/release layer becomes stricter; a missing PDF is a documented degraded component rather than a fabricated PDF file.
+  Provenance Linear MOR-12 acceptance criteria; current main 4b12c2413f04ed10c2b3ac358dfc35ffa2b78213; merged PR #272 governance baseline.
+  Quality checks Focused negative regressions cover text-stub PDFs, omitted optional PDFs, malformed readiness artifacts, report terminology and readiness/Layer-5 consistency. Exact-head CI, Full Analysis, flake8, mypy, full pytest, generated-output validation, archive-integrity validation and deterministic reproduction are required before completion.
+
 - 2026-09-28 (fix: close PR272 final governance validation gaps)
   Change type fix update
   Scope scripts tests outputs governance documentation
