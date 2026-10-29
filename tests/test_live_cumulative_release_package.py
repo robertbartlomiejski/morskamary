@@ -578,15 +578,44 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
         encoding="utf-8",
     )
     for name in REPORT_FILES:
-        (reports / name).write_text(
-            (
-                "<html><body>"
-                "Scientific hypothesis verification H1 H2 H3 "
-                "Validity threats Reproducibility appendix"
-                "</body></html>"
-            ),
-            encoding="utf-8",
-        )
+        if name == "publication_readiness.json":
+            (reports / name).write_text(
+                json.dumps(
+                    {
+                        "schema_version": "1.0.0",
+                        "generated_at_utc": "2026-07-10T00:00:00+00:00",
+                        "current_run_id": "",
+                        "engineering_status": "pass",
+                        "scientific_status": "qualified_for_declared_results",
+                        "publication_status": "candidate",
+                        "degraded_components": [],
+                        "blockers": [],
+                        "hypotheses": {
+                            "H1": "partially_supported_maritime",
+                            "H2": "not_computable",
+                            "H3": "supported",
+                        },
+                        "claim_boundary": {
+                            "validated_supply_available": False,
+                            "objective_competence_gap_established": False,
+                            "generated_credentials_are_supply": False,
+                            "h3_translation_validated": True,
+                        },
+                    },
+                    sort_keys=True,
+                ) + "\n",
+                encoding="utf-8",
+            )
+        else:
+            (reports / name).write_text(
+                (
+                    "<html><body>"
+                    "Scientific hypothesis verification H1 H2 H3 "
+                    "Validity threats Reproducibility appendix"
+                    "</body></html>"
+                ),
+                encoding="utf-8",
+            )
     for name in LAYER4_STAT_FILES:
         if name.endswith(".json"):
             (stats / name).write_text("{}\n", encoding="utf-8")
@@ -883,6 +912,47 @@ def test_report_separates_legacy_and_canonical_demand_views(tmp_path: Path) -> N
     assert "accepted_canonical_lineage_view" in text
     assert "Validated canonical demand" in text
     assert "Legacy marine demand" in text
+
+
+def test_package_rejects_text_stub_pdf(tmp_path: Path, capsys: object) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    (reports / "morskamary_statistical_report.pdf").write_text(
+        "PDF stub\n", encoding="utf-8"
+    )
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert "invalid_pdf_magic" in captured.err
+
+
+def test_package_accepts_omitted_optional_pdf(tmp_path: Path) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    assert not (reports / "morskamary_statistical_report.pdf").exists()
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 0
+    assert out.exists()
+
+
+def test_package_rejects_invalid_publication_readiness(
+    tmp_path: Path, capsys: object
+) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    (reports / "publication_readiness.json").write_text(
+        json.dumps({"schema_version": "1.0.0"}) + "\n",
+        encoding="utf-8",
+    )
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert "publication_readiness_schema_validation" in captured.err
 
 
 def test_package_fails_when_required_csv_missing(tmp_path: Path) -> None:
