@@ -139,7 +139,11 @@ def _write_reports(reports_dir: Path) -> None:
     html = (
         "<html><body>"
         "Scientific hypothesis verification H1 H2 H3 "
-        "Validity threats Reproducibility appendix"
+        "Validity threats Reproducibility appendix "
+        "Candidate-demand validation deficit "
+        "Credential-design candidates "
+        "Cannot conclude "
+        "Observational unit"
         "</body></html>"
     )
     (reports_dir / "morskamary_statistical_report.html").write_text(
@@ -166,7 +170,7 @@ def _write_reports(reports_dir: Path) -> None:
                 ],
                 "blockers": [],
                 "hypotheses": {
-                    "H1": "partially_supported_maritime",
+                    "H1": "not_computable",
                     "H2": "not_computable",
                     "H3": "not_computable",
                 },

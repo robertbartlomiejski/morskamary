@@ -19,6 +19,15 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-10-29 (fix: PR-283 review qualification boundaries)
+  Change type fix update
+  Scope reporting packaging tests dependencies governance
+  Files affected scripts/build_live_cumulative_release_package.py scripts/build_statistical_research_report.py tests/test_live_cumulative_release_package.py tests/test_e2e_checksum_pipeline.py pyproject.toml MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Structurally parses optional PDFs before packaging, rejects readiness records with publication blockers or engineering failure, removes stale PDFs for HTML-only builds, and keeps PDF omission separate from scientific non-computability. Corrects the MARINE end-to-end fixture, report wording and existing report indentation; regenerates the source inventory to remove a nonexistent generated readiness artifact and sort its schema entry.
+  Reason CodeRabbit review on f5cae9f451af27ef9dd0e687582e59729f45e7dc exposed paths that could package stale or malformed reports and ignore an explicit publication block.
+  Impact Reporting and release qualification only; retained empirical inputs, hypothesis calculations, validation decisions and historical archives are unchanged. Adds pypdf to the existing development/release toolchain dependencies.
+  Provenance PR #283; Linear MOR-12; three inline findings, two outside-diff findings and the independently confirmed readiness-blocker finding.
+  Quality checks Eleven new regression cases cover structural PDF rejection/acceptance, three independent readiness blockers, scientific status with/without PDF, and HTML-only report-to-package omission. Targeted suite: 113 passed; full suite: 1842 passed, 5 skipped; canonical flake8 and mypy passed; generated outputs, research source outputs and all three archived runs validated. Deterministic packaging and end-to-end checksums are exercised by the test suites; exact-head CI remains required after the branch update.
 
 - 2026-10-29 (fix: MOR-12 publication-safe release qualification)
   Change type fix add update

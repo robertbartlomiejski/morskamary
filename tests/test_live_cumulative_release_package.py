@@ -950,6 +950,128 @@ def test_package_accepts_omitted_optional_pdf(tmp_path: Path) -> None:
     assert out.exists()
 
 
+def test_package_rejects_marker_bearing_malformed_pdf(
+    tmp_path: Path, capsys: object
+) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    (reports / "morskamary_statistical_report.pdf").write_bytes(
+        b"%PDF-1.7\n/Type /Page\n%%EOF\n"
+    )
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert "invalid_pdf_structure" in captured.err
+
+
+def test_package_accepts_structurally_valid_pdf(tmp_path: Path) -> None:
+    from pypdf import PdfWriter
+
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    pdf_path = reports / "morskamary_statistical_report.pdf"
+    writer = PdfWriter()
+    writer.add_blank_page(width=72, height=72)
+    writer.write(pdf_path)
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 0
+    with zipfile.ZipFile(out) as archive:
+        assert archive.read("reports/" + pdf_path.name) == pdf_path.read_bytes()
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("publication_status", "blocked"),
+        ("engineering_status", "fail"),
+        ("blockers", ["current_run_id_mismatch_or_missing"]),
+    ],
+)
+def test_package_rejects_blocked_readiness(
+    tmp_path: Path, capsys: object, field: str, value: object
+) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    readiness_path = reports / "publication_readiness.json"
+    payload = json.loads(readiness_path.read_text(encoding="utf-8"))
+    payload[field] = value
+    readiness_path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert "publication_readiness_blocked" in captured.err
+
+
+@pytest.mark.parametrize(
+    "pdf_status,noncomputable_hypothesis",
+    [
+        ("generated", None),
+        ("skipped", None),
+        ("generated", "H2"),
+        ("skipped", "H2"),
+        ("skipped", "H3"),
+    ],
+)
+def test_scientific_readiness_is_independent_of_pdf_availability(
+    tmp_path: Path, pdf_status: str, noncomputable_hypothesis: str | None
+) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _stamp_current_run_id(db, "readiness-test")
+    layer5_path = db / "layer5_manifest.json"
+    layer5 = json.loads(layer5_path.read_text(encoding="utf-8"))
+    for hypothesis_id in ("H2", "H3"):
+        layer5["hypothesis_results"][hypothesis_id]["interpretation"] = (
+            "not_computable"
+            if hypothesis_id == noncomputable_hypothesis else "supported"
+        )
+    layer5_path.write_text(json.dumps(layer5) + "\n", encoding="utf-8")
+    path = _REPORT.build_publication_readiness(
+        database_dir=db,
+        reports_dir=reports,
+        pdf_status={"pdf_status": pdf_status},
+        generated_at="2026-10-29T12:00:00+00:00",
+    )
+    readiness = json.loads(path.read_text(encoding="utf-8"))
+    expected = (
+        "screening_only_with_noncomputable_components"
+        if noncomputable_hypothesis else "qualified_for_declared_results"
+    )
+    assert readiness["scientific_status"] == expected
+    assert ("pdf_omitted" in readiness["degraded_components"]) == (
+        pdf_status == "skipped"
+    )
+
+
+def test_html_only_report_removes_stale_pdf_before_packaging(tmp_path: Path) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _stamp_current_run_id(db, "html-only-test")
+    _rewrite_checksums(db)
+    pdf_path = reports / "morskamary_statistical_report.pdf"
+    pdf_path.write_bytes(b"%PDF-1.7\n/Type /Page\n%%EOF\n")
+    assert _REPORT.main([
+        "--database-dir", str(db), "--output-dir", str(reports),
+        "--formats", "html", "--current-run-id", "html-only-test",
+    ]) == 0
+    assert not pdf_path.exists()
+    readiness = json.loads(
+        (reports / "publication_readiness.json").read_text(encoding="utf-8")
+    )
+    assert "pdf_omitted" in readiness["degraded_components"]
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 0
+    with zipfile.ZipFile(out) as archive:
+        assert "reports/" + pdf_path.name not in archive.namelist()
+
+
 def test_package_rejects_readiness_hypothesis_mismatch(
     tmp_path: Path, capsys: object
 ) -> None:

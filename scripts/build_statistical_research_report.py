@@ -285,8 +285,8 @@ def build_html_report(
         "(MARINE, MARITIME, OCEANIC, HYDRONIZATION)",
         (
             "<p><strong>Observational unit:</strong> semantic signal. "
-            f"N={len(signals)}; missing N is reported only where the retained "
-            "input declares a missing value rather than inferred as zero.</p>"
+            f"N={len(signals)}; missing values in the retained input are not "
+            "inferred as zero.</p>"
             + _table(("axis_group", "signal_count"), sorted(axis_counts.items()))
         ),
         "sec-3-axis",
@@ -415,18 +415,18 @@ def build_html_report(
             "candidate-demand screening row. This is not a validated competence "
             "shortage estimate.</p>"
             + _table(
-            (
-                "sector",
-                "axis_group",
-                "static_baseline_available_count",
-                "live_literature_demand_count",
-                "validated_demand_count",
-                "uncovered_demand_count",
-                "gap_ratio",
-                "validity_warning",
-            ),
-            gap_rows,
-        )
+                (
+                    "sector",
+                    "axis_group",
+                    "static_baseline_available_count",
+                    "live_literature_demand_count",
+                    "validated_demand_count",
+                    "uncovered_demand_count",
+                    "gap_ratio",
+                    "validity_warning",
+                ),
+                gap_rows,
+            )
         ),
         "sec-5-gap",
     )
@@ -820,7 +820,8 @@ def build_publication_readiness(
         "engineering_status": "pass" if not blockers else "fail",
         "scientific_status": (
             "screening_only_with_noncomputable_components"
-            if degraded else "qualified_for_declared_results"
+            if any(item != "pdf_omitted" for item in degraded)
+            else "qualified_for_declared_results"
         ),
         "publication_status": publication_status,
         "degraded_components": sorted(set(degraded)),
@@ -898,6 +899,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     if "pdf" in formats:
         pdf_path = reports_dir / "morskamary_statistical_report.pdf"
         pdf_status = maybe_build_pdf(html_path, pdf_path)
+    else:
+        (reports_dir / "morskamary_statistical_report.pdf").unlink(
+            missing_ok=True
+        )
 
     readiness_path = build_publication_readiness(
         database_dir=database_dir,

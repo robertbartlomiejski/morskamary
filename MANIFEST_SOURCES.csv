@@ -1162,7 +1162,6 @@ readme,other,,,,,,readme,no
 README.md,governance,,,,,,README,yes
 reports/live_enriched_statistical_analysis_plan.md,text,,,,,,live_enriched_statistical_analysis_plan,yes
 reports/morskamary_methodological_audit.html,other,,,,,,morskamary_methodological_audit,no
-reports/publication_readiness.json,other,,,,,,publication_readiness,no
 reports/morskamary_statistical_report.html,other,,,,,,morskamary_statistical_report,no
 reports/scientific_report.csv,dataset_derived,,,,,,scientific_report,yes
 reports/scientific_report.md,text,,,,,,scientific_report,yes
@@ -1181,13 +1180,13 @@ schemas/evidence_segments.schema.json,other,,,,,,evidence_segments_schema,yes
 schemas/gap_clusters.schema.json,other,,,,,,gap_clusters_schema,yes
 schemas/historical_revalidation_report.schema.json,other,,,,,,historical_revalidation_report_schema,yes
 schemas/manual_sources_ledger.schema.json,other,,,,,,manual_sources_ledger_schema,yes
+schemas/publication_readiness.schema.json,other,,,,,,publication_readiness_schema,yes
 schemas/qmbd_gold_review_set.schema.json,other,,,,,,qmbd_gold_review_set_schema,yes
 schemas/reliability_metrics.schema.json,other,,,,,,reliability_metrics_schema,yes
 schemas/research_data_package_manifest.schema.json,other,,,,,,research_data_package_manifest_schema,yes
 schemas/research_metadata.schema.json,other,,,,,,research_metadata_schema,yes
 schemas/research_question_accountability.schema.json,other,,,,,,research_question_accountability_schema,yes
 schemas/research_question_registry.schema.json,other,,,,,,research_question_registry_schema,yes
-schemas/publication_readiness.schema.json,other,,,,,,publication_readiness_schema,yes
 schemas/run_archive_manifest.schema.json,other,,,,,,run_archive_manifest_schema,yes
 schemas/runs.schema.json,other,,,,,,runs_schema,yes
 schemas/sector_competence_assignments.schema.json,other,,,,,,sector_competence_assignments_schema,yes

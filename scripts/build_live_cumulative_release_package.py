@@ -50,6 +50,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from jsonschema import Draft202012Validator  # noqa: E402
+from pypdf import PdfReader  # noqa: E402
 
 from src.scientific_sources.schema_v2_identity import (  # noqa: E402
     make_assignment_id as _make_assignment_id_v2,
@@ -2421,13 +2422,31 @@ def main(argv: Optional[List[str]] = None) -> int:
         else:
             if not pdf_bytes.startswith(b"%PDF-"):
                 missing_required.append("invalid_pdf_magic")
-            if b"/Type /Page" not in pdf_bytes:
-                missing_required.append("pdf_has_no_page")
+            else:
+                try:
+                    if not PdfReader(pdf_path, strict=True).pages:
+                        missing_required.append("pdf_has_no_page")
+                except Exception as exc:
+                    missing_required.append(
+                        f"invalid_pdf_structure:{type(exc).__name__}"
+                    )
 
     if readiness_path.is_file():
         readiness_payload = _load_json_required(readiness_path)
         layer5_payload = _load_json_required(database_dir / "layer5_manifest.json")
         if isinstance(readiness_payload, dict) and isinstance(layer5_payload, dict):
+            if (
+                readiness_payload.get("publication_status") == "blocked"
+                or readiness_payload.get("engineering_status") == "fail"
+                or readiness_payload.get("blockers")
+            ):
+                missing_required.append(
+                    "publication_readiness_blocked:"
+                    + ",".join(
+                        str(item)
+                        for item in readiness_payload.get("blockers") or []
+                    )
+                )
             readiness_run_id = str(
                 readiness_payload.get("current_run_id", "")
             ).strip()
