@@ -150,10 +150,7 @@ def _write_reports(reports_dir: Path) -> None:
         html,
         encoding="utf-8",
     )
-    (reports_dir / "morskamary_statistical_report.pdf").write_text(
-        "PDF stub\n",
-        encoding="utf-8",
-    )
+    # PDF is optional; when unavailable it must be omitted rather than stubbed.
 
 
 def _parse_checksum_manifest(path: Path) -> dict[str, str]:
