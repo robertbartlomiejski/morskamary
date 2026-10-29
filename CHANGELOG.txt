@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-10-29 (fix: keep non-computability reasons evidence-neutral)
+  Change type fix update
+  Scope reporting packaging tests governance
+  Files affected src/scientific_sources/publication_readiness.py tests/test_live_cumulative_release_package.py tests/test_e2e_checksum_pipeline.py CHANGELOG.txt
+  Summary Uses neutral per-hypothesis not_computable degradation labels instead of inferring absent supply or absent bridges from the outcome alone. Source-specific causes remain in the retained Layer-5 results and warnings.
+  Reason H2 may be non-computable with a supplied validation map because no accepted HYDRONIZATION demand denominator exists; the prior aggregate reason incorrectly asserted missing validated supply in that case.
+  Impact Readiness wording and corresponding fixture expectations only; no hypothesis calculation, outcome or retained evidence changes.
+  Provenance Codex thread PRRT_kwDORS_RKM6xtV11 on 39215be89d7b820633fc007101ec6d89643a8b2c and the verified H2 denominator branch in derived_competence_analysis.py.
+  Quality checks The prior policy fails the neutral-reason expectation. Focused report/package/CSV/end-to-end suite: 131 passed; full suite: 1871 passed, 5 skipped; canonical flake8/mypy, generated outputs and all three archives passed. New exact-head CI remains required before landing.
+
 - 2026-10-29 (fix: enforce source-backed publication claim boundaries)
   Change type fix update
   Scope reporting packaging tests governance

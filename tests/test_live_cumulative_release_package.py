@@ -602,7 +602,7 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
                         ),
                         "publication_status": "degraded",
                         "degraded_components": [
-                            "H2_not_computable_no_independently_validated_supply",
+                            "H2_not_computable",
                             "pdf_omitted",
                         ],
                         "blockers": [],
@@ -1244,6 +1244,7 @@ def test_source_backed_supply_and_translation_flags_survive_packaging(
         "objective_competence_gap_established": False,
         "generated_credentials_are_supply": False,
     }
+    assert readiness["degraded_components"] == ["H2_not_computable", "pdf_omitted"]
 
 
 def test_provided_empty_supply_map_does_not_establish_available_supply(

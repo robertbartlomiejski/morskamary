@@ -165,8 +165,8 @@ def _write_reports(reports_dir: Path) -> None:
                 "publication_status": "degraded",
                 "degraded_components": [
                     "H1_not_computable",
-                    "H2_not_computable_no_independently_validated_supply",
-                    "H3_not_computable_no_validated_semantic_bridges",
+                    "H2_not_computable",
+                    "H3_not_computable",
                     "pdf_omitted",
                 ],
                 "blockers": [],

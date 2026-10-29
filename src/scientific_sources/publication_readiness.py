@@ -63,12 +63,8 @@ def aggregate_readiness(
     hypotheses: Mapping[str, str], *, pdf_available: bool, blockers: Sequence[str]
 ) -> dict[str, Any]:
     """Derive aggregate qualification from declared outcomes and artifacts."""
-    reasons = {
-        "H2": "H2_not_computable_no_independently_validated_supply",
-        "H3": "H3_not_computable_no_validated_semantic_bridges",
-    }
     degraded = [
-        reasons.get(hypothesis_id, f"{hypothesis_id}_not_computable")
+        f"{hypothesis_id}_not_computable"
         for hypothesis_id, status in hypotheses.items()
         if status == "not_computable"
     ]
