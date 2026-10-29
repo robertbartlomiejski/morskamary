@@ -21,6 +21,7 @@ from pypdf import PdfReader
 from src.scientific_sources.publication_readiness import (
     aggregate_readiness,
     current_run_identity,
+    derive_claim_boundary,
 )
 from src.scientific_sources.live_query_protocol import (
     LiveQueryProtocolError,
@@ -780,22 +781,6 @@ def build_publication_readiness(
         )
         for hypothesis_id in DECLARED_HYPOTHESIS_IDS
     }
-    h2_payload = hypotheses.get("H2", {})
-    h3_payload = hypotheses.get("H3", {})
-    validated_supply_available = bool(
-        isinstance(h2_payload, dict)
-        and (
-            h2_payload.get("validated_supply_map_provided") is True
-            or h2_payload.get("validated_supply_available") is True
-        )
-    )
-    h3_translation_validated = bool(
-        isinstance(h3_payload, dict)
-        and (
-            h3_payload.get("validated_semantic_bridge_count", 0) or 0
-        ) > 0
-        and h3_payload.get("validation_status") == "validated"
-    )
     required_report_paths = (
         reports_dir / "morskamary_statistical_report.html",
         reports_dir / "morskamary_methodological_audit.html",
@@ -815,12 +800,7 @@ def build_publication_readiness(
         ),
         "blockers": sorted(set(blockers)),
         "hypotheses": hypothesis_status,
-        "claim_boundary": {
-            "validated_supply_available": validated_supply_available,
-            "objective_competence_gap_established": False,
-            "generated_credentials_are_supply": False,
-            "h3_translation_validated": h3_translation_validated,
-        },
+        "claim_boundary": derive_claim_boundary(hypotheses),
     }
     output = reports_dir / "publication_readiness.json"
     output.write_text(

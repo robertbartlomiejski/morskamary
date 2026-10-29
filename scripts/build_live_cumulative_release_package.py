@@ -55,6 +55,7 @@ from pypdf import PdfReader  # noqa: E402
 from src.scientific_sources.publication_readiness import (  # noqa: E402
     aggregate_readiness,
     current_run_identity,
+    derive_claim_boundary,
 )
 from src.scientific_sources.schema_v2_identity import (  # noqa: E402
     make_assignment_id as _make_assignment_id_v2,
@@ -2509,6 +2510,15 @@ def main(argv: Optional[List[str]] = None) -> int:
                         missing_required.append(
                             "publication_readiness_aggregate_mismatch:" + field
                         )
+                expected_boundary = derive_claim_boundary(layer5_hypotheses)
+                actual_boundary = readiness_payload.get("claim_boundary", {})
+                if isinstance(actual_boundary, dict):
+                    for field, expected_flag in expected_boundary.items():
+                        if actual_boundary.get(field) is not expected_flag:
+                            missing_required.append(
+                                "publication_readiness_claim_boundary_mismatch:"
+                                + field
+                            )
         statistical_report = reports_dir / "morskamary_statistical_report.html"
         if statistical_report.is_file():
             report_text = statistical_report.read_text(

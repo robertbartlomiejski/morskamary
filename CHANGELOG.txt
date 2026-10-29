@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-10-29 (fix: enforce source-backed publication claim boundaries)
+  Change type fix update
+  Scope reporting packaging tests governance
+  Files affected src/scientific_sources/publication_readiness.py scripts/build_statistical_research_report.py scripts/build_live_cumulative_release_package.py tests/test_live_cumulative_release_package.py CHANGELOG.txt
+  Summary Shares claim-boundary derivation between reporting and packaging and rejects unsupported supply, translation and competence-gap assertions. A merely provided empty supply map does not establish supply availability; source-backed validated supply and bridge flags remain publishable, while objective gap and generated-credential-as-supply claims stay false.
+  Reason Late Copilot and current-head Codex review identified that matching run IDs, hypothesis labels and aggregate statuses did not prevent contradictory claim_boundary flags from entering a release ZIP.
+  Impact Publication qualification only; no empirical evidence, scientific hypothesis calculation, validation decision or historical archive is changed.
+  Provenance Copilot thread PRRT_kwDORS_RKM6xtAGB and Codex thread PRRT_kwDORS_RKM6xtLFB; shared reporting contract.
+  Quality checks Four negative claim-boundary regressions fail on the prior implementation; source-backed and empty-map cases exercise accepted and rejected package paths. Focused report/package/CSV/end-to-end suite: 131 passed; full suite: 1871 passed, 5 skipped; canonical flake8/mypy, generated outputs and all three archives passed. New exact-head CI remains required before landing.
+
 - 2026-10-29 (fix: reconcile publication qualification across report and package)
   Change type fix add update
   Scope reporting packaging tests governance

@@ -615,7 +615,7 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
                             "validated_supply_available": False,
                             "objective_competence_gap_established": False,
                             "generated_credentials_are_supply": False,
-                            "h3_translation_validated": True,
+                            "h3_translation_validated": False,
                         },
                     },
                     sort_keys=True,
@@ -1194,6 +1194,85 @@ def _pdf_with_compressed_page_objects() -> bytes:
     ).encode() + xref + (
         f"\nendstream\nendobj\nstartxref\n{xref_offset}\n%%EOF\n"
     ).encode()
+
+
+@pytest.mark.parametrize("field", [
+    "validated_supply_available", "h3_translation_validated",
+    "objective_competence_gap_established", "generated_credentials_are_supply",
+])
+def test_package_rejects_unsupported_claim_boundary(
+    tmp_path: Path, capsys: object, field: str
+) -> None:
+    db, reports = tmp_path / "db", tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    path = reports / "publication_readiness.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["claim_boundary"][field] = True
+    path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert "publication_readiness_claim_boundary_mismatch:" + field in captured.err
+
+
+def test_source_backed_supply_and_translation_flags_survive_packaging(
+    tmp_path: Path,
+) -> None:
+    db, reports = tmp_path / "db", tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    path = db / "layer5_manifest.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["hypothesis_results"]["H2"]["validated_supply_map_provided"] = True
+    payload["hypothesis_results"]["H2"]["validity_warning"] = "small_cell_stability"
+    payload["hypothesis_results"]["H3"]["validated_semantic_bridge_count"] = 2
+    payload["hypothesis_results"]["H3"]["validation_status"] = "validated"
+    path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    _rewrite_checksums(db)
+    _REPORT.build_publication_readiness(
+        database_dir=db, reports_dir=reports,
+        pdf_status={"pdf_status": "skipped"},
+        generated_at="2026-10-29T12:00:00+00:00",
+    )
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 0
+    with zipfile.ZipFile(out) as archive:
+        readiness = json.loads(archive.read("reports/publication_readiness.json"))
+    assert readiness["claim_boundary"] == {
+        "validated_supply_available": True,
+        "h3_translation_validated": True,
+        "objective_competence_gap_established": False,
+        "generated_credentials_are_supply": False,
+    }
+
+
+def test_provided_empty_supply_map_does_not_establish_available_supply(
+    tmp_path: Path,
+) -> None:
+    db, reports = tmp_path / "db", tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    source = db / "layer5_manifest.json"
+    payload = json.loads(source.read_text(encoding="utf-8"))
+    h2 = payload["hypothesis_results"]["H2"]
+    h2["validated_supply_map_provided"] = True
+    h2["validated_covered_demand_count"] = 0
+    h2["validated_missing_demand_count"] = h2["hydronization_demand_count"]
+    h2["validity_warning"] = "small_cell_stability"
+    source.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    _rewrite_checksums(db)
+    path = _REPORT.build_publication_readiness(
+        database_dir=db, reports_dir=reports,
+        pdf_status={"pdf_status": "skipped"},
+        generated_at="2026-10-29T12:00:00+00:00",
+    )
+    readiness = json.loads(path.read_text(encoding="utf-8"))
+    assert readiness["claim_boundary"]["validated_supply_available"] is False
+    assert _build_fixture_package(db, reports, tmp_path / "valid.zip") == 0
+    readiness["claim_boundary"]["validated_supply_available"] = True
+    path.write_text(json.dumps(readiness) + "\n", encoding="utf-8")
+    out = tmp_path / "forged.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
 
 
 def test_report_keeps_generated_pdf_with_compressed_page_objects(
