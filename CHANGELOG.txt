@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-10-29 (fix: install PDF parser in the base research environment)
+  Change type fix update
+  Scope dependencies governance
+  Files affected pyproject.toml CHANGELOG.txt
+  Summary Moves pypdf from the optional development extras into required project dependencies, because release packaging and CSV bundle validation import its structural PDF parser at runtime.
+  Reason The rerun of Research Pipeline 40879325512 attempt 3 on 3b18154c1bb38c98dd007d69ac27e6ea211b8db1 installed requirements.txt without development extras, causing ModuleNotFoundError and PDF regressions to use the tests' fallback stub.
+  Impact Installs the real parser for the base research environment without weakening PDF checks or changing scientific calculations, retained inputs, workflows or archives.
+  Provenance Exact-head Research Pipeline job 123487839710; Full Analysis and CodeQL passed after runner provisioning recovered.
+  Quality checks Clean virtual environment installed requirements.txt without development extras and resolved pypdf 6.21.4. Focused packaging/CSV/end-to-end regressions: 102 passed; full suite: 1842 passed, 5 skipped; canonical flake8 and mypy passed; generated outputs and all three archives validated. New exact-head CI remains required before landing.
+
 - 2026-10-29 (fix: PR-283 review qualification boundaries)
   Change type fix update
   Scope reporting packaging tests dependencies governance

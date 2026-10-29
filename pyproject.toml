@@ -29,6 +29,7 @@ dependencies = [
     "pandas>=1.5.0",
     "openpyxl>=3.0.0",
     "pyyaml>=6.0",
+    "pypdf>=5.0",
 ]
 
 [project.optional-dependencies]
@@ -38,7 +39,6 @@ dev = [
     "flake8>=6.0",
     "mypy>=1.0",
     "jsonschema>=4.10.3",
-    "pypdf>=5.0",
     "pandas-stubs>=2.2.2.240909",
     "types-jsonschema>=4.24.0.20250528",
 ]
