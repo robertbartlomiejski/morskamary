@@ -22,10 +22,12 @@ from src.scientific_sources.live_query_protocol import (
 )
 
 REPORT_TITLE = (
-    "Live-Enriched Literature-Based Blue Economy Competence Demand, "
-    "Sectoral Gaps, and EQF 4-7 Credential Translation: "
+    "Live-Enriched Literature-Based Blue Economy Candidate Demand, "
+    "Validation Deficits, and EQF 4-7 Credential-Design Candidates: "
     "A Cumulative Evidence Report"
 )
+
+PUBLICATION_READINESS_SCHEMA_VERSION = "1.0.0"
 
 DEMAND_STRENGTH_FORMULA = (
     "demand_strength_score = "
@@ -222,6 +224,19 @@ def build_html_report(
     # Validate declared hypothesis set and required result fields.
     _validate_hypothesis_results(hypotheses)
 
+    conclusion_block = (
+        "<div class='readiness'><h2>Executive scientific status and publication readiness</h2>"
+        "<p><strong>Can conclude:</strong> the retained curated corpus supports "
+        "descriptive evidence, signal, candidate-demand and hypothesis-specific "
+        "screening results within the declared pipeline boundaries.</p>"
+        "<p><strong>Cannot conclude:</strong> no objective competence shortage, "
+        "validated educational supply gap, or H3 semantic translation is established "
+        "unless independently validated supply and bridge evidence are present.</p>"
+        "<p>Generated credentials are <strong>credential-design candidates</strong>, "
+        "not observed educational supply. Legacy aggregate demand rows are screening "
+        "constructs, not validated canonical competences.</p></div>"
+    )
+
     provenance = _kv_list([
         ["Generated at (UTC)", generated_at],
         ["Layer 4 built at", layer4.get("built_at_utc", "")],
@@ -385,7 +400,7 @@ def build_html_report(
         )
     ]
     section_gaps = _section(
-        "5. Gap model (static baseline vs live literature demand)",
+        "5. Candidate-demand validation deficit model",
         _table(
             (
                 "sector",
@@ -422,7 +437,7 @@ def build_html_report(
         )[:200]
     ]
     section_credentials = _section(
-        "6. EQF 4-7 credential translation",
+        "6. EQF 4-7 credential-design candidates",
         (
             f"<p>Credentials: {len(credentials)}. "
             f"Learning outcomes: {len(outcomes)}.</p>"
@@ -555,7 +570,8 @@ def build_html_report(
     body = (
         f"<h1>{_e(REPORT_TITLE)}</h1>"
         f"<p><em>Generated {_e(generated_at)}</em></p>"
-        f"<nav><strong>Contents</strong><ol>{navigation}</ol></nav>"
+        + conclusion_block
+        + f"<nav><strong>Contents</strong><ol>{navigation}</ol></nav>"
         + section_provenance
         + section_corpus
         + section_axis
@@ -672,17 +688,21 @@ def build_methodological_audit(
     return output
 
 
+def _is_genuine_pdf(path: Path) -> bool:
+    """Return whether a generated PDF satisfies the publication contract."""
+    if not path.is_file():
+        return False
+    data = path.read_bytes()
+    return data.startswith(b"%PDF-") and b"/Type /Page" in data
+
+
 def maybe_build_pdf(html_path: Path, pdf_path: Path) -> Dict[str, str]:
+    """Render a real PDF or omit it completely; never create a text stub."""
+    if pdf_path.exists():
+        pdf_path.unlink()
     try:
         from weasyprint import HTML  # type: ignore[import-not-found]
     except Exception:
-        pdf_path.parent.mkdir(parents=True, exist_ok=True)
-        pdf_path.write_text(
-            "PDF rendering skipped: 'weasyprint' is not installed in the "
-            "build environment. The authoritative report is the HTML at "
-            f"{html_path.name}.\n",
-            encoding="utf-8",
-        )
         return {
             "pdf_status": "skipped",
             "pdf_skip_reason": "weasyprint not installed",
@@ -691,10 +711,101 @@ def maybe_build_pdf(html_path: Path, pdf_path: Path) -> Dict[str, str]:
         HTML(string=html_path.read_text(encoding="utf-8")).write_pdf(
             str(pdf_path)
         )
-        return {"pdf_status": "generated", "pdf_skip_reason": ""}
     except Exception as exc:  # pragma: no cover
-        pdf_path.write_text(f"PDF rendering failed: {exc}\n", encoding="utf-8")
+        pdf_path.unlink(missing_ok=True)
         return {"pdf_status": "skipped", "pdf_skip_reason": str(exc)}
+    if not _is_genuine_pdf(pdf_path):
+        pdf_path.unlink(missing_ok=True)
+        return {
+            "pdf_status": "skipped",
+            "pdf_skip_reason": "renderer did not produce a genuine one-page PDF",
+        }
+    return {"pdf_status": "generated", "pdf_skip_reason": ""}
+
+
+def build_publication_readiness(
+    *,
+    database_dir: Path,
+    reports_dir: Path,
+    pdf_status: Mapping[str, str],
+    generated_at: str,
+) -> Path:
+    """Write the machine-auditable MOR-12 publication-readiness decision."""
+    layer4 = _load_json(database_dir / "layer4_manifest.json") or {}
+    layer5 = _load_json(database_dir / "layer5_manifest.json") or {}
+    novelty = _load_json(database_dir / "run_novelty_metrics.json") or {}
+    hypotheses = (
+        layer5.get("hypothesis_results", {})
+        if isinstance(layer5, dict)
+        else {}
+    )
+    if not isinstance(hypotheses, dict):
+        hypotheses = {}
+    _validate_hypothesis_results(hypotheses)
+
+    current_run_ids = {
+        str(payload.get("current_run_id", "")).strip()
+        for payload in (novelty, layer4, layer5)
+        if isinstance(payload, dict)
+    }
+    current_run_ids.discard("")
+    blockers: List[str] = []
+    degraded: List[str] = []
+    if len(current_run_ids) != 1:
+        blockers.append("current_run_id_mismatch_or_missing")
+    if pdf_status.get("pdf_status") != "generated":
+        degraded.append("pdf_omitted")
+    hypothesis_status = {
+        hypothesis_id: str(
+            hypotheses.get(hypothesis_id, {}).get(
+                "interpretation",
+                hypotheses.get(hypothesis_id, {}).get("status", "not_computable"),
+            )
+        )
+        for hypothesis_id in DECLARED_HYPOTHESIS_IDS
+    }
+    if hypothesis_status.get("H2") == "not_computable":
+        degraded.append("H2_not_computable_no_independently_validated_supply")
+    if hypothesis_status.get("H3") == "not_computable":
+        degraded.append("H3_not_computable_no_validated_semantic_bridges")
+
+    required_report_paths = (
+        reports_dir / "morskamary_statistical_report.html",
+        reports_dir / "morskamary_methodological_audit.html",
+    )
+    for path in required_report_paths:
+        if not path.is_file():
+            blockers.append(f"missing_required_report:{path.name}")
+
+    publication_status = "blocked" if blockers else (
+        "degraded" if degraded else "candidate"
+    )
+    payload = {
+        "schema_version": PUBLICATION_READINESS_SCHEMA_VERSION,
+        "generated_at_utc": generated_at,
+        "current_run_id": next(iter(current_run_ids), ""),
+        "engineering_status": "pass" if not blockers else "fail",
+        "scientific_status": (
+            "screening_only_with_noncomputable_components"
+            if degraded else "qualified_for_declared_results"
+        ),
+        "publication_status": publication_status,
+        "degraded_components": sorted(set(degraded)),
+        "blockers": sorted(set(blockers)),
+        "hypotheses": hypothesis_status,
+        "claim_boundary": {
+            "validated_supply_available": False,
+            "objective_competence_gap_established": False,
+            "generated_credentials_are_supply": False,
+            "h3_translation_validated": hypothesis_status.get("H3") != "not_computable",
+        },
+    }
+    output = reports_dir / "publication_readiness.json"
+    output.write_text(
+        json.dumps(payload, sort_keys=True, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return output
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -755,11 +866,19 @@ def main(argv: Optional[List[str]] = None) -> int:
         pdf_path = reports_dir / "morskamary_statistical_report.pdf"
         pdf_status = maybe_build_pdf(html_path, pdf_path)
 
+    readiness_path = build_publication_readiness(
+        database_dir=database_dir,
+        reports_dir=reports_dir,
+        pdf_status=pdf_status,
+        generated_at=generated_at,
+    )
+
     print(
         json.dumps(
             {
                 "html_report": str(html_path),
                 "methodological_audit": str(audit_path),
+                "publication_readiness": str(readiness_path),
                 **pdf_status,
             },
             sort_keys=True,
