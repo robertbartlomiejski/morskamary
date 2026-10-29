@@ -647,6 +647,14 @@ def _stamp_current_run_id(db: Path, run_id: str) -> None:
             payload = {}
         payload["current_run_id"] = run_id
         path.write_text(json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8")
+    readiness_path = db.parent / "reports" / "publication_readiness.json"
+    if readiness_path.is_file():
+        readiness = json.loads(readiness_path.read_text(encoding="utf-8"))
+        readiness["current_run_id"] = run_id
+        readiness_path.write_text(
+            json.dumps(readiness, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
 
 
 def _build_fixture_package(db: Path, reports: Path, output: Path) -> int:
