@@ -283,7 +283,12 @@ def build_html_report(
     section_axis = _section(
         "3. Four-axis semantic classification "
         "(MARINE, MARITIME, OCEANIC, HYDRONIZATION)",
-        _table(("axis_group", "signal_count"), sorted(axis_counts.items())),
+        (
+            "<p><strong>Observational unit:</strong> semantic signal. "
+            f"N={len(signals)}; missing N is reported only where the retained "
+            "input declares a missing value rather than inferred as zero.</p>"
+            + _table(("axis_group", "signal_count"), sorted(axis_counts.items()))
+        ),
         "sec-3-axis",
     )
 
@@ -337,7 +342,11 @@ def build_html_report(
     section_demands = _section(
         "4. Competence-demand model",
         (
-            f"<p>Total derived demands across all views: {len(demands)}. "
+            "<p><strong>Observational unit:</strong> derived candidate-demand "
+            "row. Legacy aggregate rows and validation-backed canonical lineage "
+            "rows are reported separately and are never pooled as one competence "
+            "denominator.</p>"
+            + f"<p>Total derived demands across all views: {len(demands)}. "
             f"Legacy aggregate view rows: {len(legacy_demands)}. "
             f"Accepted canonical lineage rows: {len(canonical_demands)}. "
             f"Formula: <code>{_e(DEMAND_STRENGTH_FORMULA)}</code>.</p>"
@@ -401,7 +410,11 @@ def build_html_report(
     ]
     section_gaps = _section(
         "5. Candidate-demand validation deficit model",
-        _table(
+        (
+            "<p><strong>Observational unit:</strong> sector × QMBD-axis "
+            "candidate-demand screening row. This is not a validated competence "
+            "shortage estimate.</p>"
+            + _table(
             (
                 "sector",
                 "axis_group",
@@ -413,6 +426,7 @@ def build_html_report(
                 "validity_warning",
             ),
             gap_rows,
+        )
         ),
         "sec-5-gap",
     )
@@ -439,8 +453,11 @@ def build_html_report(
     section_credentials = _section(
         "6. EQF 4-7 credential-design candidates",
         (
-            f"<p>Credentials: {len(credentials)}. "
-            f"Learning outcomes: {len(outcomes)}.</p>"
+            "<p><strong>Observational unit:</strong> credential-design candidate "
+            "for the table below; learning-outcome candidates are counted "
+            "separately. Neither is independently validated educational supply.</p>"
+            + f"<p>Credential-design candidates: {len(credentials)}. "
+            f"Learning-outcome candidates: {len(outcomes)}.</p>"
             + _table(
                 (
                     "credential_id",
@@ -764,6 +781,22 @@ def build_publication_readiness(
         )
         for hypothesis_id in DECLARED_HYPOTHESIS_IDS
     }
+    h2_payload = hypotheses.get("H2", {})
+    h3_payload = hypotheses.get("H3", {})
+    validated_supply_available = bool(
+        isinstance(h2_payload, dict)
+        and (
+            h2_payload.get("validated_supply_map_provided") is True
+            or h2_payload.get("validated_supply_available") is True
+        )
+    )
+    h3_translation_validated = bool(
+        isinstance(h3_payload, dict)
+        and (
+            h3_payload.get("validated_semantic_bridge_count", 0) or 0
+        ) > 0
+        and h3_payload.get("validation_status") == "validated"
+    )
     if hypothesis_status.get("H2") == "not_computable":
         degraded.append("H2_not_computable_no_independently_validated_supply")
     if hypothesis_status.get("H3") == "not_computable":
@@ -794,10 +827,10 @@ def build_publication_readiness(
         "blockers": sorted(set(blockers)),
         "hypotheses": hypothesis_status,
         "claim_boundary": {
-            "validated_supply_available": False,
+            "validated_supply_available": validated_supply_available,
             "objective_competence_gap_established": False,
             "generated_credentials_are_supply": False,
-            "h3_translation_validated": hypothesis_status.get("H3") != "not_computable",
+            "h3_translation_validated": h3_translation_validated,
         },
     }
     output = reports_dir / "publication_readiness.json"
