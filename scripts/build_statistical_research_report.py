@@ -16,6 +16,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence
 
+from pypdf import PdfReader
+
+from src.scientific_sources.publication_readiness import (
+    aggregate_readiness,
+    current_run_identity,
+)
 from src.scientific_sources.live_query_protocol import (
     LiveQueryProtocolError,
     load_live_query_protocol,
@@ -709,8 +715,12 @@ def _is_genuine_pdf(path: Path) -> bool:
     """Return whether a generated PDF satisfies the publication contract."""
     if not path.is_file():
         return False
-    data = path.read_bytes()
-    return data.startswith(b"%PDF-") and b"/Type /Page" in data
+    try:
+        return path.read_bytes().startswith(b"%PDF-") and bool(
+            PdfReader(path, strict=True).pages
+        )
+    except Exception:
+        return False
 
 
 def maybe_build_pdf(html_path: Path, pdf_path: Path) -> Dict[str, str]:
@@ -735,7 +745,7 @@ def maybe_build_pdf(html_path: Path, pdf_path: Path) -> Dict[str, str]:
         pdf_path.unlink(missing_ok=True)
         return {
             "pdf_status": "skipped",
-            "pdf_skip_reason": "renderer did not produce a genuine one-page PDF",
+            "pdf_skip_reason": "renderer did not produce a valid PDF with pages",
         }
     return {"pdf_status": "generated", "pdf_skip_reason": ""}
 
@@ -760,18 +770,7 @@ def build_publication_readiness(
         hypotheses = {}
     _validate_hypothesis_results(hypotheses)
 
-    current_run_ids = {
-        str(payload.get("current_run_id", "")).strip()
-        for payload in (novelty, layer4, layer5)
-        if isinstance(payload, dict)
-    }
-    current_run_ids.discard("")
-    blockers: List[str] = []
-    degraded: List[str] = []
-    if len(current_run_ids) != 1:
-        blockers.append("current_run_id_mismatch_or_missing")
-    if pdf_status.get("pdf_status") != "generated":
-        degraded.append("pdf_omitted")
+    current_run_id, blockers = current_run_identity((novelty, layer4, layer5))
     hypothesis_status = {
         hypothesis_id: str(
             hypotheses.get(hypothesis_id, {}).get(
@@ -797,11 +796,6 @@ def build_publication_readiness(
         ) > 0
         and h3_payload.get("validation_status") == "validated"
     )
-    if hypothesis_status.get("H2") == "not_computable":
-        degraded.append("H2_not_computable_no_independently_validated_supply")
-    if hypothesis_status.get("H3") == "not_computable":
-        degraded.append("H3_not_computable_no_validated_semantic_bridges")
-
     required_report_paths = (
         reports_dir / "morskamary_statistical_report.html",
         reports_dir / "morskamary_methodological_audit.html",
@@ -810,21 +804,15 @@ def build_publication_readiness(
         if not path.is_file():
             blockers.append(f"missing_required_report:{path.name}")
 
-    publication_status = "blocked" if blockers else (
-        "degraded" if degraded else "candidate"
-    )
     payload = {
         "schema_version": PUBLICATION_READINESS_SCHEMA_VERSION,
         "generated_at_utc": generated_at,
-        "current_run_id": next(iter(current_run_ids), ""),
-        "engineering_status": "pass" if not blockers else "fail",
-        "scientific_status": (
-            "screening_only_with_noncomputable_components"
-            if any(item != "pdf_omitted" for item in degraded)
-            else "qualified_for_declared_results"
+        "current_run_id": current_run_id,
+        **aggregate_readiness(
+            hypothesis_status,
+            pdf_available=pdf_status.get("pdf_status") == "generated",
+            blockers=blockers,
         ),
-        "publication_status": publication_status,
-        "degraded_components": sorted(set(degraded)),
         "blockers": sorted(set(blockers)),
         "hypotheses": hypothesis_status,
         "claim_boundary": {

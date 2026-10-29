@@ -7,8 +7,11 @@ import hashlib
 import importlib.util
 import json
 import re
+import sys
 import zipfile
+import zlib
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -546,9 +549,17 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
         if name.endswith(".sha256"):
             continue
         if name == "layer5_manifest.json":
-            metadata_payload = {"hypothesis_results": _all_hypotheses()}
+            metadata_payload = {
+                "hypothesis_results": _all_hypotheses(),
+                "current_run_id": "RUN-FIXTURE",
+            }
             (db / name).write_text(
                 json.dumps(metadata_payload, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+        elif name in ("run_novelty_metrics.json", "layer4_manifest.json"):
+            (db / name).write_text(
+                json.dumps({"current_run_id": "RUN-FIXTURE"}) + "\n",
                 encoding="utf-8",
             )
         elif name.endswith(".json"):
@@ -584,11 +595,16 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
                     {
                         "schema_version": "1.0.0",
                         "generated_at_utc": "2026-07-10T00:00:00+00:00",
-                        "current_run_id": "",
+                        "current_run_id": "RUN-FIXTURE",
                         "engineering_status": "pass",
-                        "scientific_status": "qualified_for_declared_results",
-                        "publication_status": "candidate",
-                        "degraded_components": [],
+                        "scientific_status": (
+                            "screening_only_with_noncomputable_components"
+                        ),
+                        "publication_status": "degraded",
+                        "degraded_components": [
+                            "H2_not_computable_no_independently_validated_supply",
+                            "pdf_omitted",
+                        ],
                         "blockers": [],
                         "hypotheses": {
                             "H1": "partially_supported_maritime",
@@ -976,6 +992,10 @@ def test_package_accepts_structurally_valid_pdf(tmp_path: Path) -> None:
     writer = PdfWriter()
     writer.add_blank_page(width=72, height=72)
     writer.write(pdf_path)
+    readiness_path = reports / "publication_readiness.json"
+    readiness = json.loads(readiness_path.read_text(encoding="utf-8"))
+    readiness["degraded_components"].remove("pdf_omitted")
+    readiness_path.write_text(json.dumps(readiness) + "\n", encoding="utf-8")
     out = tmp_path / "pkg.zip"
     assert _build_fixture_package(db, reports, out) == 0
     with zipfile.ZipFile(out) as archive:
@@ -1012,6 +1032,8 @@ def test_package_rejects_blocked_readiness(
     [
         ("generated", None),
         ("skipped", None),
+        ("generated", "H1"),
+        ("skipped", "H1"),
         ("generated", "H2"),
         ("skipped", "H2"),
         ("skipped", "H3"),
@@ -1026,7 +1048,7 @@ def test_scientific_readiness_is_independent_of_pdf_availability(
     _stamp_current_run_id(db, "readiness-test")
     layer5_path = db / "layer5_manifest.json"
     layer5 = json.loads(layer5_path.read_text(encoding="utf-8"))
-    for hypothesis_id in ("H2", "H3"):
+    for hypothesis_id in ("H1", "H2", "H3"):
         layer5["hypothesis_results"][hypothesis_id]["interpretation"] = (
             "not_computable"
             if hypothesis_id == noncomputable_hypothesis else "supported"
@@ -1044,6 +1066,12 @@ def test_scientific_readiness_is_independent_of_pdf_availability(
         if noncomputable_hypothesis else "qualified_for_declared_results"
     )
     assert readiness["scientific_status"] == expected
+    assert readiness["engineering_status"] == "pass"
+    assert readiness["blockers"] == []
+    assert readiness["publication_status"] == (
+        "degraded" if noncomputable_hypothesis or pdf_status == "skipped"
+        else "candidate"
+    )
     assert ("pdf_omitted" in readiness["degraded_components"]) == (
         pdf_status == "skipped"
     )
@@ -1070,6 +1098,129 @@ def test_html_only_report_removes_stale_pdf_before_packaging(tmp_path: Path) -> 
     assert _build_fixture_package(db, reports, out) == 0
     with zipfile.ZipFile(out) as archive:
         assert "reports/" + pdf_path.name not in archive.namelist()
+
+
+@pytest.mark.parametrize(
+    "filename", [
+        "run_novelty_metrics.json", "layer4_manifest.json", "layer5_manifest.json",
+    ],
+)
+@pytest.mark.parametrize("run_id", ["absent", "", "   ", None, 123])
+def test_missing_run_identity_blocks_report_and_package_without_guard(
+    tmp_path: Path, capsys: object, filename: str, run_id: object
+) -> None:
+    db, reports = tmp_path / "db", tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    path = db / filename
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if run_id == "absent":
+        payload.pop("current_run_id")
+    else:
+        payload["current_run_id"] = run_id
+    path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    _rewrite_checksums(db)
+    assert _REPORT.main([
+        "--database-dir", str(db), "--output-dir", str(reports),
+        "--formats", "html",
+    ]) == 0
+    readiness = json.loads(
+        (reports / "publication_readiness.json").read_text(encoding="utf-8")
+    )
+    assert readiness["engineering_status"] == "fail"
+    assert readiness["publication_status"] == "blocked"
+    assert "current_run_id_mismatch_or_missing" in readiness["blockers"]
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert "publication_readiness_current_run_id_mismatch_or_missing" in captured.err
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("scientific_status", "qualified_for_declared_results"),
+        ("publication_status", "candidate"),
+        ("degraded_components", []),
+        ("degraded_components", ["pdf_omitted"]),
+    ],
+)
+def test_package_rejects_aggregate_qualification_contradictions(
+    tmp_path: Path, capsys: object, field: str, value: object
+) -> None:
+    db, reports = tmp_path / "db", tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    path = reports / "publication_readiness.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload[field] = value
+    path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert "publication_readiness_aggregate_mismatch:" + field in captured.err
+
+
+def _pdf_with_compressed_page_objects() -> bytes:
+    """One-page PDF 1.5 with catalog/page dictionaries in an object stream."""
+    dictionaries = [
+        b"<< /Type /Catalog /Pages 3 0 R >>",
+        b"<< /Type /Pages /Kids [4 0 R] /Count 1 >>",
+        b"<< /Type /Page /Parent 3 0 R /MediaBox [0 0 72 72] /Resources << >> >>",
+    ]
+    header, body = b"", b""
+    for number, dictionary in enumerate(dictionaries, 2):
+        header += f"{number} {len(body)} ".encode()
+        body += dictionary + b"\n"
+    stream = zlib.compress(header + body)
+    pdf = b"%PDF-1.5\n"
+    object_offset = len(pdf)
+    pdf += (
+        f"1 0 obj\n<< /Type /ObjStm /N 3 /First {len(header)} "
+        f"/Filter /FlateDecode /Length {len(stream)} >>\nstream\n"
+    ).encode() + stream + b"\nendstream\nendobj\n"
+    xref_offset = len(pdf)
+    entries = [(0, 0, 65535), (1, object_offset, 0)]
+    entries += [(2, 1, index) for index in range(3)]
+    entries.append((1, xref_offset, 0))
+    xref = b"".join(
+        kind.to_bytes(1, "big") + offset.to_bytes(4, "big")
+        + generation.to_bytes(2, "big")
+        for kind, offset, generation in entries
+    )
+    return pdf + (
+        f"5 0 obj\n<< /Type /XRef /Size 6 /Root 2 0 R /W [1 4 2] "
+        f"/Length {len(xref)} >>\nstream\n"
+    ).encode() + xref + (
+        f"\nendstream\nendobj\nstartxref\n{xref_offset}\n%%EOF\n"
+    ).encode()
+
+
+def test_report_keeps_generated_pdf_with_compressed_page_objects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    pdf_bytes = _pdf_with_compressed_page_objects()
+    assert b"/Type /Page" not in pdf_bytes
+
+    class Renderer:
+        def __init__(self, **kwargs: object) -> None:
+            pass
+
+        def write_pdf(self, path: str) -> None:
+            Path(path).write_bytes(pdf_bytes)
+
+    monkeypatch.setitem(sys.modules, "weasyprint", SimpleNamespace(HTML=Renderer))
+    html_path, pdf_path = tmp_path / "report.html", tmp_path / "report.pdf"
+    html_path.write_text("<html><body>Report</body></html>", encoding="utf-8")
+    status = _REPORT.maybe_build_pdf(html_path, pdf_path)
+    assert status["pdf_status"] == "generated"
+    assert pdf_path.read_bytes() == pdf_bytes
+
+
+def test_report_rejects_malformed_marker_bearing_pdf(tmp_path: Path) -> None:
+    path = tmp_path / "report.pdf"
+    path.write_bytes(b"%PDF-1.7\n/Type /Page\n%%EOF\n")
+    assert not _REPORT._is_genuine_pdf(path)
 
 
 def test_package_rejects_readiness_hypothesis_mismatch(

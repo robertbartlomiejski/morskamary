@@ -164,6 +164,7 @@ def _write_reports(reports_dir: Path) -> None:
                 "scientific_status": "screening_only_with_noncomputable_components",
                 "publication_status": "degraded",
                 "degraded_components": [
+                    "H1_not_computable",
                     "H2_not_computable_no_independently_validated_supply",
                     "H3_not_computable_no_validated_semantic_bridges",
                     "pdf_omitted",

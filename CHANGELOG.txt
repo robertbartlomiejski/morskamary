@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-10-29 (fix: reconcile publication qualification across report and package)
+  Change type fix add update
+  Scope reporting packaging tests governance
+  Files affected src/scientific_sources/publication_readiness.py scripts/build_statistical_research_report.py scripts/build_live_cumulative_release_package.py tests/test_live_cumulative_release_package.py tests/test_e2e_checksum_pipeline.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Centralizes aggregate readiness derivation and three-input run identity validation, includes H1 in non-computability qualification, rejects contradictory package readiness, and structurally parses generated PDFs including compressed page dictionaries.
+  Reason Fresh current-head CodeRabbit and Codex reviews found four valid qualification defects after PR #283 was marked ready for review. The optional Vercel preview is separately tracked in MOR-22/GitHub #286 and is not a required GitHub check.
+  Impact Reporting and packaging gates only; no scientific hypothesis calculation, retained empirical input or historical archive is changed. Non-computable hypotheses remain valid scientific outcomes with engineering pass when the inputs are structurally consistent.
+  Provenance Reviews 5703138681 and 5703140025 on 3c74bf12dffe551c3ed5f70a10e39a5616387817; source instructions and publication-readiness schema.
+  Quality checks New regressions reproduce 23 failures on the prior implementation. Focused report/package/CSV/end-to-end suite: 125 passed; full suite: 1865 passed, 5 skipped; canonical flake8 and mypy passed for 79 source files; generated-output and three-run archive validation passed. Full-suite and exact-head CI evidence are required before landing.
+
 - 2026-10-29 (fix: install PDF parser in the base research environment)
   Change type fix update
   Scope dependencies governance

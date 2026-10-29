@@ -52,6 +52,10 @@ if str(_REPO_ROOT) not in sys.path:
 from jsonschema import Draft202012Validator  # noqa: E402
 from pypdf import PdfReader  # noqa: E402
 
+from src.scientific_sources.publication_readiness import (  # noqa: E402
+    aggregate_readiness,
+    current_run_identity,
+)
 from src.scientific_sources.schema_v2_identity import (  # noqa: E402
     make_assignment_id as _make_assignment_id_v2,
     make_candidate_id as _make_candidate_id_v2,
@@ -2447,20 +2451,28 @@ def main(argv: Optional[List[str]] = None) -> int:
                         for item in readiness_payload.get("blockers") or []
                     )
                 )
+            source_run_id, run_blockers = current_run_identity((
+                _load_json_required(database_dir / "run_novelty_metrics.json"),
+                _load_json_required(database_dir / "layer4_manifest.json"),
+                layer5_payload,
+            ))
+            missing_required.extend(
+                "publication_readiness_" + blocker for blocker in run_blockers
+            )
             readiness_run_id = str(
                 readiness_payload.get("current_run_id", "")
             ).strip()
-            layer5_run_id = str(layer5_payload.get("current_run_id", "")).strip()
-            if readiness_run_id != layer5_run_id:
+            if readiness_run_id != source_run_id:
                 missing_required.append(
                     "publication_readiness_current_run_id_mismatch:"
-                    f"{readiness_run_id}:{layer5_run_id}"
+                    f"{readiness_run_id}:{source_run_id}"
                 )
             layer5_hypotheses = layer5_payload.get("hypothesis_results", {})
             readiness_hypotheses = readiness_payload.get("hypotheses", {})
             if isinstance(layer5_hypotheses, dict) and isinstance(
                 readiness_hypotheses, dict
             ):
+                source_statuses = {}
                 for hypothesis_id in ("H1", "H2", "H3"):
                     layer5_result = layer5_hypotheses.get(hypothesis_id, {})
                     expected_status = ""
@@ -2474,10 +2486,28 @@ def main(argv: Optional[List[str]] = None) -> int:
                     actual_status = str(
                         readiness_hypotheses.get(hypothesis_id, "")
                     )
+                    source_statuses[hypothesis_id] = expected_status
                     if actual_status != expected_status:
                         missing_required.append(
                             "publication_readiness_hypothesis_mismatch:"
                             f"{hypothesis_id}:{actual_status}:{expected_status}"
+                        )
+                expected_aggregate = aggregate_readiness(
+                    source_statuses,
+                    pdf_available=pdf_path.is_file(),
+                    blockers=run_blockers or readiness_payload.get("blockers") or [],
+                )
+                for field, expected_value in expected_aggregate.items():
+                    actual_value = readiness_payload.get(field)
+                    if (
+                        field == "degraded_components"
+                        and isinstance(actual_value, list)
+                        and all(isinstance(item, str) for item in actual_value)
+                    ):
+                        actual_value = sorted(actual_value)
+                    if actual_value != expected_value:
+                        missing_required.append(
+                            "publication_readiness_aggregate_mismatch:" + field
                         )
         statistical_report = reports_dir / "morskamary_statistical_report.html"
         if statistical_report.is_file():
