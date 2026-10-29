@@ -2424,6 +2424,71 @@ def main(argv: Optional[List[str]] = None) -> int:
             if b"/Type /Page" not in pdf_bytes:
                 missing_required.append("pdf_has_no_page")
 
+    if readiness_path.is_file():
+        readiness_payload = _load_json_required(readiness_path)
+        layer5_payload = _load_json_required(database_dir / "layer5_manifest.json")
+        if isinstance(readiness_payload, dict) and isinstance(layer5_payload, dict):
+            readiness_run_id = str(
+                readiness_payload.get("current_run_id", "")
+            ).strip()
+            layer5_run_id = str(layer5_payload.get("current_run_id", "")).strip()
+            if readiness_run_id != layer5_run_id:
+                missing_required.append(
+                    "publication_readiness_current_run_id_mismatch:"
+                    f"{readiness_run_id}:{layer5_run_id}"
+                )
+            layer5_hypotheses = layer5_payload.get("hypothesis_results", {})
+            readiness_hypotheses = readiness_payload.get("hypotheses", {})
+            if isinstance(layer5_hypotheses, dict) and isinstance(
+                readiness_hypotheses, dict
+            ):
+                for hypothesis_id in ("H1", "H2", "H3"):
+                    layer5_result = layer5_hypotheses.get(hypothesis_id, {})
+                    expected_status = ""
+                    if isinstance(layer5_result, dict):
+                        expected_status = str(
+                            layer5_result.get(
+                                "interpretation",
+                                layer5_result.get("status", ""),
+                            )
+                        )
+                    actual_status = str(
+                        readiness_hypotheses.get(hypothesis_id, "")
+                    )
+                    if actual_status != expected_status:
+                        missing_required.append(
+                            "publication_readiness_hypothesis_mismatch:"
+                            f"{hypothesis_id}:{actual_status}:{expected_status}"
+                        )
+        statistical_report = reports_dir / "morskamary_statistical_report.html"
+        if statistical_report.is_file():
+            report_text = statistical_report.read_text(
+                encoding="utf-8"
+            ).lower()
+            required_safe_terms = (
+                "candidate-demand validation deficit",
+                "credential-design candidates",
+                "cannot conclude",
+                "observational unit",
+            )
+            for required_term in required_safe_terms:
+                if required_term not in report_text:
+                    missing_required.append(
+                        "publication_report_missing_safe_term:"
+                        + required_term.replace(" ", "_")
+                    )
+            prohibited_terms = (
+                "competence gap",
+                "available competences",
+                "missing competences",
+            )
+            for prohibited_term in prohibited_terms:
+                if prohibited_term in report_text:
+                    missing_required.append(
+                        "publication_report_prohibited_term:"
+                        + prohibited_term.replace(" ", "_")
+                    )
+
     # Schema/content validation for manifests, checksums, and CSVs.
     for name in DATABASE_METADATA_FILES:
         candidate = database_dir / name
