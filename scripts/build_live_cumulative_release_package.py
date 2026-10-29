@@ -21,8 +21,9 @@ ZIP contents (per PR-190 Task C spec)::
     data/jsonl/*.jsonl
     data/sqlite/morskamary_live_cumulative.sqlite   (may be skipped)
     reports/morskamary_statistical_report.html
-    reports/morskamary_statistical_report.pdf       (may be a text stub)
+    reports/morskamary_statistical_report.pdf       (optional; genuine PDF only)
     reports/morskamary_methodological_audit.html
+    reports/publication_readiness.json
 """
 
 from __future__ import annotations
@@ -72,6 +73,11 @@ SCHEMA_V2_ENTITY_NAMES = (
 )
 SCHEMA_V2_SCHEMA_FILENAMES = tuple(
     f"{entity_name}.schema.json" for entity_name in SCHEMA_V2_ENTITY_NAMES
+)
+PUBLICATION_READINESS_SCHEMA_FILENAME = "publication_readiness.schema.json"
+PACKAGE_SCHEMA_FILENAMES = (
+    *SCHEMA_V2_SCHEMA_FILENAMES,
+    PUBLICATION_READINESS_SCHEMA_FILENAME,
 )
 
 _CANONICAL_LABEL_PROVIDER_ALIASES = {
@@ -302,8 +308,11 @@ LAYER4_STAT_FILES = (
 
 REPORT_FILES = (
     "morskamary_statistical_report.html",
-    "morskamary_statistical_report.pdf",
     "morskamary_methodological_audit.html",
+    "publication_readiness.json",
+)
+OPTIONAL_REPORT_FILES = (
+    "morskamary_statistical_report.pdf",
 )
 
 DEMAND_STRENGTH_FORMULA = (
@@ -2250,7 +2259,7 @@ def _readme_text(version_tag: str, generated_at: str) -> str:
         "- `data/sqlite/` — portable SQLite database (may be skipped; see "
         "`RELEASE_MANIFEST.json`).\n"
         "- `reports/` — HTML statistical report, methodological audit, "
-        "and PDF (may be a text stub if PDF rendering is unavailable).\n\n"
+        "publication-readiness decision, and an optional genuine PDF.\n\n"
         "## Demand-strength formula\n\n"
         f"    {DEMAND_STRENGTH_FORMULA}\n\n"
         "## Reliability rule\n\n"
@@ -2373,6 +2382,47 @@ def main(argv: Optional[List[str]] = None) -> int:
             for required_path in required_paths
             if not required_path.is_file()
         ]
+
+    readiness_path = reports_dir / "publication_readiness.json"
+    if readiness_path.is_file():
+        try:
+            readiness_payload = json.loads(
+                readiness_path.read_text(encoding="utf-8")
+            )
+            readiness_schema = json.loads(
+                (_SCHEMA_V2_DIR / PUBLICATION_READINESS_SCHEMA_FILENAME).read_text(
+                    encoding="utf-8"
+                )
+            )
+            Draft202012Validator.check_schema(readiness_schema)
+            readiness_errors = list(
+                Draft202012Validator(readiness_schema).iter_errors(
+                    readiness_payload
+                )
+            )
+            if readiness_errors:
+                missing_required.append(
+                    "publication_readiness_schema_validation:"
+                    + ";".join(
+                        error.message for error in readiness_errors
+                    )
+                )
+        except (OSError, json.JSONDecodeError) as exc:
+            missing_required.append(
+                f"malformed_publication_readiness:{exc}"
+            )
+
+    pdf_path = reports_dir / "morskamary_statistical_report.pdf"
+    if pdf_path.exists():
+        try:
+            pdf_bytes = pdf_path.read_bytes()
+        except OSError as exc:
+            missing_required.append(f"unreadable_pdf:{exc}")
+        else:
+            if not pdf_bytes.startswith(b"%PDF-"):
+                missing_required.append("invalid_pdf_magic")
+            if b"/Type /Page" not in pdf_bytes:
+                missing_required.append("pdf_has_no_page")
 
     # Schema/content validation for manifests, checksums, and CSVs.
     for name in DATABASE_METADATA_FILES:
@@ -2717,7 +2767,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     # The versioned schema-v2 contracts are part of the publication package,
     # so consumers can validate each CSV/JSONL projection without relying on
     # a mutable repository checkout.
-    for name in SCHEMA_V2_SCHEMA_FILENAMES:
+    for name in PACKAGE_SCHEMA_FILENAMES:
         schema_path = _SCHEMA_V2_DIR / name
         entries.append((f"schemas/{name}", schema_path.read_bytes()))
 
@@ -2749,7 +2799,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             entries.append((archive_name, source_path.read_bytes()))
 
     # Reports
-    for name in REPORT_FILES:
+    for name in (*REPORT_FILES, *OPTIONAL_REPORT_FILES):
         blob = _read_bytes_if_exists(reports_dir / name)
         if blob is not None:
             entries.append((f"reports/{name}", blob))
