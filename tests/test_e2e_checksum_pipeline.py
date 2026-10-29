@@ -150,6 +150,37 @@ def _write_reports(reports_dir: Path) -> None:
         html,
         encoding="utf-8",
     )
+    (reports_dir / "publication_readiness.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0.0",
+                "generated_at_utc": FROZEN_TS,
+                "current_run_id": RUN_ID,
+                "engineering_status": "pass",
+                "scientific_status": "screening_only_with_noncomputable_components",
+                "publication_status": "degraded",
+                "degraded_components": [
+                    "H2_not_computable_no_independently_validated_supply",
+                    "H3_not_computable_no_validated_semantic_bridges",
+                    "pdf_omitted",
+                ],
+                "blockers": [],
+                "hypotheses": {
+                    "H1": "partially_supported_maritime",
+                    "H2": "not_computable",
+                    "H3": "not_computable",
+                },
+                "claim_boundary": {
+                    "validated_supply_available": False,
+                    "objective_competence_gap_established": False,
+                    "generated_credentials_are_supply": False,
+                    "h3_translation_validated": False,
+                },
+            },
+            sort_keys=True,
+        ) + "\n",
+        encoding="utf-8",
+    )
     # PDF is optional; when unavailable it must be omitted rather than stubbed.
 
 
