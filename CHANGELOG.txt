@@ -19,6 +19,86 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-10-30 (fix: report schema-invalid readiness before semantic checks)
+  Change type fix update
+  Scope packaging tests governance
+  Files affected scripts/build_live_cumulative_release_package.py tests/test_live_cumulative_release_package.py CHANGELOG.txt
+  Summary Runs readiness semantic checks only after successful schema validation, preventing malformed field types such as blockers=1 from escaping preflight as TypeError.
+  Reason Follow-up review 5709632104 identified a type-dependent semantic loop after schema rejection.
+  Impact Invalid readiness fails closed through the existing schema validation report; no scientific calculations or retained evidence change.
+  Provenance Current-code reproduction with a schema-invalid blockers integration regression.
+  Quality checks New regression fails with TypeError before correction and passes afterward; focused package/CSV/end-to-end suite 133 passed; full suite 1873 passed, 5 skipped; canonical flake8/mypy, generated-output and three-run archive validators passed. Exact-head CI required before landing.
+
+- 2026-10-30 (fix: report invalid UTF-8 publication readiness as preflight failure)
+  Change type fix update
+  Scope packaging tests governance
+  Files affected scripts/build_live_cumulative_release_package.py tests/test_live_cumulative_release_package.py CHANGELOG.txt
+  Summary Catches UnicodeDecodeError in the initial publication-readiness validation and the shared JSON loader used by its second read, so malformed UTF-8 yields the normal malformed_publication_readiness report rather than an unhandled traceback.
+  Reason Outside-diff CodeRabbit review 5703563369 identified an uncaught decoding exception on PR #283 head 522482bd28a5ab6c85d3fd4aaafb6b807faaf013; fixing only the first handler would still let the second read escape.
+  Impact Diagnostic stability only: malformed readiness still fails closed with exit 1 and no release ZIP; no scientific calculation, retained evidence, workflow or historical archive is changed.
+  Provenance Current-code call-path verification and a byte-level malformed-readiness integration regression.
+  Quality checks Regression fails with UnicodeDecodeError before the fix and passes afterward; focused package/CSV/end-to-end suite 132 passed; full suite 1872 passed, 5 skipped; canonical flake8 and mypy passed for 79 source files; generated-output and three-run archive validation passed. New exact-head CI remains required before landing.
+
+- 2026-10-29 (fix: keep non-computability reasons evidence-neutral)
+  Change type fix update
+  Scope reporting packaging tests governance
+  Files affected src/scientific_sources/publication_readiness.py tests/test_live_cumulative_release_package.py tests/test_e2e_checksum_pipeline.py CHANGELOG.txt
+  Summary Uses neutral per-hypothesis not_computable degradation labels instead of inferring absent supply or absent bridges from the outcome alone. Source-specific causes remain in the retained Layer-5 results and warnings.
+  Reason H2 may be non-computable with a supplied validation map because no accepted HYDRONIZATION demand denominator exists; the prior aggregate reason incorrectly asserted missing validated supply in that case.
+  Impact Readiness wording and corresponding fixture expectations only; no hypothesis calculation, outcome or retained evidence changes.
+  Provenance Codex thread PRRT_kwDORS_RKM6xtV11 on 39215be89d7b820633fc007101ec6d89643a8b2c and the verified H2 denominator branch in derived_competence_analysis.py.
+  Quality checks The prior policy fails the neutral-reason expectation. Focused report/package/CSV/end-to-end suite: 131 passed; full suite: 1871 passed, 5 skipped; canonical flake8/mypy, generated outputs and all three archives passed. New exact-head CI remains required before landing.
+
+- 2026-10-29 (fix: enforce source-backed publication claim boundaries)
+  Change type fix update
+  Scope reporting packaging tests governance
+  Files affected src/scientific_sources/publication_readiness.py scripts/build_statistical_research_report.py scripts/build_live_cumulative_release_package.py tests/test_live_cumulative_release_package.py CHANGELOG.txt
+  Summary Shares claim-boundary derivation between reporting and packaging and rejects unsupported supply, translation and competence-gap assertions. A merely provided empty supply map does not establish supply availability; source-backed validated supply and bridge flags remain publishable, while objective gap and generated-credential-as-supply claims stay false.
+  Reason Late Copilot and current-head Codex review identified that matching run IDs, hypothesis labels and aggregate statuses did not prevent contradictory claim_boundary flags from entering a release ZIP.
+  Impact Publication qualification only; no empirical evidence, scientific hypothesis calculation, validation decision or historical archive is changed.
+  Provenance Copilot thread PRRT_kwDORS_RKM6xtAGB and Codex thread PRRT_kwDORS_RKM6xtLFB; shared reporting contract.
+  Quality checks Four negative claim-boundary regressions fail on the prior implementation; source-backed and empty-map cases exercise accepted and rejected package paths. Focused report/package/CSV/end-to-end suite: 131 passed; full suite: 1871 passed, 5 skipped; canonical flake8/mypy, generated outputs and all three archives passed. New exact-head CI remains required before landing.
+
+- 2026-10-29 (fix: reconcile publication qualification across report and package)
+  Change type fix add update
+  Scope reporting packaging tests governance
+  Files affected src/scientific_sources/publication_readiness.py scripts/build_statistical_research_report.py scripts/build_live_cumulative_release_package.py tests/test_live_cumulative_release_package.py tests/test_e2e_checksum_pipeline.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Centralizes aggregate readiness derivation and three-input run identity validation, includes H1 in non-computability qualification, rejects contradictory package readiness, and structurally parses generated PDFs including compressed page dictionaries.
+  Reason Fresh current-head CodeRabbit and Codex reviews found four valid qualification defects after PR #283 was marked ready for review. The optional Vercel preview is separately tracked in MOR-22/GitHub #286 and is not a required GitHub check.
+  Impact Reporting and packaging gates only; no scientific hypothesis calculation, retained empirical input or historical archive is changed. Non-computable hypotheses remain valid scientific outcomes with engineering pass when the inputs are structurally consistent.
+  Provenance Reviews 5703138681 and 5703140025 on 3c74bf12dffe551c3ed5f70a10e39a5616387817; source instructions and publication-readiness schema.
+  Quality checks New regressions reproduce 23 failures on the prior implementation. Focused report/package/CSV/end-to-end suite: 125 passed; full suite: 1865 passed, 5 skipped; canonical flake8 and mypy passed for 79 source files; generated-output and three-run archive validation passed. Full-suite and exact-head CI evidence are required before landing.
+
+- 2026-10-29 (fix: install PDF parser in the base research environment)
+  Change type fix update
+  Scope dependencies governance
+  Files affected pyproject.toml CHANGELOG.txt
+  Summary Moves pypdf from the optional development extras into required project dependencies, because release packaging and CSV bundle validation import its structural PDF parser at runtime.
+  Reason The rerun of Research Pipeline 40879325512 attempt 3 on 3b18154c1bb38c98dd007d69ac27e6ea211b8db1 installed requirements.txt without development extras, causing ModuleNotFoundError and PDF regressions to use the tests' fallback stub.
+  Impact Installs the real parser for the base research environment without weakening PDF checks or changing scientific calculations, retained inputs, workflows or archives.
+  Provenance Exact-head Research Pipeline job 123487839710; Full Analysis and CodeQL passed after runner provisioning recovered.
+  Quality checks Clean virtual environment installed requirements.txt without development extras and resolved pypdf 6.21.4. Focused packaging/CSV/end-to-end regressions: 102 passed; full suite: 1842 passed, 5 skipped; canonical flake8 and mypy passed; generated outputs and all three archives validated. New exact-head CI remains required before landing.
+
+- 2026-10-29 (fix: PR-283 review qualification boundaries)
+  Change type fix update
+  Scope reporting packaging tests dependencies governance
+  Files affected scripts/build_live_cumulative_release_package.py scripts/build_statistical_research_report.py tests/test_live_cumulative_release_package.py tests/test_e2e_checksum_pipeline.py pyproject.toml MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Structurally parses optional PDFs before packaging, rejects readiness records with publication blockers or engineering failure, removes stale PDFs for HTML-only builds, and keeps PDF omission separate from scientific non-computability. Corrects the MARINE end-to-end fixture, report wording and existing report indentation; regenerates the source inventory to remove a nonexistent generated readiness artifact and sort its schema entry.
+  Reason CodeRabbit review on f5cae9f451af27ef9dd0e687582e59729f45e7dc exposed paths that could package stale or malformed reports and ignore an explicit publication block.
+  Impact Reporting and release qualification only; retained empirical inputs, hypothesis calculations, validation decisions and historical archives are unchanged. Adds pypdf to the existing development/release toolchain dependencies.
+  Provenance PR #283; Linear MOR-12; three inline findings, two outside-diff findings and the independently confirmed readiness-blocker finding.
+  Quality checks Eleven new regression cases cover structural PDF rejection/acceptance, three independent readiness blockers, scientific status with/without PDF, and HTML-only report-to-package omission. Targeted suite: 113 passed; full suite: 1842 passed, 5 skipped; canonical flake8 and mypy passed; generated outputs, research source outputs and all three archived runs validated. Deterministic packaging and end-to-end checksums are exercised by the test suites; exact-head CI remains required after the branch update.
+
+- 2026-10-29 (fix: MOR-12 publication-safe release qualification)
+  Change type fix add update
+  Scope reporting packaging schemas tests workflow governance
+  Files affected scripts/build_statistical_research_report.py scripts/build_live_cumulative_release_package.py schemas/publication_readiness.schema.json tests/test_live_cumulative_release_package.py tests/test_e2e_checksum_pipeline.py .github/workflows/full-live-analysis.yml MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Adds a machine-readable publication-readiness decision, separates engineering/scientific/publication status, makes PDF output optional-but-genuine instead of permitting text stubs, reconciles readiness hypothesis status with Layer 5, and updates public report terminology and claim boundaries to prohibit unsupported competence-gap/supply claims.
+  Reason MOR-12 requires fail-closed publication qualification, a genuine-PDF-or-omit contract, current-run and hypothesis agreement, explicit claim boundaries, and terminology that separates candidate demand, validated competences, credential-design candidates and independently validated supply.
+  Impact No retained empirical inputs, hypothesis calculations, validation decisions or historical archives are changed. The reporting/release layer becomes stricter; a missing PDF is a documented degraded component rather than a fabricated PDF file.
+  Provenance Linear MOR-12 acceptance criteria; current main 4b12c2413f04ed10c2b3ac358dfc35ffa2b78213; merged PR #272 governance baseline.
+  Quality checks Focused negative regressions cover text-stub PDFs, omitted optional PDFs, malformed readiness artifacts, report terminology and readiness/Layer-5 consistency. Exact-head CI, Full Analysis, flake8, mypy, full pytest, generated-output validation, archive-integrity validation and deterministic reproduction are required before completion.
+
 - 2026-09-28 (fix: close PR272 final governance validation gaps)
   Change type fix update
   Scope scripts tests outputs governance documentation
