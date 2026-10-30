@@ -1213,7 +1213,11 @@ def test_package_rejects_unsupported_claim_boundary(
     assert _build_fixture_package(db, reports, out) == 1
     assert not out.exists()
     captured = capsys.readouterr()  # type: ignore[attr-defined]
-    assert "publication_readiness_claim_boundary_mismatch:" + field in captured.err
+    if field == "generated_credentials_are_supply":
+        # This invariant is enforced by the schema before semantic comparison.
+        assert "publication_readiness_schema_validation:" in captured.err
+    else:
+        assert "publication_readiness_claim_boundary_mismatch:" + field in captured.err
 
 
 def test_source_backed_supply_and_translation_flags_survive_packaging(
@@ -1356,6 +1360,24 @@ def test_package_rejects_invalid_publication_readiness(
     assert not out.exists()
     captured = capsys.readouterr()  # type: ignore[attr-defined]
     assert "publication_readiness_schema_validation" in captured.err
+
+
+def test_package_reports_schema_invalid_blockers_without_traceback(
+    tmp_path: Path, capsys: object
+) -> None:
+    db, reports = tmp_path / "db", tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    readiness_path = reports / "publication_readiness.json"
+    payload = json.loads(readiness_path.read_text(encoding="utf-8"))
+    payload["blockers"] = 1
+    readiness_path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert "publication_readiness_schema_validation:" in captured.err
+    assert "release ZIP was not created" in captured.err
+    assert "Traceback" not in captured.err
 
 
 def test_package_reports_invalid_utf8_readiness_without_traceback(

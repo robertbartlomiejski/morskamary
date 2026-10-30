@@ -2390,6 +2390,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         ]
 
     readiness_path = reports_dir / "publication_readiness.json"
+    readiness_schema_valid = False
     if readiness_path.is_file():
         try:
             readiness_payload = json.loads(
@@ -2406,6 +2407,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                     readiness_payload
                 )
             )
+            readiness_schema_valid = not readiness_errors
             if readiness_errors:
                 missing_required.append(
                     "publication_readiness_schema_validation:"
@@ -2436,7 +2438,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                         f"invalid_pdf_structure:{type(exc).__name__}"
                     )
 
-    if readiness_path.is_file():
+    if readiness_schema_valid:
         readiness_payload = _load_json_required(readiness_path)
         layer5_payload = _load_json_required(database_dir / "layer5_manifest.json")
         if isinstance(readiness_payload, dict) and isinstance(layer5_payload, dict):

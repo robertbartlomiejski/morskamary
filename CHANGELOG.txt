@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-10-30 (fix: report schema-invalid readiness before semantic checks)
+  Change type fix update
+  Scope packaging tests governance
+  Files affected scripts/build_live_cumulative_release_package.py tests/test_live_cumulative_release_package.py CHANGELOG.txt
+  Summary Runs readiness semantic checks only after successful schema validation, preventing malformed field types such as blockers=1 from escaping preflight as TypeError.
+  Reason Follow-up review 5709632104 identified a type-dependent semantic loop after schema rejection.
+  Impact Invalid readiness fails closed through the existing schema validation report; no scientific calculations or retained evidence change.
+  Provenance Current-code reproduction with a schema-invalid blockers integration regression.
+  Quality checks New regression fails with TypeError before correction and passes afterward; focused package/CSV/end-to-end suite 133 passed; full suite 1873 passed, 5 skipped; canonical flake8/mypy, generated-output and three-run archive validators passed. Exact-head CI required before landing.
+
 - 2026-10-30 (fix: report invalid UTF-8 publication readiness as preflight failure)
   Change type fix update
   Scope packaging tests governance
