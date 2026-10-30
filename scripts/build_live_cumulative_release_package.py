@@ -348,7 +348,7 @@ def _load_json_required(path: Path) -> Optional[Dict[str, Any]]:
         return None
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
         return None
     if isinstance(payload, dict):
         return payload
@@ -2413,7 +2413,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                         error.message for error in readiness_errors
                     )
                 )
-        except (OSError, json.JSONDecodeError) as exc:
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
             missing_required.append(
                 f"malformed_publication_readiness:{exc}"
             )

@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-10-30 (fix: report invalid UTF-8 publication readiness as preflight failure)
+  Change type fix update
+  Scope packaging tests governance
+  Files affected scripts/build_live_cumulative_release_package.py tests/test_live_cumulative_release_package.py CHANGELOG.txt
+  Summary Catches UnicodeDecodeError in the initial publication-readiness validation and the shared JSON loader used by its second read, so malformed UTF-8 yields the normal malformed_publication_readiness report rather than an unhandled traceback.
+  Reason Outside-diff CodeRabbit review 5703563369 identified an uncaught decoding exception on PR #283 head 522482bd28a5ab6c85d3fd4aaafb6b807faaf013; fixing only the first handler would still let the second read escape.
+  Impact Diagnostic stability only: malformed readiness still fails closed with exit 1 and no release ZIP; no scientific calculation, retained evidence, workflow or historical archive is changed.
+  Provenance Current-code call-path verification and a byte-level malformed-readiness integration regression.
+  Quality checks Regression fails with UnicodeDecodeError before the fix and passes afterward; focused package/CSV/end-to-end suite 132 passed; full suite 1872 passed, 5 skipped; canonical flake8 and mypy passed for 79 source files; generated-output and three-run archive validation passed. New exact-head CI remains required before landing.
+
 - 2026-10-29 (fix: keep non-computability reasons evidence-neutral)
   Change type fix update
   Scope reporting packaging tests governance

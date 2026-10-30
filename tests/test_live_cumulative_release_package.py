@@ -1358,6 +1358,21 @@ def test_package_rejects_invalid_publication_readiness(
     assert "publication_readiness_schema_validation" in captured.err
 
 
+def test_package_reports_invalid_utf8_readiness_without_traceback(
+    tmp_path: Path, capsys: object
+) -> None:
+    db, reports = tmp_path / "db", tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    (reports / "publication_readiness.json").write_bytes(b"{\xff}\n")
+    out = tmp_path / "pkg.zip"
+    assert _build_fixture_package(db, reports, out) == 1
+    assert not out.exists()
+    captured = capsys.readouterr()  # type: ignore[attr-defined]
+    assert "malformed_publication_readiness:" in captured.err
+    assert "release ZIP was not created" in captured.err
+    assert "Traceback" not in captured.err
+
+
 def test_package_fails_when_required_csv_missing(tmp_path: Path) -> None:
     """Missing required Layer 5 artifacts must fail non-zero."""
     db = tmp_path / "db"
