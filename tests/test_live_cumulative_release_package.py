@@ -642,7 +642,7 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
         else:
             (stats / name).write_text("col_a\nval_1\n", encoding="utf-8")
 
-    (root / "protocol.yml").write_text("protocol_version: 1\n", encoding="utf-8")
+    (root / "protocol.yml").write_bytes((REPO_ROOT / "config/live_query_protocol.yml").read_bytes())
     (root / "projection.yml").write_text("query_groups: {}\n", encoding="utf-8")
     (root / "constraints.json").write_text("{}\n", encoding="utf-8")
     (root / "query_execution_log.csv").write_text(
@@ -3109,3 +3109,27 @@ def test_report_rejects_missing_declared_hypothesis_required_fields(tmp_path: Pa
         assert "Declared hypothesis result fields missing" in str(exc)
     else:
         raise AssertionError("Expected report build to fail on missing required hypothesis fields")
+
+
+def test_publication_projections_are_packaged_and_stale_report_is_rejected(tmp_path: Path, capsys: object) -> None:
+    db, reports = tmp_path / "db", tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    _REPORT.build_html_report(database_dir=db, reports_dir=reports, generated_at="2026-07-10T00:00:00+00:00")
+    out = tmp_path / "package.zip"
+    assert _build_fixture_package(db, reports, out) == 0
+    with zipfile.ZipFile(out) as archive:
+        prefix = "statistics/publication/"
+        for name in ("publication_tables.json", "sector_qmbd_publication.csv", "publication_tables.html"):
+            assert archive.read(prefix + name) == (reports / name).read_bytes()
+        sqlite_file = tmp_path / "package.sqlite"
+        sqlite_file.write_bytes(archive.read("data/sqlite/morskamary_live_cumulative.sqlite"))
+    import sqlite3
+    from src.scientific_sources.publication_tables import validate_publication_outputs
+    model = json.loads((reports / "publication_tables.json").read_text())
+    with sqlite3.connect(sqlite_file) as conn:
+        validate_publication_outputs(model, reports, conn)
+        assert conn.execute("SELECT count(*) FROM evidence_records").fetchone()[0] > 0
+    (reports / "sector_qmbd_publication.csv").write_text("wrong units and values")
+    assert _build_fixture_package(db, reports, tmp_path / "rejected.zip") == 1
+    assert "publication_projection_mismatch" in capsys.readouterr().err  # type: ignore[attr-defined]
+    assert not (tmp_path / "rejected.zip").exists()

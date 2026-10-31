@@ -52,6 +52,13 @@ if str(_REPO_ROOT) not in sys.path:
 from jsonschema import Draft202012Validator  # noqa: E402
 from pypdf import PdfReader  # noqa: E402
 
+from src.scientific_sources.publication_tables import (  # noqa: E402
+    add_publication_sqlite,
+    validate_publication_sqlite,
+    build_publication_tables,
+    publication_artifacts,
+    validate_publication_outputs,
+)
 from src.scientific_sources.publication_readiness import (  # noqa: E402
     aggregate_readiness,
     current_run_identity,
@@ -2189,7 +2196,9 @@ def _report_has_required_sections(path: Path) -> List[str]:
     return [token for token in required_tokens if token not in text]
 
 
-def _build_sqlite_from_csvs(csv_dir: Path) -> Tuple[Optional[bytes], Dict[str, str]]:
+def _build_sqlite_from_csvs(
+    csv_dir: Path, publication_model: Optional[Dict[str, Any]] = None,
+) -> Tuple[Optional[bytes], Dict[str, str]]:
     """Materialize the CSV bundle into a portable SQLite database.
 
     Returns ``(sqlite_bytes, status_dict)``. ``sqlite_bytes`` is ``None`` if
@@ -2219,6 +2228,10 @@ def _build_sqlite_from_csvs(csv_dir: Path) -> Tuple[Optional[bytes], Dict[str, s
                     padded = row + [""] * (len(headers) - len(row))
                     cursor.execute(insert, padded[: len(headers)])
         conn.commit()
+        if publication_model is not None:
+            add_publication_sqlite(conn, publication_model)
+            validate_publication_sqlite(publication_model, conn)
+            conn.commit()
         try:
             data = conn.serialize()  # type: ignore[attr-defined]
         except AttributeError:
@@ -2936,8 +2949,24 @@ def main(argv: Optional[List[str]] = None) -> int:
         if blob is not None:
             entries.append((name, blob))
 
-    # SQLite
-    sqlite_bytes, sqlite_status = _build_sqlite_from_csvs(database_dir)
+    # Recompute descriptive projections from the same retained inputs. Reject
+    # stale report-side projections when a new report generated them.
+    try:
+        publication_model = build_publication_tables(database_dir, protocol_path)
+        if (reports_dir / "publication_tables.json").is_file():
+            validate_publication_outputs(publication_model, reports_dir)
+    except (ValueError, OSError, UnicodeDecodeError) as exc:
+        print(f"error: publication table validation failed; release ZIP was not created: {exc}", file=sys.stderr)
+        return 1
+    for name, data in publication_artifacts(publication_model).items():
+        entries.append((f"statistics/publication/{name}", data))
+
+    # SQLite preserves legacy tables and adds governed analytical projections.
+    sqlite_bytes, sqlite_status = _build_sqlite_from_csvs(database_dir, publication_model)
+    if sqlite_bytes is None:
+        print("error: analytical SQLite failed; release ZIP was not created: "
+              + sqlite_status.get("sqlite_skip_reason", "unknown"), file=sys.stderr)
+        return 1
     if sqlite_bytes is not None:
         entries.append(("data/sqlite/morskamary_live_cumulative.sqlite", sqlite_bytes))
 

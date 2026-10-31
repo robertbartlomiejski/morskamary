@@ -1,0 +1,1636 @@
+{
+  "audit": {
+    "columns": [
+      {
+        "column": "evidence_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "canonical_doi",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 17,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "canonical_title",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 1,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "normalized_title_hash",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 1,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "first_seen_run_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "latest_seen_run_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "first_seen_at_utc",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "latest_seen_at_utc",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "providers_seen",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "provider_count",
+        "declared_analytical_type": "INTEGER",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "query_ids_seen",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "query_families_seen",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "sector_candidates",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "axis_candidates",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "year",
+        "declared_analytical_type": "INTEGER",
+        "invalid_n": 0,
+        "missing_n": 68,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "journal",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 389,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "citation_count",
+        "declared_analytical_type": "INTEGER",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "record_novelty_status",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "record_recurrence_count",
+        "declared_analytical_type": "INTEGER",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "jaccard_group_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "validity_warning",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 3067,
+        "n": 3129,
+        "physical_source_type": "CSV text",
+        "table": "evidence_records"
+      },
+      {
+        "column": "signal_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "evidence_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "run_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "sector",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "axis_group",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "axis_code",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "query_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "query_family",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "semantic_scope",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "signal_type",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "competence_label",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "competence_description",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "demand_phrase",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "learning_outcome_candidate",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "evidence_text_scope",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "evidence_text_hash",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "confidence_score",
+        "declared_analytical_type": "REAL",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "classifier_version",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "manual_review_status",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "validity_warning",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 2105,
+        "physical_source_type": "CSV text",
+        "table": "competence_demand_signals"
+      },
+      {
+        "column": "competence_demand_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "competence_label",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "competence_definition",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "sector",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "axis_group",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "axis_code",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "eqf_relevance",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "demand_strength_score",
+        "declared_analytical_type": "REAL",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "evidence_record_count",
+        "declared_analytical_type": "INTEGER",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "unique_doi_count",
+        "declared_analytical_type": "INTEGER",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "record_occurrence_count",
+        "declared_analytical_type": "INTEGER",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "provider_count",
+        "declared_analytical_type": "INTEGER",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "providers_seen",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "provider_diversity_score",
+        "declared_analytical_type": "REAL",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "query_count",
+        "declared_analytical_type": "INTEGER",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "query_families_seen",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "query_diversity_score",
+        "declared_analytical_type": "REAL",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "temporal_recency_score",
+        "declared_analytical_type": "REAL",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "cross_sector_recurrence_score",
+        "declared_analytical_type": "REAL",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "semantic_confidence_mean",
+        "declared_analytical_type": "REAL",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "first_seen_run_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "latest_seen_run_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "first_seen_at_utc",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "latest_seen_at_utc",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "status",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "manual_review_status",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "validity_warning",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "evidence_ids",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "signal_types",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 157,
+        "physical_source_type": "CSV text",
+        "table": "derived_competence_demands"
+      },
+      {
+        "column": "credential_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "credential_title",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "sector",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "axis_group",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "eqf_level",
+        "declared_analytical_type": "INTEGER",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "ects",
+        "declared_analytical_type": "REAL",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "competence_demand_ids",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "learning_outcomes",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "assessment_method",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "evidence_record_count",
+        "declared_analytical_type": "INTEGER",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "unique_doi_count",
+        "declared_analytical_type": "INTEGER",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "confidence_score",
+        "declared_analytical_type": "REAL",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "coverage_status",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "validity_warning",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 79,
+        "physical_source_type": "CSV text",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "column": "outcome_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 290,
+        "physical_source_type": "CSV text",
+        "table": "learning_outcomes"
+      },
+      {
+        "column": "credential_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 290,
+        "physical_source_type": "CSV text",
+        "table": "learning_outcomes"
+      },
+      {
+        "column": "sector",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 290,
+        "physical_source_type": "CSV text",
+        "table": "learning_outcomes"
+      },
+      {
+        "column": "axis_group",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 290,
+        "physical_source_type": "CSV text",
+        "table": "learning_outcomes"
+      },
+      {
+        "column": "eqf_level",
+        "declared_analytical_type": "INTEGER",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 290,
+        "physical_source_type": "CSV text",
+        "table": "learning_outcomes"
+      },
+      {
+        "column": "outcome_statement",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 290,
+        "physical_source_type": "CSV text",
+        "table": "learning_outcomes"
+      },
+      {
+        "column": "evidence_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 290,
+        "physical_source_type": "CSV text",
+        "table": "learning_outcomes"
+      },
+      {
+        "column": "competence_demand_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 290,
+        "physical_source_type": "CSV text",
+        "table": "learning_outcomes"
+      },
+      {
+        "column": "hypothesis_ids",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 203,
+        "n": 290,
+        "physical_source_type": "CSV text",
+        "table": "learning_outcomes"
+      },
+      {
+        "column": "signal_type",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 290,
+        "physical_source_type": "CSV text",
+        "table": "learning_outcomes"
+      },
+      {
+        "column": "confidence_score",
+        "declared_analytical_type": "REAL",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 290,
+        "physical_source_type": "CSV text",
+        "table": "learning_outcomes"
+      },
+      {
+        "column": "validity_warning",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 290,
+        "physical_source_type": "CSV text",
+        "table": "learning_outcomes"
+      },
+      {
+        "column": "fragment_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "hypothesis_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "hypothesis_label",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "hypothesis_ids",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "signal_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "evidence_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "run_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "sector",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "axis_group",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "axis_code",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "signal_type",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "demand_phrase",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "matched_hypothesis_phrase",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "theory_term_family",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 172,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "indicator_family",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "semantic_fragment",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "evidence_surface",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "semantic_scope",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "evidence_text_hash",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "classifier_version",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "manual_review_status",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "validity_warning",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 172,
+        "physical_source_type": "CSV text",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "column": "sector",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 22,
+        "physical_source_type": "CSV text",
+        "table": "sector_axis_gap_model"
+      },
+      {
+        "column": "axis_group",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 22,
+        "physical_source_type": "CSV text",
+        "table": "sector_axis_gap_model"
+      },
+      {
+        "column": "static_baseline_available_count",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 22,
+        "physical_source_type": "CSV text",
+        "table": "sector_axis_gap_model"
+      },
+      {
+        "column": "live_literature_demand_count",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 22,
+        "physical_source_type": "CSV text",
+        "table": "sector_axis_gap_model"
+      },
+      {
+        "column": "validated_demand_count",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 22,
+        "physical_source_type": "CSV text",
+        "table": "sector_axis_gap_model"
+      },
+      {
+        "column": "covered_by_existing_credentials_count",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 22,
+        "physical_source_type": "CSV text",
+        "table": "sector_axis_gap_model"
+      },
+      {
+        "column": "uncovered_demand_count",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 22,
+        "physical_source_type": "CSV text",
+        "table": "sector_axis_gap_model"
+      },
+      {
+        "column": "gap_ratio",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 22,
+        "physical_source_type": "CSV text",
+        "table": "sector_axis_gap_model"
+      },
+      {
+        "column": "evidence_strength_score",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 22,
+        "physical_source_type": "CSV text",
+        "table": "sector_axis_gap_model"
+      },
+      {
+        "column": "validity_warning",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 22,
+        "physical_source_type": "CSV text",
+        "table": "sector_axis_gap_model"
+      },
+      {
+        "column": "crossref_dominance_ratio",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "current_run_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "jaccard_similarity_with_previous_run",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "new_unique_doi_count",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "previous_run_id",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "provider_diversity_score",
+        "declared_analytical_type": "REAL",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "provider_enriched_count",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "provider_health_ok_zero_records",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "provider_record_count_by_provider",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "query_diversity_score",
+        "declared_analytical_type": "REAL",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "query_families_seen",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "repeated_doi_count",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "semantic_new_signal_count",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "updated_metadata_count",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "validity_warnings",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 1,
+        "physical_source_type": "CSV text",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "column": "variable_name",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 9,
+        "physical_source_type": "CSV text",
+        "table": "VARIABLE_LABELS"
+      },
+      {
+        "column": "variable_label",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 9,
+        "physical_source_type": "CSV text",
+        "table": "VARIABLE_LABELS"
+      },
+      {
+        "column": "variable_name",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 15,
+        "physical_source_type": "CSV text",
+        "table": "VALUE_LABELS"
+      },
+      {
+        "column": "value_code",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 15,
+        "physical_source_type": "CSV text",
+        "table": "VALUE_LABELS"
+      },
+      {
+        "column": "value_label",
+        "declared_analytical_type": "TEXT",
+        "invalid_n": 0,
+        "missing_n": 0,
+        "n": 15,
+        "physical_source_type": "CSV text",
+        "table": "VALUE_LABELS"
+      }
+    ],
+    "duplicate_associations_collapsed": 627,
+    "invalid_dimension_signal_n": 0,
+    "missing_dimension_signal_n": 0,
+    "relations": [
+      {
+        "child": "semantic_signals",
+        "field": "evidence_id",
+        "parent": "evidence_records",
+        "parent_key": "evidence_id",
+        "reason": "table_or_join_key_not_retained",
+        "status": "unavailable"
+      },
+      {
+        "before_n": 2105,
+        "child": "competence_demand_signals",
+        "excess_join_rows": 0,
+        "field": "evidence_id",
+        "inner_join_n": 2105,
+        "left_join_n": 2105,
+        "matched_child_n": 2105,
+        "missing_key_n": 0,
+        "orphan_n": 0,
+        "parent": "evidence_records",
+        "parent_key": "evidence_id",
+        "status": "valid"
+      },
+      {
+        "child": "evidence_fragments",
+        "field": "evidence_id",
+        "parent": "evidence_records",
+        "parent_key": "evidence_id",
+        "reason": "table_or_join_key_not_retained",
+        "status": "unavailable"
+      },
+      {
+        "child": "semantic_signals",
+        "field": "fragment_id",
+        "parent": "evidence_fragments",
+        "parent_key": "fragment_id",
+        "reason": "table_or_join_key_not_retained",
+        "status": "unavailable"
+      },
+      {
+        "child": "competence_candidates",
+        "field": "signal_id|fragment_id",
+        "parent": "semantic_signals",
+        "parent_key": "signal_id|fragment_id",
+        "reason": "table_or_join_key_not_retained",
+        "status": "unavailable"
+      },
+      {
+        "child": "competence_candidates",
+        "field": "fragment_id",
+        "parent": "evidence_fragments",
+        "parent_key": "fragment_id",
+        "reason": "table_or_join_key_not_retained",
+        "status": "unavailable"
+      },
+      {
+        "child": "competence_candidates",
+        "field": "evidence_id",
+        "parent": "evidence_records",
+        "parent_key": "evidence_id",
+        "reason": "table_or_join_key_not_retained",
+        "status": "unavailable"
+      },
+      {
+        "child": "canonical_competences",
+        "field": "source_candidate_id",
+        "parent": "competence_candidates",
+        "parent_key": "candidate_id",
+        "reason": "table_or_join_key_not_retained",
+        "status": "unavailable"
+      },
+      {
+        "child": "canonical_competences",
+        "field": "validation_decision_id",
+        "parent": "validation_decisions",
+        "parent_key": "validation_decision_id",
+        "reason": "table_or_join_key_not_retained",
+        "status": "unavailable"
+      },
+      {
+        "child": "sector_competence_assignments",
+        "field": "canonical_competence_id",
+        "parent": "canonical_competences",
+        "parent_key": "canonical_competence_id",
+        "reason": "table_or_join_key_not_retained",
+        "status": "unavailable"
+      },
+      {
+        "child": "sector_competence_assignments",
+        "field": "validation_decision_id",
+        "parent": "validation_decisions",
+        "parent_key": "validation_decision_id",
+        "reason": "table_or_join_key_not_retained",
+        "status": "unavailable"
+      },
+      {
+        "child": "validation_decisions",
+        "field": "target_candidate_id",
+        "parent": "competence_candidates",
+        "parent_key": "candidate_id",
+        "reason": "table_or_join_key_not_retained",
+        "status": "unavailable"
+      },
+      {
+        "before_n": 290,
+        "child": "learning_outcomes",
+        "excess_join_rows": 0,
+        "field": "credential_id",
+        "inner_join_n": 290,
+        "left_join_n": 290,
+        "matched_child_n": 290,
+        "missing_key_n": 0,
+        "orphan_n": 0,
+        "parent": "credential_translation_eqf4_7",
+        "parent_key": "credential_id",
+        "status": "valid"
+      },
+      {
+        "before_n": 290,
+        "child": "learning_outcomes",
+        "excess_join_rows": 0,
+        "field": "competence_demand_id",
+        "inner_join_n": 290,
+        "left_join_n": 290,
+        "matched_child_n": 290,
+        "missing_key_n": 0,
+        "orphan_n": 0,
+        "parent": "derived_competence_demands",
+        "parent_key": "competence_demand_id",
+        "status": "valid"
+      },
+      {
+        "before_n": 290,
+        "child": "learning_outcomes",
+        "excess_join_rows": 0,
+        "field": "evidence_id",
+        "inner_join_n": 290,
+        "left_join_n": 290,
+        "matched_child_n": 290,
+        "missing_key_n": 0,
+        "orphan_n": 0,
+        "parent": "evidence_records",
+        "parent_key": "evidence_id",
+        "status": "valid"
+      }
+    ],
+    "source_unit_warning": "run_id identifies the cumulative snapshot, not a filter on source run_id",
+    "table_blockers": [],
+    "tables": [
+      {
+        "duplicate_key_rows": 0,
+        "exact_duplicate_rows": 0,
+        "key": "evidence_id",
+        "missing_key_n": 0,
+        "row_count": 3129,
+        "status": "retained",
+        "table": "evidence_records"
+      },
+      {
+        "reason": "source_not_retained",
+        "status": "unavailable",
+        "table": "evidence_occurrences"
+      },
+      {
+        "reason": "source_not_retained",
+        "status": "unavailable",
+        "table": "evidence_fragments"
+      },
+      {
+        "reason": "source_not_retained",
+        "status": "unavailable",
+        "table": "semantic_signals"
+      },
+      {
+        "duplicate_key_rows": 0,
+        "exact_duplicate_rows": 0,
+        "key": "signal_id",
+        "missing_key_n": 0,
+        "row_count": 2105,
+        "status": "retained",
+        "table": "competence_demand_signals"
+      },
+      {
+        "reason": "source_not_retained",
+        "status": "unavailable",
+        "table": "competence_candidates"
+      },
+      {
+        "reason": "source_not_retained",
+        "status": "unavailable",
+        "table": "canonical_competences"
+      },
+      {
+        "reason": "source_not_retained",
+        "status": "unavailable",
+        "table": "sector_competence_assignments"
+      },
+      {
+        "reason": "source_not_retained",
+        "status": "unavailable",
+        "table": "validation_decisions"
+      },
+      {
+        "duplicate_key_rows": 0,
+        "exact_duplicate_rows": 0,
+        "key": "competence_demand_id",
+        "missing_key_n": 0,
+        "row_count": 157,
+        "status": "retained",
+        "table": "derived_competence_demands"
+      },
+      {
+        "duplicate_key_rows": 0,
+        "exact_duplicate_rows": 0,
+        "key": "credential_id",
+        "missing_key_n": 0,
+        "row_count": 79,
+        "status": "retained",
+        "table": "credential_translation_eqf4_7"
+      },
+      {
+        "duplicate_key_rows": 0,
+        "exact_duplicate_rows": 0,
+        "key": "outcome_id",
+        "missing_key_n": 0,
+        "row_count": 290,
+        "status": "retained",
+        "table": "learning_outcomes"
+      },
+      {
+        "duplicate_key_rows": 0,
+        "exact_duplicate_rows": 0,
+        "key": "fragment_id",
+        "missing_key_n": 0,
+        "row_count": 172,
+        "status": "retained",
+        "table": "hypothesis_semantic_fragments"
+      },
+      {
+        "duplicate_key_rows": 0,
+        "exact_duplicate_rows": 0,
+        "key": "sector|axis_group",
+        "missing_key_n": 0,
+        "row_count": 22,
+        "status": "retained",
+        "table": "sector_axis_gap_model"
+      },
+      {
+        "duplicate_key_rows": 0,
+        "exact_duplicate_rows": 0,
+        "key": "current_run_id",
+        "missing_key_n": 0,
+        "row_count": 1,
+        "status": "retained",
+        "table": "run_novelty_metrics"
+      },
+      {
+        "duplicate_key_rows": 0,
+        "exact_duplicate_rows": 0,
+        "key": "variable_name",
+        "missing_key_n": 0,
+        "row_count": 9,
+        "status": "retained",
+        "table": "VARIABLE_LABELS"
+      },
+      {
+        "duplicate_key_rows": 0,
+        "exact_duplicate_rows": 0,
+        "key": "variable_name|value_code",
+        "missing_key_n": 0,
+        "row_count": 15,
+        "status": "retained",
+        "table": "VALUE_LABELS"
+      }
+    ]
+  },
+  "protocol_sha256": "5ed07bb561abb5fc8444bc9c337c9ec6d50376a64bb922eea832f684df79cd76",
+  "run_id": "30090903921-1",
+  "schema_version": "1.0.0",
+  "source_schema_version": "1.0.0",
+  "sources_sha256": {
+    "VALUE_LABELS.csv": "68737ba02246ab970ea771851df83c67c0dcd70567ed16094a57c5ef44a0fe1b",
+    "VARIABLE_LABELS.csv": "b553f80ea7e179cce44c26c59c2e0aba3683e64e18c3acaf33c28f69303cd95e",
+    "competence_demand_signals.csv": "9c16ecc352413a93e6bf19c58baf7da1eb38ca2c2c5c5598a873406dcb1e3bd9",
+    "credential_translation_eqf4_7.csv": "cfc7e95c3b97a0f7a5637daf95a37ad7bf6d227e1db571a3b0e2cb5247c1c5d5",
+    "cumulative_database_manifest.json": "ea066d08d7285473b77ff87d0cbfb7bd9c3049faa8af563de435238c902cfc0e",
+    "derived_competence_demands.csv": "9d0096f4adea231e6f434bdf7f6154288257b976b4fe65660b5082481bc58f83",
+    "evidence_records.csv": "7062166a0a3a572f64cbc294a2ce2a67558a5c0f789f6fdb61dfe377079d94f6",
+    "hypothesis_semantic_fragments.csv": "31e69ce45a4484bc98d0ddba9e6166c1915eaf952bb59cb82986e86ac7d4bb25",
+    "layer4_manifest.json": "f82c3b1248529899ba5c130231c3298915741f5784541aaa370488e0dbf1fc26",
+    "layer5_manifest.json": "5ea012ac83dff82c25e4e7759e29221d31693145fb4e9cb67bd39840a5f92d63",
+    "learning_outcomes.csv": "b612428093f1270e1be81fbf3539d59790d29b0ad0d84ec3fdfae56b539c7925",
+    "run_novelty_metrics.csv": "ec839125898b67a29dcdf8e9780e5049339d1520825fbe0f0e89d907307055f0",
+    "run_novelty_metrics.json": "746de25e5939e9f383fcde8c0f4973437fdc2b11a9ffe5aad1ec888be2ba70f7",
+    "sector_axis_gap_model.csv": "45dec35edb480d4d3544918f32ce104de67e19cc02116c5537914b5054252d0a"
+  }
+}
