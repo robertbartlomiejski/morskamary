@@ -435,6 +435,7 @@ def _update_canonical_derived_demand(
 
 
 def _write_min_bundle(db: Path, reports: Path) -> None:
+    """Create the complete minimal release fixture and its canonical protocol."""
     root = db.parent
     stats = root / "stats"
     db.mkdir(parents=True, exist_ok=True)
@@ -3111,7 +3112,11 @@ def test_report_rejects_missing_declared_hypothesis_required_fields(tmp_path: Pa
         raise AssertionError("Expected report build to fail on missing required hypothesis fields")
 
 
-def test_publication_projections_are_packaged_and_stale_report_is_rejected(tmp_path: Path, capsys: object) -> None:
+@pytest.mark.parametrize("damage", ("csv", "json_missing", "all_missing"))
+def test_publication_projections_are_packaged_and_stale_report_is_rejected(
+    tmp_path: Path, capsys: object, damage: str,
+) -> None:
+    """Verify publication projections are packaged and stale report is rejected."""
     db, reports = tmp_path / "db", tmp_path / "reports"
     _write_min_bundle(db, reports)
     _REPORT.build_html_report(database_dir=db, reports_dir=reports, generated_at="2026-07-10T00:00:00+00:00")
@@ -3129,7 +3134,36 @@ def test_publication_projections_are_packaged_and_stale_report_is_rejected(tmp_p
     with sqlite3.connect(sqlite_file) as conn:
         validate_publication_outputs(model, reports, conn)
         assert conn.execute("SELECT count(*) FROM evidence_records").fetchone()[0] > 0
-    (reports / "sector_qmbd_publication.csv").write_text("wrong units and values")
+    if damage == "csv":
+        (reports / "sector_qmbd_publication.csv").write_text("wrong units and values")
+    else:
+        missing = ("publication_tables.json",) if damage == "json_missing" else _PACKAGE.PUBLICATION_FILES
+        for name in missing:
+            (reports / name).unlink()
     assert _build_fixture_package(db, reports, tmp_path / "rejected.zip") == 1
     assert "publication_projection_mismatch" in capsys.readouterr().err  # type: ignore[attr-defined]
     assert not (tmp_path / "rejected.zip").exists()
+
+
+def test_publication_packaging_uses_bound_protocol_over_configured_fallback(tmp_path: Path) -> None:
+    """Verify publication packaging uses bound protocol over configured fallback."""
+    db, reports = tmp_path / "db", tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    retained = db / "retained_protocol/frozen.yml"
+    retained.parent.mkdir()
+    retained.write_bytes((db.parent / "protocol.yml").read_bytes() + b"# frozen snapshot variant\n")
+    manifest_path = db / "cumulative_database_manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["protocol_binding"] = {
+        "retained_protocol_artifact": "retained_protocol/frozen.yml",
+        "protocol_sha256": hashlib.sha256(retained.read_bytes()).hexdigest(),
+    }
+    manifest_path.write_text(json.dumps(manifest))
+    _rewrite_checksums(db)
+    _REPORT.build_html_report(database_dir=db, reports_dir=reports, generated_at="2026-07-10T00:00:00+00:00")
+    out = tmp_path / "package.zip"
+    assert _build_fixture_package(db, reports, out) == 0
+    with zipfile.ZipFile(out) as archive:
+        assert archive.read("statistics/publication/live_query_protocol.yml") == retained.read_bytes()
+        model = json.loads(archive.read("statistics/publication/publication_tables.json"))
+        assert model["protocol_sha256"] == manifest["protocol_binding"]["protocol_sha256"]

@@ -53,10 +53,12 @@ from jsonschema import Draft202012Validator  # noqa: E402
 from pypdf import PdfReader  # noqa: E402
 
 from src.scientific_sources.publication_tables import (  # noqa: E402
+    FILES as PUBLICATION_FILES,
     add_publication_sqlite,
     validate_publication_sqlite,
     build_publication_tables,
     publication_artifacts,
+    resolve_publication_protocol,
     validate_publication_outputs,
 )
 from src.scientific_sources.publication_readiness import (  # noqa: E402
@@ -2299,6 +2301,7 @@ def _citation_text(version_tag: str, generated_at: str) -> str:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
+    """Validate retained inputs and assemble the deterministic release package."""
     _doc_description = next(
         (line.strip() for line in (__doc__ or "").splitlines() if line.strip()),
         "",
@@ -2952,12 +2955,17 @@ def main(argv: Optional[List[str]] = None) -> int:
     # Recompute descriptive projections from the same retained inputs. Reject
     # stale report-side projections when a new report generated them.
     try:
-        publication_model = build_publication_tables(database_dir, protocol_path)
-        if (reports_dir / "publication_tables.json").is_file():
+        analytical_protocol = resolve_publication_protocol(database_dir, protocol_path)
+        publication_model = build_publication_tables(database_dir, analytical_protocol)
+        report_has_tables = 'id="publication-tables-v1"' in (
+            reports_dir / "morskamary_statistical_report.html"
+        ).read_text(encoding="utf-8")
+        if report_has_tables or any((reports_dir / name).is_file() for name in PUBLICATION_FILES):
             validate_publication_outputs(publication_model, reports_dir)
     except (ValueError, OSError, UnicodeDecodeError) as exc:
         print(f"error: publication table validation failed; release ZIP was not created: {exc}", file=sys.stderr)
         return 1
+    entries.append(("statistics/publication/live_query_protocol.yml", analytical_protocol.read_bytes()))
     for name, data in publication_artifacts(publication_model).items():
         entries.append((f"statistics/publication/{name}", data))
 

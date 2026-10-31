@@ -14,6 +14,7 @@ import math
 import re
 import sqlite3
 from collections import Counter
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -57,8 +58,11 @@ RELATIONS = (
     ("competence_demand_signals", "evidence_id", "evidence_records", "evidence_id"),
     ("evidence_fragments", "evidence_id", "evidence_records", "evidence_id"),
     ("semantic_signals", "fragment_id", "evidence_fragments", "fragment_id"),
+    ("semantic_signals", "fragment_id|evidence_id", "evidence_fragments", "fragment_id|evidence_id"),
     ("competence_candidates", "signal_id|fragment_id", "semantic_signals", "signal_id|fragment_id"),
     ("competence_candidates", "fragment_id", "evidence_fragments", "fragment_id"),
+    ("competence_candidates", "signal_id|fragment_id|evidence_id",
+     "semantic_signals", "signal_id|fragment_id|evidence_id"),
     ("competence_candidates", "evidence_id", "evidence_records", "evidence_id"),
     ("canonical_competences", "source_candidate_id", "competence_candidates", "candidate_id"),
     ("canonical_competences", "validation_decision_id", "validation_decisions", "validation_decision_id"),
@@ -90,6 +94,7 @@ METRIC_COLUMNS = (
 
 
 def _json(value: Any) -> str:
+    """Serialize a deterministic JSON projection without non-finite numbers."""
     return json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False) + "\n"
 
 
@@ -115,16 +120,35 @@ def _number(raw: str, field: str) -> Tuple[Optional[float], str]:
 
 
 def _load(path: Path) -> Any:
+    """Read a retained JSON object, or report an absent file as an empty mapping."""
     return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+
+
+def resolve_publication_protocol(database_dir: Path, fallback: Optional[Path] = None) -> Path:
+    """Prefer the manifest-bound retained protocol; never relabel a bound snapshot."""
+    manifest = _load(database_dir / "cumulative_database_manifest.json")
+    if not isinstance(manifest, dict):
+        raise ValueError("publication_manifest_must_be_object")
+    binding = manifest.get("protocol_binding")
+    if binding:
+        if not isinstance(binding, dict):
+            raise ValueError("publication_protocol_binding_malformed")
+        relative = binding.get("retained_protocol_artifact", "retained_protocol/live_query_protocol.yml")
+        if not isinstance(relative, str):
+            raise ValueError("publication_protocol_binding_path_invalid")
+        retained = (database_dir / relative).resolve()
+        if Path(relative).is_absolute() or database_dir.resolve() not in retained.parents:
+            raise ValueError("publication_protocol_binding_path_invalid")
+        if not retained.is_file():
+            raise ValueError("publication_protocol_binding_artifact_missing")
+        return retained
+    retained = database_dir / "retained_protocol/live_query_protocol.yml"
+    return fallback or (retained if retained.is_file() else ROOT / "config/live_query_protocol.yml")
 
 
 def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] = None) -> Dict[str, Any]:
     """Profile source CSVs and calculate a single reproducible publication model."""
-    protocol_path = protocol_path or (
-        database_dir / "retained_protocol/live_query_protocol.yml"
-        if (database_dir / "retained_protocol/live_query_protocol.yml").is_file()
-        else ROOT / "config/live_query_protocol.yml"
-    )
+    protocol_path = resolve_publication_protocol(database_dir, protocol_path)
     protocol = yaml.safe_load(protocol_path.read_text(encoding="utf-8"))
     sector_config = protocol.get("sectors", {}) if isinstance(protocol, dict) else {}
     sectors = sorted(sector_config) if isinstance(sector_config, dict) else []
@@ -224,19 +248,46 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
                 changed = True
         if not changed:
             break
-    decisions = {r.get("validation_decision_id"): r for r in rows.get("validation_decisions", [])}
+    decisions = {r.get("validation_decision_id", ""): r for r in rows.get("validation_decisions", [])}
+    inactive_ids = {r.get("superseded_validation_decision_id") for r in decisions.values()
+                    if r.get("superseded_validation_decision_id")}
+    for key, decision in decisions.items():
+        previous_id = decision.get("superseded_validation_decision_id")
+        if previous_id:
+            previous = decisions.get(previous_id, {})
+            if not previous or previous.get("target_candidate_id") != decision.get("target_candidate_id"):
+                problems["validation_decisions"].append("invalid_supersession_reference")
+            try:
+                if datetime.fromisoformat(decision["decision_at_utc"].replace("Z", "+00:00")) <= datetime.fromisoformat(
+                    previous["decision_at_utc"].replace("Z", "+00:00")
+                ):
+                    problems["validation_decisions"].append("invalid_supersession_order")
+            except (ValueError, TypeError, KeyError):
+                problems["validation_decisions"].append("unavailable_supersession_chronology")
+        visited = set()
+        cursor = key
+        while cursor in decisions:
+            if cursor in visited:
+                problems["validation_decisions"].append("cyclic_supersession")
+                break
+            visited.add(cursor)
+            cursor = decisions[cursor].get("superseded_validation_decision_id", "")
+    decisions = {key: row for key, row in decisions.items() if key not in inactive_ids}
+    active_counts = Counter(r.get("target_candidate_id") for r in decisions.values())
+    if any(n > 1 for n in active_counts.values()):
+        problems["validation_decisions"].append("multiple_active_decisions")
     accepted_canonical = set()
     for r in rows.get("canonical_competences", []):
-        decision = decisions.get(r.get("validation_decision_id"), {})
+        decision = decisions.get(r.get("validation_decision_id", ""), {})
         if (r.get("validation_status") == "accepted" and r.get("provenance_guard_status") == "passed"
-                and decision.get("decision_status") == "accepted"
+                and not problems["validation_decisions"] and decision.get("decision_status") == "accepted"
                 and decision.get("target_candidate_id") == r.get("source_candidate_id")):
             accepted_canonical.add(r.get("canonical_competence_id"))
         else:
             problems["canonical_competences"].append("unverified_canonical_validation")
     for r in rows.get("sector_competence_assignments", []):
         if (r.get("canonical_competence_id") not in accepted_canonical
-                or decisions.get(r.get("validation_decision_id"), {}).get("decision_status") != "accepted"
+                or decisions.get(r.get("validation_decision_id", ""), {}).get("decision_status") != "accepted"
                 or problems["canonical_competences"] or problems["validation_decisions"]):
             problems["sector_competence_assignments"].append("unverified_assignment_validation")
     modern = "semantic_signals" in rows or source_version.startswith("2.")
@@ -244,10 +295,12 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
     evidence = {r["evidence_id"]: r for r in rows.get("evidence_records", []) if r.get("evidence_id")}
     signals = rows.get(signal_table, [])
     complete_dimensions = all(f in headers.get(signal_table, []) for f in ("sector", "axis_group", "evidence_id"))
-    missing_dimensions = sum(not r.get("sector") or not r.get("axis_group") for r in signals)
-    invalid_dimensions = sum(bool(r.get("sector")) and r["sector"] not in sectors or
-                             bool(r.get("axis_group")) and r["axis_group"] not in AXES or
-                             ("axis_code" in r and r.get("axis_code") != AXES.get(r.get("axis_group", "")))
+    missing_dimensions = sum(not r.get("sector", "").strip() or not r.get("axis_group", "").strip() for r in signals)
+    invalid_dimensions = sum(bool(r.get("sector", "").strip()) and r["sector"] not in sectors or
+                             bool(r.get("axis_group", "").strip()) and r["axis_group"] not in AXES or
+                             ("axis_code" in r and (bool(r.get("axis_group", "").strip()) or
+                                                    bool(r.get("axis_code", "").strip()))
+                              and r.get("axis_code") != AXES.get(r.get("axis_group", "")))
                              for r in signals)
     eligible = [r for r in signals if r.get("evidence_id") in evidence
                 and r.get("sector") in sectors and r.get("axis_group") in AXES
@@ -282,6 +335,7 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
 
     def unit(metric: str, source: str, grain: str, value: Optional[int], reason: str = "",
              missing: Optional[int] = 0, missing_reason: str = "") -> None:
+        """Append a count and its metric contract with explicit availability."""
         units.append(dict(zip(UNIT_COLUMNS, (
             metric, grain, value, value, missing, missing_reason,
             "computable" if value is not None else "not_computable", reason, source, run_id,
@@ -314,7 +368,7 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
         fields = (KEYS[table], "fragment_id") if table == "semantic_signals" else (KEYS[table],)
         value = None if issue else len({tuple(r[f] for f in fields) for r in counted})
         unit(metric, table + ".csv", grain, value, issue,
-             None if table not in rows else sum(any(not r.get(f) for f in fields) for r in rows[table]),
+             None if table not in rows else sum(any(not r.get(f, "").strip() for f in fields) for r in rows[table]),
              "population_not_retained" if table not in rows else "")
         definitions[-1].update(
             numerator="distinct " + ", ".join(fields),
@@ -389,6 +443,7 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
         "metric_contract": definitions,
         "audit": {"tables": profiles, "columns": columns, "relations": relations,
                   "table_blockers": sorted(set(reasons)), "missing_dimension_signal_n": missing_dimensions,
+                  "validation_ledger_problems": sorted(set(problems["validation_decisions"])),
                   "invalid_dimension_signal_n": invalid_dimensions,
                   "duplicate_associations_collapsed": len(eligible) - len(assignments),
                   "source_unit_warning": "run_id identifies the cumulative snapshot, not a filter on source run_id"},
@@ -397,10 +452,12 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
 
 
 def _cell(value: Any) -> str:
+    """Render NULL as an empty field while preserving observed zero."""
     return "" if value is None else str(value)
 
 
 def _csv(rows: List[Dict[str, Any]], fields: Tuple[str, ...]) -> str:
+    """Serialize rows in contract field order with stable line endings."""
     buffer = io.StringIO(newline="")
     writer = csv.DictWriter(buffer, fieldnames=fields, lineterminator="\n")
     writer.writeheader()
@@ -442,6 +499,7 @@ def publication_artifacts(model: Dict[str, Any]) -> Dict[str, bytes]:
 
 
 def write_publication_tables(model: Dict[str, Any], output: Path) -> None:
+    """Materialize the deterministic sidecars from an already calculated model."""
     output.mkdir(parents=True, exist_ok=True)
     for name, data in publication_artifacts(model).items():
         (output / name).write_bytes(data)
@@ -470,9 +528,18 @@ CREATE TABLE analysis_assignments_v1 (
     meta = {k: model[k] for k in ("schema_version", "run_id", "source_schema_version", "scope", "protocol_sha256")}
     meta.update({"sources_sha256": _json(model["sources_sha256"]), "audit": _json(model["audit"])})
     conn.executemany("INSERT INTO analysis_metadata_v1 VALUES (?,?)", sorted(meta.items()))
-    for table, key in (("evidence", "evidence_facts"), ("signals", "signal_facts"), ("assignments", "assignment_facts")):
-        for row in model[key]:
-            conn.execute(f"INSERT INTO analysis_{table}_v1 VALUES ({','.join('?' for _ in row)})", tuple(row.values()))
+    fact_fields = {
+        "evidence": ("evidence_id", "year", "year_status"),
+        "signals": ("signal_id", "fragment_id", "evidence_id", "sector", "axis_group",
+                    "confidence_score", "confidence_status"),
+        "assignments": ("evidence_id", "sector", "axis_group"),
+    }
+    for table, fields in fact_fields.items():
+        key = {"evidence": "evidence_facts", "signals": "signal_facts", "assignments": "assignment_facts"}[table]
+        conn.executemany(
+            f"INSERT INTO analysis_{table}_v1 ({','.join(fields)}) VALUES ({','.join('?' for _ in fields)})",
+            [tuple(row[field] for field in fields) for row in model[key]],
+        )
     int_fields = {"value", "n", "missing_n", "assignment_count", "unique_evidence_n", "row_denominator",
                   "column_denominator", "grand_denominator", "excluded_signal_n"}
     for key, fields in (("unit_reconciliation", UNIT_COLUMNS),

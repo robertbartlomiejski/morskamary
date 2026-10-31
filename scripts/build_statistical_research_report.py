@@ -213,6 +213,7 @@ def build_html_report(
     reports_dir: Path,
     generated_at: str,
 ) -> Path:
+    """Render retained research results and the shared publication-table projections."""
     publication_model = build_publication_tables(database_dir)
     evidence = _load_csv(database_dir / "evidence_records.csv")
     signals = _load_csv(database_dir / "competence_demand_signals.csv")

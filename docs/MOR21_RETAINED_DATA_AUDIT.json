@@ -1377,6 +1377,14 @@
         "status": "unavailable"
       },
       {
+        "child": "semantic_signals",
+        "field": "fragment_id|evidence_id",
+        "parent": "evidence_fragments",
+        "parent_key": "fragment_id|evidence_id",
+        "reason": "table_or_join_key_not_retained",
+        "status": "unavailable"
+      },
+      {
         "child": "competence_candidates",
         "field": "signal_id|fragment_id",
         "parent": "semantic_signals",
@@ -1389,6 +1397,14 @@
         "field": "fragment_id",
         "parent": "evidence_fragments",
         "parent_key": "fragment_id",
+        "reason": "table_or_join_key_not_retained",
+        "status": "unavailable"
+      },
+      {
+        "child": "competence_candidates",
+        "field": "signal_id|fragment_id|evidence_id",
+        "parent": "semantic_signals",
+        "parent_key": "signal_id|fragment_id|evidence_id",
         "reason": "table_or_join_key_not_retained",
         "status": "unavailable"
       },
@@ -1611,7 +1627,8 @@
         "status": "retained",
         "table": "VALUE_LABELS"
       }
-    ]
+    ],
+    "validation_ledger_problems": []
   },
   "protocol_sha256": "5ed07bb561abb5fc8444bc9c337c9ec6d50376a64bb922eea832f684df79cd76",
   "run_id": "30090903921-1",

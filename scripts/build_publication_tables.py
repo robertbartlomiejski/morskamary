@@ -19,10 +19,11 @@ from src.scientific_sources.publication_tables import (  # noqa: E402
 
 
 def main() -> int:
+    """Build or validate publication projections without changing retained sources."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--database-dir', type=Path, required=True)
     parser.add_argument('--output-dir', type=Path, required=True)
-    parser.add_argument('--protocol', type=Path)
+    parser.add_argument('--protocol', type=Path, help='Fallback protocol for snapshots without a retained manifest binding')
     parser.add_argument('--validate-only', action='store_true')
     args = parser.parse_args()
     try:

@@ -5,7 +5,8 @@ and sector × QMBD screening tables. It does not complete MOR-21 or MOR-12.
 The authoritative input is `outputs/cumulative_database`, source schema **1.0.0**,
 snapshot run **30090903921-1**, on main
 `bcae32c732f840c2505e4d3421295e4463ab4ee6`. The retained protocol is preferred;
-a caller may explicitly supply the protocol bound to its package.
+a manifest binding takes precedence over the configured fallback, including a
+custom retained artifact path. An absent or escaping bound path is an error.
 `MOR21_RETAINED_DATA_AUDIT.json` records exact input SHA-256 hashes, physical
 CSV types, analytical types, column-level missing/invalid counts, key profiles,
 and relationship cardinalities. It is a snapshot audit, not a refreshed dataset.
@@ -89,10 +90,12 @@ estimated from retained aggregates. No provider×query Cartesian product is used
 CSV source fields are text. The typed layer preserves invalid/missing year and
 confidence as NULL plus a parsing status. IDs and labels are never converted to
 numbers. A signal in schema v2 has the composite key `(signal_id, fragment_id)`;
-two fragments sharing a signal identifier are not duplicates. Invalid keys,
+two fragments sharing a signal identifier are not duplicates. Composite lineage checks
+also require each signal and its fragment to identify the same evidence record,
+and each candidate to retain its signal/fragment/evidence tuple. Invalid keys,
 orphan references, missing required join tables and join expansion suppress
 related counts, instead of silently dropping invalid source records. Canonical
-competence counts additionally require the retained accepted decision and passed
+competence counts additionally require an active (not superseded) retained accepted decision and passed
 provenance flag; this is not an independent scientific revalidation.
 
 ## Reproduce and inspect
@@ -122,7 +125,9 @@ FROM analysis_sector_qmbd_v1 WHERE row_kind = 'cell';
 
 `--validate-only` recomputes from retained inputs and checks all projections,
 including visible report HTML and SQLite facts/metadata/summary tables. Packaging
-rejects stale sidecars when present and checks the same model before archiving.
+rejects stale or incomplete sidecars for any new-format report and checks the
+same model before archiving. Entirely legacy reports retain compatibility. The
+resolved analytical protocol is included under `statistics/publication/`.
 JSON NULL corresponds to SQLite NULL and an empty CSV/HTML value; status and reason
 must be read alongside it. Labels, units, statuses and numeric values are checked,
 not just file presence. Existing optional-PDF behavior is unchanged.
