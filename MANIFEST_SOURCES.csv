@@ -732,6 +732,8 @@ docs/literature/WG_applications_export_05-01-2026 (1).xlsx,literature,,,,,,WG_ap
 docs/literature/Wyrzucone przez morze_250521_002507.txt,literature,,,,,,Wyrzucone_przez_morze_250521_002507,yes
 docs/LIVE_CUMULATIVE_SCIENTIFIC_DATABASE.md,text,,,,,,LIVE_CUMULATIVE_SCIENTIFIC_DATABASE,yes
 docs/LIVE_REPLICATION_INFRASTRUCTURE.md,text,,,,,,LIVE_REPLICATION_INFRASTRUCTURE,yes
+docs/MOR21_PUBLICATION_TABLES.md,text,,,,,,MOR21_PUBLICATION_TABLES,yes
+docs/MOR21_RETAINED_DATA_AUDIT.json,other,,,,,,MOR21_RETAINED_DATA_AUDIT,yes
 docs/onboarding_new_provider.md,text,,,,,,onboarding_new_provider,yes
 docs/ONE_CLICK_RESEARCH_RUNBOOK.md,text,,,,,,ONE_CLICK_RESEARCH_RUNBOOK,yes
 docs/overview.md,text,,,,,,overview,yes
@@ -1212,6 +1214,7 @@ scripts/build_live_cumulative_release_package.py,script,,,,,,build_live_cumulati
 scripts/build_live_run_audit.py,script,,,,,,build_live_run_audit,yes
 scripts/build_performative_demand_cross_axis_analysis.py,script,,,,,,build_performative_demand_cross_axis_analysis,yes
 scripts/build_provider_sensitivity_analysis.py,script,,,,,,build_provider_sensitivity_analysis,yes
+scripts/build_publication_tables.py,script,,,,,,build_publication_tables,yes
 scripts/build_run_stability_report.py,script,,,,,,build_run_stability_report,yes
 scripts/build_statistical_research_report.py,script,,,,,,build_statistical_research_report,yes
 scripts/build_tmbd_dictionary.py,script,,,,,,build_tmbd_dictionary,yes
@@ -1298,6 +1301,7 @@ src/scientific_sources/openalex.py,script,,,,,,openalex,yes
 src/scientific_sources/performative_demand_analysis.py,script,,,,,,performative_demand_analysis,yes
 src/scientific_sources/provenance.py,script,,,,,,provenance,yes
 src/scientific_sources/publication_readiness.py,script,,,,,,publication_readiness,yes
+src/scientific_sources/publication_tables.py,script,,,,,,publication_tables,yes
 src/scientific_sources/research_question_registry.py,script,,,,,,research_question_registry,yes
 src/scientific_sources/schema_v2_identity.py,script,,,,,,schema_v2_identity,yes
 src/scientific_sources/scival.py,script,,,,,,scival,yes
@@ -1369,6 +1373,7 @@ tests/test_prepare_live_acquisition_plan.py,script,,,,,,test_prepare_live_acquis
 tests/test_provider_sensitivity.py,script,,,,,,test_provider_sensitivity,yes
 tests/test_provider_sensitivity_analysis.py,script,,,,,,test_provider_sensitivity_analysis,yes
 tests/test_publication_cumulative_database.py,script,,,,,,test_publication_cumulative_database,yes
+tests/test_publication_tables.py,script,,,,,,test_publication_tables,yes
 tests/test_research_queries_config.py,script,,,,,,test_research_queries_config,yes
 tests/test_research_question_registry.py,script,,,,,,test_research_question_registry,yes
 tests/test_research_support_scripts.py,script,,,,,,test_research_support_scripts,yes

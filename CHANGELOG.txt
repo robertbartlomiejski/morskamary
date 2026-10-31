@@ -1,3 +1,18 @@
+2026-10-31 — MOR-21 first publication-table slice
+- Add retained-data key/type/missingness/join audit and versioned metric contracts.
+- Generate unit reconciliation and screening sector × QMBD from one model to HTML,
+  CSV, JSON and typed SQLite, preserving legacy exports and optional PDF behavior.
+- Add negative regressions for join inflation, overlapping assignments, missing or
+  invalid values, zero denominators, composite signal keys and format divergence.
+- Reject cross-source signal/fragment and candidate lineage; align whitespace-only
+  missing keys/dimensions with column-level missingness counts.
+- Resolve active validation decisions, preserve explicit SQLite fact-field order
+  after JSON reload, and reject partial or deleted publication sidecars.
+- Bind report and release tables to the same retained protocol, including custom
+  manifest paths; include the analytical protocol in the release archive.
+- Document retained snapshot findings and remaining MOR-21 scope; no live acquisition,
+  historical archive edits or H2/H3 computability promotion.
+
 CHANGELOG.txt
 
 Purpose
