@@ -345,19 +345,22 @@ def test_superseded_accepted_decision_cannot_validate_canonical_or_assignment(tm
     p = bundle(tmp_path)
     write_csv(p / 'evidence_fragments.csv', [{'fragment_id': 'f', 'evidence_id': 'e1'}])
     write_csv(p / 'semantic_signals.csv', [
-        {'signal_id': 's', 'fragment_id': 'f', 'evidence_id': 'e1', 'sector': 'blue_biotech', 'axis_group': 'MARINE'}])
+        {'signal_id': 's', 'fragment_id': 'f', 'evidence_id': 'e1',
+         'sector': 'blue_biotech', 'axis_group': 'MARINE', 'axis_code': 'M'}])
     write_csv(p / 'competence_candidates.csv', [
         {'candidate_id': 'c', 'signal_id': 's', 'fragment_id': 'f', 'evidence_id': 'e1'}])
     decisions = [
         {'validation_decision_id': 'd1', 'target_candidate_id': 'c', 'decision_status': 'accepted',
+         'canonical_label': 'Marine skill',
          'superseded_validation_decision_id': '', 'decision_at_utc': '2026-01-01T00:00:00Z'}]
     write_csv(p / 'validation_decisions.csv', decisions)
     write_csv(p / 'canonical_competences.csv', [
         {'canonical_competence_id': 'k', 'source_candidate_id': 'c', 'validation_decision_id': 'd1',
-         'validation_status': 'accepted', 'provenance_guard_status': 'passed'}])
+         'validation_status': 'accepted', 'provenance_guard_status': 'passed', 'preferred_label': 'Marine skill'}])
     write_csv(p / 'sector_competence_assignments.csv', [
         {'assignment_id': 'a', 'canonical_competence_id': 'k', 'validation_decision_id': 'd1',
-         'source_candidate_id': 'c', 'evidence_ids': 'e1'}])
+         'source_candidate_id': 'c', 'evidence_ids': 'e1',
+                  'sector': 'blue_biotech', 'axis_group': 'MARINE', 'axis_code': 'M'}])
     before = build_publication_tables(p)
     assert metric(before, 'validated_canonical_competences')['value'] == 1
     assert metric(before, 'validated_sector_assignments')['value'] == 1
@@ -405,18 +408,22 @@ def test_assignment_requires_reviewed_candidate_and_exact_evidence(tmp_path, can
     write_csv(p / 'evidence_fragments.csv', [
         {'fragment_id': 'f', 'evidence_id': 'e1'}, {'fragment_id': 'f2', 'evidence_id': 'e2'}])
     write_csv(p / 'semantic_signals.csv', [
-        {'signal_id': 's', 'fragment_id': 'f', 'evidence_id': 'e1', 'sector': 'blue_biotech', 'axis_group': 'MARINE'},
-        {'signal_id': 's2', 'fragment_id': 'f2', 'evidence_id': 'e2', 'sector': 'blue_biotech', 'axis_group': 'MARINE'}])
+        {'signal_id': 's', 'fragment_id': 'f', 'evidence_id': 'e1',
+         'sector': 'blue_biotech', 'axis_group': 'MARINE', 'axis_code': 'M'},
+        {'signal_id': 's2', 'fragment_id': 'f2', 'evidence_id': 'e2',
+         'sector': 'blue_biotech', 'axis_group': 'MARINE', 'axis_code': 'M'}])
     write_csv(p / 'competence_candidates.csv', [
         {'candidate_id': 'c', 'signal_id': 's', 'fragment_id': 'f', 'evidence_id': 'e1'},
         {'candidate_id': 'c2', 'signal_id': 's2', 'fragment_id': 'f2', 'evidence_id': 'e2'}])
     write_csv(p / 'validation_decisions.csv', [
-        {'validation_decision_id': 'd', 'target_candidate_id': 'c', 'decision_status': 'accepted'}])
+        {'validation_decision_id': 'd', 'target_candidate_id': 'c', 'decision_status': 'accepted',
+         'canonical_label': 'Marine skill'}])
     write_csv(p / 'canonical_competences.csv', [
         {'canonical_competence_id': 'k', 'source_candidate_id': 'c', 'validation_decision_id': 'd',
-         'validation_status': 'accepted', 'provenance_guard_status': 'passed'}])
+         'validation_status': 'accepted', 'provenance_guard_status': 'passed', 'preferred_label': 'Marine skill'}])
     assignment = {'assignment_id': 'a', 'canonical_competence_id': 'k', 'validation_decision_id': 'd',
-                  'source_candidate_id': 'c', 'evidence_ids': 'e1'}
+                  'source_candidate_id': 'c', 'evidence_ids': 'e1',
+                  'sector': 'blue_biotech', 'axis_group': 'MARINE', 'axis_code': 'M'}
     write_csv(p / 'sector_competence_assignments.csv', [assignment])
     assert metric(build_publication_tables(p), 'validated_sector_assignments')['value'] == 1
     assignment.update(source_candidate_id=candidate, evidence_ids=evidence)
@@ -425,3 +432,36 @@ def test_assignment_requires_reviewed_candidate_and_exact_evidence(tmp_path, can
     assert result['value'] is None
     assert result['status'] == 'not_computable'
     assert 'unverified_assignment_validation' in result['reason']
+
+
+@pytest.mark.parametrize('damage', ['none', 'label', 'sector', 'axis', 'code', 'missing_context'])
+def test_assignment_grain_and_reviewed_context(tmp_path, damage):
+    """Two reviewed candidates support one tuple; incompatible context is blocked."""
+    p = bundle(tmp_path)
+    write_csv(p / 'evidence_fragments.csv', [
+        {'fragment_id': 'f1', 'evidence_id': 'e1'}, {'fragment_id': 'f2', 'evidence_id': 'e2'}])
+    write_csv(p / 'semantic_signals.csv', [
+        {'signal_id': f's{i}', 'fragment_id': f'f{i}', 'evidence_id': f'e{i}',
+         'sector': 'blue_biotech', 'axis_group': 'MARINE', 'axis_code': 'M'} for i in (1, 2)])
+    write_csv(p / 'competence_candidates.csv', [
+        {'candidate_id': f'c{i}', 'signal_id': f's{i}', 'fragment_id': f'f{i}', 'evidence_id': f'e{i}'} for i in (1, 2)])
+    write_csv(p / 'validation_decisions.csv', [
+        {'validation_decision_id': f'd{i}', 'target_candidate_id': f'c{i}', 'decision_status': 'accepted',
+         'canonical_label': 'Other skill' if damage == 'label' and i == 2 else ' marine   skill '} for i in (1, 2)])
+    write_csv(p / 'canonical_competences.csv', [
+        {'canonical_competence_id': 'k', 'source_candidate_id': 'c1', 'validation_decision_id': 'd1',
+         'validation_status': 'accepted', 'provenance_guard_status': 'passed', 'preferred_label': 'Marine skill'}])
+    assignments = [
+        {'assignment_id': f'a{i}', 'canonical_competence_id': 'k', 'validation_decision_id': f'd{i}',
+         'source_candidate_id': f'c{i}', 'evidence_ids': f'e{i}', 'sector': 'blue_biotech',
+         'axis_group': 'MARINE', 'axis_code': 'M'} for i in (1, 2)]
+    changes = {'sector': {'sector': 'desalination'}, 'axis': {'axis_group': 'HYDRONIZATION', 'axis_code': 'H'},
+               'code': {'axis_code': 'T'}, 'missing_context': {'sector': ''}}
+    assignments[1].update(changes.get(damage, {}))
+    write_csv(p / 'sector_competence_assignments.csv', assignments)
+    model = build_publication_tables(p)
+    result = metric(model, 'validated_sector_assignments')
+    assert result['value'] == (1 if damage == 'none' else None)
+    if damage == 'none':
+        contract = next(r for r in model['metric_contract'] if r['metric_id'] == 'validated_sector_assignments')
+        assert contract['formula'] == 'COUNT(DISTINCT (canonical_competence_id, sector, axis_group))'

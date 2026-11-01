@@ -20,6 +20,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import yaml  # type: ignore[import-untyped]
 
+from .schema_v2_identity import normalize_canonical_label
+
 VERSION = "1.0.0"
 AXES = {"MARINE": "M", "MARITIME": "T", "OCEANIC": "O", "HYDRONIZATION": "H"}
 ROOT = Path(__file__).resolve().parents[2]
@@ -288,14 +290,28 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
         else:
             problems["canonical_competences"].append("unverified_canonical_validation")
     candidates = {r.get("candidate_id", ""): r for r in rows.get("competence_candidates", [])}
+    canonicals = {r.get("canonical_competence_id", ""): r for r in rows.get("canonical_competences", [])}
+    semantic_rows = rows.get("semantic_signals", [])
     for r in rows.get("sector_competence_assignments", []):
         candidate_id = r.get("source_candidate_id", "")
         candidate = candidates.get(candidate_id, {})
         decision = decisions.get(r.get("validation_decision_id", ""), {})
+        canonical = canonicals.get(r.get("canonical_competence_id", ""), {})
+        fragments = {value.strip() for value in re.split(
+            r"[|;,]", candidate.get("fragment_ids") or candidate.get("fragment_id", "")) if value.strip()}
+        contexts = {(signal.get("sector"), signal.get("axis_group"), signal.get("axis_code"))
+                    for signal in semantic_rows if signal.get("signal_id") == candidate.get("signal_id")
+                    and signal.get("fragment_id") in fragments}
+        context = (r.get("sector"), r.get("axis_group"), r.get("axis_code"))
         evidence_ids = {value.strip() for value in re.split(r"[|;,]", r.get("evidence_ids", "")) if value.strip()}
         if (r.get("canonical_competence_id") not in accepted_canonical
                 or decision.get("decision_status") != "accepted"
                 or not candidate or problems["competence_candidates"]
+                or not canonical.get("preferred_label", "").strip()
+                or normalize_canonical_label(canonical.get("preferred_label")).lower()
+                != normalize_canonical_label(decision.get("canonical_label")).lower()
+                or context not in contexts or r.get("sector") not in sectors
+                or r.get("axis_group") not in AXES or AXES.get(r.get("axis_group", "")) != r.get("axis_code")
                 or decision.get("target_candidate_id") != candidate_id
                 or evidence_ids != {candidate.get("evidence_id", "")}
                 or problems["canonical_competences"] or problems["validation_decisions"]):
@@ -375,7 +391,9 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
         if table == "canonical_competences":
             counted = [r for r in counted if r.get("validation_status") == "accepted"
                        and r.get("provenance_guard_status") == "passed"]
-        fields = (KEYS[table], "fragment_id") if table == "semantic_signals" else (KEYS[table],)
+        fields: Tuple[str, ...] = (KEYS[table], "fragment_id") if table == "semantic_signals" else (KEYS[table],)
+        if table == "sector_competence_assignments":
+            fields = ("canonical_competence_id", "sector", "axis_group")
         value = None if issue else len({tuple(r[f] for f in fields) for r in counted})
         unit(metric, table + ".csv", grain, value, issue,
              None if table not in rows else sum(any(not r.get(f, "").strip() for f in fields) for r in rows[table]),

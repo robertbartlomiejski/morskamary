@@ -1,3 +1,8 @@
+2026-11-01 — MOR-21 final assignment review
+- Match canonical labels and reviewed semantic sector/axis context before counting assignments.
+- Count distinct canonical competence/sector/axis tuples rather than decision records.
+- Add negative controls and a two-candidate, one-competence positive regression.
+
 2026-11-01 — MOR-21 review corrections
 - Prefer retained protocols for unbound snapshots over explicit fallbacks; clarify CLI help.
 - Reject validated sector assignments without a reviewed source candidate and exact
