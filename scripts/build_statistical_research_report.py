@@ -18,6 +18,11 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence
 
 from pypdf import PdfReader
 
+from src.scientific_sources.publication_tables import (
+    build_publication_tables,
+    render_publication_tables,
+    write_publication_tables,
+)
 from src.scientific_sources.publication_readiness import (
     aggregate_readiness,
     current_run_identity,
@@ -208,6 +213,8 @@ def build_html_report(
     reports_dir: Path,
     generated_at: str,
 ) -> Path:
+    """Render retained research results and the shared publication-table projections."""
+    publication_model = build_publication_tables(database_dir)
     evidence = _load_csv(database_dir / "evidence_records.csv")
     signals = _load_csv(database_dir / "competence_demand_signals.csv")
     demands = _load_csv(database_dir / "derived_competence_demands.csv")
@@ -598,6 +605,7 @@ def build_html_report(
         + f"<nav><strong>Contents</strong><ol>{navigation}</ol></nav>"
         + section_provenance
         + section_corpus
+        + render_publication_tables(publication_model)
         + section_axis
         + section_demands
         + section_gaps
@@ -616,6 +624,7 @@ def build_html_report(
     reports_dir.mkdir(parents=True, exist_ok=True)
     output = reports_dir / "morskamary_statistical_report.html"
     output.write_text(document, encoding="utf-8")
+    write_publication_tables(publication_model, reports_dir)
     return output
 
 
