@@ -1,3 +1,9 @@
+2026-11-01 — MOR-21 review corrections
+- Prefer retained protocols for unbound snapshots over explicit fallbacks; clarify CLI help.
+- Reject validated sector assignments without a reviewed source candidate and exact
+  candidate evidence; retain active-decision and canonical validation requirements.
+- Add negative regressions and positive controls for both review findings.
+
 2026-10-31 — MOR-21 first publication-table slice
 - Add retained-data key/type/missingness/join audit and versioned metric contracts.
 - Generate unit reconciliation and screening sector × QMBD from one model to HTML,

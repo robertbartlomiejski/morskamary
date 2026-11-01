@@ -143,7 +143,9 @@ def resolve_publication_protocol(database_dir: Path, fallback: Optional[Path] = 
             raise ValueError("publication_protocol_binding_artifact_missing")
         return retained
     retained = database_dir / "retained_protocol/live_query_protocol.yml"
-    return fallback or (retained if retained.is_file() else ROOT / "config/live_query_protocol.yml")
+    if retained.is_file():
+        return retained
+    return fallback or ROOT / "config/live_query_protocol.yml"
 
 
 def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] = None) -> Dict[str, Any]:
@@ -285,9 +287,17 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
             accepted_canonical.add(r.get("canonical_competence_id"))
         else:
             problems["canonical_competences"].append("unverified_canonical_validation")
+    candidates = {r.get("candidate_id", ""): r for r in rows.get("competence_candidates", [])}
     for r in rows.get("sector_competence_assignments", []):
+        candidate_id = r.get("source_candidate_id", "")
+        candidate = candidates.get(candidate_id, {})
+        decision = decisions.get(r.get("validation_decision_id", ""), {})
+        evidence_ids = {value.strip() for value in re.split(r"[|;,]", r.get("evidence_ids", "")) if value.strip()}
         if (r.get("canonical_competence_id") not in accepted_canonical
-                or decisions.get(r.get("validation_decision_id", ""), {}).get("decision_status") != "accepted"
+                or decision.get("decision_status") != "accepted"
+                or not candidate or problems["competence_candidates"]
+                or decision.get("target_candidate_id") != candidate_id
+                or evidence_ids != {candidate.get("evidence_id", "")}
                 or problems["canonical_competences"] or problems["validation_decisions"]):
             problems["sector_competence_assignments"].append("unverified_assignment_validation")
     modern = "semantic_signals" in rows or source_version.startswith("2.")

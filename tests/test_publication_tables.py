@@ -356,7 +356,8 @@ def test_superseded_accepted_decision_cannot_validate_canonical_or_assignment(tm
         {'canonical_competence_id': 'k', 'source_candidate_id': 'c', 'validation_decision_id': 'd1',
          'validation_status': 'accepted', 'provenance_guard_status': 'passed'}])
     write_csv(p / 'sector_competence_assignments.csv', [
-        {'assignment_id': 'a', 'canonical_competence_id': 'k', 'validation_decision_id': 'd1'}])
+        {'assignment_id': 'a', 'canonical_competence_id': 'k', 'validation_decision_id': 'd1',
+         'source_candidate_id': 'c', 'evidence_ids': 'e1'}])
     before = build_publication_tables(p)
     assert metric(before, 'validated_canonical_competences')['value'] == 1
     assert metric(before, 'validated_sector_assignments')['value'] == 1
@@ -376,3 +377,51 @@ def test_bound_protocol_cannot_escape_snapshot(tmp_path, path):
         'schema_version': '1.0.0', 'protocol_binding': {'retained_protocol_artifact': path}}))
     with pytest.raises(ValueError, match='protocol_binding_path_invalid'):
         build_publication_tables(p)
+
+
+@pytest.mark.parametrize('retained_present,fallback_present', [(True, True), (True, False), (False, True), (False, False)])
+def test_unbound_protocol_precedence(tmp_path, retained_present, fallback_present):
+    """Unbound report and release callers must select the same retained protocol."""
+    from src.scientific_sources.publication_tables import ROOT, resolve_publication_protocol
+    p = bundle(tmp_path)
+    retained = p / 'retained_protocol/live_query_protocol.yml'
+    fallback = p / 'fallback.yml'
+    fallback.write_text('sectors: {fallback_only: {}}')
+    if retained_present:
+        retained.parent.mkdir()
+        retained.write_text('sectors: {blue_biotech: {}}')
+    supplied = fallback if fallback_present else None
+    expected = retained if retained_present else fallback if fallback_present else ROOT / 'config/live_query_protocol.yml'
+    assert resolve_publication_protocol(p, supplied) == expected
+    if retained_present:
+        assert build_publication_tables(p, supplied) == build_publication_tables(p)
+
+
+@pytest.mark.parametrize('candidate,evidence', [
+    ('missing', 'e1'), ('c2', 'e2'), ('c', 'e2'), ('c', 'e1|e2'), ('', 'e1'), ('c', '')])
+def test_assignment_requires_reviewed_candidate_and_exact_evidence(tmp_path, candidate, evidence):
+    """Reject unsupported assignments while preserving a valid positive control."""
+    p = bundle(tmp_path)
+    write_csv(p / 'evidence_fragments.csv', [
+        {'fragment_id': 'f', 'evidence_id': 'e1'}, {'fragment_id': 'f2', 'evidence_id': 'e2'}])
+    write_csv(p / 'semantic_signals.csv', [
+        {'signal_id': 's', 'fragment_id': 'f', 'evidence_id': 'e1', 'sector': 'blue_biotech', 'axis_group': 'MARINE'},
+        {'signal_id': 's2', 'fragment_id': 'f2', 'evidence_id': 'e2', 'sector': 'blue_biotech', 'axis_group': 'MARINE'}])
+    write_csv(p / 'competence_candidates.csv', [
+        {'candidate_id': 'c', 'signal_id': 's', 'fragment_id': 'f', 'evidence_id': 'e1'},
+        {'candidate_id': 'c2', 'signal_id': 's2', 'fragment_id': 'f2', 'evidence_id': 'e2'}])
+    write_csv(p / 'validation_decisions.csv', [
+        {'validation_decision_id': 'd', 'target_candidate_id': 'c', 'decision_status': 'accepted'}])
+    write_csv(p / 'canonical_competences.csv', [
+        {'canonical_competence_id': 'k', 'source_candidate_id': 'c', 'validation_decision_id': 'd',
+         'validation_status': 'accepted', 'provenance_guard_status': 'passed'}])
+    assignment = {'assignment_id': 'a', 'canonical_competence_id': 'k', 'validation_decision_id': 'd',
+                  'source_candidate_id': 'c', 'evidence_ids': 'e1'}
+    write_csv(p / 'sector_competence_assignments.csv', [assignment])
+    assert metric(build_publication_tables(p), 'validated_sector_assignments')['value'] == 1
+    assignment.update(source_candidate_id=candidate, evidence_ids=evidence)
+    write_csv(p / 'sector_competence_assignments.csv', [assignment])
+    result = metric(build_publication_tables(p), 'validated_sector_assignments')
+    assert result['value'] is None
+    assert result['status'] == 'not_computable'
+    assert 'unverified_assignment_validation' in result['reason']
