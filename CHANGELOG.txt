@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-11-06 (fix: require patched Black in development dependencies)
+  Change type fix update
+  Scope governance tests
+  Files affected requirements.txt pyproject.toml tests/test_ci_workflow.py CHANGELOG.txt
+  Summary Updates the pinned Black release to 26.10.1 and raises the dev-extra minimum to the same patched release.
+  Reason The prior versions fall within the advisory's affected range; the repository does not invoke Black's vulnerable GitHub Action.
+  Impact Development tooling only; no scientific analysis or retained evidence changes.
+  Provenance Dependabot Black advisory and existing dependency declarations.
+  Quality checks Focused dependency and workflow regression tests and a dependency resolver dry run; exact-head GitHub Actions required before merge.
+
 - 2026-10-30 (fix: report schema-invalid readiness before semantic checks)
   Change type fix update
   Scope packaging tests governance
