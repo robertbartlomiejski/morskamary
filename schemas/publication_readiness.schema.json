@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/robertbartlomiejski/morskamary/schemas/publication_readiness.schema.json",
+  "title": "Morskamary publication readiness",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at_utc",
+    "current_run_id",
+    "engineering_status",
+    "scientific_status",
+    "publication_status",
+    "degraded_components",
+    "blockers",
+    "hypotheses",
+    "claim_boundary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "generated_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "current_run_id": {
+      "type": "string"
+    },
+    "engineering_status": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail"
+      ]
+    },
+    "scientific_status": {
+      "type": "string",
+      "enum": [
+        "qualified_for_declared_results",
+        "screening_only_with_noncomputable_components"
+      ]
+    },
+    "publication_status": {
+      "type": "string",
+      "enum": [
+        "candidate",
+        "degraded",
+        "blocked"
+      ]
+    },
+    "degraded_components": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "hypotheses": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "H1",
+        "H2",
+        "H3"
+      ],
+      "properties": {
+        "H1": {
+          "type": "string",
+          "minLength": 1
+        },
+        "H2": {
+          "type": "string",
+          "minLength": 1
+        },
+        "H3": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "claim_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validated_supply_available",
+        "objective_competence_gap_established",
+        "generated_credentials_are_supply",
+        "h3_translation_validated"
+      ],
+      "properties": {
+        "validated_supply_available": {
+          "type": "boolean"
+        },
+        "objective_competence_gap_established": {
+          "type": "boolean"
+        },
+        "generated_credentials_are_supply": {
+          "type": "boolean",
+          "const": false
+        },
+        "h3_translation_validated": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

@@ -21,8 +21,9 @@ ZIP contents (per PR-190 Task C spec)::
     data/jsonl/*.jsonl
     data/sqlite/morskamary_live_cumulative.sqlite   (may be skipped)
     reports/morskamary_statistical_report.html
-    reports/morskamary_statistical_report.pdf       (may be a text stub)
+    reports/morskamary_statistical_report.pdf       (optional; genuine PDF only)
     reports/morskamary_methodological_audit.html
+    reports/publication_readiness.json
 """
 
 from __future__ import annotations
@@ -49,7 +50,13 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from jsonschema import Draft202012Validator  # noqa: E402
+from pypdf import PdfReader  # noqa: E402
 
+from src.scientific_sources.publication_readiness import (  # noqa: E402
+    aggregate_readiness,
+    current_run_identity,
+    derive_claim_boundary,
+)
 from src.scientific_sources.schema_v2_identity import (  # noqa: E402
     make_assignment_id as _make_assignment_id_v2,
     make_candidate_id as _make_candidate_id_v2,
@@ -72,6 +79,11 @@ SCHEMA_V2_ENTITY_NAMES = (
 )
 SCHEMA_V2_SCHEMA_FILENAMES = tuple(
     f"{entity_name}.schema.json" for entity_name in SCHEMA_V2_ENTITY_NAMES
+)
+PUBLICATION_READINESS_SCHEMA_FILENAME = "publication_readiness.schema.json"
+PACKAGE_SCHEMA_FILENAMES = (
+    *SCHEMA_V2_SCHEMA_FILENAMES,
+    PUBLICATION_READINESS_SCHEMA_FILENAME,
 )
 
 _CANONICAL_LABEL_PROVIDER_ALIASES = {
@@ -302,8 +314,11 @@ LAYER4_STAT_FILES = (
 
 REPORT_FILES = (
     "morskamary_statistical_report.html",
-    "morskamary_statistical_report.pdf",
     "morskamary_methodological_audit.html",
+    "publication_readiness.json",
+)
+OPTIONAL_REPORT_FILES = (
+    "morskamary_statistical_report.pdf",
 )
 
 DEMAND_STRENGTH_FORMULA = (
@@ -333,7 +348,7 @@ def _load_json_required(path: Path) -> Optional[Dict[str, Any]]:
         return None
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
         return None
     if isinstance(payload, dict):
         return payload
@@ -2250,7 +2265,7 @@ def _readme_text(version_tag: str, generated_at: str) -> str:
         "- `data/sqlite/` — portable SQLite database (may be skipped; see "
         "`RELEASE_MANIFEST.json`).\n"
         "- `reports/` — HTML statistical report, methodological audit, "
-        "and PDF (may be a text stub if PDF rendering is unavailable).\n\n"
+        "publication-readiness decision, and an optional genuine PDF.\n\n"
         "## Demand-strength formula\n\n"
         f"    {DEMAND_STRENGTH_FORMULA}\n\n"
         "## Reliability rule\n\n"
@@ -2373,6 +2388,167 @@ def main(argv: Optional[List[str]] = None) -> int:
             for required_path in required_paths
             if not required_path.is_file()
         ]
+
+    readiness_path = reports_dir / "publication_readiness.json"
+    readiness_schema_valid = False
+    if readiness_path.is_file():
+        try:
+            readiness_payload = json.loads(
+                readiness_path.read_text(encoding="utf-8")
+            )
+            readiness_schema = json.loads(
+                (_SCHEMA_V2_DIR / PUBLICATION_READINESS_SCHEMA_FILENAME).read_text(
+                    encoding="utf-8"
+                )
+            )
+            Draft202012Validator.check_schema(readiness_schema)
+            readiness_errors = list(
+                Draft202012Validator(readiness_schema).iter_errors(
+                    readiness_payload
+                )
+            )
+            readiness_schema_valid = not readiness_errors
+            if readiness_errors:
+                missing_required.append(
+                    "publication_readiness_schema_validation:"
+                    + ";".join(
+                        error.message for error in readiness_errors
+                    )
+                )
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            missing_required.append(
+                f"malformed_publication_readiness:{exc}"
+            )
+
+    pdf_path = reports_dir / "morskamary_statistical_report.pdf"
+    if pdf_path.exists():
+        try:
+            pdf_bytes = pdf_path.read_bytes()
+        except OSError as exc:
+            missing_required.append(f"unreadable_pdf:{exc}")
+        else:
+            if not pdf_bytes.startswith(b"%PDF-"):
+                missing_required.append("invalid_pdf_magic")
+            else:
+                try:
+                    if not PdfReader(pdf_path, strict=True).pages:
+                        missing_required.append("pdf_has_no_page")
+                except Exception as exc:
+                    missing_required.append(
+                        f"invalid_pdf_structure:{type(exc).__name__}"
+                    )
+
+    if readiness_schema_valid:
+        readiness_payload = _load_json_required(readiness_path)
+        layer5_payload = _load_json_required(database_dir / "layer5_manifest.json")
+        if isinstance(readiness_payload, dict) and isinstance(layer5_payload, dict):
+            if (
+                readiness_payload.get("publication_status") == "blocked"
+                or readiness_payload.get("engineering_status") == "fail"
+                or readiness_payload.get("blockers")
+            ):
+                missing_required.append(
+                    "publication_readiness_blocked:"
+                    + ",".join(
+                        str(item)
+                        for item in readiness_payload.get("blockers") or []
+                    )
+                )
+            source_run_id, run_blockers = current_run_identity((
+                _load_json_required(database_dir / "run_novelty_metrics.json"),
+                _load_json_required(database_dir / "layer4_manifest.json"),
+                layer5_payload,
+            ))
+            missing_required.extend(
+                "publication_readiness_" + blocker for blocker in run_blockers
+            )
+            readiness_run_id = str(
+                readiness_payload.get("current_run_id", "")
+            ).strip()
+            if readiness_run_id != source_run_id:
+                missing_required.append(
+                    "publication_readiness_current_run_id_mismatch:"
+                    f"{readiness_run_id}:{source_run_id}"
+                )
+            layer5_hypotheses = layer5_payload.get("hypothesis_results", {})
+            readiness_hypotheses = readiness_payload.get("hypotheses", {})
+            if isinstance(layer5_hypotheses, dict) and isinstance(
+                readiness_hypotheses, dict
+            ):
+                source_statuses = {}
+                for hypothesis_id in ("H1", "H2", "H3"):
+                    layer5_result = layer5_hypotheses.get(hypothesis_id, {})
+                    expected_status = ""
+                    if isinstance(layer5_result, dict):
+                        expected_status = str(
+                            layer5_result.get(
+                                "interpretation",
+                                layer5_result.get("status", ""),
+                            )
+                        )
+                    actual_status = str(
+                        readiness_hypotheses.get(hypothesis_id, "")
+                    )
+                    source_statuses[hypothesis_id] = expected_status
+                    if actual_status != expected_status:
+                        missing_required.append(
+                            "publication_readiness_hypothesis_mismatch:"
+                            f"{hypothesis_id}:{actual_status}:{expected_status}"
+                        )
+                expected_aggregate = aggregate_readiness(
+                    source_statuses,
+                    pdf_available=pdf_path.is_file(),
+                    blockers=run_blockers or readiness_payload.get("blockers") or [],
+                )
+                for field, expected_value in expected_aggregate.items():
+                    actual_value = readiness_payload.get(field)
+                    if (
+                        field == "degraded_components"
+                        and isinstance(actual_value, list)
+                        and all(isinstance(item, str) for item in actual_value)
+                    ):
+                        actual_value = sorted(actual_value)
+                    if actual_value != expected_value:
+                        missing_required.append(
+                            "publication_readiness_aggregate_mismatch:" + field
+                        )
+                expected_boundary = derive_claim_boundary(layer5_hypotheses)
+                actual_boundary = readiness_payload.get("claim_boundary", {})
+                if isinstance(actual_boundary, dict):
+                    for field, expected_flag in expected_boundary.items():
+                        if actual_boundary.get(field) is not expected_flag:
+                            missing_required.append(
+                                "publication_readiness_claim_boundary_mismatch:"
+                                + field
+                            )
+        statistical_report = reports_dir / "morskamary_statistical_report.html"
+        if statistical_report.is_file():
+            report_text = statistical_report.read_text(
+                encoding="utf-8"
+            ).lower()
+            required_safe_terms = (
+                "candidate-demand validation deficit",
+                "credential-design candidates",
+                "cannot conclude",
+                "observational unit",
+            )
+            for required_term in required_safe_terms:
+                if required_term not in report_text:
+                    missing_required.append(
+                        "publication_report_missing_safe_term:"
+                        + required_term.replace(" ", "_")
+                    )
+            prohibited_terms = (
+                "competence gap",
+                "available competences",
+                "missing competences",
+            )
+            for prohibited_term in prohibited_terms:
+                if prohibited_term in report_text:
+                    missing_required.append(
+                        "publication_report_prohibited_term:"
+                        + prohibited_term.replace(" ", "_")
+                    )
 
     # Schema/content validation for manifests, checksums, and CSVs.
     for name in DATABASE_METADATA_FILES:
@@ -2717,7 +2893,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     # The versioned schema-v2 contracts are part of the publication package,
     # so consumers can validate each CSV/JSONL projection without relying on
     # a mutable repository checkout.
-    for name in SCHEMA_V2_SCHEMA_FILENAMES:
+    for name in PACKAGE_SCHEMA_FILENAMES:
         schema_path = _SCHEMA_V2_DIR / name
         entries.append((f"schemas/{name}", schema_path.read_bytes()))
 
@@ -2749,7 +2925,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             entries.append((archive_name, source_path.read_bytes()))
 
     # Reports
-    for name in REPORT_FILES:
+    for name in (*REPORT_FILES, *OPTIONAL_REPORT_FILES):
         blob = _read_bytes_if_exists(reports_dir / name)
         if blob is not None:
             entries.append((f"reports/{name}", blob))
