@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-11-08 (update: align pytest pin and development-extra minimum)
+  Change type update
+  Scope governance tests
+  Files affected requirements.txt pyproject.toml tests/test_ci_workflow.py CHANGELOG.txt
+  Summary Updates the pinned pytest release to 9.2.0 and raises the dev-extra minimum to the same release.
+  Reason Dependabot pytest update; keeps pinned and minimum declarations consistent.
+  Impact Development tooling only; no scientific analysis or retained evidence changes.
+  Provenance Dependabot pytest 9.2.0 update and existing dependency declarations.
+  Quality checks Locally: focused `python -m pytest tests/test_ci_workflow.py -q` (12 passed) and `python -m flake8 tests/test_ci_workflow.py` (passed). Full pytest suite, mypy, generated-output validators, run-archive integrity and sync_audit were not run locally. GitHub Actions on previous HEAD 60c382d4a06edfe5ff7f90eacda7a0d1f76a8744: CI, Full Analysis, Research Pipeline, CodeQL and Copilot Setup Steps passed; final-head CI must be reverified after this changelog correction.
+
 - 2026-11-06 (fix: require patched Black in development dependencies)
   Change type fix update
   Scope governance tests
