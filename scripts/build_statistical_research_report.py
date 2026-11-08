@@ -16,16 +16,25 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence
 
+from pypdf import PdfReader
+
+from src.scientific_sources.publication_readiness import (
+    aggregate_readiness,
+    current_run_identity,
+    derive_claim_boundary,
+)
 from src.scientific_sources.live_query_protocol import (
     LiveQueryProtocolError,
     load_live_query_protocol,
 )
 
 REPORT_TITLE = (
-    "Live-Enriched Literature-Based Blue Economy Competence Demand, "
-    "Sectoral Gaps, and EQF 4-7 Credential Translation: "
+    "Live-Enriched Literature-Based Blue Economy Candidate Demand, "
+    "Validation Deficits, and EQF 4-7 Credential-Design Candidates: "
     "A Cumulative Evidence Report"
 )
+
+PUBLICATION_READINESS_SCHEMA_VERSION = "1.0.0"
 
 DEMAND_STRENGTH_FORMULA = (
     "demand_strength_score = "
@@ -222,6 +231,19 @@ def build_html_report(
     # Validate declared hypothesis set and required result fields.
     _validate_hypothesis_results(hypotheses)
 
+    conclusion_block = (
+        "<div class='readiness'><h2>Executive scientific status and publication readiness</h2>"
+        "<p><strong>Can conclude:</strong> the retained curated corpus supports "
+        "descriptive evidence, signal, candidate-demand and hypothesis-specific "
+        "screening results within the declared pipeline boundaries.</p>"
+        "<p><strong>Cannot conclude:</strong> no objective competence shortage, "
+        "validated educational supply gap, or H3 semantic translation is established "
+        "unless independently validated supply and bridge evidence are present.</p>"
+        "<p>Generated credentials are <strong>credential-design candidates</strong>, "
+        "not observed educational supply. Legacy aggregate demand rows are screening "
+        "constructs, not validated canonical competences.</p></div>"
+    )
+
     provenance = _kv_list([
         ["Generated at (UTC)", generated_at],
         ["Layer 4 built at", layer4.get("built_at_utc", "")],
@@ -268,7 +290,12 @@ def build_html_report(
     section_axis = _section(
         "3. Four-axis semantic classification "
         "(MARINE, MARITIME, OCEANIC, HYDRONIZATION)",
-        _table(("axis_group", "signal_count"), sorted(axis_counts.items())),
+        (
+            "<p><strong>Observational unit:</strong> semantic signal. "
+            f"N={len(signals)}; missing values in the retained input are not "
+            "inferred as zero.</p>"
+            + _table(("axis_group", "signal_count"), sorted(axis_counts.items()))
+        ),
         "sec-3-axis",
     )
 
@@ -322,7 +349,11 @@ def build_html_report(
     section_demands = _section(
         "4. Competence-demand model",
         (
-            f"<p>Total derived demands across all views: {len(demands)}. "
+            "<p><strong>Observational unit:</strong> derived candidate-demand "
+            "row. Legacy aggregate rows and validation-backed canonical lineage "
+            "rows are reported separately and are never pooled as one competence "
+            "denominator.</p>"
+            + f"<p>Total derived demands across all views: {len(demands)}. "
             f"Legacy aggregate view rows: {len(legacy_demands)}. "
             f"Accepted canonical lineage rows: {len(canonical_demands)}. "
             f"Formula: <code>{_e(DEMAND_STRENGTH_FORMULA)}</code>.</p>"
@@ -385,19 +416,24 @@ def build_html_report(
         )
     ]
     section_gaps = _section(
-        "5. Gap model (static baseline vs live literature demand)",
-        _table(
-            (
-                "sector",
-                "axis_group",
-                "static_baseline_available_count",
-                "live_literature_demand_count",
-                "validated_demand_count",
-                "uncovered_demand_count",
-                "gap_ratio",
-                "validity_warning",
-            ),
-            gap_rows,
+        "5. Candidate-demand validation deficit model",
+        (
+            "<p><strong>Observational unit:</strong> sector × QMBD-axis "
+            "candidate-demand screening row. This is not a validated competence "
+            "shortage estimate.</p>"
+            + _table(
+                (
+                    "sector",
+                    "axis_group",
+                    "static_baseline_available_count",
+                    "live_literature_demand_count",
+                    "validated_demand_count",
+                    "uncovered_demand_count",
+                    "gap_ratio",
+                    "validity_warning",
+                ),
+                gap_rows,
+            )
         ),
         "sec-5-gap",
     )
@@ -422,10 +458,13 @@ def build_html_report(
         )[:200]
     ]
     section_credentials = _section(
-        "6. EQF 4-7 credential translation",
+        "6. EQF 4-7 credential-design candidates",
         (
-            f"<p>Credentials: {len(credentials)}. "
-            f"Learning outcomes: {len(outcomes)}.</p>"
+            "<p><strong>Observational unit:</strong> credential-design candidate "
+            "for the table below; learning-outcome candidates are counted "
+            "separately. Neither is independently validated educational supply.</p>"
+            + f"<p>Credential-design candidates: {len(credentials)}. "
+            f"Learning-outcome candidates: {len(outcomes)}.</p>"
             + _table(
                 (
                     "credential_id",
@@ -555,7 +594,8 @@ def build_html_report(
     body = (
         f"<h1>{_e(REPORT_TITLE)}</h1>"
         f"<p><em>Generated {_e(generated_at)}</em></p>"
-        f"<nav><strong>Contents</strong><ol>{navigation}</ol></nav>"
+        + conclusion_block
+        + f"<nav><strong>Contents</strong><ol>{navigation}</ol></nav>"
         + section_provenance
         + section_corpus
         + section_axis
@@ -672,17 +712,25 @@ def build_methodological_audit(
     return output
 
 
+def _is_genuine_pdf(path: Path) -> bool:
+    """Return whether a generated PDF satisfies the publication contract."""
+    if not path.is_file():
+        return False
+    try:
+        return path.read_bytes().startswith(b"%PDF-") and bool(
+            PdfReader(path, strict=True).pages
+        )
+    except Exception:
+        return False
+
+
 def maybe_build_pdf(html_path: Path, pdf_path: Path) -> Dict[str, str]:
+    """Render a real PDF or omit it completely; never create a text stub."""
+    if pdf_path.exists():
+        pdf_path.unlink()
     try:
         from weasyprint import HTML  # type: ignore[import-not-found]
     except Exception:
-        pdf_path.parent.mkdir(parents=True, exist_ok=True)
-        pdf_path.write_text(
-            "PDF rendering skipped: 'weasyprint' is not installed in the "
-            "build environment. The authoritative report is the HTML at "
-            f"{html_path.name}.\n",
-            encoding="utf-8",
-        )
         return {
             "pdf_status": "skipped",
             "pdf_skip_reason": "weasyprint not installed",
@@ -691,10 +739,75 @@ def maybe_build_pdf(html_path: Path, pdf_path: Path) -> Dict[str, str]:
         HTML(string=html_path.read_text(encoding="utf-8")).write_pdf(
             str(pdf_path)
         )
-        return {"pdf_status": "generated", "pdf_skip_reason": ""}
     except Exception as exc:  # pragma: no cover
-        pdf_path.write_text(f"PDF rendering failed: {exc}\n", encoding="utf-8")
+        pdf_path.unlink(missing_ok=True)
         return {"pdf_status": "skipped", "pdf_skip_reason": str(exc)}
+    if not _is_genuine_pdf(pdf_path):
+        pdf_path.unlink(missing_ok=True)
+        return {
+            "pdf_status": "skipped",
+            "pdf_skip_reason": "renderer did not produce a valid PDF with pages",
+        }
+    return {"pdf_status": "generated", "pdf_skip_reason": ""}
+
+
+def build_publication_readiness(
+    *,
+    database_dir: Path,
+    reports_dir: Path,
+    pdf_status: Mapping[str, str],
+    generated_at: str,
+) -> Path:
+    """Write the machine-auditable MOR-12 publication-readiness decision."""
+    layer4 = _load_json(database_dir / "layer4_manifest.json") or {}
+    layer5 = _load_json(database_dir / "layer5_manifest.json") or {}
+    novelty = _load_json(database_dir / "run_novelty_metrics.json") or {}
+    hypotheses = (
+        layer5.get("hypothesis_results", {})
+        if isinstance(layer5, dict)
+        else {}
+    )
+    if not isinstance(hypotheses, dict):
+        hypotheses = {}
+    _validate_hypothesis_results(hypotheses)
+
+    current_run_id, blockers = current_run_identity((novelty, layer4, layer5))
+    hypothesis_status = {
+        hypothesis_id: str(
+            hypotheses.get(hypothesis_id, {}).get(
+                "interpretation",
+                hypotheses.get(hypothesis_id, {}).get("status", "not_computable"),
+            )
+        )
+        for hypothesis_id in DECLARED_HYPOTHESIS_IDS
+    }
+    required_report_paths = (
+        reports_dir / "morskamary_statistical_report.html",
+        reports_dir / "morskamary_methodological_audit.html",
+    )
+    for path in required_report_paths:
+        if not path.is_file():
+            blockers.append(f"missing_required_report:{path.name}")
+
+    payload = {
+        "schema_version": PUBLICATION_READINESS_SCHEMA_VERSION,
+        "generated_at_utc": generated_at,
+        "current_run_id": current_run_id,
+        **aggregate_readiness(
+            hypothesis_status,
+            pdf_available=pdf_status.get("pdf_status") == "generated",
+            blockers=blockers,
+        ),
+        "blockers": sorted(set(blockers)),
+        "hypotheses": hypothesis_status,
+        "claim_boundary": derive_claim_boundary(hypotheses),
+    }
+    output = reports_dir / "publication_readiness.json"
+    output.write_text(
+        json.dumps(payload, sort_keys=True, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return output
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -754,12 +867,24 @@ def main(argv: Optional[List[str]] = None) -> int:
     if "pdf" in formats:
         pdf_path = reports_dir / "morskamary_statistical_report.pdf"
         pdf_status = maybe_build_pdf(html_path, pdf_path)
+    else:
+        (reports_dir / "morskamary_statistical_report.pdf").unlink(
+            missing_ok=True
+        )
+
+    readiness_path = build_publication_readiness(
+        database_dir=database_dir,
+        reports_dir=reports_dir,
+        pdf_status=pdf_status,
+        generated_at=generated_at,
+    )
 
     print(
         json.dumps(
             {
                 "html_report": str(html_path),
                 "methodological_audit": str(audit_path),
+                "publication_readiness": str(readiness_path),
                 **pdf_status,
             },
             sort_keys=True,
