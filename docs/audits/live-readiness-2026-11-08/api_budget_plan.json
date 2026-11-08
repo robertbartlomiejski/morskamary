@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0.0",
+  "audit_date": "2026-11-08",
+  "source_sha": "504318bd27813553b0840d96d62b3c29eed19c13",
+  "execution_status": "PROPOSED_NOT_EXECUTED",
+  "query_count": 120,
+  "sector_count": 12,
+  "query_families": [
+    "competence_demand",
+    "core_sector",
+    "emerging_demand",
+    "hypothesis_verification",
+    "theory_translation",
+    "validation_eqf_translation"
+  ],
+  "pages_per_query": 3,
+  "rows_per_page": 50,
+  "max_rows_per_provider_before_dedup": 18000,
+  "scenarios": [
+    {
+      "providers": [
+        "crossref"
+      ],
+      "logical_page_requests": 360,
+      "max_pre_dedup_rows": 18000
+    },
+    {
+      "providers": [
+        "crossref",
+        "openalex"
+      ],
+      "logical_page_requests": 720,
+      "max_pre_dedup_rows": 36000
+    },
+    {
+      "providers": [
+        "crossref",
+        "scopus",
+        "openalex"
+      ],
+      "logical_page_requests": 1080,
+      "max_pre_dedup_rows": 54000
+    }
+  ],
+  "provider_theoretical_costs": [
+    {
+      "provider": "crossref",
+      "logical_requests": 360,
+      "nominal_usd": null,
+      "qualification": "Public REST metadata; no per-call invoice inferred; pool/rate limits apply"
+    },
+    {
+      "provider": "openalex",
+      "logical_requests": 360,
+      "nominal_usd_if_all_search_calls": 0.36,
+      "price_assumption_usd_per_1000_search_calls": 1,
+      "qualification": "Hypothetical 1 billable search per logical page, excluding retries, plan state, other operations; free tier $1/day per API-key account"
+    },
+    {
+      "provider": "scopus",
+      "logical_requests": 360,
+      "published_nominal_weekly_search_quota": 20000,
+      "estimated_share_percent": 1.8,
+      "qualification": "Entitlement and remaining quota NOT VERIFIED"
+    },
+    {
+      "provider": "wos",
+      "logical_requests": 0,
+      "status": "DEACTIVATED"
+    }
+  ],
+  "safety_notes": [
+    "Logical page budget does not cap actual HTTP retries or currency charges",
+    "check_budget_ceiling.py is post-acquisition; not pre-request limit",
+    "Operator-selected page and row values must match authoritative projected protocol (3,50)",
+    "Never rely on HTTP probe status without independent environment and entitlement verification"
+  ],
+  "actual_api_calls": 0,
+  "actual_costs_usd": null,
+  "financial_hard_cap_verified": false,
+  "authorization_for_live_smoke": false
+}

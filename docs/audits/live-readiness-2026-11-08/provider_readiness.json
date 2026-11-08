@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0.0",
+  "source_sha": "504318bd27813553b0840d96d62b3c29eed19c13",
+  "environment_live_research": {
+    "declared_in_workflow": true,
+    "settings_readable": false,
+    "reviewer_protection": "UNVERIFIED",
+    "live_secret_state": "UNVERIFIED"
+  },
+  "api_calls_executed": 0,
+  "providers": [
+    {
+      "provider": "crossref",
+      "selection": "default",
+      "status": "NOT_TESTED",
+      "secret_name_only": "CROSSREF_MAILTO",
+      "budget_logical": 360
+    },
+    {
+      "provider": "openalex",
+      "selection": "default",
+      "status": "NOT_TESTED",
+      "secret_name_only": "OPENALEX_API_KEY",
+      "smoke_workflow_note": "Missing explicit env wiring",
+      "budget_logical": 360
+    },
+    {
+      "provider": "scopus",
+      "selection": "default",
+      "status": "NOT_TESTED",
+      "secret_names_only": [
+        "ELSEVIER_API_KEY",
+        "SCOPUS_API_KEY"
+      ],
+      "budget_logical": 360
+    },
+    {
+      "provider": "wos",
+      "selection": "excluded",
+      "status": "DEACTIVATED",
+      "budget_logical": 0
+    }
+  ]
+}
