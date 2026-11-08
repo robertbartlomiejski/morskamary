@@ -82,6 +82,20 @@ def test_black_dependency_scopes_require_patched_version() -> None:
         assert tuple(map(int, version.split("."))) >= (26, 10, 1)
 
 
+def test_pytest_dependency_scopes_are_aligned() -> None:
+    root = Path(__file__).resolve().parents[1]
+    pyproject = (root / "pyproject.toml").read_text(encoding="utf-8")
+    dev_extra = re.search(r"(?ms)^dev = \[\n(.*?)^\]", pyproject)
+    assert dev_extra is not None
+    dev_pytest = re.search(r'^\s*"pytest>=([0-9.]+)"', dev_extra.group(1), re.M)
+    assert dev_pytest is not None
+    requirements = (root / "requirements.txt").read_text(encoding="utf-8")
+    pinned_pytest = re.search(r"^pytest==([0-9.]+)$", requirements, re.M)
+    assert pinned_pytest is not None
+    assert pinned_pytest.group(1) == dev_pytest.group(1)
+    assert tuple(map(int, pinned_pytest.group(1).split("."))) >= (9, 2, 0)
+
+
 def test_full_analysis_workflow_uses_explicit_static_recovery_mode() -> None:
     job = FULL_ANALYSIS_WORKFLOW["jobs"]["run-analysis"]
     job_env = job["env"]

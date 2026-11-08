@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-11-08 (update: align pytest pin and development-extra minimum)
+  Change type update
+  Scope governance tests
+  Files affected requirements.txt pyproject.toml tests/test_ci_workflow.py CHANGELOG.txt
+  Summary Updates the pinned pytest release to 9.2.0 and raises the dev-extra minimum to the same release.
+  Reason Dependabot pytest update; keeps pinned and minimum declarations consistent.
+  Impact Development tooling only; no scientific analysis or retained evidence changes.
+  Provenance Dependabot pytest 9.2.0 update and existing dependency declarations.
+  Quality checks Focused dependency regression test and full pytest run; exact-head GitHub Actions required before merge.
+
 - 2026-11-06 (fix: require patched Black in development dependencies)
   Change type fix update
   Scope governance tests
