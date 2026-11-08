@@ -1,3 +1,29 @@
+2026-11-01 — MOR-21 final assignment review
+- Match canonical labels and reviewed semantic sector/axis context before counting assignments.
+- Count distinct canonical competence/sector/axis tuples rather than decision records.
+- Add negative controls and a two-candidate, one-competence positive regression.
+
+2026-11-01 — MOR-21 review corrections
+- Prefer retained protocols for unbound snapshots over explicit fallbacks; clarify CLI help.
+- Reject validated sector assignments without a reviewed source candidate and exact
+  candidate evidence; retain active-decision and canonical validation requirements.
+- Add negative regressions and positive controls for both review findings.
+
+2026-10-31 — MOR-21 first publication-table slice
+- Add retained-data key/type/missingness/join audit and versioned metric contracts.
+- Generate unit reconciliation and screening sector × QMBD from one model to HTML,
+  CSV, JSON and typed SQLite, preserving legacy exports and optional PDF behavior.
+- Add negative regressions for join inflation, overlapping assignments, missing or
+  invalid values, zero denominators, composite signal keys and format divergence.
+- Reject cross-source signal/fragment and candidate lineage; align whitespace-only
+  missing keys/dimensions with column-level missingness counts.
+- Resolve active validation decisions, preserve explicit SQLite fact-field order
+  after JSON reload, and reject partial or deleted publication sidecars.
+- Bind report and release tables to the same retained protocol, including custom
+  manifest paths; include the analytical protocol in the release archive.
+- Document retained snapshot findings and remaining MOR-21 scope; no live acquisition,
+  historical archive edits or H2/H3 computability promotion.
+
 CHANGELOG.txt
 
 Purpose
