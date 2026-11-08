@@ -27,7 +27,7 @@ Use this section for changes in progress that are not yet merged into the main b
   Reason Dependabot pytest update; keeps pinned and minimum declarations consistent.
   Impact Development tooling only; no scientific analysis or retained evidence changes.
   Provenance Dependabot pytest 9.2.0 update and existing dependency declarations.
-  Quality checks Focused dependency regression test and full pytest run; exact-head GitHub Actions required before merge.
+  Quality checks Locally: focused `python -m pytest tests/test_ci_workflow.py -q` (12 passed) and `python -m flake8 tests/test_ci_workflow.py` (passed). Full pytest suite, mypy, generated-output validators, run-archive integrity and sync_audit were not run locally. GitHub Actions on previous HEAD 60c382d4a06edfe5ff7f90eacda7a0d1f76a8744: CI, Full Analysis, Research Pipeline, CodeQL and Copilot Setup Steps passed; final-head CI must be reverified after this changelog correction.
 
 - 2026-11-06 (fix: require patched Black in development dependencies)
   Change type fix update
