@@ -17,7 +17,7 @@
 ## Acquisition budget
 The authoritative protocol contains **120 query definitions in 12 sectors and six families** (see source-derived query codebook). Sampling is **3 pages × 50 rows**, across default **Crossref, Scopus and OpenAlex**. Nominal **360 logical pages per provider; 1,080 for all three**; maximal pre-dedup rows **54,000**, not distinct evidence.
 
-OpenAlex price illustration: **$0.36** for 360 search calls at the published **$1/1,000 searches** rate, conditional on exactly one billable search per logical page and no retries. Current free-key budget is published as $1/day; remaining credits not inspected. Scopus Search nominal quota 20,000/7 days → 360 planned queries are 1.8% of that nominal number, not proof of any entitlement. Crossref public/polite pool is unbilled REST metadata but must obey returned rate limits. Monetary total **UNKNOWN**, not approved.
+OpenAlex price illustration: **$0.36** for 360 search calls at the published **$1/1,000 searches** rate, conditional on exactly one billable search per logical page and no retries. Current free-key budget is published as $1/day; remaining credits not inspected. Scopus Search nominal quota 20,000/7 days → 360 logical pages need approximately 720 physical calls at 25 records per HTTP query, or 3.6% of the generic weekly quota, not proof of any entitlement or remaining balance. Crossref public/polite pool is unbilled REST metadata but must obey returned rate limits. Monetary total **UNKNOWN**, not approved.
 
 ## Physical HTTP envelope: more precise than the logical-page budget (2026-11-11 review)
 

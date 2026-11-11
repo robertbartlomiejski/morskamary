@@ -68,8 +68,10 @@
       "provider": "scopus",
       "logical_requests": 360,
       "published_nominal_weekly_search_quota": 20000,
-      "estimated_share_percent": 1.8,
-      "qualification": "Entitlement and remaining quota NOT VERIFIED"
+      "qualification": "Published Scopus Search nominal quota 20000/7d; 720 projected HTTP calls at 25 rows per HTTP call represent 3.6% of generic quota; entitlement/remaining quota unknown",
+      "estimated_share_percent_of_quota": 3.6,
+      "planned_physical_http_calls_at_full_pagination": 720,
+      "original_logical_pages": 360
     },
     {
       "provider": "wos",
