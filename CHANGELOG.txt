@@ -23,7 +23,7 @@ Use this section for changes in progress that are not yet merged into the main b
   Change type add
   Scope governance documentation
   Files affected docs/audits/live-readiness-2026-11-08/README.md docs/audits/live-readiness-2026-11-08/live_readiness_report.md docs/audits/live-readiness-2026-11-08/gate_matrix.csv docs/audits/live-readiness-2026-11-08/api_budget_plan.json docs/audits/live-readiness-2026-11-08/provider_readiness.json docs/audits/live-readiness-2026-11-08/protocol_query_codebook.csv docs/audits/live-readiness-2026-11-08/sector_axis_query_counts.csv docs/audits/live-readiness-2026-11-08/scientific_claim_boundaries.md docs/audits/live-readiness-2026-11-08/source_index.json docs/audits/live-readiness-2026-11-08/proposed_execution_manifest.json MANIFEST_SOURCES.csv CHANGELOG.txt
-  Summary Adds source-backed exact-SHA readiness audit, query-intent matrices, API-budget scenarios and gate ledger without changing executable research code.
+  Summary Adds source-backed exact-SHA readiness audit, query-intent matrices, logical and adapter-level physical API-budget scenarios and gate ledger without changing executable research code.
   Reason Resume empirical work safely while retaining scientific validity and protected API authorization boundaries.
   Impact Documentation only; no new empirical corpus, provider call, hypothesis-status change, archival rewrite or release.
   Provenance main 504318bd27813553b0840d96d62b3c29eed19c13, GitHub #291, Linear MOR-23, official provider terms.

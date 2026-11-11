@@ -19,6 +19,23 @@ The authoritative protocol contains **120 query definitions in 12 sectors and si
 
 OpenAlex price illustration: **$0.36** for 360 search calls at the published **$1/1,000 searches** rate, conditional on exactly one billable search per logical page and no retries. Current free-key budget is published as $1/day; remaining credits not inspected. Scopus Search nominal quota 20,000/7 days → 360 planned queries are 1.8% of that nominal number, not proof of any entitlement. Crossref public/polite pool is unbilled REST metadata but must obey returned rate limits. Monetary total **UNKNOWN**, not approved.
 
+## Physical HTTP envelope: more precise than the logical-page budget (2026-11-11 review)
+
+A source-backed review of the three adapter implementations establishes that **1080 logical pages are not 1080 physical requests**. Scopus uses `_SCOPUS_MAX_COUNT=25`; therefore each logical 50-row page may require two physical `urlopen` calls. Crossref allows up to four attempts per page and OpenAlex up to three attempts per page (counting initial attempts). For full 120-query, three-page, three-provider execution:
+
+| Provider | Logical pages | Physical calls if all logical pages run, no retry | Adapter-attempt upper scenario |
+| --- | ---: | ---: | ---: |
+| Crossref | 360 | 360 | 1440 |
+| Scopus | 360 | 720 | 720 |
+| OpenAlex | 360 | 360 | 1080 |
+| TOTAL | 1080 | **1440** | **3240** |
+
+These are static projections, **not measured traffic, guaranteed upper limits, or a billable quote**. Actual volumes can be lower due to early termination/errors; HTTP redirects and independent health probes are excluded. For OpenAlex, retry-saturation could result in ~1080 search calls or nominal **$1.08** at $1/1000, potentially above the published $1/day free-key allowance.
+
+**P1 still open:** `scripts/check_budget_ceiling.py` executes post-acquisition and `prepare_live_acquisition_plan.py` limits logical shape, neither establishes an atomic per-request physical/currency cap across provider adapters. Keep G2 NO-GO until an enforceable pre-request counter (including retries) or a separately versioned, approved bounded pilot is tested.
+
+Sources: `src/scientific_sources/crossref.py`, `src/scientific_sources/elsevier_scopus.py`, `src/scientific_sources/openalex.py` at research-code SHA `504318bd...`.
+
 ## Scientific meaning
 `protocol_query_codebook.csv` records declared retrieval intent, not semantic signals or validated demands. `sector_axis_query_counts.csv` records **query target distribution**, not an empirical QMBD result. H1 requires real evidence and a comparable method; H2 needs independently validated educational supply; H3 needs independently verified cross-axis bridge relations. Preserve `not_computable` where appropriate. Historical archive, source and codebook files must not be retroactively modified.
 

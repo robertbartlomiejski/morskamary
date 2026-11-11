@@ -73,6 +73,24 @@
       "kind": "public_provider_2026_limits",
       "url": "https://community.crossref.org/t/refining-rest-api-limits-for-improved-stability-and-reliability/16137",
       "result": "Crossref 2026 list query pool limits"
+    },
+    {
+      "kind": "adapter",
+      "path": "src/scientific_sources/crossref.py",
+      "url": "https://github.com/robertbartlomiejski/morskamary/blob/504318bd27813553b0840d96d62b3c29eed19c13/src/scientific_sources/crossref.py",
+      "result": "reviewed retry and physical pagination mechanisms on 2026-11-11"
+    },
+    {
+      "kind": "adapter",
+      "path": "src/scientific_sources/elsevier_scopus.py",
+      "url": "https://github.com/robertbartlomiejski/morskamary/blob/504318bd27813553b0840d96d62b3c29eed19c13/src/scientific_sources/elsevier_scopus.py",
+      "result": "reviewed retry and physical pagination mechanisms on 2026-11-11"
+    },
+    {
+      "kind": "adapter",
+      "path": "src/scientific_sources/openalex.py",
+      "url": "https://github.com/robertbartlomiejski/morskamary/blob/504318bd27813553b0840d96d62b3c29eed19c13/src/scientific_sources/openalex.py",
+      "result": "reviewed retry and physical pagination mechanisms on 2026-11-11"
     }
   ],
   "query_count": 120,

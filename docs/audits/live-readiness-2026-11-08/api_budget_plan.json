@@ -22,7 +22,9 @@
         "crossref"
       ],
       "logical_page_requests": 360,
-      "max_pre_dedup_rows": 18000
+      "max_pre_dedup_rows": 18000,
+      "planned_physical_http_attempts_for_complete_pagination": 360,
+      "upper_bound_at_adapter_retry_limits_if_all_logical_pages_are_requested": 1440
     },
     {
       "providers": [
@@ -30,7 +32,9 @@
         "openalex"
       ],
       "logical_page_requests": 720,
-      "max_pre_dedup_rows": 36000
+      "max_pre_dedup_rows": 36000,
+      "planned_physical_http_attempts_for_complete_pagination": 720,
+      "upper_bound_at_adapter_retry_limits_if_all_logical_pages_are_requested": 2520
     },
     {
       "providers": [
@@ -39,7 +43,9 @@
         "openalex"
       ],
       "logical_page_requests": 1080,
-      "max_pre_dedup_rows": 54000
+      "max_pre_dedup_rows": 54000,
+      "planned_physical_http_attempts_for_complete_pagination": 1440,
+      "upper_bound_at_adapter_retry_limits_if_all_logical_pages_are_requested": 3240
     }
   ],
   "provider_theoretical_costs": [
@@ -54,7 +60,9 @@
       "logical_requests": 360,
       "nominal_usd_if_all_search_calls": 0.36,
       "price_assumption_usd_per_1000_search_calls": 1,
-      "qualification": "Hypothetical 1 billable search per logical page, excluding retries, plan state, other operations; free tier $1/day per API-key account"
+      "qualification": "Hypothetical 1 billable search per logical page, excluding retries, plan state, other operations; free tier $1/day per API-key account",
+      "nominal_usd_if_all_search_calls_and_retry_ceiling": 1.08,
+      "warning": "$1/day free credit can be exceeded by theoretical 1080 chargeable OpenAlex searches; actual tariff and request accounting require provider review"
     },
     {
       "provider": "scopus",
@@ -78,5 +86,35 @@
   "actual_api_calls": 0,
   "actual_costs_usd": null,
   "financial_hard_cap_verified": false,
-  "authorization_for_live_smoke": false
+  "authorization_for_live_smoke": false,
+  "physical_request_envelope": {
+    "evidence_scope": "static adapter code review at source_sha 504318bd27813553b0840d96d62b3c29eed19c13",
+    "crossref": {
+      "logical_page_calls": 360,
+      "physical_calls_per_page_without_retry": 1,
+      "max_attempts_per_page": 4,
+      "source": "src/scientific_sources/crossref.py:_MAX_RETRY_ATTEMPTS, _request_json_with_backoff"
+    },
+    "scopus": {
+      "logical_page_calls": 360,
+      "max_rows_per_http_request": 25,
+      "logical_rows_per_page": 50,
+      "physical_calls_per_page_without_retry": 2,
+      "retry_attempts_per_call_in_search_paginated": 1,
+      "source": "src/scientific_sources/elsevier_scopus.py:_SCOPUS_MAX_COUNT and search_paginated while remaining > 0"
+    },
+    "openalex": {
+      "logical_page_calls": 360,
+      "physical_calls_per_page_without_retry": 1,
+      "max_attempts_per_page": 3,
+      "source": "src/scientific_sources/openalex.py:_MAX_RETRY_ATTEMPTS, _request_json_with_backoff"
+    },
+    "nominal_default_three_provider_physical_calls": 1440,
+    "illustrative_default_three_provider_retry_ceiling": 3240,
+    "operational_hard_request_ceiling_verified": false,
+    "includes_provider_health_probes": false,
+    "includes_redirects_or_unknown_transport_requests": false,
+    "does_not_mean_all_requests_will_occur": true,
+    "action": "require atomic pre-request debit and shared physical-http counter, separately versioned bounded pilot OR fail-closed G2"
+  }
 }
