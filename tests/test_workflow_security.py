@@ -27,6 +27,7 @@ PROVIDER_SECRETS: frozenset[str] = frozenset(
         "CROSSREF_MAILTO",
         "ELSEVIER_API_KEY",
         "SCOPUS_API_KEY",
+        "OPENALEX_API_KEY",
         "WOS_API_KEY",
         "SCIVAL_API_KEY",
         "MICROSOFT_TENANT_ID",
@@ -205,3 +206,72 @@ def test_only_allowlisted_jobs_have_write_permissions() -> None:
         "Jobs with unexpected write permissions (update ALLOWED_WRITE_JOBS if intentional):\n"
         + "\n".join(f"  {v}" for v in violations)
     )
+
+
+# ---------------------------------------------------------------------------
+# Research API smoke: offline mode must never contact provider endpoints
+# ---------------------------------------------------------------------------
+
+
+def test_research_api_smoke_defaults_to_no_provider_requests() -> None:
+    """A false/omitted live flag must never reach provider health probes.
+
+    This is a negative regression for the historical unconditional
+    "Provider health preflight" step, which called HTTP with live_api_tests=false.
+    """
+    workflow = _load_workflows()["research-api-smoke"]
+    job = workflow["jobs"]["research-api-smoke"]
+    steps = job["steps"]
+    network_steps = [
+        step for step in steps
+        if "check_research_api_health.py" in str(step.get("run", ""))
+        or "smoke_scientific_bridge.py --live-if-secrets-present" in str(
+            step.get("run", "")
+        )
+    ]
+    assert network_steps, "Live mode must keep explicit health checks"
+    assert all(
+        step.get("if") == "github.event.inputs.live_api_tests == 'true'"
+        for step in network_steps
+    ), "Every provider-contacting step must require opt-in live_api_tests=true"
+
+    offline = next(
+        step for step in steps if step.get("name") == "Offline smoke test"
+    )
+    assert "smoke_scientific_bridge.py --offline" in offline["run"]
+    assert not offline.get("if"), "Offline fixture regression must always run"
+
+    offline_validator = next(
+        step for step in steps
+        if step.get("name") == "Validate research source outputs (offline)"
+    )
+    assert offline_validator.get("if") == (
+        "github.event.inputs.live_api_tests != 'true'"
+    )
+    assert "--require-health" not in offline_validator["run"]
+    assert "check_research_api_health.py" not in offline_validator["run"]
+
+    live_validator = next(
+        step for step in steps
+        if step.get("name") == "Validate research source outputs (live)"
+    )
+    assert live_validator.get("if") == (
+        "github.event.inputs.live_api_tests == 'true'"
+    )
+    assert "--require-health" in live_validator["run"]
+
+
+def test_research_api_smoke_only_releases_secrets_to_opted_in_mode() -> None:
+    """Protect all configured secret values from the default offline job."""
+    job = _load_workflows()["research-api-smoke"]["jobs"]["research-api-smoke"]
+    assert job["environment"] == "live-research"
+    for key in (
+        "CROSSREF_MAILTO", "ELSEVIER_API_KEY", "SCOPUS_API_KEY",
+        "OPENALEX_API_KEY", "WOS_API_KEY", "SCIVAL_API_KEY",
+        "MICROSOFT_TENANT_ID", "MICROSOFT_CLIENT_ID",
+        "MICROSOFT_CLIENT_SECRET",
+    ):
+        value = job["env"].get(key, "")
+        assert "github.event.inputs.live_api_tests == 'true'" in value
+        assert "secrets." + key in value
+        assert "|| ''" in value

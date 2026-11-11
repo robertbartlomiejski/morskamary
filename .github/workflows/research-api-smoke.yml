@@ -23,14 +23,15 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       LIVE_RESEARCH_API_TESTS: ${{ github.event.inputs.live_api_tests || 'false' }}
 
-      CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
-      ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
-      SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
-      WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
-      SCIVAL_API_KEY: ${{ secrets.SCIVAL_API_KEY }}
-      MICROSOFT_TENANT_ID: ${{ secrets.MICROSOFT_TENANT_ID }}
-      MICROSOFT_CLIENT_ID: ${{ secrets.MICROSOFT_CLIENT_ID }}
-      MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
+      CROSSREF_MAILTO: ${{ github.event.inputs.live_api_tests == 'true' && secrets.CROSSREF_MAILTO || '' }}
+      ELSEVIER_API_KEY: ${{ github.event.inputs.live_api_tests == 'true' && secrets.ELSEVIER_API_KEY || '' }}
+      SCOPUS_API_KEY: ${{ github.event.inputs.live_api_tests == 'true' && secrets.SCOPUS_API_KEY || '' }}
+      OPENALEX_API_KEY: ${{ github.event.inputs.live_api_tests == 'true' && secrets.OPENALEX_API_KEY || '' }}
+      WOS_API_KEY: ${{ github.event.inputs.live_api_tests == 'true' && secrets.WOS_API_KEY || '' }}
+      SCIVAL_API_KEY: ${{ github.event.inputs.live_api_tests == 'true' && secrets.SCIVAL_API_KEY || '' }}
+      MICROSOFT_TENANT_ID: ${{ github.event.inputs.live_api_tests == 'true' && secrets.MICROSOFT_TENANT_ID || '' }}
+      MICROSOFT_CLIENT_ID: ${{ github.event.inputs.live_api_tests == 'true' && secrets.MICROSOFT_CLIENT_ID || '' }}
+      MICROSOFT_CLIENT_SECRET: ${{ github.event.inputs.live_api_tests == 'true' && secrets.MICROSOFT_CLIENT_SECRET || '' }}
 
     steps:
       - name: Checkout
@@ -59,13 +60,6 @@ jobs:
           set -euo pipefail
           python scripts/smoke_scientific_bridge.py --offline
 
-      - name: Provider health preflight
-        run: |
-          set -euo pipefail
-          mkdir -p outputs
-          python scripts/check_research_api_health.py \
-            --output outputs/research_api_health.json
-
       - name: Live smoke test
         if: github.event.inputs.live_api_tests == 'true'
         run: |
@@ -82,7 +76,14 @@ jobs:
           set -euo pipefail
           python scripts/export_research_source_capabilities.py
 
-      - name: Validate research source outputs
+      - name: Validate research source outputs (offline)
+        if: github.event.inputs.live_api_tests != 'true'
+        run: |
+          set -euo pipefail
+          python scripts/validate_research_source_outputs.py
+
+      - name: Validate research source outputs (live)
+        if: github.event.inputs.live_api_tests == 'true'
         run: |
           set -euo pipefail
           python scripts/validate_research_source_outputs.py --require-health
