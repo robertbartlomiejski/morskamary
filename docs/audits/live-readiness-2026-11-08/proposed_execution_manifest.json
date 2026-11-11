@@ -1,0 +1,20 @@
+{
+  "status": "PROPOSED_NOT_EXECUTED",
+  "source_sha": "504318bd27813553b0840d96d62b3c29eed19c13",
+  "workflow": ".github/workflows/full-live-analysis.yml",
+  "gate0_execution_mode": "hardening_dry_run",
+  "gate1": "BOUNDED_PROVIDER_SMOKE_PENDING",
+  "gate2": "exploratory_live_NOT_AUTHORIZED",
+  "suggested_default_providers": [
+    "crossref",
+    "scopus",
+    "openalex"
+  ],
+  "pages": 3,
+  "rows_per_page": 50,
+  "live_api_calls_made": 0,
+  "actual_run_id": null,
+  "archive_sha256": null,
+  "environment_verified": false,
+  "budget_approved": false
+}

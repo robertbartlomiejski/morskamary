@@ -1,0 +1,104 @@
+{
+  "source_commit": "504318bd27813553b0840d96d62b3c29eed19c13",
+  "source_blob_sha": "2499d75e06fffebd37899bb73bf068fcd63e9b1d",
+  "checked_at_date": "2026-11-08",
+  "sources": [
+    {
+      "kind": "protocol",
+      "path": "config/live_query_protocol.yml",
+      "url": "https://github.com/robertbartlomiejski/morskamary/blob/504318bd27813553b0840d96d62b3c29eed19c13/config/live_query_protocol.yml",
+      "blob_sha": "2499d75e06fffebd37899bb73bf068fcd63e9b1d"
+    },
+    {
+      "kind": "workflow",
+      "path": ".github/workflows/full-live-analysis.yml",
+      "url": "https://github.com/robertbartlomiejski/morskamary/blob/504318bd27813553b0840d96d62b3c29eed19c13/.github/workflows/full-live-analysis.yml",
+      "blob_sha": "3fd52f47e5fe35c854a44a939814eb3bbe595ecf"
+    },
+    {
+      "kind": "workflow",
+      "path": ".github/workflows/research-api-smoke.yml",
+      "url": "https://github.com/robertbartlomiejski/morskamary/blob/504318bd27813553b0840d96d62b3c29eed19c13/.github/workflows/research-api-smoke.yml",
+      "blob_sha": "cad2c8ae241bc1852ca68314fcbe58f62829d06d"
+    },
+    {
+      "kind": "script",
+      "path": "scripts/prepare_live_acquisition_plan.py",
+      "url": "https://github.com/robertbartlomiejski/morskamary/blob/504318bd27813553b0840d96d62b3c29eed19c13/scripts/prepare_live_acquisition_plan.py",
+      "blob_sha": "ecf3117e77a14f67b7fff29b1cfc362020cefc59"
+    },
+    {
+      "kind": "script",
+      "path": "scripts/check_budget_ceiling.py",
+      "url": "https://github.com/robertbartlomiejski/morskamary/blob/504318bd27813553b0840d96d62b3c29eed19c13/scripts/check_budget_ceiling.py",
+      "blob_sha": "69abcbc66454cbdcbe3ef4e7384bda89fadd3c0f"
+    },
+    {
+      "kind": "script",
+      "path": "scripts/check_research_api_health.py",
+      "url": "https://github.com/robertbartlomiejski/morskamary/blob/504318bd27813553b0840d96d62b3c29eed19c13/scripts/check_research_api_health.py",
+      "blob_sha": "5673fb91e60bd435a190586be6386cbaf151cb84"
+    },
+    {
+      "kind": "CI",
+      "url": "https://github.com/robertbartlomiejski/morskamary/actions/runs/42462659211",
+      "result": "success"
+    },
+    {
+      "kind": "Full Analysis",
+      "url": "https://github.com/robertbartlomiejski/morskamary/actions/runs/42462659191",
+      "result": "success"
+    },
+    {
+      "kind": "Research Pipeline",
+      "url": "https://github.com/robertbartlomiejski/morskamary/actions/runs/42462659210",
+      "result": "success"
+    },
+    {
+      "kind": "CodeQL",
+      "url": "https://github.com/robertbartlomiejski/morskamary/actions/runs/42462659192",
+      "result": "success"
+    },
+    {
+      "kind": "public_provider_pricing",
+      "url": "https://help.openalex.org/access/example-costs/",
+      "result": "$1/1000 search calls"
+    },
+    {
+      "kind": "public_provider_quota",
+      "url": "https://dev.elsevier.com/api_key_settings.html",
+      "result": "Scopus Search nominal 20000 requests per 7 days, entitlement dependent"
+    },
+    {
+      "kind": "public_provider_2026_limits",
+      "url": "https://community.crossref.org/t/refining-rest-api-limits-for-improved-stability-and-reliability/16137",
+      "result": "Crossref 2026 list query pool limits"
+    },
+    {
+      "kind": "adapter",
+      "path": "src/scientific_sources/crossref.py",
+      "url": "https://github.com/robertbartlomiejski/morskamary/blob/504318bd27813553b0840d96d62b3c29eed19c13/src/scientific_sources/crossref.py",
+      "result": "reviewed retry and physical pagination mechanisms on 2026-11-11"
+    },
+    {
+      "kind": "adapter",
+      "path": "src/scientific_sources/elsevier_scopus.py",
+      "url": "https://github.com/robertbartlomiejski/morskamary/blob/504318bd27813553b0840d96d62b3c29eed19c13/src/scientific_sources/elsevier_scopus.py",
+      "result": "reviewed retry and physical pagination mechanisms on 2026-11-11"
+    },
+    {
+      "kind": "adapter",
+      "path": "src/scientific_sources/openalex.py",
+      "url": "https://github.com/robertbartlomiejski/morskamary/blob/504318bd27813553b0840d96d62b3c29eed19c13/src/scientific_sources/openalex.py",
+      "result": "reviewed retry and physical pagination mechanisms on 2026-11-11"
+    }
+  ],
+  "query_count": 120,
+  "sector_count": 12,
+  "query_target_axis_counts": {
+    "MARINE": 24,
+    "MARITIME": 49,
+    "OCEANIC": 38,
+    "HYDRONIZATION": 9
+  }
+}
