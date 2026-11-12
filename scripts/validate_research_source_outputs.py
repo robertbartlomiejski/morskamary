@@ -249,7 +249,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--require-health", action="store_true")
     parser.add_argument("--require-live", action="store_true")
     parser.add_argument("--min-live-records", type=int, default=1)
-    args = parser.parse_args([] if argv is None else argv)
+    args = parser.parse_args(argv)
 
     ERRORS.clear()
     WARNINGS.clear()
