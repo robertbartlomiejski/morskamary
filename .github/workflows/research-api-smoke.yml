@@ -39,6 +39,13 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Clear committed provider-health snapshot
+        # A retained historical health report is not evidence for this run.
+        # Clear the checkout copy in both modes; live opt-in regenerates it.
+        run: |
+          set -euo pipefail
+          rm -f outputs/research_api_health.json
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
