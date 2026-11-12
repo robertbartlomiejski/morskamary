@@ -185,3 +185,15 @@ def test_research_source_output_validator_respects_cli_flags(monkeypatch, tmp_pa
 
     # Offline default deliberately tolerates missing optional health/live files.
     assert validator.main([]) == 0
+
+    # Even the parent outputs directory can be missing: required means fail.
+    missing = tmp_path / "absent-outputs"
+    monkeypatch.setattr(validator, "OUTPUTS_DIR", str(missing))
+    assert validator.main(["--require-health"]) == 1
+    assert any("outputs/ directory not found" in err
+               for err in validator.ERRORS)
+    assert validator.main(["--require-live"]) == 1
+    assert any("outputs/ directory not found" in err
+               for err in validator.ERRORS)
+    assert validator.main([]) == 0
+    assert not validator.ERRORS
