@@ -275,3 +275,24 @@ def test_research_api_smoke_only_releases_secrets_to_opted_in_mode() -> None:
         assert "github.event.inputs.live_api_tests == 'true'" in value
         assert "secrets." + key in value
         assert "|| ''" in value
+
+
+def test_research_api_smoke_drops_stale_health_before_any_validation() -> None:
+    """Offline artifact uploads must not inherit historic provider HTTP 200 results."""
+    job = _load_workflows()["research-api-smoke"]["jobs"]["research-api-smoke"]
+    steps = job["steps"]
+    names = [step.get("name") for step in steps]
+    clean = "Clear committed provider-health snapshot"
+    assert names.count(clean) == 1
+    clear_step = steps[names.index(clean)]
+    assert "rm -f outputs/research_api_health.json" in clear_step["run"]
+    assert not clear_step.get("if"), "Both offline and live modes need clean health state"
+    for later in (
+        "Provider configuration audit",
+        "Offline smoke test",
+        "Live smoke test",
+        "Validate research source outputs (offline)",
+        "Validate research source outputs (live)",
+        "Upload sanitized research API reports",
+    ):
+        assert names.index(clean) < names.index(later), later
