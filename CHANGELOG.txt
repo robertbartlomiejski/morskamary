@@ -22,12 +22,12 @@ Use this section for changes in progress that are not yet merged into the main b
 - 2026-11-11 (fix: MOR-23 provider-smoke offline gate and OpenAlex wiring)
   Change type fix
   Scope GitHub Actions research API smoke security and workflow regression tests
-  Files affected .github/workflows/research-api-smoke.yml tests/test_workflow_security.py CHANGELOG.txt
-  Summary Removes unconditional provider health HTTP probe; only the explicitly opted-in live step can probe; gates secret propagation by opt-in; adds OpenAlex key; splits source validation for offline versus live modes.
+  Files affected .github/workflows/research-api-smoke.yml scripts/validate_research_source_outputs.py tests/test_workflow_security.py tests/test_smoke_scientific_bridge.py CHANGELOG.txt
+  Summary Removes unconditional provider health HTTP probe; only the explicitly opted-in live step can probe; gates secret propagation by opt-in; adds OpenAlex key; splits source validation for offline versus live modes; enforces --require-health/--require-live CLI arguments and tests their fail-closed behavior.
   Reason Prevent provider calls and secret availability when live_api_tests=false while preserving checked, protected API smoke under true.
   Impact No real provider calls or scientific data changes. Does not enforce a full live acquisition physical HTTP or financial cap; that remains a separate unresolved preflight blocker in MOR-23.
   Provenance GitHub issue #291 / Linear MOR-23; code baseline 504318bd27813553b0840d96d62b3c29eed19c13.
-  Quality checks Negative YAML workflow regressions added. Validation via pull request CI required; this source-only task did not call providers.
+  Quality checks Negative YAML workflow regressions and CLI-argument fail-closed regressions added; exact-HEAD CI revalidation required. No provider calls.
 
 - 2026-11-08 (update: align pytest pin and development-extra minimum)
   Change type update
