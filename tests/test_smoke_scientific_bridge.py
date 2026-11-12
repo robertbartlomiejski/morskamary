@@ -156,6 +156,7 @@ def test_main_offline_and_live_modes(monkeypatch, tmp_path) -> None:
     assert smoke.main() == 1
     assert live_report_path.is_file()
 
+
 def test_research_source_output_validator_respects_cli_flags(monkeypatch, tmp_path) -> None:
     """Live-only validation flags must fail closed when required files are absent."""
     import scripts.validate_research_source_outputs as validator
