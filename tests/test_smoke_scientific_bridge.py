@@ -155,3 +155,32 @@ def test_main_offline_and_live_modes(monkeypatch, tmp_path) -> None:
     )
     assert smoke.main() == 1
     assert live_report_path.is_file()
+
+def test_research_source_output_validator_respects_cli_flags(monkeypatch, tmp_path) -> None:
+    """Live-only validation flags must fail closed when required files are absent."""
+    import scripts.validate_research_source_outputs as validator
+
+    outputs = tmp_path / "outputs"
+    outputs.mkdir()
+    monkeypatch.setattr(validator, "OUTPUTS_DIR", str(outputs))
+
+    monkeypatch.setattr(
+        validator.sys,
+        "argv",
+        ["validate_research_source_outputs.py", "--require-health"],
+    )
+    assert validator.main() == 1
+    assert any("research_api_health.json not found" in err
+               for err in validator.ERRORS)
+
+    monkeypatch.setattr(
+        validator.sys,
+        "argv",
+        ["validate_research_source_outputs.py", "--require-live"],
+    )
+    assert validator.main() == 1
+    assert any("outputs/research_sources directory not found" in err
+               for err in validator.ERRORS)
+
+    # Offline default deliberately tolerates missing optional health/live files.
+    assert validator.main([]) == 0
