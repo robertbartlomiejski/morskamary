@@ -230,7 +230,7 @@ class TestValidateResearchSourceOutputs:
         missing_dir = tmp_path / "missing-outputs"
         monkeypatch.setattr(script, "OUTPUTS_DIR", str(missing_dir))
 
-        assert script.main() == 0
+        assert script.main([]) == 0
         out = capsys.readouterr().out
         assert "outputs/ directory not found" in out
         assert "Warnings: 1" in out
@@ -301,7 +301,7 @@ class TestValidateResearchSourceOutputs:
         )
 
         monkeypatch.setattr(script, "OUTPUTS_DIR", str(outputs_dir))
-        assert script.main() == 1
+        assert script.main([]) == 1
         out = capsys.readouterr().out
         assert "crossref provider missing from capabilities export" in out
         assert "Validation FAILED." in out
