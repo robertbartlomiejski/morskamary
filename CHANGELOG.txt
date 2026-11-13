@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-11-13 (fix: explicit authorization for research-pipeline provider smoke)
+  Change type fix
+  Scope GitHub Actions live-search workflow security and parsed-YAML regression
+  Files affected .github/workflows/research-pipeline.yml tests/test_workflow_security.py CHANGELOG.txt
+  Summary Defaults workflow_dispatch provider smoke to off, requires both an explicit live_api_tests=true selection and AUTHORIZE_LIVE_PROVIDER_CALLS, and restricts the provider-smoke job to main and live-research. Ordinary quality-and-tests dispatch remains available without provider calls.
+  Reason The former live-search-smoke job ran on every manual research-pipeline dispatch without a dedicated provider-call opt-in.
+  Impact No scientific inputs, outputs, query protocol or archives changed. This does not implement a pre-request physical HTTP/currency ceiling and does not authorize G2 live acquisition.
+  Provenance GitHub #291, merged PR #294, Linear MOR-23; main baseline 3ecde866e837cea5a7723476c85d1b5a2bfab8f4.
+  Quality checks Parsed-YAML regression added; exact-HEAD CI, mypy, flake8, pytest and archive validation must be checked before merge. No live API dispatch.
+
 - 2026-11-11 (fix: MOR-23 provider-smoke offline gate and OpenAlex wiring)
   Change type fix
   Scope GitHub Actions research API smoke security and workflow regression tests
