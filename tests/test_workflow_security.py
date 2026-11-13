@@ -14,9 +14,12 @@ immediately without relying on substring searches that can miss nested keys.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
+import subprocess
 from typing import Any, Dict, List
 
+import pytest
 import yaml
 
 WORKFLOWS_DIR = Path(__file__).resolve().parents[1] / ".github" / "workflows"
@@ -313,15 +316,25 @@ def test_research_pipeline_live_search_requires_explicit_authorization() -> None
     assert set(live_input["options"]) == {"false", "true"}
     assert inputs["live_run_authorization"]["default"] == ""
 
+    authorization_job = wf["jobs"]["authorize-live-provider-smoke"]
+    assert authorization_job["if"] == "github.event_name == 'workflow_dispatch'"
+    assert authorization_job["env"] == {
+        "LIVE_API_TESTS": "${{ inputs.live_api_tests }}",
+        "LIVE_RUN_AUTHORIZATION": "${{ inputs.live_run_authorization }}",
+        "DISPATCH_REF": "${{ github.ref }}",
+    }
+    assert "secrets." not in str(authorization_job)
+    assert "environment" not in authorization_job
+
     job = wf["jobs"]["live-search-smoke"]
-    guard = job["if"]
-    assert "github.event_name == 'workflow_dispatch'" in guard
-    assert "inputs.live_api_tests == 'true'" in guard
+    assert job["needs"] == [
+        "quality-and-tests",
+        "authorize-live-provider-smoke",
+    ]
     assert (
-        "inputs.live_run_authorization == 'AUTHORIZE_LIVE_PROVIDER_CALLS'"
-        in guard
+        job["if"]
+        == "${{ needs.authorize-live-provider-smoke.outputs.authorized == 'true' }}"
     )
-    assert "github.ref == 'refs/heads/main'" in guard
     assert job["environment"] == "live-research"
     steps = job["steps"]
     assert any(
@@ -329,3 +342,43 @@ def test_research_pipeline_live_search_requires_explicit_authorization() -> None
         for step in steps
     )
     assert job["env"]["LIVE_RESEARCH_API_TESTS"] == "true"
+
+
+@pytest.mark.parametrize(
+    ("live_api_tests", "authorization", "dispatch_ref", "expected"),
+    [
+        ("true", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/main", "true"),
+        ("false", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/main", "false"),
+        ("TRUE", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/main", "false"),
+        ("true", "", "refs/heads/main", "false"),
+        ("true", "authorize_live_provider_calls", "refs/heads/main", "false"),
+        ("true", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/MAIN", "false"),
+        ("true", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/other", "false"),
+    ],
+)
+def test_research_pipeline_authorization_is_case_sensitive(
+    tmp_path: Path,
+    live_api_tests: str,
+    authorization: str,
+    dispatch_ref: str,
+    expected: str,
+) -> None:
+    wf = _load_workflows()["research-pipeline"]
+    authorization_job = wf["jobs"]["authorize-live-provider-smoke"]
+    step = authorization_job["steps"][0]
+    output_file = tmp_path / "github-output"
+    env = os.environ.copy()
+    env.update(
+        {
+            "LIVE_API_TESTS": live_api_tests,
+            "LIVE_RUN_AUTHORIZATION": authorization,
+            "DISPATCH_REF": dispatch_ref,
+            "GITHUB_OUTPUT": str(output_file),
+        }
+    )
+
+    subprocess.run(["bash", "-c", step["run"]], check=True, env=env)
+
+    assert (
+        output_file.read_text(encoding="utf-8").strip() == f"authorized={expected}"
+    )
