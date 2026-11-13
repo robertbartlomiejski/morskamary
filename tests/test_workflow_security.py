@@ -296,6 +296,8 @@ def test_research_api_smoke_drops_stale_health_before_any_validation() -> None:
         "Upload sanitized research API reports",
     ):
         assert names.index(clean) < names.index(later), later
+
+
 # ---------------------------------------------------------------------------
 # Research Pipeline: dispatch must not trigger provider smoke by default
 # ---------------------------------------------------------------------------
@@ -322,7 +324,9 @@ def test_research_pipeline_live_search_requires_explicit_authorization() -> None
     assert "github.ref == 'refs/heads/main'" in guard
     assert job["environment"] == "live-research"
     steps = job["steps"]
-    assert any("check_research_api_health.py" in str(step.get("run", ""))
-               for step in steps)
+    assert any(
+        "check_research_api_health.py" in str(step.get("run", ""))
+        for step in steps
+    )
     assert job["env"]["LIVE_RESEARCH_API_TESTS"] == "true"
 
