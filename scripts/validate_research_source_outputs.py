@@ -249,7 +249,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--require-health", action="store_true")
     parser.add_argument("--require-live", action="store_true")
     parser.add_argument("--min-live-records", type=int, default=1)
-    args = parser.parse_args([] if argv is None else argv)
+    args = parser.parse_args(argv)
 
     ERRORS.clear()
     WARNINGS.clear()
@@ -258,7 +258,11 @@ def main(argv: list[str] | None = None) -> int:
 
     outputs_dir = _outputs_path()
     if not outputs_dir.is_dir():
-        _warn(f"outputs/ directory not found at {outputs_dir}")
+        message = f"outputs/ directory not found at {outputs_dir}"
+        if args.require_health or args.require_live:
+            _err(f"{message}; required research-source outputs unavailable")
+        else:
+            _warn(message)
     else:
         validate_capabilities_json()
         validate_health_json(require_health=args.require_health)
