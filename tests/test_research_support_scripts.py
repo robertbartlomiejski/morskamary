@@ -228,13 +228,16 @@ class TestValidateResearchSourceOutputs:
         import validate_research_source_outputs as script
 
         missing_dir = tmp_path / "missing-outputs"
-        monkeypatch.setattr(script, "OUTPUTS_DIR", str(missing_dir))
+        monkeypatch.setattr(script, "_outputs_path", lambda: missing_dir)
 
         assert script.main([]) == 0
         out = capsys.readouterr().out
         assert "outputs/ directory not found" in out
         assert "Warnings: 1" in out
         assert "Errors:   0" in out
+
+        assert script.main(["--require-health"]) == 1
+        assert script.main(["--require-live"]) == 1
 
     def test_validate_capabilities_json_happy_path(self, tmp_path, monkeypatch, capsys):
         import validate_research_source_outputs as script
