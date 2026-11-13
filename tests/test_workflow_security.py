@@ -329,4 +329,3 @@ def test_research_pipeline_live_search_requires_explicit_authorization() -> None
         for step in steps
     )
     assert job["env"]["LIVE_RESEARCH_API_TESTS"] == "true"
-
