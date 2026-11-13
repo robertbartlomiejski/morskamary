@@ -296,3 +296,33 @@ def test_research_api_smoke_drops_stale_health_before_any_validation() -> None:
         "Upload sanitized research API reports",
     ):
         assert names.index(clean) < names.index(later), later
+# ---------------------------------------------------------------------------
+# Research Pipeline: dispatch must not trigger provider smoke by default
+# ---------------------------------------------------------------------------
+
+
+def test_research_pipeline_live_search_requires_explicit_authorization() -> None:
+    """A manual quality run must never silently perform provider HTTP probes."""
+    wf = _load_workflows()["research-pipeline"]
+    triggers = wf.get("on", wf.get(True))  # PyYAML 1.1 can parse 'on' as True.
+    inputs = triggers["workflow_dispatch"]["inputs"]
+    live_input = inputs["live_api_tests"]
+    assert str(live_input["default"]).lower() == "false"
+    assert set(live_input["options"]) == {"false", "true"}
+    assert inputs["live_run_authorization"]["default"] == ""
+
+    job = wf["jobs"]["live-search-smoke"]
+    guard = job["if"]
+    assert "github.event_name == 'workflow_dispatch'" in guard
+    assert "inputs.live_api_tests == 'true'" in guard
+    assert (
+        "inputs.live_run_authorization == 'AUTHORIZE_LIVE_PROVIDER_CALLS'"
+        in guard
+    )
+    assert "github.ref == 'refs/heads/main'" in guard
+    assert job["environment"] == "live-research"
+    steps = job["steps"]
+    assert any("check_research_api_health.py" in str(step.get("run", ""))
+               for step in steps)
+    assert job["env"]["LIVE_RESEARCH_API_TESTS"] == "true"
+
