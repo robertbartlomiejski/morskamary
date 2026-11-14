@@ -8,6 +8,7 @@ the environment explicitly.
 from __future__ import annotations
 
 import json
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Iterator
@@ -47,6 +48,20 @@ def fixture_attempt_budget(
     monkeypatch.setenv(ENV_LEDGER_PATH, str(Path(base / "ledger.sqlite")))
     monkeypatch.delenv(ENV_RUN_ID, raising=False)
     reset_governor_cache()
+    # Prevent unmocked unit tests from reaching scientific providers. Tests
+    # needing HTTP must inject a fake or use an explicitly local loopback server.
+    real_urlopen = urllib.request.urlopen
+
+    def _test_only_urlopen(request, *args, **kwargs):
+        url = request.full_url if hasattr(request, "full_url") else str(request)
+        parsed = urllib.parse.urlsplit(url)
+        if parsed.scheme in ("http", "https") and parsed.hostname not in (
+            "localhost", "127.0.0.1", "::1",
+        ):
+            raise AssertionError("pytest blocked unmocked external HTTP dispatch")
+        return real_urlopen(request, *args, **kwargs)
+
+    monkeypatch.setattr(urllib.request, "urlopen", _test_only_urlopen)
     # Session-scoped provider fixtures run before function fixtures. Adapt the
     # legacy urlopen mocks at session scope, before any module-scoped acquisition
     # fixture can inadvertently reach a real HTTP transport.
