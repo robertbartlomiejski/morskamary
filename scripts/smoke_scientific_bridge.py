@@ -27,6 +27,7 @@ from pathlib import Path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
+from src.scientific_sources.attempt_budget import require_governor  # noqa: E402
 
 PASS = "PASS"
 FAIL = "FAIL"
