@@ -1,0 +1,666 @@
+diff --git a/scripts/build_performative_demand_cross_axis_analysis.py b/scripts/build_performative_demand_cross_axis_analysis.py
+index 3cf774d..fe8479b 100644
+--- a/scripts/build_performative_demand_cross_axis_analysis.py
++++ b/scripts/build_performative_demand_cross_axis_analysis.py
+@@ -23,6 +23,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
+ if str(REPO_ROOT) not in sys.path:
+     sys.path.insert(0, str(REPO_ROOT))
+ 
++from src.infrastructure_git import fetch_github_commit  # noqa: E402
+ from src.scientific_sources.performative_demand_analysis import (  # noqa: E402
+     AXES,
+     AXIS_CODES,
+@@ -219,12 +220,7 @@ def _ensure_commit_available(commit: str) -> None:
+         capture_output=True,
+     ).returncode == 0:
+         return
+-    fetch = subprocess.run(
+-        ["git", "-C", str(REPO_ROOT), "fetch", "--filter=blob:none", "origin", commit],
+-        check=False,
+-        capture_output=True,
+-        text=True,
+-    )
++    fetch = fetch_github_commit(REPO_ROOT, commit)
+     if fetch.returncode != 0:
+         stderr = (fetch.stderr or "").strip()
+         raise RuntimeError(
+diff --git a/src/infrastructure_git.py b/src/infrastructure_git.py
+new file mode 100644
+index 0000000..1803b20
+--- /dev/null
++++ b/src/infrastructure_git.py
+@@ -0,0 +1,87 @@
++"""Strictly scoped GitHub infrastructure fetch, outside the provider budget.
++
++Retained protocol commits may need to be fetched from the repository's own
++GitHub ``origin`` (shallow CI checkouts). That is repository infrastructure
++traffic, not scientific-provider traffic, so it is not counted in the physical
++attempt budget. The exemption is deliberately narrow and is the only
++network-capable subprocess route the route scanner accepts:
++
++* the commit must be a full 40-character lowercase hexadecimal object id;
++* ``origin`` must be an ``https://github.com/<owner>/<repo>`` URL;
++* the argument vector is fixed, uses no shell and no user-supplied options;
++* every fetch is logged with the origin host and a shortened commit id.
++
++Any other ``git``/``curl``/``wget`` network route is reported by
++``find_ungoverned_network_routes``.
++"""
++from __future__ import annotations
++
++import logging
++import re
++import subprocess
++from pathlib import Path
++
++LOGGER = logging.getLogger(__name__)
++
++COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
++GITHUB_ORIGIN_RE = re.compile(
++    r"^https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?(\.git)?/?$"
++)
++INFRASTRUCTURE_FETCH_POLICY = {
++    "traffic_class": "infrastructure",
++    "counted_in_physical_attempt_budget": False,
++    "allowed_origin": "https://github.com/<owner>/<repo>",
++    "allowed_object": "40-character lowercase hexadecimal commit id",
++    "module": "src/infrastructure_git.py",
++    "function": "fetch_github_commit",
++}
++
++
++class InfrastructureFetchError(RuntimeError):
++    """Raised before any network access when a fetch request is not allowed."""
++
++
++def validate_commit(commit: str) -> str:
++    if not isinstance(commit, str) or not COMMIT_RE.fullmatch(commit):
++        raise InfrastructureFetchError(
++            "infrastructure fetch requires a full 40-character lowercase commit id"
++        )
++    return commit
++
++
++def validate_origin_url(url: str) -> str:
++    if not isinstance(url, str) or not GITHUB_ORIGIN_RE.fullmatch(url.strip()):
++        raise InfrastructureFetchError(
++            "infrastructure fetch is limited to an https://github.com/ origin"
++        )
++    return url.strip()
++
++
++def fetch_github_commit(repo_root: Path, commit: str) -> subprocess.CompletedProcess[str]:
++    """Fetch one validated commit from the GitHub ``origin`` of ``repo_root``."""
++    validate_commit(commit)
++    remote = subprocess.run(
++        ["git", "-C", str(repo_root), "remote", "get-url", "origin"],
++        check=False,
++        capture_output=True,
++        text=True,
++    )
++    if remote.returncode != 0:
++        raise InfrastructureFetchError("origin remote is not configured")
++    validate_origin_url(remote.stdout)
++    LOGGER.info("[INFO] infrastructure git fetch from github.com origin: %s", commit[:12])
++    return subprocess.run(
++        [
++            "git",
++            "-C",
++            str(repo_root),
++            "fetch",
++            "--no-tags",
++            "--filter=blob:none",
++            "origin",
++            commit,
++        ],
++        check=False,
++        capture_output=True,
++        text=True,
++    )
+diff --git a/src/scientific_sources/attempt_budget.py b/src/scientific_sources/attempt_budget.py
+index f4e03d9..344f7ab 100644
+--- a/src/scientific_sources/attempt_budget.py
++++ b/src/scientific_sources/attempt_budget.py
+@@ -35,9 +35,11 @@ from datetime import datetime, timezone
+ from pathlib import Path
+ from typing import Any, Dict, Iterable, Iterator, List, Mapping, Optional, Sequence
+ 
+-BUDGET_SCHEMA_VERSION = "physical_attempt_budget/1"
+-LEDGER_SCHEMA_VERSION = "physical_attempt_ledger/1"
+-AUDIT_SCHEMA_VERSION = "physical_attempt_audit/1"
++from src.infrastructure_git import INFRASTRUCTURE_FETCH_POLICY
++
++BUDGET_SCHEMA_VERSION = "physical_attempt_budget/2"
++LEDGER_SCHEMA_VERSION = "physical_attempt_ledger/2"
++AUDIT_SCHEMA_VERSION = "physical_attempt_audit/2"
+ 
+ ENV_BUDGET_FILE = "ATTEMPT_BUDGET_FILE"
+ ENV_LEDGER_PATH = "ATTEMPT_LEDGER_PATH"
+@@ -114,18 +116,32 @@ def _strict_count(value: object, label: str) -> int:
+     return value
+ 
+ 
++_TOKEN_RE = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
++
++
+ @dataclass(frozen=True)
+ class PhysicalAttemptBudget:
+-    """Versioned run-scoped physical-attempt quota."""
++    """Versioned acquisition-scoped physical-attempt quota.
+ 
+-    run_id: str
++    ``acquisition_id`` and ``budget_id`` identify the quota and are stable across
++    workflow re-runs. ``workflow_run_id`` and ``run_attempt`` are provenance only;
++    they never select or reset a ceiling.
++    """
++
++    acquisition_id: str
++    budget_id: str
+     maximum_total_physical_attempts: int
+     provider_ceilings: Mapping[str, int]
++    workflow_run_id: str = ""
++    run_attempt: int = 0
+ 
+     def to_dict(self) -> Dict[str, Any]:
+         return {
+             "schema_version": BUDGET_SCHEMA_VERSION,
+-            "run_id": self.run_id,
++            "acquisition_id": self.acquisition_id,
++            "budget_id": self.budget_id,
++            "workflow_run_id": self.workflow_run_id,
++            "run_attempt": self.run_attempt,
+             "unit": "physical_http_attempt",
+             "maximum_total_physical_attempts": self.maximum_total_physical_attempts,
+             "provider_ceilings": dict(sorted(self.provider_ceilings.items())),
+@@ -138,7 +154,10 @@ class PhysicalAttemptBudget:
+ 
+ _BUDGET_KEYS = {
+     "schema_version",
+-    "run_id",
++    "acquisition_id",
++    "budget_id",
++    "workflow_run_id",
++    "run_attempt",
+     "unit",
+     "maximum_total_physical_attempts",
+     "provider_ceilings",
+@@ -158,9 +177,16 @@ def parse_budget(raw: object) -> PhysicalAttemptBudget:
+         )
+     if raw.get("unit", "physical_http_attempt") != "physical_http_attempt":
+         raise BudgetConfigurationError("unit must be 'physical_http_attempt'")
+-    run_id = raw.get("run_id")
+-    if not isinstance(run_id, str) or not re.fullmatch(r"[A-Za-z0-9._-]{1,128}", run_id):
+-        raise BudgetConfigurationError("run_id must be a non-empty safe token")
++    for key in ("acquisition_id", "budget_id"):
++        value = raw.get(key)
++        if not isinstance(value, str) or not _TOKEN_RE.fullmatch(value):
++            raise BudgetConfigurationError(f"{key} must be a non-empty safe token")
++    workflow_run_id = raw.get("workflow_run_id", "")
++    if not isinstance(workflow_run_id, str) or (
++        workflow_run_id and not _TOKEN_RE.fullmatch(workflow_run_id)
++    ):
++        raise BudgetConfigurationError("workflow_run_id must be empty or a safe token")
++    run_attempt = _strict_count(raw.get("run_attempt", 0), "run_attempt")
+     if "maximum_total_physical_attempts" not in raw:
+         raise BudgetConfigurationError("maximum_total_physical_attempts is required")
+     maximum = _strict_count(
+@@ -174,7 +200,14 @@ def parse_budget(raw: object) -> PhysicalAttemptBudget:
+         if name not in KNOWN_PROVIDERS:
+             raise BudgetConfigurationError(f"unknown provider ceiling: {name!r}")
+         ceilings[name] = _strict_count(value, f"provider_ceilings[{name}]")
+-    return PhysicalAttemptBudget(run_id, maximum, ceilings)
++    return PhysicalAttemptBudget(
++        raw["acquisition_id"],
++        raw["budget_id"],
++        maximum,
++        ceilings,
++        workflow_run_id,
++        run_attempt,
++    )
+ 
+ 
+ def load_budget(path: str | os.PathLike[str]) -> PhysicalAttemptBudget:
+@@ -284,7 +317,8 @@ class AttemptLedger:
+                     "INSERT INTO meta(key, value) VALUES (?, ?)",
+                     [
+                         ("schema_version", LEDGER_SCHEMA_VERSION),
+-                        ("run_id", self.budget.run_id),
++                        ("acquisition_id", self.budget.acquisition_id),
++                        ("budget_id", self.budget.budget_id),
+                         ("budget_sha256", self.budget.sha256()),
+                         ("created_at", _utc_now()),
+                     ],
+@@ -354,8 +388,11 @@ class AttemptLedger:
+         meta = dict(conn.execute("SELECT key, value FROM meta").fetchall())
+         if meta.get("schema_version") != LEDGER_SCHEMA_VERSION:
+             raise LedgerCorruptError("attempt ledger schema version mismatch")
+-        if meta.get("run_id") != self.budget.run_id:
+-            raise LedgerCorruptError("attempt ledger run_id does not match the budget")
++        if (
++            meta.get("acquisition_id") != self.budget.acquisition_id
++            or meta.get("budget_id") != self.budget.budget_id
++        ):
++            raise LedgerCorruptError("attempt ledger identity does not match the budget")
+         if meta.get("budget_sha256") != self.budget.sha256():
+             raise LedgerCorruptError("attempt ledger is bound to a different budget")
+ 
+@@ -395,7 +432,7 @@ class AttemptLedger:
+                         f"physical attempt refused for {provider}: {reason} "
+                         f"(global={total}/{self.budget.maximum_total_physical_attempts})",
+                     )
+-                attempt_id = f"{self.budget.run_id}:{total + 1:06d}"
++                attempt_id = f"{self.budget.budget_id}:{total + 1:06d}"
+                 conn.execute(
+                     "INSERT INTO attempts(attempt_id, provider, purpose, status,"
+                     " reserved_at, global_count_after, provider_count_after)"
+@@ -492,9 +529,9 @@ class AttemptGovernor:
+             raise LedgerUnavailableError(f"{ENV_LEDGER_PATH} is not set")
+         budget = load_budget(budget_file)
+         expected_run = env.get(ENV_RUN_ID, "").strip()
+-        if expected_run and expected_run != budget.run_id:
++        if expected_run and budget.workflow_run_id and expected_run != budget.workflow_run_id:
+             raise BudgetConfigurationError(
+-                "budget run_id does not match the current workflow run identity"
++                "budget workflow_run_id does not match the current workflow run identity"
+             )
+         governor = cls(budget, Path(ledger_path))
+         governor.ledger.verify()
+@@ -677,7 +714,10 @@ def build_audit(
+     total = len(reservations)
+     return {
+         "schema_version": AUDIT_SCHEMA_VERSION,
+-        "run_id": budget.run_id,
++        "acquisition_id": budget.acquisition_id,
++        "budget_id": budget.budget_id,
++        "workflow_run_id": budget.workflow_run_id,
++        "run_attempt": budget.run_attempt,
+         "budget": budget.to_dict(),
+         "budget_sha256": budget.sha256(),
+         "ledger_path": _redact_path(governor.ledger.path, repo_root),
+@@ -695,6 +735,7 @@ def build_audit(
+         ),
+         "reservations": reservations,
+         "refusals": refusals,
++        "infrastructure_traffic": dict(INFRASTRUCTURE_FETCH_POLICY),
+         "separate_controls": {
+             "logical_page_budget": "scripts/check_budget_ceiling.py (unchanged, post-acquisition)",
+             "attempts_are_never_refunded": True,
+@@ -707,24 +748,271 @@ def build_audit(
+     }
+ 
+ 
+-_NETWORK_MODULES = {
++_NETWORK_EXACT_MODULES = {"http.client", "xmlrpc.client", "http.server"}
++_NETWORK_TOP_MODULES = {
+     "requests",
+     "httpx",
+     "aiohttp",
+     "urllib3",
+-    "http.client",
+     "httplib2",
+     "googleapiclient",
++    "ftplib",
++    "smtplib",
++    "poplib",
++    "imaplib",
++    "telnetlib",
++    "websocket",
++    "websockets",
++    "paramiko",
++    "pycurl",
++    "grpc",
++    "boto3",
++    "botocore",
++    "socket",
++    "ssl",
++}
++_NETWORK_CALLS = {
++    "urlopen",
++    "urlretrieve",
++    "create_connection",
++    "build_opener",
++    "install_opener",
++    "HTTPConnection",
++    "HTTPSConnection",
++}
++_NETWORK_FROM_IMPORTS = {
++    "http": {"client", "server"},
++    "xmlrpc": {"client"},
++}
++_READ_FUNCTIONS = {
++    "read_csv",
++    "read_json",
++    "read_excel",
++    "read_html",
++    "read_parquet",
++    "read_table",
++    "read_xml",
++    "read_feather",
++    "read_fwf",
++}
++_URL_PREFIXES = ("http://", "https://", "ftp://", "s3://", "gs://")
++_NET_PROGRAMS = {
++    "curl",
++    "wget",
++    "ssh",
++    "scp",
++    "sftp",
++    "rsync",
++    "nc",
++    "ncat",
++    "telnet",
++    "ftp",
++    "gh",
++    "pip",
++    "pip3",
++    "npm",
++    "apt",
++    "apt-get",
++}
++_GIT_NET_SUBCOMMANDS = {"fetch", "pull", "clone", "ls-remote", "push", "submodule"}
++_PROCESS_FUNCTIONS = {
++    "run",
++    "Popen",
++    "call",
++    "check_call",
++    "check_output",
++    "getoutput",
++    "getstatusoutput",
+ }
+-_NETWORK_CALLS = {"urlopen", "urlretrieve", "create_connection"}
++_OS_EXEC_PREFIXES = ("exec", "spawn", "posix_spawn")
++_DYNAMIC_IMPORTERS = {"__import__", "import_module"}
++# The single, tested infrastructure route (see src/infrastructure_git.py).
++INFRASTRUCTURE_ROUTE_EXEMPTIONS = frozenset(
++    {("src/infrastructure_git.py", "fetch_github_commit", "git fetch")}
++)
++
++
++def _call_name(func: ast.expr) -> str:
++    if isinstance(func, ast.Attribute):
++        return func.attr
++    if isinstance(func, ast.Name):
++        return func.id
++    return ""
++
++
++def _is_network_module(name: str) -> bool:
++    return name in _NETWORK_EXACT_MODULES or name.split(".")[0] in _NETWORK_TOP_MODULES
++
++
++def _const_strings(elements: Sequence[ast.expr]) -> List[Optional[str]]:
++    return [
++        e.value if isinstance(e, ast.Constant) and isinstance(e.value, str) else None
++        for e in elements
++    ]
++
++
++def _network_command(tokens: Sequence[Optional[str]]) -> Optional[str]:
++    """Return a label when literal argv tokens describe a network-capable command."""
++    if not tokens or tokens[0] is None:
++        return None
++    program = Path(tokens[0]).name
++    if program in _NET_PROGRAMS:
++        return program
++    if program.startswith("python") and "-m" in tokens:
++        idx = tokens.index("-m")
++        if idx + 1 < len(tokens) and tokens[idx + 1] in {"pip", "ensurepip"}:
++            return "python -m pip"
++    if program == "git":
++        for token in tokens[1:]:
++            if token in _GIT_NET_SUBCOMMANDS:
++                return f"git {token}"
++    return None
++
++
++class _RouteVisitor(ast.NodeVisitor):
++    def __init__(self, rel: str) -> None:
++        self.rel = rel
++        self.findings: List[str] = []
++        self._functions: List[str] = []
++
++    def _report(self, node: ast.AST, label: str) -> None:
++        self.findings.append(f"{self.rel}:{getattr(node, 'lineno', 0)} {label}")
++
++    def _report_command(self, node: ast.AST, label: str) -> None:
++        function = self._functions[-1] if self._functions else ""
++        if (self.rel, function, label) in INFRASTRUCTURE_ROUTE_EXEMPTIONS:
++            return
++        self._report(node, label)
++
++    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
++        self._functions.append(node.name)
++        self.generic_visit(node)
++        self._functions.pop()
++
++    visit_AsyncFunctionDef = visit_FunctionDef  # type: ignore[assignment]
++
++    def visit_Import(self, node: ast.Import) -> None:
++        for alias in node.names:
++            if _is_network_module(alias.name):
++                self._report(node, alias.name)
++        self.generic_visit(node)
++
++    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
++        module = node.module or ""
++        if module and _is_network_module(module):
++            self._report(node, module)
++        elif module in _NETWORK_FROM_IMPORTS:
++            hit = next(
++                (a.name for a in node.names if a.name in _NETWORK_FROM_IMPORTS[module]),
++                None,
++            )
++            if hit:
++                self._report(node, f"{module}.{hit}")
++        elif module in ("urllib.request", "urllib"):
++            hit = next(
++                (a.name for a in node.names if a.name in _NETWORK_CALLS), None
++            )
++            if hit:
++                self._report(node, hit)
++        self.generic_visit(node)
++
++    def visit_List(self, node: ast.List) -> None:
++        self._check_literal_command(node, node.elts)
++        self.generic_visit(node)
++
++    def visit_Tuple(self, node: ast.Tuple) -> None:
++        self._check_literal_command(node, node.elts)
++        self.generic_visit(node)
++
++    def _check_literal_command(self, node: ast.AST, elements: Sequence[ast.expr]) -> None:
++        label = _network_command(_const_strings(elements))
++        if label:
++            self._report_command(node, label)
++
++    def visit_Call(self, node: ast.Call) -> None:
++        name = _call_name(node.func)
++        base = node.func.value if isinstance(node.func, ast.Attribute) else None
++        base_name = base.id if isinstance(base, ast.Name) else ""
++        if name in _NETWORK_CALLS:
++            self._report(node, name)
++        elif name in _DYNAMIC_IMPORTERS and node.args:
++            first = node.args[0]
++            if not (isinstance(first, ast.Constant) and isinstance(first.value, str)):
++                self._report(node, f"dynamic {name}")
++            elif _is_network_module(first.value):
++                self._report(node, f"{name} {first.value}")
++        elif name == "getattr" and len(node.args) >= 2:
++            attr = node.args[1]
++            if (
++                isinstance(attr, ast.Constant)
++                and isinstance(attr.value, str)
++                and attr.value in _NETWORK_CALLS
++            ):
++                self._report(node, f"getattr {attr.value}")
++        elif name in ("eval", "exec") and isinstance(node.func, ast.Name):
++            self._report(node, f"dynamic {name}")
++        elif base_name == "os" and (
++            name in ("system", "popen") or name.startswith(_OS_EXEC_PREFIXES)
++        ):
++            self._report(node, f"os.{name}")
++        elif base_name == "subprocess" and name in _PROCESS_FUNCTIONS:
++            self._check_process_call(node, name)
++        elif name in _READ_FUNCTIONS:
++            self._check_remote_read(node, name)
++        self.generic_visit(node)
++
++    def _check_process_call(self, node: ast.Call, name: str) -> None:
++        for keyword in node.keywords:
++            if (
++                keyword.arg == "shell"
++                and isinstance(keyword.value, ast.Constant)
++                and keyword.value.value is True
++            ):
++                self._report(node, f"subprocess.{name} shell=True")
++        if node.args and isinstance(node.args[0], ast.Constant) and isinstance(
++            node.args[0].value, str
++        ):
++            label = _network_command(list(node.args[0].value.split()))
++            if label:
++                self._report_command(node, label)
++
++    def _check_remote_read(self, node: ast.Call, name: str) -> None:
++        target: Optional[ast.expr] = node.args[0] if node.args else None
++        for keyword in node.keywords:
++            if keyword.arg in ("filepath_or_buffer", "io", "path_or_buf", "path"):
++                target = keyword.value
++        if target is None:
++            return
++        literal = None
++        if isinstance(target, ast.Constant) and isinstance(target.value, str):
++            literal = target.value
++        elif isinstance(target, ast.JoinedStr) and target.values:
++            first = target.values[0]
++            if isinstance(first, ast.Constant) and isinstance(first.value, str):
++                literal = first.value
++        if literal is not None and literal.lower().startswith(_URL_PREFIXES):
++            self._report(node, f"{name} remote url")
++        elif (
++            isinstance(target, (ast.Name, ast.Attribute))
++            and "url" in _call_name(target).lower()
++        ):
++            self._report(node, f"{name} url argument")
+ 
+ 
+ def find_ungoverned_network_routes(
+     repo_root: Path, roots: Iterable[str] = ("src", "scripts")
+ ) -> List[str]:
+-    """Return repo-relative ``path:line`` entries that reach the network directly.
++    """Return repo-relative ``path:line label`` entries that can reach the network.
+ 
+-    Includes top-level ``*.py`` files. Only :data:`GOVERNED_MODULE_PATH` is exempt.
++    Covers alternative HTTP clients, raw sockets, FTP/SMTP clients, opener
++    objects, dynamic imports, remote ``pandas.read_*`` sources, shell/OS process
++    execution and literal ``curl``/``wget``/``git fetch`` style commands. Includes
++    top-level ``*.py`` files. Only :data:`GOVERNED_MODULE_PATH` is exempt as a
++    whole; the single infrastructure fetch is exempted by file, function and
++    command via :data:`INFRASTRUCTURE_ROUTE_EXEMPTIONS`.
++
++    The scan is static and Python-only: non-literal subprocess commands and
++    non-Python tooling are not provable and are listed as a residual risk.
+     """
+     files: List[Path] = sorted(repo_root.glob("*.py"))
+     for root in roots:
+@@ -739,31 +1027,58 @@ def find_ungoverned_network_routes(
+         except (SyntaxError, UnicodeDecodeError, OSError):
+             findings.append(f"{rel}:0 unparseable")
+             continue
+-        for node in ast.walk(tree):
+-            hit = None
+-            if isinstance(node, ast.Import):
+-                hit = next(
+-                    (a.name for a in node.names if a.name in _NETWORK_MODULES), None
+-                )
+-            elif isinstance(node, ast.ImportFrom) and node.module:
+-                if node.module in _NETWORK_MODULES or node.module.split(".")[0] in {
+-                    "requests",
+-                    "httpx",
+-                    "aiohttp",
+-                    "urllib3",
+-                }:
+-                    hit = node.module
+-                elif node.module in ("urllib.request", "socket"):
+-                    hit = next(
+-                        (a.name for a in node.names if a.name in _NETWORK_CALLS), None
+-                    )
+-            elif isinstance(node, ast.Call):
+-                func = node.func
+-                name = func.attr if isinstance(func, ast.Attribute) else (
+-                    func.id if isinstance(func, ast.Name) else ""
+-                )
+-                if name in _NETWORK_CALLS:
+-                    hit = name
+-            if hit:
+-                findings.append(f"{rel}:{getattr(node, 'lineno', 0)} {hit}")
++        visitor = _RouteVisitor(rel)
++        visitor.visit(tree)
++        findings.extend(visitor.findings)
+     return findings
++
++
++_AUDIT_REQUIRED_KEYS = (
++    "schema_version",
++    "acquisition_id",
++    "budget_id",
++    "budget",
++    "budget_sha256",
++    "counters",
++    "stop_reasons",
++    "status",
++    "reservations",
++    "refusals",
++    "infrastructure_traffic",
++)
++_AUDIT_FORBIDDEN_FRAGMENTS = (
++    "authorization",
++    "bearer ",
++    "api_key",
++    "apikey",
++    "x-els-apikey",
++    "client_secret",
++    "password",
++    "/home/",
++    "/tmp/",
++    "/runner/",
++    "/users/",
++    "c:\\",
++)
++
++
++def verify_audit_file(path: str | os.PathLike[str]) -> List[str]:
++    """Return problems with a written audit; an empty list means it is publishable."""
++    try:
++        text = Path(path).read_text(encoding="utf-8")
++        payload = json.loads(text)
++    except (OSError, json.JSONDecodeError):
++        return ["audit file is missing or is not valid JSON"]
++    problems: List[str] = []
++    if not isinstance(payload, dict):
++        return ["audit must be a JSON object"]
++    if payload.get("schema_version") != AUDIT_SCHEMA_VERSION:
++        problems.append("audit schema_version mismatch")
++    for key in _AUDIT_REQUIRED_KEYS:
++        if key not in payload:
++            problems.append(f"audit is missing {key}")
++    lowered = text.lower()
++    for fragment in _AUDIT_FORBIDDEN_FRAGMENTS:
++        if fragment in lowered:
++            problems.append(f"audit contains forbidden content: {fragment.strip()}")
++    return problems
+diff --git a/tests/conftest.py b/tests/conftest.py
+index 2d29158..d5aaf19 100644
+--- a/tests/conftest.py
++++ b/tests/conftest.py
+@@ -33,8 +33,9 @@ def fixture_attempt_budget(
+     base = tmp_path_factory.mktemp("fixture_attempt_budget")
+     budget = parse_budget(
+         {
+-            "schema_version": "physical_attempt_budget/1",
+-            "run_id": "fixture-run-1",
++            "schema_version": "physical_attempt_budget/2",
++            "acquisition_id": "fixture-acquisition-1",
++            "budget_id": "fixture-budget-v1",
+             "maximum_total_physical_attempts": 1_000_000,
+             "provider_ceilings": {name: 1_000_000 for name in KNOWN_PROVIDERS},
+         }

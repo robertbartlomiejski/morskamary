@@ -1,0 +1,13 @@
+MOR-25 WIP recovery manifest
+issue: MOR-25 / GitHub #296; Draft PR #297 (unchanged)
+baseline_commit: 2c4da1d48f5e1370b7435c9905e698983a5c3484
+patch: recovery/mor-25/mor25-wip-staged.patch
+patch_bytes: 25538
+patch_sha256: 640f9a7daeab6fb2e61ba9602a610c9eeec4c86e2fe7fa64c1d1cab9633c294b
+patch_scope:
+  scripts/build_performative_demand_cross_axis_analysis.py
+  src/infrastructure_git.py
+  src/scientific_sources/attempt_budget.py
+  tests/conftest.py
+status: WIP, unvalidated (no flake8/mypy/pytest run); not applied
+g2: NOT APPROVED FOR LIVE
