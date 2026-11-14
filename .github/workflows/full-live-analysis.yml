@@ -507,6 +507,8 @@ jobs:
             outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}/
             !outputs/live_runs/**/raw_api_payloads/**
             outputs/research_api_health.json
+            outputs/governance/physical_attempt_budget.json
+            outputs/governance/physical_attempt_audit.json
             outputs/research_sources/query_execution_log.csv
             outputs/research_sources/query_protocol_constraints.json
             outputs/cumulative_database/novelty_gate_report.json
