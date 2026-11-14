@@ -49,6 +49,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .
 
+      # This legacy export workflow has no authorised, persisted HTTP attempt plan.
+      # Keep its offline path available; live acquisition is gated exclusively by
+      # full-live-analysis.yml until a reviewed budget/ledger integration exists.
+      - name: Reject unbudgeted legacy live export
+        if: github.event.inputs.offline != 'true'
+        run: |
+          echo 'Legacy live export disabled: use the governed full-live-analysis workflow.' >&2
+          exit 1
+
       - name: Research API preflight health check
         if: github.event.inputs.offline != 'true'
         run: |
