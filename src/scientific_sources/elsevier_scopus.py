@@ -30,6 +30,7 @@ import urllib.request
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, cast
 
+from src.scientific_sources.attempt_budget import governed_urlopen
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
     LiteratureRecord,
@@ -102,7 +103,7 @@ class ElsevierScopusProvider(BaseProvider):
         req = urllib.request.Request(
             url, headers={"X-ELS-APIKey": self._api_key, "Accept": "application/json"}
         )
-        with urllib.request.urlopen(req, timeout=12) as resp:
+        with governed_urlopen(req, timeout=12, provider="scopus") as resp:
             payload = json.loads(resp.read().decode())
         return cast(Dict[str, Any], payload)
 

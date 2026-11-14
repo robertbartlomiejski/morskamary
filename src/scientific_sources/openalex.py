@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any, Dict, List, Optional, cast
 
+from src.scientific_sources.attempt_budget import attempt_context, governed_urlopen
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
     LiteratureRecord,
@@ -322,7 +323,7 @@ class OpenAlexProvider(BaseProvider):
                 "User-Agent": "morskamary-openalex-provider/1.0",
             },
         )
-        with urllib.request.urlopen(request, timeout=15) as response:
+        with governed_urlopen(request, timeout=15, provider="openalex") as response:
             payload = json.loads(response.read().decode())
         return cast(Dict[str, Any], payload)
 
@@ -340,7 +341,10 @@ class OpenAlexProvider(BaseProvider):
                 # Count immediately before the request boundary so timeout,
                 # transport, and response-read failures remain visible.
                 physical_request_count += 1
-                payload = self._request_json(url)
+                with attempt_context(
+                    purpose="retry" if attempt > 1 else "acquisition"
+                ):
+                    payload = self._request_json(url)
                 return payload, warnings, None, None, physical_request_count
             except urllib.error.HTTPError as exc:
                 if exc.code == 429:
