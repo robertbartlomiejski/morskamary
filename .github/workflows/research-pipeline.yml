@@ -18,6 +18,17 @@ on:
       - "requirements*.txt"
   workflow_dispatch:
     inputs:
+      live_api_tests:
+        description: Explicit opt-in for provider HTTP smoke (default makes no provider requests)
+        required: true
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+      live_run_authorization:
+        description: Enter AUTHORIZE_LIVE_PROVIDER_CALLS to enable provider smoke
+        required: false
+        default: ""
+        type: string
       deployment_environment:
         description: Select target deployment environment
         required: true
@@ -91,10 +102,36 @@ jobs:
           set -euo pipefail
           python scripts/validate_run_archive_integrity.py --archive-root outputs/run_archive --require-present
 
+  authorize-live-provider-smoke:
+    name: Authorize Live Provider Smoke
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    outputs:
+      authorized: ${{ steps.authorize.outputs.authorized }}
+
+    env:
+      LIVE_API_TESTS: ${{ inputs.live_api_tests }}
+      LIVE_RUN_AUTHORIZATION: ${{ inputs.live_run_authorization }}
+      DISPATCH_REF: ${{ github.ref }}
+
+    steps:
+      - name: Check exact live-smoke authorization
+        id: authorize
+        run: |
+          set -euo pipefail
+          if [[ "$LIVE_API_TESTS" == "true" &&
+                "$LIVE_RUN_AUTHORIZATION" == "AUTHORIZE_LIVE_PROVIDER_CALLS" &&
+                "$DISPATCH_REF" == "refs/heads/main" ]]; then
+            echo "authorized=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "authorized=false" >> "$GITHUB_OUTPUT"
+          fi
+
   live-search-smoke:
     name: Live Search Smoke Test
-    needs: quality-and-tests
-    if: github.event_name == 'workflow_dispatch'
+    needs: [quality-and-tests, authorize-live-provider-smoke]
+    if: ${{ needs.authorize-live-provider-smoke.outputs.authorized == 'true' }}
     runs-on: ubuntu-latest
     environment: live-research
 

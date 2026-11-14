@@ -14,9 +14,12 @@ immediately without relying on substring searches that can miss nested keys.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
+import subprocess
 from typing import Any, Dict, List
 
+import pytest
 import yaml
 
 WORKFLOWS_DIR = Path(__file__).resolve().parents[1] / ".github" / "workflows"
@@ -296,3 +299,86 @@ def test_research_api_smoke_drops_stale_health_before_any_validation() -> None:
         "Upload sanitized research API reports",
     ):
         assert names.index(clean) < names.index(later), later
+
+
+# ---------------------------------------------------------------------------
+# Research Pipeline: dispatch must not trigger provider smoke by default
+# ---------------------------------------------------------------------------
+
+
+def test_research_pipeline_live_search_requires_explicit_authorization() -> None:
+    """A manual quality run must never silently perform provider HTTP probes."""
+    wf = _load_workflows()["research-pipeline"]
+    triggers = wf.get("on", wf.get(True))  # PyYAML 1.1 can parse 'on' as True.
+    inputs = triggers["workflow_dispatch"]["inputs"]
+    live_input = inputs["live_api_tests"]
+    assert str(live_input["default"]).lower() == "false"
+    assert set(live_input["options"]) == {"false", "true"}
+    assert inputs["live_run_authorization"]["default"] == ""
+
+    authorization_job = wf["jobs"]["authorize-live-provider-smoke"]
+    assert authorization_job["if"] == "github.event_name == 'workflow_dispatch'"
+    assert authorization_job["env"] == {
+        "LIVE_API_TESTS": "${{ inputs.live_api_tests }}",
+        "LIVE_RUN_AUTHORIZATION": "${{ inputs.live_run_authorization }}",
+        "DISPATCH_REF": "${{ github.ref }}",
+    }
+    assert "secrets." not in str(authorization_job)
+    assert "environment" not in authorization_job
+
+    job = wf["jobs"]["live-search-smoke"]
+    assert job["needs"] == [
+        "quality-and-tests",
+        "authorize-live-provider-smoke",
+    ]
+    assert (
+        job["if"]
+        == "${{ needs.authorize-live-provider-smoke.outputs.authorized == 'true' }}"
+    )
+    assert job["environment"] == "live-research"
+    steps = job["steps"]
+    assert any(
+        "check_research_api_health.py" in str(step.get("run", ""))
+        for step in steps
+    )
+    assert job["env"]["LIVE_RESEARCH_API_TESTS"] == "true"
+
+
+@pytest.mark.parametrize(
+    ("live_api_tests", "authorization", "dispatch_ref", "expected"),
+    [
+        ("true", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/main", "true"),
+        ("false", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/main", "false"),
+        ("TRUE", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/main", "false"),
+        ("true", "", "refs/heads/main", "false"),
+        ("true", "authorize_live_provider_calls", "refs/heads/main", "false"),
+        ("true", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/MAIN", "false"),
+        ("true", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/other", "false"),
+    ],
+)
+def test_research_pipeline_authorization_is_case_sensitive(
+    tmp_path: Path,
+    live_api_tests: str,
+    authorization: str,
+    dispatch_ref: str,
+    expected: str,
+) -> None:
+    wf = _load_workflows()["research-pipeline"]
+    authorization_job = wf["jobs"]["authorize-live-provider-smoke"]
+    step = authorization_job["steps"][0]
+    output_file = tmp_path / "github-output"
+    env = os.environ.copy()
+    env.update(
+        {
+            "LIVE_API_TESTS": live_api_tests,
+            "LIVE_RUN_AUTHORIZATION": authorization,
+            "DISPATCH_REF": dispatch_ref,
+            "GITHUB_OUTPUT": str(output_file),
+        }
+    )
+
+    subprocess.run(["bash", "-c", step["run"]], check=True, env=env)
+
+    assert (
+        output_file.read_text(encoding="utf-8").strip() == f"authorized={expected}"
+    )
