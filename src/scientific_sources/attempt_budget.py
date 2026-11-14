@@ -567,6 +567,26 @@ def _classify(exc: BaseException) -> tuple[str, Optional[int]]:
     return "aborted", None
 
 
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Never issue a second HTTP request using the first hop's reservation."""
+
+    def redirect_request(
+        self, req: urllib.request.Request, fp: Any, code: int,
+        msg: str, headers: Any, newurl: str,
+    ) -> None:
+        # Fail closed on any HTTP 30x: even a same-host hop requires a new
+        # physical-attempt reservation before the next network dispatch.
+        return None
+
+
+def _dispatch_request(
+    request: urllib.request.Request | str, *, timeout: float,
+) -> Any:
+    """Make one bounded HTTP request; never follow redirects implicitly."""
+    opener = urllib.request.build_opener(_NoRedirectHandler())
+    return opener.open(request, timeout=timeout)
+
+
 def governed_urlopen(
     request: urllib.request.Request | str,
     *,
