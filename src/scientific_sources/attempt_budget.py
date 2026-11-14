@@ -606,7 +606,7 @@ def governed_urlopen(
         raise BudgetConfigurationError("network route has no provider attribution")
     reservation = governor.ledger.reserve(label, purpose or _purpose_ctx.get())
     try:
-        response = urllib.request.urlopen(request, timeout=timeout)
+        response = _dispatch_request(request, timeout=timeout)
     except BaseException as exc:
         outcome, status = _classify(exc)
         _complete_quietly(governor, reservation, outcome, status)
