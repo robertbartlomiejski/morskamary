@@ -47,21 +47,16 @@ def fixture_attempt_budget(
     monkeypatch.setenv(ENV_LEDGER_PATH, str(Path(base / "ledger.sqlite")))
     monkeypatch.delenv(ENV_RUN_ID, raising=False)
     reset_governor_cache()
-    yield
-    reset_governor_cache()
-    monkeypatch.undo()
-
-
-@pytest.fixture(autouse=True)
-def legacy_urlopen_mock_adapter(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Keep legacy mocked-urlopen provider tests offline after strict dispatch.
-
-    FIXTURE ONLY: the production dispatch uses a no-redirect urllib opener.
-    The explicit real-handler redirect regression restores that dispatcher.
-    """
+    # Session-scoped provider fixtures run before function fixtures. Adapt the
+    # legacy urlopen mocks at session scope, before any module-scoped acquisition
+    # fixture can inadvertently reach a real HTTP transport.
     from src.scientific_sources import attempt_budget as budget_module
 
     monkeypatch.setattr(
         budget_module, "_dispatch_request",
         lambda request, *, timeout: urllib.request.urlopen(request, timeout=timeout),
     )
+    yield
+    reset_governor_cache()
+    monkeypatch.undo()
+
