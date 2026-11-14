@@ -533,3 +533,107 @@ def test_full_live_keeps_logical_budget_and_audits_after_export() -> None:
     export = _index(steps, "export_live_research_records.py")
     assert export < _index(steps, "manage_physical_attempt_budget.py audit")
     assert _index(steps, "check_budget_ceiling.py") > export
+
+# --- hardening regressions for review threads on PR #297 ---------------------
+
+
+def test_http_redirect_cannot_consume_unreserved_second_hop(
+    tmp_path, monkeypatch
+):
+    """Use urllib's actual redirect/error handlers with a fake transport."""
+    import io
+    import urllib.response
+    from email.message import Message
+
+    _configure(tmp_path, monkeypatch, 1, {"crossref": 1})
+
+    class _RedirectTransport(urllib.request.HTTPHandler):
+        calls = 0
+
+        def http_open(self, request):
+            self.calls += 1
+            headers = Message()
+            headers["Location"] = "http://example.invalid/redirected"
+            response = urllib.response.addinfourl(
+                io.BytesIO(b""), headers, request.full_url, code=302
+            )
+            response.msg = "Found"
+            return response
+
+    transport = _RedirectTransport()
+    real_build_opener = urllib.request.build_opener
+    real_dispatch = ab._dispatch_request
+    # The fixture redirects legacy mocks to urlopen. Explicitly restore the
+    # production path, allowing only the fake HTTP transport to be injected.
+    monkeypatch.setattr(
+        urllib.request, "build_opener",
+        lambda *handlers: real_build_opener(*handlers, transport),
+    )
+    monkeypatch.setattr(ab, "_dispatch_request", real_dispatch)
+    with pytest.raises(urllib.error.HTTPError) as caught:
+        governed_urlopen("http://example.invalid/start", timeout=1, provider="crossref")
+    assert caught.value.code == 302
+    assert transport.calls == 1
+    with pytest.raises(AttemptBudgetExhausted):
+        governed_urlopen("http://example.invalid/second", timeout=1, provider="crossref")
+    assert transport.calls == 1
+    assert _audit(tmp_path)["counters"]["reserved_total"] == 1
+
+
+def test_smoke_skips_deactivated_provider_before_dispatch(
+    tmp_path, monkeypatch, capsys
+):
+    from types import SimpleNamespace
+    from scripts import smoke_scientific_bridge as smoke
+
+    _configure(tmp_path, monkeypatch, 2, {"wos": 0})
+
+    class _Registry:
+        def list_capabilities(self):
+            return [SimpleNamespace(name="wos", provider="wos", live_test_allowed=True)]
+
+        def search(self, *args, **kwargs):
+            pytest.fail("zero-quota provider dispatched")
+
+    monkeypatch.setattr(smoke, "SourceRegistry", _Registry)
+    assert smoke.run_live_checks() == []
+    assert "physical attempt quota is zero" in capsys.readouterr().out
+    assert _audit(tmp_path)["counters"]["reserved_total"] == 0
+
+
+def test_legacy_export_workflow_blocks_unbudgeted_live_dispatch() -> None:
+    import yaml
+
+    path = REPO_ROOT / ".github/workflows/export-research-records.yml"
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    steps = next(iter(data["jobs"].values()))["steps"]
+    guard_index = next(
+        i for i, step in enumerate(steps)
+        if step.get("name") == "Reject unbudgeted legacy live export"
+    )
+    guard = steps[guard_index]
+    assert guard["if"] == "github.event.inputs.offline != 'true'"
+    assert "exit 1" in guard["run"]
+    assert guard_index < next(
+        i for i, step in enumerate(steps)
+        if step.get("name") == "Research API preflight health check"
+    )
+    assert guard_index < next(
+        i for i, step in enumerate(steps)
+        if step.get("name") == "Export live research records"
+    )
+
+
+def test_full_live_always_run_audit_keeps_budget_refusal_evidence() -> None:
+    import yaml
+
+    path = REPO_ROOT / ".github/workflows/full-live-analysis.yml"
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    steps = next(iter(data["jobs"].values()))["steps"]
+    audit = next(step for step in steps if step.get("name") == "Upload current-run audit")
+    release = next(step for step in steps if step.get("name") == "Upload curated release")
+    assert audit["if"] == "always()"
+    assert release["if"] == "success()"
+    artifact_paths = audit["with"]["path"]
+    assert "outputs/governance/physical_attempt_budget.json" in artifact_paths
+    assert "outputs/governance/physical_attempt_audit.json" in artifact_paths
