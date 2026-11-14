@@ -49,6 +49,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from src.scientific_sources.attempt_budget import (  # noqa: E402
+    AttemptBudgetError,
+    require_governor,
+)
 from src.scientific_sources.models import (  # noqa: E402
     LiteratureRecord,
     ProviderResult,
@@ -1540,6 +1544,18 @@ def export_raw_api_payloads(
 
 
 def main() -> int:
+    """Run the export; a physical-attempt budget stop is a non-zero failure."""
+    try:
+        return _run_export()
+    except AttemptBudgetError as exc:
+        print(
+            f"[ERROR] physical attempt budget stop: {exc.code}: {exc}",
+            file=sys.stderr,
+        )
+        return 1
+
+
+def _run_export() -> int:
     """Main entry point."""
     parser = argparse.ArgumentParser(
         description="Export live research records from configured providers"
@@ -1639,6 +1655,9 @@ def main() -> int:
 
     # Parse offline mode
     offline = args.offline.lower() in ("true", "1", "yes")
+    if not offline:
+        # Reject missing/invalid budget or ledger before any provider request.
+        require_governor()
 
     # Load query file
     query_file_path = Path(args.query_file)

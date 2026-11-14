@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-11-14 (add: fail-closed pre-request physical HTTP-attempt budget)
+  Change type add
+  Scope governance scripts provider acquisition network boundary and GitHub Actions
+  Files affected src/scientific_sources/attempt_budget.py scripts/manage_physical_attempt_budget.py scripts/check_research_api_health.py scripts/export_live_research_records.py src/scientific_sources/crossref.py src/scientific_sources/openalex.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/web_of_science.py src/scientific_sources/scival.py src/scientific_sources/microsoft_graph.py .github/workflows/full-live-analysis.yml .github/workflows/research-api-smoke.yml .github/workflows/research-pipeline.yml tests/conftest.py tests/test_physical_attempt_budget.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Adds a versioned run-scoped budget (physical_attempt_budget/1) with global and per-provider ceilings enforced through a shared SQLite ledger. An attempt is reserved atomically before every physical request, including health checks, pagination and retries, and failed, timed-out and rate-limited attempts are never refunded. Missing budgets, corrupt ledgers, unavailable stores and ungoverned network routes fail before any request, and a sanitized audit is written.
+  Reason Logical-page budgeting under-counts physical attempts (retries, Scopus chunks, Graph token requests) and only runs after acquisition.
+  Impact No scientific inputs, outputs, 120-query protocol, four-axis QMBD contract or H1-H3 results changed. The post-acquisition logical-page budget is unchanged. This does not authorize G2 live acquisition.
+  Provenance GitHub #296, Linear MOR-25; main baseline ebf171081d034119567e4fb97e60a5a0d9e797a3. Not copied from historic Draft #241.
+  Quality checks flake8, mypy and full pytest with negative tests (zero budget, N and N+1, 429/5xx/timeout retries, pagination, threads, processes, corrupt/unavailable ledger, bypass). Fixtures only; no live API dispatch.
+
 - 2026-11-13 (fix: explicit authorization for research-pipeline provider smoke)
   Change type fix
   Scope GitHub Actions live-search workflow security and parsed-YAML regression

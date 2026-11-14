@@ -27,6 +27,7 @@ from pathlib import Path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
+from src.scientific_sources.attempt_budget import require_governor  # noqa: E402
 
 PASS = "PASS"
 FAIL = "FAIL"
@@ -143,10 +144,14 @@ def run_live_checks() -> list:
     failures = []
     registry = SourceRegistry()
     caps = registry.list_capabilities()
+    governor = require_governor()  # No live dispatch without a verified budget.
 
     for cap in caps:
         if not cap.live_test_allowed:
             _result_line(f"Live: {cap.provider}", SKIP, "not configured or not enabled")
+            continue
+        if governor.budget.provider_ceilings.get(cap.name, 0) == 0:
+            _result_line(f"Live: {cap.provider}", SKIP, "physical attempt quota is zero")
             continue
         try:
             results = registry.search(

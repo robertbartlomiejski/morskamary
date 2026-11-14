@@ -1239,6 +1239,7 @@ scripts/Hab - okazuje_241013_210006.txt,script,,,,,,Hab___okazuje_241013_210006,
 scripts/Hab Hein Culture port cities mindset_250108_081453.txt,script,,,,,,Hab_Hein_Culture_port_cities_mindset_250,yes
 scripts/ingest_manual_supporting_sources.py,script,,,,,,ingest_manual_supporting_sources,yes
 scripts/Iscot_240905_142040.txt,script,,,,,,Iscot_240905_142040,yes
+scripts/manage_physical_attempt_budget.py,script,,,,,,manage_physical_attempt_budget,yes
 scripts/Materialnosc w morzu_241217_113623.txt,script,,,,,,Materialnosc_w_morzu_241217_113623,yes
 scripts/pip install pypdf.txt,script,,,,,,pip_install_pypdf,yes
 scripts/Port Animal-Human Relation_241026_074847.txt,script,,,,,,Port_Animal_Human_Relation_241026_074847,yes
@@ -1284,6 +1285,7 @@ src/nlp_reliability/deduplication.py,script,,,,,,deduplication,yes
 src/nlp_reliability/source_coverage.py,script,,,,,,source_coverage,yes
 src/nlp_reliability/triangulation.py,script,,,,,,triangulation,yes
 src/scientific_sources/__init__.py,script,,,,,,init,yes
+src/scientific_sources/attempt_budget.py,script,,,,,,attempt_budget,yes
 src/scientific_sources/base.py,script,,,,,,base,yes
 src/scientific_sources/crossref.py,script,,,,,,crossref,yes
 src/scientific_sources/cumulative_scientific_database.py,script,,,,,,cumulative_scientific_database,yes
@@ -1308,6 +1310,7 @@ src/utils.py,script,,,,,,utils,yes
 TEST_COVERAGE_IMPROVEMENTS.md,text,,,,,,TEST_COVERAGE_IMPROVEMENTS,yes
 TEST_COVERAGE_REPORT.md,text,,,,,,TEST_COVERAGE_REPORT,yes
 tests/__init__.py,script,,,,,,init,yes
+tests/conftest.py,script,,,,,,conftest,yes
 tests/fixtures/blue_social_competences_sample.csv,dataset_derived,,,,,,blue_social_competences_sample,yes
 tests/fixtures/cumulative_database_schema_samples.json,other,,,,,,cumulative_database_schema_samples,yes
 tests/fixtures/empty_competences.csv,dataset_derived,,,,,,empty_competences,yes
@@ -1363,6 +1366,7 @@ tests/test_nlp_reliability.py,script,,,,,,test_nlp_reliability,yes
 tests/test_openalex_provider.py,script,,,,,,test_openalex_provider,yes
 tests/test_pagination.py,script,,,,,,test_pagination,yes
 tests/test_performative_demand_analysis.py,script,,,,,,test_performative_demand_analysis,yes
+tests/test_physical_attempt_budget.py,script,,,,,,test_physical_attempt_budget,yes
 tests/test_pipeline_matrix.py,script,,,,,,test_pipeline_matrix,yes
 tests/test_pre_acquisition_assertion.py,script,,,,,,test_pre_acquisition_assertion,yes
 tests/test_prepare_live_acquisition_plan.py,script,,,,,,test_prepare_live_acquisition_plan,yes

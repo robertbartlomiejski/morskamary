@@ -211,6 +211,19 @@ jobs:
             --output outputs/governance/api_budget_plan.json \
             --github-env "$GITHUB_ENV"
 
+      - name: Initialize physical HTTP-attempt budget and ledger
+        run: |
+          set -euo pipefail
+          # Run-scoped, fail-closed ceiling reserved before every outgoing request
+          # (health probes, pagination and retries). Separate from the logical-page
+          # budget enforced after acquisition below.
+          python scripts/manage_physical_attempt_budget.py init \
+            --run-id "$CURRENT_RUN_ID" \
+            --plan outputs/governance/api_budget_plan.json \
+            --budget-output outputs/governance/physical_attempt_budget.json \
+            --ledger "$RUNNER_TEMP/physical_attempt_ledger/${CURRENT_RUN_ID}.sqlite" \
+            --github-env "$GITHUB_ENV"
+
       - name: Provider health preflight
         run: |
           set -euo pipefail
@@ -242,6 +255,19 @@ jobs:
             --default-rows-per-page "$ROWS_PER_PAGE" \
             --output-dir outputs/research_sources \
             --offline false
+
+      - name: Write sanitized physical HTTP-attempt audit
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ -n "${ATTEMPT_LEDGER_PATH:-}" ] && [ -f "${ATTEMPT_LEDGER_PATH}" ]; then
+            python scripts/manage_physical_attempt_budget.py audit \
+              --budget "$ATTEMPT_BUDGET_FILE" \
+              --ledger "$ATTEMPT_LEDGER_PATH" \
+              --output outputs/governance/physical_attempt_audit.json
+          else
+            echo "[WARN] no physical attempt ledger was initialised; no audit written"
+          fi
 
       - name: Enforce post-acquisition logical-request budget ceiling
         run: |
@@ -459,6 +485,8 @@ jobs:
             outputs/release_packages/morskamary_live_cumulative_latest.zip
             !outputs/release_packages/**/raw_api_payloads/**
             outputs/governance/api_budget_plan.json
+            outputs/governance/physical_attempt_budget.json
+            outputs/governance/physical_attempt_audit.json
             outputs/governance/execution_qualification.json
             outputs/cross_run_reports/run_stability_report.json
             reports/morskamary_statistical_report.html
@@ -479,6 +507,8 @@ jobs:
             outputs/live_runs/${{ github.run_id }}-${{ github.run_attempt }}/
             !outputs/live_runs/**/raw_api_payloads/**
             outputs/research_api_health.json
+            outputs/governance/physical_attempt_budget.json
+            outputs/governance/physical_attempt_audit.json
             outputs/research_sources/query_execution_log.csv
             outputs/research_sources/query_protocol_constraints.json
             outputs/cumulative_database/novelty_gate_report.json

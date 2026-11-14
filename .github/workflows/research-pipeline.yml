@@ -178,6 +178,16 @@ jobs:
           set -euo pipefail
           python scripts/check_research_env.py
 
+      - name: Initialize physical HTTP-attempt budget and ledger
+        run: |
+          set -euo pipefail
+          python scripts/manage_physical_attempt_budget.py init \
+            --run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --providers all --queries 1 --logical-pages 1 --rows-per-page 2 \
+            --budget-output "$RUNNER_TEMP/physical_attempt_budget.json" \
+            --ledger "$RUNNER_TEMP/physical_attempt_ledger/smoke.sqlite" \
+            --github-env "$GITHUB_ENV"
+
       - name: Provider health preflight
         run: |
           set -euo pipefail
