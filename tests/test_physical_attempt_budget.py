@@ -640,6 +640,7 @@ def test_full_live_always_run_audit_keeps_budget_refusal_evidence() -> None:
     assert "outputs/governance/physical_attempt_budget.json" in artifact_paths
     assert "outputs/governance/physical_attempt_audit.json" in artifact_paths
 
+
 def test_pytest_session_refuses_unmocked_external_http() -> None:
     """The default fixture must reject direct provider HTTP without an injected fake."""
     with pytest.raises(AssertionError, match="blocked unmocked external HTTP"):
