@@ -629,7 +629,9 @@ def test_full_live_always_run_audit_keeps_budget_refusal_evidence() -> None:
 
     path = REPO_ROOT / ".github/workflows/full-live-analysis.yml"
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    steps = next(iter(data["jobs"].values()))["steps"]
+    steps = [
+        step for job in data["jobs"].values() for step in job.get("steps", [])
+    ]
     audit = next(step for step in steps if step.get("name") == "Upload current-run audit")
     release = next(step for step in steps if step.get("name") == "Upload curated release")
     assert audit["if"] == "always()"
