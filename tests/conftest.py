@@ -59,4 +59,3 @@ def fixture_attempt_budget(
     yield
     reset_governor_cache()
     monkeypatch.undo()
-
