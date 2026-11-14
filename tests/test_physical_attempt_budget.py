@@ -37,6 +37,7 @@ from src.scientific_sources.openalex import OpenAlexProvider
 from tests.test_openalex_provider import _response  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+_STRICT_DISPATCH = ab._dispatch_request  # Capture production dispatcher before pytest fixtures.
 
 
 def _budget_dict(
@@ -562,14 +563,13 @@ def test_http_redirect_cannot_consume_unreserved_second_hop(
 
     transport = _RedirectTransport()
     real_build_opener = urllib.request.build_opener
-    real_dispatch = ab._dispatch_request
     # The fixture redirects legacy mocks to urlopen. Explicitly restore the
     # production path, allowing only the fake HTTP transport to be injected.
     monkeypatch.setattr(
         urllib.request, "build_opener",
         lambda *handlers: real_build_opener(*handlers, transport),
     )
-    monkeypatch.setattr(ab, "_dispatch_request", real_dispatch)
+    monkeypatch.setattr(ab, "_dispatch_request", _STRICT_DISPATCH)
     with pytest.raises(urllib.error.HTTPError) as caught:
         governed_urlopen("http://example.invalid/start", timeout=1, provider="crossref")
     assert caught.value.code == 302
