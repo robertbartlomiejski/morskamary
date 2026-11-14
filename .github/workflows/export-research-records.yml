@@ -14,7 +14,7 @@ on:
       offline:
         description: 'Run in offline mode (true/false)'
         required: false
-        default: 'false'
+        default: 'true'
 
 permissions:
   contents: read
