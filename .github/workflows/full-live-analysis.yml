@@ -154,6 +154,13 @@ jobs:
         with:
           persist-credentials: false
 
+      # MOR-25 G2 fail-closed freeze: runner-local SQLite cannot enforce a
+      # cumulative physical-attempt ceiling across separately hosted runners.
+      - name: Enforce MOR-25 G2 shared-ledger freeze
+        run: |
+          echo '::error::MOR-25 G2 BLOCKED: no verified durable atomic cross-runner attempt ledger; no live provider dispatch authorized.'
+          exit 1
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
