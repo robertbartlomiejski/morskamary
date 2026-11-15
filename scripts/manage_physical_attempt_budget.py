@@ -157,7 +157,7 @@ def _cmd_init(args: argparse.Namespace) -> int:
     backend = os.environ.get(ENV_LEDGER_BACKEND, "sqlite").strip().lower()
     if backend == "postgres":
         from src.scientific_sources.attempt_postgres_ledger import PostgresAttemptLedger
-        ledger = PostgresAttemptLedger(os.environ.get(ENV_LEDGER_DSN, ""), budget)
+        ledger: Any = PostgresAttemptLedger(os.environ.get(ENV_LEDGER_DSN, ""), budget)
     elif backend == "sqlite":
         if not args.ledger:
             raise ValueError("--ledger is required for SQLite backend")
@@ -195,6 +195,12 @@ def _cmd_audit(args: argparse.Namespace) -> int:
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(audit, indent=2) + "\n", encoding="utf-8")
+    from src.scientific_sources.attempt_audit_validator import verify_audit_file
+    problems = verify_audit_file(output)
+    if problems:
+        print("[ERROR] physical attempt audit validation failed: "
+              + "; ".join(problems), file=sys.stderr)
+        return 1
     counters = audit["counters"]
     print(
         f"[OK] physical attempt audit written: reserved={counters['reserved_total']} "
