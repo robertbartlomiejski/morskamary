@@ -1702,3 +1702,9 @@ PR #270 follow-up completion hardening
 - Restrict inferential dimensions to non-zero margins while retaining all zero cells descriptively.
 
 PR #270 review-address pass: reinforce corpus-screening interpretation boundaries, add explicit `screening_validation_state` flags to screening rows, and strengthen external-comparison provenance labels/consumer read-order guidance.
+
+2026-11-15 — MOR-26 staged independent-runner acceptance (G2 remains blocked)
+- Draft PR #297: opt-in pre-provisioned PostgreSQL reservation backend, private schema, strict written-audit validator and conservative dynamic subprocess route inventory.
+- Separately hosted runner A/B plus N-1 race workflow is fixture-only and requires a protected external PostgreSQL test DB; no claim of completed runner acceptance or of live authorization.
+- Added twenty *new* offline MOR-26 tests; the historical 8,116-byte RED suite remains unavailable and is not represented as restored.
+- No scientific-provider HTTP, no data archive rewrite, no PR merge, and no changes to empirical H1/H2/H3 claims.
