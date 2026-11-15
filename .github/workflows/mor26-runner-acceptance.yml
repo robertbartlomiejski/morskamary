@@ -1,0 +1,136 @@
+name: MOR-26 independent hosted-runner acceptance (NO PROVIDER HTTP)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/scientific_sources/attempt_*"
+      - "scripts/mor26_runner_fixture.py"
+      - "sql/mor26_private_attempt_ledger.sql"
+      - ".github/workflows/mor26-runner-acceptance.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  runner-a:
+    if: >-
+      ${{ vars.MOR26_ACCEPTANCE_ENABLED == 'true' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event.pull_request.user.login == 'robertbartlomiejski' }}
+    environment: mor26-acceptance
+    runs-on: ubuntu-latest
+    env:
+      MOR26_ACCEPTANCE_AUTH_DSN: ${{ secrets.MOR26_ACCEPTANCE_AUTH_DSN }}
+      MOR26_ACCEPTANCE_RUNTIME_DSN: ${{ secrets.MOR26_ACCEPTANCE_RUNTIME_DSN }}
+      MOR26_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.MOR26_HEAD }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e . "psycopg[binary]==3.3.9"
+      - name: Reserve K=3 on runner A; seed N=1 race authorization
+        run: |
+          python scripts/mor26_runner_fixture.py --phase seed-a \
+            --acquisition-id "mor26-${{ github.run_id }}" \
+            --head "$MOR26_HEAD" --output "$RUNNER_TEMP/runner-a.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mor26-a
+          path: ${{ runner.temp }}/runner-a.json
+
+  runner-b:
+    needs: [runner-a]
+    environment: mor26-acceptance
+    runs-on: ubuntu-latest
+    env:
+      MOR26_ACCEPTANCE_RUNTIME_DSN: ${{ secrets.MOR26_ACCEPTANCE_RUNTIME_DSN }}
+      MOR26_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.MOR26_HEAD }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e . "psycopg[binary]==3.3.9"
+      - name: Check remaining N-K=4 and refuse attempt 8
+        run: |
+          python scripts/mor26_runner_fixture.py --phase b \
+            --acquisition-id "mor26-${{ github.run_id }}" \
+            --head "$MOR26_HEAD" --output "$RUNNER_TEMP/runner-b.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mor26-b
+          path: ${{ runner.temp }}/runner-b.json
+
+  race:
+    needs: [runner-a]
+    strategy:
+      fail-fast: false
+      matrix:
+        rival: [one, two]
+    environment: mor26-acceptance
+    runs-on: ubuntu-latest
+    env:
+      MOR26_ACCEPTANCE_RUNTIME_DSN: ${{ secrets.MOR26_ACCEPTANCE_RUNTIME_DSN }}
+      MOR26_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.MOR26_HEAD }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e . "psycopg[binary]==3.3.9"
+      - name: Race for a single remaining physical attempt
+        run: |
+          python scripts/mor26_runner_fixture.py --phase race \
+            --acquisition-id "mor26-${{ github.run_id }}" \
+            --head "$MOR26_HEAD" \
+            --output "$RUNNER_TEMP/race-${{ matrix.rival }}.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mor26-race-${{ matrix.rival }}
+          path: ${{ runner.temp }}/race-${{ matrix.rival }}.json
+
+  verify:
+    needs: [runner-b, race]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: mor26-*
+          path: mor26-evidence
+          merge-multiple: true
+      - name: Validate atomic N-K/N+1 and N-1 race without HTTP
+        shell: python
+        run: |
+          import glob
+          import json
+          docs = [
+              json.load(open(p, encoding="utf-8"))
+              for p in glob.glob("mor26-evidence/*.json")
+          ]
+          assert len(docs) == 4
+          a = next(d for d in docs if d["phase"] == "seed-a")
+          b = next(d for d in docs if d["phase"] == "b")
+          race = [d for d in docs if d["phase"] == "race"]
+          assert a["reserved_total"] == 3 and a["fake_dispatches"] == 3
+          assert b["before"] == 3 and b["reserved_total"] == 7
+          assert b["fake_dispatches"] == 4 and b["attempt_n_plus_1_denied"]
+          assert len(race) == 2
+          assert sum(d["fake_dispatches"] for d in race) == 1
+          assert len({d["commit_sha"] for d in docs}) == 1
+          assert len({d["github_job"] for d in docs}) >= 3
+          print("MOR-26 ACCEPTANCE: PASS (no provider HTTP)")
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mor26-independent-runner-sanitized-evidence
+          path: mor26-evidence/

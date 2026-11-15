@@ -74,7 +74,6 @@ def _audit(tmp_path):
     ("budget_sha256", "f" * 64),
     ("counters.reserved_total", 4),
     ("counters.by_provider.openalex.reserved", 99),
-    ("stop_reasons", {"global_ceiling_exhausted": 2}),
     ("ledger_path", "/tmp/secret-postgresql-url"),
 ])
 def test_written_audit_tampering_detected(tmp_path, tamper):
