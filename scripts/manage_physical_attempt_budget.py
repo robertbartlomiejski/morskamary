@@ -15,6 +15,7 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, Sequence
@@ -28,6 +29,8 @@ from src.scientific_sources.attempt_budget import (  # noqa: E402
     BUDGET_SCHEMA_VERSION,
     ENV_BUDGET_FILE,
     ENV_LEDGER_PATH,
+    ENV_LEDGER_BACKEND,
+    ENV_LEDGER_DSN,
     KNOWN_PROVIDERS,
     AttemptBudgetError,
     AttemptGovernor,
@@ -151,12 +154,25 @@ def _cmd_init(args: argparse.Namespace) -> int:
     budget_path = Path(args.budget_output)
     budget_path.parent.mkdir(parents=True, exist_ok=True)
     budget_path.write_text(json.dumps(budget.to_dict(), indent=2) + "\n", encoding="utf-8")
-    ledger = AttemptLedger(Path(args.ledger), budget)
+    backend = os.environ.get(ENV_LEDGER_BACKEND, "sqlite").strip().lower()
+    if backend == "postgres":
+        from src.scientific_sources.attempt_postgres_ledger import PostgresAttemptLedger
+        ledger = PostgresAttemptLedger(os.environ.get(ENV_LEDGER_DSN, ""), budget)
+    elif backend == "sqlite":
+        if not args.ledger:
+            raise ValueError("--ledger is required for SQLite backend")
+        ledger = AttemptLedger(Path(args.ledger), budget)
+    else:
+        raise ValueError("unknown physical attempt ledger backend")
     ledger.initialize()
     if args.github_env:
         with Path(args.github_env).open("a", encoding="utf-8") as handle:
             handle.write(f"{ENV_BUDGET_FILE}={budget_path.as_posix()}\n")
-            handle.write(f"{ENV_LEDGER_PATH}={Path(args.ledger).resolve().as_posix()}\n")
+            handle.write(f"{ENV_LEDGER_BACKEND}={backend}\n")
+            if backend == "sqlite":
+                handle.write(
+                    f"{ENV_LEDGER_PATH}={Path(args.ledger).resolve().as_posix()}\n"
+                )
     print(
         f"[OK] physical attempt budget initialised: "
         f"maximum_total_physical_attempts={budget.maximum_total_physical_attempts}"
@@ -166,7 +182,15 @@ def _cmd_init(args: argparse.Namespace) -> int:
 
 def _cmd_audit(args: argparse.Namespace) -> int:
     budget = load_budget(args.budget)
-    governor = AttemptGovernor(budget, Path(args.ledger))
+    backend = os.environ.get(ENV_LEDGER_BACKEND, "sqlite").strip().lower()
+    governor = AttemptGovernor(budget, Path(args.ledger or "[shared-postgresql-ledger]"))
+    if backend == "postgres":
+        from src.scientific_sources.attempt_postgres_ledger import PostgresAttemptLedger
+        governor.ledger = PostgresAttemptLedger(
+            os.environ.get(ENV_LEDGER_DSN, ""), budget
+        )
+    elif backend != "sqlite" or not args.ledger:
+        raise ValueError("unknown or unconfigured physical attempt ledger backend")
     audit = build_audit(governor, repo_root=REPO_ROOT)
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -193,11 +217,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     init.add_argument("--logical-pages", type=int, default=1)
     init.add_argument("--rows-per-page", type=int, default=1)
     init.add_argument("--budget-output", required=True)
-    init.add_argument("--ledger", required=True)
+    init.add_argument("--ledger", help="SQLite path; ignored for pre-approved PostgreSQL")
     init.add_argument("--github-env")
     audit = sub.add_parser("audit")
     audit.add_argument("--budget", required=True)
-    audit.add_argument("--ledger", required=True)
+    audit.add_argument("--ledger", help="SQLite path; ignored for PostgreSQL")
     audit.add_argument("--output", required=True)
     args = parser.parse_args(argv)
     try:

@@ -8,7 +8,6 @@ row before checking any attempt count. Secrets never enter errors or audits.
 from __future__ import annotations
 
 import importlib
-import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 

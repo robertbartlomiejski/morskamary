@@ -41,6 +41,8 @@ AUDIT_SCHEMA_VERSION = "physical_attempt_audit/2"
 
 ENV_BUDGET_FILE = "ATTEMPT_BUDGET_FILE"
 ENV_LEDGER_PATH = "ATTEMPT_LEDGER_PATH"
+ENV_LEDGER_BACKEND = "ATTEMPT_LEDGER_BACKEND"
+ENV_LEDGER_DSN = "ATTEMPT_LEDGER_DSN"
 ENV_RUN_ID = "CURRENT_RUN_ID"
 
 PURPOSES = ("health", "acquisition", "retry")
@@ -519,7 +521,7 @@ class AttemptGovernor:
 
     def __init__(self, budget: PhysicalAttemptBudget, ledger_path: Path) -> None:
         self.budget = budget
-        self.ledger = AttemptLedger(ledger_path, budget)
+        self.ledger: Any = AttemptLedger(ledger_path, budget)
 
     @classmethod
     def from_env(cls, env: Optional[Mapping[str, str]] = None) -> "AttemptGovernor":
@@ -529,8 +531,11 @@ class AttemptGovernor:
             raise BudgetConfigurationError(
                 f"{ENV_BUDGET_FILE} is not set: no physical-attempt budget is configured"
             )
+        backend = env.get(ENV_LEDGER_BACKEND, "sqlite").strip().lower()
+        if backend not in ("sqlite", "postgres"):
+            raise BudgetConfigurationError("unknown ledger backend")
         ledger_path = env.get(ENV_LEDGER_PATH, "").strip()
-        if not ledger_path:
+        if backend == "sqlite" and not ledger_path:
             raise LedgerUnavailableError(f"{ENV_LEDGER_PATH} is not set")
         budget = load_budget(budget_file)
         expected_run = env.get(ENV_RUN_ID, "").strip()
@@ -538,12 +543,19 @@ class AttemptGovernor:
             raise BudgetConfigurationError(
                 "budget workflow_run_id does not match the current workflow run identity"
             )
-        governor = cls(budget, Path(ledger_path))
+        governor = cls(budget, Path(ledger_path or "[shared-postgresql-ledger]"))
+        if backend == "postgres":
+            from src.scientific_sources.attempt_postgres_ledger import (
+                PostgresAttemptLedger,
+            )
+            governor.ledger = PostgresAttemptLedger(
+                env.get(ENV_LEDGER_DSN, ""), budget
+            )
         governor.ledger.verify()
         return governor
 
 
-_governor_cache: Dict[tuple[str, str], AttemptGovernor] = {}
+_governor_cache: Dict[tuple[str, ...], AttemptGovernor] = {}
 _cache_lock_pid = os.getpid()
 
 
@@ -553,7 +565,16 @@ def reset_governor_cache() -> None:
 
 def require_governor() -> AttemptGovernor:
     """Return the verified governor for this process or raise before any request."""
-    key = (os.environ.get(ENV_BUDGET_FILE, ""), os.environ.get(ENV_LEDGER_PATH, ""))
+    backend = os.environ.get(ENV_LEDGER_BACKEND, "sqlite")
+    dsn_fingerprint = hashlib.sha256(
+        os.environ.get(ENV_LEDGER_DSN, "").encode("utf-8")
+    ).hexdigest() if backend == "postgres" else ""
+    key = (
+        os.environ.get(ENV_BUDGET_FILE, ""),
+        os.environ.get(ENV_LEDGER_PATH, ""),
+        backend,
+        dsn_fingerprint,
+    )
     global _cache_lock_pid
     if _cache_lock_pid != os.getpid():
         _governor_cache.clear()
@@ -745,7 +766,12 @@ def build_audit(
         "run_attempt": budget.run_attempt,
         "budget": budget.to_dict(),
         "budget_sha256": budget.sha256(),
-        "ledger_path": _redact_path(governor.ledger.path, repo_root),
+        "ledger_path": (
+            "shared-postgresql-ledger"
+            if isinstance(governor.ledger.path, Path)
+            and governor.ledger.path.name == "[shared-postgresql-ledger]"
+            else _redact_path(governor.ledger.path, repo_root)
+        ),
         "counters": {
             "reserved_total": total,
             "remaining_global": budget.maximum_total_physical_attempts - total,
