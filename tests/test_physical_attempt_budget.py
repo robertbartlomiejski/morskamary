@@ -44,12 +44,15 @@ def _budget_dict(
     maximum: Any, ceilings: Optional[Dict[str, int]] = None, run_id: str = "run-1"
 ) -> Dict[str, Any]:
     return {
-        "schema_version": "physical_attempt_budget/1",
-        "run_id": run_id,
+        "schema_version": "physical_attempt_budget/2",
+        "acquisition_id": "test-acquisition",
+        "budget_id": "test-quota",
+        "plan_sha256": "a" * 64,
+        "workflow_run_id": run_id,
+        "run_attempt": 1,
         "maximum_total_physical_attempts": maximum,
         "provider_ceilings": ceilings or {},
     }
-
 
 def _configure(
     tmp_path: Path,
@@ -295,7 +298,7 @@ def test_tampered_ledger_rows_and_binding_are_rejected(tmp_path, monkeypatch):
         conn.execute("DELETE FROM attempts")
     with pytest.raises(sqlite3.DatabaseError):  # reservation fields are immutable
         conn.execute("UPDATE attempts SET provider='openalex'")
-    conn.execute("UPDATE meta SET value='other-run' WHERE key='run_id'")
+    conn.execute("UPDATE meta SET value='other-acq' WHERE key='acquisition_id'")
     conn.commit()
     conn.close()
     reset_governor_cache()
@@ -341,6 +344,26 @@ def test_unavailable_store_and_missing_configuration_block(tmp_path, monkeypatch
 def test_invalid_budgets_are_rejected(raw):
     with pytest.raises(BudgetConfigurationError):
         ab.parse_budget(raw)
+
+
+def test_budget_digest_does_not_change_on_workflow_rerun():
+    original = _budget_dict(7)
+    original["workflow_run_id"] = "runner-one"
+    first = ab.parse_budget(original)
+    original["workflow_run_id"] = "runner-two"
+    original["run_attempt"] = 2
+    rerun = ab.parse_budget(original)
+    assert first.sha256() == rerun.sha256()
+
+
+def test_changed_authorization_plan_digest_invalidates_ledger(tmp_path):
+    first = ab.parse_budget(_budget_dict(3))
+    ledger = tmp_path / "quota.sqlite"
+    AttemptLedger(ledger, first).initialize()
+    changed = _budget_dict(3)
+    changed["plan_sha256"] = "b" * 64
+    with pytest.raises(LedgerCorruptError):
+        AttemptLedger(ledger, ab.parse_budget(changed)).verify()
 
 
 def test_run_identity_mismatch_blocks(tmp_path, monkeypatch):
@@ -455,7 +478,9 @@ def test_audit_is_sanitized(tmp_path, monkeypatch):
 
 def test_derived_budget_pins_unrequested_providers_to_zero():
     budget = manage.derive_budget(
-        run_id="r", providers=["openalex"], queries=120, logical_pages=2, rows_per_page=25
+        acquisition_id="acq", budget_id="quota", plan_sha256="a" * 64,
+        workflow_run_id="r", providers=["openalex"], queries=120,
+        logical_pages=2, rows_per_page=25
     )
     assert budget.provider_ceilings["openalex"] == 1 + 120 * 2 * 3
     for name in ab.KNOWN_PROVIDERS:
@@ -468,7 +493,9 @@ def test_derived_budget_pins_unrequested_providers_to_zero():
 def test_init_and_audit_cli_round_trip(tmp_path, monkeypatch):
     env_file = tmp_path / "env.txt"
     argv = [
-        "init", "--run-id", "cli-run", "--providers", "crossref", "--queries", "2",
+        "init", "--acquisition-id", "cli-acq", "--budget-id", "cli-quota",
+        "--workflow-run-id", "cli-run", "--run-attempt", "1",
+        "--providers", "crossref", "--queries", "2",
         "--logical-pages", "1", "--rows-per-page", "5",
         "--budget-output", str(tmp_path / "budget.json"),
         "--ledger", str(tmp_path / "ledger.sqlite"), "--github-env", str(env_file),
@@ -486,7 +513,8 @@ def test_init_and_audit_cli_round_trip(tmp_path, monkeypatch):
          "--output", str(out)]
     ) == 0
     audit = json.loads(out.read_text())
-    assert audit["run_id"] == "cli-run"
+    assert audit["workflow_run_id"] == "cli-run"
+    assert audit["acquisition_id"] == "cli-acq"
     assert audit["counters"]["reserved_total"] == 1
     assert audit["budget"]["maximum_total_physical_attempts"] == 1 + 2 * 1 * 4
     assert manage.main(["audit", "--budget", str(tmp_path / "missing.json"),

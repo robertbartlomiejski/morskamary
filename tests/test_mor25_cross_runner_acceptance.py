@@ -1,7 +1,7 @@
 """MOR-25: explicit G2 freeze and deliberately RED cross-runner acceptance.
 
-The freeze tests are GREEN. The xfail test is not acceptance evidence: it
-defines the N/K/restart/N+1 contract awaiting a durable shared backend.
+The freeze and local subprocess tests do not validate independently hosted runners.
+A separate durable transactional backend and runner-level acceptance are required.
 No HTTP or third-party provider is contacted by this module.
 """
 from __future__ import annotations
@@ -95,13 +95,6 @@ def _run_child(budget_file, ledger_file, mode, before, count, check):
     return json.loads(completed.stdout)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "P0 RED: acquisition-scoped budget/2 identity and durable cross-runner "
-        "reservation have not been implemented; local subprocess proof is only necessary"
-    ),
-)
 def test_same_acquisition_new_workflow_provenance_keeps_n_minus_k(tmp_path):
     n, k = 7, 3
     ledger_file = tmp_path / "same-acquisition.sqlite"

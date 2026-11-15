@@ -35,9 +35,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Mapping, Optional, Sequence
 
-BUDGET_SCHEMA_VERSION = "physical_attempt_budget/1"
-LEDGER_SCHEMA_VERSION = "physical_attempt_ledger/1"
-AUDIT_SCHEMA_VERSION = "physical_attempt_audit/1"
+BUDGET_SCHEMA_VERSION = "physical_attempt_budget/2"
+LEDGER_SCHEMA_VERSION = "physical_attempt_ledger/2"
+AUDIT_SCHEMA_VERSION = "physical_attempt_audit/2"
 
 ENV_BUDGET_FILE = "ATTEMPT_BUDGET_FILE"
 ENV_LEDGER_PATH = "ATTEMPT_LEDGER_PATH"
@@ -114,31 +114,50 @@ def _strict_count(value: object, label: str) -> int:
     return value
 
 
+_TOKEN_RE = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
+_DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")
+
+
 @dataclass(frozen=True)
 class PhysicalAttemptBudget:
-    """Versioned run-scoped physical-attempt quota."""
+    """Acquisition-scoped quota; workflow provenance cannot reset the ceiling."""
 
-    run_id: str
+    acquisition_id: str
+    budget_id: str
     maximum_total_physical_attempts: int
     provider_ceilings: Mapping[str, int]
+    plan_sha256: str
+    workflow_run_id: str = ""
+    run_attempt: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "schema_version": BUDGET_SCHEMA_VERSION,
-            "run_id": self.run_id,
+            "acquisition_id": self.acquisition_id,
+            "budget_id": self.budget_id,
+            "plan_sha256": self.plan_sha256,
+            "workflow_run_id": self.workflow_run_id,
+            "run_attempt": self.run_attempt,
             "unit": "physical_http_attempt",
             "maximum_total_physical_attempts": self.maximum_total_physical_attempts,
             "provider_ceilings": dict(sorted(self.provider_ceilings.items())),
         }
 
     def sha256(self) -> str:
-        canonical = json.dumps(self.to_dict(), sort_keys=True, separators=(",", ":"))
+        """Hash ONLY stable authorization fields, never execution provenance."""
+        payload = self.to_dict()
+        payload.pop("workflow_run_id")
+        payload.pop("run_attempt")
+        canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
         return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-
 
 _BUDGET_KEYS = {
     "schema_version",
-    "run_id",
+    "acquisition_id",
+    "budget_id",
+    "plan_sha256",
+    "workflow_run_id",
+    "run_attempt",
     "unit",
     "maximum_total_physical_attempts",
     "provider_ceilings",
@@ -158,9 +177,19 @@ def parse_budget(raw: object) -> PhysicalAttemptBudget:
         )
     if raw.get("unit", "physical_http_attempt") != "physical_http_attempt":
         raise BudgetConfigurationError("unit must be 'physical_http_attempt'")
-    run_id = raw.get("run_id")
-    if not isinstance(run_id, str) or not re.fullmatch(r"[A-Za-z0-9._-]{1,128}", run_id):
-        raise BudgetConfigurationError("run_id must be a non-empty safe token")
+    for key in ("acquisition_id", "budget_id"):
+        value = raw.get(key)
+        if not isinstance(value, str) or not _TOKEN_RE.fullmatch(value):
+            raise BudgetConfigurationError(f"{key} must be a non-empty safe token")
+    plan_sha256 = raw.get("plan_sha256")
+    if not isinstance(plan_sha256, str) or not _DIGEST_RE.fullmatch(plan_sha256):
+        raise BudgetConfigurationError("plan_sha256 must be 64 lowercase hex chars")
+    workflow_run_id = raw.get("workflow_run_id", "")
+    if not isinstance(workflow_run_id, str) or (
+        workflow_run_id and not _TOKEN_RE.fullmatch(workflow_run_id)
+    ):
+        raise BudgetConfigurationError("workflow_run_id must be empty or a safe token")
+    run_attempt = _strict_count(raw.get("run_attempt", 0), "run_attempt")
     if "maximum_total_physical_attempts" not in raw:
         raise BudgetConfigurationError("maximum_total_physical_attempts is required")
     maximum = _strict_count(
@@ -174,13 +203,21 @@ def parse_budget(raw: object) -> PhysicalAttemptBudget:
         if name not in KNOWN_PROVIDERS:
             raise BudgetConfigurationError(f"unknown provider ceiling: {name!r}")
         ceilings[name] = _strict_count(value, f"provider_ceilings[{name}]")
-    return PhysicalAttemptBudget(run_id, maximum, ceilings)
+    return PhysicalAttemptBudget(
+        raw["acquisition_id"],
+        raw["budget_id"],
+        maximum,
+        ceilings,
+        plan_sha256,
+        workflow_run_id,
+        run_attempt,
+    )
 
 
 def load_budget(path: str | os.PathLike[str]) -> PhysicalAttemptBudget:
     try:
         text = Path(path).read_text(encoding="utf-8")
-    except OSError as exc:
+    except (OSError, UnicodeError) as exc:
         raise BudgetConfigurationError(
             f"attempt budget file is not readable: {type(exc).__name__}"
         ) from None
@@ -284,7 +321,8 @@ class AttemptLedger:
                     "INSERT INTO meta(key, value) VALUES (?, ?)",
                     [
                         ("schema_version", LEDGER_SCHEMA_VERSION),
-                        ("run_id", self.budget.run_id),
+                        ("acquisition_id", self.budget.acquisition_id),
+                        ("budget_id", self.budget.budget_id),
                         ("budget_sha256", self.budget.sha256()),
                         ("created_at", _utc_now()),
                     ],
@@ -354,8 +392,11 @@ class AttemptLedger:
         meta = dict(conn.execute("SELECT key, value FROM meta").fetchall())
         if meta.get("schema_version") != LEDGER_SCHEMA_VERSION:
             raise LedgerCorruptError("attempt ledger schema version mismatch")
-        if meta.get("run_id") != self.budget.run_id:
-            raise LedgerCorruptError("attempt ledger run_id does not match the budget")
+        if (
+            meta.get("acquisition_id") != self.budget.acquisition_id
+            or meta.get("budget_id") != self.budget.budget_id
+        ):
+            raise LedgerCorruptError("attempt ledger identity does not match the budget")
         if meta.get("budget_sha256") != self.budget.sha256():
             raise LedgerCorruptError("attempt ledger is bound to a different budget")
 
@@ -395,7 +436,7 @@ class AttemptLedger:
                         f"physical attempt refused for {provider}: {reason} "
                         f"(global={total}/{self.budget.maximum_total_physical_attempts})",
                     )
-                attempt_id = f"{self.budget.run_id}:{total + 1:06d}"
+                attempt_id = f"{self.budget.budget_id}:{total + 1:06d}"
                 conn.execute(
                     "INSERT INTO attempts(attempt_id, provider, purpose, status,"
                     " reserved_at, global_count_after, provider_count_after)"
@@ -492,9 +533,9 @@ class AttemptGovernor:
             raise LedgerUnavailableError(f"{ENV_LEDGER_PATH} is not set")
         budget = load_budget(budget_file)
         expected_run = env.get(ENV_RUN_ID, "").strip()
-        if expected_run and expected_run != budget.run_id:
+        if expected_run and expected_run != budget.workflow_run_id:
             raise BudgetConfigurationError(
-                "budget run_id does not match the current workflow run identity"
+                "budget workflow_run_id does not match the current workflow run identity"
             )
         governor = cls(budget, Path(ledger_path))
         governor.ledger.verify()
@@ -697,7 +738,10 @@ def build_audit(
     total = len(reservations)
     return {
         "schema_version": AUDIT_SCHEMA_VERSION,
-        "run_id": budget.run_id,
+        "acquisition_id": budget.acquisition_id,
+        "budget_id": budget.budget_id,
+        "workflow_run_id": budget.workflow_run_id,
+        "run_attempt": budget.run_attempt,
         "budget": budget.to_dict(),
         "budget_sha256": budget.sha256(),
         "ledger_path": _redact_path(governor.ledger.path, repo_root),

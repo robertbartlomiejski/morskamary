@@ -189,7 +189,10 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/manage_physical_attempt_budget.py init \
-            --run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --acquisition-id "smoke-${{ github.run_id }}" \
+            --budget-id "smoke-${{ github.run_id }}" \
+            --workflow-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --run-attempt "${{ github.run_attempt }}" \
             --providers all --queries 1 --logical-pages 1 --rows-per-page 2 \
             --budget-output "$RUNNER_TEMP/physical_attempt_budget.json" \
             --ledger "$RUNNER_TEMP/physical_attempt_ledger/smoke.sqlite" \

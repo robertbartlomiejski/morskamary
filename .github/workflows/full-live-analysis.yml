@@ -23,6 +23,16 @@ on:
         required: false
         default: "crossref,scopus,openalex"
         type: string
+      acquisition_id:
+        description: "Stable approved acquisition identity (G2 remains frozen)"
+        required: false
+        default: ""
+        type: string
+      budget_id:
+        description: "Stable approved quota identity (G2 remains frozen)"
+        required: false
+        default: ""
+        type: string
       logical_pages:
         description: "Logical pages per query/provider"
         required: false
@@ -103,6 +113,8 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       EXECUTION_MODE: ${{ inputs.execution_mode }}
+      MOR25_ACQUISITION_ID: ${{ inputs.acquisition_id }}
+      MOR25_BUDGET_ID: ${{ inputs.budget_id }}
       REQUESTED_PROVIDERS: ${{ inputs.providers }}
       LOGICAL_PAGES: ${{ inputs.logical_pages }}
       ROWS_PER_PAGE: ${{ inputs.rows_per_page }}
@@ -225,7 +237,10 @@ jobs:
           # (health probes, pagination and retries). Separate from the logical-page
           # budget enforced after acquisition below.
           python scripts/manage_physical_attempt_budget.py init \
-            --run-id "$CURRENT_RUN_ID" \
+            --acquisition-id "$MOR25_ACQUISITION_ID" \
+            --budget-id "$MOR25_BUDGET_ID" \
+            --workflow-run-id "$CURRENT_RUN_ID" \
+            --run-attempt "$GH_CONTEXT_RUN_ATTEMPT" \
             --plan outputs/governance/api_budget_plan.json \
             --budget-output outputs/governance/physical_attempt_budget.json \
             --ledger "$RUNNER_TEMP/physical_attempt_ledger/${CURRENT_RUN_ID}.sqlite" \

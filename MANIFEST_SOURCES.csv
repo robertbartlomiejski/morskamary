@@ -1362,6 +1362,7 @@ tests/test_live_query_protocol.py,script,,,,,,test_live_query_protocol,yes
 tests/test_live_run_audit.py,script,,,,,,test_live_run_audit,yes
 tests/test_load_real_competences.py,script,,,,,,test_load_real_competences,yes
 tests/test_main_entrypoints.py,script,,,,,,test_main_entrypoints,yes
+tests/test_mor25_cross_runner_acceptance.py,script,,,,,,test_mor25_cross_runner_acceptance,yes
 tests/test_nlp_reliability.py,script,,,,,,test_nlp_reliability,yes
 tests/test_openalex_provider.py,script,,,,,,test_openalex_provider,yes
 tests/test_pagination.py,script,,,,,,test_pagination,yes

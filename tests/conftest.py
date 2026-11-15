@@ -35,8 +35,12 @@ def fixture_attempt_budget(
     base = tmp_path_factory.mktemp("fixture_attempt_budget")
     budget = parse_budget(
         {
-            "schema_version": "physical_attempt_budget/1",
-            "run_id": "fixture-run-1",
+            "schema_version": "physical_attempt_budget/2",
+            "acquisition_id": "fixture-acquisition-1",
+            "budget_id": "fixture-quota-1",
+            "plan_sha256": "a" * 64,
+            "workflow_run_id": "fixture-run-1",
+            "run_attempt": 1,
             "maximum_total_physical_attempts": 1_000_000,
             "provider_ceilings": {name: 1_000_000 for name in KNOWN_PROVIDERS},
         }

@@ -12,6 +12,7 @@ logical-page budget in ``scripts/check_budget_ceiling.py``.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import sys
@@ -70,13 +71,17 @@ def _attempts_per_logical_page(provider: str, rows_per_page: int) -> int:
 
 def derive_budget(
     *,
-    run_id: str,
+    acquisition_id: str,
+    budget_id: str,
+    plan_sha256: str,
+    workflow_run_id: str = "",
+    run_attempt: int = 0,
     providers: Sequence[str],
     queries: int,
     logical_pages: int,
     rows_per_page: int,
 ) -> PhysicalAttemptBudget:
-    """Derive a conservative ceiling; unrequested providers are pinned to zero."""
+    """Derive pinned ceilings from the approved, stable acquisition plan."""
     unknown = sorted(set(providers) - set(ACTIVE_ACQUISITION_PROVIDERS))
     if unknown or not providers or len(set(providers)) != len(providers):
         raise ValueError(f"providers must be unique active providers, got {providers!r}")
@@ -88,13 +93,16 @@ def derive_budget(
     return parse_budget(
         {
             "schema_version": BUDGET_SCHEMA_VERSION,
-            "run_id": run_id,
+            "acquisition_id": acquisition_id,
+            "budget_id": budget_id,
+            "plan_sha256": plan_sha256,
+            "workflow_run_id": workflow_run_id,
+            "run_attempt": run_attempt,
             "unit": "physical_http_attempt",
             "maximum_total_physical_attempts": sum(ceilings.values()),
             "provider_ceilings": ceilings,
         }
     )
-
 
 def _split(value: str) -> list[str]:
     return [item.strip().lower() for item in value.split(",") if item.strip()]
@@ -102,18 +110,34 @@ def _split(value: str) -> list[str]:
 
 def _cmd_init(args: argparse.Namespace) -> int:
     if args.plan:
-        plan: Dict[str, Any] = json.loads(Path(args.plan).read_text(encoding="utf-8"))
+        plan_bytes = Path(args.plan).read_bytes()
+        plan: Dict[str, Any] = json.loads(plan_bytes.decode("utf-8"))
         providers = list(plan["providers"])
         queries = int(plan["queries"])
         pages = int(plan["logical_pages"])
         rows = int(plan["rows_per_page"])
+        plan_sha256 = hashlib.sha256(plan_bytes).hexdigest()
     else:
         providers = _split(args.providers)
         if args.providers.strip().lower() == "all":
             providers = list(ACTIVE_ACQUISITION_PROVIDERS)
         queries, pages, rows = args.queries, args.logical_pages, args.rows_per_page
+        synthetic_plan = {
+            "providers": providers,
+            "queries": queries,
+            "logical_pages": pages,
+            "rows_per_page": rows,
+        }
+        canonical = json.dumps(
+            synthetic_plan, sort_keys=True, separators=(",", ":")
+        )
+        plan_sha256 = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
     budget = derive_budget(
-        run_id=args.run_id,
+        acquisition_id=args.acquisition_id,
+        budget_id=args.budget_id,
+        plan_sha256=plan_sha256,
+        workflow_run_id=args.workflow_run_id,
+        run_attempt=args.run_attempt,
         providers=providers,
         queries=queries,
         logical_pages=pages,
@@ -158,7 +182,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
     init = sub.add_parser("init")
-    init.add_argument("--run-id", required=True)
+    init.add_argument("--acquisition-id", required=True)
+    init.add_argument("--budget-id", required=True)
+    init.add_argument("--workflow-run-id", default="")
+    init.add_argument("--run-attempt", type=int, default=0)
     init.add_argument("--plan", help="api_budget_plan.json from prepare_live_acquisition_plan")
     init.add_argument("--providers", default="")
     init.add_argument("--queries", type=int, default=1)
@@ -179,7 +206,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     except AttemptBudgetError as exc:
         print(f"[ERROR] {exc.code}: {exc}", file=sys.stderr)
         return 1
-    except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError, KeyError, UnicodeError, json.JSONDecodeError) as exc:
         print(f"[ERROR] {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
 

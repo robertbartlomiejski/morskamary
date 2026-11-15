@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-11-15 (update: MOR-25 acquisition-scoped budget/2 and fail-closed G2 freeze)
+  Change type update
+  Scope governance physical HTTP-attempt budget tests and GitHub Actions
+  Files affected src/scientific_sources/attempt_budget.py scripts/manage_physical_attempt_budget.py tests/conftest.py tests/test_physical_attempt_budget.py tests/test_mor25_cross_runner_acceptance.py .github/workflows/full-live-analysis.yml .github/workflows/research-api-smoke.yml .github/workflows/research-pipeline.yml MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Migrates the physical attempt authorization identity to stable acquisition_id, budget_id and plan_sha256, hashing quotas independently of workflow_run_id and run_attempt. Adds necessary local independent-process N-K/N+1 regression, and hard-blocks all three draft live workflows before provider calls until a remotely durable shared atomic ledger and separately approved G2 pilot have been validated.
+  Reason Run-scoped v1 quotas and runner-local SQLite can reset across independent hosted runners. A successful local SQLite process test is not cross-runner acceptance.
+  Impact No retained scientific evidence, archives, credentials, 120-query protocol, QMBD calculations or H1-H3 results changed; G2 stays NOT APPROVED. No live workflow dispatched.
+  Provenance Linear MOR-25, PR #297; previous exact-HEAD 389aa9c8f9406735c1a9845d44fa7f96e1861c18; 2026-11-15 offline acceptance ledger.
+  Quality checks Exact-head GitHub Actions and full test suite pending for this candidate. Local subprocess test proves only one shared SQLite filesystem, not cross-hosted-runner durability. Follow-on P0 remote transactional store and P1 route/audit gates remain open.
+
 - 2026-11-14 (add: fail-closed pre-request physical HTTP-attempt budget)
   Change type add
   Scope governance scripts provider acquisition network boundary and GitHub Actions
