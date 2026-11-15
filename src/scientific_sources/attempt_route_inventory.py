@@ -53,7 +53,7 @@ def find_unverified_network_routes(
                     if None in words:
                         findings.append(f"{rel}:{node.lineno} UNVERIFIED argv")
                     elif words and (
-                        Path(words[0]).name in _NETWORK_TOOLS
+                        Path(words[0] or "").name in _NETWORK_TOOLS
                         or words[0] == "git"
                         and any(w in ("fetch", "pull", "push", "clone") for w in words)
                     ):
