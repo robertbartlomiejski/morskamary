@@ -1,4 +1,4 @@
-"""MOR-25: explicit G2 freeze and deliberately RED cross-runner acceptance.
+"""MOR-25: G2 freeze and local two-process reservation regression.
 
 The freeze and local subprocess tests do not validate independently hosted runners.
 A separate durable transactional backend and runner-level acceptance are required.
@@ -90,8 +90,9 @@ def _run_child(budget_file, ledger_file, mode, before, count, check):
         cwd=ROOT,
         capture_output=True,
         text=True,
-        check=True,
+        check=False,
     )
+    assert completed.returncode == 0, completed.stderr
     return json.loads(completed.stdout)
 
 
@@ -104,6 +105,7 @@ def test_same_acquisition_new_workflow_provenance_keeps_n_minus_k(tmp_path):
             "schema_version": "physical_attempt_budget/2",
             "acquisition_id": "mor25-offline-fixture",
             "budget_id": "approved-quota-v1",
+            "plan_sha256": "a" * 64,
             "workflow_run_id": provenance,
             "run_attempt": attempt,
             "unit": "physical_http_attempt",
