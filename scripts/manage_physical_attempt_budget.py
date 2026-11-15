@@ -104,6 +104,7 @@ def derive_budget(
         }
     )
 
+
 def _split(value: str) -> list[str]:
     return [item.strip().lower() for item in value.split(",") if item.strip()]
 

@@ -54,6 +54,7 @@ def _budget_dict(
         "provider_ceilings": ceilings or {},
     }
 
+
 def _configure(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
