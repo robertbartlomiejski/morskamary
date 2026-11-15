@@ -105,6 +105,7 @@ def _run_child(budget_file, ledger_file, mode, before, count, check):
 def test_same_acquisition_new_workflow_provenance_keeps_n_minus_k(tmp_path):
     n, k = 7, 3
     ledger_file = tmp_path / "same-acquisition.sqlite"
+
     def budget(provenance, attempt):
         return {
             "schema_version": "physical_attempt_budget/2",
