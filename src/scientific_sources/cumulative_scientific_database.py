@@ -88,6 +88,7 @@ from src.scientific_sources.schema_v2_identity import (
     make_candidate_id as _make_candidate_id_shared,
     make_canonical_competence_id as _make_canonical_competence_id_shared,
     make_fragment_id as _make_fragment_id_shared,
+    make_decision_content_hash as _make_decision_content_hash_shared,
     make_provenance_id as _make_provenance_id_shared,
     make_signal_id as _make_signal_id_shared,
     normalize_source_id as _normalize_source_id_shared,
@@ -2953,9 +2954,25 @@ def _build_validation_decisions(
                 superseded_id,
             )
         )
-        decision_content_sha256 = hashlib.sha256(
-            content_seed.encode("utf-8")
-        ).hexdigest()
+        decision_id = str(payload.get("validation_decision_id") or "").strip()
+        if not decision_id:
+            decision_id = (
+                "decision:"
+                + hashlib.sha256(content_seed.encode("utf-8")).hexdigest()
+            )
+        decision_content_sha256 = _make_decision_content_hash_shared(
+            validation_decision_id=decision_id,
+            decision_status=decision_status,
+            target_candidate_id=candidate_id,
+            canonical_label=canonical_label,
+            reviewer_identifier=reviewer,
+            decision_rationale=decision_reason,
+            decision_at_utc=decision_at,
+            evidence_ids=evidence_ids,
+            fragment_ids=fragment_ids,
+            source_provenance_ids=source_provenance_ids,
+            superseded_validation_decision_id=superseded_id,
+        )
         supplied_content_sha256 = str(
             payload.get("decision_content_sha256") or ""
         ).strip()
@@ -2966,9 +2983,6 @@ def _build_validation_decisions(
             raise CumulativeDatabaseError(
                 "validation decision content hash does not match immutable snapshot"
             )
-        decision_id = str(payload.get("validation_decision_id") or "").strip()
-        if not decision_id:
-            decision_id = f"decision:{decision_content_sha256}"
         if decision_id in decision_ids:
             raise CumulativeDatabaseError(
                 f"duplicate validation decision identifier: {decision_id}"
