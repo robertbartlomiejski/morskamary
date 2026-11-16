@@ -280,20 +280,49 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
     active_counts = Counter(r.get("target_candidate_id") for r in decisions.values())
     if any(n > 1 for n in active_counts.values()):
         problems["validation_decisions"].append("multiple_active_decisions")
+    candidates = {r.get("candidate_id", ""): r for r in rows.get("competence_candidates", [])}
+    fragment_evidence = {
+        r.get("fragment_id", ""): r.get("evidence_id", "")
+        for r in rows.get("evidence_fragments", [])
+        if r.get("fragment_id")
+    }
+
+    def decision_evidence_ids(decision: Mapping[str, Any]) -> set[str]:
+        explicit = {
+            value.strip()
+            for value in re.split(r"[|;,]", decision.get("evidence_ids", ""))
+            if value.strip()
+        }
+        if explicit:
+            return explicit
+        fragments = {
+            value.strip()
+            for value in re.split(r"[|;,]", decision.get("fragment_ids", ""))
+            if value.strip()
+        }
+        return {
+            fragment_evidence[fragment_id]
+            for fragment_id in fragments
+            if fragment_evidence.get(fragment_id)
+        }
+
     accepted_canonical = set()
     for r in rows.get("canonical_competences", []):
+        candidate = candidates.get(r.get("source_candidate_id", ""), {})
         decision = decisions.get(r.get("validation_decision_id", ""), {})
+        reviewed_evidence = decision_evidence_ids(decision)
+        candidate_evidence = str(candidate.get("evidence_id", "")).strip()
         preferred_label = r.get("preferred_label", "").strip()
         if (r.get("validation_status") == "accepted" and r.get("provenance_guard_status") == "passed"
                 and not problems["validation_decisions"] and decision.get("decision_status") == "accepted"
                 and decision.get("target_candidate_id") == r.get("source_candidate_id")
+                and candidate_evidence and reviewed_evidence == {candidate_evidence}
                 and preferred_label
                 and normalize_canonical_label(preferred_label).lower()
                 == normalize_canonical_label(decision.get("canonical_label")).lower()):
             accepted_canonical.add(r.get("canonical_competence_id"))
         else:
             problems["canonical_competences"].append("unverified_canonical_validation")
-    candidates = {r.get("candidate_id", ""): r for r in rows.get("competence_candidates", [])}
     canonicals = {r.get("canonical_competence_id", ""): r for r in rows.get("canonical_competences", [])}
     semantic_rows = rows.get("semantic_signals", [])
     for r in rows.get("sector_competence_assignments", []):
@@ -309,6 +338,7 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
                     and signal.get("fragment_id") in reviewed_fragments}
         context = (r.get("sector"), r.get("axis_group"), r.get("axis_code"))
         evidence_ids = {value.strip() for value in re.split(r"[|;,]", r.get("evidence_ids", "")) if value.strip()}
+        reviewed_evidence = decision_evidence_ids(decision)
         if (r.get("canonical_competence_id") not in accepted_canonical
                 or decision.get("decision_status") != "accepted"
                 or not candidate or problems["competence_candidates"]
@@ -318,6 +348,7 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
                 or context not in contexts or r.get("sector") not in sectors
                 or r.get("axis_group") not in AXES or AXES.get(r.get("axis_group", "")) != r.get("axis_code")
                 or decision.get("target_candidate_id") != candidate_id
+                or reviewed_evidence != {candidate.get("evidence_id", "")}
                 or evidence_ids != {candidate.get("evidence_id", "")}
                 or problems["canonical_competences"] or problems["validation_decisions"]):
             problems["sector_competence_assignments"].append("unverified_assignment_validation")
@@ -399,6 +430,11 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
         fields: Tuple[str, ...] = (KEYS[table], "fragment_id") if table == "semantic_signals" else (KEYS[table],)
         if table == "sector_competence_assignments":
             fields = ("canonical_competence_id", "sector", "axis_group")
+        if metric == "provider_query_occurrences":
+            issue = (
+                issue + "|query_identity_not_retained"
+                if issue else "query_identity_not_retained"
+            )
         value = None if issue else len({tuple(r[f] for f in fields) for r in counted})
         unit(metric, table + ".csv", grain, value, issue,
              None if table not in rows else sum(any(not r.get(f, "").strip() for f in fields) for r in rows[table]),

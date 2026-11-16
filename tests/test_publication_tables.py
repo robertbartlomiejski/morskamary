@@ -586,3 +586,46 @@ def test_missing_decision_fragment_snapshot_cannot_fall_back_to_candidate(tmp_pa
     assert result['value'] is None
     assert result['status'] == 'not_computable'
     assert 'unverified_assignment_validation' in result['reason']
+
+
+def test_canonical_rejects_decision_evidence_snapshot_mismatch(tmp_path):
+    p = bundle(tmp_path)
+    write_csv(p / 'evidence_fragments.csv', [
+        {'fragment_id': 'f1', 'evidence_id': 'e1'},
+        {'fragment_id': 'f2', 'evidence_id': 'e2'},
+    ])
+    write_csv(p / 'semantic_signals.csv', [
+        {'signal_id': 's', 'fragment_id': 'f1', 'evidence_id': 'e1',
+         'sector': 'blue_biotech', 'axis_group': 'MARINE', 'axis_code': 'M'}])
+    write_csv(p / 'competence_candidates.csv', [
+        {'candidate_id': 'c', 'signal_id': 's', 'fragment_id': 'f1', 'evidence_id': 'e1'}])
+    write_csv(p / 'validation_decisions.csv', [
+        {'validation_decision_id': 'd', 'target_candidate_id': 'c',
+         'decision_status': 'accepted', 'canonical_label': 'Marine skill',
+         'fragment_ids': 'f1', 'evidence_ids': 'e2'}])
+    write_csv(p / 'canonical_competences.csv', [
+        {'canonical_competence_id': 'k', 'source_candidate_id': 'c',
+         'validation_decision_id': 'd', 'validation_status': 'accepted',
+         'provenance_guard_status': 'passed', 'preferred_label': 'Marine skill'}])
+    write_csv(p / 'sector_competence_assignments.csv', [
+        {'assignment_id': 'a', 'canonical_competence_id': 'k',
+         'validation_decision_id': 'd', 'source_candidate_id': 'c',
+         'evidence_ids': 'e1', 'sector': 'blue_biotech',
+         'axis_group': 'MARINE', 'axis_code': 'M'}])
+    model = build_publication_tables(p)
+    assert metric(model, 'validated_canonical_competences')['value'] is None
+    assert metric(model, 'validated_sector_assignments')['value'] is None
+
+
+def test_provider_query_occurrences_not_computable_without_query_identity(tmp_path):
+    p = bundle(tmp_path)
+    write_csv(p / 'evidence_occurrences.csv', [
+        {'occurrence_pk': 'o1', 'record_pk': 'r1', 'run_pk': 'run1',
+         'bundle_pk': '', 'dataset_code': '1', 'dataset_label': 'live_records',
+         'provider_code': '1', 'provider_label': 'crossref',
+         'occurrence_type_code': '1', 'occurrence_type_label': 'run_observation',
+         'timestamp_utc': '2026-01-01T00:00:00Z'}])
+    result = metric(build_publication_tables(p), 'provider_query_occurrences')
+    assert result['value'] is None
+    assert result['status'] == 'not_computable'
+    assert 'query_identity_not_retained' in result['reason']
