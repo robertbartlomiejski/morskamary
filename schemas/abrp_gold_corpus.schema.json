@@ -83,8 +83,15 @@
         {
           "if":{"properties":{"validated_human_capability":{"const":true}},"required":["validated_human_capability"]},
           "then":{"properties":{
+            "actor_span":{"minLength":1},
+            "actor":{"minLength":1},
             "action_span":{"minLength":1},
             "primary_action":{"minLength":1},
+            "action_object_span":{"minLength":1},
+            "action_object":{"minLength":1},
+            "transformation_span":{"minLength":1},
+            "transformation_driver":{"minLength":1},
+            "affected_relation":{"minLength":1},
             "semantic_completeness":{"const":"complete_action_proposition"},
             "capability_content_gate":{"const":"PASS"}
           }}
