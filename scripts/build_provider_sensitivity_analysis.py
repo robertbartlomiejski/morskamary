@@ -10,6 +10,8 @@ import json
 import math
 import sys
 from collections import Counter
+
+import yaml
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -117,7 +119,9 @@ def _read_jsonl_required(
     return rows
 
 
-def _read_csv_required(path: Path, label: str) -> list[dict[str, str]]:
+def _read_csv_required(
+    path: Path, label: str, *, allow_empty: bool = False
+) -> list[dict[str, str]]:
     if not path.is_file():
         raise ValueError(f"required {label} file does not exist: {path}")
     with path.open(newline="", encoding="utf-8-sig") as handle:
@@ -125,7 +129,7 @@ def _read_csv_required(path: Path, label: str) -> list[dict[str, str]]:
         if reader.fieldnames is None:
             raise ValueError(f"required {label} CSV has no header: {path}")
         rows = [dict(row) for row in reader]
-    if not rows:
+    if not rows and not allow_empty:
         raise ValueError(f"required {label} file contains no rows: {path}")
     return rows
 
@@ -305,10 +309,10 @@ def _recompute_demands(
         if provider in active_providers
     }
     family_universe = {
-        str(signal.get("query_family", "")).strip()
-        for grouped in groups.values()
-        for signal in grouped
-        if str(signal.get("query_family", "")).strip()
+        family
+        for row in evidence_by_id.values()
+        for family in _split(row.get("query_families_seen"))
+        if family
     }
 
     output: list[dict[str, Any]] = []
@@ -335,11 +339,8 @@ def _recompute_demands(
         families = sorted(
             {
                 family
-                for signal in grouped_signals
-                for family in (
-                    _split(signal.get("query_families_seen"))
-                    or [str(signal.get("query_family", "")).strip()]
-                )
+                for row in rows
+                for family in _split(row.get("query_families_seen"))
                 if family
             }
         )
@@ -383,6 +384,48 @@ def _recompute_demands(
             }
         )
     return output
+
+
+def _load_hypothesis_contract(path: Path) -> dict[str, dict[str, Any]]:
+    if not path.is_file():
+        raise ValueError(f"authoritative hypothesis protocol does not exist: {path}")
+    payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    hypotheses = payload.get("hypotheses") if isinstance(payload, dict) else None
+    if not isinstance(hypotheses, dict) or not hypotheses:
+        raise ValueError("authoritative protocol must declare hypotheses")
+    output: dict[str, dict[str, Any]] = {}
+    for hypothesis_id, declaration in hypotheses.items():
+        if not isinstance(declaration, dict):
+            raise ValueError(f"{hypothesis_id}: hypothesis declaration must be an object")
+        for field in ("label", "test", "declared_outcomes", "required_result_fields"):
+            if field not in declaration:
+                raise ValueError(f"{hypothesis_id}: missing protocol field {field}")
+        output[str(hypothesis_id)] = dict(declaration)
+    return output
+
+
+def _bind_hypothesis_contract(
+    result: Mapping[str, Any],
+    declaration: Mapping[str, Any],
+) -> dict[str, Any]:
+    bound = dict(result)
+    bound["hypothesis_label"] = str(declaration["label"])
+    bound["test_used"] = str(declaration["test"])
+    outcomes = {str(item) for item in declaration["declared_outcomes"]}
+    interpretation = str(bound.get("interpretation", ""))
+    if interpretation not in outcomes:
+        raise ValueError(
+            f"{bound.get('hypothesis_id')}: result outcome {interpretation!r} "
+            "is not declared by the authoritative protocol"
+        )
+    required = [str(item) for item in declaration["required_result_fields"]]
+    missing = [field for field in required if field not in bound]
+    if missing:
+        raise ValueError(
+            f"{bound.get('hypothesis_id')}: result missing protocol-required "
+            f"fields: {missing}"
+        )
+    return bound
 
 
 def _cohens_d(left: Sequence[float], right: Sequence[float]) -> float | None:
@@ -530,6 +573,7 @@ def build_provider_sensitivity_analysis(
     validated_supply_map_path: Path | None,
     output_json_path: Path,
     output_markdown_path: Path,
+    protocol_path: Path | None = None,
 ) -> dict[str, Any]:
     evidence = _read_jsonl_required(evidence_path, "evidence")
     # Duplicate evidence_id values are a Layer 2 structural violation: each
@@ -551,13 +595,21 @@ def build_provider_sensitivity_analysis(
             "provider sensitivity analysis): "
             + ", ".join(sorted(set(_duplicate_evidence_ids))[:10])
         )
-    signals = _read_jsonl_required(signals_path, "signals")
-    original_demands = _read_csv_required(derived_demands_path, "derived demands")
+    signals = _read_jsonl_required(signals_path, "signals", allow_empty=True)
+    original_demands = _read_csv_required(
+        derived_demands_path, "derived demands", allow_empty=True
+    )
     fragments = _read_jsonl_required(
         hypothesis_fragments_path, "hypothesis fragments", allow_empty=True
     )
     supply = _load_validated_supply(validated_supply_map_path)
     reference_time = _load_analysis_timestamp(derived_demands_path)
+    hypothesis_contract = _load_hypothesis_contract(
+        protocol_path or (_REPO_ROOT_SENSITIVITY / "config" / "live_query_protocol.yml")
+    )
+    for required_id in ("H1", "H2", "H3"):
+        if required_id not in hypothesis_contract:
+            raise ValueError(f"authoritative protocol is missing {required_id}")
 
     contributing = {
         provider
@@ -615,9 +667,15 @@ def build_provider_sensitivity_analysis(
                     else 0.0
                 ),
             },
-            "h1": _h1(subset_demands),
-            "h2": _h2(subset_demands, supply),
-            "h3": _h3(subset_fragments),
+            "h1": _bind_hypothesis_contract(
+                _h1(subset_demands), hypothesis_contract["H1"]
+            ),
+            "h2": _bind_hypothesis_contract(
+                _h2(subset_demands, supply), hypothesis_contract["H2"]
+            ),
+            "h3": _bind_hypothesis_contract(
+                _h3(subset_fragments), hypothesis_contract["H3"]
+            ),
             "top_demands": sorted(
                 subset_demands,
                 key=lambda row: (
@@ -695,6 +753,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--validated-supply-map", default="")
     parser.add_argument(
+        "--protocol-path",
+        default="config/live_query_protocol.yml",
+    )
+    parser.add_argument(
         "--output-json",
         default="outputs/cumulative_database/provider_sensitivity_analysis.json",
     )
@@ -720,6 +782,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             ),
             output_json_path=Path(args.output_json),
             output_markdown_path=Path(args.output_markdown),
+            protocol_path=Path(args.protocol_path),
         )
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
