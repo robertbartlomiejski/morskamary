@@ -75,3 +75,29 @@ def test_pilot_v7_seed_manifest_never_claims_gold_or_fabricated_ids() -> None:
     assert payload["evidence_ids_status"] == "unavailable_in_current_repository"
     assert payload["evidence_ids"] == []
     assert sum(payload["baseline_counts"].values()) == 24
+
+
+def test_legacy_qmbd_gold_schema_rejects_mismatched_group_code() -> None:
+    schema = json.loads(
+        (ROOT / "schemas" / "qmbd_gold_review_set.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    Draft202012Validator.check_schema(schema)
+    validator = Draft202012Validator(schema)
+    payload = [{
+        "gold_set_version": "0.1.0",
+        "review_case_id": "case-x",
+        "evidence_scope": "sentence",
+        "evidence_text": "example",
+        "sector": "maritime_transport",
+        "domain": "skills",
+        "discipline": "sociology",
+        "proposed_axis_group": "MARINE",
+        "proposed_axis_code": "H",
+        "uncertainty_typology": "ambiguous_context",
+        "indicator_rule": "test",
+        "review_status": "reviewed",
+        "adjudication_note": ""
+    }]
+    assert list(validator.iter_errors(payload))
