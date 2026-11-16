@@ -55,6 +55,7 @@ from src.scientific_sources.cumulative_scientific_database import (
 )
 from src.scientific_sources.schema_v2_identity import (
     make_canonical_competence_id as _make_canonical_competence_id,
+    make_decision_content_hash as _make_decision_content_hash,
     recompute_assignment_id_from_row as _recompute_assignment_id_from_row,
     recompute_candidate_id_from_row as _recompute_candidate_id_from_row,
     recompute_fragment_id_from_row as _recompute_fragment_id_from_row,
@@ -2275,6 +2276,34 @@ def _build_accepted_canonical_lineage_demands(
             raise DerivedAnalysisError(
                 "accepted canonical lineage decision snapshot does not match "
                 f"its candidate: {decision_id}"
+            )
+        stored_decision_hash = _lineage_row_id(
+            decision, "decision_content_sha256"
+        )
+        expected_decision_hash = _make_decision_content_hash(
+            validation_decision_id=decision_id,
+            decision_status=_lineage_row_id(decision, "decision_status"),
+            target_candidate_id=candidate_id,
+            canonical_label=_lineage_row_id(decision, "canonical_label"),
+            reviewer_identifier=_lineage_row_id(decision, "reviewer"),
+            decision_rationale=_lineage_row_id(decision, "decision_reason"),
+            decision_at_utc=_lineage_row_id(decision, "decision_at_utc"),
+            evidence_ids=_lineage_row_id(decision, "evidence_ids"),
+            fragment_ids=_lineage_row_id(decision, "fragment_ids"),
+            source_provenance_ids=_lineage_row_id(
+                decision, "source_provenance_ids"
+            ),
+            superseded_validation_decision_id=_lineage_row_id(
+                decision, "superseded_validation_decision_id"
+            ),
+        )
+        if (
+            not re.fullmatch(r"[0-9a-f]{64}", stored_decision_hash)
+            or stored_decision_hash != expected_decision_hash
+        ):
+            raise DerivedAnalysisError(
+                "accepted canonical lineage decision content hash does not "
+                f"match its immutable snapshot: {decision_id}"
             )
         canonical_label = _normalized_lineage_label(
             decision.get("canonical_label")
