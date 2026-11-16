@@ -296,6 +296,9 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
     candidates = {r.get("candidate_id", ""): r for r in rows.get("competence_candidates", [])}
     canonicals = {r.get("canonical_competence_id", ""): r for r in rows.get("canonical_competences", [])}
     semantic_rows = rows.get("semantic_signals", [])
+    decision_fragment_snapshot_available = (
+        "fragment_ids" in headers.get("validation_decisions", [])
+    )
     for r in rows.get("sector_competence_assignments", []):
         candidate_id = r.get("source_candidate_id", "")
         candidate = candidates.get(candidate_id, {})
@@ -305,7 +308,11 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
             r"[|;,]", candidate.get("fragment_ids") or candidate.get("fragment_id", "")) if value.strip()}
         decision_fragments = {value.strip() for value in re.split(
             r"[|;,]", decision.get("fragment_ids", "")) if value.strip()}
-        reviewed_fragments = decision_fragments or candidate_fragments
+        reviewed_fragments = (
+            decision_fragments
+            if decision_fragment_snapshot_available
+            else candidate_fragments
+        )
         contexts = {(signal.get("sector"), signal.get("axis_group"), signal.get("axis_code"))
                     for signal in semantic_rows if signal.get("signal_id") == candidate.get("signal_id")
                     and signal.get("fragment_id") in reviewed_fragments}
