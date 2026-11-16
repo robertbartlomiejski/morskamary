@@ -351,7 +351,7 @@ def test_superseded_accepted_decision_cannot_validate_canonical_or_assignment(tm
         {'candidate_id': 'c', 'signal_id': 's', 'fragment_id': 'f', 'evidence_id': 'e1'}])
     decisions = [
         {'validation_decision_id': 'd1', 'target_candidate_id': 'c', 'decision_status': 'accepted',
-         'canonical_label': 'Marine skill',
+         'canonical_label': 'Marine skill', 'fragment_ids': 'f',
          'superseded_validation_decision_id': '', 'decision_at_utc': '2026-01-01T00:00:00Z'}]
     write_csv(p / 'validation_decisions.csv', decisions)
     write_csv(p / 'canonical_competences.csv', [
@@ -365,7 +365,8 @@ def test_superseded_accepted_decision_cannot_validate_canonical_or_assignment(tm
     assert metric(before, 'validated_canonical_competences')['value'] == 1
     assert metric(before, 'validated_sector_assignments')['value'] == 1
     decisions.append({'validation_decision_id': 'd2', 'target_candidate_id': 'c', 'decision_status': 'rejected',
-                      'superseded_validation_decision_id': 'd1', 'decision_at_utc': '2026-01-02T00:00:00Z'})
+                      'fragment_ids': 'f', 'superseded_validation_decision_id': 'd1',
+                      'decision_at_utc': '2026-01-02T00:00:00Z'})
     write_csv(p / 'validation_decisions.csv', decisions)
     after = build_publication_tables(p)
     assert metric(after, 'validated_canonical_competences')['value'] is None
@@ -417,7 +418,7 @@ def test_assignment_requires_reviewed_candidate_and_exact_evidence(tmp_path, can
         {'candidate_id': 'c2', 'signal_id': 's2', 'fragment_id': 'f2', 'evidence_id': 'e2'}])
     write_csv(p / 'validation_decisions.csv', [
         {'validation_decision_id': 'd', 'target_candidate_id': 'c', 'decision_status': 'accepted',
-         'canonical_label': 'Marine skill'}])
+         'canonical_label': 'Marine skill', 'fragment_ids': 'f'}])
     write_csv(p / 'canonical_competences.csv', [
         {'canonical_competence_id': 'k', 'source_candidate_id': 'c', 'validation_decision_id': 'd',
          'validation_status': 'accepted', 'provenance_guard_status': 'passed', 'preferred_label': 'Marine skill'}])
@@ -447,7 +448,8 @@ def test_assignment_grain_and_reviewed_context(tmp_path, damage):
         {'candidate_id': f'c{i}', 'signal_id': f's{i}', 'fragment_id': f'f{i}', 'evidence_id': f'e{i}'} for i in (1, 2)])
     write_csv(p / 'validation_decisions.csv', [
         {'validation_decision_id': f'd{i}', 'target_candidate_id': f'c{i}', 'decision_status': 'accepted',
-         'canonical_label': 'Other skill' if damage == 'label' and i == 2 else ' marine   skill '} for i in (1, 2)])
+         'canonical_label': 'Other skill' if damage == 'label' and i == 2 else ' marine   skill ',
+         'fragment_ids': f'f{i}'} for i in (1, 2)])
     write_csv(p / 'canonical_competences.csv', [
         {'canonical_competence_id': 'k', 'source_candidate_id': 'c1', 'validation_decision_id': 'd1',
          'validation_status': 'accepted', 'provenance_guard_status': 'passed', 'preferred_label': 'Marine skill'}])
