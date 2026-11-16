@@ -284,3 +284,11 @@ def test_checkout_state_audit_is_cleared_before_python_setup() -> None:
         "outputs/governance/physical_attempt_audit.json",
     ):
         assert f"rm -f {path}" in block
+
+
+def test_provider_sensitivity_uses_authoritative_protocol() -> None:
+    text = _text()
+    start = text.index("Build fail-closed provider sensitivity diagnostics")
+    end = text.index("Evaluate live novelty gates", start)
+    block = text[start:end]
+    assert "--protocol-path config/live_query_protocol.yml" in block
