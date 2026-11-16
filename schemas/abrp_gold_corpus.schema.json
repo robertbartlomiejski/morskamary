@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/abrp_gold_corpus.schema.json",
+  "title": "Morskamary ABRP governed gold-corpus annotation contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version","corpus_id","corpus_status","annotation_phase","records"],
+  "properties": {
+    "schema_version": {"const": "abrp_gold_corpus/1.0.0"},
+    "corpus_id": {"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
+    "corpus_status": {"type":"string","enum":["seed_non_gold","coder_surface","adjudicated_gold"]},
+    "annotation_phase": {"type":"string","enum":["A_BLIND","B_REVEALED","ADJUDICATED"]},
+    "source_manifest_sha256": {"type":"string","pattern":"^[a-f0-9]{64}$"},
+    "records": {"type":"array","minItems":1,"items":{"$ref":"#/$defs/record"}}
+  },
+  "$defs": {
+    "axisPair": {
+      "oneOf": [
+        {"properties":{"qmbd_axis_group":{"const":""},"qmbd_axis_code":{"const":""}}},
+        {"properties":{"qmbd_axis_group":{"const":"MARINE"},"qmbd_axis_code":{"const":"M"}}},
+        {"properties":{"qmbd_axis_group":{"const":"MARITIME"},"qmbd_axis_code":{"const":"T"}}},
+        {"properties":{"qmbd_axis_group":{"const":"OCEANIC"},"qmbd_axis_code":{"const":"O"}}},
+        {"properties":{"qmbd_axis_group":{"const":"HYDRONIZATION"},"qmbd_axis_code":{"const":"H"}}}
+      ]
+    },
+    "record": {
+      "type":"object",
+      "additionalProperties":false,
+      "required":[
+        "annotation_id","evidence_id","fragment_id","source_surface","evidence_text",
+        "exact_evidence_span","span_start","span_end","actor_span","actor","action_span",
+        "primary_action","action_object_span","action_object","transformation_span",
+        "transformation_driver","affected_relation","effect_span","intended_effect",
+        "qualifier","qualifier_basis","semantic_completeness","capability_content_gate",
+        "ocean_relationality","statement_polarity","sector","qmbd_axis_group","qmbd_axis_code",
+        "axis_hidden_phase_A","axis_revealed_phase_B","axis_fit","candidate_capability",
+        "canonicalization_level","reviewer","confidence","adjudication_status",
+        "adjudication_note","validated_human_capability","is_gold"
+      ],
+      "properties":{
+        "annotation_id":{"type":"string","minLength":1},
+        "evidence_id":{"type":"string","minLength":1},
+        "fragment_id":{"type":"string","minLength":1},
+        "source_surface":{"type":"string","enum":["title","subject_terms","abstract","sentence","full_text_fragment"]},
+        "evidence_text":{"type":"string","minLength":1},
+        "exact_evidence_span":{"type":"string","minLength":1},
+        "span_start":{"type":"integer","minimum":0},
+        "span_end":{"type":"integer","minimum":1},
+        "actor_span":{"type":"string"},
+        "actor":{"type":"string"},
+        "action_span":{"type":"string"},
+        "primary_action":{"type":"string"},
+        "action_object_span":{"type":"string"},
+        "action_object":{"type":"string"},
+        "transformation_span":{"type":"string"},
+        "transformation_driver":{"type":"string"},
+        "affected_relation":{"type":"string"},
+        "effect_span":{"type":"string"},
+        "intended_effect":{"type":"string"},
+        "qualifier":{"type":"string"},
+        "qualifier_basis":{"type":"string"},
+        "semantic_completeness":{"type":"string","enum":["complete_action_proposition","partial_action_proposition","meta_signal","underspecified","non_capability"]},
+        "capability_content_gate":{"type":"string","enum":["PASS","PARTIAL","FAIL_META","FAIL_INSUFFICIENT","REJECT"]},
+        "ocean_relationality":{"type":"string","enum":["constitutive","conditioning","incidental","unclear"]},
+        "statement_polarity":{"type":"string","enum":["affirmative","deficit","negated_need","speculative","unclear"]},
+        "sector":{"type":"string"},
+        "qmbd_axis_group":{"type":"string","enum":["","MARINE","MARITIME","OCEANIC","HYDRONIZATION"]},
+        "qmbd_axis_code":{"type":"string","enum":["","M","T","O","H"]},
+        "axis_hidden_phase_A":{"type":"boolean"},
+        "axis_revealed_phase_B":{"type":"boolean"},
+        "axis_fit":{"type":"string","enum":["","fit","partial","mismatch","unclassified"]},
+        "candidate_capability":{"type":"string"},
+        "canonicalization_level":{"type":"string","enum":["none","candidate","reviewed","adjudicated"]},
+        "reviewer":{"type":"string","minLength":1},
+        "confidence":{"type":"number","minimum":0,"maximum":1},
+        "adjudication_status":{"type":"string","enum":["not_started","pending","agreed","resolved","rejected"]},
+        "adjudication_note":{"type":"string"},
+        "validated_human_capability":{"type":"boolean"},
+        "is_gold":{"type":"boolean"}
+      },
+      "allOf":[
+        {"$ref":"#/$defs/axisPair"},
+        {
+          "if":{"properties":{"validated_human_capability":{"const":true}},"required":["validated_human_capability"]},
+          "then":{"properties":{
+            "action_span":{"minLength":1},
+            "primary_action":{"minLength":1},
+            "semantic_completeness":{"const":"complete_action_proposition"},
+            "capability_content_gate":{"const":"PASS"}
+          }}
+        }
+      ]
+    }
+  },
+  "allOf":[
+    {
+      "if":{"properties":{"annotation_phase":{"const":"A_BLIND"}},"required":["annotation_phase"]},
+      "then":{"properties":{"records":{"items":{"properties":{
+        "sector":{"const":""},
+        "qmbd_axis_group":{"const":""},
+        "qmbd_axis_code":{"const":""},
+        "axis_hidden_phase_A":{"const":true},
+        "axis_revealed_phase_B":{"const":false},
+        "axis_fit":{"const":""},
+        "candidate_capability":{"const":""},
+        "canonicalization_level":{"const":"none"}
+      }}}}}
+    }
+  ]
+}
