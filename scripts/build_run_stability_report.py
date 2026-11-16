@@ -24,7 +24,7 @@ CANONICAL_AXES = ("MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION")
 AXIS_CODE_MAP = {"M": "MARINE", "T": "MARITIME", "O": "OCEANIC", "H": "HYDRONIZATION"}
 _REPO_ROOT_STABILITY = Path(__file__).resolve().parents[1]
 # Allow-list of live source_id prefixes (provider-scoped stable IDs).
-_LIVE_SOURCE_ID_PREFIXES = ("crossref:", "scopus:", "openalex:", "wos:")
+_LIVE_SOURCE_ID_PREFIXES = ("crossref:", "scopus:", "openalex:", "wos:", "graph:")
 _STATIC_RECORD_ORIGINS = {
     "static_baseline",
     "static_literature",
@@ -39,6 +39,7 @@ _CANONICAL_LIVE_RECORD_ORIGINS = {
     "dynamic_api_google_drive",
     "dynamic_api_microsoft_graph",
     "dynamic_api_openalex",
+    "live_api",
 }
 _LEGACY_LIVE_RECORD_ORIGINS = {
     "live-crossref",
@@ -292,7 +293,8 @@ def _derive_contributing_provider_profile(run_dir: Path, manifest: dict[str, Any
                     contributing.add(provider)
     except (csv.Error, OSError):
         return [], False
-    return sorted(contributing), True
+    contributing_profile = sorted(contributing)
+    return contributing_profile, bool(contributing_profile)
 
 
 def _normalise_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
@@ -414,7 +416,7 @@ def build_comparability_fingerprint(
 
 def compute_jaccard_similarity(left: set[str], right: set[str]) -> float:
     if not left and not right:
-        return 1.0
+        return 0.0
     union = left | right
     return len(left & right) / len(union) if union else 0.0
 

@@ -31,6 +31,7 @@ jobs:
       ELSEVIER_API_KEY: ${{ secrets.ELSEVIER_API_KEY }}
       SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
       WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
+      OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
       SCIVAL_API_KEY: ${{ secrets.SCIVAL_API_KEY }}
 
     steps:
@@ -54,6 +55,7 @@ jobs:
         run: |
           python scripts/check_research_api_health.py \
             --providers "${{ github.event.inputs.providers }}" \
+            --require-configured \
             --require-valid \
             --output outputs/research_api_health.json
 
