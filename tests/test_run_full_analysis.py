@@ -16,6 +16,7 @@ from run_full_analysis import (
     MicroCredential,
     TMBDAxis,
     _repo_relative_posix_or_redacted,
+    _sentence_classification_counts_as_evidence,
     extract_live_records_competences,
     export_sector_dictionaries,
     generate_micro_credentials,
@@ -2275,3 +2276,13 @@ def test_two_sector_dictionaries_differ_with_sector_specific_literature(
     assert maritime_ids == {"lit_maritime_001"}
     assert biotech_ids == {"lit_biotech_001"}
     assert desalination_ids == set()  # no competences for Desalination
+
+
+def test_review_required_sentence_never_counts_as_axis_evidence() -> None:
+    item = {
+        "axis": "MARINE",
+        "matched_keywords": ["biodiversity"],
+        "confidence_score": 0.95,
+        "manual_review_status": "review_required",
+    }
+    assert _sentence_classification_counts_as_evidence(item) is False
