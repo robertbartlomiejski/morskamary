@@ -2660,25 +2660,23 @@ def _build_accepted_canonical_lineage_demands(
                 for provider in part["providers"]
             }
         )
-        snapshot_metrics = {
-            "first_run": min(
-                (part["first_run"] for part in snapshot_parts if part["first_run"]),
-                default="",
-            ),
-            "latest_run": max(
-                (part["latest_run"] for part in snapshot_parts if part["latest_run"]),
-                default="",
-            ),
-            "first_at": min(
-                (part["first_at"] for part in snapshot_parts if part["first_at"]),
-                default="",
-            ),
-            "latest_at": max(
-                (part["latest_at"] for part in snapshot_parts if part["latest_at"]),
-                default="",
-            ),
-            "occurrence_count": len(snapshot_evidence_ids),
-        }
+        first_run = min(
+            (str(part["first_run"]) for part in snapshot_parts if part["first_run"]),
+            default="",
+        )
+        latest_run = max(
+            (str(part["latest_run"]) for part in snapshot_parts if part["latest_run"]),
+            default="",
+        )
+        first_at = min(
+            (str(part["first_at"]) for part in snapshot_parts if part["first_at"]),
+            default="",
+        )
+        latest_at = max(
+            (str(part["latest_at"]) for part in snapshot_parts if part["latest_at"]),
+            default="",
+        )
+        snapshot_occurrence_count = len(snapshot_evidence_ids)
         query_families = sorted(
             {
                 _lineage_row_id(signal, "query_family")
@@ -2691,10 +2689,6 @@ def _build_accepted_canonical_lineage_demands(
             for signal in context_signals
         ]
         confidence_mean = sum(confidences) / max(1, len(confidences))
-        first_run = snapshot_metrics["first_run"]
-        latest_run = snapshot_metrics["latest_run"]
-        first_at = snapshot_metrics["first_at"]
-        latest_at = snapshot_metrics["latest_at"]
         provider_diversity = _diversity(len(providers), len(all_providers) or 1)
         query_diversity = _diversity(
             len(query_families), len(all_query_families) or 1
@@ -2776,7 +2770,7 @@ def _build_accepted_canonical_lineage_demands(
                 demand_strength_score=score,
                 evidence_record_count=len(evidence),
                 unique_doi_count=len(dois),
-                record_occurrence_count=snapshot_metrics["occurrence_count"],
+                record_occurrence_count=snapshot_occurrence_count,
                 provider_count=len(providers),
                 providers_seen="|".join(providers),
                 provider_diversity_score=round(provider_diversity, 6),
