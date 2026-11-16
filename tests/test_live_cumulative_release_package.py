@@ -15,6 +15,8 @@ from types import SimpleNamespace
 
 import pytest
 
+from src.scientific_sources.schema_v2_identity import make_decision_content_hash
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 _PACKAGE_SPEC = importlib.util.spec_from_file_location(
@@ -308,6 +310,21 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
             "source_provenance_ids": source_provenance_id,
             "superseded_validation_decision_id": "",
     }
+    validation_decision["decision_content_sha256"] = make_decision_content_hash(
+        validation_decision_id=str(validation_decision["validation_decision_id"]),
+        decision_status=str(validation_decision["decision_status"]),
+        target_candidate_id=str(validation_decision["target_candidate_id"]),
+        canonical_label=str(validation_decision["canonical_label"]),
+        reviewer_identifier=str(validation_decision["reviewer"]),
+        decision_rationale=str(validation_decision["decision_reason"]),
+        decision_at_utc=str(validation_decision["decision_at_utc"]),
+        evidence_ids=str(validation_decision["evidence_ids"]),
+        fragment_ids=str(validation_decision["fragment_ids"]),
+        source_provenance_ids=str(validation_decision["source_provenance_ids"]),
+        superseded_validation_decision_id=str(
+            validation_decision["superseded_validation_decision_id"]
+        ),
+    )
     canonical_competence: dict[str, object] = {
             "canonical_competence_id": "",
             "validation_decision_id": "decision:test",

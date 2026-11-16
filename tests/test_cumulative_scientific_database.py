@@ -3564,8 +3564,8 @@ def test_deficit_statement_is_retained_as_review_required_demand_signal(
         current,
         [
             {
-                "title": "Ports lack digital skills for automation",
-                "abstract": "Ports lack digital skills for safe automation.",
+                "title": "Port operators lack digital skills for automation",
+                "abstract": "Port operators lack digital skills for safe automation.",
                 "doi": "10.1000/deficit-digital-skills",
                 "provider": "Crossref",
                 "source_query": "digital port skills",

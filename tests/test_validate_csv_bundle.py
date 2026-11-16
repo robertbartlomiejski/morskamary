@@ -11,6 +11,8 @@ import sys
 from pathlib import Path
 from typing import Any, cast
 
+from src.scientific_sources.schema_v2_identity import make_decision_content_hash
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR_PATH = REPO_ROOT / "scripts" / "validate_csv_bundle.py"
@@ -154,6 +156,21 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
         "source_provenance_ids": provenance_id,
         "superseded_validation_decision_id": "",
     }
+    decision["decision_content_sha256"] = make_decision_content_hash(
+        validation_decision_id=str(decision["validation_decision_id"]),
+        decision_status=str(decision["decision_status"]),
+        target_candidate_id=str(decision["target_candidate_id"]),
+        canonical_label=str(decision["canonical_label"]),
+        reviewer_identifier=str(decision["reviewer"]),
+        decision_rationale=str(decision["decision_reason"]),
+        decision_at_utc=str(decision["decision_at_utc"]),
+        evidence_ids=str(decision["evidence_ids"]),
+        fragment_ids=str(decision["fragment_ids"]),
+        source_provenance_ids=str(decision["source_provenance_ids"]),
+        superseded_validation_decision_id=str(
+            decision["superseded_validation_decision_id"]
+        ),
+    )
     canonical: dict[str, object] = {
         "canonical_competence_id": "",
         "validation_decision_id": decision["validation_decision_id"],
@@ -538,9 +555,29 @@ def test_cli_rejects_nonrequired_evidence_record_field_mismatch(
 
 
 def test_projection_accepts_equivalent_csv_and_jsonl_scalar_types() -> None:
+    required = _fields_for("evidence_records")
+    csv_row: dict[str, object] = {field: "fixture" for field in required}
+    csv_row.update(
+        {
+            "evidence_id": "E-0001",
+            "provider_count": "1",
+            "citation_count": "2",
+            "record_recurrence_count": "3",
+            "year": "2026",
+        }
+    )
+    jsonl_row = dict(csv_row)
+    jsonl_row.update(
+        {
+            "provider_count": 1,
+            "citation_count": 2,
+            "record_recurrence_count": 3,
+            "year": 2026,
+        }
+    )
     errors = _VALIDATOR._validate_evidence_record_projection(  # type: ignore[attr-defined]
-        {"evidence_records.csv": [{"evidence_id": "E-0001", "record_recurrence_count": "1"}]},
-        {"evidence_records.jsonl": [{"evidence_id": "E-0001", "record_recurrence_count": 1}]},
+        {"evidence_records.csv": [csv_row]},
+        {"evidence_records.jsonl": [jsonl_row]},
         {"evidence_records.csv": [2]},
         {"evidence_records.jsonl": [1]},
     )

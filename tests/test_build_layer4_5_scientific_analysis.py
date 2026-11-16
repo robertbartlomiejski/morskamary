@@ -152,10 +152,10 @@ def test_cli_emits_accepted_canonical_hydronization_lineage_demand(
         current_run / "research_sources" / "live_records.json",
         [
             {
-                "title": "Water governance competence needs in desalination",
+                "title": "Hydrosocial competence needs in desalination",
                 "abstract": (
-                    "Desalination operators need governance competence for "
-                    "hydrosocial water justice."
+                    "Desalination operators need hydrosocial competence for "
+                    "water retention."
                 ),
                 "doi": "10.1000/accepted-hydronization-lineage",
                 "source_id": "crossref:accepted-hydronization-lineage",
@@ -176,7 +176,7 @@ def test_cli_emits_accepted_canonical_hydronization_lineage_demand(
         row
         for row in initial.competence_candidates
         if row.axis_group == "HYDRONIZATION"
-        and row.candidate_label.lower() == "governance"
+        and row.candidate_label.lower() == "competence"
     )
 
     validated = build_cumulative_scientific_database(

@@ -754,9 +754,9 @@ def test_classify_sentence_contexts_marks_no_keyword_sentences_unclassified() ->
 
     assert len(analysis) == 1
     assert analysis[0]["axis"] == "UNCLASSIFIED"
-    assert analysis[0]["classification"] == "UNCLASSIFIED_REVIEW_REQUIRED__NO_SIGNAL"
+    assert analysis[0]["classification"] == "UNCLASSIFIED_REVIEW_REQUIRED__BOUNDARY_THRESHOLD"
     assert analysis[0]["matched_qmbd_axes"] == []
-    assert analysis[0]["uncertainty_typology"] == "no_signal"
+    assert analysis[0]["uncertainty_typology"] == "boundary_threshold"
 
 
 def test_classify_sentence_contexts_unknown_typology_does_not_expand_label() -> None:

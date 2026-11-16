@@ -145,7 +145,7 @@ class TestAxisClassifier:
     def test_classify_context_collects_keyword_matches(self):
         """Matched keywords should be included in classify_context output."""
         classifier = AxisClassifier()
-        result = classifier.classify_context("Hydrosocial governance transitions.")
+        result = classifier.classify_context("Hydrosocial transitions.")
         assert result["axis"] == BlueDynamicsAxis.HYDRONIZATION.name
         assert "hydrosocial" in result["matched_keywords"]
 

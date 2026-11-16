@@ -156,6 +156,7 @@ def _accepted_canonical_lineage_rows() -> Dict[str, List[Dict[str, Any]]]:
                 "evidence_id": evidence_id,
                 "run_id": "RUN-HYDRO-001",
                 "source_provenance_id": provenance_id,
+                "source_provider": "crossref",
                 "source_retrieved_at_utc": "2026-07-01T00:00:00+00:00",
             }
         ],
@@ -1723,7 +1724,7 @@ def test_layer4_rejects_mutated_decision_snapshot_with_stale_content_hash(
     rows = _accepted_canonical_lineage_rows()
     decision = rows["validation_decisions"][0]
     original_hash = decision["decision_content_sha256"]
-    decision["fragment_ids"] = "fragment:" + "f" * 64
+    decision["decision_reason"] = "Mutated after the accepted review snapshot."
     decision["decision_content_sha256"] = original_hash
 
     with pytest.raises(
