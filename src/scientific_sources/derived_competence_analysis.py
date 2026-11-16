@@ -2581,12 +2581,12 @@ def _build_accepted_canonical_lineage_demands(
             )
         lineage_reviewed_decisions: List[Mapping[str, Any]] = []
         for decision_id in decision_ids:
-            reviewed_decision = decisions_by_id.get(decision_id)
-            if reviewed_decision is None:
+            current_reviewed_decision = decisions_by_id.get(decision_id)
+            if current_reviewed_decision is None:
                 raise DerivedAnalysisError(
                     "accepted canonical lineage assignment is missing its reviewed decision"
                 )
-            lineage_reviewed_decisions.append(reviewed_decision)
+            lineage_reviewed_decisions.append(current_reviewed_decision)
         context_signals = [
             signal
             for _assignment, selected_signals in components
@@ -2608,6 +2608,7 @@ def _build_accepted_canonical_lineage_demands(
             }
         )
         snapshot_parts: List[Dict[str, Any]] = []
+        snapshot_evidence_ids: Set[str] = set()
         for reviewed_decision in lineage_reviewed_decisions:
             current_decision_id = _lineage_row_id(
                 reviewed_decision, "validation_decision_id"
@@ -2627,6 +2628,18 @@ def _build_accepted_canonical_lineage_demands(
                 evidence_by_id[evidence_id]
                 for evidence_id in sorted(decision_evidence_ids)
             ]
+            decision_cutoff = _decision_cutoff_timestamp(
+                _lineage_row_id(reviewed_decision, "decision_at_utc")
+            )
+            snapshot_evidence_ids.update(
+                evidence_id
+                for evidence_id in decision_evidence_ids
+                if _timestamp_on_or_before_cutoff(
+                    evidence_by_id[evidence_id],
+                    "first_seen_at_utc",
+                    decision_cutoff,
+                )
+            )
             reviewed_fragments = [
                 fragments_by_id[fragment_id]
                 for fragment_id in sorted(
@@ -2664,6 +2677,7 @@ def _build_accepted_canonical_lineage_demands(
                 (part["latest_at"] for part in snapshot_parts if part["latest_at"]),
                 default="",
             ),
+            "occurrence_count": len(snapshot_evidence_ids),
         }
         query_families = sorted(
             {
