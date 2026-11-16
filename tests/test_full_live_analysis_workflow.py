@@ -264,3 +264,23 @@ def test_no_github_expression_in_shell_run_blocks() -> None:
     assert "${{ github." not in run_text, (
         "github.* values must be passed through env:, not interpolated in shell"
     )
+
+
+def test_checkout_state_audit_is_cleared_before_python_setup() -> None:
+    text = _text()
+    clear = text.index("Clear checkout-state audit evidence before tool setup")
+    setup = text.index("Set up Python", clear)
+    install = text.index("Install dependencies", setup)
+    assert clear < setup < install
+    block = text[clear:setup]
+    for path in (
+        "outputs/research_api_health.json",
+        "outputs/research_sources/query_execution_log.csv",
+        "outputs/research_sources/query_protocol_constraints.json",
+        "outputs/cumulative_database/novelty_gate_report.json",
+        "outputs/cumulative_database/provider_sensitivity_analysis.json",
+        "outputs/cumulative_database/validated_credential_supply_audit.json",
+        "outputs/governance/physical_attempt_budget.json",
+        "outputs/governance/physical_attempt_audit.json",
+    ):
+        assert f"rm -f {path}" in block
