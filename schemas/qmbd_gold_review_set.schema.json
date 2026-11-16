@@ -18,23 +18,59 @@
       "review_status"
     ],
     "properties": {
-      "gold_set_version": { "type": "string", "minLength": 1 },
-      "review_case_id": { "type": "string", "minLength": 1 },
+      "gold_set_version": {
+        "type": "string",
+        "minLength": 1
+      },
+      "review_case_id": {
+        "type": "string",
+        "minLength": 1
+      },
       "evidence_scope": {
         "type": "string",
-        "enum": ["title", "subject_terms", "abstract", "sentence", "full_text_fragment"]
+        "enum": [
+          "title",
+          "subject_terms",
+          "abstract",
+          "sentence",
+          "full_text_fragment"
+        ]
       },
-      "evidence_text": { "type": "string", "minLength": 1 },
-      "sector": { "type": "string", "minLength": 1 },
-      "domain": { "type": "string", "minLength": 1 },
-      "discipline": { "type": "string", "minLength": 1 },
+      "evidence_text": {
+        "type": "string",
+        "minLength": 1
+      },
+      "sector": {
+        "type": "string",
+        "minLength": 1
+      },
+      "domain": {
+        "type": "string",
+        "minLength": 1
+      },
+      "discipline": {
+        "type": "string",
+        "minLength": 1
+      },
       "proposed_axis_group": {
         "type": "string",
-        "enum": ["", "MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION"]
+        "enum": [
+          "",
+          "MARINE",
+          "MARITIME",
+          "OCEANIC",
+          "HYDRONIZATION"
+        ]
       },
       "proposed_axis_code": {
         "type": "string",
-        "enum": ["", "M", "T", "O", "H"]
+        "enum": [
+          "",
+          "M",
+          "T",
+          "O",
+          "H"
+        ]
       },
       "uncertainty_typology": {
         "type": "string",
@@ -48,12 +84,78 @@
           "discipline_dependent_meaning"
         ]
       },
-      "indicator_rule": { "type": "string", "minLength": 1 },
+      "indicator_rule": {
+        "type": "string",
+        "minLength": 1
+      },
       "review_status": {
         "type": "string",
-        "enum": ["proposed", "reviewed", "accepted", "rejected"]
+        "enum": [
+          "proposed",
+          "reviewed",
+          "accepted",
+          "rejected"
+        ]
       },
-      "adjudication_note": { "type": "string" }
-    }
+      "adjudication_note": {
+        "type": "string"
+      }
+    },
+    "allOf": [
+      {
+        "oneOf": [
+          {
+            "properties": {
+              "proposed_axis_group": {
+                "const": ""
+              },
+              "proposed_axis_code": {
+                "const": ""
+              }
+            }
+          },
+          {
+            "properties": {
+              "proposed_axis_group": {
+                "const": "MARINE"
+              },
+              "proposed_axis_code": {
+                "const": "M"
+              }
+            }
+          },
+          {
+            "properties": {
+              "proposed_axis_group": {
+                "const": "MARITIME"
+              },
+              "proposed_axis_code": {
+                "const": "T"
+              }
+            }
+          },
+          {
+            "properties": {
+              "proposed_axis_group": {
+                "const": "OCEANIC"
+              },
+              "proposed_axis_code": {
+                "const": "O"
+              }
+            }
+          },
+          {
+            "properties": {
+              "proposed_axis_group": {
+                "const": "HYDRONIZATION"
+              },
+              "proposed_axis_code": {
+                "const": "H"
+              }
+            }
+          }
+        ]
+      }
+    ]
   }
 }
