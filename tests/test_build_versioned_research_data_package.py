@@ -1357,16 +1357,18 @@ def test_build_versioned_package_restores_previous_directory_after_failed_rebuil
     decisions[0]["decision_at_utc"] = "2026-07-07T25:00:00+00:00"
     _write_schema_v2_entity_rows(repo_root, "validation_decisions", decisions)
 
+    zip_path = output_dir / "morskamary_cumulative_evidence_v0.3.2.zip"
+    assert zip_path.exists()
+
     exit_code, stdout = _run_package(module, repo_root, output_dir, "v0.3.2")
     assert exit_code == 1
-    # The previous good package must be restored to its original path so the
-    # caller is not left without any usable artifact.
-    assert package_dir.exists(), (
-        "Previous good package was not restored after failed rebuild"
+    assert not package_dir.exists(), (
+        "Failed rebuild must not leave a previous publishable package directory"
     )
-    assert not (output_dir / "morskamary_cumulative_evidence_v0.3.2.stale").exists(), (
-        "Stale quarantine directory must not persist after restoring the previous package"
+    assert not zip_path.exists(), (
+        "Failed rebuild must not leave a previous publishable ZIP"
     )
+    assert not (output_dir / "morskamary_cumulative_evidence_v0.3.2.stale").exists()
 
 
 def test_build_versioned_package_bootstrap_creates_empty_manual_sources(
@@ -1501,3 +1503,38 @@ def test_build_versioned_package_manifest_uses_source_and_package_commit_sha(
     citation = (package_dir / "CITATION_APA.txt").read_text(encoding="utf-8")
     assert "source_abc123" in citation
     assert "Source commit" in citation
+
+
+def test_preflight_requires_supporting_evidence_record_projections(
+    tmp_path: Path,
+) -> None:
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+    (repo_root / "outputs/cumulative_database/evidence_records.jsonl").unlink()
+
+    output_dir = tmp_path / "release_out"
+    exit_code = module.main(
+        [
+            "--repo-root",
+            str(repo_root),
+            "--output-dir",
+            str(output_dir),
+            "--version-tag",
+            "v-support-required",
+            "--include-xlsx",
+            "false",
+            "--include-sav",
+            "false",
+        ]
+    )
+
+    assert exit_code == 1
+    assert not (
+        output_dir / "morskamary_cumulative_evidence_v-support-required"
+    ).exists()
+    assert not (
+        output_dir / "morskamary_cumulative_evidence_v-support-required.zip"
+    ).exists()
