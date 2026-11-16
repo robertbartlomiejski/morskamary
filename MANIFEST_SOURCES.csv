@@ -1319,6 +1319,8 @@ tests/fixtures/empty_competences.csv,dataset_derived,,,,,,empty_competences,yes
 tests/fixtures/invalid_competences.csv,dataset_derived,,,,,,invalid_competences,yes
 tests/fixtures/sample_competences.csv,dataset_derived,,,,,,sample_competences,yes
 tests/fixtures/sample_competences.xlsx,dataset_raw,,,,,,sample_competences,yes
+tests/fixtures/abrp_gold_corpus_invalid_no_action.json,other,,,,,,abrp_gold_corpus_invalid_no_action_fixture,yes
+tests/fixtures/abrp_gold_corpus_valid_phase_a.json,other,,,,,,abrp_gold_corpus_valid_phase_a_fixture,yes
 tests/test_abrp_gold_corpus_schema.py,script,,,,,,test_abrp_gold_corpus_schema,yes
 tests/test_archive_run_outputs.py,script,,,,,,test_archive_run_outputs,yes
 tests/test_axis_classifier.py,script,,,,,,test_axis_classifier,yes
