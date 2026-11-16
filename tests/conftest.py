@@ -54,7 +54,11 @@ def fixture_attempt_budget(
     reset_governor_cache()
     # Prevent unmocked unit tests from reaching scientific providers. Tests
     # needing HTTP must inject a fake or use an explicitly local loopback server.
-    real_urlopen = urllib.request.urlopen
+    class _NoTestRedirects(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            return None
+
+    test_opener = urllib.request.build_opener(_NoTestRedirects())
 
     def _test_only_urlopen(request, *args, **kwargs):
         url = request.full_url if hasattr(request, "full_url") else str(request)
@@ -63,7 +67,7 @@ def fixture_attempt_budget(
             "localhost", "127.0.0.1", "::1",
         ):
             raise AssertionError("pytest blocked unmocked external HTTP dispatch")
-        return real_urlopen(request, *args, **kwargs)
+        return test_opener.open(request, *args, **kwargs)
 
     monkeypatch.setattr(urllib.request, "urlopen", _test_only_urlopen)
     # Session-scoped provider fixtures run before function fixtures. Adapt the

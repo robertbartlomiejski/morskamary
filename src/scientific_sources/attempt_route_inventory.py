@@ -6,7 +6,9 @@ Non-literal Python subprocess paths are UNKNOWN until explicitly dispositioned.
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Iterable, List
 
@@ -95,6 +97,13 @@ def _finding_key(finding: str) -> str:
     return f"{path}|{kind}"
 
 
+def _git_blob_sha1(path: Path) -> str:
+    """Return the content-bound Git blob identity for one reviewed source file."""
+    data = path.read_bytes()
+    header = f"blob {len(data)}\0".encode("ascii")
+    return hashlib.sha1(header + data, usedforsecurity=False).hexdigest()
+
+
 def validate_route_dispositions(
     repo_root: Path,
     disposition_path: Path | None = None,
@@ -119,6 +128,7 @@ def validate_route_dispositions(
         classification = str(row.get("classification", "")).strip()
         rationale = str(row.get("rationale", "")).strip()
         provider_reachable = row.get("scientific_provider_http_reachable")
+        reviewed_blob = str(row.get("source_git_blob_sha1", "")).strip()
         if not key or key in dispositions:
             errors.append(f"invalid or duplicate disposition key at row {index}")
             continue
@@ -128,6 +138,8 @@ def validate_route_dispositions(
             errors.append(f"{key}: missing disposition rationale")
         if provider_reachable is not False:
             errors.append(f"{key}: scientific provider HTTP must be explicitly false")
+        if not re.fullmatch(r"[0-9a-f]{40}", reviewed_blob):
+            errors.append(f"{key}: missing reviewed source blob identity")
         dispositions[key] = row
 
     findings = find_unverified_network_routes(repo_root)
@@ -136,6 +148,15 @@ def validate_route_dispositions(
         key = _finding_key(finding)
         if key not in dispositions:
             errors.append(f"UNDISPOSITIONED: {finding}")
+            continue
+        source_path = repo_root / finding.split(":", 1)[0]
+        try:
+            current_blob = _git_blob_sha1(source_path)
+        except OSError:
+            errors.append(f"SOURCE_UNREADABLE: {key}")
+            continue
+        if dispositions[key].get("source_git_blob_sha1") != current_blob:
+            errors.append(f"SOURCE_CHANGED: {key}")
     for key in sorted(set(dispositions) - current_keys):
         errors.append(f"STALE_DISPOSITION: {key}")
     return sorted(set(errors))

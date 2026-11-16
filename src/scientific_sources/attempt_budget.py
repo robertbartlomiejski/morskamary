@@ -837,7 +837,16 @@ def find_ungoverned_network_routes(
                     (a.name for a in node.names if a.name in _NETWORK_MODULES), None
                 )
             elif isinstance(node, ast.ImportFrom) and node.module:
-                if node.module in _NETWORK_MODULES or node.module.split(".")[0] in {
+                imported_modules = {
+                    f"{node.module}.{alias.name}" for alias in node.names
+                }
+                direct_module = next(
+                    (name for name in imported_modules if name in _NETWORK_MODULES),
+                    None,
+                )
+                if direct_module:
+                    hit = direct_module
+                elif node.module in _NETWORK_MODULES or node.module.split(".")[0] in {
                     "requests",
                     "httpx",
                     "aiohttp",
