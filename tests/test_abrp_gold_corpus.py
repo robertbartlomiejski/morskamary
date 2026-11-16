@@ -110,6 +110,42 @@ def test_pilot_v7_seed_is_exactly_24_non_gold_title_cases() -> None:
     assert validate_pilot_seed(PILOT_SEED, PILOT_META) == []
 
 
+def _valid_qmbd_gold_row(group: str, code: str) -> dict[str, str]:
+    return {
+        "gold_set_version": "v1",
+        "review_case_id": "R-1",
+        "evidence_scope": "title",
+        "evidence_text": "Example evidence",
+        "sector": "maritime_transport",
+        "domain": "governance",
+        "discipline": "sociology",
+        "proposed_axis_group": group,
+        "proposed_axis_code": code,
+        "uncertainty_typology": "boundary_threshold",
+        "indicator_rule": "explicit test fixture",
+        "review_status": "reviewed",
+        "adjudication_note": "",
+    }
+
+
+@pytest.mark.parametrize(
+    ("group", "code"),
+    [
+        ("", ""),
+        ("MARINE", "M"),
+        ("MARITIME", "T"),
+        ("OCEANIC", "O"),
+        ("HYDRONIZATION", "H"),
+    ],
+)
+def test_qmbd_gold_schema_accepts_only_canonical_axis_pairs(
+    group: str, code: str
+) -> None:
+    schema = json.loads(QMBD_SCHEMA.read_text(encoding="utf-8"))
+    validator = Draft202012Validator(schema)
+    assert list(validator.iter_errors([_valid_qmbd_gold_row(group, code)])) == []
+
+
 @pytest.mark.parametrize(
     ("group", "code"),
     [
@@ -117,6 +153,8 @@ def test_pilot_v7_seed_is_exactly_24_non_gold_title_cases() -> None:
         ("MARITIME", "O"),
         ("OCEANIC", "H"),
         ("HYDRONIZATION", "M"),
+        ("", "M"),
+        ("MARINE", ""),
     ],
 )
 def test_qmbd_gold_schema_rejects_contradictory_axis_pairs(
@@ -124,10 +162,5 @@ def test_qmbd_gold_schema_rejects_contradictory_axis_pairs(
 ) -> None:
     schema = json.loads(QMBD_SCHEMA.read_text(encoding="utf-8"))
     validator = Draft202012Validator(schema)
-    row = {
-        "review_task_id": "R-1",
-        "competence_demand_id": "cd-1",
-        "proposed_axis_group": group,
-        "proposed_axis_code": code,
-    }
-    assert list(validator.iter_errors([row]))
+    errors = list(validator.iter_errors([_valid_qmbd_gold_row(group, code)]))
+    assert errors, "contradictory group/code pair unexpectedly validated"
