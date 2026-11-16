@@ -167,7 +167,7 @@ def _normalise_page_diagnostics(
             numeric_valid = True
             for field in required_fields[:-1]:
                 value = row.get(field)
-                if isinstance(value, bool):
+                if value is None or isinstance(value, bool):
                     numeric_valid = False
                     break
                 try:
