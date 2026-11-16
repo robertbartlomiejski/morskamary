@@ -1,0 +1,87 @@
+name: ABRP Gold Corpus Governance
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  require-current-head-approval:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Require one non-author approval for governed gold-corpus changes
+        shell: python
+        run: |
+          import json
+          import os
+          import urllib.request
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          pr = os.environ["PR_NUMBER"]
+          author = os.environ["PR_AUTHOR"]
+          head = os.environ["HEAD_SHA"]
+          token = os.environ["GH_TOKEN"]
+
+          protected_prefixes = (
+              "schemas/abrp_gold_corpus.schema.json",
+              "data/gold_corpus/",
+              "docs/review_templates/abrp_",
+              "scripts/validate_abrp_gold_corpus.py",
+          )
+
+          def get(path):
+              request = urllib.request.Request(
+                  f"https://api.github.com/repos/{repo}{path}",
+                  headers={
+                      "Authorization": f"Bearer {token}",
+                      "Accept": "application/vnd.github+json",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                  },
+              )
+              with urllib.request.urlopen(request, timeout=20) as response:
+                  return json.load(response)
+
+          files = get(f"/pulls/{pr}/files?per_page=100")
+          protected = [
+              row["filename"]
+              for row in files
+              if any(
+                  row["filename"] == prefix
+                  or row["filename"].startswith(prefix)
+                  for prefix in protected_prefixes
+              )
+          ]
+          if not protected:
+              print("No governed gold-corpus paths changed; approval gate not applicable.")
+              raise SystemExit(0)
+
+          reviews = get(f"/pulls/{pr}/reviews?per_page=100")
+          latest = {}
+          for review in reviews:
+              user = (review.get("user") or {}).get("login", "")
+              if not user or user == author:
+                  continue
+              latest[user] = review
+
+          approvals = [
+              user
+              for user, review in latest.items()
+              if review.get("state") == "APPROVED"
+              and review.get("commit_id") == head
+          ]
+          if not approvals:
+              raise SystemExit(
+                  "Governed ABRP/gold-corpus change requires one non-author "
+                  "APPROVED review anchored to current HEAD."
+              )
+          print("Current-head governance approval(s):", ", ".join(sorted(approvals)))
