@@ -537,18 +537,15 @@ def test_cli_rejects_nonrequired_evidence_record_field_mismatch(
     ) in completed.stderr
 
 
-def test_projection_rejects_type_mismatch_even_when_values_stringify_equally() -> None:
+def test_projection_accepts_equivalent_csv_and_jsonl_scalar_types() -> None:
     errors = _VALIDATOR._validate_evidence_record_projection(  # type: ignore[attr-defined]
-        {"evidence_records.csv": [{"evidence_id": "E-0001", "record_recurrence_count": 1}]},
-        {"evidence_records.jsonl": [{"evidence_id": "E-0001", "record_recurrence_count": "1"}]},
+        {"evidence_records.csv": [{"evidence_id": "E-0001", "record_recurrence_count": "1"}]},
+        {"evidence_records.jsonl": [{"evidence_id": "E-0001", "record_recurrence_count": 1}]},
         {"evidence_records.csv": [2]},
         {"evidence_records.jsonl": [1]},
     )
 
-    assert (
-        "evidence_records_cross_projection_type_mismatch:"
-        "record_recurrence_count:csv:L2:jsonl:L1"
-    ) in errors
+    assert errors == []
 
 
 def test_validate_csv_bundle_importable_as_module(tmp_path: Path) -> None:
