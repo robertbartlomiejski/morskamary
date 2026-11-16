@@ -414,18 +414,40 @@ hypotheses:
   H1:
     label: Custom H1
     test: custom test 1
-    declared_outcomes: [supported_maritime_dominance, partially_supported_maritime, not_supported, not_computable]
-    required_result_fields: [hypothesis_id, hypothesis_label, sample_size_maritime, sample_size_oceanic, effect_size_cohens_d, interpretation]
+    declared_outcomes:
+      - supported_maritime_dominance
+      - partially_supported_maritime
+      - not_supported
+      - not_computable
+    required_result_fields:
+      - hypothesis_id
+      - hypothesis_label
+      - sample_size_maritime
+      - sample_size_oceanic
+      - effect_size_cohens_d
+      - interpretation
   H2:
     label: Custom H2
     test: custom test 2
     declared_outcomes: [supported, partially_supported, not_supported, not_computable]
-    required_result_fields: [hypothesis_id, hypothesis_label, hydronization_demand_count, validated_covered_demand_count, validated_missing_demand_count, interpretation]
+    required_result_fields:
+      - hypothesis_id
+      - hypothesis_label
+      - hydronization_demand_count
+      - validated_covered_demand_count
+      - validated_missing_demand_count
+      - interpretation
   H3:
     label: Custom H3
     test: custom test 3
     declared_outcomes: [supported, partially_supported, not_supported, not_computable]
-    required_result_fields: [hypothesis_id, hypothesis_label, marine_fragment_count, oceanic_fragment_count, semantic_bridge_count, interpretation]
+    required_result_fields:
+      - hypothesis_id
+      - hypothesis_label
+      - marine_fragment_count
+      - oceanic_fragment_count
+      - semantic_bridge_count
+      - interpretation
 """.strip()
         + "\n",
         encoding="utf-8",
