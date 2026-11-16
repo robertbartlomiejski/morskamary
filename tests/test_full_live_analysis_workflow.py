@@ -264,3 +264,21 @@ def test_no_github_expression_in_shell_run_blocks() -> None:
     assert "${{ github." not in run_text, (
         "github.* values must be passed through env:, not interpolated in shell"
     )
+
+
+def test_always_uploaded_audit_files_are_cleared_immediately_after_checkout() -> None:
+    text = _text()
+    checkout = text.index("- name: Checkout")
+    cleanup = text.index("Clear tracked current-run audit files before fallible setup")
+    setup = text.index("- name: Set up Python", cleanup)
+    assert checkout < cleanup < setup
+    cleanup_block = text[cleanup:setup]
+    for path in (
+        "outputs/research_api_health.json",
+        "outputs/research_sources/query_execution_log.csv",
+        "outputs/research_sources/query_protocol_constraints.json",
+        "outputs/cumulative_database/novelty_gate_report.json",
+        "outputs/cumulative_database/provider_sensitivity_analysis.json",
+        "outputs/cumulative_database/validated_credential_supply_audit.json",
+    ):
+        assert f"rm -f {path}" in cleanup_block

@@ -19,3 +19,13 @@ def test_export_workflow_preflight_scopes_to_requested_providers() -> None:
     assert "python scripts/check_research_api_health.py" in WORKFLOW_TEXT
     assert '--providers "${{ github.event.inputs.providers }}"' in WORKFLOW_TEXT
     assert "--require-valid" in WORKFLOW_TEXT
+
+
+def test_openalex_export_requires_configured_protected_key() -> None:
+    assert "OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}" in WORKFLOW_TEXT
+    preflight = WORKFLOW_TEXT[
+        WORKFLOW_TEXT.index("Research API preflight health check") :
+        WORKFLOW_TEXT.index("Export live research records")
+    ]
+    assert "--require-configured" in preflight
+    assert "--require-valid" in preflight

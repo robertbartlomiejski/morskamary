@@ -282,19 +282,20 @@ def test_missing_required_input_fails_closed(tmp_path: Path) -> None:
         _build(tmp_path, paths)
 
 
-def test_empty_required_jsonl_and_csv_inputs_fail_closed(tmp_path: Path) -> None:
+def test_empty_signals_and_demands_are_valid_not_computable_inputs(
+    tmp_path: Path,
+) -> None:
     paths = _fixture(tmp_path)
     paths["signals"].write_text("", encoding="utf-8")
-    with pytest.raises(ValueError, match="signals file contains no rows"):
-        _build(tmp_path, paths)
-
-    paths = _fixture(tmp_path)
     paths["demands"].write_text(
         "competence_demand_id,competence_label,sector,axis_group\n",
         encoding="utf-8",
     )
-    with pytest.raises(ValueError, match="derived demands file contains no rows"):
-        _build(tmp_path, paths)
+    result = _build(tmp_path, paths)
+    baseline = result["subsets"]["all_canonical"]
+    assert baseline["derived_demand_count"] == 0
+    assert baseline["h1"]["interpretation"] == "not_computable"
+    assert baseline["h2"]["interpretation"] == "not_computable"
 
 
 def test_empty_hypothesis_fragments_produces_not_computable(tmp_path: Path) -> None:
@@ -385,3 +386,70 @@ def test_validated_supply_changes_h2_only_with_evidence(tmp_path: Path) -> None:
     assert h2["validated_covered_demand_count"] == 1
     assert h2["validated_missing_demand_count"] == 0
     assert h2["interpretation"] == "not_supported"
+
+
+def test_query_diversity_comes_from_retained_evidence_not_signal_binding(
+    tmp_path: Path,
+) -> None:
+    paths = _fixture(tmp_path)
+    evidence_rows = [
+        json.loads(line)
+        for line in paths["evidence"].read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    for row in evidence_rows:
+        if row["evidence_id"] == "E1":
+            row["query_families_seen"] = "competence_demand|hypothesis_verification"
+        else:
+            row["query_families_seen"] = "competence_demand"
+    _write_jsonl(paths["evidence"], evidence_rows)
+    result = _build(tmp_path, paths)
+    row = next(
+        item
+        for item in result["subsets"]["all_canonical"]["top_demands"]
+        if item["competence_demand_id"] == "D-MAR-1"
+    )
+    assert row["query_families_seen"] == "competence_demand|hypothesis_verification"
+
+
+def test_hypothesis_metadata_is_bound_to_authoritative_protocol(
+    tmp_path: Path,
+) -> None:
+    paths = _fixture(tmp_path)
+    protocol = tmp_path / "protocol.yml"
+    protocol.write_text(
+        """
+hypotheses:
+  H1:
+    label: Protocol H1
+    test: Protocol H1 test
+    declared_outcomes: [supported_maritime_dominance, partially_supported_maritime, not_supported, not_computable]
+    required_result_fields: [hypothesis_id, hypothesis_label, interpretation]
+  H2:
+    label: Protocol H2
+    test: Protocol H2 test
+    declared_outcomes: [supported, partially_supported, not_supported, not_computable]
+    required_result_fields: [hypothesis_id, hypothesis_label, interpretation]
+  H3:
+    label: Protocol H3
+    test: Protocol H3 test
+    declared_outcomes: [supported, partially_supported, not_supported, not_computable]
+    required_result_fields: [hypothesis_id, hypothesis_label, interpretation]
+""".lstrip(),
+        encoding="utf-8",
+    )
+    result = sensitivity.build_provider_sensitivity_analysis(
+        evidence_path=paths["evidence"],
+        signals_path=paths["signals"],
+        derived_demands_path=paths["demands"],
+        hypothesis_fragments_path=paths["fragments"],
+        validated_supply_map_path=None,
+        output_json_path=tmp_path / "out.json",
+        output_markdown_path=tmp_path / "out.md",
+        protocol_path=protocol,
+    )
+    baseline = result["subsets"]["all_canonical"]
+    assert baseline["h1"]["hypothesis_label"] == "Protocol H1"
+    assert baseline["h1"]["test_used"] == "Protocol H1 test"
+    assert baseline["h2"]["hypothesis_label"] == "Protocol H2"
+    assert baseline["h3"]["hypothesis_label"] == "Protocol H3"
