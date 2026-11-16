@@ -1,11 +1,12 @@
 """Conservative second-pass route inventory for MOR-26 G2 evidence.
 
 This is a risk inventory, not a proof that all network routes are governed.
-Non-literal Python subprocess paths are UNKNOWN and must not be marked safe.
+Non-literal Python subprocess paths are UNKNOWN until explicitly dispositioned.
 """
 from __future__ import annotations
 
 import ast
+import json
 from pathlib import Path
 from typing import Iterable, List
 
@@ -15,6 +16,13 @@ _PROCESS_NAMES = {
     "getoutput", "getstatusoutput",
 }
 _NETWORK_TOOLS = {"curl", "wget", "nc", "telnet", "ssh", "ftp", "pip"}
+_ALLOWED_DISPOSITIONS = {
+    "NON_NETWORK_LOCAL_PROCESS",
+    "NON_PROVIDER_SCM_NETWORK",
+    "TEST_ONLY",
+    "EXPLICITLY_BLOCKED_IN_LIVE",
+    "NON_NETWORK_LOCAL_IMPORT",
+}
 
 
 def find_unverified_network_routes(
@@ -79,3 +87,55 @@ def find_unverified_network_routes(
                 if not isinstance(node.args[0], ast.Constant):
                     findings.append(f"{rel}:{node.lineno} UNVERIFIED dynamic import")
     return sorted(set(findings))
+
+
+def _finding_key(finding: str) -> str:
+    path, rest = finding.split(":", 1)
+    _, kind = rest.split(" ", 1)
+    return f"{path}|{kind}"
+
+
+def validate_route_dispositions(
+    repo_root: Path,
+    disposition_path: Path | None = None,
+) -> List[str]:
+    """Fail closed unless every current conservative finding is explicitly reviewed."""
+    path = disposition_path or repo_root / "config" / "mor26_route_dispositions.json"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        return [f"route disposition manifest unavailable: {type(exc).__name__}"]
+    rows = payload.get("dispositions") if isinstance(payload, dict) else None
+    if not isinstance(rows, list):
+        return ["route disposition manifest must contain a dispositions list"]
+
+    dispositions = {}
+    errors: List[str] = []
+    for index, row in enumerate(rows, start=1):
+        if not isinstance(row, dict):
+            errors.append(f"disposition row {index} must be an object")
+            continue
+        key = str(row.get("key", "")).strip()
+        classification = str(row.get("classification", "")).strip()
+        rationale = str(row.get("rationale", "")).strip()
+        provider_reachable = row.get("scientific_provider_http_reachable")
+        if not key or key in dispositions:
+            errors.append(f"invalid or duplicate disposition key at row {index}")
+            continue
+        if classification not in _ALLOWED_DISPOSITIONS:
+            errors.append(f"{key}: invalid disposition classification")
+        if not rationale:
+            errors.append(f"{key}: missing disposition rationale")
+        if provider_reachable is not False:
+            errors.append(f"{key}: scientific provider HTTP must be explicitly false")
+        dispositions[key] = row
+
+    findings = find_unverified_network_routes(repo_root)
+    current_keys = {_finding_key(item) for item in findings}
+    for finding in findings:
+        key = _finding_key(finding)
+        if key not in dispositions:
+            errors.append(f"UNDISPOSITIONED: {finding}")
+    for key in sorted(set(dispositions) - current_keys):
+        errors.append(f"STALE_DISPOSITION: {key}")
+    return sorted(set(errors))

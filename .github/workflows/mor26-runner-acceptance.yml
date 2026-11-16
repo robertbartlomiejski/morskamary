@@ -7,12 +7,71 @@ on:
       - "src/scientific_sources/attempt_*"
       - "scripts/mor26_runner_fixture.py"
       - "sql/mor26_private_attempt_ledger.sql"
+      - "config/mor26_route_dispositions.json"
+      - "tests/test_mor26_security_contract.py"
       - ".github/workflows/mor26-runner-acceptance.yml"
 
 permissions:
   contents: read
 
 jobs:
+  route-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Prove every conservative dynamic-route finding is dispositioned
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+          from src.scientific_sources.attempt_route_inventory import (
+              find_unverified_network_routes,
+              validate_route_dispositions,
+          )
+          root = Path(".").resolve()
+          findings = find_unverified_network_routes(root)
+          errors = validate_route_dispositions(root)
+          payload = {"findings": findings, "errors": errors}
+          Path("mor26-route-audit.json").write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          if errors:
+              raise SystemExit("\n".join(errors))
+          print(f"MOR-26 route audit: PASS ({len(findings)} reviewed findings)")
+      - uses: actions/upload-artifact@v4
+        with:
+          name: route-audit
+          path: mor26-route-audit.json
+
+  outage-fail-closed:
+    runs-on: ubuntu-latest
+    env:
+      MOR26_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.MOR26_HEAD }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e . "psycopg[binary]==3.3.9"
+      - name: Prove unavailable PostgreSQL fails closed before fake transport
+        run: |
+          python scripts/mor26_runner_fixture.py --phase outage \
+            --acquisition-id "mor26-${{ github.run_id }}" \
+            --head "$MOR26_HEAD" --output "$RUNNER_TEMP/outage.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mor26-evidence-outage
+          path: ${{ runner.temp }}/outage.json
+
   runner-a:
     if: >-
       ${{ vars.MOR26_ACCEPTANCE_ENABLED == 'true' &&
@@ -33,14 +92,14 @@ jobs:
         with:
           python-version: "3.11"
       - run: python -m pip install -e . "psycopg[binary]==3.3.9"
-      - name: Reserve K=3 on runner A; seed N=1 race authorization
+      - name: Reserve K=3 on runner A; seed N=1 race and provider-ceiling authorization
         run: |
           python scripts/mor26_runner_fixture.py --phase seed-a \
             --acquisition-id "mor26-${{ github.run_id }}" \
             --head "$MOR26_HEAD" --output "$RUNNER_TEMP/runner-a.json"
       - uses: actions/upload-artifact@v4
         with:
-          name: mor26-a
+          name: mor26-evidence-a
           path: ${{ runner.temp }}/runner-a.json
 
   runner-b:
@@ -66,7 +125,7 @@ jobs:
             --head "$MOR26_HEAD" --output "$RUNNER_TEMP/runner-b.json"
       - uses: actions/upload-artifact@v4
         with:
-          name: mor26-b
+          name: mor26-evidence-b
           path: ${{ runner.temp }}/runner-b.json
 
   race:
@@ -97,19 +156,45 @@ jobs:
             --output "$RUNNER_TEMP/race-${{ matrix.rival }}.json"
       - uses: actions/upload-artifact@v4
         with:
-          name: mor26-race-${{ matrix.rival }}
+          name: mor26-evidence-race-${{ matrix.rival }}
           path: ${{ runner.temp }}/race-${{ matrix.rival }}.json
 
+  provider-ceiling:
+    needs: [runner-a]
+    environment: mor26-acceptance
+    runs-on: ubuntu-latest
+    env:
+      MOR26_ACCEPTANCE_RUNTIME_DSN: ${{ secrets.MOR26_ACCEPTANCE_RUNTIME_DSN }}
+      MOR26_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.MOR26_HEAD }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e . "psycopg[binary]==3.3.9"
+      - name: Enforce provider ceiling before fake transport
+        run: |
+          python scripts/mor26_runner_fixture.py --phase provider \
+            --acquisition-id "mor26-${{ github.run_id }}" \
+            --head "$MOR26_HEAD" --output "$RUNNER_TEMP/provider.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mor26-evidence-provider
+          path: ${{ runner.temp }}/provider.json
+
   verify:
-    needs: [runner-b, race]
+    needs: [runner-b, race, provider-ceiling, outage-fail-closed, route-audit]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: mor26-*
+          pattern: mor26-evidence-*
           path: mor26-evidence
           merge-multiple: true
-      - name: Validate atomic N-K/N+1 and N-1 race without HTTP
+      - name: Validate atomic N-K/N+1, N-1 race, provider ceiling and outage fail-closed
         shell: python
         run: |
           import glob
@@ -118,18 +203,25 @@ jobs:
               json.load(open(p, encoding="utf-8"))
               for p in glob.glob("mor26-evidence/*.json")
           ]
-          assert len(docs) == 4
+          assert len(docs) == 6
           a = next(d for d in docs if d["phase"] == "seed-a")
           b = next(d for d in docs if d["phase"] == "b")
           race = [d for d in docs if d["phase"] == "race"]
+          provider = next(d for d in docs if d["phase"] == "provider")
+          outage = next(d for d in docs if d["phase"] == "outage")
           assert a["reserved_total"] == 3 and a["fake_dispatches"] == 3
           assert b["before"] == 3 and b["reserved_total"] == 7
           assert b["fake_dispatches"] == 4 and b["attempt_n_plus_1_denied"]
           assert len(race) == 2
           assert sum(d["fake_dispatches"] for d in race) == 1
+          assert provider["reserved_total"] == 1
+          assert provider["fake_dispatches"] == 1
+          assert provider["provider_ceiling_denied"] is True
+          assert outage["fake_dispatches"] == 0
+          assert outage["unavailable_store_denied"] is True
           assert len({d["commit_sha"] for d in docs}) == 1
-          assert len({d["github_job"] for d in docs}) >= 3
-          print("MOR-26 ACCEPTANCE: PASS (no provider HTTP)")
+          assert len({d["github_job"] for d in docs}) >= 5
+          print("MOR-26 ACCEPTANCE: PASS (no scientific-provider HTTP)")
       - uses: actions/upload-artifact@v4
         with:
           name: mor26-independent-runner-sanitized-evidence

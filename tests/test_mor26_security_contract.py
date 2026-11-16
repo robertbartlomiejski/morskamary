@@ -9,6 +9,7 @@ from src.scientific_sources.attempt_audit_validator import verify_audit_file
 from src.scientific_sources.attempt_postgres_ledger import PostgresAttemptLedger
 from src.scientific_sources.attempt_route_inventory import (
     find_unverified_network_routes,
+    validate_route_dispositions,
 )
 
 
@@ -108,3 +109,27 @@ def test_valid_sanitized_audit_accepted(tmp_path):
     file = tmp_path / "ok.json"
     file.write_text(json.dumps(_audit(tmp_path)), encoding="utf-8")
     assert verify_audit_file(file) == []
+
+
+def test_repository_dynamic_routes_are_fully_dispositioned():
+    repo_root = Path(__file__).resolve().parents[1]
+    errors = validate_route_dispositions(repo_root)
+    assert errors == []
+
+
+def test_route_disposition_manifest_fails_closed_on_unknown_finding(tmp_path):
+    (tmp_path / "src").mkdir()
+    (tmp_path / "config").mkdir()
+    (tmp_path / "src" / "route.py").write_text(
+        "import subprocess\nsubprocess.run(argv)\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "config" / "mor26_route_dispositions.json").write_text(
+        json.dumps({
+            "schema_version": "mor26_route_dispositions/1",
+            "dispositions": [],
+        }),
+        encoding="utf-8",
+    )
+    errors = validate_route_dispositions(tmp_path)
+    assert any(item.startswith("UNDISPOSITIONED:") for item in errors)
