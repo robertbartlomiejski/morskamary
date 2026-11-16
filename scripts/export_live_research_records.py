@@ -59,7 +59,10 @@ from src.scientific_sources.models import (  # noqa: E402
     ProviderResult,
     SourceEvidence,
 )
-from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
+from src.scientific_sources.source_registry import (  # noqa: E402
+    ProviderBatchBudgetStop,
+    SourceRegistry,
+)
 from src.scientific_sources.live_query_protocol import (  # noqa: E402
     LiveQueryProtocolError,
     load_live_query_protocol,
