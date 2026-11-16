@@ -196,7 +196,9 @@ def test_live_provenance_allow_list_remains_fail_closed() -> None:
         module._is_live_like_record({"record_origin": "dynamic_api_crossref"}) is True
     )
     assert module._is_live_like_record({"record_origin": "live-crossref"}) is True
+    assert module._is_live_like_record({"record_origin": "LIVE_API"}) is True
     assert module._is_live_like_record({"source_id": "crossref:10.1000/test"}) is True
+    assert module._is_live_like_record({"source_id": "graph:item-1"}) is True
 
 
 def test_build_comparability_fingerprint_matches_only_for_same_payload() -> None:
@@ -614,3 +616,28 @@ def test_parse_args_none_honours_real_sys_argv(monkeypatch, tmp_path: Path) -> N
 
     assert args.output_path == str(output_path)
     assert args.jaccard_threshold == 0.99
+
+
+def test_empty_derived_contributor_profile_is_unavailable(tmp_path: Path) -> None:
+    module = _load_module()
+    run_dir = tmp_path / "run"
+    log = run_dir / module.QUERY_EXECUTION_LOG_REL
+    log.parent.mkdir(parents=True)
+    with log.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=[
+                "provider_canonical",
+                "contributed_record_count",
+                "normalized_record_count",
+            ],
+        )
+        writer.writeheader()
+        writer.writerow({
+            "provider_canonical": "crossref",
+            "contributed_record_count": "0",
+            "normalized_record_count": "0",
+        })
+    profile, available = module._derive_contributing_provider_profile(run_dir, {})
+    assert profile == []
+    assert available is False
