@@ -1,8 +1,11 @@
 -- MOR-26: apply once using a private, privileged PostgreSQL migration role.
 -- Do NOT expose this schema via a public REST API or grant anon access.
--- Runtime roles require USAGE on schema, SELECT on authorizations,
--- SELECT/INSERT on attempts and refusals, UPDATE(status,outcome,http_status,
--- completed_at) on attempts. Never grant runtime DELETE or authorization INSERT.
+-- Runtime roles require USAGE on schema; SELECT plus column-level
+-- UPDATE(acquisition_id) on authorizations so SELECT ... FOR UPDATE may lock
+-- the row (the immutable trigger rejects any actual UPDATE); SELECT/INSERT on
+-- attempts, refusals and rendezvous; and
+-- UPDATE(status,outcome,http_status,completed_at) on attempts.
+-- Never grant runtime DELETE or authorization INSERT.
 CREATE SCHEMA IF NOT EXISTS mor26_private;
 
 CREATE TABLE IF NOT EXISTS mor26_private.authorizations (
@@ -50,6 +53,16 @@ CREATE TABLE IF NOT EXISTS mor26_private.refusals (
     refused_at text NOT NULL,
     global_count integer NOT NULL,
     provider_count integer NOT NULL,
+    FOREIGN KEY(acquisition_id,budget_id)
+        REFERENCES mor26_private.authorizations(acquisition_id,budget_id)
+);
+
+CREATE TABLE IF NOT EXISTS mor26_private.rendezvous (
+    acquisition_id text NOT NULL,
+    budget_id text NOT NULL,
+    contender text NOT NULL,
+    reached_at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY(acquisition_id,budget_id,contender),
     FOREIGN KEY(acquisition_id,budget_id)
         REFERENCES mor26_private.authorizations(acquisition_id,budget_id)
 );

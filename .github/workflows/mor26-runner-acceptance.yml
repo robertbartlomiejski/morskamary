@@ -10,7 +10,6 @@ on:
       - "config/mor26_route_dispositions.json"
       - "tests/test_mor26_security_contract.py"
       - ".github/workflows/mor26-runner-acceptance.yml"
-      - ".coderabbit.yaml"
 
 permissions:
   contents: read
@@ -20,9 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PYTHONPATH: ${{ github.workspace }}
+      MOR26_HEAD: ${{ github.event.pull_request.head.sha }}
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ env.MOR26_HEAD }}
           persist-credentials: false
       - uses: actions/setup-python@v6
         with:
@@ -39,7 +40,12 @@ jobs:
           root = Path(".").resolve()
           findings = find_unverified_network_routes(root)
           errors = validate_route_dispositions(root)
-          payload = {"findings": findings, "errors": errors}
+          payload = {
+              "schema": "mor26_route_audit/2",
+              "commit_sha": "${{ env.MOR26_HEAD }}",
+              "findings": findings,
+              "errors": errors,
+          }
           Path("mor26-route-audit.json").write_text(
               json.dumps(payload, indent=2, sort_keys=True) + "\n",
               encoding="utf-8",
@@ -152,6 +158,8 @@ jobs:
           python-version: "3.11"
       - run: python -m pip install -e . "psycopg[binary]==3.3.9"
       - name: Race for a single remaining physical attempt
+        env:
+          MOR26_RACE_CONTENDER: ${{ matrix.rival }}
         run: |
           python scripts/mor26_runner_fixture.py --phase race \
             --acquisition-id "mor26-${{ github.run_id }}" \
@@ -216,6 +224,8 @@ jobs:
           assert b["before"] == 3 and b["reserved_total"] == 7
           assert b["fake_dispatches"] == 4 and b["attempt_n_plus_1_denied"]
           assert len(race) == 2
+          assert all(d["rendezvous_count"] == 2 for d in race)
+          assert all(d["before"] == 0 for d in race)
           assert sum(d["fake_dispatches"] for d in race) == 1
           assert provider["reserved_total"] == 1
           assert provider["fake_dispatches"] == 1

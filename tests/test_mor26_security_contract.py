@@ -97,13 +97,24 @@ def test_written_audit_malformed_utf8_rejected(tmp_path):
     assert verify_audit_file(file)
 
 
-def test_missing_pg_dsn_refuses_before_any_fake_dispatch():
-    fake_dispatches = 0
+def test_missing_pg_dsn_refuses_before_governed_dispatch(tmp_path, monkeypatch):
+    budget = ab.parse_budget(_raw())
+    budget_path = tmp_path / "budget.json"
+    budget_path.write_text(json.dumps(budget.to_dict()), encoding="utf-8")
+    monkeypatch.setenv(ab.ENV_BUDGET_FILE, str(budget_path))
+    monkeypatch.setenv(ab.ENV_LEDGER_BACKEND, "postgres")
+    monkeypatch.setenv(ab.ENV_LEDGER_DSN, "")
+    ab.reset_governor_cache()
+    calls = []
+    monkeypatch.setattr(
+        ab, "_dispatch_request",
+        lambda *args, **kwargs: calls.append((args, kwargs)),
+    )
     with pytest.raises(ab.LedgerUnavailableError):
-        PostgresAttemptLedger("", ab.parse_budget(_raw())).reserve(
-            "openalex", "acquisition"
+        ab.governed_urlopen(
+            "https://example.invalid", timeout=1, provider="openalex"
         )
-    assert fake_dispatches == 0
+    assert calls == []
 
 
 def test_valid_sanitized_audit_accepted(tmp_path):
@@ -149,3 +160,28 @@ def test_mor26_workflow_cannot_be_green_when_shared_acceptance_is_skipped():
     assert 'VERIFY_RESULT: ${{ needs.verify.result }}' in workflow
     assert '"$RUNNER_A_RESULT" == "skipped"' in workflow
     assert '"$VERIFY_RESULT" == "skipped"' in workflow
+
+
+def test_mor26_route_audit_checks_exact_pull_request_head() -> None:
+    text = (
+        Path(__file__).resolve().parents[1]
+        / ".github" / "workflows" / "mor26-runner-acceptance.yml"
+    ).read_text(encoding="utf-8")
+    route = text.split("  route-audit:", 1)[1].split("  outage-fail-closed:", 1)[0]
+    assert "MOR26_HEAD: ${{ github.event.pull_request.head.sha }}" in route
+    assert "ref: ${{ env.MOR26_HEAD }}" in route
+    assert '"commit_sha": "${{ env.MOR26_HEAD }}"' in route
+
+
+def test_mor26_race_requires_shared_rendezvous() -> None:
+    workflow = (
+        Path(__file__).resolve().parents[1]
+        / ".github" / "workflows" / "mor26-runner-acceptance.yml"
+    ).read_text(encoding="utf-8")
+    fixture = (
+        Path(__file__).resolve().parents[1] / "scripts" / "mor26_runner_fixture.py"
+    ).read_text(encoding="utf-8")
+    assert "MOR26_RACE_CONTENDER" in workflow
+    assert 'all(d["rendezvous_count"] == 2 for d in race)' in workflow
+    assert "mor26_private.rendezvous" in fixture
+    assert "race contenders did not rendezvous" in fixture

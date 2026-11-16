@@ -9,6 +9,7 @@ import argparse
 import importlib
 import json
 import os
+import time
 from pathlib import Path
 
 from src.scientific_sources.attempt_budget import (
@@ -136,7 +137,35 @@ def run(phase: str, acq: str, head: str) -> dict:
             refused = True
         assert refused, "attempt N+1 was not refused"
     elif phase == "race":
-        assert before in (0, 1)
+        contender = os.environ.get("MOR26_RACE_CONTENDER", "").strip()
+        if contender not in {"one", "two"}:
+            raise RuntimeError("MOR26_RACE_CONTENDER must identify one or two")
+        psycopg = importlib.import_module("psycopg")
+        dsn = os.environ.get("MOR26_ACCEPTANCE_RUNTIME_DSN", "")
+        deadline = time.monotonic() + 20.0
+        with psycopg.connect(dsn, connect_timeout=5) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO mor26_private.rendezvous"
+                    " (acquisition_id,budget_id,contender)"
+                    " VALUES (%s,%s,%s) ON CONFLICT DO NOTHING",
+                    (*ledger._key, contender),
+                )
+        rendezvous_count = 0
+        while time.monotonic() < deadline:
+            with psycopg.connect(dsn, connect_timeout=5) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT COUNT(*) FROM mor26_private.rendezvous"
+                        " WHERE acquisition_id=%s AND budget_id=%s",
+                        ledger._key,
+                    )
+                    rendezvous_count = int(cur.fetchone()[0])
+            if rendezvous_count == 2:
+                break
+            time.sleep(0.2)
+        assert rendezvous_count == 2, "race contenders did not rendezvous"
+        assert before == 0, "reservation occurred before both contenders arrived"
         try:
             ledger.reserve("openalex", "acquisition")
             grants += 1
@@ -179,6 +208,7 @@ def run(phase: str, acq: str, head: str) -> dict:
         "attempt_n_plus_1_denied": refused if phase == "b" else None,
         "provider_ceiling_denied": provider_denied if phase == "provider" else None,
         "unavailable_store_denied": None,
+        "rendezvous_count": rendezvous_count if phase == "race" else None,
     }
 
 
