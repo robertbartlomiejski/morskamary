@@ -2785,3 +2785,32 @@ class TestProviderOwnedPhysicalRequestCount:
                 provider_configured=False,
                 page_diagnostics=[],
             )
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("logical_page", 1.9),
+        ("physical_request_index", 2.5),
+        ("requested_rows", -0.5),
+        ("returned_rows", 3.1),
+        ("normalized_rows", 4.2),
+    ],
+)
+def test_page_diagnostic_rejects_non_integer_numeric_counts(field, value):
+    diagnostic = {
+        "logical_page": 1,
+        "physical_request_index": 1,
+        "requested_rows": 10,
+        "returned_rows": 5,
+        "normalized_rows": 5,
+        "pagination_status": "completed",
+    }
+    diagnostic[field] = value
+    rows = _normalise_page_diagnostics(
+        [diagnostic],
+        provider_name="crossref",
+        query="blue economy",
+    )
+    assert rows[0]["pagination_status"] == "failed"
+    assert rows[0]["errors"] == "malformed_page_diagnostic_mapping"

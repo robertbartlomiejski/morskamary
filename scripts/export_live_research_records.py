@@ -167,14 +167,17 @@ def _normalise_page_diagnostics(
             numeric_valid = True
             for field in required_fields[:-1]:
                 value = row.get(field)
-                if value is None or isinstance(value, bool):
+                if isinstance(value, bool) or value is None:
                     numeric_valid = False
                     break
-                try:
-                    if int(value) < 0:
-                        numeric_valid = False
-                        break
-                except (TypeError, ValueError):
+                if isinstance(value, int):
+                    parsed = value
+                elif isinstance(value, str) and value.isascii() and value.isdigit():
+                    parsed = int(value)
+                else:
+                    numeric_valid = False
+                    break
+                if parsed < 0:
                     numeric_valid = False
                     break
             status_valid = bool(str(row.get("pagination_status", "")).strip())

@@ -120,7 +120,11 @@ def _read_jsonl_required(
 
 
 def _read_csv_required(
-    path: Path, label: str, *, allow_empty: bool = False
+    path: Path,
+    label: str,
+    *,
+    allow_empty: bool = False,
+    required_fields: Sequence[str] = (),
 ) -> list[dict[str, str]]:
     if not path.is_file():
         raise ValueError(f"required {label} file does not exist: {path}")
@@ -128,6 +132,12 @@ def _read_csv_required(
         reader = csv.DictReader(handle)
         if reader.fieldnames is None:
             raise ValueError(f"required {label} CSV has no header: {path}")
+        fields = {str(value).strip() for value in reader.fieldnames if value}
+        missing = [field for field in required_fields if field not in fields]
+        if missing:
+            raise ValueError(
+                f"required {label} CSV is missing required columns: {missing}"
+            )
         rows = [dict(row) for row in reader]
     if not rows and not allow_empty:
         raise ValueError(f"required {label} file contains no rows: {path}")
@@ -141,6 +151,13 @@ def _load_hypothesis_declarations(path: Path) -> dict[str, dict[str, Any]]:
     hypotheses = payload.get("hypotheses") if isinstance(payload, dict) else None
     if not isinstance(hypotheses, dict):
         raise ValueError("authoritative protocol lacks hypotheses mapping")
+    supported_ids = {"H1", "H2", "H3"}
+    unexpected = sorted(set(hypotheses) - supported_ids)
+    if unexpected:
+        raise ValueError(
+            "authoritative protocol declares unsupported hypotheses: "
+            + ", ".join(unexpected)
+        )
     output: dict[str, dict[str, Any]] = {}
     for hypothesis_id in ("H1", "H2", "H3"):
         declaration = hypotheses.get(hypothesis_id)
@@ -612,7 +629,15 @@ def build_provider_sensitivity_analysis(
         )
     signals = _read_jsonl_required(signals_path, "signals", allow_empty=True)
     original_demands = _read_csv_required(
-        derived_demands_path, "derived demands", allow_empty=True
+        derived_demands_path,
+        "derived demands",
+        allow_empty=True,
+        required_fields=(
+            "competence_demand_id",
+            "competence_label",
+            "sector",
+            "axis_group",
+        ),
     )
     fragments = _read_jsonl_required(
         hypothesis_fragments_path, "hypothesis fragments", allow_empty=True

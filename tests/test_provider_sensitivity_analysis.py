@@ -467,3 +467,53 @@ hypotheses:
     assert baseline["h1"]["test_used"] == "custom test 1"
     assert baseline["h2"]["hypothesis_label"] == "Custom H2"
     assert baseline["h3"]["hypothesis_label"] == "Custom H3"
+
+
+def test_empty_demand_csv_requires_canonical_header(tmp_path: Path) -> None:
+    path = tmp_path / "derived_competence_demands.csv"
+    path.write_text("unexpected_column\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="missing required columns"):
+        sensitivity._read_csv_required(
+            path,
+            "derived demands",
+            allow_empty=True,
+            required_fields=(
+                "competence_demand_id",
+                "competence_label",
+                "sector",
+                "axis_group",
+            ),
+        )
+
+
+def test_protocol_rejects_undeclared_sensitivity_hypothesis(tmp_path: Path) -> None:
+    protocol = tmp_path / "protocol.yml"
+    protocol.write_text(
+        """
+hypotheses:
+  H1:
+    label: H1
+    test: test
+    declared_outcomes: [not_computable]
+    required_result_fields: [hypothesis_id]
+  H2:
+    label: H2
+    test: test
+    declared_outcomes: [not_computable]
+    required_result_fields: [hypothesis_id]
+  H3:
+    label: H3
+    test: test
+    declared_outcomes: [not_computable]
+    required_result_fields: [hypothesis_id]
+  H4:
+    label: H4
+    test: unsupported
+    declared_outcomes: [not_computable]
+    required_result_fields: [hypothesis_id]
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="unsupported hypotheses: H4"):
+        sensitivity._load_hypothesis_declarations(protocol)

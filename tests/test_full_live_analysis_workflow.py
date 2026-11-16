@@ -292,3 +292,22 @@ def test_provider_sensitivity_uses_authoritative_protocol() -> None:
     end = text.index("Evaluate live novelty gates", start)
     block = text[start:end]
     assert "--protocol-path config/live_query_protocol.yml" in block
+
+
+def test_live_job_clears_checkout_state_audits_immediately_after_checkout() -> None:
+    text = _text()
+    live = text[text.index("  live-analysis:"):]
+    checkout = live.index("- name: Checkout")
+    clear = live.index("- name: Clear checkout-state audit evidence before tool setup")
+    setup = live.index("- name: Set up Python")
+    assert checkout < clear < setup
+    block = live[clear:setup]
+    for path in (
+        "outputs/research_api_health.json",
+        "outputs/research_sources/query_execution_log.csv",
+        "outputs/research_sources/query_protocol_constraints.json",
+        "outputs/cumulative_database/novelty_gate_report.json",
+        "outputs/cumulative_database/provider_sensitivity_analysis.json",
+        "outputs/cumulative_database/validated_credential_supply_audit.json",
+    ):
+        assert path in block
