@@ -152,6 +152,18 @@ def _normalise_page_diagnostics(
     for index, diagnostic in enumerate(diagnostics, start=1):
         if isinstance(diagnostic, Mapping):
             row = dict(diagnostic)
+            status = str(row.get("pagination_status", "")).strip().lower()
+            if status in {"provider_not_configured", "not_configured", "no_credentials", "skipped"}:
+                row.setdefault("provider", provider_canonical)
+                row.setdefault("query", query)
+                row.setdefault("logical_page", 0)
+                row.setdefault("physical_request_index", 0)
+                row.setdefault("cursor_or_offset", "")
+                row.setdefault("requested_rows", 0)
+                row.setdefault("returned_rows", 0)
+                row.setdefault("normalized_rows", 0)
+                normalised.append(row)
+                continue
             numeric_valid = True
             for field in required_fields[:-1]:
                 value = row.get(field)
