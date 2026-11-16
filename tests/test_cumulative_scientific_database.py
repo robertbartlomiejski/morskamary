@@ -843,14 +843,16 @@ class TestLayer1Binding:
             "10.1000/axis.t": "T",
         }
 
-    def test_axis_group_and_code_propagate_from_layer1_to_layer5(self, tmp_path: Path) -> None:
+    def test_query_target_does_not_assign_empirical_signal_axis(
+        self, tmp_path: Path
+    ) -> None:
         current = tmp_path / "outputs"
         live_runs = tmp_path / "live_runs"
         _write_current_run(
             current,
             [
                 {
-                    "title": "Marine governance competence and skills",
+                    "title": "Governance competence and skills",
                     "doi": "10.1000/axis.flow.1",
                     "provider": "Crossref",
                     "source_query": "axis flow query",
@@ -866,7 +868,7 @@ class TestLayer1Binding:
                     "query_id": "Q_AXIS_FLOW_001",
                     "sector_slug": "axis_flow_sector",
                     "sector_label": "Axis Flow Sector",
-                    "axis_target": "T",
+                    "axis_target": "M",
                     "axis_group": "MARINE",
                     "axis_code": "M",
                     "query_family": "core_sector",
@@ -891,25 +893,14 @@ class TestLayer1Binding:
             current_run_id="R1",
             built_at_utc=FROZEN_TS,
         )
-        layer4 = build_layer4(
-            evidence_records=[row.to_dict() for row in cumulative.evidence_records],
-            competence_signals=[row.to_dict() for row in cumulative.competence_demand_signals],
-            output_dir=tmp_path / "layer4_5",
-            current_run_id="R1",
-            analysis_timestamp_utc=FROZEN_TS,
-        )
-        layer5 = build_layer5(
-            derived_demands=layer4.derived_demands,
-            evidence_records=[row.to_dict() for row in cumulative.evidence_records],
-            output_dir=tmp_path / "layer4_5",
-            current_run_id="R1",
-            built_at_utc=FROZEN_TS,
-        )
-        assert layer4.derived_demands
-        assert layer5.learning_outcomes
-        assert layer4.derived_demands[0].axis_group == "MARINE"
-        assert layer4.derived_demands[0].axis_code == "M"
-        assert layer5.learning_outcomes[0].axis_group == "MARINE"
+        assert cumulative.semantic_signals
+        assert cumulative.competence_candidates
+        assert {row.axis_group for row in cumulative.semantic_signals} == {"OCEANIC"}
+        assert {row.axis_code for row in cumulative.semantic_signals} == {"O"}
+        assert {row.axis_group for row in cumulative.competence_candidates} == {
+            "OCEANIC"
+        }
+        assert all(row.axis_group != "MARINE" for row in cumulative.semantic_signals)
 
 
 # ---------------------------------------------------------------------------
@@ -3543,6 +3534,44 @@ def test_aggregated_candidate_emits_each_bound_sector_axis_assignment(
         (assignment.sector, assignment.axis_group, assignment.axis_code)
         for assignment in result.sector_competence_assignments
     } == {
-        ("marine-sector", "MARINE", "M"),
-        ("maritime-sector", "MARITIME", "T"),
+        ("marine-sector", "OCEANIC", "O"),
+        ("maritime-sector", "OCEANIC", "O"),
     }
+
+
+def test_deficit_statement_is_retained_as_review_required_demand_signal(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "deficit-current"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Ports lack digital skills for automation",
+                "abstract": "Ports lack digital skills for safe automation.",
+                "doi": "10.1000/deficit-digital-skills",
+                "provider": "Crossref",
+                "source_query": "digital port skills",
+                "retrieval_timestamp": FROZEN_TS,
+            }
+        ],
+    )
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "deficit-output",
+        protocol_path=None,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    signals = [
+        row for row in result.semantic_signals
+        if row.signal_type == "digital_skill"
+    ]
+    assert signals
+    assert all(row.manual_review_status == "review_required" for row in signals)
+    assert all(
+        "deficit_statement_review_required" in row.validity_warning
+        for row in signals
+    )
+    assert all(row.axis_group == "MARITIME" for row in signals)
