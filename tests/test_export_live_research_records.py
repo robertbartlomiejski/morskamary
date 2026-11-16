@@ -367,6 +367,35 @@ class TestApplyQueryConstraint:
             assert row["errors"] == "malformed_page_diagnostic_non_mapping"
             assert row["warnings"] == f"malformed_page_diagnostic_index:{idx}"
 
+    def test_normalise_page_diagnostics_rejects_incomplete_mapping(self):
+        diagnostics = _normalise_page_diagnostics(
+            [{"pagination_status": "end_of_results"}],
+            provider_name="Crossref",
+            query="offshore wind",
+        )
+        assert diagnostics[0]["pagination_status"] == "failed"
+        assert diagnostics[0]["errors"] == "malformed_page_diagnostic_mapping"
+        assert diagnostics[0]["logical_page"] == 0
+
+    def test_zero_attempted_pages_remains_zero(self):
+        _, audit = _apply_query_constraint(
+            records=[],
+            constraint={
+                "time_window": {"from_year": 2020, "to_year": 2026},
+                "sampling_strategy": {
+                    "mode": "stratified",
+                    "pages": 3,
+                    "rows_per_page": 50,
+                },
+            },
+            provider_name="Crossref",
+            max_results=150,
+            physical_request_count=0,
+            page_diagnostics=[],
+            attempted_logical_pages=0,
+        )
+        assert audit["logical_pages_attempted"] == 0
+
     def test_physical_request_count_uses_provider_result_not_diagnostics(self):
         """The provider count wins even when diagnostic rows disagree."""
         _, audit = _apply_query_constraint(
