@@ -465,3 +465,60 @@ def test_assignment_grain_and_reviewed_context(tmp_path, damage):
     if damage == 'none':
         contract = next(r for r in model['metric_contract'] if r['metric_id'] == 'validated_sector_assignments')
         assert contract['formula'] == 'COUNT(DISTINCT (canonical_competence_id, sector, axis_group))'
+
+
+def test_validated_canonical_requires_label_match_with_active_decision(tmp_path):
+    """Canonical validation must preserve the reviewer's accepted label."""
+    p = bundle(tmp_path)
+    write_csv(p / 'evidence_fragments.csv', [
+        {'fragment_id': 'f', 'evidence_id': 'e1'}])
+    write_csv(p / 'semantic_signals.csv', [
+        {'signal_id': 's', 'fragment_id': 'f', 'evidence_id': 'e1',
+         'sector': 'blue_biotech', 'axis_group': 'MARINE', 'axis_code': 'M'}])
+    write_csv(p / 'competence_candidates.csv', [
+        {'candidate_id': 'c', 'signal_id': 's', 'fragment_id': 'f', 'evidence_id': 'e1'}])
+    write_csv(p / 'validation_decisions.csv', [
+        {'validation_decision_id': 'd', 'target_candidate_id': 'c',
+         'decision_status': 'accepted', 'canonical_label': 'Reviewed marine skill',
+         'fragment_ids': 'f'}])
+    write_csv(p / 'canonical_competences.csv', [
+        {'canonical_competence_id': 'k', 'source_candidate_id': 'c',
+         'validation_decision_id': 'd', 'validation_status': 'accepted',
+         'provenance_guard_status': 'passed', 'preferred_label': 'Different skill'}])
+    result = metric(build_publication_tables(p), 'validated_canonical_competences')
+    assert result['value'] is None
+    assert result['status'] == 'not_computable'
+    assert 'unverified_canonical_validation' in result['reason']
+
+
+def test_assignment_context_uses_immutable_decision_fragment_snapshot(tmp_path):
+    """Post-review candidate fragments cannot expand a validated assignment context."""
+    p = bundle(tmp_path)
+    write_csv(p / 'evidence_fragments.csv', [
+        {'fragment_id': 'f1', 'evidence_id': 'e1'},
+        {'fragment_id': 'f2', 'evidence_id': 'e1'}])
+    write_csv(p / 'semantic_signals.csv', [
+        {'signal_id': 's', 'fragment_id': 'f1', 'evidence_id': 'e1',
+         'sector': 'blue_biotech', 'axis_group': 'MARINE', 'axis_code': 'M'},
+        {'signal_id': 's', 'fragment_id': 'f2', 'evidence_id': 'e1',
+         'sector': 'desalination', 'axis_group': 'HYDRONIZATION', 'axis_code': 'H'}])
+    write_csv(p / 'competence_candidates.csv', [
+        {'candidate_id': 'c', 'signal_id': 's', 'fragment_id': 'f1',
+         'fragment_ids': 'f1|f2', 'evidence_id': 'e1'}])
+    write_csv(p / 'validation_decisions.csv', [
+        {'validation_decision_id': 'd', 'target_candidate_id': 'c',
+         'decision_status': 'accepted', 'canonical_label': 'Marine skill',
+         'fragment_ids': 'f1'}])
+    write_csv(p / 'canonical_competences.csv', [
+        {'canonical_competence_id': 'k', 'source_candidate_id': 'c',
+         'validation_decision_id': 'd', 'validation_status': 'accepted',
+         'provenance_guard_status': 'passed', 'preferred_label': 'Marine skill'}])
+    write_csv(p / 'sector_competence_assignments.csv', [
+        {'assignment_id': 'a', 'canonical_competence_id': 'k',
+         'validation_decision_id': 'd', 'source_candidate_id': 'c',
+         'evidence_ids': 'e1', 'sector': 'desalination',
+         'axis_group': 'HYDRONIZATION', 'axis_code': 'H'}])
+    result = metric(build_publication_tables(p), 'validated_sector_assignments')
+    assert result['value'] is None
+    assert result['status'] == 'not_computable'
+    assert 'unverified_assignment_validation' in result['reason']

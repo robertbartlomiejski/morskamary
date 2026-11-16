@@ -283,9 +283,13 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
     accepted_canonical = set()
     for r in rows.get("canonical_competences", []):
         decision = decisions.get(r.get("validation_decision_id", ""), {})
+        preferred_label = r.get("preferred_label", "").strip()
         if (r.get("validation_status") == "accepted" and r.get("provenance_guard_status") == "passed"
                 and not problems["validation_decisions"] and decision.get("decision_status") == "accepted"
-                and decision.get("target_candidate_id") == r.get("source_candidate_id")):
+                and decision.get("target_candidate_id") == r.get("source_candidate_id")
+                and preferred_label
+                and normalize_canonical_label(preferred_label).lower()
+                == normalize_canonical_label(decision.get("canonical_label")).lower()):
             accepted_canonical.add(r.get("canonical_competence_id"))
         else:
             problems["canonical_competences"].append("unverified_canonical_validation")
@@ -297,11 +301,14 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
         candidate = candidates.get(candidate_id, {})
         decision = decisions.get(r.get("validation_decision_id", ""), {})
         canonical = canonicals.get(r.get("canonical_competence_id", ""), {})
-        fragments = {value.strip() for value in re.split(
+        candidate_fragments = {value.strip() for value in re.split(
             r"[|;,]", candidate.get("fragment_ids") or candidate.get("fragment_id", "")) if value.strip()}
+        decision_fragments = {value.strip() for value in re.split(
+            r"[|;,]", decision.get("fragment_ids", "")) if value.strip()}
+        reviewed_fragments = decision_fragments or candidate_fragments
         contexts = {(signal.get("sector"), signal.get("axis_group"), signal.get("axis_code"))
                     for signal in semantic_rows if signal.get("signal_id") == candidate.get("signal_id")
-                    and signal.get("fragment_id") in fragments}
+                    and signal.get("fragment_id") in reviewed_fragments}
         context = (r.get("sector"), r.get("axis_group"), r.get("axis_code"))
         evidence_ids = {value.strip() for value in re.split(r"[|;,]", r.get("evidence_ids", "")) if value.strip()}
         if (r.get("canonical_competence_id") not in accepted_canonical

@@ -1,3 +1,8 @@
+2026-11-16 — MOR-21 review lineage closeout
+- Require canonical preferred labels to match their active accepted validation decisions.
+- Restrict validated assignment contexts to the immutable decision fragment snapshot.
+- Add negative regressions for label drift and post-review context expansion.
+
 2026-11-01 — MOR-21 final assignment review
 - Match canonical labels and reviewed semantic sector/axis context before counting assignments.
 - Count distinct canonical competence/sector/axis tuples rather than decision records.
