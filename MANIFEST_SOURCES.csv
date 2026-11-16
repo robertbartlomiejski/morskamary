@@ -44,6 +44,7 @@ cloudbuild.yaml,other,,,,,,cloudbuild,no
 compose.debug.yaml,other,,,,,,compose_debug,no
 compose.yaml,other,,,,,,compose,no
 config/live_query_protocol.yml,other,,,,,,live_query_protocol,no
+config/mor26_route_dispositions.json,other,,,,,,mor26_route_dispositions,no
 config/research_provider_policy.yml,other,,,,,,research_provider_policy,no
 config/research_queries.yml,other,,,,,,research_queries,no
 config/research_question_registry.yml,other,,,,,,research_question_registry,no

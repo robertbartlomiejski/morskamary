@@ -17,6 +17,8 @@ permissions:
 jobs:
   route-audit:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v6
         with:
