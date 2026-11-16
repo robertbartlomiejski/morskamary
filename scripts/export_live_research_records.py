@@ -132,34 +132,95 @@ def _safe_page_int(value: Any) -> int:
         return 0
 
 
+def _failed_page_diagnostic(
+    *,
+    provider_canonical: str,
+    query: str,
+    index: int,
+    reason: str,
+) -> Dict[str, Any]:
+    return {
+        "provider": provider_canonical,
+        "query": query,
+        "logical_page": 0,
+        "physical_request_index": 0,
+        "cursor_or_offset": "",
+        "requested_rows": 0,
+        "returned_rows": 0,
+        "normalized_rows": 0,
+        "pagination_status": "failed",
+        "errors": reason,
+        "warnings": f"malformed_page_diagnostic_index:{index}",
+    }
+
+
+_REQUIRED_PAGE_DIAGNOSTIC_FIELDS = frozenset(
+    {
+        "logical_page",
+        "physical_request_index",
+        "requested_rows",
+        "returned_rows",
+        "normalized_rows",
+        "pagination_status",
+    }
+)
+
+
 def _normalise_page_diagnostics(
     diagnostics: Sequence[Any],
     *,
     provider_name: str,
     query: str,
 ) -> List[Dict[str, Any]]:
-    """Return mapping-only diagnostics, replacing malformed entries fail closed."""
+    """Return canonical diagnostics; malformed mappings become failed rows."""
     normalised: List[Dict[str, Any]] = []
     provider_canonical = normalize_provider_name(provider_name)
     for index, diagnostic in enumerate(diagnostics, start=1):
-        if isinstance(diagnostic, Mapping):
-            normalised.append(dict(diagnostic))
+        if not isinstance(diagnostic, Mapping):
+            normalised.append(
+                _failed_page_diagnostic(
+                    provider_canonical=provider_canonical,
+                    query=query,
+                    index=index,
+                    reason="malformed_page_diagnostic_non_mapping",
+                )
+            )
             continue
-        normalised.append(
-            {
-                "provider": provider_canonical,
-                "query": query,
-                "logical_page": 0,
-                "physical_request_index": 0,
-                "cursor_or_offset": "",
-                "requested_rows": 0,
-                "returned_rows": 0,
-                "normalized_rows": 0,
-                "pagination_status": "failed",
-                "errors": "malformed_page_diagnostic_non_mapping",
-                "warnings": f"malformed_page_diagnostic_index:{index}",
-            }
+        row = dict(diagnostic)
+        missing = sorted(_REQUIRED_PAGE_DIAGNOSTIC_FIELDS - set(row))
+        numeric_keys = (
+            "logical_page",
+            "physical_request_index",
+            "requested_rows",
+            "returned_rows",
+            "normalized_rows",
         )
+        malformed_numeric = [
+            key
+            for key in numeric_keys
+            if key in row and (type(row[key]) is not int or row[key] < 0)
+        ]
+        status = str(row.get("pagination_status") or "").strip()
+        if missing or malformed_numeric or not status:
+            parts: list[str] = []
+            if missing:
+                parts.append("missing=" + ",".join(missing))
+            if malformed_numeric:
+                parts.append("invalid_numeric=" + ",".join(malformed_numeric))
+            if not status:
+                parts.append("missing=pagination_status")
+            normalised.append(
+                _failed_page_diagnostic(
+                    provider_canonical=provider_canonical,
+                    query=query,
+                    index=index,
+                    reason="malformed_page_diagnostic_mapping:" + ";".join(parts),
+                )
+            )
+            continue
+        row.setdefault("provider", provider_canonical)
+        row.setdefault("query", query)
+        normalised.append(row)
     return normalised
 
 
@@ -172,6 +233,26 @@ def _normalise_page_diagnostics(
 _ZERO_ATTEMPT_STATUSES = frozenset(
     {"provider_not_configured", "not_configured", "no_credentials", "skipped"}
 )
+
+
+def _attempted_logical_pages_from_diagnostics(
+    diagnostics: Sequence[Mapping[str, Any]],
+    *,
+    physical_request_count: int,
+) -> int:
+    """Count distinct logical pages actually attempted, including failed pages."""
+    attempted = {
+        _safe_page_int(row.get("logical_page"))
+        for row in diagnostics
+        if str(row.get("pagination_status") or "").strip()
+        not in _ZERO_ATTEMPT_STATUSES
+        and _safe_page_int(row.get("logical_page")) > 0
+    }
+    if physical_request_count > 0 and not attempted:
+        raise ProviderResultContractError(
+            "positive physical_request_count lacks a canonical attempted logical page"
+        )
+    return len(attempted)
 
 
 def _require_nonnegative_physical_request_count(
@@ -2033,6 +2114,12 @@ def main() -> int:
                                 page_diagnostics=result_page_diagnostics,
                             )
                         )
+                        attempted_logical_pages = (
+                            _attempted_logical_pages_from_diagnostics(
+                                result_page_diagnostics,
+                                physical_request_count=provider_physical_request_count,
+                            )
+                        )
                     except (
                         PhysicalRequestCountContractError,
                         ProviderResultContractError,
@@ -2059,7 +2146,7 @@ def main() -> int:
                         args.max_results_per_query,
                         physical_request_count=provider_physical_request_count,
                         page_diagnostics=result_page_diagnostics,
-                        attempted_logical_pages=effective_pages,
+                        attempted_logical_pages=attempted_logical_pages,
                     )
                     if result.errors:
                         print(f"    Errors: {result.errors}", file=sys.stderr)
