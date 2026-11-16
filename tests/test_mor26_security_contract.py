@@ -8,7 +8,6 @@ import pytest
 
 from src.scientific_sources import attempt_budget as ab
 from src.scientific_sources.attempt_audit_validator import verify_audit_file
-from src.scientific_sources.attempt_postgres_ledger import PostgresAttemptLedger
 from src.scientific_sources.attempt_route_inventory import (
     find_unverified_network_routes,
     validate_route_dispositions,

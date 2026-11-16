@@ -15,6 +15,7 @@ import yaml
 from unittest.mock import MagicMock, patch
 
 from scripts.export_live_research_records import (
+    _persist_completed_results_before_budget_stop,
     LiveContextClassificationRepository,
     PhysicalRequestCountContractError,
     QUERY_EXECUTION_FIELDS,
