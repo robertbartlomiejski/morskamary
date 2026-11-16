@@ -181,6 +181,25 @@ jobs:
             --root outputs \
             --baseline-root "$COMMITTED_COMPARE_ROOT"
 
+      - name: Capture deterministic regenerated outputs when freshness fails
+        if: ${{ failure() && github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: regenerated-outputs-${{ github.event.pull_request.head.sha }}
+          path: |
+            outputs/competences_full_database.json
+            outputs/credentials_database.json
+            outputs/credentials_matrix.html
+            outputs/gap_priority_ranking.csv
+            outputs/gaps_by_sector.html
+            outputs/gaps_by_sector_axis.csv
+            outputs/literature_integration.html
+            outputs/report_index.html
+            outputs/sector_dictionaries/*_tmbd_dictionary.json
+            outputs/sector_qmbd_learning_pathways.json
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Check static outputs are reproducible in isolation
         shell: bash
         env:
