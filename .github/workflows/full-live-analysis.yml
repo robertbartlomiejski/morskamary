@@ -359,6 +359,7 @@ jobs:
             --derived-demands outputs/cumulative_database/derived_competence_demands.csv \
             --hypothesis-fragments outputs/cumulative_database/hypothesis_semantic_fragments.jsonl \
             --validated-supply-map outputs/cumulative_database/validated_credential_supply_map.json \
+            --protocol-path config/live_query_protocol.yml \
             --output-json outputs/cumulative_database/provider_sensitivity_analysis.json \
             --output-markdown outputs/cumulative_database/provider_sensitivity_analysis.md
 
