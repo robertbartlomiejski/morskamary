@@ -28,6 +28,8 @@ from typing import Any, Dict, List
 
 import pytest
 
+from src.scientific_sources.schema_v2_identity import make_decision_content_hash
+
 from src.scientific_sources.derived_competence_analysis import (
     ALLOWED_DEMAND_STATUS,
     DERIVED_DEMAND_COLUMNS,
@@ -119,6 +121,19 @@ def _accepted_canonical_lineage_rows() -> Dict[str, List[Dict[str, Any]]]:
     )
     provenance_id = "provenance:hydrosocial:001"
     definition = "Apply hydrosocial governance in desalination operations."
+    decision_content_sha256 = make_decision_content_hash(
+        validation_decision_id=decision_id,
+        decision_status="accepted",
+        target_candidate_id=candidate_id,
+        canonical_label=canonical_label,
+        reviewer_identifier="reviewer-hydro-001",
+        decision_rationale="Accepted retained hydrosocial lineage.",
+        decision_at_utc="2026-07-10T00:00:00+00:00",
+        evidence_ids=evidence_id,
+        fragment_ids=fragment_id,
+        source_provenance_ids=provenance_id,
+        superseded_validation_decision_id="",
+    )
     return {
         "evidence_records": [
             {
@@ -192,6 +207,7 @@ def _accepted_canonical_lineage_rows() -> Dict[str, List[Dict[str, Any]]]:
                 "evidence_ids": evidence_id,
                 "fragment_ids": fragment_id,
                 "source_provenance_ids": provenance_id,
+                "decision_content_sha256": decision_content_sha256,
                 "superseded_validation_decision_id": "",
             }
         ],
@@ -1699,3 +1715,108 @@ def test_layer4_rejects_forged_assignment_id(tmp_path: Path) -> None:
 
     with pytest.raises(DerivedAnalysisError, match="assignment_id does not match recomputed"):
         _build_accepted_canonical_lineage(tmp_path, rows)
+
+
+def test_layer4_rejects_mutated_decision_snapshot_with_stale_content_hash(
+    tmp_path: Path,
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    decision = rows["validation_decisions"][0]
+    original_hash = decision["decision_content_sha256"]
+    decision["fragment_ids"] = "fragment:" + "f" * 64
+    decision["decision_content_sha256"] = original_hash
+
+    with pytest.raises(
+        DerivedAnalysisError,
+        match="decision content hash does not match its immutable snapshot",
+    ):
+        _build_accepted_canonical_lineage(tmp_path, rows)
+
+
+def test_layer4_accepts_multiple_reviewed_decisions_for_one_canonical_label(
+    tmp_path: Path,
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    base = rows["validation_decisions"][0]
+    canonical = rows["canonical_competences"][0]
+    assignment = rows["sector_competence_assignments"][0]
+
+    second_decision_id = "decision:hydrosocial:002"
+    second_candidate_id = "candidate:" + "b" * 64
+    second_fragment_id = "fragment:" + "c" * 64
+    second_signal_id = "signal:" + "d" * 64
+    second_provenance_id = "provenance:hydrosocial:002"
+
+    rows["evidence_fragments"].append({
+        **rows["evidence_fragments"][0],
+        "fragment_id": second_fragment_id,
+        "source_provenance_id": second_provenance_id,
+        "source_provider": "openalex",
+    })
+    rows["semantic_signals"].append({
+        **rows["semantic_signals"][0],
+        "signal_id": second_signal_id,
+        "fragment_id": second_fragment_id,
+        "source_provenance_id": second_provenance_id,
+    })
+    rows["competence_candidates"].append({
+        **rows["competence_candidates"][0],
+        "candidate_id": second_candidate_id,
+        "signal_id": second_signal_id,
+        "fragment_id": second_fragment_id,
+        "fragment_ids": second_fragment_id,
+        "source_provenance_ids": second_provenance_id,
+    })
+    second_hash = make_decision_content_hash(
+        validation_decision_id=second_decision_id,
+        decision_status="accepted",
+        target_candidate_id=second_candidate_id,
+        canonical_label=base["canonical_label"],
+        reviewer_identifier="reviewer-hydro-002",
+        decision_rationale="Second accepted retained lineage.",
+        decision_at_utc="2026-07-11T00:00:00+00:00",
+        evidence_ids=base["evidence_ids"],
+        fragment_ids=second_fragment_id,
+        source_provenance_ids=second_provenance_id,
+        superseded_validation_decision_id="",
+    )
+    rows["validation_decisions"].append({
+        **base,
+        "validation_decision_id": second_decision_id,
+        "target_candidate_id": second_candidate_id,
+        "reviewer": "reviewer-hydro-002",
+        "decision_at_utc": "2026-07-11T00:00:00+00:00",
+        "decision_reason": "Second accepted retained lineage.",
+        "fragment_ids": second_fragment_id,
+        "source_provenance_ids": second_provenance_id,
+        "decision_content_sha256": second_hash,
+    })
+    rows["canonical_competences"].append({
+        **canonical,
+        "validation_decision_id": second_decision_id,
+        "source_candidate_id": second_candidate_id,
+    })
+    second_assignment = {
+        **assignment,
+        "assignment_id": "assignment:" + hashlib.sha256(
+            "\x1f".join([
+                assignment["canonical_competence_id"],
+                second_decision_id,
+                assignment["sector"],
+                assignment["axis_group"],
+                assignment["axis_code"],
+            ]).encode("utf-8")
+        ).hexdigest(),
+        "validation_decision_id": second_decision_id,
+        "source_candidate_id": second_candidate_id,
+    }
+    rows["sector_competence_assignments"].append(second_assignment)
+
+    result = _build_accepted_canonical_lineage(tmp_path, rows)
+    assert len(result.derived_demands) == 1
+    demand = result.derived_demands[0]
+    assert set(demand.validation_decision_ids.split("|")) == {
+        base["validation_decision_id"],
+        second_decision_id,
+    }
+    assert set(demand.providers_seen.split("|")) == {"crossref", "openalex"}
