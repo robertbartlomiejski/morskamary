@@ -19,6 +19,16 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-11-16 (fix: diagnose MOR-26 acceptance skips and bind evidence to the exact run)
+  Change type fix
+  Scope governance GitHub Actions
+  Files affected .github/workflows/mor26-runner-acceptance.yml CHANGELOG.txt
+  Summary Distinguishes an opt-in or trust skip from an execution failure and limits acceptance credentials to fixture steps. Requires route and ledger artifacts from the expected PR commit, run and run attempt.
+  Reason A skipped verifier can be downstream of a failed job, and matching artifact SHAs alone do not prove the expected commit executed.
+  Impact Synthetic acceptance only. No scientific data, acquisition policy or G2 authorization changes.
+  Provenance PR #297, Linear MOR-26, GitHub Actions run 43876425476.
+  Quality checks Local YAML and shell/Python syntax checks, six gate scenarios and seven synthetic evidence scenarios, including a wrong-SHA regression. Shared PostgreSQL execution pending.
+
 - 2026-11-15 (update: MOR-25 acquisition-scoped budget/2 and fail-closed G2 freeze)
   Change type update
   Scope governance physical HTTP-attempt budget tests and GitHub Actions
