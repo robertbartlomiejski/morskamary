@@ -629,3 +629,31 @@ def test_provider_query_occurrences_not_computable_without_query_identity(tmp_pa
     assert result['value'] is None
     assert result['status'] == 'not_computable'
     assert 'query_identity_not_retained' in result['reason']
+
+
+def test_explicit_decision_evidence_cannot_mask_unknown_reviewed_fragment(tmp_path):
+    p = bundle(tmp_path)
+    write_csv(p / 'evidence_fragments.csv', [
+        {'fragment_id': 'f', 'evidence_id': 'e1'}])
+    write_csv(p / 'semantic_signals.csv', [
+        {'signal_id': 's', 'fragment_id': 'f', 'evidence_id': 'e1',
+         'sector': 'blue_biotech', 'axis_group': 'MARINE', 'axis_code': 'M'}])
+    write_csv(p / 'competence_candidates.csv', [
+        {'candidate_id': 'c', 'signal_id': 's', 'fragment_id': 'f',
+         'fragment_ids': 'f', 'evidence_id': 'e1'}])
+    write_csv(p / 'validation_decisions.csv', [
+        {'validation_decision_id': 'd', 'target_candidate_id': 'c',
+         'decision_status': 'accepted', 'canonical_label': 'Marine skill',
+         'fragment_ids': 'f|NONEXISTENT', 'evidence_ids': 'e1'}])
+    write_csv(p / 'canonical_competences.csv', [
+        {'canonical_competence_id': 'k', 'source_candidate_id': 'c',
+         'validation_decision_id': 'd', 'validation_status': 'accepted',
+         'provenance_guard_status': 'passed', 'preferred_label': 'Marine skill'}])
+    write_csv(p / 'sector_competence_assignments.csv', [
+        {'assignment_id': 'a', 'canonical_competence_id': 'k',
+         'validation_decision_id': 'd', 'source_candidate_id': 'c',
+         'evidence_ids': 'e1', 'sector': 'blue_biotech',
+         'axis_group': 'MARINE', 'axis_code': 'M'}])
+    model = build_publication_tables(p)
+    assert metric(model, 'validated_canonical_competences')['value'] is None
+    assert metric(model, 'validated_sector_assignments')['value'] is None

@@ -16,7 +16,7 @@ import sqlite3
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Tuple
 
 import yaml  # type: ignore[import-untyped]
 
@@ -306,6 +306,32 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
             if fragment_evidence.get(fragment_id)
         }
 
+    def decision_snapshot_is_valid(
+        decision: Mapping[str, Any],
+        candidate: Mapping[str, Any],
+    ) -> bool:
+        decision_fragments = {
+            value.strip()
+            for value in re.split(r"[|;,]", decision.get("fragment_ids", ""))
+            if value.strip()
+        }
+        candidate_fragments = {
+            value.strip()
+            for value in re.split(
+                r"[|;,]",
+                candidate.get("fragment_ids", "") or candidate.get("fragment_id", ""),
+            )
+            if value.strip()
+        }
+        if not decision_fragments or not decision_fragments <= candidate_fragments:
+            return False
+        if any(fragment_id not in fragment_evidence for fragment_id in decision_fragments):
+            return False
+        reviewed_evidence = {
+            fragment_evidence[fragment_id] for fragment_id in decision_fragments
+        }
+        return reviewed_evidence == decision_evidence_ids(decision)
+
     accepted_canonical = set()
     for r in rows.get("canonical_competences", []):
         candidate = candidates.get(r.get("source_candidate_id", ""), {})
@@ -316,6 +342,7 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
         if (r.get("validation_status") == "accepted" and r.get("provenance_guard_status") == "passed"
                 and not problems["validation_decisions"] and decision.get("decision_status") == "accepted"
                 and decision.get("target_candidate_id") == r.get("source_candidate_id")
+                and decision_snapshot_is_valid(decision, candidate)
                 and candidate_evidence and reviewed_evidence == {candidate_evidence}
                 and preferred_label
                 and normalize_canonical_label(preferred_label).lower()
@@ -348,6 +375,7 @@ def build_publication_tables(database_dir: Path, protocol_path: Optional[Path] =
                 or context not in contexts or r.get("sector") not in sectors
                 or r.get("axis_group") not in AXES or AXES.get(r.get("axis_group", "")) != r.get("axis_code")
                 or decision.get("target_candidate_id") != candidate_id
+                or not decision_snapshot_is_valid(decision, candidate)
                 or reviewed_evidence != {candidate.get("evidence_id", "")}
                 or evidence_ids != {candidate.get("evidence_id", "")}
                 or problems["canonical_competences"] or problems["validation_decisions"]):
