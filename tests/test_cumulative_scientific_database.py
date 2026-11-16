@@ -62,7 +62,6 @@ from src.scientific_sources.cumulative_scientific_database import (
 )
 from src.scientific_sources.derived_competence_analysis import (
     build_layer4,
-    build_layer5,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
