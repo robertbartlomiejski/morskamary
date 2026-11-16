@@ -1675,7 +1675,9 @@ def _timestamp_on_or_before_cutoff(
 
 
 def _accepted_lineage_snapshot_metrics(
-    evidence: List[Mapping[str, Any]], decision_at_utc: str
+    evidence: List[Mapping[str, Any]],
+    decision_at_utc: str,
+    reviewed_fragments: Sequence[Mapping[str, Any]] = (),
 ) -> Dict[str, Any]:
     """Freeze accepted-lineage metrics to evidence retained at decision time."""
     cutoff = _decision_cutoff_timestamp(decision_at_utc)
@@ -1687,11 +1689,20 @@ def _accepted_lineage_snapshot_metrics(
     providers = sorted(
         {
             provider
-            for row in snapshot_rows
-            for provider in _split_list(row.get("provider_source", ""))
+            for row in reviewed_fragments
+            for provider in _split_list(row.get("source_provider", ""))
             if provider
         }
     )
+    if not providers:
+        providers = sorted(
+            {
+                provider
+                for row in snapshot_rows
+                for provider in _providers_for_lineage_evidence(row)
+                if provider
+            }
+        )
     first_run = min(
         (_lineage_row_id(row, "first_seen_run_id") for row in snapshot_rows),
         default="",
@@ -2110,6 +2121,7 @@ def _build_accepted_canonical_lineage_demands(
 
     expected_contexts_by_decision_id: Dict[str, Set[Tuple[str, str, str]]] = {}
     expected_canonical_id_by_decision_id: Dict[str, str] = {}
+    decision_fragment_ids_by_id: Dict[str, Set[str]] = {}
     for decision in active_accepted_decisions:
         decision_id = _lineage_row_id(decision, "validation_decision_id")
         candidate_id = _lineage_row_id(decision, "target_candidate_id")
@@ -2228,6 +2240,7 @@ def _build_accepted_canonical_lineage_demands(
                 "accepted canonical lineage decision has an invalid fragment "
                 f"snapshot: {decision_id}"
             )
+        decision_fragment_ids_by_id[decision_id] = set(decision_fragment_ids)
         decision_provenance_ids = {
             _lineage_row_id(fragments_by_id[fragment_id], "source_provenance_id")
             for fragment_id in decision_fragment_ids
@@ -2284,7 +2297,21 @@ def _build_accepted_canonical_lineage_demands(
                 "accepted canonical lineage decision failed the canonical-label "
                 f"provenance guard: {decision_id}"
             )
-        expected_contexts_by_decision_id[decision_id] = contexts
+        decision_contexts: Set[Tuple[str, str, str]] = set()
+        for fragment_id in decision_fragment_ids:
+            reviewed_signal = signal_by_key.get((candidate_signal_id, fragment_id))
+            if reviewed_signal is None:
+                raise DerivedAnalysisError(
+                    "accepted decision fragment snapshot has no semantic signal: "
+                    f"{decision_id}:{fragment_id}"
+                )
+            sector = _lineage_row_id(reviewed_signal, "sector")
+            axis_group = _lineage_row_id(reviewed_signal, "axis_group").upper()
+            axis_code = _lineage_row_id(reviewed_signal, "axis_code").upper()
+            if not sector and not axis_group and not axis_code:
+                continue
+            decision_contexts.add((sector, axis_group, axis_code))
+        expected_contexts_by_decision_id[decision_id] = decision_contexts
         expected_canonical_id_by_decision_id[decision_id] = (
             _expected_canonical_competence_id(canonical_label)
         )
@@ -2519,17 +2546,18 @@ def _build_accepted_canonical_lineage_demands(
                 if _lineage_row_id(assignment, "validation_decision_id")
             }
         )
-        if len(decision_ids) != 1:
-            raise DerivedAnalysisError(
-                "accepted canonical lineage assignments must resolve to exactly one validation decision"
-            )
-        lineage_reviewed_decision: Mapping[str, Any] | None = decisions_by_id.get(
-            decision_ids[0]
-        )
-        if lineage_reviewed_decision is None:
+        if not decision_ids:
             raise DerivedAnalysisError(
                 "accepted canonical lineage assignment is missing its reviewed decision"
             )
+        lineage_reviewed_decisions: List[Mapping[str, Any]] = []
+        for decision_id in decision_ids:
+            reviewed_decision = decisions_by_id.get(decision_id)
+            if reviewed_decision is None:
+                raise DerivedAnalysisError(
+                    "accepted canonical lineage assignment is missing its reviewed decision"
+                )
+            lineage_reviewed_decisions.append(reviewed_decision)
         context_signals = [
             signal
             for _assignment, selected_signals in components
@@ -2550,11 +2578,64 @@ def _build_accepted_canonical_lineage_demands(
                 if _lineage_row_id(row, "canonical_doi")
             }
         )
-        snapshot_metrics = _accepted_lineage_snapshot_metrics(
-            evidence,
-            _lineage_row_id(lineage_reviewed_decision, "decision_at_utc"),
+        snapshot_parts: List[Dict[str, Any]] = []
+        for reviewed_decision in lineage_reviewed_decisions:
+            current_decision_id = _lineage_row_id(
+                reviewed_decision, "validation_decision_id"
+            )
+            decision_assignments = [
+                assignment
+                for assignment in component_assignments
+                if _lineage_row_id(assignment, "validation_decision_id")
+                == current_decision_id
+            ]
+            decision_evidence_ids = {
+                evidence_id
+                for assignment in decision_assignments
+                for evidence_id in _split_list(assignment.get("evidence_ids"))
+            }
+            decision_evidence = [
+                evidence_by_id[evidence_id]
+                for evidence_id in sorted(decision_evidence_ids)
+            ]
+            reviewed_fragments = [
+                fragments_by_id[fragment_id]
+                for fragment_id in sorted(
+                    decision_fragment_ids_by_id.get(current_decision_id, set())
+                )
+            ]
+            snapshot_parts.append(
+                _accepted_lineage_snapshot_metrics(
+                    decision_evidence,
+                    _lineage_row_id(reviewed_decision, "decision_at_utc"),
+                    reviewed_fragments,
+                )
+            )
+        providers = sorted(
+            {
+                provider
+                for part in snapshot_parts
+                for provider in part["providers"]
+            }
         )
-        providers = snapshot_metrics["providers"]
+        snapshot_metrics = {
+            "first_run": min(
+                (part["first_run"] for part in snapshot_parts if part["first_run"]),
+                default="",
+            ),
+            "latest_run": max(
+                (part["latest_run"] for part in snapshot_parts if part["latest_run"]),
+                default="",
+            ),
+            "first_at": min(
+                (part["first_at"] for part in snapshot_parts if part["first_at"]),
+                default="",
+            ),
+            "latest_at": max(
+                (part["latest_at"] for part in snapshot_parts if part["latest_at"]),
+                default="",
+            ),
+        }
         query_families = sorted(
             {
                 _lineage_row_id(signal, "query_family")
