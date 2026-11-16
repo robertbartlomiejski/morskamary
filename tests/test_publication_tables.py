@@ -555,3 +555,32 @@ def test_empty_decision_fragment_snapshot_cannot_fall_back_to_candidate(tmp_path
     assert result['value'] is None
     assert result['status'] == 'not_computable'
     assert 'unverified_assignment_validation' in result['reason']
+
+
+def test_missing_decision_fragment_snapshot_cannot_fall_back_to_candidate(tmp_path):
+    """A missing reviewed snapshot cannot inherit mutable candidate fragments."""
+    p = bundle(tmp_path)
+    write_csv(p / 'evidence_fragments.csv', [
+        {'fragment_id': 'f1', 'evidence_id': 'e1'}])
+    write_csv(p / 'semantic_signals.csv', [
+        {'signal_id': 's', 'fragment_id': 'f1', 'evidence_id': 'e1',
+         'sector': 'blue_biotech', 'axis_group': 'MARINE', 'axis_code': 'M'}])
+    write_csv(p / 'competence_candidates.csv', [
+        {'candidate_id': 'c', 'signal_id': 's', 'fragment_id': 'f1',
+         'fragment_ids': 'f1', 'evidence_id': 'e1'}])
+    write_csv(p / 'validation_decisions.csv', [
+        {'validation_decision_id': 'd', 'target_candidate_id': 'c',
+         'decision_status': 'accepted', 'canonical_label': 'Marine skill'}])
+    write_csv(p / 'canonical_competences.csv', [
+        {'canonical_competence_id': 'k', 'source_candidate_id': 'c',
+         'validation_decision_id': 'd', 'validation_status': 'accepted',
+         'provenance_guard_status': 'passed', 'preferred_label': 'Marine skill'}])
+    write_csv(p / 'sector_competence_assignments.csv', [
+        {'assignment_id': 'a', 'canonical_competence_id': 'k',
+         'validation_decision_id': 'd', 'source_candidate_id': 'c',
+         'evidence_ids': 'e1', 'sector': 'blue_biotech',
+         'axis_group': 'MARINE', 'axis_code': 'M'}])
+    result = metric(build_publication_tables(p), 'validated_sector_assignments')
+    assert result['value'] is None
+    assert result['status'] == 'not_computable'
+    assert 'unverified_assignment_validation' in result['reason']
