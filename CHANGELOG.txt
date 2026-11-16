@@ -1,3 +1,16 @@
+2026-11-16 — close current scientific-validity debt inherited from historical PR #245
+- Aggregate multiple accepted reviewer decisions for one canonical competence without collapsing immutable per-decision lineage.
+- Derive provider diversity from reviewed fragment provenance and freeze accepted-demand metrics to reviewed snapshots.
+- Normalize equivalent CSV/JSONL scalar values before cross-projection parity checks.
+- Remove prior conventional package directory and ZIP before preflight; require supporting evidence-record projections fail closed.
+- Derive expected sector-axis contexts from immutable decision.fragment_ids rather than mutable candidate fragments.
+- Exclude review-required cross-axis overlap from substantive QMBD evidence and classify broad blue-planetaryism as a boundary case before generic no-signal.
+- Bind validation decisions to a SHA-256 over the full immutable decision + evidence/fragment/provenance snapshot and verify that hash before Layer-4 aggregation.
+- Derive schema-v2 analytical QMBD axis from retained evidence rather than retrieval/query targets; query targeting remains provenance only.
+- Retain deficit language such as "lacks digital skills" as review-required demand evidence rather than dropping it as negation.
+- The legacy QMBD gold-review group/code coupling fix is staged separately in PR #304.
+- This PR changes validation/measurement code and tests only; it does not rewrite retained empirical inputs, archives, or H1/H2/H3 outputs.
+
 CHANGELOG.txt
 
 Purpose
