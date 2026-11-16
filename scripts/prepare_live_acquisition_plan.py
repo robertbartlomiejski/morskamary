@@ -11,10 +11,13 @@ ACTIVE_ACQUISITION_PROVIDERS = (
     "scopus",
     "openalex",
     "scival",
-    "google_drive",
     "microsoft_graph",
 )
 DEACTIVATED_ACQUISITION_PROVIDERS = {
+    "google_drive": (
+        "Google Drive acquisition is not implemented/configured in the protected "
+        "full-live workflow and must not be expanded from providers=all"
+    ),
     "wos": (
         "Web of Science acquisition is temporarily deactivated until the "
         "scientific hardening plan and provider contract are completed"
