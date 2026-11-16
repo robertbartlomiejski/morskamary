@@ -141,10 +141,37 @@ def _normalise_page_diagnostics(
     """Return mapping-only diagnostics, replacing malformed entries fail closed."""
     normalised: List[Dict[str, Any]] = []
     provider_canonical = normalize_provider_name(provider_name)
+    required_fields = (
+        "logical_page",
+        "physical_request_index",
+        "requested_rows",
+        "returned_rows",
+        "normalized_rows",
+        "pagination_status",
+    )
     for index, diagnostic in enumerate(diagnostics, start=1):
         if isinstance(diagnostic, Mapping):
-            normalised.append(dict(diagnostic))
-            continue
+            row = dict(diagnostic)
+            numeric_valid = True
+            for field in required_fields[:-1]:
+                value = row.get(field)
+                if isinstance(value, bool):
+                    numeric_valid = False
+                    break
+                try:
+                    if int(value) < 0:
+                        numeric_valid = False
+                        break
+                except (TypeError, ValueError):
+                    numeric_valid = False
+                    break
+            status_valid = bool(str(row.get("pagination_status", "")).strip())
+            if all(field in row for field in required_fields) and numeric_valid and status_valid:
+                normalised.append(row)
+                continue
+            error_code = "malformed_page_diagnostic_mapping"
+        else:
+            error_code = "malformed_page_diagnostic_non_mapping"
         normalised.append(
             {
                 "provider": provider_canonical,
@@ -156,7 +183,7 @@ def _normalise_page_diagnostics(
                 "returned_rows": 0,
                 "normalized_rows": 0,
                 "pagination_status": "failed",
-                "errors": "malformed_page_diagnostic_non_mapping",
+                "errors": error_code,
                 "warnings": f"malformed_page_diagnostic_index:{index}",
             }
         )
@@ -172,6 +199,18 @@ def _normalise_page_diagnostics(
 _ZERO_ATTEMPT_STATUSES = frozenset(
     {"provider_not_configured", "not_configured", "no_credentials", "skipped"}
 )
+
+
+def _attempted_logical_pages(diagnostics: Sequence[Mapping[str, Any]]) -> int:
+    """Count distinct logical pages represented by canonical attempt diagnostics."""
+    pages = {
+        _safe_page_int(row.get("logical_page"))
+        for row in diagnostics
+        if _safe_page_int(row.get("logical_page")) > 0
+        and str(row.get("pagination_status", "")).strip().lower()
+        not in _ZERO_ATTEMPT_STATUSES
+    }
+    return len(pages)
 
 
 def _require_nonnegative_physical_request_count(
@@ -2059,7 +2098,9 @@ def main() -> int:
                         args.max_results_per_query,
                         physical_request_count=provider_physical_request_count,
                         page_diagnostics=result_page_diagnostics,
-                        attempted_logical_pages=effective_pages,
+                        attempted_logical_pages=_attempted_logical_pages(
+                            result_page_diagnostics
+                        ),
                     )
                     if result.errors:
                         print(f"    Errors: {result.errors}", file=sys.stderr)
