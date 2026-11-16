@@ -10,6 +10,7 @@ on:
       - "config/mor26_route_dispositions.json"
       - "tests/test_mor26_security_contract.py"
       - ".github/workflows/mor26-runner-acceptance.yml"
+      - ".coderabbit.yaml"
 
 permissions:
   contents: read
