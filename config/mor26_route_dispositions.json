@@ -3,10 +3,34 @@
   "scope": "Conservative Python subprocess/dynamic-import findings; classifications do not authorize scientific-provider traffic.",
   "dispositions": [
     {
+      "key": "scripts/build_performative_demand_cross_axis_analysis.py|UNVERIFIED argv",
+      "classification": "NON_PROVIDER_SCM_NETWORK",
+      "scientific_provider_http_reachable": false,
+      "rationale": "All flagged subprocess call sites are git cat-file/show/rev-parse or the bounded git fetch used to retrieve a retained protocol source commit from origin. The only network-capable operation is SCM provenance retrieval; no scientific-provider client or provider URL is reachable through this helper."
+    },
+    {
       "key": "scripts/changelog_guard.py|UNVERIFIED argv",
       "classification": "NON_NETWORK_LOCAL_PROCESS",
       "scientific_provider_http_reachable": false,
       "rationale": "The helper is called only with local git merge-base and git diff commands."
+    },
+    {
+      "key": "scripts/check_research_env.py|UNVERIFIED dynamic import",
+      "classification": "NON_NETWORK_LOCAL_IMPORT",
+      "scientific_provider_http_reachable": false,
+      "rationale": "The dynamic import only verifies whether named Python packages are importable; importing is not a scientific-provider dispatch path."
+    },
+    {
+      "key": "scripts/compare_generated_outputs.py|UNVERIFIED argv",
+      "classification": "NON_NETWORK_LOCAL_PROCESS",
+      "scientific_provider_http_reachable": false,
+      "rationale": "All flagged subprocess call sites are local git diff, git ls-files, and git show commands used to compare generated outputs against HEAD; none performs network I/O or invokes a scientific-provider client."
+    },
+    {
+      "key": "scripts/cumulative_update_merge_full_live_enriched_and_static_all_outputs_fragmented_analysis.py|UNVERIFIED argv",
+      "classification": "NON_NETWORK_LOCAL_PROCESS",
+      "scientific_provider_http_reachable": false,
+      "rationale": "The helper executes local git inspection commands and repository-local Python analysis/validation commands; no live provider client is passed through this subprocess helper."
     },
     {
       "key": "scripts/sync_audit.py|UNVERIFIED argv",
@@ -19,24 +43,6 @@
       "classification": "NON_NETWORK_LOCAL_PROCESS",
       "scientific_provider_http_reachable": false,
       "rationale": "The dynamic argv launches the repository-local deterministic rebuild builder with the current Python executable."
-    },
-    {
-      "key": "scripts/build_performative_demand_cross_axis_analysis.py|network subprocess",
-      "classification": "NON_PROVIDER_SCM_NETWORK",
-      "scientific_provider_http_reachable": false,
-      "rationale": "The only literal network subprocess is git fetch of a retained protocol source commit from origin; it is source-control provenance retrieval, not scientific-provider HTTP."
-    },
-    {
-      "key": "scripts/cumulative_update_merge_full_live_enriched_and_static_all_outputs_fragmented_analysis.py|UNVERIFIED argv",
-      "classification": "NON_NETWORK_LOCAL_PROCESS",
-      "scientific_provider_http_reachable": false,
-      "rationale": "The helper executes local git inspection commands and repository-local Python analysis/validation commands; no live provider client is passed through this subprocess helper."
-    },
-    {
-      "key": "scripts/check_research_env.py|UNVERIFIED dynamic import",
-      "classification": "NON_NETWORK_LOCAL_IMPORT",
-      "scientific_provider_http_reachable": false,
-      "rationale": "The dynamic import only verifies whether named Python packages are importable; importing is not a scientific-provider dispatch path."
     }
   ]
 }
