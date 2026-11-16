@@ -2366,6 +2366,24 @@ def test_shared_canonical_label_emits_assignment_for_each_accepted_decision(
         for assignment in validated.sector_competence_assignments
     } == {canonical_id}
 
+    layer4 = build_layer4(
+        evidence_records=[row.to_dict() for row in validated.evidence_records],
+        competence_signals=[],
+        evidence_fragments=[row.to_dict() for row in validated.evidence_fragments],
+        canonical_competences=[row.to_dict() for row in validated.canonical_competences],
+        sector_competence_assignments=[
+            row.to_dict() for row in validated.sector_competence_assignments
+        ],
+        validation_decisions=[row.to_dict() for row in validated.validation_decisions],
+        competence_candidates=[row.to_dict() for row in validated.competence_candidates],
+        semantic_signals=[row.to_dict() for row in validated.semantic_signals],
+        output_dir=tmp_path / "validated-layer4",
+        current_run_id="R1",
+        analysis_timestamp_utc=FROZEN_TS,
+    )
+    assert len(layer4.derived_demands) == 1
+    assert len(layer4.derived_demands[0].validation_decision_ids.split("|")) == 2
+
 
 def test_current_observation_signal_components_are_reused(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
