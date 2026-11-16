@@ -76,6 +76,7 @@ from typing import (
 )
 from urllib.parse import unquote as _url_unquote
 
+from src.axis_classifier import AxisClassifier
 from src.core import BlueDynamicsAxis
 from src.scientific_sources.live_query_protocol import (
     LiveQuery,
@@ -1446,10 +1447,14 @@ def _upgrade_if_enriched(
 # ---------------------------------------------------------------------------
 
 _NEGATION_CUE_RE = re.compile(
-    r"\b(?:no|not(?!\s+only\b)|never|without|neither|nor|"
-    r"lack(?:ing|ed|s)?)\b",
+    r"\b(?:no|not(?!\s+only\b)|never|without|neither|nor)\b",
     flags=re.IGNORECASE,
 )
+_DEFICIT_CUE_RE = re.compile(
+    r"\b(?:lack(?:ing|ed|s)?|shortage(?:s)?|deficit(?:s)?|insufficient)\b",
+    flags=re.IGNORECASE,
+)
+_EVIDENCE_AXIS_CLASSIFIER = AxisClassifier()
 _SPECULATION_CUE_RE = re.compile(
     r"\b(?:may|might|could|possibly|potentially|likely|unlikely|"
     r"suggest(?:s|ed|ing)?|appear(?:s|ed|ing)?|expected)\b",
@@ -1504,6 +1509,26 @@ def _has_negation_or_speculation_cue(
     return bool(
         _NEGATION_CUE_RE.search(clause) or _SPECULATION_CUE_RE.search(clause)
     )
+
+
+def _has_deficit_cue(
+    source_text: str,
+    span_start: int,
+    span_end: int,
+) -> bool:
+    """Return whether the matched clause states a capability deficit."""
+    delimiters = (".", "?", "!", ";", "\n")
+    clause_start = (
+        max(source_text.rfind(delimiter, 0, span_start) for delimiter in delimiters)
+        + 1
+    )
+    following_delimiters = [
+        index
+        for delimiter in delimiters
+        if (index := source_text.find(delimiter, span_end)) != -1
+    ]
+    clause_end = min(following_delimiters) if following_delimiters else len(source_text)
+    return bool(_DEFICIT_CUE_RE.search(source_text[clause_start:clause_end]))
 
 
 def _scan_semantic_signals(
@@ -2568,6 +2593,29 @@ def _build_signal_components_for_observation(
             source_field=match.source_field,
             metadata_only=is_metadata_only,
         )
+        axis_payload = _EVIDENCE_AXIS_CLASSIFIER.classify_context(
+            match.source_text,
+            text_scope=match.source_field,
+        )
+        if (
+            axis_payload.get("manual_review_status") == "review_required"
+            or axis_payload.get("axis") == "UNCLASSIFIED"
+        ):
+            analytical_axis_group = ""
+            analytical_axis_code = ""
+            review_status = "review_required"
+        else:
+            analytical_axis_group = str(axis_payload.get("axis", "")).strip()
+            analytical_axis_code = str(axis_payload.get("axis_code", "")).strip()
+
+        warning_parts = [value for value in (warning,) if value]
+        if not analytical_axis_group:
+            warning_parts.append("axis_unclassified_from_retained_evidence")
+        if _has_deficit_cue(match.source_text, match.span_start, match.span_end):
+            review_status = "review_required"
+            warning_parts.append("deficit_statement_review_required")
+        component_warning = "|".join(sorted(set(warning_parts)))
+
         signal_id = _make_signal_id(
             evidence_id,
             pattern.signal_type,
@@ -2621,8 +2669,8 @@ def _build_signal_components_for_observation(
                     run_id=obs.run_id,
                     source_provenance_id=provenance_id,
                     sector=obs.binding.sector_slug,
-                    axis_group=obs.binding.axis_group,
-                    axis_code=obs.binding.axis_code,
+                    axis_group=analytical_axis_group,
+                    axis_code=analytical_axis_code,
                     query_id=obs.binding.query_id,
                     query_family=obs.binding.query_family,
                     signal_type=pattern.signal_type,
@@ -2639,7 +2687,7 @@ def _build_signal_components_for_observation(
                     context_text=match.source_text,
                     evidence_text_hash=evidence_text_hash,
                     manual_review_status=review_status,
-                    validity_warning=warning,
+                    validity_warning=component_warning,
                 ),
                 competence_candidate=CompetenceCandidate(
                     candidate_id=candidate_id,
@@ -2648,8 +2696,8 @@ def _build_signal_components_for_observation(
                     evidence_id=evidence_id,
                     run_id=obs.run_id,
                     sector=obs.binding.sector_slug,
-                    axis_group=obs.binding.axis_group,
-                    axis_code=obs.binding.axis_code,
+                    axis_group=analytical_axis_group,
+                    axis_code=analytical_axis_code,
                     source_provenance_ids=provenance_id,
                     fragment_ids=fragment_id,
                     candidate_label=_candidate_label(pattern, match.span_text),
