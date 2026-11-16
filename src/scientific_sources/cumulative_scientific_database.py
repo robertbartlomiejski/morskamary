@@ -259,6 +259,7 @@ VALIDATION_DECISION_COLUMNS: Tuple[str, ...] = (
     "evidence_ids",
     "fragment_ids",
     "source_provenance_ids",
+    "decision_content_sha256",
     "superseded_validation_decision_id",
 )
 
@@ -748,6 +749,7 @@ class ValidationDecision:
     evidence_ids: str
     fragment_ids: str
     source_provenance_ids: str
+    decision_content_sha256: str
     superseded_validation_decision_id: str
 
     def to_dict(self) -> Dict[str, Any]:
@@ -2937,23 +2939,36 @@ def _build_validation_decisions(
         superseded_id = str(
             payload.get("superseded_validation_decision_id") or ""
         ).strip()
+        content_seed = "\x1f".join(
+            (
+                candidate_id,
+                canonical_label,
+                decision_status,
+                reviewer,
+                decision_at,
+                decision_reason,
+                evidence_ids,
+                fragment_ids,
+                source_provenance_ids,
+                superseded_id,
+            )
+        )
+        decision_content_sha256 = hashlib.sha256(
+            content_seed.encode("utf-8")
+        ).hexdigest()
+        supplied_content_sha256 = str(
+            payload.get("decision_content_sha256") or ""
+        ).strip()
+        if (
+            supplied_content_sha256
+            and supplied_content_sha256 != decision_content_sha256
+        ):
+            raise CumulativeDatabaseError(
+                "validation decision content hash does not match immutable snapshot"
+            )
         decision_id = str(payload.get("validation_decision_id") or "").strip()
         if not decision_id:
-            seed = "\x1f".join(
-                (
-                    candidate_id,
-                    canonical_label,
-                    decision_status,
-                    reviewer,
-                    decision_at,
-                    decision_reason,
-                    evidence_ids,
-                    fragment_ids,
-                    source_provenance_ids,
-                    superseded_id,
-                )
-            )
-            decision_id = f"decision:{hashlib.sha256(seed.encode('utf-8')).hexdigest()}"
+            decision_id = f"decision:{decision_content_sha256}"
         if decision_id in decision_ids:
             raise CumulativeDatabaseError(
                 f"duplicate validation decision identifier: {decision_id}"
@@ -2971,6 +2986,7 @@ def _build_validation_decisions(
                 evidence_ids=evidence_ids,
                 fragment_ids=fragment_ids,
                 source_provenance_ids=source_provenance_ids,
+                decision_content_sha256=decision_content_sha256,
                 superseded_validation_decision_id=superseded_id,
             )
         )
