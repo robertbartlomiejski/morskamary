@@ -614,3 +614,27 @@ def test_parse_args_none_honours_real_sys_argv(monkeypatch, tmp_path: Path) -> N
 
     assert args.output_path == str(output_path)
     assert args.jaccard_threshold == 0.99
+
+
+def test_empty_contributing_profile_is_unavailable(tmp_path) -> None:
+    module = _load_module()
+    run_dir = tmp_path / "run"
+    log = run_dir / module.QUERY_EXECUTION_LOG_REL
+    log.parent.mkdir(parents=True)
+    log.write_text(
+        "provider_canonical,contributed_record_count,normalized_record_count\n"
+        "crossref,0,0\n",
+        encoding="utf-8",
+    )
+    assert module._derive_contributing_provider_profile(run_dir, {}) == ([], False)
+
+
+def test_empty_doi_sets_are_not_fully_similar() -> None:
+    module = _load_module()
+    assert module.compute_jaccard_similarity(set(), set()) == 0.0
+
+
+def test_live_api_and_graph_records_are_recognized() -> None:
+    module = _load_module()
+    assert module._is_live_like_record({"record_origin": "LIVE_API"})
+    assert module._is_live_like_record({"source_id": "graph:abc"})

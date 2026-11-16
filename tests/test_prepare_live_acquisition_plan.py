@@ -47,3 +47,15 @@ def test_authoritative_shape_is_preserved() -> None:
     assert plan["logical_pages"] == 3
     assert plan["rows_per_page"] == 50
     assert plan["max_results_per_query"] == 150
+
+
+def test_all_profile_excludes_unimplemented_google_drive() -> None:
+    plan = build_plan(_constraints(), "all", "3", "50")
+    assert "google_drive" not in plan["providers"]
+    assert "google_drive" in DEACTIVATED_ACQUISITION_PROVIDERS
+
+
+def test_explicit_google_drive_request_fails_as_deactivated() -> None:
+    import pytest
+    with pytest.raises(ValueError, match="deactivated provider requested: google_drive"):
+        build_plan(_constraints(), "google_drive", "3", "50")

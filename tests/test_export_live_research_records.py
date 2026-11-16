@@ -2756,3 +2756,41 @@ class TestProviderOwnedPhysicalRequestCount:
                 provider_configured=False,
                 page_diagnostics=[],
             )
+
+
+def test_mapping_diagnostic_missing_canonical_fields_fails_closed() -> None:
+    rows = _normalise_page_diagnostics(
+        [{"pagination_status": "end_of_results"}],
+        provider_name="Crossref",
+        query="blue economy",
+    )
+    assert rows[0]["pagination_status"] == "failed"
+    assert rows[0]["logical_page"] == 0
+    assert "malformed_page_diagnostic_mapping" in rows[0]["errors"]
+
+
+def test_attempted_pages_derive_from_actual_diagnostics_not_plan() -> None:
+    from scripts.export_live_research_records import (
+        _attempted_logical_pages_from_diagnostics,
+    )
+    diagnostics = [
+        {
+            "logical_page": 1,
+            "physical_request_index": 1,
+            "requested_rows": 50,
+            "returned_rows": 50,
+            "normalized_rows": 45,
+            "pagination_status": "applied",
+        },
+        {
+            "logical_page": 2,
+            "physical_request_index": 2,
+            "requested_rows": 50,
+            "returned_rows": 0,
+            "normalized_rows": 0,
+            "pagination_status": "failed",
+        },
+    ]
+    assert _attempted_logical_pages_from_diagnostics(
+        diagnostics, physical_request_count=2
+    ) == 2
