@@ -65,6 +65,18 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Clear checkout-state audit evidence before tool setup
+        run: |
+          set -euo pipefail
+          rm -f outputs/research_api_health.json
+          rm -f outputs/research_sources/query_execution_log.csv
+          rm -f outputs/research_sources/query_protocol_constraints.json
+          rm -f outputs/cumulative_database/novelty_gate_report.json
+          rm -f outputs/cumulative_database/provider_sensitivity_analysis.json
+          rm -f outputs/cumulative_database/validated_credential_supply_audit.json
+          rm -f outputs/governance/physical_attempt_budget.json
+          rm -f outputs/governance/physical_attempt_audit.json
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
