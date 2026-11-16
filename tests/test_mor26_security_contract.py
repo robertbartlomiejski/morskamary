@@ -134,3 +134,18 @@ def test_route_disposition_manifest_fails_closed_on_unknown_finding(tmp_path):
     )
     errors = validate_route_dispositions(tmp_path)
     assert any(item.startswith("UNDISPOSITIONED:") for item in errors)
+
+
+def test_mor26_workflow_cannot_be_green_when_shared_acceptance_is_skipped():
+    workflow = (
+        Path(__file__).resolve().parents[1]
+        / ".github"
+        / "workflows"
+        / "mor26-runner-acceptance.yml"
+    ).read_text(encoding="utf-8")
+    assert "acceptance-status:" in workflow
+    assert "G2_NOT_APPROVED_EXTERNAL_BLOCK" in workflow
+    assert 'RUNNER_A_RESULT: ${{ needs.runner-a.result }}' in workflow
+    assert 'VERIFY_RESULT: ${{ needs.verify.result }}' in workflow
+    assert '"$RUNNER_A_RESULT" == "skipped"' in workflow
+    assert '"$VERIFY_RESULT" == "skipped"' in workflow

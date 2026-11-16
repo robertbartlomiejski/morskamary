@@ -228,3 +228,49 @@ jobs:
         with:
           name: mor26-independent-runner-sanitized-evidence
           path: mor26-evidence/
+
+  acceptance-status:
+    if: ${{ always() }}
+    needs:
+      - route-audit
+      - outage-fail-closed
+      - runner-a
+      - runner-b
+      - race
+      - provider-ceiling
+      - verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail closed unless the complete shared-PostgreSQL acceptance executed
+        env:
+          ROUTE_RESULT: ${{ needs.route-audit.result }}
+          OUTAGE_RESULT: ${{ needs.outage-fail-closed.result }}
+          RUNNER_A_RESULT: ${{ needs.runner-a.result }}
+          RUNNER_B_RESULT: ${{ needs.runner-b.result }}
+          RACE_RESULT: ${{ needs.race.result }}
+          PROVIDER_RESULT: ${{ needs.provider-ceiling.result }}
+          VERIFY_RESULT: ${{ needs.verify.result }}
+        run: |
+          printf '%s\n' \
+            "route=$ROUTE_RESULT" \
+            "outage=$OUTAGE_RESULT" \
+            "runner_a=$RUNNER_A_RESULT" \
+            "runner_b=$RUNNER_B_RESULT" \
+            "race=$RACE_RESULT" \
+            "provider=$PROVIDER_RESULT" \
+            "verify=$VERIFY_RESULT"
+          if [[ "$ROUTE_RESULT" != "success" || "$OUTAGE_RESULT" != "success" ]]; then
+            echo "::error title=MOR-26 pre-acceptance evidence failed::Route audit and outage fail-closed must pass."
+            exit 1
+          fi
+          if [[ "$RUNNER_A_RESULT" == "skipped" || "$VERIFY_RESULT" == "skipped" ]]; then
+            echo "::error title=G2_NOT_APPROVED_EXTERNAL_BLOCK::Shared PostgreSQL acceptance environment is not configured; skipped is not acceptance."
+            exit 1
+          fi
+          if [[ "$RUNNER_A_RESULT" != "success" || "$RUNNER_B_RESULT" != "success" || \
+                "$RACE_RESULT" != "success" || "$PROVIDER_RESULT" != "success" || \
+                "$VERIFY_RESULT" != "success" ]]; then
+            echo "::error title=G2_NOT_APPROVED_ACCEPTANCE_FAILURE::At least one independent-runner acceptance invariant failed."
+            exit 1
+          fi
+          echo "G2_ACCEPTANCE_EVIDENCE_COMPLETE"
