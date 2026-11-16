@@ -18,6 +18,8 @@ from __future__ import annotations
 
 from typing import Dict, List
 
+from src.scientific_sources.attempt_budget import AttemptBudgetError
+
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.crossref import CrossrefProvider
 from src.scientific_sources.elsevier_scopus import ElsevierScopusProvider
@@ -31,6 +33,21 @@ from src.scientific_sources.models import (
 )
 from src.scientific_sources.scival import SciValProvider
 from src.scientific_sources.web_of_science import WebOfScienceProvider
+
+
+class ProviderBatchBudgetStop(AttemptBudgetError):
+    """Budget stop carrying provider results completed before the stop."""
+
+    code = "provider_batch_budget_stop"
+
+    def __init__(
+        self,
+        cause: AttemptBudgetError,
+        completed: List[tuple[str, ProviderResult]],
+    ) -> None:
+        super().__init__(str(cause))
+        self.cause = cause
+        self.completed = list(completed)
 
 
 class SourceRegistry:
@@ -115,16 +132,22 @@ class SourceRegistry:
                 p for p in self._providers if p.capability.name in providers
             ]
         sort_strategy_by_provider = sort_strategy_by_provider or {}
-        return [
-            p.search_paginated(
-                query,
-                pages=pages,
-                rows_per_page=rows_per_page,
-                sort_strategy=sort_strategy_by_provider.get(p.capability.name, ""),
-                time_window=time_window,
-            )
-            for p in targets
-        ]
+        completed: List[tuple[str, ProviderResult]] = []
+        for provider in targets:
+            try:
+                result = provider.search_paginated(
+                    query,
+                    pages=pages,
+                    rows_per_page=rows_per_page,
+                    sort_strategy=sort_strategy_by_provider.get(
+                        provider.capability.name, ""
+                    ),
+                    time_window=time_window,
+                )
+            except AttemptBudgetError as exc:
+                raise ProviderBatchBudgetStop(exc, completed) from None
+            completed.append((provider.capability.name, result))
+        return [result for _, result in completed]
 
     def verify_doi(self, doi: str) -> List[ProviderResult]:
         """

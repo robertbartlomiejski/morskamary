@@ -1543,6 +1543,86 @@ def export_raw_api_payloads(
     return written
 
 
+def _append_jsonl(path: Path, rows: Sequence[Mapping[str, Any]]) -> None:
+    if not rows:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        for row in rows:
+            handle.write(
+                json.dumps(dict(row), sort_keys=True, ensure_ascii=False) + "\n"
+            )
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
+def _persist_completed_results_before_budget_stop(
+    completed: Sequence[Tuple[str, Any]],
+    *,
+    query: str,
+    query_id: str,
+    output_dir: Path,
+) -> None:
+    """Preserve completed provider evidence without creating publishable outputs."""
+    if not completed:
+        return
+    partial = output_dir / "partial_acquisition_failed"
+    run_id = os.environ.get("CURRENT_RUN_ID", "")
+    record_rows: List[Dict[str, Any]] = []
+    provenance_rows: List[Dict[str, Any]] = []
+    occurrence_rows: List[Dict[str, Any]] = []
+    payload_rows: List[Dict[str, Any]] = []
+    for provider_name, result in completed:
+        provider_key = normalize_provider_name(provider_name)
+        for record in result.records:
+            record_rows.append({
+                "run_id": run_id,
+                "query_id": query_id,
+                "provider": provider_key,
+                "record": _to_stage1_compliant_dict(record),
+            })
+            occurrence_rows.append({
+                "run_id": run_id,
+                "query_id": query_id,
+                "provider": provider_key,
+                "record_identity": _identity_key_from_record(record),
+            })
+        provenance_rows.extend({
+            "run_id": run_id,
+            "query_id": query_id,
+            "provider": provider_key,
+            "provenance": item.to_dict(),
+        } for item in result.provenance)
+        if result.raw_payload is not None:
+            serialised = json.dumps(
+                result.raw_payload, ensure_ascii=False, sort_keys=True
+            )
+            payload_rows.append({
+                "run_id": run_id,
+                "query_id": query_id,
+                "provider": provider_key,
+                "payload_sha256": hashlib.sha256(
+                    serialised.encode("utf-8")
+                ).hexdigest(),
+            })
+            export_raw_api_payloads(
+                [{
+                    "provider": provider_key,
+                    "query": query,
+                    "raw_payload": result.raw_payload,
+                }],
+                partial,
+            )
+    _append_jsonl(partial / "completed_records.jsonl", record_rows)
+    _append_jsonl(partial / "provenance.jsonl", provenance_rows)
+    _append_jsonl(partial / "raw_occurrences.jsonl", occurrence_rows)
+    _append_jsonl(partial / "provider_payload_index.jsonl", payload_rows)
+    (partial / "PUBLICATION_BLOCKED").write_text(
+        "physical attempt budget stop; partial evidence only\n",
+        encoding="utf-8",
+    )
+
+
 def main() -> int:
     """Run the export; a physical-attempt budget stop is a non-zero failure."""
     try:
@@ -2015,6 +2095,14 @@ def _run_export() -> int:
                         sort_strategy_by_provider=resolved_sort_strategy,
                         time_window=time_window,
                     )
+                except ProviderBatchBudgetStop as exc:
+                    _persist_completed_results_before_budget_stop(
+                        exc.completed,
+                        query=query,
+                        query_id=str(constraint["query_id"]),
+                        output_dir=Path(args.output_dir),
+                    )
+                    raise exc.cause
                 except PaginatedDispatchContractError as exc:
                     print(
                         "Error: paginated acquisition dispatch contract failed: "
