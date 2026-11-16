@@ -21,6 +21,31 @@ def _count(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool) and value >= 0
 
 
+_RESERVATION_FIELDS = {
+    "attempt_id", "provider", "purpose", "status", "outcome", "http_status",
+    "reserved_at_utc", "completed_at_utc", "global_count_after",
+    "provider_count_after",
+}
+_REFUSAL_FIELDS = {
+    "provider", "purpose", "stop_reason", "refused_at_utc",
+    "global_count", "provider_count",
+}
+_COUNTER_FIELDS = {
+    "reserved_total", "remaining_global", "completed", "unresolved",
+    "refused_total", "by_provider",
+}
+_PROVIDER_COUNTER_FIELDS = {"ceiling", "reserved", "refused", "outcomes"}
+_CONTROL_FIELDS = {"logical_page_budget", "attempts_are_never_refunded"}
+
+
+def _exact_fields(row: Any, expected: set[str]) -> bool:
+    return isinstance(row, dict) and set(row) == expected
+
+
+def _plain_text(value: Any) -> bool:
+    return isinstance(value, str) and bool(value.strip())
+
+
 def verify_audit_file(path: str | os.PathLike[str]) -> List[str]:
     """Return human-readable errors only, never raw or secret-bearing content."""
     try:
@@ -76,16 +101,16 @@ def verify_audit_file(path: str | os.PathLike[str]) -> List[str]:
     if not isinstance(reservations, list) or not isinstance(refusals, list):
         errors.append("audit rows must be arrays")
         return errors
-    if not isinstance(counters, dict):
-        errors.append("audit counters must be an object")
+    if not _exact_fields(counters, _COUNTER_FIELDS):
+        errors.append("audit counters schema mismatch")
         return errors
     used_by_provider: dict[str, int] = {}
     outcomes_by_provider: dict[str, dict[str, int]] = {}
     seen_ids: set[str] = set()
     completed = 0
     for idx, row in enumerate(reservations, 1):
-        if not isinstance(row, dict):
-            errors.append("audit reservation is not an object")
+        if not _exact_fields(row, _RESERVATION_FIELDS):
+            errors.append("audit reservation schema mismatch")
             continue
         provider = row.get("provider")
         purpose = row.get("purpose")
@@ -96,9 +121,22 @@ def verify_audit_file(path: str | os.PathLike[str]) -> List[str]:
             or provider not in budget.provider_ceilings
             or purpose not in PURPOSES
             or status not in ("reserved", "completed")
-            or not isinstance(attempt_id, str)
-            or not attempt_id
+            or not _plain_text(attempt_id)
             or attempt_id in seen_ids
+            or not _plain_text(row.get("reserved_at_utc"))
+            or (
+                row.get("completed_at_utc") is not None
+                and not _plain_text(row.get("completed_at_utc"))
+            )
+            or (
+                row.get("http_status") is not None
+                and (
+                    not isinstance(row.get("http_status"), int)
+                    or isinstance(row.get("http_status"), bool)
+                )
+            )
+            or not _count(row.get("global_count_after"))
+            or not _count(row.get("provider_count_after"))
         ):
             errors.append("audit reservation identity or status invalid")
             continue
@@ -138,8 +176,8 @@ def verify_audit_file(path: str | os.PathLike[str]) -> List[str]:
     stop_reasons: dict[str, int] = {}
     refused_by_provider: dict[str, int] = {}
     for row in refusals:
-        if not isinstance(row, dict):
-            errors.append("audit refusal is not an object")
+        if not _exact_fields(row, _REFUSAL_FIELDS):
+            errors.append("audit refusal schema mismatch")
             continue
         provider = row.get("provider")
         reason = row.get("stop_reason")
@@ -150,9 +188,29 @@ def verify_audit_file(path: str | os.PathLike[str]) -> List[str]:
             or reason not in (REFUSAL_GLOBAL, REFUSAL_PROVIDER)
             or not _count(row.get("global_count"))
             or not _count(row.get("provider_count"))
+            or not _plain_text(row.get("refused_at_utc"))
         ):
             errors.append("audit refusal record invalid")
             continue
+        global_count = row["global_count"]
+        provider_count = row["provider_count"]
+        if (
+            global_count > len(reservations)
+            or provider_count > used_by_provider.get(provider, 0)
+        ):
+            errors.append("audit refusal counts exceed recorded reservation history")
+        if provider_count > global_count:
+            errors.append("audit refusal provider count exceeds global count")
+        if (
+            reason == REFUSAL_GLOBAL
+            and global_count != budget.maximum_total_physical_attempts
+        ):
+            errors.append("audit global refusal does not show exhausted ceiling")
+        if (
+            reason == REFUSAL_PROVIDER
+            and provider_count != budget.provider_ceilings[provider]
+        ):
+            errors.append("audit provider refusal does not show exhausted ceiling")
         stop_reasons[reason] = stop_reasons.get(reason, 0) + 1
         refused_by_provider[provider] = refused_by_provider.get(provider, 0) + 1
     if audit.get("stop_reasons") != stop_reasons:
@@ -166,7 +224,19 @@ def verify_audit_file(path: str | os.PathLike[str]) -> List[str]:
         errors.append("audit provider counters missing")
     else:
         for provider, row in by_provider.items():
-            if not isinstance(row, dict) or provider not in budget.provider_ceilings:
+            if (
+                not _exact_fields(row, _PROVIDER_COUNTER_FIELDS)
+                or provider not in budget.provider_ceilings
+                or not _count(row.get("ceiling"))
+                or not _count(row.get("reserved"))
+                or not _count(row.get("refused"))
+                or not isinstance(row.get("outcomes"), dict)
+                or any(
+                    key not in set(OUTCOMES) | {"unresolved"}
+                    or not _count(value)
+                    for key, value in row.get("outcomes", {}).items()
+                )
+            ):
                 errors.append("audit provider row invalid")
                 continue
             if (
@@ -179,8 +249,9 @@ def verify_audit_file(path: str | os.PathLike[str]) -> List[str]:
         if set(by_provider) != set(budget.provider_ceilings):
             errors.append("audit provider enumeration mismatch")
     controls = audit.get("separate_controls")
-    if not isinstance(controls, dict) or (
+    if not _exact_fields(controls, _CONTROL_FIELDS) or (
         controls.get("attempts_are_never_refunded") is not True
+        or not _plain_text(controls.get("logical_page_budget"))
     ):
         errors.append("audit no-refund control missing")
     return errors

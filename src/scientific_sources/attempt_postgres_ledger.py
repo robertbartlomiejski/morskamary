@@ -226,11 +226,13 @@ class PostgresAttemptLedger:
             ) from None
 
     def snapshot(self) -> Dict[str, List[Any]]:
-        """Return sanitized audit tuples in the same shape as the SQLite ledger."""
-        self.verify()
+        """Return one locked, repeatable-read audit snapshot."""
         try:
             with self._open() as conn:
                 with conn.cursor() as cur:
+                    cur.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
+                    self._check_authorization(cur, lock=True)
+                    self._validated_counts(cur)
                     cur.execute(
                         "SELECT attempt_id,provider,purpose,status,outcome,"
                         " http_status,reserved_at,completed_at,"

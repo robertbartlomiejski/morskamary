@@ -1,6 +1,7 @@
 """New MOR-26 offline twenty-case regression, NOT the original RED suite."""
 import copy
 import json
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -185,3 +186,68 @@ def test_mor26_race_requires_shared_rendezvous() -> None:
     assert 'all(d["rendezvous_count"] == 2 for d in race)' in workflow
     assert "mor26_private.rendezvous" in fixture
     assert "race contenders did not rendezvous" in fixture
+
+
+def test_audit_rejects_undeclared_nested_reservation_fields(tmp_path):
+    payload = _audit(tmp_path)
+    payload["reservations"][0]["headers"] = {"Authorization": "Basic YWJj"}
+    file = tmp_path / "audit-extra.json"
+    file.write_text(json.dumps(payload), encoding="utf-8")
+    assert "audit reservation schema mismatch" in verify_audit_file(file)
+
+
+def test_audit_rejects_impossible_global_refusal_counts(tmp_path):
+    payload = _audit(tmp_path)
+    payload["refusals"] = [{
+        "provider": "openalex",
+        "purpose": "acquisition",
+        "stop_reason": ab.REFUSAL_GLOBAL,
+        "refused_at_utc": "2026-11-16T00:00:00+00:00",
+        "global_count": 0,
+        "provider_count": 0,
+    }]
+    payload["counters"]["refused_total"] = 1
+    payload["counters"]["by_provider"]["openalex"]["refused"] = 1
+    payload["stop_reasons"] = {ab.REFUSAL_GLOBAL: 1}
+    payload["status"] = "ceiling_reached"
+    file = tmp_path / "audit-refusal.json"
+    file.write_text(json.dumps(payload), encoding="utf-8")
+    errors = verify_audit_file(file)
+    assert "audit global refusal does not show exhausted ceiling" in errors
+
+
+def test_sqlite_same_named_ineffective_trigger_is_rejected(tmp_path):
+    approved = ab.parse_budget(_raw())
+    path = tmp_path / "ledger.sqlite"
+    ledger = ab.AttemptLedger(path, approved)
+    ledger.initialize()
+    with sqlite3.connect(path) as conn:
+        conn.execute("DROP TRIGGER attempts_no_delete")
+        conn.execute(
+            "CREATE TRIGGER attempts_no_delete BEFORE DELETE ON attempts "
+            "BEGIN SELECT 1; END"
+        )
+    with pytest.raises(ab.LedgerCorruptError):
+        ledger.verify()
+
+
+def test_sqlite_reservation_revalidates_protections_after_prior_success(tmp_path):
+    approved = ab.parse_budget(_raw())
+    path = tmp_path / "ledger.sqlite"
+    ledger = ab.AttemptLedger(path, approved)
+    ledger.initialize()
+    ledger.reserve("openalex", "acquisition")
+    with sqlite3.connect(path) as conn:
+        conn.execute("DROP TRIGGER attempts_no_delete")
+    with pytest.raises(ab.LedgerCorruptError):
+        ledger.reserve("openalex", "acquisition")
+
+
+def test_postgres_snapshot_declares_repeatable_read_and_authorization_lock() -> None:
+    source = (
+        Path(__file__).resolve().parents[1]
+        / "src" / "scientific_sources" / "attempt_postgres_ledger.py"
+    ).read_text(encoding="utf-8")
+    snapshot = source.split("    def snapshot(", 1)[1]
+    assert "SET TRANSACTION ISOLATION LEVEL REPEATABLE READ" in snapshot
+    assert "self._check_authorization(cur, lock=True)" in snapshot

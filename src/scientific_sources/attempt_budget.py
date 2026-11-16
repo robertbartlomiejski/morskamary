@@ -356,15 +356,40 @@ class AttemptLedger:
     def _verify_connection(self, conn: sqlite3.Connection) -> None:
         if conn.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
             raise LedgerCorruptError("attempt ledger failed integrity_check")
-        names = {
+        tables = {
             row[0]
             for row in conn.execute(
-                "SELECT name FROM sqlite_master WHERE type IN ('table','trigger')"
+                "SELECT name FROM sqlite_master WHERE type='table'"
             )
         }
-        required = {"meta", "attempts", "refusals"} | _EXPECTED_TRIGGERS
-        if not required <= names:
+        if not {"meta", "attempts", "refusals"} <= tables:
             raise LedgerCorruptError("attempt ledger schema is incomplete")
+        trigger_rows = {
+            row[0]: (row[1], row[2] or "")
+            for row in conn.execute(
+                "SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger'"
+            )
+        }
+        required_fragments = {
+            "attempts_no_delete": ("BEFORE DELETE ON ATTEMPTS", "RAISE(ABORT"),
+            "attempts_immutable_identity": (
+                "BEFORE UPDATE OF", "ON ATTEMPTS", "RAISE(ABORT",
+            ),
+            "attempts_no_reopen": (
+                "BEFORE UPDATE ON ATTEMPTS",
+                "WHEN OLD.STATUS = 'COMPLETED'",
+                "RAISE(ABORT",
+            ),
+        }
+        for name in _EXPECTED_TRIGGERS:
+            target, sql = trigger_rows.get(name, ("", ""))
+            normalized = " ".join(str(sql).upper().split())
+            if target != "attempts" or any(
+                fragment not in normalized for fragment in required_fragments[name]
+            ):
+                raise LedgerCorruptError(
+                    f"attempt ledger protection is missing or ineffective: {name}"
+                )
         self._check_meta(conn)
         rows = conn.execute(
             "SELECT seq, provider, purpose, status, outcome, global_count_after,"
@@ -415,7 +440,7 @@ class AttemptLedger:
         try:
             conn.execute("BEGIN IMMEDIATE")
             try:
-                self._check_meta(conn)
+                self._verify_connection(conn)
                 total = conn.execute("SELECT COUNT(*) FROM attempts").fetchone()[0]
                 used = conn.execute(
                     "SELECT COUNT(*) FROM attempts WHERE provider=?", (provider,)
@@ -482,10 +507,11 @@ class AttemptLedger:
             conn.close()
 
     def snapshot(self) -> Dict[str, Any]:
-        """Return all ledger rows for the sanitized audit."""
-        self.verify()
+        """Return one validated, transaction-consistent audit snapshot."""
         conn = _connect(self.path, create=False)
         try:
+            conn.execute("BEGIN")
+            self._verify_connection(conn)
             attempts = conn.execute(
                 "SELECT attempt_id, provider, purpose, status, outcome, http_status,"
                 " reserved_at, completed_at, global_count_after, provider_count_after"
@@ -495,7 +521,14 @@ class AttemptLedger:
                 "SELECT provider, purpose, reason, refused_at, global_count,"
                 " provider_count FROM refusals ORDER BY seq"
             ).fetchall()
+            conn.execute("COMMIT")
+        except AttemptBudgetError:
+            with contextlib.suppress(sqlite3.Error):
+                conn.execute("ROLLBACK")
+            raise
         except sqlite3.DatabaseError:
+            with contextlib.suppress(sqlite3.Error):
+                conn.execute("ROLLBACK")
             raise LedgerCorruptError("attempt ledger is corrupt or unreadable") from None
         finally:
             conn.close()
