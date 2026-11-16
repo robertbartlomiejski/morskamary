@@ -1793,7 +1793,7 @@ MANUAL_SOURCE_FILES: tuple[str, ...] = (
 )
 REQUIRED_SCHEMA_V2_FILES: tuple[str, ...] = tuple(
     f"{SCHEMA_V2_SOURCE_DIRECTORY}/{entity_name}.{suffix}"
-    for entity_name in SCHEMA_V2_ENTITY_NAMES
+    for entity_name in (*SCHEMA_V2_ENTITY_NAMES, *SCHEMA_V2_SUPPLEMENTARY_ENTITY_NAMES)
     for suffix in ("csv", "jsonl")
 )
 REQUIRED_SCHEMA_V2_CONTRACT_FILES: tuple[str, ...] = tuple(
@@ -1897,6 +1897,23 @@ def _check_preflight(repo_root: Path, bootstrap_empty_manual_sources: bool) -> i
 def build_versioned_research_data_package(config: PackageConfig) -> int:
     """Build package directory, validate rows by schema, and emit checksums."""
     repo_root = config.repo_root.resolve()
+    package_dir = (
+        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}"
+    )
+    quarantine_dir = package_dir.with_name(f"{package_dir.name}.stale")
+    zip_path = (
+        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}.zip"
+    )
+
+    # A failed rebuild must never leave a previous conventional package looking
+    # like output from the failed attempt. Remove every publishable target before
+    # any preflight or validation can return.
+    if quarantine_dir.exists():
+        shutil.rmtree(quarantine_dir)
+    if package_dir.exists():
+        shutil.rmtree(package_dir)
+    if zip_path.exists():
+        zip_path.unlink()
 
     preflight_code = _check_preflight(
         repo_root, config.bootstrap_empty_manual_sources
@@ -2285,15 +2302,6 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
             for entity_name in SCHEMA_V2_ENTITY_NAMES
         },
     }
-    package_dir = (
-        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}"
-    )
-    quarantine_dir = package_dir.with_name(f"{package_dir.name}.stale")
-    if quarantine_dir.exists():
-        shutil.rmtree(quarantine_dir)
-    if package_dir.exists():
-        package_dir.replace(quarantine_dir)
-
     validation_errors: list[str] = list(schema_v2_format_errors)
     for table_name, schema_path in schema_map.items():
         validation_errors.extend(
@@ -2323,10 +2331,6 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
     if validation_errors:
         for error in validation_errors[:50]:
             print(f"{status_label('error')} {error}")
-        # Restore the previous package directory so it is not left as .stale
-        # when validation fails after a quarantine rename.
-        if quarantine_dir.exists() and not package_dir.exists():
-            quarantine_dir.replace(package_dir)
         return 1
 
     (package_dir / "data" / "csv").mkdir(parents=True, exist_ok=True)
@@ -2513,11 +2517,6 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         encoding="utf-8",
     )
 
-    zip_path = (
-        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}.zip"
-    )
-    if zip_path.exists():
-        zip_path.unlink()
     with ZipFile(zip_path, "w", compression=ZIP_DEFLATED) as archive:
         for file_path in sorted(
             path for path in package_dir.rglob("*") if path.is_file()
