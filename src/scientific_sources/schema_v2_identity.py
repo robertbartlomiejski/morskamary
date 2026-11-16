@@ -302,6 +302,9 @@ def make_decision_content_hash(
     reviewer_identifier: str,
     decision_rationale: str,
     decision_at_utc: str,
+    evidence_ids: str,
+    fragment_ids: str,
+    source_provenance_ids: str,
     superseded_validation_decision_id: str,
 ) -> str:
     """Return a content-integrity hash over a canonicalised decision snapshot.
@@ -329,6 +332,9 @@ def make_decision_content_hash(
         "reviewer_identifier": reviewer_identifier,
         "decision_rationale": decision_rationale,
         "decision_at_utc": decision_at_utc,
+        "evidence_ids": evidence_ids,
+        "fragment_ids": fragment_ids,
+        "source_provenance_ids": source_provenance_ids,
         "superseded_validation_decision_id": superseded_validation_decision_id,
     }
     for name, val in fields_map.items():
@@ -341,6 +347,9 @@ def make_decision_content_hash(
         reviewer_identifier,
         decision_rationale,
         decision_at_utc,
+        evidence_ids,
+        fragment_ids,
+        source_provenance_ids,
         superseded_validation_decision_id,
     ])
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
