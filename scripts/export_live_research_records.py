@@ -865,9 +865,10 @@ def _apply_query_constraint(
             math.ceil(applied_limit / max(1, rows_per_page)),
         ),
     )
-    actual_attempted_pages = max(
-        1,
-        int(attempted_logical_pages or computed_attempted_pages or 1),
+    actual_attempted_pages = (
+        max(0, int(attempted_logical_pages))
+        if attempted_logical_pages is not None
+        else max(1, int(computed_attempted_pages or 1))
     )
     if diagnostics:
         has_diagnostic_errors = any(
