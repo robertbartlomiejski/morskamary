@@ -29,6 +29,7 @@ Every substantive contribution must state:
 Before editing any path:
 
 - [ ] Read `.github/copilot-instructions.md`, this agreement, `config/live_query_protocol.yml`, the nearest `AGENTS.md`, and applicable `.github/instructions/*.instructions.md`.
+- [ ] When a task provides attached context file paths, review those files before editing and keep initial changes scoped to that context unless repository evidence requires expansion.
 - [ ] Record the current branch and base SHA.
 - [ ] Check relevant open PRs and overlapping files.
 - [ ] Declare paths in scope, authoritative scientific/configuration sources, acceptance criteria, and validation commands.

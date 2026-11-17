@@ -21,11 +21,19 @@ def test_root_agents_declares_required_task_start_contract() -> None:
         assert token in content
 
 
-def test_copilot_instructions_require_review_of_attached_context() -> None:
-    content = (REPO_ROOT / ".github" / "copilot-instructions.md").read_text(
-        encoding="utf-8"
-    )
-    assert "attached context file paths" in content
+def test_agent_instructions_require_attached_context_before_edits() -> None:
+    for path in (
+        "AGENTS.md",
+        ".github/copilot-instructions.md",
+        "docs/AGENT_WORKING_AGREEMENT.md",
+    ):
+        content = (REPO_ROOT / path).read_text(encoding="utf-8")
+        assert "attached context file paths" in content, path
+        assert "review those files before editing" in content, path
+        assert (
+            "keep initial changes scoped to that context unless "
+            "repository evidence requires expansion"
+        ) in content, path
 
 
 def test_pr_template_requires_start_state_and_validation_reporting() -> None:

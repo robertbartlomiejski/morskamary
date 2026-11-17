@@ -19,6 +19,14 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-11-17 (fix: preserve CI coverage evidence and align agent task-start instructions)
+  Change type fix
+  Scope repository governance and GitHub Actions coverage evidence
+  Files affected .coveragerc .github/copilot-instructions.md .github/workflows/ci.yml AGENTS.md CHANGELOG.txt MANIFEST_SOURCES.csv docs/AGENT_WORKING_AGREEMENT.md tests/test_ci_workflow.py tests/test_governance_task_contract.py
+  Summary Aligns the attached-context review and initial edit scope across agent instructions. Retains the Python 3.11 coverage XML in GitHub Actions with relative source paths and the tested SHA in the artifact name.
+  Reason The Codecov uploader rejected the PR coverage report while the non-blocking step left the test job green.
+  Impact Coverage evidence is retained independently of the external upload. Scientific inputs, hypotheses and archives are unaffected.
+
 - 2026-11-13 (fix: explicit authorization for research-pipeline provider smoke)
   Change type fix
   Scope GitHub Actions live-search workflow security and parsed-YAML regression
