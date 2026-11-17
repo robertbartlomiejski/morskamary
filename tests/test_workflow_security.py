@@ -14,9 +14,12 @@ immediately without relying on substring searches that can miss nested keys.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
+import subprocess
 from typing import Any, Dict, List
 
+import pytest
 import yaml
 
 WORKFLOWS_DIR = Path(__file__).resolve().parents[1] / ".github" / "workflows"
@@ -27,6 +30,7 @@ PROVIDER_SECRETS: frozenset[str] = frozenset(
         "CROSSREF_MAILTO",
         "ELSEVIER_API_KEY",
         "SCOPUS_API_KEY",
+        "OPENALEX_API_KEY",
         "WOS_API_KEY",
         "SCIVAL_API_KEY",
         "MICROSOFT_TENANT_ID",
@@ -204,4 +208,177 @@ def test_only_allowlisted_jobs_have_write_permissions() -> None:
     assert not violations, (
         "Jobs with unexpected write permissions (update ALLOWED_WRITE_JOBS if intentional):\n"
         + "\n".join(f"  {v}" for v in violations)
+    )
+
+
+# ---------------------------------------------------------------------------
+# Research API smoke: offline mode must never contact provider endpoints
+# ---------------------------------------------------------------------------
+
+
+def test_research_api_smoke_defaults_to_no_provider_requests() -> None:
+    """A false/omitted live flag must never reach provider health probes.
+
+    This is a negative regression for the historical unconditional
+    "Provider health preflight" step, which called HTTP with live_api_tests=false.
+    """
+    workflow = _load_workflows()["research-api-smoke"]
+    job = workflow["jobs"]["research-api-smoke"]
+    steps = job["steps"]
+    network_steps = [
+        step for step in steps
+        if "check_research_api_health.py" in str(step.get("run", ""))
+        or "smoke_scientific_bridge.py --live-if-secrets-present" in str(
+            step.get("run", "")
+        )
+    ]
+    assert network_steps, "Live mode must keep explicit health checks"
+    assert all(
+        step.get("if") == "github.event.inputs.live_api_tests == 'true'"
+        for step in network_steps
+    ), "Every provider-contacting step must require opt-in live_api_tests=true"
+
+    offline = next(
+        step for step in steps if step.get("name") == "Offline smoke test"
+    )
+    assert "smoke_scientific_bridge.py --offline" in offline["run"]
+    assert not offline.get("if"), "Offline fixture regression must always run"
+
+    offline_validator = next(
+        step for step in steps
+        if step.get("name") == "Validate research source outputs (offline)"
+    )
+    assert offline_validator.get("if") == (
+        "github.event.inputs.live_api_tests != 'true'"
+    )
+    assert "--require-health" not in offline_validator["run"]
+    assert "check_research_api_health.py" not in offline_validator["run"]
+
+    live_validator = next(
+        step for step in steps
+        if step.get("name") == "Validate research source outputs (live)"
+    )
+    assert live_validator.get("if") == (
+        "github.event.inputs.live_api_tests == 'true'"
+    )
+    assert "--require-health" in live_validator["run"]
+
+
+def test_research_api_smoke_only_releases_secrets_to_opted_in_mode() -> None:
+    """Protect all configured secret values from the default offline job."""
+    job = _load_workflows()["research-api-smoke"]["jobs"]["research-api-smoke"]
+    assert job["environment"] == "live-research"
+    for key in (
+        "CROSSREF_MAILTO", "ELSEVIER_API_KEY", "SCOPUS_API_KEY",
+        "OPENALEX_API_KEY", "WOS_API_KEY", "SCIVAL_API_KEY",
+        "MICROSOFT_TENANT_ID", "MICROSOFT_CLIENT_ID",
+        "MICROSOFT_CLIENT_SECRET",
+    ):
+        value = job["env"].get(key, "")
+        assert "github.event.inputs.live_api_tests == 'true'" in value
+        assert "secrets." + key in value
+        assert "|| ''" in value
+
+
+def test_research_api_smoke_drops_stale_health_before_any_validation() -> None:
+    """Offline artifact uploads must not inherit historic provider HTTP 200 results."""
+    job = _load_workflows()["research-api-smoke"]["jobs"]["research-api-smoke"]
+    steps = job["steps"]
+    names = [step.get("name") for step in steps]
+    clean = "Clear committed provider-health snapshot"
+    assert names.count(clean) == 1
+    clear_step = steps[names.index(clean)]
+    assert "rm -f outputs/research_api_health.json" in clear_step["run"]
+    assert not clear_step.get("if"), "Both offline and live modes need clean health state"
+    for later in (
+        "Provider configuration audit",
+        "Offline smoke test",
+        "Live smoke test",
+        "Validate research source outputs (offline)",
+        "Validate research source outputs (live)",
+        "Upload sanitized research API reports",
+    ):
+        assert names.index(clean) < names.index(later), later
+
+
+# ---------------------------------------------------------------------------
+# Research Pipeline: dispatch must not trigger provider smoke by default
+# ---------------------------------------------------------------------------
+
+
+def test_research_pipeline_live_search_requires_explicit_authorization() -> None:
+    """A manual quality run must never silently perform provider HTTP probes."""
+    wf = _load_workflows()["research-pipeline"]
+    triggers = wf.get("on", wf.get(True))  # PyYAML 1.1 can parse 'on' as True.
+    inputs = triggers["workflow_dispatch"]["inputs"]
+    live_input = inputs["live_api_tests"]
+    assert str(live_input["default"]).lower() == "false"
+    assert set(live_input["options"]) == {"false", "true"}
+    assert inputs["live_run_authorization"]["default"] == ""
+
+    authorization_job = wf["jobs"]["authorize-live-provider-smoke"]
+    assert authorization_job["if"] == "github.event_name == 'workflow_dispatch'"
+    assert authorization_job["env"] == {
+        "LIVE_API_TESTS": "${{ inputs.live_api_tests }}",
+        "LIVE_RUN_AUTHORIZATION": "${{ inputs.live_run_authorization }}",
+        "DISPATCH_REF": "${{ github.ref }}",
+    }
+    assert "secrets." not in str(authorization_job)
+    assert "environment" not in authorization_job
+
+    job = wf["jobs"]["live-search-smoke"]
+    assert job["needs"] == [
+        "quality-and-tests",
+        "authorize-live-provider-smoke",
+    ]
+    assert (
+        job["if"]
+        == "${{ needs.authorize-live-provider-smoke.outputs.authorized == 'true' }}"
+    )
+    assert job["environment"] == "live-research"
+    steps = job["steps"]
+    assert any(
+        "check_research_api_health.py" in str(step.get("run", ""))
+        for step in steps
+    )
+    assert job["env"]["LIVE_RESEARCH_API_TESTS"] == "true"
+
+
+@pytest.mark.parametrize(
+    ("live_api_tests", "authorization", "dispatch_ref", "expected"),
+    [
+        ("true", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/main", "true"),
+        ("false", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/main", "false"),
+        ("TRUE", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/main", "false"),
+        ("true", "", "refs/heads/main", "false"),
+        ("true", "authorize_live_provider_calls", "refs/heads/main", "false"),
+        ("true", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/MAIN", "false"),
+        ("true", "AUTHORIZE_LIVE_PROVIDER_CALLS", "refs/heads/other", "false"),
+    ],
+)
+def test_research_pipeline_authorization_is_case_sensitive(
+    tmp_path: Path,
+    live_api_tests: str,
+    authorization: str,
+    dispatch_ref: str,
+    expected: str,
+) -> None:
+    wf = _load_workflows()["research-pipeline"]
+    authorization_job = wf["jobs"]["authorize-live-provider-smoke"]
+    step = authorization_job["steps"][0]
+    output_file = tmp_path / "github-output"
+    env = os.environ.copy()
+    env.update(
+        {
+            "LIVE_API_TESTS": live_api_tests,
+            "LIVE_RUN_AUTHORIZATION": authorization,
+            "DISPATCH_REF": dispatch_ref,
+            "GITHUB_OUTPUT": str(output_file),
+        }
+    )
+
+    subprocess.run(["bash", "-c", step["run"]], check=True, env=env)
+
+    assert (
+        output_file.read_text(encoding="utf-8").strip() == f"authorized={expected}"
     )
