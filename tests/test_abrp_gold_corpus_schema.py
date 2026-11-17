@@ -17,6 +17,12 @@ def _schema() -> dict:
     return json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
 
 
+def _assert_semantic_errors(payload: dict, expected: list[str]) -> None:
+    schema = _schema()
+    assert list(Draft202012Validator(schema).iter_errors(payload)) == []
+    assert validate_payload(payload, schema) == expected
+
+
 def test_abrp_schema_is_valid_draft_2020_12() -> None:
     Draft202012Validator.check_schema(_schema())
 
@@ -29,6 +35,61 @@ def test_no_exact_action_span_fails_closed() -> None:
     errors = validate_file(FIXTURES / "abrp_gold_corpus_invalid_no_action.json")
     assert errors
     assert any("action" in item.lower() for item in errors)
+
+
+def test_span_offsets_must_match_exact_evidence_span() -> None:
+    payload = json.loads(
+        (FIXTURES / "abrp_gold_corpus_valid_phase_a.json").read_text(encoding="utf-8")
+    )
+    payload["records"][0]["span_start"] = 1
+    _assert_semantic_errors(
+        payload,
+        ["records[0]: exact_evidence_span does not match evidence_text offsets"],
+    )
+
+
+def test_annotation_ids_must_be_unique() -> None:
+    payload = json.loads(
+        (FIXTURES / "abrp_gold_corpus_valid_phase_a.json").read_text(encoding="utf-8")
+    )
+    payload["records"].append(json.loads(json.dumps(payload["records"][0])))
+    _assert_semantic_errors(
+        payload,
+        ["records[1]: duplicate annotation_id 'ann-001'"],
+    )
+
+
+def test_gold_requires_adjudicated_corpus_and_agreed_or_resolved_status() -> None:
+    source = json.loads(
+        (FIXTURES / "abrp_gold_corpus_valid_phase_a.json").read_text(encoding="utf-8")
+    )
+    source["records"][0]["is_gold"] = True
+    source["records"][0]["adjudication_status"] = "agreed"
+    _assert_semantic_errors(
+        source,
+        ["records[0]: is_gold=true requires corpus_status=adjudicated_gold"],
+    )
+
+    source["corpus_status"] = "adjudicated_gold"
+    source["records"][0]["adjudication_status"] = "pending"
+    _assert_semantic_errors(
+        source,
+        ["records[0]: gold records require agreed/resolved adjudication"],
+    )
+
+
+def test_whitespace_only_action_span_is_not_an_exact_action() -> None:
+    payload = json.loads(
+        (FIXTURES / "abrp_gold_corpus_valid_phase_a.json").read_text(encoding="utf-8")
+    )
+    payload["records"][0]["action_span"] = " "
+    _assert_semantic_errors(
+        payload,
+        [
+            "records[0]: no exact action span -> no validated human capability",
+            "records[0]: PASS requires a non-empty exact action span",
+        ],
+    )
 
 
 def test_phase_a_rejects_axis_or_candidate_leakage() -> None:
@@ -77,7 +138,7 @@ def test_pilot_v7_seed_manifest_never_claims_gold_or_fabricated_ids() -> None:
     assert sum(payload["baseline_counts"].values()) == 24
 
 
-def test_legacy_qmbd_gold_schema_rejects_mismatched_group_code() -> None:
+def test_legacy_qmbd_gold_schema_rejects_mismatched_or_incomplete_axis_pair() -> None:
     schema = json.loads(
         (ROOT / "schemas" / "qmbd_gold_review_set.schema.json").read_text(
             encoding="utf-8"
@@ -100,6 +161,8 @@ def test_legacy_qmbd_gold_schema_rejects_mismatched_group_code() -> None:
         "review_status": "reviewed",
         "adjudication_note": ""
     }]
+    assert list(validator.iter_errors(payload))
+    payload[0].pop("proposed_axis_code")
     assert list(validator.iter_errors(payload))
 
 
@@ -152,5 +215,7 @@ def test_governance_workflow_paginates_and_checks_renames() -> None:
     ).read_text(encoding="utf-8")
     assert "def get_all(path):" in text
     assert "per_page=100&page={page}" in text
-    assert "previous_filename" in text
+    assert "files = get_all" in text
+    assert "reviews = get_all" in text
+    assert 'previous_filename = row.get("previous_filename")' in text
     assert '"COMMENTED"' not in text.split("decision_states =", 1)[1].split("\n", 1)[0]

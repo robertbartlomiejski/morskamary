@@ -71,8 +71,9 @@ jobs:
           protected = []
           for row in files:
               paths = [row.get("filename", "")]
-              if row.get("status") == "renamed":
-                  paths.append(row.get("previous_filename", ""))
+              previous_filename = row.get("previous_filename")
+              if previous_filename:
+                  paths.append(previous_filename)
               if any(
                   path == prefix or path.startswith(prefix)
                   for path in paths
