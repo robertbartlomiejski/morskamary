@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 import yaml  # type: ignore[import-untyped]
+from src.scientific_sources.derived_competence_analysis import DERIVED_DEMAND_COLUMNS
 
 GROWTH_ELIGIBLE_STATUSES = {
     "new_record",
@@ -125,6 +126,7 @@ def _read_csv_required(
     *,
     allow_empty: bool = False,
     required_fields: Sequence[str] = (),
+    allowed_fields: Sequence[str] | None = None,
 ) -> list[dict[str, str]]:
     if not path.is_file():
         raise ValueError(f"required {label} file does not exist: {path}")
@@ -137,6 +139,15 @@ def _read_csv_required(
         if missing:
             raise ValueError(
                 f"required {label} CSV is missing required columns: {missing}"
+            )
+        unexpected = (
+            sorted(fields - set(allowed_fields))
+            if allowed_fields is not None
+            else []
+        )
+        if unexpected:
+            raise ValueError(
+                f"required {label} CSV has unexpected columns: {unexpected}"
             )
         rows = [dict(row) for row in reader]
     if not rows and not allow_empty:
@@ -152,17 +163,22 @@ def _load_hypothesis_declarations(path: Path) -> dict[str, dict[str, Any]]:
     if not isinstance(hypotheses, dict):
         raise ValueError("authoritative protocol lacks hypotheses mapping")
     supported_ids = {"H1", "H2", "H3"}
-    unexpected = sorted(set(hypotheses) - supported_ids)
+    unexpected = sorted(
+        str(hypothesis_id)
+        for hypothesis_id in hypotheses
+        if not isinstance(hypothesis_id, str) or hypothesis_id not in supported_ids
+    )
     if unexpected:
         raise ValueError(
             "authoritative protocol declares unsupported hypotheses: "
             + ", ".join(unexpected)
         )
+    if not hypotheses:
+        raise ValueError("authoritative protocol declares no hypotheses")
     output: dict[str, dict[str, Any]] = {}
-    for hypothesis_id in ("H1", "H2", "H3"):
-        declaration = hypotheses.get(hypothesis_id)
+    for hypothesis_id, declaration in hypotheses.items():
         if not isinstance(declaration, dict):
-            raise ValueError(f"authoritative protocol lacks {hypothesis_id} declaration")
+            raise ValueError(f"authoritative {hypothesis_id} declaration is invalid")
         label = str(declaration.get("label", "")).strip()
         test = str(declaration.get("test", "")).strip()
         outcomes = declaration.get("declared_outcomes")
@@ -586,6 +602,21 @@ def _h3(fragments: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _build_hypothesis_analysis(
+    hypothesis_id: str,
+    demands: Sequence[Mapping[str, Any]],
+    fragments: Sequence[Mapping[str, Any]],
+    supply: Mapping[str, Sequence[int]] | None,
+) -> dict[str, Any]:
+    if hypothesis_id == "H1":
+        return _h1(demands)
+    if hypothesis_id == "H2":
+        return _h2(demands, supply)
+    if hypothesis_id == "H3":
+        return _h3(fragments)
+    raise ValueError(f"unsupported sensitivity hypothesis: {hypothesis_id}")
+
+
 def _share_map(counter: Mapping[str, int]) -> dict[str, float]:
     total = sum(counter.values())
     if total <= 0:
@@ -638,6 +669,7 @@ def build_provider_sensitivity_analysis(
             "sector",
             "axis_group",
         ),
+        allowed_fields=DERIVED_DEMAND_COLUMNS,
     )
     fragments = _read_jsonl_required(
         hypothesis_fragments_path, "hypothesis fragments", allow_empty=True
@@ -687,6 +719,18 @@ def build_provider_sensitivity_analysis(
             if provider in active
         )
         provider_total = sum(provider_counts.values())
+        hypothesis_results = {
+            hypothesis_id.lower(): _apply_hypothesis_declaration(
+                _build_hypothesis_analysis(
+                    hypothesis_id,
+                    subset_demands,
+                    subset_fragments,
+                    supply,
+                ),
+                declaration,
+            )
+            for hypothesis_id, declaration in declarations.items()
+        }
         subset_results[label] = {
             "providers": sorted(active),
             "evidence_record_count": len(subset_evidence),
@@ -702,15 +746,7 @@ def build_provider_sensitivity_analysis(
                     else 0.0
                 ),
             },
-            "h1": _apply_hypothesis_declaration(
-                _h1(subset_demands), declarations["H1"]
-            ),
-            "h2": _apply_hypothesis_declaration(
-                _h2(subset_demands, supply), declarations["H2"]
-            ),
-            "h3": _apply_hypothesis_declaration(
-                _h3(subset_fragments), declarations["H3"]
-            ),
+            **hypothesis_results,
             "top_demands": sorted(
                 subset_demands,
                 key=lambda row: (
@@ -744,26 +780,46 @@ def build_provider_sensitivity_analysis(
         "",
         str(result["sensitivity_note"]),
         "",
-        "| subset | providers | evidence | DOI | signals | demands | max share | H1 | H2 | H3 | bridges |",
-        "|---|---|---:|---:|---:|---:|---:|---|---|---|---:|",
     ]
+    headers = [
+        "subset",
+        "providers",
+        "evidence",
+        "DOI",
+        "signals",
+        "demands",
+        "max share",
+        *declarations,
+    ]
+    if "H3" in declarations:
+        headers.append("bridges")
+    lines.extend(
+        [
+            "| " + " | ".join(headers) + " |",
+            "| " + " | ".join(
+                ["---", "---", "---:", "---:", "---:", "---:", "---:"]
+                + ["---"] * len(declarations)
+                + (["---:"] if "H3" in declarations else [])
+            ) + " |",
+        ]
+    )
     for label, metrics in subset_results.items():
-        lines.append(
-            "| {label} | {providers} | {evidence} | {doi} | {signals} | {demands} | "
-            "{share} | {h1} | {h2} | {h3} | {bridges} |".format(
-                label=label,
-                providers=", ".join(metrics["providers"]),
-                evidence=metrics["evidence_record_count"],
-                doi=metrics["unique_doi_count"],
-                signals=metrics["semantic_signal_count"],
-                demands=metrics["derived_demand_count"],
-                share=metrics["provider_concentration"]["max_provider_share"],
-                h1=metrics["h1"]["interpretation"],
-                h2=metrics["h2"]["interpretation"],
-                h3=metrics["h3"]["interpretation"],
-                bridges=metrics["h3"]["semantic_bridge_count"],
-            )
+        cells = [
+            label,
+            ", ".join(metrics["providers"]),
+            str(metrics["evidence_record_count"]),
+            str(metrics["unique_doi_count"]),
+            str(metrics["semantic_signal_count"]),
+            str(metrics["derived_demand_count"]),
+            str(metrics["provider_concentration"]["max_provider_share"]),
+        ]
+        cells.extend(
+            metrics[hypothesis_id.lower()]["interpretation"]
+            for hypothesis_id in declarations
         )
+        if "H3" in declarations:
+            cells.append(str(metrics["h3"]["semantic_bridge_count"]))
+        lines.append("| " + " | ".join(cells) + " |")
     output_markdown_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return result
 

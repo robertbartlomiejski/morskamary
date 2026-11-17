@@ -301,6 +301,7 @@ def test_live_job_clears_checkout_state_audits_immediately_after_checkout() -> N
     clear = live.index("- name: Clear checkout-state audit evidence before tool setup")
     setup = live.index("- name: Set up Python")
     assert checkout < clear < setup
+    assert live[checkout:clear].count("- name:") == 1
     block = live[clear:setup]
     for path in (
         "outputs/research_api_health.json",

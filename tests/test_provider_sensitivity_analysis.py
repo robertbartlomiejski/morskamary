@@ -22,12 +22,7 @@ def _write_demands(path: Path) -> None:
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=[
-                "competence_demand_id",
-                "competence_label",
-                "sector",
-                "axis_group",
-            ],
+            fieldnames=sensitivity.DERIVED_DEMAND_COLUMNS,
         )
         writer.writeheader()
         writer.writerows(
@@ -293,7 +288,7 @@ def test_empty_signals_and_demands_are_valid_not_computable_inputs(tmp_path: Pat
     paths = _fixture(tmp_path)
     paths["signals"].write_text("", encoding="utf-8")
     paths["demands"].write_text(
-        "competence_demand_id,competence_label,sector,axis_group\n",
+        ",".join(sensitivity.DERIVED_DEMAND_COLUMNS) + "\n",
         encoding="utf-8",
     )
     result = _build(tmp_path, paths)
@@ -469,7 +464,9 @@ hypotheses:
     assert baseline["h3"]["hypothesis_label"] == "Custom H3"
 
 
-def test_empty_demand_csv_requires_canonical_header(tmp_path: Path) -> None:
+def test_empty_demand_csv_rejects_missing_required_header_columns(
+    tmp_path: Path,
+) -> None:
     path = tmp_path / "derived_competence_demands.csv"
     path.write_text("unexpected_column\n", encoding="utf-8")
     with pytest.raises(ValueError, match="missing required columns"):
@@ -483,10 +480,66 @@ def test_empty_demand_csv_requires_canonical_header(tmp_path: Path) -> None:
                 "sector",
                 "axis_group",
             ),
+            allowed_fields=sensitivity.DERIVED_DEMAND_COLUMNS,
         )
 
 
-def test_protocol_rejects_undeclared_sensitivity_hypothesis(tmp_path: Path) -> None:
+def test_empty_demand_csv_rejects_unexpected_header_column(tmp_path: Path) -> None:
+    path = tmp_path / "derived_competence_demands.csv"
+    path.write_text(
+        ",".join((*sensitivity.DERIVED_DEMAND_COLUMNS, "unexpected_column")) + "\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="unexpected columns"):
+        sensitivity._read_csv_required(
+            path,
+            "derived demands",
+            allow_empty=True,
+            required_fields=sensitivity.DERIVED_DEMAND_COLUMNS,
+            allowed_fields=sensitivity.DERIVED_DEMAND_COLUMNS,
+        )
+
+
+def test_declared_hypothesis_ids_drive_sensitivity_outputs(tmp_path: Path) -> None:
+    paths = _fixture(tmp_path)
+    protocol = tmp_path / "protocol.yml"
+    protocol.write_text(
+        """
+hypotheses:
+  H1:
+    label: Custom H1
+    test: custom test
+    declared_outcomes: [supported_maritime_dominance, partially_supported_maritime, not_supported, not_computable]
+    required_result_fields: [hypothesis_id, hypothesis_label, interpretation]
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    output_json = tmp_path / "custom.json"
+    output_markdown = tmp_path / "custom.md"
+    result = sensitivity.build_provider_sensitivity_analysis(
+        evidence_path=paths["evidence"],
+        signals_path=paths["signals"],
+        derived_demands_path=paths["demands"],
+        hypothesis_fragments_path=paths["fragments"],
+        validated_supply_map_path=None,
+        protocol_path=protocol,
+        output_json_path=output_json,
+        output_markdown_path=output_markdown,
+    )
+    baseline = result["subsets"]["all_canonical"]
+    assert baseline["h1"]["hypothesis_id"] == "H1"
+    assert "h2" not in baseline
+    assert "h3" not in baseline
+    markdown = output_markdown.read_text(encoding="utf-8")
+    assert "| subset | providers | evidence | DOI | signals | demands | max share | H1 |" in markdown
+    assert " | H2 | " not in markdown
+
+
+def test_protocol_rejects_unsupported_hypothesis_before_writing_reports(
+    tmp_path: Path,
+) -> None:
+    paths = _fixture(tmp_path)
     protocol = tmp_path / "protocol.yml"
     protocol.write_text(
         """
@@ -515,5 +568,18 @@ hypotheses:
         + "\n",
         encoding="utf-8",
     )
+    output_json = tmp_path / "unsupported.json"
+    output_markdown = tmp_path / "unsupported.md"
     with pytest.raises(ValueError, match="unsupported hypotheses: H4"):
-        sensitivity._load_hypothesis_declarations(protocol)
+        sensitivity.build_provider_sensitivity_analysis(
+            evidence_path=paths["evidence"],
+            signals_path=paths["signals"],
+            derived_demands_path=paths["demands"],
+            hypothesis_fragments_path=paths["fragments"],
+            validated_supply_map_path=None,
+            protocol_path=protocol,
+            output_json_path=output_json,
+            output_markdown_path=output_markdown,
+        )
+    assert not output_json.exists()
+    assert not output_markdown.exists()
