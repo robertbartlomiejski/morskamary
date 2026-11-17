@@ -61,6 +61,7 @@ from src.scientific_sources.cumulative_scientific_database import (
     canonical_label_is_allowed,
 )
 from src.scientific_sources.derived_competence_analysis import (
+    DerivedAnalysisError,
     build_layer4,
 )
 
@@ -2294,6 +2295,83 @@ def test_validation_decision_candidate_identity_persists_across_runs(
     assert len(recurring.sector_competence_assignments) == 1
 
 
+def test_classifier_version_change_requires_re_review_of_old_candidate_decisions(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    record = {
+        "title": "Hydrosocial digital skills",
+        "abstract": "Digital skills are needed.",
+        "doi": "10.1000/classifier-version-review",
+        "provider": "Crossref",
+        "source_query": BOUND_QUERY_TEXT,
+    }
+    current = tmp_path / "outputs"
+    _write_current_run(current, [record])
+
+    with monkeypatch.context() as old_classifier:
+        old_classifier.setattr(
+            database_module, "CLASSIFIER_VERSION", "cumulative-db-semantic-v3"
+        )
+        previous = build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "previous",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+        )
+    previous_candidate = previous.competence_candidates[0]
+    stale_decision = {
+        "target_candidate_id": previous_candidate.candidate_id,
+        **_decision_snapshot(previous, previous_candidate.candidate_id),
+        "canonical_label": "Digital skills",
+        "decision_status": "accepted",
+        "reviewer": "reviewer-fixture-001",
+        "decision_at_utc": FROZEN_TS,
+        "decision_reason": "Accepted before classifier reclassification.",
+    }
+
+    current_classification = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "current-classification",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    assert current_classification.competence_candidates[0].candidate_id != (
+        previous_candidate.candidate_id
+    )
+    with pytest.raises(CumulativeDatabaseError, match="re-review"):
+        build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "stale-review",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+            validation_decisions=[stale_decision],
+        )
+
+    fresh_candidate = current_classification.competence_candidates[0]
+    fresh_decision = {
+        "target_candidate_id": fresh_candidate.candidate_id,
+        **_decision_snapshot(current_classification, fresh_candidate.candidate_id),
+        "canonical_label": "Digital skills",
+        "decision_status": "accepted",
+        "reviewer": "reviewer-fixture-002",
+        "decision_at_utc": FROZEN_TS,
+        "decision_reason": "Reviewed under the current classifier.",
+    }
+    freshly_reviewed = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "fresh-review",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+        validation_decisions=[fresh_decision],
+    )
+    assert len(freshly_reviewed.sector_competence_assignments) == 1
+
+
 def test_shared_canonical_label_emits_assignment_for_each_accepted_decision(
     tmp_path: Path,
 ) -> None:
@@ -2384,6 +2462,133 @@ def test_shared_canonical_label_emits_assignment_for_each_accepted_decision(
     assert len(layer4.derived_demands[0].validation_decision_ids.split("|")) == 2
 
 
+def test_layer4_accepts_classified_snapshot_with_retained_unclassified_fragment(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "outputs"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Hydrosocial digital skills",
+                "abstract": "Digital skills are needed.",
+                "doi": "10.1000/mixed-classification",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    candidate = next(
+        row
+        for row in initial.competence_candidates
+        if len(row.fragment_ids.split("|")) > 1
+    )
+    candidate_fragment_ids = set(candidate.fragment_ids.split("|"))
+    candidate_signals = [
+        row
+        for row in initial.semantic_signals
+        if row.signal_id == candidate.signal_id
+        and row.fragment_id in candidate_fragment_ids
+    ]
+    classified_signal = next(row for row in candidate_signals if row.axis_group)
+    unclassified_signal = next(
+        row for row in candidate_signals if not row.axis_group and not row.axis_code
+    )
+    classified_fragment = next(
+        row
+        for row in initial.evidence_fragments
+        if row.fragment_id == classified_signal.fragment_id
+    )
+    snapshot = _decision_snapshot(initial, candidate.candidate_id)
+    snapshot["fragment_ids"] = classified_fragment.fragment_id
+    snapshot["source_provenance_ids"] = classified_fragment.source_provenance_id
+
+    reviewed = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "reviewed",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+        validation_decisions=[
+            {
+                "target_candidate_id": candidate.candidate_id,
+                **snapshot,
+                "canonical_label": "Digital skills",
+                "decision_status": "accepted",
+                "reviewer": "reviewer-fixture-001",
+                "decision_at_utc": FROZEN_TS,
+                "decision_reason": "Accepted only classified retained evidence.",
+            }
+        ],
+    )
+    layer4 = build_layer4(
+        evidence_records=[row.to_dict() for row in reviewed.evidence_records],
+        competence_signals=[],
+        evidence_fragments=[row.to_dict() for row in reviewed.evidence_fragments],
+        canonical_competences=[
+            row.to_dict() for row in reviewed.canonical_competences
+        ],
+        sector_competence_assignments=[
+            row.to_dict() for row in reviewed.sector_competence_assignments
+        ],
+        validation_decisions=[
+            row.to_dict() for row in reviewed.validation_decisions
+        ],
+        competence_candidates=[
+            row.to_dict() for row in reviewed.competence_candidates
+        ],
+        semantic_signals=[row.to_dict() for row in reviewed.semantic_signals],
+        output_dir=tmp_path / "layer4",
+        current_run_id="R1",
+        analysis_timestamp_utc=FROZEN_TS,
+    )
+
+    assert len(reviewed.sector_competence_assignments) == 1
+    assert len(layer4.derived_demands) == 1
+    assert layer4.derived_demands[0].axis_group == classified_signal.axis_group
+
+    malformed_signals = [
+        row.to_dict() for row in reviewed.semantic_signals
+    ]
+    malformed = next(
+        row
+        for row in malformed_signals
+        if row["fragment_id"] == unclassified_signal.fragment_id
+    )
+    malformed["axis_code"] = "M"
+    with pytest.raises(DerivedAnalysisError, match="invalid.*sector-axis context"):
+        build_layer4(
+            evidence_records=[row.to_dict() for row in reviewed.evidence_records],
+            competence_signals=[],
+            evidence_fragments=[
+                row.to_dict() for row in reviewed.evidence_fragments
+            ],
+            canonical_competences=[
+                row.to_dict() for row in reviewed.canonical_competences
+            ],
+            sector_competence_assignments=[
+                row.to_dict() for row in reviewed.sector_competence_assignments
+            ],
+            validation_decisions=[
+                row.to_dict() for row in reviewed.validation_decisions
+            ],
+            competence_candidates=[
+                row.to_dict() for row in reviewed.competence_candidates
+            ],
+            semantic_signals=malformed_signals,
+            output_dir=tmp_path / "malformed-layer4",
+            current_run_id="R1",
+            analysis_timestamp_utc=FROZEN_TS,
+        )
+
+
 def test_current_observation_signal_components_are_reused(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -2427,6 +2632,49 @@ def test_current_observation_signal_components_are_reused(
 
     assert result.competence_demand_signals
     assert calls == ["R1", "R1"]
+
+
+def test_axis_classification_is_cached_per_observation_source_field(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    current = tmp_path / "outputs"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Hydrosocial digital skills for port logistics",
+                "abstract": "Digital training supports hydrosocial governance.",
+                "doi": "10.1000/axis-cache-per-field",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    classifier = database_module._EVIDENCE_AXIS_CLASSIFIER
+    original = classifier.classify_context
+    calls: List[tuple[str, str]] = []
+
+    def count_classifications(text: str, *, text_scope: str) -> Any:
+        calls.append((text_scope, text))
+        return original(text, text_scope=text_scope)
+
+    monkeypatch.setattr(classifier, "classify_context", count_classifications)
+
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    assert result.semantic_signals
+    assert len(calls) == 2
+    assert set(calls) == {
+        ("title", "Hydrosocial digital skills for port logistics"),
+        ("abstract", "Digital training supports hydrosocial governance."),
+    }
 
 
 def test_semantic_scanner_uses_word_boundaries_and_qualified_claim_gate() -> None:

@@ -51,11 +51,12 @@ from typing import (
 )
 
 from src.scientific_sources.cumulative_scientific_database import (
+    CLASSIFIER_VERSION,
     canonical_label_is_allowed,
 )
 from src.scientific_sources.schema_v2_identity import (
     make_canonical_competence_id as _make_canonical_competence_id,
-    make_decision_content_hash as _make_decision_content_hash,
+    decision_content_hash_matches as _decision_content_hash_matches,
     recompute_assignment_id_from_row as _recompute_assignment_id_from_row,
     recompute_candidate_id_from_row as _recompute_candidate_id_from_row,
     recompute_fragment_id_from_row as _recompute_fragment_id_from_row,
@@ -1788,6 +1789,11 @@ def _build_accepted_canonical_lineage_demands(
         table_name="validation_decisions",
     )
     for decision_id, decision in decisions_by_id.items():
+        if not _decision_content_hash_matches(decision):
+            raise DerivedAnalysisError(
+                "validation decision content hash does not match its immutable "
+                f"snapshot: {decision_id}"
+            )
         decision_at = _parse_lineage_utc(decision.get("decision_at_utc"))
         if decision_at is None:
             raise DerivedAnalysisError(
@@ -2209,7 +2215,7 @@ def _build_accepted_canonical_lineage_demands(
             sector = _lineage_row_id(matched_signal, "sector")
             axis_group = _lineage_row_id(matched_signal, "axis_group").upper()
             axis_code = _lineage_row_id(matched_signal, "axis_code").upper()
-            if not sector and not axis_group and not axis_code:
+            if not axis_group and not axis_code:
                 continue
             if (
                 not sector
@@ -2277,34 +2283,6 @@ def _build_accepted_canonical_lineage_demands(
                 "accepted canonical lineage decision snapshot does not match "
                 f"its candidate: {decision_id}"
             )
-        stored_decision_hash = _lineage_row_id(
-            decision, "decision_content_sha256"
-        )
-        expected_decision_hash = _make_decision_content_hash(
-            validation_decision_id=decision_id,
-            decision_status=_lineage_row_id(decision, "decision_status"),
-            target_candidate_id=candidate_id,
-            canonical_label=_lineage_row_id(decision, "canonical_label"),
-            reviewer_identifier=_lineage_row_id(decision, "reviewer"),
-            decision_rationale=_lineage_row_id(decision, "decision_reason"),
-            decision_at_utc=_lineage_row_id(decision, "decision_at_utc"),
-            evidence_ids=_lineage_row_id(decision, "evidence_ids"),
-            fragment_ids=_lineage_row_id(decision, "fragment_ids"),
-            source_provenance_ids=_lineage_row_id(
-                decision, "source_provenance_ids"
-            ),
-            superseded_validation_decision_id=_lineage_row_id(
-                decision, "superseded_validation_decision_id"
-            ),
-        )
-        if (
-            not re.fullmatch(r"[0-9a-f]{64}", stored_decision_hash)
-            or stored_decision_hash != expected_decision_hash
-        ):
-            raise DerivedAnalysisError(
-                "accepted canonical lineage decision content hash does not "
-                f"match its immutable snapshot: {decision_id}"
-            )
         canonical_label = _normalized_lineage_label(
             decision.get("canonical_label")
         )
@@ -2334,10 +2312,19 @@ def _build_accepted_canonical_lineage_demands(
                     "accepted decision fragment snapshot has no semantic signal: "
                     f"{decision_id}:{fragment_id}"
                 )
+            if (
+                _lineage_row_id(reviewed_signal, "classifier_version")
+                != CLASSIFIER_VERSION
+            ):
+                raise DerivedAnalysisError(
+                    "accepted validation decision requires explicit migration "
+                    "or re-review after the semantic classifier version change: "
+                    f"{decision_id}"
+                )
             sector = _lineage_row_id(reviewed_signal, "sector")
             axis_group = _lineage_row_id(reviewed_signal, "axis_group").upper()
             axis_code = _lineage_row_id(reviewed_signal, "axis_code").upper()
-            if not sector and not axis_group and not axis_code:
+            if not axis_group and not axis_code:
                 continue
             decision_contexts.add((sector, axis_group, axis_code))
         expected_contexts_by_decision_id[decision_id] = decision_contexts
@@ -2609,6 +2596,9 @@ def _build_accepted_canonical_lineage_demands(
         )
         snapshot_parts: List[Dict[str, Any]] = []
         snapshot_evidence_ids: Set[str] = set()
+        context_fragment_ids = {
+            _lineage_row_id(signal, "fragment_id") for signal in context_signals
+        }
         for reviewed_decision in lineage_reviewed_decisions:
             current_decision_id = _lineage_row_id(
                 reviewed_decision, "validation_decision_id"
@@ -2645,6 +2635,7 @@ def _build_accepted_canonical_lineage_demands(
                 for fragment_id in sorted(
                     decision_fragment_ids_by_id.get(current_decision_id, set())
                 )
+                if fragment_id in context_fragment_ids
             ]
             snapshot_parts.append(
                 _accepted_lineage_snapshot_metrics(

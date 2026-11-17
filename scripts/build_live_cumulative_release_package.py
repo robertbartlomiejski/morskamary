@@ -58,6 +58,7 @@ from src.scientific_sources.publication_readiness import (  # noqa: E402
     derive_claim_boundary,
 )
 from src.scientific_sources.schema_v2_identity import (  # noqa: E402
+    decision_content_hash_matches as _decision_content_hash_matches_v2,
     make_assignment_id as _make_assignment_id_v2,
     make_candidate_id as _make_candidate_id_v2,
     make_canonical_competence_id as _make_canonical_competence_id_v2,
@@ -975,6 +976,11 @@ def _validate_schema_v2_foreign_keys(
         superseded_id = _identifier(
             decision.get("superseded_validation_decision_id")
         )
+        if not _decision_content_hash_matches_v2(decision):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:decision_content_sha256"
+            )
         if not superseded_id:
             continue
         if superseded_id == decision_id:

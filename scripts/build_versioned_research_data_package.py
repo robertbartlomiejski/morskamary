@@ -27,6 +27,7 @@ if str(_REPO_ROOT) not in sys.path:
 from jsonschema import Draft202012Validator, FormatChecker  # type: ignore[import-untyped]  # noqa: E402
 
 from src.scientific_sources.schema_v2_identity import (  # noqa: E402
+    decision_content_hash_matches as _decision_content_hash_matches_v2,
     make_candidate_id as _make_candidate_id_v2,
     make_canonical_competence_id as _make_canonical_competence_id_v2,
     make_fragment_id as _make_fragment_id_v2,
@@ -1078,6 +1079,17 @@ def _validate_schema_v2_projection_and_lineage(
     candidates_by_id = csv_index["competence_candidates"]
     decisions_by_id = csv_index["validation_decisions"]
     canonicals_by_id = csv_index["canonical_competences"]
+    for decision_projection_name, rows_by_id in (
+        ("csv", csv_index["validation_decisions"]),
+        ("jsonl", jsonl_index["validation_decisions"]),
+    ):
+        for decision_hash_key, decision_content_row in rows_by_id.items():
+            if not _decision_content_hash_matches_v2(decision_content_row):
+                errors.append(
+                    "validation_decisions:"
+                    f"{decision_projection_name}:decision_content_sha256:"
+                    f"{_format_row_key(decision_hash_key)}"
+                )
 
     signals_by_fragment_id: dict[str, list[dict[str, Any]]] = {}
     for signal_key, signal in signals_by_key.items():

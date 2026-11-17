@@ -17,6 +17,9 @@ from src.scientific_sources.schema_v2_identity import make_decision_content_hash
 REPO_ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR_PATH = REPO_ROOT / "scripts" / "validate_csv_bundle.py"
 _PACKAGE_PATH = REPO_ROOT / "scripts" / "build_live_cumulative_release_package.py"
+_VERSIONED_PACKAGE_PATH = (
+    REPO_ROOT / "scripts" / "build_versioned_research_data_package.py"
+)
 
 
 def _load_package_module() -> Any:
@@ -31,6 +34,13 @@ def _load_package_module() -> Any:
 
 
 _PACKAGE = _load_package_module()
+_VERSIONED_PACKAGE_SPEC = importlib.util.spec_from_file_location(
+    "build_versioned_research_data_package_fixture", _VERSIONED_PACKAGE_PATH
+)
+assert _VERSIONED_PACKAGE_SPEC and _VERSIONED_PACKAGE_SPEC.loader
+_VERSIONED_PACKAGE = importlib.util.module_from_spec(_VERSIONED_PACKAGE_SPEC)
+sys.modules[_VERSIONED_PACKAGE_SPEC.name] = _VERSIONED_PACKAGE
+_VERSIONED_PACKAGE_SPEC.loader.exec_module(_VERSIONED_PACKAGE)
 _VALIDATOR_SPEC = importlib.util.spec_from_file_location(
     "validate_csv_bundle_under_test", VALIDATOR_PATH
 )
@@ -322,6 +332,54 @@ def test_cli_accepts_a_fully_linked_clean_bundle(tmp_path: Path) -> None:
 
     assert completed.returncode == 0, completed.stderr
     assert "[OK] Schema-v2 bundle preflight passed." in completed.stdout
+
+
+def test_cli_rejects_matching_decision_reason_tampering_with_stale_digest(
+    tmp_path: Path,
+) -> None:
+    bundle_dir = tmp_path / "tampered-decision"
+    _write_valid_bundle(bundle_dir)
+    _update_projection(
+        bundle_dir,
+        "validation_decisions",
+        {"decision_reason": "Tampered in both projections."},
+    )
+
+    completed = _run_validator(bundle_dir)
+    output = completed.stdout + completed.stderr
+
+    assert completed.returncode == 1
+    assert "decision_content_sha256" in output
+    assert "cross_projection_value_mismatch" not in output
+
+
+def test_versioned_package_validator_rejects_tampered_decision_digest() -> None:
+    rows = _schema_v2_rows()
+    entity_names = _VERSIONED_PACKAGE.SCHEMA_V2_ENTITY_NAMES
+    valid_projection = {
+        entity_name: [dict(rows[entity_name])] for entity_name in entity_names
+    }
+    valid_errors = _VERSIONED_PACKAGE._validate_schema_v2_projection_and_lineage(
+        schema_v2_csv_rows=valid_projection,
+        schema_v2_jsonl_rows=valid_projection,
+    )
+    assert not any("decision_content_sha256" in error for error in valid_errors)
+
+    tampered_projection = {
+        entity_name: [dict(rows[entity_name])] for entity_name in entity_names
+    }
+    tampered_projection["validation_decisions"][0]["decision_reason"] = (
+        "Tampered in both projections."
+    )
+    errors = _VERSIONED_PACKAGE._validate_schema_v2_projection_and_lineage(
+        schema_v2_csv_rows=tampered_projection,
+        schema_v2_jsonl_rows={
+            entity_name: [dict(row) for row in entity_rows]
+            for entity_name, entity_rows in tampered_projection.items()
+        },
+    )
+
+    assert any("decision_content_sha256" in error for error in errors)
 
 
 def test_cli_rejects_forged_canonical_competence_identity(tmp_path: Path) -> None:

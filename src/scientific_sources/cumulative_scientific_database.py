@@ -102,7 +102,7 @@ from src.scientific_sources.schema_v2_identity import (
 DATABASE_SCHEMA_VERSION = "2.0.0"
 """Schema version stamped into every manifest produced by this module."""
 
-CLASSIFIER_VERSION = "cumulative-db-semantic-v3"
+CLASSIFIER_VERSION = "cumulative-db-semantic-v4"
 """Deterministic rule-based semantic classifier version tag."""
 
 LEGACY_COMPATIBILITY_CLASSIFIER_VERSION = "cumulative-db-semantic-v1"
@@ -2589,6 +2589,9 @@ def _build_signal_components_for_observation(
     provenance_hash = hashlib.sha256(provenance_id.encode("utf-8")).hexdigest()
 
     components: List[_SignalComponent] = []
+    axis_payloads_by_field_and_text: Dict[
+        Tuple[str, str], Dict[str, Any]
+    ] = {}
     for match in matches:
         pattern = match.pattern
         matched_phrase = match.matched_phrase
@@ -2596,10 +2599,15 @@ def _build_signal_components_for_observation(
             source_field=match.source_field,
             metadata_only=is_metadata_only,
         )
-        axis_payload = _EVIDENCE_AXIS_CLASSIFIER.classify_context(
-            match.source_text,
-            text_scope=match.source_field,
-        )
+        axis_key = (match.source_field, match.source_text)
+        if axis_key not in axis_payloads_by_field_and_text:
+            axis_payloads_by_field_and_text[axis_key] = (
+                _EVIDENCE_AXIS_CLASSIFIER.classify_context(
+                    match.source_text,
+                    text_scope=match.source_field,
+                )
+            )
+        axis_payload = axis_payloads_by_field_and_text[axis_key]
         if (
             axis_payload.get("manual_review_status") == "review_required"
             or axis_payload.get("axis") == "UNCLASSIFIED"
@@ -2830,7 +2838,10 @@ def _build_validation_decisions(
         candidate_id = str(payload.get("target_candidate_id") or "").strip()
         if not candidate_id or candidate_id not in candidates_by_id:
             raise CumulativeDatabaseError(
-                f"unknown validation decision target candidate: {candidate_id or '<empty>'}"
+                "unknown validation decision target candidate; if this ID "
+                "belongs to an earlier semantic classifier version, explicit "
+                "migration or re-review is required: "
+                f"{candidate_id or '<empty>'}"
             )
         candidate = candidates_by_id[candidate_id]
         decision_status = str(

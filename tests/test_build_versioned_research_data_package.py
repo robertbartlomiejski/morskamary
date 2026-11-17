@@ -12,6 +12,8 @@ from pathlib import Path
 from typing import Any
 from zipfile import ZipFile
 
+from src.scientific_sources.schema_v2_identity import make_decision_content_hash
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATH = REPO_ROOT / "scripts" / "build_versioned_research_data_package.py"
 SCHEMA_V2_ENTITY_NAMES = (
@@ -33,6 +35,24 @@ def _load_module():
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)  # type: ignore[union-attr]
     return module
+
+
+def _rehash_decision(decision: dict[str, Any]) -> None:
+    decision["decision_content_sha256"] = make_decision_content_hash(
+        validation_decision_id=str(decision.get("validation_decision_id") or ""),
+        decision_status=str(decision.get("decision_status") or ""),
+        target_candidate_id=str(decision.get("target_candidate_id") or ""),
+        canonical_label=str(decision.get("canonical_label") or ""),
+        reviewer_identifier=str(decision.get("reviewer") or ""),
+        decision_rationale=str(decision.get("decision_reason") or ""),
+        decision_at_utc=str(decision.get("decision_at_utc") or ""),
+        evidence_ids=str(decision.get("evidence_ids") or ""),
+        fragment_ids=str(decision.get("fragment_ids") or ""),
+        source_provenance_ids=str(decision.get("source_provenance_ids") or ""),
+        superseded_validation_decision_id=str(
+            decision.get("superseded_validation_decision_id") or ""
+        ),
+    )
 
 
 def test_schema_v2_enums_generate_variable_and_value_labels() -> None:
@@ -432,6 +452,7 @@ def _append_shared_canonical_candidate(repo_root: Path, module: Any) -> None:
             "source_provenance_ids": second_fragment["source_provenance_id"],
         }
     )
+    _rehash_decision(second_decision)
     second_assignment = dict(assignments[0])
     second_assignment.update(
         {

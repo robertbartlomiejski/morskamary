@@ -355,6 +355,29 @@ def make_decision_content_hash(
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def decision_content_hash_matches(row: Mapping[str, Any]) -> bool:
+    """Return whether a retained decision row matches its immutable content hash."""
+    try:
+        expected = make_decision_content_hash(
+            validation_decision_id=str(row.get("validation_decision_id") or ""),
+            decision_status=str(row.get("decision_status") or ""),
+            target_candidate_id=str(row.get("target_candidate_id") or ""),
+            canonical_label=str(row.get("canonical_label") or ""),
+            reviewer_identifier=str(row.get("reviewer") or ""),
+            decision_rationale=str(row.get("decision_reason") or ""),
+            decision_at_utc=str(row.get("decision_at_utc") or ""),
+            evidence_ids=str(row.get("evidence_ids") or ""),
+            fragment_ids=str(row.get("fragment_ids") or ""),
+            source_provenance_ids=str(row.get("source_provenance_ids") or ""),
+            superseded_validation_decision_id=str(
+                row.get("superseded_validation_decision_id") or ""
+            ),
+        )
+    except ValueError:
+        return False
+    return str(row.get("decision_content_sha256") or "").strip() == expected
+
+
 # ---------------------------------------------------------------------------
 # Row-level recomputation helpers (for validation consumers)
 # ---------------------------------------------------------------------------
