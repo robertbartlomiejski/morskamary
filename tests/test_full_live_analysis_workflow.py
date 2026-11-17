@@ -30,6 +30,12 @@ def _run_block_text() -> str:
     return "\n".join(blocks)
 
 
+def test_curated_release_upload_includes_publication_readiness() -> None:
+    text = _text()
+    upload_block = text[text.index("Upload curated release") :]
+    assert "reports/publication_readiness.json" in upload_block
+
+
 def test_full_live_is_manual_and_defaults_to_no_provider_calls() -> None:
     text = _text()
     assert "workflow_dispatch:" in text

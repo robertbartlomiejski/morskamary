@@ -139,7 +139,11 @@ def _write_reports(reports_dir: Path) -> None:
     html = (
         "<html><body>"
         "Scientific hypothesis verification H1 H2 H3 "
-        "Validity threats Reproducibility appendix"
+        "Validity threats Reproducibility appendix "
+        "Candidate-demand validation deficit "
+        "Credential-design candidates "
+        "Cannot conclude "
+        "Observational unit"
         "</body></html>"
     )
     (reports_dir / "morskamary_statistical_report.html").write_text(
@@ -150,10 +154,39 @@ def _write_reports(reports_dir: Path) -> None:
         html,
         encoding="utf-8",
     )
-    (reports_dir / "morskamary_statistical_report.pdf").write_text(
-        "PDF stub\n",
+    (reports_dir / "publication_readiness.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0.0",
+                "generated_at_utc": FROZEN_TS,
+                "current_run_id": RUN_ID,
+                "engineering_status": "pass",
+                "scientific_status": "screening_only_with_noncomputable_components",
+                "publication_status": "degraded",
+                "degraded_components": [
+                    "H1_not_computable",
+                    "H2_not_computable",
+                    "H3_not_computable",
+                    "pdf_omitted",
+                ],
+                "blockers": [],
+                "hypotheses": {
+                    "H1": "not_computable",
+                    "H2": "not_computable",
+                    "H3": "not_computable",
+                },
+                "claim_boundary": {
+                    "validated_supply_available": False,
+                    "objective_competence_gap_established": False,
+                    "generated_credentials_are_supply": False,
+                    "h3_translation_validated": False,
+                },
+            },
+            sort_keys=True,
+        ) + "\n",
         encoding="utf-8",
     )
+    # PDF is optional; when unavailable it must be omitted rather than stubbed.
 
 
 def _parse_checksum_manifest(path: Path) -> dict[str, str]:
