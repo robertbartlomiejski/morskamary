@@ -68,6 +68,34 @@ def test_ci_static_quality_job_runs_module_based_flake8_and_mypy() -> None:
     assert "python -m mypy src scripts run_full_analysis.py main.py" in WORKFLOW_TEXT
 
 
+def test_black_dependency_scopes_require_patched_version() -> None:
+    root = Path(__file__).resolve().parents[1]
+    pyproject = (root / "pyproject.toml").read_text(encoding="utf-8")
+    dev_extra = re.search(r"(?ms)^dev = \[\n(.*?)^\]", pyproject)
+    assert dev_extra is not None
+    dev_black = re.search(r'^\s*"black>=([0-9.]+)"', dev_extra.group(1), re.M)
+    assert dev_black is not None
+    requirements = (root / "requirements.txt").read_text(encoding="utf-8")
+    pinned_black = re.search(r"^black==([0-9.]+)$", requirements, re.M)
+    assert pinned_black is not None
+    for version in (dev_black.group(1), pinned_black.group(1)):
+        assert tuple(map(int, version.split("."))) >= (26, 10, 1)
+
+
+def test_pytest_dependency_scopes_are_aligned() -> None:
+    root = Path(__file__).resolve().parents[1]
+    pyproject = (root / "pyproject.toml").read_text(encoding="utf-8")
+    dev_extra = re.search(r"(?ms)^dev = \[\n(.*?)^\]", pyproject)
+    assert dev_extra is not None
+    dev_pytest = re.search(r'^\s*"pytest>=([0-9.]+)"', dev_extra.group(1), re.M)
+    assert dev_pytest is not None
+    requirements = (root / "requirements.txt").read_text(encoding="utf-8")
+    pinned_pytest = re.search(r"^pytest==([0-9.]+)$", requirements, re.M)
+    assert pinned_pytest is not None
+    assert pinned_pytest.group(1) == dev_pytest.group(1)
+    assert tuple(map(int, pinned_pytest.group(1).split("."))) >= (9, 2, 0)
+
+
 def test_full_analysis_workflow_uses_explicit_static_recovery_mode() -> None:
     job = FULL_ANALYSIS_WORKFLOW["jobs"]["run-analysis"]
     job_env = job["env"]
@@ -224,6 +252,84 @@ def test_ci_workflow_revalidates_tracked_protocol_projection_outputs() -> None:
     assert "git diff --exit-code --" in run_script
 
 
+def test_full_analysis_exports_retained_db_before_semantic_validation() -> None:
+    job = FULL_ANALYSIS_WORKFLOW["jobs"]["run-analysis"]
+    steps = job["steps"]
+    step_names = [step.get("name") for step in steps]
+    snapshot_index = step_names.index(
+        "Snapshot committed outputs and detect their analysis mode"
+    )
+    propagation_index = step_names.index(
+        "Verify retained cumulative database path propagation"
+    )
+    validation_index = step_names.index("Validate generated output semantics")
+    assert snapshot_index < propagation_index < validation_index
+
+    snapshot_script = steps[snapshot_index]["run"]
+    assert (
+        'echo "MORSKAMARY_CUMULATIVE_DATABASE_DIR=$retained_cumulative_database_dir" '
+        '>> "$GITHUB_ENV"'
+    ) in snapshot_script
+
+    validate_step = steps[validation_index]
+    assert (
+        validate_step["env"]["MORSKAMARY_CUMULATIVE_DATABASE_DIR"]
+        == "${{ env.MORSKAMARY_CUMULATIVE_DATABASE_DIR }}"
+    )
+
+
+def test_full_analysis_compares_snapshot_before_retained_db_final_audit_and_upload() -> None:
+    job = FULL_ANALYSIS_WORKFLOW["jobs"]["run-analysis"]
+    steps = job["steps"]
+    step_names = [step.get("name") for step in steps]
+    restore_snapshot_index = step_names.index(
+        "Restore committed-mode output snapshot after reproducibility check"
+    )
+    exact_comparison_index = step_names.index(
+        "Verify restored outputs match committed-mode snapshot exactly"
+    )
+    restore_database_index = step_names.index(
+        "Restore retained cumulative database for final audit and upload"
+    )
+    final_audit_index = step_names.index(
+        "Validate retained cumulative database for final audit"
+    )
+    upload_index = step_names.index("Upload analysis outputs")
+
+    restore_snapshot_step = steps[restore_snapshot_index]
+    assert (
+        restore_snapshot_step["env"]["STATIC_INPUT_ROOT"]
+        == "${{ runner.temp }}/full-analysis-static-input"
+    )
+    assert "cumulative_database" not in restore_snapshot_step["run"]
+
+    comparison_step = steps[exact_comparison_index]
+    assert '--baseline-root "$COMMITTED_COMPARE_ROOT"' in comparison_step["run"]
+
+    restore_database_step = steps[restore_database_index]
+    assert (
+        restore_database_step["env"]["RETAINED_INPUT_ROOT"]
+        == "${{ runner.temp }}/full-analysis-retained-inputs"
+    )
+    restore_script = restore_database_step["run"]
+    assert 'if [[ ! -d "$RETAINED_INPUT_ROOT/cumulative_database" ]]; then' in restore_script
+    assert 'cp -R "$RETAINED_INPUT_ROOT/cumulative_database" outputs/cumulative_database' in restore_script
+
+    final_audit_step = steps[final_audit_index]
+    assert (
+        final_audit_step["env"]["MORSKAMARY_CUMULATIVE_DATABASE_DIR"]
+        == "outputs/cumulative_database"
+    )
+    assert final_audit_step["run"] == "python scripts/validate_generated_outputs.py"
+    assert (
+        restore_snapshot_index
+        < exact_comparison_index
+        < restore_database_index
+        < final_audit_index
+        < upload_index
+    )
+
+
 def test_ci_changelog_guard_step_fetches_non_shallow_base_history() -> None:
     job = CI_WORKFLOW["jobs"]["governance-and-repro"]
     changelog_step = next(
@@ -233,7 +339,6 @@ def test_ci_changelog_guard_step_fetches_non_shallow_base_history() -> None:
         == "Enforce CHANGELOG update on PRs that change tracked artifacts (lightweight rule)"
     )
     run_script = changelog_step["run"]
-
     assert "git fetch --no-tags --prune --unshallow origin || true" in run_script
     assert 'git fetch --no-tags --prune origin "$base_ref"' in run_script
     assert '--depth=1' not in run_script

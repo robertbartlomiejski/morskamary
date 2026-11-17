@@ -463,6 +463,7 @@ jobs:
             outputs/cross_run_reports/run_stability_report.json
             reports/morskamary_statistical_report.html
             reports/morskamary_methodological_audit.html
+            reports/publication_readiness.json
             reports/morskamary_statistical_report.pdf
           if-no-files-found: warn
           retention-days: 30

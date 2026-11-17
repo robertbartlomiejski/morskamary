@@ -1,0 +1,33 @@
+{
+  "claim_boundary": [
+    "association describes the acquired/classified corpus, not population prevalence",
+    "screening signal is not a validated competence demand",
+    "co-occurrence is not a directional translation bridge",
+    "translation is not validated performativity",
+    "demand is not independently validated supply or a supply gap",
+    "coastal-tourism comparison is not retained repository evidence"
+  ],
+  "known_design_threats": [
+    "retrieval/classification design confounds prevalence interpretation",
+    "deduplicated evidence IDs are corpus units, not iid observations",
+    "a linked evidence identity can support multiple demand work packages and screening paths",
+    "semantic signals require exact-span human validation",
+    "multi-label screening is not an independent-event design"
+  ],
+  "package_scope": "deterministic_corpus_screening_not_validated_performativity_or_supply_gap",
+  "reproducibility_contract": {
+    "consumer_read_order": [
+      "read validity_threats.json and value_labels.json before interpreting screening tables",
+      "treat sector/axis/realm CSV files as deterministic corpus-screening diagnostics only"
+    ],
+    "packaging_identity": [
+      "byte-for-byte artifact determinism for governed output files",
+      "checksum parity between package_manifest and artifact bytes"
+    ],
+    "scientific_invariants": [
+      "canonical four-axis contract",
+      "configured hypothesis serialization with not_computable when required evidence is absent",
+      "strict provenance lineage consistency"
+    ]
+  }
+}
