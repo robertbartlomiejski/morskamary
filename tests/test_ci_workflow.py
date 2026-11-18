@@ -68,6 +68,23 @@ def test_ci_static_quality_job_runs_module_based_flake8_and_mypy() -> None:
     assert "python -m mypy src scripts run_full_analysis.py main.py" in WORKFLOW_TEXT
 
 
+def test_ci_retains_coverage_xml_independently_of_codecov() -> None:
+    steps = CI_WORKFLOW["jobs"]["test-suite"]["steps"]
+    test_step = next(step for step in steps if step["name"] == "Run test suite")
+    assert "--cov-report=xml" in test_step["run"]
+    artifact = next(
+        step for step in steps if step.get("uses", "").startswith("actions/upload-artifact@")
+    )
+    codecov = next(
+        step for step in steps if step.get("uses", "").startswith("codecov/codecov-action@")
+    )
+    assert steps.index(test_step) < steps.index(artifact) < steps.index(codecov)
+    assert artifact["if"] == "matrix.python-version == '3.11'"
+    assert artifact["with"]["path"] == "coverage.xml"
+    assert artifact["with"]["if-no-files-found"] == "error"
+    assert "${{ github.sha }}" in artifact["with"]["name"]
+
+
 def test_black_dependency_scopes_require_patched_version() -> None:
     root = Path(__file__).resolve().parents[1]
     pyproject = (root / "pyproject.toml").read_text(encoding="utf-8")
