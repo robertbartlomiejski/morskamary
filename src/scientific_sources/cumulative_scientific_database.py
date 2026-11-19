@@ -35,6 +35,7 @@ under ``<output_dir>/``::
     _checksums.sha256
     evidence_records.csv
     evidence_records.jsonl
+    evidence_observations.jsonl
     competence_demand_signals.csv
     competence_demand_signals.jsonl
     run_novelty_metrics.csv
@@ -59,6 +60,7 @@ import hashlib
 import json
 import re
 import unicodedata
+from bisect import bisect_left
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
@@ -102,7 +104,7 @@ from src.scientific_sources.schema_v2_identity import (
 DATABASE_SCHEMA_VERSION = "2.0.0"
 """Schema version stamped into every manifest produced by this module."""
 
-CLASSIFIER_VERSION = "cumulative-db-semantic-v4"
+CLASSIFIER_VERSION = "cumulative-db-semantic-v5"
 """Deterministic rule-based semantic classifier version tag."""
 
 LEGACY_COMPATIBILITY_CLASSIFIER_VERSION = "cumulative-db-semantic-v1"
@@ -110,6 +112,7 @@ LEGACY_COMPATIBILITY_CLASSIFIER_VERSION = "cumulative-db-semantic-v1"
 
 EVIDENCE_RECORDS_CSV = "evidence_records.csv"
 EVIDENCE_RECORDS_JSONL = "evidence_records.jsonl"
+EVIDENCE_OBSERVATIONS_JSONL = "evidence_observations.jsonl"
 EVIDENCE_FRAGMENTS_CSV = "evidence_fragments.csv"
 EVIDENCE_FRAGMENTS_JSONL = "evidence_fragments.jsonl"
 SEMANTIC_SIGNALS_CSV = "semantic_signals.csv"
@@ -1322,6 +1325,10 @@ def _require_utc_timestamp(value: Any, *, field_name: str) -> str:
     return stamp
 
 
+def _observation_sort_key(timestamp: str, run_id: str) -> Tuple[datetime, str, str]:
+    return datetime.fromisoformat(timestamp.replace("Z", "+00:00")), run_id, timestamp
+
+
 def _record_timestamp(record: Mapping[str, Any], fallback: str) -> str:
     """Return the record's UTC retrieval timestamp or a UTC fallback."""
     stamp = str(record.get("retrieval_timestamp") or "").strip()
@@ -1944,7 +1951,19 @@ def build_cumulative_scientific_database(
         evidence_titles_by_id=evidence_titles_by_id,
     )
 
+    evidence_observations = [
+        {
+            "evidence_id": evidence_index[bucket],
+            "run_id": observation.run_id,
+            "observed_at_utc": observation.timestamp_utc,
+        }
+        for bucket in sorted(buckets, key=evidence_index.__getitem__)
+        for observation in sorted(
+            buckets[bucket], key=lambda row: _observation_sort_key(row.timestamp_utc, row.run_id)
+        )
+    ]
     written = _write_bundle(
+        evidence_observations=evidence_observations,
         output_dir=output_path,
         evidence_records=evidence_records,
         evidence_fragments=evidence_fragments,
@@ -2128,7 +2147,9 @@ def _make_evidence_records(
         index[bucket] = evidence_id
 
         # Sort observations by timestamp for deterministic first/latest.
-        obs_sorted = sorted(observations, key=lambda o: (o.timestamp_utc, o.run_id))
+        obs_sorted = sorted(
+            observations, key=lambda row: _observation_sort_key(row.timestamp_utc, row.run_id)
+        )
         first_obs = obs_sorted[0]
         latest_obs = obs_sorted[-1]
 
@@ -2589,9 +2610,11 @@ def _build_signal_components_for_observation(
     provenance_hash = hashlib.sha256(provenance_id.encode("utf-8")).hexdigest()
 
     components: List[_SignalComponent] = []
-    axis_payloads_by_field_and_text: Dict[
-        Tuple[str, str], Dict[str, Any]
-    ] = {}
+    sentence_boundaries = {
+        field: [boundary.start() for boundary in re.finditer(r"[.!?](?=\s|$)|\n", text)]
+        for field, text in surfaces
+    }
+    axis_payloads: Dict[Tuple[str, str], Dict[str, Any]] = {}
     for match in matches:
         pattern = match.pattern
         matched_phrase = match.matched_phrase
@@ -2599,15 +2622,18 @@ def _build_signal_components_for_observation(
             source_field=match.source_field,
             metadata_only=is_metadata_only,
         )
-        axis_key = (match.source_field, match.source_text)
-        if axis_key not in axis_payloads_by_field_and_text:
-            axis_payloads_by_field_and_text[axis_key] = (
-                _EVIDENCE_AXIS_CLASSIFIER.classify_context(
-                    match.source_text,
-                    text_scope=match.source_field,
-                )
+        boundaries = sentence_boundaries[match.source_field]
+        start_index = bisect_left(boundaries, match.span_start)
+        end_index = bisect_left(boundaries, match.span_end)
+        start = boundaries[start_index - 1] + 1 if start_index else 0
+        end = boundaries[end_index] if end_index < len(boundaries) else len(match.source_text)
+        sentence = match.source_text[start:end].strip()
+        axis_key = (match.source_field, sentence)
+        if axis_key not in axis_payloads:
+            axis_payloads[axis_key] = _EVIDENCE_AXIS_CLASSIFIER.classify_context(
+                sentence, text_scope=match.source_field
             )
-        axis_payload = axis_payloads_by_field_and_text[axis_key]
+        axis_payload = axis_payloads[axis_key]
         if (
             axis_payload.get("manual_review_status") == "review_required"
             or axis_payload.get("axis") == "UNCLASSIFIED"
@@ -3710,6 +3736,7 @@ def _write_bundle(
     *,
     output_dir: Path,
     evidence_records: Sequence[EvidenceRecord],
+    evidence_observations: Sequence[Dict[str, str]],
     evidence_fragments: Sequence[EvidenceFragment],
     semantic_signals: Sequence[SemanticSignal],
     competence_candidates: Sequence[CompetenceCandidate],
@@ -3796,6 +3823,10 @@ def _write_bundle(
         jsonl_path = output_dir / jsonl_name
         _write_jsonl(jsonl_path, rows)
         files.append(jsonl_path)
+
+    observations_jsonl = output_dir / EVIDENCE_OBSERVATIONS_JSONL
+    _write_jsonl(observations_jsonl, evidence_observations)
+    files.append(observations_jsonl)
 
     fragments_csv = output_dir / HYPOTHESIS_SEMANTIC_FRAGMENTS_CSV
     _write_csv(
@@ -3993,6 +4024,7 @@ __all__ = [
     "EvidenceFragment",
     "EVIDENCE_RECORDS_CSV",
     "EVIDENCE_RECORDS_JSONL",
+    "EVIDENCE_OBSERVATIONS_JSONL",
     "EVIDENCE_RECORD_COLUMNS",
     "EvidenceRecord",
     "LEGACY_COMPATIBILITY_CLASSIFIER_VERSION",

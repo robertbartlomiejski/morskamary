@@ -52,6 +52,9 @@ if str(_REPO_ROOT) not in sys.path:
 from jsonschema import Draft202012Validator  # noqa: E402
 from pypdf import PdfReader  # noqa: E402
 
+from src.scientific_sources.cumulative_scientific_database import (  # noqa: E402
+    EVIDENCE_OBSERVATIONS_JSONL,
+)
 from src.scientific_sources.publication_readiness import (  # noqa: E402
     aggregate_readiness,
     current_run_identity,
@@ -2890,8 +2893,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         if blob is not None:
             entries.append((f"data/csv/{name}", blob))
 
-    # JSONL
-    for name in JSONL_FILES:
+    # JSONL, including the observation timeline when the source bundle has one.
+    for name in (*JSONL_FILES, EVIDENCE_OBSERVATIONS_JSONL):
         blob = _read_bytes_if_exists(database_dir / name)
         if blob is not None:
             entries.append((f"data/jsonl/{name}", blob))

@@ -45,7 +45,11 @@ Component definitions:
 * `normalized_unique_doi_count = min(1.0, unique_doi_count / 10.0)` — a
   reference of 10 unique DOIs is the saturation point.
 * `provider_diversity_score` — number of distinct providers observed for
-  the label divided by the maximum providers observed in the run.
+  the label divided by the maximum providers observed in the run in the legacy
+  compatibility view. In the accepted canonical view, the numerator counts
+  providers on reviewed fragments supporting the demand's context. The
+  denominator counts distinct providers on all fragments reviewed in the
+  decisions that support that demand.
 * `temporal_recency_score` — recency function derived from
   `latest_seen_at_utc` using an exponential decay (see `_recency_score`).
 * `query_diversity_score` — number of distinct query families divided by

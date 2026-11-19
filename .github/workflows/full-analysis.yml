@@ -181,25 +181,6 @@ jobs:
             --root outputs \
             --baseline-root "$COMMITTED_COMPARE_ROOT"
 
-      - name: Capture deterministic regenerated outputs when freshness fails
-        if: ${{ failure() && github.event_name == 'pull_request' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: regenerated-outputs-${{ github.event.pull_request.head.sha }}
-          path: |
-            outputs/competences_full_database.json
-            outputs/credentials_database.json
-            outputs/credentials_matrix.html
-            outputs/gap_priority_ranking.csv
-            outputs/gaps_by_sector.html
-            outputs/gaps_by_sector_axis.csv
-            outputs/literature_integration.html
-            outputs/report_index.html
-            outputs/sector_dictionaries/*_tmbd_dictionary.json
-            outputs/sector_qmbd_learning_pathways.json
-          if-no-files-found: error
-          retention-days: 1
-
       - name: Check static outputs are reproducible in isolation
         shell: bash
         env:
@@ -223,6 +204,32 @@ jobs:
           python scripts/compare_generated_outputs.py \
             --root outputs \
             --baseline-root "$STATIC_COMPARE_ROOT"
+
+      - name: Capture regenerated outputs if analysis or reproducibility fails
+        if: ${{ failure() && github.event_name == 'pull_request' && steps.committed-outputs.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: regenerated-outputs-${{ github.event.pull_request.head.sha }}
+          path: |
+            outputs/competences_full_database.json
+            outputs/credentials_database.json
+            outputs/credentials_dynamic_database.json
+            outputs/credentials_generation_rationale.json
+            outputs/credentials_matrix.html
+            outputs/cumulative_qmbd_records.json
+            outputs/gap_priority_ranking.csv
+            outputs/gaps_by_sector.html
+            outputs/gaps_by_sector_axis.csv
+            outputs/gaps_detailed.json
+            outputs/gaps_summary.csv
+            outputs/literature_integration.html
+            outputs/performative_demand_cross_axis/
+            outputs/report_index.html
+            outputs/sector_dictionaries/*_tmbd_dictionary.json
+            outputs/sector_pathways.json
+            outputs/sector_qmbd_learning_pathways.json
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Restore committed-mode output snapshot after reproducibility check
         shell: bash

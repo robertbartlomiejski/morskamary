@@ -53,6 +53,7 @@ from typing import (
 from src.scientific_sources.cumulative_scientific_database import (
     CLASSIFIER_VERSION,
     canonical_label_is_allowed,
+    _observation_sort_key,
 )
 from src.scientific_sources.schema_v2_identity import (
     make_canonical_competence_id as _make_canonical_competence_id,
@@ -553,6 +554,7 @@ def build_layer4(
     validation_decisions: Optional[Sequence[Mapping[str, Any]]] = None,
     competence_candidates: Optional[Sequence[Mapping[str, Any]]] = None,
     semantic_signals: Optional[Sequence[Mapping[str, Any]]] = None,
+    evidence_observations: Optional[Sequence[Mapping[str, Any]]] = None,
     output_dir: Union[str, Path],
     current_run_id: str = "",
     stats_dir: Optional[Union[str, Path]] = None,
@@ -739,6 +741,7 @@ def build_layer4(
             validation_decisions=validation_decisions,
             competence_candidates=competence_candidates,
             semantic_signals=semantic_signals,
+            evidence_observations=evidence_observations,
             analysis_timestamp_utc=analysis_timestamp_utc,
         )
     )
@@ -1653,91 +1656,53 @@ def _credential_translation_demands(
     ]
 
 
-def _providers_for_lineage_evidence(evidence: Mapping[str, Any]) -> List[str]:
-    providers = _split_list(evidence.get("providers_seen", ""))
-    if not providers:
-        providers = _split_list(evidence.get("provider_source", ""))
-    return providers
-
-
 def _decision_cutoff_timestamp(decision_at_utc: str) -> datetime:
     """Return the accepted-decision cutoff timestamp for reviewed snapshot metrics."""
     return datetime.fromisoformat(decision_at_utc.replace("Z", "+00:00"))
 
 
-def _timestamp_on_or_before_cutoff(
-    row: Mapping[str, Any], field_name: str, cutoff: datetime
-) -> str:
-    """Return a lineage timestamp only when it belongs to the reviewed snapshot."""
-    value = _lineage_row_id(row, field_name)
-    if not value:
-        return ""
-    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    return value if parsed <= cutoff else ""
-
-
-def _accepted_lineage_snapshot_metrics(
-    evidence: List[Mapping[str, Any]],
-    decision_at_utc: str,
-    reviewed_fragments: Sequence[Mapping[str, Any]] = (),
-) -> Dict[str, Any]:
-    """Freeze accepted-lineage metrics to evidence retained at decision time."""
-    cutoff = _decision_cutoff_timestamp(decision_at_utc)
-    snapshot_rows = [
-        row
-        for row in evidence
-        if _timestamp_on_or_before_cutoff(row, "first_seen_at_utc", cutoff)
-    ]
-    providers = sorted(
-        {
-            provider
-            for row in reviewed_fragments
-            for provider in _split_list(row.get("source_provider", ""))
-            if provider
-        }
-    )
-    if not providers:
-        providers = sorted(
-            {
-                provider
-                for row in snapshot_rows
-                for provider in _providers_for_lineage_evidence(row)
-                if provider
-            }
+def _accepted_lineage_observations(
+    evidence: Mapping[str, Any],
+    history: Optional[Sequence[Tuple[str, str]]],
+    cutoff: datetime,
+) -> List[Tuple[str, str]]:
+    """Recover paired timestamps and run identifiers through the review cutoff."""
+    evidence_id = _lineage_row_id(evidence, "evidence_id")
+    endpoints = [
+        (
+            _lineage_row_id(evidence, f"{edge}_seen_at_utc"),
+            _lineage_row_id(evidence, f"{edge}_seen_run_id"),
         )
-    first_run = min(
-        (_lineage_row_id(row, "first_seen_run_id") for row in snapshot_rows),
-        default="",
-    )
-    latest_run = max(
-        (
-            _lineage_row_id(row, "latest_seen_run_id")
-            if _timestamp_on_or_before_cutoff(row, "latest_seen_at_utc", cutoff)
-            else _lineage_row_id(row, "first_seen_run_id")
-            for row in snapshot_rows
-        ),
-        default="",
-    )
-    first_at = min(
-        (_lineage_row_id(row, "first_seen_at_utc") for row in snapshot_rows),
-        default="",
-    )
-    latest_at = max(
-        (
-            _timestamp_on_or_before_cutoff(row, "latest_seen_at_utc", cutoff)
-            or _lineage_row_id(row, "first_seen_at_utc")
-            for row in snapshot_rows
-        ),
-        default="",
-    )
-    return {
-        "providers": providers,
-        "first_run": first_run,
-        "latest_run": latest_run,
-        "first_at": first_at,
-        "latest_at": latest_at,
-        "occurrence_count": len(snapshot_rows),
-    }
+        for edge in ("first", "latest")
+    ]
+    if any(not run_id or _parse_lineage_utc(timestamp) is None for timestamp, run_id in endpoints):
+        raise DerivedAnalysisError(
+            f"accepted canonical lineage has invalid observation endpoints: {evidence_id}"
+        )
+    if history is not None:
+        if (
+            not history
+            or len(history) != int(evidence["record_recurrence_count"])
+            or min(history, key=lambda row: _observation_sort_key(*row)) != endpoints[0]
+            or max(history, key=lambda row: _observation_sort_key(*row)) != endpoints[1]
+        ):
+            raise DerivedAnalysisError(
+                f"accepted canonical lineage has inconsistent observation history: {evidence_id}"
+            )
+    elif (
+        _observation_sort_key(*endpoints[0])[0] <= cutoff
+        < _observation_sort_key(*endpoints[1])[0]
+        and int(evidence.get("record_recurrence_count") or 0) != 2
+    ):
+        raise DerivedAnalysisError(
+            "accepted canonical lineage requires retained observation history "
+            f"across the decision cutoff: {evidence_id}"
+        )
+    return [
+        observation
+        for observation in (history if history is not None else endpoints)
+        if _observation_sort_key(*observation)[0] <= cutoff
+    ]
 
 
 def _build_accepted_canonical_lineage_demands(
@@ -1749,6 +1714,7 @@ def _build_accepted_canonical_lineage_demands(
     validation_decisions: Optional[Sequence[Mapping[str, Any]]],
     competence_candidates: Optional[Sequence[Mapping[str, Any]]],
     semantic_signals: Optional[Sequence[Mapping[str, Any]]],
+    evidence_observations: Optional[Sequence[Mapping[str, Any]]],
     analysis_timestamp_utc: Optional[str],
 ) -> List[DerivedCompetenceDemand]:
     """Emit reviewed canonical demands only from a complete schema-v2 chain.
@@ -2530,11 +2496,17 @@ def _build_accepted_canonical_lineage_demands(
                     f"wrong canonical competence: {decision_id}"
                 )
 
-    all_providers = {
-        provider
-        for evidence in evidence_records
-        for provider in _providers_for_lineage_evidence(evidence)
-    }
+    observations_by_evidence: Dict[str, List[Tuple[str, str]]] = {}
+    for observation in evidence_observations or ():
+        evidence_id = _lineage_row_id(observation, "evidence_id")
+        timestamp = _lineage_row_id(observation, "observed_at_utc")
+        run_id = _lineage_row_id(observation, "run_id")
+        if evidence_id not in evidence_by_id or not run_id or _parse_lineage_utc(timestamp) is None:
+            raise DerivedAnalysisError(
+                f"accepted canonical lineage has an invalid retained observation: {evidence_id}"
+            )
+        observations_by_evidence.setdefault(evidence_id, []).append((timestamp, run_id))
+
     all_query_families = {
         _lineage_row_id(signal, "query_family")
         for signal in signal_rows
@@ -2594,7 +2566,9 @@ def _build_accepted_canonical_lineage_demands(
                 if _lineage_row_id(row, "canonical_doi")
             }
         )
-        snapshot_parts: List[Dict[str, Any]] = []
+        snapshot_observations: List[Tuple[str, str]] = []
+        reviewed_providers: Set[str] = set()
+        context_providers: Set[str] = set()
         snapshot_evidence_ids: Set[str] = set()
         context_fragment_ids = {
             _lineage_row_id(signal, "fragment_id") for signal in context_signals
@@ -2614,58 +2588,35 @@ def _build_accepted_canonical_lineage_demands(
                 for assignment in decision_assignments
                 for evidence_id in _split_list(assignment.get("evidence_ids"))
             }
-            decision_evidence = [
-                evidence_by_id[evidence_id]
-                for evidence_id in sorted(decision_evidence_ids)
-            ]
             decision_cutoff = _decision_cutoff_timestamp(
                 _lineage_row_id(reviewed_decision, "decision_at_utc")
             )
-            snapshot_evidence_ids.update(
-                evidence_id
-                for evidence_id in decision_evidence_ids
-                if _timestamp_on_or_before_cutoff(
+            for evidence_id in decision_evidence_ids:
+                observations = _accepted_lineage_observations(
                     evidence_by_id[evidence_id],
-                    "first_seen_at_utc",
+                    (
+                        observations_by_evidence.get(evidence_id, [])
+                        if evidence_observations is not None
+                        else None
+                    ),
                     decision_cutoff,
                 )
-            )
-            reviewed_fragments = [
-                fragments_by_id[fragment_id]
-                for fragment_id in sorted(
-                    decision_fragment_ids_by_id.get(current_decision_id, set())
+                if observations:
+                    snapshot_evidence_ids.add(evidence_id)
+                    snapshot_observations.extend(observations)
+            for fragment_id in decision_fragment_ids_by_id[current_decision_id]:
+                fragment_providers = _split_list(
+                    fragments_by_id[fragment_id].get("source_provider", "")
                 )
-                if fragment_id in context_fragment_ids
-            ]
-            snapshot_parts.append(
-                _accepted_lineage_snapshot_metrics(
-                    decision_evidence,
-                    _lineage_row_id(reviewed_decision, "decision_at_utc"),
-                    reviewed_fragments,
-                )
-            )
-        providers = sorted(
-            {
-                provider
-                for part in snapshot_parts
-                for provider in part["providers"]
-            }
+                reviewed_providers.update(fragment_providers)
+                if fragment_id in context_fragment_ids:
+                    context_providers.update(fragment_providers)
+        providers = sorted(context_providers)
+        first_at, first_run = min(
+            snapshot_observations, key=lambda row: _observation_sort_key(*row), default=("", "")
         )
-        first_run = min(
-            (str(part["first_run"]) for part in snapshot_parts if part["first_run"]),
-            default="",
-        )
-        latest_run = max(
-            (str(part["latest_run"]) for part in snapshot_parts if part["latest_run"]),
-            default="",
-        )
-        first_at = min(
-            (str(part["first_at"]) for part in snapshot_parts if part["first_at"]),
-            default="",
-        )
-        latest_at = max(
-            (str(part["latest_at"]) for part in snapshot_parts if part["latest_at"]),
-            default="",
+        latest_at, latest_run = max(
+            snapshot_observations, key=lambda row: _observation_sort_key(*row), default=("", "")
         )
         snapshot_occurrence_count = len(snapshot_evidence_ids)
         query_families = sorted(
@@ -2680,7 +2631,7 @@ def _build_accepted_canonical_lineage_demands(
             for signal in context_signals
         ]
         confidence_mean = sum(confidences) / max(1, len(confidences))
-        provider_diversity = _diversity(len(providers), len(all_providers) or 1)
+        provider_diversity = _diversity(len(providers), len(reviewed_providers) or 1)
         query_diversity = _diversity(
             len(query_families), len(all_query_families) or 1
         )

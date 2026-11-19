@@ -257,6 +257,7 @@ def _build_accepted_canonical_lineage(
         validation_decisions=rows["validation_decisions"],
         competence_candidates=rows["competence_candidates"],
         semantic_signals=rows["semantic_signals"],
+        evidence_observations=rows.get("evidence_observations"),
         output_dir=tmp_path / "layer4",
         analysis_timestamp_utc="2026-07-12T00:00:00+00:00",
     )
@@ -330,20 +331,44 @@ def test_layer4_freezes_provider_metrics_to_reviewed_occurrences(
 ) -> None:
     rows = _accepted_canonical_lineage_rows()
     evidence = rows["evidence_records"][0]
-    evidence["providers_seen"] = "crossref|openalex"
-    evidence["provider_source"] = "crossref"
-    evidence["latest_seen_run_id"] = "RUN-HYDRO-999"
-    evidence["latest_seen_at_utc"] = "2026-07-20T00:00:00+00:00"
-    evidence["record_recurrence_count"] = 5
+    first_at = "2026-07-01T00:00:00+00:00"
+    latest_at = "2026-07-05T00:00:00+00:00"
+    evidence.update(
+        first_seen_run_id="RUN-Z",
+        latest_seen_run_id="RUN-A",
+        latest_seen_at_utc=latest_at,
+        record_recurrence_count=2,
+    )
+    rows["evidence_observations"] = [
+        {"evidence_id": evidence["evidence_id"], "run_id": "RUN-Z", "observed_at_utc": first_at},
+        {"evidence_id": evidence["evidence_id"], "run_id": "RUN-A", "observed_at_utc": latest_at},
+    ]
+    before = _build_accepted_canonical_lineage(tmp_path / "before", rows).derived_demands[0]
 
-    result = _build_accepted_canonical_lineage(tmp_path, rows)
+    after_at = "2026-07-20T00:00:00+00:00"
+    evidence.update(
+        providers_seen="crossref|openalex",
+        latest_seen_run_id="RUN-Q",
+        latest_seen_at_utc=after_at,
+        record_recurrence_count=3,
+    )
+    rows["evidence_observations"].append(
+        {"evidence_id": evidence["evidence_id"], "run_id": "RUN-Q", "observed_at_utc": after_at}
+    )
+    demand = _build_accepted_canonical_lineage(tmp_path / "after", rows).derived_demands[0]
 
-    demand = result.derived_demands[0]
     assert demand.provider_count == 1
     assert demand.providers_seen == "crossref"
+    assert demand.provider_diversity_score == before.provider_diversity_score == 1.0
+    assert demand.demand_strength_score == before.demand_strength_score
     assert demand.record_occurrence_count == 1
-    assert demand.latest_seen_run_id == "RUN-HYDRO-001"
-    assert demand.latest_seen_at_utc == "2026-07-01T00:00:00+00:00"
+    assert (demand.first_seen_at_utc, demand.first_seen_run_id) == (first_at, "RUN-Z")
+    assert (demand.latest_seen_at_utc, demand.latest_seen_run_id) == (latest_at, "RUN-A")
+    assert demand.latest_seen_at_utc == before.latest_seen_at_utc
+
+    del rows["evidence_observations"]
+    with pytest.raises(DerivedAnalysisError, match="requires retained observation history"):
+        _build_accepted_canonical_lineage(tmp_path / "missing-history", rows)
 
 
 def test_layer4_provider_metrics_are_scoped_to_each_demand_context(
@@ -428,6 +453,7 @@ def test_layer4_provider_metrics_are_scoped_to_each_demand_context(
     assert demands[("desalination", "HYDRONIZATION")].provider_count == 1
     assert demands[("ports", "MARITIME")].providers_seen == "scopus"
     assert demands[("ports", "MARITIME")].provider_count == 1
+    assert {demand.provider_diversity_score for demand in demands.values()} == {0.5}
 
 
 @pytest.mark.parametrize(

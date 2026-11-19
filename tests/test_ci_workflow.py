@@ -205,6 +205,13 @@ def test_full_analysis_clean_tree_blocks_stale_outputs_before_determinism() -> N
         == "${{ runner.temp }}/full-analysis-committed"
     )
 
+    upload = steps[determinism_index + 1]
+    assert upload["uses"] == "actions/upload-artifact@v4"
+    assert "failure()" in upload["if"]
+    assert "github.event_name == 'pull_request'" in upload["if"]
+    assert "steps.committed-outputs.outcome == 'success'" in upload["if"]
+    assert step_names[determinism_index + 2].startswith("Restore committed-mode")
+
     determinism_step = steps[determinism_index]
     determinism_script = determinism_step["run"]
     static_run = "python run_full_analysis.py --analysis-input-mode static"

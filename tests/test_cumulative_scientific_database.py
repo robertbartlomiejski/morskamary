@@ -46,6 +46,7 @@ from src.scientific_sources.cumulative_scientific_database import (
     EVIDENCE_FRAGMENTS_JSONL,
     EVIDENCE_RECORDS_CSV,
     EVIDENCE_RECORDS_JSONL,
+    EVIDENCE_OBSERVATIONS_JSONL,
     EVIDENCE_RECORD_COLUMNS,
     SECTOR_COMPETENCE_ASSIGNMENTS_CSV,
     SECTOR_COMPETENCE_ASSIGNMENTS_JSONL,
@@ -209,6 +210,7 @@ class TestBundleShape:
         expected = {
             EVIDENCE_RECORDS_CSV,
             EVIDENCE_RECORDS_JSONL,
+            EVIDENCE_OBSERVATIONS_JSONL,
             EVIDENCE_FRAGMENTS_CSV,
             EVIDENCE_FRAGMENTS_JSONL,
             SEMANTIC_SIGNALS_CSV,
@@ -1122,6 +1124,7 @@ class TestDeterminism:
         for name in (
             EVIDENCE_RECORDS_CSV,
             EVIDENCE_RECORDS_JSONL,
+            EVIDENCE_OBSERVATIONS_JSONL,
             COMPETENCE_DEMAND_SIGNALS_CSV,
             COMPETENCE_DEMAND_SIGNALS_JSONL,
             RUN_NOVELTY_METRICS_CSV,
@@ -2634,7 +2637,7 @@ def test_current_observation_signal_components_are_reused(
     assert calls == ["R1", "R1"]
 
 
-def test_axis_classification_is_cached_per_observation_source_field(
+def test_axis_classification_is_cached_per_observation_sentence(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -2644,7 +2647,8 @@ def test_axis_classification_is_cached_per_observation_source_field(
         [
             {
                 "title": "Hydrosocial digital skills for port logistics",
-                "abstract": "Digital training supports hydrosocial governance.",
+                "abstract": ("Port workers need digital skills. Port workers need digital skills. "
+                             "Governance policy is discussed."),
                 "doi": "10.1000/axis-cache-per-field",
                 "provider": "Crossref",
                 "source_query": BOUND_QUERY_TEXT,
@@ -2670,11 +2674,22 @@ def test_axis_classification_is_cached_per_observation_source_field(
     )
 
     assert result.semantic_signals
-    assert len(calls) == 2
+    assert len(calls) == 3
     assert set(calls) == {
         ("title", "Hydrosocial digital skills for port logistics"),
-        ("abstract", "Digital training supports hydrosocial governance."),
+        ("abstract", "Port workers need digital skills"),
+        ("abstract", "Governance policy is discussed"),
     }
+
+    abstract_fragments = {
+        row.fragment_id
+        for row in result.evidence_fragments
+        if row.source_field == "abstract"
+        and row.span_start_offset < len("Port workers need digital skills. " * 2)
+    }
+    abstract_signals = [row for row in result.semantic_signals if row.fragment_id in abstract_fragments]
+    assert len(abstract_signals) >= 2
+    assert {row.axis_group for row in abstract_signals} == {"MARITIME"}
 
 
 def test_semantic_scanner_uses_word_boundaries_and_qualified_claim_gate() -> None:
@@ -3073,7 +3088,17 @@ def test_validation_decision_snapshot_is_immutable_across_later_occurrences(
                 "run_id": "R1",
                 "timestamp_utc": "2026-07-08T00:00:00+00:00",
                 "records": [initial_record],
-            }
+            },
+            {
+                "run_id": "A-before-cutoff",
+                "timestamp_utc": FROZEN_TS,
+                "records": [{
+                    **initial_record,
+                    "title": "Descriptive material.",
+                    "abstract": "",
+                    "retrieval_timestamp": FROZEN_TS,
+                }],
+            },
         ],
     )
     _write_current_run(
@@ -3114,6 +3139,32 @@ def test_validation_decision_snapshot_is_immutable_across_later_occurrences(
     assert decision.fragment_ids == snapshot["fragment_ids"]
     assert decision.source_provenance_ids == snapshot["source_provenance_ids"]
     assert set(decision.fragment_ids.split("|")) < set(candidate.fragment_ids.split("|"))
+
+    # The intermediate observation had no semantic match and is available
+    # from the cumulative bundle timeline, independently of reviewed fragments.
+    observation_rows = [
+        json.loads(line)
+        for line in (recurring.output_dir / EVIDENCE_OBSERVATIONS_JSONL).read_text(
+            encoding="utf-8"
+        ).splitlines()
+    ]
+    layer4 = build_layer4(
+        evidence_records=[row.to_dict() for row in recurring.evidence_records],
+        competence_signals=[],
+        evidence_fragments=[row.to_dict() for row in recurring.evidence_fragments],
+        canonical_competences=[row.to_dict() for row in recurring.canonical_competences],
+        sector_competence_assignments=[
+            row.to_dict() for row in recurring.sector_competence_assignments
+        ],
+        validation_decisions=[row.to_dict() for row in recurring.validation_decisions],
+        competence_candidates=[row.to_dict() for row in recurring.competence_candidates],
+        semantic_signals=[row.to_dict() for row in recurring.semantic_signals],
+        evidence_observations=observation_rows,
+        output_dir=tmp_path / "layer4",
+    )
+    assert len(layer4.derived_demands) == 1
+    demand = layer4.derived_demands[0]
+    assert (demand.latest_seen_at_utc, demand.latest_seen_run_id) == (FROZEN_TS, "A-before-cutoff")
 
 
 def test_validation_decision_requires_explicit_immutable_snapshot(

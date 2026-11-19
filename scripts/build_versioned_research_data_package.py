@@ -26,6 +26,9 @@ if str(_REPO_ROOT) not in sys.path:
 
 from jsonschema import Draft202012Validator, FormatChecker  # type: ignore[import-untyped]  # noqa: E402
 
+from src.scientific_sources.cumulative_scientific_database import (  # noqa: E402
+    EVIDENCE_OBSERVATIONS_JSONL,
+)
 from src.scientific_sources.schema_v2_identity import (  # noqa: E402
     decision_content_hash_matches as _decision_content_hash_matches_v2,
     make_candidate_id as _make_candidate_id_v2,
@@ -2396,6 +2399,12 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
                 supp_jsonl,
                 package_dir / "data" / "jsonl" / f"{output_name}.jsonl",
             )
+
+    observation_source = repo_root / SCHEMA_V2_SOURCE_DIRECTORY / EVIDENCE_OBSERVATIONS_JSONL
+    if observation_source.is_file():
+        shutil.copyfile(
+            observation_source, package_dir / "data" / "jsonl" / EVIDENCE_OBSERVATIONS_JSONL
+        )
 
     variable_labels, value_labels = _load_variable_and_value_labels(schema_dir)
     variable_labels = _merge_label_rows(

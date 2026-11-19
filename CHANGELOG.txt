@@ -1,3 +1,9 @@
+2026-11-19 — preserve reviewed Layer-4 timestamps and tighten PR #308 diagnostics
+- Retain a checksummed observation timeline and pair each decision-time timestamp with its corresponding run ID.
+- Freeze accepted-demand provider diversity against the contributing decisions' fragment snapshots.
+- Classify semantic matches by containing sentence and advance the classifier identity to v5.
+- Capture regenerated PR outputs after the static reproducibility check, gated on successful snapshot preparation.
+
 2026-11-16 — close current scientific-validity debt inherited from historical PR #245
 - Aggregate multiple accepted reviewer decisions for one canonical competence without collapsing immutable per-decision lineage.
 - Derive provider diversity from reviewed fragment provenance and freeze accepted-demand metrics to reviewed snapshots.
