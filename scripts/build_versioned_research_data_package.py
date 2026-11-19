@@ -2318,6 +2318,11 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         },
     }
     validation_errors: list[str] = list(schema_v2_format_errors)
+    validation_errors.extend(
+        _validate_observation_timeline(
+            repo_root / SCHEMA_V2_SOURCE_DIRECTORY / EVIDENCE_OBSERVATIONS_JSONL
+        )
+    )
     for table_name, schema_path in schema_map.items():
         validation_errors.extend(
             _validate_rows(csv_tables[table_name], schema_path, table_name)
@@ -2401,10 +2406,9 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
             )
 
     observation_source = repo_root / SCHEMA_V2_SOURCE_DIRECTORY / EVIDENCE_OBSERVATIONS_JSONL
-    if observation_source.is_file():
-        shutil.copyfile(
-            observation_source, package_dir / "data" / "jsonl" / EVIDENCE_OBSERVATIONS_JSONL
-        )
+    shutil.copyfile(
+        observation_source, package_dir / "data" / "jsonl" / EVIDENCE_OBSERVATIONS_JSONL
+    )
 
     variable_labels, value_labels = _load_variable_and_value_labels(schema_dir)
     variable_labels = _merge_label_rows(
@@ -2626,6 +2630,28 @@ def _to_bool(value: str) -> bool:
     if token in {"0", "false", "no", "n"}:
         return False
     raise ValueError(f"invalid boolean value: {value!r}")
+
+
+def _validate_observation_timeline(path: Path) -> list[str]:
+    """Require a present, parseable evidence observation timeline."""
+    if not path.is_file():
+        return [f"missing_observation_timeline:{path.name}"]
+    errors: list[str] = []
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        return [f"unreadable_observation_timeline:{path.name}:{exc}"]
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError as exc:
+            errors.append(f"malformed_jsonl:{path.name}:L{line_no}:{exc}")
+            continue
+        if not isinstance(payload, dict):
+            errors.append(f"jsonl_not_object:{path.name}:L{line_no}")
+    return errors
 
 
 def main(argv: list[str] | None = None) -> int:

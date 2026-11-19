@@ -205,12 +205,25 @@ def test_full_analysis_clean_tree_blocks_stale_outputs_before_determinism() -> N
         == "${{ runner.temp }}/full-analysis-committed"
     )
 
-    upload = steps[determinism_index + 1]
+    stage = steps[determinism_index + 1]
+    assert stage["name"] == "Stage first static run for failure diagnostics"
+    assert "failure()" in stage["if"]
+    assert "steps.committed-outputs.outcome == 'success'" in stage["if"]
+    assert (
+        stage["env"]["STATIC_COMPARE_ROOT"]
+        == "${{ runner.temp }}/full-analysis-static-baseline"
+    )
+    assert '! -d "$STATIC_COMPARE_ROOT"' in stage["run"]
+    assert "exit 0" in stage["run"]
+    assert "run_archive" not in stage["run"]
+
+    upload = steps[determinism_index + 2]
+    assert "static-baseline-diagnostics/" in upload["with"]["path"]
     assert upload["uses"] == "actions/upload-artifact@v4"
     assert "failure()" in upload["if"]
     assert "github.event_name == 'pull_request'" in upload["if"]
     assert "steps.committed-outputs.outcome == 'success'" in upload["if"]
-    assert step_names[determinism_index + 2].startswith("Restore committed-mode")
+    assert step_names[determinism_index + 3].startswith("Restore committed-mode")
 
     determinism_step = steps[determinism_index]
     determinism_script = determinism_step["run"]

@@ -2378,6 +2378,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     required_paths = [
         *(database_dir / name for name in CSV_FILES),
         *(database_dir / name for name in JSONL_FILES),
+        database_dir / EVIDENCE_OBSERVATIONS_JSONL,
         *(database_dir / name for name in DATABASE_METADATA_FILES),
         database_dir / "VARIABLE_LABELS.csv",
         database_dir / "VALUE_LABELS.csv",
@@ -2577,6 +2578,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 expected_checksum_refs = set(
                     list(CSV_FILES)
                     + list(JSONL_FILES)
+                    + [EVIDENCE_OBSERVATIONS_JSONL]
                     + [
                         n for n in DATABASE_METADATA_FILES
                         if not n.endswith(".sha256")
@@ -2701,6 +2703,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         jsonl_rows[name] = rows
         jsonl_line_numbers[name] = line_numbers
         missing_required.extend(errors)
+    # The observation timeline is not a schema-v2 entity, but it must parse so
+    # Layer 4 cross-cutoff values stay reproducible from the package.
+    _, _, observation_errors = _load_jsonl_rows(
+        database_dir / EVIDENCE_OBSERVATIONS_JSONL
+    )
+    missing_required.extend(observation_errors)
 
     missing_required.extend(
         _validate_schema_v2_json_schema(

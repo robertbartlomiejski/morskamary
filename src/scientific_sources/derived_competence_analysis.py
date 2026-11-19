@@ -1705,6 +1705,49 @@ def _accepted_lineage_observations(
     ]
 
 
+def _require_fragment_observed(
+    fragment: Mapping[str, Any],
+    evidence_by_id: Mapping[str, Mapping[str, Any]],
+    observations_by_evidence: Optional[Mapping[str, Sequence[Tuple[str, str]]]],
+) -> None:
+    """Fail closed when a reviewed fragment is not backed by an observation."""
+    fragment_id = _lineage_row_id(fragment, "fragment_id")
+    evidence_id = _lineage_row_id(fragment, "evidence_id")
+    evidence = evidence_by_id.get(evidence_id)
+    retrieved_at = _parse_lineage_utc(fragment.get("source_retrieved_at_utc"))
+    if evidence is None or retrieved_at is None:
+        raise DerivedAnalysisError(
+            "accepted canonical lineage fragment is not linked to retained "
+            f"evidence observations: {fragment_id}"
+        )
+    if observations_by_evidence is not None:
+        run_id = _lineage_row_id(fragment, "run_id")
+        observed = {
+            (parsed, observed_run)
+            for timestamp, observed_run in observations_by_evidence.get(
+                evidence_id, ()
+            )
+            if (parsed := _parse_lineage_utc(timestamp)) is not None
+        }
+        if (retrieved_at, run_id) not in observed:
+            raise DerivedAnalysisError(
+                "accepted canonical lineage fragment is absent from the "
+                f"retained observation history: {fragment_id}"
+            )
+        return
+    first_at = _parse_lineage_utc(evidence.get("first_seen_at_utc"))
+    latest_at = _parse_lineage_utc(evidence.get("latest_seen_at_utc"))
+    if (
+        first_at is None
+        or latest_at is None
+        or not first_at <= retrieved_at <= latest_at
+    ):
+        raise DerivedAnalysisError(
+            "accepted canonical lineage fragment falls outside the retained "
+            f"observation interval: {fragment_id}"
+        )
+
+
 def _build_accepted_canonical_lineage_demands(
     *,
     evidence_records: Sequence[Mapping[str, Any]],
@@ -2605,6 +2648,13 @@ def _build_accepted_canonical_lineage_demands(
                     snapshot_evidence_ids.add(evidence_id)
                     snapshot_observations.extend(observations)
             for fragment_id in decision_fragment_ids_by_id[current_decision_id]:
+                _require_fragment_observed(
+                    fragments_by_id[fragment_id],
+                    evidence_by_id,
+                    observations_by_evidence
+                    if evidence_observations is not None
+                    else None,
+                )
                 fragment_providers = _split_list(
                     fragments_by_id[fragment_id].get("source_provider", "")
                 )

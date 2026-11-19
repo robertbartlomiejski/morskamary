@@ -1,3 +1,8 @@
+2026-11-19 — address remaining PR #308 review findings
+- Stage the first static reproducibility run into failure diagnostics when it exists.
+- Require a present, parseable, checksummed evidence_observations.jsonl in both release packagers; absence or malformed lines fail before publication.
+- Fail closed in Layer 4 when a reviewed fragment is absent from retained observation history or outside the first/latest observation interval.
+
 2026-11-19 — preserve reviewed Layer-4 timestamps and tighten PR #308 diagnostics
 - Retain a checksummed observation timeline and pair each decision-time timestamp with its corresponding run ID.
 - Freeze accepted-demand provider diversity against the contributing decisions' fragment snapshots.

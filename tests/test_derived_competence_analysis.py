@@ -343,6 +343,10 @@ def test_layer4_freezes_provider_metrics_to_reviewed_occurrences(
         {"evidence_id": evidence["evidence_id"], "run_id": "RUN-Z", "observed_at_utc": first_at},
         {"evidence_id": evidence["evidence_id"], "run_id": "RUN-A", "observed_at_utc": latest_at},
     ]
+    rows["evidence_fragments"][0]["run_id"] = "RUN-UNOBSERVED"
+    with pytest.raises(DerivedAnalysisError, match="observation history"):
+        _build_accepted_canonical_lineage(tmp_path / "unobserved", rows)
+    rows["evidence_fragments"][0]["run_id"] = "RUN-Z"
     before = _build_accepted_canonical_lineage(tmp_path / "before", rows).derived_demands[0]
 
     after_at = "2026-07-20T00:00:00+00:00"
@@ -443,6 +447,14 @@ def test_layer4_provider_metrics_are_scoped_to_each_demand_context(
     )
     rows["sector_competence_assignments"].append(second_assignment)
 
+    with pytest.raises(DerivedAnalysisError, match="observation interval"):
+        _build_accepted_canonical_lineage(tmp_path / "mismatch", rows)
+
+    rows["evidence_records"][0].update(
+        latest_seen_at_utc="2026-07-02T00:00:00+00:00",
+        latest_seen_run_id="RUN-SCOPUS-001",
+        record_recurrence_count=2,
+    )
     result = _build_accepted_canonical_lineage(tmp_path, rows)
 
     demands = {

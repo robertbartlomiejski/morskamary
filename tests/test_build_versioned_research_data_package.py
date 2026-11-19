@@ -12,6 +12,8 @@ from pathlib import Path
 from typing import Any
 from zipfile import ZipFile
 
+import pytest
+
 from src.scientific_sources.schema_v2_identity import make_decision_content_hash
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -129,6 +131,18 @@ def _seed_minimal_outputs(repo_root: Path) -> None:
                 "latest_seen_run_id": "123-1",
                 "providers_seen": "crossref",
                 "record_novelty_status": "new_record",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    (cumulative_database / "evidence_observations.jsonl").write_text(
+        json.dumps(
+            {
+                "evidence_id": "E-0001",
+                "run_id": "123-1",
+                "observed_at_utc": "2026-07-01T00:00:00+00:00",
             }
         )
         + "\n",
@@ -1558,4 +1572,41 @@ def test_preflight_requires_supporting_evidence_record_projections(
     ).exists()
     assert not (
         output_dir / "morskamary_cumulative_evidence_v-support-required.zip"
+    ).exists()
+
+
+@pytest.mark.parametrize("corruption", ["missing", "malformed"])
+def test_preflight_requires_parseable_observation_timeline(
+    tmp_path: Path, corruption: str
+) -> None:
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+    timeline = repo_root / "outputs/cumulative_database/evidence_observations.jsonl"
+    if corruption == "missing":
+        timeline.unlink()
+    else:
+        timeline.write_text("{not json\n", encoding="utf-8")
+
+    output_dir = tmp_path / "release_out"
+    exit_code = module.main(
+        [
+            "--repo-root",
+            str(repo_root),
+            "--output-dir",
+            str(output_dir),
+            "--version-tag",
+            "v-timeline-required",
+            "--include-xlsx",
+            "false",
+            "--include-sav",
+            "false",
+        ]
+    )
+
+    assert exit_code == 1
+    assert not (
+        output_dir / "morskamary_cumulative_evidence_v-timeline-required.zip"
     ).exists()
