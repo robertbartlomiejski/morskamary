@@ -1682,3 +1682,12 @@ PR #270 follow-up completion hardening
 - Restrict inferential dimensions to non-zero margins while retaining all zero cells descriptively.
 
 PR #270 review-address pass: reinforce corpus-screening interpretation boundaries, add explicit `screening_validation_state` flags to screening rows, and strengthen external-comparison provenance labels/consumer read-order guidance.
+
+2026-11-19
+Change type fix
+Scope scripts
+Files affected src/scientific_sources/derived_competence_analysis.py, tests/test_derived_competence_analysis.py
+Summary Layer 4 accepted-lineage latest observation (timestamp and run ID, paired) is derived from retained per-record observation history at the decision cutoff; it fails closed when a later occurrence superseded latest_seen_* and no history is supplied.
+Reason Review finding on PR #308 (issue #310): a post-decision occurrence changed accepted demand timestamps.
+Impact Accepted canonical demands keep decision-time latest_seen_* after later unreviewed occurrences; callers must pass record_observations when latest_seen_at_utc is after the decision.
+Quality checks pytest tests/ (1893 passed), flake8, mypy on touched module.

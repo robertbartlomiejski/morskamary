@@ -237,6 +237,7 @@ def _build_accepted_canonical_lineage(
         semantic_signals=rows["semantic_signals"],
         output_dir=tmp_path / "layer4",
         analysis_timestamp_utc="2026-07-12T00:00:00+00:00",
+        record_observations=rows.get("record_observations"),
     )
 
 
@@ -283,6 +284,14 @@ def test_layer4_freezes_provider_metrics_to_reviewed_occurrences(
     evidence["latest_seen_run_id"] = "RUN-HYDRO-999"
     evidence["latest_seen_at_utc"] = "2026-07-20T00:00:00+00:00"
     evidence["record_recurrence_count"] = 5
+    rows["record_observations"] = [
+        {"evidence_id": "E-0001", "run_id": "RUN-HYDRO-001",
+         "observed_at_utc": "2026-07-01T00:00:00+00:00"},
+        {"evidence_id": "E-0001", "run_id": "RUN-HYDRO-005",
+         "observed_at_utc": "2026-07-05T00:00:00+00:00"},
+        {"evidence_id": "E-0001", "run_id": "RUN-HYDRO-999",
+         "observed_at_utc": "2026-07-20T00:00:00+00:00"},
+    ]
 
     result = _build_accepted_canonical_lineage(tmp_path, rows)
 
@@ -290,8 +299,31 @@ def test_layer4_freezes_provider_metrics_to_reviewed_occurrences(
     assert demand.provider_count == 1
     assert demand.providers_seen == "crossref"
     assert demand.record_occurrence_count == 1
-    assert demand.latest_seen_run_id == "RUN-HYDRO-001"
-    assert demand.latest_seen_at_utc == "2026-07-01T00:00:00+00:00"
+    assert demand.latest_seen_run_id == "RUN-HYDRO-005"
+    assert demand.latest_seen_at_utc == "2026-07-05T00:00:00+00:00"
+
+    # Appending a post-decision occurrence must not change accepted timestamps.
+    rows["record_observations"].append(
+        {"evidence_id": "E-0001", "run_id": "RUN-HYDRO-1000",
+         "observed_at_utc": "2026-07-25T00:00:00+00:00"}
+    )
+    evidence["latest_seen_run_id"] = "RUN-HYDRO-1000"
+    evidence["latest_seen_at_utc"] = "2026-07-25T00:00:00+00:00"
+    later = _build_accepted_canonical_lineage(tmp_path, rows).derived_demands[0]
+    assert later.latest_seen_run_id == demand.latest_seen_run_id
+    assert later.latest_seen_at_utc == demand.latest_seen_at_utc
+
+
+def test_layer4_fails_closed_without_history_for_superseded_latest(
+    tmp_path: Path,
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    evidence = rows["evidence_records"][0]
+    evidence["latest_seen_run_id"] = "RUN-HYDRO-999"
+    evidence["latest_seen_at_utc"] = "2026-07-20T00:00:00+00:00"
+
+    with pytest.raises(DerivedAnalysisError, match="without retained history"):
+        _build_accepted_canonical_lineage(tmp_path, rows)
 
 
 @pytest.mark.parametrize(
