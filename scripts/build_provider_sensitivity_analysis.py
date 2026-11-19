@@ -14,6 +14,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+import yaml  # type: ignore[import-untyped]
+from src.scientific_sources.derived_competence_analysis import DERIVED_DEMAND_COLUMNS
+
 GROWTH_ELIGIBLE_STATUSES = {
     "new_record",
     "updated_metadata",
@@ -117,17 +120,102 @@ def _read_jsonl_required(
     return rows
 
 
-def _read_csv_required(path: Path, label: str) -> list[dict[str, str]]:
+def _read_csv_required(
+    path: Path,
+    label: str,
+    *,
+    allow_empty: bool = False,
+    required_fields: Sequence[str] = (),
+    allowed_fields: Sequence[str] | None = None,
+) -> list[dict[str, str]]:
     if not path.is_file():
         raise ValueError(f"required {label} file does not exist: {path}")
     with path.open(newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)
         if reader.fieldnames is None:
             raise ValueError(f"required {label} CSV has no header: {path}")
+        fields = {str(value).strip() for value in reader.fieldnames if value}
+        missing = [field for field in required_fields if field not in fields]
+        if missing:
+            raise ValueError(
+                f"required {label} CSV is missing required columns: {missing}"
+            )
+        unexpected = (
+            sorted(fields - set(allowed_fields))
+            if allowed_fields is not None
+            else []
+        )
+        if unexpected:
+            raise ValueError(
+                f"required {label} CSV has unexpected columns: {unexpected}"
+            )
         rows = [dict(row) for row in reader]
-    if not rows:
+    if not rows and not allow_empty:
         raise ValueError(f"required {label} file contains no rows: {path}")
     return rows
+
+
+def _load_hypothesis_declarations(path: Path) -> dict[str, dict[str, Any]]:
+    if not path.is_file():
+        raise ValueError(f"authoritative hypothesis protocol does not exist: {path}")
+    payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    hypotheses = payload.get("hypotheses") if isinstance(payload, dict) else None
+    if not isinstance(hypotheses, dict):
+        raise ValueError("authoritative protocol lacks hypotheses mapping")
+    supported_ids = {"H1", "H2", "H3"}
+    unexpected = sorted(
+        str(hypothesis_id)
+        for hypothesis_id in hypotheses
+        if not isinstance(hypothesis_id, str) or hypothesis_id not in supported_ids
+    )
+    if unexpected:
+        raise ValueError(
+            "authoritative protocol declares unsupported hypotheses: "
+            + ", ".join(unexpected)
+        )
+    if not hypotheses:
+        raise ValueError("authoritative protocol declares no hypotheses")
+    output: dict[str, dict[str, Any]] = {}
+    for hypothesis_id, declaration in hypotheses.items():
+        if not isinstance(declaration, dict):
+            raise ValueError(f"authoritative {hypothesis_id} declaration is invalid")
+        label = str(declaration.get("label", "")).strip()
+        test = str(declaration.get("test", "")).strip()
+        outcomes = declaration.get("declared_outcomes")
+        required = declaration.get("required_result_fields")
+        if (
+            not label
+            or not test
+            or not isinstance(outcomes, list)
+            or not outcomes
+            or not isinstance(required, list)
+            or not required
+        ):
+            raise ValueError(f"authoritative {hypothesis_id} declaration is incomplete")
+        output[hypothesis_id] = declaration
+    return output
+
+
+def _apply_hypothesis_declaration(
+    payload: dict[str, Any], declaration: Mapping[str, Any]
+) -> dict[str, Any]:
+    outcomes = [str(value) for value in declaration["declared_outcomes"]]
+    required = [str(value) for value in declaration["required_result_fields"]]
+    interpretation = str(payload.get("interpretation", ""))
+    if interpretation not in outcomes:
+        raise ValueError(
+            f"{payload.get('hypothesis_id')} interpretation is outside declared outcomes"
+        )
+    payload["hypothesis_label"] = str(declaration["label"])
+    payload["test_used"] = str(declaration["test"])
+    payload["declared_outcomes"] = outcomes
+    payload["required_result_fields"] = required
+    missing = [field for field in required if field not in payload]
+    if missing:
+        raise ValueError(
+            f"{payload.get('hypothesis_id')} result misses required fields: {missing}"
+        )
+    return payload
 
 
 def _parse_timestamp_strict(value: str) -> datetime:
@@ -305,10 +393,13 @@ def _recompute_demands(
         if provider in active_providers
     }
     family_universe = {
-        str(signal.get("query_family", "")).strip()
-        for grouped in groups.values()
-        for signal in grouped
-        if str(signal.get("query_family", "")).strip()
+        family
+        for row in evidence_by_id.values()
+        for family in (
+            _split(row.get("query_families_seen"))
+            or _split(row.get("query_family"))
+        )
+        if family
     }
 
     output: list[dict[str, Any]] = []
@@ -335,10 +426,10 @@ def _recompute_demands(
         families = sorted(
             {
                 family
-                for signal in grouped_signals
+                for row in rows
                 for family in (
-                    _split(signal.get("query_families_seen"))
-                    or [str(signal.get("query_family", "")).strip()]
+                    _split(row.get("query_families_seen"))
+                    or _split(row.get("query_family"))
                 )
                 if family
             }
@@ -511,6 +602,21 @@ def _h3(fragments: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _build_hypothesis_analysis(
+    hypothesis_id: str,
+    demands: Sequence[Mapping[str, Any]],
+    fragments: Sequence[Mapping[str, Any]],
+    supply: Mapping[str, Sequence[int]] | None,
+) -> dict[str, Any]:
+    if hypothesis_id == "H1":
+        return _h1(demands)
+    if hypothesis_id == "H2":
+        return _h2(demands, supply)
+    if hypothesis_id == "H3":
+        return _h3(fragments)
+    raise ValueError(f"unsupported sensitivity hypothesis: {hypothesis_id}")
+
+
 def _share_map(counter: Mapping[str, int]) -> dict[str, float]:
     total = sum(counter.values())
     if total <= 0:
@@ -528,6 +634,7 @@ def build_provider_sensitivity_analysis(
     derived_demands_path: Path,
     hypothesis_fragments_path: Path,
     validated_supply_map_path: Path | None,
+    protocol_path: Path,
     output_json_path: Path,
     output_markdown_path: Path,
 ) -> dict[str, Any]:
@@ -551,12 +658,24 @@ def build_provider_sensitivity_analysis(
             "provider sensitivity analysis): "
             + ", ".join(sorted(set(_duplicate_evidence_ids))[:10])
         )
-    signals = _read_jsonl_required(signals_path, "signals")
-    original_demands = _read_csv_required(derived_demands_path, "derived demands")
+    signals = _read_jsonl_required(signals_path, "signals", allow_empty=True)
+    original_demands = _read_csv_required(
+        derived_demands_path,
+        "derived demands",
+        allow_empty=True,
+        required_fields=(
+            "competence_demand_id",
+            "competence_label",
+            "sector",
+            "axis_group",
+        ),
+        allowed_fields=DERIVED_DEMAND_COLUMNS,
+    )
     fragments = _read_jsonl_required(
         hypothesis_fragments_path, "hypothesis fragments", allow_empty=True
     )
     supply = _load_validated_supply(validated_supply_map_path)
+    declarations = _load_hypothesis_declarations(protocol_path)
     reference_time = _load_analysis_timestamp(derived_demands_path)
 
     contributing = {
@@ -600,6 +719,18 @@ def build_provider_sensitivity_analysis(
             if provider in active
         )
         provider_total = sum(provider_counts.values())
+        hypothesis_results = {
+            hypothesis_id.lower(): _apply_hypothesis_declaration(
+                _build_hypothesis_analysis(
+                    hypothesis_id,
+                    subset_demands,
+                    subset_fragments,
+                    supply,
+                ),
+                declaration,
+            )
+            for hypothesis_id, declaration in declarations.items()
+        }
         subset_results[label] = {
             "providers": sorted(active),
             "evidence_record_count": len(subset_evidence),
@@ -615,9 +746,7 @@ def build_provider_sensitivity_analysis(
                     else 0.0
                 ),
             },
-            "h1": _h1(subset_demands),
-            "h2": _h2(subset_demands, supply),
-            "h3": _h3(subset_fragments),
+            **hypothesis_results,
             "top_demands": sorted(
                 subset_demands,
                 key=lambda row: (
@@ -651,26 +780,46 @@ def build_provider_sensitivity_analysis(
         "",
         str(result["sensitivity_note"]),
         "",
-        "| subset | providers | evidence | DOI | signals | demands | max share | H1 | H2 | H3 | bridges |",
-        "|---|---|---:|---:|---:|---:|---:|---|---|---|---:|",
     ]
+    headers = [
+        "subset",
+        "providers",
+        "evidence",
+        "DOI",
+        "signals",
+        "demands",
+        "max share",
+        *declarations,
+    ]
+    if "H3" in declarations:
+        headers.append("bridges")
+    lines.extend(
+        [
+            "| " + " | ".join(headers) + " |",
+            "| " + " | ".join(
+                ["---", "---", "---:", "---:", "---:", "---:", "---:"]
+                + ["---"] * len(declarations)
+                + (["---:"] if "H3" in declarations else [])
+            ) + " |",
+        ]
+    )
     for label, metrics in subset_results.items():
-        lines.append(
-            "| {label} | {providers} | {evidence} | {doi} | {signals} | {demands} | "
-            "{share} | {h1} | {h2} | {h3} | {bridges} |".format(
-                label=label,
-                providers=", ".join(metrics["providers"]),
-                evidence=metrics["evidence_record_count"],
-                doi=metrics["unique_doi_count"],
-                signals=metrics["semantic_signal_count"],
-                demands=metrics["derived_demand_count"],
-                share=metrics["provider_concentration"]["max_provider_share"],
-                h1=metrics["h1"]["interpretation"],
-                h2=metrics["h2"]["interpretation"],
-                h3=metrics["h3"]["interpretation"],
-                bridges=metrics["h3"]["semantic_bridge_count"],
-            )
+        cells = [
+            label,
+            ", ".join(metrics["providers"]),
+            str(metrics["evidence_record_count"]),
+            str(metrics["unique_doi_count"]),
+            str(metrics["semantic_signal_count"]),
+            str(metrics["derived_demand_count"]),
+            str(metrics["provider_concentration"]["max_provider_share"]),
+        ]
+        cells.extend(
+            metrics[hypothesis_id.lower()]["interpretation"]
+            for hypothesis_id in declarations
         )
+        if "H3" in declarations:
+            cells.append(str(metrics["h3"]["semantic_bridge_count"]))
+        lines.append("| " + " | ".join(cells) + " |")
     output_markdown_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return result
 
@@ -695,6 +844,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--validated-supply-map", default="")
     parser.add_argument(
+        "--protocol-path",
+        default="config/live_query_protocol.yml",
+    )
+    parser.add_argument(
         "--output-json",
         default="outputs/cumulative_database/provider_sensitivity_analysis.json",
     )
@@ -718,6 +871,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 if str(args.validated_supply_map).strip()
                 else None
             ),
+            protocol_path=Path(args.protocol_path),
             output_json_path=Path(args.output_json),
             output_markdown_path=Path(args.output_markdown),
         )

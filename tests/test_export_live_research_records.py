@@ -367,6 +367,35 @@ class TestApplyQueryConstraint:
             assert row["errors"] == "malformed_page_diagnostic_non_mapping"
             assert row["warnings"] == f"malformed_page_diagnostic_index:{idx}"
 
+    def test_normalise_page_diagnostics_rejects_incomplete_mapping(self):
+        diagnostics = _normalise_page_diagnostics(
+            [{"pagination_status": "end_of_results"}],
+            provider_name="Crossref",
+            query="offshore wind",
+        )
+        assert diagnostics[0]["pagination_status"] == "failed"
+        assert diagnostics[0]["errors"] == "malformed_page_diagnostic_mapping"
+        assert diagnostics[0]["logical_page"] == 0
+
+    def test_zero_attempted_pages_remains_zero(self):
+        _, audit = _apply_query_constraint(
+            records=[],
+            constraint={
+                "time_window": {"from_year": 2020, "to_year": 2026},
+                "sampling_strategy": {
+                    "mode": "stratified",
+                    "pages": 3,
+                    "rows_per_page": 50,
+                },
+            },
+            provider_name="Crossref",
+            max_results=150,
+            physical_request_count=0,
+            page_diagnostics=[],
+            attempted_logical_pages=0,
+        )
+        assert audit["logical_pages_attempted"] == 0
+
     def test_physical_request_count_uses_provider_result_not_diagnostics(self):
         """The provider count wins even when diagnostic rows disagree."""
         _, audit = _apply_query_constraint(
@@ -2756,3 +2785,50 @@ class TestProviderOwnedPhysicalRequestCount:
                 provider_configured=False,
                 page_diagnostics=[],
             )
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("logical_page", 1.9),
+        ("physical_request_index", 2.5),
+        ("logical_page", -1),
+        ("requested_rows", -0.5),
+        ("returned_rows", 3.1),
+        ("normalized_rows", 4.2),
+    ],
+)
+def test_page_diagnostic_rejects_non_integer_numeric_counts(field, value):
+    diagnostic = {
+        "logical_page": 1,
+        "physical_request_index": 1,
+        "requested_rows": 10,
+        "returned_rows": 5,
+        "normalized_rows": 5,
+        "pagination_status": "completed",
+    }
+    diagnostic[field] = value
+    rows = _normalise_page_diagnostics(
+        [diagnostic],
+        provider_name="crossref",
+        query="blue economy",
+    )
+    assert rows[0]["pagination_status"] == "failed"
+    assert rows[0]["errors"] == "malformed_page_diagnostic_mapping"
+
+
+def test_page_diagnostic_preserves_non_negative_integer_counts():
+    diagnostic = {
+        "logical_page": 1,
+        "physical_request_index": 1,
+        "requested_rows": 10,
+        "returned_rows": 5,
+        "normalized_rows": 5,
+        "pagination_status": "completed",
+    }
+    rows = _normalise_page_diagnostics(
+        [diagnostic],
+        provider_name="crossref",
+        query="blue economy",
+    )
+    assert rows == [diagnostic]
