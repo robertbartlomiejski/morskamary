@@ -101,7 +101,7 @@ def verify_audit_file(path: str | os.PathLike[str]) -> List[str]:
     if not isinstance(reservations, list) or not isinstance(refusals, list):
         errors.append("audit rows must be arrays")
         return errors
-    if not _exact_fields(counters, _COUNTER_FIELDS):
+    if not isinstance(counters, dict) or not _exact_fields(counters, _COUNTER_FIELDS):
         errors.append("audit counters schema mismatch")
         return errors
     used_by_provider: dict[str, int] = {}
@@ -249,7 +249,7 @@ def verify_audit_file(path: str | os.PathLike[str]) -> List[str]:
         if set(by_provider) != set(budget.provider_ceilings):
             errors.append("audit provider enumeration mismatch")
     controls = audit.get("separate_controls")
-    if not _exact_fields(controls, _CONTROL_FIELDS) or (
+    if not isinstance(controls, dict) or not _exact_fields(controls, _CONTROL_FIELDS) or (
         controls.get("attempts_are_never_refunded") is not True
         or not _plain_text(controls.get("logical_page_budget"))
     ):

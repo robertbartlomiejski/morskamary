@@ -159,7 +159,7 @@ def test_mor26_workflow_cannot_be_green_when_shared_acceptance_is_skipped():
     assert 'RUNNER_A_RESULT: ${{ needs.runner-a.result }}' in workflow
     assert 'VERIFY_RESULT: ${{ needs.verify.result }}' in workflow
     assert '"$RUNNER_A_RESULT" == "skipped"' in workflow
-    assert '"$VERIFY_RESULT" == "skipped"' in workflow
+    assert '"$VERIFY_RESULT" != "success"' in workflow
 
 
 def test_mor26_route_audit_checks_exact_pull_request_head() -> None:
@@ -170,7 +170,7 @@ def test_mor26_route_audit_checks_exact_pull_request_head() -> None:
     route = text.split("  route-audit:", 1)[1].split("  outage-fail-closed:", 1)[0]
     assert "MOR26_HEAD: ${{ github.event.pull_request.head.sha }}" in route
     assert "ref: ${{ env.MOR26_HEAD }}" in route
-    assert '"commit_sha": "${{ env.MOR26_HEAD }}"' in route
+    assert '"commit_sha": os.environ["MOR26_HEAD"]' in route
 
 
 def test_mor26_race_requires_shared_rendezvous() -> None:
