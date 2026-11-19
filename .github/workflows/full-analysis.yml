@@ -205,6 +205,72 @@ jobs:
             --root outputs \
             --baseline-root "$STATIC_COMPARE_ROOT"
 
+      - name: Stage first static run for failure diagnostics
+        if: ${{ failure() && github.event_name == 'pull_request' && steps.committed-outputs.outcome == 'success' }}
+        shell: bash
+        env:
+          STATIC_COMPARE_ROOT: ${{ runner.temp }}/full-analysis-static-baseline
+        run: |
+          set -euo pipefail
+          rm -rf static-baseline-diagnostics
+          if [[ ! -d "$STATIC_COMPARE_ROOT" ]]; then
+            echo "[INFO] No first static run baseline; earlier failure."
+            exit 0
+          fi
+          shopt -s nullglob
+          for pattern in \
+            "competences_full_database.json" \
+            "credentials_database.json" \
+            "credentials_dynamic_database.json" \
+            "credentials_generation_rationale.json" \
+            "credentials_matrix.html" \
+            "cumulative_qmbd_records.json" \
+            "gap_priority_ranking.csv" \
+            "gaps_by_sector.html" \
+            "gaps_by_sector_axis.csv" \
+            "gaps_detailed.json" \
+            "gaps_summary.csv" \
+            "literature_integration.html" \
+            "performative_demand_cross_axis/" \
+            "report_index.html" \
+            "sector_dictionaries/*_tmbd_dictionary.json" \
+            "sector_pathways.json" \
+            "sector_qmbd_learning_pathways.json" \
+            ; do
+            for src in "$STATIC_COMPARE_ROOT"/$pattern; do
+              rel="${src#"$STATIC_COMPARE_ROOT"/}"
+              mkdir -p "static-baseline-diagnostics/$(dirname "$rel")"
+              cp -R "$src" "static-baseline-diagnostics/$rel"
+            done
+          done
+
+      - name: Capture regenerated outputs if analysis or reproducibility fails
+        if: ${{ failure() && github.event_name == 'pull_request' && steps.committed-outputs.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: regenerated-outputs-${{ github.event.pull_request.head.sha }}
+          path: |
+            outputs/competences_full_database.json
+            outputs/credentials_database.json
+            outputs/credentials_dynamic_database.json
+            outputs/credentials_generation_rationale.json
+            outputs/credentials_matrix.html
+            outputs/cumulative_qmbd_records.json
+            outputs/gap_priority_ranking.csv
+            outputs/gaps_by_sector.html
+            outputs/gaps_by_sector_axis.csv
+            outputs/gaps_detailed.json
+            outputs/gaps_summary.csv
+            outputs/literature_integration.html
+            outputs/performative_demand_cross_axis/
+            outputs/report_index.html
+            outputs/sector_dictionaries/*_tmbd_dictionary.json
+            outputs/sector_pathways.json
+            outputs/sector_qmbd_learning_pathways.json
+            static-baseline-diagnostics/
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Restore committed-mode output snapshot after reproducibility check
         shell: bash
         env:

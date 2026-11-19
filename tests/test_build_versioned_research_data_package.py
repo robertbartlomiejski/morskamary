@@ -12,6 +12,10 @@ from pathlib import Path
 from typing import Any
 from zipfile import ZipFile
 
+import pytest
+
+from src.scientific_sources.schema_v2_identity import make_decision_content_hash
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATH = REPO_ROOT / "scripts" / "build_versioned_research_data_package.py"
 SCHEMA_V2_ENTITY_NAMES = (
@@ -33,6 +37,24 @@ def _load_module():
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)  # type: ignore[union-attr]
     return module
+
+
+def _rehash_decision(decision: dict[str, Any]) -> None:
+    decision["decision_content_sha256"] = make_decision_content_hash(
+        validation_decision_id=str(decision.get("validation_decision_id") or ""),
+        decision_status=str(decision.get("decision_status") or ""),
+        target_candidate_id=str(decision.get("target_candidate_id") or ""),
+        canonical_label=str(decision.get("canonical_label") or ""),
+        reviewer_identifier=str(decision.get("reviewer") or ""),
+        decision_rationale=str(decision.get("decision_reason") or ""),
+        decision_at_utc=str(decision.get("decision_at_utc") or ""),
+        evidence_ids=str(decision.get("evidence_ids") or ""),
+        fragment_ids=str(decision.get("fragment_ids") or ""),
+        source_provenance_ids=str(decision.get("source_provenance_ids") or ""),
+        superseded_validation_decision_id=str(
+            decision.get("superseded_validation_decision_id") or ""
+        ),
+    )
 
 
 def test_schema_v2_enums_generate_variable_and_value_labels() -> None:
@@ -109,6 +131,18 @@ def _seed_minimal_outputs(repo_root: Path) -> None:
                 "latest_seen_run_id": "123-1",
                 "providers_seen": "crossref",
                 "record_novelty_status": "new_record",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    (cumulative_database / "evidence_observations.jsonl").write_text(
+        json.dumps(
+            {
+                "evidence_id": "E-0001",
+                "run_id": "123-1",
+                "observed_at_utc": "2026-07-01T00:00:00+00:00",
             }
         )
         + "\n",
@@ -432,6 +466,7 @@ def _append_shared_canonical_candidate(repo_root: Path, module: Any) -> None:
             "source_provenance_ids": second_fragment["source_provenance_id"],
         }
     )
+    _rehash_decision(second_decision)
     second_assignment = dict(assignments[0])
     second_assignment.update(
         {
@@ -1357,16 +1392,18 @@ def test_build_versioned_package_restores_previous_directory_after_failed_rebuil
     decisions[0]["decision_at_utc"] = "2026-07-07T25:00:00+00:00"
     _write_schema_v2_entity_rows(repo_root, "validation_decisions", decisions)
 
+    zip_path = output_dir / "morskamary_cumulative_evidence_v0.3.2.zip"
+    assert zip_path.exists()
+
     exit_code, stdout = _run_package(module, repo_root, output_dir, "v0.3.2")
     assert exit_code == 1
-    # The previous good package must be restored to its original path so the
-    # caller is not left without any usable artifact.
-    assert package_dir.exists(), (
-        "Previous good package was not restored after failed rebuild"
+    assert not package_dir.exists(), (
+        "Failed rebuild must not leave a previous publishable package directory"
     )
-    assert not (output_dir / "morskamary_cumulative_evidence_v0.3.2.stale").exists(), (
-        "Stale quarantine directory must not persist after restoring the previous package"
+    assert not zip_path.exists(), (
+        "Failed rebuild must not leave a previous publishable ZIP"
     )
+    assert not (output_dir / "morskamary_cumulative_evidence_v0.3.2.stale").exists()
 
 
 def test_build_versioned_package_bootstrap_creates_empty_manual_sources(
@@ -1501,3 +1538,75 @@ def test_build_versioned_package_manifest_uses_source_and_package_commit_sha(
     citation = (package_dir / "CITATION_APA.txt").read_text(encoding="utf-8")
     assert "source_abc123" in citation
     assert "Source commit" in citation
+
+
+def test_preflight_requires_supporting_evidence_record_projections(
+    tmp_path: Path,
+) -> None:
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+    (repo_root / "outputs/cumulative_database/evidence_records.jsonl").unlink()
+
+    output_dir = tmp_path / "release_out"
+    exit_code = module.main(
+        [
+            "--repo-root",
+            str(repo_root),
+            "--output-dir",
+            str(output_dir),
+            "--version-tag",
+            "v-support-required",
+            "--include-xlsx",
+            "false",
+            "--include-sav",
+            "false",
+        ]
+    )
+
+    assert exit_code == 1
+    assert not (
+        output_dir / "morskamary_cumulative_evidence_v-support-required"
+    ).exists()
+    assert not (
+        output_dir / "morskamary_cumulative_evidence_v-support-required.zip"
+    ).exists()
+
+
+@pytest.mark.parametrize("corruption", ["missing", "malformed"])
+def test_preflight_requires_parseable_observation_timeline(
+    tmp_path: Path, corruption: str
+) -> None:
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+    timeline = repo_root / "outputs/cumulative_database/evidence_observations.jsonl"
+    if corruption == "missing":
+        timeline.unlink()
+    else:
+        timeline.write_text("{not json\n", encoding="utf-8")
+
+    output_dir = tmp_path / "release_out"
+    exit_code = module.main(
+        [
+            "--repo-root",
+            str(repo_root),
+            "--output-dir",
+            str(output_dir),
+            "--version-tag",
+            "v-timeline-required",
+            "--include-xlsx",
+            "false",
+            "--include-sav",
+            "false",
+        ]
+    )
+
+    assert exit_code == 1
+    assert not (
+        output_dir / "morskamary_cumulative_evidence_v-timeline-required.zip"
+    ).exists()

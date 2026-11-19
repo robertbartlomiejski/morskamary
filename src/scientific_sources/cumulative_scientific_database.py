@@ -35,6 +35,7 @@ under ``<output_dir>/``::
     _checksums.sha256
     evidence_records.csv
     evidence_records.jsonl
+    evidence_observations.jsonl
     competence_demand_signals.csv
     competence_demand_signals.jsonl
     run_novelty_metrics.csv
@@ -59,6 +60,7 @@ import hashlib
 import json
 import re
 import unicodedata
+from bisect import bisect_left
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
@@ -76,6 +78,7 @@ from typing import (
 )
 from urllib.parse import unquote as _url_unquote
 
+from src.axis_classifier import AxisClassifier
 from src.core import BlueDynamicsAxis
 from src.scientific_sources.live_query_protocol import (
     LiveQuery,
@@ -87,6 +90,7 @@ from src.scientific_sources.schema_v2_identity import (
     make_candidate_id as _make_candidate_id_shared,
     make_canonical_competence_id as _make_canonical_competence_id_shared,
     make_fragment_id as _make_fragment_id_shared,
+    make_decision_content_hash as _make_decision_content_hash_shared,
     make_provenance_id as _make_provenance_id_shared,
     make_signal_id as _make_signal_id_shared,
     normalize_source_id as _normalize_source_id_shared,
@@ -100,7 +104,7 @@ from src.scientific_sources.schema_v2_identity import (
 DATABASE_SCHEMA_VERSION = "2.0.0"
 """Schema version stamped into every manifest produced by this module."""
 
-CLASSIFIER_VERSION = "cumulative-db-semantic-v3"
+CLASSIFIER_VERSION = "cumulative-db-semantic-v5"
 """Deterministic rule-based semantic classifier version tag."""
 
 LEGACY_COMPATIBILITY_CLASSIFIER_VERSION = "cumulative-db-semantic-v1"
@@ -108,6 +112,7 @@ LEGACY_COMPATIBILITY_CLASSIFIER_VERSION = "cumulative-db-semantic-v1"
 
 EVIDENCE_RECORDS_CSV = "evidence_records.csv"
 EVIDENCE_RECORDS_JSONL = "evidence_records.jsonl"
+EVIDENCE_OBSERVATIONS_JSONL = "evidence_observations.jsonl"
 EVIDENCE_FRAGMENTS_CSV = "evidence_fragments.csv"
 EVIDENCE_FRAGMENTS_JSONL = "evidence_fragments.jsonl"
 SEMANTIC_SIGNALS_CSV = "semantic_signals.csv"
@@ -258,6 +263,7 @@ VALIDATION_DECISION_COLUMNS: Tuple[str, ...] = (
     "evidence_ids",
     "fragment_ids",
     "source_provenance_ids",
+    "decision_content_sha256",
     "superseded_validation_decision_id",
 )
 
@@ -747,6 +753,7 @@ class ValidationDecision:
     evidence_ids: str
     fragment_ids: str
     source_provenance_ids: str
+    decision_content_sha256: str
     superseded_validation_decision_id: str
 
     def to_dict(self) -> Dict[str, Any]:
@@ -1318,6 +1325,10 @@ def _require_utc_timestamp(value: Any, *, field_name: str) -> str:
     return stamp
 
 
+def _observation_sort_key(timestamp: str, run_id: str) -> Tuple[datetime, str, str]:
+    return datetime.fromisoformat(timestamp.replace("Z", "+00:00")), run_id, timestamp
+
+
 def _record_timestamp(record: Mapping[str, Any], fallback: str) -> str:
     """Return the record's UTC retrieval timestamp or a UTC fallback."""
     stamp = str(record.get("retrieval_timestamp") or "").strip()
@@ -1446,10 +1457,14 @@ def _upgrade_if_enriched(
 # ---------------------------------------------------------------------------
 
 _NEGATION_CUE_RE = re.compile(
-    r"\b(?:no|not(?!\s+only\b)|never|without|neither|nor|"
-    r"lack(?:ing|ed|s)?)\b",
+    r"\b(?:no|not(?!\s+only\b)|never|without|neither|nor)\b",
     flags=re.IGNORECASE,
 )
+_DEFICIT_CUE_RE = re.compile(
+    r"\b(?:lack(?:ing|ed|s)?|shortage(?:s)?|deficit(?:s)?|insufficient)\b",
+    flags=re.IGNORECASE,
+)
+_EVIDENCE_AXIS_CLASSIFIER = AxisClassifier()
 _SPECULATION_CUE_RE = re.compile(
     r"\b(?:may|might|could|possibly|potentially|likely|unlikely|"
     r"suggest(?:s|ed|ing)?|appear(?:s|ed|ing)?|expected)\b",
@@ -1504,6 +1519,26 @@ def _has_negation_or_speculation_cue(
     return bool(
         _NEGATION_CUE_RE.search(clause) or _SPECULATION_CUE_RE.search(clause)
     )
+
+
+def _has_deficit_cue(
+    source_text: str,
+    span_start: int,
+    span_end: int,
+) -> bool:
+    """Return whether the matched clause states a capability deficit."""
+    delimiters = (".", "?", "!", ";", "\n")
+    clause_start = (
+        max(source_text.rfind(delimiter, 0, span_start) for delimiter in delimiters)
+        + 1
+    )
+    following_delimiters = [
+        index
+        for delimiter in delimiters
+        if (index := source_text.find(delimiter, span_end)) != -1
+    ]
+    clause_end = min(following_delimiters) if following_delimiters else len(source_text)
+    return bool(_DEFICIT_CUE_RE.search(source_text[clause_start:clause_end]))
 
 
 def _scan_semantic_signals(
@@ -1916,7 +1951,19 @@ def build_cumulative_scientific_database(
         evidence_titles_by_id=evidence_titles_by_id,
     )
 
+    evidence_observations = [
+        {
+            "evidence_id": evidence_index[bucket],
+            "run_id": observation.run_id,
+            "observed_at_utc": observation.timestamp_utc,
+        }
+        for bucket in sorted(buckets, key=evidence_index.__getitem__)
+        for observation in sorted(
+            buckets[bucket], key=lambda row: _observation_sort_key(row.timestamp_utc, row.run_id)
+        )
+    ]
     written = _write_bundle(
+        evidence_observations=evidence_observations,
         output_dir=output_path,
         evidence_records=evidence_records,
         evidence_fragments=evidence_fragments,
@@ -2100,7 +2147,9 @@ def _make_evidence_records(
         index[bucket] = evidence_id
 
         # Sort observations by timestamp for deterministic first/latest.
-        obs_sorted = sorted(observations, key=lambda o: (o.timestamp_utc, o.run_id))
+        obs_sorted = sorted(
+            observations, key=lambda row: _observation_sort_key(row.timestamp_utc, row.run_id)
+        )
         first_obs = obs_sorted[0]
         latest_obs = obs_sorted[-1]
 
@@ -2561,6 +2610,11 @@ def _build_signal_components_for_observation(
     provenance_hash = hashlib.sha256(provenance_id.encode("utf-8")).hexdigest()
 
     components: List[_SignalComponent] = []
+    sentence_boundaries = {
+        field: [boundary.start() for boundary in re.finditer(r"[.!?](?=\s|$)|\n", text)]
+        for field, text in surfaces
+    }
+    axis_payloads: Dict[Tuple[str, str], Dict[str, Any]] = {}
     for match in matches:
         pattern = match.pattern
         matched_phrase = match.matched_phrase
@@ -2568,6 +2622,37 @@ def _build_signal_components_for_observation(
             source_field=match.source_field,
             metadata_only=is_metadata_only,
         )
+        boundaries = sentence_boundaries[match.source_field]
+        start_index = bisect_left(boundaries, match.span_start)
+        end_index = bisect_left(boundaries, match.span_end)
+        start = boundaries[start_index - 1] + 1 if start_index else 0
+        end = boundaries[end_index] if end_index < len(boundaries) else len(match.source_text)
+        sentence = match.source_text[start:end].strip()
+        axis_key = (match.source_field, sentence)
+        if axis_key not in axis_payloads:
+            axis_payloads[axis_key] = _EVIDENCE_AXIS_CLASSIFIER.classify_context(
+                sentence, text_scope=match.source_field
+            )
+        axis_payload = axis_payloads[axis_key]
+        if (
+            axis_payload.get("manual_review_status") == "review_required"
+            or axis_payload.get("axis") == "UNCLASSIFIED"
+        ):
+            analytical_axis_group = ""
+            analytical_axis_code = ""
+            review_status = "review_required"
+        else:
+            analytical_axis_group = str(axis_payload.get("axis", "")).strip()
+            analytical_axis_code = str(axis_payload.get("axis_code", "")).strip()
+
+        warning_parts = [value for value in (warning,) if value]
+        if not analytical_axis_group:
+            warning_parts.append("axis_unclassified_from_retained_evidence")
+        if _has_deficit_cue(match.source_text, match.span_start, match.span_end):
+            review_status = "review_required"
+            warning_parts.append("deficit_statement_review_required")
+        component_warning = "|".join(sorted(set(warning_parts)))
+
         signal_id = _make_signal_id(
             evidence_id,
             pattern.signal_type,
@@ -2621,8 +2706,8 @@ def _build_signal_components_for_observation(
                     run_id=obs.run_id,
                     source_provenance_id=provenance_id,
                     sector=obs.binding.sector_slug,
-                    axis_group=obs.binding.axis_group,
-                    axis_code=obs.binding.axis_code,
+                    axis_group=analytical_axis_group,
+                    axis_code=analytical_axis_code,
                     query_id=obs.binding.query_id,
                     query_family=obs.binding.query_family,
                     signal_type=pattern.signal_type,
@@ -2639,7 +2724,7 @@ def _build_signal_components_for_observation(
                     context_text=match.source_text,
                     evidence_text_hash=evidence_text_hash,
                     manual_review_status=review_status,
-                    validity_warning=warning,
+                    validity_warning=component_warning,
                 ),
                 competence_candidate=CompetenceCandidate(
                     candidate_id=candidate_id,
@@ -2648,8 +2733,8 @@ def _build_signal_components_for_observation(
                     evidence_id=evidence_id,
                     run_id=obs.run_id,
                     sector=obs.binding.sector_slug,
-                    axis_group=obs.binding.axis_group,
-                    axis_code=obs.binding.axis_code,
+                    axis_group=analytical_axis_group,
+                    axis_code=analytical_axis_code,
                     source_provenance_ids=provenance_id,
                     fragment_ids=fragment_id,
                     candidate_label=_candidate_label(pattern, match.span_text),
@@ -2779,7 +2864,10 @@ def _build_validation_decisions(
         candidate_id = str(payload.get("target_candidate_id") or "").strip()
         if not candidate_id or candidate_id not in candidates_by_id:
             raise CumulativeDatabaseError(
-                f"unknown validation decision target candidate: {candidate_id or '<empty>'}"
+                "unknown validation decision target candidate; if this ID "
+                "belongs to an earlier semantic classifier version, explicit "
+                "migration or re-review is required: "
+                f"{candidate_id or '<empty>'}"
             )
         candidate = candidates_by_id[candidate_id]
         decision_status = str(
@@ -2889,23 +2977,49 @@ def _build_validation_decisions(
         superseded_id = str(
             payload.get("superseded_validation_decision_id") or ""
         ).strip()
+        content_seed = "\x1f".join(
+            (
+                candidate_id,
+                canonical_label,
+                decision_status,
+                reviewer,
+                decision_at,
+                decision_reason,
+                evidence_ids,
+                fragment_ids,
+                source_provenance_ids,
+                superseded_id,
+            )
+        )
         decision_id = str(payload.get("validation_decision_id") or "").strip()
         if not decision_id:
-            seed = "\x1f".join(
-                (
-                    candidate_id,
-                    canonical_label,
-                    decision_status,
-                    reviewer,
-                    decision_at,
-                    decision_reason,
-                    evidence_ids,
-                    fragment_ids,
-                    source_provenance_ids,
-                    superseded_id,
-                )
+            decision_id = (
+                "decision:"
+                + hashlib.sha256(content_seed.encode("utf-8")).hexdigest()
             )
-            decision_id = f"decision:{hashlib.sha256(seed.encode('utf-8')).hexdigest()}"
+        decision_content_sha256 = _make_decision_content_hash_shared(
+            validation_decision_id=decision_id,
+            decision_status=decision_status,
+            target_candidate_id=candidate_id,
+            canonical_label=canonical_label,
+            reviewer_identifier=reviewer,
+            decision_rationale=decision_reason,
+            decision_at_utc=decision_at,
+            evidence_ids=evidence_ids,
+            fragment_ids=fragment_ids,
+            source_provenance_ids=source_provenance_ids,
+            superseded_validation_decision_id=superseded_id,
+        )
+        supplied_content_sha256 = str(
+            payload.get("decision_content_sha256") or ""
+        ).strip()
+        if (
+            supplied_content_sha256
+            and supplied_content_sha256 != decision_content_sha256
+        ):
+            raise CumulativeDatabaseError(
+                "validation decision content hash does not match immutable snapshot"
+            )
         if decision_id in decision_ids:
             raise CumulativeDatabaseError(
                 f"duplicate validation decision identifier: {decision_id}"
@@ -2923,6 +3037,7 @@ def _build_validation_decisions(
                 evidence_ids=evidence_ids,
                 fragment_ids=fragment_ids,
                 source_provenance_ids=source_provenance_ids,
+                decision_content_sha256=decision_content_sha256,
                 superseded_validation_decision_id=superseded_id,
             )
         )
@@ -3621,6 +3736,7 @@ def _write_bundle(
     *,
     output_dir: Path,
     evidence_records: Sequence[EvidenceRecord],
+    evidence_observations: Sequence[Dict[str, str]],
     evidence_fragments: Sequence[EvidenceFragment],
     semantic_signals: Sequence[SemanticSignal],
     competence_candidates: Sequence[CompetenceCandidate],
@@ -3707,6 +3823,10 @@ def _write_bundle(
         jsonl_path = output_dir / jsonl_name
         _write_jsonl(jsonl_path, rows)
         files.append(jsonl_path)
+
+    observations_jsonl = output_dir / EVIDENCE_OBSERVATIONS_JSONL
+    _write_jsonl(observations_jsonl, evidence_observations)
+    files.append(observations_jsonl)
 
     fragments_csv = output_dir / HYPOTHESIS_SEMANTIC_FRAGMENTS_CSV
     _write_csv(
@@ -3904,6 +4024,7 @@ __all__ = [
     "EvidenceFragment",
     "EVIDENCE_RECORDS_CSV",
     "EVIDENCE_RECORDS_JSONL",
+    "EVIDENCE_OBSERVATIONS_JSONL",
     "EVIDENCE_RECORD_COLUMNS",
     "EvidenceRecord",
     "LEGACY_COMPATIBILITY_CLASSIFIER_VERSION",

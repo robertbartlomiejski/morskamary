@@ -15,6 +15,8 @@ from types import SimpleNamespace
 
 import pytest
 
+from src.scientific_sources.schema_v2_identity import make_decision_content_hash
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 _PACKAGE_SPEC = importlib.util.spec_from_file_location(
@@ -29,6 +31,7 @@ DEMAND_STRENGTH_FORMULA = _PACKAGE.DEMAND_STRENGTH_FORMULA
 CSV_FILES = _PACKAGE.CSV_FILES
 CSV_REQUIRED_COLUMNS = _PACKAGE.CSV_REQUIRED_COLUMNS
 JSONL_FILES = _PACKAGE.JSONL_FILES
+EVIDENCE_OBSERVATIONS_JSONL = _PACKAGE.EVIDENCE_OBSERVATIONS_JSONL
 ALLOW_EMPTY_JSONL = _PACKAGE.ALLOW_EMPTY_JSONL
 DATABASE_METADATA_FILES = _PACKAGE.DATABASE_METADATA_FILES
 LAYER4_STAT_FILES = _PACKAGE.LAYER4_STAT_FILES
@@ -308,6 +311,21 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
             "source_provenance_ids": source_provenance_id,
             "superseded_validation_decision_id": "",
     }
+    validation_decision["decision_content_sha256"] = make_decision_content_hash(
+        validation_decision_id=str(validation_decision["validation_decision_id"]),
+        decision_status=str(validation_decision["decision_status"]),
+        target_candidate_id=str(validation_decision["target_candidate_id"]),
+        canonical_label=str(validation_decision["canonical_label"]),
+        reviewer_identifier=str(validation_decision["reviewer"]),
+        decision_rationale=str(validation_decision["decision_reason"]),
+        decision_at_utc=str(validation_decision["decision_at_utc"]),
+        evidence_ids=str(validation_decision["evidence_ids"]),
+        fragment_ids=str(validation_decision["fragment_ids"]),
+        source_provenance_ids=str(validation_decision["source_provenance_ids"]),
+        superseded_validation_decision_id=str(
+            validation_decision["superseded_validation_decision_id"]
+        ),
+    )
     canonical_competence: dict[str, object] = {
             "canonical_competence_id": "",
             "validation_decision_id": "decision:test",
@@ -566,11 +584,22 @@ def _write_min_bundle(db: Path, reports: Path) -> None:
             (db / name).write_text("{}\n", encoding="utf-8")
         else:
             (db / name).write_text("fixture data\n", encoding="utf-8")
+    (db / EVIDENCE_OBSERVATIONS_JSONL).write_text(
+        json.dumps(
+            {
+                "evidence_id": "E-0001",
+                "run_id": "RUN-1",
+                "observed_at_utc": "2026-07-01T00:00:00+00:00",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     _sync_schema_v2_manifest_counts(db)
     # Build a real _checksums.sha256 with actual digests.
     checksum_lines: list[str] = []
     for name in sorted(
-        list(CSV_FILES) + list(JSONL_FILES)
+        list(CSV_FILES) + list(JSONL_FILES) + [EVIDENCE_OBSERVATIONS_JSONL]
         + [n for n in DATABASE_METADATA_FILES if not n.endswith(".sha256")]
     ):
         fp = db / name
@@ -1446,6 +1475,32 @@ def test_report_rejects_stale_current_run_id(tmp_path: Path) -> None:
         "--current-run-id", "RUN-NEW",
     ])
     assert rc == 1
+
+
+@pytest.mark.parametrize("corruption", ["missing", "malformed"])
+def test_package_rejects_missing_or_malformed_observation_timeline(
+    tmp_path: Path, corruption: str
+) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    timeline = db / EVIDENCE_OBSERVATIONS_JSONL
+    if corruption == "missing":
+        timeline.unlink()
+    else:
+        timeline.write_text("{not json\n", encoding="utf-8")
+    _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+    rc = build_main([
+        "--database-dir", str(db),
+        "--reports-dir", str(reports),
+        "--output", str(out),
+        "--version-tag", "test",
+        "--generated-at-utc", "2026-07-10T00:00:00+00:00",
+        *_required_source_args(db),
+    ])
+    assert rc == 1
+    assert not out.exists()
 
 
 def test_package_rejects_false_checksum(tmp_path: Path) -> None:
@@ -3071,7 +3126,7 @@ def _rewrite_checksums(db: Path) -> None:
     """Recompute _checksums.sha256 from current file contents."""
     checksum_lines: list[str] = []
     for name in sorted(
-        list(CSV_FILES) + list(JSONL_FILES)
+        list(CSV_FILES) + list(JSONL_FILES) + [EVIDENCE_OBSERVATIONS_JSONL]
         + [n for n in DATABASE_METADATA_FILES if not n.endswith(".sha256")]
     ):
         fp = db / name

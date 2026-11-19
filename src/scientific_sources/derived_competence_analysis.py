@@ -51,10 +51,13 @@ from typing import (
 )
 
 from src.scientific_sources.cumulative_scientific_database import (
+    CLASSIFIER_VERSION,
     canonical_label_is_allowed,
+    _observation_sort_key,
 )
 from src.scientific_sources.schema_v2_identity import (
     make_canonical_competence_id as _make_canonical_competence_id,
+    decision_content_hash_matches as _decision_content_hash_matches,
     recompute_assignment_id_from_row as _recompute_assignment_id_from_row,
     recompute_candidate_id_from_row as _recompute_candidate_id_from_row,
     recompute_fragment_id_from_row as _recompute_fragment_id_from_row,
@@ -551,6 +554,7 @@ def build_layer4(
     validation_decisions: Optional[Sequence[Mapping[str, Any]]] = None,
     competence_candidates: Optional[Sequence[Mapping[str, Any]]] = None,
     semantic_signals: Optional[Sequence[Mapping[str, Any]]] = None,
+    evidence_observations: Optional[Sequence[Mapping[str, Any]]] = None,
     output_dir: Union[str, Path],
     current_run_id: str = "",
     stats_dir: Optional[Union[str, Path]] = None,
@@ -737,6 +741,7 @@ def build_layer4(
             validation_decisions=validation_decisions,
             competence_candidates=competence_candidates,
             semantic_signals=semantic_signals,
+            evidence_observations=evidence_observations,
             analysis_timestamp_utc=analysis_timestamp_utc,
         )
     )
@@ -1651,80 +1656,96 @@ def _credential_translation_demands(
     ]
 
 
-def _providers_for_lineage_evidence(evidence: Mapping[str, Any]) -> List[str]:
-    providers = _split_list(evidence.get("providers_seen", ""))
-    if not providers:
-        providers = _split_list(evidence.get("provider_source", ""))
-    return providers
-
-
 def _decision_cutoff_timestamp(decision_at_utc: str) -> datetime:
     """Return the accepted-decision cutoff timestamp for reviewed snapshot metrics."""
     return datetime.fromisoformat(decision_at_utc.replace("Z", "+00:00"))
 
 
-def _timestamp_on_or_before_cutoff(
-    row: Mapping[str, Any], field_name: str, cutoff: datetime
-) -> str:
-    """Return a lineage timestamp only when it belongs to the reviewed snapshot."""
-    value = _lineage_row_id(row, field_name)
-    if not value:
-        return ""
-    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    return value if parsed <= cutoff else ""
-
-
-def _accepted_lineage_snapshot_metrics(
-    evidence: List[Mapping[str, Any]], decision_at_utc: str
-) -> Dict[str, Any]:
-    """Freeze accepted-lineage metrics to evidence retained at decision time."""
-    cutoff = _decision_cutoff_timestamp(decision_at_utc)
-    snapshot_rows = [
-        row
-        for row in evidence
-        if _timestamp_on_or_before_cutoff(row, "first_seen_at_utc", cutoff)
+def _accepted_lineage_observations(
+    evidence: Mapping[str, Any],
+    history: Optional[Sequence[Tuple[str, str]]],
+    cutoff: datetime,
+) -> List[Tuple[str, str]]:
+    """Recover paired timestamps and run identifiers through the review cutoff."""
+    evidence_id = _lineage_row_id(evidence, "evidence_id")
+    endpoints = [
+        (
+            _lineage_row_id(evidence, f"{edge}_seen_at_utc"),
+            _lineage_row_id(evidence, f"{edge}_seen_run_id"),
+        )
+        for edge in ("first", "latest")
     ]
-    providers = sorted(
-        {
-            provider
-            for row in snapshot_rows
-            for provider in _split_list(row.get("provider_source", ""))
-            if provider
+    if any(not run_id or _parse_lineage_utc(timestamp) is None for timestamp, run_id in endpoints):
+        raise DerivedAnalysisError(
+            f"accepted canonical lineage has invalid observation endpoints: {evidence_id}"
+        )
+    if history is not None:
+        if (
+            not history
+            or len(history) != int(evidence["record_recurrence_count"])
+            or min(history, key=lambda row: _observation_sort_key(*row)) != endpoints[0]
+            or max(history, key=lambda row: _observation_sort_key(*row)) != endpoints[1]
+        ):
+            raise DerivedAnalysisError(
+                f"accepted canonical lineage has inconsistent observation history: {evidence_id}"
+            )
+    elif (
+        _observation_sort_key(*endpoints[0])[0] <= cutoff
+        < _observation_sort_key(*endpoints[1])[0]
+        and int(evidence.get("record_recurrence_count") or 0) != 2
+    ):
+        raise DerivedAnalysisError(
+            "accepted canonical lineage requires retained observation history "
+            f"across the decision cutoff: {evidence_id}"
+        )
+    return [
+        observation
+        for observation in (history if history is not None else endpoints)
+        if _observation_sort_key(*observation)[0] <= cutoff
+    ]
+
+
+def _require_fragment_observed(
+    fragment: Mapping[str, Any],
+    evidence_by_id: Mapping[str, Mapping[str, Any]],
+    observations_by_evidence: Optional[Mapping[str, Sequence[Tuple[str, str]]]],
+) -> None:
+    """Fail closed when a reviewed fragment is not backed by an observation."""
+    fragment_id = _lineage_row_id(fragment, "fragment_id")
+    evidence_id = _lineage_row_id(fragment, "evidence_id")
+    evidence = evidence_by_id.get(evidence_id)
+    retrieved_at = _parse_lineage_utc(fragment.get("source_retrieved_at_utc"))
+    if evidence is None or retrieved_at is None:
+        raise DerivedAnalysisError(
+            "accepted canonical lineage fragment is not linked to retained "
+            f"evidence observations: {fragment_id}"
+        )
+    if observations_by_evidence is not None:
+        run_id = _lineage_row_id(fragment, "run_id")
+        observed = {
+            (parsed, observed_run)
+            for timestamp, observed_run in observations_by_evidence.get(
+                evidence_id, ()
+            )
+            if (parsed := _parse_lineage_utc(timestamp)) is not None
         }
-    )
-    first_run = min(
-        (_lineage_row_id(row, "first_seen_run_id") for row in snapshot_rows),
-        default="",
-    )
-    latest_run = max(
-        (
-            _lineage_row_id(row, "latest_seen_run_id")
-            if _timestamp_on_or_before_cutoff(row, "latest_seen_at_utc", cutoff)
-            else _lineage_row_id(row, "first_seen_run_id")
-            for row in snapshot_rows
-        ),
-        default="",
-    )
-    first_at = min(
-        (_lineage_row_id(row, "first_seen_at_utc") for row in snapshot_rows),
-        default="",
-    )
-    latest_at = max(
-        (
-            _timestamp_on_or_before_cutoff(row, "latest_seen_at_utc", cutoff)
-            or _lineage_row_id(row, "first_seen_at_utc")
-            for row in snapshot_rows
-        ),
-        default="",
-    )
-    return {
-        "providers": providers,
-        "first_run": first_run,
-        "latest_run": latest_run,
-        "first_at": first_at,
-        "latest_at": latest_at,
-        "occurrence_count": len(snapshot_rows),
-    }
+        if (retrieved_at, run_id) not in observed:
+            raise DerivedAnalysisError(
+                "accepted canonical lineage fragment is absent from the "
+                f"retained observation history: {fragment_id}"
+            )
+        return
+    first_at = _parse_lineage_utc(evidence.get("first_seen_at_utc"))
+    latest_at = _parse_lineage_utc(evidence.get("latest_seen_at_utc"))
+    if (
+        first_at is None
+        or latest_at is None
+        or not first_at <= retrieved_at <= latest_at
+    ):
+        raise DerivedAnalysisError(
+            "accepted canonical lineage fragment falls outside the retained "
+            f"observation interval: {fragment_id}"
+        )
 
 
 def _build_accepted_canonical_lineage_demands(
@@ -1736,6 +1757,7 @@ def _build_accepted_canonical_lineage_demands(
     validation_decisions: Optional[Sequence[Mapping[str, Any]]],
     competence_candidates: Optional[Sequence[Mapping[str, Any]]],
     semantic_signals: Optional[Sequence[Mapping[str, Any]]],
+    evidence_observations: Optional[Sequence[Mapping[str, Any]]],
     analysis_timestamp_utc: Optional[str],
 ) -> List[DerivedCompetenceDemand]:
     """Emit reviewed canonical demands only from a complete schema-v2 chain.
@@ -1776,6 +1798,11 @@ def _build_accepted_canonical_lineage_demands(
         table_name="validation_decisions",
     )
     for decision_id, decision in decisions_by_id.items():
+        if not _decision_content_hash_matches(decision):
+            raise DerivedAnalysisError(
+                "validation decision content hash does not match its immutable "
+                f"snapshot: {decision_id}"
+            )
         decision_at = _parse_lineage_utc(decision.get("decision_at_utc"))
         if decision_at is None:
             raise DerivedAnalysisError(
@@ -2110,6 +2137,7 @@ def _build_accepted_canonical_lineage_demands(
 
     expected_contexts_by_decision_id: Dict[str, Set[Tuple[str, str, str]]] = {}
     expected_canonical_id_by_decision_id: Dict[str, str] = {}
+    decision_fragment_ids_by_id: Dict[str, Set[str]] = {}
     for decision in active_accepted_decisions:
         decision_id = _lineage_row_id(decision, "validation_decision_id")
         candidate_id = _lineage_row_id(decision, "target_candidate_id")
@@ -2196,7 +2224,7 @@ def _build_accepted_canonical_lineage_demands(
             sector = _lineage_row_id(matched_signal, "sector")
             axis_group = _lineage_row_id(matched_signal, "axis_group").upper()
             axis_code = _lineage_row_id(matched_signal, "axis_code").upper()
-            if not sector and not axis_group and not axis_code:
+            if not axis_group and not axis_code:
                 continue
             if (
                 not sector
@@ -2228,6 +2256,7 @@ def _build_accepted_canonical_lineage_demands(
                 "accepted canonical lineage decision has an invalid fragment "
                 f"snapshot: {decision_id}"
             )
+        decision_fragment_ids_by_id[decision_id] = set(decision_fragment_ids)
         decision_provenance_ids = {
             _lineage_row_id(fragments_by_id[fragment_id], "source_provenance_id")
             for fragment_id in decision_fragment_ids
@@ -2284,7 +2313,30 @@ def _build_accepted_canonical_lineage_demands(
                 "accepted canonical lineage decision failed the canonical-label "
                 f"provenance guard: {decision_id}"
             )
-        expected_contexts_by_decision_id[decision_id] = contexts
+        decision_contexts: Set[Tuple[str, str, str]] = set()
+        for fragment_id in decision_fragment_ids:
+            reviewed_signal = signal_by_key.get((candidate_signal_id, fragment_id))
+            if reviewed_signal is None:
+                raise DerivedAnalysisError(
+                    "accepted decision fragment snapshot has no semantic signal: "
+                    f"{decision_id}:{fragment_id}"
+                )
+            if (
+                _lineage_row_id(reviewed_signal, "classifier_version")
+                != CLASSIFIER_VERSION
+            ):
+                raise DerivedAnalysisError(
+                    "accepted validation decision requires explicit migration "
+                    "or re-review after the semantic classifier version change: "
+                    f"{decision_id}"
+                )
+            sector = _lineage_row_id(reviewed_signal, "sector")
+            axis_group = _lineage_row_id(reviewed_signal, "axis_group").upper()
+            axis_code = _lineage_row_id(reviewed_signal, "axis_code").upper()
+            if not axis_group and not axis_code:
+                continue
+            decision_contexts.add((sector, axis_group, axis_code))
+        expected_contexts_by_decision_id[decision_id] = decision_contexts
         expected_canonical_id_by_decision_id[decision_id] = (
             _expected_canonical_competence_id(canonical_label)
         )
@@ -2487,11 +2539,17 @@ def _build_accepted_canonical_lineage_demands(
                     f"wrong canonical competence: {decision_id}"
                 )
 
-    all_providers = {
-        provider
-        for evidence in evidence_records
-        for provider in _providers_for_lineage_evidence(evidence)
-    }
+    observations_by_evidence: Dict[str, List[Tuple[str, str]]] = {}
+    for observation in evidence_observations or ():
+        evidence_id = _lineage_row_id(observation, "evidence_id")
+        timestamp = _lineage_row_id(observation, "observed_at_utc")
+        run_id = _lineage_row_id(observation, "run_id")
+        if evidence_id not in evidence_by_id or not run_id or _parse_lineage_utc(timestamp) is None:
+            raise DerivedAnalysisError(
+                f"accepted canonical lineage has an invalid retained observation: {evidence_id}"
+            )
+        observations_by_evidence.setdefault(evidence_id, []).append((timestamp, run_id))
+
     all_query_families = {
         _lineage_row_id(signal, "query_family")
         for signal in signal_rows
@@ -2519,17 +2577,18 @@ def _build_accepted_canonical_lineage_demands(
                 if _lineage_row_id(assignment, "validation_decision_id")
             }
         )
-        if len(decision_ids) != 1:
-            raise DerivedAnalysisError(
-                "accepted canonical lineage assignments must resolve to exactly one validation decision"
-            )
-        lineage_reviewed_decision: Mapping[str, Any] | None = decisions_by_id.get(
-            decision_ids[0]
-        )
-        if lineage_reviewed_decision is None:
+        if not decision_ids:
             raise DerivedAnalysisError(
                 "accepted canonical lineage assignment is missing its reviewed decision"
             )
+        lineage_reviewed_decisions: List[Mapping[str, Any]] = []
+        for decision_id in decision_ids:
+            current_reviewed_decision = decisions_by_id.get(decision_id)
+            if current_reviewed_decision is None:
+                raise DerivedAnalysisError(
+                    "accepted canonical lineage assignment is missing its reviewed decision"
+                )
+            lineage_reviewed_decisions.append(current_reviewed_decision)
         context_signals = [
             signal
             for _assignment, selected_signals in components
@@ -2550,11 +2609,66 @@ def _build_accepted_canonical_lineage_demands(
                 if _lineage_row_id(row, "canonical_doi")
             }
         )
-        snapshot_metrics = _accepted_lineage_snapshot_metrics(
-            evidence,
-            _lineage_row_id(lineage_reviewed_decision, "decision_at_utc"),
+        snapshot_observations: List[Tuple[str, str]] = []
+        reviewed_providers: Set[str] = set()
+        context_providers: Set[str] = set()
+        snapshot_evidence_ids: Set[str] = set()
+        context_fragment_ids = {
+            _lineage_row_id(signal, "fragment_id") for signal in context_signals
+        }
+        for reviewed_decision in lineage_reviewed_decisions:
+            current_decision_id = _lineage_row_id(
+                reviewed_decision, "validation_decision_id"
+            )
+            decision_assignments = [
+                assignment
+                for assignment in component_assignments
+                if _lineage_row_id(assignment, "validation_decision_id")
+                == current_decision_id
+            ]
+            decision_evidence_ids = {
+                evidence_id
+                for assignment in decision_assignments
+                for evidence_id in _split_list(assignment.get("evidence_ids"))
+            }
+            decision_cutoff = _decision_cutoff_timestamp(
+                _lineage_row_id(reviewed_decision, "decision_at_utc")
+            )
+            for evidence_id in decision_evidence_ids:
+                observations = _accepted_lineage_observations(
+                    evidence_by_id[evidence_id],
+                    (
+                        observations_by_evidence.get(evidence_id, [])
+                        if evidence_observations is not None
+                        else None
+                    ),
+                    decision_cutoff,
+                )
+                if observations:
+                    snapshot_evidence_ids.add(evidence_id)
+                    snapshot_observations.extend(observations)
+            for fragment_id in decision_fragment_ids_by_id[current_decision_id]:
+                _require_fragment_observed(
+                    fragments_by_id[fragment_id],
+                    evidence_by_id,
+                    observations_by_evidence
+                    if evidence_observations is not None
+                    else None,
+                )
+                fragment_providers = _split_list(
+                    fragments_by_id[fragment_id].get("source_provider", "")
+                )
+                reviewed_providers.update(fragment_providers)
+                if fragment_id in context_fragment_ids:
+                    context_providers.update(fragment_providers)
+        providers = sorted(context_providers)
+        first_at, first_run = min(
+            snapshot_observations, key=lambda row: _observation_sort_key(*row), default=("", "")
         )
-        providers = snapshot_metrics["providers"]
+        latest_at, latest_run = max(
+            snapshot_observations, key=lambda row: _observation_sort_key(*row), default=("", "")
+        )
+        snapshot_occurrence_count = len(snapshot_evidence_ids)
         query_families = sorted(
             {
                 _lineage_row_id(signal, "query_family")
@@ -2567,11 +2681,7 @@ def _build_accepted_canonical_lineage_demands(
             for signal in context_signals
         ]
         confidence_mean = sum(confidences) / max(1, len(confidences))
-        first_run = snapshot_metrics["first_run"]
-        latest_run = snapshot_metrics["latest_run"]
-        first_at = snapshot_metrics["first_at"]
-        latest_at = snapshot_metrics["latest_at"]
-        provider_diversity = _diversity(len(providers), len(all_providers) or 1)
+        provider_diversity = _diversity(len(providers), len(reviewed_providers) or 1)
         query_diversity = _diversity(
             len(query_families), len(all_query_families) or 1
         )
@@ -2652,7 +2762,7 @@ def _build_accepted_canonical_lineage_demands(
                 demand_strength_score=score,
                 evidence_record_count=len(evidence),
                 unique_doi_count=len(dois),
-                record_occurrence_count=snapshot_metrics["occurrence_count"],
+                record_occurrence_count=snapshot_occurrence_count,
                 provider_count=len(providers),
                 providers_seen="|".join(providers),
                 provider_diversity_score=round(provider_diversity, 6),

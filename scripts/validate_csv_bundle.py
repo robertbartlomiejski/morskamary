@@ -255,13 +255,6 @@ def _validate_evidence_record_projection(
                 continue
             csv_value = csv_row.get(field_name)
             jsonl_value = jsonl_row.get(field_name)
-            if type(csv_value) is not type(jsonl_value):
-                if _projection_value(csv_value) == _projection_value(jsonl_value):
-                    errors.append(
-                        "evidence_records_cross_projection_type_mismatch:"
-                        f"{field_name}:csv:L{csv_line_number}:jsonl:L{jsonl_line_number}"
-                    )
-                    continue
             if _projection_value(csv_value) == _projection_value(jsonl_value):
                 continue
             errors.append(

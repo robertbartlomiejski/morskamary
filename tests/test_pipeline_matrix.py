@@ -213,21 +213,22 @@ class TestQMBDPipelineMatrix:
         assert rec.abstract == ""
         assert rec.abstract_available is False
 
-    def test_abstract_1_classifies_with_marine_keyword_evidence(
+    def test_abstract_1_cross_axis_overlap_requires_review(
         self, live_records: List[LiteratureRecord]
     ) -> None:
-        """Record 1 must produce at least one MARINE classification with keyword evidence."""
+        """Multi-axis retained vocabulary must not be counted before adjudication."""
         rec = live_records[0]
         analysis = _classify_record(rec)
 
-        marine_items = [
-            item for item in analysis if item.get("axis") == "MARINE"
+        overlap = [
+            item
+            for item in analysis
+            if item.get("uncertainty_typology") == "cross_axis_mediator"
         ]
-        assert marine_items, "Expected at least one MARINE classification for record 1"
-        for item in marine_items:
-            assert item["matched_keywords"], (
-                "MARINE classification must be backed by keyword evidence, not a fallback"
-            )
+        assert overlap, "Expected the Marine/Hydronization overlap to require review"
+        assert all(item.get("axis") == "UNCLASSIFIED" for item in overlap)
+        assert all(item.get("manual_review_status") == "review_required" for item in overlap)
+        assert all(not item.get("matched_keywords") for item in overlap)
 
     def test_abstract_1_text_contains_hydronization_keywords(
         self, live_records: List[LiteratureRecord]

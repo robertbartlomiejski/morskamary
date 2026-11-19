@@ -275,7 +275,12 @@ class AxisClassifier:
         uncertainty_typology = "no_signal"
         manual_review_status = "auto_accepted"
         review_path = "keyword_evidence"
-        if axis is None:
+        if is_blue_planetaryism:
+            uncertainty_reason = "broad_blue_planetaryism_without_retained_axis_signal"
+            uncertainty_typology = "boundary_threshold"
+            manual_review_status = "review_required"
+            review_path = "boundary_case_review"
+        elif axis is None:
             uncertainty_reason = "no_retained_axis_vocabulary_match"
             uncertainty_typology = "no_signal"
             manual_review_status = "review_required"
@@ -290,11 +295,9 @@ class AxisClassifier:
             uncertainty_typology = "cross_axis_mediator"
             manual_review_status = "review_required"
             review_path = "cross_axis_overlap_review"
-        elif is_blue_planetaryism:
-            uncertainty_reason = "broad_blue_planetaryism_without_retained_axis_signal"
-            uncertainty_typology = "boundary_threshold"
-            manual_review_status = "review_required"
-            review_path = "boundary_case_review"
+            axis = None
+            matched_keywords = []
+            confidence_score = 0.0
 
         return {
             "axis": axis.name if axis is not None else "UNCLASSIFIED",

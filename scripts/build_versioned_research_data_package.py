@@ -26,7 +26,11 @@ if str(_REPO_ROOT) not in sys.path:
 
 from jsonschema import Draft202012Validator, FormatChecker  # type: ignore[import-untyped]  # noqa: E402
 
+from src.scientific_sources.cumulative_scientific_database import (  # noqa: E402
+    EVIDENCE_OBSERVATIONS_JSONL,
+)
 from src.scientific_sources.schema_v2_identity import (  # noqa: E402
+    decision_content_hash_matches as _decision_content_hash_matches_v2,
     make_candidate_id as _make_candidate_id_v2,
     make_canonical_competence_id as _make_canonical_competence_id_v2,
     make_fragment_id as _make_fragment_id_v2,
@@ -1078,6 +1082,17 @@ def _validate_schema_v2_projection_and_lineage(
     candidates_by_id = csv_index["competence_candidates"]
     decisions_by_id = csv_index["validation_decisions"]
     canonicals_by_id = csv_index["canonical_competences"]
+    for decision_projection_name, rows_by_id in (
+        ("csv", csv_index["validation_decisions"]),
+        ("jsonl", jsonl_index["validation_decisions"]),
+    ):
+        for decision_hash_key, decision_content_row in rows_by_id.items():
+            if not _decision_content_hash_matches_v2(decision_content_row):
+                errors.append(
+                    "validation_decisions:"
+                    f"{decision_projection_name}:decision_content_sha256:"
+                    f"{_format_row_key(decision_hash_key)}"
+                )
 
     signals_by_fragment_id: dict[str, list[dict[str, Any]]] = {}
     for signal_key, signal in signals_by_key.items():
@@ -1793,7 +1808,7 @@ MANUAL_SOURCE_FILES: tuple[str, ...] = (
 )
 REQUIRED_SCHEMA_V2_FILES: tuple[str, ...] = tuple(
     f"{SCHEMA_V2_SOURCE_DIRECTORY}/{entity_name}.{suffix}"
-    for entity_name in SCHEMA_V2_ENTITY_NAMES
+    for entity_name in (*SCHEMA_V2_ENTITY_NAMES, *SCHEMA_V2_SUPPLEMENTARY_ENTITY_NAMES)
     for suffix in ("csv", "jsonl")
 )
 REQUIRED_SCHEMA_V2_CONTRACT_FILES: tuple[str, ...] = tuple(
@@ -1897,6 +1912,23 @@ def _check_preflight(repo_root: Path, bootstrap_empty_manual_sources: bool) -> i
 def build_versioned_research_data_package(config: PackageConfig) -> int:
     """Build package directory, validate rows by schema, and emit checksums."""
     repo_root = config.repo_root.resolve()
+    package_dir = (
+        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}"
+    )
+    quarantine_dir = package_dir.with_name(f"{package_dir.name}.stale")
+    zip_path = (
+        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}.zip"
+    )
+
+    # A failed rebuild must never leave a previous conventional package looking
+    # like output from the failed attempt. Remove every publishable target before
+    # any preflight or validation can return.
+    if quarantine_dir.exists():
+        shutil.rmtree(quarantine_dir)
+    if package_dir.exists():
+        shutil.rmtree(package_dir)
+    if zip_path.exists():
+        zip_path.unlink()
 
     preflight_code = _check_preflight(
         repo_root, config.bootstrap_empty_manual_sources
@@ -2285,16 +2317,12 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
             for entity_name in SCHEMA_V2_ENTITY_NAMES
         },
     }
-    package_dir = (
-        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}"
-    )
-    quarantine_dir = package_dir.with_name(f"{package_dir.name}.stale")
-    if quarantine_dir.exists():
-        shutil.rmtree(quarantine_dir)
-    if package_dir.exists():
-        package_dir.replace(quarantine_dir)
-
     validation_errors: list[str] = list(schema_v2_format_errors)
+    validation_errors.extend(
+        _validate_observation_timeline(
+            repo_root / SCHEMA_V2_SOURCE_DIRECTORY / EVIDENCE_OBSERVATIONS_JSONL
+        )
+    )
     for table_name, schema_path in schema_map.items():
         validation_errors.extend(
             _validate_rows(csv_tables[table_name], schema_path, table_name)
@@ -2323,10 +2351,6 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
     if validation_errors:
         for error in validation_errors[:50]:
             print(f"{status_label('error')} {error}")
-        # Restore the previous package directory so it is not left as .stale
-        # when validation fails after a quarantine rename.
-        if quarantine_dir.exists() and not package_dir.exists():
-            quarantine_dir.replace(package_dir)
         return 1
 
     (package_dir / "data" / "csv").mkdir(parents=True, exist_ok=True)
@@ -2380,6 +2404,11 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
                 supp_jsonl,
                 package_dir / "data" / "jsonl" / f"{output_name}.jsonl",
             )
+
+    observation_source = repo_root / SCHEMA_V2_SOURCE_DIRECTORY / EVIDENCE_OBSERVATIONS_JSONL
+    shutil.copyfile(
+        observation_source, package_dir / "data" / "jsonl" / EVIDENCE_OBSERVATIONS_JSONL
+    )
 
     variable_labels, value_labels = _load_variable_and_value_labels(schema_dir)
     variable_labels = _merge_label_rows(
@@ -2513,11 +2542,6 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         encoding="utf-8",
     )
 
-    zip_path = (
-        config.output_dir / f"morskamary_cumulative_evidence_{config.version_tag}.zip"
-    )
-    if zip_path.exists():
-        zip_path.unlink()
     with ZipFile(zip_path, "w", compression=ZIP_DEFLATED) as archive:
         for file_path in sorted(
             path for path in package_dir.rglob("*") if path.is_file()
@@ -2606,6 +2630,28 @@ def _to_bool(value: str) -> bool:
     if token in {"0", "false", "no", "n"}:
         return False
     raise ValueError(f"invalid boolean value: {value!r}")
+
+
+def _validate_observation_timeline(path: Path) -> list[str]:
+    """Require a present, parseable evidence observation timeline."""
+    if not path.is_file():
+        return [f"missing_observation_timeline:{path.name}"]
+    errors: list[str] = []
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        return [f"unreadable_observation_timeline:{path.name}:{exc}"]
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError as exc:
+            errors.append(f"malformed_jsonl:{path.name}:L{line_no}:{exc}")
+            continue
+        if not isinstance(payload, dict):
+            errors.append(f"jsonl_not_object:{path.name}:L{line_no}")
+    return errors
 
 
 def main(argv: list[str] | None = None) -> int:
