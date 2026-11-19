@@ -52,6 +52,7 @@ def fixture_attempt_budget(
     monkeypatch.setenv(ENV_LEDGER_PATH, str(Path(base / "ledger.sqlite")))
     monkeypatch.delenv(ENV_RUN_ID, raising=False)
     reset_governor_cache()
+
     # Prevent unmocked unit tests from reaching scientific providers. Tests
     # needing HTTP must inject a fake or use an explicitly local loopback server.
     class _NoTestRedirects(urllib.request.HTTPRedirectHandler):
