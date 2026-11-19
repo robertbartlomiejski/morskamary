@@ -12,6 +12,8 @@ from pathlib import Path
 from typing import Any
 from zipfile import ZipFile
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATH = REPO_ROOT / "scripts" / "build_versioned_research_data_package.py"
 SCHEMA_V2_ENTITY_NAMES = (
@@ -109,6 +111,17 @@ def _seed_minimal_outputs(repo_root: Path) -> None:
                 "latest_seen_run_id": "123-1",
                 "providers_seen": "crossref",
                 "record_novelty_status": "new_record",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (cumulative_database / "evidence_observations.jsonl").write_text(
+        json.dumps(
+            {
+                "evidence_id": "E-0001",
+                "run_id": "123-1",
+                "observed_at_utc": "2026-07-07T00:00:00+00:00",
             }
         )
         + "\n",
@@ -585,6 +598,14 @@ def test_build_versioned_research_data_package_creates_manifest_checksums_and_vi
         assert f"data/jsonl/{entity_name}.jsonl" in archived_paths
         assert f"schemas/{entity_name}.schema.json" in archived_paths
 
+    observation_path = (
+        package_dir / "data" / "jsonl" / "evidence_observations.jsonl"
+    )
+    assert observation_path.read_bytes() == (
+        repo_root / "outputs/cumulative_database/evidence_observations.jsonl"
+    ).read_bytes()
+    assert "data/jsonl/evidence_observations.jsonl" in archived_paths
+
     with (package_dir / "VALUE_LABELS.csv").open(
         "r", encoding="utf-8", newline=""
     ) as handle:
@@ -649,6 +670,45 @@ def test_build_versioned_package_rejects_invalid_schema_v2_jsonl(
     assert not expected_zip.exists(), (
         "ZIP artifact must not be created when validation fails"
     )
+
+
+@pytest.mark.parametrize(
+    ("timeline_contents", "expected_error"),
+    [
+        (None, "evidence_observations.jsonl"),
+        ("", "empty_jsonl:evidence_observations.jsonl"),
+        ("not-json\n", "malformed_jsonl:evidence_observations.jsonl:L1"),
+    ],
+)
+def test_build_versioned_package_requires_valid_observation_timeline(
+    tmp_path: Path,
+    timeline_contents: str | None,
+    expected_error: str,
+) -> None:
+    module = _load_module()
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    _copy_required_schemas(repo_root)
+    _seed_minimal_outputs(repo_root)
+    timeline = repo_root / "outputs/cumulative_database/evidence_observations.jsonl"
+    if timeline_contents is None:
+        timeline.unlink()
+    else:
+        timeline.write_text(timeline_contents, encoding="utf-8")
+    output_dir = tmp_path / "release_out"
+
+    exit_code, stdout = _run_package(
+        module, repo_root, output_dir, "v0.1.1-observations"
+    )
+
+    assert exit_code == 1
+    assert expected_error in stdout
+    assert not (
+        output_dir / "morskamary_cumulative_evidence_v0.1.1-observations"
+    ).exists()
+    assert not (
+        output_dir / "morskamary_cumulative_evidence_v0.1.1-observations.zip"
+    ).exists()
 
 
 def test_build_versioned_package_rejects_schema_v2_projection_mismatch(
