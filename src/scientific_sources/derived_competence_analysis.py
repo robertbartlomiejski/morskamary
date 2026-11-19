@@ -1724,6 +1724,41 @@ def _latest_observation_at_cutoff(
     return max(candidates, key=lambda item: (item[0], item[1]))
 
 
+def _validate_reviewed_fragment_observation(
+    fragment: Mapping[str, Any],
+    evidence: Mapping[str, Any],
+    observations: Mapping[str, List[Tuple[datetime, str, str]]],
+    has_full_history: bool,
+) -> None:
+    """Require a reviewed fragment to fall within or match retained observations."""
+    fragment_id = _lineage_row_id(fragment, "fragment_id")
+    evidence_id = _lineage_row_id(fragment, "evidence_id")
+    retrieved_at = _parse_lineage_utc(
+        fragment.get("source_retrieved_at_utc")
+    )
+    first_at = _parse_lineage_utc(evidence.get("first_seen_at_utc"))
+    latest_at = _parse_lineage_utc(evidence.get("latest_seen_at_utc"))
+    if (
+        retrieved_at is None
+        or first_at is None
+        or latest_at is None
+        or not first_at <= retrieved_at <= latest_at
+    ):
+        raise DerivedAnalysisError(
+            "accepted canonical lineage fragment retrieval is outside retained "
+            f"evidence observation endpoints: {fragment_id}"
+        )
+    if has_full_history and not any(
+        observed_at == retrieved_at
+        and run_id == _lineage_row_id(fragment, "run_id")
+        for observed_at, run_id, _raw_timestamp in observations.get(evidence_id, [])
+    ):
+        raise DerivedAnalysisError(
+            "accepted canonical lineage fragment retrieval does not match "
+            f"retained evidence observation history: {fragment_id}"
+        )
+
+
 def _accepted_lineage_snapshot_metrics(
     evidence: List[Mapping[str, Any]],
     decision_at_utc: str,
@@ -2288,14 +2323,21 @@ def _build_accepted_canonical_lineage_demands(
                 f"database built_at_utc: {decision_id}"
             )
         for fragment_id in decision_fragment_ids:
+            fragment = fragments_by_id[fragment_id]
             retrieved_at = _parse_lineage_utc(
-                fragments_by_id[fragment_id].get("source_retrieved_at_utc")
+                fragment.get("source_retrieved_at_utc")
             )
             if retrieved_at is None or retrieved_at > decision_at:
                 raise DerivedAnalysisError(
                     "accepted canonical lineage decision predates retained "
                     f"evidence retrieval: {decision_id}"
                 )
+            _validate_reviewed_fragment_observation(
+                fragment,
+                evidence_by_id[candidate_evidence_id],
+                observation_index,
+                record_observations is not None,
+            )
         if (
             set(_split_list(decision.get("evidence_ids")))
             != {candidate_evidence_id}

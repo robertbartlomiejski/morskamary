@@ -287,6 +287,7 @@ def test_layer4_freezes_provider_metrics_to_reviewed_occurrences(
     rows["record_observations"] = [
         {"evidence_id": "E-0001", "run_id": "RUN-HYDRO-001",
          "observed_at_utc": "2026-07-01T00:00:00+00:00"},
+        # This descriptive-only observation is valid without a matching fragment.
         {"evidence_id": "E-0001", "run_id": "RUN-HYDRO-005",
          "observed_at_utc": "2026-07-05T00:00:00+00:00"},
         {"evidence_id": "E-0001", "run_id": "RUN-HYDRO-999",
@@ -323,6 +324,50 @@ def test_layer4_fails_closed_without_history_for_superseded_latest(
     evidence["latest_seen_at_utc"] = "2026-07-20T00:00:00+00:00"
 
     with pytest.raises(DerivedAnalysisError, match="without retained history"):
+        _build_accepted_canonical_lineage(tmp_path, rows)
+
+
+@pytest.mark.parametrize(
+    "retrieved_at",
+    ("2026-06-30T00:00:00+00:00", "2026-07-02T00:00:00+00:00"),
+)
+def test_layer4_rejects_fragment_retrieval_outside_evidence_endpoints(
+    tmp_path: Path, retrieved_at: str
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    rows["evidence_fragments"][0]["source_retrieved_at_utc"] = retrieved_at
+
+    with pytest.raises(
+        DerivedAnalysisError, match="outside retained evidence observation endpoints"
+    ):
+        _build_accepted_canonical_lineage(tmp_path, rows)
+
+
+def test_layer4_rejects_fragment_not_matched_by_full_observation_history(
+    tmp_path: Path,
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    rows["evidence_records"][0]["latest_seen_run_id"] = "RUN-HYDRO-003"
+    rows["evidence_records"][0]["latest_seen_at_utc"] = (
+        "2026-07-03T00:00:00+00:00"
+    )
+    rows["record_observations"] = [
+        {
+            "evidence_id": "E-0001",
+            "run_id": "RUN-HYDRO-DESCRIPTIVE",
+            "observed_at_utc": "2026-07-01T00:00:00+00:00",
+        },
+        {
+            "evidence_id": "E-0001",
+            "run_id": "RUN-HYDRO-003",
+            "observed_at_utc": "2026-07-03T00:00:00+00:00",
+        },
+    ]
+
+    with pytest.raises(
+        DerivedAnalysisError,
+        match="does not match retained evidence observation history",
+    ):
         _build_accepted_canonical_lineage(tmp_path, rows)
 
 

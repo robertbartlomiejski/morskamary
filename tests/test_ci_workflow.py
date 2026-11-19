@@ -112,6 +112,33 @@ def test_full_analysis_workflow_uses_explicit_static_recovery_mode() -> None:
     assert '--baseline-root "$STATIC_COMPARE_ROOT"' in FULL_ANALYSIS_WORKFLOW_TEXT
 
 
+def test_full_analysis_artifact_includes_static_baseline_when_available() -> None:
+    job = FULL_ANALYSIS_WORKFLOW["jobs"]["run-analysis"]
+    upload_step = next(
+        step
+        for step in job["steps"]
+        if step.get("uses", "").startswith("actions/upload-artifact@")
+    )
+    paths = upload_step["with"]["path"].splitlines()
+    stage_step = next(
+        step
+        for step in job["steps"]
+        if step.get("name") == "Stage static baseline for artifact upload"
+    )
+
+    assert "outputs/" in paths
+    assert "data/derived/" in paths
+    assert "diagnostics/first-static-run/" in paths
+    assert (
+        stage_step["env"]["STATIC_COMPARE_ROOT"]
+        == "${{ runner.temp }}/full-analysis-static-baseline"
+    )
+    assert 'if [[ -d "$STATIC_COMPARE_ROOT" ]]' in stage_step["run"]
+    assert 'cp -R "$STATIC_COMPARE_ROOT/." diagnostics/first-static-run/' in (
+        stage_step["run"]
+    )
+
+
 def test_static_recovery_env_from_an_earlier_step_does_not_cover_later_steps() -> None:
     workflow = {
         "jobs": {

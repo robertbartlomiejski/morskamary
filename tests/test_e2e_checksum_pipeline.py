@@ -289,7 +289,33 @@ def test_e2e_checksum_pipeline_produces_preflight_clean_release_zip(
     )
     assert novelty_rc == 0
 
+    observation_path = db_dir / "evidence_observations.jsonl"
+    observation_rows = [
+        {
+            "evidence_id": record.evidence_id,
+            "run_id": record.first_seen_run_id,
+            "observed_at_utc": record.first_seen_at_utc,
+        }
+        for record in cumulative.evidence_records
+    ]
+    observation_path.write_text(
+        "".join(
+            json.dumps(row, sort_keys=True) + "\n"
+            for row in observation_rows
+        ),
+        encoding="utf-8",
+    )
     canonical_entries = _parse_checksum_manifest(db_dir / "_checksums.sha256")
+    canonical_entries["evidence_observations.jsonl"] = hashlib.sha256(
+        observation_path.read_bytes()
+    ).hexdigest()
+    (db_dir / "_checksums.sha256").write_text(
+        "".join(
+            f"{digest}  {name}\n"
+            for name, digest in sorted(canonical_entries.items())
+        ),
+        encoding="utf-8",
+    )
     assert canonical_entries["novelty_gate_report.json"] == hashlib.sha256(
         novelty_report_path.read_bytes()
     ).hexdigest()
@@ -332,6 +358,7 @@ def test_e2e_checksum_pipeline_produces_preflight_clean_release_zip(
     assert "CHECKSUMS.sha256" in names
     assert "RELEASE_MANIFEST.json" in names
     assert "data/csv/derived_competence_demands.csv" in names
+    assert "data/jsonl/evidence_observations.jsonl" in names
     assert "metadata/novelty_gate_report.json" in names
     assert "statistics/qmbd_cross_tables.csv" in names
     assert "  statistics/qmbd_cross_tables.csv\n" in checksums

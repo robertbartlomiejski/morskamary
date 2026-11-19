@@ -819,6 +819,9 @@ def test_package_contains_required_files(tmp_path: Path) -> None:
         names = set(archive.namelist())
         manifest = json.loads(archive.read("RELEASE_MANIFEST.json"))
         checksums = archive.read("CHECKSUMS.sha256").decode("utf-8")
+        packaged_observations = archive.read(
+            "data/jsonl/evidence_observations.jsonl"
+        )
         packaged_layer5 = json.loads(
             archive.read("metadata/layer5_manifest.json")
         )
@@ -839,6 +842,8 @@ def test_package_contains_required_files(tmp_path: Path) -> None:
     assert "protocol/live_query_protocol.yml" in names
     assert "provenance/raw_acquisition_index.csv" in names
     assert "data/jsonl/hypothesis_semantic_fragments.jsonl" in names
+    assert "data/jsonl/evidence_observations.jsonl" in names
+    assert packaged_observations == (db / "evidence_observations.jsonl").read_bytes()
 
     for schema_name in SCHEMA_V2_SCHEMA_FILENAMES:
         archive_name = f"schemas/{schema_name}"
@@ -851,6 +856,45 @@ def test_package_contains_required_files(tmp_path: Path) -> None:
         assert f"  {archive_name}\n" in checksums
 
     assert packaged_layer5["hypothesis_results"]["H3"]["hypothesis_id"] == "H3"
+
+
+@pytest.mark.parametrize(
+    ("timeline_contents", "expected_error"),
+    [
+        (None, "evidence_observations.jsonl"),
+        ("", "empty_jsonl:evidence_observations.jsonl"),
+        ("not-json\n", "malformed_jsonl:evidence_observations.jsonl:L1"),
+    ],
+)
+def test_package_rejects_missing_or_malformed_observation_timeline(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    timeline_contents: str | None,
+    expected_error: str,
+) -> None:
+    db = tmp_path / "db"
+    reports = tmp_path / "reports"
+    _write_min_bundle(db, reports)
+    timeline = db / "evidence_observations.jsonl"
+    if timeline_contents is None:
+        timeline.unlink()
+    else:
+        timeline.write_text(timeline_contents, encoding="utf-8")
+        _rewrite_checksums(db)
+    out = tmp_path / "pkg.zip"
+
+    rc = build_main([
+        "--database-dir", str(db),
+        "--reports-dir", str(reports),
+        "--output", str(out),
+        "--version-tag", "test",
+        "--generated-at-utc", "2026-07-10T00:00:00+00:00",
+        *_required_source_args(db),
+    ])
+
+    assert rc == 1
+    assert not out.exists()
+    assert expected_error in capsys.readouterr().err
 
 
 def test_reports_render_executable_h3(tmp_path: Path) -> None:
