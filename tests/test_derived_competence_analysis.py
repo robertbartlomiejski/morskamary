@@ -372,6 +372,52 @@ def test_layer4_rejects_fragment_not_matched_by_full_observation_history(
 
 
 @pytest.mark.parametrize(
+    "record_observations",
+    [
+        [],
+        [
+            {
+                "evidence_id": "E-OTHER",
+                "run_id": "RUN-OTHER",
+                "observed_at_utc": "2026-07-01T00:00:00+00:00",
+            }
+        ],
+    ],
+)
+def test_layer4_uses_endpoints_when_partial_history_omits_evidence(
+    tmp_path: Path,
+    record_observations: List[Dict[str, Any]],
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    rows["record_observations"] = record_observations
+
+    result = _build_accepted_canonical_lineage(tmp_path, rows)
+
+    assert len(result.derived_demands) == 1
+
+
+def test_layer4_rejects_out_of_range_fragment_with_partial_history(
+    tmp_path: Path,
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    rows["evidence_fragments"][0]["source_retrieved_at_utc"] = (
+        "2026-06-30T00:00:00+00:00"
+    )
+    rows["record_observations"] = [
+        {
+            "evidence_id": "E-OTHER",
+            "run_id": "RUN-OTHER",
+            "observed_at_utc": "2026-07-01T00:00:00+00:00",
+        }
+    ]
+
+    with pytest.raises(
+        DerivedAnalysisError, match="outside retained evidence observation endpoints"
+    ):
+        _build_accepted_canonical_lineage(tmp_path, rows)
+
+
+@pytest.mark.parametrize(
     ("mutation", "message"),
     [
         ("duplicate_assignment", "duplicate sector_competence_assignments"),

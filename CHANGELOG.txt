@@ -1685,18 +1685,9 @@ PR #270 review-address pass: reinforce corpus-screening interpretation boundarie
 
 2026-11-19
 Change type fix
-Scope scripts
-Files affected src/scientific_sources/derived_competence_analysis.py, tests/test_derived_competence_analysis.py
-Summary Layer 4 accepted-lineage latest observation (timestamp and run ID, paired) is derived from retained per-record observation history at the decision cutoff; it fails closed when a later occurrence superseded latest_seen_* and no history is supplied.
-Reason Review finding on PR #308 (issue #310): a post-decision occurrence changed accepted demand timestamps.
-Impact Accepted canonical demands keep decision-time latest_seen_* after later unreviewed occurrences; callers must pass record_observations when latest_seen_at_utc is after the decision.
-Quality checks pytest tests/ (1893 passed), flake8, mypy on touched module.
-
-2026-11-19
-Change type fix
 Scope pipeline
 Files affected .github/workflows/full-analysis.yml, scripts/build_live_cumulative_release_package.py, scripts/build_versioned_research_data_package.py, src/scientific_sources/derived_competence_analysis.py, tests/test_ci_workflow.py, tests/test_live_cumulative_release_package.py, tests/test_build_versioned_research_data_package.py, tests/test_derived_competence_analysis.py, tests/test_e2e_checksum_pipeline.py
-Summary Include the static reproducibility baseline in Full Analysis artifacts, require and preserve validated evidence observation timelines in both research package formats, and bind accepted fragments to retained observation endpoints/history.
-Reason Follow-up review findings on PR #311 identified missing static-run diagnostics and incomplete observation-history publication and lineage checks.
-Impact Package builds fail closed for absent or malformed timelines, and reviewed fragments cannot refer to retrievals outside retained record observations.
-Quality checks flake8, mypy, pytest (1903 passed), generated-output validation, and run-archive integrity validation passed.
+Summary Freeze accepted-lineage observations at the decision cutoff, validate reviewed fragments against retained endpoints/history, preserve validated observation timelines in both research package formats, and include the first static baseline in Full Analysis diagnostics.
+Reason Review findings on PR #308 (issue #310) and PR #311 identified post-decision timestamp drift, missing observation-history package handling, and incomplete static-run diagnostics.
+Impact Package builds fail closed for absent or malformed timelines, and reviewed fragments must match retained observations when available or fall within retained endpoints. Production Layer 4 wiring to the observation timeline remains dependent on PR #308; keep this PR blocked until the timeline is passed to build_layer4.
+Quality checks pytest tests/ (1906 passed), flake8, mypy, generated-output validation, and run-archive integrity validation passed.

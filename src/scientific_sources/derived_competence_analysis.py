@@ -1728,7 +1728,6 @@ def _validate_reviewed_fragment_observation(
     fragment: Mapping[str, Any],
     evidence: Mapping[str, Any],
     observations: Mapping[str, List[Tuple[datetime, str, str]]],
-    has_full_history: bool,
 ) -> None:
     """Require a reviewed fragment to fall within or match retained observations."""
     fragment_id = _lineage_row_id(fragment, "fragment_id")
@@ -1748,10 +1747,11 @@ def _validate_reviewed_fragment_observation(
             "accepted canonical lineage fragment retrieval is outside retained "
             f"evidence observation endpoints: {fragment_id}"
         )
-    if has_full_history and not any(
+    evidence_observations = observations.get(evidence_id, [])
+    if evidence_observations and not any(
         observed_at == retrieved_at
         and run_id == _lineage_row_id(fragment, "run_id")
-        for observed_at, run_id, _raw_timestamp in observations.get(evidence_id, [])
+        for observed_at, run_id, _raw_timestamp in evidence_observations
     ):
         raise DerivedAnalysisError(
             "accepted canonical lineage fragment retrieval does not match "
@@ -2336,7 +2336,6 @@ def _build_accepted_canonical_lineage_demands(
                 fragment,
                 evidence_by_id[candidate_evidence_id],
                 observation_index,
-                record_observations is not None,
             )
         if (
             set(_split_list(decision.get("evidence_ids")))
