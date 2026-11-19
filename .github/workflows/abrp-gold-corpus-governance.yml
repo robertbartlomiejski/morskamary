@@ -1,0 +1,108 @@
+name: ABRP Gold Corpus Governance
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  require-current-head-approval:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Require one non-author approval for governed gold-corpus changes
+        shell: python
+        run: |
+          import json
+          import os
+          import urllib.request
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          pr = os.environ["PR_NUMBER"]
+          author = os.environ["PR_AUTHOR"]
+          head = os.environ["HEAD_SHA"]
+          token = os.environ["GH_TOKEN"]
+
+          protected_prefixes = (
+              "schemas/abrp_gold_corpus.schema.json",
+              "data/gold_corpus/",
+              "docs/review_templates/abrp_",
+              "scripts/validate_abrp_gold_corpus.py",
+          )
+
+          def get_page(path):
+              request = urllib.request.Request(
+                  f"https://api.github.com/repos/{repo}{path}",
+                  headers={
+                      "Authorization": f"Bearer {token}",
+                      "Accept": "application/vnd.github+json",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                  },
+              )
+              with urllib.request.urlopen(request, timeout=20) as response:
+                  payload = json.load(response)
+              if not isinstance(payload, list):
+                  raise SystemExit(f"GitHub API returned non-list payload for {path}")
+              return payload
+
+          def get_all(path):
+              rows = []
+              page = 1
+              while True:
+                  sep = "&" if "?" in path else "?"
+                  batch = get_page(f"{path}{sep}per_page=100&page={page}")
+                  rows.extend(batch)
+                  if len(batch) < 100:
+                      return rows
+                  page += 1
+                  if page > 100:
+                      raise SystemExit(f"GitHub API pagination exceeded safety bound: {path}")
+
+          files = get_all(f"/pulls/{pr}/files")
+          protected = []
+          for row in files:
+              paths = [row.get("filename", "")]
+              previous_filename = row.get("previous_filename")
+              if previous_filename:
+                  paths.append(previous_filename)
+              if any(
+                  path == prefix or path.startswith(prefix)
+                  for path in paths
+                  for prefix in protected_prefixes
+              ):
+                  protected.extend(path for path in paths if path)
+          if not protected:
+              print("No governed gold-corpus paths changed; approval gate not applicable.")
+              raise SystemExit(0)
+
+          reviews = get_all(f"/pulls/{pr}/reviews")
+          latest = {}
+          decision_states = {"APPROVED", "CHANGES_REQUESTED", "DISMISSED"}
+          for review in reviews:
+              user = (review.get("user") or {}).get("login", "")
+              state = str(review.get("state", "")).upper()
+              if not user or user == author or state not in decision_states:
+                  continue
+              latest[user] = review
+
+          approvals = [
+              user
+              for user, review in latest.items()
+              if review.get("state") == "APPROVED"
+              and review.get("commit_id") == head
+          ]
+          if not approvals:
+              raise SystemExit(
+                  "Governed ABRP/gold-corpus change requires one non-author "
+                  "APPROVED review anchored to current HEAD."
+              )
+          print("Current-head governance approval(s):", ", ".join(sorted(approvals)))
