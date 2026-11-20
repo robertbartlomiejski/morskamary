@@ -8,8 +8,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Iterator
 
-from src.scientific_sources.cumulative_scientific_database import _normalize_doi
-
 PROVIDERS = {"crossref", "scopus", "openalex"}
 _SCHEMA = """
 CREATE TABLE pairs (
@@ -132,6 +130,9 @@ def record_reservation(attempt_id: str, provider: str, purpose: str) -> None:
 
 
 def _identity(provider: str, item: dict[str, Any]) -> tuple[str | None, str | None, str | None]:
+    # Route inventories run on bare Python; load scientific dependencies only for received works.
+    from src.scientific_sources.cumulative_scientific_database import _normalize_doi
+
     if provider == "scopus":
         source, doi, title = item.get("eid") or item.get("dc:identifier"), item.get("prism:doi"), item.get("dc:title")
     elif provider == "openalex":
